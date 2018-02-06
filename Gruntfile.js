@@ -3,8 +3,16 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
+    jsdoc : {
+        dist : {
+            src: ['librarySource/*.js'], 
+            dest: 'doc'
+        }
+    },
+
+
     jshint: {
-      files: ['Gruntfile.js', 'source/**/*.js'],
+      files: ['Gruntfile.js', 'librarySource/**/*.js'],
       options: {
         // options here to override JSHint defaults
         globals: {
@@ -17,10 +25,13 @@ module.exports = function(grunt) {
     },
   });
 
+  grunt.loadNpmTasks('grunt-jsdoc');
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('doc', ['jsdoc']);
+  
+  grunt.registerTask('hint', ['jshint']);
 
   grunt.registerTask('default', ['jshint']);
 
