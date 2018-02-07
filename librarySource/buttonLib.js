@@ -6,9 +6,6 @@
  * @param {String} idName name (id) of the button in the HTML page
  */
 
-/*
-idName String, name of id in html document
-*/
 function Button(idName) {
     "use strict";
     this.button = document.getElementById(idName);
@@ -26,7 +23,7 @@ function Button(idName) {
      */
     Button.prototype.onClick = function(action) {
         this.button.addEventListener('click', action, false);
-    }
+    };
 
     /**
      * add a change event listener for a button of type="text"
@@ -36,7 +33,7 @@ function Button(idName) {
      */
     Button.prototype.onChange = function(action) {
         this.button.addEventListener('change', action, false);
-    }
+    };
 
     /**
      * read the integer value of the text of a button of type="text"
@@ -45,7 +42,7 @@ function Button(idName) {
      */
     Button.prototype.getValue = function() {
         return parseInt(this.button.value, 10);
-    }
+    };
 
     /**
      * set the text of a button of type="text" according to a given number
@@ -54,5 +51,5 @@ function Button(idName) {
      */
     Button.prototype.setValue = function(number) {
         this.button.value = number.toString();
-    }
-}())
+    };
+}());

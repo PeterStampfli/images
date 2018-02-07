@@ -1,42 +1,43 @@
-"use strict";
+/**
+ * representing a radio button chooser and adding actions
+ * @example see chooserTest.html
+ *
+ * @constructor Chooser
+ * @param {String} className name (class) of the chooser in the HTML page
+ */
 
-/*
-object to simplify radio-button chooser
-*/
-
-/*
-<form action="">
-				Choose image smoothing:
-				<input type="radio" name="smoothing" class='smoothing' checked>none
-				<input type="radio" name="smoothing" class='smoothing'>2x2
-			</form>
-*/
-
-/*
-className String, name of class in html document
-*/
 function Chooser(className) {
+    "use strict";
     this.index = 0;
     this.buttons = document.getElementsByClassName(className);
 }
 
-/*
-action function(), what to do at click event
-*/
-Chooser.prototype.add = function(action) {
-    this.buttons[this.index++].addEventListener('click', action, false);
-}
+(function() {
+    "use strict";
+    /**
+     * add a click event listener to a radio button, starting with the first one,
+     * always going to the next one
+     * @method Chooser#add
+     * @param {function} action function without parameters, will be called upon a click event   
+     */
+    Chooser.prototype.add = function(action) {
+        this.buttons[this.index++].addEventListener('click', action, false);
+    };
 
-/*
-set n-th button to checked
-*/
-Chooser.prototype.setChecked = function(n) {
-    this.buttons[n].checked = true;
-}
+    /**
+     * set the n-th button to checked
+     * @method Chooser#setChecked
+     * @param {integer} n index of button (starting with 0)
+     */
+    Chooser.prototype.setChecked = function(n) {
+        this.buttons[n].checked = true;
+    };
 
-/*
-set first button to checked
-*/
-Chooser.prototype.setCheckedFirst = function() {
-    this.buttons[0].checked = true;
-}
+    /**
+     * set the first button to checked
+     * @method Chooser#setCheckedFirst
+     */
+    Chooser.prototype.setCheckedFirst = function() {
+        this.setChecked(0);
+    };
+}());
