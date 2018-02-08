@@ -6,18 +6,23 @@
  * @example see colorTest.html
  *
  * @constructor Color
+ * @param {integer} red - value for red component (default 0)
+  * @param {integer} green - value for green component (default 0)
+   * @param {integer} blue - value for blue component (default 0)
+    * @param {integer} alpha - value for alpha component (default 255)
  */
+ 
+ /* jshint esversion:6 */
 
-function Color() {
-    "use strict";
-    this.red = 0;
-    this.green = 0;
-    this.blue = 0;
+function Color(red=0,green=0,blue=0,alpha=255) {
+    	this.red = red;
+    this.green = green;
+    this.blue = blue; 
+     this.alpha = alpha;
     this.grey = 0;
     this.hue = 0;
     this.colorIntensity = 0;
     this.grey = 0;
-    this.alpha = 255;
 }
 
 (function() {
@@ -80,7 +85,7 @@ function Color() {
      */
     Color.prototype.bleach = function(t) {
         this.interpolate(t, Color.white);
-    }
+    };
 
     /**
      * simple color inversion (makes the negative)
@@ -90,8 +95,7 @@ function Color() {
         this.red = 255 - this.red;
         this.green = 255 - this.green;
         this.blue = 255 - this.blue;
-    }
-
+    };
 
     /**
      * improved color inversion (makes the negative hue)
@@ -102,7 +106,7 @@ function Color() {
         this.red = pixMaxMin - this.red;
         this.green = pixMaxMin - this.green;
         this.blue = pixMaxMin - this.blue;
-    }
+    };
 
     /**
      * color rotation, exchange components cyclically, r<-g<-b<-r
@@ -113,8 +117,7 @@ function Color() {
         this.red = this.green;
         this.green = this.blue;
         this.blue = h;
-    }
-
+    };
 
     /**
      * inverse color rotation, exchange components cyclically, r->g->b->r
@@ -125,7 +128,7 @@ function Color() {
         this.red = this.blue;
         this.blue = this.green;
         this.green = h;
-    }
+    };
 
     /**
      *determine hue, colorIntensity and grey from red,green and blue
@@ -160,7 +163,7 @@ function Color() {
             this.colorIntensity = blue;
             this.hue = (red > green) ? 4 + red / blue : 4 - green / blue;
         }
-    }
+    };
 
     /**
      * determine red, green and blue from hue, colorIntensity and grey
@@ -205,7 +208,7 @@ function Color() {
         this.red = Math.round(this.grey + this.red) & 0xff;
         this.green = Math.round(this.grey + this.green) & 0xff;
         this.blue = Math.round(this.grey + this.blue) & 0xff;
-    }
+    };
 
     /**
      * shift the hue to change the color
@@ -216,13 +219,11 @@ function Color() {
         this.higFromRgb();
         this.hue += amount;
         this.rgbFromHig();
-    }
-
+    };
 
     /**
      * white color (r=g=b=255)
      * @static Color.White
      */
-    Color.white = new Color();
-    Color.white.setRgb(255, 255, 255);
+    Color.white = new Color(255, 255, 255);
 }());
