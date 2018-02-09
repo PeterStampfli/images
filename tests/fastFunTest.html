@@ -1,29 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
+
 <head>
-	<title>fastFunTest</title>
+    <title>fastFunTest</title>
 </head>
+
 <body>
-				
-			check the console
+
+    check the console
 
 </body>
 
 
-	<script src="../librarySource/fastFunLib.js"></script>
+<script src="../librarySource/fastFunLib.js"></script>
+<script src="fastFunTest.js"></script>
+<script type="text/javascript">
+    console.log(fastCos(0.8))
 
-	<script type="text/javascript">
-	console.log(fastCos(0.8))
+    console.log(fastSin(0.8))
+    sc = [0, 0]
+    fastCosSin(0.8)
+    console.log(fastCosSin(0.8))
+    console.log(fastExp(0.5) * fastExp(0.5))
+    console.log(fastExp(1))
+    console.log(fastLog(2.7))
+    console.log(fastAtan2(1, 1))
+    console.log(fastGauss(2))
 
-console.log(fastSin(0.8))
-sc=[0,0]
-fastCosSin(0.8)
-console.log(fastCosSin(0.8))
-console.log(fastExp(0.5)*fastExp(0.5))
-console.log(fastExp(1))
-console.log(fastLog(2.7))
-console.log(fastAtan2(1,1))
-	</script>
+    n = 1000000
+
+    funTestTiming(Math.sin, 0, 10, n)
+    funTestTiming(fastSin, 0, 10, n)
+
+    funTestAbsError(Math.sin, fastSin, 0, 4, 1000)
+    funTestRelError(Math.sin, fastSin, 0, 4, 1000)
+    funTestCompare(Math.sin, fastSin, 0, 2, 20)
+</script>
 
 </html>

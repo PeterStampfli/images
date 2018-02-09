@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
+
 <head>
-	<title>chooserTest</title>
+    <title>chooserTest</title>
 </head>
+
 <body>
-				
-			<form action="" style="display: inline;">
-				Choose:
-				<input type="radio" name="interpolation" class='interpolation' checked>nearest
-				<input type="radio" name="interpolation" class='interpolation'>linear
-				<input type="radio" name="interpolation" class='interpolation'>cubic
-			</form>
+
+    <form action="" style="display: inline;">
+        Choose:
+        <input type="radio" name="interpolation" class='interpolation' checked>nearest
+        <input type="radio" name="interpolation" class='interpolation'>linear
+        <input type="radio" name="interpolation" class='interpolation'>cubic
+    </form>
 
 </body>
 
-	<script src="../librarySource/chooserLib.js"></script>
+<script src="../librarySource/chooserLib.js"></script>
 
 
-	<script type="text/javascript">
-	chooser=new Chooser('interpolation');
-	chooser.add(function(){
-		console.log("nearest");
-	});
-	chooser.add(function(){
-		console.log("linear");
-	});
-	chooser.add(function(){
-		console.log("cubic");
-	});
-	
-	chooser.setChecked(2);
-	chooser.setCheckedFirst();
-	</script>
+<script type="text/javascript">
+    chooser = new Chooser('interpolation');
+    chooser.add(function() {
+        console.log("nearest");
+    });
+    chooser.add(function() {
+        console.log("linear");
+    });
+    chooser.add(function() {
+        console.log("cubic");
+    });
+
+    chooser.setChecked(2);
+    chooser.setCheckedFirst();
+</script>
+
 </html>

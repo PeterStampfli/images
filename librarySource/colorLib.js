@@ -7,18 +7,18 @@
  *
  * @constructor Color
  * @param {integer} red - value for red component (default 0)
-  * @param {integer} green - value for green component (default 0)
-   * @param {integer} blue - value for blue component (default 0)
-    * @param {integer} alpha - value for alpha component (default 255)
+ * @param {integer} green - value for green component (default 0)
+ * @param {integer} blue - value for blue component (default 0)
+ * @param {integer} alpha - value for alpha component (default 255)
  */
- 
- /* jshint esversion:6 */
 
-function Color(red=0,green=0,blue=0,alpha=255) {
-    	this.red = red;
+/* jshint esversion:6 */
+
+function Color(red = 0, green = 0, blue = 0, alpha = 255) {
+    this.red = red;
     this.green = green;
-    this.blue = blue; 
-     this.alpha = alpha;
+    this.blue = blue;
+    this.alpha = alpha;
     this.grey = 0;
     this.hue = 0;
     this.colorIntensity = 0;

@@ -59,7 +59,7 @@ module.exports = function(grunt) {
         },
 
         jsbeautifier: {
-            files: ['Gruntfile.js', 'librarySource/**/*.js', 'triangleKaleidoscope/**/*.js', 'test/**/*.*'],
+            files: ['Gruntfile.js', 'librarySource/**/*.js', 'triangleKaleidoscope/**/*.js', 'tests/**/*.js'],
             options: {}
         },
 
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'librarySource/**/*.js'],
+            files: ['Gruntfile.js', 'librarySource/**/*.js', 'triangleKaleidoscope/**/*.js', 'tests/**/*.js'],
 
             options: {
                 // options here to override JSHint defaults

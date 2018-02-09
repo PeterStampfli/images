@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
+
 <head>
-	<title>buttonTest</title>
+    <title>buttonTest</title>
 </head>
+
 <body>
-	<p>
-	input a number
-	<input type="text"  id="aNumber" maxlength="4" /> 
-	<br>
-	do something		
-	<button type="button" id="doesSomething">
+    <p>
+        input a number
+        <input type="text" id="aNumber" maxlength="4" />
+        <br> do something
+        <button type="button" id="doesSomething">
 		do it!
 	</button>
-	</p>
+    </p>
 </body>
 
-	<script src="../librarySource/buttonLib.js"></script>
+<script src="../librarySource/buttonLib.js"></script>
 
 
-	<script type="text/javascript">
-	
-	numberButton=new Button("aNumber");
-	
-	
-	numberButton.onChange(function(){
-		console.log("number is "+numberButton.getValue());
-	});
-	
-	doButton=new Button("doesSomething");
-	
-	doButton.onClick(function(){
-		console.log("do something");
-		numberButton.setValue(2*numberButton.getValue());
-	});
+<script type="text/javascript">
+    numberButton = new Button("aNumber");
 
-	</script>
+
+    numberButton.onChange(function() {
+        console.log("number is " + numberButton.getValue());
+    });
+
+    doButton = new Button("doesSomething");
+
+    doButton.onClick(function() {
+        console.log("do something");
+        numberButton.setValue(2 * numberButton.getValue());
+    });
+</script>
+
 </html>
