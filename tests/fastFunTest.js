@@ -91,7 +91,7 @@ function funTestCompare(fun1, fun2, start, end, nSteps) {
     var x = start;
     var step = (end - start) / nSteps;
     var val1, val2, error;
-    console.log("compare:  x, true function, approximation, error");
+    console.log("compare:  x, first function, second function, error");
     while (x <= end + 0.01) {
         val1 = fun1(x);
         val2 = fun2(x);
@@ -101,4 +101,24 @@ function funTestCompare(fun1, fun2, start, end, nSteps) {
             " " + error.toPrecision(3));
         x += step;
     }
+}
+
+/**
+ * log a function at each data point
+ * @function funTestLog
+ * @param {function} fun - fun(x) returning a float, x is float
+ * @param {float} start - lower bound of intervall of test values
+ * @param {float} end - upper bound of intervall of test values
+ * @param {integer} nSteps - number of function evaluations
+ */
+function funTestLog(fun, start, end, nSteps) {
+    "use strict";
+    var x = start;
+    var step = (end - start) / nSteps;
+    console.log("logging:  x, function");
+    while (x <= end + 0.01) {
+        console.log(x.toPrecision(3) + " " + fun(x).toPrecision(3));
+        x += step;
+    }
+
 }

@@ -15,6 +15,7 @@
 
 <script src="../librarySource/fastFunLib.js"></script>
 <script src="fastFunTest.js"></script>
+<script src="../librarySource/fastTriangleWave.js"></script>
 <script type="text/javascript">
     console.log(fastCos(0.8))
 
@@ -28,14 +29,22 @@
     console.log(fastAtan2(1, 1))
     console.log(fastGauss(2))
 
-    n = 1000000
+    n = 1000
 
     funTestTiming(Math.sin, 0, 10, n)
     funTestTiming(fastSin, 0, 10, n)
 
-    funTestAbsError(Math.sin, fastSin, 0, 4, 1000)
-    funTestRelError(Math.sin, fastSin, 0, 4, 1000)
-    funTestCompare(Math.sin, fastSin, 0, 2, 20)
+    funTestAbsError(Math.sin, fastSin, 0, 4, 10)
+    funTestRelError(Math.sin, fastSin, 0, 4, 10)
+    funTestCompare(Math.sin, fastSin, 0, 2, 2)
+
+triangle=new FastWave()
+triangle.makeTable(10,FastWave.triangleSinLike)
+FastWave.setNHarmonics(1);
+funTestLog(FastWave.triangleExpansionSinLike,0,10,20)
+//funTestLog(FastWave.triangleCosLike,0,10,20)
+triangle.makeTriangleExpansionTable(2);
+triangle.sinLike(0.8);
 </script>
 
 </html>
