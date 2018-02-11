@@ -3,6 +3,11 @@ fast approximations to Fourier expansions of a triangle wave, or other periodic 
 period of 2*PI
 */
 
+/**
+ * fast approximations to periodic function, period of 2*PI
+ * @constructor FastWave
+ */
+
 function FastWave() {
     "use strict";
     this.tableCosLike = [];
@@ -12,21 +17,12 @@ function FastWave() {
 (function() {
     "use strict";
 
-    /*
-    make a table for a periodic function with a power of 2 number of intervalls
-    period length is 2pi
-    */
-    FastWave.prototype.makeTable = function(log2NIntervals, theFunction) {
-        var nIntervals = Math.round(Math.pow(2, log2NIntervals));
-        this.nIntervalsM1 = nIntervals - 1;
-        this.tabFactor = nIntervals / 2 / Math.PI;
-        this.tableSinLike = fastMakeTable(0, 2 * Math.PI, nIntervals, theFunction);
-    };
-
-    /*
-    the (static) triangle function, scaled to maximum value =1
-    period 2Pi, sin-like , is 0 for x=0
-    */
+    /**
+     * the (static) triangle function, scaled to maximum value =1, period 2Pi, sin-like , is 0 for x=0
+     * @function FastWave.triangleSinLike
+     * @param {float} x
+     * @return {float} the triangle function value
+     */
     FastWave.triangleSinLike = function(x) {
         var factor = 2 / Math.PI;
         x -= 2 * Math.PI * Math.floor(x * 0.5 / Math.PI);
@@ -39,25 +35,31 @@ function FastWave() {
         }
     };
 
-    /*
-    the (static) triangle function, scaled to maximum value =1
-    period 2Pi, cos-like , is 1 for x=0
-    */
+    /**
+     * the (static) triangle function, scaled to maximum value =1, period 2Pi, cos-like , is 1 for x=0
+     * @function FastWave.triangleCosLike
+     * @param {float} x
+     * @return {float} the triangle function value
+     */
     FastWave.triangleCosLike = function(x) {
         return FastWave.triangleSinLike(x + 0.5 * Math.PI);
     };
 
-    /*
-    set the number of harmonics
-    */
-    var nHarmonics;
+    /**
+     * set the number of (odd) harmonics for Fourier expansion
+     * @function  FastWave.setNHarmonics
+     * @param {integer} n - the number of harmonics, default=1
+     */
+    var nHarmonics=1;
     FastWave.setNHarmonics = function(n) {
         nHarmonics = n;
     };
 
-    /*
-    fourier expansion of the triangle function
-    normalized (Oscillating between -1 and 1), sin-like
+    /**
+    * Fourier expansion of the triangle function, using the number of harmonics set before, normalized (Oscillating between -1 and 1),  sin-like , is 0 for x=0
+* @function FastWave.triangleExpansionSinLike
+     * @param {float} x
+     * @return {float} the triangle function value
     */
     FastWave.triangleExpansionSinLike = function(x) {
         var sign = 1;
@@ -73,36 +75,35 @@ function FastWave() {
         return sum / maximum;
     };
 
-    /*
-    fourier expansion of the triangle function
-    normalized (Oscillating between -1 and 1), cos-like
+
+    /**
+    * Fourier expansion of the triangle function, normalized (Oscillating between -1 and 1),  cos-like , is 1 for x=0
+* @function FastWave.triangleExpansionCosLike
+     * @param {float} x
+     * @return {float} the triangle function value
     */
     FastWave.triangleExpansionCosLike = function(x) {
         return FastWave.triangleExpansionSinLike(x + 0.5 * Math.PI);
     };
 
-    /* make the tables
+    /** make the interpolation tables for the Fourier expansion of the triangle functions, sin and cos-like
+* @function FastWave#makeTriangleExpansionTable
+* @param {integer} n - number of odd harmonics
      */
-
     var nIntervals = Math.round(Math.pow(2, 12));
     var nIntervalsM1 = nIntervals - 1;
     var tabFactor = nIntervals / 2 / Math.PI;
-
-    FastWave.prototype.makeTriangleExpansionTable = function(n) {
+   FastWave.prototype.makeTriangleExpansionTable = function(n) {
         FastWave.setNHarmonics(n);
-
         this.tableSinLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionSinLike);
-
         this.tableCosLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionCosLike);
     };
 
-
-
     /**
-     * fast sin(x)-like function from interpolation
-     * @function fastSin
+    * fast linear interpolation of sin-like periodic function, is 0 for x=0
+     * @function FastWave#sinLike
      * @param {float} x
-     * @return {float} the sine function value at x
+     * @return {float} the function value at x
      */
     FastWave.prototype.sinLike = function(x) {
         var index;
