@@ -15,7 +15,7 @@
 
 <script src="../librarySource/fastFunLib.js"></script>
 <script src="fastFunTest.js"></script>
-<script src="../librarySource/fastTriangleWave.js"></script>
+<script src="../librarySource/fastWave.js"></script>
 <script type="text/javascript">
     console.log(fastCos(0.8))
 
@@ -38,13 +38,13 @@
     funTestRelError(Math.sin, fastSin, 0, 4, 10)
     funTestCompare(Math.sin, fastSin, 0, 2, 2)
 
-triangle=new FastWave()
-triangle.makeTable(10,FastWave.triangleSinLike)
+triangle=new FastWave();
+
 FastWave.setNHarmonics(1);
 funTestLog(FastWave.triangleExpansionSinLike,0,10,20)
 //funTestLog(FastWave.triangleCosLike,0,10,20)
 triangle.makeTriangleExpansionTable(2);
-triangle.sinLike(0.8);
+console.log(triangle.sinLike(3.14));
 </script>
 
 </html>

@@ -114,6 +114,39 @@ function FastWave() {
         return this.tableSinLike[index] * (1 - x) + this.tableSinLike[index + 1] * x;
     };
 
+    /**
+    * fast linear interpolation of cos-like periodic function, is 0 for x=0
+     * @function FastWave#cosLike
+     * @param {float} x
+     * @return {float} the function value at x
+     */
+    FastWave.prototype.cosLike = function(x) {
+        var index;
+        x *= tabFactor;
+        index = Math.floor(x);
+        x -= index;
+        index = index & nIntervalsM1;
+        return this.tableCosLike[index] * (1 - x) + this.tableCosLike[index + 1] * x;
+    };
+
+
+    /**
+     * pair of fast cos-like and sin-like function values from interpolation
+     * @function FastWave#cosSinLike
+     * @param {float} x
+     * @return {array} array [cos(x), sin(x)] of the function values, reused and modified at each calculation
+     */
+    var cosSin = [0, 0];
+    FastWave.prototype.cosSinLike = function(x) {
+        var index;
+        x *= sinTabFactor;
+        index = Math.floor(x);
+        x -= index;
+        index = index & nSinIntervalsM1;
+        cosSin[0] = this.tableCosLike[index] * (1 - x) + this.tableCosLike[index + 1] * x;
+        cosSin[1] = this.tableSinLike[index] * (1 - x) + this.tableSinLike[index + 1] * x;
+        return cosSin;
+    };
 
 
 }());
