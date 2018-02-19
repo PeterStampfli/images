@@ -50,17 +50,17 @@ function FastWave() {
      * @function  FastWave.setNHarmonics
      * @param {integer} n - the number of harmonics, default=1
      */
-    var nHarmonics=1;
+    var nHarmonics = 1;
     FastWave.setNHarmonics = function(n) {
         nHarmonics = n;
     };
 
     /**
-    * Fourier expansion of the triangle function, using the number of harmonics set before, normalized (Oscillating between -1 and 1),  sin-like , is 0 for x=0
-* @function FastWave.triangleExpansionSinLike
+     * Fourier expansion of the triangle function, using the number of harmonics set before, normalized (Oscillating between -1 and 1),  sin-like , is 0 for x=0
+     * @function FastWave.triangleExpansionSinLike
      * @param {float} x
      * @return {float} the triangle function value
-    */
+     */
     FastWave.triangleExpansionSinLike = function(x) {
         var sign = 1;
         var sum = 0;
@@ -77,30 +77,30 @@ function FastWave() {
 
 
     /**
-    * Fourier expansion of the triangle function, normalized (Oscillating between -1 and 1),  cos-like , is 1 for x=0
-* @function FastWave.triangleExpansionCosLike
+     * Fourier expansion of the triangle function, normalized (Oscillating between -1 and 1),  cos-like , is 1 for x=0
+     * @function FastWave.triangleExpansionCosLike
      * @param {float} x
      * @return {float} the triangle function value
-    */
+     */
     FastWave.triangleExpansionCosLike = function(x) {
         return FastWave.triangleExpansionSinLike(x + 0.5 * Math.PI);
     };
 
     /** make the interpolation tables for the Fourier expansion of the triangle functions, sin and cos-like
-* @function FastWave#makeTriangleExpansionTable
-* @param {integer} n - number of odd harmonics
+     * @function FastWave#makeTriangleExpansionTable
+     * @param {integer} n - number of odd harmonics
      */
     var nIntervals = Math.round(Math.pow(2, 12));
     var nIntervalsM1 = nIntervals - 1;
     var tabFactor = nIntervals / 2 / Math.PI;
-   FastWave.prototype.makeTriangleExpansionTable = function(n) {
+    FastWave.prototype.makeTriangleExpansionTable = function(n) {
         FastWave.setNHarmonics(n);
         this.tableSinLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionSinLike);
         this.tableCosLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionCosLike);
     };
 
     /**
-    * fast linear interpolation of sin-like periodic function, is 0 for x=0
+     * fast linear interpolation of sin-like periodic function, is 0 for x=0
      * @function FastWave#sinLike
      * @param {float} x
      * @return {float} the function value at x
@@ -115,7 +115,7 @@ function FastWave() {
     };
 
     /**
-    * fast linear interpolation of cos-like periodic function, is 0 for x=0
+     * fast linear interpolation of cos-like periodic function, is 0 for x=0
      * @function FastWave#cosLike
      * @param {float} x
      * @return {float} the function value at x

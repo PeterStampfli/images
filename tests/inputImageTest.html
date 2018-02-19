@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>inputImageTest</title>
+</head>
+
+<body>
+<p>    check the console</p>
+
+		<canvas id="canvas" ></canvas>
+
+</body>
+
+<script src="../librarySource/colorLib.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvasLib.js"></script>
+
+
+<script type="text/javascript">
+    console.log("hi");
+
+byteArray=new Uint8Array(4);
+
+intArray=new Int32Array(byteArray.buffer)
+
+byteArray[0]=11;
+byteArray[3]=255;
+console.log(byteArray)
+console.log(intArray)
+
+pc=new PixelCanvas("canvas")
+pc.setSize(300,300)
+pc.blueScreen()
+pc.createPixel()
+pc.setAlpha(128)
+pc.showPixel()
+
+console.log(pc.pixel[0])
+console.log(pc.pixel[0]>>>24)
+for (i=0;i<100;i++){
+pc.setOpaquePixel(1,i);
+}
+pc.showPixel()
+</script>
+
+</html>
