@@ -27,8 +27,8 @@ function PixelCanvas(idName) {
 (function() {
     "use strict";
 
-    var color = new Color();
 
+    var fileReader = new FileReader();
 
     /*
     set the size
@@ -42,7 +42,7 @@ function PixelCanvas(idName) {
             this.canvas.width = width;
             this.canvas.height = height;
         }
-    }
+    };
 
 
     /*
@@ -51,7 +51,7 @@ function PixelCanvas(idName) {
     PixelCanvas.prototype.blueScreen = function() {
         this.canvasContext.fillStyle = "Blue";
         this.canvasContext.fillRect(0, 0, this.width, this.height);
-    }
+    };
 
 
     /*
@@ -61,7 +61,7 @@ function PixelCanvas(idName) {
         this.imageData = this.canvasContext.getImageData(0, 0, this.width, this.height);
         this.pixelComponents = this.imageData.data;
         this.pixel = new Int32Array(this.pixelComponents.buffer);
-    }
+    };
 
 
     /*
@@ -69,7 +69,7 @@ function PixelCanvas(idName) {
     */
     PixelCanvas.prototype.showPixel = function() {
         this.canvasContext.putImageData(this.imageData, 0, 0);
-    }
+    };
 
 
     /*
@@ -79,7 +79,7 @@ function PixelCanvas(idName) {
         for (var i = this.pixelComponents.length - 1; i > 0; i -= 4) {
             this.pixelComponents[i] = alpha;
         }
-    }
+    };
 
 
     /*
@@ -92,7 +92,7 @@ function PixelCanvas(idName) {
         if ((x >= 0) && (x < this.width) && (y >= 0) && (y < this.height)) {
             this.pixelComponents[((this.width * y + x) << 2) + 3] = 255;
         }
-    }
+    };
 
 
     /*
@@ -103,7 +103,7 @@ function PixelCanvas(idName) {
         this.canvas.toBlob(function(blob) {
             saveAs(blob, fileName + '.jpg');
         }, 'image/jpeg', 0.92);
-    }
+    };
 
     /*
     save the image as png, needs fileSaver.js
@@ -113,6 +113,52 @@ function PixelCanvas(idName) {
         this.canvas.toBlob(function(blob) {
             saveAs(blob, fileName + '.png');
         }, 'image/png');
-    }
+    };
+
+
+
+    /*
+    read an image from a file, make its pixels and do some action (create output image)
+    */
+    PixelCanvas.prototype.readImage = function(file, action) {
+        var pixelCanvas = this;
+        var image = new Image();
+        image.onload = function() {
+            pixelCanvas.setSize(image.width, image.height);
+            pixelCanvas.canvasContext.drawImage(image, 0, 0);
+            image = null;
+            pixelCanvas.createPixel();
+            action();
+        };
+        fileReader.onload = function() {
+            image.src = fileReader.result;
+        };
+        fileReader.readAsDataURL(file);
+    };
+
+
+
+    /*
+    get color of nearest pixel
+    this.red=-1 for pixels lying outside
+    from pixelInterpolation.js
+    */
+
+
+    PixelCanvas.prototype.getNearest = function(color, x, y) {
+        x = Math.round(x);
+        y = Math.round(y);
+        var thePixel;
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
+            color.red = -1;
+        } else {
+            thePixel = this.pixel[x + y * this.width];
+            color.red = thePixel & 0xff;
+            color.green = (thePixel >> 8) & 0xff;
+            color.blue = (thePixel >> 16) & 0xff;
+        }
+        console.log(color);
+    };
+
 
 }());

@@ -9,10 +9,15 @@
 <body>
 <p>    check the console</p>
 
+		<p>
+				Input image file:
+			<input type="file" accept="image/*" id="imageInput" >
+</p>
+
 		<canvas id="canvas" ></canvas>
 
 </body>
-
+<script src="../librarySource/buttonLib.js"></script>
 <script src="../librarySource/colorLib.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
 <script src="../librarySource/pixelCanvasLib.js"></script>
@@ -43,6 +48,22 @@ for (i=0;i<100;i++){
 pc.setOpaquePixel(1,i);
 }
 pc.showPixel()
+
+var imageInputButton = new Button('imageInput');
+imageInputButton.onChange(function(){
+    pc.readImage(imageInputButton.button.files[0],function(){
+    	
+    	
+    	
+       console.log("actioncallback");
+console.log(pc.pixel[0])
+    });
+});
+
+c=new Color();
+console.log(c)
+pc.getNearest(c,10,20)
+console.log(c)
 </script>
 
 </html>
