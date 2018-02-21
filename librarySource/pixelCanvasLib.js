@@ -2,6 +2,9 @@
 idName String, name of id in html document
 (re)set size separately
 */
+
+/* jshint esversion:6 */
+
 function PixelCanvas(idName) {
     "use strict";
     if (arguments.length > 0) {
@@ -148,16 +151,47 @@ function PixelCanvas(idName) {
     PixelCanvas.prototype.getNearest = function(color, x, y) {
         x = Math.round(x);
         y = Math.round(y);
-        var thePixel;
         if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
             color.red = -1;
         } else {
-            thePixel = this.pixel[x + y * this.width];
+            const thePixel = this.pixel[x + y * this.width];
             color.red = thePixel & 0xff;
             color.green = (thePixel >> 8) & 0xff;
             color.blue = (thePixel >> 16) & 0xff;
         }
         console.log(color);
+    };
+
+    /*
+    get interpolated pixel color - linear interpolation
+    */
+    PixelCanvas.prototype.getLinear = function(color, x, y) {
+        const h = Math.floor(x);
+        const k = Math.floor(y);
+
+        if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
+            color.red = -1;
+        } else {
+            const dx = x - h;
+            const dy = y - k;
+            const pixel = this.pixel;
+            // the pixels
+            let i = h + this.width * k;
+            const pix00 = pixel[i];
+            const pix10 = pixel[i + 4];
+            i += this.width;
+            const pix01 = pixel[i];
+            const pix11 = pixel[i + 4];
+            //  the weights
+            const f00 = (1 - dx) * (1 - dy);
+            const f01 = (1 - dx) * dy;
+            const f10 = dx * (1 - dy);
+            const f11 = dy * dx;
+            // faster special method for rounding: BITwise or
+            color.red = 0 | (0.5 + f00 * (pix00 & 0xff) + f10 * (pix10 & 0xff) + f01 * (pix01 & 0xff) + f11 * (pix11 & 0xff));
+            color.green = 0 | (0.5 + f00 * (pix00 >> 8 & 0xff) + f10 * (pix10 >> 8 & 0xff) + f01 * (pix01 >> 8 & 0xff) + f11 * (pix11 >> 8 & 0xff));
+            color.blue = 0 | (0.5 + f00 * (pix00 >> 16 & 0xff) + f10 * (pix10 >> 16 & 0xff) + f01 * (pix01 >> 16 & 0xff) + f11 * (pix11 >> 16 & 0xff));
+        }
     };
 
 
