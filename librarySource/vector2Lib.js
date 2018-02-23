@@ -1,9 +1,11 @@
 // vector object for positions, for java use libgdx Vector2 ???
 
-function Vector2() {
-    "use strict";
-    this.x = 0;
-    this.y = 0;
+
+/* jshint esversion:6 */
+
+function Vector2(x = 0, y = 0) {
+    this.x = x;
+    this.y = y;
 }
 
 
@@ -183,9 +185,10 @@ function Vector2() {
     // reducing the angle
 
     Vector2.prototype.angle = function() {
-        return elementaryFastFunction.atan2(this.y, this.x);
+        return fastAtan2(this.y, this.x);
     };
 
+    // Math.sqrt is very fast, as fast as fastSin
     Vector2.prototype.radius = function() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     };
@@ -195,41 +198,33 @@ function Vector2() {
     };
 
     Vector2.prototype.setPolar = function(r, angle) {
-        var index;
-        angle *= elementaryFastFunction.sinTabFactor;
-        index = Math.floor(angle);
-        angle -= index;
-        index = index & elementaryFastFunction.nSinIntervalsM1;
-        this.x = (elementaryFastFunction.cosTable[index] * (1 - angle) + elementaryFastFunction.cosTable[index + 1] * angle) * r;
-        this.y = (elementaryFastFunction.sinTable[index] * (1 - angle) + elementaryFastFunction.sinTable[index + 1] * angle) * r;
+        fastCosSin(angle);
+        this.x = r * fastCosResult;
+        this.y = r * fastSinResult;
     };
 
     // make n-fold rotational symmetry with mirror symmetry
-    //  returns 0 if no mapping, even number if rotation without mirror, 1 if mirror only
+    //  returns 0 if no mapping, even if rotation without mirror, 1 if mirror only or mirror and rotation
 
-    // by replicating the first sector  phi in(0,PI/n)
+    // by replicating the first sector  0<phi<PI/n
 
     Vector2.prototype.rotationMirrorSymmetry = function(n) {
-        var angle = elementaryFastFunction.atan2(this.y, this.x);
-        var parity, r, index;
-        angle *= n * 0.159154; // n/2pi
+        var angle = fastAtan2(this.y, this.x);
+        var parity, r;
+        n *= 0.159154; // n/2pi
+        angle *= n;
         parity = Math.floor(angle);
-        angle = angle - parity;
-        if (parity != 0) {
-            parity = 2;
-        }
+        angle -= parity;
+        parity = parity < 1;
         if (angle > 0.5) {
             angle = 1 - angle;
             parity = 1;
         }
-        angle *= 6.28318 / n;
+        angle /= n;
         r = Math.sqrt(this.x * this.x + this.y * this.y);
-        angle *= elementaryFastFunction.sinTabFactor;
-        index = Math.floor(angle);
-        angle -= index;
-        index = index & elementaryFastFunction.nSinIntervalsM1;
-        this.x = (elementaryFastFunction.cosTable[index] * (1 - angle) + elementaryFastFunction.cosTable[index + 1] * angle) * r;
-        this.y = (elementaryFastFunction.sinTable[index] * (1 - angle) + elementaryFastFunction.sinTable[index + 1] * angle) * r;
+        fastCosSin(angle);
+        this.x = r * fastCosResult;
+        this.y = r * fastSinResult;
 
         return parity;
     };
@@ -237,20 +232,22 @@ function Vector2() {
 
     // make n-fold rotational symmetry 
 
-    // by replicating the first sector  phi in(0,2PI/n)
+    // by replicating the first sector  0<phi<2PI/n
 
     Vector2.prototype.rotationSymmetry = function(n) {
-        var angle = elementaryFastFunction.atan2(this.y, this.x);
-        var parity;
-        angle *= n * 0.159154; // n/2pi
+        var angle = fastAtan2(this.y, this.x);
+        var parity, r;
+        n *= 0.159154; // n/2pi
+        angle *= n;
         parity = Math.floor(angle);
-        angle = angle - parity;
-        if (parity != 0) {
-            parity = 2;
-        }
-        angle *= 6.28318 / n;
-        this.setPolar(this.radius(), angle);
-        return parity;
+        angle -= parity;
+        angle /= n;
+        r = Math.sqrt(this.x * this.x + this.y * this.y);
+        fastCosSin(angle);
+        this.x = r * fastCosResult;
+        this.y = r * fastSinResult;
+
+        return parity < 1;
     };
 
 
@@ -262,14 +259,16 @@ function Vector2() {
 
 
     // make smooth n-fold rotational symmetry with mirror symmetry
-    Vector2.prototype.rotationMirrorSmooth = function(n) {
-        var angle = this.angle();
-        angle *= n * 0.159154; // n/2pi
+    Vector2.prototype.rotationMirrorSmooth = function(n, fastWave) {
+        var angle = fastAtan2(this.y, this.x);
+        angle *= n;
 
-        angle = 0.5 * imageFastFunction.periodicMapping(angle);
-
-        angle *= 6.28318 / n;
-        this.setPolar(this.radius(), angle);
+        angle -= parity;
+        angle /= n;
+        r = Math.sqrt(this.x * this.x + this.y * this.y);
+        fastCosSin(angle);
+        this.x = r * fastCosResult;
+        this.y = r * fastSinResult;
     };
 
 

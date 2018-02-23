@@ -12,7 +12,7 @@
 
 </body>
 
-
+<script src="../librarySource/vector2Lib.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
 <script src="fastFunTest.js"></script>
 <script src="../librarySource/fastWave.js"></script>
@@ -29,19 +29,19 @@
     console.log(fastAtan2(1, 1))
     console.log(fastGauss(2))
 
-    n = 1000
+    n = 10000000
 
     funTestTiming(Math.sin, 0, 10, n)
     funTestTiming(fastSin, 0, 10, n)
-
+    funTestTiming(Math.sqrt, 0, 10, n)
     funTestAbsError(Math.sin, fastSin, 0, 4, 10)
     funTestRelError(Math.sin, fastSin, 0, 4, 10)
     funTestCompare(Math.sin, fastSin, 0, 2, 2)
 
 triangle=new FastWave();
 
-FastWave.setNHarmonics(1);
-funTestLog(FastWave.triangleExpansionSinLike,0,10,20)
+triangle.makeTriangleExpansionTable(2);
+//funTestLog(FastWave.triangleExpansionSinLike,0,10,20)
 //funTestLog(FastWave.triangleCosLike,0,10,20)
 triangle.makeTriangleExpansionTable(2);
 console.log(triangle.sinLike(3.14));

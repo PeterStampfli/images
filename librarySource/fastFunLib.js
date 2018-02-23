@@ -1,10 +1,14 @@
 /*
 approximating functions with linear table interpolation
 */
+
+/* jshint esversion:6 */
+
 var fastMakeTable;
 var fastSin, fastCos, fastCosSin;
 var fastExp, fastLog, fastAtan2;
 var fastGauss, fastOriginalGauss;
+var fastSinResult, fastCosResult;
 
 (function() {
     "use strict";
@@ -37,8 +41,10 @@ var fastGauss, fastOriginalGauss;
     var nIntervals = Math.round(Math.pow(2, 12));
     var nSinIntervalsM1 = nIntervals - 1;
     var sinTabFactor = nIntervals / 2 / Math.PI;
-    var sinTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.sin);
-    var cosTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.cos);
+    const sinTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.sin);
+
+
+    const cosTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.cos);
 
     /**
      * fast sin(x) function from interpolation
@@ -72,20 +78,18 @@ var fastGauss, fastOriginalGauss;
 
     /**
      * pair of fast cos and sin function values from interpolation
+     * results in global vars fastSinResult and fastCoeResult
      * @function fastCosSin
      * @param {float} x
-     * @return {array} array [cos(x), sin(x)] of the function values, reused and modified at each calculation
      */
-    var cosSin = [0, 0];
     fastCosSin = function(x) {
         var index;
         x *= sinTabFactor;
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        cosSin[0] = cosTable[index] * (1 - x) + cosTable[index + 1] * x;
-        cosSin[1] = sinTable[index] * (1 - x) + sinTable[index + 1] * x;
-        return cosSin;
+        fastCosResult = cosTable[index] * (1 - x) + cosTable[index + 1] * x;
+        fastSinResult = sinTable[index] * (1 - x) + sinTable[index + 1] * x;
     };
 
     /*
