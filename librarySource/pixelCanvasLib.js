@@ -193,7 +193,6 @@ function PixelCanvas(idName) {
         };
     }
 
-
     /**
      * get color of linearly interpolated canvas pixel to given position
      * returns color.red=-1 for pixels lying outside the canvas
@@ -260,7 +259,6 @@ function PixelCanvas(idName) {
         };
     }
 
-
     /*
     get interpolated pixel color - cubic interpolation
     */
@@ -271,71 +269,140 @@ function PixelCanvas(idName) {
         return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
     }
 
+    /**
+     * get color of cubic interpolated canvas pixel to given position
+     * returns color.red=-1 for pixels lying outside the canvas
+     * @method PixelCanvas#getCubic
+     * @param {Color} color - will be set to the interpolated color of canvas image
+     * @param {float} x - coordinate of point to check
+     * @param {float} y - coordinate of point to check
+     */
+    if (abgrOrder) {
+        InputImage.prototype.getCubic = function(color, x, y) {
+            const h = Math.floor(x);
+            const k = Math.floor(y);
+            if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
+                color.red = -1;
+            } else {
+                const dx = x - h;
+                const dy = y - k;
+                const pixel = this.pixel;
+                // y (vertical position) dependent values
+                const kym = kernel(1 + dy);
+                const ky0 = kernel(dy);
+                const ky1 = kernel(1 - dy);
+                const ky2 = kernel(2 - dy);
+                // combined indices, for different heights at same x-position
+                const width = this.width;
+                let index0 = width * k + h - 1;
+                let indexM = index0 - width;
+                let index1 = index0 + width;
+                let index2 = index1 + width;
+                let pixM = pixel[indexM++];
+                let pix0 = pixel[index0++];
+                let pix1 = pixel[index1++];
+                let pix2 = pixel[index2++];
+                let kx = kernel(1 + dx);
+                let red = kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                let green = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                let blue = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // the second column, just at the left of (x,y), skipping alpha
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                //  the third column, just at the right of (x,y)
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(1 - dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // the forth column
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(2 - dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // beware of negative values, with accelerated rounding
+                color.red = red > 0 ? 0 | (red + 0.5) : 0;
+                color.green = green > 0 ? 0 | (green + 0.5) : 0;
+                color.blue = blue > 0 ? 0 | (blue + 0.5) : 0;
+            }
+        };
+    } else {
+        InputImage.prototype.getCubic = function(color, x, y) {
+            const h = Math.floor(x);
+            const k = Math.floor(y);
+            if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
+                color.red = -1;
+            } else {
+                const dx = x - h;
+                const dy = y - k;
+                const pixel = this.pixel;
+                // y (vertical position) dependent values
+                const kym = kernel(1 + dy);
+                const ky0 = kernel(dy);
+                const ky1 = kernel(1 - dy);
+                const ky2 = kernel(2 - dy);
+                // combined indices, for different heights at same x-position
+                const width = this.width;
+                let index0 = width * k + h - 1;
+                let indexM = index0 - width;
+                let index1 = index0 + width;
+                let index2 = index1 + width;
 
+                let pixM = pixel[indexM++];
+                let pix0 = pixel[index0++];
+                let pix1 = pixel[index1++];
+                let pix2 = pixel[index2++];
 
-    InputImage.prototype.getCubic = function(color, x, y) {
-        const h = Math.floor(x);
-        const k = Math.floor(y);
-        if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-            color.red = -1;
-        } else {
-            const dx = x - h;
-            const dy = y - k;
-            const pixel = this.pixel;
-            // y (vertical position) dependent values
-            const kym = kernel(1 + dy);
-            const ky0 = kernel(dy);
-            const ky1 = kernel(1 - dy);
-            const ky2 = kernel(2 - dy);
-            // combined indices, for different heights at same x-position
-            const width = this.width;
-            let index0 = width * k + h - 1;
-            let indexM = index0 - width;
-            let index1 = index0 + width;
-            let index2 = index1 + width;
-
-            let pixM = pixel[indexM++];
-            let pix0 = pixel[index0++];
-            let pix1 = pixel[index1++];
-            let pix2 = pixel[index2++];
-
-            let kx = kernel(1 + dx);
-            let red = kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
-            let green = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
-            let blue = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-            // the second column, just at the left of (x,y), skipping alpha
-            pixM = pixel[indexM++];
-            pix0 = pixel[index0++];
-            pix1 = pixel[index1++];
-            pix2 = pixel[index2++];
-            kx = kernel(dx);
-            red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
-            green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
-            blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-            //  the third column, just at the right of (x,y)
-            pixM = pixel[indexM++];
-            pix0 = pixel[index0++];
-            pix1 = pixel[index1++];
-            pix2 = pixel[index2++];
-            kx = kernel(1 - dx);
-            red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
-            green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
-            blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-            // the forth column
-            pixM = pixel[indexM++];
-            pix0 = pixel[index0++];
-            pix1 = pixel[index1++];
-            pix2 = pixel[index2++];
-            kx = kernel(2 - dx);
-            red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
-            green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
-            blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-            // beware of negative values, with accelerated rounding
-            color.red = red > 0 ? 0 | (red + 0.5) : 0;
-            color.green = green > 0 ? 0 | (green + 0.5) : 0;
-            color.blue = blue > 0 ? 0 | (blue + 0.5) : 0;
-        }
-
-    };
+                let kx = kernel(1 + dx);
+                let red = kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                let green = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                let blue = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // the second column, just at the left of (x,y), skipping alpha
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                //  the third column, just at the right of (x,y)
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(1 - dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // the forth column
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(2 - dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // beware of negative values, with accelerated rounding
+                color.red = red > 0 ? 0 | (red + 0.5) : 0;
+                color.green = green > 0 ? 0 | (green + 0.5) : 0;
+                color.blue = blue > 0 ? 0 | (blue + 0.5) : 0;
+            }
+        };
+    }
 
 }());

@@ -4,25 +4,25 @@ approximating functions with linear table interpolation
 
 /* jshint esversion:6 */
 
-var fastMakeTable;
-var fastSin, fastCos, fastCosSin;
-var fastExp, fastLog, fastAtan2;
-var fastGauss, fastOriginalGauss;
-var fastSinResult, fastCosResult;
+/**
+ * @namespace Fast
+ */
+var Fast = {};
 
 (function() {
     "use strict";
 
     /**
      * make a table of function values for linear interpolation
-     * @function fastMakeTable
+     * @function makeTable
+     * @memberof Fast
      * @param {float} start - the table starts here
      * @param {float} end - the table ends here
      * @param {integer} nIntervals - number of intervals between start and end
      * @param {function} theFunction - depends on x, make a table for this function
      * @return {array} array of floats, length is nIntervals+2 (required for "interpolation" at x===end)
      */
-    fastMakeTable = function(start, end, nIntervals, theFunction) {
+    Fast.makeTable = function(start, end, nIntervals, theFunction) {
         var table = [];
         var step = (end - start) / nIntervals;
         var x = start;
@@ -35,24 +35,26 @@ var fastSinResult, fastCosResult;
         return table;
     };
 
+
     /*
-    prparing for the fast sine and cosine functions
+    preparing for the fast sine and cosine functions
     */
     var nIntervals = Math.round(Math.pow(2, 12));
     var nSinIntervalsM1 = nIntervals - 1;
     var sinTabFactor = nIntervals / 2 / Math.PI;
-    const sinTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.sin);
+    const sinTable = Fast.makeTable(0, 2 * Math.PI, nIntervals, Math.sin);
 
 
-    const cosTable = fastMakeTable(0, 2 * Math.PI, nIntervals, Math.cos);
+    const cosTable = Fast.makeTable(0, 2 * Math.PI, nIntervals, Math.cos);
 
     /**
      * fast sin(x) function from interpolation
-     * @function fastSin
+     * @function sin
+     * @memberof Fast
      * @param {float} x
      * @return {float} the sine function value at x
      */
-    fastSin = function(x) {
+    Fast.sin = function(x) {
         var index;
         x *= sinTabFactor;
         index = Math.floor(x);
@@ -63,11 +65,12 @@ var fastSinResult, fastCosResult;
 
     /**
      * fast cos(x) function from interpolation
-     * @function fastCos
+     * @function cos
+     * @memberof Fast
      * @param {float} x
      * @return {float} the cosine function value at x
      */
-    fastCos = function(x) {
+    Fast.cos = function(x) {
         var index;
         x *= sinTabFactor;
         index = Math.floor(x);
@@ -79,10 +82,23 @@ var fastSinResult, fastCosResult;
     /**
      * pair of fast cos and sin function values from interpolation
      * results in global vars fastSinResult and fastCoeResult
-     * @function fastCosSin
+     * @function cosSin
+     * @memberof Fast
      * @param {float} x
      */
-    fastCosSin = function(x) {
+
+    /**
+     * last cosine value calculated by Fast.cosSin
+     * @var {float} cosResult 
+     * @memberof Fast
+     */
+
+    /**
+     * last sine value calculated by Fast.cosSin
+     * @var {float} sinResult 
+     * @memberof Fast
+     */
+    Fast.cosSin = function(x) {
         var index;
         x *= sinTabFactor;
         index = Math.floor(x);
@@ -99,12 +115,12 @@ var fastSinResult, fastCosResult;
     var expMinArgument = Math.floor(Math.log(Number.MIN_VALUE));
     var expTabIntPartMaxIndex = expMaxArgument - expMinArgument;
 
-    var expTabIntPart = fastMakeTable(expMinArgument, expMaxArgument, expTabIntPartMaxIndex, Math.exp);
+    var expTabIntPart = Fast.makeTable(expMinArgument, expMaxArgument, expTabIntPartMaxIndex, Math.exp);
     nIntervals = 1000;
     var expTabFracFactor = nIntervals;
-    var expTabFracPart = fastMakeTable(0, 1, nIntervals, Math.exp);
+    var expTabFracPart = Fast.makeTable(0, 1, nIntervals, Math.exp);
 
-    fastExp = function(x) {
+    Fast.exp = function(x) {
         var indexToIntPart, indexToFractPart;
         indexToIntPart = Math.floor(x);
         x = expTabFracFactor * (x - indexToIntPart);
@@ -119,17 +135,18 @@ var fastSinResult, fastCosResult;
     */
     nIntervals = 1000;
     var logTabFactor = nIntervals;
-    var logTable = fastMakeTable(1, 2, nIntervals, Math.log);
+    var logTable = Fast.makeTable(1, 2, nIntervals, Math.log);
 
 
     /**
      * fast log function, fallback to native log for large value, using inversion for small values
      * slower than native log for chrome, twice times faster for firefox
-     * @function fastLog
+     * @function log
+     * @memberof Fast
      * @param {float} x
      * @return {float} the log(x) value
      */
-    fastLog = function(x) {
+    Fast.log = function(x) {
         var index;
         var ln = 0;
         var iX;
@@ -180,17 +197,18 @@ var fastSinResult, fastCosResult;
     */
     nIntervals = 1000;
     var atanTabFactor = nIntervals;
-    var atanTable = fastMakeTable(0, 1, nIntervals, Math.atan);
+    var atanTable = Fast.makeTable(0, 1, nIntervals, Math.atan);
 
     /**
      * the fast atan2 function (for polar coordinates)
-     * @function fastAtan2
+     * @function atan2
+     * @memberof Fast
      * @param {float} y - r*sin(atan2(y,x))
      * @param {float} x - r*cos(atan2(y,x))
      * @return {float} the atan2(y,x) value
      */
 
-    fastAtan2 = function(y, x) {
+    Fast.atan2 = function(y, x) {
         var index;
         if (x >= 0) {
             if (y > 0) {
@@ -249,12 +267,13 @@ var fastSinResult, fastCosResult;
 
     /**
     * the original (slow) gauss function exp(-x * x)
-* @function fastOriginalGauss
-* @param {float} x
-* @return {float} the exp(-x * x) value
+	* @function originalGauss
+	* @memberof Fast
+	* @param {float} x
+	* @return {float} the exp(-x * x) value
 
     */
-    fastOriginalGauss = function(x) {
+    Fast.originalGauss = function(x) {
         return Math.exp(-x * x);
     };
 
@@ -264,15 +283,16 @@ var fastSinResult, fastCosResult;
 
     nIntervals = 2000;
     var gaussTabFactor = 0.25 * nIntervals;
-    var gaussTable = fastMakeTable(0, 4, nIntervals, fastOriginalGauss);
+    var gaussTable = Fast.makeTable(0, 4, nIntervals, Fast.originalGauss);
 
     /**
      * look up gauss for small args, equal to zero for abs(x)>4
-     * @function fastGauss
+     * @function gauss
+     * @memberof Fast
      * @param {float} x
      * @return {float} the exp(-x * x) value
      */
-    fastGauss = function(x) {
+    Fast.gauss = function(x) {
         var index;
         x = Math.abs(x);
         if (x >= 4) {

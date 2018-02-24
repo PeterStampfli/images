@@ -17,26 +17,28 @@
 <script src="fastFunTest.js"></script>
 <script src="../librarySource/fastWave.js"></script>
 <script type="text/javascript">
-    console.log(fastCos(0.8))
+    console.log(Fast.cos(0.8))
 
-    console.log(fastSin(0.8))
-    sc = [0, 0]
-    fastCosSin(0.8)
-    console.log(fastCosSin(0.8))
-    console.log(fastExp(0.5) * fastExp(0.5))
-    console.log(fastExp(1))
-    console.log(fastLog(2.7))
-    console.log(fastAtan2(1, 1))
-    console.log(fastGauss(2))
+    console.log(Fast.sin(0.8))
+
+
+    console.log(Fast.exp(0.5) )
+    console.log(Fast.exp(1))
+    console.log(Fast.log(2.7))
+    console.log(Fast.atan2(1, 1))
+    console.log(Fast.gauss(2))
 
     n = 10000000
 
+
+
     funTestTiming(Math.sin, 0, 10, n)
-    funTestTiming(fastSin, 0, 10, n)
-    funTestTiming(Math.sqrt, 0, 10, n)
-    funTestAbsError(Math.sin, fastSin, 0, 4, 10)
-    funTestRelError(Math.sin, fastSin, 0, 4, 10)
-    funTestCompare(Math.sin, fastSin, 0, 2, 2)
+
+    funTestTiming(Fast.sin, 0, 10, n)
+
+    funTestAbsError(Math.sin, Fast.sin, 0, 4, 10)
+    funTestRelError(Math.sin, Fast.sin, 0, 4, 10)
+    funTestCompare(Math.sin, Fast.sin, 0, 2, 2)
 
 triangle=new FastWave();
 

@@ -90,8 +90,8 @@ function FastWave() {
     var tabFactor = nIntervals / 2 / Math.PI;
     FastWave.prototype.makeTriangleExpansionTable = function(n) {
         nHarmonics = n;
-        this.tableSinLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionSinLike);
-        this.tableCosLike = fastMakeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionCosLike);
+        this.tableSinLike = Fast.makeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionSinLike);
+        this.tableCosLike = Fast.makeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionCosLike);
     };
 
     /**
