@@ -104,8 +104,8 @@ var Fast = {};
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        fastCosResult = cosTable[index] * (1 - x) + cosTable[index + 1] * x;
-        fastSinResult = sinTable[index] * (1 - x) + sinTable[index + 1] * x;
+        Fast.cosResult = cosTable[index] * (1 - x) + cosTable[index + 1] * x;
+        Fast.sinResult = sinTable[index] * (1 - x) + sinTable[index + 1] * x;
     };
 
     /*

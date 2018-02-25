@@ -1,7 +1,42 @@
 /**
- * canvas methods for using pixels, reading input image
+ * a canvas wrapper with methods for using pixels, reading input image
  * @constructor PixelCanvas
  * @param {String} idName - html identifier for onscreen canvas, or no parameter for off-screen canvas
+ */
+
+/**
+ * width of the canvas
+ * @var PixelCanvas#width {integer}
+ */
+
+/**
+ * height of the canvas
+ * @var PixelCanvas#height {integer}
+ */
+
+/**
+ * the basic javascript canvas object
+ * @var PixelCanvas#canvas {Canvas}
+ */
+
+/**
+ * the canvas 2d context for drawing
+ * @var PixelCanvas#canvasContext {Canvas2DContext}
+ */
+
+/**
+ * the canvas image data object with pixel data
+ * @var PixelCanvas#imageData {CanvasImageData}
+ */
+
+/**
+ * the pixel data as an unsigned integer array, a 4 byte integer for each pixel, machine dependent packing of bytes
+ * @var PixelCanvas#pixel {Uint32Array}
+ */
+
+/**
+ * the pixel data as a byte array, 4 single byte numbers for each pixel
+ * @var PixelCanvas#pixelComponents {Uint8ClampedArray}
  */
 
 /* jshint esversion:6 */
@@ -43,7 +78,6 @@ function PixelCanvas(idName) {
         }
     };
 
-
     /**
      * make a blue screen
      * @method PixelCanvas#blueScreen
@@ -61,7 +95,7 @@ function PixelCanvas(idName) {
     PixelCanvas.prototype.createPixel = function() {
         this.imageData = this.canvasContext.getImageData(0, 0, this.width, this.height);
         this.pixelComponents = this.imageData.data;
-        this.pixel = new Int32Array(this.pixelComponents.buffer);
+        this.pixel = new Uint32Array(this.pixelComponents.buffer);
     };
 
     /**
@@ -100,7 +134,7 @@ function PixelCanvas(idName) {
 
     /**
     * save the image as jpg, needs fileSaver.js
-* @mathod PixelCanvas#saveImageJpg
+* @method PixelCanvas#saveImageJpg
 * @param {String} fileName - name for the output file, without extension
     fileName String, name of file without extension
     */
@@ -112,7 +146,7 @@ function PixelCanvas(idName) {
 
     /**
     * save the image as png, needs fileSaver.js
-* @mathod PixelCanvas#saveImagePng
+* @method PixelCanvas#saveImagePng
 * @param {String} fileName - name for the output file, without extension
     fileName String, name of file without extension
     */
@@ -145,6 +179,40 @@ function PixelCanvas(idName) {
         fileReader.readAsDataURL(file);
     };
 
+    /**
+     * calculate average color of opaque pixels
+     * @method PixelCanvas#averageColor
+     * @param {Color} color - will be set to average color
+     */
+    PixelCanvas.prototype.averageColor = function(color) {
+        const length = this.pixel.length;
+        const pixelComponents = this.pixelComponents;
+        let i4 = 0;
+        let averageRed = 0;
+        let averageGreen = 0;
+        let averageBlue = 0;
+        let averageSum = 0;
+        for (var i = 0; i < length; i++) {
+            i4 = 4 * i;
+            if (pixelComponents[i4 + 3] > 200) {
+                averageSum++;
+                averageRed += pixelComponents[i4];
+                averageGreen += pixelComponents[i4 + 1];
+                averageBlue += pixelComponents[i4 + 2];
+            }
+        }
+        if (averageSum > 0) {
+            color.red = averageRed / averageSum;
+            color.green = averageGreen / averageSum;
+            color.blue = averageBlue / averageSum;
+        } else {
+            color.red = 0;
+            color.green = 0;
+            color.blue = 0;
+        }
+        color.alpha = 255;
+    };
+
     /*
     check byte order
     abgrOrder means
@@ -152,8 +220,48 @@ function PixelCanvas(idName) {
     */
     const abgr = new Int8Array(4);
     const intColor = new Int32Array(abgr.buffer);
-    abgr[0] = 1; // the red byte, all others are 0
-    const abgrOrder = (intColor[0] === 1);
+    abgr[0] = 3; // the red byte, all others are 0
+    const abgrOrder = (intColor[0] === 3);
+
+    /**
+     * get color of pixel at given index, assumes that index is in range
+     * @method PixelCanvas#getPixelAtIndex
+     * @param {Color} color - of the pixel
+     * @param {integer} index
+     */
+    if (abgrOrder) {
+        PixelCanvas.prototype.getPixelAtIndex = function(color, index) {
+            const thePixel = this.pixel[index];
+            color.red = thePixel & 0xff;
+            color.green = (thePixel >>> 8) & 0xff;
+            color.blue = (thePixel >>> 16) & 0xff;
+            color.alpha = (thePixel >>> 24) & 0xff;
+        };
+    } else {
+        PixelCanvas.prototype.getPixelAtIndex = function(color, index) {
+            const thePixel = this.pixel[index];
+            color.alpha = thePixel & 0xff;
+            color.blue = (thePixel >>> 8) & 0xff;
+            color.green = (thePixel >>> 16) & 0xff;
+            color.red = (thePixel >>> 24) & 0xff;
+        };
+    }
+
+    /**
+     * set color of pixel at given index
+     * @method PixelCanvas#setPixelAtIndex
+     * @param {Color} color - of the pixel
+     * @param {integer} index
+     */
+    if (abgrOrder) {
+        PixelCanvas.prototype.setPixelAtIndex = function(color, index) {
+            this.pixel[index] = color.red || color.green << 8 || color.blue << 16 || color.alpha << 24;
+        };
+    } else {
+        PixelCanvas.prototype.setPixelAtIndex = function(color, index) {
+            this.pixel[index] = color.alpha || color.blue << 8 || color.green << 16 || color.red << 24;
+        };
+    }
 
     /**
      * get color of nearest canvas pixel to given position
@@ -278,7 +386,7 @@ function PixelCanvas(idName) {
      * @param {float} y - coordinate of point to check
      */
     if (abgrOrder) {
-        InputImage.prototype.getCubic = function(color, x, y) {
+        PixelCanvas.prototype.getCubic = function(color, x, y) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
@@ -340,7 +448,7 @@ function PixelCanvas(idName) {
             }
         };
     } else {
-        InputImage.prototype.getCubic = function(color, x, y) {
+        PixelCanvas.prototype.getCubic = function(color, x, y) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
@@ -405,4 +513,50 @@ function PixelCanvas(idName) {
         };
     }
 
+
+    /**
+     * get color of interpolated canvas pixel to given position.
+     * Interpolation can be set to nearest, linear or cubic. Default is nearest
+     * returns color.red=-1 for pixels lying outside the canvas
+     * @method PixelCanvas#getInterpolated
+     * @param {Color} color - will be set to the interpolated color of canvas image
+     * @param {float} x - coordinate of point to check
+     * @param {float} y - coordinate of point to check
+     */
+    PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getNearest;
+
+    /**
+     * choose the interpolation method. 0 for nearest, 1 for linear and 2 for cubic.
+     * @method PixelCanvas#chooseInterpolation
+     * @param {integer} n - choice
+     */
+    PixelCanvas.prototype.chooseInterpolation = function(n) {
+        if (n < 1) {
+            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getNearest;
+        } else if (n === 1) {
+            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getLinear;
+        } else {
+            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getCubic;
+        }
+    };
+
+
+    /**
+     * Change the image data and put it on the canvas. For tests.
+     */
+
+    PixelCanvas.prototype.transform = function(action) {
+        var color = new Color();
+        var i, j;
+        var index = 0;
+
+        for (i = 0; i < this.width; i++) {
+            for (j = 0; j < this.height; j++) {
+
+
+
+            }
+        }
+
+    };
 }());

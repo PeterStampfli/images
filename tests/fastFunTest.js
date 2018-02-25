@@ -120,5 +120,4 @@ function funTestLog(fun, start, end, nSteps) {
         console.log(x.toPrecision(3) + " " + fun(x).toPrecision(3));
         x += step;
     }
-
 }
