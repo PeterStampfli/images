@@ -19,7 +19,8 @@
 </body>
 <script src="../librarySource/vector2Lib.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
-
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/line.js"></script>
 <script src="../librarySource/buttonLib.js"></script>
 <script src="../librarySource/colorLib.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
@@ -68,29 +69,14 @@ console.log(color)
     });
 });
 
-c=new Color();
+
+c=new Circle(1,new Vector2(8,9))
 console.log(c)
-pc.getLinear(c,10,20)
-console.log(c)
-console.log(16>>1&0xE)
-v=new Vector2(1,2);
+console.log(c.contains(new Vector2(8.8,9.99)));
+v=new Vector2(7,8)
 console.log(v)
-console.log(v.angle())
-v.setPolar(1,3.141/2)
+c.invert(v)
 console.log(v)
-v.rotationSymmetry(3)
-console.log(v)
-i=-1024
-console.log(i)
-i=(i>>4)
-console.log(i)
-i=-1024
-console.log(i.toString(2))
-i=i>>>2
-console.log(i.toString(2))
-
-
-
 
 </script>
 
