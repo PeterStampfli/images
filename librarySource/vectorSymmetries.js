@@ -132,7 +132,6 @@ Vector2.prototype.isInsidePolygon = function(coordinates) {
 
 // make n-fold rotational symmetry with mirror symmetry
 //  returns 0 if no mapping, even if rotation without mirror, 1 if mirror only or mirror and rotation
-
 // by replicating the first sector  0<phi<PI/n
 
 Vector2.prototype.rotationMirrorSymmetry = function(n) {
