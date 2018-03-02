@@ -43,116 +43,89 @@ function MouseEvents(idName) {
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
-    }
+    };
 
     /**
-     * Add an event with given eventName and action() callback.
-     * action() does not need parameter, accesses directly instance of MouseEvents
+     * Add an event with given eventName and action callback.
      * @method MouseEvents#addAction
      * @param {String} eventName - name for the event
-     * @param {function} action - callback for doing something
+     * @param {function} action - callback action(mouseEvents) for doing something
      */
-
     MouseEvents.prototype.addAction = function(eventName, action) {
         var mouseEvents = this; // hook to this mouseEvents object
         this.element.addEventListener(eventName, function(event) {
-            mouseEvents.stopEventPropagationAndDefaultAction(event, mouseEvents);
-            mouseEvents.update();
-            action();
+            stopEventPropagationAndDefaultAction(event);
+            mouseEvents.update(event);
+            action(mouseEvents);
             return false;
         }, true);
-    }
+    };
 
-// do nothing function as default
-var doNothing=function(){};
+    // do nothing function as default
+    var doNothing = function(mouseEvents) {};
 
     /**
      * add action for a mouse down event, sets pressed to true
      * @method MouseEvents#addDownAction
+     * @param {function} action - callback action(mouseEvents) for doing something
+     */
+    MouseEvents.prototype.addDownAction = function(action = doNothing) {
+        this.addAction("mousedown", function(mouseEvents) {
+            mouseEvents.pressed = true;
+            action(mouseEvents);
+        });
+    };
+
+    /**
+     * add action for a mouse up event, only does something if pressed==true, sets pressed to false
+     * @method MouseEvents#addUpAction
      * @param {function} action - callback for doing something, default: does nothing
      */
-    MouseEvents.prototype.addDownAction = function(action=doNothing) {
-        this.addAction("mousedown", function() {
-            this.pressed = true;
-				action();
-        });
-    }
-
-    /*
-    add action for a mouse up event
-    */
-    MouseEvents.prototype.addUpAction = function(action) {
-        this.addAction("mouseup", action);
-    }
-
-    /*
-    add action for a mouse move event, automaticall checks if pressed and updates position
-    */
-    MouseEvents.prototype.addMoveAction = function(action) {
-        this.addAction("mousemove", function(event, mouseEvents) {
+    MouseEvents.prototype.addUpAction = function(action = doNothing) {
+        this.addAction("mouseup", function(mouseEvents) {
             if (mouseEvents.pressed) {
-                mouseEvents.updateMousePosition(event);
-                action(event, mouseEvents);
+                mouseEvents.pressed = false;
+                action(mouseEvents);
             }
         });
-    }
+    };
+
+    /**
+     * add action for a mouse move event, only does something if pressed==true
+     * @method MouseEvents#addMoveAction
+     * @param {function} action - callback action(mouseEvents) for doing something
+     */
+    MouseEvents.prototype.addMoveAction = function(action = doNothing) {
+        var mouseEvents = this; // hook to this mouseEvents object
+        this.addAction("mousemove", function(mouseEvents) {
+            if (mouseEvents.pressed) {
+                action(mouseEvents);
+            }
+        });
+    };
+
+    /**
+     * add action for a mouse out event,  only does something if pressed==true, sets pressed to false, similar to mouse up
+     * @method MouseEvents#addMoveAction
+     * @param {function} action - callback action(mouseEvents) for doing something
+     */
+    MouseEvents.prototype.addOutAction = function(action = doNothing) {
+        this.addAction("mouseout", function(mouseEvents) {
+            if (mouseEvents.pressed) {
+                mouseEvents.pressed = false;
+                action(mouseEvents);
+            }
+        });
+    };
 
     /*
-    add action for a mouse out event
-    */
-    MouseEvents.prototype.addOutAction = function(action) {
-        this.addAction("mouseout", action);
-    }
-
-    /*
-    add action for a mouse wheel event
-    */
+     * add action for a mouse wheel event, with both versions for chrome and firefox, independent of pressed
+     * @method MouseEvents#addWheelAction
+     * @param {function} action - callback action(mouseEvents) for doing something
+     */
     MouseEvents.prototype.addWheelAction = function(action) {
         this.addAction("mousewheel", action); // chrome, opera
         this.addAction("wheel", action); // firefox
-    }
-
-
-    /*
-    on mouse down set pressed =true and update position
-    */
-    MouseEvents.prototype.basicDownAction = function(event, mouseEvents) {
-        mouseEvents.pressed = true;
-        mouseEvents.updateMousePosition(event);
-    }
-
-    /*
-    on mouse up set pressed =false
-    same for mouseout
-    */
-    MouseEvents.prototype.basicUpAction = function(event, mouseEvents) {
-        mouseEvents.pressed = false;
-    }
-
-
-    /*
-    on mouse move do something with position, called only if mouse pressed
-    */
-    MouseEvents.prototype.basicMoveAction = function(event, mouseEvents) {
-        console.log(mouseEvents.dx, mouseEvents.dy);
-    }
-
-
-    /*
-    on (mouse) wheel do something depending on direction
-    */
-    MouseEvents.prototype.basicWheelAction = function(event, mouseEvents) {
-        console.log(event.deltaY);
-    }
-
-    /*
-    add the basic up, down and out actions
-    */
-    MouseEvents.prototype.addBasicDownUpOutActions = function() {
-        //var mouseEvents=this;
-        this.addDownAction(this.basicDownAction);
-        this.addUpAction(this.basicUpAction);
-        this.addOutAction(this.basicUpAction);
-    }
+    };
 
 }());

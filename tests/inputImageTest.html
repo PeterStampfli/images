@@ -18,6 +18,7 @@
 
 </body>
 <script src="../librarySource/vector2Lib.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
 <script src="../librarySource/circle.js"></script>
@@ -82,6 +83,36 @@ m=new TwoMirrors();
 m.setK(1)
 m.map(v)
 console.log(v)
+
+me=new MouseEvents('canvas')
+console.log(me)
+me.addDownAction(function () {
+	console.log("down")
+console.log(me)
+})
+
+me.addUpAction(function () {
+	console.log("up")
+console.log(me)
+})
+
+me.addMoveAction(function () {
+	console.log("moveit")
+console.log(me)
+})
+
+me.addOutAction(function () {
+	console.log("out")
+console.log(me)
+})
+
+
+me.addWheelAction(function () {
+	console.log("wheeling")
+console.log(me)
+})
+
+
 </script>
 
 </html>
