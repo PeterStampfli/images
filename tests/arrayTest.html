@@ -114,6 +114,23 @@ line[i]=i+j;
 }
 }
 console.timeEnd("double array")
+
+console.time("var")
+for (i=0;i<size;i++){
+sum+=i}
+console.timeEnd("var")
+
+
+console.time("let")
+for (let j=0;j<size;j++){
+sum+=j}
+console.timeEnd("let")
+
 </script>
+
+
+
+
+
 
 </html>
