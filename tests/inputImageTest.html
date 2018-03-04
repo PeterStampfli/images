@@ -18,6 +18,7 @@
 
 </body>
 <script src="../librarySource/vector2Lib.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
@@ -32,86 +33,21 @@
 <script type="text/javascript">
     console.log("hi");
 
-byteArray=new Uint8Array(4);
 
-intArray=new Uint32Array(byteArray.buffer)
+outputCanvas=new PixelCanvas("canvas")
+outputCanvas.setupOutput(300,200)
 
-byteArray[0]=11;
-byteArray[3]=255;
-console.log(byteArray)
-console.log(intArray)
-
-pc=new PixelCanvas("canvas")
-pc.setSize(300,300)
-pc.blueScreen()
-
-
-pc.createPixel()
-pc.setAlpha(128)
-pc.showPixel()
-console.log("length "+pc.pixelComponents.length)
-console.log(pc.pixel[0])
-console.log(pc.pixel[0]>>>24)
-for (i=0;i<100;i++){
-pc.setOpaque(1,i);
-}
-pc.showPixel()
+inputCanvas=new PixelCanvas()
 
 var imageInputButton = new Button('imageInput');
 imageInputButton.onChange(function(){
-    pc.readImage(imageInputButton.button.files[0],function(){
-    	
-    	
-    	
-       console.log("actioncallback");
-console.log(pc.pixel[0])
-color=new Color()
-pc.averageColor(color)
-console.log(color)
+    inputCanvas.readImage(imageInputButton.button.files[0],function(){
+    	       console.log("actioncallback");
     });
 });
 
-
-c=new Circle(1,new Vector2(8,9))
-console.log(c)
-console.log(c.contains(new Vector2(8.8,9.99)));
-v=new Vector2(7,8)
-console.log(v)
-c.invert(v)
-console.log(v)
-m=new TwoMirrors();
-m.setK(1)
-m.map(v)
-console.log(v)
-
-me=new MouseEvents('canvas')
-console.log(me)
-me.addDownAction(function () {
-	console.log("down")
-console.log(me)
-})
-
-me.addUpAction(function () {
-	console.log("up")
-console.log(me)
-})
-
-me.addMoveAction(function () {
-	console.log("moveit")
-console.log(me)
-})
-
-me.addOutAction(function () {
-	console.log("out")
-console.log(me)
-})
-
-
-me.addWheelAction(function () {
-	console.log("wheeling")
-console.log(me)
-})
-
+mapping=new VectorMap();
+mapping.setCanvas(outputCanvas)
 
 </script>
 

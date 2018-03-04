@@ -14,7 +14,7 @@
 
 /* jshint esversion:6 */
 
-function Color(red = 0, green = 0, blue = 0, alpha = 255) {
+function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque black
     this.red = red;
     this.green = green;
     this.blue = blue;
@@ -50,17 +50,14 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) {
     };
 
     /**
-     * copy values from another color
-     * @method Color#copy
+     * copy rgba values from another color
+     * @method Color#copyRgba
      * @param {Color} color 
      */
-    Color.prototype.copy = function(color) {
+    Color.prototype.copyRgba = function(color) {
         this.red = color.red;
         this.green = color.green;
         this.blue = color.blue;
-        this.hue = color.hue;
-        this.colorIntensity = color.colorIntensity;
-        this.grey = color.grey;
         this.alpha = color.alpha;
     };
 
@@ -89,9 +86,9 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) {
 
     /**
      * simple color inversion (makes the negative)
-     * @method Color#negate
+     * @method Color#invert
      */
-    Color.prototype.negate = function() {
+    Color.prototype.invert = function() {
         this.red = 255 - this.red;
         this.green = 255 - this.green;
         this.blue = 255 - this.blue;
@@ -99,9 +96,9 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) {
 
     /**
      * improved color inversion (makes the negative hue)
-     * @method Color#negateHue
+     * @method Color#invertHue
      */
-    Color.prototype.negateHue = function() {
+    Color.prototype.invertHue = function() {
         var pixMaxMin = Math.max(this.red, this.green, this.blue) + Math.min(this.red, this.green, this.blue);
         this.red = pixMaxMin - this.red;
         this.green = pixMaxMin - this.green;

@@ -39,6 +39,12 @@
  * @var PixelCanvas#pixelComponents {Uint8ClampedArray}
  */
 
+/**
+ * the color to use if coordinates are outside the image, 
+ * including invalid points with very large coordinate values
+ * @var PixelCanvas#offColor
+ */
+
 /* jshint esversion:6 */
 
 function PixelCanvas(idName) {
@@ -54,6 +60,7 @@ function PixelCanvas(idName) {
     this.pixelComponents = null;
     this.width = 0;
     this.height = 0;
+    this.offColor = new Color(127, 127, 127, 0); //transparent grey
 }
 
 (function() {
@@ -107,6 +114,15 @@ function PixelCanvas(idName) {
     };
 
     /**
+     * set the off-color to the values of another color
+     * @PixelCanvas#setOffColor
+     * @param {Color} offColor
+     */
+    PixelCanvas.prototype.setOffColor = function(offColor) {
+        this.offColor.copyRGBA(offColor);
+    };
+
+    /**
      * set the alpha value of all pixels
      * @method PixelCanvas#setAlpha
      * @param {integer} alpha - value for all pixels
@@ -133,11 +149,10 @@ function PixelCanvas(idName) {
     };
 
     /**
-    * save the image as jpg, needs fileSaver.js
-* @method PixelCanvas#saveImageJpg
-* @param {String} fileName - name for the output file, without extension
-    fileName String, name of file without extension
-    */
+     * save the image as jpg, needs fileSaver.js
+     * @method PixelCanvas#saveImageJpg
+     * @param {String} fileName - name for the output file, without extension
+     */
     PixelCanvas.prototype.saveImageJpg = function(fileName) {
         this.canvas.toBlob(function(blob) {
             saveAs(blob, fileName + '.jpg');
@@ -145,11 +160,10 @@ function PixelCanvas(idName) {
     };
 
     /**
-    * save the image as png, needs fileSaver.js
-* @method PixelCanvas#saveImagePng
-* @param {String} fileName - name for the output file, without extension
-    fileName String, name of file without extension
-    */
+     * save the image as png, needs fileSaver.js
+     * @method PixelCanvas#saveImagePng
+     * @param {String} fileName - name for the output file, without extension
+     */
     PixelCanvas.prototype.saveImagePng = function(fileName) {
         this.canvas.toBlob(function(blob) {
             saveAs(blob, fileName + '.png');
@@ -178,6 +192,18 @@ function PixelCanvas(idName) {
         };
         fileReader.readAsDataURL(file);
     };
+
+    /**
+     * set size of canvas, make blue screen and pixels with alpha=255
+     * @method PixelCanvas#setupOutput
+     * @param {integer} width
+     * @param {integer} height
+     */
+    PixelCanvas.prototype.setupOutput = function(width, height) {
+        this.setSize(width, height);
+        this.blueScreen();
+        this.createPixel();
+    }
 
     /**
      * calculate average color of opaque pixels
@@ -248,24 +274,24 @@ function PixelCanvas(idName) {
     }
 
     /**
-     * set color of pixel at given index
+     * set color of pixel at given index, assumes that index is in range
      * @method PixelCanvas#setPixelAtIndex
      * @param {Color} color - of the pixel
      * @param {integer} index
      */
     if (abgrOrder) {
         PixelCanvas.prototype.setPixelAtIndex = function(color, index) {
-            this.pixel[index] = color.red || color.green << 8 || color.blue << 16 || color.alpha << 24;
+            this.pixel[index] = color.red | color.green << 8 | color.blue << 16 | color.alpha << 24;
         };
     } else {
         PixelCanvas.prototype.setPixelAtIndex = function(color, index) {
-            this.pixel[index] = color.alpha || color.blue << 8 || color.green << 16 || color.red << 24;
+            this.pixel[index] = color.alpha | color.blue << 8 | color.green << 16 | color.red << 24;
         };
     }
 
     /**
      * get color of nearest canvas pixel to given position
-     * returns color.red=-1 for pixels lying outside the canvas
+     * returns offColor for pixels lying outside the canvas
      * @method PixelCanvas#getNearest
      * @param {Color} color - will be set to the color of canvas image
      * @param {float} x - coordinate of point to check
@@ -276,28 +302,26 @@ function PixelCanvas(idName) {
             x = Math.round(x);
             y = Math.round(y);
             if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const thePixel = this.pixel[x + y * this.width];
                 color.red = thePixel & 0xff;
                 color.green = (thePixel >>> 8) & 0xff;
                 color.blue = (thePixel >>> 16) & 0xff;
             }
-            console.log(color);
         };
     } else {
         PixelCanvas.prototype.getNearest = function(color, x, y) {
             x = Math.round(x);
             y = Math.round(y);
             if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const thePixel = this.pixel[x + y * this.width];
                 color.red = (thePixel >>> 24) & 0xff;
                 color.green = (thePixel >>> 16) & 0xff;
                 color.blue = (thePixel >>> 8) & 0xff;
             }
-            console.log(color);
         };
     }
 
@@ -314,7 +338,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const dx = x - h;
                 const dy = y - k;
@@ -342,7 +366,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const dx = x - h;
                 const dy = y - k;
@@ -390,7 +414,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const dx = x - h;
                 const dy = y - k;
@@ -452,7 +476,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(x);
             const k = Math.floor(y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.red = -1;
+                color.copyRgba(this.offColor);
             } else {
                 const dx = x - h;
                 const dy = y - k;
@@ -542,21 +566,20 @@ function PixelCanvas(idName) {
 
 
     /**
-     * Change the image data and put it on the canvas. For tests.
+     * Change the image pixel color. For simple image manipulation.
+     * @method PixelCanvas#transform
+     * @param {function} action - a function(color), transforms the color
      */
-
     PixelCanvas.prototype.transform = function(action) {
         var color = new Color();
-        var i, j;
         var index = 0;
-
-        for (i = 0; i < this.width; i++) {
-            for (j = 0; j < this.height; j++) {
-
-
-
+        for (var i = 0; i < this.width; i++) {
+            for (var j = 0; j < this.height; j++) {
+                this.getPixelAtIndex(color, index);
+                action(color);
+                this.setPixelAtIndex(color, index++);
             }
         }
-
+        this.showPixel();
     };
 }());

@@ -12,8 +12,9 @@ function VectorMap() {
     this.zoomFactor = 1.05;
     this.width = 1;
     this.height = 1;
-    this.xArray = new Floats32Array(1);
-    this.yArray = new Floats32Array(1);
+    this.xArray = new Float32Array(1);
+    this.yArray = new Float32Array(1);
+    this.pixelCanvas = null;
 }
 
 
@@ -105,22 +106,33 @@ function VectorMap() {
     };
 
     /**
-     * set or reset the dimensions of the array, rescale to obtain the same region
+     * set or reset the dimensions of the map, rescale to obtain the same region
      * @method VectorMap#setArrayDimensions
      * @param {integer} width - of the map
      * @param {integer} height - of the map
      */
-    VectorMap.prototype.setArrayDimensions = function(width, height) {
+    VectorMap.prototype.setMapDimensions = function(width, height) {
         this.multiplyScale(Math.sqrt(this.width * this.height / width / height));
         this.width = width;
         this.height = height;
-        const length = width * heigth;
-        this.xArray = new Floats32Array(length);
-        this.yArray = new Floats32Array(length);
+        const length = width * height;
+        this.xArray = new Float32Array(length);
+        this.yArray = new Float32Array(length);
     };
 
     /**
+     * adjust map dimensions to pixelCanvas, draw on this canvas, call after each canvas resize
+     * @VectorMap#setCanvas
+     * @param {PixelCanvas} pixelCanvas
+     */
+    VectorMap.prototype.setCanvas = function(pixelCanvas) {
+        this.setMapDimensions(pixelCanvas.width, pixelCanvas.height);
+        this.pixelCanvas = pixelCanvas;
+    }
+
+    /**
      * make a map using a supplied function mapping(mapIn,mapOut)
+     * may return "invalid" points with a very large x-coordinate as marker
      * @method VectorMap#make
      * @param {function} mapping - from mapIn to mapOut
      */
@@ -129,6 +141,8 @@ function VectorMap() {
         let mapOut = new Vector2();
         let width = this.width;
         let height = this.height;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
         let scale = this.scale;
         let index = 0;
         mapIn.y = this.cornerY;
@@ -143,6 +157,88 @@ function VectorMap() {
             }
             mapIn.y += scale;
         }
+    };
+
+    /**
+     * draw on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
+     * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
+     * @method VectorMap#draw
+     * @param {function} mapping - from mapOut to color
+     */
+    VectorMap.prototype.draw = function(mapping) {
+        let mapOut = new Vector2();
+        let color = new Color(); // default: opaque black
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        let pixelCanvas = this.pixelCanvas;
+        for (var index = 0; index < length; index++) {
+            mapOut.x = xArray[index];
+            mapOut.y = yArray[index];
+            mapping(mapOut, color);
+            pixelCanvas.setPixelAtIndex(color, index);
+        }
+        pixelCanvas.showPixel();
+    };
+
+    /**
+     * use 2x2 averaging to draw with smoothing on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
+     * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
+     * @method VectorMap#draw
+     * @param {function} mapping - from mapOut to color
+     */
+    VectorMap.prototype.drawSmooth = function(mapping) {
+        let mapOut = new Vector2();
+        let width = this.width;
+        let height = this.height;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let baseX, baseY;
+        let color = new Color(); // default: opaque black
+        let baseColor = new Color();
+        let colorPlusX = new Color();
+        let colorPlusY = new Color();
+        let colorPlusXY = new Color();
+        let baseIndex = 0;
+        let indexPlusX, indexPlusY, indexPlusXY;
+        let pixelCanvas = this.pixelCanvas;
+        for (var j = 0; j < height; j++) {
+            if (j == height - 1) { // at top pixels beware of out of bounds indices
+                indexPlusY = baseIndex;
+            } else {
+                indexPlusY = baseIndex + width;
+            }
+            for (var i = 0; i < width; i++) {
+                if (i < width - 1) { // at right pixels beware of out of bounds indices
+                    indexPlusX = baseIndex + 1;
+                    indexPlusXY = indexPlusY + 1;
+                } else {
+                    indexPlusX = baseIndex;
+                    indexPlusXY = indexPlusY;
+                }
+                baseX = xArray[baseIndex];
+                baseY = yArray[baseIndex];
+                mapOut.x = baseX;
+                mapOut.y = baseY;
+                mapping(mapOut, baseColor);
+                mapout.x = 0.5 * (baseX + xArray[indexPlusX]);
+                mapout.y = 0.5 * (baseY + yArray[indexPlusX]);
+                mapping(mapOut, colorPlusX);
+                mapout.x = 0.5 * (baseX + xArray[indexPlusY]);
+                mapout.y = 0.5 * (baseY + yArray[indexPlusY]);
+                mapping(mapOut, colorPlusY);
+                mapout.x = 0.5 * (baseX + xArray[indexPlusXY]);
+                mapout.y = 0.5 * (baseY + yArray[indexPlusXY]);
+                mapping(mapOut, colorPlusXY);
+                //averaging with shift, including rounding
+                color.red = (2 + baseColor.red + colorPlusX.red + colorPlusY.red + colorPlusXY.red) >> 2;
+                color.green = (2 + baseColor.green + colorPlusX.green + colorPlusY.green + colorPlusXY.green) >> 2;
+                color.blue = (2 + baseColor.blue + colorPlusX.blue + colorPlusY.blue + colorPlusXY.blue) >> 2;
+                color.alpha = (2 + baseColor.alpha + colorPlusX.alpha + colorPlusY.alpha + colorPlusXY.alpha) >> 2;
+                pixelCanvas.setPixelAtIndex(color, index);
+            }
+        }
+        pixelCanvas.showPixel();
     };
 
 }());
