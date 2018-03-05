@@ -31,7 +31,7 @@ function Circle(radius, center) {
 
     /**
      * set center vector
-     * @method Circle
+     * @method Circle#setCenter
      * @param {float} radius 
      * @param {Vector2} center
      */

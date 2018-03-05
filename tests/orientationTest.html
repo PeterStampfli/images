@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>orientationTest</title>
+</head>
+
+<body>
+<p>    check the console</p>
+
+		<p>
+				Input image file:
+			<input type="file" accept="image/*" id="imageInput" >
+</p>
+
+		<canvas id="canvas" ></canvas>
+
+</body>
+<script src="../librarySource/vector2Lib.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/twoMirrors.js"></script>
+<script src="../librarySource/fastFunLib.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/buttonLib.js"></script>
+<script src="../librarySource/colorLib.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvasLib.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+
+<script type="text/javascript">
+    console.log("hi");
+
+
+var c=new ArrowController("canvas",300)
+
+c.action=function(){
+console.log(c.angle)
+}
+
+c.update(1)
+
+</script>
+
+</html>

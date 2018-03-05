@@ -106,7 +106,7 @@ function MouseEvents(idName) {
 
     /**
      * add action for a mouse out event,  only does something if pressed==true, sets pressed to false, similar to mouse up
-     * @method MouseEvents#addMoveAction
+     * @method MouseEvents#addOutAction
      * @param {function} action - callback action(mouseEvents) for doing something
      */
     MouseEvents.prototype.addOutAction = function(action = doNothing) {

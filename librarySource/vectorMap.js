@@ -128,7 +128,7 @@ function VectorMap() {
     VectorMap.prototype.setCanvas = function(pixelCanvas) {
         this.setMapDimensions(pixelCanvas.width, pixelCanvas.height);
         this.pixelCanvas = pixelCanvas;
-    }
+    };
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)

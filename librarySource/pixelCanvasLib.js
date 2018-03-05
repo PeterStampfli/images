@@ -85,13 +85,25 @@ function PixelCanvas(idName) {
         }
     };
 
+
+
+    /**
+     * fill screen with color
+     * @method PixelCanvas#fillScreen
+     * @param {String} style - fill style
+     */
+    PixelCanvas.prototype.fillScreen = function(style) {
+        this.canvasContext.fillStyle = style;
+        this.canvasContext.fillRect(0, 0, this.width, this.height);
+    };
+
+
     /**
      * make a blue screen
      * @method PixelCanvas#blueScreen
      */
     PixelCanvas.prototype.blueScreen = function() {
-        this.canvasContext.fillStyle = "Blue";
-        this.canvasContext.fillRect(0, 0, this.width, this.height);
+        this.fillScreen("blue");
     };
 
     /**
@@ -195,15 +207,15 @@ function PixelCanvas(idName) {
 
     /**
      * set size of canvas, make blue screen and pixels with alpha=255
-     * @method PixelCanvas#setupOutput
+     * @method PixelCanvas#setupOnscreen
      * @param {integer} width
      * @param {integer} height
      */
-    PixelCanvas.prototype.setupOutput = function(width, height) {
+    PixelCanvas.prototype.setupOnscreen = function(width, height) {
         this.setSize(width, height);
         this.blueScreen();
         this.createPixel();
-    }
+    };
 
     /**
      * calculate average color of opaque pixels
@@ -393,6 +405,10 @@ function PixelCanvas(idName) {
 
     /*
     get interpolated pixel color - cubic interpolation
+    */
+
+    /*
+    the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
     */
     function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
         if (x < 1) {

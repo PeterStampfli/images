@@ -303,4 +303,5 @@ var Fast = {};
         x -= index;
         return gaussTable[index] * (1 - x) + gaussTable[index + 1] * x;
     };
+
 }());
