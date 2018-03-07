@@ -122,10 +122,10 @@ function VectorMap() {
 
     /**
      * adjust map dimensions to pixelCanvas, draw on this canvas, call after each canvas resize
-     * @VectorMap#setCanvas
+     * @VectorMap#setMapDimensionFromCanvas
      * @param {PixelCanvas} pixelCanvas
      */
-    VectorMap.prototype.setCanvas = function(pixelCanvas) {
+    VectorMap.prototype.setMapDimensionFromCanvas = function(pixelCanvas) {
         this.setMapDimensions(pixelCanvas.width, pixelCanvas.height);
         this.pixelCanvas = pixelCanvas;
     };
