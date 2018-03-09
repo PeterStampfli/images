@@ -43,7 +43,7 @@ function MouseEvents(idName) {
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
-        console.log(this);
+        // console.log(this);
     };
 
     /**

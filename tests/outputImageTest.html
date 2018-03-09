@@ -3,13 +3,17 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>orientationTest</title>
+    <title>outputImageTest</title>
 </head>
 
 <body>
 <p>    check the console</p>
 
-		
+		<p>
+				Input image file:
+			<input type="file" accept="image/*" id="imageInput" >
+</p>
+
 		<canvas id="canvas" ></canvas>
 
 </body>
@@ -24,20 +28,18 @@
 <script src="../librarySource/colorLib.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
 <script src="../librarySource/pixelCanvasLib.js"></script>
-<script src="../librarySource/outputCanvas.js"></script>
-<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/outputImage.js"></script>
 
 <script type="text/javascript">
     console.log("hi");
+vectorMap=new VectorMap()
+outputImage=new OutputImage("canvas",vectorMap)
+outputImage.setSize(500,500)
 
-
-var c=new ArrowController("canvas",300)
-
-c.setAction(function(){
-console.log(c.angle)
-});
-
-
+outputImage.setAction(function () {
+console.log("action")
+	
+})
 
 </script>
 

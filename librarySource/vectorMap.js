@@ -184,7 +184,7 @@ function VectorMap() {
     /**
      * use 2x2 averaging to draw with smoothing on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
      * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
-     * @method VectorMap#draw
+     * @method VectorMap#drawSmooth
      * @param {function} mapping - from mapOut to color
      */
     VectorMap.prototype.drawSmooth = function(mapping) {
@@ -240,5 +240,39 @@ function VectorMap() {
         }
         pixelCanvas.showPixel();
     };
+
+    /**
+     * determine center of gravity of map
+     * "invalid" points may be marked with a very large x-coordinate -> do not count
+     * @method VectorMap#draw
+     * @param {Vector2} center - will be set to center of gravity
+     */
+    VectorMap.prototype.getCenter = function(center) {
+        let sumX = 0;
+        let sumY = 0;
+        let sum = 0;
+        let x = 0;
+        const limit = 10000;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            x = xArray[index];
+            if (x < limit) {
+                sum++;
+                sumX += x;
+                sumY += yArray[index];
+            }
+        }
+        if(sum > 0) {
+            center.x = sumX / sum;
+            center.y = sumY / sum;
+        }
+        else {
+            centerX = 0;
+            centerY = 0;
+        }
+    };
+
 
 }());
