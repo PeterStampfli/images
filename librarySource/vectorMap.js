@@ -48,8 +48,7 @@ function VectorMap() {
      * @method VectorMap#center
      */
     VectorMap.prototype.center = function() {
-        this.cornerX = -this.scale * 0.5 * (this.width - 1);
-        this.cornerY = y;
+        setCorner(-this.scale * 0.5 * (this.width - 1), -this.scale * 0.5 * (this.height - 1));
     };
 
     /**
@@ -89,7 +88,7 @@ function VectorMap() {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     VectorMap.prototype.mouseShift = function(mouseEvents) {
-        this.shiftCorner(-mouseEvents.dx, -mouseEvents.dy);
+        this.shiftCorner(-mouseEvents.dx * this.scale, -mouseEvents.dy * this.scale);
     };
 
     /**
@@ -98,16 +97,16 @@ function VectorMap() {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     VectorMap.prototype.mouseZoom = function(mouseEvents) {
-        if (mouseEvents.wheelData > 0) {
-            this.zoom(this.zoomFactor);
+        if (mouseEvents.wheelDelta > 0) {
+            this.zoom(this.zoomFactor, mouseEvents.x, mouseEvents.y);
         } else {
-            this.zoom(1 / this.zoomFactor);
+            this.zoom(1 / this.zoomFactor, mouseEvents.x, mouseEvents.y);
         }
     };
 
     /**
      * set or reset the dimensions of the map, rescale to obtain the same region
-     * @method VectorMap#setArrayDimensions
+     * @method VectorMap#setMapDimensions
      * @param {integer} width - of the map
      * @param {integer} height - of the map
      */
@@ -134,7 +133,7 @@ function VectorMap() {
      * make a map using a supplied function mapping(mapIn,mapOut)
      * may return "invalid" points with a very large x-coordinate as marker
      * @method VectorMap#make
-     * @param {function} mapping - from mapIn to mapOut
+     * @param {function} mapping - from mapIn to mapOut, return true if it has a valid point
      */
     VectorMap.prototype.make = function(mapping) {
         let mapIn = new Vector2();
@@ -145,17 +144,104 @@ function VectorMap() {
         let yArray = this.yArray;
         let scale = this.scale;
         let index = 0;
+        const invalid = 1e20;
         mapIn.y = this.cornerY;
         for (var j = 0; j < height; j++) {
             mapIn.x = this.cornerX;
             for (var i = 0; i < width; i++) {
-                mapping(mapIn, mapOut);
-                xArray[index] = mapOut.x;
-                yArray[index] = mapOut.y;
+                if (mapping(mapIn, mapOut)) {
+                    xArray[index] = mapOut.x;
+                    yArray[index] = mapOut.y;
+                } else {
+                    xArray[index] = invalid;
+                    yArray[index] = invalid;
+                }
                 mapIn.x += scale;
                 index++;
             }
             mapIn.y += scale;
+        }
+    };
+
+    /**
+     * determine center of gravity of map (to shift it to origin)
+     * "invalid" points may be marked with a very large x-coordinate -> do not count
+     * @method VectorMap#getCenter
+     * @param {Vector2} center - will be set to center of gravity
+     */
+    VectorMap.prototype.getCenter = function(center) {
+        let sumX = 0;
+        let sumY = 0;
+        let sum = 0;
+        let x = 0;
+        const limit = 10000;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            x = xArray[index];
+            if (x < limit) {
+                sum++;
+                sumX += x;
+                sumY += yArray[index];
+            }
+        }
+        if (sum > 0) {
+            center.x = sumX / sum;
+            center.y = sumY / sum;
+        } else {
+            center.x = 0;
+            center.y = 0;
+        }
+    };
+
+    /**
+     * determine range of coordinates
+     * "invalid" points may be marked with a very large x-coordinate -> do not count
+     * @method VectorMap#getRange
+     * @param {Vector2} lowerLeft - will be set to lower left corner of data (minima)
+     * @param {Vector2} upperRight - will be set to upper right corner of data (maxima)
+     */
+    VectorMap.prototype.getRange = function(lowerLeft, upperRight) {
+        let left = 1e10;
+        let right = -1e10;
+        let lower = 1e10;
+        let upper = -1e10;
+        let x = 0;
+        const limit = 10000;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            x = xArray[index];
+            if (x < limit) {
+                left = Math.min(left, x);
+                right = Math.max(right, x);
+                x = yArray[index];
+                lower = Math.min(lower, x);
+                upper = Math.max(upper, x);
+            }
+        }
+        lowerLeft.x = left;
+        lowerLeft.y = lower;
+        upperRight.x = right;
+        upperRight.y = upper;
+    };
+
+    /**
+     * shift the map data, including invalid points
+     * @method VectorMap#shiftData
+     * @param {Vector2} shift
+     */
+    VectorMap.prototype.shiftData = function(shift) {
+        let dx = shift.x;
+        let dy = shift.y;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            xArray[index] += dx;
+            yArray[index] += dy;
         }
     };
 
@@ -239,39 +325,6 @@ function VectorMap() {
             }
         }
         pixelCanvas.showPixel();
-    };
-
-    /**
-     * determine center of gravity of map
-     * "invalid" points may be marked with a very large x-coordinate -> do not count
-     * @method VectorMap#draw
-     * @param {Vector2} center - will be set to center of gravity
-     */
-    VectorMap.prototype.getCenter = function(center) {
-        let sumX = 0;
-        let sumY = 0;
-        let sum = 0;
-        let x = 0;
-        const limit = 10000;
-        let xArray = this.xArray;
-        let yArray = this.yArray;
-        let length = xArray.length;
-        for (var index = 0; index < length; index++) {
-            x = xArray[index];
-            if (x < limit) {
-                sum++;
-                sumX += x;
-                sumY += yArray[index];
-            }
-        }
-        if(sum > 0) {
-            center.x = sumX / sum;
-            center.y = sumY / sum;
-        }
-        else {
-            centerX = 0;
-            centerY = 0;
-        }
     };
 
 

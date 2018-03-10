@@ -33,13 +33,36 @@
 <script type="text/javascript">
     console.log("hi");
 vectorMap=new VectorMap()
+
 outputImage=new OutputImage("canvas",vectorMap)
-outputImage.setSize(500,500)
+outputImage.setSize(300,100)
 
 outputImage.setAction(function () {
 console.log("action")
 	
 })
+vectorMap.scale=5
+
+function draw(){
+vectorMap.make(function (inm,out) {
+
+	out.x=Math.abs(inm.x)
+	out.y=Math.abs(inm.y)
+return true;
+})
+
+vectorMap.shiftData(new Vector2(100,-100))
+
+vectorMap.draw(function (inm,color) {
+	color.red=inm.x%256
+	color.green=Math.min(255,inm.y)
+
+})
+}
+
+outputImage.setAction(draw)
+
+draw()
 
 </script>
 

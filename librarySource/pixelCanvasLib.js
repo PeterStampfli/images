@@ -286,7 +286,7 @@ function PixelCanvas(idName) {
     }
 
     /**
-     * set color of pixel at given index, assumes that index is in range
+     * set color of pixel at given index, assumes that index is in range and that color components are between 0 and 255
      * @method PixelCanvas#setPixelAtIndex
      * @param {Color} color - of the pixel
      * @param {integer} index

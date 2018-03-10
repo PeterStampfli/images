@@ -1,6 +1,6 @@
 /**
  * on-screen canvas with a map and mouse events to change the map
- * @constructor outputImage
+ * @constructor OutputImage
  * @param {String} idName - html identifier
  * @param {Map} map - a VectorMap or other map object with the same functions
  */
@@ -16,7 +16,7 @@ function OutputImage(idName, map) {
 
     /**
      * what to do if map changes (redraw image)
-     * @method outputCanvas#action
+     * @method OutputImage#action
      */
     this.action = function() {};
 
