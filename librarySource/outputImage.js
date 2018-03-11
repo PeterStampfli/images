@@ -3,16 +3,22 @@
  * @constructor OutputImage
  * @param {String} idName - html identifier
  * @param {Map} map - a VectorMap or other map object with the same functions
+ * @param {integer} width - initial width
+ * @param {integer} height - initial height
  */
 
 /* jshint esversion:6 */
 
-function OutputImage(idName, map) {
+function OutputImage(idName, map, width, height) {
     "use strict";
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
     this.map = map;
+
+    // make it visible
+    this.pixelCanvas.setSize(width, height);
+    this.pixelCanvas.blueScreen();
 
     /**
      * what to do if map changes (redraw image)
@@ -56,7 +62,6 @@ function OutputImage(idName, map) {
         this.pixelCanvas.setupOnscreen(width, height);
         this.map.setMapDimensionFromCanvas(this.pixelCanvas);
     };
-
 
     /**
      * set the action() - function for this controller, called at each position or scale change for instant following

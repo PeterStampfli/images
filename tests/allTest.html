@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>inputImageTest</title>
+    <title>ALL Test</title>
 </head>
 
 <body>
@@ -14,8 +14,10 @@
 			<input type="file" accept="image/*" id="imageInput" >
 </p>
 
-		<canvas id="canvas" ></canvas>
+		<canvas id="outputCanvas" ></canvas>
 
+		<canvas id="controlCanvas" ></canvas>
+		<canvas id="arrowController" ></canvas>
 </body>
 <script src="../librarySource/vector2Lib.js"></script>
 <script src="../librarySource/vectorMap.js"></script>
@@ -28,48 +30,34 @@
 <script src="../librarySource/colorLib.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
 <script src="../librarySource/pixelCanvasLib.js"></script>
+<script src="../librarySource/outputImage.js"></script>
 <script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
 <script src="../librarySource/make.js"></script>
 
 
 <script type="text/javascript">
     console.log("hi");
 
+vectorMap=new VectorMap()
 
-inputCanvas=new PixelCanvas()
+outputImage=new OutputImage("outputCanvas",vectorMap,300,300)
+Make.setOutputImage(outputImage)
 
+controlImage=new ControlImage("controlCanvas",200)
+Make.setControlImage(controlImage)
 
+arrowController=new ArrowController("arrowController",200)
+Make.setArrowController(arrowController)
 
-
-var imageInputButton = new Button('imageInput');
-imageInputButton.onChange(function(){
-    inputCanvas.readImage(imageInputButton.button.files[0],function(){
-    	       console.log("actioncallback");
-controlImage.loadInputImage(inputCanvas)
-controlImage.semiTransparent()
-
-x=inputCanvas.width/2;
-for (y=inputCanvas.height/4;y<inputCanvas.height*0.75;y++){
-controlImage.setOpaque(x,y)
-}
-
-
-controlImage.pixelCanvas.showPixel()
-
-controlImage.adjustScaleShift(new VectorMap(),inputCanvas)
-    });
+Make.setMapping(function (inp,out) {
+	out.x=inp.x*inp.x-inp.y*inp.y;
+	out.y=inp.x*out.y+inp.y*out.x;
+	return true;
 });
 
-controlImage=new ControlImage("canvas",500)
 
-controlImage.setAction(function () {
-	console.log(controlImage.scale)
-	console.log(controlImage.shiftX+" "+controlImage.shiftY)
-controlImage.setOpaque(controlImage.shiftX,controlImage.shiftY)
-controlImage.pixelCanvas.showPixel()
-})
 
-Make.setOutputImage(controlImage)
 
 </script>
 

@@ -10,10 +10,10 @@ function VectorMap() {
     this.cornerY = 0;
     this.scale = 1;
     this.zoomFactor = 1.05;
-    this.width = 1;
-    this.height = 1;
-    this.xArray = new Float32Array(1);
-    this.yArray = new Float32Array(1);
+    this.width = 2;
+    this.height = 2;
+    this.xArray = new Float32Array(4);
+    this.yArray = new Float32Array(4);
     this.pixelCanvas = null;
 }
 
@@ -22,64 +22,65 @@ function VectorMap() {
     "use strict";
 
     /**
-     * set the position of the corner in the input coordinate system
-     * @method VectorMap#setCenter
+     * set the position of the upper left corner in the input coordinate system
+     * @method VectorMap#setInputCorner
      * @param {float} x - coordinate of corner
      * @param {float} y - coordinate of corner
      */
-    VectorMap.prototype.setCorner = function(x, y) {
+    VectorMap.prototype.setInputCorner = function(x, y) {
         this.cornerX = x;
         this.cornerY = y;
     };
 
     /**
      * shift the position  
-     * @method VectorMap#shiftCorner
+     * @method VectorMap#shiftInputCorner
      * @param {float} x - change in coordinate of corner
      * @param {float} y - change in coordinate of corner
      */
-    VectorMap.prototype.shiftCorner = function(x, y) {
+    VectorMap.prototype.shiftInputCorner = function(x, y) {
         this.cornerX += x;
         this.cornerY += y;
     };
 
     /**
-     * make that the origin of coordinate system is in the center 
-     * @method VectorMap#center
-     */
-    VectorMap.prototype.center = function() {
-        setCorner(-this.scale * 0.5 * (this.width - 1), -this.scale * 0.5 * (this.height - 1));
-    };
-
-    /**
      * set the scale 
-     * @method VectorMap#setScale
+     * @method VectorMap#setInputScale
      * @param {float} scale
      */
-    VectorMap.prototype.setScale = function(scale) {
+    VectorMap.prototype.setInputScale = function(scale) {
         this.scale = scale;
     };
 
     /**
      * multiply the scale for zooming
-     * @method VectorMap#multiplyScale
+     * @method VectorMap#multiplyInputScale
      * @param {float} factor
      */
-    VectorMap.prototype.multiplyScale = function(factor) {
+    VectorMap.prototype.multiplyInputScale = function(factor) {
         this.scale *= factor;
     };
 
+    /**
+     * set the range for input x-coordinate values of the mapping
+     * @method VectorMap#setXRange
+     * @param {float} xMin
+     * @param {flpoat} xMax
+     */
+    VectorMap.prototype.setXRange = function(xMin, xMax) {
+        if (this.width > 1) {
+            this.setScale((xMax - xMin) / (this.width - 1));
+        }
+        this.cornerX = xMin;
+    };
 
     /**
-     * zoom with given factor to/from given point (mouse position)
-     * @method VectorMap#zoom
-     * @param {float} factor - zoom factor
-     * @param {float} x - coordinate of zooming center
-     * @param {float} y - coordinate of zooming center
+     * set the lowest input y-coordinate values of the mapping
+     * @method VectorMap#setYMin
+     * @param {float} yMin
      */
-    VectorMap.prototype.zoom = function(factor, x, y) {
-        this.shiftCorner(this.scale * (1 - factor) * x, this.scale * (1 - factor) * y);
-        this.scale *= factor;
+    VectorMap.prototype.setYmin = function(yMin) {
+        this.cornerY = yMin;
     };
 
     /**
@@ -89,6 +90,18 @@ function VectorMap() {
      */
     VectorMap.prototype.mouseShift = function(mouseEvents) {
         this.shiftCorner(-mouseEvents.dx * this.scale, -mouseEvents.dy * this.scale);
+    };
+
+    /**
+     * zoom with given factor to/from given point (mouse position)
+     * @method VectorMap#zoom
+     * @param {float} factor - zoom factor
+     * @param {float} x - coordinate of zooming center
+     * @param {float} y - coordinate of zooming center
+     */
+    VectorMap.prototype.zoom = function(factor, x, y) {
+        this.shiftInputCorner(this.scale * (1 - factor) * x, this.scale * (1 - factor) * y);
+        this.multiplyInputScale(factor);
     };
 
     /**
@@ -111,7 +124,7 @@ function VectorMap() {
      * @param {integer} height - of the map
      */
     VectorMap.prototype.setMapDimensions = function(width, height) {
-        this.multiplyScale(Math.sqrt(this.width * this.height / width / height));
+        this.multiplyScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
         this.width = width;
         this.height = height;
         const length = width * height;
@@ -196,6 +209,23 @@ function VectorMap() {
     };
 
     /**
+     * shift the map data, including invalid points
+     * @method VectorMap#shiftData
+     * @param {Vector2} shift
+     */
+    VectorMap.prototype.shiftData = function(shift) {
+        let dx = shift.x;
+        let dy = shift.y;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            xArray[index] += dx;
+            yArray[index] += dy;
+        }
+    };
+
+    /**
      * determine range of coordinates
      * "invalid" points may be marked with a very large x-coordinate -> do not count
      * @method VectorMap#getRange
@@ -229,29 +259,12 @@ function VectorMap() {
     };
 
     /**
-     * shift the map data, including invalid points
-     * @method VectorMap#shiftData
-     * @param {Vector2} shift
-     */
-    VectorMap.prototype.shiftData = function(shift) {
-        let dx = shift.x;
-        let dy = shift.y;
-        let xArray = this.xArray;
-        let yArray = this.yArray;
-        let length = xArray.length;
-        for (var index = 0; index < length; index++) {
-            xArray[index] += dx;
-            yArray[index] += dy;
-        }
-    };
-
-    /**
      * draw on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
      * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
-     * @method VectorMap#draw
-     * @param {function} mapping - from mapOut to color
+     * @method VectorMap#drawSimple
+     * @param {function} mapping - from coordinates (x,y) to color
      */
-    VectorMap.prototype.draw = function(mapping) {
+    VectorMap.prototype.drawSimple = function(mapping) {
         let mapOut = new Vector2();
         let color = new Color(); // default: opaque black
         let xArray = this.xArray;
@@ -327,5 +340,25 @@ function VectorMap() {
         pixelCanvas.showPixel();
     };
 
+
+    /**
+     * the choosen drawing method (simple or smoothed)
+     * @method VectorMap#draw
+     * @param {function} mapping - from mapOut to color
+     */
+    VectorMap.prototype.draw = VectorMap.prototype.drawSimple;
+
+    /**
+     * choose the smoothing method
+     * @method VectorMap#chooseSmoothing
+     * @param {integer} n - 0 for no smoothing, 1 for smoothing
+     */
+    VectorMap.prototype.chooseSmoothing = function(n) {
+        if (n == 0) {
+            VectorMap.prototype.draw = VectorMap.prototype.drawSimple;
+        } else {
+            VectorMap.prototype.draw = VectorMap.prototype.drawSmooth;
+        }
+    };
 
 }());
