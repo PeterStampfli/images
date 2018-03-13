@@ -19,7 +19,6 @@ function ControlImage(idName, sizeLimit) {
     this.zoomFactor = 1.05;
     this.shiftX = 0;
     this.shiftY = 0;
-    this.fillFactor = 0.5;
 
     // make it visible
     this.pixelCanvas.setSize(sizeLimit, sizeLimit);
@@ -108,21 +107,20 @@ function ControlImage(idName, sizeLimit) {
     /**
      * adjust scales and offset such that the map fills reasonably the input image after scaling and shift
      * @method ControlImage
-     * @param {Map} map - vectorMap or similar with a getRange method
+     * @param {Vector2} lowerLeft - coordinates of lower left corner (xMin,yMin) of the map output
+     * @param {float} fillFactor - how much of the input image is sampled
      * @param {PixelCanvas} inputImage
      */
-    ControlImage.prototype.adjustScaleShift = function(map, inputImage) {
-        let lowerLeft = new Vector2();
-        let upperRight = new Vector2();
-        map.getRange(lowerLeft, upperRight);
-        let xRange = upperRight.x - lowerLeft.x;
-        let yRange = upperRight.y - lowerLeft.y;
+    ControlImage.prototype.adjustScaleShift = function(lowerLeft, upperRight, fillFactor, inputImage) {
+        let xWidth = upperRight.x - lowerLeft.x;
+        let yWidth = upperRight.y - lowerLeft.y;
         let centerX = 0.5 * (upperRight.x + lowerLeft.x);
         let centerY = 0.5 * (upperRight.y + lowerLeft.y);
         // multiply map by this.scale to get a reasonable fill by the map range
-        this.scale = this.fillFactor * Math.min(inputImage.width / xRange, inputImage.height / yRange);
+        this.scale = this.fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
         //put the scaled map into the center
         this.shiftX = inputImage.width / 2 - this.scale * centerX;
+        this.shiftY = inputImage.height / 2 - this.scale * centerY;
     };
 
 }());

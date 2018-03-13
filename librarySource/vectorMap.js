@@ -6,6 +6,7 @@
 /* jshint esversion:6 */
 
 function VectorMap() {
+    this.exists = false;
     this.cornerX = 0;
     this.cornerY = 0;
     this.scale = 1;
@@ -69,7 +70,7 @@ function VectorMap() {
      */
     VectorMap.prototype.setXRange = function(xMin, xMax) {
         if (this.width > 1) {
-            this.setScale((xMax - xMin) / (this.width - 1));
+            this.setInputScale((xMax - xMin) / (this.width - 1));
         }
         this.cornerX = xMin;
     };
@@ -149,6 +150,7 @@ function VectorMap() {
      * @param {function} mapping - from mapIn to mapOut, return true if it has a valid point
      */
     VectorMap.prototype.make = function(mapping) {
+        this.exists = true;
         let mapIn = new Vector2();
         let mapOut = new Vector2();
         let width = this.width;
@@ -179,10 +181,10 @@ function VectorMap() {
     /**
      * determine center of gravity of map (to shift it to origin)
      * "invalid" points may be marked with a very large x-coordinate -> do not count
-     * @method VectorMap#getCenter
+     * @method VectorMap#getOutputCenter
      * @param {Vector2} center - will be set to center of gravity
      */
-    VectorMap.prototype.getCenter = function(center) {
+    VectorMap.prototype.getOutputCenter = function(center) {
         let sumX = 0;
         let sumY = 0;
         let sum = 0;
@@ -209,13 +211,13 @@ function VectorMap() {
     };
 
     /**
-     * shift the map data, including invalid points
-     * @method VectorMap#shiftData
-     * @param {Vector2} shift
+     * shift the map output, including invalid points, to move the point new Origin to (0,0)
+     * @method VectorMap#shiftOutput
+     * @param {Vector2} newOrigin
      */
-    VectorMap.prototype.shiftData = function(shift) {
-        let dx = shift.x;
-        let dy = shift.y;
+    VectorMap.prototype.shiftOutput = function(newOrigin) {
+        let dx = -newOrigin.x;
+        let dy = -newOrigin.y;
         let xArray = this.xArray;
         let yArray = this.yArray;
         let length = xArray.length;
@@ -226,13 +228,23 @@ function VectorMap() {
     };
 
     /**
+     * move the center of the map to the origin
+     * @method VectorMap#shiftOutputCenterToOrigin
+     */
+    VectorMap.prototype.shiftOutputCenterToOrigin = function() {
+        const center = new Vector2();
+        this.getOutputCenter(center);
+        this.shiftOutput(center);
+    };
+
+    /**
      * determine range of coordinates
      * "invalid" points may be marked with a very large x-coordinate -> do not count
-     * @method VectorMap#getRange
+     * @method VectorMap#getOutputRange
      * @param {Vector2} lowerLeft - will be set to lower left corner of data (minima)
      * @param {Vector2} upperRight - will be set to upper right corner of data (maxima)
      */
-    VectorMap.prototype.getRange = function(lowerLeft, upperRight) {
+    VectorMap.prototype.getOutputRange = function(lowerLeft, upperRight) {
         let left = 1e10;
         let right = -1e10;
         let lower = 1e10;
