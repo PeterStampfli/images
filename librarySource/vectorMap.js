@@ -90,7 +90,7 @@ function VectorMap() {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     VectorMap.prototype.mouseShift = function(mouseEvents) {
-        this.shiftCorner(-mouseEvents.dx * this.scale, -mouseEvents.dy * this.scale);
+        this.shiftInputCorner(-mouseEvents.dx * this.scale, -mouseEvents.dy * this.scale);
     };
 
     /**
@@ -125,22 +125,12 @@ function VectorMap() {
      * @param {integer} height - of the map
      */
     VectorMap.prototype.setMapDimensions = function(width, height) {
-        this.multiplyScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
+        this.multiplyInputScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
         this.width = width;
         this.height = height;
         const length = width * height;
         this.xArray = new Float32Array(length);
         this.yArray = new Float32Array(length);
-    };
-
-    /**
-     * adjust map dimensions to pixelCanvas, draw on this canvas, call after each canvas resize
-     * @VectorMap#setMapDimensionFromCanvas
-     * @param {PixelCanvas} pixelCanvas
-     */
-    VectorMap.prototype.setMapDimensionFromCanvas = function(pixelCanvas) {
-        this.setMapDimensions(pixelCanvas.width, pixelCanvas.height);
-        this.pixelCanvas = pixelCanvas;
     };
 
     /**
@@ -228,16 +218,6 @@ function VectorMap() {
     };
 
     /**
-     * move the center of the map to the origin
-     * @method VectorMap#shiftOutputCenterToOrigin
-     */
-    VectorMap.prototype.shiftOutputCenterToOrigin = function() {
-        const center = new Vector2();
-        this.getOutputCenter(center);
-        this.shiftOutput(center);
-    };
-
-    /**
      * determine range of coordinates
      * "invalid" points may be marked with a very large x-coordinate -> do not count
      * @method VectorMap#getOutputRange
@@ -277,6 +257,7 @@ function VectorMap() {
      * @param {function} mapping - from coordinates (x,y) to color
      */
     VectorMap.prototype.drawSimple = function(mapping) {
+        
         let mapOut = new Vector2();
         let color = new Color(); // default: opaque black
         let xArray = this.xArray;

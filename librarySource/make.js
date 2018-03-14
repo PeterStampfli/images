@@ -48,34 +48,41 @@ var Make = {};
 
     /*
     the other elements depend on page layout and need an identifier
+    create them here
     /*
-     
+         
     /**
-     * set the output image object
-     * @method Make.setOutputImage
-     * @param {OutputImage} outputImage
+    * create on-screen canvas with a vectormap and mouse events to change the map,
+    * no color symmetry
+    * @method Make.createOutputImageNoColorSymmetry
+    * @param {String} idName - html identifier
+    * @param {integer} width - initial width
+    * @param {integer} height - initial height
+    */
+    Make.createOutputImageNoColorSymmetry=function(idName,width,height){
+        Make.map=new VectorMap();
+        Make.outputImage=new OutputImage(idName,Make.map,width,height);
+        Make.updateOutputImage=Make.updateOutputImageNoColorSymmetry;        
+    };
+    
+    /**
+     * create the control image object
+     * @method Make.createControlImage
+     * @param {String} idName - html identifier
+     * @param {integer} sizeLimit - the larger width or height
      */
-    Make.setOutputImage = function(outputImage) {
-        Make.outputImage = outputImage;
-        Make.map = Make.outputImage.map;
+    Make.createControlImage = function(idName,sizeLimit) {
+        Make.controlImage = new ControlImage(idName,sizeLimit);
     };
 
     /**
-     * set the control image object
-     * @method Make.setControlImage
-     * @param {ControlImage} controlImage
+     * create the arrowController object
+     * @method Make.createArrowController
+     * @param {String} idName - html identifier
+     * @param {integer} size - width and height
      */
-    Make.setControlImage = function(controlImage) {
-        Make.controlImage = controlImage;
-    };
-
-    /**
-     * set the arrowController object
-     * @method Make.setArrowController
-     * @param {ArrowController} arrowController
-     */
-    Make.setArrowController = function(arrowController) {
-        Make.arrowController = arrowController;
+    Make.createArrowController = function(idName, size) {
+        Make.arrowController = new ArrowController(idName, size);
     };
 
     /*
@@ -124,6 +131,27 @@ var Make = {};
         Make.map.setXRange(Make.xMin, Make.xMax);
         Make.map.setYmin(Make.yMin);
     };
+    
+    /*
+     * put the center of the result of 2nd map to origin
+     */
+    var mapOutputCenter=new Vector2();
+    
+    /**
+     * determine center of map output
+     * @method Make.getMapOutputCenter
+     */
+    Make.getMapOutputCenter=function(){
+        Make.map.getOutputCenter(mapOutputCenter);
+    };
+    
+    /**
+     * shift map to center output
+     * @method Make.shiftMapToCenter
+     */
+    Make.shiftMapToCenter=function(){
+        Make.map.shiftOutput(mapOutputCenter);
+    };
 
     /*
      * the 3rd map determines how we sample the input image
@@ -144,7 +172,7 @@ var Make = {};
      * @method Make.getMapOutputRange
      */
     Make.getMapOutputRange = function() {
-        Make.map.getOutputRange(lowerLeft, upperRight);
+        Make.map.getOutputRange(Make.lowerLeft, Make.upperRight);
     };
 
     /**
@@ -167,19 +195,32 @@ var Make = {};
      * @method Make.readImage
      * @param {Button} imageInputButton
      */
-    //  imageInputButton is a Button object
-    //  imageInputButton.onChange(function(){ Make.readImage(imageInputButton); }
-    Make.readImage = function(imageInputButton) {
-        inputImage.readImage(imageInputButton.button.files[0], function() {
-            controlImage.loadInputImage(inputCanvas);
-
-
-            Make.getMapOutputRange();
-            Make.adjustInputImageSampling();
-            Make.updateOutputImage();
+     Make.readImage = function(imageInputButton) {
+            Make.inputImage.readImage(imageInputButton.button.files[0], function() {
+            Make.controlImage.loadInputImage(Make.inputImage);
+            if (!Make.map.exists){
+                console.log("*** Make.readImage: map does not exist !");
+            }
+            else {
+                Make.getMapOutputRange();         
+                Make.adjustInputImageSampling();
+                Make.updateOutputImage();
+            }
         });
     };
-
+    
+    /**
+     * create an image input button
+     * @method Make.createImageInputButton
+     * @param {String} idName name (id) of the button in the HTML page
+     */
+    Make.createImageInputButton=function(idName){
+        let button=new Button(idName);
+        button.onChange(function(){
+            Make.readImage(button);
+        });
+    };
+    
     /*
     change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything
     reset 1st mapping parameters to given ranges
@@ -194,10 +235,16 @@ var Make = {};
     Make.updateMap = function() {
         Make.resetInputRange();
         Make.bareNonlinearMapping();
-        Make.map.shiftOutputCenterToOrigin();
-
-
-
+        Make.getMapOutputCenter();
+        Make.shiftMapToCenter();
+        Make.getMapOutputRange();         
+        if (Make.inputImage.width==0){
+            console.log("*** Make.updateMap: there is no input image !");
+        }
+        else {
+            Make.adjustInputImageSampling();
+            Make.updateOutputImage();
+        }
     };
 
     /*
@@ -206,7 +253,11 @@ var Make = {};
     recalculate map, reuse previous map range, 3rd linear mapping remains unchanged
     do as for changes in the 1st mapping
     */
-    Make.setOutputSize = function(width, height) {};
+    Make.setOutputSize = function(width, height) {
+        Make.outputImage.setSize(width,height);
+        console.log(Make.outputImage.pixelCanvas.width);
+        Make.updateMap();
+    };
 
     /*
     change scale or shift for the 1st mapping:
@@ -227,15 +278,28 @@ var Make = {};
     */
 
     /**
-     * do everything for changes in the 3rd mapping (or any change in output image)
-     * @method Make.updateOutputImage
+     * do everything for changes in the 3rd mapping 
+     * (or any change in output image) without color symmetry
+     * @method Make.updateOutputImageNoColorSymmetry
      */
-    Make.updateOutputImage = function() {
+    Make.updateOutputImageNoColorSymmetry = function() {
+        if (!Make.map.exists){
+            console.log("*** Make.updateOutputImage: map does not exist !");
+            return;
+        }
+        if (Make.inputImage.width==0){
+            console.log("*** Make.updateOutputImage: input image not loaded !");
+            return;
+        }
         // get parameters
         var shiftX = Make.controlImage.shiftX;
         var shiftY = Make.controlImage.shiftY;
         var angle = Make.arrowController.angle;
         var scale = Make.controlImage.scale;
+        console.log(angle);
+        console.log(scale);
+        console.log(shiftX);
+        console.log(shiftY);
         var cosAngleScale = scale * Fast.cos(angle);
         var sinAngleScale = scale * Fast.sin(angle);
         // shortcuts
@@ -247,12 +311,18 @@ var Make = {};
             let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
             mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
             mapOut.x = h;
-            inputImage.getInterpolated(mapOut, color);
+            inputImage.getInterpolated(color,mapOut);
             controlImage.setOpaque(mapOut);
         });
         Make.outputImage.pixelCanvas.showPixel();
         controlImage.pixelCanvas.showPixel();
     };
 
+    /**
+     * do everything for changes in the 3rd mapping 
+     * (or any change in output image) depending on color symmetry
+     * @method Make.updateOutputImage
+     */
+    Make.updateOutputImage=Make.updateOutputImageNoColorSymmetry;
 
 }());

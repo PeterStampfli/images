@@ -117,7 +117,7 @@ function ControlImage(idName, sizeLimit) {
         let centerX = 0.5 * (upperRight.x + lowerLeft.x);
         let centerY = 0.5 * (upperRight.y + lowerLeft.y);
         // multiply map by this.scale to get a reasonable fill by the map range
-        this.scale = this.fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
+        this.scale = fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
         //put the scaled map into the center
         this.shiftX = inputImage.width / 2 - this.scale * centerX;
         this.shiftY = inputImage.height / 2 - this.scale * centerY;

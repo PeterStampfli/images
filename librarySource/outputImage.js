@@ -16,9 +16,11 @@ function OutputImage(idName, map, width, height) {
     this.mouseEvents = new MouseEvents(idName);
     this.map = map;
 
-    // make it visible
-    this.pixelCanvas.setSize(width, height);
-    this.pixelCanvas.blueScreen();
+    // set size, makes it visible, creates pixel
+    this.setSize(width, height);
+    
+    // linking pixelcanvas to setMapDimension
+    this.map.pixelCanvas=this.pixelCanvas;
 
     /**
      * what to do if map changes (redraw image)
@@ -48,19 +50,18 @@ function OutputImage(idName, map, width, height) {
     });
 }
 
-
 (function() {
     "use strict";
 
     /**
-     * set size of the output canvas and its map, create pixel, link map to canvas
+     * set size of the output canvas and its map, create pixel
      * @method OutputImage#setSize
      * @param {float} width
      * @param {float} height
      */
     OutputImage.prototype.setSize = function(width, height) {
         this.pixelCanvas.setupOnscreen(width, height);
-        this.map.setMapDimensionFromCanvas(this.pixelCanvas);
+        this.map.setMapDimensions(width,height);
     };
 
     /**

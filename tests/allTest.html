@@ -39,26 +39,24 @@
 <script type="text/javascript">
     console.log("hi");
 
-vectorMap=new VectorMap()
+Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
 
-outputImage=new OutputImage("outputCanvas",vectorMap,300,300)
-Make.setOutputImage(outputImage)
+Make.createControlImage("controlCanvas",200)
 
-controlImage=new ControlImage("controlCanvas",200)
-Make.setControlImage(controlImage)
-
-arrowController=new ArrowController("arrowController",200)
-Make.setArrowController(arrowController)
+Make.createArrowController("arrowController",200)
+Make.createImageInputButton("imageInput")
 
 Make.setMapping(function (inp,out) {
 	out.x=inp.x*inp.x-inp.y*inp.y;
-	out.y=inp.x*out.y+inp.y*out.x;
+	out.y=inp.x*inp.y+inp.y*inp.x;
 	return true;
 });
 
+Make.setOutputSize(400,400);
+
 Make.setInitialInputRange(-1,1,-1);
 Make.resetInputRange();
-
+Make.updateMap();
 
 </script>
 

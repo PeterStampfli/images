@@ -38,7 +38,6 @@ function ArrowController(idName, size) {
      */
     this.mouseEvents.addDownAction(function(mouseEvents) {
         mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
-        console.log("down" + mouseEvents.pressed);
     });
 
     /*
