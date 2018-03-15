@@ -257,7 +257,7 @@ function VectorMap() {
      * @param {function} mapping - from coordinates (x,y) to color
      */
     VectorMap.prototype.drawSimple = function(mapping) {
-        
+
         let mapOut = new Vector2();
         let color = new Color(); // default: opaque black
         let xArray = this.xArray;

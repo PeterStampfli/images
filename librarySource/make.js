@@ -59,20 +59,22 @@ var Make = {};
     * @param {integer} width - initial width
     * @param {integer} height - initial height
     */
-    Make.createOutputImageNoColorSymmetry=function(idName,width,height){
-        Make.map=new VectorMap();
-        Make.outputImage=new OutputImage(idName,Make.map,width,height);
-        Make.updateOutputImage=Make.updateOutputImageNoColorSymmetry;        
+    Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
+        Make.map = new VectorMap();
+        Make.outputImage = new OutputImage(idName, Make.map, width, height);
+        Make.outputImage.action = Make.shiftScaleMapInput;
+        Make.updateOutputImage = Make.updateOutputImageNoColorSymmetry;
     };
-    
+
     /**
      * create the control image object
      * @method Make.createControlImage
      * @param {String} idName - html identifier
      * @param {integer} sizeLimit - the larger width or height
      */
-    Make.createControlImage = function(idName,sizeLimit) {
-        Make.controlImage = new ControlImage(idName,sizeLimit);
+    Make.createControlImage = function(idName, sizeLimit) {
+        Make.controlImage = new ControlImage(idName, sizeLimit);
+        Make.controlImage.action = Make.updateOutputImage;
     };
 
     /**
@@ -83,6 +85,7 @@ var Make = {};
      */
     Make.createArrowController = function(idName, size) {
         Make.arrowController = new ArrowController(idName, size);
+        Make.arrowController.action = Make.updateOutputImage;
     };
 
     /*
@@ -92,6 +95,7 @@ var Make = {};
     3) linear mapping from map output to the input image
     */
 
+    Make.mapping = null;
     /**
      * set the mapping function for the 2nd nonlinear map
      * @method Make.setMapping
@@ -131,25 +135,25 @@ var Make = {};
         Make.map.setXRange(Make.xMin, Make.xMax);
         Make.map.setYmin(Make.yMin);
     };
-    
+
     /*
      * put the center of the result of 2nd map to origin
      */
-    var mapOutputCenter=new Vector2();
-    
+    var mapOutputCenter = new Vector2();
+
     /**
      * determine center of map output
      * @method Make.getMapOutputCenter
      */
-    Make.getMapOutputCenter=function(){
+    Make.getMapOutputCenter = function() {
         Make.map.getOutputCenter(mapOutputCenter);
     };
-    
+
     /**
      * shift map to center output
      * @method Make.shiftMapToCenter
      */
-    Make.shiftMapToCenter=function(){
+    Make.shiftMapToCenter = function() {
         Make.map.shiftOutput(mapOutputCenter);
     };
 
@@ -192,35 +196,35 @@ var Make = {};
 
     /**
      * reading an input image, show result if the 2nd nonlinear mapping exists
+     * the mapping should have been done before
      * @method Make.readImage
      * @param {Button} imageInputButton
      */
-     Make.readImage = function(imageInputButton) {
-            Make.inputImage.readImage(imageInputButton.button.files[0], function() {
+    Make.readImage = function(imageInputButton) {
+        Make.inputImage.readImage(imageInputButton.button.files[0], function() {
             Make.controlImage.loadInputImage(Make.inputImage);
-            if (!Make.map.exists){
+            if (!Make.map.exists) {
                 console.log("*** Make.readImage: map does not exist !");
+                return;
             }
-            else {
-                Make.getMapOutputRange();         
-                Make.adjustInputImageSampling();
-                Make.updateOutputImage();
-            }
+            Make.getMapOutputRange();
+            Make.adjustInputImageSampling();
+            Make.updateOutputImage();
         });
     };
-    
+
     /**
      * create an image input button
      * @method Make.createImageInputButton
      * @param {String} idName name (id) of the button in the HTML page
      */
-    Make.createImageInputButton=function(idName){
-        let button=new Button(idName);
-        button.onChange(function(){
+    Make.createImageInputButton = function(idName) {
+        let button = new Button(idName);
+        button.onChange(function() {
             Make.readImage(button);
         });
     };
-    
+
     /*
     change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything
     reset 1st mapping parameters to given ranges
@@ -233,18 +237,21 @@ var Make = {};
     - do as for changes in the 3rd mapping
     */
     Make.updateMap = function() {
+        if (Make.mapping === null) {
+            console.log("*** Make.updateMap: there is no mapping function !");
+            return;
+        }
         Make.resetInputRange();
         Make.bareNonlinearMapping();
         Make.getMapOutputCenter();
         Make.shiftMapToCenter();
-        Make.getMapOutputRange();         
-        if (Make.inputImage.width==0){
+        Make.getMapOutputRange();
+        if (Make.inputImage.width == 0) {
             console.log("*** Make.updateMap: there is no input image !");
+            return;
         }
-        else {
-            Make.adjustInputImageSampling();
-            Make.updateOutputImage();
-        }
+        Make.adjustInputImageSampling();
+        Make.updateOutputImage();
     };
 
     /*
@@ -254,19 +261,44 @@ var Make = {};
     do as for changes in the 1st mapping
     */
     Make.setOutputSize = function(width, height) {
-        Make.outputImage.setSize(width,height);
-        console.log(Make.outputImage.pixelCanvas.width);
-        Make.updateMap();
+        Make.outputImage.setSize(width, height);
+        if (Make.mapping === null) {
+            console.log("*** Make.setOutputSize: there is no mapping function !");
+            return;
+        }
+        Make.bareNonlinearMapping();
+        Make.getMapOutputCenter();
+        Make.shiftMapToCenter();
+        Make.getMapOutputRange();
+        if (Make.inputImage.width == 0) {
+            console.log("*** Make.setOutputSize: there is no input image !");
+        } else {
+            Make.adjustInputImageSampling();
+            Make.updateOutputImage();
+        }
     };
 
     /*
     change scale or shift for the 1st mapping:
+    (the output canvas already changes the 1st input mapping)
     redo the mapping
-    apply shift to the mapping (do not change shift or 3rd mapping)
+    apply shift to the mapping output(do not change the shift or the 3rd mapping)
     redraw as for changes in 3rd mapping
     */
 
-    Make.shiftScaleMapInput = function() {};
+    Make.shiftScaleMapInput = function() {
+        if (Make.mapping === null) {
+            console.log("*** Make.shiftScaleMapInput: there is no mapping function !");
+            return;
+        }
+        Make.bareNonlinearMapping();
+        Make.shiftMapToCenter(); // with same data for center as before, and same settings for 3rd map 
+        if (Make.inputImage.width == 0) {
+            console.log("*** Make.shiftScaleMapInput: there is no input image !");
+        } else {
+            Make.updateOutputImage();
+        }
+    };
 
     /*
     change scale, rotation or shift parameters for the 3rd mapping, change image interpolation via chooseInterpolation, change smoothing:
@@ -283,11 +315,11 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateOutputImageNoColorSymmetry = function() {
-        if (!Make.map.exists){
+        if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
         }
-        if (Make.inputImage.width==0){
+        if (Make.inputImage.width == 0) {
             console.log("*** Make.updateOutputImage: input image not loaded !");
             return;
         }
@@ -296,10 +328,6 @@ var Make = {};
         var shiftY = Make.controlImage.shiftY;
         var angle = Make.arrowController.angle;
         var scale = Make.controlImage.scale;
-        console.log(angle);
-        console.log(scale);
-        console.log(shiftX);
-        console.log(shiftY);
         var cosAngleScale = scale * Fast.cos(angle);
         var sinAngleScale = scale * Fast.sin(angle);
         // shortcuts
@@ -311,7 +339,7 @@ var Make = {};
             let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
             mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
             mapOut.x = h;
-            inputImage.getInterpolated(color,mapOut);
+            inputImage.getInterpolated(color, mapOut);
             controlImage.setOpaque(mapOut);
         });
         Make.outputImage.pixelCanvas.showPixel();
@@ -323,6 +351,6 @@ var Make = {};
      * (or any change in output image) depending on color symmetry
      * @method Make.updateOutputImage
      */
-    Make.updateOutputImage=Make.updateOutputImageNoColorSymmetry;
+    Make.updateOutputImage = Make.updateOutputImageNoColorSymmetry;
 
 }());

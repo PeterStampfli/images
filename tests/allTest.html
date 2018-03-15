@@ -46,6 +46,7 @@ Make.createControlImage("controlCanvas",200)
 Make.createArrowController("arrowController",200)
 Make.createImageInputButton("imageInput")
 
+Make.setInitialInputRange(-1,1,-1);
 Make.setMapping(function (inp,out) {
 	out.x=inp.x*inp.x-inp.y*inp.y;
 	out.y=inp.x*inp.y+inp.y*inp.x;
@@ -54,8 +55,6 @@ Make.setMapping(function (inp,out) {
 
 Make.setOutputSize(400,400);
 
-Make.setInitialInputRange(-1,1,-1);
-Make.resetInputRange();
 Make.updateMap();
 
 </script>

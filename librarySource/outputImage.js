@@ -1,5 +1,6 @@
 /**
  * on-screen canvas with a map and mouse events to change the map
+ * maybe it would be better to isolate the map and do interactions outside ...
  * @constructor OutputImage
  * @param {String} idName - html identifier
  * @param {Map} map - a VectorMap or other map object with the same functions
@@ -18,9 +19,9 @@ function OutputImage(idName, map, width, height) {
 
     // set size, makes it visible, creates pixel
     this.setSize(width, height);
-    
+
     // linking pixelcanvas to setMapDimension
-    this.map.pixelCanvas=this.pixelCanvas;
+    this.map.pixelCanvas = this.pixelCanvas;
 
     /**
      * what to do if map changes (redraw image)
@@ -61,7 +62,7 @@ function OutputImage(idName, map, width, height) {
      */
     OutputImage.prototype.setSize = function(width, height) {
         this.pixelCanvas.setupOnscreen(width, height);
-        this.map.setMapDimensions(width,height);
+        this.map.setMapDimensions(width, height);
     };
 
     /**
