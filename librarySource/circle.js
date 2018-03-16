@@ -84,4 +84,23 @@ function Circle(radius, center) {
         return false;
     };
 
+    /**
+     * invert a point at the circle ONLY if the point lies INSIDE the circle
+     * @method Circle.invert
+     * @param {Vector2} v - vector, position of the point
+     * @return {boolean} true if the point has been inverted
+     */
+    Circle.prototype.invertOutsideIn = function(v) {
+        const dx = v.x - this.center.x;
+        const dy = v.y - this.center.y;
+        const pointR2 = dx * dx + dy * dy;
+        if (this.radius2 + 0.0001 < pointR2) {
+            const factor = this.radius2 / pointR2;
+            v.x = this.center.x + dx * factor;
+            v.y = this.center.y + dy * factor;
+            return true;
+        }
+        return false;
+    };
+    
 }());

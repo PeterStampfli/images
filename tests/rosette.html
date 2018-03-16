@@ -3,11 +3,10 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>ALL Test</title>
+    <title>rosette</title>
 </head>
 
 <body>
-<p>    check the console</p>
 
 		<p>
 				Input image file:
@@ -24,8 +23,6 @@
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
-<script src="../librarySource/circle.js"></script>
-<script src="../librarySource/line.js"></script>
 <script src="../librarySource/buttonLib.js"></script>
 <script src="../librarySource/colorLib.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
@@ -41,24 +38,26 @@
 
 Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
 
-Make.outputImage.setCoordinates(-1,-1,1);
-
 Make.createControlImage("controlCanvas",200)
 
 Make.createArrowController("arrowController",200)
 Make.createImageInputButton("imageInput")
 
 Make.setInitialInputRange(-1,1,-1);
+
+mirrors=new TwoMirrors();
+mirrors.setK(3);
+
 Make.setMapping(function (inp,out) {
-	out.x=inp.x*inp.x-inp.y*inp.y;
-	out.y=inp.x*inp.y+inp.y*inp.x;
+	
+	out.set(inp);
+	mirrors.map(out);
 	return true;
 });
 
 Make.setOutputSize(400,400);
 
 Make.updateMap();
-Make.readImageWithFilePath("test.jpg");
 
 </script>
 

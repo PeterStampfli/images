@@ -62,6 +62,7 @@ var Make = {};
     Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
         Make.map = new VectorMap();
         Make.outputImage = new OutputImage(idName, Make.map, width, height);
+        Make.map.OutputImage=Make.outputImage;
         Make.outputImage.action = Make.shiftScaleMapInput;
         Make.updateOutputImage = Make.updateOutputImageNoColorSymmetry;
     };
@@ -132,6 +133,7 @@ var Make = {};
      * @method.resetInputRange
      */
     Make.resetInputRange = function() {
+        Make.outputImage.setCoordinates(Make.xMin,Make.yMin,Make.xMax);
         Make.map.setXRange(Make.xMin, Make.xMax);
         Make.map.setYmin(Make.yMin);
     };
@@ -193,25 +195,19 @@ var Make = {};
      * put it in controlImage, set parameters of 3rd mapping to give a good sampling range (fillfactor ?)
      * redraw as for changes in 3rd mapping
      */
-
-    /**
-     * reading an input image, show result if the 2nd nonlinear mapping exists
-     * the mapping should have been done before
-     * @method Make.readImage
-     * @param {Button} imageInputButton
-     */
-    Make.readImage = function(imageInputButton) {
-        Make.inputImage.readImage(imageInputButton.button.files[0], function() {
-            Make.controlImage.loadInputImage(Make.inputImage);
-            if (!Make.map.exists) {
-                console.log("*** Make.readImage: map does not exist !");
-                return;
-            }
-            Make.getMapOutputRange();
-            Make.adjustInputImageSampling();
-            Make.updateOutputImage();
-        });
-    };
+    
+    // callback function to call after an image has been read
+    // puts image on controlImage, show result if the 2nd nonlinear mapping exists
+    function readImageAction() {
+        Make.controlImage.loadInputImage(Make.inputImage);
+        if (!Make.map.exists) {
+            console.log("*** Make.readImage: map does not exist !");
+            return;
+        }
+        Make.getMapOutputRange();
+        Make.adjustInputImageSampling();
+        Make.updateOutputImage();
+    }
 
     /**
      * create an image input button
@@ -221,8 +217,17 @@ var Make = {};
     Make.createImageInputButton = function(idName) {
         let button = new Button(idName);
         button.onChange(function() {
-            Make.readImage(button);
+            Make.inputImage.readImageFromFileBlob(button.button.files[0], readImageAction);
         });
+    };
+    
+    /**
+     * read an image with given file path and show result
+     * @method Make.readImageWithFilePath
+     * @param {String} filePath - relative file path of image
+     */
+    Make.readImageWithFilePath=function(filePath){
+        Make.inputImage.readImageWithFilePath(filePath,readImageAction);
     };
 
     /*

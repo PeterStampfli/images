@@ -16,6 +16,7 @@ function VectorMap() {
     this.xArray = new Float32Array(4);
     this.yArray = new Float32Array(4);
     this.pixelCanvas = null;
+    this.outputImage=null;
 }
 
 
@@ -119,18 +120,22 @@ function VectorMap() {
     };
 
     /**
-     * set or reset the dimensions of the map, rescale to obtain the same region
+     * set or reset the dimensions of the map, rescale to obtain the same region, does nothing if size has not changed
      * @method VectorMap#setMapDimensions
      * @param {integer} width - of the map
      * @param {integer} height - of the map
      */
     VectorMap.prototype.setMapDimensions = function(width, height) {
-        this.multiplyInputScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
-        this.width = width;
-        this.height = height;
-        const length = width * height;
-        this.xArray = new Float32Array(length);
-        this.yArray = new Float32Array(length);
+        if ((width!=this.width)||(height!=this.heigth)){
+            this.multiplyInputScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
+            this.width = width;
+            this.height = height;
+            const length = width * height;
+            if (length>this.xArray.length){
+                this.xArray = new Float32Array(length);
+                this.yArray = new Float32Array(length);
+            }
+        }
     };
 
     /**
