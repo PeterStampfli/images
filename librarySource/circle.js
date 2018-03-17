@@ -102,5 +102,5 @@ function Circle(radius, center) {
         }
         return false;
     };
-    
+
 }());

@@ -77,7 +77,7 @@ function PixelCanvas(idName) {
     PixelCanvas.prototype.setSize = function(width, height) {
         width = Math.round(width);
         height = Math.round(height);
-        if ((this.width != width) || (this.height != height)) { 
+        if ((this.width != width) || (this.height != height)) {
             this.width = width;
             this.height = height;
             this.canvas.width = width;
@@ -178,12 +178,12 @@ function PixelCanvas(idName) {
             saveAs(blob, fileName + '.png');
         }, 'image/png');
     };
-    
+
     /** create an image with onload function that creates pixels and executes given action
      * @method PixelCanvas#createImageOnloadPixels
      * @param {function} action - callback after image has been loaded
      */
-    PixelCanvas.prototype.createImageOnloadPixels=function(action){
+    PixelCanvas.prototype.createImageOnloadPixels = function(action) {
         var pixelCanvas = this;
         var image = new Image();
         image.onload = function() {
@@ -204,13 +204,13 @@ function PixelCanvas(idName) {
      * @param {function} action - callback, to do after loading is finished
      */
     PixelCanvas.prototype.readImageFromFileBlob = function(file, action) {
-        var image=this.createImageOnloadPixels(action);
+        var image = this.createImageOnloadPixels(action);
         fileReader.onload = function() {
             image.src = fileReader.result;
         };
-        fileReader.readAsDataURL(file);          
+        fileReader.readAsDataURL(file);
     };
-    
+
     /**
      * read an image with given (relative) file path
      * draw it on canvas, make its pixels and do some action after image is loaded
@@ -219,10 +219,10 @@ function PixelCanvas(idName) {
      * @param {function} action - callback, to do after loading is finished
      */
     PixelCanvas.prototype.readImageWithFilePath = function(filePath, action) {
-        var image=this.createImageOnloadPixels(action);
+        var image = this.createImageOnloadPixels(action);
         image.src = filePath;
     };
- 
+
     // reading a local file does not need file reader !!!
     // use directly ...
     //   searchPic.src = "XXXX/YYYY/search.png";   
@@ -234,11 +234,11 @@ function PixelCanvas(idName) {
      * @param {integer} height
      */
     PixelCanvas.prototype.setupOnscreen = function(width, height) {
-         if ((this.width != width) || (this.height != height)) { 
-       this.setSize(width, height);
-        this.blueScreen();
-        this.createPixel();
-         }
+        if ((this.width != width) || (this.height != height)) {
+            this.setSize(width, height);
+            this.blueScreen();
+            this.createPixel();
+        }
     };
 
     /**

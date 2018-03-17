@@ -1,137 +1,35 @@
 /**
  * making a mapping from a two-dimensional array to a space position to a single vector function, stored on a grid
  * @constructor VectorMap
+ * @param {OutputImage} outputImage - has a pixelcanvas and a transform of pixel to map input coordinates
  */
 
 /* jshint esversion:6 */
 
-function VectorMap() {
+function VectorMap(outputImage) {
     this.exists = false;
-    this.cornerX = 0;
-    this.cornerY = 0;
-    this.scale = 1;
-    this.zoomFactor = 1.05;
     this.width = 2;
     this.height = 2;
     this.xArray = new Float32Array(4);
     this.yArray = new Float32Array(4);
-    this.pixelCanvas = null;
-    this.outputImage=null;
+    this.outputImage = outputImage;
 }
-
 
 (function() {
     "use strict";
 
     /**
-     * set the position of the upper left corner in the input coordinate system
-     * @method VectorMap#setInputCorner
-     * @param {float} x - coordinate of corner
-     * @param {float} y - coordinate of corner
-     */
-    VectorMap.prototype.setInputCorner = function(x, y) {
-        this.cornerX = x;
-        this.cornerY = y;
-    };
-
-    /**
-     * shift the position  
-     * @method VectorMap#shiftInputCorner
-     * @param {float} x - change in coordinate of corner
-     * @param {float} y - change in coordinate of corner
-     */
-    VectorMap.prototype.shiftInputCorner = function(x, y) {
-        this.cornerX += x;
-        this.cornerY += y;
-    };
-
-    /**
-     * set the scale 
-     * @method VectorMap#setInputScale
-     * @param {float} scale
-     */
-    VectorMap.prototype.setInputScale = function(scale) {
-        this.scale = scale;
-    };
-
-    /**
-     * multiply the scale for zooming
-     * @method VectorMap#multiplyInputScale
-     * @param {float} factor
-     */
-    VectorMap.prototype.multiplyInputScale = function(factor) {
-        this.scale *= factor;
-    };
-
-    /**
-     * set the range for input x-coordinate values of the mapping
-     * @method VectorMap#setXRange
-     * @param {float} xMin
-     * @param {flpoat} xMax
-     */
-    VectorMap.prototype.setXRange = function(xMin, xMax) {
-        if (this.width > 1) {
-            this.setInputScale((xMax - xMin) / (this.width - 1));
-        }
-        this.cornerX = xMin;
-    };
-
-    /**
-     * set the lowest input y-coordinate values of the mapping
-     * @method VectorMap#setYMin
-     * @param {float} yMin
-     */
-    VectorMap.prototype.setYmin = function(yMin) {
-        this.cornerY = yMin;
-    };
-
-    /**
-     * mouse shifts the image, action method for mouse handler linked to the canvas, needs image update
-     * @method Vector.mouseShift
-     * @param {MouseEvents} mouseEvents - contains the data
-     */
-    VectorMap.prototype.mouseShift = function(mouseEvents) {
-        this.shiftInputCorner(-mouseEvents.dx * this.scale, -mouseEvents.dy * this.scale);
-    };
-
-    /**
-     * zoom with given factor to/from given point (mouse position)
-     * @method VectorMap#zoom
-     * @param {float} factor - zoom factor
-     * @param {float} x - coordinate of zooming center
-     * @param {float} y - coordinate of zooming center
-     */
-    VectorMap.prototype.zoom = function(factor, x, y) {
-        this.shiftInputCorner(this.scale * (1 - factor) * x, this.scale * (1 - factor) * y);
-        this.multiplyInputScale(factor);
-    };
-
-    /**
-     * mouse wheel zooms the image, action method for mouse handler linked to the canvas, needs image update
-     * @method Vector.mouseZoom
-     * @param {MouseEvents} mouseEvents - contains the data
-     */
-    VectorMap.prototype.mouseZoom = function(mouseEvents) {
-        if (mouseEvents.wheelDelta > 0) {
-            this.zoom(this.zoomFactor, mouseEvents.x, mouseEvents.y);
-        } else {
-            this.zoom(1 / this.zoomFactor, mouseEvents.x, mouseEvents.y);
-        }
-    };
-
-    /**
      * set or reset the dimensions of the map, rescale to obtain the same region, does nothing if size has not changed
-     * @method VectorMap#setMapDimensions
+     * @method VectorMap#setSize
      * @param {integer} width - of the map
      * @param {integer} height - of the map
      */
-    VectorMap.prototype.setMapDimensions = function(width, height) {
-        if ((width!=this.width)||(height!=this.heigth)){
-            this.multiplyInputScale(Math.sqrt((this.width - 1) * (this.height - 1) / (width - 1) / (height - 1)));
+    VectorMap.prototype.setSize = function(width, height) {
+        if ((width != this.width) || (height != this.heigth)) {
             this.width = width;
             this.height = height;
             const length = width * height;
-            if (length>this.xArray.length){
+            if (length > this.xArray.length) {
                 this.xArray = new Float32Array(length);
                 this.yArray = new Float32Array(length);
             }
@@ -152,12 +50,12 @@ function VectorMap() {
         let height = this.height;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let scale = this.scale;
+        let scale = this.outputImage.scale;
         let index = 0;
         const invalid = 1e20;
-        mapIn.y = this.cornerY;
+        mapIn.y = this.outputImage.cornerY;
         for (var j = 0; j < height; j++) {
-            mapIn.x = this.cornerX;
+            mapIn.x = this.outputImage.cornerX;
             for (var i = 0; i < width; i++) {
                 if (mapping(mapIn, mapOut)) {
                     xArray[index] = mapOut.x;
@@ -187,7 +85,7 @@ function VectorMap() {
         const limit = 10000;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = xArray.length;
+        let length = this.width * this.height;
         for (var index = 0; index < length; index++) {
             x = xArray[index];
             if (x < limit) {
@@ -215,7 +113,7 @@ function VectorMap() {
         let dy = -newOrigin.y;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = xArray.length;
+        let length = this.width * this.height;
         for (var index = 0; index < length; index++) {
             xArray[index] += dx;
             yArray[index] += dy;
@@ -238,7 +136,7 @@ function VectorMap() {
         const limit = 10000;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = xArray.length;
+        let length = this.width * this.height;
         for (var index = 0; index < length; index++) {
             x = xArray[index];
             if (x < limit) {
@@ -262,13 +160,12 @@ function VectorMap() {
      * @param {function} mapping - from coordinates (x,y) to color
      */
     VectorMap.prototype.drawSimple = function(mapping) {
-
         let mapOut = new Vector2();
         let color = new Color(); // default: opaque black
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = xArray.length;
-        let pixelCanvas = this.pixelCanvas;
+        let length = this.width * this.height;
+        let pixelCanvas = this.outputImage.pixelCanvas;
         for (var index = 0; index < length; index++) {
             mapOut.x = xArray[index];
             mapOut.y = yArray[index];

@@ -17,18 +17,19 @@ function OutputImage(idName, map, width, height) {
     this.mouseEvents = new MouseEvents(idName);
     this.map = map;
 
-    // set size, makes it visible, creates pixel
-    this.setSize(width, height);
-
     // linking pixelcanvas to setMapDimension
     this.map.pixelCanvas = this.pixelCanvas;
-    
+
     // the linear transform between pixel indices and image coordinates
     // (x,y)= (cornerX,cornerY)+scale*(i,j)
-    
     this.cornerX = 0;
     this.cornerY = 0;
     this.scale = 1;
+    this.zoomFactor = 1.05;
+
+
+    // set size, makes it visible, creates pixel
+    this.setSize(width, height);
 
 
     /**
@@ -48,14 +49,12 @@ function OutputImage(idName, map, width, height) {
 
     // mouse wheel changes scale
     this.mouseEvents.addWheelAction(function(mouseEvents) {
-        outputImage.map.mouseZoom(mouseEvents);
         outputImage.mouseZoom(mouseEvents);
         outputImage.action();
     });
 
     // mouse move shifts image
     this.mouseEvents.addMoveAction(function(mouseEvents) {
-        outputImage.map.mouseShift(mouseEvents);
         outputImage.mouseShift(mouseEvents);
         outputImage.action();
     });
@@ -65,14 +64,16 @@ function OutputImage(idName, map, width, height) {
     "use strict";
 
     /**
-     * set size of the output canvas and its map, create pixel
+     * set size of the output canvas and its scale, create pixel
      * @method OutputImage#setSize
      * @param {float} width
      * @param {float} height
      */
     OutputImage.prototype.setSize = function(width, height) {
-        this.pixelCanvas.setupOnscreen(width, height);  // does nothing if size has not changed
-        this.map.setMapDimensions(width, height);
+        if (this.pixelCanvas.width > 0) {
+            this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
+        }
+        this.pixelCanvas.setupOnscreen(width, height); // does nothing if size has not changed
     };
 
     /**
@@ -83,26 +84,38 @@ function OutputImage(idName, map, width, height) {
     OutputImage.prototype.setAction = function(action) {
         this.action = action;
     };
-    
+
     // modifying the input transform
+
     /**
-     * set input coordinates
+     * make that the canvas context transform agrees with the input transform from üpixel to coordinates
+     * is essentially the inverse
+     * @method OutputImage#adjustCanvasTransform
+     */
+    OutputImage.prototype.adjustCanvasTransform = function() {
+        let context = this.pixelCanvas.canvasContext;
+        context.setTransform(0, 0, 0, 0, -this.cornerX, -this.cornerY); // unshift
+        context.transform(1 / this.scale, 0, 1 / this.scale, 0, 0, 0);
+    };
+
+    /**
+     * set input coordinates, transform and adjust canvas transform
      * @method OutputImage#setCoordinates
      * @param {float} xMin - lowest value for x-coordinate
      * @param {float} yMin - lowest value for y-coordinate
      * @param {float} xMax - highest value for x-coordinate
      */
-    OutputImage.prototype.setCoordinates=function(xMin,yMin,xMax){
-        this.cornerX=xMin;
-        this.cornerY=yMin;
+    OutputImage.prototype.setCoordinates = function(xMin, yMin, xMax) {
+        this.cornerX = xMin;
+        this.cornerY = yMin;
         if (this.pixelCanvas.width > 1) {
-            this.scale=(xMax - xMin) / (this.pixelCanvas.width - 1);
-        }
-        else {
+            this.scale = (xMax - xMin) / (this.pixelCanvas.width - 1);
+        } else {
             console.log(" ***Output.setCoordinates: width of canvas=0");
         }
+        this.adjustCanvasTransform();
     };
-    
+
     /**
      * mouse shifts the image, action method for mouse handler linked to the canvas, 
      * needs image update
@@ -110,11 +123,12 @@ function OutputImage(idName, map, width, height) {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     OutputImage.prototype.mouseShift = function(mouseEvents) {
-        this.cornerX-=mouseEvents.dx * this.scale;
-        this.cornerY-=mouseEvents.dy * this.scale;
+        this.cornerX -= mouseEvents.dx * this.scale;
+        this.cornerY -= mouseEvents.dy * this.scale;
+        this.adjustCanvasTransform();
     };
 
-    
+
     /**
      * zoom with given factor to/from given point (mouse position) as center
      * @method OutputImage#zoom
@@ -123,9 +137,10 @@ function OutputImage(idName, map, width, height) {
      * @param {float} y - coordinate of zooming center
      */
     OutputImage.prototype.zoom = function(factor, x, y) {
-        this.cornerX+=this.scale * (1 - factor) * x;
-        this.cornerY+=this.scale * (1 - factor) * y;
-        this.scale*=factor;
+        this.cornerX += this.scale * (1 - factor) * x;
+        this.cornerY += this.scale * (1 - factor) * y;
+        this.scale *= factor;
+        this.adjustCanvasTransform();
     };
 
     /**
@@ -141,6 +156,5 @@ function OutputImage(idName, map, width, height) {
             this.zoom(1 / this.zoomFactor, mouseEvents.x, mouseEvents.y);
         }
     };
-
 
 }());

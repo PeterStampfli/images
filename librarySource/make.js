@@ -37,6 +37,7 @@ var Make = {};
 (function() {
     "use strict";
 
+
     /*
     attach the (user) interaction elements
     */
@@ -61,10 +62,11 @@ var Make = {};
     */
     Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
         Make.map = new VectorMap();
+        Make.map.setSize(width, height);
         Make.outputImage = new OutputImage(idName, Make.map, width, height);
-        Make.map.OutputImage=Make.outputImage;
+        Make.map.outputImage = Make.outputImage;
         Make.outputImage.action = Make.shiftScaleMapInput;
-        Make.updateOutputImage = Make.updateOutputImageNoColorSymmetry;
+        Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
     };
 
     /**
@@ -133,9 +135,7 @@ var Make = {};
      * @method.resetInputRange
      */
     Make.resetInputRange = function() {
-        Make.outputImage.setCoordinates(Make.xMin,Make.yMin,Make.xMax);
-        Make.map.setXRange(Make.xMin, Make.xMax);
-        Make.map.setYmin(Make.yMin);
+        Make.outputImage.setCoordinates(Make.xMin, Make.yMin, Make.xMax);
     };
 
     /*
@@ -195,7 +195,7 @@ var Make = {};
      * put it in controlImage, set parameters of 3rd mapping to give a good sampling range (fillfactor ?)
      * redraw as for changes in 3rd mapping
      */
-    
+
     // callback function to call after an image has been read
     // puts image on controlImage, show result if the 2nd nonlinear mapping exists
     function readImageAction() {
@@ -206,7 +206,7 @@ var Make = {};
         }
         Make.getMapOutputRange();
         Make.adjustInputImageSampling();
-        Make.updateOutputImage();
+        Make.updateMapOutput();
     }
 
     /**
@@ -220,14 +220,14 @@ var Make = {};
             Make.inputImage.readImageFromFileBlob(button.button.files[0], readImageAction);
         });
     };
-    
+
     /**
      * read an image with given file path and show result
      * @method Make.readImageWithFilePath
      * @param {String} filePath - relative file path of image
      */
-    Make.readImageWithFilePath=function(filePath){
-        Make.inputImage.readImageWithFilePath(filePath,readImageAction);
+    Make.readImageWithFilePath = function(filePath) {
+        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
     };
 
     /*
@@ -267,6 +267,7 @@ var Make = {};
     */
     Make.setOutputSize = function(width, height) {
         Make.outputImage.setSize(width, height);
+        Make.map.setSize(width, height);
         if (Make.mapping === null) {
             console.log("*** Make.setOutputSize: there is no mapping function !");
             return;
@@ -314,12 +315,37 @@ var Make = {};
     show control pixels
     */
 
+    var shiftX, shiftY, cosAngleScale, sinAngleScale;
+    var inputImage, controlImage;
+
+    /**
+     * creating pixel from map data for the map.draw method without color symmetry
+     * @method Make.pixelFromMapDataNoColorSymmetry
+     * @param {Vector2} mapOut - map position data
+     * @param {Color} color - for the pixel
+     */
+    Make.pixelFromMapDataNoColorSymmetry = function(mapOut, color) {
+        let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
+        mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
+        mapOut.x = h;
+        inputImage.getInterpolated(color, mapOut);
+        controlImage.setOpaque(mapOut);
+    };
+
+    /**
+     * creating pixel from map data for the map.draw method
+     * @method Make.pixelFromMapData
+     * @param {Vector2} mapOut - map position data, additional data possible such as color
+     * @param {Color} color - for the pixel
+     */
+    Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
+
     /**
      * do everything for changes in the 3rd mapping 
      * (or any change in output image) without color symmetry
      * @method Make.updateOutputImageNoColorSymmetry
      */
-    Make.updateOutputImageNoColorSymmetry = function() {
+    Make.updateMapOutput = function() {
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
@@ -329,33 +355,31 @@ var Make = {};
             return;
         }
         // get parameters
-        var shiftX = Make.controlImage.shiftX;
-        var shiftY = Make.controlImage.shiftY;
+        shiftX = Make.controlImage.shiftX;
+        shiftY = Make.controlImage.shiftY;
         var angle = Make.arrowController.angle;
         var scale = Make.controlImage.scale;
-        var cosAngleScale = scale * Fast.cos(angle);
-        var sinAngleScale = scale * Fast.sin(angle);
+        cosAngleScale = scale * Fast.cos(angle);
+        sinAngleScale = scale * Fast.sin(angle);
         // shortcuts
-        var inputImage = Make.inputImage;
-        var controlImage = Make.controlImage;
-        controlImage.semiTransparent();
+        inputImage = Make.inputImage;
+        controlImage = Make.controlImage;
+        Make.controlImage.semiTransparent();
         // generate image by looking up input colors at result of the nonlinear map, transformed by 3rd linear transform
-        Make.map.draw(function(mapOut, color) {
-            let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
-            mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
-            mapOut.x = h;
-            inputImage.getInterpolated(color, mapOut);
-            controlImage.setOpaque(mapOut);
-        });
+        Make.map.draw(Make.pixelFromMapData);
         Make.outputImage.pixelCanvas.showPixel();
-        controlImage.pixelCanvas.showPixel();
+        Make.controlImage.pixelCanvas.showPixel();
     };
 
     /**
      * do everything for changes in the 3rd mapping 
-     * (or any change in output image) depending on color symmetry
+     * (or any change in output image) depending on color symmetry for map output
+     * additional drawing possible
      * @method Make.updateOutputImage
      */
-    Make.updateOutputImage = Make.updateOutputImageNoColorSymmetry;
+    Make.updateOutputImage = Make.updateMapOutput;
+
+
+
 
 }());
