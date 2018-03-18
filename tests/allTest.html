@@ -38,8 +38,22 @@
 
 <script type="text/javascript">
     console.log("hi");
+    
+
+    
+Make.updateOutputImage=function(){
+console.log("out");
+Make.updateMapOutput();
+c.draw(Make.outputImage);
+};
+
+console.log(Make.updateOutputImage.toString());
+
 
 Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
+    Make.outputImage.pixelCanvas.canvasContext.style='red'
+        Make.outputImage.pixelCanvas.canvasContext.lineWidth=5
+
 
 Make.outputImage.setCoordinates(-1,-1,1);
 
@@ -56,6 +70,9 @@ Make.setMapping(function (inp,out) {
 });
 
 Make.setOutputSize(400,400);
+
+c=new Circle(1,new Vector2(0,0))
+
 
 Make.updateMap();
 Make.readImageWithFilePath("test.jpg");

@@ -206,7 +206,7 @@ var Make = {};
         }
         Make.getMapOutputRange();
         Make.adjustInputImageSampling();
-        Make.updateMapOutput();
+        Make.updateOutputImage();
     }
 
     /**
@@ -377,7 +377,7 @@ var Make = {};
      * additional drawing possible
      * @method Make.updateOutputImage
      */
-    Make.updateOutputImage = Make.updateMapOutput;
+    Make.updateOutputImage = Make.updateMapOutput; //default
 
 
 

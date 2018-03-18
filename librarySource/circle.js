@@ -5,8 +5,6 @@
  * @param {Vector2} center
  */
 
-
-
 /* jshint esversion:6 */
 
 function Circle(radius, center) {
@@ -14,7 +12,6 @@ function Circle(radius, center) {
     this.setRadius(radius);
     this.setCenter(center);
 }
-
 
 (function() {
     "use strict";
@@ -37,6 +34,31 @@ function Circle(radius, center) {
      */
     Circle.prototype.setCenter = function(center) {
         this.center = center;
+    };
+
+    /*
+     * drawing the circle: set styles before
+     * context.strokeStyle='red';
+     * context.lineWidth=10;
+     * 
+    /**
+     *  draw the circle on an output image
+     * @method Circle#draw
+     * @param {OutputImage} outputImage
+     */
+    Circle.prototype.draw = function(outputImage) {
+        let context = outputImage.pixelCanvas.canvasContext;
+        context.strokeStyle = "red";
+        context.lineWidth = 5 * outputImage.scale;
+        console.log("cir cle");
+        context.beginPath();
+        context.moveTo(this.center.x + this.radius, this.center.y);
+        context.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI);
+        context.moveTo(300, 200);
+        //context.arc(200,200,100,0,2*Math.PI);
+
+        context.stroke();
+
     };
 
     /**
