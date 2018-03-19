@@ -25,6 +25,7 @@
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/fastFunLib.js"></script>
 <script src="../librarySource/circle.js"></script>
+<script src="../librarySource/point.js"></script>
 <script src="../librarySource/line.js"></script>
 <script src="../librarySource/buttonLib.js"></script>
 <script src="../librarySource/colorLib.js"></script>
@@ -39,15 +40,17 @@
 <script type="text/javascript">
     console.log("hi");
     
-
+p=new Point(new Vector2(0,0.5))
     
 Make.updateOutputImage=function(){
 console.log("out");
 Make.updateMapOutput();
 c.draw(Make.outputImage);
+l.draw(Make.outputImage);
+p.draw(Make.outputImage);
+
 };
 
-console.log(Make.updateOutputImage.toString());
 
 
 Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
@@ -73,10 +76,13 @@ Make.setOutputSize(400,400);
 
 c=new Circle(1,new Vector2(0,0))
 
+l=new Line(new Vector2(-0.5,-0.5),new Vector2(0.5,0.5))
+l.setLineWidth(20);
 
 Make.updateMap();
 Make.readImageWithFilePath("test.jpg");
-
+Make.outputImage.pixelCanvas.canvas.style.cursor="progress";
+Make.outputImage.setCursorStyle("none");
 </script>
 
 </html>

@@ -77,6 +77,16 @@ function OutputImage(idName, map, width, height) {
     };
 
     /**
+     * set the cursor shape (style "default","arrow","none",...) on the output image
+     * @method OutputImage#setCursorStyle
+     * @param {String} shape
+     */
+    OutputImage.prototype.setCursorStyle = function(shape) {
+        console.log("cursor " + shape);
+        this.pixelCanvas.canvas.style.cursor = shape;
+    };
+
+    /**
      * set the action() - function for this controller, called at each position or scale change for instant following
      * @method OutputImage#setAction
      * @param {function} action

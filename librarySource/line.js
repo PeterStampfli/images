@@ -9,9 +9,9 @@
 
 function Line(a, b) {
     "use strict";
-    this.setA(a);
-    this.setB(b);
-    this.update();
+    this.setAB(a, b);
+    this.color = "blue"; // default
+    this.lineWidth = 5;
 }
 
 
@@ -19,27 +19,42 @@ function Line(a, b) {
     "use strict";
 
     /**
-     * set the first point, needs update
-     * @method Line.setA
+     * set the first point, updates
+     * @method Line#setA
      * @param {Vector2} a - new first endpoint
      */
     Line.prototype.setA = function(a) {
         this.a = a;
+        this.update();
     };
 
     /**
-     * set the second point, neeeds update
-     * @method Line.setB
+     * set the second point, updates
+     * @method Line#setB
      * @param {Vector2} b - new second endpoint
      */
     Line.prototype.setB = function(b) {
         this.b = b;
+        this.update();
     };
 
     /**
-     * update the line data (unit vector from a to b), call after endpoints change
+     * set both points, updates
+     * @method Line#setAB
+     * @param {Vector2} a - new first endpoint
+     * @param {Vector2} b - new second endpoint
+     */
+    Line.prototype.setAB = function(a, b) {
+        this.a = a;
+        this.b = b;
+        this.update();
+    };
+
+    /**
+     * update the line data (unit vector from a to b), 
+     * call after endpoints change or their data changes
      * calculates the unit vector along the line, needed for mirror symmetries
-     * @Line#update
+     * @method Line#update
      */
     Line.prototype.update = function() {
         this.ex = this.bx - this.ax;
@@ -47,6 +62,40 @@ function Line(a, b) {
         const factor = 1 / (this.ex * this.ex + this.ey * this.ey);
         this.ex *= factor;
         this.ey *= factor;
+    };
+
+    /**
+     * set color
+     * @method Line#setColor
+     * @param {String} color - stroke style 
+     */
+    Line.prototype.setColor = function(color) {
+        this.color = color;
+    };
+
+    /**
+     * set line width
+     * @method Line#setLineWidth
+     * @param {float} lineWidth 
+     */
+    Line.prototype.setLineWidth = function(lineWidth) {
+        this.lineWidth = lineWidth;
+    };
+
+    /**
+     * draw the line on an output image
+     * @method Line#draw
+     * @param {OutputImage} outputImage
+     */
+    Line.prototype.draw = function(outputImage) {
+        let context = outputImage.pixelCanvas.canvasContext;
+        context.lineCap = 'round';
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth * outputImage.scale;
+        context.beginPath();
+        context.moveTo(this.a.x, this.a.y);
+        context.lineTo(this.b.x, this.b.y);
+        context.stroke();
     };
 
     /**

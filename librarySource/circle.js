@@ -11,6 +11,8 @@ function Circle(radius, center) {
     "use strict";
     this.setRadius(radius);
     this.setCenter(center);
+    this.color = "blue"; // default
+    this.lineWidth = 5;
 }
 
 (function() {
@@ -36,29 +38,38 @@ function Circle(radius, center) {
         this.center = center;
     };
 
-    /*
-     * drawing the circle: set styles before
-     * context.strokeStyle='red';
-     * context.lineWidth=10;
-     * 
     /**
-     *  draw the circle on an output image
+     * set color
+     * @method Circle#setColor
+     * @param {String} color - stroke style 
+     */
+    Circle.prototype.setColor = function(color) {
+        this.color = color;
+    };
+
+    /**
+     * set line width
+     * @method Circle#setLineWidth
+     * @param {float} lineWidth 
+     */
+    Circle.prototype.setLineWidth = function(lineWidth) {
+        this.lineWidth = lineWidth;
+    };
+
+    /**
+     * draw the circle on an output image
      * @method Circle#draw
      * @param {OutputImage} outputImage
      */
     Circle.prototype.draw = function(outputImage) {
         let context = outputImage.pixelCanvas.canvasContext;
-        context.strokeStyle = "red";
-        context.lineWidth = 5 * outputImage.scale;
-        console.log("cir cle");
+        context.lineCap = 'butt';
+        context.strokeStyle = this.color;
+        context.lineWidth = this.lineWidth * outputImage.scale;
         context.beginPath();
         context.moveTo(this.center.x + this.radius, this.center.y);
         context.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI);
-        context.moveTo(300, 200);
-        //context.arc(200,200,100,0,2*Math.PI);
-
         context.stroke();
-
     };
 
     /**
