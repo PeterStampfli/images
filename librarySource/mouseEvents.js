@@ -8,6 +8,7 @@
 
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
+    // the event data
     this.x = 0;
     this.y = 0;
     this.lastX = 0;
@@ -16,6 +17,27 @@ function MouseEvents(idName) {
     this.dy = 0;
     this.pressed = false;
     this.wheelDelta = 0;
+    // event action - strategy pattern
+
+    // do nothing function as default
+    var doNothing = function(mouseEvents) {};
+
+    this.downAction = function() {
+        console.log("down")
+    };
+
+
+
+    this.moveAction = doNothing;
+    this.upAction = doNothing;
+    this.outAction = doNothing;
+    this.wheelAction = doNothing;
+
+    this.addAction("mousedown", function(mouseEvents) {
+        mouseEvents.pressed = true;
+        mouseEvents.downAction(mouseEvents);
+    });
+
 }
 
 
@@ -43,7 +65,6 @@ function MouseEvents(idName) {
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
-        // console.log(this);
     };
 
     /**

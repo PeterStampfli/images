@@ -33,7 +33,7 @@ function OutputImage(idName, map, width, height) {
 
 
     /**
-     * what to do if map changes (redraw image)
+     * what to do if map changes (move or zoom -> redraw image)
      * @method OutputImage#action
      */
     this.action = function() {};
@@ -166,6 +166,34 @@ function OutputImage(idName, map, width, height) {
         } else {
             this.zoom(1 / this.zoomFactor, mouseEvents.x, mouseEvents.y);
         }
+    };
+
+    /**
+     * draw on the outputImage pixel by pixel
+     * @method OutputImage#drawPixel
+     * @param {function} mapping - from Vector2(position) to Color, only set color if returns true
+     */
+    OutputImage.prototype.drawPixel = function(mapping) {
+        let position = new Vector2();
+        let color = new Color();
+        let width = this.pixelCanvas.width;
+        let height = this.pixelCanvas.height;
+        let index = 0;
+        let scale = this.scale;
+        position.y = this.cornerY;
+        for (var j = 0; j < height; j++) {
+            position.x = this.cornerX;
+            for (var i = 0; i < width; i++) {
+                if (mapping(position, color)) {
+                    this.pixelCanvas.setPixelAtIndex(color, index);
+                }
+                position.x += scale;
+                index++;
+            }
+            position.y += scale;
+        }
+        this.pixelCanvas.showPixel();
+
     };
 
 }());

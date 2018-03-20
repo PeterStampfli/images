@@ -43,8 +43,14 @@
 p=new Point(new Vector2(0,0.5))
     
 Make.updateOutputImage=function(){
-console.log("out");
 Make.updateMapOutput();
+Make.outputImage.drawPixel(function(position,color){
+ if (c.contains(position)){
+ color.setRgb(255,0,0);
+ return true;
+ }
+return false;
+});
 c.draw(Make.outputImage);
 l.draw(Make.outputImage);
 p.draw(Make.outputImage);
@@ -52,12 +58,21 @@ p.draw(Make.outputImage);
 };
 
 
-
 Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
     Make.outputImage.pixelCanvas.canvasContext.style='red'
         Make.outputImage.pixelCanvas.canvasContext.lineWidth=5
 
 
+        
+  /*      
+Make.outputImage.action=function(){
+console.log("something different");
+}*/
+ /*       
+Make.outputImage.mouseEvents.addUpAction(function(mouseEvents)     {
+console.log("up it goes");
+});
+      */  
 Make.outputImage.setCoordinates(-1,-1,1);
 
 Make.createControlImage("controlCanvas",200)
@@ -81,8 +96,8 @@ l.setLineWidth(20);
 
 Make.updateMap();
 Make.readImageWithFilePath("test.jpg");
-Make.outputImage.pixelCanvas.canvas.style.cursor="progress";
-Make.outputImage.setCursorStyle("none");
+//document.body.style.cursor="crosshair";
+Make.outputImage.pixelCanvas.canvas.style.cursor="wait";
 </script>
 
 </html>
