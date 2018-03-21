@@ -61,12 +61,12 @@ var Make = {};
     * @param {integer} height - initial height
     */
     Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
+        Make.outputImage = new OutputImage(idName, width, height);
+        Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
         Make.map = new VectorMap();
         Make.map.setSize(width, height);
-        Make.outputImage = new OutputImage(idName, Make.map, width, height);
         Make.map.outputImage = Make.outputImage;
         Make.outputImage.action = Make.shiftScaleMapInput;
-        Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
     };
 
     /**

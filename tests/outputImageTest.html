@@ -44,20 +44,20 @@ console.log("action")
 vectorMap.scale=5
 
 function draw(){
-vectorMap.make(function (inm,out) {
+    vectorMap.make(function (inm,out) {
 
-	out.x=Math.abs(inm.x)
-	out.y=Math.abs(inm.y)
-return true;
-})
+            out.x=Math.abs(inm.x)
+            out.y=Math.abs(inm.y)
+    return true;
+    })
 
-vectorMap.shiftData(new Vector2(100,-100))
+    vectorMap.shiftData(new Vector2(100,-100))
 
-vectorMap.draw(function (inm,color) {
-	color.red=inm.x%256
-	color.green=Math.min(255,inm.y)
+    vectorMap.draw(function (inm,color) {
+            color.red=inm.x%256
+            color.green=Math.min(255,inm.y)
 
-})
+    })
 }
 
 outputImage.setAction(draw)

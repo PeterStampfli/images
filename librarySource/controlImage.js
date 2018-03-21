@@ -30,31 +30,24 @@ function ControlImage(idName, sizeLimit) {
      */
     this.action = function() {};
 
-    /*
-     * add standard down, up and out actions
-     */
-    this.mouseEvents.addDownAction();
-    this.mouseEvents.addUpAction();
-    this.mouseEvents.addOutAction();
-
     const controlImage = this;
 
     // mouse wheel changes scale, zoom around origin of map data
-    this.mouseEvents.addWheelAction(function(mouseEvents) {
+    this.mouseEvents.wheelAction = function(mouseEvents) {
         if (mouseEvents.wheelDelta > 0) {
             controlImage.scale *= controlImage.zoomFactor;
         } else {
             controlImage.scale /= controlImage.zoomFactor;
         }
         controlImage.action();
-    });
+    };
 
     // mouse move shifts image
-    this.mouseEvents.addMoveAction(function(mouseEvents) {
+    this.mouseEvents.moveAction = function(mouseEvents) {
         controlImage.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
         controlImage.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
         controlImage.action();
-    });
+    };
 }
 
 (function() {

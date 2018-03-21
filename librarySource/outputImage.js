@@ -3,22 +3,18 @@
  * maybe it would be better to isolate the map and do interactions outside ...
  * @constructor OutputImage
  * @param {String} idName - html identifier
- * @param {Map} map - a VectorMap or other map object with the same functions
  * @param {integer} width - initial width
  * @param {integer} height - initial height
  */
 
 /* jshint esversion:6 */
 
-function OutputImage(idName, map, width, height) {
+function OutputImage(idName, width, height) {
     "use strict";
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
-    this.map = map;
 
-    // linking pixelcanvas to setMapDimension
-    this.map.pixelCanvas = this.pixelCanvas;
 
     // the linear transform between pixel indices and image coordinates
     // (x,y)= (cornerX,cornerY)+scale*(i,j)
@@ -38,26 +34,19 @@ function OutputImage(idName, map, width, height) {
      */
     this.action = function() {};
 
-    /*
-     * add standard down, up and out actions
-     */
-    this.mouseEvents.addDownAction();
-    this.mouseEvents.addUpAction();
-    this.mouseEvents.addOutAction();
-
     const outputImage = this;
 
     // mouse wheel changes scale
-    this.mouseEvents.addWheelAction(function(mouseEvents) {
+    this.mouseEvents.wheelAction = function(mouseEvents) {
         outputImage.mouseZoom(mouseEvents);
         outputImage.action();
-    });
+    };
 
     // mouse move shifts image
-    this.mouseEvents.addMoveAction(function(mouseEvents) {
+    this.mouseEvents.moveAction = function(mouseEvents) {
         outputImage.mouseShift(mouseEvents);
         outputImage.action();
-    });
+    };
 }
 
 (function() {

@@ -36,21 +36,15 @@ function ArrowController(idName, size) {
     /*
      * adding the down action: Sets pressed to true only if mouse is on inner circle.
      */
-    this.mouseEvents.addDownAction(function(mouseEvents) {
+    this.mouseEvents.downAction = function(mouseEvents) {
         mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
-    });
+    };
 
     /*
-     * add standard up and out actions
-     */
-    this.mouseEvents.addUpAction();
-    this.mouseEvents.addOutAction();
-
-    /*
-     * add move action: change arrow position and call arrowController.action() function for redrawing instantly
+     * move action: change arrow position and call arrowController.action() function for redrawing instantly
      */
     // restrict on the circle shape
-    this.mouseEvents.addMoveAction(function(mouseEvents) {
+    this.mouseEvents.moveAction = function(mouseEvents) {
         var radius = arrowController.pixelCanvas.canvas.width / 2;
         if (mouseEvents.pressed) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
@@ -60,12 +54,13 @@ function ArrowController(idName, size) {
                 mouseEvents.pressed = false;
             }
         }
-    });
+    };
 
     /*
      * add wheel action: change arrow position and call arrowController.action() function for redrawing instantly
+     * changeAngle calls this.action
      */
-    this.mouseEvents.addWheelAction(function(mouseEvents) {
+    this.mouseEvents.wheelAction = function(mouseEvents) {
         var deltaAngle = 0.05;
         if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
             if (mouseEvents.wheelDelta > 0) {
@@ -74,8 +69,7 @@ function ArrowController(idName, size) {
                 arrowController.changeAngle(-deltaAngle);
             }
         }
-    });
-
+    };
 }
 
 (function() {
