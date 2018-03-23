@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<style>
+    button {
+        width            : 160px;
+        height           : 30px;
+        font-size        : 13px;
+        border           : none;
+        text-align       : center;
+        background-color : #444;
+        color            : #6f0;
+    }
+    button:active {
+        background-color : #779;
+    }
+</style>
+
+<button id="upload">Styled upload button!</button>
+
+<script>
+
+function Upload_On_Click(id, handler) {
+    var hidden_input = null;
+    document.getElementById(id).onclick = function() {hidden_input.click();}
+    function setup_hidden_input() {
+        hidden_input && hidden_input.parentNode.removeChild(hidden_input);
+        hidden_input = document.createElement("input");
+        hidden_input.setAttribute("type", "file");
+        hidden_input.style.visibility = "hidden";
+        document.querySelector("body").appendChild(hidden_input);
+        hidden_input.onchange = function() {
+            handler(hidden_input.files[0]);
+            setup_hidden_input();
+        };
+    }
+    setup_hidden_input();
+}
+
+Upload_On_Click("upload", function(file) {
+    console.log("GOT FILE: " + file.name);
+});
+
+</script>

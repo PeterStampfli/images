@@ -14,6 +14,7 @@
         <button type="button" id="doesSomething">
 		do it!
 	</button>
+	<span id="x">das da ist auch ein button</span>
     </p>
 </body>
 
@@ -34,6 +35,11 @@
         console.log("do something");
         numberButton.setValue(2 * numberButton.getValue());
     });
+    x=new Button("x");
+    x.onClick(function(){
+    console.log("tada");
+    });
+    x.button.style.cursor="default";
 </script>
 
 </html>

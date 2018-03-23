@@ -3,15 +3,16 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>ALL Test</title>
+    <title>styles and layout</title>
 </head>
-
 <body>
-<h1 id="x">
-titel
-</h1>
 
+<p>
+				Input image file:
+			<input type="file" accept="image/*" id="imageInput" >
+</p>
 
+<p> <button id="new"> change input image </button> <span id="filename"></span>
 
 </body>
 
@@ -19,7 +20,34 @@ titel
 <script type="text/javascript">
     console.log("hi");
     
-    document.body.style.color="red"
+    //document.getElementById('x').style.color="green";
+    console.log(window.innerWidth);
+    console.log(window.onresize);
+    
+    window.onresize=function(){
+    console.log("resize"+window.innerWidth)
+    }
+    
+    
+    
+    (function() {
+    console.log("d");
+    let button=document.getElementById("new");
+    let fileName=document.getElementById("filename");
+    let input=document.createElement("input");
+    input.setAttribute("type","file");
+    input.setAttribute("accept","image/*");
+    //input.style.display="none";
+    //document.querySelector("body").appendChild(input);
+    input.onchange=function(){
+        console.log("reading "+input.files[0].name);
+        fileName.innerHTML=input.files[0].name;
+        
+    }
+    button.onclick=function(){
+        input.click();
+    }
+    }());
  
 </script>
 
