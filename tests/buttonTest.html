@@ -3,43 +3,35 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>buttonTest</title>
+    <title>new buttonTest</title>
 </head>
 
 <body>
     <p>
-        input a number
-        <input type="text" id="aNumber" maxlength="4" />
-        <br> do something
-        <button type="button" id="doesSomething">
-		do it!
-	</button>
+
+ <input type="text" class="numbers" id="n" maxlength="4" />
+</p>
+<p>
+        
 	<span id="x">das da ist auch ein button</span>
     </p>
 </body>
 
-<script src="../librarySource/buttonLib.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
 
 
 <script type="text/javascript">
-    numberButton = new Button("aNumber");
+    button = new Button("x",true);
+    
+button.onclick=function(){
+console.log("click");
+}
 
-
-    numberButton.onChange(function() {
-        console.log("number is " + numberButton.getValue());
-    });
-
-    doButton = new Button("doesSomething");
-
-    doButton.onClick(function() {
-        console.log("do something");
-        numberButton.setValue(2 * numberButton.getValue());
-    });
-    x=new Button("x");
-    x.onClick(function(){
-    console.log("tada");
-    });
-    x.button.style.cursor="default";
+nb=new NumberButton("n");
+nb.onchange=function(){
+console.log("chnging number");
+}
 </script>
 
 </html>

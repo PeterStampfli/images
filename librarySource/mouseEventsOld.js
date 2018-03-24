@@ -28,48 +28,50 @@ function MouseEvents(idName) {
     this.outAction = doNothing;
     this.wheelAction = doNothing;
 
-    var mouseEvents = this;
-
-    this.element.onmousedown = function(event) {
-        mouseEvents.update(event);
+    this.addAction("mousedown", function(mouseEvents) {
         mouseEvents.pressed = true;
         mouseEvents.downAction(mouseEvents);
-    };
+    });
 
-    this.element.onmouseup = function(event) {
-        mouseEvents.update(event);
+    this.addAction("mouseup", function(mouseEvents) {
         if (mouseEvents.pressed) {
             mouseEvents.pressed = false;
             mouseEvents.upAction(mouseEvents);
         }
-    };
+    });
 
-    this.element.onmouseleave = function(event) {
-        mouseEvents.update(event);
+    this.addAction("mouseout", function(mouseEvents) {
         if (mouseEvents.pressed) {
             mouseEvents.pressed = false;
             mouseEvents.outAction(mouseEvents);
         }
-    };
+    });
 
-    this.element.onmousemove = function(event) {
-        mouseEvents.update(event);
+    this.addAction("mousemove", function(mouseEvents) {
         if (mouseEvents.pressed) {
             mouseEvents.moveAction(mouseEvents);
         }
-    };
+    });
 
-    this.element.onwheel = function(event) {
-        console.log("wheel" + event);
-        mouseEvents.update(event);
+    this.addAction("mousewheel", function(mouseEvents) { // chrome, opera
         mouseEvents.wheelAction(mouseEvents);
-
-    };
+    });
+    this.addAction("wheel", function(mouseEvents) { // firefox
+        mouseEvents.wheelAction(mouseEvents);
+    });
 }
 
 
 (function() {
     "use strict";
+
+    // override default mouse actions, especially important for the mouse wheel
+    // listeners for useCapture, acting in bottom down capturing phase
+    //  they should return false to stop event propagation ...
+    function stopEventPropagationAndDefaultAction(event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
 
     /**
      * read the mouse position relative to element, calculate changes, update data
@@ -85,4 +87,21 @@ function MouseEvents(idName) {
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
     };
+
+    /**
+     * Add an event with given eventName and action callback.
+     * @method MouseEvents#addAction
+     * @param {String} eventName - name for the event
+     * @param {function} action - callback action(mouseEvents) for doing something
+     */
+    MouseEvents.prototype.addAction = function(eventName, action) {
+        var mouseEvents = this; // hook to this mouseEvents object
+        this.element.addEventListener(eventName, function(event) {
+            stopEventPropagationAndDefaultAction(event);
+            mouseEvents.update(event);
+            action(mouseEvents);
+            return false;
+        }, true);
+    };
+
 }());

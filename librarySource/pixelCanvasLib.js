@@ -53,7 +53,7 @@ function PixelCanvas(idName) {
         this.canvas = document.getElementById(idName);
     } else {
         this.canvas = document.createElement("canvas"); // off-screen canvas
-        this.canvas.style.display="none";
+        this.canvas.style.display = "none";
         document.querySelector("body").appendChild(this.canvas);
     }
     this.canvasContext = this.canvas.getContext('2d');

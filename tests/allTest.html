@@ -10,8 +10,8 @@
 <p>    check the console</p>
 
 		<p>
-				Input image file:
-			<input type="file" accept="image/*" id="imageInput" >
+			<button id="b">	Input image file:</button> <span id ="o"></span>
+			
 </p>
 
 		<canvas id="outputCanvas" ></canvas>
@@ -48,7 +48,10 @@ Make.outputImage.setCoordinates(-1,-1,1);
 Make.createControlImage("controlCanvas",200)
 
 Make.createArrowController("arrowController",200)
-Make.createImageInputButton("imageInput")
+
+
+//Make.createImageInputButton("imageInput")
+Make.createImageInput("b","o");
 
 Make.setInitialInputRange(-1,1,-1);
 Make.setMapping(function (inp,out) {
@@ -57,13 +60,16 @@ Make.setMapping(function (inp,out) {
 	return true;
 });
 
-Make.setOutputSize(400,400);
+//Make.setOutputSize(400,400);
 
 
 Make.updateMap();
 //Make.readImageWithFilePath("test.jpg");
 
-document.getElementById("imageInput").click();
+//document.getElementById("imageInput").click();
+//document.body.style.cursor="wait";
+//document.getElementById("outputCanvas").style.cursor="pointer";
+
 
 </script>
 

@@ -209,26 +209,40 @@ var Make = {};
         Make.updateOutputImage();
     }
 
-    /**
-     * create an image input button
-     * @method Make.createImageInputButton
-     * @param {String} idName name (id) of the button in the HTML page
-     */
-    Make.createImageInputButton = function(idName) {
-        let button = new Button(idName);
-        button.onChange(function() {
-            Make.inputImage.readImageFromFileBlob(button.button.files[0], readImageAction);
-        });
+
+    // make an invisible input file button
+    let inputFileButton = document.createElement("input");
+    let fileNameOutput = null;
+    inputFileButton.setAttribute("type", "file");
+    inputFileButton.setAttribute("accept", "image/*");
+    inputFileButton.style.display = "none";
+    document.querySelector("body").appendChild(inputFileButton);
+    inputFileButton.onchange = function() {
+        Make.inputImage.readImageFromFileBlob(inputFileButton.files[0], readImageAction);
+        fileNameOutput.innerHTML = inputFileButton.files[0].name;
     };
 
+
     /**
-     * read an image with given file path and show result
-     * @method Make.readImageWithFilePath
-     * @param {String} filePath - relative file path of image
+     * create an image input button, and link to output element
+     * @method Make.createImageInput
+     * @param {String} idButton - name (id) of the (button) html element
+     * @param {String} idFileNameOutput - name (id) of the output html element for file name
      */
-    Make.readImageWithFilePath = function(filePath) {
-        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
+    //let imageInputButton=null;
+    Make.createImageInput = function(idButton, idFileNameOutput) {
+        let imageInputButton = new Button(idButton);
+        fileNameOutput = document.getElementById(idFileNameOutput);
+        imageInputButton.onClick(function() {
+            console.log("cll");
+            inputFileButton.click();
+        });
+        console.log(imageInputButton);
+        console.log(inputFileButton);
     };
+
+
+
 
     /*
     change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything

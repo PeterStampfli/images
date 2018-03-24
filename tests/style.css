@@ -1,7 +1,10 @@
+body{background-color:grey}
+
 .a{color: blue}
 
 .b{background-color:red}
 
-input{color:red;
+#input{color:red;
     background-color:blue
+    
 }

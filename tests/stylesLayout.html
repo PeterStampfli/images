@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <meta charset="utf-8" />
+<link href="style.css" type="text/css" rel="stylesheet">
 
 <head>
     <title>styles and layout</title>
@@ -9,10 +10,13 @@
 
 <p>
 				Input image file:
-			<input type="file" accept="image/*" id="imageInput" >
+			<input type="text" id="input" >
 </p>
 
-<p> <button id="new"> change input image </button> <span id="filename"></span>
+<p> <button id="new"> change input image </button> <span id="filename">vvvvvvvvvvvv</span>
+</p>
+
+<div id="d"> dfaregvvdfree </div>
 
 </body>
 
@@ -48,6 +52,13 @@
         input.click();
     }
     }());
+    
+    
+    document.getElementById("filename").onclick=function(){
+    console.log("click");
+    }
+    
+  // window.location="allTest.html";
  
 </script>
 

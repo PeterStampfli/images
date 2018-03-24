@@ -1,9 +1,9 @@
 /**
- * representing an input button and adding actions
+ * representing an input button and adding actions, can use any html element
  * @example see buttonTest.html
  *
  * @constructor Button
- * @param {String} idName name (id) of the button in the HTML page
+ * @param {String} idName name (id) of an html element
  */
 
 function Button(idName) {
