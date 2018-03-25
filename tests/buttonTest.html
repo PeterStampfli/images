@@ -15,10 +15,17 @@
         
 	<span id="x">das da ist auch ein button</span>
     </p>
+    <div id="f">
+    terettte
+    </div>
+    
+    <button id ="switch"> on/off </button>
 </body>
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/fileButton.js"></script>
+<script src="../librarySource/onOffButton.js"></script>
 
 
 <script type="text/javascript">
@@ -30,7 +37,21 @@ console.log("click");
 
 nb=new NumberButton("n");
 nb.onchange=function(){
-console.log("chnging number");
+console.log("chnging number "+nb.getValue());
+nb.setValue(333);
+}
+
+fb=new FileButton("f");
+fb.onchange=function(file){
+console.log(file.name)
+}
+
+s=new OnOffButton("switch");
+s.onup=function(){
+console.log("upa");
+}
+s.ondown=function(){
+console.log("downact");
 }
 </script>
 

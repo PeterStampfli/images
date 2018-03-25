@@ -27,7 +27,7 @@ function Button(idName) {
     this.element.onmousedown = function() {
         button.pressed = true;
         button.updateStyle();
-    }
+    };
 
     this.element.onmouseup = function() {
         if (button.pressed) {
@@ -35,23 +35,18 @@ function Button(idName) {
         }
         button.pressed = false;
         button.updateStyle();
-
-    }
+    };
 
     // hovering
     this.element.onmouseenter = function() {
         button.hover = true;
         button.updateStyle();
-    }
+    };
 
     this.element.onmouseleave = function() {
         button.hover = false;
-        if (button.pressed) {
-            button.onclick();
-        }
-        button.pressed = false;
-        button.updateStyle();
-    }
+        button.element.onmouseup();
+    };
 
 }
 
