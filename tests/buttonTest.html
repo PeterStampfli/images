@@ -16,23 +16,21 @@
 	<span id="x">das da ist auch ein button</span>
     </p>
     <div id="f">
-    terettte
+    file
     </div>
     
-    <button id ="switch"> on/off </button>
 </body>
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
 <script src="../librarySource/fileButton.js"></script>
-<script src="../librarySource/onOffButton.js"></script>
 
 
 <script type="text/javascript">
-    button = new Button("x",true);
+    button = new Button("x",3);
     
-button.onclick=function(){
-console.log("click");
+button.onclick=function(s){
+console.log("click "+s);
 }
 
 nb=new NumberButton("n");
@@ -46,13 +44,6 @@ fb.onchange=function(file){
 console.log(file.name)
 }
 
-s=new OnOffButton("switch");
-s.onup=function(){
-console.log("upa");
-}
-s.ondown=function(){
-console.log("downact");
-}
 </script>
 
 </html>

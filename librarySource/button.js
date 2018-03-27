@@ -1,14 +1,15 @@
 /**
  * representing an input button and adding actions, can use any html element
- * simple push button
+ * simple push button, or selection between n states
  *
  * @constructor Button
  * @param {String} idName name (id) of an html element
  */
 
-function Button(idName) {
-    "use strict";
+function Button(idName, nStates = 2) {
     this.element = document.getElementById(idName);
+    this.state = 0;
+    this.nStates = nStates;
     this.pressed = false;
     this.hover = false;
     this.colorStyleDefaults();
@@ -19,8 +20,9 @@ function Button(idName) {
     /**
      * action upon click, strategy pattern
      * @method Button#onclick
+     * @param {integer} state - number of choosen option
      */
-    this.onclick = function() {};
+    this.onclick = function(state) {};
 
     var button = this;
 
@@ -31,7 +33,9 @@ function Button(idName) {
 
     this.element.onmouseup = function() {
         if (button.pressed) {
-            button.onclick();
+            button.state = (button.state + 1) % button.nStates;
+            console.log(button.state);
+            button.onclick(button.state);
         }
         button.pressed = false;
         button.updateStyle();

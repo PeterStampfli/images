@@ -8,23 +8,22 @@
 </head>
 <body>
 
-<p>
-				Input image file:
-			<input type="text" id="input" >
-</p>
+<h1> ein kurzer titel
 
-<p> <button id="new"> change input image </button> <span id="filename">vvvvvvvvvvvv</span>
+</h1>
+
+<p> ein langer text ein langer text ein langer text ein langer text ein langer text 
+ein langer text ein langer text ein langer text ein langer text ein langer text ein langer text 
 </p>
 
 <div id="d"> dfaregvvdfree </div>
-
+<!--  html comment  -->
 </body>
 
 
 <script type="text/javascript">
     console.log("hi");
     
-    //document.getElementById('x').style.color="green";
     console.log(window.innerWidth);
     console.log(window.onresize);
     
@@ -34,29 +33,8 @@
     
     
     
-    (function() {
-    console.log("d");
-    let button=document.getElementById("new");
-    let fileName=document.getElementById("filename");
-    let input=document.createElement("input");
-    input.setAttribute("type","file");
-    input.setAttribute("accept","image/*");
-    //input.style.display="none";
-    //document.querySelector("body").appendChild(input);
-    input.onchange=function(){
-        console.log("reading "+input.files[0].name);
-        fileName.innerHTML=input.files[0].name;
-        
-    }
-    button.onclick=function(){
-        input.click();
-    }
-    }());
     
     
-    document.getElementById("filename").onclick=function(){
-    console.log("click");
-    }
     
   // window.location="allTest.html";
  

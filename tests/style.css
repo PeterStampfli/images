@@ -1,10 +1,22 @@
-body{background-color:grey}
+body{background-color:LightYellow;
+    
+}
 
-.a{color: blue}
+.a{color: blue;}
 
-.b{background-color:red}
+.b{background-color:red;}
 
 #input{color:red;
-    background-color:blue
+    background-color:blue;
     
+}
+
+h1 { font-family: "Open Sans", Arial, sans-serif;
+    font-size:64px;
+    background-color:Yellow;
+}
+
+p{font-family:  sans-serif;
+    background-color:White;
+    color: dimgrey;
 }

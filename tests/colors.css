@@ -1,0 +1,47 @@
+color:red;
+background-color:blue;
+
+case insensitive
+
+7 shades of grey
+
+DimGrey  	#696969
+Grey  	        #808080
+DarkGrey  	#A9A9A9
+LightGray  	#D3D3D3
+Gainsboro  	#DCDCDC
+WhiteSmoke  	#F5F5F5
+White  	        #FFFFFF
+
+2 yellows for buttons
+
+Yellow  	#FFFF00
+LightYellow  	#FFFFE0
+
+
+
+PaleGoldenRod  	#EEE8AA
+
+LemonChiffon  	#FFFACD
+
+-----------------------------------------------------------
+
+font-family: "Open Sans", Arial, sans-serif;
+
+font-size:64px;            (kein zwischenraum vor px)
+
+
+----------------------------------------------------------
+
+window.innerWidth
+window.innerHeight
+
+window.location
+
+window.onresize
+window.onload
+
+----------------------------------------------------------
+<!--  html comment  -->
+
+/*    css comment   */
