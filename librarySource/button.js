@@ -6,6 +6,8 @@
  * @param {String} idName name (id) of an html element
  */
 
+/* jshint esversion:6 */
+
 function Button(idName, nStates = 2) {
     this.element = document.getElementById(idName);
     this.state = 0;
@@ -64,9 +66,9 @@ function Button(idName, nStates = 2) {
     Button.colorDownHover = "grey";
     Button.colorDown = "black";
     Button.backgroundColorUp = "white";
-    Button.backgroundColorUpHover = "blue";
+    Button.backgroundColorUpHover = "yellow";
     Button.backgroundColorDownHover = "red";
-    Button.backgroundColorDown = "yellow";
+    Button.backgroundColorDown = "blue";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered

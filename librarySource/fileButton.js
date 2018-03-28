@@ -33,9 +33,9 @@ function FileButton(idName) {
 
     this.element.onmouseup = function() {
         if (button.pressed) {
+            button.pressed = false;
             button.onclick();
         }
-        button.pressed = false;
         button.updateStyle();
     };
 
@@ -47,11 +47,7 @@ function FileButton(idName) {
 
     this.element.onmouseleave = function() {
         button.hover = false;
-        if (button.pressed) {
-            button.onclick();
-        }
-        button.pressed = false;
-        button.updateStyle();
+        button.element.onmouseup();
     };
 }
 

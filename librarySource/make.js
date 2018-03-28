@@ -209,20 +209,6 @@ var Make = {};
         Make.updateOutputImage();
     }
 
-
-    // make an invisible input file button
-    let inputFileButton = document.createElement("input");
-    let fileNameOutput = null;
-    inputFileButton.setAttribute("type", "file");
-    inputFileButton.setAttribute("accept", "image/*");
-    inputFileButton.style.display = "none";
-    document.querySelector("body").appendChild(inputFileButton);
-    inputFileButton.onchange = function() {
-        Make.inputImage.readImageFromFileBlob(inputFileButton.files[0], readImageAction);
-        fileNameOutput.innerHTML = inputFileButton.files[0].name;
-    };
-
-
     /**
      * create an image input button, and link to output element
      * @method Make.createImageInput
@@ -231,18 +217,13 @@ var Make = {};
      */
     //let imageInputButton=null;
     Make.createImageInput = function(idButton, idFileNameOutput) {
-        let imageInputButton = new Button(idButton);
-        fileNameOutput = document.getElementById(idFileNameOutput);
-        imageInputButton.onClick(function() {
-            console.log("cll");
-            inputFileButton.click();
-        });
-        console.log(imageInputButton);
-        console.log(inputFileButton);
+        let imageInputButton = new FileButton(idButton);
+        let fileNameOutput = document.getElementById(idFileNameOutput);
+        imageInputButton.onchange = function(file) {
+            Make.inputImage.readImageFromFileBlob(file, readImageAction);
+            fileNameOutput.innerHTML = file.name;
+        };
     };
-
-
-
 
     /*
     change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything

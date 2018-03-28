@@ -9,7 +9,7 @@ DimGrey  	#696969
 Grey  	        #808080
 DarkGrey  	#A9A9A9
 LightGray  	#D3D3D3
-Gainsboro  	#DCDCDC
+Gainsboro  	#DCDCDC   (ist das grau des browsers)
 WhiteSmoke  	#F5F5F5
 White  	        #FFFFFF
 
@@ -18,17 +18,33 @@ White  	        #FFFFFF
 Yellow  	#FFFF00
 LightYellow  	#FFFFE0
 
-
-
 PaleGoldenRod  	#EEE8AA
 
 LemonChiffon  	#FFFACD
+
+oder einfacher #rrggbb
+(hex zahl)
 
 -----------------------------------------------------------
 
 font-family: "Open Sans", Arial, sans-serif;
 
 font-size:64px;            (kein zwischenraum vor px)
+
+font-weight: bold;   (normal)
+font-style: italic; (normal)
+
+text-decoration: none;     (underline,overline,line-through)
+text-align: right; (left (?) center right justify)
+
+--------------------------------------------
+html
+
+<strong>.....</strong>      -> bold
+<em>     </em>              -> italic
+<mark> ...                  -> highlight
+<sup> ...                   -> superscript
+<sub> ...                   -> subscript
 
 
 ----------------------------------------------------------
@@ -45,3 +61,42 @@ window.onload
 <!--  html comment  -->
 
 /*    css comment   */
+
+-------------------------------------------------------
+selectors:
+
+tag                               document.getElementsByTagName(String);
+#idname                           document.getElementById(String);
+.className                        document.getElementsByClassName(String);
+tag.className
+
+------------------------------------------------
+Link html
+<a href="filepath or www.....(url)"> xxxx </a>
+or download attribute
+
+styling
+a:link                  nicht besucht
+a:visited               besucht
+a:hover               maus darüber
+a:focus                 target of current interaction
+a:active               maus darüber und gedrückt
+
+------------------------------------------------------------
+
+image html
+<img src="filepath (url)" height="nn" width="nnn">
+
+width and height in px units, auch über css
+
+vertical alignment
+
+vertical-align: top,middle,bottom, sub,super, text-top,baseline,text-bottom
+
+--------------------------------------------------------------
+
+Non-breaking space  	&nbsp;
+< 	 	&lt;
+> 	 	&gt;
+& 	 	&amp;
+" 	 "	&quot;
