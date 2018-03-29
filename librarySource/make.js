@@ -69,6 +69,7 @@ var Make = {};
         Make.outputImage.action = Make.shiftScaleMapInput;
     };
 
+
     /**
      * create the control image object
      * @method Make.createControlImage
@@ -182,7 +183,9 @@ var Make = {};
     };
 
     /**
-     * reset the parameters of the 3rd mapping for a new input image or changed 2nd nonlinear mapping
+     * reset the parameters of the 3rd mapping for a new input image 
+     * or changed 2nd nonlinear mapping
+     * sample max of input image
      * @method Make.adjustInputImageSampling
      */
     Make.adjustInputImageSampling = function() {
@@ -225,6 +228,33 @@ var Make = {};
         };
     };
 
+    /**
+     * create a button to download the output image as a jpg
+     * @method Make.createSaveImageJpg
+     * @param {String} idButton
+     * @param {String} fileName
+     */
+    Make.createSaveImageJpg = function(idButton, fileName) {
+        Make.downloadButton = new Button(idButton);
+        Make.downloadButton.onclick = function() {
+            Make.outputImage.pixelCanvas.saveImageJpg(fileName);
+        };
+    };
+
+
+    /**
+     * create a button to download the output image as a png
+     * @method Make.createSaveImagePng
+     * @param {String} idButton
+     * @param {String} fileName
+     */
+    Make.createSaveImagePng = function(idButton, fileName) {
+        Make.downloadButton = new Button(idButton);
+        Make.downloadButton.onclick = function() {
+            Make.outputImage.pixelCanvas.saveImagePng(fileName);
+        };
+    };
+
     /*
     change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything
     reset 1st mapping parameters to given ranges
@@ -260,6 +290,12 @@ var Make = {};
     recalculate map, reuse previous map range, 3rd linear mapping remains unchanged
     do as for changes in the 1st mapping
     */
+    /**
+     * set the size of the output image
+     * @method Make.setOutputSize
+     * @param {integer} width
+     * @param {integer} height
+     */
     Make.setOutputSize = function(width, height) {
         Make.outputImage.setSize(width, height);
         Make.map.setSize(width, height);
@@ -283,10 +319,14 @@ var Make = {};
     change scale or shift for the 1st mapping:
     (the output canvas already changes the 1st input mapping)
     redo the mapping
-    apply shift to the mapping output(do not change the shift or the 3rd mapping)
+    apply same shift as before to the mapping output(do not change the shift or the 3rd mapping)
     redraw as for changes in 3rd mapping
     */
 
+    /**
+     * shift or zoom the output image
+     * @method Make.shiftScaleMapInput
+     */
     Make.shiftScaleMapInput = function() {
         if (Make.mapping === null) {
             console.log("*** Make.shiftScaleMapInput: there is no mapping function !");
@@ -373,8 +413,4 @@ var Make = {};
      * @method Make.updateOutputImage
      */
     Make.updateOutputImage = Make.updateMapOutput; //default
-
-
-
-
 }());

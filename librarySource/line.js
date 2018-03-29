@@ -59,7 +59,7 @@ function Line(a, b) {
     Line.prototype.update = function() {
         this.ex = this.bx - this.ax;
         this.ey = this.by - this.bx;
-        const factor = 1 / (this.ex * this.ex + this.ey * this.ey);
+        const factor = 1 / Math.hypot(this.ex, this.ey);
         this.ex *= factor;
         this.ey *= factor;
     };

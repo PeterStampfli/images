@@ -11,6 +11,7 @@
 
 		<p>
 			<button id="b">	Input image file:</button> <span id ="o"></span>
+			<span id="dd"> download</span>
 			
 </p>
 
@@ -43,7 +44,9 @@
     console.log("hi");
     
 
-Make.createOutputImageNoColorSymmetry("outputCanvas",300,300)
+Make.createOutputImageNoColorSymmetry("outputCanvas")
+
+Make.setOutputSize(300,300)
         
 Make.outputImage.setCoordinates(-1,-1,1);
 
@@ -62,6 +65,7 @@ Make.setMapping(function (inp,out) {
 	return true;
 });
 
+Make.createSaveImagePng("dd","crazyouput");
 //Make.setOutputSize(400,400);
 
 
@@ -71,6 +75,7 @@ Make.updateMap();
 //document.getElementById("imageInput").click();
 //document.body.style.cursor="wait";
 //document.getElementById("outputCanvas").style.cursor="pointer";
+console.log(Math.hypot(1,1));
 
 
 </script>

@@ -3,13 +3,11 @@
  * maybe it would be better to isolate the map and do interactions outside ...
  * @constructor OutputImage
  * @param {String} idName - html identifier
- * @param {integer} width - initial width
- * @param {integer} height - initial height
  */
 
 /* jshint esversion:6 */
 
-function OutputImage(idName, width, height) {
+function OutputImage(idName) {
     "use strict";
 
     this.pixelCanvas = new PixelCanvas(idName);
@@ -22,11 +20,6 @@ function OutputImage(idName, width, height) {
     this.cornerY = 0;
     this.scale = 1;
     this.zoomFactor = 1.05;
-
-
-    // set size, makes it visible, creates pixel
-    this.setSize(width, height);
-
 
     /**
      * what to do if map changes (move or zoom -> redraw image)

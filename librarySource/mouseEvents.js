@@ -60,10 +60,8 @@ function MouseEvents(idName) {
     };
 
     this.element.onwheel = function(event) {
-        console.log("wheel" + event);
         mouseEvents.update(event);
         mouseEvents.wheelAction(mouseEvents);
-
     };
 }
 

@@ -13,12 +13,11 @@
 </p>
 <p>
         
-	<span id="x">das da ist auch ein button</span>
+	<span id="plus">plus</span>
+		<span id="minus">minus</span>
+
     </p>
-    <div id="f">
-    file
-    </div>
-    
+   
 </body>
 
 <script src="../librarySource/button.js"></script>
@@ -27,22 +26,15 @@
 
 
 <script type="text/javascript">
-    button = new Button("x",3);
-    
-button.onclick=function(s){
-console.log("click "+s);
-}
+   
 
 nb=new NumberButton("n");
 nb.onchange=function(){
-console.log("chnging number "+nb.getValue());
-nb.setValue(333);
+console.log("doing number "+nb.getValue());
 }
 
-fb=new FileButton("f");
-fb.onchange=function(file){
-console.log(file.name)
-}
+nb.setRange(1,4);
+nb.createMinusPlusButtons("minus","plus")
 
 </script>
 

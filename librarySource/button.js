@@ -35,11 +35,11 @@ function Button(idName, nStates = 2) {
 
     this.element.onmouseup = function() {
         if (button.pressed) {
+            button.pressed = false;
             button.state = (button.state + 1) % button.nStates;
             console.log(button.state);
             button.onclick(button.state);
         }
-        button.pressed = false;
         button.updateStyle();
     };
 

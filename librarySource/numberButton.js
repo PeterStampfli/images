@@ -1,10 +1,12 @@
 /**
- * a button to input numbers, needs button.js
+ * a button to input numbers, needs an input element
  * <input type="text" class="numbers" id="outputWidthChooser" maxlength="4" />
  * 
  * @constructor NumberButton
- * @param {String} idName name (id) of an html element
+ * @param {String} idName name (id) of an html text input element
  */
+
+/* jshint esversion:6 */
 
 function NumberButton(idName) {
     "use strict";
@@ -12,19 +14,28 @@ function NumberButton(idName) {
     this.element = document.getElementById(idName);
     this.hover = false;
     this.pressed = false;
+    // limiting the number range: defaults
+    this.minValue = 0;
+    this.maxValue = 1000000000;
+    // increasing and decreasing 
+    this.plusButton = null;
+    this.MinusButton = null;
+    // remember the last value, for starters an extremely improbable value
+    this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
 
     /**
      * action upon change, strategy pattern
      * @method Button#onclick
+     * @param {integer} value
      */
-    this.onchange = function() {};
+    this.onchange = function(value) {};
 
     var button = this;
 
     this.element.onchange = function() {
-        button.onchange();
+        button.updateValue(button.getValue());
     };
 
     // onfocus /onblur corresponds to pressed
@@ -67,6 +78,17 @@ function NumberButton(idName) {
     NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
+     * set the allowed range of numbers
+     * @method NumberButton#setRange
+     * @param {integer} minValue
+     * @param {integer} maxValue
+     */
+    NumberButton.prototype.setRange = function(minValue, maxValue) {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+    };
+
+    /**
      * read the integer value of the text of a button of type="text"
      * @method NumberButton#getValue
      * @returns {integer} value resulting from parsing the button text
@@ -77,10 +99,35 @@ function NumberButton(idName) {
 
     /**
      * set the text of a button of type="text" according to a given number
-     * @method NumberButton#setValue
-     * @param {number} number the number value to show in the button
+     * check if it is in the range, if number changes do this.onchange
+     * thus we can use it for initialization
+     * @method NumberButton#updateValue
+     * @param {integer} number - the number value to show in the button
      */
-    NumberButton.prototype.setValue = function(number) {
+    NumberButton.prototype.updateValue = function(number) {
+        number = Math.min(this.maxValue, Math.max(this.minValue, number));
         this.element.value = number.toString();
+        if (this.lastValue != number) { // does it really change??
+            this.lastValue = number;
+            this.onchange(number);
+        }
+    };
+
+    /**
+     * create buttons for increasing and decreasing the value
+     * @method NumberButton#createMinusPlusButtons
+     * @param {String} idPlus - id for the plus button
+     * @param {String} idMinus - id for the minus button
+     */
+    NumberButton.prototype.createMinusPlusButtons = function(idPlus, idMinus) {
+        this.plusButton = new Button(idPlus);
+        this.minusButton = new Button(idMinus);
+        let numberButton = this;
+        this.plusButton.onclick = function() {
+            numberButton.updateValue(numberButton.getValue() + 1);
+        };
+        this.minusButton.onclick = function() {
+            numberButton.updateValue(numberButton.getValue() - 1);
+        };
     };
 }());
