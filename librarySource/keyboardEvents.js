@@ -27,7 +27,6 @@ var KeyboardEvents = {};
     KeyboardEvents.clickListeners = [];
     KeyboardEvents.clickListenerKeys = [];
 
-
     /**
      * adding html elements with a click() method
      * will be "clicked" if special key is pressed
@@ -40,17 +39,37 @@ var KeyboardEvents = {};
         KeyboardEvents.clickListenerKeys.push(key);
     };
 
-    document.onkeydown = function(event) {
+    KeyboardEvents.urls = [];
+    KeyboardEvents.urlKeys = [];
 
+    /**
+     * adding an URL of a html page that will be reached upon key pressed
+     * @method KeyboardEvents.addUrl
+     * @param {String} url 
+     * @param {String} key 
+     */
+    KeyboardEvents.addUrl = function(url, key) {
+        KeyboardEvents.urls.push(url);
+        KeyboardEvents.urlKeys.push(key);
+    };
+
+    document.onkeydown = function(event) {
         console.log("key " + event.key);
+        var i;
         let key = event.key;
         KeyboardEvents.keydownListeners.forEach(function(listener) {
             listener.keydown(key);
         });
         let length = KeyboardEvents.clickListeners.length;
-        for (var i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             if (key == KeyboardEvents.clickListenerKeys[i]) {
                 KeyboardEvents.clickListeners[i].click();
+            }
+        }
+        length = KeyboardEvents.urls.length;
+        for (i = 0; i < length; i++) {
+            if (key == KeyboardEvents.urlKeys[i]) {
+                window.location = KeyboardEvents.urls[i];
             }
         }
     };

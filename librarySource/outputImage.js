@@ -13,7 +13,6 @@ function OutputImage(idName) {
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
 
-
     // the linear transform between pixel indices and image coordinates
     // (x,y)= (cornerX,cornerY)+scale*(i,j)
     this.cornerX = 0;
@@ -121,7 +120,6 @@ function OutputImage(idName) {
         this.adjustCanvasTransform();
     };
 
-
     /**
      * zoom with given factor to/from given point (mouse position) as center
      * @method OutputImage#zoom
@@ -143,7 +141,6 @@ function OutputImage(idName) {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     OutputImage.prototype.mouseZoom = function(mouseEvents) {
-        console.log(mouseEvents.wheelDelta);
         if (mouseEvents.wheelDelta > 0) {
             this.zoom(this.zoomFactor, mouseEvents.x, mouseEvents.y);
         } else {
@@ -176,7 +173,6 @@ function OutputImage(idName) {
             position.y += scale;
         }
         this.pixelCanvas.showPixel();
-
     };
 
 }());

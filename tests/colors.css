@@ -46,7 +46,13 @@ html
 <sup> ...                   -> superscript
 <sub> ...                   -> subscript
 
+--------------------------------------------------------------
 
+Non-breaking space  	&nbsp;
+< 	 	&lt;
+> 	 	&gt;
+& 	 	&amp;
+" 	 "	&quot;
 ----------------------------------------------------------
 
 window.innerWidth
@@ -93,10 +99,19 @@ vertical alignment
 
 vertical-align: top,middle,bottom, sub,super, text-top,baseline,text-bottom
 
---------------------------------------------------------------
+-----------------------------------------------------
 
-Non-breaking space  	&nbsp;
-< 	 	&lt;
-> 	 	&gt;
-& 	 	&amp;
-" 	 "	&quot;
+html elements are boxes
+size: automatic - large enough to hold contents (using full width of containing box, increasing height)
+
+exact dimensions
+width: 100px;
+height: 333px;
+
+limiting dimensions:
+
+min-width, max-width,min-height, max-heigth
+
+boxes that are too small (mostly in vertical direction, scroll in horizontal direction for wide content (image,canvas)):
+overflow: scroll; (hidden)
+
