@@ -16,6 +16,7 @@ function MouseEvents(idName) {
     this.dx = 0;
     this.dy = 0;
     this.pressed = false;
+    this.mouseInside = false;
     this.wheelDelta = 0;
     // event action - strategy pattern
 
@@ -44,8 +45,13 @@ function MouseEvents(idName) {
         }
     };
 
+    this.element.onmouseenter = function(event) {
+        mouseEvents.mouseInside = true;
+    };
+
     this.element.onmouseleave = function(event) {
         mouseEvents.update(event);
+        mouseEvents.mouseInside = false;
         if (mouseEvents.pressed) {
             mouseEvents.pressed = false;
             mouseEvents.outAction(mouseEvents);
@@ -62,6 +68,21 @@ function MouseEvents(idName) {
     this.element.onwheel = function(event) {
         mouseEvents.update(event);
         mouseEvents.wheelAction(mouseEvents);
+    };
+
+    KeyboardEvents.addKeydownListener(this);
+
+    this.keydown = function(key) {
+        if (mouseEvents.mouseInside) {
+            if (key == "ArrowUp") {
+                mouseEvents.wheelDelta = 1;
+                mouseEvents.wheelAction(mouseEvents);
+            } else if (key == "ArrowDown") {
+                mouseEvents.wheelDelta = -1;
+                mouseEvents.wheelAction(mouseEvents);
+
+            }
+        }
     };
 }
 

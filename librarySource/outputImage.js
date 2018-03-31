@@ -143,6 +143,7 @@ function OutputImage(idName) {
      * @param {MouseEvents} mouseEvents - contains the data
      */
     OutputImage.prototype.mouseZoom = function(mouseEvents) {
+        console.log(mouseEvents.wheelDelta);
         if (mouseEvents.wheelDelta > 0) {
             this.zoom(this.zoomFactor, mouseEvents.x, mouseEvents.y);
         } else {

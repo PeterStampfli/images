@@ -14,13 +14,17 @@
 			<span id="dd"> download</span>
 			
 </p>
+<h1 id="out"> that divvev
+	</h1>
 
 		<canvas id="outputCanvas" ></canvas>
+	
 
 		<canvas id="controlCanvas" ></canvas>
 		<canvas id="arrowController" ></canvas>
 </body>
 <script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
 <script src="../librarySource/vectorMap.js"></script>
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
@@ -77,6 +81,27 @@ Make.updateMap();
 //document.getElementById("outputCanvas").style.cursor="pointer";
 console.log(Math.hypot(1,1));
 
+document.getElementById("out").addEventListener("keypress",function(event){
+console.log("keyyyyy"+event.key);
+})
+document.getElementById("out").addEventListener("mouseup",function(event){
+console.log("mup");
+})
+
+document.getElementById("out").onmousedown=function(event){
+console.log("ddddddd");
+}
+
+document.getElementById("out").onclick=function(event){
+console.log("taht click");
+}
+
+list={}
+list.keydown=function(key){
+console.log("lisen "+key);
+}
+KeyboardEvents.addKeydownListener(list);
+KeyboardEvents.addClickListener("out","a");
 
 </script>
 
