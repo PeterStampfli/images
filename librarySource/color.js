@@ -3,7 +3,6 @@
  * all fields are integers, except hue, which is float
  * red, green, blue and alpha are integers (bytes) 0...255
  * hue is float 0..6, hue=0 or 6 is red, 2 is green and 4 is blue
- * @example see colorTest.html
  *
  * @constructor Color
  * @param {integer} red - value for red component (default 0)

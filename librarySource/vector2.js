@@ -68,7 +68,7 @@ function Vector2(x = 0, y = 0) {
      * @return {float} the length
      */
     Vector2.prototype.length = function() {
-        return Math.sqrt(this.x * this.x + this.y * this.y); // Math.sqrt is very fast, as fast as fastSin
+        return Math.hypot(this.x, this.y); // Math.sqrt is very fast, as fast as fastSin
     };
 
     /**

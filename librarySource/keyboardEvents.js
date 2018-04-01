@@ -23,9 +23,20 @@ var KeyboardEvents = {};
         KeyboardEvents.keydownListeners.push(listener);
     };
 
-    // listeners for click event, and corresponding key
-    KeyboardEvents.clickListeners = [];
-    KeyboardEvents.clickListenerKeys = [];
+    // functions to call and their keys 
+    KeyboardEvents.functions = [];
+    KeyboardEvents.functionKeys = [];
+
+    /**
+     * add a function and its key to keyboard events
+     * @method KeyboardEvents.addFunction
+     * @param {function} theFunction
+     * @param {String} key
+     */
+    KeyboardEvents.addFunction = function(theFunction, key) {
+        KeyboardEvents.functions.push(theFunction);
+        KeyboardEvents.functionKeys.push(key);
+    };
 
     /**
      * adding html elements with a click() method
@@ -35,12 +46,11 @@ var KeyboardEvents = {};
      * @param {String} key
      */
     KeyboardEvents.addClickListener = function(listenerId, key) {
-        KeyboardEvents.clickListeners.push(document.getElementById(listenerId));
-        KeyboardEvents.clickListenerKeys.push(key);
+        KeyboardEvents.addFunction(function() {
+                document.getElementById(listenerId).click();
+            },
+            key);
     };
-
-    KeyboardEvents.urls = [];
-    KeyboardEvents.urlKeys = [];
 
     /**
      * adding an URL of a html page that will be reached upon key pressed
@@ -49,8 +59,10 @@ var KeyboardEvents = {};
      * @param {String} key 
      */
     KeyboardEvents.addUrl = function(url, key) {
-        KeyboardEvents.urls.push(url);
-        KeyboardEvents.urlKeys.push(key);
+        KeyboardEvents.addFunction(function() {
+                window.location = url;
+            },
+            key);
     };
 
     document.onkeydown = function(event) {
@@ -60,16 +72,10 @@ var KeyboardEvents = {};
         KeyboardEvents.keydownListeners.forEach(function(listener) {
             listener.keydown(key);
         });
-        let length = KeyboardEvents.clickListeners.length;
+        let length = KeyboardEvents.functions.length;
         for (i = 0; i < length; i++) {
-            if (key == KeyboardEvents.clickListenerKeys[i]) {
-                KeyboardEvents.clickListeners[i].click();
-            }
-        }
-        length = KeyboardEvents.urls.length;
-        for (i = 0; i < length; i++) {
-            if (key == KeyboardEvents.urlKeys[i]) {
-                window.location = KeyboardEvents.urls[i];
+            if (key == KeyboardEvents.functionKeys[i]) {
+                KeyboardEvents.functions[i]();
             }
         }
     };

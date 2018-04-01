@@ -1,6 +1,6 @@
 /**
  * representing an input button and adding actions, can use any html element
- * simple push button, or selection between n states
+ * simple push button
  *
  * @constructor Button
  * @param {String} idName name (id) of an html element
@@ -8,10 +8,11 @@
 
 /* jshint esversion:6 */
 
-function Button(idName, nStates = 2) {
+function Button(idName) {
+    "use strict";
+
     this.element = document.getElementById(idName);
     this.state = 0;
-    this.nStates = nStates;
     this.pressed = false;
     this.hover = false;
     this.colorStyleDefaults();
@@ -21,10 +22,12 @@ function Button(idName, nStates = 2) {
 
     /**
      * action upon click, strategy pattern
-     * @method Button#onclick
-     * @param {integer} state - number of choosen option
+     * @method Button#onClick
      */
-    this.onclick = function(state) {};
+    this.onClick = function() {};
+
+
+    // a list of actions....
 
     var button = this;
 
@@ -36,9 +39,7 @@ function Button(idName, nStates = 2) {
     this.element.onmouseup = function() {
         if (button.pressed) {
             button.pressed = false;
-            button.state = (button.state + 1) % button.nStates;
-            console.log(button.state);
-            button.onclick(button.state);
+            button.onClick();
         }
         button.updateStyle();
     };
@@ -51,7 +52,8 @@ function Button(idName, nStates = 2) {
 
     this.element.onmouseleave = function() {
         button.hover = false;
-        button.element.onmouseup();
+        button.pressed = false;
+        button.updateStyle();
     };
 
 }

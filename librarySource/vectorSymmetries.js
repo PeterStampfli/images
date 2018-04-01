@@ -147,7 +147,7 @@ Vector2.prototype.rotationMirrorSymmetry = function(n) {
         parity = 1;
     }
     angle /= n;
-    r = Math.sqrt(this.x * this.x + this.y * this.y);
+    r = Math.hypot(this.x, this.y);
     Fast.cosSin(angle);
     this.x = r * Fast.cosResult;
     this.y = r * Fast.sinResult;
@@ -168,7 +168,7 @@ Vector2.prototype.rotationSymmetry = function(n) {
     parity = Math.floor(angle);
     angle -= parity;
     angle /= n;
-    r = Math.sqrt(this.x * this.x + this.y * this.y);
+    r = Math.hypot(this.x, this.y);
     Fast.cosSin(angle);
     this.x = r * Fast.cosResult;
     this.y = r * Fast.sinResult;
@@ -191,7 +191,7 @@ Vector2.prototype.rotationMirrorSmooth = function(n, fastWave) {
 
     angle -= parity;
     angle /= n;
-    r = Math.sqrt(this.x * this.x + this.y * this.y);
+    r = Math.hypot(this.x, this.y);
     fastCosSin(angle);
     this.x = r * fastCosResult;
     this.y = r * fastSinResult;
