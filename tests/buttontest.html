@@ -8,6 +8,8 @@
 <body>
 
 <h1  id="rs">   button</h1>
+<h1  id="2">  other button</h1>
+<h1  id="3">  third button</h1>
 
 
 </body>
@@ -15,6 +17,7 @@
 <script src="../librarySource/button.js"></script>
 
 <script src="../librarySource/switchButton.js"></script>
+<script src="../librarySource/selection.js"></script>
 
 
 <script type="text/javascript">
@@ -24,13 +27,19 @@
    button.onPress=function(){
    console.log("button pressed");
    }
-      button.onRelease=function(){
-   console.log("button release");
+   button2=new SwitchButton("2");
+   button2.onPress=function(){
+   console.log("button 2 pressed");
    }
    
-        button.onMouseDown=function(){
-   console.log("button mousedown");
+
+   s=new Selection(button,button2);
+   
+   s.createButton("3").onPress=function(){
+   console.log("button 3 pressed");
    }
+   
+   //s.setPressed(button2);
  
 </script>
 

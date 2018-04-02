@@ -52,8 +52,7 @@ function Button(idName) {
 
     this.element.onmouseleave = function() {
         button.hover = false;
-        button.pressed = false;
-        button.updateStyle();
+        button.element.onmouseup();
     };
 
 }

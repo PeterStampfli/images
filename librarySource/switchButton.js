@@ -19,12 +19,6 @@ function SwitchButton(idName) {
     this.updateStyle();
     this.element.style.cursor = "pointer";
 
-    /**
-     * action upon mouse down
-     * @method Button#onMouseDown
-     */
-    this.onMouseDown = function() {};
-
 
     /**
      * action upon pressing down, strategy pattern
@@ -46,7 +40,6 @@ function SwitchButton(idName) {
     this.element.onmousedown = function() {
         button.pressed = !button.pressed;
         button.mouseDown = true;
-        button.onMouseDown();
         button.updateStyle();
     };
 
@@ -72,22 +65,11 @@ function SwitchButton(idName) {
         button.hover = false;
         button.element.onmouseup();
     };
-
 }
 
 
 (function() {
     "use strict";
-
-    // default colors
-    Button.colorUp = "black";
-    Button.colorUpHover = "red";
-    Button.colorDownHover = "grey";
-    Button.colorDown = "black";
-    Button.backgroundColorUp = "white";
-    Button.backgroundColorUpHover = "yellow";
-    Button.backgroundColorDownHover = "red";
-    Button.backgroundColorDown = "blue";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered
@@ -108,6 +90,15 @@ function SwitchButton(idName) {
      */
     SwitchButton.prototype.release = function() {
         this.pressed = false;
+        this.updateStyle();
+    };
+
+    /**
+     * put the button back to pressed, without action, only update style
+     * @method SwitchButton#push 
+     */
+    SwitchButton.prototype.push = function() {
+        this.pressed = true;
         this.updateStyle();
     };
 

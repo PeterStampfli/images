@@ -18,16 +18,21 @@ function MouseEvents(idName) {
     this.pressed = false;
     this.mouseInside = false;
     this.wheelDelta = 0;
+    // keys for wheel action, defaults
+    this.upKey="ArrowUp";
+    this.downKey="ArrowDown";
+    
     // event action - strategy pattern
 
     // do nothing function as default
     var doNothing = function(mouseEvents) {};
 
-    this.downAction = doNothing;
-    this.moveAction = doNothing;
-    this.upAction = doNothing;
-    this.outAction = doNothing;
-    this.wheelAction = doNothing;
+    this.downAction = doNothing;        // mouse down 
+    this.dragAction = doNothing;        // mouse drag (move with button pressed)
+    this.moveAction = doNothing;        // mouse move (move with button released)
+    this.upAction = doNothing;          // mouse up
+    this.outAction = doNothing;         // mouse out (leave)
+    this.wheelAction = doNothing;       // mouse wheel or keyboard keys
 
     var mouseEvents = this;
 
@@ -61,7 +66,10 @@ function MouseEvents(idName) {
     this.element.onmousemove = function(event) {
         mouseEvents.update(event);
         if (mouseEvents.pressed) {
-            mouseEvents.moveAction(mouseEvents);
+            mouseEvents.dragAction(mouseEvents);
+        }
+        else {
+             mouseEvents.moveAction(mouseEvents);           
         }
     };
 
@@ -70,17 +78,17 @@ function MouseEvents(idName) {
         mouseEvents.wheelAction(mouseEvents);
     };
 
+    // using keys for wheel actions
     KeyboardEvents.addKeydownListener(this);
 
     this.keydown = function(key) {
         if (mouseEvents.mouseInside) {
-            if (key == "ArrowUp") {
+            if (key == mouseEvents.upKey) {
                 mouseEvents.wheelDelta = 1;
                 mouseEvents.wheelAction(mouseEvents);
-            } else if (key == "ArrowDown") {
+            } else if (key == mouseEvents.downKey) {
                 mouseEvents.wheelDelta = -1;
                 mouseEvents.wheelAction(mouseEvents);
-
             }
         }
     };

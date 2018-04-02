@@ -43,7 +43,7 @@ function ControlImage(idName, sizeLimit) {
     };
 
     // mouse move shifts image
-    this.mouseEvents.moveAction = function(mouseEvents) {
+    this.mouseEvents.dragAction = function(mouseEvents) {
         controlImage.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
         controlImage.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
         controlImage.action();

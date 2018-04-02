@@ -44,7 +44,7 @@ function ArrowController(idName, size) {
      * move action: change arrow position and call arrowController.action() function for redrawing instantly
      */
     // restrict on the circle shape
-    this.mouseEvents.moveAction = function(mouseEvents) {
+    this.mouseEvents.dragAction = function(mouseEvents) {
         var radius = arrowController.pixelCanvas.canvas.width / 2;
         if (mouseEvents.pressed) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {

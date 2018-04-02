@@ -21,7 +21,7 @@ function OutputImage(idName) {
     this.zoomFactor = 1.05;
 
     /**
-     * what to do if map changes (move or zoom -> redraw image)
+     * what to do if map changes (move or zoom -> redraw image) due to mouse events
      * @method OutputImage#action
      */
     this.action = function() {};
@@ -35,7 +35,7 @@ function OutputImage(idName) {
     };
 
     // mouse move shifts image
-    this.mouseEvents.moveAction = function(mouseEvents) {
+    this.mouseEvents.dragAction = function(mouseEvents) {
         outputImage.mouseShift(mouseEvents);
         outputImage.action();
     };
@@ -68,7 +68,7 @@ function OutputImage(idName) {
     };
 
     /**
-     * set the action() - function for this controller, called at each position or scale change for instant following
+     * set the action() - function for this output canvas, called at each position or scale change for instant following
      * @method OutputImage#setAction
      * @param {function} action
      */
@@ -77,16 +77,25 @@ function OutputImage(idName) {
     };
 
     // modifying the input transform
+    
+    /**
+     * transform from pixel coordinates (indices) to space coordinates
+     * @method OutputCanvas#pixelToSpaceCoordinates
+     * @param {Vector2} v - will be transformed
+     */
+    OutputImage.pixelToSpaceCoordinates=function(v){
+        v.x=this.scale*v.x+this.cornerX;
+        v.y=this.scale*v.y+this.cornerY;
+    };
 
     /**
-     * make that the canvas context transform agrees with the input transform from üpixel to coordinates
-     * is essentially the inverse
+     * make that the canvas context transform agrees with the input transform from pixel to coordinates
+     * this is essentially the inverse transform from space coordinates to pixel indices
      * @method OutputImage#adjustCanvasTransform
      */
     OutputImage.prototype.adjustCanvasTransform = function() {
         let context = this.pixelCanvas.canvasContext;
         context.setTransform(1, 0, 0, 1, -this.cornerX / this.scale, -this.cornerY / this.scale); // unshift
-
         context.transform(1 / this.scale, 0, 0, 1 / this.scale, 0, 0);
     };
 
