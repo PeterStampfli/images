@@ -77,15 +77,15 @@ function OutputImage(idName) {
     };
 
     // modifying the input transform
-    
+
     /**
      * transform from pixel coordinates (indices) to space coordinates
      * @method OutputCanvas#pixelToSpaceCoordinates
      * @param {Vector2} v - will be transformed
      */
-    OutputImage.pixelToSpaceCoordinates=function(v){
-        v.x=this.scale*v.x+this.cornerX;
-        v.y=this.scale*v.y+this.cornerY;
+    OutputImage.pixelToSpaceCoordinates = function(v) {
+        v.x = this.scale * v.x + this.cornerX;
+        v.y = this.scale * v.y + this.cornerY;
     };
 
     /**

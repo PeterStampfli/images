@@ -41,6 +41,7 @@
 <script src="../librarySource/outputImage.js"></script>
 <script src="../librarySource/controlImage.js"></script>
 <script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/make.js"></script>
 
 
@@ -63,11 +64,18 @@ Make.createArrowController("arrowController",200)
 Make.createImageInput("b","o");
 
 Make.setInitialInputRange(-1,1,-1);
+
+twoMirrors=new TwoMirrors();
+twoMirrors.setK(5);
+twoMirrors.setAngle(0.5);
+/*
 Make.setMapping(function (inp,out) {
 	out.x=inp.x*inp.x-inp.y*inp.y;
 	out.y=inp.x*inp.y+inp.y*inp.x;
 	return true;
 });
+*/
+Make.setMapping(twoMirrors.vectorMapping);
 
 Make.createSaveImagePng("dd","crazyouput");
 //Make.setOutputSize(400,400);

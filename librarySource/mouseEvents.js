@@ -19,20 +19,20 @@ function MouseEvents(idName) {
     this.mouseInside = false;
     this.wheelDelta = 0;
     // keys for wheel action, defaults
-    this.upKey="ArrowUp";
-    this.downKey="ArrowDown";
-    
+    this.upKey = "ArrowUp";
+    this.downKey = "ArrowDown";
+
     // event action - strategy pattern
 
     // do nothing function as default
     var doNothing = function(mouseEvents) {};
 
-    this.downAction = doNothing;        // mouse down 
-    this.dragAction = doNothing;        // mouse drag (move with button pressed)
-    this.moveAction = doNothing;        // mouse move (move with button released)
-    this.upAction = doNothing;          // mouse up
-    this.outAction = doNothing;         // mouse out (leave)
-    this.wheelAction = doNothing;       // mouse wheel or keyboard keys
+    this.downAction = doNothing; // mouse down 
+    this.dragAction = doNothing; // mouse drag (move with button pressed)
+    this.moveAction = doNothing; // mouse move (move with button released)
+    this.upAction = doNothing; // mouse up
+    this.outAction = doNothing; // mouse out (leave)
+    this.wheelAction = doNothing; // mouse wheel or keyboard keys
 
     var mouseEvents = this;
 
@@ -67,9 +67,8 @@ function MouseEvents(idName) {
         mouseEvents.update(event);
         if (mouseEvents.pressed) {
             mouseEvents.dragAction(mouseEvents);
-        }
-        else {
-             mouseEvents.moveAction(mouseEvents);           
+        } else {
+            mouseEvents.moveAction(mouseEvents);
         }
     };
 

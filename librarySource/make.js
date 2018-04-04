@@ -62,7 +62,7 @@ var Make = {};
     */
     Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
         Make.outputImage = new OutputImage(idName, width, height);
-        Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
+        Make.pixelFromMapData = Make.pixelFromInputImageNoColorSymmetry;
         Make.map = new VectorMap();
         Make.map.setSize(width, height);
         Make.map.outputImage = Make.outputImage;
@@ -228,6 +228,17 @@ var Make = {};
         };
     };
 
+
+    /**
+     * read an image with given file path and show result
+     * @method Make.readImageWithFilePath
+     * @param {String} filePath - relative file path of image
+     */
+    Make.readImageWithFilePath = function(filePath) {
+        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
+    };
+
+
     /**
      * create a button to download the output image as a jpg
      * @method Make.createSaveImageJpg
@@ -354,12 +365,12 @@ var Make = {};
     var inputImage, controlImage;
 
     /**
-     * creating pixel from map data for the map.draw method without color symmetry
-     * @method Make.pixelFromMapDataNoColorSymmetry
+     * creating pixel from map data and input image for the map.draw method without color symmetry
+     * @method Make.pixelFromInputImageNoColorSymmetry
      * @param {Vector2} mapOut - map position data
      * @param {Color} color - for the pixel
      */
-    Make.pixelFromMapDataNoColorSymmetry = function(mapOut, color) {
+    Make.pixelFromInputImageNoColorSymmetry = function(mapOut, color) {
         let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
         mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
         mapOut.x = h;
@@ -367,13 +378,36 @@ var Make = {};
         controlImage.setOpaque(mapOut);
     };
 
+    Make.colorParityNull = new Color(255, 255, 0); //default yellow
+    Make.colorParityOdd = new Color(0, 255, 255); // default cyan
+    Make.colorParityEven = new Color(128, 128, 0); // default: brown
+    /**
+     * create pixel from map data, 
+     * x-component of vector has parity data
+     * show different solid colors for original sector, odd or even number of reflections
+     * @method Make.pixelFromParity
+     * @param {Vector2} mapOut - map position data
+     * @param {Color} color - for the pixel
+     */
+    Make.pixelFromParity = function(mapOut, color) {
+        let parity = mapOut.x;
+        if (parity == 0) {
+            color.set(Make.colorParityNull);
+        } else if (parity & 1) {
+            color.set(Make.colorParityOdd);
+        } else {
+            color.set(Make.colorParityEven);
+        }
+    };
+
+
     /**
      * creating pixel from map data for the map.draw method
      * @method Make.pixelFromMapData
      * @param {Vector2} mapOut - map position data, additional data possible such as color
      * @param {Color} color - for the pixel
      */
-    Make.pixelFromMapData = Make.pixelFromMapDataNoColorSymmetry;
+    Make.pixelFromMapData = Make.pixelFromInputImageNoColorSymmetry;
 
     /**
      * do everything for changes in the 3rd mapping 
@@ -412,5 +446,5 @@ var Make = {};
      * additional drawing possible
      * @method Make.updateOutputImage
      */
-    Make.updateOutputImage = Make.updateMapOutput; //default
+    Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
 }());

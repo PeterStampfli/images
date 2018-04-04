@@ -213,6 +213,19 @@ function PixelCanvas(idName) {
         fileReader.readAsDataURL(file);
     };
 
+
+    /**
+     * read an image with given (relative) file path
+     * draw it on canvas, make its pixels and do some action after image is loaded
+     * @method PixelCanvas.readImageWithFilePath
+     * @param {String} filePath - for input image
+     * @param {function} action - callback, to do after loading is finished
+     */
+    PixelCanvas.prototype.readImageWithFilePath = function(filePath, action) {
+        var image = this.createImageOnloadPixels(action);
+        image.src = filePath;
+    };
+
     // reading a local file does not need file reader !!!
     // use directly ...
     //   searchPic.src = "XXXX/YYYY/search.png";   

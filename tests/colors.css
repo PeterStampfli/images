@@ -113,5 +113,79 @@ limiting dimensions:
 min-width, max-width,min-height, max-heigth
 
 boxes that are too small (mostly in vertical direction, scroll in horizontal direction for wide content (image,canvas)):
+
 overflow: scroll; (hidden)
+ visible - default, overflow wird gezeigt
+ hidden - overflow wird abgeschnitten und nicht gezeigt
+ auto - scrollbars only if needed
+
+-----------------------------------------------
+
+Box model:
+at center is content, height is given by content, width as large as to fill enclosing container ??
+specific width/height replaces content width/height ??
+padding is added around this center, background includes padding
+
+then the border,
+margin determines minimum distance between borders, background of enclosing container is shown
+--------------------------------------------------
+
+Border:
+
+seitenabhängig: border-top (right, bottom, left) anstelle von border ...
+
+border-style: solid, inset,outset,none
+border-width: this, medium, thick or 66px
+border-color: ...
+border-radius: ... (half circles if value is too large ...)
+
+oder alles zusammen
+border: color width style;
+
+----------------------------------------------------
+padding entprechend ...
+
+padding:44px, padding: top value right value bottom value left value
+oder padding-top (right,left, bottom)
+
+margin entsprechend...
+
+centering an element with margin: top auto bottom auto    (text-align: center;in containing box?)
+
+-----------------------------------------------------------
+
+visibility: hidden; (visible)  if hidden does not show content but takes its place
+-----------------------------------------------------------------------
+display: none;  disappears entirely
+display: inline;  (as inline lement)
+display: inline-block;  (in inline flow, with properties of block element
+----------------------------------------------
+cursor: default; (pointer)    (crosshair - move)
+-------------------------------------------------
+z-index:n; for overlapping elements, higher index overdraws lower index
+-------------------------------
+
+position: static; (default-normal flow)
+
+position:relative;  (normal flow, but shifted position relative to normal..)
+top:100px;                    // positive number shifts down,   bottom shifts up
+left:20px;                   // ....
+
+position: absolute;    (dort wo angegeben on the page, ohne einfluss auf den flow anderer elemente, scrollt mit
+top:33px;                      //coordinaten bezüglich window (botttom)
+left: 40px;
+
+position: fixed;  (some as absolutre, but relative to the window, does not scroll)
+
+------------------------------------------
+floating: position elements with respect to others, other content flows around floated elements, border andrer elemente wird nicht gezeichnet
+
+float:left;   (right)
+
+if element contains only floateds then its heigth is zero -> use overflow:auto;
+                        width: 100%;
+
+clear: left right both none -> no floating elements at that side(s)
+
+
 
