@@ -71,7 +71,7 @@ function TwoMirrors() {
         angle *= this.k2pi;
         let reflections = Math.floor(angle);
         angle -= reflections;
-        reflections = Math.abs(reflections) < 1; // shift-multiply by two
+        reflections = Math.abs(reflections) << 1; // shift-multiply by two
         if (angle > 0.5) {
             angle = 1 - angle;
             reflections++;

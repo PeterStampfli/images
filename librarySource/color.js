@@ -49,6 +49,18 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque
     };
 
     /**
+     * set component values from another color
+     * @method Color#set
+     * @param {Color} thatColor 
+     */
+    Color.prototype.set = function(thatColor) {
+        this.red = thatColor.red;
+        this.green = thatColor.green;
+        this.blue = thatColor.blue;
+        this.alpha = thatColor.alpha;
+    };
+
+    /**
      * copy rgba values from another color
      * @method Color#copyRgba
      * @param {Color} color 

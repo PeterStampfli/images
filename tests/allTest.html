@@ -48,68 +48,36 @@
 <script type="text/javascript">
     console.log("hi");
     
+twoMirrors=new TwoMirrors();
+twoMirrors.setK(5);
+twoMirrors.setAngle(0.5);
+
+
 
 Make.createOutputImageNoColorSymmetry("outputCanvas")
-
-Make.setOutputSize(300,300)
-        
-Make.outputImage.setCoordinates(-1,-1,1);
 
 Make.createControlImage("controlCanvas",200)
 
 Make.createArrowController("arrowController",200)
 
 
+
+Make.createSaveImagePng("dd","newoutput");
+
+
 //Make.createImageInputButton("imageInput")
 Make.createImageInput("b","o");
 
-Make.setInitialInputRange(-1,1,-1);
 
-twoMirrors=new TwoMirrors();
-twoMirrors.setK(5);
-twoMirrors.setAngle(0.5);
-/*
-Make.setMapping(function (inp,out) {
-	out.x=inp.x*inp.x-inp.y*inp.y;
-	out.y=inp.x*inp.y+inp.y*inp.x;
-	return true;
-});
-*/
-Make.setMapping(twoMirrors.vectorMapping);
+Make.setOutputSize(300,300)
+ Make.setInitialOutputImageSpace(-1,1,-1);
+           Make.resetOutputImageSpace();
 
-Make.createSaveImagePng("dd","crazyouput");
-//Make.setOutputSize(400,400);
+Make.setMapping(twoMirrors.vectorMapping,twoMirrors.reflectionsMapping);
+  
+Make.updateNewMap();
 
 
-Make.updateMap();
-//Make.readImageWithFilePath("test.jpg");
-
-//document.getElementById("imageInput").click();
-//document.body.style.cursor="wait";
-//document.getElementById("outputCanvas").style.cursor="pointer";
-console.log(Math.hypot(1,1));
-
-document.getElementById("out").addEventListener("keypress",function(event){
-console.log("keyyyyy"+event.key);
-})
-document.getElementById("out").addEventListener("mouseup",function(event){
-console.log("mup");
-})
-
-document.getElementById("out").onmousedown=function(event){
-console.log("ddddddd");
-}
-
-document.getElementById("out").onclick=function(event){
-console.log("taht click");
-}
-
-list={}
-list.keydown=function(key){
-console.log("lisen "+key);
-}
-KeyboardEvents.addKeydownListener(list);
-KeyboardEvents.addClickListener("out","a");
 
 </script>
 

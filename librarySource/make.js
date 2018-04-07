@@ -8,6 +8,7 @@
  */
 
 /*
+ *                        output pixel to space        structure mapping
  *                              1st linear mapping         2nd structure/symmetry dependent 
  *                                                             nonlinear mapping
  * 
@@ -19,6 +20,7 @@
  *      outputImage.mouseEvents -> shift, scale (at mouse position as center)
  * 
  * 
+ *                                      space to input pixel
  *                                            3rd linear mapping
  * 
  * outputImage.map.draw:              mapOut(x,y) --> image coordinates  --> inputImage
@@ -37,15 +39,17 @@ var Make = {};
 (function() {
     "use strict";
 
+    // creating the interaction elements
+    //____________________________________________________________________________________________
 
-    /*
-    attach the (user) interaction elements
-    */
     /*
       the input image object is always a pixelCanvas and does not depend on page layout
       do we need access from outside ??? (for development)
     */
     Make.inputImage = new PixelCanvas();
+
+    // check wether to show structure or input image
+    Make.showStructure = true;
 
     /*
     the other elements depend on page layout and need an identifier
@@ -57,18 +61,58 @@ var Make = {};
     * no color symmetry
     * @method Make.createOutputImageNoColorSymmetry
     * @param {String} idName - html identifier
-    * @param {integer} width - initial width
-    * @param {integer} height - initial height
     */
-    Make.createOutputImageNoColorSymmetry = function(idName, width, height) {
-        Make.outputImage = new OutputImage(idName, width, height);
-        Make.pixelFromMapData = Make.pixelFromInputImageNoColorSymmetry;
+    Make.createOutputImageNoColorSymmetry = function(idName) {
+        Make.outputImage = new OutputImage(idName);
+        Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.map = new VectorMap();
-        Make.map.setSize(width, height);
         Make.map.outputImage = Make.outputImage;
-        Make.outputImage.action = Make.shiftScaleMapInput;
+        Make.outputImage.action = Make.shiftScaleOutputImage;
     };
 
+    /*
+    the output size changes:
+    (changes output pixel to space map too, mapping from indices to map input should give same coordinate range if width/height ratio unchanged
+    recalculate structure map, reuse previous map range, space to input image pixel mapping remains unchanged
+    */
+    /**
+     * set the size of the output image, call Make.updateMap to see effect
+     * @method Make.setOutputSize
+     * @param {integer} width
+     * @param {integer} height
+     */
+    Make.setOutputSize = function(width, height) {
+        Make.outputImage.setSize(width, height);
+        Make.map.setSize(width, height);
+    };
+
+
+    /**
+     * create a button to download the output image as a jpg
+     * @method Make.createSaveImageJpg
+     * @param {String} idButton
+     * @param {String} fileName
+     */
+    Make.createSaveImageJpg = function(idButton, fileName) {
+        Make.downloadButton = new Button(idButton);
+        Make.downloadButton.onClick = function() {
+            Make.outputImage.pixelCanvas.saveImageJpg(fileName);
+        };
+    };
+
+
+    /**
+     * create a button to download the output image as a png
+     * @method Make.createSaveImagePng
+     * @param {String} idButton
+     * @param {String} fileName
+     */
+    Make.createSaveImagePng = function(idButton, fileName) {
+        Make.downloadButton = new Button(idButton);
+        Make.downloadButton.onClick = function() {
+            Make.outputImage.pixelCanvas.saveImagePng(fileName);
+        };
+    };
 
     /**
      * create the control image object
@@ -78,7 +122,7 @@ var Make = {};
      */
     Make.createControlImage = function(idName, sizeLimit) {
         Make.controlImage = new ControlImage(idName, sizeLimit);
-        Make.controlImage.action = Make.updateOutputImage;
+        Make.controlImage.action = Make.updateOutputImageIfUsingInputImage;
     };
 
     /**
@@ -89,58 +133,55 @@ var Make = {};
      */
     Make.createArrowController = function(idName, size) {
         Make.arrowController = new ArrowController(idName, size);
-        Make.arrowController.action = Make.updateOutputImage;
+        Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
     };
 
-    /*
-    mappings: 
-    1) linear mapping from indices to map input coordinates
-    2) nonlinear map creating the essential image structure
-    3) linear mapping from map output to the input image
-    */
+    // structure mapping (space to space)
+    //_____________________________________________________________________________________________
 
-    Make.mapping = null;
-    /**
-     * set the mapping function for the 2nd nonlinear map
-     * @method Make.setMapping
-     * @param {function} mapping - function(mapIn -> mapOut)
-     */
-    Make.setMapping = function(mapping) {
-        Make.mapping = mapping;
-    };
+    // the mapping for using an input image
+    Make.mappingInputImage = null;
+
+    // the mapping to show the structure
+    Make.mappingStructure = null;
 
     /**
-     * set lowest and highest initial x-coordinates, lowest y-coordinate to use for input to the 2nd nonlinear map
-     * @method Make.setInitialInputRange
-     * @param {float} xMin
-     * @param {float} xMax
-     * @param {float} yMin
+     * set range for the output pixel to space mapping, call before setting the mapping 
+     * @method Make.setInitialOutputImageSpace
+     * @param {float} xMin - lowest x coordinate
+     * @param {float} xMax - highest x coordinate
+     * @param {float} yMin - lowest y coordinate, highest will be determined from x coordinate range and height/width ratio
      */
-    Make.setInitialInputRange = function(xMin, xMax, yMin) {
+    Make.setInitialOutputImageSpace = function(xMin, xMax, yMin) {
         Make.xMin = xMin;
         Make.xMax = xMax;
         Make.yMin = yMin;
     };
 
     /**
-     * do the bare nonlinear mapping (access for trouble shooting)
-     * @method Make.bareNonlinearMapping
+     * reset output range of the output pixel to space mapping to given initial values
+     * call after change of mapping function or its parameters
+     * @method Make.resetOutputImageSpace
      */
-    Make.bareNonlinearMapping = function() {
-        Make.map.make(Make.mapping);
-    };
-
-    /**
-     * reset input range for the 2nd mapping to given initial values, call after change of mapping 
-     * function or its parameters
-     * @method.resetInputRange
-     */
-    Make.resetInputRange = function() {
+    Make.resetOutputImageSpace = function() {
         Make.outputImage.setCoordinates(Make.xMin, Make.yMin, Make.xMax);
     };
 
+    /**
+     * set the mapping functions for the structure map, 
+     *  maybe reset the output pixel to space transform
+     * 
+     * @method Make.setMapping
+     * @param {function} mappingInputImage - function(mapIn -> mapOut) for an input image
+     * @param {function} mappingStructure - function(mapIn -> mapOut.x) parity
+     */
+    Make.setMapping = function(mappingInputImage, mappingStructure) {
+        Make.mappingInputImage = mappingInputImage;
+        Make.mappingStructure = mappingStructure;
+    };
+
     /*
-     * put the center of the result of 2nd map to origin
+     * put the center of the result of the structure map (space to space) to origin
      */
     var mapOutputCenter = new Vector2();
 
@@ -160,8 +201,14 @@ var Make = {};
         Make.map.shiftOutput(mapOutputCenter);
     };
 
+
+
+
+    //  reading an input image and adjust mappingStructure
+    //_____________________________________________________
+
     /*
-     * the 3rd map determines how we sample the input image
+     * the space to input pixelmapping determines how we sample the input image
      */
 
     /* 
@@ -183,32 +230,44 @@ var Make = {};
     };
 
     /**
-     * reset the parameters of the 3rd mapping for a new input image 
-     * or changed 2nd nonlinear mapping
-     * sample max of input image
-     * @method Make.adjustInputImageSampling
+     * reset the parameters of the space to input pixel mapping for a new input image 
+     * sample given part of input image
+     * @method Make.adjustSpaceToInputPixelMapping
      */
-    Make.adjustInputImageSampling = function() {
+    Make.adjustSpaceToInputPixelMapping = function() {
         Make.arrowController.angle = 0;
         Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
     };
 
     /*
-     * read a new input image (the mapping has to be defined):
-     * put it in controlImage, set parameters of 3rd mapping to give a good sampling range (fillfactor ?)
+     * open a new input image (the mapping has to be defined):
+     * if no image has yet been read: make mapping
+     * put it in controlImage, set parameters of the space to input image mapping
+     * to give a good sampling range (fillfactor ?)
      * redraw as for changes in 3rd mapping
      */
 
     // callback function to call after an image has been read
     // puts image on controlImage, show result if the 2nd nonlinear mapping exists
     function readImageAction() {
+        if (Make.showStructure) {
+            Make.showStructure = false; // and create the map!! (everything from zero)
+            if (Make.mappingInputImage == null) {
+                console.log("*** (Make)readImageAction: there is no mapping function !");
+                return;
+            }
+            console.log("-------------->readImageAction:update map");
+            Make.map.make(Make.mappingInputImage);
+            Make.getMapOutputCenter();
+            Make.shiftMapToCenter();
+        }
         Make.controlImage.loadInputImage(Make.inputImage);
         if (!Make.map.exists) {
             console.log("*** Make.readImage: map does not exist !");
             return;
         }
         Make.getMapOutputRange();
-        Make.adjustInputImageSampling();
+        Make.adjustSpaceToInputPixelMapping();
         Make.updateOutputImage();
     }
 
@@ -239,118 +298,102 @@ var Make = {};
     };
 
 
-    /**
-     * create a button to download the output image as a jpg
-     * @method Make.createSaveImageJpg
-     * @param {String} idButton
-     * @param {String} fileName
-     */
-    Make.createSaveImageJpg = function(idButton, fileName) {
-        Make.downloadButton = new Button(idButton);
-        Make.downloadButton.onclick = function() {
-            Make.outputImage.pixelCanvas.saveImageJpg(fileName);
-        };
-    };
-
-
-    /**
-     * create a button to download the output image as a png
-     * @method Make.createSaveImagePng
-     * @param {String} idButton
-     * @param {String} fileName
-     */
-    Make.createSaveImagePng = function(idButton, fileName) {
-        Make.downloadButton = new Button(idButton);
-        Make.downloadButton.onclick = function() {
-            Make.outputImage.pixelCanvas.saveImagePng(fileName);
-        };
-    };
 
     /*
-    change the 2nd nonlinear mapping (new motif or new parameters, or first time mapping). need to do everything
-    reset 1st mapping parameters to given ranges
-    redo the mapping
-    determine shift (to set center of gravity at origin, for other smaller changes shift remains)
-    shift the map
-    determine map range
+    change the structure mapping (new motif or new parameters, or first time mapping). need to do everything:
+    reset output pixel to space mapping parameters to given ranges
+    calculate the structure map
     if an input image exists (inputImage.width>0):
-    - set parameters of 3rd mapping depending on input image and map range
-    - do as for changes in the 3rd mapping
+    -determine shift (to set center of gravity at origin, for other smaller changes shift remains)
+    -shift the map
+    -determine map range
+    - do not change parameters of space to input pixel mapping  to use approx. same part of input image
+    - redraw output image
+    - do as for changes in the space to input image mapping
+    else
+        redraw output image
     */
-    Make.updateMap = function() {
-        if (Make.mapping === null) {
+    /**
+     * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
+     * @method Make.updateNewMap
+     */
+    Make.updateNewMap = function() {
+        console.log("updatemap");
+        if (Make.mappingInputImage == null) {
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
-        Make.resetInputRange();
-        Make.bareNonlinearMapping();
-        Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
-        Make.getMapOutputRange();
-        if (Make.inputImage.width == 0) {
-            console.log("*** Make.updateMap: there is no input image !");
-            return;
+        if (Make.showStructure) {
+            Make.map.make(Make.mappingStructure);
+        } else {
+            Make.map.make(Make.mappingInputImage);
+            Make.getMapOutputCenter();
+            Make.shiftMapToCenter();
         }
-        Make.adjustInputImageSampling();
         Make.updateOutputImage();
     };
 
     /*
-    the output size changes:
-    (changes 1st map too, mapping from indices to map input should give same coordinate range if width/height ratio unchanged
-    recalculate map, reuse previous map range, 3rd linear mapping remains unchanged
-    do as for changes in the 1st mapping
-    */
-    /**
-     * set the size of the output image
-     * @method Make.setOutputSize
-     * @param {integer} width
-     * @param {integer} height
-     */
-    Make.setOutputSize = function(width, height) {
-        Make.outputImage.setSize(width, height);
-        Make.map.setSize(width, height);
-        if (Make.mapping === null) {
-            console.log("*** Make.setOutputSize: there is no mapping function !");
-            return;
-        }
-        Make.bareNonlinearMapping();
-        Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
-        Make.getMapOutputRange();
-        if (Make.inputImage.width == 0) {
-            console.log("*** Make.setOutputSize: there is no input image !");
-        } else {
-            Make.adjustInputImageSampling();
-            Make.updateOutputImage();
-        }
-    };
-
-    /*
-    change scale or shift for the 1st mapping:
-    (the output canvas already changes the 1st input mapping)
+    change scale or shift for the output image in the output canvas:
+    changes the output pixel to space mapping:
     redo the mapping
     apply same shift as before to the mapping output(do not change the shift or the 3rd mapping)
-    redraw as for changes in 3rd mapping
+    redraw output image
     */
 
     /**
      * shift or zoom the output image
-     * @method Make.shiftScaleMapInput
+     * @method Make.shiftScaleOutputImage
      */
-    Make.shiftScaleMapInput = function() {
-        if (Make.mapping === null) {
-            console.log("*** Make.shiftScaleMapInput: there is no mapping function !");
+    Make.shiftScaleOutputImage = function() {
+        if (Make.mappingInputImage == null) {
+            console.log("*** Make.shiftScaleOutputImage: there is no mapping function !");
             return;
         }
-        Make.bareNonlinearMapping();
-        Make.shiftMapToCenter(); // with same data for center as before, and same settings for 3rd map 
-        if (Make.inputImage.width == 0) {
-            console.log("*** Make.shiftScaleMapInput: there is no input image !");
+        if (Make.showStructure) {
+            console.log("shiftscaleoi:showstructure");
+            console.log(Make.mappingStructure);
+            Make.map.make(Make.mappingStructure);
         } else {
-            Make.updateOutputImage();
+            Make.map.make(Make.mappingInputImage);
+            Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
+        }
+        Make.updateOutputImage();
+    };
+
+    // drawing the output image from updated maps:
+    //___________________________________________________________________________
+
+    Make.colorParityNull = new Color(255, 255, 0); //default yellow
+    Make.colorParityOdd = new Color(0, 255, 255); // default cyan
+    Make.colorParityEven = new Color(128, 128, 0); // default: brown
+    /**
+     * create pixel from map data, 
+     * x-component of vector has parity data
+     * show different solid colors for original sector, odd or even number of reflections
+     * @method Make.pixelFromParity
+     * @param {Vector2} mapOut - map position data
+     * @param {Color} color - for the pixel
+     */
+    Make.pixelFromParity = function(mapOut, color) {
+        let parity = mapOut.x;
+        if (parity == 0) {
+            color.set(Make.colorParityNull);
+        } else if (parity & 1) {
+            color.set(Make.colorParityOdd);
+        } else {
+            color.set(Make.colorParityEven);
         }
     };
+
+    /**
+     * creating pixel showing structure using map data for the map.draw method
+     * mapVector.x contains the (parity) data
+     * @method Make.pixelFromStructure
+     * @param {Vector2} mapOut - map position data, additional data possible such as color
+     * @param {Color} color - for the pixel
+     */
+    Make.pixelFromStructure = Make.pixelFromParity;
 
     /*
     change scale, rotation or shift parameters for the 3rd mapping, change image interpolation via chooseInterpolation, change smoothing:
@@ -378,40 +421,34 @@ var Make = {};
         controlImage.setOpaque(mapOut);
     };
 
-    Make.colorParityNull = new Color(255, 255, 0); //default yellow
-    Make.colorParityOdd = new Color(0, 255, 255); // default cyan
-    Make.colorParityEven = new Color(128, 128, 0); // default: brown
     /**
-     * create pixel from map data, 
-     * x-component of vector has parity data
-     * show different solid colors for original sector, odd or even number of reflections
-     * @method Make.pixelFromParity
-     * @param {Vector2} mapOut - map position data
-     * @param {Color} color - for the pixel
-     */
-    Make.pixelFromParity = function(mapOut, color) {
-        let parity = mapOut.x;
-        if (parity == 0) {
-            color.set(Make.colorParityNull);
-        } else if (parity & 1) {
-            color.set(Make.colorParityOdd);
-        } else {
-            color.set(Make.colorParityEven);
-        }
-    };
-
-
-    /**
-     * creating pixel from map data for the map.draw method
-     * @method Make.pixelFromMapData
+     * creating pixel from input image using map data for the map.draw method
+     * @method Make.pixelFromInputImage
      * @param {Vector2} mapOut - map position data, additional data possible such as color
      * @param {Color} color - for the pixel
      */
-    Make.pixelFromMapData = Make.pixelFromInputImageNoColorSymmetry;
+    Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
+
 
     /**
-     * do everything for changes in the 3rd mapping 
+     * redraw output only if showing input image
+     * @method Make.updateOutputImageIfUsingInputImage
+     */
+    Make.updateOutputImageIfUsingInputImage = function() {
+        if (!Make.showStructure) {
+            Make.updateOutputImage();
+        } else {
+            console.log("no update");
+        }
+    };
+
+    /**
+     * redraw output:
+     * if showInputImage
+     * do everything for changes in the space to input image mapping 
      * (or any change in output image) without color symmetry
+     * else
+     * simply redraw
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
@@ -419,25 +456,32 @@ var Make = {};
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
         }
-        if (Make.inputImage.width == 0) {
-            console.log("*** Make.updateOutputImage: input image not loaded !");
-            return;
+        if (Make.showStructure) { // no input image: show structure
+            console.log("updatemapout:show structure");
+            Make.map.draw(Make.pixelFromStructure);
+            Make.outputImage.pixelCanvas.showPixel();
+        } else {
+            if (Make.inputImage.width == 0) {
+                console.log("*** Make.updateOutputImage: input image not loaded !");
+                return;
+            }
+            console.log("updateMapOutput");
+            // get parameters
+            shiftX = Make.controlImage.shiftX;
+            shiftY = Make.controlImage.shiftY;
+            var angle = Make.arrowController.angle;
+            var scale = Make.controlImage.scale;
+            cosAngleScale = scale * Fast.cos(angle);
+            sinAngleScale = scale * Fast.sin(angle);
+            // shortcuts
+            inputImage = Make.inputImage;
+            controlImage = Make.controlImage;
+            Make.controlImage.semiTransparent();
+            // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
+            Make.map.draw(Make.pixelFromInputImage);
+            Make.outputImage.pixelCanvas.showPixel();
+            Make.controlImage.pixelCanvas.showPixel();
         }
-        // get parameters
-        shiftX = Make.controlImage.shiftX;
-        shiftY = Make.controlImage.shiftY;
-        var angle = Make.arrowController.angle;
-        var scale = Make.controlImage.scale;
-        cosAngleScale = scale * Fast.cos(angle);
-        sinAngleScale = scale * Fast.sin(angle);
-        // shortcuts
-        inputImage = Make.inputImage;
-        controlImage = Make.controlImage;
-        Make.controlImage.semiTransparent();
-        // generate image by looking up input colors at result of the nonlinear map, transformed by 3rd linear transform
-        Make.map.draw(Make.pixelFromMapData);
-        Make.outputImage.pixelCanvas.showPixel();
-        Make.controlImage.pixelCanvas.showPixel();
     };
 
     /**
