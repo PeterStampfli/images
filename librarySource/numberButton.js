@@ -14,7 +14,7 @@ function NumberButton(idName) {
     this.element = document.getElementById(idName);
     this.hover = false;
     this.pressed = false;
-    // limiting the number range: defaults
+    // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = 1000000000;
     // increasing and decreasing 
@@ -30,7 +30,7 @@ function NumberButton(idName) {
      * @method Button#onclick
      * @param {integer} value
      */
-    this.onchange = function(value) {};
+    this.onChange = function(value) {};
 
     var button = this;
 
@@ -99,6 +99,17 @@ function NumberButton(idName) {
 
     /**
      * set the text of a button of type="text" according to a given number
+     * sets lastValue to same number
+     * does nothing else, use it for initialization
+     * @method NumberButton#setValue
+     * @param {integer} number - the number value to show in the button
+     */
+    NumberButton.prototype.setValue = function(number) {
+        this.element.value = number.toString();
+        this.lastValue = number;
+    };
+    /**
+     * set the text of a button of type="text" according to a given number
      * check if it is in the range, if number changes do this.onchange
      * thus we can use it for initialization
      * @method NumberButton#updateValue
@@ -106,10 +117,10 @@ function NumberButton(idName) {
      */
     NumberButton.prototype.updateValue = function(number) {
         number = Math.min(this.maxValue, Math.max(this.minValue, number));
-        this.element.value = number.toString();
-        if (this.lastValue != number) { // does it really change??
-            this.lastValue = number;
-            this.onchange(number);
+        let lastValue = this.lastValue;
+        this.setValue(number);
+        if (lastValue != number) { // does it really change??
+            this.onChange(number);
         }
     };
 
@@ -123,10 +134,10 @@ function NumberButton(idName) {
         this.plusButton = new Button(idPlus);
         this.minusButton = new Button(idMinus);
         let numberButton = this;
-        this.plusButton.onclick = function() {
+        this.plusButton.onClick = function() {
             numberButton.updateValue(numberButton.getValue() + 1);
         };
-        this.minusButton.onclick = function() {
+        this.minusButton.onClick = function() {
             numberButton.updateValue(numberButton.getValue() - 1);
         };
     };

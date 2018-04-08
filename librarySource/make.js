@@ -160,7 +160,7 @@ var Make = {};
 
     /**
      * reset output range of the output pixel to space mapping to given initial values
-     * call after change of mapping function or its parameters
+     * call after change of mapping function (?) or its parameters
      * @method Make.resetOutputImageSpace
      */
     Make.resetOutputImageSpace = function() {
@@ -202,13 +202,102 @@ var Make = {};
     };
 
 
+    // starting with a new map or changing the space map 
+    //_________________________________________________________________________________
 
+    /*
+    change the structure mapping (new motif or new parameters, or first time mapping). need to do everything:
+    reset output pixel to space mapping parameters to given ranges
+    calculate the structure map
+    if an input image exists (inputImage.width>0):
+    -determine shift (to set center of gravity at origin, for other smaller changes shift remains)
+    -shift the map
+    - change the region of the output image explicitel before and only if needed
+    - do not change parameters of space to input pixel mapping  to use approx. same part of input image
+    - redraw output image
+    - do as for changes in the space to input image mapping
+    else
+        redraw output image
+    */
+
+    /**
+     * update the structure mapping, depending on the parameters
+     * @method Make.initializeMap
+     */
+    Make.initializeMap = function() {};
+
+    /**
+     * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
+     * @method Make.updateNewMap
+     */
+    Make.updateNewMap = function() {
+        console.log("updatemap");
+        Make.initializeMap();
+        if (Make.mappingInputImage == null) {
+            console.log("*** Make.updateMap: there is no mapping function !");
+            return;
+        }
+        if (Make.showStructure) {
+            Make.map.make(Make.mappingStructure);
+        } else {
+            Make.map.make(Make.mappingInputImage);
+            Make.getMapOutputCenter();
+            Make.shiftMapToCenter();
+        }
+        Make.updateOutputImage();
+    };
+
+    /*
+     * initialization typically:
+     * 
+    Make.setOutputSize(300,300)
+    Make.setInitialOutputImageSpace(-1,1,-1);
+    Make.resetOutputImageSpace();
+    Make.setMapping(twoMirrors.vectorMapping,twoMirrors.reflectionsMapping);
+    Make.updateNewMap();
+    */
+    //  changing the output size: avoid any side effects, only magnification
+    //___________________________________________________________________________
+    /**
+     * create a button to change the size of the output image, width=height=size
+     * @method Make.createSquareImageSizeButton
+     * @param {String} idName - of the html element
+     * @return the button (a numberbutton)
+     */
+    Make.createSquareImageSizeButton = function(idName) {
+        let sizeButton = new NumberButton(idName);
+        sizeButton.onChange = function(size) {
+            Make.setOutputSize(size, size);
+            Make.updateNewOutputImageSize();
+        };
+        return sizeButton;
+    };
+
+    /**
+     * show result of a new output size, does not recalculate anything to avoid side effects
+     * @method Make.updateNewMap
+     */
+    Make.updateNewOutputImageSize = function() {
+        console.log("updatemap");
+        if (Make.mappingInputImage == null) {
+            console.log("*** Make.updateMap: there is no mapping function !");
+            return;
+        }
+        if (Make.showStructure) {
+            Make.map.make(Make.mappingStructure);
+        } else {
+            Make.map.make(Make.mappingInputImage);
+            Make.shiftMapToCenter();
+        }
+        Make.updateOutputImage();
+    };
 
     //  reading an input image and adjust mappingStructure
     //_____________________________________________________
 
     /*
      * the space to input pixelmapping determines how we sample the input image
+     * it has to be redone for loading a new image
      */
 
     /* 
@@ -256,7 +345,6 @@ var Make = {};
                 console.log("*** (Make)readImageAction: there is no mapping function !");
                 return;
             }
-            console.log("-------------->readImageAction:update map");
             Make.map.make(Make.mappingInputImage);
             Make.getMapOutputCenter();
             Make.shiftMapToCenter();
@@ -277,7 +365,6 @@ var Make = {};
      * @param {String} idButton - name (id) of the (button) html element
      * @param {String} idFileNameOutput - name (id) of the output html element for file name
      */
-    //let imageInputButton=null;
     Make.createImageInput = function(idButton, idFileNameOutput) {
         let imageInputButton = new FileButton(idButton);
         let fileNameOutput = document.getElementById(idFileNameOutput);
@@ -286,7 +373,6 @@ var Make = {};
             fileNameOutput.innerHTML = file.name;
         };
     };
-
 
     /**
      * read an image with given file path and show result
@@ -297,41 +383,8 @@ var Make = {};
         Make.inputImage.readImageWithFilePath(filePath, readImageAction);
     };
 
-
-
-    /*
-    change the structure mapping (new motif or new parameters, or first time mapping). need to do everything:
-    reset output pixel to space mapping parameters to given ranges
-    calculate the structure map
-    if an input image exists (inputImage.width>0):
-    -determine shift (to set center of gravity at origin, for other smaller changes shift remains)
-    -shift the map
-    -determine map range
-    - do not change parameters of space to input pixel mapping  to use approx. same part of input image
-    - redraw output image
-    - do as for changes in the space to input image mapping
-    else
-        redraw output image
-    */
-    /**
-     * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
-     * @method Make.updateNewMap
-     */
-    Make.updateNewMap = function() {
-        console.log("updatemap");
-        if (Make.mappingInputImage == null) {
-            console.log("*** Make.updateMap: there is no mapping function !");
-            return;
-        }
-        if (Make.showStructure) {
-            Make.map.make(Make.mappingStructure);
-        } else {
-            Make.map.make(Make.mappingInputImage);
-            Make.getMapOutputCenter();
-            Make.shiftMapToCenter();
-        }
-        Make.updateOutputImage();
-    };
+    //        shifting and scaling the output image
+    //___________________________________________________________________________
 
     /*
     change scale or shift for the output image in the output canvas:
@@ -351,8 +404,6 @@ var Make = {};
             return;
         }
         if (Make.showStructure) {
-            console.log("shiftscaleoi:showstructure");
-            console.log(Make.mappingStructure);
             Make.map.make(Make.mappingStructure);
         } else {
             Make.map.make(Make.mappingInputImage);
@@ -361,12 +412,12 @@ var Make = {};
         Make.updateOutputImage();
     };
 
-    // drawing the output image from updated maps:
+    // drawing the output image 
     //___________________________________________________________________________
 
     Make.colorParityNull = new Color(255, 255, 0); //default yellow
     Make.colorParityOdd = new Color(0, 255, 255); // default cyan
-    Make.colorParityEven = new Color(128, 128, 0); // default: brown
+    Make.colorParityEven = new Color(100, 100, 0); // default: brown
     /**
      * create pixel from map data, 
      * x-component of vector has parity data

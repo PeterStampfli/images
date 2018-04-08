@@ -16,6 +16,16 @@
 </p>
 <h1 id="out"> that divvev
 	</h1>
+	<p> setOutputSize  <input type="text" class="numbers" id="size" maxlength="4" />
+	
+
+</p>
+<p> set k  <input type="text" class="numbers" id="setK" maxlength="4" />
+
+
+<span id="plus"> plus </span>
+<span id="minus"> minus </span>
+</p>
 
 		<canvas id="outputCanvas" ></canvas>
 	
@@ -34,6 +44,7 @@
 <script src="../librarySource/line.js"></script>
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/fileButton.js"></script>
+<script src="../librarySource/numberButton.js"></script>
 
 <script src="../librarySource/color.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
@@ -52,6 +63,8 @@ twoMirrors=new TwoMirrors();
 twoMirrors.setK(5);
 twoMirrors.setAngle(0.5);
 
+sizeButton=Make.createSquareImageSizeButton("size");
+sizeButton.setValue(300);
 
 
 Make.createOutputImageNoColorSymmetry("outputCanvas")
