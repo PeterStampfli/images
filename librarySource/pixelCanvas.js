@@ -514,10 +514,10 @@ function PixelCanvas(idName) {
                 blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
                 alpha += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
                 // beware of negative values, with accelerated rounding
-                color.red = red > 0 ? 0 | (red + 0.5) : 0;
-                color.green = green > 0 ? 0 | (green + 0.5) : 0;
-                color.blue = blue > 0 ? 0 | (blue + 0.5) : 0;
-                color.alpha = alpha > 0 ? 0 | (alpha + 0.5) : 0;
+                color.red = Math.max(0, Math.min(255, Math.round(red)));
+                color.green = Math.max(0, Math.min(255, Math.round(green)));
+                color.blue = Math.max(0, Math.min(255, Math.round(blue)));
+                color.alpha = Math.max(0, Math.min(255, Math.round(alpha)));
             }
         };
     } else {
@@ -583,10 +583,10 @@ function PixelCanvas(idName) {
                 blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
                 alpha += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
                 // beware of negative values, with accelerated rounding
-                color.red = red > 0 ? 0 | (red + 0.5) : 0;
-                color.green = green > 0 ? 0 | (green + 0.5) : 0;
-                color.blue = blue > 0 ? 0 | (blue + 0.5) : 0;
-                color.alpha = alpha > 0 ? 0 | (alpha + 0.5) : 0;
+                color.red = Math.max(0, Math.min(255, Math.round(red)));
+                color.green = Math.max(0, Math.min(255, Math.round(green)));
+                color.blue = Math.max(0, Math.min(255, Math.round(blue)));
+                color.alpha = Math.max(0, Math.min(255, Math.round(alpha)));
             }
         };
     }

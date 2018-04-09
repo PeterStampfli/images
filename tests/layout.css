@@ -1,0 +1,21 @@
+body{
+    background-color:#dddddd;
+    margin:0px;
+}
+
+
+
+#text{
+    padding:30px;
+    margin: 0px;
+}
+
+#graphics{
+width:100px;
+}
+
+p{
+    padding:0px;
+    margin:0px;
+    
+}

@@ -1,7 +1,7 @@
 /**
  * collect switchButtons to make a synchronized single choice
  * @constructor Selection
- * @param {SwitchButton} button... - vararg, list of buttons, first button will be set to pressed
+ * @param {SwitchButton} idName... - vararg, list of id's, first button will be set to pressed
  */
 
 /* jshint esversion:6 */
@@ -12,7 +12,7 @@ function Selection() {
 
     this.buttons = [];
     for (var i = 0; i < arguments.length; i++) {
-        this.add(arguments[i]);
+        this.createButton(arguments[i]);
     }
     this.setFirstPressed();
 }
@@ -80,6 +80,5 @@ function Selection() {
             this.setPressed(this.buttons[0]);
         }
     };
-
 
 }());

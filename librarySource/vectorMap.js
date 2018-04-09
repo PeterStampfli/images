@@ -195,7 +195,7 @@ function VectorMap(outputImage) {
         let colorPlusXY = new Color();
         let baseIndex = 0;
         let indexPlusX, indexPlusY, indexPlusXY;
-        let pixelCanvas = this.pixelCanvas;
+        let pixelCanvas = this.outputImage.pixelCanvas;
         for (var j = 0; j < height; j++) {
             if (j == height - 1) { // at top pixels beware of out of bounds indices
                 indexPlusY = baseIndex;
@@ -215,21 +215,23 @@ function VectorMap(outputImage) {
                 mapOut.x = baseX;
                 mapOut.y = baseY;
                 mapping(mapOut, baseColor);
-                mapout.x = 0.5 * (baseX + xArray[indexPlusX]);
-                mapout.y = 0.5 * (baseY + yArray[indexPlusX]);
+                mapOut.x = 0.5 * (baseX + xArray[indexPlusX]);
+                mapOut.y = 0.5 * (baseY + yArray[indexPlusX]);
                 mapping(mapOut, colorPlusX);
-                mapout.x = 0.5 * (baseX + xArray[indexPlusY]);
-                mapout.y = 0.5 * (baseY + yArray[indexPlusY]);
+                mapOut.x = 0.5 * (baseX + xArray[indexPlusY]);
+                mapOut.y = 0.5 * (baseY + yArray[indexPlusY]);
                 mapping(mapOut, colorPlusY);
-                mapout.x = 0.5 * (baseX + xArray[indexPlusXY]);
-                mapout.y = 0.5 * (baseY + yArray[indexPlusXY]);
+                mapOut.x = 0.5 * (baseX + xArray[indexPlusXY]);
+                mapOut.y = 0.5 * (baseY + yArray[indexPlusXY]);
                 mapping(mapOut, colorPlusXY);
                 //averaging with shift, including rounding
                 color.red = (2 + baseColor.red + colorPlusX.red + colorPlusY.red + colorPlusXY.red) >> 2;
                 color.green = (2 + baseColor.green + colorPlusX.green + colorPlusY.green + colorPlusXY.green) >> 2;
                 color.blue = (2 + baseColor.blue + colorPlusX.blue + colorPlusY.blue + colorPlusXY.blue) >> 2;
                 color.alpha = (2 + baseColor.alpha + colorPlusX.alpha + colorPlusY.alpha + colorPlusXY.alpha) >> 2;
-                pixelCanvas.setPixelAtIndex(color, index);
+                pixelCanvas.setPixelAtIndex(color, baseIndex);
+                baseIndex++;
+                indexPlusY++;
             }
         }
         pixelCanvas.showPixel();

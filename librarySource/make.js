@@ -221,6 +221,24 @@ var Make = {};
     */
 
     /**
+     * create a button to change map parameter values
+     * @method Make.createMapParameterButton
+     * @param {String} idBase
+     * @param {String} idPlus
+     * @param {String} idMinus
+     * @return the button
+     */
+    Make.createMapParameterButton = function(idBase, idPlus, idMinus) {
+        let button = new NumberButton(idBase);
+        button.onChange = function() {
+            Make.updateNewMap();
+        };
+        button.createPlusMinusButtons(idPlus, idMinus);
+        return button;
+    };
+
+
+    /**
      * update the structure mapping, depending on the parameters
      * @method Make.initializeMap
      */
@@ -249,7 +267,7 @@ var Make = {};
 
     /*
      * initialization typically:
-     * 
+     * twoMirrors
     Make.setOutputSize(300,300)
     Make.setInitialOutputImageSpace(-1,1,-1);
     Make.resetOutputImageSpace();
@@ -414,6 +432,53 @@ var Make = {};
 
     // drawing the output image 
     //___________________________________________________________________________
+
+    /**
+     * creating the smoothing choice
+     * @method Make.createSmootingChoice
+     * @param {String} idNoSmoothing
+     * @param {String} id2x2Smoothing
+     */
+    Make.createSmootingChoice = function(idNoSmoothing, id2x2Smoothing) {
+        let smoothing = new Selection(idNoSmoothing, id2x2Smoothing);
+        smoothing.buttons[0].onPress = function() {
+            console.log("none");
+            Make.map.draw = Make.map.drawSimple;
+            Make.updateOutputImage();
+        };
+
+        smoothing.buttons[1].onPress = function() {
+            console.log("2");
+            Make.map.draw = Make.map.drawSmooth;
+            Make.updateOutputImage();
+        };
+    };
+
+
+    /**
+     * creating the interpolation choice
+     * @method Make.createInterpolationChoice
+     * @param {String} id for no interpolation
+     * @param {String} id for linear interpolation
+     * @param {String} id for cubic interpolation
+     */
+    Make.createInterpolationChoice = function(idNo, idLinear, idCubic) {
+        let interpolation = new Selection(idNo, idLinear, idCubic);
+        interpolation.buttons[0].onPress = function() {
+            Make.inputImage.chooseInterpolation(0);
+            Make.updateOutputImage();
+        };
+        interpolation.buttons[1].onPress = function() {
+            Make.inputImage.chooseInterpolation(1);
+            Make.updateOutputImage();
+        };
+        interpolation.buttons[2].onPress = function() {
+            Make.inputImage.chooseInterpolation(2);
+            Make.updateOutputImage();
+        };
+    };
+
+
 
     Make.colorParityNull = new Color(255, 255, 0); //default yellow
     Make.colorParityOdd = new Color(0, 255, 255); // default cyan

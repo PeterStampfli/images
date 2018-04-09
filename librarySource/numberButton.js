@@ -126,11 +126,11 @@ function NumberButton(idName) {
 
     /**
      * create buttons for increasing and decreasing the value
-     * @method NumberButton#createMinusPlusButtons
+     * @method NumberButton#createPlusMinusButtons
      * @param {String} idPlus - id for the plus button
      * @param {String} idMinus - id for the minus button
      */
-    NumberButton.prototype.createMinusPlusButtons = function(idPlus, idMinus) {
+    NumberButton.prototype.createPlusMinusButtons = function(idPlus, idMinus) {
         this.plusButton = new Button(idPlus);
         this.minusButton = new Button(idMinus);
         let numberButton = this;

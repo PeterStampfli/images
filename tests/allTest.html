@@ -27,6 +27,9 @@
 <span id="minus"> minus </span>
 </p>
 
+<p> smoothing <span id="none"> none </span> <span id="2x2"> 2x2 </span> </p>
+<p> interpolation <span id="next"> none </span> <span id="linear"> linear </span> <span id="quadratic"> quad </span> </p>
+
 		<canvas id="outputCanvas" ></canvas>
 	
 
@@ -45,6 +48,8 @@
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/fileButton.js"></script>
 <script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/switchButton.js"></script>
+<script src="../librarySource/selection.js"></script>
 
 <script src="../librarySource/color.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
@@ -60,11 +65,21 @@
     console.log("hi");
     
 twoMirrors=new TwoMirrors();
-twoMirrors.setK(5);
-twoMirrors.setAngle(0.5);
+setKButton= Make.createMapParameterButton("setK","plus","minus");
+
+setKButton.setValue(5);
+setKButton.setRange(2,100000)
+
+  Make.initializeMap=function(){
+  twoMirrors.setK(setKButton.getValue());
+  }
 
 sizeButton=Make.createSquareImageSizeButton("size");
 sizeButton.setValue(300);
+
+ Make.createSmootingChoice("none","2x2");
+
+Make.createInterpolationChoice ("next","linear","quadratic")
 
 
 Make.createOutputImageNoColorSymmetry("outputCanvas")
