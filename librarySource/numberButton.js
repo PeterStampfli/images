@@ -4,14 +4,20 @@
  * 
  * @constructor NumberButton
  * @param {String} idName name (id) of an html text input element
+ * @param {String} idPlus - optional, id for plus button
+ * @param {String} idMinus - optional, id for minus button
  */
 
 /* jshint esversion:6 */
 
-function NumberButton(idName) {
+function NumberButton(idName, idPlus, idMinus) {
     "use strict";
 
     this.element = document.getElementById(idName);
+    console.log(this.element);
+    if (arguments.length > 1) {
+        this.createPlusMinusButtons(idPlus, idMinus);
+    }
     this.hover = false;
     this.pressed = false;
     // limiting the number range: defaults, minimum is zero, maximum is very large

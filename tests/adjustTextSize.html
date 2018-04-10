@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>adjustTextSize</title>
+</head>
+
+<body>
+
+
+</div>
+<div id="graphics"> <p>graphics </p></div>
+
+
+<div id="text">  
+
+<h1> ein kurrzer tital</h1>
+
+<p>text da diet text da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet </p> 
+
+<p>
+font size <input type="text" class="numbers" id="size" maxlength="4" /><span id="plus">+</span><span id="minus">-</span>
+</p>
+
+<p>
+<span id="auch"> 
+das ist auch ein text
+</span>
+</p>
+
+</body>
+
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+
+<script src="../librarySource/layout.js"></script>
+
+<script type="text/javascript">
+    console.log("start "+localStorage.getItem("size"));
+
+localStorage.setItem("size",22);
+    console.log("se "+localStorage.getItem("size"));
+
+
+    sizeButton=new NumberButton("size","plus","minus");
+sizeButton.setValue(12);
+    let text=document.getElementById("text");
+    
+sizeButton.onChange=function(value){
+text.style.fontSize=value+"px";
+console.log("nws");
+}
+
+
+Layout.getElements("graphics","text");
+Layout.setStyles();
+Layout.graphics.style.backgroundColor="red";
+Layout.adjustDimensions();
+
+window.onresize=Layout.adjustDimensions;
+
+</script>
+
+</html>
