@@ -14,7 +14,6 @@ function NumberButton(idName, idPlus, idMinus) {
     "use strict";
 
     this.element = document.getElementById(idName);
-    console.log(this.element);
     if (arguments.length > 1) {
         this.createPlusMinusButtons(idPlus, idMinus);
     }

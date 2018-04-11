@@ -1,5 +1,5 @@
 /**
- * attaches mouse events to a html element and organizes basic mouse data
+ * attaches mouse events to a html element and organizes basic mouse data, prevents default
  * @constructor MouseEvents
  * @param {String} idName - of the HTML element
  */
@@ -98,11 +98,12 @@ function MouseEvents(idName) {
     "use strict";
 
     /**
-     * read the mouse position relative to element, calculate changes, update data
+     * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)
      * @method MouseEvents#update
      * @param {Event} event - object, containing event data
      */
     MouseEvents.prototype.update = function(event) {
+        ebent.preventDefault();
         this.lastX = this.x;
         this.lastY = this.y;
         this.x = event.pageX - this.element.offsetLeft;

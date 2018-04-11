@@ -12,8 +12,15 @@ var Layout = {};
     "use strict";
 
     // defaults
-    // text margin as fraction iof window height
-    Layout.textMarginFraction = 0.020;
+    // text margin as fraction of text size
+    Layout.textMarginToSize = 0.50;
+    // width of input buttons
+    Layout.inputWidthToSize = 4;
+    //weight of borders (buttons)
+    Layout.borderWidthToSize = 0.15;
+    // size of h1 text
+    Layout.h1ToSize = 1.4;
+
     Layout.backgroundColor = "#eeeeee";
 
     // basic font size is on local storage
@@ -26,7 +33,7 @@ var Layout = {};
      * @method Layout.saveBasicFontSize
      */
     Layout.saveBasicFontSize = function() {
-        localStorage.setItem("fontSize", basicFontSize);
+        localStorage.setItem("fontSize", Layout.basicFontSize);
     };
 
     /**
@@ -34,23 +41,43 @@ var Layout = {};
      * @method Layout.setFontSizes
      */
     Layout.setFontSizes = function() {
-        Layout.setStyleFor("p", "fontSize", Layout.basicFontSize + "px");
-        Layout.setStyleFor("h1", "fontSize", Math.round(1.4 * Layout.basicFontSize) + "px");
+        Layout.setStyleFor("p,button,input", "fontSize", Layout.basicFontSize + "px");
+        Layout.setStyleFor("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + "px");
+        Layout.setStyleFor("p,h1", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + "px");
+        Layout.setStyleFor("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + "px");
 
+        Layout.setStyleFor("input", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
+
+        Layout.setStyleFor(".round", "borderRadius", Layout.basicFontSize + "px");
 
     };
 
+    /**
+     * make font size changes possible, key "q" increases, key "a" decreases
+     * @method Layout.activateFontSizeChanges
+     */
+    Layout.activateFontSizeChanges = function() {
+        KeyboardEvents.addFunction(function() {
+            Layout.basicFontSize++;
+            Layout.saveBasicFontSize();
+            Layout.setFontSizes();
+        }, "q");
+        KeyboardEvents.addFunction(function() {
+            Layout.basicFontSize--;
+            Layout.saveBasicFontSize();
+            Layout.setFontSizes();
+        }, "a");
+    };
 
     /**
      * set a style attribute of all elements with given tag
      * @method Layout.setStyleFor
-     * @param {String} tag
+     * @param {String} selectors - comma separated list (tag,tag.class,.class,#id)
      * @param {String} attribute
      * @param {String} value
      */
-    Layout.setStyleFor = function(tag, attribute, value) {
-        console.log(value);
-        let elms = document.querySelectorAll(tag);
+    Layout.setStyleFor = function(selectors, attribute, value) {
+        let elms = document.querySelectorAll(selectors);
         elms.forEach(function(elm) {
             elm.style[attribute] = value;
         });
@@ -78,12 +105,10 @@ var Layout = {};
      * @method Layout.setStyles
      */
     Layout.setStyles = function() {
-
         Layout.setStyleFor("body", "backgroundColor", Layout.backgroundColor);
         Layout.setStyleFor("body", "margin", "0px");
         Layout.setStyleFor("body", "fontFamily", "'Open Sans', Arial, sans-serif");
-
-
+        Layout.setStyleFor("button,input", "fontWeight", "bold");
     };
 
     /**
@@ -91,25 +116,30 @@ var Layout = {};
      * font size is adjusted separately
      * @method Layout.adjustDimensions
      */
-
     Layout.adjustDimensions = function() {
         console.log("adjust");
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
         Layout.graphics.style.width = windowHeight + "px";
         Layout.graphics.style.height = windowHeight + "px";
-
         Layout.text.style.left = windowHeight + "px";
-
         Layout.text.style.width = (windowWidth - windowHeight - 20) + "px"; // avoid horizontal scrollbar
         Layout.graphics.style.height = windowHeight + "px";
-        Layout.setStyleFor("p", "margin", Math.round(Layout.textMarginFraction * windowHeight) + "px");
-        Layout.setStyleFor("h1", "margin", Math.round(Layout.textMarginFraction * windowHeight) + "px");
         Layout.setFontSizes();
-
     };
 
+    /**
+     * typical setup
+     * @method Layout.setup
+     */
+    Layout.setup = function() {
 
+        Layout.getElements("graphics", "text");
+        Layout.setStyles();
+        Layout.adjustDimensions();
+        Layout.activateFontSizeChanges();
+        window.onresize = Layout.adjustDimensions;
+    };
 
 
 }());

@@ -17,48 +17,52 @@
 
 <h1> ein kurrzer tital</h1>
 
-<p>text da diet text da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet </p> 
+<p>text da diet text da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da diet text da diet text da diet text da d da ext da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet text da diet </p> 
 
 <p>
-font size <input type="text" class="numbers" id="size" maxlength="4" /><span id="plus">+</span><span id="minus">-</span>
+font size <button id="minus" class="round">&lt</button> <input type="text" class="numbers" id="size" maxlength="4" />
+<button id="plus" class="round"> &gt </button> 
 </p>
 
 <p>
-<span id="auch"> 
-das ist auch ein text
-</span>
+this is a <button id="b"> button </button> nothing more
 </p>
 
 </body>
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
 
 <script src="../librarySource/layout.js"></script>
 
 <script type="text/javascript">
-    console.log("start "+localStorage.getItem("size"));
 
-localStorage.setItem("size",22);
-    console.log("se "+localStorage.getItem("size"));
+KeyboardEvents.setPreviousNext("layout.html","buttontest.html");
+
+b=new Button("b");
+    
+    bStyle=document.getElementById("b").style;
+    
+    
+    
+    
 
 
     sizeButton=new NumberButton("size","plus","minus");
 sizeButton.setValue(12);
     let text=document.getElementById("text");
     
+    
 sizeButton.onChange=function(value){
-text.style.fontSize=value+"px";
-console.log("nws");
+console.log("nws"+value);
 }
+Layout.setup();
 
 
-Layout.getElements("graphics","text");
-Layout.setStyles();
-Layout.graphics.style.backgroundColor="red";
-Layout.adjustDimensions();
+Layout.graphics.style.backgroundColor="blue";
 
-window.onresize=Layout.adjustDimensions;
 
 </script>
 

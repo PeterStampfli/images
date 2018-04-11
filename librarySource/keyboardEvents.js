@@ -47,9 +47,8 @@ var KeyboardEvents = {};
      */
     KeyboardEvents.addClickListener = function(listenerId, key) {
         KeyboardEvents.addFunction(function() {
-                document.getElementById(listenerId).click();
-            },
-            key);
+            document.getElementById(listenerId).click();
+        }, key);
     };
 
     /**
@@ -60,15 +59,28 @@ var KeyboardEvents = {};
      */
     KeyboardEvents.addUrl = function(url, key) {
         KeyboardEvents.addFunction(function() {
-                window.location = url;
-            },
-            key);
+            window.location = url;
+        }, key);
     };
 
+    /**
+     * setting up leftArrow and rightArrow to go to previous and next addUrl
+     * @method KeyboardEvents.setPreviousNext
+     * @param {String} previousUrl
+     * @param {String} nextUrl
+     */
+    KeyboardEvents.setPreviousNext = function(previousUrl, nextUrl) {
+        KeyboardEvents.addUrl(previousUrl, "ArrowLeft");
+        KeyboardEvents.addUrl(nextUrl, "ArrowRight");
+    };
+
+    /*
+     * event listener that sends out the keyboard signals to listeners and calls functions
+     */
     document.onkeydown = function(event) {
-        console.log("key " + event.key);
         var i;
         let key = event.key;
+        console.log(key);
         KeyboardEvents.keydownListeners.forEach(function(listener) {
             listener.keydown(key);
         });
