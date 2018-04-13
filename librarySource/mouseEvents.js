@@ -18,9 +18,9 @@ function MouseEvents(idName) {
     this.pressed = false;
     this.mouseInside = false;
     this.wheelDelta = 0;
-    // keys for wheel action, defaults
-    this.upKey = "ArrowUp";
-    this.downKey = "ArrowDown";
+    // keys for wheel action, defaults, Z zooms in, z zooms out
+    this.upKey = "Z";
+    this.downKey = "z";
 
     // event action - strategy pattern
 
@@ -103,7 +103,7 @@ function MouseEvents(idName) {
      * @param {Event} event - object, containing event data
      */
     MouseEvents.prototype.update = function(event) {
-        ebent.preventDefault();
+        event.preventDefault();
         this.lastX = this.x;
         this.lastY = this.y;
         this.x = event.pageX - this.element.offsetLeft;

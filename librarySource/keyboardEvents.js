@@ -64,14 +64,14 @@ var KeyboardEvents = {};
     };
 
     /**
-     * setting up leftArrow and rightArrow to go to previous and next addUrl
+     * setting up "n"-key to go to next and "N"-keyprevious Url
      * @method KeyboardEvents.setPreviousNext
      * @param {String} previousUrl
      * @param {String} nextUrl
      */
     KeyboardEvents.setPreviousNext = function(previousUrl, nextUrl) {
-        KeyboardEvents.addUrl(previousUrl, "ArrowLeft");
-        KeyboardEvents.addUrl(nextUrl, "ArrowRight");
+        KeyboardEvents.addUrl(previousUrl, "N");
+        KeyboardEvents.addUrl(nextUrl, "n");
     };
 
     /*

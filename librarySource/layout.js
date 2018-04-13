@@ -53,7 +53,7 @@ var Layout = {};
     };
 
     /**
-     * make font size changes possible, key "q" increases, key "a" decreases
+     * make font size changes possible, key "F" increases, key "f" decreases
      * @method Layout.activateFontSizeChanges
      */
     Layout.activateFontSizeChanges = function() {
@@ -61,12 +61,12 @@ var Layout = {};
             Layout.basicFontSize++;
             Layout.saveBasicFontSize();
             Layout.setFontSizes();
-        }, "q");
+        }, "F");
         KeyboardEvents.addFunction(function() {
             Layout.basicFontSize--;
             Layout.saveBasicFontSize();
             Layout.setFontSizes();
-        }, "a");
+        }, "f");
     };
 
     /**
@@ -129,12 +129,14 @@ var Layout = {};
     };
 
     /**
-     * typical setup
+     * typical setup, hide controls
      * @method Layout.setup
      */
     Layout.setup = function() {
 
-        Layout.getElements("graphics", "text");
+        Layout.getElements("outputCanvas", "text");
+        document.getElementById("controlCanvas").style.display = "none";
+        document.getElementById("arrowController").style.display = "none";
         Layout.setStyles();
         Layout.adjustDimensions();
         Layout.activateFontSizeChanges();
