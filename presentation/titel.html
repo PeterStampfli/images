@@ -8,9 +8,6 @@
 
 <body>
 
-<canvas id="outputCanvas"> </canvas>
-<canvas id="controlCanvas" ></canvas>
-<canvas id="arrowController" ></canvas>
 
 <div id="text">  
 
@@ -19,7 +16,7 @@
     <p>
     Peter Stampfli
     <br>
-    Rue de Lausanne 1, 1580 Avenches Switzerland
+    Rue de Lausanne 1, 1580 Avenches, Switzerland
     </p>
     
     <p>
@@ -38,19 +35,21 @@
 </div>
 
 </body>
+<script src="layout.js"></script>
+
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/keyboardEvents.js"></script>
 
-<script src="../librarySource/layout.js"></script>
 
 <script type="text/javascript">
+        Layout.activateFontSizeChanges();
+
 
 KeyboardEvents.setPreviousNext("titel.html","twoMirrors.html");
 
-Layout.setup();
 
 
 Layout.graphics.style.backgroundColor="blue";

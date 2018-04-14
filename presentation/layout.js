@@ -25,9 +25,7 @@ var Layout = {};
 
     // basic font size is on local storage
     Layout.basicFontSize = localStorage.getItem("fontSize") || Math.round(window.innerHeight * 0.06);
-
-    console.log("fontSize " + Layout.basicFontSize);
-
+    
     /**
      * save the basicFontSize
      * @method Layout.saveBasicFontSize
@@ -82,6 +80,14 @@ var Layout = {};
             elm.style[attribute] = value;
         });
     };
+    
+    /*
+     * set position of an element (declared previously "absolute" or "fixed")
+     */
+    function setPosition(element,left,top){
+        element.style.left=left+"px";
+        element.style.top=top+"px";
+    }
 
     /**
      * get the text-div and the graphics-canvas elements, and set standard styles
@@ -93,8 +99,8 @@ var Layout = {};
         Layout.graphics = document.getElementById(idGraphics);
         Layout.text = document.getElementById(idText);
         Layout.graphics.style.position = "fixed";
-        Layout.graphics.style.top = "0px";
-        Layout.graphics.style.left = "0px";
+        setPosition(Layout.graphics,0,0);
+        
         Layout.text.style.position = "absolute";
         Layout.text.style.top = "0px";
     };
@@ -117,31 +123,62 @@ var Layout = {};
      * @method Layout.adjustDimensions
      */
     Layout.adjustDimensions = function() {
-        console.log("adjust");
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
         Layout.graphics.style.width = windowHeight + "px";
         Layout.graphics.style.height = windowHeight + "px";
+        Layout.outputSize=windowHeight;
         Layout.text.style.left = windowHeight + "px";
         Layout.text.style.width = (windowWidth - windowHeight - 20) + "px"; // avoid horizontal scrollbar
         Layout.graphics.style.height = windowHeight + "px";
         Layout.setFontSizes();
     };
+    
+    
+    
+    /*
+     * create an element, append to body and give it an id, return the element, if it has a text, add text to element
+     */
+    function createElement(tag,idName){                               // optional text
+                let element=document.createElement(tag);
+                document.querySelector("body").appendChild(element);
+                element.setAttribute("id",idName);
+                if (arguments.length>2){
+                    let textNode=document.createTextNode(arguments[2]);
+                    element.appendChild(textNode);
+                }
+                return element;
+    }
+
+
 
     /**
-     * typical setup, hide controls
+     * typical setup, hide control canvas. Layout.outputSize will have dimensions for output image
      * @method Layout.setup
      */
     Layout.setup = function() {
+        
+        createElement("canvas","outputCanvas");
+                createElement("p","someId","stupid text");
 
+        createElement("canvas","controlCanvas");
+        createElement("canvas","arrowController");
         Layout.getElements("outputCanvas", "text");
         document.getElementById("controlCanvas").style.display = "none";
         document.getElementById("arrowController").style.display = "none";
         Layout.setStyles();
         Layout.adjustDimensions();
-        Layout.activateFontSizeChanges();
-        window.onresize = Layout.adjustDimensions;
     };
 
 
 }());
+
+Layout.setup();
+
+// on resize: adjust new dimensions and redraw output image
+window.onresize = function(){
+    Layout.adjustDimensions;
+    // ...
+}
+
+

@@ -80,7 +80,7 @@ var KeyboardEvents = {};
     document.onkeydown = function(event) {
         var i;
         let key = event.key;
-        console.log(key);
+        //console.log(key);
         KeyboardEvents.keydownListeners.forEach(function(listener) {
             listener.keydown(key);
         });

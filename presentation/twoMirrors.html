@@ -8,9 +8,6 @@
 
 <body>
 
-<canvas id="outputCanvas"> </canvas>
-<canvas id="controlCanvas" ></canvas>
-<canvas id="arrowController" ></canvas>
 <div id="text">  
 
     <h1> Two Mirrors</h1>
@@ -22,6 +19,8 @@
 </div>
 
 </body>
+<script src="layout.js"></script>
+
 
 <script src="../librarySource/vector2.js"></script>
 <script src="../librarySource/keyboardEvents.js"></script>
@@ -45,13 +44,13 @@
 <script src="../librarySource/arrowController.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/make.js"></script>
-<script src="../librarySource/layout.js"></script>
 
 <script type="text/javascript">
 
+        Layout.activateFontSizeChanges();
+
 KeyboardEvents.setPreviousNext("titel.html","twoMirrors.html");
 
-Layout.setup();
 
 
 Layout.graphics.style.backgroundColor="blue";
