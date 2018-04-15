@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>presentation-titel</title>
+    <title>title</title>
 </head>
 
 <body>
@@ -42,17 +42,21 @@
 <script src="../librarySource/numberButton.js"></script>
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/dom.js"></script>
 
 
 <script type="text/javascript">
-        Layout.activateFontSizeChanges();
+Layout.setup();
+
+
+//  Layout.activateFontSizeChanges();
 
 
 KeyboardEvents.setPreviousNext("titel.html","twoMirrors.html");
 
 
 
-Layout.graphics.style.backgroundColor="blue";
+DOM.style("#outputCanvas","backgroundColor","blue");
 
 
 </script>

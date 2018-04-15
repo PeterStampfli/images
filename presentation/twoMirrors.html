@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 
 <head>
-    <title>presentation-titel</title>
+    <title>twoMirrors</title>
 </head>
 
 <body>
@@ -13,7 +13,7 @@
     <h1> Two Mirrors</h1>
 
     <p>
-
+ein text
 
     </p> 
 </div>
@@ -44,16 +44,19 @@
 <script src="../librarySource/arrowController.js"></script>
 <script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
 
 <script type="text/javascript">
+Layout.setup("titel.html","twoMirrors.html");
 
-        Layout.activateFontSizeChanges();
-
-KeyboardEvents.setPreviousNext("titel.html","twoMirrors.html");
-
+      Layout.activateFontSizeChanges();
 
 
-Layout.graphics.style.backgroundColor="blue";
+
+
+DOM.style("#outputCanvas","backgroundColor","blue");
+
+//DOM.style("#topLeft,#topRight","width","100px","height","100px","backgroundColor","red");
 
 
 </script>

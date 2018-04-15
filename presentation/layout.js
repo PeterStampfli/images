@@ -23,31 +23,46 @@ var Layout = {};
 
     Layout.backgroundColor = "#eeeeee";
 
+    //helpful constants
+    const px = "px";
+
+    console.log(localStorage.getItem("fontSize"));
     // basic font size is on local storage
-    Layout.basicFontSize = localStorage.getItem("fontSize") || Math.round(window.innerHeight * 0.06);
-    
-    /**
-     * save the basicFontSize
-     * @method Layout.saveBasicFontSize
-     */
-    Layout.saveBasicFontSize = function() {
-        localStorage.setItem("fontSize", Layout.basicFontSize);
-    };
+    if (localStorage.getItem("fontSize")) {
+
+        Layout.basicFontSize = parseInt(localStorage.getItem("fontSize"), 10);
+    } else {
+        Layout.basicFontSize = Math.round(window.innerHeight * 0.06);
+        console.log("defaultsize");
+    }
+
+    console.log(Layout.basicFontSize);
 
     /**
-     * set the font sizes, depending on basicFontSize
+     * adjust font sizes and other dimensions depending on basicFontSize
      * @method Layout.setFontSizes
      */
     Layout.setFontSizes = function() {
-        Layout.setStyleFor("p,button,input", "fontSize", Layout.basicFontSize + "px");
-        Layout.setStyleFor("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + "px");
-        Layout.setStyleFor("p,h1", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + "px");
-        Layout.setStyleFor("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + "px");
+        DOM.style("p,button,input", "fontSize", Layout.basicFontSize + px);
+        DOM.style("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + px);
+        DOM.style("p,h1,.topButton", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
+        DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
+        DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
+        DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
 
-        Layout.setStyleFor("input", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
+    };
 
-        Layout.setStyleFor(".round", "borderRadius", Layout.basicFontSize + "px");
+    /**
+     * change the font size, adjust display and save size on localstorage
+     * @method Layout.changeFontSize
+     * @param {integer} amount
+     */
 
+    Layout.changeFontSize = function(amount) {
+        Layout.basicFontSize += amount;
+        console.log("ch " + Layout.basicFontSize);
+        Layout.setFontSizes();
+        localStorage.setItem("fontSize", Layout.basicFontSize);
     };
 
     /**
@@ -56,129 +71,96 @@ var Layout = {};
      */
     Layout.activateFontSizeChanges = function() {
         KeyboardEvents.addFunction(function() {
-            Layout.basicFontSize++;
-            Layout.saveBasicFontSize();
-            Layout.setFontSizes();
+            Layout.changeFontSize(1);
         }, "F");
         KeyboardEvents.addFunction(function() {
-            Layout.basicFontSize--;
-            Layout.saveBasicFontSize();
-            Layout.setFontSizes();
+            Layout.changeFontSize(-1);
         }, "f");
     };
 
-    /**
-     * set a style attribute of all elements with given tag
-     * @method Layout.setStyleFor
-     * @param {String} selectors - comma separated list (tag,tag.class,.class,#id)
-     * @param {String} attribute
-     * @param {String} value
-     */
-    Layout.setStyleFor = function(selectors, attribute, value) {
-        let elms = document.querySelectorAll(selectors);
-        elms.forEach(function(elm) {
-            elm.style[attribute] = value;
-        });
-    };
-    
-    /*
-     * set position of an element (declared previously "absolute" or "fixed")
-     */
-    function setPosition(element,left,top){
-        element.style.left=left+"px";
-        element.style.top=top+"px";
-    }
 
     /**
-     * get the text-div and the graphics-canvas elements, and set standard styles
-     * @method Layout.getElements
-     * @param {String} idGraphics
-     * @param {String} idText
-     */
-    Layout.getElements = function(idGraphics, idText) {
-        Layout.graphics = document.getElementById(idGraphics);
-        Layout.text = document.getElementById(idText);
-        Layout.graphics.style.position = "fixed";
-        setPosition(Layout.graphics,0,0);
-        
-        Layout.text.style.position = "absolute";
-        Layout.text.style.top = "0px";
-    };
-
-
-    /**
-     * set body and p style
-     * @method Layout.setStyles
-     */
-    Layout.setStyles = function() {
-        Layout.setStyleFor("body", "backgroundColor", Layout.backgroundColor);
-        Layout.setStyleFor("body", "margin", "0px");
-        Layout.setStyleFor("body", "fontFamily", "'Open Sans', Arial, sans-serif");
-        Layout.setStyleFor("button,input", "fontWeight", "bold");
-    };
-
-    /**
-     * adjust dimensions of graphics and text field depending on window dimensions
-     * font size is adjusted separately
+     * adjust dimensions of graphics and text field depending on window dimensions only
      * @method Layout.adjustDimensions
      */
     Layout.adjustDimensions = function() {
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
-        Layout.graphics.style.width = windowHeight + "px";
-        Layout.graphics.style.height = windowHeight + "px";
-        Layout.outputSize=windowHeight;
-        Layout.text.style.left = windowHeight + "px";
-        Layout.text.style.width = (windowWidth - windowHeight - 20) + "px"; // avoid horizontal scrollbar
-        Layout.graphics.style.height = windowHeight + "px";
-        Layout.setFontSizes();
+
+        DOM.style("#outputCanvas", "width", windowHeight + px, "height", windowHeight + px);
+
+        Layout.outputSize = windowHeight;
+
+        DOM.style("#text", "left", windowHeight + px, "top", "0px");
+        DOM.style("#text", "width", (windowWidth - windowHeight - 20) + px); // avoid horizontal scrollbar
+        DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
+
     };
-    
-    
-    
-    /*
-     * create an element, append to body and give it an id, return the element, if it has a text, add text to element
-     */
-    function createElement(tag,idName){                               // optional text
-                let element=document.createElement(tag);
-                document.querySelector("body").appendChild(element);
-                element.setAttribute("id",idName);
-                if (arguments.length>2){
-                    let textNode=document.createTextNode(arguments[2]);
-                    element.appendChild(textNode);
-                }
-                return element;
-    }
+
 
 
 
     /**
-     * typical setup, hide control canvas. Layout.outputSize will have dimensions for output image
+     * typical setup, hide control canvas. Layout.outputSize will have dimensions of output image.
      * @method Layout.setup
+     * @param {String} prevPage
+     * @param {String} nextPage
      */
-    Layout.setup = function() {
-        
-        createElement("canvas","outputCanvas");
-                createElement("p","someId","stupid text");
+    Layout.setup = function(prevPage, nextPage) {
 
-        createElement("canvas","controlCanvas");
-        createElement("canvas","arrowController");
-        Layout.getElements("outputCanvas", "text");
-        document.getElementById("controlCanvas").style.display = "none";
-        document.getElementById("arrowController").style.display = "none";
-        Layout.setStyles();
+        DOM.create("canvas", "outputCanvas", "body");
+        DOM.create("canvas", "controlCanvas", "body");
+        DOM.create("canvas", "arrowController", "body");
+
+        DOM.style("#controlCanvas,#arrowController", "display", "none");
+        DOM.style("#outputCanvas,#text", "zIndex", "1");
+
+        //DOM.create("button","minusButton","#topLeft","text-");
+
+        DOM.style("body", "backgroundColor", Layout.backgroundColor);
+        DOM.style("body,div", "margin", "0px");
+        DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+        DOM.style("button,input", "fontWeight", "bold");
+
+        DOM.style("#outputCanvas", "position", "fixed", "left", "0px", "top", "0px");
+        DOM.style("#text", "position", "absolute", "top", "0px");
+        KeyboardEvents.setPreviousNext(prevPage, nextPage);
+
+
+        DOM.create("div", "topLeft", "body");
+        DOM.create("div", "topRight", "body");
+        DOM.create("button", "prevButton", "#topLeft", "prev");
+        DOM.create("button", "nextButton", "#topRight", "next");
+
+        DOM.style("#topLeft,#topRight", "position", "absolute", "top", "0px", "zIndex", "2");
+        DOM.style("#topLeft", "left", "0px");
+        DOM.attribute("#prevButton,#nextButton", "class", "topButton");
+        DOM.style(".topButton", "display", "block", "fontWeight", "normal");
+
+        let prevButton = new Button("prevButton");
+        prevButton.onClick = function() {
+            window.location = prevPage;
+        };
+
+        let nextButton = new Button("nextButton");
+        nextButton.onClick = function() {
+            window.location = nextPage;
+        };
+
+
+
         Layout.adjustDimensions();
+
+        Layout.setFontSizes();
+
     };
 
 
 }());
 
-Layout.setup();
 
 // on resize: adjust new dimensions and redraw output image
-window.onresize = function(){
-    Layout.adjustDimensions;
-    // ...
-}
-
-
+window.onresize = function() {
+    Layout.adjustDimensions();
+    //   Layout.setFontSizes();
+};

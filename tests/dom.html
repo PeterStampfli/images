@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>dom test</title>
+</head>
+
+<body>
+
+</body>
+
+
+<script src="../librarySource/dom.js"></script>
+
+
+<script type="text/javascript">
+        
+        console.log("hi");
+p=DOM.create("p","theP","body","hallo text");
+DOM.style("p","color","red","backgroundColor","blue");
+DOM.style("p","position","absolute","top","0px","right","10px");
+console.log(p);
+console.log(document.querySelector("#theP"));
+
+console.log(document.querySelector("body"));
+
+console.log(document.querySelector("#theP"));
+
+
+//DOM.append("body","#theP");
+
+</script>
+
+</html>
