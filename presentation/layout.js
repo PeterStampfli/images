@@ -15,7 +15,7 @@ var Layout = {};
     // text margin as fraction of text size
     Layout.textMarginToSize = 0.50;
     // width of input buttons
-    Layout.inputWidthToSize = 4;
+    Layout.inputWidthToSize = 3.5;
     //weight of borders (buttons)
     Layout.borderWidthToSize = 0.15;
     // size of h1 text
@@ -46,10 +46,10 @@ var Layout = {};
         DOM.style("p,button,input", "fontSize", Layout.basicFontSize + px);
         DOM.style("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + px);
         DOM.style("p,h1,.topButton", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
+        DOM.style(".topButton", "marginBottom", "0px");
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
         DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
-
     };
 
     /**
@@ -78,6 +78,48 @@ var Layout = {};
         }, "f");
     };
 
+    /**
+     * make font size changes with buttons
+     * @method Layout.activateFontSizeChangesButtons
+     */
+    Layout.activateFontSizeChangesButtons = function() {
+        DOM.create("button", "fontMinusButton", "#topLeft", "font-");
+        DOM.create("button", "fontPlusButton", "#topRight", "font+");
+        DOM.attribute("#fontMinusButton,#fontPlusButton", "class", "topButton");
+        Layout.adjustDimensions();
+        Layout.setFontSizes();
+        let fontMinusButton = new Button("fontMinusButton");
+        fontMinusButton.onClick = function() {
+            Layout.changeFontSize(-1);
+        };
+        let fontPlusButton = new Button("fontPlusButton");
+        fontPlusButton.onClick = function() {
+            Layout.changeFontSize(1);
+        };
+    };
+
+    /**
+     * create an number button with up and down buttons
+     * @method Layout.createNumberButton
+     * @param {String} idSpan - id of the span conatining the number button
+     * @return createNumberButton
+     */
+    Layout.createNumberButton = function(idSpan) {
+        DOM.create("input", idSpan + "input", "#" + idSpan);
+        DOM.attribute("#" + idSpan + "input", "type", "text", "maxlength", "4");
+        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
+        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
+        DOM.attribute("#" + idSpan + "up" + ",#" + idSpan + "dn", "class", "round");
+
+        Layout.adjustDimensions();
+        Layout.setFontSizes();
+
+        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
+        return numberButton;
+    };
+
 
     /**
      * adjust dimensions of graphics and text field depending on window dimensions only
@@ -96,9 +138,6 @@ var Layout = {};
         DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
 
     };
-
-
-
 
     /**
      * typical setup, hide control canvas. Layout.outputSize will have dimensions of output image.
@@ -125,7 +164,6 @@ var Layout = {};
         DOM.style("#outputCanvas", "position", "fixed", "left", "0px", "top", "0px");
         DOM.style("#text", "position", "absolute", "top", "0px");
         KeyboardEvents.setPreviousNext(prevPage, nextPage);
-
 
         DOM.create("div", "topLeft", "body");
         DOM.create("div", "topRight", "body");
@@ -156,11 +194,11 @@ var Layout = {};
     };
 
 
+    // on resize: adjust new dimensions and redraw output image
+    window.onresize = function() {
+        Layout.adjustDimensions();
+        //   Layout.setFontSizes();
+    };
+
+
 }());
-
-
-// on resize: adjust new dimensions and redraw output image
-window.onresize = function() {
-    Layout.adjustDimensions();
-    //   Layout.setFontSizes();
-};

@@ -13,7 +13,7 @@
     <h1> Two Mirrors</h1>
 
     <p>
-ein text
+ein text <span id="n"></span>
 
     </p> 
 </div>
@@ -50,6 +50,7 @@ ein text
 Layout.setup("titel.html","twoMirrors.html");
 
       Layout.activateFontSizeChanges();
+      Layout.activateFontSizeChangesButtons();
 
 
 
@@ -57,6 +58,13 @@ Layout.setup("titel.html","twoMirrors.html");
 DOM.style("#outputCanvas","backgroundColor","blue");
 
 //DOM.style("#topLeft,#topRight","width","100px","height","100px","backgroundColor","red");
+
+n=Layout.createNumberButton("n");
+
+n.setValue(2);
+n.onChange=function(v){
+console.log(v);
+}
 
 
 </script>
