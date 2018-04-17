@@ -62,7 +62,8 @@ function PixelCanvas(idName) {
     this.pixelComponents = null;
     this.width = 0;
     this.height = 0;
-    this.offColor = new Color(127, 127, 127, 0); //transparent grey
+    this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
+    this.blueScreenColor = "#0000ff";
 }
 
 (function() {
@@ -102,7 +103,7 @@ function PixelCanvas(idName) {
      * @method PixelCanvas#blueScreen
      */
     PixelCanvas.prototype.blueScreen = function() {
-        this.fillScreen("blue");
+        this.fillScreen(this.blueScreenColor);
     };
 
     /**

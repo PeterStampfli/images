@@ -158,6 +158,14 @@ function OutputImage(idName) {
     };
 
     /**
+     * stop zoom
+     * @method OutputImage.stopZoom
+     */
+    OutputImage.prototype.stopZoom = function() {
+        this.mouseEvents.wheelAction = function() {};
+    };
+
+    /**
      * draw on the outputImage pixel by pixel
      * @method OutputImage#drawPixel
      * @param {function} mapping - from Vector2(position) to Color, only set color if returns true

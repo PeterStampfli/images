@@ -12,16 +12,25 @@ var Layout = {};
     "use strict";
 
     // defaults
+    // relation between sizes and basicFontSize
     // text margin as fraction of text size
     Layout.textMarginToSize = 0.50;
     // width of input buttons
     Layout.inputWidthToSize = 3.5;
     //weight of borders (buttons)
     Layout.borderWidthToSize = 0.15;
+    // weight of lines in the canvas
+    Layout.lineWidthToSize = 0.25;
     // size of h1 text
     Layout.h1ToSize = 1.4;
 
+    // colors
     Layout.backgroundColor = "#eeeeee";
+    Layout.canvasBackgroundColor = "#ddddff";
+    Layout.mirrorColor = "red";
+    Layout.lineColor = "blue";
+    Layout.insideColor = "#ffcc88";
+    Layout.outsideColor = "#88ff88";
 
     //helpful constants
     const px = "px";
@@ -50,6 +59,7 @@ var Layout = {};
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
         DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
+        Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
     };
 
     /**
@@ -63,6 +73,7 @@ var Layout = {};
         console.log("ch " + Layout.basicFontSize);
         Layout.setFontSizes();
         localStorage.setItem("fontSize", Layout.basicFontSize);
+        Make.updateOutputImage();
     };
 
     /**
@@ -113,7 +124,7 @@ var Layout = {};
         DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
         DOM.attribute("#" + idSpan + "up" + ",#" + idSpan + "dn", "class", "round");
 
-        Layout.adjustDimensions();
+        //  Layout.adjustDimensions();
         Layout.setFontSizes();
 
         let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
@@ -129,9 +140,9 @@ var Layout = {};
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
 
-        DOM.style("#outputCanvas", "width", windowHeight + px, "height", windowHeight + px);
+        // DOM.style("#outputCanvas", "width", windowHeight + px, "height", windowHeight + px);
 
-        Layout.outputSize = windowHeight;
+        Make.setOutputSize(windowHeight, windowHeight);
 
         DOM.style("#text", "left", windowHeight + px, "top", "0px");
         DOM.style("#text", "width", (windowWidth - windowHeight - 20) + px); // avoid horizontal scrollbar
@@ -153,6 +164,7 @@ var Layout = {};
 
         DOM.style("#controlCanvas,#arrowController", "display", "none");
         DOM.style("#outputCanvas,#text", "zIndex", "1");
+        DOM.style("#outputCanvas", "backgroundColor", Layout.canvasBackgroundColor);
 
         //DOM.create("button","minusButton","#topLeft","text-");
 
@@ -185,11 +197,6 @@ var Layout = {};
             window.location = nextPage;
         };
 
-
-
-        Layout.adjustDimensions();
-
-        Layout.setFontSizes();
 
     };
 

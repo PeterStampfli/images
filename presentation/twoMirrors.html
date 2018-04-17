@@ -46,27 +46,8 @@ ein text <span id="n"></span>
 <script src="../librarySource/make.js"></script>
 <script src="../librarySource/dom.js"></script>
 
-<script type="text/javascript">
-Layout.setup("titel.html","twoMirrors.html");
-
-      Layout.activateFontSizeChanges();
-      Layout.activateFontSizeChangesButtons();
+<script src="twoMirrors.js"></script>
 
 
-
-
-DOM.style("#outputCanvas","backgroundColor","blue");
-
-//DOM.style("#topLeft,#topRight","width","100px","height","100px","backgroundColor","red");
-
-n=Layout.createNumberButton("n");
-
-n.setValue(2);
-n.onChange=function(v){
-console.log(v);
-}
-
-
-</script>
 
 </html>

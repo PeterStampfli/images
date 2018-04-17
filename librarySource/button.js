@@ -62,14 +62,14 @@ function Button(idName) {
     "use strict";
 
     // default colors
-    Button.colorUp = "black";
-    Button.colorUpHover = "red";
-    Button.colorDownHover = "grey";
-    Button.colorDown = "black";
+    Button.colorUp = "#444444";
+    Button.colorUpHover = "black";
+    Button.colorDownHover = "black";
+    Button.colorDown = "#444444";
     Button.backgroundColorUp = "white";
-    Button.backgroundColorUpHover = "yellow";
-    Button.backgroundColorDownHover = "red";
-    Button.backgroundColorDown = "blue";
+    Button.backgroundColorUpHover = "#ffffbb";
+    Button.backgroundColorDownHover = "#ffff44";
+    Button.backgroundColorDown = "#ffff88";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered

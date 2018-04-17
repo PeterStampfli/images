@@ -64,6 +64,7 @@ var Make = {};
     */
     Make.createOutputImageNoColorSymmetry = function(idName) {
         Make.outputImage = new OutputImage(idName);
+        Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.map = new VectorMap();
         Make.map.outputImage = Make.outputImage;
@@ -246,10 +247,11 @@ var Make = {};
 
     /**
      * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
+     * calls Make.initializeMap: has to get parameters and to call Make.setMapping
+     * to fix Make.mappingStructure and Make.mappingInputImage
      * @method Make.updateNewMap
      */
     Make.updateNewMap = function() {
-        console.log("updatemap");
         Make.initializeMap();
         if (Make.mappingInputImage == null) {
             console.log("*** Make.updateMap: there is no mapping function !");
@@ -392,13 +394,38 @@ var Make = {};
         };
     };
 
+
+    // callback function to call after an image has been read at setup
+    //  important: adjusting space to input image mapping
+    // puts image on controlImage, show result if the 2nd nonlinear mapping exists
+    function readImageActionAtSetup() {
+        Make.showStructure = false; // and create the map!! (everything from zero)
+        Make.initializeMap();
+        if (Make.mappingInputImage == null) {
+            console.log("*** (Make)readImageActionAtSetup: there is no mapping function !");
+            return;
+        }
+        Make.map.make(Make.mappingInputImage);
+        Make.getMapOutputCenter();
+        Make.shiftMapToCenter();
+        Make.controlImage.loadInputImage(Make.inputImage);
+        if (!Make.map.exists) {
+            console.log("*** Make.readImage: map does not exist !");
+            return;
+        }
+        Make.getMapOutputRange();
+        Make.adjustSpaceToInputPixelMapping();
+        Make.updateOutputImage();
+    }
+
+
     /**
-     * read an image with given file path and show result
+     * read an image with given file path and show result at setup, generating map
      * @method Make.readImageWithFilePath
      * @param {String} filePath - relative file path of image
      */
-    Make.readImageWithFilePath = function(filePath) {
-        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
+    Make.readImageWithFilePathAtSetup = function(filePath) {
+        Make.inputImage.readImageWithFilePath(filePath, readImageActionAtSetup);
     };
 
     //        shifting and scaling the output image
@@ -581,7 +608,6 @@ var Make = {};
                 console.log("*** Make.updateOutputImage: input image not loaded !");
                 return;
             }
-            console.log("updateMapOutput");
             // get parameters
             shiftX = Make.controlImage.shiftX;
             shiftY = Make.controlImage.shiftY;
