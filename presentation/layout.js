@@ -45,8 +45,6 @@ var Layout = {};
         console.log("defaultsize");
     }
 
-    console.log(Layout.basicFontSize);
-
     /**
      * adjust font sizes and other dimensions depending on basicFontSize
      * @method Layout.setFontSizes
@@ -97,8 +95,6 @@ var Layout = {};
         DOM.create("button", "fontMinusButton", "#topLeft", "font-");
         DOM.create("button", "fontPlusButton", "#topRight", "font+");
         DOM.attribute("#fontMinusButton,#fontPlusButton", "class", "topButton");
-        Layout.adjustDimensions();
-        Layout.setFontSizes();
         let fontMinusButton = new Button("fontMinusButton");
         fontMinusButton.onClick = function() {
             Layout.changeFontSize(-1);

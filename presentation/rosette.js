@@ -1,18 +1,9 @@
 /* jshint esversion:6 */
 
-
-
-Layout.setup("titel.html", "twoMirrors.html");
-
-
+Layout.setup("titel.html", "rosette.html");
 Make.createOutputImageNoColorSymmetry("outputCanvas");
-
-
 Make.outputImage.stopZoom();
-
-
 Make.createControlImage("controlCanvas", 200);
-
 Make.createArrowController("arrowController", 200);
 
 
@@ -51,22 +42,11 @@ Make.initializeMap = function() {
 
 Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
 
-let r = 5;
-let zero = new Vector2(0, 0);
-let a = new Vector2(r, 0);
-let b = new Vector2(r, 0);
-let line1 = new Line(zero, a);
-let line2 = new Line(zero, b);
-line1.setColor(Layout.mirrorColor);
-line2.setColor(Layout.mirrorColor);
+
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    b.setPolar(r, -Math.PI / setKButton.getValue());
-    line1.setLineWidth(Layout.lineWidth);
-    line1.draw(Make.outputImage);
-    line2.setLineWidth(Layout.lineWidth);
-    line2.draw(Make.outputImage);
+    twoMirrors.drawLines(Layout.mirrorColor, Layout.lineWidth, Make.outputImage);
 
 };
 

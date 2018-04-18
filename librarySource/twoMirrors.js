@@ -11,6 +11,15 @@ function TwoMirrors() {
     "use strict";
 
     let twoMirrors = this;
+    this.cosAngle = 0;
+    this.sinAngle = 0;
+    // drawing
+    this.big = 100;
+    this.pointA = new Vector2();
+    this.pointB = new Vector2();
+    this.pointZero = new Vector2();
+    this.lineA = new Line(this.pointZero, this.pointA);
+    this.lineB = new Line(this.pointZero, this.pointB);
 
     /**
      * a vector mapping, creating a rosette from an input image
@@ -48,7 +57,7 @@ function TwoMirrors() {
      * @param {integer} k - number of sectors
      */
     TwoMirrors.prototype.setK = function(k) {
-        this.k2pi = k * 0.159154; // k/2pi is the inverse of two times the angle between mirrors
+        this.setAngle(Math.PI / k);
     };
 
     /**
@@ -58,6 +67,11 @@ function TwoMirrors() {
      */
     TwoMirrors.prototype.setAngle = function(angle) {
         this.k2pi = 0.5 / angle; // k/2pi is the inverse of two times the angle between mirrors
+        Fast.cosSin(angle);
+        this.cosAngle = Fast.cosResult;
+        this.sinAngle = Fast.sinResult;
+        this.pointB.setPolar(this.big, angle); // to compensate for inverted y-axis
+        this.pointA.setComponents(this.big, 0);
     };
 
     /**
@@ -83,6 +97,37 @@ function TwoMirrors() {
         v.y = r * Fast.sinResult;
         return reflections;
     };
+
+    /**
+     * check if a point is inside
+     * @method isInside
+     * @param {Vector2} v - point to test
+     * @return true if polar angle of v between 0 and PI/2k
+     */
+    TwoMirrors.prototype.isInside = function(v) {
+        if (v.y < 0) {
+            return false;
+        }
+        return (v.y * this.cosAngle <= v.x * this.sinAngle);
+    }
+
+    /**
+     * draw the mirror lines
+     * @method TwoMirrors.drawLines
+     * @param {String} color
+     * @param {float} width
+     * @param {OutputImage} outputImage
+     */
+    TwoMirrors.prototype.drawLines = function(color, width, outputImage) {
+        this.lineA.setColor(color);
+        this.lineA.setLineWidth(width);
+        this.lineA.draw(outputImage);
+        this.lineB.setColor(color);
+        this.lineB.setLineWidth(width);
+        this.lineB.draw(outputImage);
+
+
+    }
 
 
 }());

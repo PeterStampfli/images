@@ -39,6 +39,16 @@ function Circle(radius, center) {
     };
 
     /**
+     * scale the circle (center and radius)
+     * @method Circle.scale
+     * @param {float} factor
+     */
+    Circle.prototype.scale = function(factor) {
+        this.center.scale(factor);
+        this.setRadius(factor * this.radius);
+    }
+
+    /**
      * set color
      * @method Circle#setColor
      * @param {String} color - stroke style 
