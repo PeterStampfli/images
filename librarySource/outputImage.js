@@ -168,11 +168,12 @@ function OutputImage(idName) {
     /**
      * draw on the outputImage pixel by pixel
      * @method OutputImage#drawPixel
-     * @param {function} mapping - from Vector2(position) to Color, only set color if returns true
+     * @param {function} mapping - from Vector2(position) to Color, only sets color if mapping returns true
      */
     OutputImage.prototype.drawPixel = function(mapping) {
         let position = new Vector2();
-        let color = new Color();
+        let color = new Color(0, 0, 0, 255);
+        console.log("draw");
         let width = this.pixelCanvas.width;
         let height = this.pixelCanvas.height;
         let index = 0;

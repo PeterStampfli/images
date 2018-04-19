@@ -70,8 +70,10 @@ function TwoMirrors() {
         Fast.cosSin(angle);
         this.cosAngle = Fast.cosResult;
         this.sinAngle = Fast.sinResult;
-        this.pointB.setPolar(this.big, angle); // to compensate for inverted y-axis
+        this.pointB.setPolar(this.big, angle);
+        this.lineB.update();
         this.pointA.setComponents(this.big, 0);
+        this.lineA.update();
     };
 
     /**
@@ -109,7 +111,7 @@ function TwoMirrors() {
             return false;
         }
         return (v.y * this.cosAngle <= v.x * this.sinAngle);
-    }
+    };
 
     /**
      * draw the mirror lines
@@ -125,9 +127,7 @@ function TwoMirrors() {
         this.lineB.setColor(color);
         this.lineB.setLineWidth(width);
         this.lineB.draw(outputImage);
-
-
-    }
+    };
 
 
 }());

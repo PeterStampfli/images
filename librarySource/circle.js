@@ -46,7 +46,7 @@ function Circle(radius, center) {
     Circle.prototype.scale = function(factor) {
         this.center.scale(factor);
         this.setRadius(factor * this.radius);
-    }
+    };
 
     /**
      * set color
@@ -129,7 +129,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
-     * @method Circle.invert
+     * @method Circle.invertOutsideIn
      * @param {Vector2} v - vector, position of the point
      * @return {boolean} true if the point has been inverted
      */
