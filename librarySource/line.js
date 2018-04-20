@@ -19,27 +19,25 @@ function Line(a, b) {
     "use strict";
 
     /**
-     * set the first point, updates
+     * set the first point, update later
      * @method Line#setA
      * @param {Vector2} a - new first endpoint
      */
     Line.prototype.setA = function(a) {
         this.a = a;
-        this.update();
     };
 
     /**
-     * set the second point, updates
+     * set the second point, update later
      * @method Line#setB
      * @param {Vector2} b - new second endpoint
      */
     Line.prototype.setB = function(b) {
         this.b = b;
-        this.update();
     };
 
     /**
-     * set both points, updates
+     * set both points, update later
      * @method Line#setAB
      * @param {Vector2} a - new first endpoint
      * @param {Vector2} b - new second endpoint
@@ -47,7 +45,6 @@ function Line(a, b) {
     Line.prototype.setAB = function(a, b) {
         this.a = a;
         this.b = b;
-        this.update();
     };
 
     /**
@@ -57,8 +54,8 @@ function Line(a, b) {
      * @method Line#update
      */
     Line.prototype.update = function() {
-        this.ex = this.bx - this.ax;
-        this.ey = this.by - this.bx;
+        this.ex = this.b.x - this.a.x;
+        this.ey = this.b.y - this.a.y;
         const factor = 1 / Math.hypot(this.ex, this.ey);
         this.ex *= factor;
         this.ey *= factor;
@@ -106,7 +103,7 @@ function Line(a, b) {
      * @return {boolean} true if the point is at the left
      */
     Line.prototype.isAtLeft = function(v) {
-        return this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x) > 0;
+        return (this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x)) > 0;
     };
 
     /**

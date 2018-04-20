@@ -140,6 +140,29 @@ function TriangleKaleidoscope() {
     };
 
 
+    /**
+     * check if a point is inside the triangle
+     * @method TriangleKaleidoscope.isInside
+     * @param {Vector2} v
+     * @return true if v is inside the triangle
+     */
+    TriangleKaleidoscope.prototype.isInside = function(v) {
+        if (!this.twoMirrors.isInside(v)) {
+            return false;
+        }
+
+        switch (this.geometry) {
+            case TriangleKaleidoscope.elliptic:
+                return this.mirrorCircle.contains(v);
+            case TriangleKaleidoscope.euclidic:
+                return !this.mirrorLine.isAtLeft(v);
+            case TriangleKaleidoscope.hyperbolic:
+                return (v.x * v.x + v.y * v.y < this.worldRadius2) && !this.mirrorCircle.contains(v);
+        }
+
+        return true;
+    };
+
 
     /**
      * draw the mirror lines

@@ -160,7 +160,7 @@ var Layout = {};
 
         DOM.style("#controlCanvas,#arrowController", "display", "none");
         DOM.style("#outputCanvas,#text", "zIndex", "1");
-        DOM.style("#outputCanvas", "backgroundColor", Layout.canvasBackgroundColor);
+        //DOM.style("#outputCanvas", "backgroundColor", Layout.canvasBackgroundColor);
 
         //DOM.create("button","minusButton","#topLeft","text-");
 

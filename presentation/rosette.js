@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("titel.html", "rosette.html");
+Layout.setup("titel.html", "triangles.html");
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.createControlImage("controlCanvas", 200);
@@ -27,9 +27,10 @@ let twoMirrors = new TwoMirrors();
 
 
 let setKButton = Layout.createNumberButton("n");
+setKButton.setRange(2, 10000);
 
 setKButton.setValue(5);
-setKButton.onChange = function(v) {
+setKButton.onChange = function() {
     Make.updateNewMap();
 
 };

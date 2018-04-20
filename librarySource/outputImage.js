@@ -130,6 +130,15 @@ function OutputImage(idName) {
     };
 
     /**
+     * stop shift
+     * @method OutputImage.stopShift
+     */
+    OutputImage.prototype.stopShift = function() {
+        this.mouseEvents.dragAction = function() {};
+    };
+
+
+    /**
      * zoom with given factor to/from given point (mouse position) as center
      * @method OutputImage#zoom
      * @param {float} factor - zoom factor
@@ -166,9 +175,9 @@ function OutputImage(idName) {
     };
 
     /**
-     * draw on the outputImage pixel by pixel
+     * draw on the outputImage pixel by pixel, draw all
      * @method OutputImage#drawPixel
-     * @param {function} mapping - from Vector2(position) to Color, only sets color if mapping returns true
+     * @param {function} mapping - from Vector2(position) to Color, 
      */
     OutputImage.prototype.drawPixel = function(mapping) {
         let position = new Vector2();
@@ -182,9 +191,8 @@ function OutputImage(idName) {
         for (var j = 0; j < height; j++) {
             position.x = this.cornerX;
             for (var i = 0; i < width; i++) {
-                if (mapping(position, color)) {
-                    this.pixelCanvas.setPixelAtIndex(color, index);
-                }
+                mapping(position, color);
+                this.pixelCanvas.setPixelAtIndex(color, index);
                 position.x += scale;
                 index++;
             }
