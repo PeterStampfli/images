@@ -87,7 +87,7 @@ function Line(a, b) {
     Line.prototype.draw = function(outputImage) {
         let context = outputImage.pixelCanvas.canvasContext;
         context.lineCap = 'round';
-        context.strokeStyle = this.color;
+        context.strokeStyle = this.color.toString();
         context.lineWidth = this.lineWidth * outputImage.scale;
         context.beginPath();
         context.moveTo(this.a.x, this.a.y);

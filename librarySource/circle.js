@@ -74,12 +74,26 @@ function Circle(radius, center) {
     Circle.prototype.draw = function(outputImage) {
         let context = outputImage.pixelCanvas.canvasContext;
         context.lineCap = 'butt';
-        context.strokeStyle = this.color;
+        context.strokeStyle = this.color.toString();
         context.lineWidth = this.lineWidth * outputImage.scale;
         context.beginPath();
         context.moveTo(this.center.x + this.radius, this.center.y);
         context.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI);
         context.stroke();
+    };
+
+    /**
+     * fill the circle on an output image
+     * @method Circle#fill
+     * @param {OutputImage} outputImage
+     */
+    Circle.prototype.fill = function(outputImage) {
+        let context = outputImage.pixelCanvas.canvasContext;
+        context.fillStyle = this.color.toString();
+        context.beginPath();
+        context.moveTo(this.center.x + this.radius, this.center.y);
+        context.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI);
+        context.fill();
     };
 
     /**

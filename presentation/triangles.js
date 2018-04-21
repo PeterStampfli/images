@@ -4,12 +4,13 @@
 
 Layout.setup("rosette.html", "triangles.html");
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImageNoMap("outputCanvas");
+/*
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
-
+*/
 
 Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
@@ -26,20 +27,6 @@ Make.resetOutputImageSpace();
 let kaleidoscope = new TriangleKaleidoscope();
 
 
-yellow = new Color(255, 255, 128, 255);
-transparent = new Color(255, 255, 128, 0);
-
-function fillTriangle() {
-
-    Make.outputImage.drawPixel(function(position, color) {
-
-        if (kaleidoscope.isInside(position)) {
-            color.set(yellow);
-        } else {
-            color.set(transparent);
-        }
-    });
-}
 
 let sum = document.getElementById("sum");
 
@@ -60,10 +47,18 @@ function updateKMN() {
     kaleidoscope.adjustIntersection();
 
 
-    fillTriangle();
+    yellow = new Color(255, 255, 128, 255);
+    background = new Color(255, 255, 240, 255);
 
+
+    Make.outputImage.drawPixel(function(position, color) {
+        if (kaleidoscope.isInside(position)) {
+            color.set(yellow);
+        } else {
+            color.set(background);
+        }
+    });
     kaleidoscope.drawLines(Layout.mirrorColor, Layout.lineWidth, Make.outputImage);
-
 }
 
 let setKButton = Layout.createNumberButton("k");

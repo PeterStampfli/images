@@ -83,7 +83,7 @@ function OutputImage(idName) {
      * @method OutputCanvas#pixelToSpaceCoordinates
      * @param {Vector2} v - will be transformed
      */
-    OutputImage.pixelToSpaceCoordinates = function(v) {
+    OutputImage.prototype.pixelToSpaceCoordinates = function(v) {
         v.x = this.scale * v.x + this.cornerX;
         v.y = this.scale * v.y + this.cornerY;
     };
@@ -182,7 +182,6 @@ function OutputImage(idName) {
     OutputImage.prototype.drawPixel = function(mapping) {
         let position = new Vector2();
         let color = new Color(0, 0, 0, 255);
-        console.log("draw");
         let width = this.pixelCanvas.width;
         let height = this.pixelCanvas.height;
         let index = 0;

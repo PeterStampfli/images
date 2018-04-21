@@ -71,6 +71,18 @@ var Make = {};
         Make.outputImage.action = Make.shiftScaleOutputImage;
     };
 
+    /**
+     * create on-screen canvas without a vectormap and no mouse events to change the map,
+     * no color symmetry
+     * @method Make.createOutputImageNoColorSymmetry
+     * @param {String} idName - html identifier
+     */
+    Make.createOutputImageNoMap = function(idName) {
+        Make.outputImage = new OutputImage(idName);
+        Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
+        Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
+    };
+
     /*
     the output size changes:
     (changes output pixel to space map too, mapping from indices to map input should give same coordinate range if width/height ratio unchanged
@@ -84,7 +96,9 @@ var Make = {};
      */
     Make.setOutputSize = function(width, height) {
         Make.outputImage.setSize(width, height);
-        Make.map.setSize(width, height);
+        if (Make.map != null) {
+            Make.map.setSize(width, height);
+        }
     };
 
 

@@ -32,7 +32,7 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque
      * @method Color#toString
      */
     Color.prototype.toString = function() {
-        return "Color rgba(" + this.red + ", " + this.green + ", " + this.blue + ", " + this.alpha + ")";
+        return "rgba(" + this.red + ", " + this.green + ", " + this.blue + ", " + this.alpha + ")";
     };
 
     /**
