@@ -2,7 +2,7 @@
 
 
 
-Layout.setup("rosette.html", "triangles.html");
+Layout.setup("rosette.html", "circleInversion.html");
 
 Make.createOutputImageNoMap("outputCanvas");
 /*
@@ -13,12 +13,8 @@ Make.createArrowController("arrowController", 200);
 */
 
 Layout.activateFontSizeChanges();
-Layout.activateFontSizeChangesButtons();
-
-
 
 Layout.adjustDimensions();
-
 Layout.setFontSizes();
 
 Make.setInitialOutputImageSpace(-0.25, 1, -0.25);
@@ -26,30 +22,20 @@ Make.resetOutputImageSpace();
 
 let kaleidoscope = new TriangleKaleidoscope();
 
-
-
 let sum = document.getElementById("sum");
 
-console.log(sum);
-
 function updateKMN() {
-    console.log("update");
     let k = setKButton.getValue();
     let m = setMButton.getValue();
     let n = setNButton.getValue();
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
-
     sum.innerHTML = "" + angleSum;
-
     kaleidoscope.setKMN(k, m, n);
-
     kaleidoscope.adjustIntersection();
-
 
     yellow = new Color(255, 255, 128, 255);
     background = new Color(255, 255, 240, 255);
-
 
     Make.outputImage.drawPixel(function(position, color) {
         if (kaleidoscope.isInside(position)) {
@@ -63,7 +49,7 @@ function updateKMN() {
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
-setKButton.setValue(7);
+setKButton.setValue(6);
 setKButton.onChange = function(v) {
     updateKMN();
 };

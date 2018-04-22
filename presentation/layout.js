@@ -35,7 +35,6 @@ var Layout = {};
     //helpful constants
     const px = "px";
 
-    console.log(localStorage.getItem("fontSize"));
     // basic font size is on local storage
     if (localStorage.getItem("fontSize")) {
 
@@ -65,7 +64,6 @@ var Layout = {};
      * @method Layout.changeFontSize
      * @param {integer} amount
      */
-
     Layout.changeFontSize = function(amount) {
         Layout.basicFontSize += amount;
         console.log("ch " + Layout.basicFontSize);
@@ -119,14 +117,11 @@ var Layout = {};
         DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
         DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
         DOM.attribute("#" + idSpan + "up" + ",#" + idSpan + "dn", "class", "round");
-
-        //  Layout.adjustDimensions();
         Layout.setFontSizes();
 
         let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
         return numberButton;
     };
-
 
     /**
      * adjust dimensions of graphics and text field depending on window dimensions only
@@ -135,15 +130,10 @@ var Layout = {};
     Layout.adjustDimensions = function() {
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
-
-        // DOM.style("#outputCanvas", "width", windowHeight + px, "height", windowHeight + px);
-
         Make.setOutputSize(windowHeight, windowHeight);
-
         DOM.style("#text", "left", windowHeight + px, "top", "0px");
         DOM.style("#text", "width", (windowWidth - windowHeight - 20) + px); // avoid horizontal scrollbar
         DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
-
     };
 
     /**
@@ -153,17 +143,12 @@ var Layout = {};
      * @param {String} nextPage
      */
     Layout.setup = function(prevPage, nextPage) {
-
         DOM.create("canvas", "outputCanvas", "body");
         DOM.create("canvas", "controlCanvas", "body");
         DOM.create("canvas", "arrowController", "body");
 
         DOM.style("#controlCanvas,#arrowController", "display", "none");
         DOM.style("#outputCanvas,#text", "zIndex", "1");
-        //DOM.style("#outputCanvas", "backgroundColor", Layout.canvasBackgroundColor);
-
-        //DOM.create("button","minusButton","#topLeft","text-");
-
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
@@ -192,16 +177,28 @@ var Layout = {};
         nextButton.onClick = function() {
             window.location = nextPage;
         };
-
-
     };
 
+    /**
+     * create a button to change between structure and image
+     * @method Layout.createStructureImageButton
+     * @param {String} id - of the span for the button
+     */
+    Layout.createStructureImageButton = function(id) {
+        let buttonElement = DOM.create("button", "structureImageButton", "#" + id, "structure/image");
+        Layout.setFontSizes();
+        let button = new Button("structureImageButton");
+        button.onClick = function() {
+            console.log("click");
+            Make.showStructure = !Make.showStructure;
+            Make.updateNewOutputImageSize();
+        };
+    };
 
     // on resize: adjust new dimensions and redraw output image
     window.onresize = function() {
         Layout.adjustDimensions();
         //   Layout.setFontSizes();
     };
-
 
 }());

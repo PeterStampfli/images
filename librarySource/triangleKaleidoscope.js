@@ -47,7 +47,6 @@ function TriangleKaleidoscope() {
         this.n = n;
         this.twoMirrors.setK(k);
         const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
-        console.log("angle sum " + angleSum);
         const cosGamma = Fast.cos(Math.PI / k);
         const sinGamma = Fast.sin(Math.PI / k);
         const cosAlpha = Fast.cos(Math.PI / m);
@@ -55,26 +54,21 @@ function TriangleKaleidoscope() {
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
         if (angleSum > 1.000001) { // elliptic, raw, adjust
-            console.log("elliptic");
             this.geometry = TriangleKaleidoscope.elliptic;
             this.mirrorCircle.setRadius(1);
             this.circleCenter.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
         } else if (angleSum > 0.999999) { // euklidic, final
-            console.log("euclidic");
             this.geometry = TriangleKaleidoscope.euclidic;
             this.pointP.setComponents(this.intersectionMirrorXAxis - this.big * cosAlpha, this.big * sinAlpha);
             this.pointQ.setComponents(this.intersectionMirrorXAxis + this.big * cosAlpha, -this.big * sinAlpha);
             this.mirrorLine.update();
         } else { // hyperbolic, raw, adjust
-            console.log("hyperbolic");
             this.geometry = TriangleKaleidoscope.hyperbolic;
             this.mirrorCircle.setRadius(1);
             this.circleCenter.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
         }
         this.calculateWorldRadius();
     };
-
-
 
     /**
      * calculate worldradius from data of the mirrorCircle and type of geometry
@@ -84,18 +78,13 @@ function TriangleKaleidoscope() {
         let radius2 = 0;
         switch (this.geometry) {
             case TriangleKaleidoscope.elliptic:
-                console.log("a");
                 radius2 = this.mirrorCircle.radius * this.mirrorCircle.radius - this.circleCenter.length2();
-
                 break;
             case TriangleKaleidoscope.euclidic:
                 radius2 = 1e10;
                 break;
             case TriangleKaleidoscope.hyperbolic:
-                console.log("a");
-
                 radius2 = this.circleCenter.length2() - this.mirrorCircle.radius * this.mirrorCircle.radius;
-
                 break;
         }
         this.worldRadius = Math.sqrt(radius2);
@@ -121,24 +110,18 @@ function TriangleKaleidoscope() {
         let actualIntersection = 0;
         switch (this.geometry) {
             case TriangleKaleidoscope.elliptic:
-                console.log("a");
                 actualIntersection = this.circleCenter.x + this.mirrorCircle.radius * Fast.sin(Math.PI / this.m);
                 this.mirrorCircle.scale(this.intersectionMirrorXAxis / actualIntersection);
                 break;
             case TriangleKaleidoscope.euclidic:
                 break;
             case TriangleKaleidoscope.hyperbolic:
-                console.log("a");
                 actualIntersection = this.circleCenter.x - this.mirrorCircle.radius * Fast.sin(Math.PI / this.m);
                 this.mirrorCircle.scale(this.intersectionMirrorXAxis / actualIntersection);
-
                 break;
         }
-
         this.calculateWorldRadius();
-
     };
-
 
     /**
      * check if a point is inside the triangle
@@ -150,7 +133,6 @@ function TriangleKaleidoscope() {
         if (!this.twoMirrors.isInside(v)) {
             return false;
         }
-
         switch (this.geometry) {
             case TriangleKaleidoscope.elliptic:
                 return this.mirrorCircle.contains(v);
@@ -159,10 +141,8 @@ function TriangleKaleidoscope() {
             case TriangleKaleidoscope.hyperbolic:
                 return (v.x * v.x + v.y * v.y < this.worldRadius2) && !this.mirrorCircle.contains(v);
         }
-
         return true;
     };
-
 
     /**
      * draw the mirror lines
@@ -173,10 +153,8 @@ function TriangleKaleidoscope() {
      */
     TriangleKaleidoscope.prototype.drawLines = function(color, width, outputImage) {
         this.twoMirrors.drawLines(color, width, Make.outputImage);
-
         switch (this.geometry) {
             case TriangleKaleidoscope.elliptic:
-                console.log("a");
                 this.mirrorCircle.setColor(color);
                 this.mirrorCircle.setLineWidth(width);
                 this.mirrorCircle.draw(outputImage);
@@ -187,14 +165,11 @@ function TriangleKaleidoscope() {
                 this.mirrorLine.draw(outputImage);
                 break;
             case TriangleKaleidoscope.hyperbolic:
-                console.log("a");
                 this.mirrorCircle.setColor(color);
                 this.mirrorCircle.setLineWidth(width);
                 this.mirrorCircle.draw(outputImage);
                 break;
         }
-
     };
-
 
 }());

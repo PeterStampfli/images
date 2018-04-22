@@ -49,7 +49,10 @@ var Make = {};
     Make.inputImage = new PixelCanvas();
 
     // check wether to show structure or input image
-    Make.showStructure = true;
+    // only if input image exists
+    Make.inputImageExists = false;
+    // show structure even if input image exists (for presentation)
+    Make.showStructure = false;
 
     /*
     the other elements depend on page layout and need an identifier
@@ -271,7 +274,7 @@ var Make = {};
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
-        if (Make.showStructure) {
+        if (Make.showStructure || !Make.inputImageExists) {
             Make.map.make(Make.mappingStructure);
         } else {
             Make.map.make(Make.mappingInputImage);
@@ -309,7 +312,7 @@ var Make = {};
 
     /**
      * show result of a new output size, does not recalculate anything to avoid side effects
-     * @method Make.updateNewMap
+     * @method Make.updateNewOutputImageSize
      */
     Make.updateNewOutputImageSize = function() {
         console.log("updatemap");
@@ -317,7 +320,7 @@ var Make = {};
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
-        if (Make.showStructure) {
+        if (Make.showStructure || !Make.inputImageExists) {
             Make.map.make(Make.mappingStructure);
         } else {
             Make.map.make(Make.mappingInputImage);
@@ -373,7 +376,8 @@ var Make = {};
     // callback function to call after an image has been read
     // puts image on controlImage, show result if the 2nd nonlinear mapping exists
     function readImageAction() {
-        if (Make.showStructure) {
+        if (Make.showStructure || !Make.inputImageExists) {
+            Make.inputImageExists = true;
             Make.showStructure = false; // and create the map!! (everything from zero)
             if (Make.mappingInputImage == null) {
                 console.log("*** (Make)readImageAction: there is no mapping function !");
@@ -413,6 +417,7 @@ var Make = {};
     //  important: adjusting space to input image mapping
     // puts image on controlImage, show result if the 2nd nonlinear mapping exists
     function readImageActionAtSetup() {
+        Make.inputImageExists = true;
         Make.showStructure = false; // and create the map!! (everything from zero)
         Make.initializeMap();
         if (Make.mappingInputImage == null) {
@@ -462,7 +467,7 @@ var Make = {};
             console.log("*** Make.shiftScaleOutputImage: there is no mapping function !");
             return;
         }
-        if (Make.showStructure) {
+        if (Make.showStructure || !Make.inputImageExists) {
             Make.map.make(Make.mappingStructure);
         } else {
             Make.map.make(Make.mappingInputImage);
@@ -495,7 +500,6 @@ var Make = {};
         };
     };
 
-
     /**
      * creating the interpolation choice
      * @method Make.createInterpolationChoice
@@ -519,11 +523,9 @@ var Make = {};
         };
     };
 
-
-
     Make.colorParityNull = new Color(255, 255, 0); //default yellow
     Make.colorParityOdd = new Color(0, 255, 255); // default cyan
-    Make.colorParityEven = new Color(100, 100, 0); // default: brown
+    Make.colorParityEven = new Color(150, 150, 0); // default: brown
     /**
      * create pixel from map data, 
      * x-component of vector has parity data
@@ -592,7 +594,7 @@ var Make = {};
      * @method Make.updateOutputImageIfUsingInputImage
      */
     Make.updateOutputImageIfUsingInputImage = function() {
-        if (!Make.showStructure) {
+        if (!Make.showStructure && Make.inputImageExists) {
             Make.updateOutputImage();
         } else {
             console.log("no update");
@@ -613,8 +615,7 @@ var Make = {};
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
         }
-        if (Make.showStructure) { // no input image: show structure
-            console.log("updatemapout:show structure");
+        if (Make.showStructure || !Make.inputImageExists) { // show structure
             Make.map.draw(Make.pixelFromStructure);
             Make.outputImage.pixelCanvas.showPixel();
         } else {
