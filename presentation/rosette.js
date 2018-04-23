@@ -5,6 +5,7 @@ Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "crosshair");
+Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
@@ -36,16 +37,17 @@ Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    twoMirrors.drawLines(Layout.mirrorColor, Layout.lineWidth, Make.outputImage);
+    Draw.setColor(Layout.mirrorColor);
+    Draw.setLineWidth(Layout.lineWidth);
+    twoMirrors.drawLines();
 };
 
-const nullRadius = 0.025;
+let nullRadius = 0.025;
 
 let mousePosition = new Vector2();
-let mouseCircle = new Circle(0, mousePosition);
 let imagePosition = new Vector2();
-let imageCircle = new Circle(0, imagePosition);
-let mouseColor = new Color(0, 0, 0, 255);
+let zero=new Vector2(0,0);
+let mouseColor = "#000000ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -58,21 +60,24 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
 
-    mouseCircle.setColor(mouseColor);
-    mouseCircle.setRadius(nullRadius);
-    mouseCircle.fill(Make.outputImage);
+    Draw.setColor(mouseColor);
+    Draw.disc(nullRadius,mousePosition);
+
 
     imagePosition.set(mousePosition);
     if (twoMirrors.map(imagePosition) != 0) {
-        imageCircle.setRadius(nullRadius);
-        imageCircle.setColor(mouseColor);
-        imageCircle.fill(Make.outputImage);
+        
+                Draw.setColor("red");
+
+            Draw.disc(nullRadius,imagePosition);
 
         let mouseAngle = mousePosition.angle();
         let imageAngle = imagePosition.angle();
         if (mouseAngle < 0) {
             mouseAngle += 2 * Math.PI;
         }
+        
+        /*
         let context = Make.outputImage.pixelCanvas.canvasContext;
         let radius = mousePosition.length();
         context.lineCap = 'butt';
@@ -86,8 +91,11 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
             context.moveTo(mousePosition.x, mousePosition.y);
             context.arc(0, 0, radius, mouseAngle, imageAngle);
         }
-        context.stroke();
+        context.stroke();*/
+        Draw.setColor("red");
+        Draw.arc(imagePosition,mousePosition,zero);
     }
+
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

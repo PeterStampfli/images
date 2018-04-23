@@ -18,8 +18,6 @@ function TwoMirrors() {
     this.pointA = new Vector2();
     this.pointB = new Vector2();
     this.pointZero = new Vector2();
-    this.lineA = new Line(this.pointZero, this.pointA);
-    this.lineB = new Line(this.pointZero, this.pointB);
 
     /**
      * a vector mapping, creating a rosette from an input image
@@ -71,9 +69,7 @@ function TwoMirrors() {
         this.cosAngle = Fast.cosResult;
         this.sinAngle = Fast.sinResult;
         this.pointB.setPolar(this.big, angle);
-        this.lineB.update();
         this.pointA.setComponents(this.big, 0);
-        this.lineA.update();
     };
 
     /**
@@ -114,19 +110,12 @@ function TwoMirrors() {
     };
 
     /**
-     * draw the mirror lines
+     * draw the mirror lines on outputimage
      * @method TwoMirrors.drawLines
-     * @param {String} color
-     * @param {float} width
-     * @param {OutputImage} outputImage
      */
-    TwoMirrors.prototype.drawLines = function(color, width, outputImage) {
-        this.lineA.setColor(color);
-        this.lineA.setLineWidth(width);
-        this.lineA.draw(outputImage);
-        this.lineB.setColor(color);
-        this.lineB.setLineWidth(width);
-        this.lineB.draw(outputImage);
+    TwoMirrors.prototype.drawLines = function() {
+        Draw.line(this.pointZero,this.pointA);
+        Draw.line(this.pointZero,this.pointB);
     };
 
 

@@ -10,8 +10,6 @@
 function Line(a, b) {
     "use strict";
     this.setAB(a, b);
-    this.color = "blue"; // default
-    this.lineWidth = 5;
 }
 
 
@@ -62,37 +60,11 @@ function Line(a, b) {
     };
 
     /**
-     * set color
-     * @method Line#setColor
-     * @param {String} color - stroke style 
-     */
-    Line.prototype.setColor = function(color) {
-        this.color = color;
-    };
-
-    /**
-     * set line width
-     * @method Line#setLineWidth
-     * @param {float} lineWidth 
-     */
-    Line.prototype.setLineWidth = function(lineWidth) {
-        this.lineWidth = lineWidth;
-    };
-
-    /**
-     * draw the line on an output image
+     * draw the line on an output image, as defined in the Draw namespace object
      * @method Line#draw
-     * @param {OutputImage} outputImage
      */
-    Line.prototype.draw = function(outputImage) {
-        let context = outputImage.pixelCanvas.canvasContext;
-        context.lineCap = 'round';
-        context.strokeStyle = this.color.toString();
-        context.lineWidth = this.lineWidth * outputImage.scale;
-        context.beginPath();
-        context.moveTo(this.a.x, this.a.y);
-        context.lineTo(this.b.x, this.b.y);
-        context.stroke();
+    Line.prototype.draw = function() {
+        Draw.line(this.a,this.b);
     };
 
     /**
