@@ -64,7 +64,7 @@ function Line(a, b) {
      * @method Line#draw
      */
     Line.prototype.draw = function() {
-        Draw.line(this.a,this.b);
+        Draw.line(this.a, this.b);
     };
 
     /**

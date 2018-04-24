@@ -46,7 +46,7 @@ let nullRadius = 0.025;
 
 let mousePosition = new Vector2();
 let imagePosition = new Vector2();
-let zero=new Vector2(0,0);
+let zero = new Vector2(0, 0);
 let mouseColor = "#000000ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
@@ -54,48 +54,16 @@ Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
 };
 
 Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
-    console.log("drag");
     Make.updateOutputImage();
-
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-
     Draw.setColor(mouseColor);
-    Draw.disc(nullRadius,mousePosition);
-
-
+    Draw.disc(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
     if (twoMirrors.map(imagePosition) != 0) {
-        
-                Draw.setColor("red");
-
-            Draw.disc(nullRadius,imagePosition);
-
-        let mouseAngle = mousePosition.angle();
-        let imageAngle = imagePosition.angle();
-        if (mouseAngle < 0) {
-            mouseAngle += 2 * Math.PI;
-        }
-        
-        /*
-        let context = Make.outputImage.pixelCanvas.canvasContext;
-        let radius = mousePosition.length();
-        context.lineCap = 'butt';
-        context.strokeStyle = mouseColor.toString();
-        context.lineWidth = Layout.lineWidth * Make.outputImage.scale;
-        context.beginPath();
-        if (mouseAngle - imageAngle < Math.PI) {
-            context.moveTo(imagePosition.x, imagePosition.y);
-            context.arc(0, 0, radius, imageAngle, mouseAngle);
-        } else {
-            context.moveTo(mousePosition.x, mousePosition.y);
-            context.arc(0, 0, radius, mouseAngle, imageAngle);
-        }
-        context.stroke();*/
-        Draw.setColor("red");
-        Draw.arc(imagePosition,mousePosition,zero);
+        Draw.disc(nullRadius, imagePosition);
+        Draw.arc(imagePosition, mousePosition, zero);
     }
-
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

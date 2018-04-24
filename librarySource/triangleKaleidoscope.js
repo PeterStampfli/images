@@ -103,7 +103,7 @@ function TriangleKaleidoscope() {
     };
 
     /**
-     * adjust the intersection point at x-axis, and recalculate the worldradius
+     * adjust the intersection point at x-axis to make it given value, and recalculate the worldradius
      * @method TriangleKaleidoscope.adjustIntersection
      */
     TriangleKaleidoscope.prototype.adjustIntersection = function() {
@@ -147,28 +147,14 @@ function TriangleKaleidoscope() {
     /**
      * draw the mirror lines
      * @method TriangleKaleidoscope.drawLines
-     * @param {String} color
-     * @param {float} width
-     * @param {OutputImage} outputImage
      */
-    TriangleKaleidoscope.prototype.drawLines = function(color, width, outputImage) {
-        this.twoMirrors.drawLines(color, width, Make.outputImage);
-        switch (this.geometry) {
-            case TriangleKaleidoscope.elliptic:
-                this.mirrorCircle.setColor(color);
-                this.mirrorCircle.setLineWidth(width);
-                this.mirrorCircle.draw(outputImage);
-                break;
-            case TriangleKaleidoscope.euclidic:
-                this.mirrorLine.setColor(color);
-                this.mirrorLine.setLineWidth(width);
-                this.mirrorLine.draw(outputImage);
-                break;
-            case TriangleKaleidoscope.hyperbolic:
-                this.mirrorCircle.setColor(color);
-                this.mirrorCircle.setLineWidth(width);
-                this.mirrorCircle.draw(outputImage);
-                break;
+    TriangleKaleidoscope.prototype.drawLines = function() {
+        this.twoMirrors.drawLines();
+        if (this.geometry == TriangleKaleidoscope.euclidic) {
+            this.mirrorLine.draw();
+        } else {
+            this.mirrorCircle.draw();
+
         }
     };
 

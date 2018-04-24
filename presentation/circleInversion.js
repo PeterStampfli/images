@@ -10,17 +10,20 @@ Layout.activateFontSizeChanges();
 Layout.adjustDimensions();
 Layout.setFontSizes();
 
-Make.setInitialOutputImageSpace(-0.25, 1, -0.25);
+Make.setInitialOutputImageSpace(0, 1, 0);
 Make.resetOutputImageSpace();
 
-const mirrorCenterX = 0.6;
-const mirrorRadius = 0.3;
-let mirrorCenter = new Vector2(mirrorCenterX, mirrorCenterX);
+const mirrorCenterX = 0.3;
+const mirrorCenterY = 0.3;
+const mirrorRadius = 0.25;
+let mirrorCenter = new Vector2(mirrorCenterX, mirrorCenterY);
 let mirrorCircle = new Circle(mirrorRadius, mirrorCenter);
 
-const extraCenterX = 0.3;
-const extraRadius = 0.3;
-let extraCenter = new Vector2(extraCenterX, extraCenterX);
+const extraCenterX = 0.6;
+const extraCenterY = 0.5;
+let d2 = (mirrorCenterX - extraCenterX) * (mirrorCenterX - extraCenterX) + (mirrorCenterY - extraCenterY) * (mirrorCenterY - extraCenterY);
+let extraRadius = Math.sqrt(d2 - mirrorRadius * mirrorRadius);
+let extraCenter = new Vector2(extraCenterX, extraCenterY);
 let extraCircle = new Circle(extraRadius, extraCenter);
 
 const nullRadius = 0.015;
@@ -44,20 +47,13 @@ function drawScheme() {
             color.set(outside);
         }
     });
-    
     Draw.setLineWidth(Layout.lineWidth);
-
-
     Draw.setColor(Layout.lineColor);
     extraCircle.draw();
-
     Draw.setColor(Layout.mirrorColor);
-    
-
     mirrorCircle.draw();
-    
-       Draw.setColor(Layout.mirrorColor);
-    Draw.disc(nullRadius,mirrorCenter);
+    Draw.setColor(Layout.mirrorColor);
+    Draw.disc(nullRadius, mirrorCenter);
 }
 
 drawScheme();
@@ -72,16 +68,12 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     imagePosition.set(mousePosition);
     mirrorCircle.invert(imagePosition);
-    
     Draw.setColor(mouseColor);
-    Draw.disc(nullRadius,mousePosition);
-    Draw.disc(nullRadius,imagePosition);
-
-
-Draw.line(mousePosition,imagePosition);
+    Draw.disc(nullRadius, mousePosition);
+    Draw.disc(nullRadius, imagePosition);
+    Draw.line(mousePosition, imagePosition);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     drawScheme();
 };
-

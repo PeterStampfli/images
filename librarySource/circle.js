@@ -51,7 +51,7 @@ function Circle(radius, center) {
      * @method Circle#draw
      */
     Circle.prototype.draw = function() {
-        Draw.circle(this.radius,this.center);
+        Draw.circle(this.radius, this.center);
     };
 
     /**
@@ -60,7 +60,7 @@ function Circle(radius, center) {
      * @param {OutputImage} outputImage
      */
     Circle.prototype.fill = function(outputImage) {
-        Draw.disc(this.radius,this.center);
+        Draw.disc(this.radius, this.center);
     };
 
     /**

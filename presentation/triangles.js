@@ -5,12 +5,8 @@
 Layout.setup("rosette.html", "circleInversion.html");
 
 Make.createOutputImageNoMap("outputCanvas");
-/*
-Make.outputImage.stopZoom();
-Make.outputImage.stopShift();
-Make.createControlImage("controlCanvas", 200);
-Make.createArrowController("arrowController", 200);
-*/
+Draw.setOutputImage(Make.outputImage);
+
 
 Layout.activateFontSizeChanges();
 
@@ -44,7 +40,9 @@ function updateKMN() {
             color.set(background);
         }
     });
-    kaleidoscope.drawLines(Layout.mirrorColor, Layout.lineWidth, Make.outputImage);
+    Draw.setColor(Layout.mirrorColor);
+    Draw.setLineWidth(Layout.lineWidth);
+    kaleidoscope.drawLines();
 }
 
 let setKButton = Layout.createNumberButton("k");

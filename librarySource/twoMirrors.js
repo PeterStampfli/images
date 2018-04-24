@@ -114,8 +114,8 @@ function TwoMirrors() {
      * @method TwoMirrors.drawLines
      */
     TwoMirrors.prototype.drawLines = function() {
-        Draw.line(this.pointZero,this.pointA);
-        Draw.line(this.pointZero,this.pointB);
+        Draw.line(this.pointZero, this.pointA);
+        Draw.line(this.pointZero, this.pointB);
     };
 
 
