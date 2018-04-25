@@ -311,11 +311,10 @@ var Make = {};
     };
 
     /**
-     * show result of a new output size, does not recalculate anything to avoid side effects
+     * show result of a new output size or new map, does not recalculate anything to avoid side effects
      * @method Make.updateNewOutputImageSize
      */
     Make.updateNewOutputImageSize = function() {
-        console.log("updatemap");
         if (Make.mappingInputImage == null) {
             console.log("*** Make.updateMap: there is no mapping function !");
             return;

@@ -16,6 +16,8 @@ function Line(a, b) {
 (function() {
     "use strict";
 
+    Line.vector = new Vector2();
+
     /**
      * set the first point, update later
      * @method Line#setA
@@ -91,8 +93,19 @@ function Line(a, b) {
     };
 
     /**
+     * mirror a point at the line and draw mapping
+     * @method Line#drawMirror
+     * @param {Vector2} v - the point to mirror
+     */
+    Line.prototype.drawMirror = function(v) {
+        Line.vector.set(v);
+        this.mirror(v);
+        Draw.line(v, Line.vector);
+    };
+
+    /**
      * mirror a point at the line only if it is at the left of the line
-     * @method Line#mirror
+     * @method Line#mirrorLeftToRight
      * @param {Vector2} v - the point to mirror
      * @ return {boolean}  true if point has been mirrored
      */
@@ -108,8 +121,23 @@ function Line(a, b) {
     };
 
     /**
+     * mirror a point at the line only if it is at the left of the line and draw mapping
+     * @method Line#drawMirrorLeftToRight
+     * @param {Vector2} v - the point to mirror
+     * @ return {boolean}  true if point has been mirrored
+     */
+    Line.prototype.drawMirrorLeftToRight = function(v) {
+        Line.vector.set(v);
+        let result = this.mirrorLeftToRight(v);
+        if (result) {
+            Draw.line(v, Line.vector);
+        }
+        return result;
+    };
+
+    /**
      * mirror a point at the line only if it is at the right of the line
-     * @method Line#mirror
+     * @method Line#mirrorRightToLeft
      * @param {Vector2} v - the point to mirror
      * @ return {boolean}  true if point has been mirrored
      */
@@ -123,4 +151,21 @@ function Line(a, b) {
         }
         return false;
     };
+
+
+    /**
+     * mirror a point at the line only if it is at the right of the line and draw mapping
+     * @method Line#drawMirrorRightToLeft
+     * @param {Vector2} v - the point to mirror
+     * @ return {boolean}  true if point has been mirrored
+     */
+    Line.prototype.drawMirrorRightToLeft = function(v) {
+        Line.vector.set(v);
+        let result = this.mirrorRightToLeft(v);
+        if (result) {
+            Draw.line(v, Line.vector);
+        }
+        return result;
+    };
+
 }());

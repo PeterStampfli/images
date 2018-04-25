@@ -29,7 +29,6 @@ let extraCircle = new Circle(extraRadius, extraCenter);
 const nullRadius = 0.015;
 
 let mousePosition = new Vector2();
-let imagePosition = new Vector2();
 
 let background = new Color(255, 255, 240, 255);
 let inside = new Color(255, 196, 128, 255);
@@ -66,12 +65,10 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     drawScheme();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    imagePosition.set(mousePosition);
-    mirrorCircle.invert(imagePosition);
     Draw.setColor(mouseColor);
     Draw.disc(nullRadius, mousePosition);
-    Draw.disc(nullRadius, imagePosition);
-    Draw.line(mousePosition, imagePosition);
+    mirrorCircle.drawInvert(mousePosition);
+    Draw.disc(nullRadius, mousePosition);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

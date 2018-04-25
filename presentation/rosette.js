@@ -21,6 +21,8 @@ Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
 let twoMirrors = new TwoMirrors();
+Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
+
 let setKButton = Layout.createNumberButton("n");
 setKButton.setRange(2, 10000);
 
@@ -33,7 +35,6 @@ Make.initializeMap = function() {
     twoMirrors.setK(setKButton.getValue());
 };
 
-Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
@@ -45,8 +46,6 @@ Make.updateOutputImage = function() {
 let nullRadius = 0.025;
 
 let mousePosition = new Vector2();
-let imagePosition = new Vector2();
-let zero = new Vector2(0, 0);
 let mouseColor = "#000000ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
@@ -59,10 +58,8 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setColor(mouseColor);
     Draw.disc(nullRadius, mousePosition);
-    imagePosition.set(mousePosition);
-    if (twoMirrors.map(imagePosition) != 0) {
-        Draw.disc(nullRadius, imagePosition);
-        Draw.arc(imagePosition, mousePosition, zero);
+    if (twoMirrors.drawMap(mousePosition) != 0) {
+        Draw.disc(nullRadius, mousePosition);
     }
 };
 

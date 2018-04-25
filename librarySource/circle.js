@@ -16,6 +16,8 @@ function Circle(radius, center) {
 (function() {
     "use strict";
 
+    Circle.vector = new Vector2();
+
     /**
      * set radius, square of radius 
      * @method Circle#setRadius
@@ -90,6 +92,17 @@ function Circle(radius, center) {
     };
 
     /**
+     * invert a point at the circle and draw mapping
+     * @method Circle.drawInvert
+     * @param {Vector2} v - vector, position of the point
+     */
+    Circle.prototype.drawInvert = function(v) {
+        Circle.vector.set(v);
+        this.invert(v);
+        Draw.line(v, Circle.vector);
+    };
+
+    /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
      * @method Circle.invertInsideOut
      * @param {Vector2} v - vector, position of the point
@@ -109,6 +122,21 @@ function Circle(radius, center) {
     };
 
     /**
+     * invert a point at the circle ONLY if the point lies INSIDE the circle and draw the mapping
+     * @method Circle.drawInvertInsideOut
+     * @param {Vector2} v - vector, position of the point
+     * @return {boolean} true if the point has been inverted
+     */
+    Circle.prototype.drawInvertInsideOut = function(v) {
+        Circle.vector.set(v);
+        let result = this.invertInsideOut(v);
+        if (result) {
+            Draw.line(v, Circle.vector);
+        }
+        return result;
+    };
+
+    /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
      * @method Circle.invertOutsideIn
      * @param {Vector2} v - vector, position of the point
@@ -125,6 +153,21 @@ function Circle(radius, center) {
             return true;
         }
         return false;
+    };
+
+    /**
+     * invert a point at the circle ONLY if the point lies INSIDE the circle and draw mapping
+     * @method Circle.drawInvertOutsideIn
+     * @param {Vector2} v - vector, position of the point
+     * @return {boolean} true if the point has been inverted
+     */
+    Circle.prototype.drawInvertOutsideIn = function(v) {
+        Circle.vector.set(v);
+        let result = this.invertOutsideIn(v);
+        if (result) {
+            Draw.line(v, Circle.vector);
+        }
+        return result;
     };
 
 }());

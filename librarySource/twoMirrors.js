@@ -49,6 +49,9 @@ function TwoMirrors() {
 
 (function() {
     "use strict";
+
+    TwoMirrors.vector = new Vector2();
+    TwoMirrors.zero = new Vector2(0, 0);
     /**
      * set multiplicity k of rotational symmetry
      * @method TwoMirrors#setK
@@ -94,6 +97,21 @@ function TwoMirrors() {
         v.x = r * Fast.cosResult;
         v.y = r * Fast.sinResult;
         return reflections;
+    };
+
+    /**
+     * do the mapping using simple mirrors and draw the trajectory
+     * @method TwoMirrors#drawMap
+     * @param {Vector2} v - the vector of the point to map
+     * @return {integer} number of mirror symmetries,0 if no mapping, even > 0 if rotation without mirror, odd if mirror only or mirror and rotation
+     */
+    TwoMirrors.prototype.drawMap = function(v) {
+        TwoMirrors.vector.set(v);
+        let result = this.map(v);
+        if (result != 0) {
+            Draw.arc(v, TwoMirrors.vector, TwoMirrors.zero);
+        }
+        return result;
     };
 
     /**
