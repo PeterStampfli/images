@@ -29,7 +29,7 @@ function TwoMirrors() {
     this.vectorMapping = function(input, output) {
         output.set(input);
         twoMirrors.map(output);
-        return true;
+        return 1;
     };
 
     /**
@@ -43,7 +43,7 @@ function TwoMirrors() {
         output.set(input);
         let reflections = twoMirrors.map(output);
         output.x = reflections;
-        return true;
+        return 1;
     };
 }
 
@@ -108,6 +108,7 @@ function TwoMirrors() {
     TwoMirrors.prototype.drawMap = function(v) {
         TwoMirrors.vector.set(v);
         let result = this.map(v);
+        console.log(TwoMirrors.zero);
         if (result != 0) {
             Draw.arc(v, TwoMirrors.vector, TwoMirrors.zero);
         }

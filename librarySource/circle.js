@@ -81,6 +81,7 @@ function Circle(radius, center) {
      * invert a point at the circle
      * @method Circle.invert
      * @param {Vector2} v - vector, position of the point
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)
      */
     Circle.prototype.invert = function(v) {
         const dx = v.x - this.center.x;
@@ -89,24 +90,27 @@ function Circle(radius, center) {
         const factor = this.radius2 / pointR2;
         v.x = this.center.x + dx * factor;
         v.y = this.center.y + dy * factor;
+        return factor;
     };
 
     /**
      * invert a point at the circle and draw mapping
      * @method Circle.drawInvert
      * @param {Vector2} v - vector, position of the point
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)
      */
     Circle.prototype.drawInvert = function(v) {
         Circle.vector.set(v);
-        this.invert(v);
+        let result = this.invert(v);
         Draw.line(v, Circle.vector);
+        return result;
     };
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
      * @method Circle.invertInsideOut
      * @param {Vector2} v - vector, position of the point
-     * @return {boolean} true if the point has been inverted
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.invertInsideOut = function(v) {
         const dx = v.x - this.center.x;
@@ -116,21 +120,21 @@ function Circle(radius, center) {
             const factor = this.radius2 / pointR2;
             v.x = this.center.x + dx * factor;
             v.y = this.center.y + dy * factor;
-            return true;
+            return factor;
         }
-        return false;
+        return -1;
     };
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle and draw the mapping
      * @method Circle.drawInvertInsideOut
      * @param {Vector2} v - vector, position of the point
-     * @return {boolean} true if the point has been inverted
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.drawInvertInsideOut = function(v) {
         Circle.vector.set(v);
         let result = this.invertInsideOut(v);
-        if (result) {
+        if (result > 0) {
             Draw.line(v, Circle.vector);
         }
         return result;
@@ -140,7 +144,7 @@ function Circle(radius, center) {
      * invert a point at the circle ONLY if the point lies INSIDE the circle
      * @method Circle.invertOutsideIn
      * @param {Vector2} v - vector, position of the point
-     * @return {boolean} true if the point has been inverted
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.invertOutsideIn = function(v) {
         const dx = v.x - this.center.x;
@@ -150,24 +154,25 @@ function Circle(radius, center) {
             const factor = this.radius2 / pointR2;
             v.x = this.center.x + dx * factor;
             v.y = this.center.y + dy * factor;
-            return true;
+            return factor;
         }
-        return false;
+        return -1;
     };
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle and draw mapping
      * @method Circle.drawInvertOutsideIn
      * @param {Vector2} v - vector, position of the point
-     * @return {boolean} true if the point has been inverted
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.drawInvertOutsideIn = function(v) {
         Circle.vector.set(v);
         let result = this.invertOutsideIn(v);
-        if (result) {
+        if (result > 0) {
             Draw.line(v, Circle.vector);
         }
         return result;
+
     };
 
 }());

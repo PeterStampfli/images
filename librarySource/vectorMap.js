@@ -1,5 +1,6 @@
 /**
  * making a mapping from a two-dimensional array to a space position to a single vector function, stored on a grid
+ * with additional borders for smoothing
  * @constructor VectorMap
  * @param {OutputImage} outputImage - has a pixelcanvas and a transform of pixel to map input coordinates
  */
@@ -12,7 +13,9 @@ function VectorMap(outputImage) {
     this.height = 2;
     this.xArray = new Float32Array(4);
     this.yArray = new Float32Array(4);
+    this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
+    this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
 }
 
 (function() {
@@ -28,42 +31,47 @@ function VectorMap(outputImage) {
         if ((width != this.width) || (height != this.heigth)) {
             this.width = width;
             this.height = height;
-            const length = width * height;
+            const length = (width + 2) * (height + 2);
             if (length > this.xArray.length) {
                 this.xArray = new Float32Array(length);
                 this.yArray = new Float32Array(length);
+                this.lyapunovArray = new Float32Array(length);
             }
         }
     };
 
     /**
+     * set the off-color to the values of another color
+     * @VectorMap#setOffColor
+     * @param {Color} offColor
+     */
+    VectorMap.prototype.setOffColor = function(offColor) {
+        this.offColor.set(offColor);
+    };
+
+    /**
      * make a map using a supplied function mapping(mapIn,mapOut)
-     * may return "invalid" points with a very large x-coordinate as marker
      * @method VectorMap#make
-     * @param {function} mapping - from mapIn to mapOut, return true if it has a valid point
+     * @param {function} mapping - from mapIn to mapOut, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
     VectorMap.prototype.make = function(mapping) {
         this.exists = true;
         let mapIn = new Vector2();
         let mapOut = new Vector2();
-        let width = this.width;
-        let height = this.height;
+        let widthPlus = this.width + 2; // adding borders
+        let heightPlus = this.height + 2;
         let xArray = this.xArray;
         let yArray = this.yArray;
+        let lyapunovArray = this.lyapunovArray;
         let scale = this.outputImage.scale;
         let index = 0;
-        const invalid = 1e20;
-        mapIn.y = this.outputImage.cornerY;
-        for (var j = 0; j < height; j++) {
-            mapIn.x = this.outputImage.cornerX;
-            for (var i = 0; i < width; i++) {
-                if (mapping(mapIn, mapOut)) {
-                    xArray[index] = mapOut.x;
-                    yArray[index] = mapOut.y;
-                } else {
-                    xArray[index] = invalid;
-                    yArray[index] = invalid;
-                }
+        mapIn.y = this.outputImage.cornerY - scale; // additional borders
+        for (var j = 0; j < heightPlus; j++) {
+            mapIn.x = this.outputImage.cornerX - scale;
+            for (var i = 0; i < widthPlus; i++) {
+                lyapunovArray[index] = mapping(mapIn, mapOut);
+                xArray[index] = mapOut.x;
+                yArray[index] = mapOut.y;
                 mapIn.x += scale;
                 index++;
             }
@@ -82,15 +90,14 @@ function VectorMap(outputImage) {
         let sumY = 0;
         let sum = 0;
         let x = 0;
-        const limit = 10000;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = this.width * this.height;
+        let lyapunovArray = this.lyapunovArray;
+        const length = (this.width + 2) * (this.height + 2);
         for (var index = 0; index < length; index++) {
-            x = xArray[index];
-            if (x < limit) {
+            if (lyapunovArray[index] >= 0) {
                 sum++;
-                sumX += x;
+                sumX += xArray[index];
                 sumY += yArray[index];
             }
         }
@@ -113,7 +120,7 @@ function VectorMap(outputImage) {
         let dy = -newOrigin.y;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = this.width * this.height;
+        const length = (this.width + 2) * (this.height + 2);
         for (var index = 0; index < length; index++) {
             xArray[index] += dx;
             yArray[index] += dy;
@@ -136,10 +143,11 @@ function VectorMap(outputImage) {
         const limit = 10000;
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = this.width * this.height;
+        let lyapunovArray = this.lyapunovArray;
+        const length = (this.width + 2) * (this.height + 2);
         for (var index = 0; index < length; index++) {
-            x = xArray[index];
-            if (x < limit) {
+            if (lyapunovArray[index] < limit) {
+                x = xArray[index];
                 left = Math.min(left, x);
                 right = Math.max(right, x);
                 x = yArray[index];
@@ -164,13 +172,27 @@ function VectorMap(outputImage) {
         let color = new Color(); // default: opaque black
         let xArray = this.xArray;
         let yArray = this.yArray;
-        let length = this.width * this.height;
+        let lyapunovArray = this.lyapunovArray;
         let pixelCanvas = this.outputImage.pixelCanvas;
-        for (var index = 0; index < length; index++) {
-            mapOut.x = xArray[index];
-            mapOut.y = yArray[index];
-            mapping(mapOut, color);
-            pixelCanvas.setPixelAtIndex(color, index);
+        let height = this.height;
+        let width = this.width;
+
+        let indexMapBase = 0;
+        var indexMapHigh;
+        var indexPixel = 0;
+        for (var j = 1; j <= height; j++) {
+            indexMapBase += width + 2;
+            indexMapHigh = indexMapBase + width;
+            for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
+                if (lyapunovArray[indexMap] >= 0) {
+                    mapOut.x = xArray[indexMap];
+                    mapOut.y = yArray[indexMap];
+                    mapping(mapOut, color);
+                } else {
+                    color.set(this.offColor);
+                }
+                pixelCanvas.setPixelAtIndex(color, indexPixel++);
+            }
         }
         pixelCanvas.showPixel();
     };

@@ -39,6 +39,8 @@ var Make = {};
 (function() {
     "use strict";
 
+
+
     // creating the interaction elements
     //____________________________________________________________________________________________
 
@@ -157,11 +159,19 @@ var Make = {};
     // structure mapping (space to space)
     //_____________________________________________________________________________________________
 
+
+    // symmetry dependent mapping routines (Vector2->Vector2)
     // the mapping for using an input image
-    Make.mappingInputImage = null;
+    Make.mappingInputImage = function(mapIn, mapOut) {
+        mapOut.set(mapIn);
+        return true;
+    };
 
     // the mapping to show the structure
-    Make.mappingStructure = null;
+    Make.mappingStructure = function(mapIn, mapOut) {
+        mapOut.set(mapIn);
+        return true;
+    };
 
     /**
      * set range for the output pixel to space mapping, call before setting the mapping 

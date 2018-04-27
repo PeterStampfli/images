@@ -131,7 +131,7 @@ function PixelCanvas(idName) {
      * @param {Color} offColor
      */
     PixelCanvas.prototype.setOffColor = function(offColor) {
-        this.offColor.copyRGBA(offColor);
+        this.offColor.set(offColor);
     };
 
     /**

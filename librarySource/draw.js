@@ -65,6 +65,27 @@ var Draw = {};
         context.stroke();
     };
 
+    /**
+     * draw a line between two points a and b, without endcircles
+     * @method Draw.lineWithoutEnds
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {float} ra - radius of endpoint a
+     * @param {float} rb - radius of endpoint b
+     */
+    Draw.lineWithoutEnds = function(a, b, ra, rb) {
+
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let length = Math.hypot(dx, dy);
+        if (length < ra + rb) {
+            return;
+        }
+        Draw.start(a.x + ra * dx / length, a.y + ra * dy / length);
+        context.lineTo(b.x - rb * dx / length, b.y - rb * dy / length);
+        context.stroke();
+    };
+
     /*
      * fill a circle, draw as disc
      * @method Draw.disc
@@ -113,6 +134,56 @@ var Draw = {};
             context.stroke();
 
         }
+    };
+
+    /**
+     * draw an arc between points a and b and radius ra and rb, around center c, always taking the short path
+     * @method Draw.arcWithoutEnds
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {float} ra - radius of endpoint a
+     * @param {float} rb - radius of endpoint b
+     * @param {Vector2} center
+     */
+    Draw.arcWithoutEnds = function(a, b, ra, rb, center) {
+        let h = 0;
+        let angleA = Fast.atan2(a.y - center.y, a.x - center.x);
+        let angleB = Fast.atan2(b.y - center.y, b.x - center.x);
+        let radius = Math.hypot(a.y - center.y, a.x - center.x);
+        let alpha = 2 * Math.asin(0.5 * ra / radius);
+        let beta = 2 * Math.asin(0.5 * rb / radius);
+        // finally draw from a to b, a less than b, b-a less than pi
+        if (angleA > angleB) {
+            h = angleA;
+            angleA = angleB;
+            angleB = h;
+            h = alpha;
+            alpha = beta;
+            beta = h;
+        }
+        // now angleA<angleB
+        if (angleB - angleA > Math.PI) {
+            angleA += 2 * Math.PI;
+            // now angleA>angleB and angleA-angleB<pi
+            h = angleA;
+            angleA = angleB;
+            angleB = h;
+            h = alpha;
+            alpha = beta;
+            beta = h;
+
+
+        }
+
+        angleA += alpha;
+        angleB -= beta;
+        if (angleB < angleA) {
+            return;
+        }
+        Draw.start(radius * Fast.cos(angleA), radius * Fast.sin(angleA));
+        context.arc(center.x, center.y, radius, angleA, angleB);
+        context.stroke();
+
     };
 
 }());

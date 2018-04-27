@@ -53,6 +53,17 @@ Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
     twoMirrors.setK(setKButton.getValue());
+    //__________________________________________________________________-
+
+    let k = setKButton.getValue();
+    let m = setMButton.getValue();
+    let n = setNButton.getValue();
+    let angleSum = 180 * (1 / k + 1 / m + 1 / n);
+    angleSum = Math.round(angleSum);
+    sum.innerHTML = "" + angleSum;
+    kaleidoscope.setKMN(k, m, n);
+    kaleidoscope.adjustWorldRadius(worldRadius);
+
 };
 
 // drawing the image with decos (updatekmn...)
@@ -61,7 +72,10 @@ Make.updateOutputImage = function() {
     Make.updateMapOutput();
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
-    twoMirrors.drawLines();
+    kaleidoscope.drawLines();
+    Draw.setColor(Layout.lineColor);
+    Draw.circle(kaleidoscope.worldRadius, new Vector2(0, 0));
+
 };
 
 
@@ -116,7 +130,7 @@ function updateKMN() {
     Draw.setLineWidth(Layout.lineWidth);
     kaleidoscope.drawLines();
     Draw.setColor(Layout.lineColor);
-    Draw.circle(worldRadius, new Vector2(0, 0));
+    Draw.circle(kaleidoscope.worldRadius, new Vector2(0, 0));
 }
 
 Layout.createStructureImageButton("change");

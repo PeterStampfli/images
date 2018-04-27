@@ -84,12 +84,15 @@ function Line(a, b) {
      * mirror a point at the line
      * @method Line#mirror
      * @param {Vector2} v - the point to mirror
+    * @return {float} 1, (Lyapunov coefficient)
+
      */
     Line.prototype.mirror = function(v) {
         let d = this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x); // distance to the left, as (-ey,ex) is perpendicular to the line and pointing to the left
         d *= 2;
         v.x += d * this.ey;
         v.y -= d * this.ex;
+        return 1;
     };
 
     /**
@@ -101,13 +104,14 @@ function Line(a, b) {
         Line.vector.set(v);
         this.mirror(v);
         Draw.line(v, Line.vector);
+        return 1;
     };
 
     /**
      * mirror a point at the line only if it is at the left of the line
      * @method Line#mirrorLeftToRight
      * @param {Vector2} v - the point to mirror
-     * @ return {boolean}  true if point has been mirrored
+     * @return {float} 1 if point has been mapped (Lyapunov coefficient), else -1
      */
     Line.prototype.mirrorLeftToRight = function(v) {
         let d = this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x); // distance to the left, as (-ey,ex) is perpendicular to the line and pointing to the left
@@ -115,31 +119,31 @@ function Line(a, b) {
             d *= 2;
             v.x += d * this.ey;
             v.y -= d * this.ex;
-            return true;
+            return 1;
         }
-        return false;
+        return -1;
     };
 
     /**
      * mirror a point at the line only if it is at the left of the line and draw mapping
      * @method Line#drawMirrorLeftToRight
      * @param {Vector2} v - the point to mirror
-     * @ return {boolean}  true if point has been mirrored
+     * @return {boolean}  true if point has been mirrored
      */
     Line.prototype.drawMirrorLeftToRight = function(v) {
         Line.vector.set(v);
-        let result = this.mirrorLeftToRight(v);
-        if (result) {
+        if (this.mirrorLeftToRight(v) > 0) {
             Draw.line(v, Line.vector);
+            return 1;
         }
-        return result;
+        return -1;
     };
 
     /**
      * mirror a point at the line only if it is at the right of the line
      * @method Line#mirrorRightToLeft
      * @param {Vector2} v - the point to mirror
-     * @ return {boolean}  true if point has been mirrored
+     * @return {float} 1 if point has been mapped (Lyapunov coefficient), else -1
      */
     Line.prototype.mirrorRightToLeft = function(v) {
         let d = this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x); // distance to the left, as (-ey,ex) is perpendicular to the line and pointing to the left
@@ -147,9 +151,9 @@ function Line(a, b) {
             d *= 2;
             v.x += d * this.ey;
             v.y -= d * this.ex;
-            return true;
+            return 1;
         }
-        return false;
+        return -1;
     };
 
 
@@ -157,15 +161,16 @@ function Line(a, b) {
      * mirror a point at the line only if it is at the right of the line and draw mapping
      * @method Line#drawMirrorRightToLeft
      * @param {Vector2} v - the point to mirror
-     * @ return {boolean}  true if point has been mirrored
+     * @return {float} 1 if point has been mapped (Lyapunov coefficient), else -1
      */
     Line.prototype.drawMirrorRightToLeft = function(v) {
         Line.vector.set(v);
         let result = this.mirrorRightToLeft(v);
-        if (result) {
+        if (this.mirrorRightToLeft(v) > 0) {
             Draw.line(v, Line.vector);
+            return 1;
         }
-        return result;
+        return -1;
     };
 
 }());

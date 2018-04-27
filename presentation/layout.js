@@ -137,7 +137,7 @@ var Layout = {};
     };
 
     /**
-     * typical setup, hide control canvas. Layout.outputSize will have dimensions of output image.
+     * typical setup, hide control canvas and arrow controller. Layout.outputSize will have dimensions of output image.
      * @method Layout.setup
      * @param {String} prevPage
      * @param {String} nextPage
@@ -147,7 +147,7 @@ var Layout = {};
         DOM.create("canvas", "controlCanvas", "body");
         DOM.create("canvas", "arrowController", "body");
 
-        DOM.style("#controlCanvas,#arrowController", "display", "none");
+        DOM.style("#controlCanvas,#arrowController", "display", "none"); // make visible with "initial"
         DOM.style("#outputCanvas,#text", "zIndex", "1");
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");

@@ -43,10 +43,12 @@ Make.updateOutputImage = function() {
     twoMirrors.drawLines();
 };
 
-let nullRadius = 0.025;
+let nullRadius = 0.03;
 
 let mousePosition = new Vector2();
-let mouseColor = "#000000ff";
+let imagePosition = new Vector2();
+let zero = new Vector2(0, 0);
+let mouseColor = "#ff8800ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -57,9 +59,13 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setColor(mouseColor);
-    Draw.disc(nullRadius, mousePosition);
-    if (twoMirrors.drawMap(mousePosition) != 0) {
-        Draw.disc(nullRadius, mousePosition);
+    Draw.setLineWidth(0.7 * Layout.lineWidth);
+    Draw.circle(nullRadius, mousePosition);
+    imagePosition.set(mousePosition);
+    if (twoMirrors.map(imagePosition) != 0) {
+
+        Draw.circle(nullRadius, imagePosition);
+        Draw.arcWithoutEnds(mousePosition, imagePosition, nullRadius, nullRadius, zero);
     }
 };
 
