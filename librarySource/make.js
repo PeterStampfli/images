@@ -162,15 +162,16 @@ var Make = {};
 
     // symmetry dependent mapping routines (Vector2->Vector2)
     // the mapping for using an input image
+    // returning the lyapunov coefficient
     Make.mappingInputImage = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
     // the mapping to show the structure
     Make.mappingStructure = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
     /**
@@ -272,6 +273,11 @@ var Make = {};
      */
     Make.initializeMap = function() {};
 
+    /*
+     * need to know if we have a new map and have to adjust mapping to the input image
+     */
+    Make.newMapRequiresInputImageAdjustment = false;
+
     /**
      * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
      * calls Make.initializeMap: has to get parameters and to call Make.setMapping
@@ -286,10 +292,33 @@ var Make = {};
         }
         if (Make.showStructure || !Make.inputImageExists) {
             Make.map.make(Make.mappingStructure);
+            Make.newMapRequiresInputImageAdjustment = true;
         } else {
             Make.map.make(Make.mappingInputImage);
             Make.getMapOutputCenter();
             Make.shiftMapToCenter();
+            Make.getMapOutputRange();
+            Make.adjustSpaceToInputPixelMapping();
+        }
+        Make.updateOutputImage();
+    };
+
+    /**
+     * switch between showing structure and image
+     * @method Make.switchStructureImage
+     */
+    Make.switchStructureImage = function() {
+        Make.showStructure = !Make.showStructure;
+        if (Make.showStructure || !Make.inputImageExists) {
+            Make.map.make(Make.mappingStructure);
+        } else {
+            Make.map.make(Make.mappingInputImage);
+            Make.shiftMapToCenter();
+            if (Make.newMapRequiresInputImageAdjustment) {
+                Make.newMapRequiresInputImageAdjustment = false;
+                Make.getMapOutputRange();
+                Make.adjustSpaceToInputPixelMapping();
+            }
         }
         Make.updateOutputImage();
     };

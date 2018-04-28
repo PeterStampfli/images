@@ -20,7 +20,6 @@ Layout.setFontSizes();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
-let twoMirrors = new TwoMirrors();
 Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
 
 let setKButton = Layout.createNumberButton("n");

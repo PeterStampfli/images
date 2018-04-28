@@ -189,8 +189,8 @@ var Layout = {};
         Layout.setFontSizes();
         let button = new Button("structureImageButton");
         button.onClick = function() {
-            Make.showStructure = !Make.showStructure;
-            Make.updateNewOutputImageSize(); // show result of new map
+            Make.switchStructureImage();
+
         };
     };
 

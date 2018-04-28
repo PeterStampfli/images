@@ -16,7 +16,6 @@ Layout.setFontSizes();
 Make.setInitialOutputImageSpace(-0.25, 1, -0.25);
 Make.resetOutputImageSpace();
 
-let kaleidoscope = new TriangleKaleidoscope();
 
 let sum = document.getElementById("sum");
 
@@ -27,14 +26,14 @@ function updateKMN() {
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
-    kaleidoscope.setKMN(k, m, n);
-    kaleidoscope.adjustIntersection();
+    triangleKaleidoscope.setKMN(k, m, n);
+    triangleKaleidoscope.adjustIntersection();
 
     yellow = new Color(255, 255, 128, 255);
     background = new Color(255, 255, 240, 255);
 
     Make.outputImage.drawPixel(function(position, color) {
-        if (kaleidoscope.isInside(position)) {
+        if (triangleKaleidoscope.isInside(position)) {
             color.set(yellow);
         } else {
             color.set(background);
@@ -42,7 +41,7 @@ function updateKMN() {
     });
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
-    kaleidoscope.drawLines();
+    triangleKaleidoscope.drawLines();
 }
 
 let setKButton = Layout.createNumberButton("k");

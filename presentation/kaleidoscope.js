@@ -19,13 +19,12 @@ Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
 
-let kaleidoscope = new TriangleKaleidoscope();
 let sum = document.getElementById("sum");
 let worldRadius = 0.97;
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
-setKButton.setValue(6);
+setKButton.setValue(7);
 setKButton.onChange = function(v) {
     Make.updateNewMap();
 };
@@ -44,26 +43,16 @@ setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
-// for test
-let twoMirrors = new TwoMirrors();
-Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
-
-//-----------------------------------------------------------------------------
-
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
-    twoMirrors.setK(setKButton.getValue());
-    //__________________________________________________________________-
-
     let k = setKButton.getValue();
     let m = setMButton.getValue();
     let n = setNButton.getValue();
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
-    kaleidoscope.setKMN(k, m, n);
-    kaleidoscope.adjustWorldRadius(worldRadius);
-
+    triangleKaleidoscope.setKMN(k, m, n);
+    triangleKaleidoscope.adjustWorldRadius(worldRadius);
 };
 
 // drawing the image with decos (updatekmn...)
@@ -72,9 +61,9 @@ Make.updateOutputImage = function() {
     Make.updateMapOutput();
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
-    kaleidoscope.drawLines();
+    triangleKaleidoscope.drawLines();
     Draw.setColor(Layout.lineColor);
-    Draw.circle(kaleidoscope.worldRadius, new Vector2(0, 0));
+    Draw.circle(triangleKaleidoscope.worldRadius, new Vector2(0, 0));
 
 };
 
@@ -94,9 +83,7 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setColor(mouseColor);
     Draw.disc(nullRadius, mousePosition);
-    if (twoMirrors.drawMap(mousePosition) != 0) {
-        Draw.disc(nullRadius, mousePosition);
-    }
+
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
@@ -104,34 +91,6 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 };
 
 
-// altes
-
-function updateKMN() {
-    let k = setKButton.getValue();
-    let m = setMButton.getValue();
-    let n = setNButton.getValue();
-    let angleSum = 180 * (1 / k + 1 / m + 1 / n);
-    angleSum = Math.round(angleSum);
-    sum.innerHTML = "" + angleSum;
-    kaleidoscope.setKMN(k, m, n);
-    kaleidoscope.adjustWorldRadius(worldRadius);
-
-    yellow = new Color(255, 255, 128, 255);
-    background = new Color(255, 255, 240, 255);
-
-    Make.outputImage.drawPixel(function(position, color) {
-        if (kaleidoscope.isInside(position)) {
-            color.set(yellow);
-        } else {
-            color.set(background);
-        }
-    });
-    Draw.setColor(Layout.mirrorColor);
-    Draw.setLineWidth(Layout.lineWidth);
-    kaleidoscope.drawLines();
-    Draw.setColor(Layout.lineColor);
-    Draw.circle(kaleidoscope.worldRadius, new Vector2(0, 0));
-}
 
 Layout.createStructureImageButton("change");
 

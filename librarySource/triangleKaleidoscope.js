@@ -1,62 +1,65 @@
 /**
  * kaleidoscopes using triangles in different geometries depending on sum of angles
- * @constructor TriangleKaleidoscope
+ * @namespace triangleKaleidoscope
  */
 
 /* jshint esversion:6 */
 
-function TriangleKaleidoscope() {
-    "use strict";
-
-    this.twoMirrors = new TwoMirrors();
-    this.geometry = 0;
-    // for euclidic geometry
-    this.big = 100;
-    this.pointP = new Vector2();
-    this.pointQ = new Vector2();
-    this.mirrorLine = new Line(this.pointP, this.pointQ);
-    // for elliptic and hyperbolic geometry
-    this.circleCenter = new Vector2();
-    this.mirrorCircle = new Circle(0, this.circleCenter);
-
-    this.intersectionMirrorXAxis = 0.5; // target value, intersection between third mirror and x-axis, especially for euclidic case
-    this.worldRadius = 0; // call this.calculateWorldRadius to update value
-    this.worldRadius2 = 0;
-
-    /**
-     * draw the mirror lines
-     * @method TriangleKaleidoscope.drawLines
-     */
-    this.drawLines = function() {}; // symmetry dependent drawing
-
-    /**
-     * draw the trajectory
-     * @method TriangleKaleidoscope.drawTrajectory
-     * @param {Vector2} start
-     */
-    this.drawTrajectory = function(start) {};
-}
+triangleKaleidoscope = {};
 
 (function() {
     "use strict";
+
+    let geometry = 0;
+
     // geometries
-    TriangleKaleidoscope.elliptic = 1;
-    TriangleKaleidoscope.euclidic = 2;
-    TriangleKaleidoscope.hyperbolic = 3;
+    const elliptic = 1;
+    const euclidic = 2;
+    const hyperbolic = 3;
+    var k, m, n;
+
+    // for euclidic geometry
+    let big = 100;
+    let pointP = new Vector2();
+    let pointQ = new Vector2();
+    let mirrorLine = new Line(pointP, pointQ);
+    // for elliptic and hyperbolic geometry
+    let circleCenter = new Vector2();
+    let mirrorCircle = new Circle(0, circleCenter);
+
+    let intersectionMirrorXAxis = 0.5; // target value, intersection between third mirror and x-axis, especially for euclidic case
+    let worldRadius = 0; // call let calculateWorldRadius to update value
+    let worldRadius2 = 0;
+
+    /**
+     * draw the mirror lines
+     * @method triangleKaleidoscope.drawLines
+     */
+    triangleKaleidoscope.drawLines = function() {}; // symmetry dependent drawing
+
+    /**
+     * draw the trajectory
+     * @method triangleKaleidoscope.drawTrajectory
+     * @param {Vector2} start
+     */
+    triangleKaleidoscope.drawTrajectory = function(start) {};
+
+
+
 
 
     /**
      * set the rotational symmetries at corners
-     * @method TriangleKaleidoscope.setKMN
-     * @param {integer} k - symmetry at center corner
-     * @param {integer} m - symmetry at "right" corner
-     * @param {integer} n - symmetry at "left" corner
+     * @method triangleKaleidoscope.setKMN
+     * @param {integer} kp - symmetry at center corner
+     * @param {integer} mp - symmetry at "right" corner
+     * @param {integer} np - symmetry at "left" corner
      */
-    TriangleKaleidoscope.prototype.setKMN = function(k, m, n) {
-        this.k = k;
-        this.m = m;
-        this.n = n;
-        this.twoMirrors.setK(k);
+    triangleKaleidoscope.setKMN = function(kp, mp, np) {
+        k = kp;
+        m = mp;
+        n = np;
+        twoMirrors.setK(k);
         const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
         const cosGamma = Fast.cos(Math.PI / k);
         const sinGamma = Fast.sin(Math.PI / k);
@@ -65,122 +68,122 @@ function TriangleKaleidoscope() {
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
         if (angleSum > 1.000001) { // elliptic, raw, adjust
-            this.geometry = TriangleKaleidoscope.elliptic;
-            this.mirrorCircle.setRadius(1);
-            this.circleCenter.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
-            this.drawLines = this.drawLinesElliptic;
-            this.drawTrajectory = this.drawTrajectoryElliptic;
-            Make.setMapping(this.mappingInputImageElliptic, this.mappingStructureElliptic);
+            geometry = elliptic;
+            mirrorCircle.setRadius(1);
+            circleCenter.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
+            triangleKaleidoscope.drawLines = triangleKaleidoscope.drawLinesElliptic;
+            triangleKaleidoscope.drawTrajectory = triangleKaleidoscope.drawTrajectoryElliptic;
+            Make.setMapping(triangleKaleidoscope.mappingInputImageElliptic, triangleKaleidoscope.mappingStructureElliptic);
         } else if (angleSum > 0.999999) { // euklidic, final
-            this.geometry = TriangleKaleidoscope.euclidic;
-            this.pointP.setComponents(this.intersectionMirrorXAxis - this.big * cosAlpha, this.big * sinAlpha);
-            this.pointQ.setComponents(this.intersectionMirrorXAxis + this.big * cosAlpha, -this.big * sinAlpha);
-            this.mirrorLine.update();
-            this.drawLines = this.drawLinesEuclidic;
-            this.drawTrajectory = this.drawTrajectoryEuclidic;
-            Make.setMapping(this.mappingInputImageEuclidic, this.mappingStructureEuclidic);
+            geometry = euclidic;
+            pointP.setComponents(intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
+            pointQ.setComponents(intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
+            mirrorLine.update();
+            triangleKaleidoscope.drawLines = triangleKaleidoscope.drawLinesEuclidic;
+            triangleKaleidoscope.drawTrajectory = triangleKaleidoscope.drawTrajectoryEuclidic;
+            Make.setMapping(triangleKaleidoscope.mappingInputImageEuclidic, triangleKaleidoscope.mappingStructureEuclidic);
         } else { // hyperbolic, raw, adjust
-            this.geometry = TriangleKaleidoscope.hyperbolic;
-            this.mirrorCircle.setRadius(1);
-            this.circleCenter.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
-            this.drawLines = this.drawLinesHyperbolic;
-            this.drawTrajectory = this.drawTrajectoryHyperbolic;
-            Make.setMapping(this.mappingInputImageHyperbolic, this.mappingStructureHyperbolic);
+            geometry = hyperbolic;
+            mirrorCircle.setRadius(1);
+            circleCenter.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
+            triangleKaleidoscope.drawLines = triangleKaleidoscope.drawLinesHyperbolic;
+            triangleKaleidoscope.drawTrajectory = triangleKaleidoscope.drawTrajectoryHyperbolic;
+            Make.setMapping(triangleKaleidoscope.mappingInputImageHyperbolic, triangleKaleidoscope.mappingStructureHyperbolic);
         }
-        this.calculateWorldRadius();
+        triangleKaleidoscope.calculateWorldRadius();
     };
 
     /**
      * calculate worldradius from data of the mirrorCircle and type of geometry
-     * @method TriangleKaleidoscope.calculateWorldRadius
+     * @method triangleKaleidoscope.calculateWorldRadius
      */
-    TriangleKaleidoscope.prototype.calculateWorldRadius = function() {
+    triangleKaleidoscope.calculateWorldRadius = function() {
         let radius2 = 0;
-        switch (this.geometry) {
-            case TriangleKaleidoscope.elliptic:
-                radius2 = this.mirrorCircle.radius * this.mirrorCircle.radius - this.circleCenter.length2();
+        switch (geometry) {
+            case elliptic:
+                radius2 = mirrorCircle.radius * mirrorCircle.radius - circleCenter.length2();
                 break;
-            case TriangleKaleidoscope.euclidic:
+            case euclidic:
                 radius2 = 1e10;
                 break;
-            case TriangleKaleidoscope.hyperbolic:
-                radius2 = this.circleCenter.length2() - this.mirrorCircle.radius * this.mirrorCircle.radius;
+            case hyperbolic:
+                radius2 = circleCenter.length2() - mirrorCircle.radius * mirrorCircle.radius;
                 break;
         }
-        this.worldRadius = Math.sqrt(radius2);
-        this.worldRadius2 = radius2;
+        worldRadius = Math.sqrt(radius2);
+        worldRadius2 = radius2;
     };
 
     /**
      * adjust worldradius to given value for hyperbolic and elliptic geometry
-     * @method TriangleKaleidoscope.adjustWorldRadius
+     * @method triangleKaleidoscope.adjustWorldRadius
      * @param {float} newRadius
      */
-    TriangleKaleidoscope.prototype.adjustWorldRadius = function(newRadius) {
-        this.calculateWorldRadius();
-        this.mirrorCircle.scale(newRadius / this.worldRadius);
-        this.calculateWorldRadius();
+    triangleKaleidoscope.adjustWorldRadius = function(newRadius) {
+        triangleKaleidoscope.calculateWorldRadius();
+        mirrorCircle.scale(newRadius / worldRadius);
+        triangleKaleidoscope.calculateWorldRadius();
     };
 
     /**
      * adjust the intersection point at x-axis to make it given value, and recalculate the worldradius
-     * @method TriangleKaleidoscope.adjustIntersection
+     * @method triangleKaleidoscope.adjustIntersection
      */
-    TriangleKaleidoscope.prototype.adjustIntersection = function() {
+    triangleKaleidoscope.adjustIntersection = function() {
         let actualIntersection = 0;
-        switch (this.geometry) {
-            case TriangleKaleidoscope.elliptic:
-                actualIntersection = this.circleCenter.x + this.mirrorCircle.radius * Fast.sin(Math.PI / this.m);
-                this.mirrorCircle.scale(this.intersectionMirrorXAxis / actualIntersection);
+        switch (geometry) {
+            case elliptic:
+                actualIntersection = circleCenter.x + mirrorCircle.radius * Fast.sin(Math.PI / m);
+                mirrorCircle.scale(intersectionMirrorXAxis / actualIntersection);
                 break;
-            case TriangleKaleidoscope.euclidic:
+            case euclidic:
                 break;
-            case TriangleKaleidoscope.hyperbolic:
-                actualIntersection = this.circleCenter.x - this.mirrorCircle.radius * Fast.sin(Math.PI / this.m);
-                this.mirrorCircle.scale(this.intersectionMirrorXAxis / actualIntersection);
+            case hyperbolic:
+                actualIntersection = circleCenter.x - mirrorCircle.radius * Fast.sin(Math.PI / m);
+                mirrorCircle.scale(intersectionMirrorXAxis / actualIntersection);
                 break;
         }
-        this.calculateWorldRadius();
+        triangleKaleidoscope.calculateWorldRadius();
     };
 
     /**
      * check if a point is inside the triangle
-     * @method TriangleKaleidoscope.isInside
+     * @method triangleKaleidoscope.isInside
      * @param {Vector2} v
      * @return true if v is inside the triangle
      */
-    TriangleKaleidoscope.prototype.isInside = function(v) {
-        if (!this.twoMirrors.isInside(v)) {
+    triangleKaleidoscope.isInside = function(v) {
+        if (!twoMirrors.isInside(v)) {
             return false;
         }
-        switch (this.geometry) {
-            case TriangleKaleidoscope.elliptic:
-                return this.mirrorCircle.contains(v);
-            case TriangleKaleidoscope.euclidic:
-                return !this.mirrorLine.isAtLeft(v);
-            case TriangleKaleidoscope.hyperbolic:
-                return (v.x * v.x + v.y * v.y < this.worldRadius2) && !this.mirrorCircle.contains(v);
+        switch (geometry) {
+            case elliptic:
+                return mirrorCircle.contains(v);
+            case euclidic:
+                return !mirrorLine.isAtLeft(v);
+            case hyperbolic:
+                return (v.x * v.x + v.y * v.y < worldRadius2) && !mirrorCircle.contains(v);
         }
         return true;
     };
 
     /**
      * draw the mirror lines
-     * @method TriangleKaleidoscope.drawLines
+     * @method triangleKaleidoscope.drawLines
      */
-    TriangleKaleidoscope.prototype.drawLinesElliptic = function() {
-        this.twoMirrors.drawLines();
-        this.mirrorCircle.draw();
+    triangleKaleidoscope.drawLinesElliptic = function() {
+        twoMirrors.drawLines();
+        mirrorCircle.draw();
     };
 
-    TriangleKaleidoscope.prototype.drawLinesEuclidic = function() {
-        this.twoMirrors.drawLines();
-        this.mirrorLine.draw();
+    triangleKaleidoscope.drawLinesEuclidic = function() {
+        twoMirrors.drawLines();
+        mirrorLine.draw();
     };
 
-    TriangleKaleidoscope.prototype.drawLinesHyperbolic = function() {
-        this.twoMirrors.drawLines();
-        this.mirrorCircle.draw();
+    triangleKaleidoscope.drawLinesHyperbolic = function() {
+        twoMirrors.drawLines();
+        mirrorCircle.draw();
     };
 
     /**
@@ -189,19 +192,35 @@ function TriangleKaleidoscope() {
      * @param {Vector2} mapIn
      * @param {Vector2} mapOut
      */
-    TriangleKaleidoscope.prototype.mappingInputImageElliptic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingInputImageElliptic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
-    TriangleKaleidoscope.prototype.mappingInputImageEuclidic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingInputImageEuclidic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
-    TriangleKaleidoscope.prototype.mappingInputImageHyperbolic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingInputImageHyperbolic = function(mapIn, mapOut) {
+        if (mapIn.x * mapIn.x + mapIn.y * mapIn.y > worldRadius2) { // eliminate points outside the world
+            return -1;
+        }
         mapOut.set(mapIn);
-        return true;
+        let lyapunov = 1;
+        let notDone = true;
+        while (notDone) {
+            twoMirrors.map(mapOut);
+            let factor = mirrorCircle.invertInsideOut(mapOut);
+            if (factor >= 0) {
+                lyapunov *= factor;
+            } else {
+                notDone = false;
+            }
+        }
+
+
+        return lyapunov;
     };
 
     /**
@@ -210,35 +229,35 @@ function TriangleKaleidoscope() {
      * @param {Vector2} mapIn
      * @param {Vector2} mapOut
      */
-    TriangleKaleidoscope.prototype.mappingStructureElliptic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingStructureElliptic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
-    TriangleKaleidoscope.prototype.mappingStructureEuclidic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingStructureEuclidic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
-    TriangleKaleidoscope.prototype.mappingStructureHyperbolic = function(mapIn, mapOut) {
+    triangleKaleidoscope.mappingStructureHyperbolic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return true;
+        return 1;
     };
 
     /**
      * draw the trajectory
-     * @method TriangleKaleidoscope.drawTrajectory
+     * @method triangleKaleidoscope.drawTrajectory
      * @param {Vector2} start
      */
-    TriangleKaleidoscope.prototype.drawTrajectoryElliptic = function(start) {
+    triangleKaleidoscope.drawTrajectoryElliptic = function(start) {
 
     };
 
-    TriangleKaleidoscope.prototype.drawTrajectoryEuclidic = function(start) {
+    triangleKaleidoscope.drawTrajectoryEuclidic = function(start) {
 
     };
 
-    TriangleKaleidoscope.prototype.drawTrajectoryHyperbolic = function(start) {
+    triangleKaleidoscope.drawTrajectoryHyperbolic = function(start) {
 
     };
 

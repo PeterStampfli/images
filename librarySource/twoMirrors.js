@@ -2,31 +2,33 @@
  * kaleidoscope of two mirrors, intersecting at origin.
  * make k-fold rotational symmetry with mirror symmetry.
  * Basic map for maps using only mirror symmetries
- * @constructor TwoMirrors
+ * @namespace twoMirrors
  */
 
 /* jshint esversion:6 */
 
-function TwoMirrors() {
-    "use strict";
+twoMirrors = {};
 
-    let twoMirrors = this;
-    this.cosAngle = 0;
-    this.sinAngle = 0;
+
+(function() {
+    "use strict";
+    let k2pi = 0;
+    let cosAngle = 0;
+    let sinAngle = 0;
     // drawing
-    this.big = 100;
-    this.pointA = new Vector2();
-    this.pointB = new Vector2();
-    this.pointZero = new Vector2();
+    let big = 100;
+    let pointA = new Vector2();
+    let pointB = new Vector2();
+    let pointZero = new Vector2();
 
     /**
      * a vector mapping, creating a rosette from an input image
-     * @method TwoMirrors#vectorMapping
+     * @method twoMirrors.vectorMapping
      * @param {Vector2} input
      * @param {Vector2} output
      * @return {boolean} true - any point is ok
      */
-    this.vectorMapping = function(input, output) {
+    twoMirrors.vectorMapping = function(input, output) {
         output.set(input);
         twoMirrors.map(output);
         return 1;
@@ -34,56 +36,52 @@ function TwoMirrors() {
 
     /**
      * mapping to the number of reflections
-     * @method TwoMirrors#reflectionsMapping
+     * @method twoMirrors.reflectionsMapping
      * @param {Vector2} input
      * @param {Vector2} output - x-component will be number of relections
      * @return {boolean} true - any point is ok
      */
-    this.reflectionsMapping = function(input, output) {
+    twoMirrors.reflectionsMapping = function(input, output) {
         output.set(input);
         let reflections = twoMirrors.map(output);
         output.x = reflections;
         return 1;
     };
-}
 
-(function() {
-    "use strict";
-
-    TwoMirrors.vector = new Vector2();
-    TwoMirrors.zero = new Vector2(0, 0);
+    let vector = new Vector2();
+    let zero = new Vector2(0, 0);
     /**
      * set multiplicity k of rotational symmetry
-     * @method TwoMirrors#setK
+     * @method twoMirrors.setK
      * @param {integer} k - number of sectors
      */
-    TwoMirrors.prototype.setK = function(k) {
-        this.setAngle(Math.PI / k);
+    twoMirrors.setK = function(k) {
+        twoMirrors.setAngle(Math.PI / k);
     };
 
-    /**
+    /**prototype
      * set angle between the mirrors
-     * @method TwoMirrors#setAngle
+     * @method twoMirrors.setAngle
      * @param {float} angle - in radians, between the two mirrors
      */
-    TwoMirrors.prototype.setAngle = function(angle) {
-        this.k2pi = 0.5 / angle; // k/2pi is the inverse of two times the angle between mirrors
+    twoMirrors.setAngle = function(angle) {
+        k2pi = 0.5 / angle; // k/2pi is the inverse of two times the angle between mirrors
         Fast.cosSin(angle);
-        this.cosAngle = Fast.cosResult;
-        this.sinAngle = Fast.sinResult;
-        this.pointB.setPolar(this.big, angle);
-        this.pointA.setComponents(this.big, 0);
+        cosAngle = Fast.cosResult;
+        sinAngle = Fast.sinResult;
+        pointB.setPolar(big, angle);
+        pointA.setComponents(big, 0);
     };
 
     /**
      * basic method, uses simple mirrors
-     * @method TwoMirrors#map
+     * @method twoMirrors.map
      * @param {Vector2} v - the vector of the point to map
      * @return {integer} number of mirror symmetries,0 if no mapping, even > 0 if rotation without mirror, odd if mirror only or mirror and rotation
      */
-    TwoMirrors.prototype.map = function(v) {
+    twoMirrors.map = function(v) {
         let angle = Fast.atan2(v.y, v.x);
-        angle *= this.k2pi;
+        angle *= k2pi;
         let reflections = Math.floor(angle);
         angle -= reflections;
         reflections = Math.abs(reflections) << 1; // shift-multiply by two
@@ -91,7 +89,7 @@ function TwoMirrors() {
             angle = 1 - angle;
             reflections++;
         }
-        angle /= this.k2pi;
+        angle /= k2pi;
         let r = Math.hypot(v.x, v.y);
         Fast.cosSin(angle);
         v.x = r * Fast.cosResult;
@@ -101,40 +99,39 @@ function TwoMirrors() {
 
     /**
      * do the mapping using simple mirrors and draw the trajectory
-     * @method TwoMirrors#drawMap
+     * @method twoMirrors.drawMap
      * @param {Vector2} v - the vector of the point to map
      * @return {integer} number of mirror symmetries,0 if no mapping, even > 0 if rotation without mirror, odd if mirror only or mirror and rotation
      */
-    TwoMirrors.prototype.drawMap = function(v) {
-        TwoMirrors.vector.set(v);
-        let result = this.map(v);
-        console.log(TwoMirrors.zero);
+    twoMirrors.drawMap = function(v) {
+        twoMirrors.vector.set(v);
+        let result = twoMirrors.map(v);
         if (result != 0) {
-            Draw.arc(v, TwoMirrors.vector, TwoMirrors.zero);
+            Draw.arc(v, twoMirrors.vector, twoMirrors.zero);
         }
         return result;
     };
 
     /**
      * check if a point is inside
-     * @method isInside
+     * @method twoMirrors.
      * @param {Vector2} v - point to test
      * @return true if polar angle of v between 0 and PI/2k
      */
-    TwoMirrors.prototype.isInside = function(v) {
+    twoMirrors.isInside = function(v) {
         if (v.y < 0) {
             return false;
         }
-        return (v.y * this.cosAngle <= v.x * this.sinAngle);
+        return (v.y * cosAngle <= v.x * sinAngle);
     };
 
     /**
      * draw the mirror lines on outputimage
-     * @method TwoMirrors.drawLines
+     * @method twoMirrors.drawLines
      */
-    TwoMirrors.prototype.drawLines = function() {
-        Draw.line(this.pointZero, this.pointA);
-        Draw.line(this.pointZero, this.pointB);
+    twoMirrors.drawLines = function() {
+        Draw.line(pointZero, pointA);
+        Draw.line(pointZero, pointB);
     };
 
 
