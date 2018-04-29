@@ -18,9 +18,10 @@ Layout.setFontSizes();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
-
 let sum = document.getElementById("sum");
-let worldRadius = 0.97;
+let worldRadiusHyperbolic = 0.97;
+let worldRadiusElliptic = 0.5;
+triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
@@ -52,7 +53,11 @@ Make.initializeMap = function() {
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
     triangleKaleidoscope.setKMN(k, m, n);
-    triangleKaleidoscope.adjustWorldRadius(worldRadius);
+    if (angleSum < 180) {
+        triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
+    } else {
+        triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
+    }
 };
 
 // drawing the image with decos (updatekmn...)
@@ -64,14 +69,12 @@ Make.updateOutputImage = function() {
     triangleKaleidoscope.drawLines();
     Draw.setColor(Layout.lineColor);
     Draw.circle(triangleKaleidoscope.worldRadius, new Vector2(0, 0));
-
 };
-
 
 let nullRadius = 0.025;
 
 let mousePosition = new Vector2();
-let mouseColor = "#000000ff";
+let mouseColor = "#ff8800ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -82,18 +85,15 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setColor(mouseColor);
-    Draw.disc(nullRadius, mousePosition);
-
+    Draw.setLineWidth(0.7 * Layout.lineWidth);
+    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     Make.updateOutputImage();
 };
 
-
-
 Layout.createStructureImageButton("change");
-
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

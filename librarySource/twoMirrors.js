@@ -19,7 +19,9 @@ twoMirrors = {};
     let big = 100;
     let pointA = new Vector2();
     let pointB = new Vector2();
-    let pointZero = new Vector2();
+    let pointZero = new Vector2(0, 0);
+
+    let vector = new Vector2();
 
     /**
      * a vector mapping, creating a rosette from an input image
@@ -48,8 +50,6 @@ twoMirrors = {};
         return 1;
     };
 
-    let vector = new Vector2();
-    let zero = new Vector2(0, 0);
     /**
      * set multiplicity k of rotational symmetry
      * @method twoMirrors.setK
@@ -104,10 +104,10 @@ twoMirrors = {};
      * @return {integer} number of mirror symmetries,0 if no mapping, even > 0 if rotation without mirror, odd if mirror only or mirror and rotation
      */
     twoMirrors.drawMap = function(v) {
-        twoMirrors.vector.set(v);
+        vector.set(v);
         let result = twoMirrors.map(v);
         if (result != 0) {
-            Draw.arc(v, twoMirrors.vector, twoMirrors.zero);
+            Draw.arc(v, vector, pointZero);
         }
         return result;
     };

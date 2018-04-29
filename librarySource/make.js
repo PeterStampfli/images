@@ -562,8 +562,8 @@ var Make = {};
     };
 
     Make.colorParityNull = new Color(255, 255, 0); //default yellow
-    Make.colorParityOdd = new Color(0, 255, 255); // default cyan
-    Make.colorParityEven = new Color(150, 150, 0); // default: brown
+    Make.colorParityOdd = new Color(0, 70, 200); // default cyan
+    Make.colorParityEven = new Color(200, 200, 0); // default: brown
     /**
      * create pixel from map data, 
      * x-component of vector has parity data

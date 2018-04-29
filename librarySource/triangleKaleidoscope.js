@@ -10,6 +10,8 @@ triangleKaleidoscope = {};
 (function() {
     "use strict";
 
+    const maxIterations = 100;
+
     let geometry = 0;
 
     // geometries
@@ -22,27 +24,16 @@ triangleKaleidoscope = {};
     let big = 100;
     let pointP = new Vector2();
     let pointQ = new Vector2();
+    let pointZero = new Vector2(0, 0);
     let mirrorLine = new Line(pointP, pointQ);
     // for elliptic and hyperbolic geometry
     let circleCenter = new Vector2();
     let mirrorCircle = new Circle(0, circleCenter);
 
-    let intersectionMirrorXAxis = 0.5; // target value, intersection between third mirror and x-axis, especially for euclidic case
+    triangleKaleidoscope.intersectionMirrorXAxis = 0.5; // target value, intersection between third mirror and x-axis, especially for euclidic case
     let worldRadius = 0; // call let calculateWorldRadius to update value
     let worldRadius2 = 0;
 
-    /**
-     * draw the mirror lines
-     * @method triangleKaleidoscope.drawLines
-     */
-    triangleKaleidoscope.drawLines = function() {}; // symmetry dependent drawing
-
-    /**
-     * draw the trajectory
-     * @method triangleKaleidoscope.drawTrajectory
-     * @param {Vector2} start
-     */
-    triangleKaleidoscope.drawTrajectory = function(start) {};
 
 
 
@@ -76,8 +67,8 @@ triangleKaleidoscope = {};
             Make.setMapping(triangleKaleidoscope.mappingInputImageElliptic, triangleKaleidoscope.mappingStructureElliptic);
         } else if (angleSum > 0.999999) { // euklidic, final
             geometry = euclidic;
-            pointP.setComponents(intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
-            pointQ.setComponents(intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
+            pointP.setComponents(triangleKaleidoscope.intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
+            pointQ.setComponents(triangleKaleidoscope.intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
             mirrorLine.update();
             triangleKaleidoscope.drawLines = triangleKaleidoscope.drawLinesEuclidic;
             triangleKaleidoscope.drawTrajectory = triangleKaleidoscope.drawTrajectoryEuclidic;
@@ -134,13 +125,13 @@ triangleKaleidoscope = {};
         switch (geometry) {
             case elliptic:
                 actualIntersection = circleCenter.x + mirrorCircle.radius * Fast.sin(Math.PI / m);
-                mirrorCircle.scale(intersectionMirrorXAxis / actualIntersection);
+                mirrorCircle.scale(triangleKaleidoscope.intersectionMirrorXAxis / actualIntersection);
                 break;
             case euclidic:
                 break;
             case hyperbolic:
                 actualIntersection = circleCenter.x - mirrorCircle.radius * Fast.sin(Math.PI / m);
-                mirrorCircle.scale(intersectionMirrorXAxis / actualIntersection);
+                mirrorCircle.scale(triangleKaleidoscope.intersectionMirrorXAxis / actualIntersection);
                 break;
         }
         triangleKaleidoscope.calculateWorldRadius();
@@ -194,12 +185,33 @@ triangleKaleidoscope = {};
      */
     triangleKaleidoscope.mappingInputImageElliptic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return 1;
+        let lyapunov = 1;
+        let iter = 0;
+        while (iter < maxIterations) {
+            iter++;
+            twoMirrors.map(mapOut);
+            let factor = mirrorCircle.invertOutsideIn(mapOut);
+            if (factor >= 0) {
+                lyapunov *= factor;
+            } else {
+                return lyapunov;
+            }
+        }
+        return -1;
     };
 
     triangleKaleidoscope.mappingInputImageEuclidic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return 1;
+        mapOut.set(mapIn);
+        let iter = 0;
+        while (iter < maxIterations) {
+            iter++;
+            twoMirrors.map(mapOut);
+            if (mirrorLine.mirrorLeftToRight(mapOut) < 0) {
+                return 1;
+            }
+        }
+        return -1;
     };
 
     triangleKaleidoscope.mappingInputImageHyperbolic = function(mapIn, mapOut) {
@@ -208,19 +220,18 @@ triangleKaleidoscope = {};
         }
         mapOut.set(mapIn);
         let lyapunov = 1;
-        let notDone = true;
-        while (notDone) {
+        let iter = 0;
+        while (iter < maxIterations) {
+            iter++;
             twoMirrors.map(mapOut);
             let factor = mirrorCircle.invertInsideOut(mapOut);
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
-                notDone = false;
+                return lyapunov;
             }
         }
-
-
-        return lyapunov;
+        return -1;
     };
 
     /**
@@ -231,34 +242,121 @@ triangleKaleidoscope = {};
      */
     triangleKaleidoscope.mappingStructureElliptic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return 1;
+        let iter = 0;
+        let reflections = 0;
+        while (iter < maxIterations) {
+            iter++;
+            reflections += twoMirrors.map(mapOut);
+            if (mirrorCircle.invertOutsideIn(mapOut) >= 0) {
+                reflections++;
+            } else {
+                mapOut.x = reflections;
+                return 1;
+            }
+        }
+        return -1;
     };
 
     triangleKaleidoscope.mappingStructureEuclidic = function(mapIn, mapOut) {
         mapOut.set(mapIn);
-        return 1;
+        mapOut.set(mapIn);
+        let iter = 0;
+        let reflections = 0;
+        while (iter < maxIterations) {
+            iter++;
+            reflections += twoMirrors.map(mapOut);
+            if (mirrorLine.mirrorLeftToRight(mapOut) >= 0) {
+                reflections++;
+            } else {
+                mapOut.x = reflections;
+                return 1;
+            }
+        }
+        return -1;
     };
 
     triangleKaleidoscope.mappingStructureHyperbolic = function(mapIn, mapOut) {
+        if (mapIn.x * mapIn.x + mapIn.y * mapIn.y > worldRadius2) { // eliminate points outside the world
+            return -1;
+        }
         mapOut.set(mapIn);
-        return 1;
+        let iter = 0;
+        let reflections = 0;
+        while (iter < maxIterations) {
+            iter++;
+            reflections += twoMirrors.map(mapOut);
+            if (mirrorCircle.invertInsideOut(mapOut) >= 0) {
+                reflections++;
+            } else {
+                mapOut.x = reflections;
+                return 1;
+            }
+        }
+        return -1;
     };
 
     /**
      * draw the trajectory
      * @method triangleKaleidoscope.drawTrajectory
-     * @param {Vector2} start
+     * @param {float} radius - for the smaller circle
+     * @param {Vector2} point
      */
-    triangleKaleidoscope.drawTrajectoryElliptic = function(start) {
 
+    // decreasing lyapunov<<1
+    triangleKaleidoscope.drawTrajectoryElliptic = function(radius, point) {
+        let iter = 0;
+        let factor = 0;
+        let startPoint = new Vector2();
+        startPoint.set(point);
+        let radiusStart = radius;
+        while (iter < maxIterations) {
+            iter++;
+            twoMirrors.drawMap(point);
+            factor = mirrorCircle.drawInvertOutsideIn(point);
+            if (factor >= 0) {
+                radiusStart /= factor;
+            } else {
+                Draw.circle(radiusStart, startPoint);
+                Draw.circle(radius, point);
+                return;
+            }
+        }
     };
 
-    triangleKaleidoscope.drawTrajectoryEuclidic = function(start) {
-
+    // same size, lyapunov==1
+    triangleKaleidoscope.drawTrajectoryEuclidic = function(radius, point) {
+        let iter = 0;
+        Draw.circle(radius, point);
+        while (iter < maxIterations) {
+            iter++;
+            twoMirrors.drawMap(point);
+            if (mirrorLine.drawMirrorLeftToRight(point) < 0) {
+                Draw.circle(radius, point);
+                return;
+            }
+        }
     };
 
-    triangleKaleidoscope.drawTrajectoryHyperbolic = function(start) {
-
+    // last point will be large lyapunov >>1
+    triangleKaleidoscope.drawTrajectoryHyperbolic = function(radius, point) {
+        if (point.x * point.x + point.y * point.y > worldRadius2) { // eliminate points outside the world
+            return;
+        }
+        let iter = 0;
+        let factor = 0;
+        Draw.circle(radius, point);
+        let radiusEnd = radius;
+        while (iter < maxIterations) {
+            iter++;
+            twoMirrors.drawMap(point);
+            factor = mirrorCircle.drawInvertInsideOut(point);
+            if (factor >= 0) {
+                radiusEnd *= factor;
+            } else {
+                Draw.circle(radiusEnd, point);
+                return;
+            }
+        }
     };
 
 }());

@@ -42,6 +42,8 @@ let inside = new Color(255, 196, 128, 255);
 let outside = new Color(128, 255, 128, 255);
 
 let mouseColor = "#ff8800ff";
+let limitRadius = 0.02; // very small circles without a line
+
 
 Make.inputImage.setOffColor(background);
 Make.map.setOffColor(background);
@@ -56,8 +58,6 @@ Make.mappingInputImage = function(mapIn, mapOut) {
     return -1;
 };
 
-
-
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
     Draw.setLineWidth(Layout.lineWidth);
@@ -68,8 +68,6 @@ Make.updateOutputImage = function() {
     Draw.setColor(Layout.mirrorColor);
     Draw.disc(nullRadius, mirrorCenter);
 };
-
-
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -83,22 +81,20 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
 
     Draw.setColor(mouseColor);
-    let factor = mirrorCircle.invert(imagePosition);
+    let factor = mirrorCircle.drawInvert(imagePosition);
     if (factor > 1) {
-        Draw.circle(factor * nullRadius, imagePosition);
+        let startRadius = factor * nullRadius;
+        Draw.circle(startRadius, imagePosition);
         Draw.circle(nullRadius, mousePosition);
-        Draw.lineWithoutEnds(imagePosition, mousePosition, factor * nullRadius, nullRadius);
     } else {
         Draw.circle(nullRadius, imagePosition);
-        Draw.circle(nullRadius / factor, mousePosition);
-        Draw.lineWithoutEnds(imagePosition, mousePosition, nullRadius, nullRadius / factor);
-
+        let endRadius = nullRadius / factor;
+        Draw.circle(endRadius, mousePosition);
     }
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     Make.updateOutputImage();
 };
-
 
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

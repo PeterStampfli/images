@@ -61,10 +61,8 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.circle(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
-    if (twoMirrors.map(imagePosition) != 0) {
-
+    if (twoMirrors.drawMap(imagePosition) != 0) {
         Draw.circle(nullRadius, imagePosition);
-        Draw.arcWithoutEnds(mousePosition, imagePosition, nullRadius, nullRadius, zero);
     }
 };
 
