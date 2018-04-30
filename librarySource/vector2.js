@@ -93,4 +93,24 @@ function Vector2(x = 0, y = 0) {
         this.y = length * Fast.sinResult;
     };
 
+    /**
+     * mirror at the x-axis (inverting y)
+     * @method Vector2#mirrorAtXAxis
+     */
+    Vector2.prototype.mirrorAtXAxis = function() {
+        this.y = -this.y;
+    };
+
+    /**
+     * rotate the vector by given angle
+     * @method Vector2#rotate
+     * @param {float} angle - in radians
+     */
+    Vector2.prototype.rotate = function(angle) {
+        Fast.cosSin(angle);
+        let h = this.x * Fast.cosResult - this.y * Fast.sinResult;
+        this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
+        this.x = h;
+    };
+
 }());
