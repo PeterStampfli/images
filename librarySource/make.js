@@ -206,6 +206,7 @@ var Make = {};
      */
     Make.setMapping = function(mappingInputImage, mappingStructure) {
         Make.mappingInputImage = mappingInputImage;
+        //console.log("set "+mappingInputImage);
         Make.mappingStructure = mappingStructure;
     };
 
@@ -649,6 +650,9 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
+
+        console.log("up " + Make.getCombinedPixelScale());
+
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
@@ -686,4 +690,16 @@ var Make = {};
      * @method Make.updateOutputImage
      */
     Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
+
+    /**
+     * get combined pixel scale
+     * @method Make.getCombinedPixelScale
+     * @return float, product of scales
+     */
+    Make.getCombinedPixelScale = function() {
+        return Make.controlImage.scale * Make.outputImage.scale;
+    };
+
+
+
 }());

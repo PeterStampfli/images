@@ -25,7 +25,7 @@ triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
-setKButton.setValue(4);
+setKButton.setValue(7);
 setKButton.onChange = function(v) {
     Make.updateNewMap();
 };
@@ -39,7 +39,7 @@ setMButton.onChange = function(v) {
 
 let setNButton = Layout.createNumberButton("n");
 setNButton.setRange(2, 10000);
-setNButton.setValue(4);
+setNButton.setValue(3);
 setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
@@ -53,7 +53,8 @@ Make.initializeMap = function() {
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
     triangleKaleidoscope.setKMN(k, m, n);
-    triangleKaleidoscope.cutCorners();
+    triangleKaleidoscope.cutSides();
+    console.log(Make.mappingInputImage);
     if (angleSum < 180) {
         triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
     } else {

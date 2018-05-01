@@ -304,4 +304,15 @@ var Fast = {};
         return gaussTable[index] * (1 - x) + gaussTable[index + 1] * x;
     };
 
+    /**
+     * for convenience:find the cathe=sqrt(hypo**2-other cathe**)
+     * @method Fast.cathe
+     * @param {float} hypot
+     * @param {float} cathe
+     * @return float - sqrt(hypot**2-cathe**2)
+     */
+    Fast.cathe = function(hypot, cathe) {
+        return Math.sqrt(hypot * hypot - cathe * cathe);
+    };
+
 }());
