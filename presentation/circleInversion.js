@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("triangles.html", "circleInversion.html");
+Layout.setup("triangles.html", "kaleidoscope.html");
 
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();

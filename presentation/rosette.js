@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("titel.html", "triangles.html");
+Layout.setup("setup.html", "triangles.html");
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();

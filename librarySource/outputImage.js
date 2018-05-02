@@ -51,6 +51,8 @@ function OutputImage(idName) {
      * @param {float} height
      */
     OutputImage.prototype.setSize = function(width, height) {
+        width = Math.round(width);
+        height = Math.round(height);
         if (this.pixelCanvas.width > 0) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
         }

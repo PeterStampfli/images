@@ -10,6 +10,7 @@
 function ControlImage(idName, sizeLimit) {
     "use strict";
 
+    sizeLimit = Math.round(sizeLimit);
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
     this.sizeLimit = sizeLimit;

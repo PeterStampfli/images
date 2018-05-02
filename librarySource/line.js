@@ -165,7 +165,6 @@ function Line(a, b) {
      */
     Line.prototype.drawMirrorRightToLeft = function(v) {
         Line.vector.set(v);
-        let result = this.mirrorRightToLeft(v);
         if (this.mirrorRightToLeft(v) > 0) {
             Draw.line(v, Line.vector);
             return 1;

@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("titel.html", "kaleidoscope.html");
+Layout.setup("circleInversion.html", "kaleidoscope.html");
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();

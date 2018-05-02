@@ -53,8 +53,7 @@ Make.initializeMap = function() {
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
     triangleKaleidoscope.setKMN(k, m, n);
-    triangleKaleidoscope.cutSides();
-    console.log(Make.mappingInputImage);
+    triangleKaleidoscope.cutCorners();
     if (angleSum < 180) {
         triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
     } else {

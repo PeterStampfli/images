@@ -28,6 +28,8 @@ function VectorMap(outputImage) {
      * @param {integer} height - of the map
      */
     VectorMap.prototype.setSize = function(width, height) {
+        width = Math.round(width);
+        height = Math.round(height);
         if ((width != this.width) || (height != this.heigth)) {
             this.width = width;
             this.height = height;

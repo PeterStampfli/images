@@ -650,9 +650,6 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
-
-        console.log("up " + Make.getCombinedPixelScale());
-
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
