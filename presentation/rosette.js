@@ -47,7 +47,8 @@ let nullRadius = 0.03;
 let mousePosition = new Vector2();
 let imagePosition = new Vector2();
 let zero = new Vector2(0, 0);
-let mouseColor = "#ff8800ff";
+let lineColor = "#ff8800ff";
+let dotColor = "#ffff00ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -57,11 +58,14 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    Draw.setColor(mouseColor);
+    Draw.setColor(dotColor);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.circle(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
+    Draw.setColor(lineColor);
+
     if (twoMirrors.drawMap(imagePosition) != 0) {
+        Draw.setColor(dotColor);
         Draw.circle(nullRadius, imagePosition);
     }
 };

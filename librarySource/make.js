@@ -612,9 +612,6 @@ var Make = {};
      * @param {Color} color - for the pixel
      */
     Make.pixelFromInputImageNoColorSymmetry = function(mapOut, color) {
-        let h = cosAngleScale * mapOut.x - sinAngleScale * mapOut.y + shiftX;
-        mapOut.y = sinAngleScale * mapOut.x + cosAngleScale * mapOut.y + shiftY;
-        mapOut.x = h;
         inputImage.getInterpolated(color, mapOut);
         controlImage.setOpaque(mapOut);
     };
@@ -670,6 +667,8 @@ var Make = {};
             cosAngleScale = scale * Fast.cos(angle);
             sinAngleScale = scale * Fast.sin(angle);
             // shortcuts
+            Make.inputImage.linearTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
+            Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
             inputImage = Make.inputImage;
             controlImage = Make.controlImage;
             Make.controlImage.semiTransparent();

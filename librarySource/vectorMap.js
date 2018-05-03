@@ -178,7 +178,6 @@ function VectorMap(outputImage) {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let height = this.height;
         let width = this.width;
-
         let indexMapBase = 0;
         var indexMapHigh;
         var indexPixel = 0;

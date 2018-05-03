@@ -45,6 +45,11 @@
  * @var PixelCanvas#offColor
  */
 
+/**
+ * the linear transformation from space to pixel indices
+ * @var PixelCanvas#linearTransform
+ */
+
 /* jshint esversion:6 */
 
 function PixelCanvas(idName) {
@@ -64,6 +69,7 @@ function PixelCanvas(idName) {
     this.height = 0;
     this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
     this.blueScreenColor = "#0000ff";
+    this.linearTransform = new LinearTransform();
 }
 
 (function() {
@@ -338,6 +344,7 @@ function PixelCanvas(idName) {
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getNearest = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
@@ -352,6 +359,7 @@ function PixelCanvas(idName) {
         };
     } else {
         PixelCanvas.prototype.getNearest = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
@@ -375,6 +383,7 @@ function PixelCanvas(idName) {
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getLinear = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
@@ -404,6 +413,7 @@ function PixelCanvas(idName) {
         };
     } else {
         PixelCanvas.prototype.getLinear = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
@@ -456,6 +466,7 @@ function PixelCanvas(idName) {
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getCubic = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
@@ -523,6 +534,7 @@ function PixelCanvas(idName) {
         };
     } else {
         PixelCanvas.prototype.getCubic = function(color, v) {
+            this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {

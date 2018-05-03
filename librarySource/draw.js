@@ -74,7 +74,6 @@ var Draw = {};
      * @param {float} rb - radius of endpoint b
      */
     Draw.lineWithoutEnds = function(a, b, ra, rb) {
-
         let dx = b.x - a.x;
         let dy = b.y - a.y;
         let length = Math.hypot(dx, dy);
@@ -127,12 +126,9 @@ var Draw = {};
             context.arc(center.x, center.y, radius, angleA, angleB, angleB - angleA > Math.PI);
             context.stroke();
         } else {
-
-
             Draw.start(b.x, b.y);
             context.arc(center.x, center.y, radius, angleB, angleA, angleA - angleB > Math.PI);
             context.stroke();
-
         }
     };
 

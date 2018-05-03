@@ -41,7 +41,8 @@ let background = new Color(255, 255, 240, 255);
 let inside = new Color(255, 196, 128, 255);
 let outside = new Color(128, 255, 128, 255);
 
-let mouseColor = "#ff8800ff";
+let lineColor = "#ff8800ff";
+let dotColor = "#ffff00ff";
 let limitRadius = 0.02; // very small circles without a line
 
 
@@ -80,13 +81,15 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     imagePosition.set(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
 
-    Draw.setColor(mouseColor);
+    Draw.setColor(lineColor);
     let factor = mirrorCircle.drawInvert(imagePosition);
     if (factor > 1) {
+        Draw.setColor(dotColor);
         let startRadius = factor * nullRadius;
         Draw.circle(startRadius, imagePosition);
         Draw.circle(nullRadius, mousePosition);
     } else {
+        Draw.setColor(dotColor);
         Draw.circle(nullRadius, imagePosition);
         let endRadius = nullRadius / factor;
         Draw.circle(endRadius, mousePosition);

@@ -78,8 +78,6 @@ function OutputImage(idName) {
         this.action = action;
     };
 
-    // modifying the input transform
-
     /**
      * transform from pixel coordinates (indices) to space coordinates
      * @method OutputCanvas#pixelToSpaceCoordinates
@@ -88,6 +86,16 @@ function OutputImage(idName) {
     OutputImage.prototype.pixelToSpaceCoordinates = function(v) {
         v.x = this.scale * v.x + this.cornerX;
         v.y = this.scale * v.y + this.cornerY;
+    };
+
+    /**
+     * transform from space coordinates to pixel (indices) coordinates
+     * @method OutputCanvas#spaceToPixelCoordinates
+     * @param {Vector2} v - will be transformed
+     */
+    OutputImage.prototype.spaceToPixelCoordinates = function(v) {
+        v.x = (v.x - this.cornerX) / this.scale;
+        v.y = (v.y - this.cornerY) / this.scale;
     };
 
     /**
@@ -155,17 +163,29 @@ function OutputImage(idName) {
     };
 
     /**
-     * mouse wheel zooms the image, action method for mouse handler linked to the canvas, 
+     * mouse wheel zooms the image around given position, action method for mouse handler linked to the canvas, 
+     * needs image update
+     * @method OutputImage#positionZoom
+     * @param {MouseEvents} mouseEvents - contains the wheel data
+     * @param {float} x - coordinate of center
+     * @param {float} y - coordinate of center
+     */
+    OutputImage.prototype.positionZoom = function(mouseEvents, x, y) {
+        if (mouseEvents.wheelDelta > 0) {
+            this.zoom(this.zoomFactor, x, y);
+        } else {
+            this.zoom(1 / this.zoomFactor, x, y);
+        }
+    };
+
+    /**
+     * mouse wheel zooms the image around mouse position, action method for mouse handler linked to the canvas, 
      * needs image update
      * @method OutputImage#mouseZoom
      * @param {MouseEvents} mouseEvents - contains the data
      */
     OutputImage.prototype.mouseZoom = function(mouseEvents) {
-        if (mouseEvents.wheelDelta > 0) {
-            this.zoom(this.zoomFactor, mouseEvents.x, mouseEvents.y);
-        } else {
-            this.zoom(1 / this.zoomFactor, mouseEvents.x, mouseEvents.y);
-        }
+        this.positionZoom(mouseEvents, mouseEvents.x, mouseEvents.y);
     };
 
     /**

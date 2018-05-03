@@ -633,16 +633,19 @@ triangleKaleidoscope = {};
      * draw the trajectory
      * @method triangleKaleidoscope.drawTrajectory
      * @param {float} radius - for the smaller circle
-     * @param {Vector2} point
+     * @param {Vector2} point - starting point in space coordinates
+     * @param {String} lineColor
+     * @param {String} dotColor
      */
 
     // decreasing lyapunov<<1
-    triangleKaleidoscope.drawTrajectoryElliptic = function(radius, point) {
+    triangleKaleidoscope.drawTrajectoryElliptic = function(radius, point, lineColor, dotColor) {
         let iter = 0;
         let factor = 0;
         let startPoint = new Vector2();
         startPoint.set(point);
         let radiusStart = radius;
+        Draw.setColor(lineColor);
         while (iter < maxIterations) {
             iter++;
             twoMirrors.drawMap(point);
@@ -650,6 +653,7 @@ triangleKaleidoscope = {};
             if (factor >= 0) {
                 radiusStart /= factor;
             } else {
+                Draw.setColor(dotColor);
                 Draw.circle(radiusStart, startPoint);
                 Draw.circle(radius, point);
                 return;
@@ -658,13 +662,16 @@ triangleKaleidoscope = {};
     };
 
     // same size, lyapunov==1
-    triangleKaleidoscope.drawTrajectoryEuclidic = function(radius, point) {
+    triangleKaleidoscope.drawTrajectoryEuclidic = function(radius, point, lineColor, dotColor) {
         let iter = 0;
+        Draw.setColor(dotColor);
         Draw.circle(radius, point);
+        Draw.setColor(lineColor);
         while (iter < maxIterations) {
             iter++;
             twoMirrors.drawMap(point);
             if (basicLine.drawMirrorLeftToRight(point) < 0) {
+                Draw.setColor(dotColor);
                 Draw.circle(radius, point);
                 return;
             }
@@ -672,14 +679,16 @@ triangleKaleidoscope = {};
     };
 
     // last point will be large lyapunov >>1
-    triangleKaleidoscope.drawTrajectoryHyperbolic = function(radius, point) {
+    triangleKaleidoscope.drawTrajectoryHyperbolic = function(radius, point, lineColor, dotColor) {
         if (point.x * point.x + point.y * point.y > worldRadius2) { // eliminate points outside the world
             return;
         }
         let iter = 0;
         let factor = 0;
+        Draw.setColor(dotColor);
         Draw.circle(radius, point);
         let radiusEnd = radius;
+        Draw.setColor(lineColor);
         while (iter < maxIterations) {
             iter++;
             twoMirrors.drawMap(point);
@@ -687,6 +696,7 @@ triangleKaleidoscope = {};
             if (factor >= 0) {
                 radiusEnd *= factor;
             } else {
+                Draw.setColor(dotColor);
                 Draw.circle(radiusEnd, point);
                 return;
             }

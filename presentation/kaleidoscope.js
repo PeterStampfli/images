@@ -3,7 +3,16 @@
 Layout.setup("circleInversion.html", "kaleidoscope.html");
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
-Make.outputImage.stopShift();
+//Make.outputImage.stopShift();
+
+let worldRadiusHyperbolic = 0.97;
+let worldRadiusElliptic = 0.5;
+triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
+
+
+let zoomCenter = new Vector2();
+
+
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 
@@ -19,9 +28,7 @@ Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
 let sum = document.getElementById("sum");
-let worldRadiusHyperbolic = 0.97;
-let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
+
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
@@ -43,6 +50,8 @@ setNButton.setValue(2);
 setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
+
+
 
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
@@ -74,8 +83,8 @@ Make.updateOutputImage = function() {
 let nullRadius = 0.025;
 
 let mousePosition = new Vector2();
-let mouseColor = "#ff8800ff";
-
+let lineColor = "#ff8800ff";
+let dotColor = "#ffff00ff";
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
@@ -84,13 +93,22 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    Draw.setColor(mouseColor);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition);
+    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, lineColor, dotColor);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     Make.updateOutputImage();
+};
+
+// zoom at border of hyperbolic
+
+Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
+    zoomCenter.setComponents(worldRadiusHyperbolic, 0);
+    Make.outputImage.spaceToPixelCoordinates(zoomCenter);
+    Make.outputImage.positionZoom(mouseEvents, zoomCenter.x, zoomCenter.y);
+    Make.shiftScaleOutputImage();
+
 };
 
 Layout.createStructureImageButton("change");
