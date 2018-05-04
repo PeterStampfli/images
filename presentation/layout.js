@@ -11,6 +11,9 @@ var Layout = {};
 (function() {
     "use strict";
 
+    Layout.pathColor = "#ffaa00ff";
+    Layout.dotColor = "#ffff00ff";
+
     // defaults
     // relation between sizes and basicFontSize
     // text margin as fraction of text size
@@ -23,6 +26,8 @@ var Layout = {};
     Layout.lineWidthToSize = 0.25;
     // size of h1 text
     Layout.h1ToSize = 1.4;
+    // size of null radius in pixels
+    Layout.nullRadiusToSize = 0.3;
 
     // colors
     Layout.backgroundColor = "#eeeeee";
@@ -57,6 +62,7 @@ var Layout = {};
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
         DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
+        Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
     };
 
     /**

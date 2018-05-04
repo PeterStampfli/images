@@ -30,7 +30,7 @@ function updateKMN() {
     triangleKaleidoscope.adjustIntersection();
 
     yellow = new Color(255, 255, 128, 255);
-    background = new Color(255, 255, 240, 255);
+    background = new Color(128, 128, 128, 0);
 
     Make.outputImage.drawPixel(function(position, color) {
         if (triangleKaleidoscope.isInside(position)) {

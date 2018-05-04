@@ -7,7 +7,7 @@
 
 /* jshint esversion:6 */
 
-function VectorMap(outputImage) {
+function VectorMap(outputImage, controlImage, arrowController) {
     this.exists = false;
     this.width = 2;
     this.height = 2;
@@ -15,6 +15,8 @@ function VectorMap(outputImage) {
     this.yArray = new Float32Array(4);
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
+    this.controlImage = controlImage;
+    this.arrowController = arrowController;
     this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
 }
 

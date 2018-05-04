@@ -1,8 +1,9 @@
 /* jshint esversion:6 */
 
-
-
 Layout.setup("titel.html", "setup.html");
+Layout.activateFontSizeChanges();
+Layout.activateFontSizeChangesButtons();
+Layout.setFontSizes();
 
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
@@ -10,16 +11,9 @@ Make.outputImage.stopShift();
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
-
-
-Layout.activateFontSizeChanges();
-Layout.activateFontSizeChangesButtons();
-
-
+Make.createMap();
 
 Layout.adjustDimensions();
-
-Layout.setFontSizes();
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();

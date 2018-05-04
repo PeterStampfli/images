@@ -71,8 +71,6 @@ var Make = {};
         Make.outputImage = new OutputImage(idName);
         Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
-        Make.map = new VectorMap();
-        Make.map.outputImage = Make.outputImage;
         Make.outputImage.action = Make.shiftScaleOutputImage;
     };
 
@@ -154,6 +152,14 @@ var Make = {};
     Make.createArrowController = function(idName, size) {
         Make.arrowController = new ArrowController(idName, size);
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
+    };
+
+    /**
+     * create the map with connection to outputImage,controlImage and arrowController
+     * @method Make.createMap 
+     */
+    Make.createMap = function() {
+        Make.map = new VectorMap(Make.outputImage, Make.controlImage, Make.arrowController);
     };
 
     // structure mapping (space to space)
@@ -562,9 +568,9 @@ var Make = {};
         };
     };
 
-    Make.colorParityNull = new Color(255, 255, 0); //default yellow
-    Make.colorParityOdd = new Color(0, 70, 200); // default cyan
-    Make.colorParityEven = new Color(200, 200, 0); // default: brown
+    Make.colorParityNull = new Color(200, 200, 0); //default yellow
+    Make.colorParityOdd = new Color(0, 120, 0); // default cyan
+    Make.colorParityEven = new Color(200, 120, 0); // default: brown
     /**
      * create pixel from map data, 
      * x-component of vector has parity data
@@ -612,8 +618,8 @@ var Make = {};
      * @param {Color} color - for the pixel
      */
     Make.pixelFromInputImageNoColorSymmetry = function(mapOut, color) {
-        inputImage.getInterpolated(color, mapOut);
-        controlImage.setOpaque(mapOut);
+        Make.inputImage.getInterpolated(color, mapOut);
+        Make.controlImage.setOpaque(mapOut);
     };
 
     /**
@@ -659,18 +665,8 @@ var Make = {};
                 console.log("*** Make.updateOutputImage: input image not loaded !");
                 return;
             }
-            // get parameters
-            shiftX = Make.controlImage.shiftX;
-            shiftY = Make.controlImage.shiftY;
-            var angle = Make.arrowController.angle;
-            var scale = Make.controlImage.scale;
-            cosAngleScale = scale * Fast.cos(angle);
-            sinAngleScale = scale * Fast.sin(angle);
-            // shortcuts
             Make.inputImage.linearTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
             Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
-            inputImage = Make.inputImage;
-            controlImage = Make.controlImage;
             Make.controlImage.semiTransparent();
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
             Make.map.draw(Make.pixelFromInputImage);

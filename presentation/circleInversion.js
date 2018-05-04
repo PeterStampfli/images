@@ -1,6 +1,8 @@
 /* jshint esversion:6 */
 
 Layout.setup("triangles.html", "kaleidoscope.html");
+Layout.activateFontSizeChanges();
+Layout.setFontSizes();
 
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
@@ -10,44 +12,27 @@ Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
+Make.createMap();
 
-Layout.activateFontSizeChanges();
 Layout.adjustDimensions();
-
-Layout.setFontSizes();
-
 Make.setInitialOutputImageSpace(0, 1, 0);
 Make.resetOutputImageSpace();
 
-const mirrorCenterX = 0.9;
-const mirrorCenterY = 0.15;
-const mirrorRadius = 0.4;
+const mirrorCenterX = 0.95;
+const mirrorCenterY = 0.6;
+const mirrorRadius = 0.38;
 let mirrorCenter = new Vector2(mirrorCenterX, mirrorCenterY);
 let mirrorCircle = new Circle(mirrorRadius, mirrorCenter);
 
-const extraCenterX = 0.42;
-const extraCenterY = 0.45;
+const extraCenterX = 0.43;
+const extraCenterY = 0.44;
 let d2 = (mirrorCenterX - extraCenterX) * (mirrorCenterX - extraCenterX) + (mirrorCenterY - extraCenterY) * (mirrorCenterY - extraCenterY);
 let extraRadius = Math.sqrt(d2 - mirrorRadius * mirrorRadius);
 let extraCenter = new Vector2(extraCenterX, extraCenterY);
 let extraCircle = new Circle(extraRadius, extraCenter);
 
-const nullRadius = 0.01;
-
 let mousePosition = new Vector2();
 let imagePosition = new Vector2();
-
-let background = new Color(255, 255, 240, 255);
-let inside = new Color(255, 196, 128, 255);
-let outside = new Color(128, 255, 128, 255);
-
-let lineColor = "#ff8800ff";
-let dotColor = "#ffff00ff";
-let limitRadius = 0.02; // very small circles without a line
-
-
-Make.inputImage.setOffColor(background);
-Make.map.setOffColor(background);
 
 // the mapping for using an input image
 Make.mappingInputImage = function(mapIn, mapOut) {
@@ -60,6 +45,7 @@ Make.mappingInputImage = function(mapIn, mapOut) {
 };
 
 Make.updateOutputImage = function() {
+    let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateMapOutput();
     Draw.setLineWidth(Layout.lineWidth);
     Draw.setColor(Layout.lineColor);
@@ -75,21 +61,21 @@ Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
 };
 
 Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+    let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     imagePosition.set(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-
-    Draw.setColor(lineColor);
+    Draw.setColor(Layout.pathColor);
     let factor = mirrorCircle.drawInvert(imagePosition);
     if (factor > 1) {
-        Draw.setColor(dotColor);
+        Draw.setColor(Layout.dotColor);
         let startRadius = factor * nullRadius;
         Draw.circle(startRadius, imagePosition);
         Draw.circle(nullRadius, mousePosition);
     } else {
-        Draw.setColor(dotColor);
+        Draw.setColor(Layout.dotColor);
         Draw.circle(nullRadius, imagePosition);
         let endRadius = nullRadius / factor;
         Draw.circle(endRadius, mousePosition);

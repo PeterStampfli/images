@@ -1,12 +1,11 @@
-/*
-approximating functions with linear table interpolation
-*/
+/**
+ * approximating functions with linear table interpolation and other math
+ * @namespace Fast
+ */
 
 /* jshint esversion:6 */
 
-/**
- * @namespace Fast
- */
+
 var Fast = {};
 
 (function() {

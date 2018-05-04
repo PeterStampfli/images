@@ -1,34 +1,20 @@
 /* jshint esversion:6 */
 
 Layout.setup("circleInversion.html", "kaleidoscope.html");
+Layout.activateFontSizeChanges();
+Layout.setFontSizes();
+
 Make.createOutputImageNoColorSymmetry("outputCanvas");
-Make.outputImage.stopZoom();
-//Make.outputImage.stopShift();
-
-let worldRadiusHyperbolic = 0.97;
-let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
-
-
-let zoomCenter = new Vector2();
-
-
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
+Make.createMap();
 
-Layout.activateFontSizeChanges();
 Layout.adjustDimensions();
-
-Layout.setFontSizes();
-
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
-
-let sum = document.getElementById("sum");
-
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
@@ -51,6 +37,10 @@ setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
+let worldRadiusHyperbolic = 0.97;
+let worldRadiusElliptic = 0.5;
+triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
+let sum = document.getElementById("sum");
 
 
 // initializing things before calculating the map (uopdateKMN)
@@ -80,21 +70,20 @@ Make.updateOutputImage = function() {
     Draw.circle(triangleKaleidoscope.worldRadius, new Vector2(0, 0));
 };
 
-let nullRadius = 0.025;
-
+let zoomCenter = new Vector2();
 let mousePosition = new Vector2();
-let lineColor = "#ff8800ff";
-let dotColor = "#ffff00ff";
+
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
 
 Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+    let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, lineColor, dotColor);
+    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
@@ -108,12 +97,9 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
     Make.outputImage.spaceToPixelCoordinates(zoomCenter);
     Make.outputImage.positionZoom(mouseEvents, zoomCenter.x, zoomCenter.y);
     Make.shiftScaleOutputImage();
-
 };
 
 Layout.createStructureImageButton("change");
-
-console.log(Make.getCombinedPixelScale());
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

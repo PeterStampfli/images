@@ -1,6 +1,9 @@
 /* jshint esversion:6 */
 
 Layout.setup("titel.html", "kaleidoscope.html");
+Layout.activateFontSizeChanges();
+Layout.setFontSizes();
+
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
@@ -9,19 +12,11 @@ Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
+Make.createMap();
 
-Layout.activateFontSizeChanges();
 Layout.adjustDimensions();
-
-Layout.setFontSizes();
-
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
-
-let sum = document.getElementById("sum");
-let worldRadiusHyperbolic = 0.97;
-let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
@@ -43,6 +38,11 @@ setNButton.setValue(3);
 setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
+
+let sum = document.getElementById("sum");
+let worldRadiusHyperbolic = 0.97;
+let worldRadiusElliptic = 0.5;
+triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
@@ -72,27 +72,6 @@ Make.updateOutputImage = function() {
     Draw.circle(triangleKaleidoscope.worldRadius, new Vector2(0, 0));
 };
 
-let nullRadius = 0.025;
-
-let mousePosition = new Vector2();
-let mouseColor = "#ff8800ff";
-
-Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
-    Make.outputImage.mouseEvents.dragAction(mouseEvents);
-};
-
-Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
-    Make.updateOutputImage();
-    mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
-    Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    Draw.setColor(mouseColor);
-    Draw.setLineWidth(0.7 * Layout.lineWidth);
-    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition);
-};
-
-Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-    Make.updateOutputImage();
-};
 
 Layout.createStructureImageButton("change");
 

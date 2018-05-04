@@ -1,8 +1,8 @@
 /* jshint esversion:6 */
 
-
-
 Layout.setup("titel.html", "rosette.html");
+Layout.activateFontSizeChanges();
+Layout.setFontSizes();
 
 let sizeFraction = 0.3;
 let windowWidth = window.innerWidth - 20;
@@ -16,27 +16,19 @@ Make.outputImage.stopShift();
 
 Make.createControlImage("controlCanvas", windowWidth * sizeFraction);
 Make.createArrowController("arrowController", 200);
-
-
-Layout.activateFontSizeChanges();
+Make.createMap();
 
 Layout.adjustDimensions();
-Layout.setFontSizes();
-
 
 DOM.style("#controlCanvas", "display", "initial"); // make visible with "initial"
 DOM.style("#controlCanvas", "zIndex", "1");
-DOM.style("#controlCanvas", "position", "absolute", "top", "0px", "right", "20px");
+DOM.style("#controlCanvas", "position", "absolute", "right", "20px");
+DOM.style("#outputCanvas,#controlCanvas", "top", 3 * Layout.basicFontSize + px);
 DOM.style("#text", "left", basicLenght + px, "top", "0px");
 DOM.style("#text", "width", (windowWidth - basicLenght) + px); // avoid horizontal scrollbar
 DOM.style("#topRight", "right", "0px");
 
-
-console.log(windowWidth);
 Make.setOutputSize(basicLenght, basicLenght);
-
-
-
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();

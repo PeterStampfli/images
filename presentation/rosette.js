@@ -1,6 +1,9 @@
 /* jshint esversion:6 */
 
 Layout.setup("setup.html", "triangles.html");
+Layout.setFontSizes();
+Layout.activateFontSizeChanges();
+
 Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
@@ -9,13 +12,11 @@ Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
+Make.createMap();
 
-Layout.activateFontSizeChanges();
-//Layout.activateFontSizeChangesButtons();
+
 
 Layout.adjustDimensions();
-
-Layout.setFontSizes();
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
@@ -34,7 +35,6 @@ Make.initializeMap = function() {
     twoMirrors.setK(setKButton.getValue());
 };
 
-
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
     Draw.setColor(Layout.mirrorColor);
@@ -42,30 +42,26 @@ Make.updateOutputImage = function() {
     twoMirrors.drawLines();
 };
 
-let nullRadius = 0.03;
-
 let mousePosition = new Vector2();
 let imagePosition = new Vector2();
 let zero = new Vector2(0, 0);
-let lineColor = "#ff8800ff";
-let dotColor = "#ffff00ff";
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
 
 Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+    let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    Draw.setColor(dotColor);
+    Draw.setColor(Layout.dotColor);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.circle(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
-    Draw.setColor(lineColor);
-
+    Draw.setColor(Layout.pathColor);
     if (twoMirrors.drawMap(imagePosition) != 0) {
-        Draw.setColor(dotColor);
+        Draw.setColor(Layout.dotColor);
         Draw.circle(nullRadius, imagePosition);
     }
 };
