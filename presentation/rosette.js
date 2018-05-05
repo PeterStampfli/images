@@ -72,4 +72,6 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 
 Layout.createStructureImageButton("change");
 
+console.log(Make.map.getCombinedPixelScale());
+
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

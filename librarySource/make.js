@@ -118,7 +118,6 @@ var Make = {};
         };
     };
 
-
     /**
      * create a button to download the output image as a png
      * @method Make.createSaveImagePng
@@ -159,7 +158,7 @@ var Make = {};
      * @method Make.createMap 
      */
     Make.createMap = function() {
-        Make.map = new VectorMap(Make.outputImage, Make.controlImage, Make.arrowController);
+        Make.map = new VectorMap(Make.outputImage, Make.inputImage, Make.controlImage);
     };
 
     // structure mapping (space to space)
@@ -568,37 +567,6 @@ var Make = {};
         };
     };
 
-    Make.colorParityNull = new Color(200, 200, 0); //default yellow
-    Make.colorParityOdd = new Color(0, 120, 0); // default cyan
-    Make.colorParityEven = new Color(200, 120, 0); // default: brown
-    /**
-     * create pixel from map data, 
-     * x-component of vector has parity data
-     * show different solid colors for original sector, odd or even number of reflections
-     * @method Make.pixelFromParity
-     * @param {Vector2} mapOut - map position data
-     * @param {Color} color - for the pixel
-     */
-    Make.pixelFromParity = function(mapOut, color) {
-        let parity = mapOut.x;
-        if (parity == 0) {
-            color.set(Make.colorParityNull);
-        } else if (parity & 1) {
-            color.set(Make.colorParityOdd);
-        } else {
-            color.set(Make.colorParityEven);
-        }
-    };
-
-    /**
-     * creating pixel showing structure using map data for the map.draw method
-     * mapVector.x contains the (parity) data
-     * @method Make.pixelFromStructure
-     * @param {Vector2} mapOut - map position data, additional data possible such as color
-     * @param {Color} color - for the pixel
-     */
-    Make.pixelFromStructure = Make.pixelFromParity;
-
     /*
     change scale, rotation or shift parameters for the 3rd mapping, change image interpolation via chooseInterpolation, change smoothing:
     prepare scale and angle dependent parameters of this mapping. 
@@ -658,7 +626,7 @@ var Make = {};
             return;
         }
         if (Make.showStructure || !Make.inputImageExists) { // show structure
-            Make.map.draw(Make.pixelFromStructure);
+            Make.map.draw(VectorMap.createStructureColor);
             Make.outputImage.pixelCanvas.showPixel();
         } else {
             if (Make.inputImage.width == 0) {
@@ -669,7 +637,7 @@ var Make = {};
             Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
             Make.controlImage.semiTransparent();
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            Make.map.draw(Make.pixelFromInputImage);
+            Make.map.draw(VectorMap.createInputImageColorLowQuality);
             Make.outputImage.pixelCanvas.showPixel();
             Make.controlImage.pixelCanvas.showPixel();
         }
@@ -682,15 +650,6 @@ var Make = {};
      * @method Make.updateOutputImage
      */
     Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
-
-    /**
-     * get combined pixel scale
-     * @method Make.getCombinedPixelScale
-     * @return float, product of scales
-     */
-    Make.getCombinedPixelScale = function() {
-        return Make.controlImage.scale * Make.outputImage.scale;
-    };
 
 
 

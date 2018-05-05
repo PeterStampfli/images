@@ -2,12 +2,14 @@
  * making a mapping from a two-dimensional array to a space position to a single vector function, stored on a grid
  * with additional borders for smoothing
  * @constructor VectorMap
- * @param {OutputImage} outputImage - has a pixelcanvas and a transform of pixel to map input coordinates
+ * @param {OutputImage} outputImage - has a pixelcanvas and a transform of output image pixel indices to space coordinates
+ * @param {PixelCanvas} inputImage - with the space coordinate to input image pixel coordinates
+ * @param {ControlImage} controlimage - to make read pixels opaque
  */
 
 /* jshint esversion:6 */
 
-function VectorMap(outputImage, controlImage, arrowController) {
+function VectorMap(outputImage, inputImage, controlImage) {
     this.exists = false;
     this.width = 2;
     this.height = 2;
@@ -15,8 +17,8 @@ function VectorMap(outputImage, controlImage, arrowController) {
     this.yArray = new Float32Array(4);
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
+    this.inputImage = inputImage;
     this.controlImage = controlImage;
-    this.arrowController = arrowController;
     this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
 }
 
@@ -165,24 +167,97 @@ function VectorMap(outputImage, controlImage, arrowController) {
         upperRight.y = upper;
     };
 
+    let colorParityNull = new Color(200, 200, 0); //default yellow
+    let colorParityOdd = new Color(0, 120, 0); // default cyan
+    let colorParityEven = new Color(200, 120, 0); // default: brown
+
+    /**
+     * create color showing structure, based on parity stored in this.xArray
+     * @method VectorMap.createStructureColor
+     * @param {Map} map
+     * @param {integer} index - to the map data
+     * @param {Color} color
+     */
+    VectorMap.createStructureColor = function(map, index, color) {
+        let parity = map.xArray[index];
+        if (parity == 0) {
+            color.set(colorParityNull);
+        } else if (parity & 1) {
+            color.set(colorParityOdd);
+        } else {
+            color.set(colorParityEven);
+        }
+    };
+
+    let position = new Vector2();
+
+    /**
+     * create color showing input image with low quality, no interpolation, no smoothing
+     * @method VectorMap.createInputImageColorLowQuality
+     * @param {Map} map
+     * @param {integer} index - to the map data
+     * @param {Color} color
+     */
+    VectorMap.createInputImageColorLowQuality = function(map, index, color) {
+        position.x = map.xArray[index];
+        position.y = map.yArray[index];
+        map.inputImage.getNearest(color, position);
+        map.controlImage.setOpaque(position);
+    };
+
     /**
      * draw on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
-     * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
+     * "invalid" points have a negative lyapunov value
      * @method VectorMap#drawSimple
-     * @param {function} mapping - from coordinates (x,y) to color
+     * @param {function} createColor - a VectorMap.prototype method (map,index,color), sets color depending on index to map data
      */
-    VectorMap.prototype.drawSimple = function(mapping) {
-        let mapOut = new Vector2();
+    VectorMap.prototype.draw = function(createColor) {
         let color = new Color(); // default: opaque black
-        let xArray = this.xArray;
-        let yArray = this.yArray;
-        let lyapunovArray = this.lyapunovArray;
         let pixelCanvas = this.outputImage.pixelCanvas;
         let height = this.height;
         let width = this.width;
+        let lyapunovArray = this.lyapunovArray;
         let indexMapBase = 0;
         var indexMapHigh;
         var indexPixel = 0;
+        for (var j = 1; j <= height; j++) {
+            indexMapBase += width + 2;
+            indexMapHigh = indexMapBase + width;
+            for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
+                if (lyapunovArray[indexMap] >= 0) {
+                    createColor(this, indexMap, color);
+                } else {
+                    color.set(this.offColor);
+                }
+                pixelCanvas.setPixelAtIndex(color, indexPixel++);
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
+
+
+    // the laypunov thing
+
+
+    /**
+     * get combined pixel scale
+     * @method VectorMap#getCombinedPixelScale
+     * @return float, product of scales
+     */
+    VectorMap.prototype.getCombinedPixelScale = function() {
+        return this.inputImage.linearTransform.scale * this.outputImage.scale;
+    };
+
+    /**
+     * get maximum and minimum of lyapunov values>0
+     * @method VectorMap#lyapunovMinMax
+     * @return [minimum,maximum] float array of 2 values
+     */
+    /*
+     VectorMap.prototype.lyapunovMinMax = function() {
+        let lyapunovArray = this.lyapunovArray;
+        let length=lyapunovArray.length
         for (var j = 1; j <= height; j++) {
             indexMapBase += width + 2;
             indexMapHigh = indexMapBase + width;
@@ -200,87 +275,7 @@ function VectorMap(outputImage, controlImage, arrowController) {
         pixelCanvas.showPixel();
     };
 
-    /**
-     * use 2x2 averaging to draw with smoothing on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
-     * "invalid" points may be marked with a very large x-coordinate -> mapping returns special off-color
-     * @method VectorMap#drawSmooth
-     * @param {function} mapping - from mapOut to color
-     */
-    VectorMap.prototype.drawSmooth = function(mapping) {
-        let mapOut = new Vector2();
-        let width = this.width;
-        let height = this.height;
-        let xArray = this.xArray;
-        let yArray = this.yArray;
-        let baseX, baseY;
-        let color = new Color(); // default: opaque black
-        let baseColor = new Color();
-        let colorPlusX = new Color();
-        let colorPlusY = new Color();
-        let colorPlusXY = new Color();
-        let baseIndex = 0;
-        let indexPlusX, indexPlusY, indexPlusXY;
-        let pixelCanvas = this.outputImage.pixelCanvas;
-        for (var j = 0; j < height; j++) {
-            if (j == height - 1) { // at top pixels beware of out of bounds indices
-                indexPlusY = baseIndex;
-            } else {
-                indexPlusY = baseIndex + width;
-            }
-            for (var i = 0; i < width; i++) {
-                if (i < width - 1) { // at right pixels beware of out of bounds indices
-                    indexPlusX = baseIndex + 1;
-                    indexPlusXY = indexPlusY + 1;
-                } else {
-                    indexPlusX = baseIndex;
-                    indexPlusXY = indexPlusY;
-                }
-                baseX = xArray[baseIndex];
-                baseY = yArray[baseIndex];
-                mapOut.x = baseX;
-                mapOut.y = baseY;
-                mapping(mapOut, baseColor);
-                mapOut.x = 0.5 * (baseX + xArray[indexPlusX]);
-                mapOut.y = 0.5 * (baseY + yArray[indexPlusX]);
-                mapping(mapOut, colorPlusX);
-                mapOut.x = 0.5 * (baseX + xArray[indexPlusY]);
-                mapOut.y = 0.5 * (baseY + yArray[indexPlusY]);
-                mapping(mapOut, colorPlusY);
-                mapOut.x = 0.5 * (baseX + xArray[indexPlusXY]);
-                mapOut.y = 0.5 * (baseY + yArray[indexPlusXY]);
-                mapping(mapOut, colorPlusXY);
-                //averaging with shift, including rounding
-                color.red = (2 + baseColor.red + colorPlusX.red + colorPlusY.red + colorPlusXY.red) >> 2;
-                color.green = (2 + baseColor.green + colorPlusX.green + colorPlusY.green + colorPlusXY.green) >> 2;
-                color.blue = (2 + baseColor.blue + colorPlusX.blue + colorPlusY.blue + colorPlusXY.blue) >> 2;
-                color.alpha = (2 + baseColor.alpha + colorPlusX.alpha + colorPlusY.alpha + colorPlusXY.alpha) >> 2;
-                pixelCanvas.setPixelAtIndex(color, baseIndex);
-                baseIndex++;
-                indexPlusY++;
-            }
-        }
-        pixelCanvas.showPixel();
-    };
+*/
 
-
-    /**
-     * the choosen drawing method (simple or smoothed)
-     * @method VectorMap#draw
-     * @param {function} mapping - from mapOut to color
-     */
-    VectorMap.prototype.draw = VectorMap.prototype.drawSimple;
-
-    /**
-     * choose the smoothing method
-     * @method VectorMap#chooseSmoothing
-     * @param {integer} n - 0 for no smoothing, 1 for smoothing
-     */
-    VectorMap.prototype.chooseSmoothing = function(n) {
-        if (n == 0) {
-            VectorMap.prototype.draw = VectorMap.prototype.drawSimple;
-        } else {
-            VectorMap.prototype.draw = VectorMap.prototype.drawSmooth;
-        }
-    };
 
 }());
