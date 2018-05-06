@@ -61,18 +61,6 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque
     };
 
     /**
-     * copy rgba values from another color
-     * @method Color#copyRgba
-     * @param {Color} color 
-     */
-    Color.prototype.copyRgba = function(color) {
-        this.red = color.red;
-        this.green = color.green;
-        this.blue = color.blue;
-        this.alpha = color.alpha;
-    };
-
-    /**
      * interpolate linearly to another color, t=0 gives this color, t=1 gives the parameters color
      * acts only on the rgba components, we cannot easily interpolate the hue, if needed convert to rgb first
      * @method Color#interpolate

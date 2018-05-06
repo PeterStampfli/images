@@ -348,7 +348,7 @@ function PixelCanvas(idName) {
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const thePixel = this.pixel[h + k * this.width];
                 color.red = thePixel & 0xff;
@@ -363,7 +363,7 @@ function PixelCanvas(idName) {
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const thePixel = this.pixel[h + k * this.width];
                 color.red = (thePixel >>> 24) & 0xff;
@@ -387,7 +387,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -417,7 +417,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -470,7 +470,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -538,7 +538,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.copyRgba(this.offColor);
+                color.set(this.offColor);
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;

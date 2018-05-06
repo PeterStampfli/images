@@ -174,11 +174,9 @@ function VectorMap(outputImage, inputImage, controlImage) {
     /**
      * create color showing structure, based on parity stored in this.xArray
      * @method VectorMap.createStructureColor
-     * @param {Map} map
      * @param {integer} index - to the map data
-     * @param {Color} color
      */
-    VectorMap.createStructureColor = function(map, index, color) {
+    VectorMap.createStructureColor = function(index) {
         let parity = map.xArray[index];
         if (parity == 0) {
             color.set(colorParityNull);
@@ -194,16 +192,87 @@ function VectorMap(outputImage, inputImage, controlImage) {
     /**
      * create color showing input image with low quality, no interpolation, no smoothing
      * @method VectorMap.createInputImageColorLowQuality
-     * @param {Map} map
      * @param {integer} index - to the map data
-     * @param {Color} color
      */
-    VectorMap.createInputImageColorLowQuality = function(map, index, color) {
+    VectorMap.createInputImageColorLowQuality = function(index) {
         position.x = map.xArray[index];
         position.y = map.yArray[index];
         map.inputImage.getNearest(color, position);
         map.controlImage.setOpaque(position);
     };
+
+
+    var basePositionX, basePositionY;
+    var colorRed, colorGreen, colorBlue, colorIsValid;
+
+    /*
+     * look up interpolated position and its color, add to color
+     * exception handling: if interpolation is not possible use extrapolation from opposite point, if that is not possible use center
+     * if read color is transparent this means that the position is outside the input image and output pixel belongs to background
+     */
+    function addInterpolated(t, indexInter, indexExtra) {
+        if (map.lyapunovArray[indexInter] >= 0) { // if neighbor is valid use interpolation
+            let ct = 1 - t;
+            position.x = ct * basePositionX + t * map.xArray[indexInter];
+            position.y = ct * basePositionY + t * map.yArray[indexInter];
+        } else if (map.lyapunovArray[indexExtra] >= 0) { // use extrapolation from opposite, if valid
+            let ct = 1 + t;
+            position.x = ct * basePositionX - t * map.xArray[indexExtra];
+            position.y = ct * basePositionY - t * map.yArray[indexExtra];
+        } else { // fallback: use center
+            position.x = basePositionX;
+            position.y = basePositionY;
+        }
+        map.inputImage.getNearest(color, position);
+        if (color.alpha === 255) {
+            colorRed += color.red;
+            colorGreen += color.green;
+            colorBlue += color.blue;
+        } else {
+            colorIsValid = false;
+        }
+    }
+
+    VectorMap.createAverageInputColor9 = function(index) {
+        basePositionX = map.xArray[index];
+        basePositionY = map.yArray[index];
+        position.x = basePositionX;
+        position.y = basePositionY;
+        map.inputImage.getNearest(color, position);
+
+        if (color.alpha < 255) {
+            color.set(map.offColor);
+            return;
+        }
+        map.controlImage.setOpaque(position);
+
+        colorRed = color.red;
+        colorGreen = color.green;
+        colorBlue = color.blue;
+        colorIsValid = true;
+
+        let widthPlus = map.width + 2;
+    let t=0.33333;
+        addInterpolated(t,index+1,index-1);
+        addInterpolated(t,index-1,index+1);
+        addInterpolated(t,index+widthPlus,index-widthPlus);
+        addInterpolated(t,index-widthPlus,index+widthPlus);
+        addInterpolated(t,index-widthPlus-1,index+widthPlus+1);
+        addInterpolated(t,index+widthPlus+1,index-widthPlus-1);
+        addInterpolated(t,index-widthPlus+1,index+widthPlus-1);
+        addInterpolated(t,index+widthPlus-1,index-widthPlus+1);
+
+        t=0.1111111111;
+        color.red=Math.round(t*colorRed);
+        color.green=Math.round(t*colorGreen);
+        color.blue=Math.round(t*colorBlue);
+        
+
+
+    };
+
+    var map;
+    var color = new Color();
 
     /**
      * draw on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
@@ -212,20 +281,21 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * @param {function} createColor - a VectorMap.prototype method (map,index,color), sets color depending on index to map data
      */
     VectorMap.prototype.draw = function(createColor) {
-        let color = new Color(); // default: opaque black
+        map = this;
         let pixelCanvas = this.outputImage.pixelCanvas;
         let height = this.height;
         let width = this.width;
+        let widthPlus = width + 2;
         let lyapunovArray = this.lyapunovArray;
         let indexMapBase = 0;
         var indexMapHigh;
         var indexPixel = 0;
         for (var j = 1; j <= height; j++) {
-            indexMapBase += width + 2;
+            indexMapBase += widthPlus;
             indexMapHigh = indexMapBase + width;
             for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
                 if (lyapunovArray[indexMap] >= 0) {
-                    createColor(this, indexMap, color);
+                    createColor(indexMap);
                 } else {
                     color.set(this.offColor);
                 }

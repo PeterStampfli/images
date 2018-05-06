@@ -523,81 +523,6 @@ var Make = {};
     // drawing the output image 
     //___________________________________________________________________________
 
-    /**
-     * creating the smoothing choice
-     * @method Make.createSmootingChoice
-     * @param {String} idNoSmoothing
-     * @param {String} id2x2Smoothing
-     */
-    Make.createSmootingChoice = function(idNoSmoothing, id2x2Smoothing) {
-        let smoothing = new Selection(idNoSmoothing, id2x2Smoothing);
-        smoothing.buttons[0].onPress = function() {
-            console.log("none");
-            Make.map.draw = Make.map.drawSimple;
-            Make.updateOutputImage();
-        };
-
-        smoothing.buttons[1].onPress = function() {
-            console.log("2");
-            Make.map.draw = Make.map.drawSmooth;
-            Make.updateOutputImage();
-        };
-    };
-
-    /**
-     * creating the interpolation choice
-     * @method Make.createInterpolationChoice
-     * @param {String} id for no interpolation
-     * @param {String} id for linear interpolation
-     * @param {String} id for cubic interpolation
-     */
-    Make.createInterpolationChoice = function(idNo, idLinear, idCubic) {
-        let interpolation = new Selection(idNo, idLinear, idCubic);
-        interpolation.buttons[0].onPress = function() {
-            Make.inputImage.chooseInterpolation(0);
-            Make.updateOutputImage();
-        };
-        interpolation.buttons[1].onPress = function() {
-            Make.inputImage.chooseInterpolation(1);
-            Make.updateOutputImage();
-        };
-        interpolation.buttons[2].onPress = function() {
-            Make.inputImage.chooseInterpolation(2);
-            Make.updateOutputImage();
-        };
-    };
-
-    /*
-    change scale, rotation or shift parameters for the 3rd mapping, change image interpolation via chooseInterpolation, change smoothing:
-    prepare scale and angle dependent parameters of this mapping. 
-    clear control canvas.
-    redraw using the map with the additional transformation, setting output pixels and control pixels
-    show output pixels
-    show control pixels
-    */
-
-    var shiftX, shiftY, cosAngleScale, sinAngleScale;
-    var inputImage, controlImage;
-
-    /**
-     * creating pixel from map data and input image for the map.draw method without color symmetry
-     * @method Make.pixelFromInputImageNoColorSymmetry
-     * @param {Vector2} mapOut - map position data
-     * @param {Color} color - for the pixel
-     */
-    Make.pixelFromInputImageNoColorSymmetry = function(mapOut, color) {
-        Make.inputImage.getInterpolated(color, mapOut);
-        Make.controlImage.setOpaque(mapOut);
-    };
-
-    /**
-     * creating pixel from input image using map data for the map.draw method
-     * @method Make.pixelFromInputImage
-     * @param {Vector2} mapOut - map position data, additional data possible such as color
-     * @param {Color} color - for the pixel
-     */
-    Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
-
 
     /**
      * redraw output only if showing input image
@@ -637,7 +562,8 @@ var Make = {};
             Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
             Make.controlImage.semiTransparent();
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            Make.map.draw(VectorMap.createInputImageColorLowQuality);
+            //         Make.map.draw(VectorMap.createInputImageColorLowQuality);
+            Make.map.draw(VectorMap.createAverageInputColor9);
             Make.outputImage.pixelCanvas.showPixel();
             Make.controlImage.pixelCanvas.showPixel();
         }
