@@ -201,74 +201,73 @@ function VectorMap(outputImage, inputImage, controlImage) {
         map.controlImage.setOpaque(position);
     };
 
+    // color averaging, to get better image near border, keeping it simple and throughing away points at the border, the region near the border is important
 
     var basePositionX, basePositionY;
     var colorRed, colorGreen, colorBlue, colorIsValid;
 
     /*
      * look up interpolated position and its color, add to color
-     * exception handling: if interpolation is not possible use extrapolation from opposite point, if that is not possible use center
-     * if read color is transparent this means that the position is outside the input image and output pixel belongs to background
+     * exception handling: if interpolation is not possible  then color is not valid
+     */
+
+    /*
+     * look up interpolated position and its color, add to color
+     * use only valid points
      */
     function addInterpolated(t, indexInter, indexExtra) {
-        if (map.lyapunovArray[indexInter] >= 0) { // if neighbor is valid use interpolation
+        if (map.lyapunovArray[indexInter] >= 0) { // if neighbor is valid use interpolation, most cases
             let ct = 1 - t;
             position.x = ct * basePositionX + t * map.xArray[indexInter];
             position.y = ct * basePositionY + t * map.yArray[indexInter];
-        } else if (map.lyapunovArray[indexExtra] >= 0) { // use extrapolation from opposite, if valid
-            let ct = 1 + t;
-            position.x = ct * basePositionX - t * map.xArray[indexExtra];
-            position.y = ct * basePositionY - t * map.yArray[indexExtra];
-        } else { // fallback: use center
-            position.x = basePositionX;
-            position.y = basePositionY;
-        }
-        map.inputImage.getNearest(color, position);
-        if (color.alpha === 255) {
-            colorRed += color.red;
-            colorGreen += color.green;
-            colorBlue += color.blue;
+            map.inputImage.getNearest(color, position);
+            if (color.alpha === 255) {
+                colorRed += color.red;
+                colorGreen += color.green;
+                colorBlue += color.blue;
+            } else {
+                colorIsValid = false;
+            }
         } else {
             colorIsValid = false;
         }
-    }
 
+    }
+    // only called if basePosition is valid
     VectorMap.createAverageInputColor9 = function(index) {
         basePositionX = map.xArray[index];
         basePositionY = map.yArray[index];
         position.x = basePositionX;
         position.y = basePositionY;
         map.inputImage.getNearest(color, position);
-
         if (color.alpha < 255) {
             color.set(map.offColor);
             return;
         }
         map.controlImage.setOpaque(position);
-
         colorRed = color.red;
         colorGreen = color.green;
         colorBlue = color.blue;
         colorIsValid = true;
-
         let widthPlus = map.width + 2;
-    let t=0.33333;
-        addInterpolated(t,index+1,index-1);
-        addInterpolated(t,index-1,index+1);
-        addInterpolated(t,index+widthPlus,index-widthPlus);
-        addInterpolated(t,index-widthPlus,index+widthPlus);
-        addInterpolated(t,index-widthPlus-1,index+widthPlus+1);
-        addInterpolated(t,index+widthPlus+1,index-widthPlus-1);
-        addInterpolated(t,index-widthPlus+1,index+widthPlus-1);
-        addInterpolated(t,index+widthPlus-1,index-widthPlus+1);
-
-        t=0.1111111111;
-        color.red=Math.round(t*colorRed);
-        color.green=Math.round(t*colorGreen);
-        color.blue=Math.round(t*colorBlue);
-        
-
-
+        let t = 0.33333;
+        addInterpolated(t, index + 1, index - 1);
+        addInterpolated(t, index - 1, index + 1);
+        addInterpolated(t, index + widthPlus, index - widthPlus);
+        addInterpolated(t, index - widthPlus, index + widthPlus);
+        addInterpolated(t, index - widthPlus - 1, index + widthPlus + 1);
+        addInterpolated(t, index + widthPlus + 1, index - widthPlus - 1);
+        addInterpolated(t, index - widthPlus + 1, index + widthPlus - 1);
+        addInterpolated(t, index + widthPlus - 1, index - widthPlus + 1);
+        if (colorIsValid) {
+            t = 0.1111111111;
+            color.red = Math.round(t * colorRed);
+            color.green = Math.round(t * colorGreen);
+            color.blue = Math.round(t * colorBlue);
+            color.alpha = 255;
+        } else {
+            color.set(map.offColor);
+        }
     };
 
     var map;

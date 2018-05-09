@@ -1,6 +1,5 @@
 /**
  * on-screen canvas with a map and mouse events to change the map
- * maybe it would be better to isolate the map and do interactions outside ...
  * @constructor OutputImage
  * @param {String} idName - html identifier
  */

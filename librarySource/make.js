@@ -562,7 +562,7 @@ var Make = {};
             Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
             Make.controlImage.semiTransparent();
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            //         Make.map.draw(VectorMap.createInputImageColorLowQuality);
+            //   Make.map.draw(VectorMap.createInputImageColorLowQuality);
             Make.map.draw(VectorMap.createAverageInputColor9);
             Make.outputImage.pixelCanvas.showPixel();
             Make.controlImage.pixelCanvas.showPixel();
