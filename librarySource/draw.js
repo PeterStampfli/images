@@ -85,7 +85,7 @@ var Draw = {};
         context.stroke();
     };
 
-    /*
+    /**
      * fill a circle, draw as disc
      * @method Draw.disc
      * @param {float} radius
@@ -97,7 +97,7 @@ var Draw = {};
         context.fill();
     };
 
-    /*
+    /**
      * draw a circle
      * @method Draw.circle
      * @param {float} radius
@@ -106,6 +106,22 @@ var Draw = {};
     Draw.circle = function(radius, center) {
         Draw.start(center.x + radius, center.y);
         context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+        context.stroke();
+    };
+
+    /**
+     * draw a rectangle
+     * @method Draw.rectangle
+     * @param {float} cornerX
+     * @param {float} cornerY
+     * @param {float} width
+     * @param {float} height
+     */
+    Draw.rectangle = function(cornerX, cornerY, width, height) {
+        context.strokeStyle = color;
+        context.lineWidth = lineWidth * outputImage.scale;
+        context.beginPath();
+        context.rect(cornerX, cornerY, width, height);
         context.stroke();
     };
 
