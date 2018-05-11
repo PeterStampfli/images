@@ -198,4 +198,16 @@ var Draw = {};
 
     };
 
+
+    /**
+     * draw the items in an array, they have a draw-method
+     * @method Draw.array
+     * @param {array} array - of iobjects with a draw method
+     */
+    Draw.array = function(array) {
+        array.foreach(item => {
+            item.draw();
+        });
+    };
+
 }());

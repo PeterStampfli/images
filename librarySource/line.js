@@ -69,6 +69,7 @@ function Line(a, b) {
         Draw.line(this.a, this.b);
     };
 
+
     /**
      * check if a point is at the left of the line, looking from a to b
      * attention: inverted y-axis mirrors, left appears to be right
