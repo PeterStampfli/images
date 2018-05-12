@@ -195,7 +195,6 @@ var Draw = {};
         Draw.start(radius * Fast.cos(angleA), radius * Fast.sin(angleA));
         context.arc(center.x, center.y, radius, angleA, angleB);
         context.stroke();
-
     };
 
 
@@ -205,7 +204,7 @@ var Draw = {};
      * @param {array} array - of iobjects with a draw method
      */
     Draw.array = function(array) {
-        array.foreach(item => {
+        array.forEach(item => {
             item.draw();
         });
     };
