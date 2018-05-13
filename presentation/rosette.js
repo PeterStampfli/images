@@ -21,7 +21,9 @@ Layout.adjustDimensions();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
-Make.setMapping(twoMirrors.vectorMapping, twoMirrors.reflectionsMapping);
+dihedral = new Dihedral();
+
+Make.setMapping(dihedral.vectorMapping, dihedral.reflectionsMapping);
 
 let setKButton = Layout.createNumberButton("n");
 setKButton.setRange(2, 10000);
@@ -33,13 +35,14 @@ setKButton.onChange = function() {
 
 Make.initializeMap = function() {
     twoMirrors.setK(setKButton.getValue());
+    dihedral.setOrder(setKButton.getValue());
 };
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
-    twoMirrors.drawLines();
+    dihedral.drawMirrors();
 };
 
 let mousePosition = new Vector2();
@@ -60,10 +63,10 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.circle(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
     Draw.setColor(Layout.pathColor);
-    if (twoMirrors.drawMap(imagePosition) != 0) {
-        Draw.setColor(Layout.dotColor);
-        Draw.circle(nullRadius, imagePosition);
-    }
+    dihedral.drawMap(imagePosition);
+    Draw.setColor(Layout.dotColor);
+    Draw.circle(nullRadius, imagePosition);
+
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

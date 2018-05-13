@@ -39,7 +39,9 @@ var Make = {};
 (function() {
     "use strict";
 
+    // switching between sampling methods
 
+    Make.highImageQuality = false;
 
     // creating the interaction elements
     //____________________________________________________________________________________________
@@ -551,7 +553,7 @@ var Make = {};
             return;
         }
         if (Make.showStructure || !Make.inputImageExists) { // show structure
-            Make.map.draw(VectorMap.createStructureColor);
+            Make.map.drawStructure();
             Make.outputImage.pixelCanvas.showPixel();
         } else {
             if (Make.inputImage.width == 0) {
@@ -562,8 +564,11 @@ var Make = {};
             Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
             Make.controlImage.semiTransparent();
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            //   Make.map.draw(VectorMap.createInputImageColorLowQuality);
-            Make.map.draw(VectorMap.createAverageInputColor9);
+            if (Make.highImageQuality) {
+                Make.map.draw(VectorMap.createAverageInputColor9);
+            } else {
+                Make.map.draw(VectorMap.createInputImageColorLowQuality);
+            }
             Make.outputImage.pixelCanvas.showPixel();
             Make.controlImage.pixelCanvas.showPixel();
         }

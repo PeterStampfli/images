@@ -187,6 +187,52 @@ function VectorMap(outputImage, inputImage, controlImage) {
         }
     };
 
+
+
+    /**
+     * draw on a pixelcanvas use a map
+     * color showing structure, based on parity stored in this.xArray
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawStructure
+     */
+    VectorMap.prototype.drawStructure = function() {
+        map = this;
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let height = this.height;
+        let width = this.width;
+        let widthPlus = width + 2;
+        let lyapunovArray = this.lyapunovArray;
+        let xArray = this.xArray;
+        let indexMapBase = 0;
+        var indexMapHigh;
+        var indexPixel = 0;
+        for (var j = 1; j <= height; j++) {
+            indexMapBase += widthPlus;
+            indexMapHigh = indexMapBase + width;
+            for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
+                if (lyapunovArray[indexMap] >= 0) {
+
+                    let parity = xArray[indexMap];
+                    if (parity == 0) {
+                        color.set(colorParityNull);
+                    } else if (parity & 1) {
+                        color.set(colorParityOdd);
+                    } else {
+                        color.set(colorParityEven);
+                    }
+                } else {
+                    color.set(this.offColor);
+                }
+                pixelCanvas.setPixelAtIndex(color, indexPixel++);
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
+
+
+
+
     let position = new Vector2();
 
     /**

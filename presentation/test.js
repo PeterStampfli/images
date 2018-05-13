@@ -52,9 +52,14 @@ Make.initializeMap = function() {
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
-    triangleKaleidoscope.setKMN(k, m, n);
     basicKaleidoscope.setKMN(k, m, n);
     //----------------------------------------------
+
+
+
+    triangleKaleidoscope.setKMN(k, m, n);
+
+
     if (angleSum < 180) {
         triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
         basicKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
@@ -73,6 +78,9 @@ Make.updateOutputImage = function() {
     triangleKaleidoscope.drawLines();
     Draw.setColor("yellow");
     basicKaleidoscope.drawPolygon();
+
+    Draw.setColor("green");
+    basicKaleidoscope.drawLines();
 };
 
 let zoomCenter = new Vector2();
@@ -108,3 +116,23 @@ Layout.createStructureImageButton("change");
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+
+dihedral = new Dihedral();
+dihedral.setOrder(2);
+
+circles = [];
+dihedral.generateCircles(new Circle(2, new Vector2(2, 0.5)), circles);
+
+circles.forEach(circle => {
+    console.log(circle);
+    console.log(circle.center);
+});
+
+dihedral.scaleCircles(circles, 0.5);
+circles.forEach(circle => {
+    console.log(circle);
+    console.log(circle.center);
+});
+
+lines = [];
+dihedral.generateLines(new Line(new Vector2(1, 2), new Vector2(3, 0)), lines);

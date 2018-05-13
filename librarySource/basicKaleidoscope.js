@@ -40,8 +40,11 @@ basicKaleidoscope = {};
 
     // characteristic data
     basicKaleidoscope.worldRadius = 0;
+    basicKaleidoscope.worldRadius2 = 0;
     basicKaleidoscope.intersectionMirrorXAxis = 0.5; // intersection of third mirror with x-axis
 
+    // setup
+    //==================================================================
 
     // generate additional reflection elements
 
@@ -62,7 +65,6 @@ basicKaleidoscope = {};
         basicKaleidoscope.circles.forEach(circle => {
             circle.setRadius(basicKaleidoscope.circle.radius);
         });
-
         // circle centers are transformed according to the dihedral group
         let circleCenter = new Vector2();
         circleCenter.set(basicKaleidoscope.circle.center);
@@ -92,20 +94,16 @@ basicKaleidoscope = {};
         let k = basicKaleidoscope.k;
         let angle = 2 * Math.PI / k;
         let linesLength = 2 * k;
-
         if (basicKaleidoscope.lines.length != linesLength) {
             basicKaleidoscope.lines.length = linesLength;
             for (i = 0; i < linesLength; i++) {
                 basicKaleidoscope.lines[i] = new Line(new Vector2(), new Vector2());
             }
         }
-
         let endPointA = new Vector2();
         endPointA.set(basicKaleidoscope.line.a);
         let endPointB = new Vector2();
         endPointB.set(basicKaleidoscope.line.b);
-
-
         let endPointAMirrored = new Vector2();
         endPointAMirrored.set(endPointA);
         endPointAMirrored.mirrorAtXAxis();
@@ -114,7 +112,6 @@ basicKaleidoscope = {};
         endPointBMirrored.set(endPointB);
         endPointBMirrored.mirrorAtXAxis();
         endPointBMirrored.rotate(angle);
-
         for (i = 0; i < linesLength; i += 2) {
             basicKaleidoscope.lines[i].a.set(endPointA);
             basicKaleidoscope.lines[i].b.set(endPointB);
@@ -133,25 +130,6 @@ basicKaleidoscope = {};
             line.update();
         });
     }
-
-    /**
-     * drawing the kaleidoscope polygon
-     * @method basicKaleidoscope.drawPolygon
-     */
-    basicKaleidoscope.drawPolygon = function() {
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                Draw.array(basicKaleidoscope.circles);
-                break;
-            case basicKaleidoscope.euclidic:
-                Draw.array(basicKaleidoscope.lines);
-                break;
-            case basicKaleidoscope.hyperbolic:
-                Draw.array(basicKaleidoscope.circles);
-                break;
-        }
-    };
-
 
     /**
      * calculate worldradius from data of the circle and type of geometry
@@ -213,7 +191,7 @@ basicKaleidoscope = {};
     };
 
     /**
-     * set the rotational symmetries at corners
+     * set the rotational symmetries at corners, and set mapping to basic kaleidoscope
      * @method basicKaleidoscope.setKMN
      * @param {integer} k - symmetry at center corner
      * @param {integer} m - symmetry at "right" corner
@@ -231,8 +209,6 @@ basicKaleidoscope = {};
         const sinAlpha = Fast.sin(Math.PI / m);
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
-
-
         // elliptic, raw, adjust
         if (angleSum > 1.000001) {
             basicKaleidoscope.geometry = basicKaleidoscope.elliptic;
@@ -240,6 +216,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             generateCircles();
             basicKaleidoscope.calculateWorldRadius();
+            Make.setMapping(basicKaleidoscope.mappingInputImageElliptic, basicKaleidoscope.mappingStructureElliptic);
         }
         // euklidic, final
         else if (angleSum > 0.999999) {
@@ -249,7 +226,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.line.update();
             generateLines();
             updateLines();
-
+            Make.setMapping(basicKaleidoscope.mappingInputImageEuclidic, basicKaleidoscope.mappingStructureEuclidic);
         }
         // hyperbolic, raw, adjust
         else {
@@ -258,9 +235,72 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
             generateCircles();
             basicKaleidoscope.calculateWorldRadius();
-
+            Make.setMapping(basicKaleidoscope.mappingInputImageHyperbolic, basicKaleidoscope.mappingStructureHyperbolic);
         }
-        //  triangleKaleidoscope.regular();
+    };
+
+    // drawing
+    //=========================================================
+
+    /**
+     * drawing the kaleidoscope polygon
+     * @method basicKaleidoscope.drawPolygon
+     */
+    basicKaleidoscope.drawPolygon = function() {
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                Draw.array(basicKaleidoscope.circles);
+                break;
+            case basicKaleidoscope.euclidic:
+                Draw.array(basicKaleidoscope.lines);
+                break;
+            case basicKaleidoscope.hyperbolic:
+                Draw.array(basicKaleidoscope.circles);
+                break;
+        }
+    };
+
+    // gehört zum triangleKaleidoscope
+
+    /**
+     * check if a point is inside the triangle
+     * @method basicKaleidoscope.isInside
+     * @param {Vector2} v
+     * @return true if v is inside the triangle
+     */
+    basicKaleidoscope.isInside = function(v) {
+        if (!twoMirrors.isInside(v)) { // twoMirrors is a static namespace
+            return false;
+        }
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                return basicKaleidoscope.circle.contains(v);
+            case basicKaleidoscope.euclidic:
+                return !basicKaleidoscope.line.isAtLeft(v);
+            case basicKaleidoscope.hyperbolic:
+                return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
+        }
+        return true;
+    };
+
+
+    /**
+     * draw the mirror lines
+     * @method triangleKaleidoscope.drawLines
+     */
+    basicKaleidoscope.drawLines = function(v) {
+        twoMirrors.drawLines();
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                basicKaleidoscope.circle.draw();
+                break;
+            case basicKaleidoscope.euclidic:
+                basicKaleidoscope.line.draw();
+                break;
+            case basicKaleidoscope.hyperbolic:
+                basicKaleidoscope.circle.draw();
+                break;
+        }
     };
 
 
