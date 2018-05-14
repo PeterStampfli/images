@@ -34,7 +34,6 @@ setKButton.onChange = function() {
 };
 
 Make.initializeMap = function() {
-    twoMirrors.setK(setKButton.getValue());
     dihedral.setOrder(setKButton.getValue());
 };
 

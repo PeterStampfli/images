@@ -129,7 +129,7 @@ function Line(a, b) {
      * mirror a point at the line only if it is at the left of the line and draw mapping
      * @method Line#drawMirrorLeftToRight
      * @param {Vector2} v - the point to mirror
-     * @return {boolean}  true if point has been mirrored
+     * @return {float} 1 if point has been mapped (Lyapunov coefficient), else -1
      */
     Line.prototype.drawMirrorLeftToRight = function(v) {
         Line.vector.set(v);

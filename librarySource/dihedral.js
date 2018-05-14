@@ -10,6 +10,7 @@ function Dihedral() {
 
     this.n = 0;
     this.angle = 0; // angle between mirror lines, of sectors
+    this.nDivPi = 0;
     this.nDiv2Pi = 0; // n/2pi is inverse of two times the angle
     this.cosAngle = 1;
     this.sinAngle = 0;
@@ -95,6 +96,7 @@ function Dihedral() {
     Dihedral.prototype.setOrder = function(n) {
         this.n = n;
         this.angle = Math.PI / n;
+        this.nDivPi = n / Math.PI;
         this.nDiv2Pi = 0.5 / this.angle;
         Fast.cosSin(this.angle);
         this.cosAngle = Fast.cosResult;
@@ -117,7 +119,7 @@ function Dihedral() {
         angleOfV *= this.nDiv2Pi;
         let reflections = Math.floor(angleOfV);
         angleOfV -= reflections;
-        reflections = Math.abs(reflections) << 1; // shift-multiply by two
+        reflections = Math.abs(reflections) << 1; // take care of "negative" rotations,shift-multiply by two
         if (angleOfV > 0.5) {
             angleOfV = 1 - angleOfV;
             reflections++;
@@ -143,12 +145,12 @@ function Dihedral() {
     // creating symmetric elements
 
     /**
-     * scale an array of circles
-     * @method Dihedral#scaleCircles
-     * @param {ArrayOfCircle} circles - will be changed to have symmetric copies of the basicCircle
+     * scale an array of circles, or other objects with a scale(factor) method
+     * @method Dihedral#scale
+     * @param {ArrayOfCircle} circles - will be scaled
      * @param {float} factor
      */
-    Dihedral.prototype.scaleCircles = function(circles, factor) {
+    Dihedral.prototype.scale = function(circles, factor) {
         circles.forEach(circle => {
             circle.scale(factor);
         });
@@ -164,7 +166,7 @@ function Dihedral() {
     Dihedral.prototype.generateCircles = function(basicCircle, circles) {
         var i;
         const rotationAngle = 2 * this.angle;
-        const circlesLength = 2 * this.n;
+        const circlesLength = 2 * (this.n + 1);
         // adjust length of array
         if (circles.length > circlesLength) {
             circles.length = circlesLength;
@@ -193,18 +195,18 @@ function Dihedral() {
     };
 
     /**
-     * update an array of lines
-     * @method Dihedral#updateLines
+     * update an array of lines, or other objects with an update-method
+     * @method Dihedral#update
      * @param {ArrayOfLine} lines - their update method will be called
      */
-    Dihedral.prototype.updateLines = function(lines) {
+    Dihedral.prototype.update = function(lines) {
         lines.forEach(line => {
             line.update();
         });
     };
 
     /**
-     * generate an array of symmetric copies of a line
+     * generate an array of symmetric copies of a line, making a continous chain if the basic line endpoint a is on the x-axis and endpoint b is on the limit between the first and second sector,endpoint b falls then on endpoint a of the second line
      * @method Dihedral#generateLines
      * @param {Line} basicLine
      * @param {ArrayOfLine} lines - will be changed to have symmetric copies of the basicLine
@@ -212,7 +214,7 @@ function Dihedral() {
     Dihedral.prototype.generateLines = function(basicLine, lines) {
         var i;
         const rotationAngle = 2 * this.angle;
-        const linesLength = 2 * this.n;
+        const linesLength = 2 * (this.n + 1);
         // adjust length of array
         if (lines.length > linesLength) {
             lines.length = linesLength;
@@ -221,18 +223,18 @@ function Dihedral() {
                 lines[i] = new Line(new Vector2(), new Vector2());
             }
         }
-
         // line endpoints are transformed according to the dihedral group
         let endPointA = new Vector2();
         endPointA.set(basicLine.a);
         let endPointB = new Vector2();
         endPointB.set(basicLine.b);
         let endPointAMirrored = new Vector2();
-        endPointAMirrored.set(basicLine.a);
+        // make a continous chain
+        endPointAMirrored.set(basicLine.b);
         endPointAMirrored.mirrorAtXAxis();
         endPointAMirrored.rotate(rotationAngle);
         let endPointBMirrored = new Vector2();
-        endPointBMirrored.set(basicLine.b);
+        endPointBMirrored.set(basicLine.a);
         endPointBMirrored.mirrorAtXAxis();
         endPointBMirrored.rotate(rotationAngle);
         for (i = 0; i < linesLength; i += 2) {
@@ -245,6 +247,22 @@ function Dihedral() {
             endPointAMirrored.rotate(rotationAngle);
             endPointBMirrored.rotate(rotationAngle);
         }
+    };
+
+    const zpi = 2 * Math.PI;
+
+    /**
+     * get the index of the sector containing a given point
+     * @method Dihedral#getSectorIndex
+     * @param {Vector2} v
+     * @return integer index of the sector with point v
+     */
+    Dihedral.prototype.getSectorIndex = function(v) {
+        let result = Fast.atan2(v.y, v.x);
+        if (result < 0) {
+            result += zpi;
+        }
+        return Math.floor(this.nDivPi * result);
     };
 
 }());

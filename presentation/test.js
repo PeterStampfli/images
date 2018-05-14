@@ -73,14 +73,13 @@ Make.initializeMap = function() {
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
-    triangleKaleidoscope.drawLines();
     Draw.setColor("yellow");
     basicKaleidoscope.drawPolygon();
+    Draw.setColor(Layout.mirrorColor);
+    basicKaleidoscope.drawTriangle();
 
-    Draw.setColor("green");
-    basicKaleidoscope.drawLines();
+
 };
 
 let zoomCenter = new Vector2();
@@ -97,6 +96,10 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
+    Draw.setColor("black");
+    mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
+    Make.outputImage.pixelToSpaceCoordinates(mousePosition);
+    basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)].draw();
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
@@ -116,23 +119,3 @@ Layout.createStructureImageButton("change");
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
-
-dihedral = new Dihedral();
-dihedral.setOrder(2);
-
-circles = [];
-dihedral.generateCircles(new Circle(2, new Vector2(2, 0.5)), circles);
-
-circles.forEach(circle => {
-    console.log(circle);
-    console.log(circle.center);
-});
-
-dihedral.scaleCircles(circles, 0.5);
-circles.forEach(circle => {
-    console.log(circle);
-    console.log(circle.center);
-});
-
-lines = [];
-dihedral.generateLines(new Line(new Vector2(1, 2), new Vector2(3, 0)), lines);
