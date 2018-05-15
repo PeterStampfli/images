@@ -58,12 +58,13 @@ function VectorMap(outputImage, inputImage, controlImage) {
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
      * @method VectorMap#make
-     * @param {function} mapping - from mapIn to mapOut, return lyapunov coefficient>0 for valid points, <0 for invalid points
+     * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
     VectorMap.prototype.make = function(mapping) {
         this.exists = true;
-        let mapIn = new Vector2();
-        let mapOut = new Vector2();
+        let position = new Vector2();
+        let x = 0;
+        let y = 0;
         let widthPlus = this.width + 2; // adding borders
         let heightPlus = this.height + 2;
         let xArray = this.xArray;
@@ -71,17 +72,19 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         let scale = this.outputImage.scale;
         let index = 0;
-        mapIn.y = this.outputImage.cornerY - scale; // additional borders
+        y = this.outputImage.cornerY - scale; // additional borders
         for (var j = 0; j < heightPlus; j++) {
-            mapIn.x = this.outputImage.cornerX - scale;
+            x = this.outputImage.cornerX - scale;
             for (var i = 0; i < widthPlus; i++) {
-                lyapunovArray[index] = mapping(mapIn, mapOut);
-                xArray[index] = mapOut.x;
-                yArray[index] = mapOut.y;
-                mapIn.x += scale;
+                position.x = x;
+                position.y = y;
+                lyapunovArray[index] = mapping(position);
+                xArray[index] = position.x;
+                yArray[index] = position.y;
+                x += scale;
                 index++;
             }
-            mapIn.y += scale;
+            y += scale;
         }
     };
 
@@ -146,13 +149,12 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let lower = 1e10;
         let upper = -1e10;
         let x = 0;
-        const limit = 10000;
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         const length = (this.width + 2) * (this.height + 2);
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] < limit) {
+            if (lyapunovArray[index] > 0) {
                 x = xArray[index];
                 left = Math.min(left, x);
                 right = Math.max(right, x);

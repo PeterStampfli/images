@@ -114,7 +114,7 @@ basicKaleidoscope = {};
     };
 
     /**
-     * set the rotational symmetries at corners, and set mapping to basic kaleidoscope
+     * set the rotational symmetries at corners
      * @method basicKaleidoscope.setKMN
      * @param {integer} k - symmetry at center corner
      * @param {integer} m - symmetry at "right" corner
@@ -182,60 +182,17 @@ basicKaleidoscope = {};
 
     //-----------------------------------------------------------------
 
-    /**
-     * draw the triangle mirror lines
-     * @method basicKaleidoscope.drawTriangle
-     */
-    basicKaleidoscope.drawTriangle = function(v) {
-        dihedral.drawMirrors();
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                basicKaleidoscope.circle.draw();
-                break;
-            case basicKaleidoscope.euclidic:
-                basicKaleidoscope.line.draw();
-                break;
-            case basicKaleidoscope.hyperbolic:
-                basicKaleidoscope.circle.draw();
-                break;
-        }
-    };
-
-
-    // gehört zum triangleKaleidoscope
-    //------------------------------------------------------------
-
-    /**
-     * check if a point is inside the triangle
-     * @method basicKaleidoscope.isInsideTriangle
-     * @param {Vector2} v
-     * @return true if v is inside the triangle
-     */
-    basicKaleidoscope.isInsideTriangle = function(v) {
-        if (!dihedral.isInside(v)) {
-            return false;
-        }
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                return basicKaleidoscope.circle.contains(v);
-            case basicKaleidoscope.euclidic:
-                return !basicKaleidoscope.line.isAtLeft(v);
-            case basicKaleidoscope.hyperbolic:
-                return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
-        }
-        return true;
-    };
 
     // the mappings (as building blocks)
 
     /**
      * maps a vector into the polygon, for elliptic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
-     * @method basicKaleidoscope.mappingElliptic
+     * @method basicKaleidoscope.mapElliptic
      * @param {Vector2} v - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mappingElliptic = function(v) {
+    basicKaleidoscope.mapElliptic = function(v) {
         let lyapunov = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
@@ -254,11 +211,11 @@ basicKaleidoscope = {};
     /**
      * maps a vector into the polygon, for euclidic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
-     * @method basicKaleidoscope.mappingEuclidic
+     * @method basicKaleidoscope.mapEuclidic
      * @param {Vector2} v - the vector to map
      * @return float, if 1 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mappingEuclidic = function(v) {
+    basicKaleidoscope.mapEuclidic = function(v) {
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
             let factor = lines[getSectorIndex(v)].mirrorLeftToRight(v);
@@ -274,11 +231,11 @@ basicKaleidoscope = {};
     /**
      * maps a vector into the polygon, for hyperbolic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
-     * @method basicKaleidoscope.mappingElliptic
+     * @method basicKaleidoscope.mapElliptic
      * @param {Vector2} v - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mappingHyperbolic = function(v) {
+    basicKaleidoscope.mapHyperbolic = function(v) {
         let lyapunov = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
@@ -293,26 +250,35 @@ basicKaleidoscope = {};
         return -1;
     };
 
-    // and drawing the trajectories, without the ends
+    // and drawing the trajectories
 
 
 
     /**
-     * maps a vector into the polygon, for elliptic geometry
-     * draws the trajectory
-     * @method basicKaleidoscope.trajectoryElliptic
+     * draws the trajectory from mapping a vector into the polygon
+     * @method basicKaleidoscope.drawTrajectory
      * @param {Vector2} v - the vector to map
      * @return float lyapunov coefficient, relative size of output/input region
      */
-    basicKaleidoscope.trajectoryElliptic = function(v) {
+    basicKaleidoscope.drawTrajectory = function(v) {
         let lyapunov = 1;
+        let factor = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[getSectorIndex(v)].drawInvertOutsideIn(v);
+            switch (basicKaleidoscope.geometry) { // we draw only one trajectory and need not be efficient
+                case basicKaleidoscope.elliptic:
+                    factor = circles[getSectorIndex(v)].drawInvertOutsideIn(v);
+                    break;
+                case basicKaleidoscope.euclidic:
+                    factor = lines[getSectorIndex(v)].drawMirrorLeftToRight(v);
+                    break;
+                case basicKaleidoscope.hyperbolic:
+                    factor = circles[getSectorIndex(v)].drawInvertInsideOut(v);
+                    break;
+            }
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
-                basicKaleidoscope.reflections = iter;
                 return lyapunov;
             }
         }
@@ -321,48 +287,23 @@ basicKaleidoscope = {};
 
 
     /**
-     * maps a vector into the polygon, for euclidic geometry
-     * draws the trajectory
-     * @method basicKaleidoscope.trajectoryEuclidic
-     * @param {Vector2} v - the vector to map
-     * @return float lyapunov coefficient, relative size of output/input region
+     * draw the start and end points of the trajectory
+     * sizes depend on the lyapunov coefficient and nullRadius
+     * @method basicKaleidoscope.endPoints
+     * @param {Vector2} start
+     * @param {Vector2} end
+     * @param {float} nullRadius
+     * 2param {float} lyapunov - coefficient
      */
-    basicKaleidoscope.trajectoryEuclidic = function(v) {
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            let factor = lines[getSectorIndex(v)].drawMirrorLeftToRight(v);
-            if (factor < 0) {
-                basicKaleidoscope.reflections = iter;
-                return 1;
-            }
+    basicKaleidoscope.endPoints = function(start, end, nullRadius, lyapunov) {
+        if (lyapunov > 1) {
+            Draw.circle(nullRadius, start);
+            Draw.circle(lyapunov * nullRadius, end);
+        } else if (lyapunov > 0) {
+            Draw.circle(nullRadius / lyapunov, start);
+            Draw.circle(nullRadius, end);
         }
-        return -1;
     };
-
-
-    /**
-     * maps a vector into the polygon, for hyperbolic geometry
-     * draws the trajectory
-     * @method basicKaleidoscope.trajectoryElliptic
-     * @param {Vector2} v - the vector to map
-     * @return float lyapunov coefficient, relative size of output/input region
-     */
-    basicKaleidoscope.trajectoryHyperbolic = function(v) {
-        let lyapunov = 1;
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[getSectorIndex(v)].drawInvertInsideOut(v);
-            if (factor >= 0) {
-                lyapunov *= factor;
-            } else {
-                basicKaleidoscope.reflections = iter;
-                return lyapunov;
-            }
-        }
-        return -1;
-    };
-
-
 
 
 }());

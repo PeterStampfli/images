@@ -37,13 +37,11 @@ function Dihedral() {
     /**
      * a vector mapping, creating a rosette from an input image, for use in the VectorMap
      * @method Dihedral#vectorMapping
-     * @param {Vector2} input - will remain unchanged
-     * @param {Vector2} output - changed, gets mapped input
+     * @param {Vector2} position
      * @return {float} 1 - any point is ok, lyapunov value 1 trivially
      */
-    this.vectorMapping = function(input, output) {
-        output.set(input);
-        dihedral.map(output);
+    this.vectorMapping = function(position) {
+        dihedral.map(position);
         return 1;
     };
 
@@ -51,14 +49,12 @@ function Dihedral() {
     /**
      * mapping to the number of reflections
      * @method Dihedral#reflectionsMapping
-     * @param {Vector2} input
-     * @param {Vector2} output - x-component will be number of relections
+     * @param {Vector2} position
      * @return {float} 1 - any point is ok, lyapunov value 1 trivially
      */
-    this.reflectionsMapping = function(input, output) {
-        output.set(input);
-        dihedral.map(output);
-        output.x = Dihedral.reflections;
+    this.reflectionsMapping = function(position) {
+        dihedral.map(position);
+        position.x = Dihedral.reflections;
         return 1;
     };
 

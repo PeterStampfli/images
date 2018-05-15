@@ -346,16 +346,15 @@ triangleKaleidoscope = {};
      * mapping to create an image based on an input image, symmetry dependent
      * @method TriangleKaleidoscope#mappingInputImage
      * @param {Vector2} mapIn
-     * @param {Vector2} mapOut
+     * @param {Vector2} position - input->output
      */
-    triangleKaleidoscope.mappingInputImageElliptic = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    triangleKaleidoscope.mappingInputImageElliptic = function(position) {
         let lyapunov = 1;
         let iter = 0;
         while (iter < maxIterations) {
             iter++;
-            twoMirrors.map(mapOut);
-            let factor = basicCircle.invertOutsideIn(mapOut);
+            twoMirrors.map(position);
+            let factor = basicCircle.invertOutsideIn(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
@@ -365,30 +364,28 @@ triangleKaleidoscope = {};
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageEuclidic = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    triangleKaleidoscope.mappingInputImageEuclidic = function(position) {
         let iter = 0;
         while (iter < maxIterations) {
             iter++;
-            twoMirrors.map(mapOut);
-            if (basicLine.mirrorLeftToRight(mapOut) < 0) {
+            twoMirrors.map(position);
+            if (basicLine.mirrorLeftToRight(position) < 0) {
                 return 1;
             }
         }
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageHyperbolic = function(mapIn, mapOut) {
-        if (mapIn.x * mapIn.x + mapIn.y * mapIn.y > worldRadius2) { // eliminate points outside the world
+    triangleKaleidoscope.mappingInputImageHyperbolic = function(position) {
+        if (position.x * position.x + position.y * position.y > worldRadius2) { // eliminate points outside the world
             return -1;
         }
-        mapOut.set(mapIn);
         let lyapunov = 1;
         let iter = 0;
         while (iter < maxIterations) {
             iter++;
-            twoMirrors.map(mapOut);
-            let factor = basicCircle.invertInsideOut(mapOut);
+            twoMirrors.map(position);
+            let factor = basicCircle.invertInsideOut(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
@@ -400,23 +397,23 @@ triangleKaleidoscope = {};
 
     // for the semiregular tiling cutting corners
 
-    triangleKaleidoscope.mappingInputImageEllipticCutCorners = function(mapIn, mapOut) {
-        let lyapunov = triangleKaleidoscope.mappingInputImageElliptic(mapIn, mapOut);
+    triangleKaleidoscope.mappingInputImageEllipticCutCorners = function(position) {
+        let lyapunov = triangleKaleidoscope.mappingInputImageElliptic(position);
         if (lyapunov >= 0) {
-            let factor = cutCornersCircle.invertOutsideIn(mapOut);
+            let factor = cutCornersCircle.invertOutsideIn(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             }
-            bisectorLine.mirrorLeftToRight(mapOut);
+            bisectorLine.mirrorLeftToRight(position);
             return lyapunov;
         }
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageEllipticCutSides = function(mapIn, mapOut) {
-        let lyapunov = triangleKaleidoscope.mappingInputImageElliptic(mapIn, mapOut);
+    triangleKaleidoscope.mappingInputImageEllipticCutSides = function(position) {
+        let lyapunov = triangleKaleidoscope.mappingInputImageElliptic(position);
         if (lyapunov >= 0) {
-            let factor = cutSidesCircle.invertOutsideIn(mapOut);
+            let factor = cutSidesCircle.invertOutsideIn(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             }
@@ -425,41 +422,41 @@ triangleKaleidoscope = {};
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageEuclidicCutCorners = function(mapIn, mapOut) {
-        if (triangleKaleidoscope.mappingInputImageEuclidic(mapIn, mapOut) >= 0) {
-            cutCornersLine.mirrorRightToLeft(mapOut);
-            bisectorLine.mirrorLeftToRight(mapOut);
+    triangleKaleidoscope.mappingInputImageEuclidicCutCorners = function(position) {
+        if (triangleKaleidoscope.mappingInputImageEuclidic(position) >= 0) {
+            cutCornersLine.mirrorRightToLeft(position);
+            bisectorLine.mirrorLeftToRight(position);
             return 1;
         }
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageEuclidicCutSides = function(mapIn, mapOut) {
-        if (triangleKaleidoscope.mappingInputImageEuclidic(mapIn, mapOut) >= 0) {
-            cutSidesLine.mirrorRightToLeft(mapOut);
+    triangleKaleidoscope.mappingInputImageEuclidicCutSides = function(position) {
+        if (triangleKaleidoscope.mappingInputImageEuclidic(position) >= 0) {
+            cutSidesLine.mirrorRightToLeft(position);
             return 1;
         }
         return -1;
     };
 
-    triangleKaleidoscope.mappingInputImageHyperbolicCutCorners = function(mapIn, mapOut) {
-        let lyapunov = triangleKaleidoscope.mappingInputImageHyperbolic(mapIn, mapOut);
+    triangleKaleidoscope.mappingInputImageHyperbolicCutCorners = function(position) {
+        let lyapunov = triangleKaleidoscope.mappingInputImageHyperbolic(position);
         if (lyapunov >= 0) {
-            let factor = cutCornersCircle.invertInsideOut(mapOut);
+            let factor = cutCornersCircle.invertInsideOut(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             }
-            bisectorLine.mirrorLeftToRight(mapOut);
+            bisectorLine.mirrorLeftToRight(position);
             return lyapunov;
         }
         return -1;
     };
 
 
-    triangleKaleidoscope.mappingInputImageHyperbolicCutSides = function(mapIn, mapOut) {
-        let lyapunov = triangleKaleidoscope.mappingInputImageHyperbolic(mapIn, mapOut);
+    triangleKaleidoscope.mappingInputImageHyperbolicCutSides = function(position) {
+        let lyapunov = triangleKaleidoscope.mappingInputImageHyperbolic(position);
         if (lyapunov >= 0) {
-            let factor = cutSidesCircle.invertInsideOut(mapOut);
+            let factor = cutSidesCircle.invertInsideOut(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             }
@@ -472,17 +469,16 @@ triangleKaleidoscope = {};
      * generic: calculate number of reflections due to mapping, symmetry dependent, regular tiling
      * @method TriangleKaleidoscope#numberOfReflections
      * @param {Vector2} mapIn
-     * @param {Vector2} mapOut 
+     * @param {Vector2} position 
      * @return absolute value of reflections>0 if valid point, <0 if invalid
      */
-    triangleKaleidoscope.numberOfReflectionsElliptic = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    triangleKaleidoscope.numberOfReflectionsElliptic = function(position) {
         let iter = 0;
         let reflections = 0;
         while (iter < maxIterations) {
             iter++;
-            reflections += twoMirrors.map(mapOut);
-            if (basicCircle.invertOutsideIn(mapOut) >= 0) {
+            reflections += twoMirrors.map(position);
+            if (basicCircle.invertOutsideIn(position) >= 0) {
                 reflections++;
             } else {
                 return Math.abs(reflections);
@@ -491,14 +487,13 @@ triangleKaleidoscope = {};
         return -1;
     };
 
-    triangleKaleidoscope.numberOfReflectionsEuclidic = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    triangleKaleidoscope.numberOfReflectionsEuclidic = function(position) {
         let iter = 0;
         let reflections = 0;
         while (iter < maxIterations) {
             iter++;
-            reflections += twoMirrors.map(mapOut);
-            if (basicLine.mirrorLeftToRight(mapOut) >= 0) {
+            reflections += twoMirrors.map(position);
+            if (basicLine.mirrorLeftToRight(position) >= 0) {
                 reflections++;
             } else {
                 return Math.abs(reflections);
@@ -507,17 +502,16 @@ triangleKaleidoscope = {};
         return -1;
     };
 
-    triangleKaleidoscope.numberOfReflectionsHyperbolic = function(mapIn, mapOut) {
-        if (mapIn.x * mapIn.x + mapIn.y * mapIn.y > worldRadius2) { // eliminate points outside the world
+    triangleKaleidoscope.numberOfReflectionsHyperbolic = function(position) {
+        if (position.x * position.x + position.y * position.y > worldRadius2) { // eliminate points outside the world
             return -1;
         }
-        mapOut.set(mapIn);
         let iter = 0;
         let reflections = 0;
         while (iter < maxIterations) {
             iter++;
-            reflections += twoMirrors.map(mapOut);
-            if (basicCircle.invertInsideOut(mapOut) >= 0) {
+            reflections += twoMirrors.map(position);
+            if (basicCircle.invertInsideOut(position) >= 0) {
                 reflections++;
             } else {
                 return Math.abs(reflections);
@@ -529,103 +523,102 @@ triangleKaleidoscope = {};
     /**
      * generic: mapping to create an image based on an input image, symmetry dependent
      * @method TriangleKaleidoscope#mappingStructure
-     * @param {Vector2} mapIn
-     * @param {Vector2} mapOut - x component will have number of reflections
+     * @param {Vector2} position - x component will have number of reflections
      * @return >0 if valid point, <0 if invalid
      */
-    triangleKaleidoscope.mappingStructureElliptic = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(mapIn, mapOut);
-        mapOut.x = reflections;
+    triangleKaleidoscope.mappingStructureElliptic = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(position);
+        position.x = reflections;
         return reflections;
     };
 
-    triangleKaleidoscope.mappingStructureEuclidic = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(mapIn, mapOut);
-        mapOut.x = reflections;
+    triangleKaleidoscope.mappingStructureEuclidic = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(position);
+        position.x = reflections;
         return reflections;
     };
 
-    triangleKaleidoscope.mappingStructureHyperbolic = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(mapIn, mapOut);
-        mapOut.x = reflections;
+    triangleKaleidoscope.mappingStructureHyperbolic = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(position);
+        position.x = reflections;
         return reflections;
     };
 
-    triangleKaleidoscope.mappingStructureEllipticCutCorners = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureEllipticCutCorners = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(position);
         if (reflections >= 0) {
-            if (cutCornersCircle.invertOutsideIn(mapOut) > 0) {
+            if (cutCornersCircle.invertOutsideIn(position) > 0) {
                 reflections++;
             }
-            if (bisectorLine.mirrorLeftToRight(mapOut) > 0) {
+            if (bisectorLine.mirrorLeftToRight(position) > 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
 
     };
 
-    triangleKaleidoscope.mappingStructureEllipticCutSides = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureEllipticCutSides = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsElliptic(position);
         if (reflections >= 0) {
-            if (cutSidesCircle.invertOutsideIn(mapOut) >= 0) {
+            if (cutSidesCircle.invertOutsideIn(position) >= 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
     };
 
-    triangleKaleidoscope.mappingStructureEuclidicCutCorners = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureEuclidicCutCorners = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(position);
         if (reflections >= 0) {
-            if (cutCornersLine.mirrorRightToLeft(mapOut) > 0) {
+            if (cutCornersLine.mirrorRightToLeft(position) > 0) {
                 reflections++;
             }
-            if (bisectorLine.mirrorLeftToRight(mapOut) > 0) {
+            if (bisectorLine.mirrorLeftToRight(position) > 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
     };
 
-    triangleKaleidoscope.mappingStructureEuclidicCutSides = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureEuclidicCutSides = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsEuclidic(position);
         if (reflections >= 0) {
-            if (cutSidesLine.mirrorRightToLeft(mapOut) > 0) {
+            if (cutSidesLine.mirrorRightToLeft(position) > 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
     };
 
 
-    triangleKaleidoscope.mappingStructureHyperbolicCutCorners = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureHyperbolicCutCorners = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(position);
         if (reflections >= 0) {
-            if (cutCornersCircle.invertInsideOut(mapOut) >= 0) {
+            if (cutCornersCircle.invertInsideOut(position) >= 0) {
                 reflections++;
             }
-            if (bisectorLine.mirrorLeftToRight(mapOut) >= 0) {
+            if (bisectorLine.mirrorLeftToRight(position) >= 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
     };
 
     // cutting the side for hyperbolic geometry
-    triangleKaleidoscope.mappingStructureHyperbolicCutSides = function(mapIn, mapOut) {
-        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(mapIn, mapOut);
+    triangleKaleidoscope.mappingStructureHyperbolicCutSides = function(position) {
+        let reflections = triangleKaleidoscope.numberOfReflectionsHyperbolic(position);
         if (reflections >= 0) {
-            if (cutSidesCircle.invertInsideOut(mapOut) >= 0) {
+            if (cutSidesCircle.invertInsideOut(position) >= 0) {
                 reflections++;
             }
         }
-        mapOut.x = reflections;
+        position.x = reflections;
         return reflections;
     };
 

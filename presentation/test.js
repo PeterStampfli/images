@@ -52,7 +52,7 @@ Make.initializeMap = function() {
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
-    basicKaleidoscope.setKMN(k, m, n);
+    threeMirrorsKaleidoscope.setKMN(k, m, n);
     //----------------------------------------------
 
 
@@ -77,7 +77,7 @@ Make.updateOutputImage = function() {
     Draw.setColor("yellow");
     basicKaleidoscope.drawPolygon();
     Draw.setColor(Layout.mirrorColor);
-    basicKaleidoscope.drawTriangle();
+    threeMirrorsKaleidoscope.drawTriangle();
 
 
 };
