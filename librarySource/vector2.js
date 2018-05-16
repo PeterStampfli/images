@@ -42,8 +42,19 @@ function Vector2(x = 0, y = 0) {
     };
 
     /**
+     * generate a clone of this vector
+     * @method Vector2#clone
+     * @return {Vector2} - a colne of this vector
+     */
+    Vector2.prototype.clone = function() {
+        let clone = new Vector2();
+        clone.set(this);
+        return clone;
+    };
+
+    /**
      * scale vector
-     * @method Vector2#set
+     * @method Vector2#scale
      * @param {Vector2} v - the model vector
      * @return {Vector2} - this, for chaining
      */

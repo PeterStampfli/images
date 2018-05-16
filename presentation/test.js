@@ -57,14 +57,14 @@ Make.initializeMap = function() {
 
 
 
-    triangleKaleidoscope.setKMN(k, m, n);
+    // triangleKaleidoscope.setKMN(k, m, n);
 
 
     if (angleSum < 180) {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
+        //   triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
         basicKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
     } else {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
+        //   triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
         basicKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
     }
 };
@@ -95,11 +95,13 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
+    //  triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
     Draw.setColor("black");
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)].draw();
+
+
+    threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

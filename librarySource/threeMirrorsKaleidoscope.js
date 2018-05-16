@@ -14,6 +14,13 @@ threeMirrorsKaleidoscope = {};
 (function() {
     "use strict";
 
+
+    // the mappings
+    // note that basicKaleidoscope is a namespace, dihedral is an object
+    let dihedral = basicKaleidoscope.dihedral;
+    let basicMap = basicKaleidoscope.mapHyperbolic;
+
+
     /**
      * set the rotational symmetries at corners
      * @method basicKaleidoscope.setKMN
@@ -23,67 +30,59 @@ threeMirrorsKaleidoscope = {};
      */
     threeMirrorsKaleidoscope.setKMN = function(k, m, n) {
         basicKaleidoscope.setKMN(k, m, n);
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                Make.setMapping(threeMirrorsKaleidoscope.mapInputImageElliptic, threeMirrorsKaleidoscope.mapStructureElliptic);
-                break;
-            case basicKaleidoscope.euclidic:
-                Make.setMapping(threeMirrorsKaleidoscope.mapInputImageEuclidic, threeMirrorsKaleidoscope.mapStructureEuclidic);
-                break;
-            case basicKaleidoscope.hyperbolic:
-                Make.setMapping(threeMirrorsKaleidoscope.mapInputImageHyperbolic, threeMirrorsKaleidoscope.mapStructureHyperbolic);
-                break;
-        }
+        Make.setMapping(threeMirrorsKaleidoscope.mapInputImage, threeMirrorsKaleidoscope.mapStructure);
+        basicMap = basicKaleidoscope.map;
     };
 
-    // the mappings
-    let dihedral = basicKaleidoscope.dihedral;
-    let dihedralMap = dihedral.map;
-    let mapElliptic = basicKaleidoscope.mapElliptic;
-    let mapEuclidic = basicKaleidoscope.mapEuclidic;
-
     /**
-     * map the position for using an input image, elliptic geometry
-     * @method threeMirrorsKaleidoscope.mapInputImageElliptic
+     * map the position for using an input image,
+     * @method threeMirrorsKaleidoscope.mapInputImage
      * @param {Vector2} v - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    threeMirrorsKaleidoscope.mapInputImageElliptic = function(position) {
-        let lyapunov = mapElliptic(position);
+    threeMirrorsKaleidoscope.mapInputImage = function(position) {
+        let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedralMap(position);
+            dihedral.map(position);
         }
         return lyapunov;
     };
 
     /**
-     * map the position for showing the structure, elliptic geometry
-     * @method threeMirrorsKaleidoscope.mapStructureElliptic
+     * map the position for showing the structure
+     * @method threeMirrorsKaleidoscope.mapStructure
      * @param {Vector2} v - the vector to map, x-component will be number of reflections
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    threeMirrorsKaleidoscope.mapStructureElliptic = function(position) {
-        let lyapunov = mapElliptic(position);
+    threeMirrorsKaleidoscope.mapStructure = function(position) {
+        let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedralMap(position);
+            dihedral.map(position);
         }
         position.x = basicKaleidoscope.reflections + dihedral.reflections;
         return lyapunov;
     };
 
-    const startPoint = new Vector2();
     /**
      * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map
      * @method threeMirrorsKaleidoscope.drawTrajectory
-     * @param {Vector2} start
+     * @param {Vector2} position
      * @param {float} nullRadius
      */
-    threeMirrorsKaleidoscope.drawTrajectory = function(start, nullRadius) {
-        startPoint.set(start);
-        let factor(basicKaleidoscope.drawTrajectory(start) >= 0) //
-
-    }
-
+    threeMirrorsKaleidoscope.drawTrajectory = function(position, nullRadius) {
+        let positions = [];
+        positions.push(position.clone());
+        let sizes = [];
+        sizes.push(1);
+        let lyapunov = basicKaleidoscope.drawTrajectory(positions, sizes);
+        if (lyapunov > 0) {
+            let position = positions[positions.length - 1].clone();
+            dihedral.drawMap(position);
+            positions.push(position);
+            sizes.push(sizes[sizes.length - 1]);
+            basicKaleidoscope.drawEndPoints(positions, sizes, nullRadius);
+        }
+    };
 
     /**
      * draw the triangle mirror lines
@@ -104,9 +103,6 @@ threeMirrorsKaleidoscope = {};
         }
     };
 
-
-
-
     /**
      * check if a point is inside the triangle
      * @method threeMirrorsKaleidoscope.isInsideTriangle
@@ -125,7 +121,6 @@ threeMirrorsKaleidoscope = {};
             case basicKaleidoscope.hyperbolic:
                 return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
         }
-        return true;
     };
 
 

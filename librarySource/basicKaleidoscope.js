@@ -20,9 +20,11 @@ basicKaleidoscope = {};
     const big = 100;
     const maxIterations = 100;
 
+    // the mapping, automatically symmetry dependent
+    basicKaleidoscope.map = basicKaleidoscope.mapHyperbolic;
+
     basicKaleidoscope.dihedral = new Dihedral();
     const dihedral = basicKaleidoscope.dihedral;
-    const getSectorIndex = dihedral.getSectorIndex;
 
     // parameters of the triangle
     basicKaleidoscope.k = 0;
@@ -135,6 +137,7 @@ basicKaleidoscope = {};
         // elliptic, raw, adjust
         if (angleSum > 1.000001) {
             basicKaleidoscope.geometry = basicKaleidoscope.elliptic;
+            basicKaleidoscope.map = basicKaleidoscope.mapElliptic;
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
@@ -143,6 +146,7 @@ basicKaleidoscope = {};
         // euklidic, final
         else if (angleSum > 0.999999) {
             basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
+            basicKaleidoscope.map = basicKaleidoscope.mapEuclidic;
             basicKaleidoscope.line.a.setComponents(basicKaleidoscope.intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
             basicKaleidoscope.line.b.setComponents(basicKaleidoscope.intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
             basicKaleidoscope.line.update();
@@ -152,6 +156,7 @@ basicKaleidoscope = {};
         // hyperbolic, raw, adjust
         else {
             basicKaleidoscope.geometry = basicKaleidoscope.hyperbolic;
+            basicKaleidoscope.map = basicKaleidoscope.mapHyperbolic;
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
@@ -189,14 +194,14 @@ basicKaleidoscope = {};
      * maps a vector into the polygon, for elliptic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
      * @method basicKaleidoscope.mapElliptic
-     * @param {Vector2} v - the vector to map
+     * @param {Vector2} position - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mapElliptic = function(v) {
+    basicKaleidoscope.mapElliptic = function(position) {
         let lyapunov = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[getSectorIndex(v)].invertOutsideIn(v);
+            let factor = circles[dihedral.getSectorIndex(position)].invertOutsideIn(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
@@ -212,13 +217,13 @@ basicKaleidoscope = {};
      * maps a vector into the polygon, for euclidic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
      * @method basicKaleidoscope.mapEuclidic
-     * @param {Vector2} v - the vector to map
+     * @param {Vector2} position - the vector to map
      * @return float, if 1 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mapEuclidic = function(v) {
+    basicKaleidoscope.mapEuclidic = function(position) {
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
-            let factor = lines[getSectorIndex(v)].mirrorLeftToRight(v);
+            let factor = lines[dihedral.getSectorIndex(position)].mirrorLeftToRight(position);
             if (factor < 0) {
                 basicKaleidoscope.reflections = iter;
                 return 1;
@@ -232,14 +237,17 @@ basicKaleidoscope = {};
      * maps a vector into the polygon, for hyperbolic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
      * @method basicKaleidoscope.mapElliptic
-     * @param {Vector2} v - the vector to map
+     * @param {Vector2} position - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
-    basicKaleidoscope.mapHyperbolic = function(v) {
+    basicKaleidoscope.mapHyperbolic = function(position) {
+        if (position.x * position.x + position.y * position.y > basicKaleidoscope.worldRadius2) { // eliminate points outside the world
+            return -1;
+        }
         let lyapunov = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[getSectorIndex(v)].invertInsideOut(v);
+            let factor = circles[dihedral.getSectorIndex(position)].invertInsideOut(position);
             if (factor >= 0) {
                 lyapunov *= factor;
             } else {
@@ -253,33 +261,37 @@ basicKaleidoscope = {};
     // and drawing the trajectories
 
 
-
     /**
      * draws the trajectory from mapping a vector into the polygon
+     * and generates points with relative sizes
      * @method basicKaleidoscope.drawTrajectory
-     * @param {Vector2} v - the vector to map
-     * @return float lyapunov coefficient, relative size of output/input region
+     * @param {arrayOfVector2} positions - last position at start is starting position, all map results will be pushed onto this array
+     * @param {arrayOfFloats} sizes - last size is used for start, all map results will be pushed onto
+     * @return float if >0 total lyapunov coefficient, if <0 mapping failed
      */
-    basicKaleidoscope.drawTrajectory = function(v) {
-        let lyapunov = 1;
+    basicKaleidoscope.drawTrajectory = function(positions, sizes) {
+        let size = sizes[sizes.length - 1];
+        let position = positions[positions.length - 1].clone();
         let factor = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {
             switch (basicKaleidoscope.geometry) { // we draw only one trajectory and need not be efficient
                 case basicKaleidoscope.elliptic:
-                    factor = circles[getSectorIndex(v)].drawInvertOutsideIn(v);
+                    factor = circles[dihedral.getSectorIndex(position)].drawInvertOutsideIn(position);
                     break;
                 case basicKaleidoscope.euclidic:
-                    factor = lines[getSectorIndex(v)].drawMirrorLeftToRight(v);
+                    factor = lines[dihedral.getSectorIndex(position)].drawMirrorLeftToRight(position);
                     break;
                 case basicKaleidoscope.hyperbolic:
-                    factor = circles[getSectorIndex(v)].drawInvertInsideOut(v);
+                    factor = circles[dihedral.getSectorIndex(position)].drawInvertInsideOut(position);
                     break;
             }
             if (factor >= 0) {
-                lyapunov *= factor;
+                size *= factor;
+                positions.push(position.clone());
+                sizes.push(size);
             } else {
-                return lyapunov;
+                return size;
             }
         }
         return -1;
@@ -287,21 +299,23 @@ basicKaleidoscope = {};
 
 
     /**
-     * draw the start and end points of the trajectory
-     * sizes depend on the lyapunov coefficient and nullRadius
-     * @method basicKaleidoscope.endPoints
-     * @param {Vector2} start
-     * @param {Vector2} end
+     * draw the points of the trajectory with correct relative sizes, smallest is nullradius
+     * @method basicKaleidoscope.drawEndPoints
+     * @param {ArrayVector2} positions
+     * @param {ArrayOfFloat} sizes
      * @param {float} nullRadius
-     * 2param {float} lyapunov - coefficient
      */
-    basicKaleidoscope.endPoints = function(start, end, nullRadius, lyapunov) {
-        if (lyapunov > 1) {
-            Draw.circle(nullRadius, start);
-            Draw.circle(lyapunov * nullRadius, end);
-        } else if (lyapunov > 0) {
-            Draw.circle(nullRadius / lyapunov, start);
-            Draw.circle(nullRadius, end);
+    basicKaleidoscope.drawEndPoints = function(positions, sizes, nullRadius) {
+        let sizesLength = sizes.length;
+        let endSize = sizes[sizesLength - 1];
+        if (endSize < 0) {
+            return;
+        }
+        if (endSize < 1) {
+            nullRadius /= endSize;
+        }
+        for (var i = 0; i < sizesLength; i++) {
+            Draw.circle(nullRadius * sizes[i], positions[i]);
         }
     };
 
