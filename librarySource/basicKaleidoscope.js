@@ -20,6 +20,12 @@ basicKaleidoscope = {};
     const big = 100;
     const maxIterations = 100;
 
+    // parameters that determine the image size
+    //  access from outside to be able to change values. defaults:
+    basicKaleidoscope.worldRadiusElliptic = 0.5;
+    basicKaleidoscope.worldRadiusHyperbolic = 0.97;
+    basicKaleidoscope.intersectionMirrorXAxis = 0.3; // intersection of third mirror with x-axis
+
     // the mapping, automatically symmetry dependent
     basicKaleidoscope.map = basicKaleidoscope.mapHyperbolic;
 
@@ -47,10 +53,10 @@ basicKaleidoscope = {};
     const circles = basicKaleidoscope.circles;
     const lines = basicKaleidoscope.lines;
 
-    // characteristic data
+    // actual size data
     basicKaleidoscope.worldRadius = 0;
     basicKaleidoscope.worldRadius2 = 0;
-    basicKaleidoscope.intersectionMirrorXAxis = 0.5; // intersection of third mirror with x-axis
+
 
     // setup
     //==================================================================
@@ -127,7 +133,8 @@ basicKaleidoscope = {};
         basicKaleidoscope.m = m;
         basicKaleidoscope.n = n;
         dihedral.setOrder(k);
-        const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
+        basicKaleidoscope.angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
+        //console.log(180/n);
         const cosGamma = Fast.cos(Math.PI / k);
         const sinGamma = Fast.sin(Math.PI / k);
         const cosAlpha = Fast.cos(Math.PI / m);
@@ -135,16 +142,16 @@ basicKaleidoscope = {};
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
         // elliptic, raw, adjust
-        if (angleSum > 1.000001) {
+        if (basicKaleidoscope.angleSum > 1.000001) {
             basicKaleidoscope.geometry = basicKaleidoscope.elliptic;
             basicKaleidoscope.map = basicKaleidoscope.mapElliptic;
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
-            basicKaleidoscope.calculateWorldRadius();
+            basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
         }
         // euklidic, final
-        else if (angleSum > 0.999999) {
+        else if (basicKaleidoscope.angleSum > 0.999999) {
             basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
             basicKaleidoscope.map = basicKaleidoscope.mapEuclidic;
             basicKaleidoscope.line.a.setComponents(basicKaleidoscope.intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
@@ -160,7 +167,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
-            basicKaleidoscope.calculateWorldRadius();
+            basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusHyperbolic);
         }
     };
 
@@ -318,6 +325,9 @@ basicKaleidoscope = {};
             Draw.circle(nullRadius * sizes[i], positions[i]);
         }
     };
+
+
+
 
 
 }());

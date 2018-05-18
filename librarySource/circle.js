@@ -39,6 +39,15 @@ function Circle(radius, center) {
     };
 
     /**
+     * clone a circle, making a deep copy
+     * @method Circle#clone
+     * @return a copy of the circle
+     */
+    Circle.prototype.clone = function() {
+        return new Circle(this.radius, this.center.clone());
+    }
+
+    /**
      * scale the circle (center and radius)
      * @method Circle.scale
      * @param {float} factor

@@ -39,7 +39,6 @@ setNButton.onChange = function(v) {
 
 let worldRadiusHyperbolic = 0.97;
 let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 basicKaleidoscope.intersectionMirrorXAxis = 0.3;
 let sum = document.getElementById("sum");
 
@@ -49,24 +48,20 @@ Make.initializeMap = function() {
     let k = setKButton.getValue();
     let m = setMButton.getValue();
     let n = setNButton.getValue();
-    let angleSum = 180 * (1 / k + 1 / m + 1 / n);
-    angleSum = Math.round(angleSum);
-    sum.innerHTML = "" + angleSum;
+
+    // make it a star
+
+    // n=1/(1-1/n);
+    //asymmetricBasicKaleidoscope.setK(k);
+    semiRegularKaleidoscope.setCutCornersKMN(k, m, n);
     threeMirrorsKaleidoscope.setKMN(k, m, n);
-    //----------------------------------------------
 
 
+    let angleSum = basicKaleidoscope.angleSum;
+    angleSum = Math.round(180 * angleSum);
+    sum.innerHTML = "" + angleSum;
 
-    // triangleKaleidoscope.setKMN(k, m, n);
 
-
-    if (angleSum < 180) {
-        //   triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
-        basicKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
-    } else {
-        //   triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
-        basicKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
-    }
 };
 
 // drawing the image with decos (updatekmn...)
@@ -76,9 +71,12 @@ Make.updateOutputImage = function() {
     Draw.setLineWidth(Layout.lineWidth);
     Draw.setColor("yellow");
     basicKaleidoscope.drawPolygon();
-    Draw.setColor(Layout.mirrorColor);
+    Draw.setColor("red");
     threeMirrorsKaleidoscope.drawTriangle();
+    Draw.setColor(Layout.mirrorColor);
 
+    Draw.setColor("white");
+    semiRegularKaleidoscope.drawAdditional();
 
 };
 
@@ -101,6 +99,7 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
 
 
+    //asymmetricBasicKaleidoscope.drawTrajectory(mousePosition, nullRadius);
     threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius);
 };
 

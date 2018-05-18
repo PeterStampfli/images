@@ -59,7 +59,7 @@ threeMirrorsKaleidoscope = {};
         if (lyapunov >= 0) {
             dihedral.map(position);
         }
-        position.x = basicKaleidoscope.reflections + dihedral.reflections;
+        position.x = basicKaleidoscope.reflections + Dihedral.reflections;
         return lyapunov;
     };
 

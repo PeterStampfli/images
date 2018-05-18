@@ -171,19 +171,15 @@ function Dihedral() {
                 circles[i] = new Circle(0, new Vector2());
             }
         }
-        // all have the same radius
-        circles.forEach(circle => {
-            circle.setRadius(basicCircle.radius);
-        });
         // circle centers are transformed according to the dihedral group
-        const circleCenter = new Vector2();
-        circleCenter.set(basicCircle.center);
-        const circleCenterMirrored = new Vector2();
-        circleCenterMirrored.set(basicCircle.center);
+        const circleCenter = basicCircle.center.clone();
+        const circleCenterMirrored = basicCircle.center.clone();
         circleCenterMirrored.mirrorAtXAxis();
         circleCenterMirrored.rotate(rotationAngle);
         for (i = 0; i < circlesLength; i += 2) {
+            circles[i].setRadius(basicCircle.radius);
             circles[i].center.set(circleCenter);
+            circles[i + 1].setRadius(basicCircle.radius);
             circles[i + 1].center.set(circleCenterMirrored);
             circleCenter.rotate(rotationAngle);
             circleCenterMirrored.rotate(rotationAngle);
@@ -224,13 +220,10 @@ function Dihedral() {
         endPointA.set(basicLine.a);
         let endPointB = new Vector2();
         endPointB.set(basicLine.b);
-        let endPointAMirrored = new Vector2();
-        // make a continous chain
-        endPointAMirrored.set(basicLine.b);
+        let endPointAMirrored = basicLine.b.clone();
         endPointAMirrored.mirrorAtXAxis();
         endPointAMirrored.rotate(rotationAngle);
-        let endPointBMirrored = new Vector2();
-        endPointBMirrored.set(basicLine.a);
+        let endPointBMirrored = basicLine.a.clone();
         endPointBMirrored.mirrorAtXAxis();
         endPointBMirrored.rotate(rotationAngle);
         for (i = 0; i < linesLength; i += 2) {

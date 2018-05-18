@@ -314,4 +314,14 @@ var Fast = {};
         return Math.sqrt(hypot * hypot - cathe * cathe);
     };
 
+    /**
+     * get last element of any array
+     * @method Fast.last
+     * @param {array} array
+     * @return the last element
+     */
+    Fast.last = function(array) {
+        return array[array.length - 1];
+    };
+
 }());

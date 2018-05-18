@@ -17,6 +17,7 @@ function Line(a, b) {
     "use strict";
 
     Line.vector = new Vector2();
+    const big = 100;
 
     /**
      * set the first point, update later
@@ -60,6 +61,29 @@ function Line(a, b) {
         this.ex *= factor;
         this.ey *= factor;
     };
+
+    /**
+     * clone a line, making a deep copy, updated
+     * @method Line#clone
+     * @return copy of the line
+     */
+    Line.prototype.clone = function() {
+        let clone = new Line(line.a.clone(), line.b.clone());
+        clone.update();
+        return clone;
+    };
+
+    /**
+     * create a line going from zero at the given polar angle
+     * @method Line.atPolar
+     * @param {float} angle
+     * @return line object with given polar angle
+     */
+    Line.atPolar = function(angle) {
+        let point = new Vector2();
+        point.setPolar(big, angle);
+        return new Line(new Vector2(0, 0), point);
+    }
 
     /**
      * draw the line on an output image, as defined in the Draw namespace object
