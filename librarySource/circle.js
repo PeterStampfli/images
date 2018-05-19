@@ -45,7 +45,7 @@ function Circle(radius, center) {
      */
     Circle.prototype.clone = function() {
         return new Circle(this.radius, this.center.clone());
-    }
+    };
 
     /**
      * scale the circle (center and radius)

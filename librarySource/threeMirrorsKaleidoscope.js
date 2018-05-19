@@ -18,7 +18,7 @@ threeMirrorsKaleidoscope = {};
     // the mappings
     // note that basicKaleidoscope is a namespace, dihedral is an object
     let dihedral = basicKaleidoscope.dihedral;
-    let basicMap = basicKaleidoscope.mapHyperbolic;
+    let basicMap = basicKaleidoscope.map;
 
 
     /**
@@ -84,24 +84,6 @@ threeMirrorsKaleidoscope = {};
         }
     };
 
-    /**
-     * draw the triangle mirror lines
-     * @method threeMirrorsKaleidoscope.drawTriangle
-     */
-    threeMirrorsKaleidoscope.drawTriangle = function(v) {
-        basicKaleidoscope.dihedral.drawMirrors();
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                basicKaleidoscope.circle.draw();
-                break;
-            case basicKaleidoscope.euclidic:
-                basicKaleidoscope.line.draw();
-                break;
-            case basicKaleidoscope.hyperbolic:
-                basicKaleidoscope.circle.draw();
-                break;
-        }
-    };
 
     /**
      * check if a point is inside the triangle

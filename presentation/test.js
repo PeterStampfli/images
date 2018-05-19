@@ -25,21 +25,21 @@ setKButton.onChange = function(v) {
 
 let setMButton = Layout.createNumberButton("m");
 setMButton.setRange(2, 10000);
-setMButton.setValue(3);
+setMButton.setValue(2);
 setMButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
 let setNButton = Layout.createNumberButton("n");
 setNButton.setRange(2, 10000);
-setNButton.setValue(2);
+setNButton.setValue(3);
 setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
 let worldRadiusHyperbolic = 0.97;
 let worldRadiusElliptic = 0.5;
-basicKaleidoscope.intersectionMirrorXAxis = 0.3;
+basicKaleidoscope.intersectionMirrorXAxis = 0.6;
 let sum = document.getElementById("sum");
 
 
@@ -53,8 +53,8 @@ Make.initializeMap = function() {
 
     // n=1/(1-1/n);
     //asymmetricBasicKaleidoscope.setK(k);
-    semiRegularKaleidoscope.setCutCornersKMN(k, m, n);
-    threeMirrorsKaleidoscope.setKMN(k, m, n);
+    cutSidesKaleidoscope.setKMN(k, m, n);
+    // threeMirrorsKaleidoscope.setKMN(k, m, n);
 
 
     let angleSum = basicKaleidoscope.angleSum;
@@ -72,11 +72,11 @@ Make.updateOutputImage = function() {
     Draw.setColor("yellow");
     basicKaleidoscope.drawPolygon();
     Draw.setColor("red");
-    threeMirrorsKaleidoscope.drawTriangle();
+    basicKaleidoscope.drawTriangle();
     Draw.setColor(Layout.mirrorColor);
 
     Draw.setColor("white");
-    semiRegularKaleidoscope.drawAdditional();
+    cutSidesKaleidoscope.drawAdditional();
 
 };
 
@@ -100,7 +100,7 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
 
 
     //asymmetricBasicKaleidoscope.drawTrajectory(mousePosition, nullRadius);
-    threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius);
+    cutSidesKaleidoscope.drawTrajectory(mousePosition, nullRadius);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

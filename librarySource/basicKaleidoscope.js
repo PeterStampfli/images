@@ -37,7 +37,8 @@ basicKaleidoscope = {};
     basicKaleidoscope.m = 0;
     basicKaleidoscope.n = 0;
 
-    // switching between different geometries
+    // switching between different geometries          
+
     basicKaleidoscope.geometry = 0;
     basicKaleidoscope.elliptic = 1;
     basicKaleidoscope.euclidic = 2;
@@ -60,7 +61,6 @@ basicKaleidoscope = {};
 
     // setup
     //==================================================================
-
 
     /**
      * calculate worldradius from data of the circle and type of geometry
@@ -326,6 +326,24 @@ basicKaleidoscope = {};
         }
     };
 
+    /**
+     * draw the triangle mirror lines for derived kaleidoscopes
+     * @method basicKaleidoscope.drawTriangle
+     */
+    basicKaleidoscope.drawTriangle = function(v) {
+        basicKaleidoscope.dihedral.drawMirrors();
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                basicKaleidoscope.circle.draw();
+                break;
+            case basicKaleidoscope.euclidic:
+                basicKaleidoscope.line.draw();
+                break;
+            case basicKaleidoscope.hyperbolic:
+                basicKaleidoscope.circle.draw();
+                break;
+        }
+    };
 
 
 

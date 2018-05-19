@@ -83,7 +83,7 @@ function Line(a, b) {
         let point = new Vector2();
         point.setPolar(big, angle);
         return new Line(new Vector2(0, 0), point);
-    }
+    };
 
     /**
      * draw the line on an output image, as defined in the Draw namespace object

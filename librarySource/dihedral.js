@@ -128,7 +128,6 @@ function Dihedral() {
         Dihedral.reflections = reflections;
     };
 
-
     /**
      * draw the mirror lines on outputimage
      * @method Dihedral#drawMirrors
@@ -151,7 +150,6 @@ function Dihedral() {
             circle.scale(factor);
         });
     };
-
 
     /**
      * generate an array of symmetric copies of a circle
