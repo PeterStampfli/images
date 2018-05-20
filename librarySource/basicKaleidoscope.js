@@ -92,7 +92,7 @@ basicKaleidoscope = {};
         basicKaleidoscope.calculateWorldRadius();
         let factor = newRadius / basicKaleidoscope.worldRadius;
         basicKaleidoscope.circle.scale(factor);
-        dihedral.scale(basicKaleidoscope.circles, factor);
+        Fast.scale(basicKaleidoscope.circles, factor);
         basicKaleidoscope.calculateWorldRadius();
     };
 
@@ -102,20 +102,21 @@ basicKaleidoscope = {};
      * @method basicKaleidoscope.adjustIntersection
      */
     basicKaleidoscope.adjustIntersection = function() {
+        var actualIntersection, factor;
         switch (basicKaleidoscope.geometry) {
             case basicKaleidoscope.elliptic:
-                let actualIntersection = basicKaleidoscope.circle.center.x + basicKaleidoscope.circle.radius * Fast.sin(Math.PI / m);
-                let factor = basicKaleidoscope.intersectionMirrorXAxis / actualIntersection;
+                actualIntersection = basicKaleidoscope.circle.center.x + basicKaleidoscope.circle.radius * Fast.sin(Math.PI / basicKaleidoscope.m);
+                factor = basicKaleidoscope.intersectionMirrorXAxis / actualIntersection;
                 basicKaleidoscope.circle.scale(factor);
-                scaleCircles(factor);
+                Fast.scale(basicKaleidoscope.circles, factor);
                 break;
             case basicKaleidoscope.euclidic:
                 break;
             case basicKaleidoscope.hyperbolic:
-                actualIntersection = basicKaleidoscope.circle.center.x - basicKaleidoscope.circle.radius * Fast.sin(Math.PI / m);
+                actualIntersection = basicKaleidoscope.circle.center.x - basicKaleidoscope.circle.radius * Fast.sin(Math.PI / basicKaleidoscope.m);
                 factor = basicKaleidoscope.intersectionMirrorXAxis / actualIntersection;
                 basicKaleidoscope.circle.scale(factor);
-                scaleCircles(factor);
+                Fast.scale(basicKaleidoscope.circles, factor);
                 break;
         }
         basicKaleidoscope.calculateWorldRadius();
@@ -158,7 +159,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.line.b.setComponents(basicKaleidoscope.intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
             basicKaleidoscope.line.update();
             dihedral.generateLines(basicKaleidoscope.line, basicKaleidoscope.lines);
-            dihedral.update(lines);
+            Fast.update(lines);
         }
         // hyperbolic, raw, adjust
         else {
@@ -345,6 +346,26 @@ basicKaleidoscope = {};
         }
     };
 
+
+    /**
+     * check if a point is inside the triangle
+     * @method basicKaleidoscope.isInsideTriangle
+     * @param {Vector2} v
+     * @return true if v is inside the triangle
+     */
+    basicKaleidoscope.isInsideTriangle = function(v) {
+        if (!basicKaleidoscope.dihedral.isInside(v)) {
+            return false;
+        }
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                return basicKaleidoscope.circle.contains(v);
+            case basicKaleidoscope.euclidic:
+                return !basicKaleidoscope.line.isAtLeft(v);
+            case basicKaleidoscope.hyperbolic:
+                return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
+        }
+    };
 
 
 

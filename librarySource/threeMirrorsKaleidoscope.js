@@ -85,25 +85,5 @@ threeMirrorsKaleidoscope = {};
     };
 
 
-    /**
-     * check if a point is inside the triangle
-     * @method threeMirrorsKaleidoscope.isInsideTriangle
-     * @param {Vector2} v
-     * @return true if v is inside the triangle
-     */
-    threeMirrorsKaleidoscope.isInsideTriangle = function(v) {
-        if (!basicKaleidoscope.dihedral.isInside(v)) {
-            return false;
-        }
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                return basicKaleidoscope.circle.contains(v);
-            case basicKaleidoscope.euclidic:
-                return !basicKaleidoscope.line.isAtLeft(v);
-            case basicKaleidoscope.hyperbolic:
-                return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
-        }
-    };
-
 
 }());

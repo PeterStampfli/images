@@ -39,8 +39,10 @@ Make.initializeMap = function() {
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
+    Draw.setColor(Layout.addMirrorColor);
+    dihedral.drawAddMirrors();
+    Draw.setColor(Layout.mirrorColor);
     dihedral.drawMirrors();
 };
 
@@ -57,13 +59,13 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-    Draw.setColor(Layout.dotColor);
+    Draw.setColor(Layout.pointColor);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.circle(nullRadius, mousePosition);
     imagePosition.set(mousePosition);
-    Draw.setColor(Layout.pathColor);
+    Draw.setColor(Layout.trajectoryColor);
     dihedral.drawMap(imagePosition);
-    Draw.setColor(Layout.dotColor);
+    Draw.setColor(Layout.pointColor);
     Draw.circle(nullRadius, imagePosition);
 
 };
@@ -73,7 +75,5 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 };
 
 Layout.createStructureImageButton("change");
-
-console.log(Make.map.getCombinedPixelScale());
 
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

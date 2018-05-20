@@ -173,23 +173,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
     let colorParityOdd = new Color(0, 120, 0); // default cyan
     let colorParityEven = new Color(200, 120, 0); // default: brown
 
-    /**
-     * create color showing structure, based on parity stored in this.xArray
-     * @method VectorMap.createStructureColor
-     * @param {integer} index - to the map data
-     */
-    VectorMap.createStructureColor = function(index) {
-        let parity = map.xArray[index];
-        if (parity == 0) {
-            color.set(colorParityNull);
-        } else if (parity & 1) {
-            color.set(colorParityOdd);
-        } else {
-            color.set(colorParityEven);
-        }
-    };
-
-
 
     /**
      * draw on a pixelcanvas use a map

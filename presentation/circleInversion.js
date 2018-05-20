@@ -34,11 +34,10 @@ let extraCircle = new Circle(extraRadius, extraCenter);
 let mousePosition = new Vector2();
 let imagePosition = new Vector2();
 
-// the mapping for using an input image
-Make.mappingInputImage = function(mapIn, mapOut) {
-    mapOut.set(mapIn);
-    if (extraCircle.contains(mapOut)) {
-        mirrorCircle.invertInsideOut(mapOut);
+// the mapping for using an input image, only points inside the circle
+Make.mappingInputImage = function(position) {
+    if (extraCircle.contains(position)) {
+        mirrorCircle.invertInsideOut(position);
         return 1;
     }
     return -1;
@@ -67,15 +66,14 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     imagePosition.set(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    Draw.setColor(Layout.pathColor);
+    Draw.setColor(Layout.trajectoryColor);
     let factor = mirrorCircle.drawInvert(imagePosition);
+    Draw.setColor(Layout.pointColor);
     if (factor > 1) {
-        Draw.setColor(Layout.dotColor);
         let startRadius = factor * nullRadius;
         Draw.circle(startRadius, imagePosition);
         Draw.circle(nullRadius, mousePosition);
     } else {
-        Draw.setColor(Layout.dotColor);
         Draw.circle(nullRadius, imagePosition);
         let endRadius = nullRadius / factor;
         Draw.circle(endRadius, mousePosition);

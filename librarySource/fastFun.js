@@ -324,4 +324,28 @@ var Fast = {};
         return array[array.length - 1];
     };
 
+
+    /**
+     * scale an array of circles, or other objects with a scale(factor) method
+     * @method Fast.scale
+     * @param {ArrayOfCircle} circles - will be scaled
+     * @param {float} factor
+     */
+    Fast.scale = function(circles, factor) {
+        circles.forEach(circle => {
+            circle.scale(factor);
+        });
+    };
+
+    /**
+     * update an array of lines, or other objects with an update-method
+     * @method Fast.update
+     * @param {ArrayOfLine} lines - their update method will be called
+     */
+    Fast.update = function(lines) {
+        lines.forEach(line => {
+            line.update();
+        });
+    };
+
 }());

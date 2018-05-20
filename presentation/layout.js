@@ -11,8 +11,6 @@ var Layout = {};
 (function() {
     "use strict";
 
-    Layout.pathColor = "#ffaa00ff";
-    Layout.dotColor = "#ffff00ff";
 
     // defaults
     // relation between sizes and basicFontSize
@@ -33,9 +31,11 @@ var Layout = {};
     Layout.backgroundColor = "#eeeeee";
     Layout.canvasBackgroundColor = "#ddddff";
     Layout.mirrorColor = "red";
+    Layout.addMirrorColor = "#ff88aa";
     Layout.lineColor = "blue";
-    Layout.insideColor = "#ffcc88";
-    Layout.outsideColor = "#88ff88";
+    Layout.trajectoryColor = "#ffaa00ff";
+    Layout.pointColor = "#ffff00ff";
+
 
     //helpful constants
     const px = "px";
@@ -72,7 +72,6 @@ var Layout = {};
      */
     Layout.changeFontSize = function(amount) {
         Layout.basicFontSize += amount;
-        console.log("ch " + Layout.basicFontSize);
         Layout.setFontSizes();
         localStorage.setItem("fontSize", Layout.basicFontSize);
         Make.updateOutputImage();

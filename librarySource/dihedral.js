@@ -14,8 +14,6 @@ function Dihedral() {
     this.nDiv2Pi = 0; // n/2pi is inverse of two times the angle
     this.cosAngle = 1;
     this.sinAngle = 0;
-    this.endPointA = new Vector2(); // endpoint of mirror line a
-    this.endPointB = new Vector2(); // endpoint of mirror line b
 
     const dihedral = this;
 
@@ -97,8 +95,6 @@ function Dihedral() {
         Fast.cosSin(this.angle);
         this.cosAngle = Fast.cosResult;
         this.sinAngle = Fast.sinResult;
-        this.endPointA.setPolar(big, 0);
-        this.endPointB.setPolar(big, this.angle);
     };
 
 
@@ -128,28 +124,32 @@ function Dihedral() {
         Dihedral.reflections = reflections;
     };
 
+    function drawLine(angle) {
+        Dihedral.vector.setPolar(big, angle);
+        Draw.line(Dihedral.pointZero, Dihedral.vector);
+    }
+
     /**
      * draw the mirror lines on outputimage
      * @method Dihedral#drawMirrors
      */
     Dihedral.prototype.drawMirrors = function() {
-        Draw.line(Dihedral.pointZero, this.endPointA);
-        Draw.line(Dihedral.pointZero, this.endPointB);
+        drawLine(0);
+        drawLine(this.angle);
+    };
+
+    /**
+     * draw the all mirror lines resulting from dihedral symmetry
+     * @method Dihedral#drawMirrors
+     */
+    Dihedral.prototype.drawAddMirrors = function() {
+        for (var i = 0; i < 2 * this.n; i++) {
+            drawLine(i * this.angle);
+        }
     };
 
     // creating symmetric elements
 
-    /**
-     * scale an array of circles, or other objects with a scale(factor) method
-     * @method Dihedral#scale
-     * @param {ArrayOfCircle} circles - will be scaled
-     * @param {float} factor
-     */
-    Dihedral.prototype.scale = function(circles, factor) {
-        circles.forEach(circle => {
-            circle.scale(factor);
-        });
-    };
 
     /**
      * generate an array of symmetric copies of a circle
@@ -182,17 +182,6 @@ function Dihedral() {
             circleCenter.rotate(rotationAngle);
             circleCenterMirrored.rotate(rotationAngle);
         }
-    };
-
-    /**
-     * update an array of lines, or other objects with an update-method
-     * @method Dihedral#update
-     * @param {ArrayOfLine} lines - their update method will be called
-     */
-    Dihedral.prototype.update = function(lines) {
-        lines.forEach(line => {
-            line.update();
-        });
     };
 
     /**
