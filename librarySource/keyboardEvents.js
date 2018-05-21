@@ -63,16 +63,6 @@ var KeyboardEvents = {};
         }, key);
     };
 
-    /**
-     * setting up "n"-key to go to next and "N"-keyprevious Url
-     * @method KeyboardEvents.setPreviousNext
-     * @param {String} previousUrl
-     * @param {String} nextUrl
-     */
-    KeyboardEvents.setPreviousNext = function(previousUrl, nextUrl) {
-        KeyboardEvents.addUrl(previousUrl, "N");
-        KeyboardEvents.addUrl(nextUrl, "n");
-    };
 
     /*
      * event listener that sends out the keyboard signals to listeners and calls functions

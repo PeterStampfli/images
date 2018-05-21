@@ -37,37 +37,30 @@ setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
-let worldRadiusHyperbolic = 0.97;
-let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 let sum = document.getElementById("sum");
-
 
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
     let k = setKButton.getValue();
     let m = setMButton.getValue();
     let n = setNButton.getValue();
-    let angleSum = 180 * (1 / k + 1 / m + 1 / n);
-    angleSum = Math.round(angleSum);
+    threeMirrorsKaleidoscope.setKMN(k, m, n);
+    let angleSum = basicKaleidoscope.angleSum;
+    angleSum = Math.round(180 * angleSum);
     sum.innerHTML = "" + angleSum;
-    triangleKaleidoscope.setKMN(k, m, n);
-    if (angleSum < 180) {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
-    } else {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
-    }
 };
 
 // drawing the image with decos (updatekmn...)
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    Draw.setColor(Layout.mirrorColor);
+    Draw.setLineWidth(0.5 * Layout.lineWidth);
+    Draw.setColor(Layout.addMirrorColor);
+    basicKaleidoscope.drawPolygon();
+    basicKaleidoscope.dihedral.drawAddMirrors();
     Draw.setLineWidth(Layout.lineWidth);
-    triangleKaleidoscope.drawLines();
-    Draw.setColor(Layout.lineColor);
-    Draw.circle(triangleKaleidoscope.worldRadius, new Vector2(0, 0));
+    Draw.setColor(Layout.mirrorColor);
+    basicKaleidoscope.drawTriangle();
 };
 
 let zoomCenter = new Vector2();
@@ -83,7 +76,8 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
+    Draw.setColor(Layout.trajectoryColor);
+    threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {

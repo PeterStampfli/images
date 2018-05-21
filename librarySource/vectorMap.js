@@ -246,11 +246,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * look up interpolated position and its color, add to color
      * use only valid points
      */
-    function addInterpolated(t, indexInter, indexExtra) {
+    function addInterpolated(t, indexInter) {
         if (map.lyapunovArray[indexInter] >= 0) { // if neighbor is valid use interpolation, most cases
-            let ct = 1 - t;
-            position.x = ct * basePositionX + t * map.xArray[indexInter];
-            position.y = ct * basePositionY + t * map.yArray[indexInter];
+            position.x = basePositionX + t * map.xArray[indexInter];
+            position.y = basePositionY + t * map.yArray[indexInter];
             map.inputImage.getNearest(color, position);
             if (color.alpha === 255) {
                 colorRed += color.red;
@@ -266,6 +265,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
     }
     // only called if basePosition is valid
     VectorMap.createAverageInputColor9 = function(index) {
+        let widthPlus = map.width + 2;
+        let t = 0.33333;
         basePositionX = map.xArray[index];
         basePositionY = map.yArray[index];
         position.x = basePositionX;
@@ -280,16 +281,17 @@ function VectorMap(outputImage, inputImage, controlImage) {
         colorGreen = color.green;
         colorBlue = color.blue;
         colorIsValid = true;
-        let widthPlus = map.width + 2;
-        let t = 0.33333;
-        addInterpolated(t, index + 1, index - 1);
-        addInterpolated(t, index - 1, index + 1);
-        addInterpolated(t, index + widthPlus, index - widthPlus);
-        addInterpolated(t, index - widthPlus, index + widthPlus);
-        addInterpolated(t, index - widthPlus - 1, index + widthPlus + 1);
-        addInterpolated(t, index + widthPlus + 1, index - widthPlus - 1);
-        addInterpolated(t, index - widthPlus + 1, index + widthPlus - 1);
-        addInterpolated(t, index + widthPlus - 1, index - widthPlus + 1);
+        let ct = 1 - t;
+        basePositionX *= ct;
+        basePositionY *= ct;
+        addInterpolated(t, index + 1);
+        addInterpolated(t, index - 1);
+        addInterpolated(t, index + widthPlus);
+        addInterpolated(t, index - widthPlus);
+        addInterpolated(t, index - widthPlus - 1);
+        addInterpolated(t, index + widthPlus + 1);
+        addInterpolated(t, index - widthPlus + 1);
+        addInterpolated(t, index + widthPlus - 1);
         if (colorIsValid) {
             t = 0.1111111111;
             color.red = Math.round(t * colorRed);

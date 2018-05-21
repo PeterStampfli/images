@@ -68,8 +68,9 @@ threeMirrorsKaleidoscope = {};
      * @method threeMirrorsKaleidoscope.drawTrajectory
      * @param {Vector2} position
      * @param {float} nullRadius
+     * @param {String} pointColor - color for (end)ponts, css strings
      */
-    threeMirrorsKaleidoscope.drawTrajectory = function(position, nullRadius) {
+    threeMirrorsKaleidoscope.drawTrajectory = function(position, nullRadius, pointColor) {
         let positions = [];
         positions.push(position.clone());
         let sizes = [];
@@ -80,6 +81,7 @@ threeMirrorsKaleidoscope = {};
             dihedral.drawMap(position);
             positions.push(position);
             sizes.push(sizes[sizes.length - 1]);
+            Draw.setColor(pointColor);
             basicKaleidoscope.drawEndPoints(positions, sizes, nullRadius);
         }
     };

@@ -21,7 +21,7 @@ var Layout = {};
     //weight of borders (buttons)
     Layout.borderWidthToSize = 0.15;
     // weight of lines in the canvas
-    Layout.lineWidthToSize = 0.25;
+    Layout.lineWidthToSize = 0.2;
     // size of h1 text
     Layout.h1ToSize = 1.4;
     // size of null radius in pixels
@@ -148,6 +148,10 @@ var Layout = {};
      * @param {String} nextPage
      */
     Layout.setup = function(prevPage, nextPage) {
+
+        KeyboardEvents.addUrl(prevPage, "N");
+        KeyboardEvents.addUrl(nextPage, "n");
+
         DOM.create("canvas", "outputCanvas", "body");
         DOM.create("canvas", "controlCanvas", "body");
         DOM.create("canvas", "arrowController", "body");
@@ -161,7 +165,6 @@ var Layout = {};
 
         DOM.style("#outputCanvas", "position", "fixed", "left", "0px", "top", "0px");
         DOM.style("#text", "position", "absolute", "top", "0px");
-        KeyboardEvents.setPreviousNext(prevPage, nextPage);
 
         DOM.create("div", "topLeft", "body");
         DOM.create("div", "topRight", "body");

@@ -39,10 +39,11 @@ Make.initializeMap = function() {
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-    Draw.setLineWidth(Layout.lineWidth);
+    Draw.setLineWidth(0.5 * Layout.lineWidth);
     Draw.setColor(Layout.addMirrorColor);
     dihedral.drawAddMirrors();
     Draw.setColor(Layout.mirrorColor);
+    Draw.setLineWidth(Layout.lineWidth);
     dihedral.drawMirrors();
 };
 

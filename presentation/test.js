@@ -93,10 +93,7 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
     Make.outputImage.pixelToSpaceCoordinates(mousePosition);
     Draw.setLineWidth(0.7 * Layout.lineWidth);
-    //  triangleKaleidoscope.drawTrajectory(nullRadius, mousePosition, Layout.pathColor, Layout.dotColor);
     Draw.setColor("black");
-    mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
-    Make.outputImage.pixelToSpaceCoordinates(mousePosition);
 
 
     //asymmetricBasicKaleidoscope.drawTrajectory(mousePosition, nullRadius);
@@ -117,6 +114,20 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 };
 
 Layout.createStructureImageButton("change");
+
+
+openImage = DOM.create("button", "openImage", "body");
+DOM.style("#openImage", "display", "none");
+
+openImageButton = new FileButton("openImage");
+console.log(openImage)
+
+KeyboardEvents.addFunction(function() {
+
+
+    console.log("openImage");
+    openImage.click();
+}, "o");
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
