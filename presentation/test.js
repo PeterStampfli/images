@@ -120,7 +120,7 @@ openImage = DOM.create("button", "openImage", "body");
 DOM.style("#openImage", "display", "none");
 
 openImageButton = new FileButton("openImage");
-console.log(openImage)
+console.log(openImage);
 
 KeyboardEvents.addFunction(function() {
 

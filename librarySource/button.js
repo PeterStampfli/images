@@ -12,7 +12,6 @@ function Button(idName) {
     "use strict";
 
     this.element = document.getElementById(idName);
-    this.state = 0;
     this.pressed = false;
     this.hover = false;
     this.colorStyleDefaults();
@@ -25,6 +24,13 @@ function Button(idName) {
      * @method Button#onClick
      */
     this.onClick = function() {};
+
+    /**
+     * action after loading a new input file for file input buttons
+     * @method Button#onFileInput
+     * @param {File} file - input file object
+     */
+    this.onFileInput = function(file) {};
 
 
     // a list of actions....
@@ -112,5 +118,42 @@ function Button(idName) {
         this.backgroundColorDownHover = Button.backgroundColorDownHover;
         this.backgroundColorDown = Button.backgroundColorDown;
     };
+
+    /**
+     * create an invisible file input button
+     * @method Button.createFileInput
+     * @param {function} onChange - callback function(file), what to do with the new file
+     * @param {String} accept - attribute, type of files to accept, default is image
+     */
+    Button.createFileInput = function(onChange, accept) {
+        let fileInput = document.createElement("input");
+        fileInput.setAttribute("type", "file");
+        fileInput.style.display = "none";
+        document.querySelector("body").appendChild(fileInput);
+        if (arguments.length > 1) {
+            fileInput.setAttribute("accept", accept);
+        } else {
+            fileInput.setAttribute("accept", "image/*");
+        }
+        fileInput.onchange = function() {
+            onChange(fileInput.files[0]);
+        };
+        return fileInput;
+    };
+
+    /**
+     * make that a button is a file input button. onChange(file) defines the action
+     * @method Button#asFileInput
+     */
+    Button.prototype.asFileInput = function() {
+        let button = this;
+        this.fileInput = Button.createFileInput(function(file) {
+            button.onFileInput(file);
+        }, this.accept);
+        this.onClick = function() {
+            this.fileInput.click();
+        };
+    };
+
 
 }());

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>**** inputImage</title>
+</head>
+
+<body>
+<p>    check the console</p>
+<p>    <button id="button"> the big button</button></p>
+
+		<p>
+				Input image file:
+			<input type="file" accept="image/*" id="imageInput" > </input>
+</p>
+
+		<canvas id="canvas" ></canvas>
+
+</body>
+
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/fileButton.js"></script>
+<script src="../librarySource/dom.js"></script>
+
+
+<script type="text/javascript">
+    console.log("hi");
+
+var imageInputButton  = document.getElementById("imageInput");
+
+hidden=Button.createFileInput(function(file){
+console.log(file.name);
+});
+        
+        
+        
+        
+        
+        
+var button=new Button("button");
+        
+        DOM.style("p,button,input", "fontSize", "16px");
+        
+       button.asFileInput();
+       button.onFileInput=function(file){
+       console.log(file.name);
+       }
+
+
+
+</script>
+
+</html>

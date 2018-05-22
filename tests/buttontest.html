@@ -33,7 +33,9 @@
    }
    
 
-   s=new Selection(button,button2);
+   s=new Selection();
+   s.add(button);
+   s.add(button2);
    
    s.createButton("3").onPress=function(){
    console.log("button 3 pressed");
