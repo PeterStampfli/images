@@ -215,10 +215,74 @@ function VectorMap(outputImage, inputImage, controlImage) {
     };
 
 
-
-
-
+    var map, inputImage, controlImage, xArray, yArray;
+    var color = new Color(0, 0, 0, 255);
     let position = new Vector2();
+
+    /*
+     * set map to this map, and other variables
+     */
+    VectorMap.prototype.setMap = function() {
+        map = this;
+        inputImage = map.inputImage;
+        controlImage = map.controlImage;
+        xArray = map.xArray;
+        yArray = map.yArray;
+    };
+
+
+
+    /**
+     * draw on a pixelcanvas use a map and an input image as fast as you can
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawSimple
+     * @param {function} createColor - a VectorMap.prototype method (map,index,color), sets color depending on index to map data
+     */
+    VectorMap.prototype.drawFast = function() {
+        this.setMap();
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let inputImageLinearTransform = inputImage.linearTransform;
+        let inputImageWidth = inputImage.width;
+        let inputImageHeight = inputImage.height;
+        let inputImagePixel = inputImage.pixel;
+        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        let height = this.height;
+        let width = this.width;
+        let widthPlus = width + 2;
+        let lyapunovArray = this.lyapunovArray;
+        let indexMapBase = 0;
+        var indexMapHigh;
+        var indexMap;
+        var indexPixel = 0;
+        var intColor;
+        var h, k;
+        for (var j = 1; j <= height; j++) {
+            indexMapBase += widthPlus;
+            indexMapHigh = indexMapBase + width;
+            for (indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
+                if (lyapunovArray[indexMap] >= 0) {
+                    color.setRgba(0, 255, 0, 255);
+                    intColor = PixelCanvas.integerOf(color);
+                    position.x = xArray[indexMap];
+                    position.y = yArray[indexMap];
+                    inputImageLinearTransform.do(position);
+                    h = Math.round(position.x);
+                    k = Math.round(position.y);
+                    if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
+                        intColor = intOffColor;
+                    } else {
+                        intColor = inputImagePixel[h + k * inputImageWidth];
+                        controlImage.setOpaque(position);
+                    }
+                } else {
+                    intColor = intOffColor;
+                }
+                pixelCanvas.pixel[indexPixel++] = intColor;
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
 
     /**
      * create color showing input image with low quality, no interpolation, no smoothing
@@ -228,8 +292,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
     VectorMap.createInputImageColorLowQuality = function(index) {
         position.x = map.xArray[index];
         position.y = map.yArray[index];
-        map.inputImage.getNearest(color, position);
-        map.controlImage.setOpaque(position);
+        inputImage.getNearest(color, position);
+        controlImage.setOpaque(position);
     };
 
     // color averaging, to get better image near border, keeping it simple and throughing away points at the border, the region near the border is important
@@ -303,8 +367,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
         }
     };
 
-    var map;
-    var color = new Color();
 
     /**
      * draw on a pixelcanvas use a map using a supplied function mapping(mapOut,color)
@@ -313,7 +375,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * @param {function} createColor - a VectorMap.prototype method (map,index,color), sets color depending on index to map data
      */
     VectorMap.prototype.draw = function(createColor) {
-        map = this;
+        this.setMap();
         let pixelCanvas = this.outputImage.pixelCanvas;
         let height = this.height;
         let width = this.width;

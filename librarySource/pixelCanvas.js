@@ -285,6 +285,16 @@ function PixelCanvas(idName) {
         color.alpha = 255;
     };
 
+    /**
+     * set pixel with given 32 bit integer
+     * @method PixelCanvas#setPixelWithIntegerAtIndex
+     * @param {integer} i - the integer color value for the pixel
+     * @param {integer} index
+     */
+    PixelCanvas.prototype.setPixelWithIntegerAtIndex = function(i, index) {
+        this.pixel[index] = i;
+    };
+
     /*
     check byte order
     abgrOrder means
@@ -294,6 +304,24 @@ function PixelCanvas(idName) {
     const intColor = new Int32Array(abgr.buffer);
     abgr[0] = 3; // the red byte, all others are 0
     const abgrOrder = (intColor[0] === 3);
+
+    /**
+     * transform color into integer with correct byte order
+     * @method PixelCanvas.integerOf
+     * @param {Color} color
+     * @return integer value for the color
+     */
+
+
+    if (abgrOrder) {
+        PixelCanvas.integerOf = function(color) {
+            return color.red | color.green << 8 | color.blue << 16 | color.alpha << 24;
+        };
+    } else {
+        PixelCanvas.integerOf = function(color) {
+            return color.alpha | color.blue << 8 | color.green << 16 | color.red << 24;
+        };
+    }
 
     /**
      * get color of pixel at given index, assumes that index is in range

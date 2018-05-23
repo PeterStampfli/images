@@ -567,7 +567,8 @@ var Make = {};
             if (Make.highImageQuality) {
                 Make.map.draw(VectorMap.createAverageInputColor9);
             } else {
-                Make.map.draw(VectorMap.createInputImageColorLowQuality);
+                // Make.map.draw(VectorMap.createInputImageColorLowQuality);
+                Make.map.drawFast();
             }
             Make.outputImage.pixelCanvas.showPixel();
             Make.controlImage.pixelCanvas.showPixel();

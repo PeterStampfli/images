@@ -49,6 +49,19 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque
     };
 
     /**
+     * set red, green, blue and alpha component values
+     * @method Color#setRgba
+     * @param {integer} red 
+     * @param {integer} green 
+     * @param {integer} blue 
+     * @param {integer} alpha 
+     */
+    Color.prototype.setRgba = function(red, green, blue, alpha) {
+        this.setRgb(red, green, blue);
+        this.alpha = alpha;
+    };
+
+    /**
      * set component values from another color
      * @method Color#set
      * @param {Color} thatColor 
