@@ -40,12 +40,6 @@
  */
 
 /**
- * the color to use if coordinates are outside the image, 
- * including invalid points with very large coordinate values
- * @var PixelCanvas#offColor
- */
-
-/**
  * the linear transformation from space to pixel indices
  * @var PixelCanvas#linearTransform
  */
@@ -67,7 +61,6 @@ function PixelCanvas(idName) {
     this.pixelComponents = null;
     this.width = 0;
     this.height = 0;
-    this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
     this.blueScreenColor = "#0000ff";
     this.linearTransform = new LinearTransform();
 }
@@ -129,15 +122,6 @@ function PixelCanvas(idName) {
      */
     PixelCanvas.prototype.showPixel = function() {
         this.canvasContext.putImageData(this.imageData, 0, 0);
-    };
-
-    /**
-     * set the off-color to the values of another color
-     * @PixelCanvas#setOffColor
-     * @param {Color} offColor
-     */
-    PixelCanvas.prototype.setOffColor = function(offColor) {
-        this.offColor.set(offColor);
     };
 
     /**
@@ -296,6 +280,12 @@ function PixelCanvas(idName) {
     };
 
     /*
+     * byte order is only important for color manipulation
+     * not for copying
+     * for color interpolation and averaging we need decomposition into bytes
+     */
+
+    /*
     check byte order
     abgrOrder means
     int32=(a,b,g,r), lowest byte is red byte, then follow green, blue and alpha
@@ -364,11 +354,12 @@ function PixelCanvas(idName) {
     }
 
     /**
-     * get color of nearest canvas pixel to given position
-     * returns offColor for pixels lying outside the canvas
+     * get color of nearest canvas pixel to given position for pixels inside canvas
+     * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getNearest
      * @param {Color} color - will be set to the color of canvas image
      * @param {Vector2} v - coordinates of point to check
+     * @return true, if color is valid, false, if point lies outside
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getNearest = function(color, v) {
@@ -376,13 +367,14 @@ function PixelCanvas(idName) {
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const thePixel = this.pixel[h + k * this.width];
                 color.red = thePixel & 0xff;
                 color.green = (thePixel >>> 8) & 0xff;
                 color.blue = (thePixel >>> 16) & 0xff;
                 color.alpha = (thePixel >>> 24) & 0xff;
+                return true;
             }
         };
     } else {
@@ -391,23 +383,25 @@ function PixelCanvas(idName) {
             const h = Math.round(v.x);
             const k = Math.round(v.y);
             if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const thePixel = this.pixel[h + k * this.width];
                 color.red = (thePixel >>> 24) & 0xff;
                 color.green = (thePixel >>> 16) & 0xff;
                 color.blue = (thePixel >>> 8) & 0xff;
                 color.alpha = thePixel & 0xff;
+                return true;
             }
         };
     }
 
     /**
      * get color of linearly interpolated canvas pixel to given position
-     * returns color.red=-1 for pixels lying outside the canvas
+     * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getLinear
      * @param {Color} color - will be set to the interpolated color of canvas image
      * @param {Vector2} v - coordinates of point to check
+     * @return true, if color is valid, false, if point lies outside
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getLinear = function(color, v) {
@@ -415,7 +409,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -437,6 +431,7 @@ function PixelCanvas(idName) {
                 color.green = 0 | (0.5 + f00 * (pix00 >>> 8 & 0xff) + f10 * (pix10 >>> 8 & 0xff) + f01 * (pix01 >>> 8 & 0xff) + f11 * (pix11 >>> 8 & 0xff));
                 color.blue = 0 | (0.5 + f00 * (pix00 >>> 16 & 0xff) + f10 * (pix10 >>> 16 & 0xff) + f01 * (pix01 >>> 16 & 0xff) + f11 * (pix11 >>> 16 & 0xff));
                 color.alpha = 0 | (0.5 + f00 * (pix00 >>> 24 & 0xff) + f10 * (pix10 >>> 24 & 0xff) + f01 * (pix01 >>> 24 & 0xff) + f11 * (pix11 >>> 24 & 0xff));
+                return true;
             }
         };
     } else {
@@ -445,7 +440,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -467,6 +462,7 @@ function PixelCanvas(idName) {
                 color.green = 0 | (0.5 + f00 * (pix00 >>> 16 & 0xff) + f10 * (pix10 >>> 16 & 0xff) + f01 * (pix01 >>> 16 & 0xff) + f11 * (pix11 >>> 16 & 0xff));
                 color.blue = 0 | (0.5 + f00 * (pix00 >>> 8 & 0xff) + f10 * (pix10 >>> 8 & 0xff) + f01 * (pix01 >>> 8 & 0xff) + f11 * (pix11 >>> 8 & 0xff));
                 color.alpha = 0 | (0.5 + f00 * (pix00 & 0xff) + f10 * (pix10 & 0xff) + f01 * (pix01 & 0xff) + f11 * (pix11 & 0xff));
+                return true;
             }
         };
     }
@@ -487,10 +483,11 @@ function PixelCanvas(idName) {
 
     /**
      * get color of cubic interpolated canvas pixel to given position
-     * returns color.red=-1 for pixels lying outside the canvas
+     * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getCubic
      * @param {Color} color - will be set to the interpolated color of canvas image
      * @param {Vector2} v - coordinates of point to check
+     * @return true, if color is valid, false, if point lies outside
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getCubic = function(color, v) {
@@ -498,7 +495,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -558,6 +555,7 @@ function PixelCanvas(idName) {
                 color.green = Math.max(0, Math.min(255, Math.round(green)));
                 color.blue = Math.max(0, Math.min(255, Math.round(blue)));
                 color.alpha = Math.max(0, Math.min(255, Math.round(alpha)));
+                return true;
             }
         };
     } else {
@@ -566,7 +564,7 @@ function PixelCanvas(idName) {
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
-                color.set(this.offColor);
+                return false;
             } else {
                 const dx = v.x - h;
                 const dy = v.y - k;
@@ -628,6 +626,7 @@ function PixelCanvas(idName) {
                 color.green = Math.max(0, Math.min(255, Math.round(green)));
                 color.blue = Math.max(0, Math.min(255, Math.round(blue)));
                 color.alpha = Math.max(0, Math.min(255, Math.round(alpha)));
+                return true;
             }
         };
     }

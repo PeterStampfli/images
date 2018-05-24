@@ -239,35 +239,47 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * @param {function} createColor - a VectorMap.prototype method (map,index,color), sets color depending on index to map data
      */
     VectorMap.prototype.drawFast = function() {
-        this.setMap();
+        // image objects
         let pixelCanvas = this.outputImage.pixelCanvas;
+        let inputImage = this.inputImage;
+        let controlImage = this.controlImage;
+        // input image data
         let inputImageLinearTransform = inputImage.linearTransform;
         let inputImageWidth = inputImage.width;
         let inputImageHeight = inputImage.height;
         let inputImagePixel = inputImage.pixel;
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        // transform data
+        let shiftX = inputImageLinearTransform.shiftX;
+        let shiftY = inputImageLinearTransform.shiftY;
+        let cosAngleScale = inputImageLinearTransform.cosAngleScale;
+        let sinAngleScale = inputImageLinearTransform.sinAngleScale;
+        // map dimensions
         let height = this.height;
         let width = this.width;
         let widthPlus = width + 2;
+        // map data
+        let xArray = this.xArray;
+        let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        // map indices
         let indexMapBase = 0;
         var indexMapHigh;
         var indexMap;
+        // color data
         var indexPixel = 0;
         var intColor;
-        var h, k;
+        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        var x, y, h, k;
         for (var j = 1; j <= height; j++) {
             indexMapBase += widthPlus;
             indexMapHigh = indexMapBase + width;
             for (indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
                 if (lyapunovArray[indexMap] >= 0) {
-                    color.setRgba(0, 255, 0, 255);
-                    intColor = PixelCanvas.integerOf(color);
-                    position.x = xArray[indexMap];
-                    position.y = yArray[indexMap];
-                    inputImageLinearTransform.do(position);
-                    h = Math.round(position.x);
-                    k = Math.round(position.y);
+                    x = xArray[indexMap];
+                    y = yArray[indexMap];
+                    // faster math floor instead of Math.round()
+                    h = (shiftX + cosAngleScale * x - sinAngleScale * y) | 0;
+                    k = (shiftY + sinAngleScale * x + cosAngleScale * y) | 0;
                     if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
                         intColor = intOffColor;
                     } else {
@@ -281,19 +293,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
             }
         }
         pixelCanvas.showPixel();
-    };
-
-
-    /**
-     * create color showing input image with low quality, no interpolation, no smoothing
-     * @method VectorMap.createInputImageColorLowQuality
-     * @param {integer} index - to the map data
-     */
-    VectorMap.createInputImageColorLowQuality = function(index) {
-        position.x = map.xArray[index];
-        position.y = map.yArray[index];
-        inputImage.getNearest(color, position);
-        controlImage.setOpaque(position);
     };
 
     // color averaging, to get better image near border, keeping it simple and throughing away points at the border, the region near the border is important
