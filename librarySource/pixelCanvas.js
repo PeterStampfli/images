@@ -280,7 +280,7 @@ function PixelCanvas(idName) {
     };
 
     /*
-     * byte order is only important for color manipulation
+     * byte order is only important for color manipulation, doing special things with color components
      * not for copying
      * for color interpolation and averaging we need decomposition into bytes
      */
@@ -467,22 +467,9 @@ function PixelCanvas(idName) {
         };
     }
 
-    /*
-    get interpolated pixel color - cubic interpolation
-    */
-
-    /*
-    the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
-    */
-    function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
-        if (x < 1) {
-            return (1.16666 * x - 2) * x * x + 0.888888;
-        }
-        return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
-    }
-
     /**
      * get color of cubic interpolated canvas pixel to given position
+     * for opaque images, simply alpha=255 always
      * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getCubic
      * @param {Color} color - will be set to the interpolated color of canvas image
@@ -491,6 +478,150 @@ function PixelCanvas(idName) {
      */
     if (abgrOrder) {
         PixelCanvas.prototype.getCubic = function(color, v) {
+            this.linearTransform.do(v);
+            const h = Math.floor(v.x);
+            const k = Math.floor(v.y);
+            if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
+                return false;
+            } else {
+                const dx = v.x - h;
+                const dy = v.y - k;
+                const pixel = this.pixel;
+                // y (vertical position) dependent values
+                const kym = kernel(1 + dy);
+                const ky0 = kernel(dy);
+                const ky1 = kernel(1 - dy);
+                const ky2 = kernel(2 - dy);
+                // combined indices, for different heights at same x-position
+                const width = this.width;
+                let index0 = width * k + h - 1;
+                let indexM = index0 - width;
+                let index1 = index0 + width;
+                let index2 = index1 + width;
+                let pixM = pixel[indexM++];
+                let pix0 = pixel[index0++];
+                let pix1 = pixel[index1++];
+                let pix2 = pixel[index2++];
+                let kx = kernel(1 + dx);
+                let red = kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                let green = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                let blue = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // the second column, just at the left of (x,y), skipping alpha
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                //  the third column, just at the right of (x,y)
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(1 - dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // the forth column
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(2 - dx);
+                red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+                green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                // beware of negative values, with accelerated rounding
+                color.red = Math.max(0, Math.min(255, Math.round(red)));
+                color.green = Math.max(0, Math.min(255, Math.round(green)));
+                color.blue = Math.max(0, Math.min(255, Math.round(blue)));
+                color.alpha = 255;
+                return true;
+            }
+        };
+    } else {
+        PixelCanvas.prototype.getCubic = function(color, v) {
+            this.linearTransform.do(v);
+            const h = Math.floor(v.x);
+            const k = Math.floor(v.y);
+            if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
+                return false;
+            } else {
+                const dx = v.x - h;
+                const dy = v.y - k;
+                const pixel = this.pixel;
+                // y (vertical position) dependent values
+                const kym = kernel(1 + dy);
+                const ky0 = kernel(dy);
+                const ky1 = kernel(1 - dy);
+                const ky2 = kernel(2 - dy);
+                // combined indices, for different heights at same x-position
+                const width = this.width;
+                let index0 = width * k + h - 1;
+                let indexM = index0 - width;
+                let index1 = index0 + width;
+                let index2 = index1 + width;
+
+                let pixM = pixel[indexM++];
+                let pix0 = pixel[index0++];
+                let pix1 = pixel[index1++];
+                let pix2 = pixel[index2++];
+
+                let kx = kernel(1 + dx);
+                let red = kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                let green = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                let blue = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // the second column, just at the left of (x,y), skipping alpha
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                //  the third column, just at the right of (x,y)
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(1 - dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // the forth column
+                pixM = pixel[indexM++];
+                pix0 = pixel[index0++];
+                pix1 = pixel[index1++];
+                pix2 = pixel[index2++];
+                kx = kernel(2 - dx);
+                red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
+                green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+                blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+                // beware of negative values, with accelerated rounding
+                color.red = Math.max(0, Math.min(255, Math.round(red)));
+                color.green = Math.max(0, Math.min(255, Math.round(green)));
+                color.blue = Math.max(0, Math.min(255, Math.round(blue)));
+                color.alpha = 255;
+                return true;
+            }
+        };
+    }
+
+
+    /**
+     * get color of cubic interpolated canvas pixel to given position
+     * including the interpolated alpha component for transparent images
+     * returns false for pixels lying outside the canvas
+     * @method PixelCanvas#getCubic
+     * @param {Color} color - will be set to the interpolated color of canvas image
+     * @param {Vector2} v - coordinates of point to check
+     * @return true, if color is valid, false, if point lies outside
+     */
+    if (abgrOrder) {
+        PixelCanvas.prototype.getCubicWithAlpha = function(color, v) {
             this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);
@@ -559,7 +690,7 @@ function PixelCanvas(idName) {
             }
         };
     } else {
-        PixelCanvas.prototype.getCubic = function(color, v) {
+        PixelCanvas.prototype.getCubicWithAlpha = function(color, v) {
             this.linearTransform.do(v);
             const h = Math.floor(v.x);
             const k = Math.floor(v.y);

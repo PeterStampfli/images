@@ -1,5 +1,8 @@
 /* jshint esversion:6 */
 
+Make.highImageQuality = false;
+
+
 Layout.setup("circleInversion.html", "kaleidoscope.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
