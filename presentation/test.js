@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Make.highImageQuality = false;
+Make.highImageQuality = true;
 
 
 Layout.setup("circleInversion.html", "kaleidoscope.html");
