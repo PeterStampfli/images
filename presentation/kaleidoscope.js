@@ -50,6 +50,7 @@ Make.initializeMap = function() {
     sum.innerHTML = "" + angleSum;
 };
 
+Make.initializeMap();
 // drawing the image with decos (updatekmn...)
 
 Make.updateOutputImage = function() {
@@ -87,7 +88,7 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 // zoom at border of hyperbolic
 
 Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
-    zoomCenter.setComponents(worldRadiusHyperbolic, 0);
+    zoomCenter.setComponents(basicKaleidoscope.worldRadiusHyperbolic, 0);
     Make.outputImage.spaceToPixelCoordinates(zoomCenter);
     Make.outputImage.positionZoom(mouseEvents, zoomCenter.x, zoomCenter.y);
     Make.shiftScaleOutputImage();

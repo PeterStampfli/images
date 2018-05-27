@@ -56,8 +56,8 @@ Make.initializeMap = function() {
 
     // n=1/(1-1/n);
     //asymmetricBasicKaleidoscope.setK(k);
-    cutSidesKaleidoscope.setKMN(k, m, n);
-    // threeMirrorsKaleidoscope.setKMN(k, m, n);
+    //cutSidesKaleidoscope.setKMN(k, m, n);
+    threeMirrorsKaleidoscope.setKMN(k, m, n);
 
 
     let angleSum = basicKaleidoscope.angleSum;
@@ -66,6 +66,8 @@ Make.initializeMap = function() {
 
 
 };
+
+Make.initializeMap();
 
 // drawing the image with decos (updatekmn...)
 

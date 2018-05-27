@@ -411,8 +411,8 @@ function PixelCanvas(idName) {
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // the pixels
                 let i = h + this.width * k;
@@ -441,8 +441,8 @@ function PixelCanvas(idName) {
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // the pixels
                 let i = h + this.width * k;
@@ -482,8 +482,8 @@ function PixelCanvas(idName) {
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // the pixels
                 let i = h + this.width * k;
@@ -512,8 +512,8 @@ function PixelCanvas(idName) {
             if ((h < 0) || (h + 1 >= this.width) || (k < 0) || (k + 1 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // the pixels
                 let i = h + this.width * k;
@@ -537,6 +537,17 @@ function PixelCanvas(idName) {
         };
     }
 
+
+    /*
+    the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
+    */
+    function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
+        if (x < 1) {
+            return (1.16666 * x - 2) * x * x + 0.888888;
+        }
+        return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
+    }
+
     /**
      * get color of cubic interpolated canvas pixel to given position
      * for opaque images, simply alpha=255 always
@@ -554,8 +565,8 @@ function PixelCanvas(idName) {
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // y (vertical position) dependent values
                 const kym = kernel(1 + dy);
@@ -618,8 +629,8 @@ function PixelCanvas(idName) {
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // y (vertical position) dependent values
                 const kym = kernel(1 + dy);
@@ -697,8 +708,8 @@ function PixelCanvas(idName) {
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // y (vertical position) dependent values
                 const kym = kernel(1 + dy);
@@ -765,8 +776,8 @@ function PixelCanvas(idName) {
             if ((h < 1) || (h + 2 >= this.width) || (k < 1) || (k + 2 >= this.height)) {
                 return false;
             } else {
-                const dx = v.x - h;
-                const dy = v.y - k;
+                const dx = x - h;
+                const dy = y - k;
                 const pixel = this.pixel;
                 // y (vertical position) dependent values
                 const kym = kernel(1 + dy);

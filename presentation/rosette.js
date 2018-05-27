@@ -36,6 +36,7 @@ setKButton.onChange = function() {
 Make.initializeMap = function() {
     dihedral.setOrder(setKButton.getValue());
 };
+Make.initializeMap();
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();

@@ -170,14 +170,12 @@ var Make = {};
     // symmetry dependent mapping routines (Vector2->Vector2)
     // the mapping for using an input image
     // returning the lyapunov coefficient
-    Make.mappingInputImage = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    Make.mappingInputImage = function(position) {
         return 1;
     };
 
     // the mapping to show the structure
-    Make.mappingStructure = function(mapIn, mapOut) {
-        mapOut.set(mapIn);
+    Make.mappingStructure = function(position) {
         return 1;
     };
 
@@ -485,12 +483,13 @@ var Make = {};
 
 
     /**
-     * read an image with given file path and show result at setup, generating map
+     * read an image with given file path and show result at setup, generating map, 
+     * take care to iniialize map
      * @method Make.readImageWithFilePath
      * @param {String} filePath - relative file path of image
      */
     Make.readImageWithFilePathAtSetup = function(filePath) {
-        Make.inputImage.readImageWithFilePath(filePath, readImageActionAtSetup);
+        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
     };
 
     //        shifting and scaling the output image
@@ -525,6 +524,14 @@ var Make = {};
     // drawing the output image 
     //___________________________________________________________________________
 
+    /*
+     * initializing
+     */
+    function initializeImageOutput() {
+        Make.inputImage.linearTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
+        Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
+        Make.controlImage.semiTransparent();
+    }
 
     /**
      * redraw output only if showing input image
@@ -554,24 +561,21 @@ var Make = {};
         }
         if (Make.showStructure || !Make.inputImageExists) { // show structure
             Make.map.drawStructure();
-            Make.outputImage.pixelCanvas.showPixel();
         } else {
             if (Make.inputImage.width == 0) {
                 console.log("*** Make.updateOutputImage: input image not loaded !");
                 return;
             }
-            Make.inputImage.linearTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
-            Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
-            Make.controlImage.semiTransparent();
+            initializeImageOutput();
+
+
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
             if (Make.highImageQuality) {
-                Make.map.draw(VectorMap.createAverageInputColor9);
+                Make.map.draw();
             } else {
                 // Make.map.draw(VectorMap.createInputImageColorLowQuality);
                 Make.map.drawFast();
             }
-            Make.outputImage.pixelCanvas.showPixel();
-            Make.controlImage.pixelCanvas.showPixel();
         }
     };
 
