@@ -15,6 +15,7 @@ Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
 
+
 Layout.adjustDimensions();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
@@ -39,6 +40,7 @@ setNButton.setValue(3);
 setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
+
 
 let worldRadiusHyperbolic = 0.97;
 let worldRadiusElliptic = 0.5;
@@ -119,6 +121,12 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 };
 
 Layout.createStructureImageButton("change");
+
+Make.createImageInput("newImage");
+
+KeyboardEvents.addFunction(function() {
+    console.log("open");
+}, "o");
 
 
 // use another image ???

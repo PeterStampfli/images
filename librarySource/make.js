@@ -445,42 +445,24 @@ var Make = {};
      * create an image input button, and link to output element
      * @method Make.createImageInput
      * @param {String} idButton - name (id) of the (button) html element
-     * @param {String} idFileNameOutput - name (id) of the output html element for file name
+     * @param {String} idFileNameOutput - optional, name (id) of the output html element for file name
      */
     Make.createImageInput = function(idButton, idFileNameOutput) {
-        let imageInputButton = new FileButton(idButton);
-        let fileNameOutput = document.getElementById(idFileNameOutput);
-        imageInputButton.onchange = function(file) {
-            Make.inputImage.readImageFromFileBlob(file, readImageAction);
-            fileNameOutput.innerHTML = file.name;
-        };
+        let imageInputButton = new Button(idButton);
+        imageInputButton.asFileInput();
+        if (arguments.length > 1) {
+            let fileNameOutput = document.getElementById(idFileNameOutput);
+            imageInputButton.onFileInput = function(file) {
+                Make.inputImage.readImageFromFileBlob(file, readImageAction);
+                fileNameOutput.innerHTML = file.name;
+            };
+        } else {
+            imageInputButton.onFileInput = function(file) {
+                Make.inputImage.readImageFromFileBlob(file, readImageAction);
+            };
+
+        }
     };
-
-
-    // callback function to call after an image has been read at setup
-    //  important: adjusting space to input image mapping
-    // puts image on controlImage, show result if the 2nd nonlinear mapping exists
-    function readImageActionAtSetup() {
-        Make.inputImageExists = true;
-        Make.showStructure = false; // and create the map!! (everything from zero)
-        Make.initializeMap();
-        if (Make.mappingInputImage == null) {
-            console.log("*** (Make)readImageActionAtSetup: there is no mapping function !");
-            return;
-        }
-        Make.map.make(Make.mappingInputImage);
-        Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
-        Make.controlImage.loadInputImage(Make.inputImage);
-        if (!Make.map.exists) {
-            console.log("*** Make.readImage: map does not exist !");
-            return;
-        }
-        Make.getMapOutputRange();
-        Make.adjustSpaceToInputPixelMapping();
-        Make.updateOutputImage();
-    }
-
 
     /**
      * read an image with given file path and show result at setup, generating map, 

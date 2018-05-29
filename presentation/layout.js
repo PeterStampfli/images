@@ -161,7 +161,6 @@ var Layout = {};
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
-        DOM.style("button,input", "fontWeight", "bold");
 
         DOM.style("#outputCanvas", "position", "fixed", "left", "0px", "top", "0px");
         DOM.style("#text", "position", "absolute", "top", "0px");
