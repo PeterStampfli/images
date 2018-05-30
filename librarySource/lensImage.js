@@ -12,15 +12,14 @@ function LensImage(idName) {
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.object = null;
-    this.objectCenterX = 0;
-    this.objectCenterY = 0;
+    this.objectCornerX = 0;
+    this.objectCornerY = 0;
     this.magnification = 4;
 
 }
 
 (function() {
     "use strict";
-
 
     /**
      * set object of the lens 
@@ -29,28 +28,15 @@ function LensImage(idName) {
      */
     LensImage.prototype.setObject = function(pixelCanvas) {
         this.object = pixelCanvas;
-
     };
 
-    // set transform of object
     /**
-     * set the transform of the object, position the lens and adjust magnification
-     * clamp the lens position and magnification
-     * @method LensImage#setObjectTransform
+     * clamp the lens position to inside the object pixel canvas
+     * @method LensImage#clampPosition
      */
-    LensImage.prototype.setObjectTransform = function() {
-        this.magnification = Math.max(2, this.magnification);
-        let margin = 0.5 * this.pixelCanvas.width / this.magnification;
-        this.objectCenterX = Math.max(margin, Math.min(this.object.width - margin, this.objectCenterX));
-        let objectCornerX = this.objectCenterX - margin;
-        margin = 0.5 * this.pixelCanvas.height / this.magnification;
-        this.objectCenterY = Math.max(margin, Math.min(this.object.height - margin, this.objectCenterY));
-        let objectCornerY = this.objectCenterY - margin;
-
-
-
-        this.object.linearTransform.setShift(objectCornerX, objectCornerY);
-        this.object.linearTransform.setAngleScale(0, 1 / this.magnification);
+    LensImage.prototype.clampPosition = function() {
+        this.objectCornerX = Fast.clamp(0, this.objectCornerX, (this.object.width - 1) - (this.pixelCanvas.width - 1) / this.magnification);
+        this.objectCornerY = Fast.clamp(0, this.objectCornerY, (this.object.height - 1) - (this.pixelCanvas.height - 1) / this.magnification);
     };
 
     /**
@@ -59,9 +45,9 @@ function LensImage(idName) {
      * @param {Vector2} v
      */
     LensImage.prototype.setCenter = function(v) {
-        this.objectCenterX = v.x;
-        this.objectCenterY = v.y;
-        this.setObjectTransform();
+        this.objectCornerX = v.x - 0.5 * (this.pixelCanvas.width - 1) / this.magnification;
+        this.objectCornerY = v.y - 0.5 * (this.pixelCanvas.height - 1) / this.magnification;
+        this.clampPosition();
     };
 
     /**
@@ -70,8 +56,8 @@ function LensImage(idName) {
      * @param {Vector2} v - will be set to center
      */
     LensImage.prototype.getCenter = function(v) {
-        v.x = this.objectCornerX + 0.5 * this.pixelCanvas.width / this.magnification;
-        v.y = this.objectCornerY + 0.5 * this.pixelCanvas.height / this.magnification;
+        v.x = this.objectCornerX + 0.5 * (this.pixelCanvas.width - 1) / this.magnification;
+        v.y = this.objectCornerY + 0.5 * (this.pixelCanvas.height - 1) / this.magnification;
     };
 
     let center = new Vector2();
@@ -82,8 +68,9 @@ function LensImage(idName) {
      * @param {float} amount
      */
     LensImage.prototype.changeMagnification = function(amount) {
-        this.magnification += amount;
-        this.setObjectTransform();
+        this.magnification = Math.max(2, this.magnification + amount);
+        console.log("mag " + this.magnification);
+        this.clampPosition();
     };
 
     /**
@@ -91,25 +78,28 @@ function LensImage(idName) {
      * @method LensImage.draw
      */
     LensImage.prototype.draw = function() {
-        this.setObjectTransform();
-
-        let position = new Vector2();
         let color = new Color(0, 0, 0, 255);
+        let transparent = new Color(0, 0, 0, 0);
         let width = this.pixelCanvas.width;
         let height = this.pixelCanvas.height;
+        var x, y;
+        let scale = 1 / this.magnification;
         let index = 0;
+        y = this.objectCornerY;
         for (var j = 0; j < height; j++) {
+            x = this.objectCornerX;
             for (var i = 0; i < width; i++) {
-                position.setComponents(i, j);
-                this.object.getNearest(color, position);
-                this.pixelCanvas.setPixelAtIndex(color, index);
+                if (this.object.getNearest(color, x, y)) {
+                    this.pixelCanvas.setPixelAtIndex(color, index);
+                } else {
+                    this.pixelCanvas.setPixelAtIndex(transparent, index);
+                }
                 index++;
+                x += scale;
             }
+            y += scale;
         }
         this.pixelCanvas.showPixel();
-
-
-
     };
 
 }());

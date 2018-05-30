@@ -417,9 +417,11 @@ var Make = {};
      * redraw as for changes in 3rd mapping
      */
 
-    // callback function to call after an image has been read
-    // puts image on controlImage, show result if the 2nd nonlinear mapping exists
-    function readImageAction() {
+    /** callback function to call after an image has been read
+     *  puts image on controlImage, show result 
+     * @method Make.readImageAction
+     */
+    Make.readImageAction = function() {
         if (Make.showStructure || !Make.inputImageExists) {
             Make.inputImageExists = true;
             Make.showStructure = false; // and create the map!! (everything from zero)
@@ -439,7 +441,7 @@ var Make = {};
         Make.getMapOutputRange();
         Make.adjustSpaceToInputPixelMapping();
         Make.updateOutputImage();
-    }
+    };
 
     /**
      * create an image input button, and link to output element
@@ -453,12 +455,12 @@ var Make = {};
         if (arguments.length > 1) {
             let fileNameOutput = document.getElementById(idFileNameOutput);
             imageInputButton.onFileInput = function(file) {
-                Make.inputImage.readImageFromFileBlob(file, readImageAction);
+                Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
                 fileNameOutput.innerHTML = file.name;
             };
         } else {
             imageInputButton.onFileInput = function(file) {
-                Make.inputImage.readImageFromFileBlob(file, readImageAction);
+                Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
             };
 
         }
@@ -471,7 +473,7 @@ var Make = {};
      * @param {String} filePath - relative file path of image
      */
     Make.readImageWithFilePathAtSetup = function(filePath) {
-        Make.inputImage.readImageWithFilePath(filePath, readImageAction);
+        Make.inputImage.readImageWithFilePath(filePath, Make.readImageAction);
     };
 
     //        shifting and scaling the output image

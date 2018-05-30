@@ -1,5 +1,7 @@
 /* jshint esversion:6 */
 
+VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
+
 Layout.setup("circleInversion.html", "kaleidoscope.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
@@ -34,7 +36,8 @@ DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor
 var lens = new LensImage("lens");
 
 lens.setObject(Make.outputImage.pixelCanvas);
-lens.pixelCanvas.setupOnscreen(windowHeight / 2 - 2 * Layout.lineWidth, windowHeight / 2);
+
+lens.pixelCanvas.setupOnscreen(windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth);
 
 
 
@@ -83,27 +86,26 @@ Make.initializeMap = function() {
 
 // drawing the image with decos (updatekmn...)
 
+let lensObjectCorner = new Vector2();
+
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
-
     lens.draw();
-    console.log(lens.objectCenterX);
-
     // attention: transform to space coordiantes
-    let lensObjectCorner = new Vector2(lens.objectCenterX - 0.5 * lens.pixelCanvas.width / lens.magnification, lens.objectCenterY - 0.5 * lens.pixelCanvas.height / lens.magnification);
+    lensObjectCorner.setComponents(lens.objectCornerX, lens.objectCornerY);
     Make.outputImage.pixelToSpaceCoordinates(lensObjectCorner);
-
     let lensObjectWidth = lens.pixelCanvas.width / lens.magnification * Make.outputImage.scale;
     let lensObjectHeight = lens.pixelCanvas.height / lens.magnification * Make.outputImage.scale;
-
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth / 2);
     Draw.rectangle(lensObjectCorner.x, lensObjectCorner.y, lensObjectWidth, lensObjectHeight);
-
-    // update lens??
 };
 
 let center = new Vector2();
+
+center.setComponents(windowWidth, windowHeight / 2);
+
+lens.setCenter(center);
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -130,12 +132,24 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 
 
     }
-    lens.setObjectTransform();
     Make.updateOutputImage();
 
 };
 
 Layout.createStructureImageButton("change");
+
+Make.initializeMap();
+
+// special drawing
+
+
+
+
+
+
+
+
+
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

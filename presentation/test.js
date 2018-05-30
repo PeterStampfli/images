@@ -122,12 +122,7 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 
 Layout.createStructureImageButton("change");
 
-Make.createImageInput("newImage");
-
-KeyboardEvents.addFunction(function() {
-    console.log("open");
-}, "o");
-
+Layout.createOpenImage();
 
 // use another image ???
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

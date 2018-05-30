@@ -315,6 +315,17 @@ var Fast = {};
     };
 
     /**
+     * return a value clamped between max and min  
+     * @method Fast.clamp 
+     * @para {int/float} min 
+     * @para {int/float} x 
+     * @para {int/float} max  
+     */
+    Fast.clamp = function(min, x, max) {
+        return Math.max(min, Math.min(x, max));
+    };
+
+    /**
      * get last element of any array
      * @method Fast.last
      * @param {array} array

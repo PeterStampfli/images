@@ -201,6 +201,21 @@ var Layout = {};
         };
     };
 
+    /**
+     * create open image command with key "o"
+     * @method Layout.createOpenImage
+     */
+    Layout.createOpenImage = function() {
+        var hiddenImageInput = Button.createFileInput(function(file) {
+            console.log(file.name);
+            Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
+        });
+        KeyboardEvents.addFunction(function() {
+            console.log("open");
+            hiddenImageInput.click();
+        }, "o");
+    };
+
     // on resize: adjust new dimensions and redraw output image
     window.onresize = function() {
         Layout.adjustDimensions();
