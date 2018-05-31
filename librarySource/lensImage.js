@@ -68,8 +68,10 @@ function LensImage(idName) {
      * @param {float} amount
      */
     LensImage.prototype.changeMagnification = function(amount) {
+        this.getCenter(center);
         this.magnification = Math.max(2, this.magnification + amount);
         console.log("mag " + this.magnification);
+        this.setCenter(center);
         this.clampPosition();
     };
 

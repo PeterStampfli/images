@@ -77,5 +77,7 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 };
 
 Layout.createStructureImageButton("change");
+Layout.createOpenImage();
+
 
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

@@ -84,4 +84,7 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     Make.updateOutputImage();
 };
 
+Layout.createOpenImage();
+
+
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

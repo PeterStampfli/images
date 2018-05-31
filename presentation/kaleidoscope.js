@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("circleInversion.html", "kaleidoscope.html");
+Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
@@ -97,4 +97,6 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 Layout.createStructureImageButton("change");
 
 // use another image ???
+Layout.createOpenImage();
+
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");

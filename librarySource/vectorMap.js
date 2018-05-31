@@ -378,97 +378,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
 
     };
 
-    // only called if basePosition is valid
-    // calculate average color of 9 points
-    // returns true if color is correct, else false
-    VectorMap.createAverageInputColor9 = function(index) {
-        let t = 0.33333;
-        basePositionX = xArray[index];
-        basePositionY = yArray[index];
-        // faster math floor instead of Math.round()
-        let h = (shiftX + cosAngleScale * basePositionX - sinAngleScale * basePositionY) | 0;
-        let k = (shiftY + sinAngleScale * basePositionX + cosAngleScale * basePositionY) | 0;
-        if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
-            return false;
-        }
-        controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
-        let intColor = inputImagePixel[h + k * inputImageWidth];
-        colorRed = intColor & 0xff;
-        colorGreen = (intColor >>> 8) & 0xff;
-        colorBlue = (intColor >>> 16) & 0xff;
-        colorAlpha = (intColor >>> 24) & 0xff;
-        let ct = 1 - t;
-        basePositionX *= ct;
-        basePositionY *= ct;
-        if (addInterpolated(t, index + 1) &&
-            addInterpolated(t, index - 1) &&
-            addInterpolated(t, index + widthPlus) &&
-            addInterpolated(t, index - widthPlus) &&
-            addInterpolated(t, index - widthPlus - 1) &&
-            addInterpolated(t, index + widthPlus + 1) &&
-            addInterpolated(t, index - widthPlus + 1) &&
-            addInterpolated(t, index + widthPlus - 1)) {
-            t = 0.1111111111;
-            colorRed = Math.round(t * colorRed);
-            colorGreen = Math.round(t * colorGreen);
-            colorBlue = Math.round(t * colorBlue);
-            colorAlpha = Math.round(t * colorAlpha);
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    // only called if basePosition is valid
-    // calculate average color of 9 points
-    // returns true if color is correct, else false
-    VectorMap.createAverageInputColor9Round = function(index) {
-        let t = 0.33333;
-        basePositionX = xArray[index];
-        basePositionY = yArray[index];
-        // faster math floor instead of Math.round()
-        let h = (shiftX + cosAngleScale * basePositionX - sinAngleScale * basePositionY) | 0;
-        let k = (shiftY + sinAngleScale * basePositionX + cosAngleScale * basePositionY) | 0;
-        if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
-            return false;
-        }
-        controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
-        let intColor = inputImagePixel[h + k * inputImageWidth];
-        colorRed = intColor & 0xff;
-        colorGreen = (intColor >>> 8) & 0xff;
-        colorBlue = (intColor >>> 16) & 0xff;
-        colorAlpha = (intColor >>> 24) & 0xff;
-        let bx = basePositionX;
-        let by = basePositionY;
-        let ct = 1 - t;
-        basePositionX *= ct;
-        basePositionY *= ct;
-        if (addInterpolated(t, index + 1) &&
-            addInterpolated(t, index - 1) &&
-            addInterpolated(t, index + widthPlus) &&
-            addInterpolated(t, index - widthPlus)) {
-            t = 0.71 * t;
-            ct = 1 - t;
-            basePositionX = ct * bx;
-            basePositionY = ct * by;
-            if (addInterpolated(t, index - widthPlus - 1) &&
-                addInterpolated(t, index + widthPlus + 1) &&
-                addInterpolated(t, index - widthPlus + 1) &&
-                addInterpolated(t, index + widthPlus - 1)) {
-                t = 0.1111111111;
-                colorRed = Math.round(t * colorRed);
-                colorGreen = Math.round(t * colorGreen);
-                colorBlue = Math.round(t * colorBlue);
-                colorAlpha = Math.round(t * colorAlpha);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    };
-
+    
+ 
     var fullColor;
 
     // only called if basePosition is valid
@@ -490,7 +401,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
         colorGreen = (intColor >>> 7) & 0x1fe;
         colorBlue = (intColor >>> 15) & 0x1fe;
         colorAlpha = (intColor >>> 23) & 0x1fe;
-
         let ct = 1 - t;
         basePositionX *= ct;
         basePositionY *= ct;
@@ -502,21 +412,11 @@ function VectorMap(outputImage, inputImage, controlImage) {
             colorBlue = colorBlue << 1;
             colorGreen = colorGreen << 1;
             colorAlpha = colorAlpha << 1;
-
-
             if (addInterpolated(t, index - widthPlus - 1) &&
                 addInterpolated(t, index + widthPlus + 1) &&
                 addInterpolated(t, index - widthPlus + 1) &&
                 addInterpolated(t, index + widthPlus - 1)) {
-                fullColor = colorRed >> 4 | colorGreen << 4 | colorBlue << 12 | colorAlpha << 20;
-
-                //colorRed=colorRed>>4;
-                colorBlue = colorBlue >> 4;
-                // colorGreen=colorGreen>>4;
-                colorAlpha = colorAlpha >> 4;
-                fullColor = colorRed | colorGreen << 8 | colorBlue << 16 | colorAlpha << 24;
-                fullColor = colorRed >>> 4 | (colorGreen & 0xff0) << 4 | colorBlue << 16 | colorAlpha << 24;
-
+                fullColor = colorRed >>> 4 | (colorGreen & 0xff0) << 4 | (colorBlue&0xff0) << 12 | (colorAlpha&0xff0) << 20;
                 return true;
             } else {
                 return false;
@@ -555,10 +455,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
             for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
                 lyapunov = lyapunovArray[indexMap] * baseLyapunov;
                 if (lyapunov >= 1) { // expansion:use averaging
-
-
-                    if (VectorMap.createAverageInputColor9(indexMap)) {
-                        pixel[indexPixel++] = colorRed | colorGreen << 8 | colorBlue << 16 | colorAlpha << 24;
+                    if (VectorMap.createAverageInputColor9Weighted(indexMap)) {
+                        pixel[indexPixel++] = fullColor;
 
                     } else { //beware of byte order
                         pixel[indexPixel++] = intOffColor;
@@ -584,7 +482,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
         controlCanvas.showPixel();
     };
 
-
+// test smoothing
     /**
      * draw on a pixelcanvas use a map 
      * if map is expanding use smoothing, if contracting use interpolation
@@ -612,29 +510,21 @@ function VectorMap(outputImage, inputImage, controlImage) {
             indexMapBase += widthPlus;
             indexMapHigh = indexMapBase + width;
             for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
-                if (j < height / 2) {
+                if (j < 0.5*height) {
                     if (lyapunovArray[indexMap] >= 0) {
-
-                        // expansion:use averaging
-                        if (VectorMap.createAverageInputColor9(indexMap)) {
+                        if (VectorMap.directColor(indexMap)) {
                             pixel[indexPixel++] = colorRed | colorGreen << 8 | colorBlue << 16 | colorAlpha << 24;
 
                         } else { //beware of byte order
                             pixel[indexPixel++] = intOffColor;
                         }
                     } else {
-
                         pixel[indexPixel++] = intOffColor;
                     }
-
                 } else {
                     lyapunov = lyapunovArray[indexMap] * baseLyapunov;
                     if (lyapunov >= 0) {
-
-
-                        // expansion:use averaging
                         if (VectorMap.createAverageInputColor9Weighted(indexMap)) {
-                            //pixel[indexPixel++] = colorRed | colorGreen << 8 | colorBlue << 16 | colorAlpha << 24;
                             pixel[indexPixel++] = fullColor;
 
                         } else { //beware of byte order
@@ -650,5 +540,79 @@ function VectorMap(outputImage, inputImage, controlImage) {
         pixelCanvas.showPixel();
         controlCanvas.showPixel();
     };
+
+    
+    // test interpolation
+    
+    /**
+     * draw on a pixelcanvas use a map 
+     * if map is expanding use smoothing, if contracting use interpolation
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawSimple
+     * returns true if colors are correct, else false
+     */
+    VectorMap.prototype.drawInterpolation = function() {
+        console.log("test interpolation");
+        let baseLyapunov = this.inputImage.linearTransform.scale * this.outputImage.scale;
+        this.setMap();
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        let height = this.height;
+        let width = this.width;
+        let widthPlus = width + 2;
+        let lyapunovArray = this.lyapunovArray;
+        let indexMapBase = 0;
+        var indexMapHigh;
+        var indexPixel = 0;
+        var lyapunov;
+        const color = new Color();
+        for (var j = 1; j <= height; j++) {
+            indexMapBase += widthPlus;
+            indexMapHigh = indexMapBase + width;
+            for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
+                lyapunov = lyapunovArray[indexMap] ;
+                if (lyapunov >= 0) { // expansion:use averaging
+                    
+                    let x = xArray[indexMap];
+                    let y = yArray[indexMap];
+                    let h = shiftX + cosAngleScale * x - sinAngleScale * y;
+                    let k = shiftY + sinAngleScale * x + cosAngleScale * y;
+                    // beware of byte order
+                    if (j<0.33*height){
+          
+                    if (inputImage.getCubic(color, h, k)) {
+                        pixelCanvas.setPixelAtIndex(color, indexPixel++);
+                    } else { // invalid points: use off color
+                        pixel[indexPixel++] = intOffColor;
+                    }
+                    }
+                    else if (j<0.66*height){
+                        
+                        
+                        color.setRgb(255,0,0);
+                                                pixelCanvas.setPixelAtIndex(color, indexPixel++);
+
+                    }
+                    
+                    else {
+                             color.setRgb(255,255,0);
+                                                pixelCanvas.setPixelAtIndex(color, indexPixel++);  
+                        
+                    }
+                    
+                    
+                    
+                    
+                    
+                } else {
+                    pixel[indexPixel++] = intOffColor;
+                }
+            }
+        }
+        pixelCanvas.showPixel();
+        controlCanvas.showPixel();
+    };
+
 
 }());

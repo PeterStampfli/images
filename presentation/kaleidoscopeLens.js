@@ -2,7 +2,7 @@
 
 VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
 
-Layout.setup("circleInversion.html", "kaleidoscope.html");
+Layout.setup("kaleidoscope.html", "kaleidoscopeLens.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
@@ -140,13 +140,10 @@ Layout.createStructureImageButton("change");
 
 Make.initializeMap();
 
-// special drawing
 
 
 
-
-
-
+Layout.createOpenImage();
 
 
 

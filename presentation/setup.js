@@ -11,8 +11,8 @@ const px = "px";
 
 
 Make.createOutputImageNoColorSymmetry("outputCanvas");
-Make.outputImage.stopZoom();
-Make.outputImage.stopShift();
+//Make.outputImage.stopZoom();
+//Make.outputImage.stopShift();
 
 Make.createControlImage("controlCanvas", windowWidth * sizeFraction);
 Make.createArrowController("arrowController", 200);
@@ -37,5 +37,7 @@ Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
 cutSidesKaleidoscope.setKMN(5, 4, 2);
+
+Layout.createOpenImage();
 
 Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
