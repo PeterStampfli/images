@@ -149,7 +149,6 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
-            console.log(basicKaleidoscope.worldRadiusElliptic);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
         }
         // euklidic, final

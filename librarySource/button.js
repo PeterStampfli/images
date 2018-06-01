@@ -123,7 +123,7 @@ function Button(idName) {
      * create an invisible file input button
      * @method Button.createFileInput
      * @param {function} action - callback function(file), what to do with the new file
-     * @param {String} accept - optional attribute, type of files to accept, default is image
+     * @param {String} accept - optional attribute, type of files to accept, default is image.jpg
      */
     Button.createFileInput = function(action, accept) {
         let fileInput = document.createElement("input");
@@ -133,7 +133,7 @@ function Button(idName) {
         if (arguments.length > 1) {
             fileInput.setAttribute("accept", accept);
         } else {
-            fileInput.setAttribute("accept", "image/*");
+            fileInput.setAttribute("accept", ".jpg");
         }
         fileInput.onchange = function() {
             action(fileInput.files[0]);

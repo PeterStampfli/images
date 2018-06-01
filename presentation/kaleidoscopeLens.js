@@ -2,7 +2,7 @@
 
 VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
 
-Layout.setup("kaleidoscope.html", "kaleidoscopeLens.html");
+Layout.setup("kaleidoscope.html", "interpolation.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
@@ -87,9 +87,12 @@ Make.initializeMap = function() {
 // drawing the image with decos (updatekmn...)
 
 let lensObjectCorner = new Vector2();
+let hColor = new Color(0, 0, 0, 255);
 
 Make.updateOutputImage = function() {
     Make.updateMapOutput();
+
+    Make.outputImage.pixelCanvas.drawHorizontalLine(hColor, 0.5);
     lens.draw();
     // attention: transform to space coordiantes
     lensObjectCorner.setComponents(lens.objectCornerX, lens.objectCornerY);

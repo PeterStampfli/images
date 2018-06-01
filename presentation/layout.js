@@ -202,7 +202,7 @@ var Layout = {};
     };
 
     /**
-     * create open image command with key "o"
+     * create open image command with key "i"
      * @method Layout.createOpenImage
      */
     Layout.createOpenImage = function() {
@@ -213,7 +213,7 @@ var Layout = {};
         KeyboardEvents.addFunction(function() {
             console.log("open");
             hiddenImageInput.click();
-        }, "o");
+        }, "i");
     };
 
     // on resize: adjust new dimensions and redraw output image

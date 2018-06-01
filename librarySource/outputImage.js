@@ -99,7 +99,7 @@ function OutputImage(idName) {
 
     /**
      * make that the canvas context transform agrees with the input transform from pixel to coordinates
-     * this is essentially the inverse transform from space coordinates to pixel indices
+     * this is equivalent to the transform from space coordinates to pixel indices
      * @method OutputImage#adjustCanvasTransform
      */
     OutputImage.prototype.adjustCanvasTransform = function() {
@@ -220,5 +220,7 @@ function OutputImage(idName) {
         }
         this.pixelCanvas.showPixel();
     };
+
+
 
 }());

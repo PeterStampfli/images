@@ -80,26 +80,24 @@ function LensImage(idName) {
      * @method LensImage.draw
      */
     LensImage.prototype.draw = function() {
-        let color = new Color(0, 0, 0, 255);
-        let transparent = new Color(0, 0, 0, 0);
         let width = this.pixelCanvas.width;
         let height = this.pixelCanvas.height;
-        var x, y;
+        let objectWidth = this.object.width;
+        let objectPixel = this.object.pixel;
+        let lensPixel = this.pixelCanvas.pixel;
+        var objectX, objectY;
+        var objectBaseIndex;
         let scale = 1 / this.magnification;
         let index = 0;
-        y = this.objectCornerY;
+        objectY = this.objectCornerY;
         for (var j = 0; j < height; j++) {
-            x = this.objectCornerX;
+            objectBaseIndex = Math.floor(objectY) * objectWidth;
+            objectX = this.objectCornerX;
             for (var i = 0; i < width; i++) {
-                if (this.object.getNearest(color, x, y)) {
-                    this.pixelCanvas.setPixelAtIndex(color, index);
-                } else {
-                    this.pixelCanvas.setPixelAtIndex(transparent, index);
-                }
-                index++;
-                x += scale;
+                lensPixel[index++] = objectPixel[Math.floor(objectX) + objectBaseIndex];
+                objectX += scale;
             }
-            y += scale;
+            objectY += scale;
         }
         this.pixelCanvas.showPixel();
     };

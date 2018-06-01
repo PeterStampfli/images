@@ -374,6 +374,7 @@ function PixelCanvas(idName) {
                 color.green = (thePixel >>> 8) & 0xff;
                 color.blue = (thePixel >>> 16) & 0xff;
                 color.alpha = (thePixel >>> 24) & 0xff;
+                //   color.alpha=255;
                 return true;
             }
         };
@@ -389,6 +390,8 @@ function PixelCanvas(idName) {
                 color.green = (thePixel >>> 16) & 0xff;
                 color.blue = (thePixel >>> 8) & 0xff;
                 color.alpha = thePixel & 0xff;
+                //  color.alpha=255;
+
                 return true;
             }
         };
@@ -396,7 +399,7 @@ function PixelCanvas(idName) {
 
     /**
      * get color of linearly interpolated canvas pixel to given position
-     * for opaque images
+     * for opaque images (jpg only !!!)
      * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getLinear
      * @param {Color} color - will be set to the interpolated color of canvas image
@@ -884,5 +887,24 @@ function PixelCanvas(idName) {
             }
         }
         this.showPixel();
+    };
+
+    /**
+     * draw a single horizontal pixel line as marker
+     * @method PixelCanvas#drawHorizontalLine
+     * @param {Color} color
+     * @param {float} y - relative height, 0 for top, 1 for bottom
+     */
+    PixelCanvas.prototype.drawHorizontalLine = function(color, y) {
+        y = Fast.clamp(0, Math.round(y * this.height) - 1, this.height - 1);
+        let intColor = PixelCanvas.integerOf(color);
+        let width = this.width;
+        let index = y * width;
+        for (var i = 0; i < width; i++) {
+            this.pixel[index++] = intColor;
+        }
+        this.showPixel();
+
+
     };
 }());
