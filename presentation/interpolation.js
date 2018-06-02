@@ -3,7 +3,7 @@
 VectorMap.prototype.drawFast = VectorMap.prototype.drawInterpolation;
 
 
-Layout.setup("kaleidoscopeLens.html", "interpolation.html");
+Layout.setup("kaleidoscopeLens.html", "end.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
