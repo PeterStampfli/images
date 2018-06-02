@@ -5,7 +5,6 @@
 
 #image files
 **/*.png
-**/*.jpg
 
 # directories
 node_modules

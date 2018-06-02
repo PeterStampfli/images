@@ -80,4 +80,4 @@ Layout.createStructureImageButton("change");
 Layout.createOpenImage();
 
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("guard.jpg");

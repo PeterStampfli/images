@@ -28,4 +28,4 @@ Layout.createOpenImage();
 
 
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("postcard.jpg");

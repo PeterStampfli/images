@@ -27,4 +27,4 @@ Layout.createOpenImage();
 
 
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("pride.jpg");

@@ -40,4 +40,4 @@ cutSidesKaleidoscope.setKMN(5, 4, 2);
 
 Layout.createOpenImage();
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("passage.jpg");

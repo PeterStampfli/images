@@ -87,4 +87,4 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 Layout.createOpenImage();
 
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("nobel.jpg");

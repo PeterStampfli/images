@@ -99,4 +99,4 @@ Layout.createStructureImageButton("change");
 // use another image ???
 Layout.createOpenImage();
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("Drottningholm.jpg");

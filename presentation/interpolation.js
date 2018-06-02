@@ -39,4 +39,4 @@ Layout.createOpenImage();
 
 
 
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("verySmall.jpg");

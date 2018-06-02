@@ -152,4 +152,4 @@ Layout.createOpenImage();
 
 
 // use another image ???
-Make.readImageWithFilePathAtSetup("dreamingofspring.jpg");
+Make.readImageWithFilePathAtSetup("Drottningholm.jpg");
