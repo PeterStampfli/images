@@ -25,11 +25,11 @@ Layout.adjustDimensions();
 
 DOM.style("#controlCanvas", "display", "initial"); // make visible with "initial"
 DOM.style("#controlCanvas", "zIndex", "1");
-DOM.style("#controlCanvas", "position", "absolute", "right", "20px");
+DOM.style("#controlCanvas", "position", "fixed", "right", "20px");
 DOM.style("#outputCanvas,#controlCanvas", "top", 3 * Layout.basicFontSize + px);
 DOM.style("#text", "left", basicLenght + px, "top", "0px");
-DOM.style("#text", "width", (windowWidth - basicLenght) + px); // avoid horizontal scrollbar
-DOM.style("#topRight", "right", "0px");
+DOM.style("#text", "width", (windowWidth - 2 * basicLenght) + px); // avoid horizontal scrollbar
+DOM.style("#topRight", "right", windowWidth - basicLenght + 20 + px);
 
 Make.setOutputSize(basicLenght, basicLenght);
 
@@ -40,4 +40,4 @@ cutSidesKaleidoscope.setKMN(5, 4, 2);
 
 Layout.createOpenImage();
 
-Make.readImageWithFilePathAtSetup("passage.jpg");
+Make.readImageWithFilePathAtSetup("blueYellow.jpg");

@@ -21,11 +21,11 @@ Layout.adjustDimensions();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
-basicKaleidoscope.worldRadiusElliptic = 0.65;
+basicKaleidoscope.worldRadiusElliptic = 0.6;
 cutCornersKaleidoscope.setKMN(3, 5, 2);
 
 Layout.createOpenImage();
 
 
 
-Make.readImageWithFilePathAtSetup("postcard.jpg");
+Make.readImageWithFilePathAtSetup("GamlaStan.jpg");

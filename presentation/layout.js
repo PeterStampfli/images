@@ -170,10 +170,12 @@ var Layout = {};
         DOM.create("button", "prevButton", "#topLeft", "prev");
         DOM.create("button", "nextButton", "#topRight", "next");
 
-        DOM.style("#topLeft,#topRight", "position", "absolute", "top", "0px", "zIndex", "2");
+        DOM.style("#topLeft,#topRight", "position", "fixed", "top", "0px", "zIndex", "2");
         DOM.style("#topLeft", "left", "0px");
         DOM.attribute("#prevButton,#nextButton", "class", "topButton");
         DOM.style(".topButton", "display", "block", "fontWeight", "normal");
+
+        DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
 
         let prevButton = new Button("prevButton");
         prevButton.onClick = function() {

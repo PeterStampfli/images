@@ -13,9 +13,34 @@
 
     <h1> setup</h1>
 
+    <p>Three transforms give the color of an output image pixel with indices (i,j):
+    
+    </p>
     <p>
-    nix
+    1) Linear transform to points in geometrical space<br>
+    (x,y) = scale * (i,j) + offset.<br>
     </p> 
+    <p>
+    2) Nonlinear mapping of (x,y)<br>
+    creates the <em>symmetries</em>.
+    </p>
+    <p>
+    3) Linear transform to indices (h,k)<br> 
+    of input image pixels<br>
+    (h,k)=rotation*scale*(x,y)+offset.
+    </p>
+    <p>
+    The color of a pixel at (i,j) results from the color of the input image at (h,k).
+    </p>
+    <p>
+    We can directly interact with these transformations!
+    </p>
+    
+    
+    
+    
+    
+    
 </div>
 
 </body>
