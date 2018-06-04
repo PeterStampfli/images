@@ -14,13 +14,25 @@
     
     <p>
     A triangle of two straight lines and a circle arc make a kaleidoscope. 
-    How to find rapidly the reflections that map a point inside this triangle?
+    How to find rapidly the reflections that map a point into this triangle?
     </p>
     
     <p> 
-    The straight lines meeting at an angle of 180<sup>o</sup>/k generate a dihedral group with k-fold rotational symmetry.
+    The straight lines meeting at an angle of 180<sup>o</sup>/k generate a dihedral group with k-fold rotational symmetry.<br>
+    This group generates images of the circle arc of the triangle. They make a polygon around the center of the image.<br>
+    Inside the polygon the dihedral symmetry maps any point into the triangle.
+    </p>
     
+    <p>
+    Points outside the polygon are mapped inside with inversions at the circles.<br>
+    Use "ray tracing" to choose the circle: Draw a straight line between point of observation and current mapped pixel. Use circle that intersects first.<br>
+    Easy for a point of observation at center and dihedral symmetry.
+    </p>
     
+    <p>
+    If the sum of angles is smaller than 180<sup>o</sup> we get a Poincaré disc with a periodic decoration.<br>
+    If the sum of angles is equal to 180<sup>o</sup> we get the usual kaleidoscopes.<br>
+    If the sum of angles is larger than 180<sup>o</sup> we get a stereographic projection of a repeating decoration of the sphere.
     </p>
 
     <p>
@@ -30,12 +42,14 @@
      <span class="beforeInput">n:</span> <span id="n"></span><br>
     sum of angles = <span id="sum"></span> <sup>o</sup>
     </p>
-  
      
     <p>
     view: <span id="change"></span>
     </p> 
     
+    <p>
+    Zoom in at the border of the Poincaré disc to see the repeating pattern and get a transition to a Poincaré plane.
+    </p>
   
 </div>
 

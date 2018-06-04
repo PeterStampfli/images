@@ -58,7 +58,7 @@ Make.updateOutputImage = function() {
     Draw.setLineWidth(0.5 * Layout.lineWidth);
     Draw.setColor(Layout.addMirrorColor);
     basicKaleidoscope.drawPolygon();
-    basicKaleidoscope.dihedral.drawAddMirrors();
+    // basicKaleidoscope.dihedral.drawAddMirrors();
     Draw.setLineWidth(Layout.lineWidth);
     Draw.setColor(Layout.mirrorColor);
     basicKaleidoscope.drawTriangle();

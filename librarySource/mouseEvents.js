@@ -8,6 +8,7 @@
 
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
+    this.elementPositionFixed = (this.element.style.position == "fixed");
     // the event data
     this.x = 0;
     this.y = 0;
@@ -99,6 +100,7 @@ function MouseEvents(idName) {
 
     /**
      * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)
+     * for fixed elements subtract scroll
      * @method MouseEvents#update
      * @param {Event} event - object, containing event data
      */
@@ -108,6 +110,10 @@ function MouseEvents(idName) {
         this.lastY = this.y;
         this.x = event.pageX - this.element.offsetLeft;
         this.y = event.pageY - this.element.offsetTop;
+        if (this.elementPositionFixed) {
+            this.x -= window.pageXOffset;
+            this.y -= window.pageYOffset;
+        }
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
