@@ -341,6 +341,33 @@ function VectorMap(outputImage, inputImage, controlImage) {
     };
 
 
+    /*
+     * look up interpolated position and its color, set color and set control canvas pixel to opaque
+     * use only valid points
+     * treating all color components equal thus no problem with byte order
+     * return true if both points are ok and color added, return false if color becomes invalid
+     */
+    function startInterpolated(t, indexInter) {
+        if (lyapunovArray[indexInter] < 0) {
+            return false;
+        }
+        let x = basePositionX + t * xArray[indexInter];
+        let y = basePositionY + t * yArray[indexInter];
+        // faster math floor instead of Math.round()
+        let h = (shiftX + cosAngleScale * x - sinAngleScale * y) | 0;
+        let k = (shiftY + sinAngleScale * x + cosAngleScale * y) | 0;
+        if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
+            return false;
+        } else {
+            controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+            let intColor = inputImagePixel[h + k * inputImageWidth];
+            colorRed = intColor & 0xff;
+            colorGreen = (intColor >>> 8) & 0xff;
+            colorBlue = (intColor >>> 16) & 0xff;
+            colorAlpha = (intColor >>> 24) & 0xff;
+        }
+        return true;
+    }
 
     /*
      * look up interpolated position and its color, add to color
@@ -349,7 +376,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * return true if both points are ok and color added, return false if color becomes invalid
      */
     function addInterpolated(t, indexInter) {
-        if (map.lyapunovArray[indexInter] < 0) {
+        if (lyapunovArray[indexInter] < 0) {
             return false;
         }
         let x = basePositionX + t * xArray[indexInter];
@@ -369,49 +396,24 @@ function VectorMap(outputImage, inputImage, controlImage) {
         return true;
     }
 
+
+
     // only called if basePosition is valid
-    // calculate average color of 9 points
     // returns true if color is correct, else false
-    VectorMap.createAverageInputColor9Weighted = function(index) {
-        let t = 0.33333;
-        basePositionX = xArray[index];
-        basePositionY = yArray[index];
-        // faster math floor instead of Math.round()
-        let h = (shiftX + cosAngleScale * basePositionX - sinAngleScale * basePositionY) | 0;
-        let k = (shiftY + sinAngleScale * basePositionX + cosAngleScale * basePositionY) | 0;
-        if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
-            return false;
-        }
-        controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
-        let intColor = inputImagePixel[h + k * inputImageWidth];
-        colorRed = (intColor << 1) & 0x1fe;
-        colorGreen = (intColor >>> 7) & 0x1fe;
-        colorBlue = (intColor >>> 15) & 0x1fe;
-        colorAlpha = (intColor >>> 23) & 0x1fe;
-        let ct = 1 - t;
-        basePositionX *= ct;
-        basePositionY *= ct;
-        if (addInterpolated(t, index + 1) &&
-            addInterpolated(t, index - 1) &&
-            addInterpolated(t, index + widthPlus) &&
-            addInterpolated(t, index - widthPlus)) {
-            colorRed = colorRed << 1;
-            colorBlue = colorBlue << 1;
-            colorGreen = colorGreen << 1;
-            colorAlpha = colorAlpha << 1;
-            if (addInterpolated(t, index - widthPlus - 1) &&
-                addInterpolated(t, index + widthPlus + 1) &&
-                addInterpolated(t, index - widthPlus + 1) &&
-                addInterpolated(t, index + widthPlus - 1)) {
-                fullColor = colorRed >>> 4 | (colorGreen & 0xff0) << 4 | (colorBlue & 0xff0) << 12 | (colorAlpha & 0xff0) << 20;
-                return true;
-            } else {
-                return false;
-            }
+    VectorMap.createAverageInputColor4New = function(index) {
+        basePositionX = 0.75 * xArray[index];
+        basePositionY = 0.75 * yArray[index];
+        if (startInterpolated(0.25, index + widthPlus + 1) &&
+            addInterpolated(0.25, index + widthPlus - 1) &&
+            addInterpolated(0.25, index - widthPlus + 1) &&
+            addInterpolated(0.25, index - widthPlus - 1)) {
+            fullColor = colorRed >>> 2 | (colorGreen & 0x3fc) << 6 | (colorBlue & 0x3fc) << 14 | (colorAlpha & 0x3fc) << 22;
+            return true;
         } else {
             return false;
         }
     };
+
 
     // only called if basePosition is valid
     // calculate average color of 9 points
@@ -446,7 +448,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
 
     };
 
-
     /**
      * draw on a pixelcanvas use a map 
      * if map is expanding use smoothing, if contracting use interpolation
@@ -463,7 +464,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let height = this.height;
         let width = this.width;
         let widthPlus = width + 2;
-        let lyapunovArray = this.lyapunovArray;
         let indexMapBase = 0;
         var indexMapHigh;
         var indexPixel = 0;
@@ -475,7 +475,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
             for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
                 lyapunov = lyapunovArray[indexMap] * baseLyapunov;
                 if (lyapunov >= 1) { // expansion:use averaging
-                    if (VectorMap.createAverageInputColor4(indexMap)) {
+                    if (VectorMap.createAverageInputColor4New(indexMap)) {
                         pixel[indexPixel++] = fullColor;
                     } else { //beware of byte order
                         pixel[indexPixel++] = intOffColor;
