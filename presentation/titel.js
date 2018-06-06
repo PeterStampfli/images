@@ -9,6 +9,9 @@ Make.createOutputImageNoColorSymmetry("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 
+
+
+
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
@@ -17,6 +20,8 @@ Make.highImageQuality = true;
 
 
 Layout.adjustDimensions();
+
+
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();

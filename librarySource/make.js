@@ -433,6 +433,8 @@ var Make = {};
             Make.getMapOutputCenter();
             Make.shiftMapToCenter();
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         if (!Make.map.exists) {
             console.log("*** Make.readImage: map does not exist !");

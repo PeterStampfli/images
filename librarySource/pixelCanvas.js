@@ -63,6 +63,9 @@ function PixelCanvas(idName) {
     this.height = 0;
     this.blueScreenColor = "#0000ff";
     this.linearTransform = new LinearTransform();
+    this.integralRed = new Uint32Array(1);
+    this.integralBlue = new Uint32Array(1);
+    this.integralGreen = new Uint32Array(1);
 }
 
 (function() {
@@ -904,7 +907,72 @@ function PixelCanvas(idName) {
             this.pixel[index++] = intColor;
         }
         this.showPixel();
-
-
     };
+
+    // integral color tables
+    // at (i,j) sum of all (<=i,<=j)
+    // test with very small image ....
+
+    /**
+     * create integral color tables of input image, depending on input image, call upon loading the image ???
+     * @method PixelCanvas#createIntegralColorTables
+     */
+    PixelCanvas.prototype.createIntegralColorTables = function() {
+        let width = this.width;
+        let height = this.height;
+        let size = width * height;
+        console.log(size);
+        // resize only if size increases
+        if (size > this.integralRed.length) {
+            // for small input images use typed Uint32Array
+            if (size < 16700000) {
+                console.log("small");
+                this.integralRed = new Uint32Array(size);
+                this.integralGreen = new Uint32Array(size);
+                this.integralBlue = new Uint32Array(size);
+            }
+            // for large images use generic array with larger integer numbers
+            else {
+                console.log("big");
+                this.integralRed = new Array(size);
+                this.integralGreen = new Array(size);
+                this.integralBlue = new Array(size);
+            }
+        }
+        console.log(this.integralRed.length);
+        let color = new Color();
+        // values at relative positions
+        let colorMX = new Color();
+        let colorMY = new Color();
+        let colorMXY = new Color();
+        // the corner as base
+        this.getPixelAtIndex(color, 0);
+        this.integralRed[0] = color.red;
+        this.integralGreen[0] = color.green;
+        this.integralBlue[0] = color.blue;
+        var i, jWidth, index;
+        // do the first line
+        for (i = 1; i < width; i++) {
+            this.getPixelAtIndex(color, i);
+            this.integralRed[i] = this.integralRed[i - 1] + color.red;
+            this.integralGreen[i] = this.integralGreen[i - 1] + color.green;
+            this.integralBlue[i] = this.integralBlue[i - 1] + color.blue;
+        }
+        // do the rest
+        for (jWidth = width; jWidth < size; jWidth += width) {
+            this.getPixelAtIndex(color, jWidth);
+            this.integralRed[jWidth] = this.integralRed[jWidth - width] + color.red;
+            this.integralGreen[jWidth] = this.integralGreen[jWidth - width] + color.green;
+            this.integralBlue[jWidth] = this.integralBlue[jWidth - width] + color.blue;
+            for (i = 1; i < width; i++) {
+                index = jWidth + i;
+                this.integralRed[index] = this.integralRed[index - 1] + this.integralRed[index - width] - this.integralRed[index - width - 1] + color.red;
+                this.integralGreen[index] = this.integralGreen[index - 1] + this.integralGreen[index - width] - this.integralGreen[index - width - 1] + color.green;
+                this.integralBlue[index] = this.integralBlue[index - 1] + this.integralBlue[index - width] - this.integralBlue[index - width - 1] + color.blue;
+            }
+        }
+    };
+
+
+
 }());
