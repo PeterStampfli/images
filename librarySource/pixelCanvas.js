@@ -1072,10 +1072,19 @@ function PixelCanvas(idName) {
 
     /**
      * get high quality pixel color, depending on transformed pixel size (total lyapunov coefficient)
-     * 
-     *     
+     * @method PixelCanvas#getHighQuality
+     * @param {Color} color - will be set to new pixel color
+     * @param {float} x - coordinate of pixel
+     * @param {float} y - coordinate of pixel
+     * @param {float} size - of the pixel (Lyapunov coefficient)
      * @return true, if color is valid, false, if point lies outside
      */
 
+    PixelCanvas.prototype.getHighQuality = function(color, x, y, size) {
+
+
+
+
+    };
 
 }());
