@@ -360,7 +360,7 @@ function PixelCanvas(idName) {
      * get color of nearest canvas pixel to given position for pixels inside canvas
      * returns false for pixels lying outside the canvas
      * @method PixelCanvas#getNearest
-     * @param {Color} color - will be set to the color of canvas image
+     * @param {Color} color - will be set to the color of canvas image pixel
      * @param {float} x - coordinate of point to check
      * @param {float} y - coordinate of point to check
      * @return true, if color is valid, false, if point lies outside
@@ -910,7 +910,7 @@ function PixelCanvas(idName) {
     };
 
     // integral color tables
-    // at (i,j) sum of all (<=i,<=j)
+    // at (i,j) sum of all (<i,<j)
     // test with very small image ....
 
     /**
@@ -919,8 +919,15 @@ function PixelCanvas(idName) {
      */
     PixelCanvas.prototype.createIntegralColorTables = function() {
         let width = this.width;
+        this.widthPlus = width + 1;
+        let widthPlus = this.widthPlus;
         let height = this.height;
-        let size = width * height;
+        let size = (width + 1) * (height + 1);
+        let color = new Color();
+        this.red = new Array(size);
+        var i, j, jWidthPlus, index;
+        var integral;
+
         console.log(size);
         // resize only if size increases
         if (size > this.integralRed.length) {
@@ -940,39 +947,135 @@ function PixelCanvas(idName) {
             }
         }
         console.log(this.integralRed.length);
-        let color = new Color();
-        // values at relative positions
-        let colorMX = new Color();
-        let colorMY = new Color();
-        let colorMXY = new Color();
-        // the corner as base
-        this.getPixelAtIndex(color, 0);
-        this.integralRed[0] = color.red;
-        this.integralGreen[0] = color.green;
-        this.integralBlue[0] = color.blue;
-        var i, jWidth, index;
-        // do the first line
-        for (i = 1; i < width; i++) {
-            this.getPixelAtIndex(color, i);
-            this.integralRed[i] = this.integralRed[i - 1] + color.red;
-            this.integralGreen[i] = this.integralGreen[i - 1] + color.green;
-            this.integralBlue[i] = this.integralBlue[i - 1] + color.blue;
+        for (index = 0; index < size; index++) {
+            this.getPixelAtIndex(color, index);
+            this.integralRed[index] = color.red;
+        }
+
+
+        Fast.logSmallArray(this.integralRed, width, height);
+
+        // do the first line of zeros
+        for (i = 0; i < widthPlus; i++) {
+            this.integralRed[i] = 0;
+            this.integralGreen[i] = 0;
+            this.integralBlue[i] = 0;
         }
         // do the rest
-        for (jWidth = width; jWidth < size; jWidth += width) {
-            this.getPixelAtIndex(color, jWidth);
-            this.integralRed[jWidth] = this.integralRed[jWidth - width] + color.red;
-            this.integralGreen[jWidth] = this.integralGreen[jWidth - width] + color.green;
-            this.integralBlue[jWidth] = this.integralBlue[jWidth - width] + color.blue;
-            for (i = 1; i < width; i++) {
-                index = jWidth + i;
-                this.integralRed[index] = this.integralRed[index - 1] + this.integralRed[index - width] - this.integralRed[index - width - 1] + color.red;
-                this.integralGreen[index] = this.integralGreen[index - 1] + this.integralGreen[index - width] - this.integralGreen[index - width - 1] + color.green;
-                this.integralBlue[index] = this.integralBlue[index - 1] + this.integralBlue[index - width] - this.integralBlue[index - width - 1] + color.blue;
+        for (j = 1; j <= height; j++) {
+            jWidthPlus = j * widthPlus;
+            this.integralRed[jWidthPlus] = 0;
+            this.integralGreen[jWidthPlus] = 0;
+            this.integralBlue[jWidthPlus] = 0;
+            for (i = 1; i < widthPlus; i++) {
+                index = jWidthPlus + i; // index to integrals
+                this.getPixelAtIndex(color, i - 1 + (j - 1) * width);
+                integral = this.integralRed;
+                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.red;
+                integral = this.integralGreen;
+                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.green;
+                integral = this.integralBlue;
+                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.blue;
+
             }
         }
+
+        Fast.logSmallArray(this.integralRed, width + 1, height + 1);
+        console.log(this.getAverage(color, 4, 5, 1));
+        console.log(color);
     };
 
+    /**
+     * get average color of rectangle centered at (x,y), rounded
+     * clamping to limits (0...width-1, 0... height-1), taking into account the shifted tables with extra 0's
+     * @method PixelCanvas#getAverage
+     * @param {Color} color - will be set to the average color of canvas image near pixel coordinates
+     * @param {float} x - pixel x-coordinate
+     * @param {float} y - pixel y-coordinate
+     * @param {float} halfSize - half of the size of pixel
+     * @return true, if color is valid, false, if point lies outside
+     */
+    PixelCanvas.prototype.getAverage = function(color, x, y, halfSize) {
+
+        x = Math.round(x);
+        y = Math.round(y);
+
+        if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
+            return false;
+        }
+        halfSize = Math.floor(halfSize);
+
+
+        let left = Math.max(0, x - halfSize);
+        let bottom = Math.max(0, y - halfSize);
+        let right = Math.min(this.width - 1, x + halfSize) + 1;
+        let top = Math.min(this.height - 1, y + halfSize) + 1;
+
+        console.log(left);
+        console.log(bottom);
+        console.log(right);
+        console.log(top);
+        let norm = 1.0 / ((right - left) * (top - bottom));
+        console.log("nor " + norm);
+
+        let red = 0;
+        for (var i = left; i < right; i++) {
+            for (var j = bottom; j < top; j++) {
+                this.getPixelAtIndex(color, i + j * this.width);
+                console.log(color.red);
+                red += color.red;
+            }
+        }
+        console.log("checkRed " + norm * red);
+
+
+        let iRightTop = right + top * this.widthPlus;
+        let iLeftTop = left + top * this.widthPlus;
+        let iRightBottom = right + bottom * this.widthPlus;
+        let iLeftBottom = left + bottom * this.widthPlus;
+        let integral = this.integralRed;
+        color.red = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
+        integral = this.integralGreen;
+        color.green = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
+        integral = this.integralBlue;
+        color.blue = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
+
+        return true;
+    };
+
+    /**
+     * threshold for doing cubic interpolation (if lyapunov coefficient/pixel size is smaller)
+     * @var PixelCanvas.thresholdCubic
+     */
+    PixelCanvas.thresholdCubic = 0.2;
+
+    /**
+     * threshold for doing linear interpolation (if lyapunov coefficient/pixel size is smaller)
+     * @var PixelCanvas.thresholdLinear
+     */
+    PixelCanvas.thresholdLinear = 1;
+
+
+    /**
+     * threshold for doing averaging (if lyapunov coefficient/pixel size is larger)
+     * @var PixelCanvas.thresholdAverage
+     */
+    PixelCanvas.thresholdAverage = 3;
+
+    /**
+     * smoothing factor, gives half of the smoothing square if multiplied with the pixel size
+     * typically smaller than 0.5, relates to thresholdAverage
+     * @var PixelCanvas.smoothing
+     */
+    PixelCanvas.smoothing = 0.4;
+
+
+    /**
+     * get high quality pixel color, depending on transformed pixel size (total lyapunov coefficient)
+     * 
+     *     
+     * @return true, if color is valid, false, if point lies outside
+     */
 
 
 }());

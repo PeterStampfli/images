@@ -359,4 +359,23 @@ var Fast = {};
         });
     };
 
+    /**
+     * print out a small array
+     * @method Fast.logSmallArray
+     * @param {Array} data
+     */
+    Fast.logSmallArray = function(data, width, height) {
+        var out;
+
+        console.log(width);
+        for (var j = height - 1; j >= 0; j--) {
+            out = j + ": ";
+            for (var i = 0; i < width; i++) {
+                out += " " + data[j * width + i];
+            }
+            console.log(out);
+
+        }
+    };
+
 }());
