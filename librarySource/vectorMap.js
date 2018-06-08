@@ -448,6 +448,30 @@ function VectorMap(outputImage, inputImage, controlImage) {
 
     };
 
+    var lyapunov;
+    const otherColor = new Color();
+
+    // only called if basePosition is valid
+    // calculate average color of 9 points
+    // returns true if color is correct, else false
+    VectorMap.createAverageColor = function(index) {
+        basePositionX = xArray[index];
+        basePositionY = yArray[index];
+        // faster math floor instead of Math.round()
+        let h = (shiftX + cosAngleScale * basePositionX - sinAngleScale * basePositionY) | 0;
+        let k = (shiftY + sinAngleScale * basePositionX + cosAngleScale * basePositionY) | 0;
+        if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
+            return false;
+        }
+        controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+
+
+        inputImage.getAverage(otherColor, h, k, lyapunov * 0.4);
+        fullColor = PixelCanvas.integerOf(otherColor);
+
+        return true;
+    };
+
     /**
      * draw on a pixelcanvas use a map 
      * if map is expanding use smoothing, if contracting use interpolation
@@ -467,7 +491,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let indexMapBase = 0;
         var indexMapHigh;
         var indexPixel = 0;
-        var lyapunov;
         const color = new Color();
         for (var j = 1; j <= height; j++) {
             indexMapBase += widthPlus;
@@ -510,6 +533,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
      * returns true if colors are correct, else false
      */
     VectorMap.prototype.drawHalf = function() {
+        console.log("half");
+        let baseLyapunov = this.inputImage.linearTransform.scale * this.outputImage.scale;
         this.setMap();
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
@@ -528,10 +553,12 @@ function VectorMap(outputImage, inputImage, controlImage) {
             indexMapHigh = indexMapBase + width;
             for (var indexMap = indexMapBase + 1; indexMap <= indexMapHigh; indexMap++) {
                 if (lyapunovArray[indexMap] >= 0) {
+                    lyapunov = lyapunovArray[indexMap] * baseLyapunov;
+
                     if (j < 0.5 * height) {
                         success = VectorMap.directColor(indexMap);
                     } else {
-                        success = VectorMap.createAverageInputColor4(indexMap);
+                        success = VectorMap.createAverageColor(indexMap);
                     }
                     if (success) {
                         pixel[indexPixel++] = fullColor;

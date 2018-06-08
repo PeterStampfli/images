@@ -927,8 +927,6 @@ function PixelCanvas(idName) {
         this.red = new Array(size);
         var i, j, jWidthPlus, index;
         var integral;
-
-        console.log(size);
         // resize only if size increases
         if (size > this.integralRed.length) {
             // for small input images use typed Uint32Array
@@ -946,15 +944,6 @@ function PixelCanvas(idName) {
                 this.integralBlue = new Array(size);
             }
         }
-        console.log(this.integralRed.length);
-        for (index = 0; index < size; index++) {
-            this.getPixelAtIndex(color, index);
-            this.integralRed[index] = color.red;
-        }
-
-
-        Fast.logSmallArray(this.integralRed, width, height);
-
         // do the first line of zeros
         for (i = 0; i < widthPlus; i++) {
             this.integralRed[i] = 0;
@@ -980,9 +969,9 @@ function PixelCanvas(idName) {
             }
         }
 
-        Fast.logSmallArray(this.integralRed, width + 1, height + 1);
-        console.log(this.getAverage(color, 4, 5, 1));
-        console.log(color);
+        //   Fast.logSmallArray(this.integralRed, width + 1, height + 1);
+        // console.log(this.getAverage(color, 4, 5, 1));
+        //console.log(color);
     };
 
     /**
@@ -1011,23 +1000,18 @@ function PixelCanvas(idName) {
         let right = Math.min(this.width - 1, x + halfSize) + 1;
         let top = Math.min(this.height - 1, y + halfSize) + 1;
 
-        console.log(left);
-        console.log(bottom);
-        console.log(right);
-        console.log(top);
         let norm = 1.0 / ((right - left) * (top - bottom));
-        console.log("nor " + norm);
-
-        let red = 0;
-        for (var i = left; i < right; i++) {
-            for (var j = bottom; j < top; j++) {
-                this.getPixelAtIndex(color, i + j * this.width);
-                console.log(color.red);
-                red += color.red;
-            }
-        }
-        console.log("checkRed " + norm * red);
-
+        //   console.log("nor " + norm);
+        /*
+                let red = 0;
+                for (var i = left; i < right; i++) {
+                    for (var j = bottom; j < top; j++) {
+                        this.getPixelAtIndex(color, i + j * this.width);
+                        red += color.red;
+                    }
+                }
+                console.log("checkRed " + norm * red);
+        */
 
         let iRightTop = right + top * this.widthPlus;
         let iLeftTop = left + top * this.widthPlus;

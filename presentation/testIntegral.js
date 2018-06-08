@@ -1,5 +1,8 @@
 /* jshint esversion:6 */
 
+VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
+
+
 Layout.setup("titel.html", "setup.html");
 Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
@@ -16,7 +19,7 @@ Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
 
-Make.highImageQuality = true;
+//Make.highImageQuality = true;
 
 
 Layout.adjustDimensions();
@@ -33,4 +36,6 @@ Layout.createOpenImage();
 
 
 
-Make.readImageWithFilePathAtSetup("smallest.jpg");
+
+
+Make.readImageWithFilePathAtSetup("GamlaStan.jpg");
