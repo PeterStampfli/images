@@ -910,8 +910,8 @@ function PixelCanvas(idName) {
     };
 
     // integral color tables
-    // at (i,j) sum of all (<i,<j)
-    // test with very small image ....
+    // integral[i,j] = sum of all (<i,<j)
+    // with additional row and columns of zeros to make lookup faster
 
     /**
      * create integral color tables of input image, depending on input image, call upon loading the image ???
@@ -925,20 +925,18 @@ function PixelCanvas(idName) {
         let size = (width + 1) * (height + 1);
         let color = new Color();
         this.red = new Array(size);
-        var i, j, jWidthPlus, index;
+        var i, j, jWidthPlus, jWidth,index;
         var integral;
         // resize only if size increases
         if (size > this.integralRed.length) {
             // for small input images use typed Uint32Array
             if (size < 16700000) {
-                console.log("small");
                 this.integralRed = new Uint32Array(size);
                 this.integralGreen = new Uint32Array(size);
                 this.integralBlue = new Uint32Array(size);
             }
             // for large images use generic array with larger integer numbers
             else {
-                console.log("big");
                 this.integralRed = new Array(size);
                 this.integralGreen = new Array(size);
                 this.integralBlue = new Array(size);
@@ -953,25 +951,21 @@ function PixelCanvas(idName) {
         // do the rest
         for (j = 1; j <= height; j++) {
             jWidthPlus = j * widthPlus;
+            jWidth=(j-1)*width-1;              // index to pixels, with compensation for extra row and column of the table
             this.integralRed[jWidthPlus] = 0;
             this.integralGreen[jWidthPlus] = 0;
             this.integralBlue[jWidthPlus] = 0;
             for (i = 1; i < widthPlus; i++) {
                 index = jWidthPlus + i; // index to integrals
-                this.getPixelAtIndex(color, i - 1 + (j - 1) * width);
+                this.getPixelAtIndex(color, i +jWidth);
                 integral = this.integralRed;
                 integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.red;
                 integral = this.integralGreen;
                 integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.green;
                 integral = this.integralBlue;
                 integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.blue;
-
             }
         }
-
-        //   Fast.logSmallArray(this.integralRed, width + 1, height + 1);
-        // console.log(this.getAverage(color, 4, 5, 1));
-        //console.log(color);
     };
 
     /**
@@ -985,45 +979,28 @@ function PixelCanvas(idName) {
      * @return true, if color is valid, false, if point lies outside
      */
     PixelCanvas.prototype.getAverage = function(color, x, y, halfSize) {
-
         x = Math.round(x);
         y = Math.round(y);
-
         if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
             return false;
         }
         halfSize = Math.floor(halfSize);
-
-
         let left = Math.max(0, x - halfSize);
         let bottom = Math.max(0, y - halfSize);
         let right = Math.min(this.width - 1, x + halfSize) + 1;
         let top = Math.min(this.height - 1, y + halfSize) + 1;
-
         let norm = 1.0 / ((right - left) * (top - bottom));
-        //   console.log("nor " + norm);
-        /*
-                let red = 0;
-                for (var i = left; i < right; i++) {
-                    for (var j = bottom; j < top; j++) {
-                        this.getPixelAtIndex(color, i + j * this.width);
-                        red += color.red;
-                    }
-                }
-                console.log("checkRed " + norm * red);
-        */
-
-        let iRightTop = right + top * this.widthPlus;
-        let iLeftTop = left + top * this.widthPlus;
-        let iRightBottom = right + bottom * this.widthPlus;
-        let iLeftBottom = left + bottom * this.widthPlus;
+        let widthPlus=this.widthPlus;
+        let iRightTop = right + top * widthPlus;
+        let iLeftTop = left + top * widthPlus;
+        let iRightBottom = right + bottom * widthPlus;
+        let iLeftBottom = left + bottom * widthPlus;
         let integral = this.integralRed;
         color.red = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
         integral = this.integralGreen;
         color.green = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
         integral = this.integralBlue;
         color.blue = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
-
         return true;
     };
 
@@ -1060,15 +1037,20 @@ function PixelCanvas(idName) {
      * @param {Color} color - will be set to new pixel color
      * @param {float} x - coordinate of pixel
      * @param {float} y - coordinate of pixel
-     * @param {float} size - of the pixel (Lyapunov coefficient)
+     * @param {float} size - of the pixel (total Lyapunov coefficient)
      * @return true, if color is valid, false, if point lies outside
      */
-
     PixelCanvas.prototype.getHighQuality = function(color, x, y, size) {
-
-
-
-
+        if (size<PixelCanvas.thresholdCubic){
+            return this.getCubic(color,x,y);
+        }
+        if (size<PixelCanvas.thresholdLinear){
+            return this.getLinear(color,x,y);
+        }
+        if (size < PixelCanvas.thresholdAverage){
+            return this.getLinear(color,x,y);
+        }
+        return this.getAverage(color,x,y,PixelCanvas.smoothing*size);
     };
-
+        
 }());
