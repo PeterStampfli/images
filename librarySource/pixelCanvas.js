@@ -925,7 +925,7 @@ function PixelCanvas(idName) {
         let size = (width + 1) * (height + 1);
         let color = new Color();
         this.red = new Array(size);
-        var i, j, jWidthPlus, jWidth,index;
+        var i, j, jWidthPlus, jWidth, index;
         var integral;
         // resize only if size increases
         if (size > this.integralRed.length) {
@@ -951,13 +951,13 @@ function PixelCanvas(idName) {
         // do the rest
         for (j = 1; j <= height; j++) {
             jWidthPlus = j * widthPlus;
-            jWidth=(j-1)*width-1;              // index to pixels, with compensation for extra row and column of the table
+            jWidth = (j - 1) * width - 1; // index to pixels, with compensation for extra row and column of the table
             this.integralRed[jWidthPlus] = 0;
             this.integralGreen[jWidthPlus] = 0;
             this.integralBlue[jWidthPlus] = 0;
             for (i = 1; i < widthPlus; i++) {
                 index = jWidthPlus + i; // index to integrals
-                this.getPixelAtIndex(color, i +jWidth);
+                this.getPixelAtIndex(color, i + jWidth);
                 integral = this.integralRed;
                 integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.red;
                 integral = this.integralGreen;
@@ -990,7 +990,7 @@ function PixelCanvas(idName) {
         let right = Math.min(this.width - 1, x + halfSize) + 1;
         let top = Math.min(this.height - 1, y + halfSize) + 1;
         let norm = 1.0 / ((right - left) * (top - bottom));
-        let widthPlus=this.widthPlus;
+        let widthPlus = this.widthPlus;
         let iRightTop = right + top * widthPlus;
         let iLeftTop = left + top * widthPlus;
         let iRightBottom = right + bottom * widthPlus;
@@ -1041,16 +1041,16 @@ function PixelCanvas(idName) {
      * @return true, if color is valid, false, if point lies outside
      */
     PixelCanvas.prototype.getHighQuality = function(color, x, y, size) {
-        if (size<PixelCanvas.thresholdCubic){
-            return this.getCubic(color,x,y);
+        if (size < PixelCanvas.thresholdCubic) {
+            return this.getCubic(color, x, y);
         }
-        if (size<PixelCanvas.thresholdLinear){
-            return this.getLinear(color,x,y);
+        if (size < PixelCanvas.thresholdLinear) {
+            return this.getLinear(color, x, y);
         }
-        if (size < PixelCanvas.thresholdAverage){
-            return this.getLinear(color,x,y);
+        if (size < PixelCanvas.thresholdAverage) {
+            return this.getLinear(color, x, y);
         }
-        return this.getAverage(color,x,y,PixelCanvas.smoothing*size);
+        return this.getAverage(color, x, y, PixelCanvas.smoothing * size);
     };
-        
+
 }());
