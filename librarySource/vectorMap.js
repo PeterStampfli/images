@@ -18,7 +18,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
     this.outputImage = outputImage;
     this.inputImage = inputImage;
     this.controlImage = controlImage;
-    this.offColor = new Color(127, 127, 127, 0); //transparent grey for pixels without image
 }
 
 (function() {
@@ -43,15 +42,6 @@ function VectorMap(outputImage, inputImage, controlImage) {
                 this.lyapunovArray = new Float32Array(length);
             }
         }
-    };
-
-    /**
-     * set the off-color to the values of another color
-     * @VectorMap#setOffColor
-     * @param {Color} offColor
-     */
-    VectorMap.prototype.setOffColor = function(offColor) {
-        this.offColor.set(offColor);
     };
 
     /**
@@ -171,6 +161,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
     let colorParityNull = new Color(200, 200, 0); //default yellow
     let colorParityOdd = new Color(0, 120, 0); // default cyan
     let colorParityEven = new Color(200, 120, 0); // default: brown
+    let colorParityOff = new Color(128, 128, 128, 0);
 
 
     /**
@@ -182,7 +173,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
     VectorMap.prototype.drawStructure = function() {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        let intOffColor = PixelCanvas.integerOf(colorParityOff);
         let intColorParityNull = PixelCanvas.integerOf(colorParityNull);
         let intColorParityOdd = PixelCanvas.integerOf(colorParityOdd);
         let intColorParityEven = PixelCanvas.integerOf(colorParityEven);
@@ -206,11 +197,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
                 pixel[index] = intOffColor;
             }
         }
-
         pixelCanvas.showPixel();
     };
 
-
+    let offColor = new Color(0, 0, 0, 0);
 
     /**
      * draw on a pixelcanvas use a map and an input image as fast as you can
@@ -244,7 +234,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         const length = xArray.length;
         // other
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
         var x, y, h, k;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= 0) {
@@ -298,7 +289,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         // color data
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
         var x, y, h, k;
         const length = xArray.length;
@@ -355,7 +347,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         // color data
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
         var x, y, h, k;
         var success;
@@ -410,7 +403,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let shiftY = inputImageLinearTransform.shiftY;
         let cosAngleScale = inputImageLinearTransform.cosAngleScale;
         let sinAngleScale = inputImageLinearTransform.sinAngleScale;
-        // map dimensions
+        // map dimensionsheight
         let height = this.height;
         let width = this.width;
         // map data
@@ -418,7 +411,8 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         // color data
-        let intOffColor = PixelCanvas.integerOf(this.offColor);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
         var success;
         const length = xArray.length;

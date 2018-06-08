@@ -240,10 +240,10 @@ function PixelCanvas(idName) {
 
     /**
      * calculate average color of opaque pixels
-     * @method PixelCanvas#averageColor
+     * @method PixelCanvas#averageOpaqueColor
      * @param {Color} color - will be set to average color
      */
-    PixelCanvas.prototype.averageColor = function(color) {
+    PixelCanvas.prototype.averageOpaqueColor = function(color) {
         const length = this.pixel.length;
         const pixelComponents = this.pixelComponents;
         let i4 = 0;
@@ -848,31 +848,6 @@ function PixelCanvas(idName) {
     }
 
 
-    /**
-     * get color of interpolated canvas pixel to given position.
-     * Interpolation can be set to nearest, linear or cubic. Default is nearest
-     * returns color.red=-1 for pixels lying outside the canvas
-     * @method PixelCanvas#getInterpolated
-     * @param {Color} color - will be set to the interpolated color of canvas image
-     * @param {Vector2} v - coordinates of point to check
-     */
-    PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getNearest;
-
-    /**
-     * choose the interpolation method. 0 for nearest, 1 for linear and 2 for cubic.
-     * @method PixelCanvas#chooseInterpolation
-     * @param {integer} n - choice
-     */
-    PixelCanvas.prototype.chooseInterpolation = function(n) {
-        if (n < 1) {
-            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getNearest;
-        } else if (n === 1) {
-            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getLinear;
-        } else {
-            PixelCanvas.prototype.getInterpolated = PixelCanvas.prototype.getCubic;
-        }
-    };
-
 
     /**
      * Change the image pixel color. For simple image manipulation.
@@ -1002,6 +977,19 @@ function PixelCanvas(idName) {
         integral = this.integralBlue;
         color.blue = norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]);
         return true;
+    };
+
+    /**
+     * get average color of the image
+     * @method PixelCanvas#averageImageColor
+     * @return {Color} - the average color of canvas image near pixel coordinates, will be reused
+     */
+    PixelCanvas.prototype.averageImageColor = function(color) {
+        let norm = 1.0 / (this.width * this.height);
+        let last = this.integralRed.length - 1;
+        color.red = norm * this.integralRed[last];
+        color.green = norm * this.integralGreen[last];
+        color.blue = norm * this.integralBlue[last];
     };
 
     /**
