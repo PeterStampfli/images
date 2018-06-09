@@ -360,7 +360,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
                 let y = yArray[index];
                 let h = shiftX + cosAngleScale * x - sinAngleScale * y;
                 let k = shiftY + sinAngleScale * x + cosAngleScale * y;
-                if (index < 0.5 * length) {
+                if (index > 0.5 * length) {
                     success = inputImage.getNearest(color, h, k);
                 } else {
                     success = inputImage.getHighQuality(color, h, k, lyapunov);

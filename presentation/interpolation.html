@@ -12,6 +12,22 @@
 <div id="text">  
 
     <h1> Interpolation</h1>
+    
+    <p>
+    The mapping shrinks pixels for elliptic geometry. Many output image pixels go to the same input image pixel.
+    </p>
+    
+    <p>
+    Without color interpolation they all get the same color and the ouput image has big pixel blocks.
+    </p>
+    
+    <p>
+    Bi-linear interpolation gives much better results. Blocks disappear.<br> Linear artefacts appear at maxima and minima of luminosity.
+    </p>
+    
+    <p>
+    Bi-cubic interpolation eliminates these linear artefacts. Mitchell-Netravali with a separable kernel is very fast. Only the hard mirror lines make some "artificial" lines.
+    </p>
 
     
     

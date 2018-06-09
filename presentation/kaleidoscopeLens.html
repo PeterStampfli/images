@@ -10,14 +10,37 @@
 
 <div id="text">  
 
-    <h1> Lens and triangle kaleidoscope</h1>
+    <h1> Anti-aliasing</h1>
+    
+    <p>
+    Pixels have a finite size !
+    </p>
+    
+    <p>
+    Circle inversion expands pixel sizes.
+    Mapped output image pixels may contain many input image pixels.
+    </p>
+    
+    <p>
+    Taking the color of only one input image pixel then results in image noise.
+    </p>
+    
+    <p>
+    Use instead an average of the color inside a region of the size of the mapped output image pixel.<br>
+    This is fast using summed area tables for rgb color components.<br>
+    Strongly improves the output image. Even far away from the border of a Poincaré disc.<br> 
+    </p>
+    
+    
+    
+    
+    
 
         <p>
     k <span id="k"></span> <br>
     m <span id="m"></span> <br>
     n <span id="n"></span><br>
     sum= <span id="sum"></span> <sup>o</sup><br>
-    change <span id="change"></span>
 
     </p>
 

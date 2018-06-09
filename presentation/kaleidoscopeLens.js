@@ -139,7 +139,6 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
 
 };
 
-Layout.createStructureImageButton("change");
 
 Make.initializeMap();
 
