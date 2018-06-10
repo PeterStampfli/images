@@ -37,5 +37,24 @@ Layout.createOpenImage();
 
 
 
+pix = Make.outputImage.pixelCanvas;
+color = new Color();
+limit = 50000000;
+
+console.time("slow");
+for (i = 0; i < limit; i++) {
+    pix.getLinear(color, 100, 100);
+
+}
+console.timeEnd("slow");
+
+
+console.time("fast");
+for (i = 0; i < limit; i++) {
+    pix.getLinearFast(color, 100, 100);
+
+}
+console.timeEnd("fast");
+
 
 Make.readImageWithFilePathAtSetup("GamlaStan.jpg");

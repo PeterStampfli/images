@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("titel.html", "setup.html");
+Layout.setup("", "setup.html");
 Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
 Layout.setFontSizes();

@@ -427,7 +427,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
                 if (index < 0.33 * length) {
                     success = inputImage.getCubic(color, h, k);
                 } else if (index < 0.66 * length) {
-                    success = inputImage.getLinearWithAlpha(color, h, k);
+                    success = inputImage.getLinear(color, h, k);
                 } else {
                     success = inputImage.getNearest(color, h, k);
                 }

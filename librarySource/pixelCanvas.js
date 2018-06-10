@@ -298,6 +298,8 @@ function PixelCanvas(idName) {
     abgr[0] = 3; // the red byte, all others are 0
     const abgrOrder = (intColor[0] === 3);
 
+    console.log("abgrOrder " + abgrOrder);
+
     /**
      * transform color into integer with correct byte order
      * @method PixelCanvas.integerOf
@@ -546,6 +548,7 @@ function PixelCanvas(idName) {
 
     /*
     the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
+    it is normalized to 1 within an error of about 1.00001 ! (good enough)
     */
     function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
         if (x < 1) {
@@ -553,6 +556,13 @@ function PixelCanvas(idName) {
         }
         return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
     }
+
+
+
+
+
+
+
 
     /**
      * get color of cubic interpolated canvas pixel to given position
@@ -1040,5 +1050,6 @@ function PixelCanvas(idName) {
         }
         return this.getAverage(color, x, y, PixelCanvas.smoothing * size);
     };
+
 
 }());

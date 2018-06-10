@@ -54,13 +54,15 @@ var KeyboardEvents = {};
     /**
      * adding an URL of a html page that will be reached upon key pressed
      * @method KeyboardEvents.addUrl
-     * @param {String} url 
+     * @param {String} url - nothing will be done for url=""
      * @param {String} key 
      */
     KeyboardEvents.addUrl = function(url, key) {
-        KeyboardEvents.addFunction(function() {
-            window.location = url;
-        }, key);
+        if (url != "") {
+            KeyboardEvents.addFunction(function() {
+                window.location = url;
+            }, key);
+        }
     };
 
 

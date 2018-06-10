@@ -42,7 +42,6 @@ var Layout = {};
 
     // basic font size is on local storage
     if (localStorage.getItem("fontSize")) {
-
         Layout.basicFontSize = parseInt(localStorage.getItem("fontSize"), 10);
     } else {
         Layout.basicFontSize = Math.round(window.innerHeight * 0.06);
@@ -96,7 +95,7 @@ var Layout = {};
      */
     Layout.activateFontSizeChangesButtons = function() {
         DOM.create("button", "fontMinusButton", "#topLeft", "font-");
-        DOM.create("button", "fontPlusButton", "#topRight", "font+");
+        DOM.create("button", "fontPlusButton", "#topLeft", "font+");
         DOM.attribute("#fontMinusButton,#fontPlusButton", "class", "topButton");
         let fontMinusButton = new Button("fontMinusButton");
         fontMinusButton.onClick = function() {
@@ -144,8 +143,8 @@ var Layout = {};
     /**
      * typical setup, hide control canvas and arrow controller. Layout.outputSize will have dimensions of output image.
      * @method Layout.setup
-     * @param {String} prevPage
-     * @param {String} nextPage
+     * @param {String} prevPage - url of previous page or empty string
+     * @param {String} nextPage - url of next page or empty string
      */
     Layout.setup = function(prevPage, nextPage) {
 
@@ -178,14 +177,22 @@ var Layout = {};
         DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
 
         let prevButton = new Button("prevButton");
-        prevButton.onClick = function() {
-            window.location = prevPage;
-        };
+        if (prevPage != "") {
+            prevButton.onClick = function() {
+                window.location = prevPage;
+            };
+        } else {
+            DOM.style("#prevButton", "display", "none");
+        }
 
         let nextButton = new Button("nextButton");
-        nextButton.onClick = function() {
-            window.location = nextPage;
-        };
+        if (nextPage != "") {
+            nextButton.onClick = function() {
+                window.location = nextPage;
+            };
+        } else {
+            DOM.style("#nextButton", "display", "none");
+        }
     };
 
     /**

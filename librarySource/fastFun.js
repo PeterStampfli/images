@@ -13,6 +13,7 @@ var Fast = {};
 
     /**
      * make a table of function values for linear interpolation
+     * uses typed float32 arrays
      * @function makeTable
      * @memberof Fast
      * @param {float} start - the table starts here
@@ -22,11 +23,10 @@ var Fast = {};
      * @return {array} array of floats, length is nIntervals+2 (required for "interpolation" at x===end)
      */
     Fast.makeTable = function(start, end, nIntervals, theFunction) {
-        var table = [];
         var step = (end - start) / nIntervals;
         var x = start;
         var nValues = nIntervals + 2;
-        table.length = nValues;
+        var table = new Float32Array(nValues);
         for (var i = 0; i < nValues; i++) {
             table[i] = theFunction(x);
             x += step;
@@ -377,5 +377,8 @@ var Fast = {};
 
         }
     };
+
+    //console.time("stcihwort")
+    //console.timeEnd("stcihwort")
 
 }());

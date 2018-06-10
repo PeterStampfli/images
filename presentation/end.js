@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-Layout.setup("interpolation.html", "end.html");
+Layout.setup("interpolation.html", "");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
