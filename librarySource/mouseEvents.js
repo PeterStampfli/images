@@ -1,5 +1,7 @@
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
+ * set position fixed of the html element in the beginning, before creating this, 
+ * or you have to correct this.elementPositionFixed=true later !!!
  * @constructor MouseEvents
  * @param {String} idName - of the HTML element
  */
@@ -40,6 +42,7 @@ function MouseEvents(idName) {
     this.element.onmousedown = function(event) {
         mouseEvents.update(event);
         mouseEvents.pressed = true;
+        console.log("down");
         mouseEvents.downAction(mouseEvents);
     };
 

@@ -1,29 +1,39 @@
 /**
  * a canvas shows the input image at reduced scale, indicate the region of sampled pixels, mouseEvents translate and scale
+ * It has a limited space given as maxWidth and maxHeight and limitLeft and limitTop (for fixed position)
+ * negative limitLeft for no fixed position (scrolling canvas or invisible)
  * @constructor ControlImage
  * @param {String} idName - html identifier
- * @param {integer} sizeLimit - the larger width or height
+ * @param {float} maxWidth - maximum width
+ * @param {float} maxHeight - maximum height, default is maxWidth
+ * @param {float} limitLeft - limit for the left side, default -1000
+ * @param {float} limitTop - limit for the top side, default -1000
  */
 
 /* jshint esversion:6 */
 
-function ControlImage(idName, sizeLimit) {
-    "use strict";
-
-    sizeLimit = Math.round(sizeLimit);
+function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
+    this.idName = idName;
+    if (document.getElementById(idName) === null) {
+        DOM.create("canvas", idName, "body");
+    }
+    if (limitLeft >= 0) { // visible as position fixed
+        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
+    } else {
+        DOM.style("#" + this.idName, "display", "none");
+    }
+    this.maxWidth = Math.round(maxWidth);
+    this.maxHeight = Math.round(maxHeight);
+    this.limitLeft = limitLeft;
+    this.limitTop = limitTop;
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
-    this.sizeLimit = sizeLimit;
     this.controlDivInputSize = 1;
     this.semiAlpha = 128;
     this.scale = 1;
     this.zoomFactor = 1.05;
     this.shiftX = 0;
     this.shiftY = 0;
-
-    // make it visible
-    this.pixelCanvas.setSize(sizeLimit, sizeLimit);
-    this.pixelCanvas.blueScreen();
 
     /**
      * what to do for move or wheel events (redraw image)
@@ -54,7 +64,19 @@ function ControlImage(idName, sizeLimit) {
 (function() {
     "use strict";
 
-    // drawing on the canvas
+
+    /**
+     * show the maximum area borders for dedugging layout
+     * @method ControlImage#showBorder
+     */
+    ControlImage.prototype.showBorder = function() {
+        let id = "border" + this.idName;
+        DOM.create("div", id, "body", "area for " + this.idName);
+        DOM.style("#" + id, "zIndex", "3");
+        DOM.style("#" + id, "backgroundColor", "rgba(100,255,100,0.3", "color", "green");
+        DOM.style("#" + id, "position", "fixed", "left", this.limitLeft + px, "top", this.limitTop + px);
+        DOM.style("#" + id, "width", this.maxWidth + px, "height", this.maxHeight + px);
+    };
 
     /**
      * attach an input image (call always after reading a new one), resizes, loads image
@@ -62,12 +84,22 @@ function ControlImage(idName, sizeLimit) {
      * @param {PixelCanvas} inputImage - the input image
      */
     ControlImage.prototype.loadInputImage = function(inputImage) {
-        if (inputImage.width > inputImage.height) {
-            this.controlDivInputSize = this.sizeLimit / inputImage.width;
+        // check for relative widths and height 
+        if (inputImage.width / inputImage.height > this.maxWidth / this.maxHeight) {
+            // the width dominates and fills entirely the space for the control canvas
+            this.controlDivInputSize = this.maxWidth / inputImage.width;
         } else {
-            this.controlDivInputSize = this.sizeLimit / inputImage.height;
+            this.controlDivInputSize = this.maxHeight / inputImage.height;
         }
-        this.pixelCanvas.setSize(inputImage.width * this.controlDivInputSize, inputImage.height * this.controlDivInputSize);
+        let trueWidth = inputImage.width * this.controlDivInputSize;
+        let trueHeight = inputImage.height * this.controlDivInputSize;
+        // see if position is fixed
+        if (this.mouseEvents.elementPositionFixed) {
+            let left = this.limitLeft + 0.5 * (this.maxWidth - trueWidth);
+            let top = this.limitTop + Math.round(0.5 * (this.maxHeight - trueHeight));
+            DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+        }
+        this.pixelCanvas.setSize(trueWidth, trueHeight);
         this.pixelCanvas.canvasContext.drawImage(inputImage.canvas, 0, 0, this.pixelCanvas.width, this.pixelCanvas.height);
         this.pixelCanvas.createPixel();
     };

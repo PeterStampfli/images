@@ -152,10 +152,9 @@ var Layout = {};
         KeyboardEvents.addUrl(nextPage, "n");
 
         DOM.create("canvas", "outputCanvas", "body");
-        DOM.create("canvas", "controlCanvas", "body");
+        //   DOM.create("canvas", "controlCanvas", "body");
         DOM.create("canvas", "arrowController", "body");
 
-        DOM.style("#controlCanvas,#arrowController", "display", "none"); // make visible with "initial"
         DOM.style("#outputCanvas,#text", "zIndex", "1");
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
@@ -206,7 +205,6 @@ var Layout = {};
         let button = new Button("structureImageButton");
         button.onClick = function() {
             Make.switchStructureImage();
-
         };
     };
 
@@ -227,8 +225,9 @@ var Layout = {};
 
     // on resize: adjust new dimensions and redraw output image
     window.onresize = function() {
-        Layout.adjustDimensions();
+        //Layout.adjustDimensions();
         //   Layout.setFontSizes();
+        //document.querySelector("body").innerHTML="<h1>Please reload this page!</h1>";
     };
 
 }());

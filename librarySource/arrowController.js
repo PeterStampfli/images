@@ -1,13 +1,30 @@
 /** a controller with a rotating arrow and an angle
  * @constructor ArrowController
  * @param {String} idName - html identifier
- * @param {integer} size - width and height
+ * @param {float} size - width and height
+ * @param {float} left - left side, default -1000 for invisible
+ * @param {float} top - top side, default -1000 for invisible
  */
 
 /* jshint esversion:6 */
 
-function ArrowController(idName, size) {
-    "use strict";
+function ArrowController(idName, size, left = -1000, top = -1000) {
+
+    this.idName = idName;
+
+    if (document.getElementById(idName) === null) {
+        DOM.create("canvas", idName, "body");
+    }
+
+    if (left >= 0) { // visible as position fixed
+        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
+    } else {
+        DOM.style("#" + this.idName, "display", "none");
+    }
+    this.size = size;
+    this.left = left;
+    this.top = top;
+
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
     this.angle = 0;
@@ -19,13 +36,14 @@ function ArrowController(idName, size) {
     this.action = function() {};
 
     // setting the scale and origin (only of context) for easy drawing independent of size
+    size = Math.round(size);
     this.pixelCanvas.setSize(size, size); // don't need no pixels
     this.pixelCanvas.canvasContext.scale(size / 2, size / 2);
     this.pixelCanvas.canvasContext.translate(1, 1);
 
     // custom colors possible
-    this.backGroundColor = "Yellow";
-    this.arrowColor = "Red";
+    this.backGroundColor = "#777777";
+    this.arrowColor = "#ffffff";
 
     // do the drawing as part of the setup
     this.drawOrientation();

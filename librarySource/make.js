@@ -135,12 +135,17 @@ var Make = {};
 
     /**
      * create the control image object
+     * It has a limited space given as maxWidth and maxHeight and limitLeft and limitTop (for fixed position)
+     * negative limitLeft for no fixed position (scrolling canvas or invisible)
      * @method Make.createControlImage
      * @param {String} idName - html identifier
-     * @param {integer} sizeLimit - the larger width or height
+     * @param {float} maxWidth - maximum width
+     * @param {float} maxHeight - maximum height, default is maxWidth
+     * @param {float} limitLeft - limit for the left side, default -1000
+     * @param {float} limitTop - limit for the top side, default -1000
      */
-    Make.createControlImage = function(idName, sizeLimit) {
-        Make.controlImage = new ControlImage(idName, sizeLimit);
+    Make.createControlImage = function(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
+        Make.controlImage = new ControlImage(idName, maxWidth, maxHeight, limitLeft, limitTop);
         Make.controlImage.action = Make.updateOutputImageIfUsingInputImage;
     };
 
@@ -148,10 +153,11 @@ var Make = {};
      * create the arrowController object
      * @method Make.createArrowController
      * @param {String} idName - html identifier
-     * @param {integer} size - width and height
-     */
-    Make.createArrowController = function(idName, size) {
-        Make.arrowController = new ArrowController(idName, size);
+     * @param {float} size - width and height
+     * @param {float} left - left side, default -1000 for invisible
+     * @param {float} top - top side, default -1000 for invisible    */
+    Make.createArrowController = function(idName, size, left = -1000, top = -1000) {
+        Make.arrowController = new ArrowController(idName, size, left, top);
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
     };
 
