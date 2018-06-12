@@ -14,19 +14,24 @@ var DOM = {};
 
     /**
      * create an element, give it an id, add to parent,if it has a text, add text to element 
+     * if an element with the id already exists then nothing will be done
      * @method DOM.create
      * @param {String} tag
      * @param {String} id
      * @param {String} parent - css selector for parent (tag "body" or id selector "#id")
      * @param {String} text - optional
+     * @return the element
      */
     DOM.create = function(tag, id, parent, text) {
-        let element = document.createElement(tag);
-        element.setAttribute("id", id);
-        document.querySelector(parent).appendChild(element);
-        if (arguments.length > 3) {
-            let textNode = document.createTextNode(text);
-            element.appendChild(textNode);
+        let element = document.getElementById(id);
+        if (element === null) {
+            element = document.createElement(tag);
+            element.setAttribute("id", id);
+            document.querySelector(parent).appendChild(element);
+            if (arguments.length > 3) {
+                let textNode = document.createTextNode(text);
+                element.appendChild(textNode);
+            }
         }
         return element;
     };

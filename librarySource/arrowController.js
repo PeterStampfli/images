@@ -12,12 +12,10 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
 
     this.idName = idName;
 
-    if (document.getElementById(idName) === null) {
-        DOM.create("canvas", idName, "body");
-    }
+    DOM.create("canvas", idName, "body");
 
     if (left >= 0) { // visible as position fixed
-        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
+        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed", "left", left + px, "top", top + px);
     } else {
         DOM.style("#" + this.idName, "display", "none");
     }
@@ -100,6 +98,20 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      */
     ArrowController.prototype.setAction = function(action) {
         this.action = action;
+    };
+
+
+    /**
+     * show the square area for debugging layout
+     * @method ArrowController#showArea
+     */
+    ArrowController.prototype.showArea = function() {
+        let id = "border" + this.idName;
+        DOM.create("div", id, "body", "area for " + this.idName);
+        DOM.style("#" + id, "zIndex", "3");
+        DOM.style("#" + id, "backgroundColor", "rgba(100,150,255,0.3", "color", "blue");
+        DOM.style("#" + id, "position", "fixed", "left", this.left + px, "top", this.top + px);
+        DOM.style("#" + id, "width", this.size + px, "height", this.size + px);
     };
 
     /**

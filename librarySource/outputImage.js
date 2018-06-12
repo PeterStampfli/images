@@ -1,13 +1,22 @@
 /**
  * on-screen canvas with a map and mouse events to change the map
  * @constructor OutputImage
- * @param {String} idName - html identifier
+ * @param {String} idName - html identifier  
+ * @param {float} left -  left side, default -0
+ * @param {float} top - top side, default 0
  */
 
 /* jshint esversion:6 */
 
-function OutputImage(idName) {
-    "use strict";
+function OutputImage(idName, left = 0, top = 0) {
+
+    this.idName = idName;
+    DOM.create("canvas", idName, "body");
+    DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed", "left", left + px, "top", top + px);
+
+
+    this.left = left;
+    this.top = top;
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
@@ -56,6 +65,21 @@ function OutputImage(idName) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
         }
         this.pixelCanvas.setupOnscreen(width, height); // does nothing if size has not changed
+    };
+
+
+    /**
+     * show the square area for debugging layout
+     * @method OutputImage#showArea
+     */
+    OutputImage.prototype.showArea = function() {
+        let id = "border" + this.idName;
+        DOM.create("div", id, "body", "area for " + this.idName);
+        DOM.style("#" + id, "zIndex", "3");
+        DOM.style("#" + id, "backgroundColor", "rgba(200,200,100,0.3", "color", "brown");
+        DOM.style("#" + id, "position", "fixed", "left", this.left + px, "top", this.top + px);
+        DOM.style("#" + id, "width", this.pixelCanvas.width + px, "height", this.pixelCanvas.height + px);
+        console.log(this.pixelCanvas.height);
     };
 
     /**

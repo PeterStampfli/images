@@ -14,9 +14,7 @@
 
 function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
     this.idName = idName;
-    if (document.getElementById(idName) === null) {
-        DOM.create("canvas", idName, "body");
-    }
+    DOM.create("canvas", idName, "body");
     if (limitLeft >= 0) { // visible as position fixed
         DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
     } else {
@@ -66,10 +64,10 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
 
 
     /**
-     * show the maximum area borders for dedugging layout
-     * @method ControlImage#showBorder
+     * show the maximum area for debugging layout
+     * @method ControlImage#showArea
      */
-    ControlImage.prototype.showBorder = function() {
+    ControlImage.prototype.showArea = function() {
         let id = "border" + this.idName;
         DOM.create("div", id, "body", "area for " + this.idName);
         DOM.style("#" + id, "zIndex", "3");

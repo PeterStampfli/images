@@ -67,10 +67,12 @@ var Make = {};
     * create on-screen canvas with a vectormap and mouse events to change the map,
     * no color symmetry
     * @method Make.createOutputImageNoColorSymmetry
-    * @param {String} idName - html identifier
-    */
-    Make.createOutputImageNoColorSymmetry = function(idName) {
-        Make.outputImage = new OutputImage(idName);
+    * @param {String} idName - html identifier  
+ * @param {float} left -  left side, default 0
+ * @param {float} top - top side, default 0
+ */
+    Make.createOutputImageNoColorSymmetry = function(idName, left = 0, top = 0) {
+        Make.outputImage = new OutputImage(idName, left, top);
         Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.outputImage.action = Make.shiftScaleOutputImage;
@@ -81,9 +83,11 @@ var Make = {};
      * no color symmetry
      * @method Make.createOutputImageNoColorSymmetry
      * @param {String} idName - html identifier
+     * @param {float} left -  left side, default 0
+     * @param {float} top - top side, default 0
      */
-    Make.createOutputImageNoMap = function(idName) {
-        Make.outputImage = new OutputImage(idName);
+    Make.createOutputImageNoMap = function(idName, left = 0, top = 0) {
+        Make.outputImage = new OutputImage(idName, left, top);
         Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
     };

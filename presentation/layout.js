@@ -59,7 +59,8 @@ var Layout = {};
         DOM.style(".topButton", "marginBottom", "0px");
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
-        DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
+        //  DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
+        DOM.style(".round", "borderRadius", 1000 + "px");
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
         Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
     };
@@ -152,8 +153,7 @@ var Layout = {};
         KeyboardEvents.addUrl(nextPage, "n");
 
         DOM.create("canvas", "outputCanvas", "body");
-        //   DOM.create("canvas", "controlCanvas", "body");
-        DOM.create("canvas", "arrowController", "body");
+
 
         DOM.style("#outputCanvas,#text", "zIndex", "1");
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
