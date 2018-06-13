@@ -5,7 +5,7 @@ Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
 Layout.setFontSizes();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 

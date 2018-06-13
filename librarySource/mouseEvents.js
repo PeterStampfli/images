@@ -42,7 +42,6 @@ function MouseEvents(idName) {
     this.element.onmousedown = function(event) {
         mouseEvents.update(event);
         mouseEvents.pressed = true;
-        console.log("down");
         mouseEvents.downAction(mouseEvents);
     };
 

@@ -4,7 +4,7 @@ Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 

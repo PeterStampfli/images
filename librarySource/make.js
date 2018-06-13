@@ -64,32 +64,17 @@ var Make = {};
     /*
          
     /**
-    * create on-screen canvas with a vectormap and mouse events to change the map,
-    * no color symmetry
-    * @method Make.createOutputImageNoColorSymmetry
+    * create on-screen output image canvas 
+    * @method Make.createOutputImage
     * @param {String} idName - html identifier  
  * @param {float} left -  left side, default 0
  * @param {float} top - top side, default 0
  */
-    Make.createOutputImageNoColorSymmetry = function(idName, left = 0, top = 0) {
+    Make.createOutputImage = function(idName, left = 0, top = 0) {
         Make.outputImage = new OutputImage(idName, left, top);
         Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.outputImage.action = Make.shiftScaleOutputImage;
-    };
-
-    /**
-     * create on-screen canvas without a vectormap and no mouse events to change the map,
-     * no color symmetry
-     * @method Make.createOutputImageNoColorSymmetry
-     * @param {String} idName - html identifier
-     * @param {float} left -  left side, default 0
-     * @param {float} top - top side, default 0
-     */
-    Make.createOutputImageNoMap = function(idName, left = 0, top = 0) {
-        Make.outputImage = new OutputImage(idName, left, top);
-        Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
-        Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
     };
 
     /*
@@ -101,9 +86,9 @@ var Make = {};
      * set the size of the output image, call Make.updateMap to see effect
      * @method Make.setOutputSize
      * @param {integer} width
-     * @param {integer} height
+     * @param {integer} height - default=width
      */
-    Make.setOutputSize = function(width, height) {
+    Make.setOutputSize = function(width, height = width) {
         Make.outputImage.setSize(width, height);
         if (Make.map != null) {
             Make.map.setSize(width, height);

@@ -4,7 +4,7 @@ Layout.setup("triangles.html", "kaleidoscope.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "crosshair");

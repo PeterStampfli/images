@@ -56,11 +56,15 @@ function OutputImage(idName, left = 0, top = 0) {
      * set size of the output canvas and its scale, create pixel
      * @method OutputImage#setSize
      * @param {float} width
-     * @param {float} height
+     * @param {float} height - default is width
      */
     OutputImage.prototype.setSize = function(width, height) {
         width = Math.round(width);
-        height = Math.round(height);
+        if (arguments.length > 1) {
+            height = Math.round(height);
+        } else {
+            height = width;
+        }
         if (this.pixelCanvas.width > 0) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
         }
@@ -79,7 +83,6 @@ function OutputImage(idName, left = 0, top = 0) {
         DOM.style("#" + id, "backgroundColor", "rgba(200,200,100,0.3", "color", "brown");
         DOM.style("#" + id, "position", "fixed", "left", this.left + px, "top", this.top + px);
         DOM.style("#" + id, "width", this.pixelCanvas.width + px, "height", this.pixelCanvas.height + px);
-        console.log(this.pixelCanvas.height);
     };
 
     /**

@@ -5,6 +5,7 @@
 
 /* jshint esversion:6 */
 
+const px = "px";
 
 var Fast = {};
 

@@ -152,15 +152,12 @@ var Layout = {};
         KeyboardEvents.addUrl(prevPage, "N");
         KeyboardEvents.addUrl(nextPage, "n");
 
-        DOM.create("canvas", "outputCanvas", "body");
 
-
-        DOM.style("#outputCanvas,#text", "zIndex", "1");
+        DOM.style("#text", "zIndex", "1");
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
-        DOM.style("#outputCanvas", "position", "fixed", "left", "0px", "top", "0px");
         DOM.style("#text", "position", "absolute", "top", "0px");
 
         DOM.create("div", "topLeft", "body");
@@ -168,7 +165,7 @@ var Layout = {};
         DOM.create("button", "prevButton", "#topLeft", "prev");
         DOM.create("button", "nextButton", "#topRight", "next");
 
-        DOM.style("#topLeft,#topRight", "position", "fixed", "top", "0px", "zIndex", "2");
+        DOM.style("#topLeft,#topRight", "position", "fixed", "top", "0px", "zIndex", "10");
         DOM.style("#topLeft", "left", "0px");
         DOM.attribute("#prevButton,#nextButton", "class", "topButton");
         DOM.style(".topButton", "display", "block", "fontWeight", "normal");

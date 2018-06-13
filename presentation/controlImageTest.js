@@ -8,10 +8,9 @@ let sizeFraction = 0.333;
 let windowWidth = window.innerWidth - 20;
 let windowHeight = window.innerHeight;
 let basicLength = Math.round(sizeFraction * windowWidth);
-const px = "px";
 
 
-Make.createOutputImageNoColorSymmetry("outputCanvas", 0, 3 * Layout.basicFontSize);
+Make.createOutputImage("outputCanvas", 0, 3 * Layout.basicFontSize);
 
 //Make.outputImage.stopZoom();
 //Make.outputImage.stopShift();
@@ -34,7 +33,7 @@ Layout.adjustDimensions();
 Make.controlImage.showArea();
 
 Make.arrowController.showArea();
-Make.setOutputSize(basicLength, basicLength);
+Make.setOutputSize(basicLength);
 
 Make.outputImage.showArea();
 

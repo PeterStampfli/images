@@ -4,9 +4,10 @@
 
 Layout.setup("rosette.html", "circleInversion.html");
 
-Make.createOutputImageNoMap("outputCanvas");
+Make.createOutputImage("outputCanvas");
 Draw.setOutputImage(Make.outputImage);
-
+Make.outputImage.stopZoom();
+Make.outputImage.stopShift();
 
 Layout.activateFontSizeChanges();
 

@@ -4,7 +4,7 @@ Layout.setup("setup.html", "triangles.html");
 Layout.setFontSizes();
 Layout.activateFontSizeChanges();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "crosshair");

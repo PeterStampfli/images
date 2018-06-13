@@ -8,29 +8,25 @@ let sizeFraction = 0.333;
 let windowWidth = window.innerWidth - 20;
 let windowHeight = window.innerHeight;
 let basicLength = Math.round(sizeFraction * window.innerWidth);
-const px = "px";
 
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
-//Make.outputImage.stopZoom();
-//Make.outputImage.stopShift();
+Make.createOutputImage("outputCanvas");
+
 controlCanvasSize = windowWidth * sizeFraction;
 Make.createControlImage("controlCanvas", basicLength, 0.65 * windowHeight - 40, 2 * basicLength, 20);
 
 let arrowControllerSize = Math.floor(windowHeight / 4);
 
-
-
 Make.createArrowController("arrowController", arrowControllerSize, 2 * basicLength + 0.5 * (controlCanvasSize - arrowControllerSize), windowHeight - 20 - arrowControllerSize);
+
+DOM.style("#outputCanvas,#controlCanvas,#arrowController", "cursor", "pointer");
+
 Make.createMap();
 
 Make.highImageQuality = true;
 
 
 Layout.adjustDimensions();
-
-
-Make.controlImage.showBorder();
 
 
 
