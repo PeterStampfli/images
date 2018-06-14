@@ -6,15 +6,13 @@ Layout.setup("kaleidoscope.html", "interpolation.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
-
-const px = "px";
 
 let windowHeight = window.innerHeight;
 let windowWidth = window.innerWidth;
@@ -26,14 +24,12 @@ DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
 Make.setInitialOutputImageSpace(0, 1, -1);
 Make.resetOutputImageSpace();
 
-DOM.create("canvas", "lens", "body");
-DOM.style("#lens", "position", "fixed", "left", Math.round(windowHeight / 2) + px, "top", "0px");
-DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
-
-
 
 
 var lens = new LensImage("lens");
+
+DOM.style("#lens", "position", "fixed", "left", Math.round(windowHeight / 2) + px, "top", "0px");
+DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
 
 lens.setObject(Make.outputImage.pixelCanvas);
 

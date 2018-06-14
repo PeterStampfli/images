@@ -2,13 +2,17 @@
  * magnifying canvas 
  * @constructor LensImage
  * @param {String} idName - html identifier
- */
+ * @param {float} width -  width
+ * @param {float} height -  height, default is maxWidth
+ * @param {float} left -  left side, default 0
+ * @param {float} top -  top side, default 0*/
 
 /* jshint esversion:6 */
 
 
-function LensImage(idName) {
-    "use strict";
+function LensImage(idName, width, height = width, left = 0, top = 0) {
+    this.idName = idName;
+    DOM.create("canvas", idName, "body");
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.object = null;

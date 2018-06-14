@@ -7,7 +7,7 @@ Layout.setup("kaleidoscopeLens.html", "end.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImageNoColorSymmetry("outputCanvas");
+Make.createOutputImage("outputCanvas");
 
 
 Make.createControlImage("controlCanvas", 200);
