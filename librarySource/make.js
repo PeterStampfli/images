@@ -160,7 +160,7 @@ var Make = {};
      * @method Make.createMap 
      */
     Make.createMap = function() {
-        Make.map = new VectorMap(Make.outputImage, Make.inputImage, Make.controlImage);
+        Make.map = new VectorMap(Make.outputImage, Make.inputTransform,Make.inputImage, Make.controlImage);
     };
 
     // structure mapping (space to space)

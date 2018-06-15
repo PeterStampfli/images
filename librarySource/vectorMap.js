@@ -2,13 +2,14 @@
  * making a mapping from a two-dimensional array to a space position to a single vector function, stored on a grid
  * @constructor VectorMap
  * @param {OutputImage} outputImage - has a pixelcanvas and a transform of output image pixel indices to space coordinates
+ * @param {LinearTransform} inpuTransform - linear transform from geometrical space to pixel (column,row) indices
  * @param {PixelCanvas} inputImage - with the space coordinate to input image pixel coordinates
  * @param {ControlImage} controlimage - to make read pixels opaque
  */
 
 /* jshint esversion:6 */
 
-function VectorMap(outputImage, inputImage, controlImage) {
+function VectorMap(outputImage, inputTransform,inputImage, controlImage) {
     this.exists = false;
     this.width = 2;
     this.height = 2;
@@ -16,6 +17,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
     this.yArray = new Float32Array(4);
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
+    this.inputTransform=inputTransform
     this.inputImage = inputImage;
     this.controlImage = controlImage;
 }
@@ -220,10 +222,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let inputImageHeight = inputImage.height;
         let inputImagePixel = inputImage.pixel;
         // transform data
-        let shiftX = Make.inputTransform.shiftX;
-        let shiftY = Make.inputTransform.shiftY;
-        let cosAngleScale = Make.inputTransform.cosAngleScale;
-        let sinAngleScale = Make.inputTransform.sinAngleScale;
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
         // map dimensions
         let height = this.height;
         let width = this.width;
@@ -265,7 +267,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
      */
     VectorMap.prototype.draw = function() {
         // the pixel scaling (lyapunov)
-        let baseLyapunov = Make.inputTransform.scale * this.outputImage.scale;
+        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // image objects
         let pixelCanvas = this.outputImage.pixelCanvas;
@@ -275,10 +277,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let controlCanvas = controlImage.pixelCanvas;
         let controlDivInputSize = controlImage.controlDivInputSize;
         // input transform data
-        let shiftX = Make.inputTransform.shiftX;
-        let shiftY = Make.inputTransform.shiftY;
-        let cosAngleScale = Make.inputTransform.cosAngleScale;
-        let sinAngleScale = Make.inputTransform.sinAngleScale;
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
         // map dimensions
         let height = this.height;
         let width = this.width;
@@ -324,7 +326,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
      */
     VectorMap.prototype.drawHalf = function() {
         console.log("half");
-        let baseLyapunov = Make.inputTransform.scale * this.outputImage.scale;
+        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // image objects
         let pixelCanvas = this.outputImage.pixelCanvas;
@@ -332,10 +334,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let inputImage = this.inputImage;
         // input image data
         // input transform data
-        let shiftX = Make.inputTransform.shiftX;
-        let shiftY = Make.inputTransform.shiftY;
-        let cosAngleScale = Make.inputTransform.cosAngleScale;
-        let sinAngleScale = Make.inputTransform.sinAngleScale;
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
         // map dimensions
         let height = this.height;
         let width = this.width;
@@ -387,7 +389,7 @@ function VectorMap(outputImage, inputImage, controlImage) {
      */
     VectorMap.prototype.drawInterpolation = function() {
         console.log("test interpolation");
-        let baseLyapunov = Make.inputTransform.scale * this.outputImage.scale;
+        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // image objects
         let pixelCanvas = this.outputImage.pixelCanvas;
@@ -395,10 +397,10 @@ function VectorMap(outputImage, inputImage, controlImage) {
         let inputImage = this.inputImage;
         // input image data
         // input transform data
-        let shiftX = Make.inputTransform.shiftX;
-        let shiftY = Make.inputTransform.shiftY;
-        let cosAngleScale = Make.inputTransform.cosAngleScale;
-        let sinAngleScale = Make.inputTransform.sinAngleScale;
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
         // map dimensionsheight
         let height = this.height;
         let width = this.width;
