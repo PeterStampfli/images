@@ -28,10 +28,9 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     this.mouseEvents = new MouseEvents(idName);
     this.controlDivInputSize = 1;
     this.semiAlpha = 128;
-    this.scale = 1;
+    this.linearTransform = null;
     this.zoomFactor = 1.05;
-    this.shiftX = 0;
-    this.shiftY = 0;
+
 
     /**
      * what to do for move or wheel events (redraw image)
@@ -44,17 +43,20 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     // mouse wheel changes scale, zoom around origin of map data
     this.mouseEvents.wheelAction = function(mouseEvents) {
         if (mouseEvents.wheelDelta > 0) {
-            controlImage.scale *= controlImage.zoomFactor;
+            controlImage.linearTransform.changeScale(controlImage.zoomFactor);
+            this.scale *= controlImage.zoomFactor;
         } else {
-            controlImage.scale /= controlImage.zoomFactor;
+            controlImage.linearTransform.changeScale(1.0 / controlImage.zoomFactor);
+            this.scale /= controlImage.zoomFactor;
+
         }
         controlImage.action();
     };
 
     // mouse move shifts image
     this.mouseEvents.dragAction = function(mouseEvents) {
-        controlImage.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
-        controlImage.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
+        controlImage.linearTransform.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
+        controlImage.linearTransform.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
         controlImage.action();
     };
 }
@@ -141,10 +143,11 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
         let centerX = 0.5 * (upperRight.x + lowerLeft.x);
         let centerY = 0.5 * (upperRight.y + lowerLeft.y);
         // multiply map by this.scale to get a reasonable fill by the map range
-        this.scale = fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
+        let scale = fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
+        this.linearTransform.setScale(scale);
         //put the scaled map into the center
-        this.shiftX = inputImage.width / 2 - this.scale * centerX;
-        this.shiftY = inputImage.height / 2 - this.scale * centerY;
+        this.linearTransform.shiftX = inputImage.width / 2 - scale * centerX;
+        this.linearTransform.shiftY = inputImage.height / 2 - scale * centerY;
     };
 
 }());

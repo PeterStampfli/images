@@ -22,10 +22,9 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     this.size = size;
     this.left = left;
     this.top = top;
-
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
-    this.angle = 0;
+    this.linearTransform = null;
 
     /**
      * what to do if angle changes (redraw image)
@@ -43,8 +42,7 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     this.backGroundColor = "#777777";
     this.arrowColor = "#ffffff";
 
-    // do the drawing as part of the setup
-    this.drawOrientation();
+
 
     // access to this in callbacks
     const arrowController = this;
@@ -120,8 +118,9 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      */
     ArrowController.prototype.drawOrientation = function() {
         const arrowWidth = 0.2;
-        const cosAngle = Math.cos(this.angle);
-        const sinAngle = Math.sin(this.angle);
+        let angle = this.linearTransform.angle;
+        const cosAngle = Math.cos(angle);
+        const sinAngle = Math.sin(angle);
         const canvasContext = this.pixelCanvas.canvasContext;
         canvasContext.clearRect(-1, -1, 2, 2);
         canvasContext.fillStyle = this.backGroundColor;
@@ -143,7 +142,7 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      * @param {float} delta - the change in angle
      */
     ArrowController.prototype.changeAngle = function(delta) {
-        this.angle += delta;
+        this.linearTransform.changeAngle(delta);
         this.drawOrientation();
         this.action();
     };

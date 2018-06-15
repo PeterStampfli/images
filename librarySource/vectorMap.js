@@ -9,7 +9,7 @@
 
 /* jshint esversion:6 */
 
-function VectorMap(outputImage, inputTransform,inputImage, controlImage) {
+function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.exists = false;
     this.width = 2;
     this.height = 2;
@@ -17,7 +17,7 @@ function VectorMap(outputImage, inputTransform,inputImage, controlImage) {
     this.yArray = new Float32Array(4);
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
-    this.inputTransform=inputTransform
+    this.inputTransform = inputTransform;
     this.inputImage = inputImage;
     this.controlImage = controlImage;
 }

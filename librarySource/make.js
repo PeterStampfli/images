@@ -140,7 +140,8 @@ var Make = {};
      */
     Make.createControlImage = function(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
         Make.controlImage = new ControlImage(idName, maxWidth, maxHeight, limitLeft, limitTop);
-        Make.controlImage.action = Make.updateOutputImageIfUsingInputImage;
+        Make.controlImage.linearTransform = Make.inputTransform;
+        Make.controlImage.action = Make.updateOutputImageIfUsingInputImage; // update output image after mouse interaction only if we see an image and not the structure
     };
 
     /**
@@ -152,6 +153,8 @@ var Make = {};
      * @param {float} top - top side, default -1000 for invisible    */
     Make.createArrowController = function(idName, size, left = -1000, top = -1000) {
         Make.arrowController = new ArrowController(idName, size, left, top);
+        Make.arrowController.linearTransform = Make.inputTransform;
+        Make.arrowController.drawOrientation();
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
     };
 
@@ -160,7 +163,7 @@ var Make = {};
      * @method Make.createMap 
      */
     Make.createMap = function() {
-        Make.map = new VectorMap(Make.outputImage, Make.inputTransform,Make.inputImage, Make.controlImage);
+        Make.map = new VectorMap(Make.outputImage, Make.inputTransform, Make.inputImage, Make.controlImage);
     };
 
     // structure mapping (space to space)
@@ -510,16 +513,6 @@ var Make = {};
     // drawing the output image 
     //___________________________________________________________________________
 
-    /*
-     * initializing, making the control image semitransparent
-     * setting values of the inputTransform
-     */
-    function initializeImageOutput() {
-        Make.inputTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
-        Make.inputTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
-        Make.controlImage.semiTransparent();
-    }
-
     /**
      * redraw output only if showing input image
      * @method Make.updateOutputImageIfUsingInputImage
@@ -542,6 +535,7 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
+
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
@@ -553,7 +547,7 @@ var Make = {};
                 console.log("*** Make.updateOutputImage: input image not loaded !");
                 return;
             }
-            initializeImageOutput();
+            Make.controlImage.semiTransparent();
 
 
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
