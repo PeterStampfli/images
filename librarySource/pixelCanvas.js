@@ -39,10 +39,6 @@
  * @var PixelCanvas#pixelComponents {Uint8ClampedArray}
  */
 
-/**
- * the linear transformation from space to pixel indices
- * @var PixelCanvas#linearTransform
- */
 
 /* jshint esversion:6 */
 
@@ -62,7 +58,6 @@ function PixelCanvas(idName) {
     this.width = 0;
     this.height = 0;
     this.blueScreenColor = "#0000ff";
-    this.linearTransform = new LinearTransform();
     this.integralRed = new Uint32Array(1);
     this.integralBlue = new Uint32Array(1);
     this.integralGreen = new Uint32Array(1);

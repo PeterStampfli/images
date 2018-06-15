@@ -52,6 +52,11 @@ var Make = {};
     */
     Make.inputImage = new PixelCanvas();
 
+    /*
+     * linear transform for input
+     */
+    Make.inputTransform = new LinearTransform();
+
     // check wether to show structure or input image
     // only if input image exists
     Make.inputImageExists = false;
@@ -506,11 +511,12 @@ var Make = {};
     //___________________________________________________________________________
 
     /*
-     * initializing
+     * initializing, making the control image semitransparent
+     * setting values of the inputTransform
      */
     function initializeImageOutput() {
-        Make.inputImage.linearTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
-        Make.inputImage.linearTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
+        Make.inputTransform.setShift(Make.controlImage.shiftX, Make.controlImage.shiftY);
+        Make.inputTransform.setAngleScale(Make.arrowController.angle, Make.controlImage.scale);
         Make.controlImage.semiTransparent();
     }
 
