@@ -26,16 +26,10 @@ Make.resetOutputImageSpace();
 
 
 
-var lens = new LensImage("lens");
-
-DOM.style("#lens", "position", "fixed", "left", Math.round(windowHeight / 2) + px, "top", "0px");
+var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
 DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
 
 lens.setObject(Make.outputImage.pixelCanvas);
-
-lens.pixelCanvas.setupOnscreen(windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth);
-
-
 
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);

@@ -13,13 +13,13 @@
 function LensImage(idName, width, height = width, left = 0, top = 0) {
     this.idName = idName;
     DOM.create("canvas", idName, "body");
-
+    DOM.style("#" + idName, "position", "fixed", "left", left + px, "top", top + px);
     this.pixelCanvas = new PixelCanvas(idName);
+    this.pixelCanvas.setupOnscreen(width, height);
     this.object = null;
     this.objectCornerX = 0;
     this.objectCornerY = 0;
     this.magnification = 4;
-
 }
 
 (function() {
