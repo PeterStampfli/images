@@ -80,7 +80,7 @@ function OutputImage(idName, left = 0, top = 0) {
         let id = "border" + this.idName;
         DOM.create("div", id, "body", "area for " + this.idName);
         DOM.style("#" + id, "zIndex", "3");
-        DOM.style("#" + id, "backgroundColor", "rgba(200,200,100,0.3", "color", "brown");
+        DOM.style("#" + id, "backgroundColor", "rgba(200,200,100,0.3)", "color", "brown");
         DOM.style("#" + id, "position", "fixed", "left", this.left + px, "top", this.top + px);
         DOM.style("#" + id, "width", this.pixelCanvas.width + px, "height", this.pixelCanvas.height + px);
     };

@@ -73,7 +73,7 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
         let id = "border" + this.idName;
         DOM.create("div", id, "body", "area for " + this.idName);
         DOM.style("#" + id, "zIndex", "3");
-        DOM.style("#" + id, "backgroundColor", "rgba(100,255,100,0.3", "color", "green");
+        DOM.style("#" + id, "backgroundColor", "rgba(100,255,100,0.3)", "color", "green");
         DOM.style("#" + id, "position", "fixed", "left", this.limitLeft + px, "top", this.limitTop + px);
         DOM.style("#" + id, "width", this.maxWidth + px, "height", this.maxHeight + px);
     };

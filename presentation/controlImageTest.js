@@ -37,6 +37,9 @@ Make.setOutputSize(basicLength);
 
 Make.outputImage.showArea();
 
+bigDiv = new BigDiv("bd", 300, 400, 500, 200);
+bigDiv.showArea();
+
 DOM.style("#text", "left", basicLength + px, "top", "0px");
 DOM.style("#text", "width", (windowWidth - 2 * basicLength) + px); // avoid horizontal scrollbar
 
