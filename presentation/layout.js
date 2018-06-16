@@ -137,7 +137,9 @@ var Layout = {};
         let windowWidth = window.innerWidth;
         Make.setOutputSize(windowHeight, windowHeight);
         DOM.style("#text", "left", windowHeight + px, "top", "0px");
-        DOM.style("#text", "width", (windowWidth - windowHeight - 20) + px); // avoid horizontal scrollbar
+        DOM.style("#text", "width", (windowWidth - windowHeight) + px);
+        DOM.style("#text", "height", window.innerHeight + px, "overflow", "auto");
+
         DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
     };
 
@@ -158,7 +160,7 @@ var Layout = {};
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
-        DOM.style("#text", "position", "absolute", "top", "0px");
+        DOM.style("#text", "position", "absolute", "top", "0px", "overflow", "auto");
 
         DOM.create("div", "topLeft", "body");
         DOM.create("div", "topRight", "body");

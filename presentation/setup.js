@@ -32,7 +32,7 @@ Layout.adjustDimensions();
 
 DOM.style("#outputCanvas", "top", 3 * Layout.basicFontSize + px);
 DOM.style("#text", "left", basicLength + px, "top", "0px");
-DOM.style("#text", "width", (windowWidth - 2 * basicLength) + px); // avoid horizontal scrollbar
+DOM.style("#text", "width", (windowWidth - 2 * basicLength) + px);
 
 
 DOM.style("#text", "height", window.innerHeight + px, "overflow", "auto");

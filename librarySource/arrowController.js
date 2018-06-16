@@ -25,6 +25,7 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
     this.linearTransform = null;
+    this.controlImage = null;
 
     /**
      * what to do if angle changes (redraw image)
@@ -89,6 +90,8 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
 (function() {
     "use strict";
 
+    const v = new Vector2();
+
     /**
      * set the action() - function for this controller, called at each change for instant following
      * @method ArrowController#setAction
@@ -142,7 +145,8 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      * @param {float} delta - the change in angle
      */
     ArrowController.prototype.changeAngle = function(delta) {
-        this.linearTransform.changeAngle(delta);
+        this.controlImage.pixelCanvas.centerOfOpaque(v);
+        this.linearTransform.changeAngleFixPoint(delta, v.x / this.controlImage.controlDivInputSize, v.y / this.controlImage.controlDivInputSize);
         this.drawOrientation();
         this.action();
     };

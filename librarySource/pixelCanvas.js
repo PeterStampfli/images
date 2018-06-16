@@ -268,6 +268,36 @@ function PixelCanvas(idName) {
     };
 
     /**
+     * calculate center of opaque pixels
+     * @method PixelCanvas#centerOfOpaque
+     * @param {Vector} center - will be set to the center position
+     */
+    PixelCanvas.prototype.centerOfOpaque = function(center) {
+        const pixelComponents = this.pixelComponents;
+        let index = 0;
+        let sum = 0;
+        let sumX = 0;
+        let sumY = 0;
+        let width = this.width;
+        let height = this.height;
+        for (var j = 0; j < height; j++) {
+            for (var i = 0; i < width; i++) {
+                if (pixelComponents[index + 3] > 200) {
+                    sum++;
+                    sumX += i;
+                    sumY += j;
+                }
+                index += 4;
+            }
+        }
+        if (sum > 0) {
+            center.setComponents(sumX / sum, sumY / sum);
+        } else {
+            center.setComponents(this.width / 2, this.height / 2);
+        }
+    };
+
+    /**
      * set pixel with given 32 bit integer
      * @method PixelCanvas#setPixelWithIntegerAtIndex
      * @param {integer} i - the integer color value for the pixel

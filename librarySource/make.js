@@ -154,6 +154,7 @@ var Make = {};
     Make.createArrowController = function(idName, size, left = -1000, top = -1000) {
         Make.arrowController = new ArrowController(idName, size, left, top);
         Make.arrowController.linearTransform = Make.inputTransform;
+        Make.arrowController.controlImage = Make.controlImage;
         Make.arrowController.drawOrientation();
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
     };

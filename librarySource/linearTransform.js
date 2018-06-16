@@ -12,22 +12,14 @@ function LinearTransform() {
     this.angle = 0;
     this.cosAngleScale = 1;
     this.sinAngleScale = 0;
-    this.fixedPoint = new Vector2(); // fixed point of the IMAGE upon rotation and scaling
 }
 
 
 (function() {
     "use strict";
 
-    /**
-     * set the fixed point
-     * @method LinearTransform#setFixedPoint
-     * @param {float} x - coordinate
-     * @param {float} y - coordinate
-     */
-    LinearTransform.prototype.setFixedPoint = function(x, y) {
-        this.fixedPoint.setComponents(x, y);
-    };
+    const v = new Vector2();
+
 
     /**
      * set translation part of transform
@@ -59,12 +51,10 @@ function LinearTransform() {
     LinearTransform.prototype.updateScaleAngle = function() {
         this.cosAngleScale = this.scale * Fast.cos(this.angle);
         this.sinAngleScale = this.scale * Fast.sin(this.angle);
-
     };
 
     /**
      * change the scale by a zoom factor,
-     * beware of fixed point
      * @method LinearTransform#changeScale
      * @param {float} factor
      */
@@ -74,14 +64,41 @@ function LinearTransform() {
     };
 
     /**
+     * change the scale by a zoom factor, at a fixed point
+     * @method LinearTransform#changeScaleFixPoint
+     * @param {float} factor
+     */
+    LinearTransform.prototype.changeScaleFixPoint = function(factor, fixPointX, fixPointY) {
+        v.setComponents(fixPointX, fixPointY);
+        this.inverse(v);
+        this.changeScale(factor);
+        this.do(v);
+        this.shiftX += fixPointX - v.x;
+        this.shiftY += fixPointY - v.y;
+    };
+
+    /**
      * change the angle,
-     * beware of fixed point
      * @method LinearTransform#changeAngle
      * @param {float} amount
      */
     LinearTransform.prototype.changeAngle = function(amount) {
         this.angle += amount;
         this.updateScaleAngle();
+    };
+
+    /**
+     * change the angle, rotate around a fix point
+     * @method LinearTransform#changeAngleFixPoint
+     * @param {float} amount
+     */
+    LinearTransform.prototype.changeAngleFixPoint = function(amount, fixPointX, fixPointY) {
+        v.setComponents(fixPointX, fixPointY);
+        this.inverse(v);
+        this.changeAngle(amount);
+        this.do(v);
+        this.shiftX += fixPointX - v.x;
+        this.shiftY += fixPointY - v.y;
     };
 
     /**

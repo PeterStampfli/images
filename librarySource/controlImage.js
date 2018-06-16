@@ -42,14 +42,14 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
 
     // mouse wheel changes scale, zoom around origin of map data
     this.mouseEvents.wheelAction = function(mouseEvents) {
+        var zoomFactor;
         if (mouseEvents.wheelDelta > 0) {
-            controlImage.linearTransform.changeScale(controlImage.zoomFactor);
-            this.scale *= controlImage.zoomFactor;
+            zoomFactor = controlImage.zoomFactor;
         } else {
-            controlImage.linearTransform.changeScale(1.0 / controlImage.zoomFactor);
-            this.scale /= controlImage.zoomFactor;
-
+            zoomFactor = 1 / controlImage.zoomFactor;
         }
+        controlImage.linearTransform.changeScaleFixPoint(zoomFactor, mouseEvents.x / controlImage.controlDivInputSize, mouseEvents.y / controlImage.controlDivInputSize);
+
         controlImage.action();
     };
 
