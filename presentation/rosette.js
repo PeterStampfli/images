@@ -4,7 +4,7 @@ Layout.setup("setup.html", "triangles.html");
 Layout.setFontSizes();
 Layout.activateFontSizeChanges();
 
-Make.createOutputImage("outputCanvas");
+Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "crosshair");
@@ -14,9 +14,13 @@ Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
 
+Make.setOutputSize(window.innerHeight);
 
 
 Layout.adjustDimensions();
+
+text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
+
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();

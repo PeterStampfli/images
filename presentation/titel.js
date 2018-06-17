@@ -5,16 +5,17 @@ Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
 Layout.setFontSizes();
 
-Make.createOutputImage("outputCanvas");
+Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 
 
-
-
+text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
+
+Make.setOutputSize(window.innerHeight);
 
 Make.highImageQuality = true;
 

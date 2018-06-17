@@ -1,12 +1,16 @@
 /* jshint esversion:6 */
 
+let windowHeight = window.innerHeight;
+let windowWidth = window.innerWidth;
 VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
 
 Layout.setup("kaleidoscope.html", "interpolation.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
+text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
-Make.createOutputImage("outputCanvas");
+
+Make.createOutputImage("outputCanvas", windowHeight / 2, windowHeight);
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 
@@ -14,8 +18,7 @@ Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
 
-let windowHeight = window.innerHeight;
-let windowWidth = window.innerWidth;
+
 Make.setOutputSize(windowHeight / 2, windowHeight);
 DOM.style("#text", "left", windowHeight + px, "top", "0px");
 DOM.style("#text", "width", (windowWidth - windowHeight - 20) + px); // avoid horizontal scrollbar

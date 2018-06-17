@@ -4,16 +4,18 @@ Layout.setup("interpolation.html", "");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImage("outputCanvas");
-Make.outputImage.stopZoom();
-Make.outputImage.stopShift();
+Make.createOutputImage("outputCanvas", window.innerHeight);
+
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
+Make.setOutputSize(window.innerHeight);
+
 
 Make.highImageQuality = true;
 
+text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
 Layout.adjustDimensions();
 

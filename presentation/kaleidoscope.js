@@ -4,13 +4,16 @@ Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
-Make.createOutputImage("outputCanvas");
+Make.createOutputImage("outputCanvas", window.innerHeight);
 DOM.style("#outputCanvas", "cursor", "crosshair");
 Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
+Make.setOutputSize(window.innerHeight);
+text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
+
 
 Layout.adjustDimensions();
 Make.setInitialOutputImageSpace(-1, 1, -1);

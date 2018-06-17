@@ -18,7 +18,6 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     this.divWidth = width;
     this.divHeight = height;
     let bigDiv = new BigDiv(this.divName, width, height, left, top);
-    bigDiv.showArea();
     DOM.create("canvas", idName, "#" + this.divName);
 
 
