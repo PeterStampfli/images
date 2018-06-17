@@ -110,11 +110,19 @@ function MouseEvents(idName) {
         event.preventDefault();
         this.lastX = this.x;
         this.lastY = this.y;
-        this.x = event.pageX - this.element.offsetLeft;
-        this.y = event.pageY - this.element.offsetTop;
-        if (this.elementPositionFixed) {
-            this.x -= window.pageXOffset;
-            this.y -= window.pageYOffset;
+        this.x = event.pageX;
+        this.y = event.pageY;
+        let element = this.element;
+        // take into account offset of this element and all containing elements as long as position not fixed
+        while (element != null) {
+            this.x -= element.offsetLeft;
+            this.y -= element.offsetTop;
+            if (element.style.position == "fixed") {
+                this.x -= window.pageXOffset;
+                this.y -= window.pageYOffset;
+                break;
+            }
+            element = element.parentNode;
         }
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;

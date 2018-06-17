@@ -72,11 +72,13 @@ var Make = {};
     * create on-screen output image canvas 
     * @method Make.createOutputImage
     * @param {String} idName - html identifier  
- * @param {float} left -  left side, default 0
- * @param {float} top - top side, default 0
- */
-    Make.createOutputImage = function(idName, left = 0, top = 0) {
-        Make.outputImage = new OutputImage(idName, left, top);
+    * @param {float} width
+    * @param {float} height - default width
+    * @param {float} left -  left side, default 0
+    * @param {float} top - top side, default 0
+    */
+    Make.createOutputImage = function(idName, width, height = width, left = 0, top = 0) {
+        Make.outputImage = new OutputImage(idName, width, height, left, top);
         Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.outputImage.action = Make.shiftScaleOutputImage;

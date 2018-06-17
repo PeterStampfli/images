@@ -135,7 +135,7 @@ var Layout = {};
     Layout.adjustDimensions = function() {
         let windowHeight = window.innerHeight;
         let windowWidth = window.innerWidth;
-        Make.setOutputSize(windowHeight, windowHeight);
+        //Make.setOutputSize(windowHeight, windowHeight);
         DOM.style("#text", "left", windowHeight + px, "top", "0px");
         DOM.style("#text", "width", (windowWidth - windowHeight) + px);
         DOM.style("#text", "height", window.innerHeight + px, "overflow", "auto");
