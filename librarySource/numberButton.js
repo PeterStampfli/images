@@ -14,17 +14,19 @@ function NumberButton(idName, idPlus, idMinus) {
     "use strict";
 
     this.element = document.getElementById(idName);
-    if (arguments.length > 1) {
-        this.createPlusMinusButtons(idPlus, idMinus);
-    }
     this.hover = false;
     this.pressed = false;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = 1000000000;
-    // increasing and decreasing 
+    // increasing and decreasing    
+    if (arguments.length > 1) {
+        this.createPlusMinusButtons(idPlus, idMinus);
+    }
+    else {
     this.plusButton = null;
     this.MinusButton = null;
+    }
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
@@ -146,4 +148,26 @@ function NumberButton(idName, idPlus, idMinus) {
             numberButton.updateValue(numberButton.getValue() - 1);
         };
     };
+    
+    
+    /**
+     * create an number button with up and down buttons
+     * @method NumberButton.create
+     * @param {String} idSpan - id of the span conatining the number button
+     * @return NumberButton
+     */
+    NumberButton.create = function(idSpan) {
+        DOM.create("input", idSpan + "input", "#" + idSpan);
+        DOM.attribute("#" + idSpan + "input", "type", "text", "maxlength", "4");
+        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
+        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
+        DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn", "borderRadius", 1000 + px);
+        Layout.setFontSizes();
+
+        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
+        return numberButton;
+    };
+    
 }());

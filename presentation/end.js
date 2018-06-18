@@ -5,6 +5,7 @@ Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
+DOM.style("#outputCanvas", "cursor", "pointer");
 
 
 Make.createControlImage("controlCanvas", 200);

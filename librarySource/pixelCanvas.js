@@ -583,12 +583,6 @@ function PixelCanvas(idName) {
     }
 
 
-
-
-
-
-
-
     /**
      * get color of cubic interpolated canvas pixel to given position
      * for opaque images, simply alpha=255 always
@@ -1051,7 +1045,7 @@ function PixelCanvas(idName) {
      * typically smaller than 0.5, relates to thresholdAverage
      * @var PixelCanvas.smoothing
      */
-    PixelCanvas.smoothing = 0.4;
+    PixelCanvas.smoothing = 0.5;
 
 
     /**
@@ -1071,7 +1065,7 @@ function PixelCanvas(idName) {
             return this.getLinear(color, x, y);
         }
         if (size < PixelCanvas.thresholdAverage) {
-            return this.getLinear(color, x, y);
+            return this.getNearest(color, x, y);
         }
         return this.getAverage(color, x, y, PixelCanvas.smoothing * size);
     };

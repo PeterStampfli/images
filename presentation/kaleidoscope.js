@@ -1,6 +1,8 @@
 /* jshint esversion:6 */
 
 Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
+Layout.createStructureImageButton("change");
+
 Layout.activateFontSizeChanges();
 Layout.setFontSizes();
 
@@ -97,7 +99,6 @@ Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
     Make.shiftScaleOutputImage();
 };
 
-Layout.createStructureImageButton("change");
 
 // use another image ???
 Layout.createOpenImage();

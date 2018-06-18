@@ -1,6 +1,8 @@
 /* jshint esversion:6 */
 
 Layout.setup("setup.html", "triangles.html");
+Layout.createStructureImageButton("change");
+
 Layout.setFontSizes();
 Layout.activateFontSizeChanges();
 
@@ -80,7 +82,6 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
     Make.updateOutputImage();
 };
 
-Layout.createStructureImageButton("change");
 Layout.createOpenImage();
 
 

@@ -60,7 +60,6 @@ var Layout = {};
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
         //  DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
-        DOM.style(".round", "borderRadius", 1000 + "px");
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
         Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
     };
@@ -115,17 +114,8 @@ var Layout = {};
      * @return createNumberButton
      */
     Layout.createNumberButton = function(idSpan) {
-        DOM.create("input", idSpan + "input", "#" + idSpan);
-        DOM.attribute("#" + idSpan + "input", "type", "text", "maxlength", "4");
-        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
-        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
-        DOM.attribute("#" + idSpan + "up" + ",#" + idSpan + "dn", "class", "round");
-        Layout.setFontSizes();
 
-        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
-        return numberButton;
+        return NumberButton.create(idSpan);
     };
 
     /**
@@ -138,7 +128,6 @@ var Layout = {};
         //Make.setOutputSize(windowHeight, windowHeight);
 
 
-        DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
     };
 
     /**
@@ -148,45 +137,39 @@ var Layout = {};
      * @param {String} nextPage - url of next page or empty string
      */
     Layout.setup = function(prevPage, nextPage) {
-
         KeyboardEvents.addUrl(prevPage, "N");
         KeyboardEvents.addUrl(nextPage, "n");
-
 
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
-
         DOM.create("div", "topLeft", "body");
         DOM.create("div", "topRight", "body");
-        DOM.create("button", "prevButton", "#topLeft", "prev");
-        DOM.create("button", "nextButton", "#topRight", "next");
-
         DOM.style("#topLeft,#topRight", "position", "fixed", "top", "0px", "zIndex", "10");
         DOM.style("#topLeft", "left", "0px");
-        DOM.attribute("#prevButton,#nextButton", "class", "topButton");
-        DOM.style(".topButton", "display", "block", "fontWeight", "normal");
-
-        DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
-
-        let prevButton = new Button("prevButton");
+                DOM.style("#topRight", "right", (window.innerWidth - window.innerHeight) + px);
+                
         if (prevPage != "") {
-            prevButton.onClick = function() {
+                    DOM.create("button", "prevButton", "#topLeft", "prev");
+         DOM.attribute("#prevButton", "class", "topButton");
+        let prevButton = new Button("prevButton");
+           prevButton.onClick = function() {
                 window.location = prevPage;
             };
-        } else {
-            DOM.style("#prevButton", "display", "none");
-        }
+        } 
 
-        let nextButton = new Button("nextButton");
         if (nextPage != "") {
-            nextButton.onClick = function() {
+         DOM.create("button", "nextButton", "#topRight", "next");
+        DOM.attribute("#nextButton", "class", "topButton");
+        let nextButton = new Button("nextButton");
+           nextButton.onClick = function() {
                 window.location = nextPage;
             };
-        } else {
-            DOM.style("#nextButton", "display", "none");
-        }
+        }  
+                
+        DOM.style(".topButton", "display", "block", "fontWeight", "normal");
+        DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
     };
 
     /**
@@ -195,12 +178,7 @@ var Layout = {};
      * @param {String} id - of the span for the button
      */
     Layout.createStructureImageButton = function(id) {
-        let buttonElement = DOM.create("button", "structureImageButton", "#" + id, "structure/image");
-        Layout.setFontSizes();
-        let button = new Button("structureImageButton");
-        button.onClick = function() {
-            Make.switchStructureImage();
-        };
+        Make.createStructureImageButton(id);
     };
 
     /**
@@ -208,14 +186,7 @@ var Layout = {};
      * @method Layout.createOpenImage
      */
     Layout.createOpenImage = function() {
-        var hiddenImageInput = Button.createFileInput(function(file) {
-            console.log(file.name);
-            Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
-        });
-        KeyboardEvents.addFunction(function() {
-            console.log("open");
-            hiddenImageInput.click();
-        }, "i");
+        Make.createOpenImageKey("i");
     };
 
     // on resize: adjust new dimensions and redraw output image

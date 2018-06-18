@@ -261,23 +261,6 @@ var Make = {};
         redraw output image
     */
 
-    /**
-     * create a button to change map parameter values
-     * @method Make.createMapParameterButton
-     * @param {String} idBase
-     * @param {String} idPlus
-     * @param {String} idMinus
-     * @return the button
-     */
-    Make.createMapParameterButton = function(idBase, idPlus, idMinus) {
-        let button = new NumberButton(idBase);
-        button.onChange = function() {
-            Make.updateNewMap();
-        };
-        button.createPlusMinusButtons(idPlus, idMinus);
-        return button;
-    };
-
 
     /**
      * update the structure mapping, depending on the parameters
@@ -334,6 +317,21 @@ var Make = {};
         }
         Make.updateOutputImage();
     };
+    
+    
+    /**
+     * create a button to change between structure and image, put before setting font sizes
+     * @method Make.createStructureImageButton
+     * @param {String} id - of the span for the button
+     */
+    Make.createStructureImageButton = function(id) {
+        let buttonElement = DOM.create("button", "structureImageButton", "#" + id, "structure/image");
+        let button = new Button("structureImageButton");
+        button.onClick = function() {
+            Make.switchStructureImage();
+        };
+    };
+
 
     /*
      * initialization typically:
@@ -344,22 +342,9 @@ var Make = {};
     Make.setMapping(twoMirrors.vectorMapping,twoMirrors.reflectionsMapping);
     Make.updateNewMap();
     */
+    
     //  changing the output size: avoid any side effects, only magnification
     //___________________________________________________________________________
-    /**
-     * create a button to change the size of the output image, width=height=size
-     * @method Make.createSquareImageSizeButton
-     * @param {String} idName - of the html element
-     * @return the button (a numberbutton)
-     */
-    Make.createSquareImageSizeButton = function(idName) {
-        let sizeButton = new NumberButton(idName);
-        sizeButton.onChange = function(size) {
-            Make.setOutputSize(size, size);
-            Make.updateNewOutputImageSize();
-        };
-        return sizeButton;
-    };
 
     /**
      * show result of a new output size or new map, does not recalculate anything to avoid side effects
@@ -379,6 +364,21 @@ var Make = {};
         Make.updateOutputImage();
     };
 
+    /**
+     * create a button to change the size of the output image, width=height=size
+     * @method Make.createSquareImageSizeButton
+     * @param {String} idName - of the html element
+     * @return the button (a numberbutton)
+     */
+    Make.createSquareImageSizeButton = function(idName) {
+        let sizeButton = new NumberButton(idName);
+        sizeButton.onChange = function(size) {
+            Make.setOutputSize(size, size);
+            Make.updateNewOutputImageSize();
+        };
+        return sizeButton;
+    };
+    
     //  reading an input image and adjust mappingStructure
     //_____________________________________________________
 
@@ -439,7 +439,6 @@ var Make = {};
             Make.getMapOutputCenter();
             Make.shiftMapToCenter();
         }
-        /////////////////////////////////////////////////////////////////////////////////////////////
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         if (!Make.map.exists) {
@@ -470,7 +469,6 @@ var Make = {};
             imageInputButton.onFileInput = function(file) {
                 Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
             };
-
         }
     };
 
@@ -483,6 +481,25 @@ var Make = {};
     Make.readImageWithFilePathAtSetup = function(filePath) {
         Make.inputImage.readImageWithFilePath(filePath, Make.readImageAction);
     };
+    
+    
+    /**
+     * create open input image command with key "i"
+     * @method Make.createOpenImageKey
+     * @param {String} key - one keyboard char
+     */
+    Make.createOpenImageKey = function(key) {
+        var hiddenImageInput = Button.createFileInput(function(file) {
+            console.log(file.name);
+            Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
+        });
+        KeyboardEvents.addFunction(function() {
+            console.log("open");
+            hiddenImageInput.click();
+        }, key);
+    };
+    
+    
 
     //        shifting and scaling the output image
     //___________________________________________________________________________

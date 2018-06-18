@@ -19,7 +19,7 @@ let arrowControllerSize = Math.floor(windowHeight / 4);
 
 Make.createArrowController("arrowController", arrowControllerSize, windowWidth - 0.5 * (controlCanvasSize + arrowControllerSize), windowHeight - 20 - arrowControllerSize);
 
-DOM.style("#outputCanvas,#controlCanvas,#arrowController", "cursor", "pointer");
+DOM.style("#outputCanvas", "cursor", "pointer");
 
 Make.createMap();
 
@@ -29,12 +29,6 @@ Make.highImageQuality = true;
 Layout.adjustDimensions();
 
 
-
-DOM.style("#text", "left", basicLength + px, "top", "0px");
-DOM.style("#text", "width", (windowWidth - 2 * basicLength) + px);
-
-
-DOM.style("#text", "height", window.innerHeight + px, "overflow", "auto");
 
 text = new BigDiv("text", windowWidth - 2 * basicLength, window.innerHeight, basicLength);
 

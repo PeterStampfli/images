@@ -19,6 +19,7 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     this.divHeight = height;
     let bigDiv = new BigDiv(this.divName, width, height, left, top);
     DOM.create("canvas", idName, "#" + this.divName);
+                DOM.style("#" + idName, "cursor", "pointer");
 
 
     this.left = left;

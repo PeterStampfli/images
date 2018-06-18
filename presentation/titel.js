@@ -8,6 +8,7 @@ Layout.setFontSizes();
 Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
+                DOM.style("#outputCanvas", "cursor", "default");
 
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);

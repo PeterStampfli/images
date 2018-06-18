@@ -15,6 +15,8 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     DOM.create("canvas", idName, "body");
     if (left >= 0) { // visible as position fixed
         DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed", "left", left + px, "top", top + px);
+        DOM.style("#" + this.idName, "cursor", "pointer");
+
     } else {
         DOM.style("#" + this.idName, "display", "none");
     }
