@@ -17,13 +17,12 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     this.divName = idName + "div";
     this.divWidth = width;
     this.divHeight = height;
-    let bigDiv = new BigDiv(this.divName, width, height, left, top);
-    DOM.create("canvas", idName, "#" + this.divName);
-                DOM.style("#" + idName, "cursor", "pointer");
-
-
     this.left = left;
     this.top = top;
+    this.bigDiv = new BigDiv(this.divName, width, height, left, top);
+    DOM.create("canvas", idName, "#" + this.divName);
+    DOM.style("#" + idName, "cursor", "pointer","display","block","position","relative");
+
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
@@ -57,6 +56,14 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
 }
 
 (function() {
+    
+    /**
+     * show area of the containing bigdiv
+     * @method OutputImage#showArea
+     */
+    OutputImage.prototype.showArea=function() {
+        this.bigDiv.showArea();
+    };
 
     /**
      * set size of the output canvas and its scale, create pixel, use together with other size dependent setup
@@ -67,7 +74,6 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
      */
     OutputImage.prototype.setSize = function(width, height = width) {
         width = Math.round(width);
-
         height = Math.round(height);
         if (this.pixelCanvas.width > 0) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
@@ -84,12 +90,16 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
         } else {
             DOM.style("#" + this.divName, "overflowY", "scroll");
         }
+        // center
+        DOM.style("#" + this.idName,"left",Math.max(0,0.5*(this.divWidth-width))+px);
+        DOM.style("#" + this.idName,"top",Math.max(0,0.5*(this.divHeight-height))+px);
     };
 }());
 
 
 (function() {
     "use strict";
+    
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image

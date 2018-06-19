@@ -35,19 +35,15 @@ Make.controlImage.showArea();
 
 Make.arrowController.showArea();
 
-//Make.outputImage.showArea();
+Make.outputImage.showArea();
 Make.setOutputSize(basicLength);
 
 
-//Make.setOutputSize(1000,1000);
+Make.setOutputSize(200,200);
 
 
+text = new BigDiv("text", windowWidth - 2 * basicLength, window.innerHeight, basicLength);
 
-DOM.style("#text", "left", basicLength + px, "top", "0px");
-DOM.style("#text", "width", (windowWidth - 2 * basicLength) + px); // avoid horizontal scrollbar
-
-
-DOM.style("#text", "height", window.innerHeight + px, "overflow", "auto");
 DOM.style("#topRight", "right", windowWidth - basicLength + 20 + px);
 
 
