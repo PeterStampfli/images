@@ -8,7 +8,7 @@ Make.createOutputImage("outputCanvas", window.innerHeight);
 Draw.setOutputImage(Make.outputImage);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
-                DOM.style("#outputCanvas", "cursor", "default");
+DOM.style("#outputCanvas", "cursor", "default");
 
 
 Layout.activateFontSizeChanges();

@@ -57,7 +57,7 @@ function PixelCanvas(idName) {
     this.pixelComponents = null;
     this.width = 0;
     this.height = 0;
-    this.blueScreenColor = "#0000ff";
+    this.blueScreenColor = "#808080";
     this.integralRed = new Uint32Array(1);
     this.integralBlue = new Uint32Array(1);
     this.integralGreen = new Uint32Array(1);
@@ -1049,7 +1049,29 @@ function PixelCanvas(idName) {
 
 
     /**
-     * get high quality pixel color, depending on transformed pixel size (total lyapunov coefficient)
+     * get very high quality pixel color, depending on transformed pixel size (total lyapunov coefficient)
+     * @method PixelCanvas#getVeryHighQuality
+     * @param {Color} color - will be set to new pixel color
+     * @param {float} x - coordinate of pixel
+     * @param {float} y - coordinate of pixel
+     * @param {float} size - of the pixel (total Lyapunov coefficient)
+     * @return true, if color is valid, false, if point lies outside
+     */
+    PixelCanvas.prototype.getVeryHighQuality = function(color, x, y, size) {
+        if (size < PixelCanvas.thresholdCubic) {
+            return this.getCubic(color, x, y);
+        }
+        if (size < PixelCanvas.thresholdLinear) {
+            return this.getLinear(color, x, y);
+        }
+        if (size < PixelCanvas.thresholdAverage) {
+            return this.getNearest(color, x, y);
+        }
+        return this.getAverage(color, x, y, PixelCanvas.smoothing * size);
+    };
+
+    /**
+     * get high quality pixel color, depending on transformed pixel size (total lyapunov coefficient), no cubic interpolation
      * @method PixelCanvas#getHighQuality
      * @param {Color} color - will be set to new pixel color
      * @param {float} x - coordinate of pixel
@@ -1058,9 +1080,6 @@ function PixelCanvas(idName) {
      * @return true, if color is valid, false, if point lies outside
      */
     PixelCanvas.prototype.getHighQuality = function(color, x, y, size) {
-        if (size < PixelCanvas.thresholdCubic) {
-            return this.getCubic(color, x, y);
-        }
         if (size < PixelCanvas.thresholdLinear) {
             return this.getLinear(color, x, y);
         }

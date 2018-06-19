@@ -14,7 +14,7 @@ Make.createMap();
 Make.setOutputSize(window.innerHeight);
 
 
-Make.highImageQuality = true;
+Make.imageQuality = "high";
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 

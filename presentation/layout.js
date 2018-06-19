@@ -148,26 +148,26 @@ var Layout = {};
         DOM.create("div", "topRight", "body");
         DOM.style("#topLeft,#topRight", "position", "fixed", "top", "0px", "zIndex", "10");
         DOM.style("#topLeft", "left", "0px");
-                DOM.style("#topRight", "right", (window.innerWidth - window.innerHeight) + px);
-                
+        DOM.style("#topRight", "right", (window.innerWidth - window.innerHeight) + px);
+
         if (prevPage != "") {
-                    DOM.create("button", "prevButton", "#topLeft", "prev");
-         DOM.attribute("#prevButton", "class", "topButton");
-        let prevButton = new Button("prevButton");
-           prevButton.onClick = function() {
+            DOM.create("button", "prevButton", "#topLeft", "prev");
+            DOM.attribute("#prevButton", "class", "topButton");
+            let prevButton = new Button("prevButton");
+            prevButton.onClick = function() {
                 window.location = prevPage;
             };
-        } 
+        }
 
         if (nextPage != "") {
-         DOM.create("button", "nextButton", "#topRight", "next");
-        DOM.attribute("#nextButton", "class", "topButton");
-        let nextButton = new Button("nextButton");
-           nextButton.onClick = function() {
+            DOM.create("button", "nextButton", "#topRight", "next");
+            DOM.attribute("#nextButton", "class", "topButton");
+            let nextButton = new Button("nextButton");
+            nextButton.onClick = function() {
                 window.location = nextPage;
             };
-        }  
-                
+        }
+
         DOM.style(".topButton", "display", "block", "fontWeight", "normal");
         DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
     };

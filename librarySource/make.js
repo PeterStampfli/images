@@ -39,9 +39,9 @@ var Make = {};
 (function() {
     "use strict";
 
-    // switching between sampling methods
+    // switching between sampling methods: "low", "high" or "veryHigh"
 
-    Make.highImageQuality = false;
+    Make.imageQuality = "low";
 
     // creating the interaction elements
     //____________________________________________________________________________________________
@@ -79,7 +79,6 @@ var Make = {};
     */
     Make.createOutputImage = function(idName, width, height = width, left = 0, top = 0) {
         Make.outputImage = new OutputImage(idName, width, height, left, top);
-        Make.outputImage.pixelCanvas.blueScreenColor = Layout.backgroundColor;
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.outputImage.action = Make.shiftScaleOutputImage;
     };
@@ -317,8 +316,8 @@ var Make = {};
         }
         Make.updateOutputImage();
     };
-    
-    
+
+
     /**
      * create a button to change between structure and image, put before setting font sizes
      * @method Make.createStructureImageButton
@@ -342,7 +341,7 @@ var Make = {};
     Make.setMapping(twoMirrors.vectorMapping,twoMirrors.reflectionsMapping);
     Make.updateNewMap();
     */
-    
+
     //  changing the output size: avoid any side effects, only magnification
     //___________________________________________________________________________
 
@@ -378,7 +377,7 @@ var Make = {};
         };
         return sizeButton;
     };
-    
+
     //  reading an input image and adjust mappingStructure
     //_____________________________________________________
 
@@ -481,8 +480,8 @@ var Make = {};
     Make.readImageWithFilePathAtSetup = function(filePath) {
         Make.inputImage.readImageWithFilePath(filePath, Make.readImageAction);
     };
-    
-    
+
+
     /**
      * create open input image command with key "i"
      * @method Make.createOpenImageKey
@@ -498,8 +497,8 @@ var Make = {};
             hiddenImageInput.click();
         }, key);
     };
-    
-    
+
+
 
     //        shifting and scaling the output image
     //___________________________________________________________________________
@@ -571,11 +570,14 @@ var Make = {};
 
 
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            if (Make.highImageQuality) {
-                Make.map.draw();
+            if (Make.imageQuality == "low") {
+                console.log("fast");
+                Make.map.drawFast();
+            } else if (Make.imageQuality == "high") {
+                Make.map.drawHighQuality();
             } else {
                 // Make.map.draw(VectorMap.createInputImageColorLowQuality);
-                Make.map.drawFast();
+                Make.map.drawVeryHighQuality();
             }
         }
     };

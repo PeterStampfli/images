@@ -23,7 +23,7 @@ DOM.style("#outputCanvas", "cursor", "pointer");
 
 Make.createMap();
 
-Make.highImageQuality = true;
+Make.imageQuality = "high";
 
 
 Layout.adjustDimensions();

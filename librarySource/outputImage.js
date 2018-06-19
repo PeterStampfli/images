@@ -21,7 +21,7 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     this.top = top;
     this.bigDiv = new BigDiv(this.divName, width, height, left, top);
     DOM.create("canvas", idName, "#" + this.divName);
-    DOM.style("#" + idName, "cursor", "pointer","display","block","position","relative");
+    DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
 
     this.pixelCanvas = new PixelCanvas(idName);
@@ -56,12 +56,12 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
 }
 
 (function() {
-    
+
     /**
      * show area of the containing bigdiv
      * @method OutputImage#showArea
      */
-    OutputImage.prototype.showArea=function() {
+    OutputImage.prototype.showArea = function() {
         this.bigDiv.showArea();
     };
 
@@ -91,15 +91,15 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
             DOM.style("#" + this.divName, "overflowY", "scroll");
         }
         // center
-        DOM.style("#" + this.idName,"left",Math.max(0,0.5*(this.divWidth-width))+px);
-        DOM.style("#" + this.idName,"top",Math.max(0,0.5*(this.divHeight-height))+px);
+        DOM.style("#" + this.idName, "left", Math.max(0, 0.5 * (this.divWidth - width)) + px);
+        DOM.style("#" + this.idName, "top", Math.max(0, 0.5 * (this.divHeight - height)) + px);
     };
 }());
 
 
 (function() {
     "use strict";
-    
+
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image

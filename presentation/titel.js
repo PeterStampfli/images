@@ -8,7 +8,7 @@ Layout.setFontSizes();
 Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
-                DOM.style("#outputCanvas", "cursor", "default");
+DOM.style("#outputCanvas", "cursor", "default");
 
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
@@ -18,7 +18,7 @@ Make.createMap();
 
 Make.setOutputSize(window.innerHeight);
 
-Make.highImageQuality = true;
+Make.imageQuality = "high";
 
 
 Layout.adjustDimensions();

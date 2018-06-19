@@ -22,10 +22,9 @@ function NumberButton(idName, idPlus, idMinus) {
     // increasing and decreasing    
     if (arguments.length > 1) {
         this.createPlusMinusButtons(idPlus, idMinus);
-    }
-    else {
-    this.plusButton = null;
-    this.MinusButton = null;
+    } else {
+        this.plusButton = null;
+        this.MinusButton = null;
     }
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
@@ -148,8 +147,8 @@ function NumberButton(idName, idPlus, idMinus) {
             numberButton.updateValue(numberButton.getValue() - 1);
         };
     };
-    
-    
+
+
     /**
      * create an number button with up and down buttons
      * @method NumberButton.create
@@ -169,5 +168,5 @@ function NumberButton(idName, idPlus, idMinus) {
         let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
         return numberButton;
     };
-    
+
 }());

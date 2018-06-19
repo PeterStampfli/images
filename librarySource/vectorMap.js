@@ -211,6 +211,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.drawFast = function() {
         // image objects
+        console.log("fastt");
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let inputImage = this.inputImage;
@@ -261,11 +262,71 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     /**
      * draw on a pixelcanvas use a map and high quality pixel sampling
-     * if map is expanding use smoothing, if contracting use interpolation
+     * if map is expanding use smoothing, if contracting use linear and cubic interpolation
      * "invalid" points have a negative lyapunov value
-     * @method VectorMap#draw
+     * @method VectorMap#drawVeryHighQuality
      */
-    VectorMap.prototype.draw = function() {
+    VectorMap.prototype.drawVeryHighQuality = function() {
+        console.log("veryhigh");
+
+        // the pixel scaling (lyapunov)
+        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
+        var lyapunov;
+        // image objects
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let inputImage = this.inputImage;
+        let controlImage = this.controlImage;
+        let controlCanvas = controlImage.pixelCanvas;
+        let controlDivInputSize = controlImage.controlDivInputSize;
+        // input transform data
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
+        // map dimensions
+        let height = this.height;
+        let width = this.width;
+        // map data
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let lyapunovArray = this.lyapunovArray;
+        // color data
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
+        const color = new Color();
+        var x, y, h, k;
+        const length = xArray.length;
+        for (var index = 0; index < length; index++) {
+            lyapunov = lyapunovArray[index] * baseLyapunov;
+            if (lyapunov > 0) {
+                x = xArray[index];
+                y = yArray[index];
+                h = shiftX + cosAngleScale * x - sinAngleScale * y;
+                k = shiftY + sinAngleScale * x + cosAngleScale * y;
+                // beware of byte order
+                if (inputImage.getVeryHighQuality(color, h, k, lyapunov)) {
+                    pixelCanvas.setPixelAtIndex(color, index);
+                    controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                } else { // invalid points: use off color
+                    pixel[index] = intOffColor;
+                }
+            } else {
+                pixel[index] = intOffColor;
+            }
+        }
+        pixelCanvas.showPixel();
+        controlCanvas.showPixel();
+    };
+
+    /**
+     * draw on a pixelcanvas use a map and high quality pixel sampling
+     * if map is expanding use smoothing, if contracting use linear interpolation
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawVeryHighQuality
+     */
+    VectorMap.prototype.drawHighQuality = function() {
+        console.log("high");
         // the pixel scaling (lyapunov)
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -431,7 +492,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 }
                 if (success) {
                     pixelCanvas.setPixelAtIndex(color, index);
-                } else { // invalid points: use off color
+                } else { // invalid points: use off colortrue
                     pixel[index] = intOffColor;
                 }
             } else {

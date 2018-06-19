@@ -39,7 +39,7 @@ Make.outputImage.showArea();
 Make.setOutputSize(basicLength);
 
 
-Make.setOutputSize(200,200);
+Make.setOutputSize(200, 200);
 
 
 text = new BigDiv("text", windowWidth - 2 * basicLength, window.innerHeight, basicLength);

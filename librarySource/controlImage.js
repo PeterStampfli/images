@@ -17,7 +17,7 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     DOM.create("canvas", idName, "body");
     if (limitLeft >= 0) { // visible as position fixed
         DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
-                DOM.style("#" + idName, "cursor", "pointer");
+        DOM.style("#" + idName, "cursor", "pointer");
     } else {
         DOM.style("#" + idName, "display", "none");
     }
