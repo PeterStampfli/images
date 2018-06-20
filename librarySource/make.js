@@ -106,7 +106,7 @@ var Make = {};
      * create a button to download the output image as a jpg
      * @method Make.createSaveImageJpg
      * @param {String} idButton
-     * @param {String} fileName
+     * @param {String} fileName - download with this file name, without extension
      */
     Make.createSaveImageJpg = function(idButton, fileName) {
         Make.downloadButton = new Button(idButton);
@@ -454,6 +454,7 @@ var Make = {};
      * @method Make.createImageInput
      * @param {String} idButton - name (id) of the (button) html element
      * @param {String} idFileNameOutput - optional, name (id) of the output html element for file name
+     * @return the image input button
      */
     Make.createImageInput = function(idButton, idFileNameOutput) {
         let imageInputButton = new Button(idButton);
@@ -469,6 +470,7 @@ var Make = {};
                 Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
             };
         }
+        return imageInputButton;
     };
 
     /**
@@ -575,9 +577,10 @@ var Make = {};
                 Make.map.drawFast();
             } else if (Make.imageQuality == "high") {
                 Make.map.drawHighQuality();
-            } else {
-                // Make.map.draw(VectorMap.createInputImageColorLowQuality);
+            } else if (Make.imageQuality == "high") {
                 Make.map.drawVeryHighQuality();
+            } else {
+                console.log(" **** unknown image quality " + Make.imageQuality);
             }
         }
     };

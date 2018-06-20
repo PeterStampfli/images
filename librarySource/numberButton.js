@@ -151,6 +151,7 @@ function NumberButton(idName, idPlus, idMinus) {
 
     /**
      * create an number button with up and down buttons
+     * Attention: set font sizes afterwards
      * @method NumberButton.create
      * @param {String} idSpan - id of the span conatining the number button
      * @return NumberButton
@@ -163,8 +164,6 @@ function NumberButton(idName, idPlus, idMinus) {
         DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
         DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
         DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn", "borderRadius", 1000 + px);
-        Layout.setFontSizes();
-
         let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
         return numberButton;
     };
