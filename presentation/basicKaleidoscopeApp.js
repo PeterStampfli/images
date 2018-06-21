@@ -9,9 +9,9 @@
     // ratio between height of control image and window height
     const controlHeightFraction = 0.25;
     // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.04;
+    const fontsizeToWindowHeight = 0.03;
     // h1 titel font size is larger 
-    const relativeH1Fontsize = 1.2;
+    const relativeH1Fontsize = 1.0;
     // rekative size of margins
     const textMarginToFontsize = 0.5;
     // weight of button borders
@@ -23,6 +23,20 @@
     const px = "px";
 
     // create DOM elements before setting styles
+
+    let helpButton = new Button("help");
+    helpButton.onClick = function() {
+        //window.location="";
+        console.log("goHelp");
+
+    };
+
+    let homeButton = new Button("home");
+    homeButton.onClick = function() {
+        //window.location="";
+        console.log("goHome");
+
+    };
 
     //symmetries
     let setKButton = NumberButton.create("k");
@@ -67,23 +81,20 @@
     showImageButton.onPress = function() {
         if (!Make.inputImageExists) {
             imageInputButton.fileInput.click();
-
         } else {
             Make.switchToShowingImage();
         }
-
-
     };
-
 
     //in/output
     let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
-
     imageInputButton.onClick = function() {
         console.log("switch choice to imag");
         imageInputButton.fileInput.click();
         structureImageChoiceButtons.setPressed(showImageButton);
     };
+
+    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
 
     DOM.style("body", "backgroundColor", backgroundColor);
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
