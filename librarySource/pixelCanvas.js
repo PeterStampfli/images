@@ -323,7 +323,7 @@ function PixelCanvas(idName) {
     abgr[0] = 3; // the red byte, all others are 0
     const abgrOrder = (intColor[0] === 3);
 
-    console.log("abgrOrder " + abgrOrder);
+    //console.log("abgrOrder " + abgrOrder);
 
     /**
      * transform color into integer with correct byte order

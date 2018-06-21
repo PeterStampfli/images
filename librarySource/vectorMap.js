@@ -211,7 +211,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.drawFast = function() {
         // image objects
-        console.log("fastt");
+        console.log("fast");
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let inputImage = this.inputImage;

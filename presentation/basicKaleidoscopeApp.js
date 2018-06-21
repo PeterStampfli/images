@@ -61,18 +61,15 @@
     let showImageButton = structureImageChoiceButtons.createButton("showImage");
 
     showStructureButton.onPress = function() {
-        console.log("showStructure");
-
-
-
+        Make.switchToShowingStructure();
     };
 
     showImageButton.onPress = function() {
-        console.log("showImage");
         if (!Make.inputImageExists) {
-            console.log("load input image");
+            imageInputButton.fileInput.click();
+
         } else {
-            console.log("switch");
+            Make.switchToShowingImage();
         }
 
 
@@ -85,6 +82,7 @@
     imageInputButton.onClick = function() {
         console.log("switch choice to imag");
         imageInputButton.fileInput.click();
+        structureImageChoiceButtons.setPressed(showImageButton);
     };
 
     DOM.style("body", "backgroundColor", backgroundColor);

@@ -297,15 +297,29 @@ var Make = {};
         Make.updateOutputImage();
     };
 
+
     /**
-     * switch between showing structure and image
-     * @method Make.switchStructureImage
+     * switch to showing structure, does nothing if structure already shown
+     * grey out control canvas
+     * @method Make.switchToShowingStructure
      */
-    Make.switchStructureImage = function() {
-        Make.showStructure = !Make.showStructure;
-        if (Make.showStructure || !Make.inputImageExists) {
+    Make.switchToShowingStructure = function() {
+        if (!Make.showStructure) {
             Make.map.make(Make.mappingStructure);
-        } else {
+            Make.showStructure = true;
+            Make.controlImage.semiTransparent();
+            Make.controlImage.pixelCanvas.showPixel();
+            Make.updateOutputImage();
+        }
+    };
+
+    /**
+     * switch to showing image
+     * takes care of the case that the map changed while showing the structure
+     * @method Make.switchToShowingImage
+     */
+    Make.switchToShowingImage = function() {
+        if (Make.showStructure) {
             Make.map.make(Make.mappingInputImage);
             Make.shiftMapToCenter();
             if (Make.newMapRequiresInputImageAdjustment) {
@@ -313,8 +327,21 @@ var Make = {};
                 Make.getMapOutputRange();
                 Make.adjustSpaceToInputPixelMapping();
             }
+            Make.showStructure = false;
+            Make.updateOutputImage();
         }
-        Make.updateOutputImage();
+    };
+
+    /**
+     * switch between showing structure and image
+     * @method Make.switchStructureImage
+     */
+    Make.switchStructureImage = function() {
+        if (Make.showStructure) {
+            Make.switchToShowingImage();
+        } else {
+            Make.switchToShowingStructure();
+        }
     };
 
 
@@ -573,7 +600,6 @@ var Make = {};
 
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
             if (Make.imageQuality == "low") {
-                console.log("fast");
                 Make.map.drawFast();
             } else if (Make.imageQuality == "high") {
                 Make.map.drawHighQuality();
