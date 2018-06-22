@@ -5,7 +5,6 @@ VectorMap.prototype.drawFast = VectorMap.prototype.drawInterpolation;
 
 Layout.setup("kaleidoscopeLens.html", "end.html");
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 
@@ -19,9 +18,9 @@ Make.setOutputSize(window.innerHeight);
 
 Make.highImageQuality = false;
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
+Layout.setFontSizes();
 
 
-Layout.adjustDimensions();
 
 Make.setInitialOutputImageSpace(-0.1, 1.9, -1);
 Make.resetOutputImageSpace();

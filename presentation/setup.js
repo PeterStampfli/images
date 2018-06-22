@@ -2,7 +2,6 @@
 
 Layout.setup("titel.html", "rosette.html");
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 
 let sizeFraction = 0.333;
 let windowWidth = window.innerWidth;
@@ -26,13 +25,11 @@ Make.createMap();
 Make.imageQuality = "high";
 
 
-Layout.adjustDimensions();
-
-
-
 text = new BigDiv("text", windowWidth - 2 * basicLength, window.innerHeight, basicLength);
 
 DOM.style("#topRight", "right", windowWidth - basicLength + 20 + px);
+
+Layout.setFontSizes();
 
 Make.setOutputSize(basicLength, basicLength);
 

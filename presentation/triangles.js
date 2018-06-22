@@ -13,8 +13,6 @@ DOM.style("#outputCanvas", "cursor", "default");
 
 Layout.activateFontSizeChanges();
 
-Layout.adjustDimensions();
-Layout.setFontSizes();
 Make.setOutputSize(window.innerHeight);
 
 
@@ -72,5 +70,7 @@ setNButton.setValue(2);
 setNButton.onChange = function(v) {
     updateKMN();
 };
+Layout.setFontSizes();
+
 
 updateKMN();

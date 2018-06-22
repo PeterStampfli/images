@@ -6,7 +6,6 @@ VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
 
 Layout.setup("kaleidoscope.html", "interpolation.html");
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
 
@@ -29,11 +28,6 @@ Make.resetOutputImageSpace();
 
 
 
-var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
-DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
-
-lens.setObject(Make.outputImage.pixelCanvas);
-
 let setKButton = Layout.createNumberButton("k");
 setKButton.setRange(2, 10000);
 setKButton.setValue(7);
@@ -55,11 +49,15 @@ setNButton.onChange = function(v) {
     Make.updateNewMap();
 };
 
-let worldRadiusHyperbolic = 0.97;
-let worldRadiusElliptic = 0.5;
-triangleKaleidoscope.intersectionMirrorXAxis = 0.3;
 let sum = document.getElementById("sum");
 
+Layout.setFontSizes();
+
+
+var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
+DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
+
+lens.setObject(Make.outputImage.pixelCanvas);
 
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
@@ -69,12 +67,7 @@ Make.initializeMap = function() {
     let angleSum = 180 * (1 / k + 1 / m + 1 / n);
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
-    triangleKaleidoscope.setKMN(k, m, n);
-    if (angleSum < 180) {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusHyperbolic);
-    } else {
-        triangleKaleidoscope.adjustWorldRadius(worldRadiusElliptic);
-    }
+    threeMirrorsKaleidoscope.setKMN(k, m, n);
 };
 
 // drawing the image with decos (updatekmn...)

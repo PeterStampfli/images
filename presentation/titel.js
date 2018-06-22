@@ -3,7 +3,6 @@
 Layout.setup("", "setup.html");
 Layout.activateFontSizeChanges();
 Layout.activateFontSizeChangesButtons();
-Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
@@ -14,15 +13,13 @@ DOM.style("#outputCanvas", "cursor", "default");
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
+Layout.setFontSizes();
+
 Make.createMap();
 
 Make.setOutputSize(window.innerHeight);
 
 Make.imageQuality = "high";
-
-
-Layout.adjustDimensions();
-
 
 
 Make.setInitialOutputImageSpace(-1, 1, -1);

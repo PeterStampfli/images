@@ -2,7 +2,6 @@
 
 Layout.setup("triangles.html", "kaleidoscope.html");
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 Make.outputImage.stopZoom();
@@ -16,8 +15,9 @@ Make.createMap();
 Make.setOutputSize(window.innerHeight);
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
+Layout.setFontSizes();
 
-Layout.adjustDimensions();
+
 Make.setInitialOutputImageSpace(0, 1, 0);
 Make.resetOutputImageSpace();
 

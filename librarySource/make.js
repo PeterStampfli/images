@@ -393,7 +393,7 @@ var Make = {};
     /**
      * create a button to change the size of the output image, width=height=size
      * @method Make.createSquareImageSizeButton
-     * @param {String} idName - of the html element
+     * @param {String} idName - of the html input element
      * @return the button (a numberbutton)
      */
     Make.createSquareImageSizeButton = function(idName) {
@@ -603,7 +603,7 @@ var Make = {};
                 Make.map.drawFast();
             } else if (Make.imageQuality == "high") {
                 Make.map.drawHighQuality();
-            } else if (Make.imageQuality == "high") {
+            } else if (Make.imageQuality == "veryHigh") {
                 Make.map.drawVeryHighQuality();
             } else {
                 console.log(" **** unknown image quality " + Make.imageQuality);

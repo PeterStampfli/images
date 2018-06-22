@@ -96,6 +96,32 @@
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
 
+    // image imageQuality
+    let sizeButton = Make.createSquareImageSizeButton("size");
+    sizeButton.setValue(window.innerHeight);
+    let qualityChoiceButtons = new Selection();
+    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
+    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
+    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
+    lowQualityButton.onPress = function() {
+        if (Make.imageQuality != "low") {
+            Make.imageQuality = "low";
+            Make.updateOutputImage();
+        }
+    };
+    highQualityButton.onPress = function() {
+        if (Make.imageQuality != "high") {
+            Make.imageQuality = "high";
+            Make.updateOutputImage();
+        }
+    };
+    veryHighQualityButton.onPress = function() {
+        if (Make.imageQuality != "veryHigh") {
+            Make.imageQuality = "veryHigh";
+            Make.updateOutputImage();
+        }
+    };
+
     DOM.style("body", "backgroundColor", backgroundColor);
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 

@@ -3,7 +3,6 @@
 Layout.setup("setup.html", "triangles.html");
 Layout.createStructureImageButton("change");
 
-Layout.setFontSizes();
 Layout.activateFontSizeChanges();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
@@ -19,7 +18,6 @@ Make.createMap();
 Make.setOutputSize(window.innerHeight);
 
 
-Layout.adjustDimensions();
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
@@ -38,6 +36,10 @@ setKButton.setValue(5);
 setKButton.onChange = function() {
     Make.updateNewMap();
 };
+
+Layout.setFontSizes();
+
+
 
 Make.initializeMap = function() {
     dihedral.setOrder(setKButton.getValue());

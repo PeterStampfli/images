@@ -118,17 +118,6 @@ var Layout = {};
         return NumberButton.create(idSpan);
     };
 
-    /**
-     * adjust dimensions of graphics and text field depending on window dimensions only
-     * @method Layout.adjustDimensions
-     */
-    Layout.adjustDimensions = function() {
-        let windowHeight = window.innerHeight;
-        let windowWidth = window.innerWidth;
-        //Make.setOutputSize(windowHeight, windowHeight);
-
-
-    };
 
     /**
      * typical setup, hide control canvas and arrow controller. Layout.outputSize will have dimensions of output image.

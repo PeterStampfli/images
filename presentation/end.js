@@ -2,7 +2,6 @@
 
 Layout.setup("interpolation.html", "");
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 
@@ -17,7 +16,7 @@ Make.imageQuality = "high";
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
-Layout.adjustDimensions();
+Layout.setFontSizes();
 
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();

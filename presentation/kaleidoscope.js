@@ -4,7 +4,6 @@ Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
 Layout.createStructureImageButton("change");
 
 Layout.activateFontSizeChanges();
-Layout.setFontSizes();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 DOM.style("#outputCanvas", "cursor", "crosshair");
@@ -16,8 +15,6 @@ Make.createMap();
 Make.setOutputSize(window.innerHeight);
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 
-
-Layout.adjustDimensions();
 Make.setInitialOutputImageSpace(-1, 1, -1);
 Make.resetOutputImageSpace();
 
@@ -43,6 +40,8 @@ setNButton.onChange = function(v) {
 };
 
 let sum = document.getElementById("sum");
+
+Layout.setFontSizes();
 
 // initializing things before calculating the map (uopdateKMN)
 Make.initializeMap = function() {
