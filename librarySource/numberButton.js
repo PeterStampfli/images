@@ -84,7 +84,7 @@ function NumberButton(idName, idPlus, idMinus) {
     NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
-     * set the allowed range of numbers
+     * set the allowed range of numbers, correct value if out of range
      * @method NumberButton#setRange
      * @param {integer} minValue
      * @param {integer} maxValue
@@ -92,6 +92,10 @@ function NumberButton(idName, idPlus, idMinus) {
     NumberButton.prototype.setRange = function(minValue, maxValue) {
         this.minValue = minValue;
         this.maxValue = maxValue;
+        let value = this.getValue();
+        if (value < minValue) {
+            this.setValue(minValue);
+        }
     };
 
     /**

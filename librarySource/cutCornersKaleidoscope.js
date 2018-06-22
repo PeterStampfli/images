@@ -163,7 +163,6 @@ cutCornersKaleidoscope = {};
             if (factor > 0) {
                 lyapunov *= factor;
                 reflections++;
-                console.log("ref");
             }
             if (halfAngleLine.mirrorRightToLeft(position) > 0) {
                 reflections++;

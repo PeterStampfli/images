@@ -2,6 +2,7 @@
 
 // doing the layout in a private scope
 
+
 (function() {
     "use strict";
     Make.imageQuality = "low";
@@ -48,24 +49,34 @@
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(4);
+    setMButton.setValue(2);
     setMButton.onChange = function(v) {
         Make.updateNewMap();
     };
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
-    setNButton.setValue(2);
+    setNButton.setValue(4);
     setNButton.onChange = function(v) {
         Make.updateNewMap();
     };
+
+    var tiling = "regular";
 
     // initializing things before calculating the map (uopdateKMN)
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
-        threeMirrorsKaleidoscope.setKMN(k, m, n);
+        if (tiling == "regular") {
+            threeMirrorsKaleidoscope.setKMN(k, m, n);
+        } else if (tiling == "semiRegular1") {
+            cutCornersKaleidoscope.setKMN(k, m, n);
+        } else if (tiling == "semiRegular2") {
+            cutSidesKaleidoscope.setKMN(k, m, n);
+        } else {
+            console.log("nosuch tiling: " + tiling);
+        }
     };
     // choose between structure and image
 
@@ -103,23 +114,47 @@
     let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
     let highQualityButton = qualityChoiceButtons.createButton("highQuality");
     let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
-    lowQualityButton.onPress = function() {
-        if (Make.imageQuality != "low") {
-            Make.imageQuality = "low";
+
+    function changeQuality(newQuality) {
+        if (Make.imageQuality != newQuality) {
+            Make.imageQuality = newQuality;
             Make.updateOutputImage();
         }
+    }
+
+    lowQualityButton.onPress = function() {
+        changeQuality("low");
     };
     highQualityButton.onPress = function() {
-        if (Make.imageQuality != "high") {
-            Make.imageQuality = "high";
-            Make.updateOutputImage();
-        }
+        changeQuality("high");
     };
     veryHighQualityButton.onPress = function() {
-        if (Make.imageQuality != "veryHigh") {
-            Make.imageQuality = "veryHigh";
-            Make.updateOutputImage();
+        changeQuality("veryHigh");
+    };
+
+    let tilingChoiceButtons = new Selection();
+    let regularTilingButton = tilingChoiceButtons.createButton("regular");
+    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
+    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
+
+    function changeTiling(newTiling) {
+        if (newTiling != tiling) {
+            tiling = newTiling;
+            Make.updateNewMap();
         }
+    }
+
+    regularTilingButton.onPress = function() {
+        setNButton.setRange(2, 10000);
+        changeTiling("regular");
+    };
+    semireg1TilingButton.onPress = function() {
+        setNButton.setRange(2, 10000);
+        changeTiling("semiRegular1");
+    };
+    semireg2TilingButton.onPress = function() {
+        setNButton.setRange(3, 10000);
+        changeTiling("semiRegular2");
     };
 
     DOM.style("body", "backgroundColor", backgroundColor);
@@ -137,17 +172,13 @@
     let outputCanvasHeight = window.innerHeight;
 
     Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
-    Make.outputImage.showArea();
 
     let controlWidth = window.innerWidth - outputCanvasWidth;
     let controlImageHeight = controlHeightFraction * window.innerHeight;
 
-
     Make.createControlImage("controlCanvas", controlWidth - controlImageHeight, controlImageHeight, outputCanvasWidth + controlImageHeight, 0);
-    Make.controlImage.showArea();
 
     Make.createArrowController("arrowController", controlImageHeight, outputCanvasWidth, 0);
-    Make.arrowController.showArea();
 
 
 
