@@ -68,4 +68,13 @@ var DOM = {};
         }
     };
 
+    /**
+     * set class attribute
+     * @method DOM.class
+     * @param {String} selectors - comma separated list (tag,tag.class,.class,#id)
+     * @param {String} value - can be repeated together with attribute as pairs
+     */
+    DOM.class = function(selectors, value) {
+        DOM.attribute(selectors, "class", value);
+    };
 }());

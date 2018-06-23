@@ -1,5 +1,5 @@
 /**
- * a simple two-panel layout
+ * a simple layout
  * @namespace Layout
  */
 
@@ -17,7 +17,7 @@ var Layout = {};
     // text margin as fraction of text size
     Layout.textMarginToSize = 0.50;
     // width of input buttons
-    Layout.inputWidthToSize = 3.5;
+    Layout.inputWidthToSize = 3.7;
     //weight of borders (buttons)
     Layout.borderWidthToSize = 0.15;
     // weight of lines in the canvas
@@ -59,7 +59,6 @@ var Layout = {};
         DOM.style(".topButton", "marginBottom", "0px");
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
-        //  DOM.style(".round", "borderRadius", Layout.basicFontSize + "px");
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
         Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
     };
@@ -146,6 +145,13 @@ var Layout = {};
             prevButton.onClick = function() {
                 window.location = prevPage;
             };
+        } else {
+            DOM.create("button", "prevButton", "#topLeft", "Home");
+            DOM.attribute("#prevButton", "class", "topButton");
+            let prevButton = new Button("prevButton");
+            prevButton.onClick = function() {
+                window.location = "index.html";
+            };
         }
 
         if (nextPage != "") {
@@ -155,9 +161,15 @@ var Layout = {};
             nextButton.onClick = function() {
                 window.location = nextPage;
             };
+        } else {
+            DOM.create("button", "nextButton", "#topRight", "Home");
+            DOM.attribute("#nextButton", "class", "topButton");
+            let nextButton = new Button("nextButton");
+            nextButton.onClick = function() {
+                window.location = "index.html";
+            };
         }
-
-        DOM.style(".topButton", "display", "block", "fontWeight", "normal");
+        DOM.style(".topButton", "display", "block", "fontWeight", "normal", "textAlign", "center");
         DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
     };
 

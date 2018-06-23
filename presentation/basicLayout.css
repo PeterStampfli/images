@@ -1,0 +1,27 @@
+body{
+    background-color: #eeeeee;
+    margin: 0px;
+    font-family: Open Sans, Arial, sans-serif;
+}
+
+a{
+    text-decoration:none;
+    font-weight: bold;
+}
+
+
+a:hover{
+    color:red;
+}
+
+#navigation{
+    background-color:#333333;
+}
+
+.navButton{
+    color: white;
+}
+
+div{
+    margin: 0px;
+}

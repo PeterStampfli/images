@@ -27,16 +27,12 @@
 
     let helpButton = new Button("help");
     helpButton.onClick = function() {
-        //window.location="";
-        console.log("goHelp");
-
+        window.location = "help.html";
     };
 
     let homeButton = new Button("home");
     homeButton.onClick = function() {
-        //window.location="";
-        console.log("goHome");
-
+        window.location = "index.html";
     };
 
     //symmetries
@@ -149,7 +145,7 @@
         changeTiling("regular");
     };
     semireg1TilingButton.onPress = function() {
-        setNButton.setRange(2, 10000);
+        setNButton.setRange(3, 10000);
         changeTiling("semiRegular1");
     };
     semireg2TilingButton.onPress = function() {
