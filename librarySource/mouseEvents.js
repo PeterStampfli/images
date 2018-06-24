@@ -11,6 +11,8 @@
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
     this.elementPositionFixed = (this.element.style.position == "fixed");
+    // switch events off or on
+    this.isActive = true;
     // the event data
     this.x = 0;
     this.y = 0;
@@ -40,57 +42,71 @@ function MouseEvents(idName) {
     var mouseEvents = this;
 
     this.element.onmousedown = function(event) {
-        mouseEvents.update(event);
-        mouseEvents.pressed = true;
-        mouseEvents.downAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            mouseEvents.update(event);
+            mouseEvents.pressed = true;
+            mouseEvents.downAction(mouseEvents);
+        }
     };
 
     this.element.onmouseup = function(event) {
-        mouseEvents.update(event);
-        if (mouseEvents.pressed) {
-            mouseEvents.pressed = false;
-            mouseEvents.upAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            mouseEvents.update(event);
+            if (mouseEvents.pressed) {
+                mouseEvents.pressed = false;
+                mouseEvents.upAction(mouseEvents);
+            }
         }
     };
 
     this.element.onmouseenter = function(event) {
-        mouseEvents.mouseInside = true;
+        if (mouseEvents.isActive) {
+            mouseEvents.mouseInside = true;
+        }
     };
 
     this.element.onmouseleave = function(event) {
-        mouseEvents.update(event);
-        mouseEvents.mouseInside = false;
-        if (mouseEvents.pressed) {
-            mouseEvents.pressed = false;
-            mouseEvents.outAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            mouseEvents.update(event);
+            mouseEvents.mouseInside = false;
+            if (mouseEvents.pressed) {
+                mouseEvents.pressed = false;
+                mouseEvents.outAction(mouseEvents);
+            }
         }
     };
 
     this.element.onmousemove = function(event) {
-        mouseEvents.update(event);
-        if (mouseEvents.pressed) {
-            mouseEvents.dragAction(mouseEvents);
-        } else {
-            mouseEvents.moveAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            mouseEvents.update(event);
+            if (mouseEvents.pressed) {
+                mouseEvents.dragAction(mouseEvents);
+            } else {
+                mouseEvents.moveAction(mouseEvents);
+            }
         }
     };
 
     this.element.onwheel = function(event) {
-        mouseEvents.update(event);
-        mouseEvents.wheelAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            mouseEvents.update(event);
+            mouseEvents.wheelAction(mouseEvents);
+        }
     };
 
     // using keys for wheel actions
     KeyboardEvents.addKeydownListener(this);
 
     this.keydown = function(key) {
-        if (mouseEvents.mouseInside) {
-            if (key == mouseEvents.upKey) {
-                mouseEvents.wheelDelta = 1;
-                mouseEvents.wheelAction(mouseEvents);
-            } else if (key == mouseEvents.downKey) {
-                mouseEvents.wheelDelta = -1;
-                mouseEvents.wheelAction(mouseEvents);
+        if (mouseEvents.isActive) {
+            if (mouseEvents.mouseInside) {
+                if (key == mouseEvents.upKey) {
+                    mouseEvents.wheelDelta = 1;
+                    mouseEvents.wheelAction(mouseEvents);
+                } else if (key == mouseEvents.downKey) {
+                    mouseEvents.wheelDelta = -1;
+                    mouseEvents.wheelAction(mouseEvents);
+                }
             }
         }
     };

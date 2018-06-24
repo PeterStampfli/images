@@ -81,8 +81,14 @@
     let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
     let showImageButton = structureImageChoiceButtons.createButton("showImage");
 
+    function activateControls(status) {
+        Make.controlImage.mouseEvents.isActive = status;
+        Make.arrowController.mouseEvents.isActive = status;
+    }
+
     showStructureButton.onPress = function() {
         Make.switchToShowingStructure();
+        activateControls(false);
     };
 
     showImageButton.onPress = function() {
@@ -91,6 +97,8 @@
         } else {
             Make.switchToShowingImage();
         }
+        DOM.style("#arrowController,#controlCanvas", "display", "initial");
+        activateControls(true);
     };
 
     //in/output
@@ -99,6 +107,8 @@
         console.log("switch choice to imag");
         imageInputButton.fileInput.click();
         structureImageChoiceButtons.setPressed(showImageButton);
+        DOM.style("#arrowController,#controlCanvas", "display", "initial");
+        activateControls(true);
     };
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
@@ -171,11 +181,23 @@
 
     let controlWidth = window.innerWidth - outputCanvasWidth;
     let controlImageHeight = controlHeightFraction * window.innerHeight;
+    // narrow canvases: arrow controller shrinks, to be less important
+    var controlImageWidth, arrowControlSize;
+    if (controlWidth > 3 * controlImageHeight) {
+        controlImageWidth = 2 * controlImageHeight;
+        arrowControlSize = controlImageHeight;
+    } else {
+        controlImageWidth = 0.6666 * controlWidth;
+        arrowControlSize = controlWidth - controlImageWidth;
+        console.log(controlImageHeight);
+    }
 
-    Make.createControlImage("controlCanvas", controlWidth - controlImageHeight, controlImageHeight, outputCanvasWidth + controlImageHeight, 0);
+    Make.createControlImage("controlCanvas", controlImageWidth, controlImageHeight, outputCanvasWidth, 0);
+    Make.createArrowController("arrowController", arrowControlSize, outputCanvasWidth + controlImageWidth, 0.5 * (controlImageHeight - arrowControlSize));
 
-    Make.createArrowController("arrowController", controlImageHeight, outputCanvasWidth, 0);
 
+    DOM.style("#arrowController,#controlCanvas", "display", "none");
+    activateControls(false);
 
 
     let text = new BigDiv("text", controlWidth, window.innerHeight - controlImageHeight, outputCanvasWidth, controlImageHeight);
