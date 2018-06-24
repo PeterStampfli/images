@@ -7,20 +7,10 @@
     "use strict";
     Make.imageQuality = "low";
 
-    //element sizes related to window dimensions
-
-    // max output width to  window width
-    const outputImageMaxWidthFraction = 0.65;
     // ratio between height of control image and window height
-    const controlHeightFraction = 0.65;
-    // for the size of the arrow controller to image height
-    const arrowControlFraction = 0.25;
-    // for the max height of the text area vs fontsizeToWindowHeight
-    const textMaxHeightFraction = 0.75;
-
-    // font size related
+    const controlHeightFraction = 0.5;
     // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.028;
+    const fontsizeToWindowHeight = 0.03;
     // h1 titel font size is larger 
     const relativeH1Fontsize = 1.0;
     // rekative size of margins
@@ -30,8 +20,7 @@
     // width of number input buttons
     const inputWidthToFontsize = 3.5;
     // backgroundcolor of everything
-    const backgroundColor = "#888888";
-    const textBackgroundColor = "#eeeeee";
+    const backgroundColor = "#eeeeee";
     const px = "px";
 
     // create DOM elements before setting styles
@@ -185,61 +174,40 @@
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
 
 
-    let outputCanvasWidth = Math.min(window.innerHeight, outputImageMaxWidthFraction * window.innerWidth);
+    let outputCanvasWidth = Math.max(window.innerHeight, window.innerWidth - window.innerHeight);
     let outputCanvasHeight = window.innerHeight;
 
     Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
 
     let controlWidth = window.innerWidth - outputCanvasWidth;
-    let arrowControlSize = arrowControlFraction * window.innerHeight;
     let controlImageHeight = controlHeightFraction * window.innerHeight;
-    let textMaxHeight = textMaxHeightFraction * window.innerHeight;
+    // narrow canvases: arrow controller shrinks, to be less important
+    var controlImageWidth, arrowControlSize;
+    if (controlWidth > 3 * controlImageHeight) {
+        controlImageWidth = 2 * controlImageHeight;
+        arrowControlSize = controlImageHeight;
+    } else {
+        controlImageWidth = 0.6666 * controlWidth;
+        arrowControlSize = controlWidth - controlImageWidth;
+        console.log(controlImageHeight);
+    }
 
+    Make.createControlImage("controlCanvas", controlImageWidth, controlImageHeight, outputCanvasWidth, 0);
+    Make.createArrowController("arrowController", arrowControlSize, outputCanvasWidth + controlImageWidth, 0.5 * (controlImageHeight - arrowControlSize));
 
-
-    Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);
-    Make.controlImage.centerVertical = false; // put controlcanvas to top
-    DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
-
-    Make.createArrowController("arrowController", arrowControlSize, outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
-    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
-
-    // custom colors possible
-    Make.arrowController.backGroundColor = "#444444";
-    Make.arrowController.arrowColor = "#ffffff";
-    Make.arrowController.drawOrientation();
 
     DOM.style("#arrowController,#controlCanvas", "display", "none");
     activateControls(false);
 
 
-    DOM.style("#text", "position", "fixed", "overflow", "auto");
-
-    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputCanvasWidth + px, "bottom", 0 + px);
-
-
-    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
-
-
-
-    document.getElementById("text").onclick = function() {
-        console.log("text");
-        DOM.style("#text", "zIndex", "11");
-    };
-
-    Make.controlImage.mouseEvents.downAction = function() {
-        console.log("contr");
-        DOM.style("#text", "zIndex", "9");
-
-    };
-
+    let text = new BigDiv("text", controlWidth, window.innerHeight - controlImageHeight, outputCanvasWidth, controlImageHeight);
 
 
     Make.createMap();
 
 
 
-    Make.setOutputSize(Math.min(outputCanvasWidth, outputCanvasHeight));
+    Make.setOutputSize(window.innerHeight);
 
     Make.setInitialOutputImageSpace(-1, 1, -1);
     Make.resetOutputImageSpace();

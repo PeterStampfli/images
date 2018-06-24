@@ -18,9 +18,12 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     if (limitLeft >= 0) { // visible as position fixed
         DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + idName, "cursor", "pointer");
+        DOM.style("#" + this.idName, "left", limitLeft + px, "top", limitTop + px);
     } else {
         DOM.style("#" + idName, "display", "none");
     }
+    // in case position fixed: switch centering in area
+    this.centerVertical = true;
     this.maxWidth = Math.round(maxWidth);
     this.maxHeight = Math.round(maxHeight);
     this.limitLeft = limitLeft;
@@ -95,9 +98,14 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
         let trueWidth = inputImage.width * this.controlDivInputSize;
         let trueHeight = inputImage.height * this.controlDivInputSize;
         // see if position is fixed
+        var top;
         if (this.mouseEvents.elementPositionFixed) {
             let left = this.limitLeft + 0.5 * (this.maxWidth - trueWidth);
-            let top = this.limitTop + Math.round(0.5 * (this.maxHeight - trueHeight));
+            if (this.centerVertical) {
+                top = this.limitTop + Math.round(0.5 * (this.maxHeight - trueHeight));
+            } else {
+                top = 0;
+            }
             DOM.style("#" + this.idName, "left", left + px, "top", top + px);
         }
         this.pixelCanvas.setSize(trueWidth, trueHeight);
