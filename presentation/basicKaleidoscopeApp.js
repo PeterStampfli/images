@@ -9,13 +9,15 @@
 
     //element sizes related to window dimensions
 
-    // max output width to  window width
+    // max output width to  window width for small width to height ratio
     const outputImageMaxWidthFraction = 0.65;
+    // max control width to window height ratio for large width to height
+    const controlMaxWidthFraction = 0.7;
     // ratio between height of control image and window height
-    const controlHeightFraction = 0.65;
+    const controlImageHeightFraction = 0.65;
     // for the size of the arrow controller to image height
     const arrowControlFraction = 0.25;
-    // for the max height of the text area vs fontsizeToWindowHeight
+    // for the max height of the text area vs WindowHeight
     const textMaxHeightFraction = 0.75;
 
     // font size related
@@ -184,17 +186,26 @@
     DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
 
+    let controlMaxWidth = controlMaxWidthFraction * window.innerHeight;
+    var outputCanvasWidth;
 
-    let outputCanvasWidth = Math.min(window.innerHeight, outputImageMaxWidthFraction * window.innerWidth);
+    if (window.innerWidth > window.innerHeight + controlMaxWidth) {
+        outputCanvasWidth = window.innerWidth - controlMaxWidth; // very wide window: increase output image width
+    } else if (window.innerHeight < outputImageMaxWidthFraction * window.innerWidth) {
+        outputCanvasWidth = window.innerHeight; // sufficiently wide
+    } else {
+        outputCanvasWidth = outputImageMaxWidthFraction * window.innerWidth;
+    }
+
     let outputCanvasHeight = window.innerHeight;
 
-    Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
 
     let controlWidth = window.innerWidth - outputCanvasWidth;
     let arrowControlSize = arrowControlFraction * window.innerHeight;
-    let controlImageHeight = controlHeightFraction * window.innerHeight;
+    let controlImageHeight = controlImageHeightFraction * window.innerHeight;
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
+    Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
 
 
     Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);
