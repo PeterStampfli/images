@@ -53,9 +53,9 @@ var Layout = {};
      * @method Layout.setFontSizes
      */
     Layout.setFontSizes = function() {
-        DOM.style("p,button,input", "fontSize", Layout.basicFontSize + px);
+        DOM.style("p,button,input,table", "fontSize", Layout.basicFontSize + px);
         DOM.style("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + px);
-        DOM.style("p,h1,.topButton", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
+        DOM.style("p,h1,.topButton,table", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
         DOM.style(".topButton", "marginBottom", "0px");
         DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
@@ -170,7 +170,7 @@ var Layout = {};
             };
         }
         DOM.style(".topButton", "display", "block", "fontWeight", "normal", "textAlign", "center");
-        DOM.style(".beforeInput", "display", "inline-block", "width", "50px");
+        DOM.style(".beforeInput", "display", "inline-block");
     };
 
     /**

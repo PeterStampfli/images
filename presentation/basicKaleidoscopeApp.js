@@ -267,7 +267,11 @@ Make.showStructure = true;
 
 Make.updateNewMap();
 
+function test(a, b = a, c = a) {
+    console.log(arguments.length);
+}
 
+test(1);
 
 
 
