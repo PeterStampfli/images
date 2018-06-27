@@ -64,9 +64,6 @@ Make.initializeMap = function() {
     let k = setKButton.getValue();
     let m = setMButton.getValue();
     let n = setNButton.getValue();
-    let angleSum = 180 * (1 / k + 1 / m + 1 / n);
-    angleSum = Math.round(angleSum);
-    sum.innerHTML = "" + angleSum;
     threeMirrorsKaleidoscope.setKMN(k, m, n);
 };
 

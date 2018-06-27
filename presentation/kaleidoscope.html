@@ -13,50 +13,80 @@
     <h1> Kaleidoscope</h1>
     
     <p>
-    A triangle of two straight lines and a circle arc make a kaleidoscope. 
-    How to find rapidly the reflections that map a point into this triangle?
+    We have a triangle of two reflecting straight lines and a reflecting circle arc. 
+    </p>
+    <p>
+    <strong>How do we map a point into this triangle?</strong>
     </p>
     
     <p> 
-    The straight lines meeting at an angle of 180<sup>o</sup>/k generate a dihedral group with k-fold rotational symmetry.<br>
-    This group generates images of the circle arc of the triangle. They make a polygon around the center of the image.<br>
+    The straight lines generate a dihedral group.<br>
+    This group generates images of the circle arc of the triangle. <br>
+    They make a polygon around the center of the image.<br>
     Inside the polygon the dihedral symmetry maps any point into the triangle.
     </p>
     
     <p>
-    Map points outside the polygon with inversions at the circles.<br>
-    Use "ray tracing" to choose the circle: Draw a straight line between point of observation and current mapped pixel. Use the circle that intersects first with this line.<br>
+    <strong>How do we map a point into this polygon?</strong>
+    </p>
+    <p>
+    Use inversions at the circles.<br>
+    "Ray tracing": Draw a straight line from the point of observation to the point. 
+    Use the circle that intersects first with this line.<br>
     This is easy for a point of observation at the center and dihedral symmetry.<br>
     Repeat until the point is inside the polygon.
     </p>
     
     <p>
-    For a sum of angles &gt 180<sup>o</sup> we get a Poincaré disc with a periodic decoration.<br>
-    For a sum of angles = 180<sup>o</sup> we get the usual Euclidean kaleidoscopes.<br>
-    For a sum of angles &lt than 180<sup>o</sup> we get a stereographic projection of a repeating decoration of the sphere.
+    <strong>Rotational symmetries:</strong>
     </p>
 
     <p>
-    Choose the rotational symmetries:<br>
-    <span class="beforeInput">k:</span> <span id="k"></span> <br>
-     <span class="beforeInput">m:</span> <span id="m"></span> <br>
-     <span class="beforeInput">n:</span> <span id="n"></span><br>
-    sum of angles = <span id="sum"></span> <sup>o</sup>
-    </p>
-     
+        <table>
+            <tr>
+            <td>center</td> <td><span id=k></span>
+            </tr>
+            <tr>
+            <td>left</td> <td><span id=m></span>
+            </tr>
+            <tr>
+            <td>right</td>
+            <td><span id=n></span>
+            </tr>
+        </table>
+   </p>
+   
     <p>
     view: <span id="change"></span>
     </p> 
     
     <p>
-    Zoom in at the border of the Poincaré disc to see the repeating pattern and get a transition to a Poincaré plane.
+    sum of angles = <span id="sum"></span> <sup>o</sup>
+    </p>     
+  
+    <p><strong>Results:</strong></p>
+    
+    <p>
+        Periodic image for a sum of exactly 180<sup>o</sup>.
+    </p>
+
+    <p>
+        Decoration of <em>elliptic space</em> for more than 180<sup>o</sup>.<br>
+        (Stereographic projections of repeating patterns on a sphere.)
+    </p>
+    <p>
+        Periodic pattern in <em>hyperbolic space</em> for less than 180<sup>o</sup>.<br>
+        (Zoom in at the border of the Poincaré disc representation.)
+    </p>
+    
+    <p> <strong>Rapid convergence of the iterated mapping:</strong>
     </p>
     
     <p>
-    The distance between points and the boundary of the Poincaré disc increases roughly expenentially with the number of circle inversions.<br>
-    But this increases the mapped size of output image pixels. If this size is much larger than the input image pixels we can get aliasing and noise. 
+    "Exponential" increase of the distance between points and the boundary of the Poincaré disc with the number of circle inversions.
     </p>
     
+          
     
   
 </div>

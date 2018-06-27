@@ -13,39 +13,45 @@
     <h1> Anti-aliasing</h1>
     
     <p>
-    Pixels have a finite size !
+    Circle inversion expands the size of output pixels.
+    Close to the border they become much larger than input image pixels.
     </p>
     
     <p>
-    Circle inversion expands pixel sizes.
-    Mapped output image pixels may contain many input image pixels.
+    Sampling the color of only one input image pixel gives bad results due to aliasing
+    (similar to texture mapping in video games.)
     </p>
+    
+    <p><strong>Solution:</strong></p>
+    <p>
+    I am using instead an average of the input image pixels.<br>
+    This is fast using summed area tables and easy to program in plain vanilla javascript.<br>
+    </p>
+    <p>
+    Alternative: Mipmaps, using openGL and the processors of the graphics card.
+    </p>
+   
+    <p>
+        <table>
+            <tr>
+            <td>center</td> <td><span id=k></span>
+            </tr>
+            <tr>
+            <td>left</td> <td><span id=m></span>
+            </tr>
+            <tr>
+            <td>right</td>
+            <td><span id=n></span>
+            </tr>
+        </table>
+   </p>
+   <p>
+   Generally improves image quality!
+   </p>
     
     <p>
-    Taking the color of only one input image pixel then results in image noise.
+    TODO: Remove the jaggies of border of the Poincaré disc!
     </p>
-    
-    <p>
-    Use instead an average of the color inside a region of the size of the mapped output image pixel.<br>
-    This is fast using summed area tables for rgb color components.<br>
-    Strongly improves the output image. Even far away from the border of a Poincaré disc.<br> 
-    </p>
-    
-    
-    
-    
-    
-
-        <p>
-    k <span id="k"></span> <br>
-    m <span id="m"></span> <br>
-    n <span id="n"></span><br>
-    sum= <span id="sum"></span> <sup>o</sup><br>
-
-    </p>
-
-
-    
   
 </div>
 

@@ -421,9 +421,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 let h = shiftX + cosAngleScale * x - sinAngleScale * y;
                 let k = shiftY + sinAngleScale * x + cosAngleScale * y;
                 if (index > 0.5 * length) {
-                    success = inputImage.getNearest(color, h, k);
-                } else {
                     success = inputImage.getHighQuality(color, h, k, lyapunov);
+                } else {
+                    success = inputImage.getNearest(color, h, k, lyapunov);
                 }
                 if (success) {
                     pixelCanvas.setPixelAtIndex(color, index);
@@ -484,11 +484,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 let k = shiftY + sinAngleScale * x + cosAngleScale * y;
                 // beware of byte order
                 if (index < 0.33 * length) {
-                    success = inputImage.getCubic(color, h, k);
+                    success = inputImage.getNearest(color, h, k);
                 } else if (index < 0.66 * length) {
                     success = inputImage.getLinear(color, h, k);
                 } else {
-                    success = inputImage.getNearest(color, h, k);
+                    success = inputImage.getCubic(color, h, k);
                 }
                 if (success) {
                     pixelCanvas.setPixelAtIndex(color, index);
