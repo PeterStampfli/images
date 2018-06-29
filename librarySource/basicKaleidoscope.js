@@ -244,14 +244,17 @@ basicKaleidoscope = {};
     /**
      * maps a vector into the polygon, for hyperbolic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
+     * call only for points inside the hyperbolic world radius
      * @method basicKaleidoscope.mapElliptic
      * @param {Vector2} position - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     basicKaleidoscope.mapHyperbolic = function(position) {
+        /*
         if (position.x * position.x + position.y * position.y > basicKaleidoscope.worldRadius2) { // eliminate points outside the world
             return -1;
         }
+        */
         let lyapunov = 1;
         var iter;
         for (iter = 0; iter < maxIterations; iter++) {

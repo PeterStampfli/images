@@ -7,6 +7,8 @@
  * @param {ControlImage} controlimage - to make read pixels opaque
  */
 
+
+
 /* jshint esversion:6 */
 
 function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
@@ -20,6 +22,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.inputTransform = inputTransform;
     this.inputImage = inputImage;
     this.controlImage = controlImage;
+    // smooth border for poincaré disc - precomputed alpha values
+    // nontrivial for
+    //    basicKaleidoscope.geometry=basicKaleidoscope.isHyperbolic
+    this.alphaArray = new Uint8ClampedArray(4);
+    this.extraSmoothing = 0.9; // kind of scaling of smoothing length
 }
 
 (function() {
@@ -42,6 +49,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 this.xArray = new Float32Array(length);
                 this.yArray = new Float32Array(length);
                 this.lyapunovArray = new Float32Array(length);
+                this.alphaArray = new Uint8ClampedArray(length);
             }
         }
     };
@@ -61,15 +69,64 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let alphaArray = this.alphaArray;
         let scale = this.outputImage.scale;
         let index = 0;
+        let isHyperbolic = (basicKaleidoscope.geometry == basicKaleidoscope.hyperbolic);
+        console.log("hyperbolic " + isHyperbolic);
+        console.log(basicKaleidoscope.geometry);
+        var worldRadius2, worldRadiusMinus2, worldRadiusPlus2, alphaFactor;
+        if (isHyperbolic) {
+            // data for the hyperbolic world radius
+            let effectivePixelSize = this.extraSmoothing * scale;
+            let worldRadius = basicKaleidoscope.worldRadius;
+            worldRadius2 = basicKaleidoscope.worldRadius2;
+            worldRadiusMinus2 = worldRadius - 1 * effectivePixelSize;
+            worldRadiusMinus2 *= worldRadiusMinus2;
+            worldRadiusPlus2 = worldRadius + 0.0 * effectivePixelSize;
+            worldRadiusPlus2 *= worldRadiusPlus2;
+            alphaFactor = 255.9 / (worldRadiusPlus2 - worldRadiusMinus2);
+            console.log(alphaFactor);
+            console.log("s " + scale);
+            console.log(worldRadius);
+            console.log(worldRadius2);
+        }
         y = this.outputImage.cornerY;
         for (var j = 0; j < height; j++) {
             x = this.outputImage.cornerX;
+            let y2 = y * y;
             for (var i = 0; i < width; i++) {
                 position.x = x;
                 position.y = y;
-                lyapunovArray[index] = mapping(position);
+                if (isHyperbolic) {
+                    let r2 = x * x + y2;
+                    // alpha for a smooth disc
+                    if (r2 < worldRadiusMinus2) {
+                        alphaArray[index] = 255;
+                    } else if (r2 < worldRadiusPlus2) {
+                        // automatic type conversion and clamping ???
+                        alphaArray[index] = alphaFactor * (worldRadiusPlus2 - r2);
+                    } else {
+                        alphaArray[index] = 0;
+                    }
+                    // making the tranmsform
+                    if (r2 < worldRadius2) {
+                        lyapunovArray[index] = mapping(position);
+                    } else {
+                        lyapunovArray[index] = -1;
+                    }
+                } else {
+                    let lyapunov = mapping(position);
+                    lyapunovArray[index] = lyapunov;
+                    if (lyapunov > 0) {
+                        alphaArray[index] = 255;
+                    } else {
+                        alphaArray[index] = 0;
+                    }
+                }
+                if (index < 10) {
+                    console.log(index + " " + alphaArray[index]);
+                }
                 xArray[index] = position.x;
                 yArray[index] = position.y;
                 x += scale;
@@ -350,6 +407,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         // color data
+        let offColor = new Color();
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
@@ -394,6 +452,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let pixel = pixelCanvas.pixel;
         let inputImage = this.inputImage;
         // input image data
+
         // input transform data
         let shiftX = this.inputTransform.shiftX;
         let shiftY = this.inputTransform.shiftY;
@@ -406,7 +465,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let alphaArray = this.alphaArray;
         // color data
+        let offColor = new Color();
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
@@ -415,29 +476,39 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
             lyapunov = lyapunovArray[index] * baseLyapunov;
-            if (lyapunov >= 0) {
-                let x = xArray[index];
-                let y = yArray[index];
-                let h = shiftX + cosAngleScale * x - sinAngleScale * y;
-                let k = shiftY + sinAngleScale * x + cosAngleScale * y;
-                if (index > 0.5 * length) {
-                    success = inputImage.getHighQuality(color, h, k, lyapunov);
-                } else {
-                    success = inputImage.getNearest(color, h, k, lyapunov);
+            let x = xArray[index];
+            let y = yArray[index];
+            let h = shiftX + cosAngleScale * x - sinAngleScale * y;
+            let k = shiftY + sinAngleScale * x + cosAngleScale * y;
+            if (index > 0.5 * length) {
+                // determine the rgb color part
+                // background or image ?
+                if (lyapunov >= 0) {
+                    if (!inputImage.getHighQuality(color, h, k, lyapunov)) {
+                        color.set(offColor);
+                    }
+                } else { // invalid points: use off color
+                    color.set(offColor);
                 }
-                if (success) {
-                    pixelCanvas.setPixelAtIndex(color, index);
-                    // controlimage is not visible, do not draw
-                } else { //beware of byte order
-                    pixel[index] = intOffColor;
+                // add alpha part
+                color.alpha = alphaArray[index];
+            } else {
+                color.alpha = 255;
+                if (lyapunov >= 0) {
+                    if (!inputImage.getNearest(color, h, k, lyapunov)) {
+                        color.set(offColor);
+                        color.alpha = 0;
+                    }
+                } else { // invalid points: use off color
+                    color.set(offColor);
+                    color.alpha = 0;
                 }
-            } else { // invalid points: use off color
-                pixel[index] = intOffColor;
             }
+            // and show
+            pixelCanvas.setPixelAtIndex(color, index);
         }
         pixelCanvas.showPixel();
     };
-
 
     // test interpolation
 

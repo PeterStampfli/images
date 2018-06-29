@@ -27,6 +27,7 @@ Make.resetOutputImageSpace();
 
 dihedral = new Dihedral();
 
+basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
 Make.setMapping(dihedral.vectorMapping, dihedral.reflectionsMapping);
 
 let setKButton = Layout.createNumberButton("n");
