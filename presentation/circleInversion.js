@@ -13,6 +13,8 @@ Make.createControlImage("controlCanvas", 200);
 Make.createArrowController("arrowController", 200);
 Make.createMap();
 Make.setOutputSize(window.innerHeight);
+Make.imageQuality = "high";
+
 
 text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
 Layout.setFontSizes();

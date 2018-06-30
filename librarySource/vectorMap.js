@@ -81,9 +81,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             let effectivePixelSize = this.extraSmoothing * scale;
             let worldRadius = basicKaleidoscope.worldRadius;
             worldRadius2 = basicKaleidoscope.worldRadius2;
-            worldRadiusMinus2 = worldRadius - 1 * effectivePixelSize;
+            worldRadiusMinus2 = worldRadius - 0.5 * effectivePixelSize;
             worldRadiusMinus2 *= worldRadiusMinus2;
-            worldRadiusPlus2 = worldRadius + 0.0 * effectivePixelSize;
+            worldRadiusPlus2 = worldRadius + 0.5 * effectivePixelSize;
             worldRadiusPlus2 *= worldRadiusPlus2;
             alphaFactor = 255.9 / (worldRadiusPlus2 - worldRadiusMinus2);
             console.log(alphaFactor);
@@ -325,7 +325,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.drawVeryHighQuality = function() {
         console.log("veryhigh");
-
         // the pixel scaling (lyapunov)
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -348,7 +347,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let alphaArray = this.alphaArray;
         // color data
+        let offColor = new Color();
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
@@ -363,14 +364,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 k = shiftY + sinAngleScale * x + cosAngleScale * y;
                 // beware of byte order
                 if (inputImage.getVeryHighQuality(color, h, k, lyapunov)) {
-                    pixelCanvas.setPixelAtIndex(color, index);
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
                 } else { // invalid points: use off color
-                    pixel[index] = intOffColor;
+                    color.set(offColor);
                 }
             } else {
-                pixel[index] = intOffColor;
+                color.set(offColor);
             }
+            color.alpha = alphaArray[index];
+            pixelCanvas.setPixelAtIndex(color, index);
         }
         pixelCanvas.showPixel();
         controlCanvas.showPixel();
@@ -406,6 +408,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let alphaArray = this.alphaArray;
         // color data
         let offColor = new Color();
         inputImage.averageImageColor(offColor);
@@ -422,14 +425,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 k = shiftY + sinAngleScale * x + cosAngleScale * y;
                 // beware of byte order
                 if (inputImage.getHighQuality(color, h, k, lyapunov)) {
-                    pixelCanvas.setPixelAtIndex(color, index);
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
                 } else { // invalid points: use off color
-                    pixel[index] = intOffColor;
+                    color.set(offColor);
                 }
             } else {
-                pixel[index] = intOffColor;
+                color.set(offColor);
             }
+            color.alpha = alphaArray[index];
+            pixelCanvas.setPixelAtIndex(color, index);
         }
         pixelCanvas.showPixel();
         controlCanvas.showPixel();
