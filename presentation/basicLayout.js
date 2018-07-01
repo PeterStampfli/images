@@ -41,6 +41,7 @@ var Layout = {};
     // styling tags with javascript applies only to already existing
     DOM.style("body", "fontSize", fontSize + px);
     DOM.style("p,h1", "margin", textMarginToFontsize * fontSize + px);
+    DOM.style("table", "marginLeft", 2 * textMarginToFontsize * fontSize + px);
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
     DOM.style(".vSpace", "height", vSpaceToFontSize * fontSize + px);
 

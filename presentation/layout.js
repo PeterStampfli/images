@@ -171,6 +171,10 @@ var Layout = {};
         }
         DOM.style(".topButton", "display", "block", "fontWeight", "normal", "textAlign", "center");
         DOM.style(".beforeInput", "display", "inline-block");
+
+        if (window.innerHeight > window.innerWidth) {
+            document.querySelector("body").innerHTML = "<p>Please change to <strong>landscape orientation</strong> and reload the page</p>";
+        }
     };
 
     /**

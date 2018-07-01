@@ -398,6 +398,7 @@ var Make = {};
      */
     Make.createSquareImageSizeButton = function(idName) {
         let sizeButton = new NumberButton(idName);
+        sizeButton.setRange(100, 10000);
         sizeButton.onChange = function(size) {
             Make.setOutputSize(size, size);
             Make.updateNewOutputImageSize();
