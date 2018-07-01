@@ -150,6 +150,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
+            Make.map.discRadius = -1;
         }
         // euklidic, final
         else if (basicKaleidoscope.angleSum > 0.999999) {
@@ -160,6 +161,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.line.update();
             dihedral.generateLines(basicKaleidoscope.line, basicKaleidoscope.lines);
             Fast.update(lines);
+            Make.map.discRadius = -1;
         }
         // hyperbolic, raw, adjust
         else {
@@ -169,6 +171,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusHyperbolic);
+            Make.map.discRadius = basicKaleidoscope.worldRadiusHyperbolic;
         }
     };
 

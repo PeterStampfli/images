@@ -40,7 +40,6 @@ let mousePosition = new Vector2();
 let imagePosition = new Vector2();
 
 // the mapping for using an input image, only points inside the circle
-basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
 Make.mappingInputImage = function(position) {
     if (extraCircle.contains(position)) {
         mirrorCircle.invertInsideOut(position);

@@ -26,7 +26,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     // nontrivial for
     //    basicKaleidoscope.geometry=basicKaleidoscope.isHyperbolic
     this.alphaArray = new Uint8ClampedArray(4);
-    this.extraSmoothing = 0.9; // kind of scaling of smoothing length
+    this.discRadius = -1; // if <0: fills the entire plane, if>0 the disc radius
 }
 
 (function() {
@@ -72,24 +72,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let alphaArray = this.alphaArray;
         let scale = this.outputImage.scale;
         let index = 0;
-        let isHyperbolic = (basicKaleidoscope.geometry == basicKaleidoscope.hyperbolic);
-        console.log("hyperbolic " + isHyperbolic);
-        console.log(basicKaleidoscope.geometry);
-        var worldRadius2, worldRadiusMinus2, worldRadiusPlus2, alphaFactor;
-        if (isHyperbolic) {
-            // data for the hyperbolic world radius
-            let effectivePixelSize = this.extraSmoothing * scale;
-            let worldRadius = basicKaleidoscope.worldRadius;
-            worldRadius2 = basicKaleidoscope.worldRadius2;
-            worldRadiusMinus2 = worldRadius - 0.5 * effectivePixelSize;
-            worldRadiusMinus2 *= worldRadiusMinus2;
-            worldRadiusPlus2 = worldRadius + 0.5 * effectivePixelSize;
-            worldRadiusPlus2 *= worldRadiusPlus2;
-            alphaFactor = 255.9 / (worldRadiusPlus2 - worldRadiusMinus2);
-            console.log(alphaFactor);
-            console.log("s " + scale);
-            console.log(worldRadius);
-            console.log(worldRadius2);
+        let cutDisc = (this.discRadius > 0);
+        var discRadius2, discRadiusMinus2, alphaFactor;
+        if (cutDisc) {
+            discRadius2 = this.discRadius * this.discRadius;
+            // smooth cutting inside the disc to avoid wrong colors
+            // pixel size is scale
+            discRadiusMinus2 = this.discRadius - scale;
+            discRadiusMinus2 *= discRadiusMinus2;
+            alphaFactor = 255.9 / (discRadius2 - discRadiusMinus2);
         }
         y = this.outputImage.cornerY;
         for (var j = 0; j < height; j++) {
@@ -98,19 +89,19 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             for (var i = 0; i < width; i++) {
                 position.x = x;
                 position.y = y;
-                if (isHyperbolic) {
+                if (cutDisc) {
                     let r2 = x * x + y2;
                     // alpha for a smooth disc
-                    if (r2 < worldRadiusMinus2) {
+                    if (r2 < discRadiusMinus2) {
                         alphaArray[index] = 255;
-                    } else if (r2 < worldRadiusPlus2) {
+                    } else if (r2 < discRadius2) {
                         // automatic type conversion and clamping ???
-                        alphaArray[index] = alphaFactor * (worldRadiusPlus2 - r2);
+                        alphaArray[index] = alphaFactor * (discRadius2 - r2);
                     } else {
                         alphaArray[index] = 0;
                     }
                     // making the tranmsform
-                    if (r2 < worldRadius2) {
+                    if (r2 < discRadius2) {
                         lyapunovArray[index] = mapping(position);
                     } else {
                         lyapunovArray[index] = -1;
@@ -123,9 +114,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     } else {
                         alphaArray[index] = 0;
                     }
-                }
-                if (index < 10) {
-                    console.log(index + " " + alphaArray[index]);
                 }
                 xArray[index] = position.x;
                 yArray[index] = position.y;

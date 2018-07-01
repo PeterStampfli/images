@@ -10,7 +10,7 @@ Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "default");
 
-
+Make.createMap();
 Layout.activateFontSizeChanges();
 
 Make.setOutputSize(window.innerHeight);
