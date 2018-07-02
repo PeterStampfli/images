@@ -60,6 +60,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
     VectorMap.prototype.make = function(mapping) {
+        console.log("make");
         this.exists = true;
         let position = new Vector2();
         let x = 0;
@@ -73,8 +74,10 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let scale = this.outputImage.scale;
         let index = 0;
         let cutDisc = (this.discRadius > 0);
+        console.log(cutDisc);
         var discRadius2, discRadiusMinus2, alphaFactor;
         if (cutDisc) {
+            console.log(this.discRadius);
             discRadius2 = this.discRadius * this.discRadius;
             // smooth cutting inside the disc to avoid wrong colors
             // pixel size is scale

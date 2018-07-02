@@ -58,6 +58,8 @@ basicKaleidoscope = {};
     basicKaleidoscope.worldRadius = 0;
     basicKaleidoscope.worldRadius2 = 0;
 
+    basicKaleidoscope.ellipticDiscRadius = -1;
+
 
     // setup
     //==================================================================
@@ -94,6 +96,7 @@ basicKaleidoscope = {};
         basicKaleidoscope.circle.scale(factor);
         Fast.scale(basicKaleidoscope.circles, factor);
         basicKaleidoscope.calculateWorldRadius();
+        console.log("adjusted worldradius " + basicKaleidoscope.worldRadius);
     };
 
 
@@ -150,7 +153,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
-            Make.map.discRadius = -1;
+            Make.map.discRadius = basicKaleidoscope.ellipticDiscRadius;
         }
         // euklidic, final
         else if (basicKaleidoscope.angleSum > 0.999999) {

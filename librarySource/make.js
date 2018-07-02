@@ -63,6 +63,9 @@ var Make = {};
     // show structure even if input image exists (for presentation)
     Make.showStructure = false;
 
+    // reset the input transform if the map changes or input image changes ??
+    Make.allowResetInputMap = true;
+
     /*
     the other elements depend on page layout and need an identifier
     create them here
@@ -433,13 +436,15 @@ var Make = {};
     };
 
     /**
-     * reset the parameters of the space to input pixel mapping for a new input image 
+     * reset the parameters of the space to input pixel mapping for a new input image or a new map 
      * sample given part of input image
      * @method Make.adjustSpaceToInputPixelMapping
      */
     Make.adjustSpaceToInputPixelMapping = function() {
-        Make.arrowController.angle = 0;
-        Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
+        if (Make.allowResetInputMap) {
+            Make.arrowController.angle = 0;
+            Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
+        }
     };
 
     /*

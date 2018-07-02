@@ -7,6 +7,11 @@
     "use strict";
     Make.imageQuality = "low";
 
+    basicKaleidoscope.worldRadiusElliptic = 0.97;
+    basicKaleidoscope.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic - 0.02;
+    sphericalToElliptic.setup();
+
+
     //element sizes related to window dimensions
 
     // max output width to  window width for small width to height ratio
@@ -54,33 +59,52 @@
         Make.allowResetInputMap = true;
     }
 
+    function isElliptic() {
+        return (1 / setKButton.getValue() + 1 / setMButton.getValue() + 1 / setNButton.getValue() > 1.0001);
+    }
+
     //symmetries
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
     setKButton.setValue(5);
-    setKButton.onChange = updateMapNoReset;
+    setKButton.onChange = function() {
+        while (!isElliptic()) {
+            setKButton.setValue(setKButton.getValue() - 1);
+        }
+        updateMapNoReset();
+    };
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
-    setMButton.onChange = updateMapNoReset;
+    setMButton.onChange = function() {
+        while (!isElliptic()) {
+            setMButton.setValue(setMButton.getValue() - 1);
+        }
+        updateMapNoReset();
+    };
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
-    setNButton.setValue(4);
-    setNButton.onChange = updateMapNoReset;
+    setNButton.setValue(3);
+    setNButton.onChange = function() {
+        while (!isElliptic()) {
+            setNButton.setValue(setNButton.getValue() - 1);
+        }
+        updateMapNoReset();
+    };
 
     var tiling = "regular";
 
-    // initializing things before calculating the map (uopdateKMN)
+    // initializing things before calculating the map (updateKMN)
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
         if (tiling == "regular") {
-            threeMirrorsKaleidoscope.setKMN(k, m, n);
+            threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
         } else if (tiling == "semiRegular1") {
-            cutCornersKaleidoscope.setKMN(k, m, n);
+            cutCornersKaleidoscope.setKMNSpherical(k, m, n);
         } else if (tiling == "semiRegular2") {
             cutSidesKaleidoscope.setKMN(k, m, n);
         } else {
