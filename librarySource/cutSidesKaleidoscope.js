@@ -65,6 +65,20 @@ cutSidesKaleidoscope = {};
         }
     };
 
+
+    /**
+     * set the rotational symmetries at corners, for spherical image
+     * prepare for cutting corners
+     * @method cutSidesKaleidoscope.setKMNSpherical
+     * @param {integer} k - symmetry at center corner
+     * @param {integer} m - symmetry at "right" corner
+     * @param {integer} n - symmetry at "left" corner
+     */
+    cutSidesKaleidoscope.setKMNSpherical = function(k, m, n) {
+        cutSidesKaleidoscope.setKMN(k, m, n);
+        Make.setMapping(cutSidesKaleidoscope.mapInputImageSpherical, cutSidesKaleidoscope.mapStructureSpherical);
+    };
+
     /**
      * drawing the kaleidoscope additional elements
      * @method cutSidesKaleidoscope.drawAdditional
@@ -85,7 +99,7 @@ cutSidesKaleidoscope = {};
 
     /**
      * map the position for using an input image, elliptic geometry
-     * @method cutSidesKaleidoscope.mapInputImageHyperbolic
+     * @method cutSidesKaleidoscope.mapInputImageElliptic
      * @param {Vector2} v - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
@@ -103,7 +117,7 @@ cutSidesKaleidoscope = {};
 
     /**
      * map the position for showing the structure, elliptic geometry
-     * @method cutSidesKaleidoscope.mapStructureHyperbolic
+     * @method cutSidesKaleidoscope.mapStructureElliptic
      * @param {Vector2} v - the vector to map
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
@@ -122,6 +136,51 @@ cutSidesKaleidoscope = {};
         position.x = reflections;
         return lyapunov;
     };
+
+    /**
+     * map the position for using an input image, elliptic geometry
+     * @method cutSidesKaleidoscope.mapInputImageElliptic
+     * @param {Vector2} v - the vector to map
+     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     */
+    cutSidesKaleidoscope.mapInputImageSpherical = function(position) {
+        let sphereLyapunov = sphericalToElliptic.map(position);
+        if (sphereLyapunov < 0) return -1;
+        let lyapunov = basicMap(position);
+        if (lyapunov >= 0) {
+            dihedral.map(position);
+            let factor = addCircle.invertOutsideIn(position);
+            if (factor > 0) {
+                lyapunov *= factor;
+            }
+        }
+        return lyapunov * sphereLyapunov;
+    };
+
+    /**
+     * map the position for showing the structure, elliptic geometry
+     * @method cutSidesKaleidoscope.mapStructureElliptic
+     * @param {Vector2} v - the vector to map
+     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     */
+    cutSidesKaleidoscope.mapStructureSpherical = function(position) {
+        let sphereLyapunov = sphericalToElliptic.map(position);
+        if (sphereLyapunov < 0) return -1;
+        let lyapunov = basicMap(position);
+        let reflections = basicKaleidoscope.reflections;
+        if (lyapunov >= 0) {
+            dihedral.map(position);
+            reflections += Dihedral.reflections;
+            let factor = addCircle.invertOutsideIn(position);
+            if (factor > 0) {
+                lyapunov *= factor;
+                reflections++;
+            }
+        }
+        position.x = reflections;
+        return lyapunov;
+    };
+
 
     /**
      * map the position for using an input image, euclidic geometry

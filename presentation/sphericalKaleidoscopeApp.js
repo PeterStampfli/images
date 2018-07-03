@@ -67,32 +67,17 @@
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
     setKButton.setValue(5);
-    setKButton.onChange = function() {
-        while (!isElliptic()) {
-            setKButton.setValue(setKButton.getValue() - 1);
-        }
-        updateMapNoReset();
-    };
+    setKButton.onChange = updateMapNoReset;
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
-    setMButton.onChange = function() {
-        while (!isElliptic()) {
-            setMButton.setValue(setMButton.getValue() - 1);
-        }
-        updateMapNoReset();
-    };
+    setMButton.onChange = updateMapNoReset;
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
     setNButton.setValue(3);
-    setNButton.onChange = function() {
-        while (!isElliptic()) {
-            setNButton.setValue(setNButton.getValue() - 1);
-        }
-        updateMapNoReset();
-    };
+    setNButton.onChange = updateMapNoReset;
 
     var tiling = "regular";
 
@@ -102,11 +87,23 @@
         let m = setMButton.getValue();
         let n = setNButton.getValue();
         if (tiling == "regular") {
-            threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
+            if (isElliptic()) {
+                threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
+            } else {
+                threeMirrorsKaleidoscope.setKMN(k, m, n);
+            }
         } else if (tiling == "semiRegular1") {
-            cutCornersKaleidoscope.setKMNSpherical(k, m, n);
+            if (isElliptic()) {
+                cutCornersKaleidoscope.setKMNSpherical(k, m, n);
+            } else {
+                cutCornersKaleidoscope.setKMN(k, m, n);
+            }
         } else if (tiling == "semiRegular2") {
-            cutSidesKaleidoscope.setKMN(k, m, n);
+            if (isElliptic()) {
+                cutSidesKaleidoscope.setKMNSpherical(k, m, n);
+            } else {
+                cutSidesKaleidoscope.setKMN(k, m, n);
+            }
         } else {
             console.log("nosuch tiling: " + tiling);
         }
