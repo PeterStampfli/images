@@ -70,6 +70,7 @@ Make.updateOutputImage = function() {
 
 let zoomCenter = new Vector2();
 let mousePosition = new Vector2();
+let zero = new Vector2(0, 0);
 
 Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
@@ -83,6 +84,9 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.setColor(Layout.trajectoryColor);
     threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
+    Draw.setColor("white");
+    Draw.line(zero, mousePosition);
+    basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)].draw();
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
