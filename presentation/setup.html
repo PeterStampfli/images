@@ -14,25 +14,25 @@
     <h1> setup</h1>
 
     <p>
-    Three transforms give the color of an output image pixel:
+    Three transforms give the color of an output image pixel.
     </p>
     
     <p>
-    <strong>1. From output pixel indices (i,j) to space</strong><br>
-    Scaling and shift<br>
+    <strong>1. From output pixel indices (i,j) to geometric space</strong><br>
+    Isotropic scaling and translation<br>
     (x,y) = scale * (i,j) + offset<br>
     </p> 
     <p>
-    <strong>2. A nonlinear mapping in space
+    <strong>2. A nonlinear mapping in geometric space
     creates symmetries.</strong>
     </p>
     <p>
-    <strong>3. From space to input image pixel indices (h,k)</strong><br> 
-    Rotation, scaling and shift<br>
-    (h,k)=rotation*scale*(x,y)+offset.
+    <strong>3. From geometric space to input image pixel indices (h,k)</strong><br> 
+    Rotation, isotropic scaling and translation<br>
+    (h,k) = rotation * scale * (x,y) + offset.
     </p>
     <p>
-    The color of a pixel at (i,j) results from the input image around (h,k).<br>
+    The color of a pixel at (i,j) results from the input image near index values (h,k).<br>
     </p>
      
     <p>
