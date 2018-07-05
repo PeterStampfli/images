@@ -49,7 +49,7 @@ function Circle(radius, center) {
 
     /**
      * scale the circle (center and radius)
-     * @method Circle.scale
+     * @method Circle#scale
      * @param {float} factor
      */
     Circle.prototype.scale = function(factor) {
@@ -88,7 +88,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle
-     * @method Circle.invert
+     * @method Circle#invert
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)
      */
@@ -104,7 +104,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle and draw mapping
-     * @method Circle.drawInvert
+     * @method Circle#drawInvert
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)
      */
@@ -117,7 +117,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
-     * @method Circle.invertInsideOut
+     * @method Circle#invertInsideOut
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
@@ -136,7 +136,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle and draw the mapping
-     * @method Circle.drawInvertInsideOut
+     * @method Circle#drawInvertInsideOut
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
@@ -151,7 +151,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle
-     * @method Circle.invertOutsideIn
+     * @method Circle#invertOutsideIn
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
@@ -170,7 +170,7 @@ function Circle(radius, center) {
 
     /**
      * invert a point at the circle ONLY if the point lies INSIDE the circle and draw mapping
-     * @method Circle.drawInvertOutsideIn
+     * @method Circle#ßdrawInvertOutsideIn
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */

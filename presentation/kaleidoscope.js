@@ -84,9 +84,12 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.setColor(Layout.trajectoryColor);
     threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
+    let circle=basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)];
+    if (circle.contains(mousePosition)){
     Draw.setColor("white");
     Draw.line(zero, mousePosition);
-    basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)].draw();
+    circle.draw();
+    }
 };
 
 Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
