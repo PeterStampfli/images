@@ -11,6 +11,8 @@ text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHe
 
 Make.createOutputImage("outputCanvas", windowHeight / 2, windowHeight);
 DOM.style("#outputCanvas", "cursor", "crosshair");
+DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
+
 Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
@@ -56,6 +58,7 @@ Layout.setFontSizes();
 
 var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
 DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
+DOM.style("#lens", "backgroundColor", "#bbbbbb");
 
 lens.setObject(Make.outputImage.pixelCanvas);
 

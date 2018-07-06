@@ -30,7 +30,7 @@ var Layout = {};
     DOM.create("a", "homeButton", "#navigation", "Home");
     DOM.attribute("#homeButton", "href", "index.html");
     DOM.create("a", "kaleidoscopeButton", "#navigation", "Kaleidoscope");
-    DOM.attribute("#kaleidoscopeButton", "href", "basicKaleidoscopeApp.html");
+    DOM.attribute("#kaleidoscopeButton", "href", "sphericalKaleidoscopeApp.html");
     DOM.create("a", "bridgesButton", "#navigation", "Bridges 2018");
     DOM.attribute("#bridgesButton", "href", "titel.html");
 

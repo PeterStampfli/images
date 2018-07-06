@@ -96,7 +96,6 @@ basicKaleidoscope = {};
         basicKaleidoscope.circle.scale(factor);
         Fast.scale(basicKaleidoscope.circles, factor);
         basicKaleidoscope.calculateWorldRadius();
-        console.log("adjusted worldradius " + basicKaleidoscope.worldRadius);
     };
 
 

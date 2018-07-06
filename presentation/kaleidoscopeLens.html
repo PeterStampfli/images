@@ -24,14 +24,15 @@
     
     <p><strong>Solution:</strong></p>
     <p>
-    I am using instead an average of the input image pixels.<br>
+    I am using instead an average of input image pixels.<br>
+    Area of averaging lies around mapped output image pixel using its mapped size.
     This is fast using summed area tables and easy to program in plain vanilla javascript.<br>
     </p>
     <p>
     Alternative: Mipmaps, using openGL and the processors of the graphics card.
     </p>
    <p>
-    More acurate: Subsampling (too expensive).
+    More acurate, but too expensive: Averaging using a subdivision of the output pixel (subsampling). Depends on the size of the mapped pixel.
     </p>
    
     <p>
@@ -49,11 +50,11 @@
         </table>
    </p>
    <p>
-   Generally improves image quality!
+   Also improves image quality far away from the border!
    </p>
     
     <p>
-   Smooth the jaggies at the border of the Poincaré disc!
+   Additional improvement: Smoothing the jaggies at the border of the disc!
     </p>
   
 </div>

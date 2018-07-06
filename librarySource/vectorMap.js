@@ -60,7 +60,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
     VectorMap.prototype.make = function(mapping) {
-        console.log("make");
         this.exists = true;
         let position = new Vector2();
         let x = 0;
@@ -74,10 +73,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let scale = this.outputImage.scale;
         let index = 0;
         let cutDisc = (this.discRadius > 0);
-        console.log(cutDisc);
         var discRadius2, discRadiusMinus2, alphaFactor;
         if (cutDisc) {
-            console.log(this.discRadius);
             discRadius2 = this.discRadius * this.discRadius;
             // smooth cutting inside the disc to avoid wrong colors
             // pixel size is scale
@@ -259,7 +256,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.drawFast = function() {
         // image objects
-        console.log("fast");
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let inputImage = this.inputImage;
@@ -315,7 +311,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawVeryHighQuality
      */
     VectorMap.prototype.drawVeryHighQuality = function() {
-        console.log("veryhigh");
         // the pixel scaling (lyapunov)
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -376,7 +371,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawVeryHighQuality
      */
     VectorMap.prototype.drawHighQuality = function() {
-        console.log("high");
         // the pixel scaling (lyapunov)
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -439,7 +433,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * returns true if colors are correct, else false
      */
     VectorMap.prototype.drawHalf = function() {
-        console.log("half");
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // image objects
@@ -515,7 +508,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * returns true if colors are correct, else false
      */
     VectorMap.prototype.drawInterpolation = function() {
-        console.log("test interpolation");
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // image objects

@@ -80,12 +80,16 @@
     setNButton.onChange = updateMapNoReset;
 
     var tiling = "regular";
+    let sum = document.getElementById("sum");
+
 
     // initializing things before calculating the map (updateKMN)
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
+        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n));
+
         if (tiling == "regular") {
             if (isElliptic()) {
                 threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
@@ -229,6 +233,7 @@
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
     Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
+    DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
 
     Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);

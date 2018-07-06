@@ -7,6 +7,8 @@ Layout.activateFontSizeChanges();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
 DOM.style("#outputCanvas", "cursor", "crosshair");
+DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
+
 Draw.setOutputImage(Make.outputImage);
 
 Make.createControlImage("controlCanvas", 200);
@@ -84,11 +86,11 @@ Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.setColor(Layout.trajectoryColor);
     threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
-    let circle=basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)];
-    if (circle.contains(mousePosition)){
-    Draw.setColor("white");
-    Draw.line(zero, mousePosition);
-    circle.draw();
+    let circle = basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)];
+    if (circle.contains(mousePosition)) {
+        Draw.setColor("white");
+        Draw.line(zero, mousePosition);
+        circle.draw();
     }
 };
 

@@ -4,6 +4,7 @@ Layout.setup("interpolation.html", "");
 Layout.activateFontSizeChanges();
 
 Make.createOutputImage("outputCanvas", window.innerHeight);
+DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
 
 Make.createControlImage("controlCanvas", 200);

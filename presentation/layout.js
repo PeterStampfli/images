@@ -29,7 +29,6 @@ var Layout = {};
 
     // colors
     Layout.backgroundColor = "#eeeeee";
-    Layout.canvasBackgroundColor = "#ddddff";
     Layout.mirrorColor = "red";
     Layout.addMirrorColor = "#ff88aa";
     Layout.lineColor = "blue";
@@ -131,6 +130,7 @@ var Layout = {};
         DOM.style("body", "backgroundColor", Layout.backgroundColor);
         DOM.style("body,div", "margin", "0px");
         DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+
 
         DOM.create("div", "topLeft", "body");
         DOM.create("div", "topRight", "body");
