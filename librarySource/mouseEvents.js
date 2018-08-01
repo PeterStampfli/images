@@ -40,6 +40,9 @@ function MouseEvents(idName) {
     this.wheelAction = doNothing; // mouse wheel or keyboard keys
 
     var mouseEvents = this;
+    
+    // we have only one single mouse event
+    // so it is not necessary to use this.element.addEventListener("...",script)
 
     this.element.onmousedown = function(event) {
         if (mouseEvents.isActive) {

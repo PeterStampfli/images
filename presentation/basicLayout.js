@@ -21,8 +21,8 @@ var Layout = {};
     const vSpaceToFontSize = 0.2;
 
     const px = "px";
-    const fontSize = fontsizeToWindowHeight * window.innerHeight;
-
+    let fontSize = fontsizeToWindowHeight * window.innerHeight;
+    
     // first create new elements before setting styles
 
 
@@ -39,7 +39,7 @@ var Layout = {};
 
 
     // styling tags with javascript applies only to already existing
-    DOM.style("body", "fontSize", fontSize + px);
+    DOM.style("body,a,#navigation", "fontSize", fontSize + px);
     DOM.style("p,h1", "margin", textMarginToFontsize * fontSize + px);
     DOM.style("table", "marginLeft", 2 * textMarginToFontsize * fontSize + px);
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);

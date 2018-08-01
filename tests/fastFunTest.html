@@ -19,14 +19,49 @@
 <script type="text/javascript">
     
 
-    n = 10000000
+    
+     
+     Fast.makeDiffTable=function(table){
+      const length=table.length-1;
+      const diffTable=new Float32Array(length);
+      for (var i=0;i<length;i++){
+        diffTable[i]=table[i+1]-table[i];
+    }
+      
+      return diffTable;
+     }
+    
+    t=Fast.makeTable(0,1,10,Math.sin);
+    console.log(t);
+    d=Fast.makeDiffTable(t);
+    console.log(d);
+        var nIntervals = Math.round(Math.pow(2, 12));
+        
+           var nSinIntervalsM1 = nIntervals - 1;
+    var sinTabFactor = nIntervals / 2 / Math.PI;
+
+
+        const sinTable = Fast.makeTable(0, 2 * Math.PI, nIntervals, Math.sin);
+const sinDiffTable=Fast.makeDiffTable(sinTable);
+
+    n = 100000000
+
+  Fast.fsin = function(x) {
+        var index;
+        x *= sinTabFactor;
+        index = Math.floor(x);
+        x -= index;
+        index = index & nSinIntervalsM1;
+        return sinTable[index]  + sinDiffTable[index] * x;
+    };
 
 
 
-
-    funTestTiming(Fast.gauss, 0, 2, n)
     funTestTiming(Fast.sin, 0, 2, n)
-funTestAbsError(Fast.mitchellNetrovali,Fast.mitchellNetrovaliArrow,0,2,1000)
+    funTestTiming(Fast.fsin, 0, 2, n)
+    
+    funTestAbsError(Math.sin,Fast.sin,0,3,200);
+    funTestAbsError(Math.sin,Fast.fsin,0,3,200);
 </script>
 
 </html>
