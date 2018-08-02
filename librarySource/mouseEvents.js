@@ -1,4 +1,50 @@
 /**
+ * common to mouse and touch events
+ * @namespace MouseAndTouch
+ */
+
+/* jshint esversion:6 */
+
+var MouseAndTouch = {};
+
+(function() {
+    "use strict";
+    /**
+     * prevent defaults (and bubbling ??)
+     * @method MouseAndTouch.preventDefault
+     * @param {Event} event
+     */
+    MouseAndTouch.preventDefault = function(event) {
+        event.preventDefault();
+    };
+
+    /**
+     * get the position of an event relative to upper left corner of an element
+     * @method MouseAndTouch.relativePosition
+     * @param {Event} event
+     * @param {Element} element
+     */
+    MouseAndTouch.relativePosition = function(event, element) {
+        let x = event.pageX;
+        let y = event.pageY;
+        // take into account offset of this element and all containing elements as long as position not fixed
+        while (element != null) {
+            x -= element.offsetLeft;
+            y -= element.offsetTop;
+            if (element.style.position == "fixed") {
+                x -= window.pageXOffset;
+                y -= window.pageYOffset;
+                break;
+            }
+            element = element.parentNode;
+        }
+        return [x, y];
+    };
+
+}());
+
+
+/**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
  * set position fixed of the html element in the beginning, before creating this, 
  * or you have to correct this.elementPositionFixed=true later !!!
@@ -6,7 +52,6 @@
  * @param {String} idName - of the HTML element
  */
 
-/* jshint esversion:6 */
 
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
@@ -39,8 +84,8 @@ function MouseEvents(idName) {
     this.outAction = doNothing; // mouse out (leave)
     this.wheelAction = doNothing; // mouse wheel or keyboard keys
 
-    var mouseEvents = this;
-    
+    var mouseEvents = this;       // hook to this for callback functions
+
     // we have only one single mouse event
     // so it is not necessary to use this.element.addEventListener("...",script)
 
@@ -126,23 +171,10 @@ function MouseEvents(idName) {
      * @param {Event} event - object, containing event data
      */
     MouseEvents.prototype.update = function(event) {
-        event.preventDefault();
+        MouseAndTouch.preventDefault(event);
         this.lastX = this.x;
         this.lastY = this.y;
-        this.x = event.pageX;
-        this.y = event.pageY;
-        let element = this.element;
-        // take into account offset of this element and all containing elements as long as position not fixed
-        while (element != null) {
-            this.x -= element.offsetLeft;
-            this.y -= element.offsetTop;
-            if (element.style.position == "fixed") {
-                this.x -= window.pageXOffset;
-                this.y -= window.pageYOffset;
-                break;
-            }
-            element = element.parentNode;
-        }
+        [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);
         this.dx = this.x - this.lastX;
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;

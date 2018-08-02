@@ -22,7 +22,7 @@ var Layout = {};
 
     const px = "px";
     let fontSize = fontsizeToWindowHeight * window.innerHeight;
-    
+
     // first create new elements before setting styles
 
 

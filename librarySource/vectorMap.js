@@ -45,12 +45,12 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             this.width = width;
             this.height = height;
             const length = width * height;
-     //       if (length > this.xArray.length) {
-                this.xArray = new Float32Array(length);
-                this.yArray = new Float32Array(length);
-                this.lyapunovArray = new Float32Array(length);
-                this.alphaArray = new Uint8ClampedArray(length);
-      //      }
+            //       if (length > this.xArray.length) {
+            this.xArray = new Float32Array(length);
+            this.yArray = new Float32Array(length);
+            this.lyapunovArray = new Float32Array(length);
+            this.alphaArray = new Uint8ClampedArray(length);
+            //      }
         }
     };
 

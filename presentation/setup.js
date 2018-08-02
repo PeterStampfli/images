@@ -10,7 +10,7 @@ let windowHeight = window.innerHeight;
 let basicLength = Math.round(sizeFraction * window.innerWidth);
 let outputSize = Math.min(basicLength, windowHeight - 3 * Layout.basicFontSize);
 
-Make.createOutputImage("outputCanvas", outputSize, outputSize, 200+0.5*(basiclength-outputSize), 3 * Layout.basicFontSize);
+Make.createOutputImage("outputCanvas", outputSize, outputSize, 200 + 0.5 * (basiclength - outputSize), 3 * Layout.basicFontSize);
 
 DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
