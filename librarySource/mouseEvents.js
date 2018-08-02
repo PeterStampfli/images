@@ -18,19 +18,23 @@ var MouseAndTouch = {};
         event.preventDefault();
     };
 
+    var body = document.getElementsByTagName("body")[0];
+
     /**
      * get the position of an event relative to upper left corner of an element
      * @method MouseAndTouch.relativePosition
-     * @param {Event} event
+     * @param {Event} event or other objec with pageX and pageY data
      * @param {Element} element
      */
     MouseAndTouch.relativePosition = function(event, element) {
         let x = event.pageX;
         let y = event.pageY;
         // take into account offset of this element and all containing elements as long as position not fixed
-        while (element != null) {
+        while (element != body) {
             x -= element.offsetLeft;
             y -= element.offsetTop;
+            console.log(element);
+            console.log(element.style);
             if (element.style.position == "fixed") {
                 x -= window.pageXOffset;
                 y -= window.pageYOffset;
@@ -46,8 +50,6 @@ var MouseAndTouch = {};
 
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
- * set position fixed of the html element in the beginning, before creating this, 
- * or you have to correct this.elementPositionFixed=true later !!!
  * @constructor MouseEvents
  * @param {String} idName - of the HTML element
  */
@@ -55,8 +57,7 @@ var MouseAndTouch = {};
 
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
-    this.elementPositionFixed = (this.element.style.position == "fixed");
-    // switch events off or on
+    // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
     // the event data
     this.x = 0;
@@ -73,18 +74,14 @@ function MouseEvents(idName) {
     this.downKey = "z";
 
     // event action - strategy pattern
+    this.downAction = function(mouseEvents) {}; // mouse down 
+    this.dragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
+    this.moveAction = function(mouseEvents) {}; // mouse move (move with button released)
+    this.upAction = function(mouseEvents) {}; // mouse up
+    this.outAction = function(mouseEvents) {}; // mouse out (leave)
+    this.wheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
 
-    // do nothing function as default
-    var doNothing = function(mouseEvents) {};
-
-    this.downAction = doNothing; // mouse down 
-    this.dragAction = doNothing; // mouse drag (move with button pressed)
-    this.moveAction = doNothing; // mouse move (move with button released)
-    this.upAction = doNothing; // mouse up
-    this.outAction = doNothing; // mouse out (leave)
-    this.wheelAction = doNothing; // mouse wheel or keyboard keys
-
-    var mouseEvents = this;       // hook to this for callback functions
+    var mouseEvents = this; // hook to this for callback functions
 
     // we have only one single mouse event
     // so it is not necessary to use this.element.addEventListener("...",script)
@@ -163,6 +160,15 @@ function MouseEvents(idName) {
 
 (function() {
     "use strict";
+
+    /**
+     * switch mouse events on or off 
+     * @method MouseEvents.setIsActive
+     * @param {boolean} on - if false there will be no mouse events
+     */
+    MouseEvents.prototype.setIsActive = function(on) {
+        this.isActive = on;
+    };
 
     /**
      * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)

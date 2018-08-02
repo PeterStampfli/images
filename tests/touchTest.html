@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>touchTest</title>
+</head>
+
+<body>
+
+    check the console
+     <canvas id="myCanvas" width="500" height="300"></canvas>
+
+
+</body>
+
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+
+
+<script type="text/javascript">
+    var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "blue";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+   console.log("hall");
+   var touchEvents=new TouchEvents("myCanvas");
+   t={};
+   t.pageX=100;
+   t.pageY=300;
+   t.identifier=345;
+   t.target=canvas;
+   console.log(canvas.style);
+   console.log(t.target.style);
+   console.log(canvas.offsetLeft);
+   var st=new SingleTouch(t);
+   console.log(st);
+</script>
+
+</html>
