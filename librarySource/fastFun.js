@@ -218,7 +218,7 @@ var Fast = {};
                     x -= index;
                     return atanTable[index] * (1 - x) + atanTable[index + 1] * x;
                 } else {
-                    x = atanTabFactor * x / y;
+                    x = atanTabFactor * x / (y + 1e-30);
                     index = Math.floor(x);
                     x -= index;
                     return 1.5707963268 - (atanTable[index] * (1 - x) + atanTable[index + 1] * x);

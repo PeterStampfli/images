@@ -33,8 +33,6 @@ var MouseAndTouch = {};
         while (element != body) {
             x -= element.offsetLeft;
             y -= element.offsetTop;
-            console.log(element);
-            console.log(element.style);
             if (element.style.position == "fixed") {
                 x -= window.pageXOffset;
                 y -= window.pageYOffset;

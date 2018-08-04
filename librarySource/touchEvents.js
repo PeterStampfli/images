@@ -45,8 +45,14 @@ function TouchEvents(idName) {
     this.element = document.getElementById(idName);
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
+
     // the list of touches relevant to this element
     this.touches = [];
+
+    // for debugging and whatever we might need start, cancel and end action
+    this.startAction = function(touchEvents) {};
+    this.endAction = function(touchEvents) {};
+    this.cancelAction = function(touchEvents) {};
 
     // for simplicity: here we need only a move action because there are only touch events related to canvases
     this.moveAction = function(touchEvents) {};
@@ -56,6 +62,8 @@ function TouchEvents(idName) {
     this.y = 0;
     this.lastX = 0;
     this.lastY = 0;
+    this.centerX = 0;
+    this.centerY = 0;
     this.dx = 0;
     this.dy = 0;
     // angle: from first to second touch, zero for single touch
@@ -74,43 +82,100 @@ function TouchEvents(idName) {
 
     var touchEvents = this;
 
+    // attention: browser reuses identifiers of touches that ended or cancelled
+    // if there is only one touch, as in touch emulation, its identifier==0 always
+
+    // start: add new touches to list, update touchEvents data, no action (waiting for touchMove)
     function startHandler(event) {
         MouseAndTouch.preventDefault(event);
         const changedTouches = event.changedTouches;
         const length = changedTouches.length;
         var touch;
-        console.log(length);
         for (var i = 0; i < length; i++) {
-            console.log(changedTouches[i]);
             touch = changedTouches[i];
             if (touch.target == touchEvents.element) {
                 touchEvents.touches.push(new SingleTouch(touch));
-                console.log(touchEvents.touches.length);
             }
         }
-
-        console.log("start " + event.changedTouches);
+        // double touch simulation: new touch added in position 1 with position data
+        // for both touches
+        if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length == 2)) {
+            touchEvents.touches[0].x = touchEvents.touches[1].x;
+            touchEvents.touches[0].y = touchEvents.touches[1].y;
+        }
+        touchEvents.update();
+        touchEvents.setLast();
+        touchEvents.getDifferences();
+        touchEvents.startAction(touchEvents);
     }
 
-
+    // move: touches with target==element: update touch, update touchEvents data
+    // for double touch debug: delete second touch if touch moves outside
     function moveHandler(event) {
         MouseAndTouch.preventDefault(event);
-
-        console.log("move " + event.changedTouches);
+        const changedTouches = event.changedTouches;
+        const length = changedTouches.length;
+        var touch, index;
+        for (var i = 0; i < length; i++) {
+            touch = changedTouches[i];
+            if (touch.target == touchEvents.element) {
+                index = touchEvents.findIndex(touch);
+                if (index >= 0) {
+                    touchEvents.touches[index].update(touch);
+                }
+            }
+        }
+        if (TouchEvents.doubleTouchDebug && !touchEvents.isInside(touchEvents.touches[0])) {
+            touchEvents.touches.splice(1, 1);
+            touchEvents.update();
+            touchEvents.setLast();
+            touchEvents.getDifferences();
+            touchEvents.startAction(touchEvents);
+        } else {
+            touchEvents.setLast();
+            touchEvents.update();
+            touchEvents.getDifferences();
+            touchEvents.moveAction(touchEvents);
+        }
     }
 
+    // delete touches
+    function deleteTouches(event) {
+        const changedTouches = event.changedTouches;
+        const length = changedTouches.length;
+        var touch, index;
+        for (var i = 0; i < length; i++) {
+            touch = changedTouches[i];
+            if (touch.target == touchEvents.element) {
+                index = touchEvents.findIndex(touch);
+                if (index >= 0) {
+                    touchEvents.touches.splice(index, 1);
+                }
+            }
+        }
+    }
 
+    // touch end: delete touch if not double touch debugging or if there are more than one touch
     function endHandler(event) {
         MouseAndTouch.preventDefault(event);
-
-        console.log("end " + event.changedTouches);
+        if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
+            deleteTouches(event);
+        }
+        touchEvents.update();
+        touchEvents.setLast();
+        touchEvents.getDifferences();
+        touchEvents.endAction(touchEvents);
     }
 
 
     function cancelHandler(event) {
-        MouseAndTouch.preventDefault(event);
+        if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
+            deleteTouches(event);
+        }
+        touchEvents.update();
+        touchEvents.setLast();
+        touchEvents.getDifferences();
 
-        console.log("cancel " + event.changedTouches);
     }
 
 
@@ -124,6 +189,14 @@ function TouchEvents(idName) {
 
 (function() {
     "use strict";
+
+    // debugging double touch with the browser
+    // a first touch gives a single touch , 
+    //a second touch gives two touches at the same position, 
+    //further touch moves move the first touch
+    // double touch ends when moving out of the element
+    TouchEvents.doubleTouchDebug = false;
+
 
     /**
      * switch mouse events on or off 
@@ -140,7 +213,6 @@ function TouchEvents(idName) {
      * @param {Touch} touch - with touch.identifier field
      * @return integer index >=0 if found, -1 if not found
      */
-
     TouchEvents.prototype.findIndex = function(touch) {
         for (var i = 0; i < this.touches.length; i++) {
             if (touch.identifier == this.touches[i].identifier) {
@@ -150,4 +222,62 @@ function TouchEvents(idName) {
         return -1;
     };
 
+
+    /**
+     * setting the last data equal to the new data
+     * @method TouchEvents#setLast
+     */
+    TouchEvents.prototype.setLast = function() {
+        this.lastX = this.x;
+        this.lastY = this.y;
+        this.lastAngle = this.angle;
+        this.lastDistance = this.distance;
+    };
+
+    /**
+     * setup of data for use in move action, for single and double touch
+     * uses the touches array data
+     * @method TouchEvents#update
+     */
+    TouchEvents.prototype.update = function() {
+        var touches = this.touches;
+        if (touches.length === 1) { // only the position changes
+            this.x = this.touches[0].x;
+            this.y = this.touches[0].y;
+            this.angle = 0;
+            this.distance = 1;
+        } else if (touches.length === 2) {
+            this.x = (this.touches[0].x + this.touches[1].x) * 0.5;
+            this.y = (this.touches[0].y + this.touches[1].y) * 0.5;
+            var deltaX = this.touches[0].x - this.touches[1].x;
+            var deltaY = this.touches[0].y - this.touches[1].y;
+            this.distance = Math.hypot(deltaY, deltaX);
+            this.angle = Fast.atan2(deltaY, deltaX);
+        }
+    };
+
+    /**
+     * get differences between last and new data
+     * @method TouchEvents#getDifferences
+     */
+
+    TouchEvents.prototype.getDifferences = function() {
+        this.dx = this.x - this.lastX;
+        this.dy = this.y - this.lastY;
+        this.centerX = (this.x + this.lastX) * 0.5;
+        this.centerY = (this.y + this.lastY) * 0.5;
+        this.dAngle = this.angle - this.lastAngle;
+        this.dDistance = this.distance - this.lastDistance;
+    };
+
+
+    /**
+     * test if a single touch is inside the element
+     * @method TouchEvents#isInside
+     * @param {SingleTouch} singleTouch
+     * @return boolean, true if touch is inside the element
+     */
+    TouchEvents.prototype.isInside = function(singleTouch) {
+        return (singleTouch.x >= 0) && (singleTouch.x < this.element.width) && (singleTouch.y >= 0) && (singleTouch.y <= this.element.height);
+    };
 }());

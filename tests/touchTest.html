@@ -13,6 +13,7 @@
 
 
 </body>
+<script src="../librarySource/fastFun.js"></script>
 
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/touchEvents.js"></script>
@@ -20,22 +21,75 @@
 
 <script type="text/javascript">
     var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-ctx.fillStyle = "blue";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "blue";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-   console.log("hall");
-   var touchEvents=new TouchEvents("myCanvas");
-   t={};
-   t.pageX=100;
-   t.pageY=300;
-   t.identifier=345;
-   t.target=canvas;
-   console.log(canvas.style);
-   console.log(t.target.style);
-   console.log(canvas.offsetLeft);
-   var st=new SingleTouch(t);
-   console.log(st);
+    var touchEvents=new TouchEvents("myCanvas");
+   
+    TouchEvents.doubleTouchDebug=true;
+   
+    function drawing(touchEvents){
+        ctx.fillStyle = "blue";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (touchEvents.touches.length===0){
+            return;
+        }
+        ctx.fillStyle = "red";
+        let size=40;
+        let width=10;
+        ctx.lineWidth=width;
+        if (touchEvents.touches.length===1){
+        ctx.fillStyle="green";
+            ctx.fillRect(touchEvents.touches[0].x-size/2,touchEvents.touches[0].y-size/2,  size, size);
+        }
+        else {
+            ctx.fillRect(touchEvents.touches[0].x-size/2,touchEvents.touches[0].y-size/2,  size, size);
+            ctx.beginPath();
+            ctx.moveTo(touchEvents.touches[0].x,touchEvents.touches[0].y);
+            ctx.lineTo(touchEvents.centerX,touchEvents.centerY);
+            ctx.strokeStyle="red";
+            ctx.stroke();
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(touchEvents.touches[1].x-size/2,touchEvents.touches[1].y-size/2,  size, size);
+            ctx.beginPath();
+            ctx.moveTo(touchEvents.touches[1].x,touchEvents.touches[1].y);
+            ctx.lineTo(touchEvents.centerX,touchEvents.centerY);
+            ctx.strokeStyle="yellow";
+            ctx.stroke(); 
+                    ctx.lineWidth=width/2;
+
+            ctx.beginPath();
+            ctx.moveTo(touchEvents.centerX+0.5*touchEvents.distance*Fast.cos(touchEvents.angle), touchEvents.centerY+0.5*touchEvents.distance*Fast.sin(touchEvents.angle));
+            ctx.lineTo(touchEvents.centerX-0.5*touchEvents.distance*Fast.cos(touchEvents.angle), touchEvents.centerY-0.5*touchEvents.distance*Fast.sin(touchEvents.angle));
+            ctx.strokeStyle="black";
+            ctx.stroke();
+        }
+    }
+   
+   touchEvents.moveAction=function(touchEvents){
+   
+   drawing(touchEvents);
+ 
+
+   };
+  
+   touchEvents.startAction=function(touchEvents){
+   
+   drawing(touchEvents);
+ 
+
+   };
+   
+     
+   touchEvents.endAction=function(touchEvents){
+
+   drawing(touchEvents);
+ 
+
+   };
+
+
 </script>
 
 </html>
