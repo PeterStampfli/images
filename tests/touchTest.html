@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <meta charset="utf-8" />
+	<meta name="viewport" content=" initial-scale=1,user-scalable=no">
+
 
 <head>
     <title>touchTest</title>
 </head>
 
-<body>
+<body onload="setup()">
 
     check the console
      <canvas id="myCanvas" width="500" height="300"></canvas>
@@ -14,20 +16,56 @@
 
 </body>
 <script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/log.js"></script>
 
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/touchEvents.js"></script>
 
 
 <script type="text/javascript">
+
+Log.setup();
+
+
+
     var canvas = document.getElementById("myCanvas");
+    canvas.width=window.innerWidth*0.8;
+    canvas.height=window.innerHeight*0.8;
     var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "blue";
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    var touchEvents=new TouchEvents("myCanvas");
+    var touchEvents;
+    
+    function setup(){
+    console.log("setup");
+    touchEvents=new TouchEvents("myCanvas");
+    
+      //  TouchEvents.doubleTouchDebug=true;
+
+      touchEvents.moveAction=function(touchEvents){
    
-    TouchEvents.doubleTouchDebug=true;
+   drawing(touchEvents);
+ 
+
+   };
+  
+   touchEvents.startAction=function(touchEvents){
+   
+   drawing(touchEvents);
+ 
+
+   };
+   
+     
+   touchEvents.endAction=function(touchEvents){
+
+   drawing(touchEvents);
+ 
+
+   };
+   }
    
     function drawing(touchEvents){
         ctx.fillStyle = "blue";
@@ -67,27 +105,7 @@
         }
     }
    
-   touchEvents.moveAction=function(touchEvents){
-   
-   drawing(touchEvents);
  
-
-   };
-  
-   touchEvents.startAction=function(touchEvents){
-   
-   drawing(touchEvents);
- 
-
-   };
-   
-     
-   touchEvents.endAction=function(touchEvents){
-
-   drawing(touchEvents);
- 
-
-   };
 
 
 </script>

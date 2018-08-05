@@ -74,7 +74,7 @@ function TouchEvents(idName) {
     this.lastDistance = 0;
     this.distance = 0;
     this.dDistance = 0;
-
+    // adding the events, element.ontouchstart etc. does not do
     this.element.addEventListener("touchstart", startHandler, false);
     this.element.addEventListener("touchmove", moveHandler, false);
     this.element.addEventListener("touchend", endHandler, false);
@@ -87,6 +87,7 @@ function TouchEvents(idName) {
 
     // start: add new touches to list, update touchEvents data, no action (waiting for touchMove)
     function startHandler(event) {
+        console.log("start");
         MouseAndTouch.preventDefault(event);
         const changedTouches = event.changedTouches;
         const length = changedTouches.length;
@@ -110,7 +111,7 @@ function TouchEvents(idName) {
     }
 
     // move: touches with target==element: update touch, update touchEvents data
-    // for double touch debug: delete second touch if touch moves outside
+    // for double touch debug: delete touches if touch moves outside
     function moveHandler(event) {
         MouseAndTouch.preventDefault(event);
         const changedTouches = event.changedTouches;
@@ -125,12 +126,12 @@ function TouchEvents(idName) {
                 }
             }
         }
-        if (TouchEvents.doubleTouchDebug && !touchEvents.isInside(touchEvents.touches[0])) {
-            touchEvents.touches.splice(1, 1);
+        if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length > 0) && !touchEvents.isInside(touchEvents.touches[0])) {
+            touchEvents.touches.length = 0;
             touchEvents.update();
             touchEvents.setLast();
             touchEvents.getDifferences();
-            touchEvents.startAction(touchEvents);
+            touchEvents.endAction(touchEvents);
         } else {
             touchEvents.setLast();
             touchEvents.update();
@@ -167,7 +168,6 @@ function TouchEvents(idName) {
         touchEvents.endAction(touchEvents);
     }
 
-
     function cancelHandler(event) {
         if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
             deleteTouches(event);
@@ -175,17 +175,8 @@ function TouchEvents(idName) {
         touchEvents.update();
         touchEvents.setLast();
         touchEvents.getDifferences();
-
     }
-
-
-
-
-
 }
-
-
-
 
 (function() {
     "use strict";
@@ -197,6 +188,8 @@ function TouchEvents(idName) {
     // double touch ends when moving out of the element
     TouchEvents.doubleTouchDebug = false;
 
+    // logging data
+    TouchEvents.log = false;
 
     /**
      * switch mouse events on or off 
@@ -222,7 +215,6 @@ function TouchEvents(idName) {
         return -1;
     };
 
-
     /**
      * setting the last data equal to the new data
      * @method TouchEvents#setLast
@@ -246,7 +238,7 @@ function TouchEvents(idName) {
             this.y = this.touches[0].y;
             this.angle = 0;
             this.distance = 1;
-        } else if (touches.length === 2) {
+        } else if (touches.length >= 2) {
             this.x = (this.touches[0].x + this.touches[1].x) * 0.5;
             this.y = (this.touches[0].y + this.touches[1].y) * 0.5;
             var deltaX = this.touches[0].x - this.touches[1].x;
