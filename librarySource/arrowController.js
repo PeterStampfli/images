@@ -9,30 +9,20 @@
 /* jshint esversion:6 */
 
 function ArrowController(idName, size, left = -1000, top = -1000) {
-
     this.idName = idName;
-
     DOM.create("canvas", idName, "body");
     if (left >= 0) { // visible as position fixed
+        this.isVisible = true;
         DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed", "left", left + px, "top", top + px);
         DOM.style("#" + this.idName, "cursor", "pointer");
-
     } else {
+        this.isVisible = false;
         DOM.style("#" + this.idName, "display", "none");
     }
     this.size = size;
     this.left = left;
     this.top = top;
     this.pixelCanvas = new PixelCanvas(idName);
-    this.mouseEvents = new MouseEvents(idName);
-    this.linearTransform = null;
-    this.controlImage = null;
-
-    /**
-     * what to do if angle changes (redraw image)
-     * @method arrowController#action
-     */
-    this.action = function() {};
 
     // setting the scale and origin (only of context) for easy drawing independent of size
     size = Math.round(size);
@@ -44,48 +34,64 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     this.backGroundColor = "#777777";
     this.arrowColor = "#ffffff";
 
+    //
+    this.controlImage = null;
 
+    // this is the linear transform for reading pixels of the input image
+    // has to be set after creation
+    this.linearTransform = null;
 
-    // access to this in callbacks
-    const arrowController = this;
-
-    /*
-     * adding the down action: Sets pressed to true only if mouse is on inner circle.
+    /**
+     * what to do if angle changes (redraw image)
+     * @method arrowController#action
      */
-    this.mouseEvents.downAction = function(mouseEvents) {
-        mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
-    };
+    this.action = function() {};
 
-    /*
-     * move action: change arrow position and call arrowController.action() function for redrawing instantly
-     */
-    // restrict on the circle shape
-    this.mouseEvents.dragAction = function(mouseEvents) {
-        var radius = arrowController.pixelCanvas.canvas.width / 2;
-        if (mouseEvents.pressed) {
+    if (this.isVisible) { //create mouse and touch events only if the image is visible
+        this.mouseEvents = new MouseEvents(idName);
+
+
+        // access to this in callbacks
+        const arrowController = this;
+
+        /*
+         * adding the down action: Sets pressed to true only if mouse is on inner circle.
+         */
+        this.mouseEvents.downAction = function(mouseEvents) {
+            mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
+        };
+
+        /*
+         * move action: change arrow position and call arrowController.action() function for redrawing instantly
+         */
+        // restrict on the circle shape
+        this.mouseEvents.dragAction = function(mouseEvents) {
+            var radius = arrowController.pixelCanvas.canvas.width / 2;
+            if (mouseEvents.pressed) {
+                if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+                    arrowController.changeAngle(Math.atan2((mouseEvents.y - radius), (mouseEvents.x - radius)) -
+                        Math.atan2((mouseEvents.lastY - radius), (mouseEvents.lastX - radius)));
+                } else {
+                    mouseEvents.pressed = false;
+                }
+            }
+        };
+
+        /*
+         * add wheel action: change arrow position and call arrowController.action() function for redrawing instantly
+         * changeAngle calls this.action
+         */
+        this.mouseEvents.wheelAction = function(mouseEvents) {
+            var deltaAngle = 0.05;
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-                arrowController.changeAngle(Math.atan2((mouseEvents.y - radius), (mouseEvents.x - radius)) -
-                    Math.atan2((mouseEvents.lastY - radius), (mouseEvents.lastX - radius)));
-            } else {
-                mouseEvents.pressed = false;
+                if (mouseEvents.wheelDelta > 0) {
+                    arrowController.changeAngle(deltaAngle);
+                } else {
+                    arrowController.changeAngle(-deltaAngle);
+                }
             }
-        }
-    };
-
-    /*
-     * add wheel action: change arrow position and call arrowController.action() function for redrawing instantly
-     * changeAngle calls this.action
-     */
-    this.mouseEvents.wheelAction = function(mouseEvents) {
-        var deltaAngle = 0.05;
-        if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-            if (mouseEvents.wheelDelta > 0) {
-                arrowController.changeAngle(deltaAngle);
-            } else {
-                arrowController.changeAngle(-deltaAngle);
-            }
-        }
-    };
+        };
+    }
 }
 
 (function() {

@@ -1,7 +1,7 @@
 /**
  * a canvas shows the input image at reduced scale, indicate the region of sampled pixels, mouseEvents translate and scale
  * It has a limited space given as maxWidth and maxHeight and limitLeft and limitTop (for fixed position)
- * negative limitLeft for no fixed position (scrolling canvas or invisible)
+ * negative limitLeft for invisible controlImage
  * @constructor ControlImage
  * @param {String} idName - html identifier
  * @param {float} maxWidth - maximum width
@@ -15,26 +15,31 @@
 function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
     this.idName = idName;
     DOM.create("canvas", idName, "body");
-    if (limitLeft >= 0) { // visible as position fixed
+    if (limitLeft >= 0) { // visible, position fixed
+        this.isVisible = true;
         DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + idName, "cursor", "pointer");
         DOM.style("#" + this.idName, "left", limitLeft + px, "top", limitTop + px);
     } else {
+        this.isVisible = false;
         DOM.style("#" + idName, "display", "none");
     }
-    // in case position fixed: switch centering in area
+    // the image may be centered vertically or placed at the top
     this.centerVertical = true;
+    // the image may be centered horizontally or placed at the left
+    this.centerHorizontal = true;
     this.maxWidth = Math.round(maxWidth);
     this.maxHeight = Math.round(maxHeight);
     this.limitLeft = limitLeft;
     this.limitTop = limitTop;
     this.pixelCanvas = new PixelCanvas(idName);
-    this.mouseEvents = new MouseEvents(idName);
     this.controlDivInputSize = 1;
     this.semiAlpha = 128;
-    this.linearTransform = null;
     this.zoomFactor = 1.05;
 
+    // this is the linear transform for reading pixels of the input image
+    // has to be set after creation
+    this.linearTransform = null;
 
     /**
      * what to do for move or wheel events (redraw image)
@@ -42,27 +47,32 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
      */
     this.action = function() {};
 
-    const controlImage = this;
+    if (this.isVisible) { //create mouse and touch events only if the image is visible
 
-    // mouse wheel changes scale, zoom around origin of map data
-    this.mouseEvents.wheelAction = function(mouseEvents) {
-        var zoomFactor;
-        if (mouseEvents.wheelDelta > 0) {
-            zoomFactor = controlImage.zoomFactor;
-        } else {
-            zoomFactor = 1 / controlImage.zoomFactor;
-        }
-        controlImage.linearTransform.changeScaleFixPoint(zoomFactor, mouseEvents.x / controlImage.controlDivInputSize, mouseEvents.y / controlImage.controlDivInputSize);
+        this.mouseEvents = new MouseEvents(idName);
+        const controlImage = this;
 
-        controlImage.action();
-    };
+        // mouse wheel changes scale, zoom around origin of map data
+        this.mouseEvents.wheelAction = function(mouseEvents) {
+            var zoomFactor;
+            if (mouseEvents.wheelDelta > 0) {
+                zoomFactor = controlImage.zoomFactor;
+            } else {
+                zoomFactor = 1 / controlImage.zoomFactor;
+            }
+            // changing the input image transform
+            controlImage.linearTransform.changeScaleFixPoint(zoomFactor, mouseEvents.x / controlImage.controlDivInputSize, mouseEvents.y / controlImage.controlDivInputSize);
 
-    // mouse move shifts image
-    this.mouseEvents.dragAction = function(mouseEvents) {
-        controlImage.linearTransform.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
-        controlImage.linearTransform.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
-        controlImage.action();
-    };
+            controlImage.action();
+        };
+
+        // mouse move shifts image
+        this.mouseEvents.dragAction = function(mouseEvents) {
+            controlImage.linearTransform.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
+            controlImage.linearTransform.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
+            controlImage.action();
+        };
+    }
 }
 
 (function() {
@@ -97,14 +107,15 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
         }
         let trueWidth = inputImage.width * this.controlDivInputSize;
         let trueHeight = inputImage.height * this.controlDivInputSize;
-        // see if position is fixed
-        var top;
-        if (this.mouseEvents.elementPositionFixed) {
-            let left = this.limitLeft + 0.5 * (this.maxWidth - trueWidth);
+        // adjust position if it is visible
+        if (this.isVisible) {
+            let left = this.limitLeft;
+            let top = this.limitTop;
+            if (this.centerHorizontal) {
+                left += 0.5 * (this.maxWidth - trueWidth);
+            }
             if (this.centerVertical) {
-                top = this.limitTop + Math.round(0.5 * (this.maxHeight - trueHeight));
-            } else {
-                top = 0;
+                top += 0.5 * (this.maxHeight - trueHeight);
             }
             DOM.style("#" + this.idName, "left", left + px, "top", top + px);
         }
