@@ -1,5 +1,6 @@
 /**
- * on-screen canvas with a map and mouse events to change the map, wrapped in a div to allow size changes
+ * on-screen canvas with a map and mouse events to change the map, 
+ * wrapped in a div to allow size changes, scrolls if it becomes too large
  * @constructor OutputImage
  * @param {String} idName - html identifier  
  * @param {float} width - width of visible part, containing div-element
@@ -48,7 +49,11 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     // mouse wheel changes scale
     this.mouseEvents.wheelAction = function(mouseEvents) {
         if (outputImage.canZoom) {
-            outputImage.mouseZoom(mouseEvents);
+            if (mouseEvents.wheelDelta > 0) {
+                outputImage.zoom(outputImage.zoomFactor, mouseEvents.x, mouseEvents.y);
+            } else {
+                outputImage.zoom(1 / outputImage.zoomFactor, mouseEvents.x, mouseEvents.y);
+            }
             outputImage.action();
         }
     };
@@ -56,7 +61,9 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     // mouse move shifts image
     this.mouseEvents.dragAction = function(mouseEvents) {
         if (outputImage.canMove) {
-            outputImage.mouseShift(mouseEvents);
+            outputImage.cornerX -= mouseEvents.dx * outputImage.scale;
+            outputImage.cornerY -= mouseEvents.dy * outputImage.scale;
+            outputImage.adjustCanvasTransform();
             outputImage.action();
         }
     };
@@ -120,7 +127,6 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
 
 (function() {
     "use strict";
-
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image
@@ -191,25 +197,12 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     };
 
     /**
-     * mouse shifts the image, action method for mouse handler linked to the canvas, 
-     * needs image update
-     * @method OutputImage#mouseShift
-     * @param {MouseEvents} mouseEvents - contains the data
-     */
-    OutputImage.prototype.mouseShift = function(mouseEvents) {
-        this.cornerX -= mouseEvents.dx * this.scale;
-        this.cornerY -= mouseEvents.dy * this.scale;
-        this.adjustCanvasTransform();
-    };
-
-    /**
      * stop shift
      * @method OutputImage.stopShift
      */
     OutputImage.prototype.stopShift = function() {
         this.canMove = false;
     };
-
 
     /**
      * zoom with given factor to/from given point (mouse position) as center
@@ -223,32 +216,6 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
         this.cornerY += this.scale * (1 - factor) * y;
         this.scale *= factor;
         this.adjustCanvasTransform();
-    };
-
-    /**
-     * mouse wheel zooms the image around given position, action method for mouse handler linked to the canvas, 
-     * needs image update
-     * @method OutputImage#positionZoom
-     * @param {MouseEvents} mouseEvents - contains the wheel data
-     * @param {float} x - coordinate of center
-     * @param {float} y - coordinate of center
-     */
-    OutputImage.prototype.positionZoom = function(mouseEvents, x, y) {
-        if (mouseEvents.wheelDelta > 0) {
-            this.zoom(this.zoomFactor, x, y);
-        } else {
-            this.zoom(1 / this.zoomFactor, x, y);
-        }
-    };
-
-    /**
-     * mouse wheel zooms the image around mouse position, action method for mouse handler linked to the canvas, 
-     * needs image update
-     * @method OutputImage#mouseZoom
-     * @param {MouseEvents} mouseEvents - contains the data
-     */
-    OutputImage.prototype.mouseZoom = function(mouseEvents) {
-        this.positionZoom(mouseEvents, mouseEvents.x, mouseEvents.y);
     };
 
     /**
