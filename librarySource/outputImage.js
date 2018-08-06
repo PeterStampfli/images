@@ -23,9 +23,12 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     DOM.create("canvas", idName, "#" + this.divName);
     DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
+    this.canMove = true;
+    this.canZoom = true;
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
+    this.touchEvents = new TouchEvents(idName);
 
     // the linear transform between pixel indices and image coordinates
     // (x,y)= (cornerX,cornerY)+scale*(i,j)
@@ -44,14 +47,32 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
 
     // mouse wheel changes scale
     this.mouseEvents.wheelAction = function(mouseEvents) {
-        outputImage.mouseZoom(mouseEvents);
-        outputImage.action();
+        if (outputImage.canZoom) {
+            outputImage.mouseZoom(mouseEvents);
+            outputImage.action();
+        }
     };
 
     // mouse move shifts image
     this.mouseEvents.dragAction = function(mouseEvents) {
-        outputImage.mouseShift(mouseEvents);
-        outputImage.action();
+        if (outputImage.canMove) {
+            outputImage.mouseShift(mouseEvents);
+            outputImage.action();
+        }
+    };
+
+    // touch can move and scale
+    this.touchEvents.moveAction = function(touchEvents) {
+        if (touchEvents.touches.length === 1) {
+            if (outputImage.canMove) {
+                outputImage.cornerX -= touchEvents.dx * outputImage.scale;
+                outputImage.cornerY -= touchEvents.dy * outputImage.scale;
+                outputImage.adjustCanvasTransform();
+                outputImage.action();
+            }
+        } else if (touchEvents.touches.length === 2) {
+
+        }
     };
 }
 
@@ -186,7 +207,7 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
      * @method OutputImage.stopShift
      */
     OutputImage.prototype.stopShift = function() {
-        this.mouseEvents.dragAction = function() {};
+        this.canMove = false;
     };
 
 
@@ -235,7 +256,7 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
      * @method OutputImage.stopZoom
      */
     OutputImage.prototype.stopZoom = function() {
-        this.mouseEvents.wheelAction = function() {};
+        this.canZoom = false;
     };
 
     /**

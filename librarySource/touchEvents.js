@@ -79,6 +79,7 @@ function TouchEvents(idName) {
     this.element.addEventListener("touchmove", moveHandler, false);
     this.element.addEventListener("touchend", endHandler, false);
     this.element.addEventListener("touchcancel", cancelHandler, false);
+    console.log("eventhandlers");
 
     var touchEvents = this;
 

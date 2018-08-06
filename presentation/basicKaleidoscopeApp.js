@@ -5,6 +5,9 @@
 
 (function() {
     "use strict";
+    // first do single touch debug with desktop browser
+    TouchEvents.doubleTouchDebug = false;
+
     Make.imageQuality = "low";
 
     //element sizes related to window dimensions

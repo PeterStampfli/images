@@ -29,7 +29,6 @@ var Log = {};
         DOM.create("pre", Log.idName, "#" + Log.divName);
         DOM.style("#" + Log.idName, "margin", "2px");
         Log.pre = document.getElementById(Log.idName);
-        Log.pre.innerHTML = "dasda";
     };
 
     /**
@@ -40,10 +39,9 @@ var Log = {};
      */
     Log.position = function(left, top) {
         if (Log.isReady) {
-
+            DOM.style("#" + Log.divName, "left", left + px, "top", top + px);
         }
     };
-
 
     /**
      * set dimensions of logging div
@@ -51,9 +49,9 @@ var Log = {};
      * @param {integer} width
      * @param {integer} height
      */
-    Log.dimension = function(left, top) {
+    Log.dimension = function(width, height) {
         if (Log.isReady) {
-
+            DOM.style("#" + Log.divName, "width", width + px, "height", height + px);
         }
     };
 
@@ -64,7 +62,7 @@ var Log = {};
      */
     Log.message = function(text) {
         if (Log.isReady) {
-
+            Log.pre.innerHTML = text + "\n" + Log.pre.innerHTML;
         }
     };
 
