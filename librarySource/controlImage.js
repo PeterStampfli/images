@@ -47,11 +47,21 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
      */
     this.action = function() {};
 
+    const controlImage = this;
+
+
+    // changing the shift of the input image transform. events object with dx and dy fields
+    function changeShift(events) {
+        controlImage.linearTransform.shiftX += events.dx / controlImage.controlDivInputSize;
+        controlImage.linearTransform.shiftY += events.dy / controlImage.controlDivInputSize;
+        controlImage.action();
+    }
+
+
     if (this.isVisible) { //create mouse and touch events only if the image is visible
 
         this.mouseEvents = new MouseEvents(idName);
         this.touchEvents = new TouchEvents(idName);
-        const controlImage = this;
 
         // mouse wheel changes scale, zoom around origin of map data
         this.mouseEvents.wheelAction = function(mouseEvents) {
@@ -68,19 +78,12 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
         };
 
         // mouse move shifts image
-        this.mouseEvents.dragAction = function(mouseEvents) {
-            controlImage.linearTransform.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
-            controlImage.linearTransform.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
-            controlImage.action();
-        };
-
+        this.mouseEvents.dragAction = changeShift;
 
         // touch can move, rotate and scale
         this.touchEvents.moveAction = function(touchEvents) {
             if (touchEvents.touches.length === 1) {
-                controlImage.linearTransform.shiftX += touchEvents.dx / controlImage.controlDivInputSize;
-                controlImage.linearTransform.shiftY += touchEvents.dy / controlImage.controlDivInputSize;
-                controlImage.action();
+                changeShift(touchEvents);
             } else if (touchEvents.touches.length === 2) {
 
             }

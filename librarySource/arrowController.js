@@ -47,13 +47,41 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      */
     this.action = function() {};
 
+
+    // access to this in callbacks
+    const arrowController = this;
+    // the center of the scanned pixels
+    const inputCenter = new Vector2();
+
+
+    // change scale and angle of input transform with an events object, that has x,y,lastX and lastY fields
+    function changeScaleAngle(events) {
+        let radius = arrowController.pixelCanvas.canvas.width / 2;
+        // coordinates relative to the center of the image
+        let relX = events.x - radius;
+        let relY = events.y - radius;
+        let lastRelX = events.lastX - radius;
+        let lastRelY = events.lastY - radius;
+
+        let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
+        // distance to center of arrow controller
+        let distance = Math.hypot(relX, relY);
+        let lastDistance = Math.hypot(lastRelX, lastRelY);
+        let reductionFactor = 1;
+        let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
+        arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
+        inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
+        arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
+        arrowController.linearTransform.changeScaleFixPoint(scaleFactor, inputCenter.x, inputCenter.y);
+        arrowController.drawOrientation();
+        arrowController.action();
+    }
+
+
+
     if (this.isVisible) { //create mouse and touch events only if the image is visible
         this.mouseEvents = new MouseEvents(idName);
-
-        // access to this in callbacks
-        const arrowController = this;
-        // the center
-        const inputCenter = new Vector2();
+        this.touchEvents = new TouchEvents(idName);
 
         /*
          * adding the down action: Sets pressed to true only if mouse is on inner circle.
@@ -66,27 +94,7 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
         // restrict on the circle shape
         this.mouseEvents.dragAction = function(mouseEvents) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-                let radius = arrowController.pixelCanvas.canvas.width / 2;
-                // coordinates relative to the center of the image
-                let relX = mouseEvents.x - radius;
-                let relY = mouseEvents.y - radius;
-                let lastRelX = mouseEvents.lastX - radius;
-                let lastRelY = mouseEvents.lastY - radius;
-
-                let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
-                // distance to center of arrow controller
-                let distance = Math.hypot(relX, relY);
-                let lastDistance = Math.hypot(lastRelX, lastRelY);
-                let reductionFactor = 1;
-                let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
-
-
-                arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
-                inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
-                arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
-                arrowController.linearTransform.changeScaleFixPoint(scaleFactor, inputCenter.x, inputCenter.y);
-                arrowController.drawOrientation();
-                arrowController.action();
+                changeScaleAngle(mouseEvents);
             } else {
                 mouseEvents.pressed = false;
             }
@@ -107,6 +115,20 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
                 arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
                 arrowController.drawOrientation();
                 arrowController.action();
+            }
+        };
+
+        // touchstart only on the disc
+        this.touchEvents.isInsideShape = function(singleTouch) {
+            return arrowController.isOnDisc(singleTouch.x, singleTouch.y);
+        };
+
+        // touch can rotate and scale
+        this.touchEvents.moveAction = function(touchEvents) {
+            if (touchEvents.touches.length === 1) {
+                changeScaleAngle(touchEvents);
+            } else if (touchEvents.touches.length === 2) {
+
             }
         };
     }
