@@ -83,10 +83,25 @@ function TouchEvents(idName) {
 
     var touchEvents = this;
 
+
+    /**
+     * check if a single touch is inside a shape 
+     * such as a complicated shape inside the canvases
+     * add touch to list only if inside the shape
+     * default: shape is same as the html-element
+     * @method TouchEvents#isInsideShape
+     * @param {SingleTouch} singleTouch
+     * @return true if inside
+     */
+    this.isInsideShape = function(singleTouch) {
+        return true;
+    };
+
     // attention: browser reuses identifiers of touches that ended or cancelled
     // if there is only one touch, as in touch emulation, its identifier==0 always
 
     // start: add new touches to list, update touchEvents data, no action (waiting for touchMove)
+    // add new touch only if its target is the element and it is inside the shape
     function startHandler(event) {
         console.log("start");
         MouseAndTouch.preventDefault(event);
@@ -96,7 +111,10 @@ function TouchEvents(idName) {
         for (var i = 0; i < length; i++) {
             touch = changedTouches[i];
             if (touch.target == touchEvents.element) {
-                touchEvents.touches.push(new SingleTouch(touch));
+                const singleTouch = new SingleTouch(touch);
+                if (touchEvents.isInsideShape(singleTouch)) {
+                    touchEvents.touches.push(singleTouch);
+                }
             }
         }
         // double touch simulation: new touch added in position 1 with position data

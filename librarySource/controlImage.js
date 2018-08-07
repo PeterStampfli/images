@@ -50,6 +50,7 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     if (this.isVisible) { //create mouse and touch events only if the image is visible
 
         this.mouseEvents = new MouseEvents(idName);
+        this.touchEvents = new TouchEvents(idName);
         const controlImage = this;
 
         // mouse wheel changes scale, zoom around origin of map data
@@ -71,6 +72,18 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
             controlImage.linearTransform.shiftX += mouseEvents.dx / controlImage.controlDivInputSize;
             controlImage.linearTransform.shiftY += mouseEvents.dy / controlImage.controlDivInputSize;
             controlImage.action();
+        };
+
+
+        // touch can move, rotate and scale
+        this.touchEvents.moveAction = function(touchEvents) {
+            if (touchEvents.touches.length === 1) {
+                controlImage.linearTransform.shiftX += touchEvents.dx / controlImage.controlDivInputSize;
+                controlImage.linearTransform.shiftY += touchEvents.dy / controlImage.controlDivInputSize;
+                controlImage.action();
+            } else if (touchEvents.touches.length === 2) {
+
+            }
         };
     }
 }

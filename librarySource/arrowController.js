@@ -50,9 +50,10 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
     if (this.isVisible) { //create mouse and touch events only if the image is visible
         this.mouseEvents = new MouseEvents(idName);
 
-
         // access to this in callbacks
         const arrowController = this;
+        // the center
+        const inputCenter = new Vector2();
 
         /*
          * adding the down action: Sets pressed to true only if mouse is on inner circle.
@@ -61,34 +62,51 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
             mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
         };
 
-        /*
-         * move action: change arrow position and call arrowController.action() function for redrawing instantly
-         */
+        // moving the mouse we can change the scale and rotation of the input mapping
         // restrict on the circle shape
         this.mouseEvents.dragAction = function(mouseEvents) {
-            var radius = arrowController.pixelCanvas.canvas.width / 2;
-            if (mouseEvents.pressed) {
-                if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-                    arrowController.changeAngle(Math.atan2((mouseEvents.y - radius), (mouseEvents.x - radius)) -
-                        Math.atan2((mouseEvents.lastY - radius), (mouseEvents.lastX - radius)));
-                } else {
-                    mouseEvents.pressed = false;
-                }
+            if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+                let radius = arrowController.pixelCanvas.canvas.width / 2;
+                // coordinates relative to the center of the image
+                let relX = mouseEvents.x - radius;
+                let relY = mouseEvents.y - radius;
+                let lastRelX = mouseEvents.lastX - radius;
+                let lastRelY = mouseEvents.lastY - radius;
+
+                let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
+                // distance to center of arrow controller
+                let distance = Math.hypot(relX, relY);
+                let lastDistance = Math.hypot(lastRelX, lastRelY);
+                let reductionFactor = 1;
+                let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
+
+
+                arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
+                inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
+                arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
+                arrowController.linearTransform.changeScaleFixPoint(scaleFactor, inputCenter.x, inputCenter.y);
+                arrowController.drawOrientation();
+                arrowController.action();
+            } else {
+                mouseEvents.pressed = false;
             }
         };
 
         /*
          * add wheel action: change arrow position and call arrowController.action() function for redrawing instantly
-         * changeAngle calls this.action
+         * changeAngle calls arrowController.action
          */
         this.mouseEvents.wheelAction = function(mouseEvents) {
             var deltaAngle = 0.05;
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
                 if (mouseEvents.wheelDelta > 0) {
-                    arrowController.changeAngle(deltaAngle);
-                } else {
-                    arrowController.changeAngle(-deltaAngle);
+                    deltaAngle *= -1;
                 }
+                arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
+                inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
+                arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
+                arrowController.drawOrientation();
+                arrowController.action();
             }
         };
     }
@@ -97,7 +115,6 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
 (function() {
     "use strict";
 
-    const v = new Vector2();
 
     /**
      * set the action() - function for this controller, called at each change for instant following
@@ -146,19 +163,6 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
         canvasContext.fill();
     };
 
-    /**
-     * change angle by given amount: draw new orientation and call action
-     * @method ArrowController#changeAngle
-     * @param {float} delta - the change in angle
-     */
-    ArrowController.prototype.changeAngle = function(delta) {
-        this.controlImage.pixelCanvas.centerOfOpaque(v);
-        this.linearTransform.changeAngleFixPoint(delta, v.x / this.controlImage.controlDivInputSize, v.y / this.controlImage.controlDivInputSize);
-        this.drawOrientation();
-        this.action();
-    };
-
-    // add the mouse actions
     /** check if a point (x,y) relative to upper left center is on the inner disc
      * @method ArrowController#isOnDisc
      * @param {float} x - coordinate of point
