@@ -3,30 +3,48 @@
  * and a method to mark its space for debugging
  * @constructor BigDiv
  * @param {String} idName - html identifier
- * @param {float} width and height
- * @param {float} height
- * @param {float} left - left side, default 0
- * @param {float} top - top side, default 0
  */
 
 /* jshint esversion:6 */
 
-function BigDiv(idName, width, height = width, left = 0, top = 0) {
+function BigDiv(idName) {
+    console.log("creating BigDiv");
     this.idName = idName;
     if (document.getElementById(idName) == null) {
         DOM.create("div", idName, "body");
     }
     DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
-    DOM.style("#" + this.idName, "width", width + px, "height", height + px, "left", left + px, "top", top + px);
     DOM.style("#" + this.idName, "overflow", "auto");
-    this.width = width;
-    this.height = height;
-    this.left = left;
-    this.top = top;
+    this.setPosition(0,0);                 // default position at top left corner of inner window
 }
 
 (function() {
     "use strict";
+    
+    /**
+     * set position
+     * @method BigDiv#setPosition
+     * @param {float} left
+     * @param {float} top
+     */
+    BigDiv.prototype.setPosition=function(left,top){
+    DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+            this.left = left;
+    this.top = top;
+    };
+   
+    /**
+     * set dimensions
+     * @method BigDiv#setDimensions
+     * @param {float} width
+     * @param {float} height
+     */
+    BigDiv.prototype.setDimensions=function(width,height){
+                width=Math.floor(width);
+        height=Math.floor(height);
+
+      DOM.style("#" + this.idName, "width", width + px, "height");
+    };
 
     /**
      * show the square area for debugging layout, especially if still empty

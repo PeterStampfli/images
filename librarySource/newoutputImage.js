@@ -3,24 +3,18 @@
  * wrapped in a div to allow size changes, scrolls if it becomes too large
  * @constructor OutputImage
  * @param {String} idName - html identifier  
- * @param {float} width - width of visible part, containing div-element
- * @param {float} height - height of visible part, containing div-element,default width
- * @param {float} left -  left side, default -0
- * @param {float} top - top side, default 0
- */
+*/
 
 /* jshint esversion:6 */
 
-function OutputImage(idName, width, height = width, left = 0, top = 0) {
-    width = Math.round(width);
-    height = Math.round(height);
-    this.idName = idName;
+function OutputImage(idName) {
+     "use strict";
+
+     this.idName = idName;
     this.divName = idName + "div";
-    this.divWidth = width;
-    this.divHeight = height;
-    this.left = left;
-    this.top = top;
-    this.bigDiv = new BigDiv(this.divName, width, height, left, top);
+
+    this.bigDiv = new BigDiv(this.divName);
+    this.setDivPosition(0,0);
     DOM.create("canvas", idName, "#" + this.divName);
     DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
@@ -101,8 +95,9 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
      * @param {float} height - default is width
      */
     OutputImage.prototype.setSize = function(width, height = width) {
-        width = Math.round(width);
-        height = Math.round(height);
+        width=Math.floor(width);
+        height=Math.floor(height);
+
         if (this.pixelCanvas.width > 0) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
         }
@@ -117,6 +112,7 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
             DOM.style("#" + this.divName, "overflowY", "hidden");
         } else {
             DOM.style("#" + this.divName, "overflowY", "scroll");
+            console.log("scroll");
         }
         // center
         DOM.style("#" + this.idName, "left", Math.max(0, 0.5 * (this.divWidth - width)) + px);
@@ -127,6 +123,33 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
 
 (function() {
     "use strict";
+    
+    /**
+     * set Position of the enclosing div , preset default is (0,0)
+     * @method OutputImage#setDivPosition
+     * @param {float} left
+     * @param {float} top 
+     */
+    OutputImage.prototype.setDivPosition=function(left,top){
+            this.left = left;
+    this.top = top;
+    this.bigDiv.setPosition(left,top);
+    };
+   
+    /**
+     * set dimensions of the enclosing div 
+     * @method OutputImage#setDivDimensions
+     * @param {float} width
+     * @param {float} height 
+     */
+    OutputImage.prototype.setDivDimensions=function(width,height){
+                width=Math.floor(width);
+        height=Math.floor(height);
+
+            this.divWidth = width;
+    this.divHeight = height;
+            this.bigDiv.setDimensions(width,height);
+    };
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image
