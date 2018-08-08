@@ -13,9 +13,9 @@ function OutputImage(idName) {
     this.divName = idName + "div";
     this.bigDiv = new BigDiv(this.divName);
     this.setDivPosition(0, 0);
-
-    console.log(this.left);
-    DOM.create("canvas", idName, "#" + this.divName);
+    if (document.getElementById(idName) == null) {
+        DOM.create("canvas", idName, "#" + this.divName);
+    }
     DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
     this.canMove = true;

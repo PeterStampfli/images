@@ -10,25 +10,28 @@
 
 function ArrowController(idName, size, left = -1000, top = -1000) {
     this.idName = idName;
-    DOM.create("canvas", idName, "body");
+    this.size = -1;
+    if (document.getElementById(idName) == null) {
+        DOM.create("canvas", idName, "body");
+    }
+
+    this.pixelCanvas = new PixelCanvas(idName);
+
+    // this.setPosition(left,top);
+    //  this.setSize(size);
+
     if (left >= 0) { // visible as position fixed
         this.isVisible = true;
-        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed", "left", left + px, "top", top + px);
+        DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + this.idName, "cursor", "pointer");
     } else {
         this.isVisible = false;
         DOM.style("#" + this.idName, "display", "none");
     }
-    this.size = size;
-    this.left = left;
-    this.top = top;
-    this.pixelCanvas = new PixelCanvas(idName);
+
 
     // setting the scale and origin (only of context) for easy drawing independent of size
-    size = Math.round(size);
-    this.pixelCanvas.setSize(size, size); // don't need no pixels
-    this.pixelCanvas.canvasContext.scale(size / 2, size / 2);
-    this.pixelCanvas.canvasContext.translate(1, 1);
+
 
     // custom colors possible
     this.backGroundColor = "#777777";
@@ -137,6 +140,34 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
 (function() {
     "use strict";
 
+    /**
+     * set the position of the arrow controller
+     * @method ArrowController#setPosition
+     * @param {float} left
+     * @param {float} top
+     */
+    ArrowController.prototype.setPosition = function(left, top) {
+        this.left = Math.floor(left);
+        this.top = Math.floor(top);
+        DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+    };
+
+    /**
+     * set the size of the arrow controler, and the context transform for drawing
+     * only if size really changes
+     * @method ArrowController#setSize
+     * @param{float} size
+     */
+    ArrowController.prototype.setSize = function(size) {
+        console.log(size);
+        size = Math.round(size);
+        if (size != this.size) {
+            this.size = size;
+            this.pixelCanvas.setSize(size, size); // don't need no pixels
+            this.pixelCanvas.canvasContext.scale(size / 2, size / 2);
+            this.pixelCanvas.canvasContext.translate(1, 1);
+        }
+    };
 
     /**
      * set the action() - function for this controller, called at each change for instant following

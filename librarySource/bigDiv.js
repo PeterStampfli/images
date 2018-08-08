@@ -15,7 +15,6 @@ function BigDiv(idName) {
     DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
     DOM.style("#" + this.idName, "overflow", "auto");
     this.setPosition(0, 0);
-    console.log("a bigdiv");
 }
 
 (function() {

@@ -154,6 +154,11 @@ var Make = {};
      * @param {float} top - top side, default -1000 for invisible    */
     Make.createArrowController = function(idName, size, left = -1000, top = -1000) {
         Make.arrowController = new ArrowController(idName, size, left, top);
+
+        Make.arrowController.setPosition(left, top);
+        Make.arrowController.setSize(size);
+        Make.arrowController.setSize(size);
+
         Make.arrowController.linearTransform = Make.inputTransform;
         Make.arrowController.controlImage = Make.controlImage;
         Make.arrowController.drawOrientation();
