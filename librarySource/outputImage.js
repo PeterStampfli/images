@@ -16,11 +16,12 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
     height = Math.round(height);
     this.idName = idName;
     this.divName = idName + "div";
-    this.divWidth = width;
-    this.divHeight = height;
     this.left = left;
     this.top = top;
-    this.bigDiv = new BigDiv(this.divName, width, height, left, top);
+    this.bigDiv = new BigDiv(this.divName);
+    this.setDivDimensions(width, height);
+
+
     DOM.create("canvas", idName, "#" + this.divName);
     DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
@@ -110,23 +111,51 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
         // adjust overflow of conatining divName
         if (width <= this.divWidth) {
             DOM.style("#" + this.divName, "overflowX", "hidden");
+            DOM.style("#" + this.idName, "left", 0.5 * (this.divWidth - width) + px);
         } else {
             DOM.style("#" + this.divName, "overflowX", "scroll");
+            DOM.style("#" + this.idName, "left", 0 + px);
         }
         if (height <= this.divHeight) {
             DOM.style("#" + this.divName, "overflowY", "hidden");
+            DOM.style("#" + this.idName, "top", 0.5 * (this.divHeight - height) + px);
         } else {
             DOM.style("#" + this.divName, "overflowY", "scroll");
+            DOM.style("#" + this.idName, "top", 0 + px);
         }
-        // center
-        DOM.style("#" + this.idName, "left", Math.max(0, 0.5 * (this.divWidth - width)) + px);
-        DOM.style("#" + this.idName, "top", Math.max(0, 0.5 * (this.divHeight - height)) + px);
     };
 }());
 
 
 (function() {
     "use strict";
+
+
+    /**
+     * set Position of the enclosing div , preset default is (0,0)
+     * @method OutputImage#setDivPosition
+     * @param {float} left
+     * @param {float} top 
+     */
+    OutputImage.prototype.setDivPosition = function(left, top) {
+        this.left = Math.floor(left);
+        this.top = Math.floor(top);
+        this.bigDiv.setPosition(this.left, this.top);
+    };
+
+    /**
+     * set dimensions of the enclosing div 
+     * @method OutputImage#setDivDimensions
+     * @param {float} width
+     * @param {float} height 
+     */
+    OutputImage.prototype.setDivDimensions = function(width, height) {
+        this.divWidth = Math.floor(width);
+        this.divHeight = Math.floor(height);
+        this.bigDiv.setDimensions(this.divWidth, this.divHeight);
+    };
+
+
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image
