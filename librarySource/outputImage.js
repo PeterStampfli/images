@@ -1,27 +1,20 @@
 /**
  * on-screen canvas with a map and mouse events to change the map, 
  * wrapped in a div to allow size changes, scrolls if it becomes too large
+ * set container div width, height separately, position is preset to (0,0)
  * @constructor OutputImage
  * @param {String} idName - html identifier  
- * @param {float} width - width of visible part, containing div-element
- * @param {float} height - height of visible part, containing div-element,default width
- * @param {float} left -  left side, default -0
- * @param {float} top - top side, default 0
  */
 
 /* jshint esversion:6 */
 
-function OutputImage(idName, width, height = width, left = 0, top = 0) {
-    width = Math.round(width);
-    height = Math.round(height);
+function OutputImage(idName) {
     this.idName = idName;
     this.divName = idName + "div";
-    this.left = left;
-    this.top = top;
     this.bigDiv = new BigDiv(this.divName);
-    this.setDivDimensions(width, height);
+    this.setDivPosition(0, 0);
 
-
+    console.log(this.left);
     DOM.create("canvas", idName, "#" + this.divName);
     DOM.style("#" + idName, "cursor", "pointer", "display", "block", "position", "relative");
 
@@ -154,8 +147,6 @@ function OutputImage(idName, width, height = width, left = 0, top = 0) {
         this.divHeight = Math.floor(height);
         this.bigDiv.setDimensions(this.divWidth, this.divHeight);
     };
-
-
 
     /**
      * set the cursor shape (style "default","arrow","none",...) on the output image

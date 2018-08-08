@@ -210,7 +210,9 @@
     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
-    Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
+    Make.createOutputImage("outputCanvas");
+
+    Make.outputImage.setDivDimensions(outputCanvasWidth, outputCanvasHeight);
 
 
     Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);

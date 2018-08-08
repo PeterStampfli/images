@@ -73,15 +73,12 @@ var Make = {};
          
     /**
     * create on-screen output image canvas 
+    * set dimensions and position later
     * @method Make.createOutputImage
     * @param {String} idName - html identifier  
-    * @param {float} width
-    * @param {float} height - default width
-    * @param {float} left -  left side, default 0
-    * @param {float} top - top side, default 0
     */
-    Make.createOutputImage = function(idName, width, height = width, left = 0, top = 0) {
-        Make.outputImage = new OutputImage(idName, width, height, left, top);
+    Make.createOutputImage = function(idName) {
+        Make.outputImage = new OutputImage(idName);
         Make.pixelFromInputImage = Make.pixelFromInputImageNoColorSymmetry;
         Make.outputImage.action = Make.shiftScaleOutputImage;
     };
