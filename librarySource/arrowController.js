@@ -1,37 +1,27 @@
 /** a controller with a rotating arrow and an angle
  * @constructor ArrowController
  * @param {String} idName - html identifier
- * @param {float} size - width and height
- * @param {float} left - left side, default -1000 for invisible
- * @param {float} top - top side, default -1000 for invisible
+ * @param {boolean} is visible - default true
  */
 
 /* jshint esversion:6 */
 
-function ArrowController(idName, size, left = -1000, top = -1000) {
+function ArrowController(idName, isVisible = true) {
     this.idName = idName;
+    this.isVisible = isVisible;
     this.size = -1;
     if (document.getElementById(idName) == null) {
         DOM.create("canvas", idName, "body");
     }
-
     this.pixelCanvas = new PixelCanvas(idName);
-
-    // this.setPosition(left,top);
-    //  this.setSize(size);
-
-    if (left >= 0) { // visible as position fixed
-        this.isVisible = true;
+    if (this.isVisible >= 0) { // visible as position fixed
         DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + this.idName, "cursor", "pointer");
     } else {
-        this.isVisible = false;
         DOM.style("#" + this.idName, "display", "none");
     }
 
-
     // setting the scale and origin (only of context) for easy drawing independent of size
-
 
     // custom colors possible
     this.backGroundColor = "#777777";
@@ -50,7 +40,6 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
      */
     this.action = function() {};
 
-
     // access to this in callbacks
     const arrowController = this;
     // the center of the scanned pixels
@@ -65,7 +54,6 @@ function ArrowController(idName, size, left = -1000, top = -1000) {
         let relY = events.y - radius;
         let lastRelX = events.lastX - radius;
         let lastRelY = events.lastY - radius;
-
         let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
         // distance to center of arrow controller
         let distance = Math.hypot(relX, relY);

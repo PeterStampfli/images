@@ -141,6 +141,10 @@ var Make = {};
      */
     Make.createControlImage = function(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
         Make.controlImage = new ControlImage(idName, maxWidth, maxHeight, limitLeft, limitTop);
+
+        Make.controlImage.setDimensions(maxWidth, maxHeight);
+        Make.controlImage.setPosition(limitLeft, limitTop);
+
         Make.controlImage.linearTransform = Make.inputTransform;
         Make.controlImage.action = Make.updateOutputImageIfUsingInputImage; // update output image after mouse interaction only if we see an image and not the structure
     };
@@ -149,16 +153,10 @@ var Make = {};
      * create the arrowController object
      * @method Make.createArrowController
      * @param {String} idName - html identifier
-     * @param {float} size - width and height
-     * @param {float} left - left side, default -1000 for invisible
-     * @param {float} top - top side, default -1000 for invisible    */
-    Make.createArrowController = function(idName, size, left = -1000, top = -1000) {
-        Make.arrowController = new ArrowController(idName, size, left, top);
-
-        Make.arrowController.setPosition(left, top);
-        Make.arrowController.setSize(size);
-        Make.arrowController.setSize(size);
-
+     * @param {boolean} is visible - default true
+     */
+    Make.createArrowController = function(idName, isVisible = true) {
+        Make.arrowController = new ArrowController(idName, isVisible);
         Make.arrowController.linearTransform = Make.inputTransform;
         Make.arrowController.controlImage = Make.controlImage;
         Make.arrowController.drawOrientation();

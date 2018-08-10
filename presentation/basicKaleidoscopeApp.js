@@ -219,7 +219,13 @@
     Make.controlImage.centerVertical = false; // put controlcanvas to top
     DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
 
-    Make.createArrowController("arrowController", arrowControlSize, outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
+    Make.createArrowController("arrowController", true);
+
+    Make.arrowController.setPosition(outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
+    Make.arrowController.setSize(arrowControlSize);
+
+
+
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
     // custom colors possible

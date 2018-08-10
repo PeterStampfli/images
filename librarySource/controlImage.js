@@ -1,7 +1,7 @@
 /**
  * a canvas shows the input image at reduced scale, indicate the region of sampled pixels, mouseEvents translate and scale
  * It has a limited space given as maxWidth and maxHeight and limitLeft and limitTop (for fixed position)
- * negative limitLeft for invisible controlImage
+ * at first it is transparent until an input image is loaded
  * @constructor ControlImage
  * @param {String} idName - html identifier
  * @param {float} maxWidth - maximum width
@@ -14,24 +14,25 @@
 
 function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
     this.idName = idName;
+
+    this.isVisible = true;
+
+
     DOM.create("canvas", idName, "body");
-    if (limitLeft >= 0) { // visible, position fixed
+    if (this.isVisible) { // visible, position fixed
         this.isVisible = true;
         DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + idName, "cursor", "pointer");
-        DOM.style("#" + this.idName, "left", limitLeft + px, "top", limitTop + px);
+        DOM.style("#" + this.idName, "left", this.limitLeft + px, "top", this.limitTop + px);
     } else {
         this.isVisible = false;
         DOM.style("#" + idName, "display", "none");
     }
+    // choose centering of image in available place
     // the image may be centered vertically or placed at the top
     this.centerVertical = true;
     // the image may be centered horizontally or placed at the left
     this.centerHorizontal = true;
-    this.maxWidth = Math.round(maxWidth);
-    this.maxHeight = Math.round(maxHeight);
-    this.limitLeft = limitLeft;
-    this.limitTop = limitTop;
     this.pixelCanvas = new PixelCanvas(idName);
     this.controlDivInputSize = 1;
     this.semiAlpha = 128;
@@ -94,6 +95,27 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
 (function() {
     "use strict";
 
+    /**
+     * set position (of reserved space)
+     * @method ControlImage#setPosition
+     * @param {float} limitLeft - limit for the left side
+     * @param {float} limitTop - limit for the top side
+     */
+    ControlImage.prototype.setPosition = function(limitLeft, limitTop) {
+        this.limitLeft = limitLeft;
+        this.limitTop = limitTop;
+    };
+
+    /**
+     * set dimensions (of reserved space)
+     * @method ControlImage#setDimensions
+     * @param {float} maxWidth - maximum width
+     * @param {float} maxHeight - maximum height
+     */
+    ControlImage.prototype.setDimensions = function(maxWidth, maxHeight) {
+        this.maxWidth = Math.round(maxWidth);
+        this.maxHeight = Math.round(maxHeight);
+    };
 
     /**
      * show the maximum area for debugging layout
