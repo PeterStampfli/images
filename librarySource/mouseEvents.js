@@ -85,6 +85,7 @@ function MouseEvents(idName) {
     // so it is not necessary to use this.element.addEventListener("...",script)
 
     this.element.onmousedown = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             mouseEvents.pressed = true;
@@ -93,6 +94,7 @@ function MouseEvents(idName) {
     };
 
     this.element.onmouseup = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {
@@ -103,12 +105,14 @@ function MouseEvents(idName) {
     };
 
     this.element.onmouseenter = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.mouseInside = true;
         }
     };
 
     this.element.onmouseleave = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             mouseEvents.mouseInside = false;
@@ -120,6 +124,7 @@ function MouseEvents(idName) {
     };
 
     this.element.onmousemove = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {
@@ -131,6 +136,7 @@ function MouseEvents(idName) {
     };
 
     this.element.onwheel = function(event) {
+        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             mouseEvents.wheelAction(mouseEvents);
@@ -175,7 +181,6 @@ function MouseEvents(idName) {
      * @param {Event} event - object, containing event data
      */
     MouseEvents.prototype.update = function(event) {
-        MouseAndTouch.preventDefault(event);
         this.lastX = this.x;
         this.lastY = this.y;
         [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);

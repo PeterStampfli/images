@@ -27,8 +27,6 @@ function SingleTouch(touch) {
         [this.x, this.y] = MouseAndTouch.relativePosition(touch, touch.target);
     };
 
-
-
 }());
 
 
@@ -103,59 +101,62 @@ function TouchEvents(idName) {
     // start: add new touches to list, update touchEvents data, no action (waiting for touchMove)
     // add new touch only if its target is the element and it is inside the shape
     function startHandler(event) {
-        console.log("start");
         MouseAndTouch.preventDefault(event);
-        const changedTouches = event.changedTouches;
-        const length = changedTouches.length;
-        var touch;
-        for (var i = 0; i < length; i++) {
-            touch = changedTouches[i];
-            if (touch.target == touchEvents.element) {
-                const singleTouch = new SingleTouch(touch);
-                if (touchEvents.isInsideShape(singleTouch)) {
-                    touchEvents.touches.push(singleTouch);
+        if (touchEvents.isActive) {
+            const changedTouches = event.changedTouches;
+            const length = changedTouches.length;
+            var touch;
+            for (var i = 0; i < length; i++) {
+                touch = changedTouches[i];
+                if (touch.target == touchEvents.element) {
+                    const singleTouch = new SingleTouch(touch);
+                    if (touchEvents.isInsideShape(singleTouch)) {
+                        touchEvents.touches.push(singleTouch);
+                    }
                 }
             }
+            // double touch simulation: new touch added in position 1 with position data
+            // for both touches
+            if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length == 2)) {
+                touchEvents.touches[0].x = touchEvents.touches[1].x;
+                touchEvents.touches[0].y = touchEvents.touches[1].y;
+            }
+            touchEvents.update();
+            touchEvents.setLast();
+            touchEvents.getDifferences();
+            touchEvents.startAction(touchEvents);
         }
-        // double touch simulation: new touch added in position 1 with position data
-        // for both touches
-        if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length == 2)) {
-            touchEvents.touches[0].x = touchEvents.touches[1].x;
-            touchEvents.touches[0].y = touchEvents.touches[1].y;
-        }
-        touchEvents.update();
-        touchEvents.setLast();
-        touchEvents.getDifferences();
-        touchEvents.startAction(touchEvents);
     }
 
     // move: touches with target==element: update touch, update touchEvents data
-    // for double touch debug: delete touches if touch moves outside
     function moveHandler(event) {
         MouseAndTouch.preventDefault(event);
-        const changedTouches = event.changedTouches;
-        const length = changedTouches.length;
-        var touch, index;
-        for (var i = 0; i < length; i++) {
-            touch = changedTouches[i];
-            if (touch.target == touchEvents.element) {
-                index = touchEvents.findIndex(touch);
-                if (index >= 0) {
-                    touchEvents.touches[index].update(touch);
+        if (touchEvents.isActive) {
+            const changedTouches = event.changedTouches;
+            const length = changedTouches.length;
+            var touch, index;
+            for (var i = 0; i < length; i++) {
+                touch = changedTouches[i];
+                if (touch.target == touchEvents.element) {
+                    index = touchEvents.findIndex(touch);
+                    if (index >= 0) {
+                        touchEvents.touches[index].update(touch);
+                    }
                 }
             }
-        }
-        if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length > 0) && !touchEvents.isInside(touchEvents.touches[0])) {
-            touchEvents.touches.length = 0;
-            touchEvents.update();
-            touchEvents.setLast();
-            touchEvents.getDifferences();
-            touchEvents.endAction(touchEvents);
-        } else {
-            touchEvents.setLast();
-            touchEvents.update();
-            touchEvents.getDifferences();
-            touchEvents.moveAction(touchEvents);
+            // for double touch debug: delete touches if touch moves outside
+            if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length > 0) && !touchEvents.isInside(touchEvents.touches[0])) {
+                touchEvents.touches.length = 0;
+                touchEvents.update();
+                touchEvents.setLast();
+                touchEvents.getDifferences();
+                touchEvents.endAction(touchEvents);
+            } else {
+                touchEvents.setLast();
+                touchEvents.update();
+                touchEvents.getDifferences();
+                touchEvents.moveAction(touchEvents);
+            }
         }
     }
 
@@ -178,22 +179,27 @@ function TouchEvents(idName) {
     // touch end: delete touch if not double touch debugging or if there are more than one touch
     function endHandler(event) {
         MouseAndTouch.preventDefault(event);
-        if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
-            deleteTouches(event);
+        if (touchEvents.isActive) {
+            if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
+                deleteTouches(event);
+            }
+            touchEvents.update();
+            touchEvents.setLast();
+            touchEvents.getDifferences();
+            touchEvents.endAction(touchEvents);
         }
-        touchEvents.update();
-        touchEvents.setLast();
-        touchEvents.getDifferences();
-        touchEvents.endAction(touchEvents);
     }
 
     function cancelHandler(event) {
-        if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
-            deleteTouches(event);
+        MouseAndTouch.preventDefault(event);
+        if (touchEvents.isActive) {
+            if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
+                deleteTouches(event);
+            }
+            touchEvents.update();
+            touchEvents.setLast();
+            touchEvents.getDifferences();
         }
-        touchEvents.update();
-        touchEvents.setLast();
-        touchEvents.getDifferences();
     }
 }
 

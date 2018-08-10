@@ -10,6 +10,25 @@
 
     Make.imageQuality = "low";
 
+    //  define general constants
+    //=================================================================================
+    const backgroundColor = "#888888";
+    const textBackgroundColor = "#eeeeee";
+    const px = "px";
+
+    // define general relations between text elements and font size, independent of window dimensions
+    //===============================================================================
+    // h1 titel font size is larger 
+    const relativeH1Fontsize = 1.0;
+    // rekative size of margins
+    const textMarginToFontsize = 0.5;
+    // weight of button borders
+    const borderWidthToFontsize = 0.15;
+    // width of number input buttons
+    const inputWidthToFontsize = 3.5;
+
+
+
     //element sizes related to window dimensions
 
     // max output width to  window width for small width to height ratio
@@ -22,25 +41,35 @@
     const arrowControlFraction = 0.25;
     // for the max height of the text area vs WindowHeight
     const textMaxHeightFraction = 0.75;
-
-    // font size related
     // fontsize varies with image size
     const fontsizeToWindowHeight = 0.028;
-    // h1 titel font size is larger 
-    const relativeH1Fontsize = 1.0;
-    // rekative size of margins
-    const textMarginToFontsize = 0.5;
-    // weight of button borders
-    const borderWidthToFontsize = 0.15;
-    // width of number input buttons
-    const inputWidthToFontsize = 3.5;
-    // backgroundcolor of everything
-    const backgroundColor = "#888888";
-    const textBackgroundColor = "#eeeeee";
-    const px = "px";
 
-    // create DOM elements before setting styles
+    // we have to create DOM elements before setting their styles
 
+    //=====================================================================================
+    // functions for the UI elements
+    //=================================================================================
+
+    // enable/disable mouse and touch on control image and arrow controller
+    function activateControls(status) {
+        Make.controlImage.mouseEvents.isActive = status;
+        Make.arrowController.mouseEvents.isActive = status;
+        Make.controlImage.touchEvents.isActive = status;
+        Make.arrowController.touchEvents.isActive = status;
+    }
+
+    // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
+    function updateMapNoReset() {
+        Make.allowResetInputMap = false;
+        Make.updateNewMap();
+        Make.allowResetInputMap = true;
+    }
+
+    //==============================================================================================
+    // create UI elements with their actions that are independent of the image geometry
+    //===============================================================================================
+
+    // navigation
     let helpButton = new Button("help");
     helpButton.onClick = function() {
         window.location = "help.html";
@@ -51,11 +80,71 @@
         window.location = "index.html";
     };
 
-    function updateMapNoReset() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
+    // image input and output
+    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
+    imageInputButton.onClick = function() {
+        console.log("switch choice to imag");
+        imageInputButton.fileInput.click();
+        structureImageChoiceButtons.setPressed(showImageButton);
+        DOM.style("#arrowController,#controlCanvas", "display", "initial");
+        activateControls(true);
+    };
+
+    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
+
+    // choose between showing the structure or the image
+    let structureImageChoiceButtons = new Selection();
+    let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
+    let showImageButton = structureImageChoiceButtons.createButton("showImage");
+
+    showStructureButton.onPress = function() {
+        Make.switchToShowingStructure();
+        activateControls(false);
+    };
+
+    showImageButton.onPress = function() {
+        if (!Make.inputImageExists) {
+            imageInputButton.fileInput.click();
+        } else {
+            Make.switchToShowingImage();
+        }
+        DOM.style("#arrowController,#controlCanvas", "display", "initial");
+        activateControls(true);
+    };
+
+    // image size
+    let sizeButton = Make.createSquareImageSizeButton("size");
+
+    // initialization for landscape layout !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    sizeButton.setValue(window.innerHeight);
+
+    //  choosing image quality
+    function changeQuality(newQuality) {
+        if (Make.imageQuality != newQuality) {
+            Make.imageQuality = newQuality;
+            Make.updateOutputImage();
+        }
     }
+
+
+    let qualityChoiceButtons = new Selection();
+    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
+    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
+    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
+
+    lowQualityButton.onPress = function() {
+        changeQuality("low");
+    };
+    highQualityButton.onPress = function() {
+        changeQuality("high");
+    };
+    veryHighQualityButton.onPress = function() {
+        changeQuality("veryHigh");
+    };
+
+    //=====================================================================================================================================
+    // UI elements depending on actual image and its symmetries
+    //==============================================================================================================
 
     //symmetries
     let setKButton = NumberButton.create("k");
@@ -90,69 +179,9 @@
             console.log("nosuch tiling: " + tiling);
         }
     };
-    // choose between structure and image
 
-    let structureImageChoiceButtons = new Selection();
 
-    let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
-    let showImageButton = structureImageChoiceButtons.createButton("showImage");
 
-    function activateControls(status) {
-        Make.controlImage.mouseEvents.isActive = status;
-        Make.arrowController.mouseEvents.isActive = status;
-    }
-
-    showStructureButton.onPress = function() {
-        Make.switchToShowingStructure();
-        activateControls(false);
-    };
-
-    showImageButton.onPress = function() {
-        if (!Make.inputImageExists) {
-            imageInputButton.fileInput.click();
-        } else {
-            Make.switchToShowingImage();
-        }
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
-        activateControls(true);
-    };
-
-    //in/output
-    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
-    imageInputButton.onClick = function() {
-        console.log("switch choice to imag");
-        imageInputButton.fileInput.click();
-        structureImageChoiceButtons.setPressed(showImageButton);
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
-        activateControls(true);
-    };
-
-    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
-
-    // image imageQuality
-    let sizeButton = Make.createSquareImageSizeButton("size");
-    sizeButton.setValue(window.innerHeight);
-    let qualityChoiceButtons = new Selection();
-    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
-    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
-    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
-
-    function changeQuality(newQuality) {
-        if (Make.imageQuality != newQuality) {
-            Make.imageQuality = newQuality;
-            Make.updateOutputImage();
-        }
-    }
-
-    lowQualityButton.onPress = function() {
-        changeQuality("low");
-    };
-    highQualityButton.onPress = function() {
-        changeQuality("high");
-    };
-    veryHighQualityButton.onPress = function() {
-        changeQuality("veryHigh");
-    };
 
     let tilingChoiceButtons = new Selection();
     let regularTilingButton = tilingChoiceButtons.createButton("regular");
