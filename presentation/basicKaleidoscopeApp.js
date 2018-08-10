@@ -216,6 +216,9 @@
 
 
     Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);
+
+    Make.controlImage.setPosition(outputCanvasWidth, 0);
+    Make.controlImage.setDimensions(controlWidth, controlImageHeight);
     Make.controlImage.centerVertical = false; // put controlcanvas to top
     DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
 

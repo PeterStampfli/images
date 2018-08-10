@@ -134,17 +134,10 @@ var Make = {};
      * negative limitLeft for no fixed position (scrolling canvas or invisible)
      * @method Make.createControlImage
      * @param {String} idName - html identifier
-     * @param {float} maxWidth - maximum width
-     * @param {float} maxHeight - maximum height, default is maxWidth
-     * @param {float} limitLeft - limit for the left side, default -1000
-     * @param {float} limitTop - limit for the top side, default -1000
+     * @param {boolean} is visible - default true
      */
-    Make.createControlImage = function(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
-        Make.controlImage = new ControlImage(idName, maxWidth, maxHeight, limitLeft, limitTop);
-
-        Make.controlImage.setDimensions(maxWidth, maxHeight);
-        Make.controlImage.setPosition(limitLeft, limitTop);
-
+    Make.createControlImage = function(idName, isVisible = true) {
+        Make.controlImage = new ControlImage(idName);
         Make.controlImage.linearTransform = Make.inputTransform;
         Make.controlImage.action = Make.updateOutputImageIfUsingInputImage; // update output image after mouse interaction only if we see an image and not the structure
     };

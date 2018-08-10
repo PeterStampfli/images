@@ -4,28 +4,22 @@
  * at first it is transparent until an input image is loaded
  * @constructor ControlImage
  * @param {String} idName - html identifier
- * @param {float} maxWidth - maximum width
- * @param {float} maxHeight - maximum height, default is maxWidth
- * @param {float} limitLeft - limit for the left side, default -1000
- * @param {float} limitTop - limit for the top side, default -1000
+ * @param {boolean} is visible - default true
  */
 
 /* jshint esversion:6 */
 
-function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000, limitTop = -1000) {
+function ControlImage(idName, isVisible = true) {
     this.idName = idName;
-
-    this.isVisible = true;
-
-
-    DOM.create("canvas", idName, "body");
+    this.isVisible = isVisible;
+    if (document.getElementById(idName) == null) {
+        DOM.create("canvas", idName, "body");
+    }
     if (this.isVisible) { // visible, position fixed
-        this.isVisible = true;
         DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + idName, "cursor", "pointer");
         DOM.style("#" + this.idName, "left", this.limitLeft + px, "top", this.limitTop + px);
     } else {
-        this.isVisible = false;
         DOM.style("#" + idName, "display", "none");
     }
     // choose centering of image in available place
@@ -104,6 +98,9 @@ function ControlImage(idName, maxWidth, maxHeight = maxWidth, limitLeft = -1000,
     ControlImage.prototype.setPosition = function(limitLeft, limitTop) {
         this.limitLeft = limitLeft;
         this.limitTop = limitTop;
+        if (this.isVisible) {
+            DOM.style("#" + this.idName, "left", this.limitLeft + px, "top", this.limitTop + px);
+        }
     };
 
     /**
