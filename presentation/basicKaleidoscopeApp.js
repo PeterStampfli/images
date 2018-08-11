@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-// doing the layout in a private scope
+// doing the initialization in a private scope
 
 
 (function() {
@@ -16,6 +16,12 @@
     const textBackgroundColor = "#eeeeee";
     const px = "px";
 
+    // some styling, body already exists 
+    //===============================================================================
+    DOM.style("body", "backgroundColor", backgroundColor);
+    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+
+
     // define general relations between text elements and font size, independent of window dimensions
     //===============================================================================
     // h1 titel font size is larger 
@@ -27,10 +33,23 @@
     // width of number input buttons
     const inputWidthToFontsize = 3.5;
 
+    // adjust fontsizes, margins, borders and so on
+    // call later, we first have to create DOM elements before setting their styles
 
+    var fontSize; // depends on window format/dimensions
+
+    function adjustFont() {
+        DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
+        DOM.style("p,button,input,table", "fontSize", fontSize + px);
+        DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
+        DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
+        DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
+    }
 
     //element sizes related to window dimensions
-
+    //===================================================================================
+    // for landscape orientation
+    //==================================================================================
     // max output width to  window width for small width to height ratio
     const outputImageMaxWidthFraction = 0.65;
     // max control width to window height ratio for large width to height
@@ -44,7 +63,40 @@
     // fontsize varies with image size
     const fontsizeToWindowHeight = 0.028;
 
-    // we have to create DOM elements before setting their styles
+
+    //================================================================================
+    // creating canvas and text elements and layout independent styles
+    //==================================================================================
+
+    Make.createOutputImage("outputCanvas");
+    Make.createControlImage("controlCanvas");
+    Make.createMap();
+
+    Make.createArrowController("arrowController", true);
+    Make.arrowController.backGroundColor = "#444444";
+    Make.arrowController.arrowColor = "#ffffff";
+    DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
+    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
+    DOM.style("#arrowController,#controlCanvas", "display", "none");
+
+    activateControls(false);
+
+    DOM.style("#text", "position", "fixed", "overflow", "auto");
+
+
+    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
+
+
+
+    document.getElementById("text").onclick = function() {
+        DOM.style("#text", "zIndex", "11");
+    };
+
+    Make.controlImage.mouseEvents.downAction = function() {
+        DOM.style("#text", "zIndex", "9");
+    };
+
+
 
     //=====================================================================================
     // functions for the UI elements
@@ -146,25 +198,9 @@
     // UI elements depending on actual image and its symmetries
     //==============================================================================================================
 
-    //symmetries
-    let setKButton = NumberButton.create("k");
-    setKButton.setRange(2, 10000);
-    setKButton.setValue(5);
-    setKButton.onChange = updateMapNoReset;
 
-    let setMButton = NumberButton.create("m");
-    setMButton.setRange(2, 10000);
-    setMButton.setValue(2);
-    setMButton.onChange = updateMapNoReset;
-
-    let setNButton = NumberButton.create("n");
-    setNButton.setRange(2, 10000);
-    setNButton.setValue(4);
-    setNButton.onChange = updateMapNoReset;
-
-    var tiling = "regular";
-
-    // initializing things before calculating the map (uopdateKMN)
+    // initializing map parameters, choosing the map
+    // this is called before calculating the second map in geometrical space, that defines the geometry
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
@@ -180,14 +216,7 @@
         }
     };
 
-
-
-
-    let tilingChoiceButtons = new Selection();
-    let regularTilingButton = tilingChoiceButtons.createButton("regular");
-    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
-    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
-
+    // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
     function changeTiling(newTiling) {
         if (newTiling != tiling) {
             tiling = newTiling;
@@ -196,6 +225,30 @@
             Make.allowResetInputMap = true;
         }
     }
+
+    //choosing the symmetries, and set initial values
+    let setKButton = NumberButton.create("k");
+    setKButton.setRange(2, 10000);
+    setKButton.setValue(5);
+    setKButton.onChange = updateMapNoReset;
+
+    let setMButton = NumberButton.create("m");
+    setMButton.setRange(2, 10000);
+    setMButton.setValue(2);
+    setMButton.onChange = updateMapNoReset;
+
+    let setNButton = NumberButton.create("n");
+    setNButton.setRange(2, 10000);
+    setNButton.setValue(4);
+    setNButton.onChange = updateMapNoReset;
+
+    // choosing the tiling
+    var tiling = "regular";
+
+    let tilingChoiceButtons = new Selection();
+    let regularTilingButton = tilingChoiceButtons.createButton("regular");
+    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
+    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
 
     regularTilingButton.onPress = function() {
         setNButton.setRange(2, 10000);
@@ -209,16 +262,13 @@
         setNButton.setRange(3, 10000);
         changeTiling("semiRegular2");
     };
+    //==========================================================================================================
 
-    DOM.style("body", "backgroundColor", backgroundColor);
-    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+    //  for landscape format !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    fontSize = fontsizeToWindowHeight * window.innerHeight;
 
-    let fontSize = fontsizeToWindowHeight * window.innerHeight;
-    DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
-    DOM.style("p,button,input,table", "fontSize", fontSize + px);
-    DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
-    DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
-    DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
+
+    adjustFont();
 
     let controlMaxWidth = controlMaxWidthFraction * window.innerHeight;
     var outputCanvasWidth;
@@ -239,56 +289,32 @@
     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
-    Make.createOutputImage("outputCanvas");
 
     Make.outputImage.setDivDimensions(outputCanvasWidth, outputCanvasHeight);
 
 
-    Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);
 
     Make.controlImage.setPosition(outputCanvasWidth, 0);
     Make.controlImage.setDimensions(controlWidth, controlImageHeight);
     Make.controlImage.centerVertical = false; // put controlcanvas to top
-    DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
 
-    Make.createArrowController("arrowController", true);
 
     Make.arrowController.setPosition(outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
     Make.arrowController.setSize(arrowControlSize);
 
 
 
-    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
     // custom colors possible
-    Make.arrowController.backGroundColor = "#444444";
-    Make.arrowController.arrowColor = "#ffffff";
     Make.arrowController.drawOrientation();
 
-    DOM.style("#arrowController,#controlCanvas", "display", "none");
-    activateControls(false);
 
 
-    DOM.style("#text", "position", "fixed", "overflow", "auto");
 
     DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputCanvasWidth + px, "bottom", 0 + px);
 
 
-    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
 
-
-
-    document.getElementById("text").onclick = function() {
-        DOM.style("#text", "zIndex", "11");
-    };
-
-    Make.controlImage.mouseEvents.downAction = function() {
-        DOM.style("#text", "zIndex", "9");
-    };
-
-
-
-    Make.createMap();
 
 
 
