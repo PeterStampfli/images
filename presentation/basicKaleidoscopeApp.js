@@ -164,11 +164,9 @@
         activateControls(true);
     };
 
-    // image size
+    // image size, square format
     let sizeButton = Make.createSquareImageSizeButton("size");
 
-    // initialization for landscape layout !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    sizeButton.setValue(window.innerHeight);
 
     //  choosing image quality
     function changeQuality(newQuality) {
@@ -225,6 +223,10 @@
             Make.allowResetInputMap = true;
         }
     }
+    
+    // setting initial range of space coordinates for output image (1st linear transform)
+        Make.setInitialOutputImageSpace(-1, 1, -1);
+
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -264,42 +266,59 @@
     };
     //==========================================================================================================
 
-    //  for landscape format !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //  for landscape format 
+    //================================================
+    
+    // set the font size, depending on the smaller window dimension
     fontSize = fontsizeToWindowHeight * window.innerHeight;
-
-
     adjustFont();
-
+      
+    // adjusting the maximum width for the output image
+    var outputImageDivWidth;
+    
+  
+  // the size of the controls at the left for very wide screens
+    // increase the space for output image accordingly
     let controlMaxWidth = controlMaxWidthFraction * window.innerHeight;
-    var outputCanvasWidth;
 
     if (window.innerWidth > window.innerHeight + controlMaxWidth) {
-        outputCanvasWidth = window.innerWidth - controlMaxWidth; // very wide window: increase output image width
-    } else if (window.innerHeight < outputImageMaxWidthFraction * window.innerWidth) {
-        outputCanvasWidth = window.innerHeight; // sufficiently wide
+        outputImageDivWidth = window.innerWidth - controlMaxWidth; 
     } else {
-        outputCanvasWidth = outputImageMaxWidthFraction * window.innerWidth;
+        // the screen is not very wide: the width for the output image should not exceed the window height
+        // and it should not be larger than a certain fraction of the window width, to leave some space for controls
+        outputImageDivWidth = Math.min(window.innerHeight,outputImageMaxWidthFraction * window.innerWidth);
     }
 
-    let outputCanvasHeight = window.innerHeight;
+    // always use the full height for the output image
+    let outputImageDivHeight = window.innerHeight;
+    
+        Make.outputImage.setDivDimensions(outputImageDivWidth, outputImageDivHeight);
 
 
-    let controlWidth = window.innerWidth - outputCanvasWidth;
+// the width for text controls and maximum for the controlimage
+    let controlWidth = window.innerWidth - outputImageDivWidth;
+    
+    // make up the control image dimensions
+     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
+     // layout: control image at top close to space for output image
+     Make.controlImage.setDimensions(controlWidth, controlImageHeight);
+         Make.controlImage.setPosition(outputImageDivWidth, 0);
+    Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
+    
     let arrowControlSize = arrowControlFraction * window.innerHeight;
-    let controlImageHeight = controlImageHeightFraction * window.innerHeight;
+    
+    
+    
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
 
-    Make.outputImage.setDivDimensions(outputCanvasWidth, outputCanvasHeight);
 
 
 
-    Make.controlImage.setPosition(outputCanvasWidth, 0);
-    Make.controlImage.setDimensions(controlWidth, controlImageHeight);
-    Make.controlImage.centerVertical = false; // put controlcanvas to top
 
 
-    Make.arrowController.setPosition(outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
+
+    Make.arrowController.setPosition(outputImageDivWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
     Make.arrowController.setSize(arrowControlSize);
 
 
@@ -311,16 +330,17 @@
 
 
 
-    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputCanvasWidth + px, "bottom", 0 + px);
+    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputImageDivWidth + px, "bottom", 0 + px);
 
 
 
+// for both orientations
+
+    let outputSize=Math.floor(Math.min(outputImageDivWidth, outputImageDivHeight));
+    Make.setOutputSize(outputSize);
+        sizeButton.setValue(outputSize);
 
 
-
-    Make.setOutputSize(Math.min(outputCanvasWidth, outputCanvasHeight));
-
-    Make.setInitialOutputImageSpace(-1, 1, -1);
     Make.resetOutputImageSpace();
 
 
