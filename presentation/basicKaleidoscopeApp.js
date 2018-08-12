@@ -50,14 +50,12 @@
     //===================================================================================
     // for landscape orientation
     //==================================================================================
-    // max output width to  window width for small width to height ratio
-    const outputImageMaxWidthFraction = 0.65;
-    // max control width to window height ratio for large width to height
-    const controlMaxWidthFraction = 0.7;
+    // control width to window height ratio for large width to height
+    const controlTargetWidthFraction = 0.7;
     // ratio between height of control image and window height
     const controlImageHeightFraction = 0.65;
-    // for the size of the arrow controller to image height
-    const arrowControlFraction = 0.25;
+    // for the maximum size of the arrow controler to control width
+    const arrowControlWidthLimitFraction = 0.75;
     // for the max height of the text area vs WindowHeight
     const textMaxHeightFraction = 0.75;
     // fontsize varies with image size
@@ -223,9 +221,9 @@
             Make.allowResetInputMap = true;
         }
     }
-    
+
     // setting initial range of space coordinates for output image (1st linear transform)
-        Make.setInitialOutputImageSpace(-1, 1, -1);
+    Make.setInitialOutputImageSpace(-1, 1, -1);
 
 
     //choosing the symmetries, and set initial values
@@ -268,82 +266,68 @@
 
     //  for landscape format 
     //================================================
-    
+
     // set the font size, depending on the smaller window dimension
     fontSize = fontsizeToWindowHeight * window.innerHeight;
     adjustFont();
-      
+
     // adjusting the maximum width for the output image
     var outputImageDivWidth;
-    
-  
-  // the size of the controls at the left for very wide screens
-    // increase the space for output image accordingly
-    let controlMaxWidth = controlMaxWidthFraction * window.innerHeight;
 
-    if (window.innerWidth > window.innerHeight + controlMaxWidth) {
-        outputImageDivWidth = window.innerWidth - controlMaxWidth; 
+
+    // the size of the controls at the left for sufficiently wide screens
+    let controlWidth = controlTargetWidthFraction * window.innerHeight;
+
+    // typical layout: width of output image div is equal to window height, control width is a fraction of window height
+    // what happens if the sum of these widths is not equal to the window width?
+
+    if (window.innerWidth > window.innerHeight + controlWidth) {
+        // if the width is larger increase the width of the output image div
+        outputImageDivWidth = window.innerWidth - controlWidth;
     } else {
-        // the screen is not very wide: the width for the output image should not exceed the window height
-        // and it should not be larger than a certain fraction of the window width, to leave some space for controls
-        outputImageDivWidth = Math.min(window.innerHeight,outputImageMaxWidthFraction * window.innerWidth);
+        // the screen is not very wide: rescale the widths
+        let rescale = window.innerWidth / (window.innerHeight + controlWidth);
+        outputImageDivWidth = rescale * window.innerHeight;
+        controlWidth *= rescale;
     }
 
     // always use the full height for the output image
     let outputImageDivHeight = window.innerHeight;
-    
-        Make.outputImage.setDivDimensions(outputImageDivWidth, outputImageDivHeight);
+    Make.outputImage.setDivDimensions(outputImageDivWidth, outputImageDivHeight);
 
-
-// the width for text controls and maximum for the controlimage
-    let controlWidth = window.innerWidth - outputImageDivWidth;
-    
     // make up the control image dimensions
-     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
-     // layout: control image at top close to space for output image
-     Make.controlImage.setDimensions(controlWidth, controlImageHeight);
-         Make.controlImage.setPosition(outputImageDivWidth, 0);
+    let controlImageHeight = controlImageHeightFraction * window.innerHeight;
+    // layout: control image at top close to space for output image
+    Make.controlImage.setDimensions(controlWidth, controlImageHeight);
+    Make.controlImage.setPosition(outputImageDivWidth, 0);
     Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
-    
-    let arrowControlSize = arrowControlFraction * window.innerHeight;
-    
-    
-    
-    let textMaxHeight = textMaxHeightFraction * window.innerHeight;
 
-
-
-
-
-
-
-
+    // make the arrow controller as large as possible, using all space below the control image reserved area, 
+    // smaller than a given fraction of conrol width
+    let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, arrowControlWidthLimitFraction * controlWidth));
     Make.arrowController.setPosition(outputImageDivWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
     Make.arrowController.setSize(arrowControlSize);
 
+    // the text UI control div
 
-
-
-    // custom colors possible
-    Make.arrowController.drawOrientation();
-
-
-
-
+    let textMaxHeight = textMaxHeightFraction * window.innerHeight;
     DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputImageDivWidth + px, "bottom", 0 + px);
 
 
 
-// for both orientations
+    // for both orientations
 
-    let outputSize=Math.floor(Math.min(outputImageDivWidth, outputImageDivHeight));
+
+
+    // independent of layout
+    Make.arrowController.drawOrientation();
+
+    let outputSize = Math.floor(Math.min(outputImageDivWidth, outputImageDivHeight));
+
     Make.setOutputSize(outputSize);
-        sizeButton.setValue(outputSize);
-
+    sizeButton.setValue(outputSize);
 
     Make.resetOutputImageSpace();
-
-
 
 }());
 
