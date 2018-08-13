@@ -124,8 +124,7 @@ function creation() {
     };
 
     // image size, square format
-    let sizeButton = Make.createSquareImageSizeButton("size");
-    Make.sizeButton = sizeButton;
+    Make.sizeButton = Make.createSquareImageSizeButton("size");
 
 
     //  choosing image quality
@@ -319,13 +318,7 @@ function landscapeFormat() {
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
     DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputImageDivWidth + px, "bottom", 0 + px);
 
-    // independent of layout
-    Make.arrowController.drawOrientation();
 
-    let outputSize = Math.floor(Math.min(outputImageDivWidth, outputImageDivHeight));
-
-    Make.setOutputSize(outputSize);
-    Make.sizeButton.setValue(outputSize);
 }
 
 
@@ -337,6 +330,13 @@ window.onload = function() {
 
     creation();
     landscapeFormat();
+    // independent of layout
+    Make.arrowController.drawOrientation();
+    // fit output image into the surrounding div
+    let outputSize = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
+
+    Make.setOutputSize(outputSize);
+    Make.sizeButton.setValue(outputSize);
     Make.resetOutputImageSpace();
     Make.showStructure = true;
 
@@ -344,7 +344,52 @@ window.onload = function() {
 };
 
 window.onresize = function() {
-    console.log("resize");
+    console.log("start resize");
+    // get old sizes, see if they change -> need redraw
+    const oldArrowControllerSize = Make.arrowController.size;
+    const oldOutputImageWidth = Make.outputImage.pixelCanvas.width;
+    const oldOutputImageHeight = Make.outputImage.pixelCanvas.height;
+    const oldControlImageMaxWidth = Make.controlImage.maxWidth;
+    const oldControlImageMaxHeight = Make.controlImage.maxHeight;
+    // check if the output image is inside its div -> resize upon change to fill the div 
+    const outputImageWasInside = (oldOutputImageWidth <= Make.outputImage.divWidth) && (oldOutputImageHeight <= Make.outputImage.divHeight);
+    console.log("outputImage was inside");
 
 
+    landscapeFormat();
+
+    // redraw the arrowController if its size changes
+    if (oldArrowControllerSize !== Make.arrowController.size) {
+        console.log("redraw arrowcontroller");
+        Make.arrowController.drawOrientation();
+    }
+
+    // do we have to reload the input image into the control image?
+    // input image has to exist and the limits have changed
+    const updateControlImage = Make.inputImageExists && ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
+    console.log("update control " + updateControlImage);
+
+    if (updateControlImage) {
+        Make.controlImage.loadInputImage(Make.inputImage);
+    }
+
+    // determine the new output image size
+    // the output image should always fill the div, minimal size
+    let outputImageSizeMin = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
+    // if the 
+
+    /* size button on change 
+     * Make.setOutputSize(size, size);
+            Make.updateNewOutputImageSize();
+            */
+
+    /**
+     * attach an input image PIXELCANVAS (call always after reading a new one), resizes, loads image
+     * @method ControlImage#loadInputImage
+     * @param {PixelCanvas} inputImage - the input image
+     */
+
+    //Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
+
+    console.log("end resize");
 };

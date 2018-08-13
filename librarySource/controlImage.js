@@ -15,13 +15,10 @@ function ControlImage(idName, isVisible = true) {
     if (document.getElementById(idName) == null) {
         DOM.create("canvas", idName, "body");
     }
-    if (this.isVisible) { // visible, position fixed
-        DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
-        DOM.style("#" + idName, "cursor", "pointer");
-        DOM.style("#" + this.idName, "left", this.limitLeft + px, "top", this.limitTop + px);
-    } else {
-        DOM.style("#" + idName, "display", "none");
-    }
+    // first it is not visible
+    DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
+    DOM.style("#" + idName, "cursor", "pointer");
+    DOM.style("#" + idName, "display", "none");
     // choose centering of image in available place
     // the image may be centered vertically or placed at the top
     this.centerVertical = true;
@@ -98,9 +95,6 @@ function ControlImage(idName, isVisible = true) {
     ControlImage.prototype.setPosition = function(limitLeft, limitTop) {
         this.limitLeft = limitLeft;
         this.limitTop = limitTop;
-        if (this.isVisible) {
-            DOM.style("#" + this.idName, "left", this.limitLeft + px, "top", this.limitTop + px);
-        }
     };
 
     /**
@@ -153,6 +147,7 @@ function ControlImage(idName, isVisible = true) {
                 top += 0.5 * (this.maxHeight - trueHeight);
             }
             DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+            DOM.style("#" + this.idName, "display", "initial");
         }
         this.pixelCanvas.setSize(trueWidth, trueHeight);
         this.pixelCanvas.canvasContext.drawImage(inputImage.canvas, 0, 0, this.pixelCanvas.width, this.pixelCanvas.height);

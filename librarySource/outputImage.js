@@ -88,6 +88,29 @@ function OutputImage(idName) {
     };
 
     /**
+     * place the output pixel canvas into the div and set the div's overflow behaviour
+     * use if the dimensions of the surrounding div changes, but the image itself does not change dimensions
+     * @method OutputImage#place
+     */
+    OutputImage.prototype.place = function() {
+        // adjust overflow of conatining divName
+        if (this.pixelCanvas.width <= this.divWidth) {
+            DOM.style("#" + this.divName, "overflowX", "hidden");
+            DOM.style("#" + this.idName, "left", 0.5 * (this.divWidth - this.pixelCanvas.width) + px);
+        } else {
+            DOM.style("#" + this.divName, "overflowX", "scroll");
+            DOM.style("#" + this.idName, "left", 0 + px);
+        }
+        if (this.pixelCanvas.height <= this.divHeight) {
+            DOM.style("#" + this.divName, "overflowY", "hidden");
+            DOM.style("#" + this.idName, "top", 0.5 * (this.divHeight - this.pixelCanvas.height) + px);
+        } else {
+            DOM.style("#" + this.divName, "overflowY", "scroll");
+            DOM.style("#" + this.idName, "top", 0 + px);
+        }
+    };
+
+    /**
      * set size of the output canvas and its scale, create pixel, use together with other size dependent setup
      * sets overflow style of surrounding div
      * @method OutputImage#setSize
@@ -101,21 +124,7 @@ function OutputImage(idName) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
         }
         this.pixelCanvas.setupOnscreen(width, height); // does nothing if size has not changed
-        // adjust overflow of conatining divName
-        if (width <= this.divWidth) {
-            DOM.style("#" + this.divName, "overflowX", "hidden");
-            DOM.style("#" + this.idName, "left", 0.5 * (this.divWidth - width) + px);
-        } else {
-            DOM.style("#" + this.divName, "overflowX", "scroll");
-            DOM.style("#" + this.idName, "left", 0 + px);
-        }
-        if (height <= this.divHeight) {
-            DOM.style("#" + this.divName, "overflowY", "hidden");
-            DOM.style("#" + this.idName, "top", 0.5 * (this.divHeight - height) + px);
-        } else {
-            DOM.style("#" + this.divName, "overflowY", "scroll");
-            DOM.style("#" + this.idName, "top", 0 + px);
-        }
+        this.place();
     };
 }());
 
