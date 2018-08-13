@@ -1,9 +1,8 @@
 /* jshint esversion:6 */
 
-// doing the initialization in a private scope
+// create the UI elements and their interactions
 
-
-(function() {
+function creation() {
     "use strict";
     // first do single touch debug with desktop browser
     TouchEvents.doubleTouchDebug = false;
@@ -22,44 +21,6 @@
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
 
-    // define general relations between text elements and font size, independent of window dimensions
-    //===============================================================================
-    // h1 titel font size is larger 
-    const relativeH1Fontsize = 1.0;
-    // rekative size of margins
-    const textMarginToFontsize = 0.5;
-    // weight of button borders
-    const borderWidthToFontsize = 0.15;
-    // width of number input buttons
-    const inputWidthToFontsize = 3.5;
-
-    // adjust fontsizes, margins, borders and so on
-    // call later, we first have to create DOM elements before setting their styles
-
-    var fontSize; // depends on window format/dimensions
-
-    function adjustFont() {
-        DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
-        DOM.style("p,button,input,table", "fontSize", fontSize + px);
-        DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
-        DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
-        DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
-    }
-
-    //element sizes related to window dimensions
-    //===================================================================================
-    // for landscape orientation
-    //==================================================================================
-    // control width to window height ratio for large width to height
-    const controlTargetWidthFraction = 0.7;
-    // ratio between height of control image and window height
-    const controlImageHeightFraction = 0.65;
-    // for the maximum size of the arrow controler to control width
-    const arrowControlWidthLimitFraction = 0.75;
-    // for the max height of the text area vs WindowHeight
-    const textMaxHeightFraction = 0.75;
-    // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.028;
 
 
     //================================================================================
@@ -164,6 +125,7 @@
 
     // image size, square format
     let sizeButton = Make.createSquareImageSizeButton("size");
+    Make.sizeButton = sizeButton;
 
 
     //  choosing image quality
@@ -262,14 +224,58 @@
         setNButton.setRange(3, 10000);
         changeTiling("semiRegular2");
     };
-    //==========================================================================================================
 
+}
+
+// adjust fontsize related dimesnions
+
+// adjust fontsizes, margins, borders and so on
+// call later, we first have to create DOM elements before setting their styles
+
+
+function adjustFont(fontSize) {
+
+    // define general relations between text elements and font size, independent of window dimensions
+    //===============================================================================
+    // h1 titel font size is larger 
+    const relativeH1Fontsize = 1.0;
+    // rekative size of margins
+    const textMarginToFontsize = 0.5;
+    // weight of button borders
+    const borderWidthToFontsize = 0.15;
+    // width of number input buttons
+    const inputWidthToFontsize = 3.5;
+    DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
+    DOM.style("p,button,input,table", "fontSize", fontSize + px);
+    DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
+    DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
+    DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
+}
+
+
+// make the layout for landscape orientation 
+
+function landscapeFormat() {
     //  for landscape format 
     //================================================
+    //element sizes related to window dimensions
+
+    // control width to window height ratio for large width to height
+    const controlTargetWidthFraction = 0.7;
+    // ratio between height of control image and window height
+    const controlImageHeightFraction = 0.65;
+    // for the maximum size of the arrow controler to control width
+    const arrowControlWidthLimitFraction = 0.75;
+    // for the max height of the text area vs WindowHeight
+    const textMaxHeightFraction = 0.75;
+    // fontsize varies with image size
+    const fontsizeToWindowHeight = 0.028;
 
     // set the font size, depending on the smaller window dimension
-    fontSize = fontsizeToWindowHeight * window.innerHeight;
+    let fontSize = fontsizeToWindowHeight * window.innerHeight;
     adjustFont();
+
+    adjustFont(fontSize);
 
     // adjusting the maximum width for the output image
     var outputImageDivWidth;
@@ -313,33 +319,32 @@
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
     DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputImageDivWidth + px, "bottom", 0 + px);
 
-
-
-    // for both orientations
-
-
-
     // independent of layout
     Make.arrowController.drawOrientation();
 
     let outputSize = Math.floor(Math.min(outputImageDivWidth, outputImageDivHeight));
 
     Make.setOutputSize(outputSize);
-    sizeButton.setValue(outputSize);
+    Make.sizeButton.setValue(outputSize);
+}
 
+
+// on loading: create everything and make an image (with structure, automatically)
+
+
+window.onload = function() {
+    console.log("onload");
+
+    creation();
+    landscapeFormat();
     Make.resetOutputImageSpace();
+    Make.showStructure = true;
 
-}());
+    Make.updateNewMap();
+};
 
-
-
-Make.showStructure = true;
-
-
-
-Make.updateNewMap();
+window.onresize = function() {
+    console.log("resize");
 
 
-
-
-//Make.readImageWithFilePathAtSetup("blueYellow.jpg");
+};

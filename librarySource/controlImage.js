@@ -128,7 +128,7 @@ function ControlImage(idName, isVisible = true) {
     };
 
     /**
-     * attach an input image (call always after reading a new one), resizes, loads image
+     * attach an input image PIXELCANVAS (call always after reading a new one), resizes, loads image
      * @method ControlImage#loadInputImage
      * @param {PixelCanvas} inputImage - the input image
      */
