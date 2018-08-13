@@ -212,7 +212,6 @@ var Make = {};
      */
     Make.setMapping = function(mappingInputImage, mappingStructure) {
         Make.mappingInputImage = mappingInputImage;
-        //console.log("set "+mappingInputImage);
         Make.mappingStructure = mappingStructure;
     };
 
@@ -485,6 +484,7 @@ var Make = {};
     Make.createImageInput = function(idButton, idFileNameOutput) {
         let imageInputButton = new Button(idButton);
         imageInputButton.asFileInput();
+
         if (arguments.length > 1) {
             let fileNameOutput = document.getElementById(idFileNameOutput);
             imageInputButton.onFileInput = function(file) {
@@ -521,7 +521,6 @@ var Make = {};
             Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
         });
         KeyboardEvents.addFunction(function() {
-            console.log("open");
             hiddenImageInput.click();
         }, key);
     };
@@ -567,8 +566,6 @@ var Make = {};
     Make.updateOutputImageIfUsingInputImage = function() {
         if (!Make.showStructure && Make.inputImageExists) {
             Make.updateOutputImage();
-        } else {
-            console.log("no update");
         }
     };
 

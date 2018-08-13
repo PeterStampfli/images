@@ -36,7 +36,6 @@ function creation() {
     Make.arrowController.arrowColor = "#ffffff";
     DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
-    DOM.style("#arrowController,#controlCanvas", "display", "none");
 
     activateControls(false);
 
@@ -94,10 +93,8 @@ function creation() {
     // image input and output
     let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
     imageInputButton.onClick = function() {
-        console.log("switch choice to imag");
         imageInputButton.fileInput.click();
         structureImageChoiceButtons.setPressed(showImageButton);
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
         activateControls(true);
     };
 
@@ -119,7 +116,7 @@ function creation() {
         } else {
             Make.switchToShowingImage();
         }
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
+        //DOM.style("#arrowController", "display", "initial");
         activateControls(true);
     };
 
@@ -309,7 +306,7 @@ function landscapeFormat() {
 
     // make the arrow controller as large as possible, using all space below the control image reserved area, 
     // smaller than a given fraction of conrol width
-    let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, arrowControlWidthLimitFraction * controlWidth));
+    let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, arrowControlWidthLimitFraction * controlWidth)) - 1;
     Make.arrowController.setPosition(outputImageDivWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
     Make.arrowController.setSize(arrowControlSize);
 
@@ -347,12 +344,12 @@ window.onresize = function() {
     console.log("start resize");
     // get old sizes, see if they change -> need redraw
     const oldArrowControllerSize = Make.arrowController.size;
-    const oldOutputImageWidth = Make.outputImage.pixelCanvas.width;
-    const oldOutputImageHeight = Make.outputImage.pixelCanvas.height;
+    // we have square images
+    const oldOutputImageSize = Make.outputImage.pixelCanvas.width;
     const oldControlImageMaxWidth = Make.controlImage.maxWidth;
     const oldControlImageMaxHeight = Make.controlImage.maxHeight;
     // check if the output image is inside its div -> resize upon change to fill the div 
-    const outputImageWasInside = (oldOutputImageWidth <= Make.outputImage.divWidth) && (oldOutputImageHeight <= Make.outputImage.divHeight);
+    const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
     console.log("outputImage was inside");
 
 
@@ -376,20 +373,29 @@ window.onresize = function() {
     // determine the new output image size
     // the output image should always fill the div, minimal size
     let outputImageSizeMin = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
-    // if the 
+    // if the output image is smaller, then its size should increase
+    let newOutputImageSize = Math.max(outputImageSizeMin, oldOutputImageSize);
+    // if the ouput image was completely inside its div, then it should have the new minimum size, can reduce output image size
+    // if the output image has been larger, it does not change, except that it has been too small for the new layout, that's already done
+    if (outputImageWasInside) {
+        newOutputImageSize = outputImageSizeMin;
+    }
 
-    /* size button on change 
-     * Make.setOutputSize(size, size);
-            Make.updateNewOutputImageSize();
-            */
 
-    /**
-     * attach an input image PIXELCANVAS (call always after reading a new one), resizes, loads image
-     * @method ControlImage#loadInputImage
-     * @param {PixelCanvas} inputImage - the input image
-     */
+    if (newOutputImageSize !== oldOutputImageSize) {
+        // if the size of the output image has changed, then we have to redo everything
+        Make.setOutputSize(newOutputImageSize, newOutputImageSize);
+        Make.sizeButton.setValue(newOutputImageSize);
+        Make.updateNewOutputImageSize();
 
-    //Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
+    } else {
+        // else we have to place the output image in its div and if the controlimage has been updated 
+        //then we have to redo the input pixel mapping to correctly indicate sampled pixels
+        Make.outputImage.place();
+        Make.updateOutputImageIfUsingInputImage();
+    }
+
+
 
     console.log("end resize");
 };

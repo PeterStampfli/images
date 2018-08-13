@@ -19,6 +19,8 @@ function ControlImage(idName, isVisible = true) {
     DOM.style("#" + idName, "zIndex", "4", "position", "fixed");
     DOM.style("#" + idName, "cursor", "pointer");
     DOM.style("#" + idName, "display", "none");
+
+
     // choose centering of image in available place
     // the image may be centered vertically or placed at the top
     this.centerVertical = true;
