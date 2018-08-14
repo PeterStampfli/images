@@ -233,6 +233,7 @@ function creation() {
 function adjustFont(fontSize) {
     "use strict";
 
+
     // define general relations between text elements and font size, independent of window dimensions
     //===============================================================================
     // h1 titel font size is larger 
@@ -266,13 +267,6 @@ function landscapeFormat() {
     const arrowControlWidthLimitFraction = 0.75;
     // for the max height of the text area vs WindowHeight
     const textMaxHeightFraction = 0.75;
-    // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.028;
-
-    // set the font size, depending on the smaller window dimension
-    let fontSize = fontsizeToWindowHeight * window.innerHeight;
-
-    adjustFont(fontSize);
 
     // typical layout: width of output image div is equal to window height, control width is a fraction of window height
     // what happens if the sum of these widths is not equal to the window width?
@@ -282,15 +276,15 @@ function landscapeFormat() {
 
 
     // adjusting the maximum width for the output image
-    var outputImageDivWidth;
+    var outputImageDivWidth = window.innerHeight;
 
-    if (window.innerWidth > window.innerHeight + controlWidth) {
+    if (window.innerWidth > outputImageDivWidth + controlWidth) {
         // if the width is larger increase the width of the output image div
         outputImageDivWidth = window.innerWidth - controlWidth;
     } else {
         // the screen is not very wide: rescale the widths
-        let rescale = window.innerWidth / (window.innerHeight + controlWidth);
-        outputImageDivWidth = rescale * window.innerHeight;
+        let rescale = window.innerWidth / (outputImageDivWidth + controlWidth);
+        outputImageDivWidth *= rescale;
         controlWidth *= rescale;
     }
 
@@ -304,6 +298,7 @@ function landscapeFormat() {
     Make.controlImage.setDimensions(controlWidth, controlImageHeight);
     Make.controlImage.setPosition(outputImageDivWidth, 0);
     Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
+    Make.controlImage.centerHorizontal = true;
 
     // make the arrow controller as large as possible, using all space below the control image reserved area, 
     // smaller than a given fraction of conrol width
@@ -314,8 +309,7 @@ function landscapeFormat() {
     // the text UI control div
 
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
-    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px);
-    DOM.style("#text", "height", "initial"); // overwrite height property set by portrait format layout
+    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "height", "initial");
 
 }
 
@@ -328,26 +322,20 @@ function portraitFormat() {
     //element sizes related to window dimensions
 
     // control height to window width ratio for large height to width
-    const controlTargetHeightFraction = 0.7;
+    const controlTargetHeightFraction = 0.8;
     // ratio between width of control image and window width
     const controlImageWidthFraction = 0.65;
     // for the maximum size of the arrow controler to control height
     const arrowControlHeightLimitFraction = 0.75;
     // for the max width of the text area vs Window width
     const textMaxWidthFraction = 0.75;
-    // fontsize varies with image size
-    const fontsizeToWindowWidth = 0.028;
 
-    // set the font size, depending on the smaller window dimension
-    let fontSize = fontsizeToWindowWidth * window.innerWidth;
-
-    adjustFont(fontSize);
 
     // typical layout: height of output image div is equal to window width, control height is a fraction of window width
     // what happens if the sum of these heights is not equal to the window height?
 
     // the size of the controls at the bottom for sufficiently high screens
-    let controlImageHeight = controlTargetHeightFraction * window.innerHeight;
+    let controlImageHeight = controlTargetHeightFraction * window.innerWidth;
 
     // adjusting the maximum height for the output image
     let outputImageDivHeight = window.innerWidth;
@@ -370,8 +358,9 @@ function portraitFormat() {
     let controlImageWidth = controlImageWidthFraction * window.innerWidth;
     // layout: control image at top close to space for output image
     Make.controlImage.setDimensions(controlImageWidth, controlImageHeight);
-    Make.controlImage.setPosition(window.innerWidth - controlImageWidth, window.innerheight - controlImageHeight);
+    Make.controlImage.setPosition(0, outputImageDivHeight);
     Make.controlImage.centerHorizontal = false; // put controlimage to left  (should always be visible)
+    Make.controlImage.centerVertical = true;
 
     // make the arrow controller as large as possible, using all space at right of the control image reserved area, 
     // smaller than a given fraction of control height
@@ -383,9 +372,24 @@ function portraitFormat() {
     // the text UI control div
 
     let textMaxWidth = textMaxWidthFraction * window.innerWidth;
-    DOM.style("#text", "maxWidth", textMaxWidth + px, "height", controlImageHeight + px);
-    DOM.style("#text", "width", "initial"); // overwrite width property set by landscape format layout
+    DOM.style("#text", "maxWidth", textMaxWidth + px, "height", controlImageHeight + px, "width", "initial");
 
+}
+
+// make layout depending on orientation
+
+function layout() {
+    // fontsize varies with window
+    const fontsizeToWindow = 0.028;
+
+    // set the font size, depending on the smaller window dimension
+    let fontSize = fontsizeToWindow * Math.min(window.innerWidth, window.innerHeight);
+    adjustFont(fontSize);
+    if (window.innerHeight > window.innerWidth) {
+        portraitFormat();
+    } else {
+        landscapeFormat();
+    }
 }
 
 
@@ -397,7 +401,7 @@ window.onload = function() {
     console.log("onload");
 
     creation();
-    landscapeFormat();
+    layout();
     // independent of layout
     Make.arrowController.drawOrientation();
     // fit output image into the surrounding div
@@ -424,10 +428,8 @@ window.onresize = function() {
     const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
     console.log("outputImage was inside");
 
-    portraitFormat();
+    layout();
 
-
-    landscapeFormat();
 
     // redraw the arrowController if its size changes
     if (oldArrowControllerSize !== Make.arrowController.size) {
@@ -442,6 +444,8 @@ window.onresize = function() {
 
     if (updateControlImage) {
         Make.controlImage.loadInputImage(Make.inputImage);
+    } else {
+        Make.controlImage.place();
     }
 
     // determine the new output image size

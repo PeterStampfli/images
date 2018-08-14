@@ -95,6 +95,7 @@ function ControlImage(idName, isVisible = true) {
      * @param {float} limitTop - limit for the top side
      */
     ControlImage.prototype.setPosition = function(limitLeft, limitTop) {
+        console.log("controlimage pos " + limitLeft + " " + limitTop);
         this.limitLeft = limitLeft;
         this.limitTop = limitTop;
     };
@@ -124,6 +125,23 @@ function ControlImage(idName, isVisible = true) {
     };
 
     /**
+     * adjust the position of the controlimage
+     * @method ControlImage#place
+     */
+    ControlImage.prototype.place = function() {
+        let left = this.limitLeft;
+        let top = this.limitTop;
+        if (this.centerHorizontal) {
+            left += 0.5 * (this.maxWidth - this.pixelCanvas.width);
+        }
+        if (this.centerVertical) {
+            top += 0.5 * (this.maxHeight - this.pixelCanvas.height);
+        }
+        DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+        DOM.style("#" + this.idName, "display", "initial");
+    };
+
+    /**
      * attach an input image PIXELCANVAS (call always after reading a new one), resizes, loads image
      * @method ControlImage#loadInputImage
      * @param {PixelCanvas} inputImage - the input image
@@ -138,22 +156,18 @@ function ControlImage(idName, isVisible = true) {
         }
         let trueWidth = inputImage.width * this.controlDivInputSize;
         let trueHeight = inputImage.height * this.controlDivInputSize;
+        // change controlDivInputSize        
+        this.pixelCanvas.setSize(trueWidth, trueHeight);
+
         // adjust position if it is visible
         if (this.isVisible) {
-            let left = this.limitLeft;
-            let top = this.limitTop;
-            if (this.centerHorizontal) {
-                left += 0.5 * (this.maxWidth - trueWidth);
-            }
-            if (this.centerVertical) {
-                top += 0.5 * (this.maxHeight - trueHeight);
-            }
-            DOM.style("#" + this.idName, "left", left + px, "top", top + px);
-            DOM.style("#" + this.idName, "display", "initial");
+
+            this.place();
+
         }
-        this.pixelCanvas.setSize(trueWidth, trueHeight);
         this.pixelCanvas.canvasContext.drawImage(inputImage.canvas, 0, 0, this.pixelCanvas.width, this.pixelCanvas.height);
         this.pixelCanvas.createPixel();
+
     };
 
     /**

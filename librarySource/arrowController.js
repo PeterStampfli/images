@@ -17,9 +17,10 @@ function ArrowController(idName, isVisible = true) {
     if (this.isVisible >= 0) { // visible as position fixed
         DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
         DOM.style("#" + this.idName, "cursor", "pointer");
-    } else {
-        DOM.style("#" + this.idName, "display", "none");
     }
+    // invisible until image loaded and if it is visible
+    DOM.style("#" + this.idName, "display", "none");
+
 
     // setting the scale and origin (only of context) for easy drawing independent of size
 
@@ -147,13 +148,22 @@ function ArrowController(idName, isVisible = true) {
      * @param{float} size
      */
     ArrowController.prototype.setSize = function(size) {
-        console.log(size);
         size = Math.round(size);
         if (size != this.size) {
             this.size = size;
             this.pixelCanvas.setSize(size, size); // don't need no pixels
             this.pixelCanvas.canvasContext.scale(size / 2, size / 2);
             this.pixelCanvas.canvasContext.translate(1, 1);
+        }
+    };
+
+    /**
+     * show the arrowcontroller (if visible)
+     * @method ArrowController#show
+     */
+    ArrowController.prototype.show = function() {
+        if (this.isVisible) {
+            DOM.style("#" + this.idName, "display", "initial");
         }
     };
 

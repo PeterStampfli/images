@@ -465,6 +465,7 @@ var Make = {};
         }
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
+        Make.arrowController.show();
         if (!Make.map.exists) {
             console.log("*** Make.readImage: map does not exist !");
             return;
