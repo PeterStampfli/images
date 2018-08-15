@@ -43,31 +43,7 @@ function ArrowController(idName, isVisible = true) {
 
     // access to this in callbacks
     const arrowController = this;
-    // the center of the scanned pixels
-    const inputCenter = new Vector2();
 
-
-    // change scale and angle of input transform with an events object, that has x,y,lastX and lastY fields
-    function changeScaleAngle(events) {
-        let radius = arrowController.pixelCanvas.canvas.width / 2;
-        // coordinates relative to the center of the image
-        let relX = events.x - radius;
-        let relY = events.y - radius;
-        let lastRelX = events.lastX - radius;
-        let lastRelY = events.lastY - radius;
-        let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
-        // distance to center of arrow controller
-        let distance = Math.hypot(relX, relY);
-        let lastDistance = Math.hypot(lastRelX, lastRelY);
-        let reductionFactor = 1;
-        let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
-        arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
-        inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
-        arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
-        arrowController.linearTransform.changeScaleFixPoint(scaleFactor, inputCenter.x, inputCenter.y);
-        arrowController.drawOrientation();
-        arrowController.action();
-    }
 
 
 
@@ -86,7 +62,7 @@ function ArrowController(idName, isVisible = true) {
         // restrict on the circle shape
         this.mouseEvents.dragAction = function(mouseEvents) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-                changeScaleAngle(mouseEvents);
+                arrowController.changeScaleAngle(mouseEvents);
             } else {
                 mouseEvents.pressed = false;
             }
@@ -97,16 +73,9 @@ function ArrowController(idName, isVisible = true) {
          * changeAngle calls arrowController.action
          */
         this.mouseEvents.wheelAction = function(mouseEvents) {
-            var deltaAngle = 0.05;
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-                if (mouseEvents.wheelDelta > 0) {
-                    deltaAngle *= -1;
-                }
-                arrowController.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
-                inputCenter.scale(1.0 / arrowController.controlImage.controlDivInputSize);
-                arrowController.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
-                arrowController.drawOrientation();
-                arrowController.action();
+
+                arrowController.changeAngleOnWheel(mouseEvents);
             }
         };
 
@@ -115,12 +84,10 @@ function ArrowController(idName, isVisible = true) {
             return arrowController.isOnDisc(singleTouch.x, singleTouch.y);
         };
 
-        // touch can rotate and scale
+        // touch can rotate and scale, only single touch
         this.touchEvents.moveAction = function(touchEvents) {
             if (touchEvents.touches.length === 1) {
-                changeScaleAngle(touchEvents);
-            } else if (touchEvents.touches.length === 2) {
-
+                arrowController.changeScaleAngle(touchEvents);
             }
         };
     }
@@ -222,6 +189,59 @@ function ArrowController(idName, isVisible = true) {
     ArrowController.prototype.isOnDisc = function(x, y) {
         var radius = this.pixelCanvas.width / 2;
         return ((x - radius) * (x - radius) + (y - radius) * (y - radius)) < radius * radius;
+    };
+
+    // the center of the scanned pixels
+    const inputCenter = new Vector2();
+
+
+    /**
+     * change angle of input transform depending on wheel data of mouse events
+     * @method ArrowController#changeAngleOnWheel
+     * @param {MouseEvents} mouseEvents
+     */
+    ArrowController.prototype.changeAngleOnWheel = function(mouseEvents) {
+
+        var deltaAngle = 0.05;
+        if (mouseEvents.wheelDelta > 0) {
+            deltaAngle *= -1;
+        }
+        this.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
+        inputCenter.scale(1.0 / this.controlImage.controlDivInputSize);
+        this.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
+        this.drawOrientation();
+        this.action();
+    };
+
+
+
+
+
+    /**
+     * change scale and angle of input transform according to an events object, that has x,y,lastX and lastY fields
+     * @method ArrowController#changeScaleAngle
+     * @param {event} events
+     */
+
+    ArrowController.prototype.changeScaleAngle = function(events) {
+        let radius = this.pixelCanvas.canvas.width / 2;
+        // coordinates relative to the center of the image
+        let relX = events.x - radius;
+        let relY = events.y - radius;
+        let lastRelX = events.lastX - radius;
+        let lastRelY = events.lastY - radius;
+        let deltaAngle = Fast.atan2(relY, relX) - Fast.atan2(lastRelY, lastRelX);
+        // distance to center of arrow controller
+        let distance = Math.hypot(relX, relY);
+        let lastDistance = Math.hypot(lastRelX, lastRelY);
+        let reductionFactor = 1;
+        let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
+        this.controlImage.pixelCanvas.centerOfOpaque(inputCenter);
+        inputCenter.scale(1.0 / this.controlImage.controlDivInputSize);
+        this.linearTransform.changeAngleFixPoint(deltaAngle, inputCenter.x, inputCenter.y);
+        this.linearTransform.changeScaleFixPoint(scaleFactor, inputCenter.x, inputCenter.y);
+        this.drawOrientation();
+        this.action();
     };
 
 }());

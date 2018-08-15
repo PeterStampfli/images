@@ -38,6 +38,15 @@ function OutputImage(idName) {
      */
     this.action = function() {};
 
+    /**
+     * what to do if mouse or touch moves, change this to change touch and mouse behaviour
+     * @method OutputImage#move
+     * @param {Event} events - with dx and dy
+     */
+    this.move = function(events) {
+        this.shift(events.dx, events.dy);
+    };
+
     const outputImage = this;
 
     // mouse wheel changes scale
@@ -54,23 +63,13 @@ function OutputImage(idName) {
 
     // mouse move shifts image
     this.mouseEvents.dragAction = function(mouseEvents) {
-        if (outputImage.canMove) {
-            outputImage.cornerX -= mouseEvents.dx * outputImage.scale;
-            outputImage.cornerY -= mouseEvents.dy * outputImage.scale;
-            outputImage.adjustCanvasTransform();
-            outputImage.action();
-        }
+        outputImage.move(mouseEvents);
     };
 
     // touch can move and scale
     this.touchEvents.moveAction = function(touchEvents) {
         if (touchEvents.touches.length === 1) {
-            if (outputImage.canMove) {
-                outputImage.cornerX -= touchEvents.dx * outputImage.scale;
-                outputImage.cornerY -= touchEvents.dy * outputImage.scale;
-                outputImage.adjustCanvasTransform();
-                outputImage.action();
-            }
+            outputImage.move(touchEvents);
         } else if (touchEvents.touches.length === 2) {
 
         }
@@ -234,17 +233,18 @@ function OutputImage(idName) {
     };
 
     /**
-     * zoom with given factor to/from given point (mouse position) as center
-     * @method OutputImage#zoom
-     * @param {float} factor - zoom factor
-     * @param {float} x - coordinate of zooming center
-     * @param {float} y - coordinate of zooming center
+     * move the image with data given by mouse or touch events
+     * @method OutputImage.prototype.shift
+     * @param {float} dx
+     * @param {float} dy
      */
-    OutputImage.prototype.zoom = function(factor, x, y) {
-        this.cornerX += this.scale * (1 - factor) * x;
-        this.cornerY += this.scale * (1 - factor) * y;
-        this.scale *= factor;
-        this.adjustCanvasTransform();
+    OutputImage.prototype.shift = function(dx, dy) {
+        if (this.canMove) {
+            this.cornerX -= dx * this.scale;
+            this.cornerY -= dy * this.scale;
+            this.adjustCanvasTransform();
+            this.action();
+        }
     };
 
     /**
@@ -253,6 +253,23 @@ function OutputImage(idName) {
      */
     OutputImage.prototype.stopZoom = function() {
         this.canZoom = false;
+    };
+
+
+    /**
+     * zoom with given factor to/from given point (mouse position) as center
+     * @method OutputImage#zoom
+     * @param {float} factor - zoom factor
+     * @param {float} x - coordinate of zooming center
+     * @param {float} y - coordinate of zooming center
+     */
+    OutputImage.prototype.zoom = function(factor, x, y) {
+        if (this.canZoom) {
+            this.cornerX += this.scale * (1 - factor) * x;
+            this.cornerY += this.scale * (1 - factor) * y;
+            this.scale *= factor;
+            this.adjustCanvasTransform();
+        }
     };
 
     /**
