@@ -184,7 +184,7 @@ function ArrowController(idName, isVisible = true) {
     ArrowController.prototype.showArea = function() {
         let id = "border" + this.idName;
         DOM.create("div", id, "body", "area for " + this.idName);
-        DOM.style("#" + id, "zIndex", "3");
+        DOM.style("#" + id, "zIndex", "20");
         DOM.style("#" + id, "backgroundColor", "rgba(100,150,255,0.3)", "color", "blue");
         DOM.style("#" + id, "position", "fixed", "left", this.left + px, "top", this.top + px);
         DOM.style("#" + id, "width", this.size + px, "height", this.size + px);

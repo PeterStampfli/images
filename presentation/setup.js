@@ -10,7 +10,9 @@ let windowHeight = window.innerHeight;
 let basicLength = Math.round(sizeFraction * window.innerWidth);
 let outputSize = Math.min(basicLength, windowHeight - 3 * Layout.basicFontSize);
 
-Make.createOutputImage("outputCanvas", outputSize, outputSize, 0.5 * (basicLength - outputSize), 3 * Layout.basicFontSize);
+Make.createOutputImage("outputCanvas");
+Make.outputImage.setDivDimensions(outputSize, outputSize); // 0.5 * (basicLength - outputSize));
+Make.outputImage.setDivPosition(0, 3 * Layout.basicFontSize);
 
 DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
@@ -18,11 +20,16 @@ DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 controlCanvasSize = windowWidth * sizeFraction;
 let controlImageTop = 3 * Layout.basicFontSize;
 let controlImageHeight = 0.65 * windowHeight - controlImageTop;
-Make.createControlImage("controlCanvas", basicLength, controlImageHeight, windowWidth - basicLength, controlImageTop);
+Make.createControlImage("controlCanvas");
+Make.controlImage.setDimensions(basicLength, controlImageHeight);
+Make.controlImage.setPosition(windowWidth - basicLength, controlImageTop);
 
 let arrowControllerSize = Math.floor(windowHeight / 4);
 
-Make.createArrowController("arrowController", arrowControllerSize, windowWidth - 0.5 * (controlCanvasSize + arrowControllerSize), 0.5 * (windowHeight + controlImageTop + controlImageHeight - arrowControllerSize));
+Make.createArrowController("arrowController", true);
+Make.arrowController.setPosition(windowWidth - 0.5 * (controlCanvasSize + arrowControllerSize), 0.5 * (windowHeight + controlImageTop + controlImageHeight - arrowControllerSize));
+Make.arrowController.setSize(arrowControllerSize);
+Make.arrowController.drawOrientation();
 
 DOM.style("#outputCanvas", "cursor", "pointer");
 
@@ -32,7 +39,9 @@ Make.createMap();
 Make.imageQuality = "high";
 
 
-text = new BigDiv("text", windowWidth - 2 * basicLength, window.innerHeight, basicLength);
+text = new BigDiv("text");
+text.setDimensions(windowWidth - 2 * basicLength, window.innerHeight);
+text.setPosition(basicLength, 0);
 
 DOM.style("#topRight", "right", 0 + px);
 

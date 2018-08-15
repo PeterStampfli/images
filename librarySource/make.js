@@ -137,7 +137,7 @@ var Make = {};
      * @param {boolean} is visible - default true
      */
     Make.createControlImage = function(idName, isVisible = true) {
-        Make.controlImage = new ControlImage(idName);
+        Make.controlImage = new ControlImage(idName, isVisible);
         Make.controlImage.linearTransform = Make.inputTransform;
         Make.controlImage.action = Make.updateOutputImageIfUsingInputImage; // update output image after mouse interaction only if we see an image and not the structure
     };

@@ -4,7 +4,10 @@
 
 Layout.setup("rosette.html", "circleInversion.html");
 
-Make.createOutputImage("outputCanvas", window.innerHeight);
+Make.createOutputImage("outputCanvas");
+Make.outputImage.setDivDimensions(window.innerHeight, window.innerHeight);
+Make.outputImage.setDivPosition(0, 0);
+
 Draw.setOutputImage(Make.outputImage);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
@@ -20,7 +23,9 @@ Make.setInitialOutputImageSpace(-0.25, 1, -0.25);
 Make.resetOutputImageSpace();
 
 basicKaleidoscope.intersectionMirrorXAxis = 0.6;
-text = new BigDiv("text", window.innerWidth - window.innerHeight, window.innerHeight, window.innerHeight);
+text = new BigDiv("text");
+text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
+text.setPosition(window.innerHeight, 0);
 
 
 let sum = document.getElementById("sum");
