@@ -309,7 +309,8 @@ function landscapeFormat() {
     // the text UI control div
 
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
-    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "height", "initial");
+    DOM.style("#text", "maxWidth", "initial", "width", controlWidth + px);
+    DOM.style("#text", "maxHeight", textMaxHeight + px, "height", "initial");
 
 }
 
@@ -372,7 +373,8 @@ function portraitFormat() {
     // the text UI control div
 
     let textMaxWidth = textMaxWidthFraction * window.innerWidth;
-    DOM.style("#text", "maxWidth", textMaxWidth + px, "height", controlImageHeight + px, "width", "initial");
+    DOM.style("#text", "maxWidth", textMaxWidth + px, "width", "initial");
+    DOM.style("#text", "maxHeight", "initial", "height", controlImageHeight + px);
 
 }
 

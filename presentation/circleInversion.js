@@ -72,7 +72,7 @@ Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
 
-Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+Make.outputImage.move = function(mouseEvents) {
     let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);

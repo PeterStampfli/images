@@ -86,7 +86,7 @@ Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
 
-Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+Make.outputImage.move = function(mouseEvents) {
     let nullRadius = Make.outputImage.scale * Layout.nullRadius;
     Make.updateOutputImage();
     mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
@@ -111,7 +111,14 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
     zoomCenter.setComponents(basicKaleidoscope.worldRadiusHyperbolic, 0);
     Make.outputImage.spaceToPixelCoordinates(zoomCenter);
-    Make.outputImage.positionZoom(mouseEvents, zoomCenter.x, zoomCenter.y);
+
+
+    if (mouseEvents.wheelDelta > 0) {
+        Make.outputImage.zoom(Make.outputImage.zoomFactor, zoomCenter.x, zoomCenter.y);
+    } else {
+        Make.outputImage.zoom(1 / Make.outputImage.zoomFactor, zoomCenter.x, zoomCenter.y);
+    }
+    //Make.outputImage.zoom(mouseEvents, zoomCenter.x, zoomCenter.y);
     Make.shiftScaleOutputImage();
 };
 

@@ -11,6 +11,7 @@ Make.outputImage.setDivPosition(0, 0);
 Draw.setOutputImage(Make.outputImage);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
+Make.outputImage.move = function() {};
 DOM.style("#outputCanvas", "cursor", "default");
 
 Make.createMap();

@@ -6,7 +6,7 @@ Layout.activateFontSizeChangesButtons();
 
 Make.createOutputImage("outputCanvas");
 Make.outputImage.setDivPosition(0, 0);
-Make.outputImage.setDivDimensions(window.innerHeight);
+Make.outputImage.setDivDimensions(window.innerHeight, window.innerHeight);
 Make.outputImage.stopZoom();
 Make.outputImage.stopShift();
 DOM.style("#outputCanvas", "cursor", "default");

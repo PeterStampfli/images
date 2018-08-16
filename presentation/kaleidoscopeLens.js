@@ -108,7 +108,7 @@ Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
     Make.outputImage.mouseEvents.dragAction(mouseEvents);
 };
 
-Make.outputImage.mouseEvents.dragAction = function(mouseEvents) {
+Make.outputImage.move = function(mouseEvents) {
 
     center.setComponents(mouseEvents.x, mouseEvents.y);
     lens.setCenter(center);

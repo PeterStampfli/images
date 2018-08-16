@@ -45,6 +45,8 @@ function OutputImage(idName) {
      */
     this.move = function(events) {
         this.shift(events.dx, events.dy);
+        this.adjustCanvasTransform();
+        this.action();
     };
 
     const outputImage = this;
@@ -242,8 +244,6 @@ function OutputImage(idName) {
         if (this.canMove) {
             this.cornerX -= dx * this.scale;
             this.cornerY -= dy * this.scale;
-            this.adjustCanvasTransform();
-            this.action();
         }
     };
 

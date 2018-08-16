@@ -138,7 +138,6 @@ function ControlImage(idName, isVisible = true) {
             top += 0.5 * (this.maxHeight - this.pixelCanvas.height);
         }
         DOM.style("#" + this.idName, "left", left + px, "top", top + px);
-        DOM.style("#" + this.idName, "display", "initial");
     };
 
     /**
@@ -163,6 +162,8 @@ function ControlImage(idName, isVisible = true) {
         if (this.isVisible) {
 
             this.place();
+            DOM.style("#" + this.idName, "display", "initial");
+
 
         }
         this.pixelCanvas.canvasContext.drawImage(inputImage.canvas, 0, 0, this.pixelCanvas.width, this.pixelCanvas.height);
