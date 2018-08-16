@@ -143,7 +143,7 @@ var Make = {};
     };
 
     /**
-     * create the arrowController object
+     * create the arrowController object, create control image before !!!
      * @method Make.createArrowController
      * @param {String} idName - html identifier
      * @param {boolean} is visible - default true
@@ -152,6 +152,7 @@ var Make = {};
         Make.arrowController = new ArrowController(idName, isVisible);
         Make.arrowController.linearTransform = Make.inputTransform;
         Make.arrowController.controlImage = Make.controlImage;
+        Make.controlImage.arrowController = Make.arrowController;
         Make.arrowController.drawOrientation();
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
     };

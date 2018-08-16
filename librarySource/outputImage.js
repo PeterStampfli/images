@@ -59,6 +59,7 @@ function OutputImage(idName) {
             } else {
                 outputImage.zoom(1 / outputImage.zoomFactor, mouseEvents.x, mouseEvents.y);
             }
+            outputImage.adjustCanvasTransform();
             outputImage.action();
         }
     };
@@ -268,7 +269,6 @@ function OutputImage(idName) {
             this.cornerX += this.scale * (1 - factor) * x;
             this.cornerY += this.scale * (1 - factor) * y;
             this.scale *= factor;
-            this.adjustCanvasTransform();
         }
     };
 

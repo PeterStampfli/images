@@ -31,6 +31,8 @@ function ControlImage(idName, isVisible = true) {
     this.semiAlpha = 128;
     this.zoomFactor = 1.05;
 
+    this.arrowController = null;
+
     // this is the linear transform for reading pixels of the input image
     // has to be set after creation
     this.linearTransform = null;
@@ -46,9 +48,7 @@ function ControlImage(idName, isVisible = true) {
 
     // changing the shift of the input image transform. events object with dx and dy fields
     function changeShift(events) {
-        controlImage.linearTransform.shiftX += events.dx / controlImage.controlDivInputSize;
-        controlImage.linearTransform.shiftY += events.dy / controlImage.controlDivInputSize;
-        controlImage.action();
+        controlImage.changeShift(events.dx, events.dy);
     }
 
 
@@ -72,12 +72,17 @@ function ControlImage(idName, isVisible = true) {
         };
 
         // mouse move shifts image
-        this.mouseEvents.dragAction = changeShift;
+        this.mouseEvents.dragAction = function(events) {
+            controlImage.changeShift(events.dx, events.dy);
+            controlImage.action();
+
+        };
 
         // touch can move, rotate and scale
         this.touchEvents.moveAction = function(touchEvents) {
             if (touchEvents.touches.length === 1) {
                 changeShift(touchEvents);
+                controlImage.action();
             } else if (touchEvents.touches.length === 2) {
 
             }
@@ -141,7 +146,7 @@ function ControlImage(idName, isVisible = true) {
     };
 
     /**
-     * attach an input image PIXELCANVAS (call always after reading a new one), resizes, loads image
+     * load an input image froma PIXELCANVAS (call always after reading a new one), resizes, loads image
      * @method ControlImage#loadInputImage
      * @param {PixelCanvas} inputImage - the input image
      */
@@ -157,14 +162,10 @@ function ControlImage(idName, isVisible = true) {
         let trueHeight = inputImage.height * this.controlDivInputSize;
         // change controlDivInputSize        
         this.pixelCanvas.setSize(trueWidth, trueHeight);
-
-        // adjust position if it is visible
+        // adjust position if it is visible, make visible
         if (this.isVisible) {
-
             this.place();
             DOM.style("#" + this.idName, "display", "initial");
-
-
         }
         this.pixelCanvas.canvasContext.drawImage(inputImage.canvas, 0, 0, this.pixelCanvas.width, this.pixelCanvas.height);
         this.pixelCanvas.createPixel();
@@ -215,6 +216,19 @@ function ControlImage(idName, isVisible = true) {
         //put the scaled map into the center
         this.linearTransform.shiftX = inputImage.width / 2 - scale * centerX;
         this.linearTransform.shiftY = inputImage.height / 2 - scale * centerY;
+    };
+
+
+    /**
+     * changing the shift of the input image transform. events object with dx and dy fields
+     * @method ControlImage#changeShift
+     * @param {float} dx
+     * @param {float} dy
+     */
+
+    ControlImage.prototype.changeShift = function(dx, dy) {
+        this.linearTransform.shiftX += dx / this.controlDivInputSize;
+        this.linearTransform.shiftY += dy / this.controlDivInputSize;
     };
 
 }());
