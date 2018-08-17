@@ -41,11 +41,13 @@ function ArrowController(idName, isVisible = true) {
      */
     this.action = function() {};
 
+    /*
+     * what to do if the mouse/touch is outside the circle
+     */
+    this.outAction = function() {};
+
     // access to this in callbacks
     const arrowController = this;
-
-
-
 
     if (this.isVisible) { //create mouse and touch events only if the image is visible
         this.mouseEvents = new MouseEvents(idName);
@@ -55,12 +57,22 @@ function ArrowController(idName, isVisible = true) {
          * adding the down action: Sets pressed to true only if mouse is on inner circle.
          */
         this.mouseEvents.downAction = function(mouseEvents) {
-            mouseEvents.pressed = arrowController.isOnDisc(mouseEvents.x, mouseEvents.y);
+            console.log("mousedownaction");
+
+            if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+                mouseEvents.pressed = true;
+            } else {
+                mouseEvents.pressed = false;
+                console.log("mouse");
+                arrowController.outAction();
+            }
         };
 
         // moving the mouse we can change the scale and rotation of the input mapping
         // restrict on the circle shape
         this.mouseEvents.dragAction = function(mouseEvents) {
+            console.log("mousedrag " + mouseEvents.x);
+
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
                 arrowController.changeScaleAngle(mouseEvents);
             } else {
@@ -79,9 +91,14 @@ function ArrowController(idName, isVisible = true) {
             }
         };
 
-        // touchstart only on the disc
-        this.touchEvents.isInsideShape = function(singleTouch) {
-            return arrowController.isOnDisc(singleTouch.x, singleTouch.y);
+        // if touch outside the circle
+        this.touchEvents.startAction = function(touchEvents) {
+            console.log("starttouchaction");
+            if (!arrowController.isOnDisc(touchEvents.x, touchEvents.y)) {
+                console.log("out");
+                arrowController.touchEvents.deleteAllTouches();
+                arrowController.outAction();
+            }
         };
 
         // touch can rotate and scale, only single touch

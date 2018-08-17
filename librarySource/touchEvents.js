@@ -82,26 +82,18 @@ function TouchEvents(idName) {
     var touchEvents = this;
 
 
-    /**
-     * check if a single touch is inside a shape 
-     * such as a complicated shape inside the canvases
-     * add touch to list only if inside the shape
-     * default: shape is same as the html-element
-     * @method TouchEvents#isInsideShape
-     * @param {SingleTouch} singleTouch
-     * @return true if inside
-     */
-    this.isInsideShape = function(singleTouch) {
-        return true;
-    };
 
     // attention: browser reuses identifiers of touches that ended or cancelled
     // if there is only one touch, as in touch emulation, its identifier==0 always
 
     // start: add new touches to list, update touchEvents data, no action (waiting for touchMove)
     // add new touch only if its target is the element and it is inside the shape
+
+    // if there is a touch outside the shape, the client has to handle this
     function startHandler(event) {
+        console.log("starttouch");
         MouseAndTouch.preventDefault(event);
+        console.log("??");
         if (touchEvents.isActive) {
             const changedTouches = event.changedTouches;
             const length = changedTouches.length;
@@ -110,9 +102,7 @@ function TouchEvents(idName) {
                 touch = changedTouches[i];
                 if (touch.target == touchEvents.element) {
                     const singleTouch = new SingleTouch(touch);
-                    if (touchEvents.isInsideShape(singleTouch)) {
-                        touchEvents.touches.push(singleTouch);
-                    }
+                    touchEvents.touches.push(singleTouch);
                 }
             }
             // double touch simulation: new touch added in position 1 with position data
@@ -160,7 +150,7 @@ function TouchEvents(idName) {
         }
     }
 
-    // delete touches
+    // delete touches that ended
     function deleteTouches(event) {
         const changedTouches = event.changedTouches;
         const length = changedTouches.length;
@@ -217,12 +207,20 @@ function TouchEvents(idName) {
     TouchEvents.log = false;
 
     /**
-     * switch mouse events on or off 
-     * @method MouseEvents.setIsActive
+     * switch touch events on or off 
+     * @method TouchEvents.setIsActive
      * @param {boolean} on - if false there will be no mouse events
      */
     TouchEvents.prototype.setIsActive = function(on) {
         this.isActive = on;
+    };
+
+    /**
+     * delete all touches
+     * @method TouchEvents#deleteAllTouches
+     */
+    TouchEvents.prototype.deleteAllTouches = function() {
+        this.touches.length = 0;
     };
 
     /**

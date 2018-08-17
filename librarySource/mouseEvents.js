@@ -16,6 +16,8 @@ var MouseAndTouch = {};
      */
     MouseAndTouch.preventDefault = function(event) {
         event.preventDefault();
+        event.stopPropagation();
+        console.log("prevent default");
     };
 
     var body = document.getElementsByTagName("body")[0];
@@ -85,8 +87,10 @@ function MouseEvents(idName) {
     // so it is not necessary to use this.element.addEventListener("...",script)
 
     this.element.onmousedown = function(event) {
+        console.log("mousedown");
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
+            console.log("prevented?");
             mouseEvents.update(event);
             mouseEvents.pressed = true;
             mouseEvents.downAction(mouseEvents);
@@ -125,6 +129,7 @@ function MouseEvents(idName) {
 
     this.element.onmousemove = function(event) {
         MouseAndTouch.preventDefault(event);
+        console.log("****************3mousemove");
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {

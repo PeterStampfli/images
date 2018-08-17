@@ -51,6 +51,8 @@ function PixelCanvas(idName) {
         this.canvas.style.display = "none";
         document.querySelector("body").appendChild(this.canvas);
     }
+
+
     this.canvasContext = this.canvas.getContext('2d');
     this.imageData = null;
     this.pixel = null;

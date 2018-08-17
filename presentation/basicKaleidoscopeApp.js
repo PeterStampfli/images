@@ -45,9 +45,10 @@ function creation() {
 
     DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
 
+    const text = document.getElementById("text");
 
-
-    document.getElementById("text").onclick = function() {
+    text.onclick = function() {
+        console.log("text click");
         DOM.style("#text", "zIndex", "11");
     };
 
@@ -55,6 +56,14 @@ function creation() {
         DOM.style("#text", "zIndex", "9");
     };
 
+    Make.controlImage.touchEvents.startAction = function() {
+        DOM.style("#text", "zIndex", "9");
+    };
+
+    Make.arrowController.outAction = function() {
+        console.log("outaction");
+        text.click();
+    };
 
 
     //=====================================================================================
