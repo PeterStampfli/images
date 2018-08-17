@@ -100,7 +100,6 @@ function ControlImage(idName, isVisible = true) {
      * @param {float} limitTop - limit for the top side
      */
     ControlImage.prototype.setPosition = function(limitLeft, limitTop) {
-        console.log("controlimage pos " + limitLeft + " " + limitTop);
         this.limitLeft = limitLeft;
         this.limitTop = limitTop;
     };

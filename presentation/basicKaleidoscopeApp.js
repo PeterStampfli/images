@@ -13,6 +13,8 @@ function creation() {
     //=================================================================================
     const backgroundColor = "#888888";
     const textBackgroundColor = "#eeeeee";
+    const outputImageBackgroundColor = "#666666";
+    const controlImageBackgroundColor = "white";
     const px = "px";
 
     // some styling, body already exists 
@@ -34,7 +36,8 @@ function creation() {
     Make.createArrowController("arrowController", true);
     Make.arrowController.backGroundColor = "#444444";
     Make.arrowController.arrowColor = "#ffffff";
-    DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
+    DOM.style("#outputCanvas", "backgroundColor", outputImageBackgroundColor);
+    DOM.style("#controlCanvas", "backgroundColor", controlImageBackgroundColor);
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
     activateControls(false);
@@ -48,7 +51,6 @@ function creation() {
     const text = document.getElementById("text");
 
     text.onclick = function() {
-        console.log("text click");
         DOM.style("#text", "zIndex", "11");
     };
 
@@ -61,7 +63,6 @@ function creation() {
     };
 
     Make.arrowController.outAction = function() {
-        console.log("outaction");
         text.click();
     };
 
@@ -305,7 +306,7 @@ function landscapeFormat() {
     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
     // layout: control image at top close to space for output image
     Make.controlImage.setDimensions(controlWidth, controlImageHeight);
-    Make.controlImage.setPosition(outputImageDivWidth, 0);
+    Make.controlImage.setPosition(outputImageDivWidth, 0); // limits
     Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
     Make.controlImage.centerHorizontal = true;
 
@@ -409,8 +410,6 @@ function layout() {
 
 window.onload = function() {
     "use strict";
-    console.log("onload");
-
     creation();
     layout();
     // independent of layout
@@ -428,7 +427,6 @@ window.onload = function() {
 
 window.onresize = function() {
     "use strict";
-    console.log("start resize");
     // get old sizes, see if they change -> need redraw
     const oldArrowControllerSize = Make.arrowController.size;
     // we have square images
@@ -437,26 +435,25 @@ window.onresize = function() {
     const oldControlImageMaxHeight = Make.controlImage.maxHeight;
     // check if the output image is inside its div -> resize upon change to fill the div 
     const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
-    console.log("outputImage was inside");
 
     layout();
 
-
     // redraw the arrowController if its size changes
     if (oldArrowControllerSize !== Make.arrowController.size) {
-        console.log("redraw arrowcontroller");
         Make.arrowController.drawOrientation();
     }
 
-    // do we have to reload the input image into the control image?
-    // input image has to exist and the limits have changed
-    const updateControlImage = Make.inputImageExists && ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
-    console.log("update control " + updateControlImage);
+    if (Make.inputImageExists) {
+        // do we have to reload the input image into the control image?
+        // input image has to exist and the limits have changed
+        // else we only need to place it in its new position
+        const updateControlImage = ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
 
-    if (updateControlImage) {
-        Make.controlImage.loadInputImage(Make.inputImage);
-    } else {
-        Make.controlImage.place();
+        if (updateControlImage) {
+            Make.controlImage.loadInputImage(Make.inputImage); // places the image too
+        } else {
+            Make.controlImage.place();
+        }
     }
 
     // determine the new output image size
@@ -483,8 +480,4 @@ window.onresize = function() {
         Make.outputImage.place();
         Make.updateOutputImageIfUsingInputImage();
     }
-
-
-
-    console.log("end resize");
 };

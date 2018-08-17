@@ -17,9 +17,9 @@ var MouseAndTouch = {};
     MouseAndTouch.preventDefault = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        console.log("prevent default");
     };
 
+    // search for parent nodes until we get at the "body" node
     var body = document.getElementsByTagName("body")[0];
 
     /**
@@ -54,7 +54,6 @@ var MouseAndTouch = {};
  * @param {String} idName - of the HTML element
  */
 
-
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
     // switch events off or on, default is on, switching from outside (eg presentation)
@@ -87,10 +86,8 @@ function MouseEvents(idName) {
     // so it is not necessary to use this.element.addEventListener("...",script)
 
     this.element.onmousedown = function(event) {
-        console.log("mousedown");
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
-            console.log("prevented?");
             mouseEvents.update(event);
             mouseEvents.pressed = true;
             mouseEvents.downAction(mouseEvents);
@@ -129,7 +126,6 @@ function MouseEvents(idName) {
 
     this.element.onmousemove = function(event) {
         MouseAndTouch.preventDefault(event);
-        console.log("****************3mousemove");
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {

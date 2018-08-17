@@ -77,12 +77,8 @@ function TouchEvents(idName) {
     this.element.addEventListener("touchmove", moveHandler, false);
     this.element.addEventListener("touchend", endHandler, false);
     this.element.addEventListener("touchcancel", cancelHandler, false);
-    console.log("eventhandlers");
 
     var touchEvents = this;
-
-
-
     // attention: browser reuses identifiers of touches that ended or cancelled
     // if there is only one touch, as in touch emulation, its identifier==0 always
 
@@ -91,9 +87,7 @@ function TouchEvents(idName) {
 
     // if there is a touch outside the shape, the client has to handle this
     function startHandler(event) {
-        console.log("starttouch");
         MouseAndTouch.preventDefault(event);
-        console.log("??");
         if (touchEvents.isActive) {
             const changedTouches = event.changedTouches;
             const length = changedTouches.length;
