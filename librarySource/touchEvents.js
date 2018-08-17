@@ -99,11 +99,10 @@ function TouchEvents(idName) {
                     touchEvents.touches.push(singleTouch);
                 }
             }
-            // double touch simulation: new touch added in position 1 with position data
-            // for both touches
+            // double touch simulation: new touch added in position 1 
             if (TouchEvents.doubleTouchDebug && (touchEvents.touches.length == 2)) {
-                touchEvents.touches[0].x = touchEvents.touches[1].x;
-                touchEvents.touches[0].y = touchEvents.touches[1].y;
+                // touchEvents.touches[0].x = touchEvents.touches[1].x;
+                //  touchEvents.touches[0].y = touchEvents.touches[1].y;
             }
             touchEvents.update();
             touchEvents.setLast();
@@ -219,12 +218,13 @@ function TouchEvents(idName) {
 
     /**
      * find index of a touch in the touches list using identifier
+     * counting down for tests with same ids
      * @method TouchEvents#findIndex
      * @param {Touch} touch - with touch.identifier field
      * @return integer index >=0 if found, -1 if not found
      */
     TouchEvents.prototype.findIndex = function(touch) {
-        for (var i = 0; i < this.touches.length; i++) {
+        for (var i = this.touches.length - 1; i >= 0; i--) {
             if (touch.identifier == this.touches[i].identifier) {
                 return i;
             }

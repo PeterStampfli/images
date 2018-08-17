@@ -69,11 +69,16 @@ function OutputImage(idName) {
         outputImage.move(mouseEvents);
     };
 
-    // touch can move and scale
+    // touch can move and scale, single touch move does same as mouse move
     this.touchEvents.moveAction = function(touchEvents) {
         if (touchEvents.touches.length === 1) {
             outputImage.move(touchEvents);
         } else if (touchEvents.touches.length === 2) {
+            outputImage.zoom(touchEvents.lastDistance / touchEvents.distance, touchEvents.centerX, touchEvents.centerY);
+
+            outputImage.adjustCanvasTransform();
+            outputImage.action();
+
 
         }
     };
@@ -165,7 +170,6 @@ function OutputImage(idName) {
      * @param {String} shape
      */
     OutputImage.prototype.setCursorStyle = function(shape) {
-        console.log("cursor " + shape);
         this.pixelCanvas.canvas.style.cursor = shape;
     };
 
