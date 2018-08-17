@@ -129,7 +129,7 @@ function ControlImage(idName, isVisible = true) {
     };
 
     /**
-     * adjust the position of the controlimage
+     * adjust the position of the controlimage and the arrowcontroller
      * @method ControlImage#place
      */
     ControlImage.prototype.place = function() {
@@ -142,6 +142,10 @@ function ControlImage(idName, isVisible = true) {
             top += 0.5 * (this.maxHeight - this.pixelCanvas.height);
         }
         DOM.style("#" + this.idName, "left", left + px, "top", top + px);
+        // an input image exists ...
+        if (this.arrowController != null) {
+            this.arrowController.place();
+        }
     };
 
     /**

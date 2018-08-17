@@ -28,6 +28,12 @@ function ArrowController(idName, isVisible = true) {
     this.backGroundColor = "#777777";
     this.arrowColor = "#ffffff";
 
+    /**
+     * place and size the arrow controller, depends on app/layout
+     * @method ArrowController.place
+     */
+    this.place = function() {};
+
     //
     this.controlImage = null;
 
@@ -120,6 +126,7 @@ function ArrowController(idName, isVisible = true) {
 
     /**
      * set the size of the arrow controler, and the context transform for drawing
+     *  and do the drawing
      * only if size really changes
      * @method ArrowController#setSize
      * @param{float} size
@@ -131,8 +138,10 @@ function ArrowController(idName, isVisible = true) {
             this.pixelCanvas.setSize(size, size); // don't need no pixels
             this.pixelCanvas.canvasContext.scale(size / 2, size / 2);
             this.pixelCanvas.canvasContext.translate(1, 1);
+            this.drawOrientation();
         }
     };
+
 
     /**
      * show the arrowcontroller (if visible)

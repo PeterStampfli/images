@@ -66,6 +66,21 @@ function creation() {
         text.click();
     };
 
+    // special layout dependent method for placing arrowController
+    Make.arrowController.place = function() {
+        if (window.innerWidth > window.innerHeight) {
+            let controlImageHeight = Make.controlImage.pixelCanvas.height;
+            let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, Make.controlImage.maxWidth)) - 1;
+            Make.arrowController.setSize(arrowControlSize);
+            Make.controlImage.arrowController.setPosition(Make.controlImage.limitLeft + 0.5 * (Make.controlImage.maxWidth - arrowControlSize), controlImageHeight);
+        } else {
+            let controlImageWidth = Make.controlImage.pixelCanvas.width;
+            let arrowControlSize = Math.floor(Math.min(window.innerWidth - controlImageWidth, Make.controlImage.maxHeight)) - 1;
+            Make.arrowController.setSize(arrowControlSize);
+            Make.controlImage.arrowController.setPosition(controlImageWidth, Make.controlImage.limitTop + 0.5 * (Make.controlImage.maxHeight - arrowControlSize));
+        }
+    };
+
 
     //=====================================================================================
     // functions for the UI elements
@@ -310,11 +325,7 @@ function landscapeFormat() {
     Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
     Make.controlImage.centerHorizontal = true;
 
-    // make the arrow controller as large as possible, using all space below the control image reserved area, 
-    // smaller than a given fraction of conrol width
-    let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, arrowControlWidthLimitFraction * controlWidth)) - 1;
-    Make.arrowController.setPosition(outputImageDivWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
-    Make.arrowController.setSize(arrowControlSize);
+
 
     // the text UI control div
 
@@ -336,8 +347,7 @@ function portraitFormat() {
     const controlTargetHeightFraction = 0.8;
     // ratio between width of control image and window width
     const controlImageWidthFraction = 0.65;
-    // for the maximum size of the arrow controler to control height
-    const arrowControlHeightLimitFraction = 0.75;
+
     // for the max width of the text area vs Window width
     const textMaxWidthFraction = 0.75;
 
@@ -373,12 +383,7 @@ function portraitFormat() {
     Make.controlImage.centerHorizontal = false; // put controlimage to left  (should always be visible)
     Make.controlImage.centerVertical = true;
 
-    // make the arrow controller as large as possible, using all space at right of the control image reserved area, 
-    // smaller than a given fraction of control height
-    let arrowControlSize = Math.floor(Math.min(window.innerWidth - controlImageWidth, arrowControlHeightLimitFraction * controlImageHeight)) - 1;
 
-    Make.arrowController.setPosition(controlImageWidth, outputImageDivHeight + 0.5 * (controlImageHeight - arrowControlSize));
-    Make.arrowController.setSize(arrowControlSize);
 
     // the text UI control div
 
@@ -397,7 +402,7 @@ function layout() {
     // set the font size, depending on the smaller window dimension
     let fontSize = fontsizeToWindow * Math.min(window.innerWidth, window.innerHeight);
     adjustFont(fontSize);
-    if (window.innerHeight > window.innerWidth) {
+    if (window.innerHeight >= window.innerWidth) {
         portraitFormat();
     } else {
         landscapeFormat();
@@ -428,7 +433,6 @@ window.onload = function() {
 window.onresize = function() {
     "use strict";
     // get old sizes, see if they change -> need redraw
-    const oldArrowControllerSize = Make.arrowController.size;
     // we have square images
     const oldOutputImageSize = Make.outputImage.pixelCanvas.width;
     const oldControlImageMaxWidth = Make.controlImage.maxWidth;
@@ -437,11 +441,6 @@ window.onresize = function() {
     const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
 
     layout();
-
-    // redraw the arrowController if its size changes
-    if (oldArrowControllerSize !== Make.arrowController.size) {
-        Make.arrowController.drawOrientation();
-    }
 
     if (Make.inputImageExists) {
         // do we have to reload the input image into the control image?
@@ -466,7 +465,6 @@ window.onresize = function() {
     if (outputImageWasInside) {
         newOutputImageSize = outputImageSizeMin;
     }
-
 
     if (newOutputImageSize !== oldOutputImageSize) {
         // if the size of the output image has changed, then we have to redo everything
