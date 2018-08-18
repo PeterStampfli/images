@@ -25,3 +25,7 @@ a:hover{
 div{
     margin: 0px;
 }
+
+td{
+    vertical-align:top;
+}

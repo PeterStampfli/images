@@ -18,7 +18,7 @@ Help for the Kaleidoscope application
 </h1>
 
 <p>
-For more details see <a href="titel.html">Bridges 2018</a>. Use <em>landscape</em> orientation for this app!
+For more details see <a href="titel.html">Bridges 2018</a>.
 </p>
 
 <p>
@@ -51,7 +51,7 @@ At the left you see the output image. It first shows only its structure:
     <strong>Use the control panel at the right side to open an input image!</strong>
 </p>
 <p>
-Drag with the mouse to change the visible part of the image. Turn the mouse wheel or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view.
+Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
 </p>
 <div class="vSpace"> </div>
 
@@ -92,10 +92,10 @@ An image of a decrated hemisphere if the sum is more than 180<sup>0</sup>, an Eu
             <td>regular</td> <td>-</td> <td>The image is a decoration of a <em>regular tiling</em> by one regular polygon.</td>
             </tr>
             <tr>
-            <td>semireg. 1</td><td>-</td> <td>The image is a decoration of a semiregular tiling using two different regular polygons such as the tiling by <em>octagons</em> and squares.</td>
+            <td>semireg.&nbsp1</td><td>-</td> <td>The image is a decoration of a semiregular tiling using two different regular polygons such as the tiling by <em>octagons</em> and squares.</td>
             </tr>
             <tr>
-            <td>semireg. 2</td><td>-</td> <td>The image is a decoration of a semiregular tiling using two different regular polygons such as the tiling by <em>hexagons</em> and equilateral triangles.</td>
+            <td>semireg.&nbsp2</td><td>-</td> <td>The image is a decoration of a semiregular tiling using two different regular polygons such as the tiling by <em>hexagons</em> and equilateral triangles.</td>
             </tr>
     </table>
 </p>
@@ -108,7 +108,7 @@ Note that the usual kaleidoscopes with mirrors only give images of regular tilin
 </p>
 
 <p>
-<strong>You can choose the output image size</strong>. Only the resolution changes and you will always get the same overall image. Large sizes will take a lot of time and the computer can become unresponsive for several minutes. <em>Be patient</em>. Maximum side length is 10'000 pixels giving an image of 100 megapixel. The browser then would need nearly 2 gigabytes of memory for the image and structure data.
+<strong>You can choose the output image size</strong>. Only the resolution changes and you will always get the same overall image. Large sizes will take a lot of time and the computer can become unresponsive for several minutes. <em>Be patient</em>. Maximum side length is 10'000 pixels, giving an image of 100 megapixel. The browser then would need nearly 2 gigabytes of memory for the image and structure data.
 </p>
 <p>
 <strong>To see hidden image parts lying outside the window use the scroll bars.</strong> Using scroll bars does not change the image and is reasonably fast. If you drag or zoom the image with the mouse then you <em>change</em> the image and this becomes very slow for large images. 
@@ -134,16 +134,16 @@ Note that the usual kaleidoscopes with mirrors only give images of regular tilin
 <h1>Input image</h1>
 
 <p>
-Once you open an input image you will see it in the upper right. It may be partially covered by the control panel. To bring it to the foreground click on it. At the same time a dark disc with an arrow appears. Click on remaining parts of the control panel to bring it back to the foreground.
+Once you open an input image you will see it in the upper right. It may be partially covered by the control panel. To bring it to the foreground click or touch it. At the same time a dark disc with an arrow will appear. Click or touch remaining parts of the control panel to bring it back to the foreground.
 </p>
 <p>
-Pixels of the input image appearing in the output image are shown in full color. Unused pixels are greyed out.
+Pixels of the input image appearing in the output image are shown in full color. Unused pixels are faded out.
 </p>
 <p>
-Drag with the mouse to shift the position of sampled pixels. With the mouse wheel or the "Z" and "z" keys you can change the size of the sampled region.
+Drag with the mouse or touch to shift the position of sampled pixels. With the mouse wheel or the "Z" and "z" keys you can change the size of the sampled region. With two finger touch you can zoom and rotate.
 </p>
 <p>
-Dragging the mouse on the disc with the arrow or turning the mouse wheel or touching the "Z" and "z" keys rotates the sampled region.
+Dragging the mouse or touch on the disc with the arrow zooms and rotates the sampled region of the input image. Turning the mouse wheel or touching the "Z" and "z" keys only rotates.
 </p>
 
 <p>
@@ -154,6 +154,7 @@ Dragging the mouse on the disc with the arrow or turning the mouse wheel or touc
 <script src="../librarySource/dom.js"></script>
 
 <script src="basicLayout.js"></script>
+
 
 
 </html>
