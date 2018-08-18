@@ -5,7 +5,7 @@
 function creation() {
     "use strict";
     // first do single touch debug with desktop browser
-    TouchEvents.doubleTouchDebug = true;
+    TouchEvents.doubleTouchDebug = false;
     //----------------------------------------------------------------------------------
 
     Make.imageQuality = "low";

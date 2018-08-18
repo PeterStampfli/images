@@ -75,7 +75,7 @@ function OutputImage(idName) {
             outputImage.move(touchEvents);
         } else if (touchEvents.touches.length === 2) {
             outputImage.zoom(touchEvents.lastDistance / touchEvents.distance, touchEvents.centerX, touchEvents.centerY);
-
+            outputImage.shift(touchEvents.dx, touchEvents.dy);
             outputImage.adjustCanvasTransform();
             outputImage.action();
 

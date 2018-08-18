@@ -46,12 +46,6 @@ function ControlImage(idName, isVisible = true) {
     const controlImage = this;
 
 
-    // changing the shift of the input image transform. events object with dx and dy fields
-    function changeShift(events) {
-        controlImage.changeShift(events.dx, events.dy);
-    }
-
-
     if (this.isVisible) { //create mouse and touch events only if the image is visible
 
         this.mouseEvents = new MouseEvents(idName);
@@ -81,10 +75,19 @@ function ControlImage(idName, isVisible = true) {
         // touch can move, rotate and scale
         this.touchEvents.moveAction = function(touchEvents) {
             if (touchEvents.touches.length === 1) {
-                changeShift(touchEvents);
+                controlImage.changeShift(touchEvents.dx, touchEvents.dy);
                 controlImage.action();
             } else if (touchEvents.touches.length === 2) {
+                controlImage.changeShift(touchEvents.dx, touchEvents.dy);
 
+                controlImage.linearTransform.changeScaleFixPoint(touchEvents.distance / touchEvents.lastDistance, touchEvents.centerX / controlImage.controlDivInputSize, touchEvents.centerY / controlImage.controlDivInputSize);
+                controlImage.linearTransform.changeAngleFixPoint(touchEvents.dAngle, touchEvents.centerX / controlImage.controlDivInputSize, touchEvents.centerY / controlImage.controlDivInputSize);
+
+
+                controlImage.action();
+                if (controlImage.arrowController != null) {
+                    controlImage.arrowController.drawOrientation();
+                }
             }
         };
     }

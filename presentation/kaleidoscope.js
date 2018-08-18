@@ -8,6 +8,8 @@ Layout.activateFontSizeChanges();
 Make.createOutputImage("outputCanvas");
 Make.outputImage.setDivDimensions(window.innerHeight, window.innerHeight);
 Make.outputImage.setDivPosition(0, 0);
+Make.outputImage.stopShift();
+
 DOM.style("#outputCanvas", "cursor", "crosshair");
 DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
