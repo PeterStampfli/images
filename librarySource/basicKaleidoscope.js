@@ -58,6 +58,7 @@ basicKaleidoscope = {};
     basicKaleidoscope.worldRadius = 0;
     basicKaleidoscope.worldRadius2 = 0;
 
+    // elliptic geometry fills the entire plane, no cutoff at disc for negative radius
     basicKaleidoscope.ellipticDiscRadius = -1;
 
 

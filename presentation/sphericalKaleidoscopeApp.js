@@ -1,48 +1,112 @@
 /* jshint esversion:6 */
 
-// doing the layout in a private scope
+// create the UI elements and their interactions
 
-
-(function() {
+function creation() {
     "use strict";
+    // first do single touch debug with desktop browser
+    TouchEvents.doubleTouchDebug = false;
+    //----------------------------------------------------------------------------------
+
     Make.imageQuality = "low";
 
-    basicKaleidoscope.worldRadiusElliptic = 0.97;
-    basicKaleidoscope.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic - 0.02;
-    sphericalToElliptic.setup();
-
-
-    //element sizes related to window dimensions
-
-    // max output width to  window width for small width to height ratio
-    const outputImageMaxWidthFraction = 0.65;
-    // max control width to window height ratio for large width to height
-    const controlMaxWidthFraction = 0.7;
-    // ratio between height of control image and window height
-    const controlImageHeightFraction = 0.65;
-    // for the size of the arrow controller to image height
-    const arrowControlFraction = 0.25;
-    // for the max height of the text area vs WindowHeight
-    const textMaxHeightFraction = 0.75;
-
-    // font size related
-    // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.028;
-    // h1 titel font size is larger 
-    const relativeH1Fontsize = 1.0;
-    // rekative size of margins
-    const textMarginToFontsize = 0.5;
-    // weight of button borders
-    const borderWidthToFontsize = 0.15;
-    // width of number input buttons
-    const inputWidthToFontsize = 3.5;
-    // backgroundcolor of everything
+    //  define general constants
+    //=================================================================================
     const backgroundColor = "#888888";
     const textBackgroundColor = "#eeeeee";
+    const outputImageBackgroundColor = "#666666";
+    const controlImageBackgroundColor = "white";
     const px = "px";
 
-    // create DOM elements before setting styles
+    // some styling, body already exists 
+    //===============================================================================
+    DOM.style("body", "backgroundColor", backgroundColor);
+    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
+
+
+
+    //================================================================================
+    // creating canvas and text elements and layout independent styles
+    //==================================================================================
+
+    Make.createOutputImage("outputCanvas");
+    Make.createControlImage("controlCanvas");
+    Make.createMap();
+
+    Make.createArrowController("arrowController", true);
+    Make.arrowController.backGroundColor = "#444444";
+    Make.arrowController.arrowColor = "#ffffff";
+    DOM.style("#outputCanvas", "backgroundColor", outputImageBackgroundColor);
+    DOM.style("#controlCanvas", "backgroundColor", controlImageBackgroundColor);
+    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
+
+    activateControls(false);
+
+    DOM.style("#text", "position", "fixed", "overflow", "auto");
+    DOM.style("#text", "right", 0 + px, "bottom", 0 + px);
+
+
+    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
+
+    const text = document.getElementById("text");
+
+    text.onclick = function() {
+        DOM.style("#text", "zIndex", "11");
+    };
+
+    Make.controlImage.mouseEvents.downAction = function() {
+        DOM.style("#text", "zIndex", "9");
+    };
+
+    Make.controlImage.touchEvents.startAction = function() {
+        DOM.style("#text", "zIndex", "9");
+    };
+
+    Make.arrowController.outAction = function() {
+        text.click();
+    };
+
+    // special layout dependent method for placing arrowController
+    Make.arrowController.place = function() {
+        if (window.innerWidth > window.innerHeight) {
+            let controlImageHeight = Make.controlImage.pixelCanvas.height;
+            let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, Make.controlImage.maxWidth)) - 1;
+            Make.arrowController.setSize(arrowControlSize);
+            Make.controlImage.arrowController.setPosition(Make.controlImage.limitLeft + 0.5 * (Make.controlImage.maxWidth - arrowControlSize), controlImageHeight);
+        } else {
+            let controlImageWidth = Make.controlImage.pixelCanvas.width;
+            let arrowControlSize = Math.floor(Math.min(window.innerWidth - controlImageWidth, Make.controlImage.maxHeight)) - 1;
+            Make.arrowController.setSize(arrowControlSize);
+            Make.controlImage.arrowController.setPosition(controlImageWidth, Make.controlImage.limitTop + 0.5 * (Make.controlImage.maxHeight - arrowControlSize));
+        }
+    };
+
+
+    //=====================================================================================
+    // functions for the UI elements
+    //=================================================================================
+
+    // enable/disable mouse and touch on control image and arrow controller
+    function activateControls(status) {
+        Make.controlImage.mouseEvents.isActive = status;
+        Make.arrowController.mouseEvents.isActive = status;
+        Make.controlImage.touchEvents.isActive = status;
+        Make.arrowController.touchEvents.isActive = status;
+    }
+
+    // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
+    function updateMapNoReset() {
+        Make.allowResetInputMap = false;
+        Make.updateNewMap();
+        Make.allowResetInputMap = true;
+    }
+
+    //==============================================================================================
+    // create UI elements with their actions that are independent of the image geometry
+    //===============================================================================================
+
+    // navigation
     let helpButton = new Button("help");
     helpButton.onClick = function() {
         window.location = "help.html";
@@ -53,37 +117,79 @@
         window.location = "index.html";
     };
 
-    function updateMapNoReset() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
+    // image input and output
+    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
+    imageInputButton.onClick = function() {
+        imageInputButton.fileInput.click();
+        structureImageChoiceButtons.setPressed(showImageButton);
+        activateControls(true);
+    };
+
+    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
+
+    // choose between showing the structure or the image
+    let structureImageChoiceButtons = new Selection();
+    let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
+    let showImageButton = structureImageChoiceButtons.createButton("showImage");
+
+    showStructureButton.onPress = function() {
+        Make.switchToShowingStructure();
+        activateControls(false);
+    };
+
+    showImageButton.onPress = function() {
+        if (!Make.inputImageExists) {
+            imageInputButton.fileInput.click();
+        } else {
+            Make.switchToShowingImage();
+        }
+        //DOM.style("#arrowController", "display", "initial");
+        activateControls(true);
+    };
+
+    // image size, square format
+    Make.sizeButton = Make.createSquareImageSizeButton("size");
+
+
+    //  choosing image quality
+    function changeQuality(newQuality) {
+        if (Make.imageQuality != newQuality) {
+            Make.imageQuality = newQuality;
+            Make.updateOutputImage();
+        }
     }
+
+
+    let qualityChoiceButtons = new Selection();
+    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
+    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
+    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
+
+    lowQualityButton.onPress = function() {
+        changeQuality("low");
+    };
+    highQualityButton.onPress = function() {
+        changeQuality("high");
+    };
+    veryHighQualityButton.onPress = function() {
+        changeQuality("veryHigh");
+    };
+
+    //=====================================================================================================================================
+    // UI elements depending on actual image and its symmetries
+    //==============================================================================================================
+
+    // choosing the tiling
+    var tiling = "regular";
+    let sum = document.getElementById("sum");
+
 
     function isElliptic() {
         return (1 / setKButton.getValue() + 1 / setMButton.getValue() + 1 / setNButton.getValue() > 1.0001);
     }
 
-    //symmetries
-    let setKButton = NumberButton.create("k");
-    setKButton.setRange(2, 10000);
-    setKButton.setValue(5);
-    setKButton.onChange = updateMapNoReset;
-
-    let setMButton = NumberButton.create("m");
-    setMButton.setRange(2, 10000);
-    setMButton.setValue(2);
-    setMButton.onChange = updateMapNoReset;
-
-    let setNButton = NumberButton.create("n");
-    setNButton.setRange(2, 10000);
-    setNButton.setValue(3);
-    setNButton.onChange = updateMapNoReset;
-
-    var tiling = "regular";
-    let sum = document.getElementById("sum");
-
-
-    // initializing things before calculating the map (updateKMN)
+    // initializing map parameters, choosing the map
+    // this is called before calculating the second map in geometrical space, that defines the geometry
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
@@ -112,75 +218,8 @@
             console.log("nosuch tiling: " + tiling);
         }
     };
-    // choose between structure and image
 
-    let structureImageChoiceButtons = new Selection();
-
-    let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
-    let showImageButton = structureImageChoiceButtons.createButton("showImage");
-
-    function activateControls(status) {
-        Make.controlImage.mouseEvents.isActive = status;
-        Make.arrowController.mouseEvents.isActive = status;
-    }
-
-    showStructureButton.onPress = function() {
-        Make.switchToShowingStructure();
-        activateControls(false);
-    };
-
-    showImageButton.onPress = function() {
-        if (!Make.inputImageExists) {
-            imageInputButton.fileInput.click();
-        } else {
-            Make.switchToShowingImage();
-        }
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
-        activateControls(true);
-    };
-
-    //in/output
-    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
-    imageInputButton.onClick = function() {
-        console.log("switch choice to imag");
-        imageInputButton.fileInput.click();
-        structureImageChoiceButtons.setPressed(showImageButton);
-        DOM.style("#arrowController,#controlCanvas", "display", "initial");
-        activateControls(true);
-    };
-
-    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
-
-    // image imageQuality
-    let sizeButton = Make.createSquareImageSizeButton("size");
-    sizeButton.setValue(window.innerHeight);
-    let qualityChoiceButtons = new Selection();
-    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
-    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
-    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
-
-    function changeQuality(newQuality) {
-        if (Make.imageQuality != newQuality) {
-            Make.imageQuality = newQuality;
-            Make.updateOutputImage();
-        }
-    }
-
-    lowQualityButton.onPress = function() {
-        changeQuality("low");
-    };
-    highQualityButton.onPress = function() {
-        changeQuality("high");
-    };
-    veryHighQualityButton.onPress = function() {
-        changeQuality("veryHigh");
-    };
-
-    let tilingChoiceButtons = new Selection();
-    let regularTilingButton = tilingChoiceButtons.createButton("regular");
-    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
-    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
-
+    // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
     function changeTiling(newTiling) {
         if (newTiling != tiling) {
             tiling = newTiling;
@@ -189,6 +228,32 @@
             Make.allowResetInputMap = true;
         }
     }
+
+    // setting initial range of space coordinates for output image (1st linear transform)
+    Make.setInitialOutputImageSpace(-1, 1, -1);
+
+
+    //choosing the symmetries, and set initial values
+    let setKButton = NumberButton.create("k");
+    setKButton.setRange(2, 10000);
+    setKButton.setValue(5);
+    setKButton.onChange = updateMapNoReset;
+
+    let setMButton = NumberButton.create("m");
+    setMButton.setRange(2, 10000);
+    setMButton.setValue(2);
+    setMButton.onChange = updateMapNoReset;
+
+    let setNButton = NumberButton.create("n");
+    setNButton.setRange(2, 10000);
+    setNButton.setValue(3);
+    setNButton.onChange = updateMapNoReset;
+
+
+    let tilingChoiceButtons = new Selection();
+    let regularTilingButton = tilingChoiceButtons.createButton("regular");
+    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
+    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
 
     regularTilingButton.onPress = function() {
         setNButton.setRange(2, 10000);
@@ -203,96 +268,239 @@
         changeTiling("semiRegular2");
     };
 
-    DOM.style("body", "backgroundColor", backgroundColor);
-    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+}
 
-    let fontSize = fontsizeToWindowHeight * window.innerHeight;
+// adjust fontsize related dimesnions
+
+// adjust fontsizes, margins, borders and so on
+// call later, we first have to create DOM elements before setting their styles
+
+
+function adjustFont(fontSize) {
+    "use strict";
+
+
+    // define general relations between text elements and font size, independent of window dimensions
+    //===============================================================================
+    // h1 titel font size is larger 
+    const relativeH1Fontsize = 1.0;
+    // rekative size of margins
+    const textMarginToFontsize = 0.5;
+    // weight of button borders
+    const borderWidthToFontsize = 0.15;
+    // width of number input buttons
+    const inputWidthToFontsize = 3.5;
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
     DOM.style("p,button,input,table", "fontSize", fontSize + px);
     DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
     DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
+}
 
-    let controlMaxWidth = controlMaxWidthFraction * window.innerHeight;
-    var outputCanvasWidth;
 
-    if (window.innerWidth > window.innerHeight + controlMaxWidth) {
-        outputCanvasWidth = window.innerWidth - controlMaxWidth; // very wide window: increase output image width
-    } else if (window.innerHeight < outputImageMaxWidthFraction * window.innerWidth) {
-        outputCanvasWidth = window.innerHeight; // sufficiently wide
+// make the layout for landscape orientation 
+
+function landscapeFormat() {
+    "use strict";
+
+    //element sizes related to window dimensions
+
+    // control width to window height ratio for large width to height
+    const controlTargetWidthFraction = 0.7;
+    // ratio between height of control image and window height
+    const controlImageHeightFraction = 0.65;
+    // for the maximum size of the arrow controler to control width
+    const arrowControlWidthLimitFraction = 0.75;
+    // for the max height of the text area vs WindowHeight
+    const textMaxHeightFraction = 0.75;
+
+    // typical layout: width of output image div is equal to window height, control width is a fraction of window height
+    // what happens if the sum of these widths is not equal to the window width?
+
+    // the size of the controls at the left for sufficiently wide screens
+    let controlWidth = controlTargetWidthFraction * window.innerHeight;
+
+
+    // adjusting the maximum width for the output image
+    var outputImageDivWidth = window.innerHeight;
+
+    if (window.innerWidth > outputImageDivWidth + controlWidth) {
+        // if the width is larger increase the width of the output image div
+        outputImageDivWidth = window.innerWidth - controlWidth;
     } else {
-        outputCanvasWidth = outputImageMaxWidthFraction * window.innerWidth;
+        // the screen is not very wide: rescale the widths
+        let rescale = window.innerWidth / (outputImageDivWidth + controlWidth);
+        outputImageDivWidth *= rescale;
+        controlWidth *= rescale;
     }
 
-    let outputCanvasHeight = window.innerHeight;
+    // always use the full height for the output image
+    let outputImageDivHeight = window.innerHeight;
+    Make.outputImage.setDivDimensions(outputImageDivWidth, outputImageDivHeight);
 
-
-    let controlWidth = window.innerWidth - outputCanvasWidth;
-    let arrowControlSize = arrowControlFraction * window.innerHeight;
+    // make up the control image dimensions
     let controlImageHeight = controlImageHeightFraction * window.innerHeight;
+    // layout: control image at top close to space for output image
+    Make.controlImage.setDimensions(controlWidth, controlImageHeight);
+    Make.controlImage.setPosition(outputImageDivWidth, 0); // limits
+    Make.controlImage.centerVertical = false; // put controlimage to top  (should always be visible)
+    Make.controlImage.centerHorizontal = true;
+
+
+
+    // the text UI control div
+
     let textMaxHeight = textMaxHeightFraction * window.innerHeight;
+    DOM.style("#text", "maxWidth", "initial", "width", controlWidth + px);
+    DOM.style("#text", "maxHeight", textMaxHeight + px, "height", "initial");
 
-    Make.createOutputImage("outputCanvas", outputCanvasWidth, outputCanvasHeight);
-    DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
+}
 
 
-    Make.createControlImage("controlCanvas", controlWidth, controlImageHeight, outputCanvasWidth, 0);
-    Make.controlImage.centerVertical = false; // put controlcanvas to top
-    DOM.style("#controlCanvas", "backgroundColor", textBackgroundColor);
+// make the layout for portrait orientation 
 
-    Make.createArrowController("arrowController", arrowControlSize, outputCanvasWidth + 0.5 * (controlWidth - arrowControlSize), controlImageHeight);
-    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
+function portraitFormat() {
+    "use strict";
 
-    // custom colors possible
-    Make.arrowController.backGroundColor = "#444444";
-    Make.arrowController.arrowColor = "#ffffff";
+    //element sizes related to window dimensions
+
+    // control height to window width ratio for large height to width
+    const controlTargetHeightFraction = 0.8;
+    // ratio between width of control image and window width
+    const controlImageWidthFraction = 0.65;
+
+    // for the max width of the text area vs Window width
+    const textMaxWidthFraction = 0.75;
+
+
+    // typical layout: height of output image div is equal to window width, control height is a fraction of window width
+    // what happens if the sum of these heights is not equal to the window height?
+
+    // the size of the controls at the bottom for sufficiently high screens
+    let controlImageHeight = controlTargetHeightFraction * window.innerWidth;
+
+    // adjusting the maximum height for the output image
+    let outputImageDivHeight = window.innerWidth;
+
+    if (window.innerHeight > outputImageDivHeight + controlImageHeight) {
+        // if the height is larger increase the height of the output image div
+        outputImageDivHeight = window.innerHeight - controlImageHeight;
+    } else {
+        // the screen is not very high: rescale the heights
+        let rescale = window.innerHeight / (outputImageDivHeight + controlImageHeight);
+        outputImageDivHeight *= rescale;
+        controlImageHeight *= rescale;
+    }
+
+    // always use the full width for the output image
+    let outputImageDivWidth = window.innerWidth;
+    Make.outputImage.setDivDimensions(outputImageDivWidth, outputImageDivHeight);
+
+    // make up the control image dimensions
+    let controlImageWidth = controlImageWidthFraction * window.innerWidth;
+    // layout: control image at top close to space for output image
+    Make.controlImage.setDimensions(controlImageWidth, controlImageHeight);
+    Make.controlImage.setPosition(0, outputImageDivHeight);
+    Make.controlImage.centerHorizontal = false; // put controlimage to left  (should always be visible)
+    Make.controlImage.centerVertical = true;
+
+
+
+    // the text UI control div
+
+    let textMaxWidth = textMaxWidthFraction * window.innerWidth;
+    DOM.style("#text", "maxWidth", textMaxWidth + px, "width", "initial");
+    DOM.style("#text", "maxHeight", "initial", "height", controlImageHeight + px);
+
+}
+
+// make layout depending on orientation
+
+function layout() {
+    // fontsize varies with window
+    const fontsizeToWindow = 0.028;
+
+    // set the font size, depending on the smaller window dimension
+    let fontSize = fontsizeToWindow * Math.min(window.innerWidth, window.innerHeight);
+    adjustFont(fontSize);
+    if (window.innerHeight >= window.innerWidth) {
+        portraitFormat();
+    } else {
+        landscapeFormat();
+    }
+}
+
+
+// on loading: create everything and make an image (with structure, automatically)
+
+
+window.onload = function() {
+    "use strict";
+    basicKaleidoscope.worldRadiusElliptic = 0.97;
+    basicKaleidoscope.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic - 0.02;
+    sphericalToElliptic.setup();
+
+    creation();
+    layout();
+    // independent of layout
     Make.arrowController.drawOrientation();
+    // fit output image into the surrounding div
+    let outputSize = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
 
-    DOM.style("#arrowController,#controlCanvas", "display", "none");
-    activateControls(false);
-
-
-    DOM.style("#text", "position", "fixed", "overflow", "auto");
-
-    DOM.style("#text", "width", controlWidth + px, "maxHeight", textMaxHeight + px, "left", outputCanvasWidth + px, "bottom", 0 + px);
-
-
-    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
-
-
-
-    document.getElementById("text").onclick = function() {
-        DOM.style("#text", "zIndex", "11");
-    };
-
-    Make.controlImage.mouseEvents.downAction = function() {
-        DOM.style("#text", "zIndex", "9");
-    };
-
-
-
-    Make.createMap();
-
-
-
-    Make.setOutputSize(Math.min(outputCanvasWidth, outputCanvasHeight));
-
-    Make.setInitialOutputImageSpace(-1, 1, -1);
+    Make.setOutputSize(outputSize);
+    Make.sizeButton.setValue(outputSize);
     Make.resetOutputImageSpace();
+    Make.showStructure = true;
 
+    Make.updateNewMap();
+};
 
+window.onresize = function() {
+    "use strict";
+    // get old sizes, see if they change -> need redraw
+    // we have square images
+    const oldOutputImageSize = Make.outputImage.pixelCanvas.width;
+    const oldControlImageMaxWidth = Make.controlImage.maxWidth;
+    const oldControlImageMaxHeight = Make.controlImage.maxHeight;
+    // check if the output image is inside its div -> resize upon change to fill the div 
+    const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
 
-}());
+    layout();
 
+    if (Make.inputImageExists) {
+        // do we have to reload the input image into the control image?
+        // input image has to exist and the limits have changed
+        // else we only need to place it in its new position
+        const updateControlImage = ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
 
+        if (updateControlImage) {
+            Make.controlImage.loadInputImage(Make.inputImage); // places the image too
+        } else {
+            Make.controlImage.place();
+        }
+    }
 
-Make.showStructure = true;
+    // determine the new output image size
+    // the output image should always fill the div, minimal size
+    let outputImageSizeMin = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
+    // if the output image is smaller, then its size should increase
+    let newOutputImageSize = Math.max(outputImageSizeMin, oldOutputImageSize);
+    // if the ouput image was completely inside its div, then it should have the new minimum size, can reduce output image size
+    // if the output image has been larger, it does not change, except that it has been too small for the new layout, that's already done
+    if (outputImageWasInside) {
+        newOutputImageSize = outputImageSizeMin;
+    }
 
+    if (newOutputImageSize !== oldOutputImageSize) {
+        // if the size of the output image has changed, then we have to redo everything
+        Make.setOutputSize(newOutputImageSize, newOutputImageSize);
+        Make.sizeButton.setValue(newOutputImageSize);
+        Make.updateNewOutputImageSize();
 
-
-Make.updateNewMap();
-
-
-
-
-//Make.readImageWithFilePathAtSetup("blueYellow.jpg");
+    } else {
+        // else we have to place the output image in its div and if the controlimage has been updated 
+        //then we have to redo the input pixel mapping to correctly indicate sampled pixels
+        Make.outputImage.place();
+        Make.updateOutputImageIfUsingInputImage();
+    }
+};
