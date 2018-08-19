@@ -12,9 +12,6 @@ function SingleTouch(touch) {
     this.update(touch);
 }
 
-
-
-
 (function() {
     "use strict";
 
@@ -36,7 +33,6 @@ function SingleTouch(touch) {
  * @constructor TouchEvents
  * @param {String} idName - of the HTML element
  */
-
 
 function TouchEvents(idName) {
     "use strict";

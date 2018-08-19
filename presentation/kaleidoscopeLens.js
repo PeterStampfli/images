@@ -1,148 +1,154 @@
 /* jshint esversion:6 */
 
-let windowHeight = window.innerHeight;
-let windowWidth = window.innerWidth;
-VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
+if (window.innerHeight > window.innerWidth) {
+    document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
+    console.log("high");
 
-Layout.setup("kaleidoscope.html", "interpolation.html");
-Layout.activateFontSizeChanges();
-text = new BigDiv("text");
-text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
-text.setPosition(window.innerHeight, 0);
+    DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
+} else {
 
+    let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
+    VectorMap.prototype.drawFast = VectorMap.prototype.drawHalf;
 
-Make.createOutputImage("outputCanvas");
-Make.outputImage.setDivDimensions(window.innerHeight / 2 + 1, window.innerHeight);
-Make.outputImage.setDivPosition(0, 0);
-
-DOM.style("#outputCanvas", "cursor", "crosshair");
-DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
-
-Draw.setOutputImage(Make.outputImage);
-
-Make.createControlImage("controlCanvas", false);
-Make.controlImage.setDimensions(200, 200);
-Make.controlImage.setPosition(0, 0);
-Make.createArrowController("arrowController", false);
-Make.arrowController.setSize(100);
-Make.arrowController.setPosition(0, 0);
-Make.createMap();
+    Layout.setup("kaleidoscope.html", "interpolation.html");
+    Layout.activateFontSizeChanges();
+    text = new BigDiv("text");
+    text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
+    text.setPosition(window.innerHeight, 0);
 
 
-Make.setOutputSize(windowHeight / 2, windowHeight);
+    Make.createOutputImage("outputCanvas");
+    Make.outputImage.setDivDimensions(window.innerHeight / 2 + 1, window.innerHeight);
+    Make.outputImage.setDivPosition(0, 0);
 
-DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
+    DOM.style("#outputCanvas", "cursor", "crosshair");
+    DOM.style("#outputCanvas", "backgroundColor", "#bbbbbb");
 
-Make.setInitialOutputImageSpace(0, 1, -1);
-Make.resetOutputImageSpace();
+    Draw.setOutputImage(Make.outputImage);
 
-
-
-let setKButton = Layout.createNumberButton("k");
-setKButton.setRange(2, 10000);
-setKButton.setValue(7);
-setKButton.onChange = function(v) {
-    Make.updateNewMap();
-};
-
-let setMButton = Layout.createNumberButton("m");
-setMButton.setRange(2, 10000);
-setMButton.setValue(3);
-setMButton.onChange = function(v) {
-    Make.updateNewMap();
-};
-
-let setNButton = Layout.createNumberButton("n");
-setNButton.setRange(2, 10000);
-setNButton.setValue(2);
-setNButton.onChange = function(v) {
-    Make.updateNewMap();
-};
-
-let sum = document.getElementById("sum");
-
-Layout.setFontSizes();
+    Make.createControlImage("controlCanvas", false);
+    Make.controlImage.setDimensions(200, 200);
+    Make.controlImage.setPosition(0, 0);
+    Make.createArrowController("arrowController", false);
+    Make.arrowController.setSize(100);
+    Make.arrowController.setPosition(0, 0);
+    Make.createMap();
 
 
-var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
-DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
-DOM.style("#lens", "backgroundColor", "#bbbbbb");
+    Make.setOutputSize(windowHeight / 2, windowHeight);
 
-lens.setObject(Make.outputImage.pixelCanvas);
+    DOM.style("#topRight", "right", (windowWidth - windowHeight) + px);
 
-// initializing things before calculating the map (uopdateKMN)
-Make.initializeMap = function() {
-    let k = setKButton.getValue();
-    let m = setMButton.getValue();
-    let n = setNButton.getValue();
-    threeMirrorsKaleidoscope.setKMN(k, m, n);
-};
+    Make.setInitialOutputImageSpace(0, 1, -1);
+    Make.resetOutputImageSpace();
 
-// drawing the image with decos (updatekmn...)
 
-let lensObjectCorner = new Vector2();
-let hColor = new Color(0, 0, 0, 255);
 
-Make.updateOutputImage = function() {
-    Make.updateMapOutput();
+    let setKButton = Layout.createNumberButton("k");
+    setKButton.setRange(2, 10000);
+    setKButton.setValue(7);
+    setKButton.onChange = function(v) {
+        Make.updateNewMap();
+    };
 
-    Make.outputImage.pixelCanvas.drawHorizontalLine(hColor, 0.5);
-    lens.draw();
-    // attention: transform to space coordiantes
-    lensObjectCorner.setComponents(lens.objectCornerX, lens.objectCornerY);
-    Make.outputImage.pixelToSpaceCoordinates(lensObjectCorner);
-    let lensObjectWidth = lens.pixelCanvas.width / lens.magnification * Make.outputImage.scale;
-    let lensObjectHeight = lens.pixelCanvas.height / lens.magnification * Make.outputImage.scale;
-    Draw.setColor(Layout.mirrorColor);
-    Draw.setLineWidth(Layout.lineWidth / 2);
-    Draw.rectangle(lensObjectCorner.x, lensObjectCorner.y, lensObjectWidth, lensObjectHeight);
-};
+    let setMButton = Layout.createNumberButton("m");
+    setMButton.setRange(2, 10000);
+    setMButton.setValue(3);
+    setMButton.onChange = function(v) {
+        Make.updateNewMap();
+    };
 
-let center = new Vector2();
+    let setNButton = Layout.createNumberButton("n");
+    setNButton.setRange(2, 10000);
+    setNButton.setValue(2);
+    setNButton.onChange = function(v) {
+        Make.updateNewMap();
+    };
 
-center.setComponents(windowWidth, windowHeight / 2);
+    let sum = document.getElementById("sum");
 
-lens.setCenter(center);
+    Layout.setFontSizes();
 
-Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
-    Make.outputImage.mouseEvents.dragAction(mouseEvents);
-};
 
-Make.outputImage.move = function(mouseEvents) {
+    var lens = new LensImage("lens", windowHeight / 2 - 2 * Layout.lineWidth, windowHeight - 2 * Layout.lineWidth, windowHeight / 2, 0);
+    DOM.style("#lens", "border", Layout.lineWidth + "px solid " + Layout.mirrorColor);
+    DOM.style("#lens", "backgroundColor", "#bbbbbb");
 
-    center.setComponents(mouseEvents.x, mouseEvents.y);
+    lens.setObject(Make.outputImage.pixelCanvas);
+
+    // initializing things before calculating the map (uopdateKMN)
+    Make.initializeMap = function() {
+        let k = setKButton.getValue();
+        let m = setMButton.getValue();
+        let n = setNButton.getValue();
+        threeMirrorsKaleidoscope.setKMN(k, m, n);
+    };
+
+    // drawing the image with decos (updatekmn...)
+
+    let lensObjectCorner = new Vector2();
+    let hColor = new Color(0, 0, 0, 255);
+
+    Make.updateOutputImage = function() {
+        Make.updateMapOutput();
+
+        Make.outputImage.pixelCanvas.drawHorizontalLine(hColor, 0.5);
+        lens.draw();
+        // attention: transform to space coordiantes
+        lensObjectCorner.setComponents(lens.objectCornerX, lens.objectCornerY);
+        Make.outputImage.pixelToSpaceCoordinates(lensObjectCorner);
+        let lensObjectWidth = lens.pixelCanvas.width / lens.magnification * Make.outputImage.scale;
+        let lensObjectHeight = lens.pixelCanvas.height / lens.magnification * Make.outputImage.scale;
+        Draw.setColor(Layout.mirrorColor);
+        Draw.setLineWidth(Layout.lineWidth / 2);
+        Draw.rectangle(lensObjectCorner.x, lensObjectCorner.y, lensObjectWidth, lensObjectHeight);
+    };
+
+    let center = new Vector2();
+
+    center.setComponents(windowWidth, windowHeight / 2);
+
     lens.setCenter(center);
-    Make.updateOutputImage();
 
-};
+    Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
+        Make.outputImage.mouseEvents.dragAction(mouseEvents);
+    };
 
-Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-    Make.updateOutputImage();
-};
+    Make.outputImage.move = function(mouseEvents) {
+        center.setComponents(mouseEvents.x, mouseEvents.y);
+        lens.setCenter(center);
+        Make.updateOutputImage();
+    };
+
+    Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
+        Make.updateOutputImage();
+    };
+
+    Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
+        if (mouseEvents.wheelDelta > 0) {
+            lens.changeMagnification(1);
+        } else {
+            lens.changeMagnification(-1);
+        }
+        Make.updateOutputImage();
+    };
+
+    Make.outputImage.touchEvents.moveAction = function(touchEvents) {
+        if (touchEvents.touches.length === 1) {
+            Make.outputImage.move(touchEvents);
+        } else if (touchEvents.touches.length === 2) {
+            lens.changeMagnification(20 * touchEvents.dDistance / (touchEvents.distance + touchEvents.lastDistance));
+            Make.updateOutputImage();
+        }
+    };
 
 
-Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
-    if (mouseEvents.wheelDelta > 0) {
-        lens.changeMagnification(1);
-    } else {
-        lens.changeMagnification(-1);
 
+    Make.initializeMap();
 
-    }
-    Make.updateOutputImage();
+    Layout.createOpenImage();
 
-};
-
-
-Make.initializeMap();
-
-
-
-
-Layout.createOpenImage();
-
-
-
-
-// use another image ???
-Make.readImageWithFilePathAtSetup("Drottningholm.jpg");
+    // use another image ???
+    Make.readImageWithFilePathAtSetup("Drottningholm.jpg");
+}

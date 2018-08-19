@@ -34,13 +34,7 @@ var Layout = {};
     Layout.lineColor = "blue";
     Layout.trajectoryColor = "#ffaa00ff";
     Layout.pointColor = "#ffff00ff";
-    // preferred orientation
 
-    if (window.innerHeight > window.innerWidth) {
-        document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>" + document.querySelector("body").innerHTML;
-
-        DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
-    }
 
     //helpful constants
     const px = "px";
@@ -197,11 +191,6 @@ var Layout = {};
         Make.createOpenImageKey("i");
     };
 
-    // on resize: adjust new dimensions and redraw output image
-    window.onresize = function() {
-        //Layout.adjustDimensions();
-        //   Layout.setFontSizes();
-        //document.querySelector("body").innerHTML="<h1>Please reload this page!</h1>";
-    };
+
 
 }());

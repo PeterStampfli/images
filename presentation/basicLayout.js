@@ -12,7 +12,7 @@ var Layout = {};
 
     // relation between sizes and basicFontSize
     // fontsize varies with image size
-    const fontsizeToWindowHeight = 0.03;
+    const fontsizeToWindow = 0.04;
     // h1 titel font size is larger 
     const relativeH1Fontsize = 1.3;
     // rekative size of margins
@@ -21,7 +21,7 @@ var Layout = {};
     const vSpaceToFontSize = 0.2;
 
     const px = "px";
-    let fontSize = fontsizeToWindowHeight * window.innerHeight;
+    let fontSize = fontsizeToWindow * Math.min(window.innerHeight, window.innerWidth);
 
     // first create new elements before setting styles
 
