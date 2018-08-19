@@ -43,7 +43,7 @@ text = new BigDiv("text");
 text.setDimensions(windowWidth - 2 * basicLength, window.innerHeight);
 text.setPosition(basicLength, 0);
 
-DOM.style("#topRight", "right", (window.innerWidth-outputSize) + px);
+DOM.style("#topRight", "right", (window.innerWidth - outputSize) + px);
 
 Layout.setFontSizes();
 

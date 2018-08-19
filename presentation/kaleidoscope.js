@@ -96,13 +96,13 @@ Make.outputImage.move = function(mouseEvents) {
     Draw.setLineWidth(0.7 * Layout.lineWidth);
     Draw.setColor(Layout.trajectoryColor);
     threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
-    if (basicKaleidoscope.geometry == basicKaleidoscope.hyperbolic){
-    let circle = basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)];
-    if (circle.contains(mousePosition)) {
-        Draw.setColor("white");
-        Draw.line(zero, mousePosition);
-        circle.draw();
-    }
+    if (basicKaleidoscope.geometry == basicKaleidoscope.hyperbolic) {
+        let circle = basicKaleidoscope.circles[basicKaleidoscope.dihedral.getSectorIndex(mousePosition)];
+        if (circle.contains(mousePosition)) {
+            Draw.setColor("white");
+            Draw.line(zero, mousePosition);
+            circle.draw();
+        }
     }
 };
 
@@ -115,15 +115,17 @@ Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
 Make.outputImage.mouseEvents.wheelAction = function(mouseEvents) {
     zoomCenter.setComponents(basicKaleidoscope.worldRadiusHyperbolic, 0);
     Make.outputImage.spaceToPixelCoordinates(zoomCenter);
-
-
     if (mouseEvents.wheelDelta > 0) {
         Make.outputImage.zoom(Make.outputImage.zoomFactor, zoomCenter.x, zoomCenter.y);
     } else {
         Make.outputImage.zoom(1 / Make.outputImage.zoomFactor, zoomCenter.x, zoomCenter.y);
     }
-    //Make.outputImage.zoom(mouseEvents, zoomCenter.x, zoomCenter.y);
     Make.shiftScaleOutputImage();
+};
+
+Make.outputImage.touchEvents.moveAction = function(touchEvents) {
+
+
 };
 
 

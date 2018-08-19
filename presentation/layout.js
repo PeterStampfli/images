@@ -34,7 +34,13 @@ var Layout = {};
     Layout.lineColor = "blue";
     Layout.trajectoryColor = "#ffaa00ff";
     Layout.pointColor = "#ffff00ff";
+    // preferred orientation
 
+    if (window.innerHeight > window.innerWidth) {
+        document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>" + document.querySelector("body").innerHTML;
+
+        DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
+    }
 
     //helpful constants
     const px = "px";
@@ -146,11 +152,11 @@ var Layout = {};
                 window.location = prevPage;
             };
         } else {
-            DOM.create("button", "prevButton", "#topLeft", "Home");
+            DOM.create("button", "prevButton", "#topLeft", "home");
             DOM.attribute("#prevButton", "class", "topButton");
             let prevButton = new Button("prevButton");
             prevButton.onClick = function() {
-                window.location = "index.html";
+                window.location = "home.html";
             };
         }
 
@@ -171,11 +177,8 @@ var Layout = {};
         }
         DOM.style(".topButton", "display", "block", "fontWeight", "normal", "textAlign", "center");
         DOM.style(".beforeInput", "display", "inline-block");
-
-        if (window.innerHeight > window.innerWidth) {
-            document.querySelector("body").innerHTML = "<p>Please change to <strong>landscape orientation</strong> and reload the page</p>";
-        }
     };
+
 
     /**
      * create a button to change between structure and image

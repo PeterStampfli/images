@@ -1,5 +1,5 @@
 /**
- * a simple  layout
+ * a simple  layout for the home and help page, with nav bar
  */
 
 /* jshint esversion:6 */
@@ -28,7 +28,7 @@ var Layout = {};
 
 
     DOM.create("a", "homeButton", "#navigation", "Home");
-    DOM.attribute("#homeButton", "href", "index.html");
+    DOM.attribute("#homeButton", "href", "home.html");
     DOM.create("a", "kaleidoscopeButton", "#navigation", "Kaleidoscope");
     DOM.attribute("#kaleidoscopeButton", "href", "sphericalKaleidoscopeApp.html");
     DOM.create("a", "bridgesButton", "#navigation", "Bridges 2018");

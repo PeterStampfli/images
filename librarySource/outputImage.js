@@ -78,8 +78,6 @@ function OutputImage(idName) {
             outputImage.shift(touchEvents.dx, touchEvents.dy);
             outputImage.adjustCanvasTransform();
             outputImage.action();
-
-
         }
     };
 }

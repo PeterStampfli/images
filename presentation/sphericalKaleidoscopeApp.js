@@ -114,7 +114,7 @@ function creation() {
 
     let homeButton = new Button("home");
     homeButton.onClick = function() {
-        window.location = "index.html";
+        window.location = "home.html";
     };
 
     // image input and output
