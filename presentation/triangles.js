@@ -24,6 +24,23 @@ setNButton.onChange = function(v) {
     updateKMN();
 };
 
+Make.updateOutputImage = function() {
+    yellow = new Color(255, 255, 128, 255);
+    background = new Color(128, 128, 128, 0);
+
+    Make.outputImage.drawPixel(function(position, color) {
+        if (basicKaleidoscope.isInsideTriangle(position)) {
+            color.set(yellow);
+        } else {
+            color.set(background);
+        }
+    });
+    Draw.setColor(Layout.mirrorColor);
+    Draw.setLineWidth(Layout.lineWidth);
+    basicKaleidoscope.drawTriangle();
+};
+
+
 function updateKMN() {
     let k = setKButton.getValue();
     let m = setMButton.getValue();
@@ -66,7 +83,16 @@ if (window.innerHeight > window.innerWidth) {
     Draw.setOutputImage(Make.outputImage);
     Make.outputImage.stopZoom();
     Make.outputImage.stopShift();
+
+    Make.outputImage.touchEvents.setIsActive(false);
+    Make.outputImage.mouseEvents.setIsActive(false);
     Make.outputImage.move = function() {};
+
+    // touch can move and scale, single touch move does same as mouse move
+    Make.outputImage.touchEvents.moveAction = function(touchEvents) {
+        console.log("no touch");
+    };
+
     DOM.style("#outputCanvas", "cursor", "default");
 
     Make.createMap();

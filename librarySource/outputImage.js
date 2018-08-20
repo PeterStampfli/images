@@ -74,10 +74,12 @@ function OutputImage(idName) {
         if (touchEvents.touches.length === 1) {
             outputImage.move(touchEvents);
         } else if (touchEvents.touches.length === 2) {
-            outputImage.zoom(touchEvents.lastDistance / touchEvents.distance, touchEvents.centerX, touchEvents.centerY);
-            outputImage.shift(touchEvents.dx, touchEvents.dy);
-            outputImage.adjustCanvasTransform();
-            outputImage.action();
+            if (outputImage.canZoom) {
+                outputImage.zoom(touchEvents.lastDistance / touchEvents.distance, touchEvents.centerX, touchEvents.centerY);
+                outputImage.shift(touchEvents.dx, touchEvents.dy);
+                outputImage.adjustCanvasTransform();
+                outputImage.action();
+            }
         }
     };
 }
