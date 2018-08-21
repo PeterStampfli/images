@@ -32,8 +32,9 @@ var Layout = {};
     DOM.create("a", "kaleidoscopeButton", "#navigation", "Kaleidoscope");
     DOM.attribute("#kaleidoscopeButton", "href", "sphericalKaleidoscopeApp.html");
     DOM.create("a", "bridgesButton", "#navigation", "Bridges 2018");
+    DOM.attribute("#bridgesButton", "href", "titel.html");
 
-    DOM.class("#homeButton,#kaleidoscopeButton", "navButton");
+    DOM.class("#homeButton,#kaleidoscopeButton,#bridgesButton", "navButton");
     DOM.style(".navButton", "margin", textMarginToFontsize * fontSize + px);
 
 
