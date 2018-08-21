@@ -12,7 +12,7 @@ var Layout = {};
 
     // relation between sizes and basicFontSize
     // fontsize varies with image size
-    const fontsizeToWindow = 0.04;
+    const fontsizeToWindow = 0.035;
     // h1 titel font size is larger 
     const relativeH1Fontsize = 1.3;
     // rekative size of margins
@@ -25,16 +25,15 @@ var Layout = {};
 
     // first create new elements before setting styles
 
-
+    console.log(fontSize);
 
     DOM.create("a", "homeButton", "#navigation", "Home");
     DOM.attribute("#homeButton", "href", "home.html");
     DOM.create("a", "kaleidoscopeButton", "#navigation", "Kaleidoscope");
     DOM.attribute("#kaleidoscopeButton", "href", "sphericalKaleidoscopeApp.html");
     DOM.create("a", "bridgesButton", "#navigation", "Bridges 2018");
-    DOM.attribute("#bridgesButton", "href", "titel.html");
 
-    DOM.class("#homeButton,#kaleidoscopeButton,#bridgesButton", "navButton");
+    DOM.class("#homeButton,#kaleidoscopeButton", "navButton");
     DOM.style(".navButton", "margin", textMarginToFontsize * fontSize + px);
 
 
