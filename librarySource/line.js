@@ -5,11 +5,30 @@
  * @param {Vector2} b - second endpoint
  */
 
+/**
+ * first endpoint
+ * @var Line#a {Vector2}
+ */
+
+/**
+ * second endpoint
+ * @var Line#b {Vector2}
+ */
+
+/**
+ * unit vector, pointing from a to b
+ * needs explicite update if points or their data change
+ * NOTE that points may be changed somewhere else
+ * @var Line#ex {float}
+ * @var Line#ey {float}
+ */
+
 /* jshint esversion:6 */
 
 function Line(a, b) {
     "use strict";
     this.setAB(a, b);
+    this.update();
 }
 
 
@@ -17,7 +36,8 @@ function Line(a, b) {
     "use strict";
 
     Line.vector = new Vector2();
-    const big = 100;
+    // default length for creating lines with a given polar angle
+    const big = 1000;
 
     /**
      * set the first point, update later
@@ -74,7 +94,7 @@ function Line(a, b) {
     };
 
     /**
-     * create a line going from zero at the given polar angle
+     * create a long line starting at the origin at the given polar angle
      * @method Line.atPolar
      * @param {float} angle
      * @return line object with given polar angle
@@ -93,7 +113,6 @@ function Line(a, b) {
         Draw.line(this.a, this.b);
     };
 
-
     /**
      * check if a point is at the left of the line, looking from a to b
      * attention: inverted y-axis mirrors, left appears to be right
@@ -103,6 +122,17 @@ function Line(a, b) {
      */
     Line.prototype.isAtLeft = function(v) {
         return (this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x)) > 0;
+    };
+
+    /**
+     * check if a point is at the right of the line, looking from a to b
+     * attention: inverted y-axis mirrors, left appears to be right
+     * @method Line#isAtRight
+     * @param {Vector2} v - the point to test
+     * @return {boolean} true if the point is at the right
+     */
+    Line.prototype.isAtRight = function(v) {
+        return (this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x)) < 0;
     };
 
     /**
@@ -195,6 +225,20 @@ function Line(a, b) {
             return 1;
         }
         return -1;
+    };
+
+    /**
+     * shift (by end point a) and rotate (by - polar angle) a point
+     * maps endpoint A to origin and endpoint B to the x-axis
+     * @method Line#mapToXAxis
+     * @param {Vector2} point
+     */
+    Line.prototype.mapToXAxis = function(point) {
+        point.x -= this.a.x;
+        point.y -= this.a.y;
+        const h = this.ex * point.x + this.ey * point.y;
+        point.y = -this.ey * point.x + this.ex * point.y;
+        point.x = h;
     };
 
 }());
