@@ -139,8 +139,7 @@ function Line(a, b) {
      * mirror a point at the line
      * @method Line#mirror
      * @param {Vector2} v - the point to mirror
-    * @return {float} 1, (Lyapunov coefficient)
-
+     * @return {float} 1, (Lyapunov coefficient)
      */
     Line.prototype.mirror = function(v) {
         let d = this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x); // distance to the left, as (-ey,ex) is perpendicular to the line and pointing to the left

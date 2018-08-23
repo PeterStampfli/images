@@ -1,8 +1,8 @@
 /**
  * representing polygons as a list of lines
  * winding counterclockwise
- * with a mapping to the x-axis
  * may waste a bit of memory, but efficient
+ * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
  * @param {Array of Line} lines - that make up the polygon, counterclockwise order
  */
@@ -11,10 +11,6 @@
 
 function Polygon(lines) {
     this.lines = lines;
-    // this.aX x-coordinate of point A of mapping, maps to (0,0)
-    // this.aY y-coordinate of point A of mapping, maps to (0,0)
-    // this.epsilonX, vector between a and b devided by the lenght squared, x-component
-    // this.epsilonY, vector between a and b devided by the lenght squared, y-component
 }
 
 
@@ -134,7 +130,6 @@ function Polygon(lines) {
      */
     Polygon.prototype.isInside = function(point) {
         for (var i = this.lines.length - 1; i >= 0; i--) {
-
             if (this.lines[i].isAtRight(point)) {
                 return false;
             }
