@@ -1,5 +1,6 @@
 /**
  * representing lines between two points (Vector2), do update if points change !!!
+ * these are directed lines, line from a to b is different to line from b to a
  * @constructor Line
  * @param {Vector2} a - first endpoint
  * @param {Vector2} b - second endpoint

@@ -17,6 +17,12 @@ function Vector2(x = 0, y = 0) {
     "use strict";
 
     /**
+     * a static instance of UniquePoints
+     * @var Vector2.unique
+     */
+    Vector2.unique = new UniquePoints();
+
+    /**
      * set vector to given coordinate values
      * @method Vector2#setComponents
      * @param {float} x - coordinate
@@ -123,5 +129,86 @@ function Vector2(x = 0, y = 0) {
         this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
         this.x = h;
     };
+
+    /**
+     * comparing two vectors: accuracy for numbers to be considered as equal
+     * @var Vector2.epsilon
+     */
+    Vector2.epsilon = 0.001;
+
+    /**
+     * check if two vectors are equal
+     * @method Vector2#isEqual
+     * @param {Vector2} other
+     * @return true if they are equal, false else
+     */
+    Vector2.prototype.isEqual = function(other) {
+        return (Math.abs(this.x - other.x) < Vector2.epsilon) && (Math.abs(this.y - other.y) < Vector2.epsilon);
+    };
+}());
+
+
+/**
+ * pools of unique points(Vector2 objects)
+ * @constructor UniquePoints
+ */
+function UniquePoints() {
+    this.points = [];
+}
+
+
+(function() {
+    "use strict";
+
+    /**
+     * reset -> empty the list of points
+     * @method UniquePoints#reset
+     */
+    UniquePoints.prototype.reset = function() {
+        this.points.length = 0;
+    };
+
+    /**
+     * log the points
+     * @method UniquePoints.log
+     */
+    UniquePoints.prototype.log = function() {
+        console.log("Unique points");
+        const points = this.points;
+        const length = points.length;
+        for (var i = 0; i < length; i++) {
+            console.log(i + "  (" + points[i].x + "," + points[i].y + ")");
+        }
+    };
+
+    /**
+     * create a unique point (Vector2) from coordinates
+     * @method UniquePoints#fromCoordinates
+     * @param {float} x
+     * @param {float} y
+     * @return Vector2 object for the point
+     */
+    UniquePoints.prototype.fromCoordinates = function(x, y) {
+        const points = this.points;
+        const length = points.length;
+        for (var i = 0; i < length; i++) {
+            if ((Math.abs(x - points[i].x) < Vector2.epsilon) && (Math.abs(y - points[i].y) < Vector2.epsilon)) {
+                return points[i];
+            }
+        }
+        points.push(new Vector2(x, y));
+        return points[length];
+    };
+
+    /**
+     * create a unique point (Vector2) from another vector2
+     * @method UniquePoints#fromVector
+     * @param {Vector2} v
+     * @return Vector2 object for the point
+     */
+    UniquePoints.prototype.fromVector = function(v) {
+        return this.fromCoordinates(v.x, v.y);
+    };
+
 
 }());

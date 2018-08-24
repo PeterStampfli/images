@@ -22,17 +22,14 @@
 <script type="text/javascript">
 
 console.log("hi");
-line=new Line(new Vector2(1,3),new Vector2(8,3));
-line.update();
-console.log(line);
-console.log(line.isAtLeft(new Vector2(0,0)));
+
 p=Polygon.ofCoordinates(1,1,10,2,8,8);
-console.log(p)
 p.log();
-console.log(p.xMin());
-console.log(p.xMax());console.log(p.yMin());
-console.log(p.yMax());
-console.log(p.isInside(new Vector2(2,20)));
+p2=Polygon.ofCoordinates(10,2,1,1,8,8)
+p2.log();
+
+Vector2.unique.log();
+console.log(p.isEqual(p2));
 </script>
 
 </html>

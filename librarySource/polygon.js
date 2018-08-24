@@ -1,10 +1,9 @@
 /**
  * representing polygons as a list of lines
  * winding counterclockwise
- * may waste a bit of memory, but efficient
  * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
- * @param {Array of Line} lines - that make up the polygon, counterclockwise order
+ * @param {ArrayOfLine} lines - that make up the polygon, counterclockwise order
  */
 /* jshint esversion:6 */
 
@@ -18,36 +17,51 @@ function Polygon(lines) {
     "use strict";
 
     /**
-     * create a polygon from point (Vector2) data, this wastes memory of lines are shared between polygons
-     * (but we have a lot of memory, speed is important)
-     * @method Polygon.ofPoints
-     * @param {Array of Vector2} corners - the corner points in counter clockwise order
+     * create a polygon from point (Vector2) data, assumes they are unique 
+     * @method Polygon.ofVectorArray
+     * @param {ArrayOfVector2} corners - the corner points in counter clockwise order
      * @return {Polygon}
      */
-    Polygon.ofPoints = function(corners) {
+    Polygon.ofVectorArray = function(corners) {
         const lines = [];
         const cornersLenght = corners.length;
-        lines.push(new Line(Fast.last(corners), corners[0]));
         for (var i = 1; i < cornersLenght; i++) {
             lines.push(new Line(corners[i - 1], corners[i]));
         }
+        lines.push(new Line(Fast.last(corners), corners[0]));
         return new Polygon(lines);
     };
 
     /**
+     * create a polygon from vector2
+     * creates unique points (vector2)
+     * @method Polygon.ofVectors
+     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
+     * @return {Polygon}
+     */
+    Polygon.ofVectors = function(vectors) {
+        const length = arguments.length;
+        const corners = [];
+        for (var i = 0; i < length; i++) {
+            corners.push(Vector2.unique.fromVector(arguments[i]));
+        }
+        return Polygon.ofVectorArray(corners);
+    };
+
+    /**
      * create a polygon from coordinates
-     * which wastes memory because of multiple cornerpoints that are not shared.
+     * creates unique points (vector2)
      * @method Polygon.ofCoordinates
-     * @param {float ...} list of floats, x,y coordinate pairs 
+     * @param {listOfFloat} list of floats, x,y coordinate pairs 
      * @return {Polygon}
      */
     Polygon.ofCoordinates = function(coordinates) {
         const length = arguments.length;
         const corners = [];
         for (var i = 0; i < length; i += 2) {
-            corners.push(new Vector2(arguments[i], arguments[i + 1]));
+            corners.push(Vector2.unique.fromCoordinates(arguments[i], arguments[i + 1]));
         }
-        return Polygon.ofPoints(corners);
+        return Polygon.ofVectorArray(corners);
     };
 
     /**
@@ -55,11 +69,12 @@ function Polygon(lines) {
      * @method Polygon#log
      */
     Polygon.prototype.log = function() {
+        const lines = this.lines;
+        const length = lines.length;
         console.log("polygon corners");
-        this.lines.forEach(line => {
-            console.log(line.a);
-            console.log(line.b);
-        });
+        for (var i = 0; i < length; i++) {
+            console.log(i + "  (" + lines[i].a.x + "," + lines[i].a.y + ")");
+        }
     };
 
     /**
@@ -137,5 +152,49 @@ function Polygon(lines) {
         return true;
     };
 
+    // test if two polygons are equal: Corners have to belong to the same UniquePoints object 
+    // corners are equal (same objects) and occur in sequence, but they may be offset
+    // check if corners are equal by a given shift (between 0 and length of corners -1
+    // it has already been checked that number of lines (corners) is equal
+    Polygon.prototype.isEqualShifted = function(other, shift) {
+        const lines = this.lines;
+        const otherLines = other.lines;
+        const length = lines.length;
+        var j;
+        console.log("areEqualShifted: shift " + shift);
+        for (var i = 0; i < length; i++) {
+            j = i + shift;
+            if (j >= length) {
+                j -= length;
+            }
+            console.log(i + " " + j);
+            if (lines[i].a !== otherLines[j].a) {
+                return false;
+            }
+        }
+        console.log("true");
+        return true;
+    };
+
+    /**
+     * check if this polygon is equal to another one
+     * @method Polygon#isEqual 
+     * @param {Polygon} other
+     * @return true if both are equal (same corners in sequence)
+     */
+    Polygon.prototype.isEqual = function(other) {
+        const length = this.lines.length;
+        if (length !== other.lines.length) {
+            console.log("diff n of corner");
+            return false;
+        }
+        for (var shift = 0; shift < length; shift++) {
+            if (this.isEqualShifted(other, shift)) {
+                console.log(shift);
+                return true;
+            }
+        }
+        return false;
+    };
 
 }());
