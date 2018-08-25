@@ -1,36 +1,34 @@
 /**
- * representing polygons as a list of lines
- * winding counterclockwise
+ * representing polygons as a list of lines, winding counterclockwise
+ * has limits of coordinates, do not change points afterwards
  * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
- * @param {ArrayOfLine} lines - that make up the polygon, counterclockwise order
+ * @param {ArrayOfVector2} corners - the corner points in counter clockwise order, unique points
  */
 /* jshint esversion:6 */
 
 
-function Polygon(lines) {
-    this.lines = lines;
+function Polygon(corners) {
+    this.lines = [];
+    this.xMin = corners[0].x;
+    this.xMax = corners[0].x;
+    this.yMin = corners[0].y;
+    this.yMax = corners[0].y;
+    const cornersLenght = corners.length;
+    for (var i = 1; i < cornersLenght; i++) {
+        this.lines.push(new Line(corners[i - 1], corners[i]));
+        this.xMin = Math.min(this.xMin, corners[i].x);
+        this.xMax = Math.max(this.xMax, corners[i].x);
+        this.yMin = Math.min(this.yMin, corners[i].y);
+        this.yMax = Math.max(this.yMax, corners[i].y);
+    }
+    this.lines.push(new Line(Fast.last(corners), corners[0]));
 }
 
 
 (function() {
     "use strict";
 
-    /**
-     * create a polygon from point (Vector2) data, assumes they are unique 
-     * @method Polygon.ofVectorArray
-     * @param {ArrayOfVector2} corners - the corner points in counter clockwise order
-     * @return {Polygon}
-     */
-    Polygon.ofVectorArray = function(corners) {
-        const lines = [];
-        const cornersLenght = corners.length;
-        for (var i = 1; i < cornersLenght; i++) {
-            lines.push(new Line(corners[i - 1], corners[i]));
-        }
-        lines.push(new Line(Fast.last(corners), corners[0]));
-        return new Polygon(lines);
-    };
 
     /**
      * create a polygon from vector2
@@ -45,7 +43,7 @@ function Polygon(lines) {
         for (var i = 0; i < length; i++) {
             corners.push(Vector2.unique.fromVector(arguments[i]));
         }
-        return Polygon.ofVectorArray(corners);
+        return new Polygon(corners);
     };
 
     /**
@@ -61,7 +59,7 @@ function Polygon(lines) {
         for (var i = 0; i < length; i += 2) {
             corners.push(Vector2.unique.fromCoordinates(arguments[i], arguments[i + 1]));
         }
-        return Polygon.ofVectorArray(corners);
+        return new Polygon(corners);
     };
 
     /**
@@ -75,6 +73,7 @@ function Polygon(lines) {
         for (var i = 0; i < length; i++) {
             console.log(i + "  (" + lines[i].a.x + "," + lines[i].a.y + ")");
         }
+        console.log("limits: " + this.xMin + " " + this.xMax + " " + this.yMin + " " + this.yMax);
     };
 
     /**
@@ -86,55 +85,13 @@ function Polygon(lines) {
     };
 
     /**
-     * get minimum x-coordinate of corners
-     * @method Polygon#xMin
-     * @return {float} minimum of x-coordinates
+     * check if a point is inside the surrounding rectangle
+     * @method Polygon#isInsideRectangle
+     * @param {Vector2} point
+     * @return true if point is inside, false else
      */
-    Polygon.prototype.xMin = function() {
-        let result = 1e10;
-        this.lines.forEach(line => {
-            result = Math.min(result, line.a.x);
-        });
-        return result;
-    };
-
-    /**
-     * get maximum x-coordinate of corners
-     * @method Polygon#xMax
-     * @return {float} maximum of x-coordinates
-     */
-    Polygon.prototype.xMax = function() {
-        let result = -1e10;
-        this.lines.forEach(line => {
-            result = Math.max(result, line.a.x);
-        });
-        return result;
-    };
-
-    /**
-     * get minimum y-coordinate of corners
-     * @method Polygon#yMin
-     * @return {float} minimum of y-coordinates
-     */
-    Polygon.prototype.yMin = function() {
-        let result = 1e10;
-        this.lines.forEach(line => {
-            result = Math.min(result, line.a.y);
-        });
-        return result;
-    };
-
-    /**
-     * get maximum x-coordinate of corners
-     * @method Polygon#yMax
-     * @return {float} maximum of x-coordinates
-     */
-    Polygon.prototype.yMax = function() {
-        let result = -1e10;
-        this.lines.forEach(line => {
-            result = Math.max(result, line.a.y);
-        });
-        return result;
+    Polygon.prototype.isInsideRectangle = function(point) {
+        return (point.x >= this.xMin) && (point.x <= this.xMax) && (point.y >= this.yMin) && (point.y <= this.yMax);
     };
 
     /** 
@@ -144,6 +101,9 @@ function Polygon(lines) {
      * @return true if point is inside, false else
      */
     Polygon.prototype.isInside = function(point) {
+        if (this.isInsideRectangle(point)) {
+            return false;
+        }
         for (var i = this.lines.length - 1; i >= 0; i--) {
             if (this.lines[i].isAtRight(point)) {
                 return false;
@@ -161,18 +121,15 @@ function Polygon(lines) {
         const otherLines = other.lines;
         const length = lines.length;
         var j;
-        console.log("areEqualShifted: shift " + shift);
         for (var i = 0; i < length; i++) {
             j = i + shift;
             if (j >= length) {
                 j -= length;
             }
-            console.log(i + " " + j);
             if (lines[i].a !== otherLines[j].a) {
                 return false;
             }
         }
-        console.log("true");
         return true;
     };
 
@@ -185,16 +142,83 @@ function Polygon(lines) {
     Polygon.prototype.isEqual = function(other) {
         const length = this.lines.length;
         if (length !== other.lines.length) {
-            console.log("diff n of corner");
             return false;
         }
         for (var shift = 0; shift < length; shift++) {
             if (this.isEqualShifted(other, shift)) {
-                console.log(shift);
                 return true;
             }
         }
         return false;
+    };
+}());
+
+
+/**
+ * collections/pools of unique polygons, for iterations
+ * check if a polygon has already beeen done (is in the collection)
+ * use polygons to create the image
+ * @constructor UniquePolygons
+ */
+function UniquePolygons() {
+    this.polygons = [];
+}
+
+(function() {
+    "use strict";
+
+    /**
+     * reset -> empty the list of polygons
+     * @method UniquePoints#reset
+     */
+    UniquePolygons.prototype.reset = function() {
+        this.polygons.length = 0;
+    };
+
+    /**
+     * log the polygons
+     * @method UniquePoints.log
+     */
+    UniquePolygons.prototype.log = function() {
+        console.log("Unique polygons");
+        const polygons = this.polygons;
+        const length = polygons.length;
+        for (var i = 0; i < length; i++) {
+            console.log("polygon index " + i);
+            polygons[i].log();
+        }
+    };
+
+
+    /**
+     * draw the lines of all polygons
+     * @method UniquePolygons#draw
+     */
+    UniquePolygons.prototype.draw = function() {
+        Draw.array(this.polygons);
+    };
+
+
+
+    /**
+     * check if a polygon is alreday in the list,
+     * if not, return true and add to list
+     * if it is in the list return false
+     * The polygons have to use the same UniquePoints
+     * @method UniquePolygons#isNew
+     * @param {Polygon} polygon
+     * @return true if it is not in the list==is isNew
+     */
+    UniquePolygons.prototype.isNew = function(polygon) {
+        const polygons = this.polygons;
+        const length = polygons.length;
+        for (var i = 0; i < length; i++) {
+            if (polygon.isEqual(polygons[i])) {
+                return false;
+            }
+        }
+        polygons.push(polygon);
+        return true;
     };
 
 }());

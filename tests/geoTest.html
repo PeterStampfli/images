@@ -12,6 +12,7 @@
 
 </body>
 
+<script src="../librarySource/bins.js"></script>
 <script src="../librarySource/draw.js"></script>
 <script src="../librarySource/fastFun.js"></script>
 <script src="../librarySource/vector2.js"></script>
@@ -23,13 +24,17 @@
 
 console.log("hi");
 
-p=Polygon.ofCoordinates(1,1,10,2,8,8);
+p=Polygon.ofCoordinates(1,3,10,2,9,8);
 p.log();
-p2=Polygon.ofCoordinates(10,2,1,1,8,8)
-p2.log();
 
-Vector2.unique.log();
-console.log(p.isEqual(p2));
+
+bins=new Bins();
+bins.setup(1,10,2,4,0.5);
+
+console.log(p.isInsideRectangle(new Vector2(9,8.8)));
+
+bins.addPointlike({},2,3);
+console.log([1,2]);
 </script>
 
 </html>
