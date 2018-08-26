@@ -189,7 +189,6 @@ function UniquePolygons() {
         }
     };
 
-
     /**
      * draw the lines of all polygons
      * @method UniquePolygons#draw
@@ -197,8 +196,6 @@ function UniquePolygons() {
     UniquePolygons.prototype.draw = function() {
         Draw.array(this.polygons);
     };
-
-
 
     /**
      * check if a polygon is alreday in the list,

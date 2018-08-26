@@ -33,8 +33,11 @@ bins.setup(1,10,2,4,0.5);
 
 console.log(p.isInsideRectangle(new Vector2(9,8.8)));
 
-bins.addPointlike({},2,3);
-console.log([1,2]);
+bins.addPointlike("a",2.2,3);
+bins.addExtended("b",2.2,5,2,4);
+
+
+console.log(bins.getAt(1.9,3));
 </script>
 
 </html>
