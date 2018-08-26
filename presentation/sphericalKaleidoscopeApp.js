@@ -23,8 +23,24 @@ function creation() {
     DOM.style("body", "backgroundColor", backgroundColor);
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
+    //=====================================================================================
+    // functions for the UI elements
+    //=================================================================================
 
+    // enable/disable mouse and touch on control image and arrow controller
+    function activateControls(status) {
+        Make.controlImage.mouseEvents.isActive = status;
+        Make.arrowController.mouseEvents.isActive = status;
+        Make.controlImage.touchEvents.isActive = status;
+        Make.arrowController.touchEvents.isActive = status;
+    }
 
+    // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
+    function updateMapNoReset() {
+        Make.allowResetInputMap = false;
+        Make.updateNewMap();
+        Make.allowResetInputMap = true;
+    }
 
     //================================================================================
     // creating canvas and text elements and layout independent styles
@@ -33,7 +49,6 @@ function creation() {
     Make.createOutputImage("outputCanvas");
     Make.createControlImage("controlCanvas");
     Make.createMap();
-
     Make.createArrowController("arrowController", true);
     Make.arrowController.backGroundColor = "#444444";
     Make.arrowController.arrowColor = "#ffffff";
@@ -41,28 +56,26 @@ function creation() {
     DOM.style("#controlCanvas", "backgroundColor", controlImageBackgroundColor);
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
+    // disable mouse and touch for control image and arrow controller as long as no input image
     activateControls(false);
 
+    // "text" is the collection of text-based control elements
     DOM.style("#text", "position", "fixed", "overflow", "auto");
     DOM.style("#text", "right", 0 + px, "bottom", 0 + px);
-
-
     DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
 
     const text = document.getElementById("text");
 
+    // switching (foreground/background) between controlimage/arrowcontroller and text based control elements
     text.onclick = function() {
         DOM.style("#text", "zIndex", "11");
     };
-
     Make.controlImage.mouseEvents.downAction = function() {
         DOM.style("#text", "zIndex", "9");
     };
-
     Make.controlImage.touchEvents.startAction = function() {
         DOM.style("#text", "zIndex", "9");
     };
-
     Make.arrowController.outAction = function() {
         text.click();
     };
@@ -83,27 +96,8 @@ function creation() {
     };
 
 
-    //=====================================================================================
-    // functions for the UI elements
-    //=================================================================================
-
-    // enable/disable mouse and touch on control image and arrow controller
-    function activateControls(status) {
-        Make.controlImage.mouseEvents.isActive = status;
-        Make.arrowController.mouseEvents.isActive = status;
-        Make.controlImage.touchEvents.isActive = status;
-        Make.arrowController.touchEvents.isActive = status;
-    }
-
-    // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
-    function updateMapNoReset() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
-    }
-
     //==============================================================================================
-    // create UI elements with their actions that are independent of the image geometry
+    // create UI elements with their actions that are independent of the actual image structure/symmetry
     //===============================================================================================
 
     // navigation
@@ -150,7 +144,6 @@ function creation() {
     // image size, square format
     Make.sizeButton = Make.createSquareImageSizeButton("size");
 
-
     //  choosing image quality
     function changeQuality(newQuality) {
         if (Make.imageQuality != newQuality) {
@@ -158,7 +151,6 @@ function creation() {
             Make.updateOutputImage();
         }
     }
-
 
     let qualityChoiceButtons = new Selection();
     let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
@@ -179,23 +171,42 @@ function creation() {
     // UI elements depending on actual image and its symmetries
     //==============================================================================================================
 
+    // what has to be done
+
+    // setting initial range of space coordinates for output image (1st linear transform)
+    Make.setInitialOutputImageSpace(-1, 1, -1);
+
+    // initializing map parameters, choosing the map in the method     Make.initializeMap
+    // this is called before calculating the second map in geometrical space, this map  defines the geometry
+
+    // set the mapping  functions via:
+    //         Make.setMapping(mapInputImageMethod, mapStructureMethod);
+    // where
+    //  mapInputImageMethod(position) maps the Vector2 object position, 
+    //  returns the lyapunov coefficient>0 if mapping successful, returns value<0 if mapping not successful
+    // mapStructureMethod is similar, except that returned position.x is number of reflections
+    //  (Note that position.x=0 gets special color (no mapping...), colors defined in vectorMap.js
+
+    // setting a disc radius for the output image:
+    // Make.map.discRadius=???,  value >0 for output image clipped to circle, <0 for no clipping
+    //==========================================================================================================================
+
     // choosing the tiling
     var tiling = "regular";
+    // show the sum of angles
     let sum = document.getElementById("sum");
 
-
+    // check if the image will be elliptic
     function isElliptic() {
         return (1 / setKButton.getValue() + 1 / setMButton.getValue() + 1 / setNButton.getValue() > 1.0001);
     }
 
-    // initializing map parameters, choosing the map
-    // this is called before calculating the second map in geometrical space, that defines the geometry
+
     Make.initializeMap = function() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n));
-
         if (tiling == "regular") {
             if (isElliptic()) {
                 threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
@@ -229,8 +240,6 @@ function creation() {
         }
     }
 
-    // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-1, 1, -1);
 
 
     //choosing the symmetries, and set initial values
