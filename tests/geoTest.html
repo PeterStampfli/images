@@ -24,20 +24,22 @@
 
 console.log("hi");
 
-p=Polygon.ofCoordinates(1,3,10,2,9,8);
+p=Polygon.ofCoordinates(1,0,5,0,4,6,1,4);
 p.log();
 
 
 bins=new Bins();
-bins.setup(1,10,2,4,0.5);
+bins.setup(1,10,0,4,0.5);
 
-console.log(p.isInsideRectangle(new Vector2(9,8.8)));
-
-bins.addPointlike("a",2.2,3);
-bins.addExtended("b",2.2,5,2,4);
+console.log(p.rectangleContains(new Vector2(9,2.8)));
 
 
-console.log(bins.getAt(1.9,3));
+bins.addObject(p);
+
+
+console.log(bins.getAtCoordinates(2.1,0.8));
+console.log(bins.getFirstContains(new Vector2(2.1,0.8)));
+console.log(p.contains(new Vector2(2.1,0.8)));
 </script>
 
 </html>

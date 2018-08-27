@@ -130,7 +130,7 @@ function Line(a, b) {
      * attention: inverted y-axis mirrors, left appears to be right
      * @method Line#isAtRight
      * @param {Vector2} v - the point to test
-     * @return {boolean} true if the point is at the right
+     * @return {boolean} true if the point is at the right, false if at left or on the line
      */
     Line.prototype.isAtRight = function(v) {
         return (this.ex * (v.y - this.a.y) - this.ey * (v.x - this.a.x)) < 0;
@@ -229,9 +229,12 @@ function Line(a, b) {
 
     /**
      * shift (by end point a) and rotate (by - polar angle) a point
+     * use mirror at x-axis to get point with positive y-value
      * maps endpoint A to origin and endpoint B to the x-axis
+     * use result to decorate polygon
      * @method Line#mapToXAxis
      * @param {Vector2} point
+     * @return true if mirror image, false else
      */
     Line.prototype.mapToXAxis = function(point) {
         point.x -= this.a.x;
@@ -239,6 +242,11 @@ function Line(a, b) {
         const h = this.ex * point.x + this.ey * point.y;
         point.y = -this.ey * point.x + this.ex * point.y;
         point.x = h;
+        if (point.y < 0) {
+            point.y = -point.y;
+            return true;
+        }
+        return false;
     };
 
 }());

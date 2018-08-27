@@ -191,6 +191,10 @@ function creation() {
     // Make.map.discRadius=???,  value >0 for output image clipped to circle, <0 for no clipping
     //==========================================================================================================================
 
+    // if we need some special drawing over the image, modify:
+    //   Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
+    // where Make.updateMapOutput is the method to draw the image according to the map
+
     // choosing the tiling
     var tiling = "regular";
     // show the sum of angles

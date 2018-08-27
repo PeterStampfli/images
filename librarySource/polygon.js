@@ -7,7 +7,6 @@
  */
 /* jshint esversion:6 */
 
-
 function Polygon(corners) {
     this.lines = [];
     this.xMin = corners[0].x;
@@ -25,10 +24,8 @@ function Polygon(corners) {
     this.lines.push(new Line(Fast.last(corners), corners[0]));
 }
 
-
 (function() {
     "use strict";
-
 
     /**
      * create a polygon from vector2
@@ -86,30 +83,31 @@ function Polygon(corners) {
 
     /**
      * check if a point is inside the surrounding rectangle
-     * @method Polygon#isInsideRectangle
+     * @method Polygon#rectangleContains
      * @param {Vector2} point
      * @return true if point is inside, false else
      */
-    Polygon.prototype.isInsideRectangle = function(point) {
+    Polygon.prototype.rectangleContains = function(point) {
         return (point.x >= this.xMin) && (point.x <= this.xMax) && (point.y >= this.yMin) && (point.y <= this.yMax);
     };
 
     /** 
      * test if a point is inside the polygon, the polygon has to be convex and counterclockwise corners/lines
-     * @method Polygon#isInside
+     * @method Polygon#contains
      * @param {Vector2} point
      * @return true if point is inside, false else
      */
-    Polygon.prototype.isInside = function(point) {
-        if (this.isInsideRectangle(point)) {
+    Polygon.prototype.contains = function(point) {
+        if (this.rectangleContains(point)) {
+            for (var i = this.lines.length - 1; i >= 0; i--) {
+                if (this.lines[i].isAtRight(point)) { // true only if not at left and not on the line
+                    return false;
+                }
+            }
+            return true;
+        } else {
             return false;
         }
-        for (var i = this.lines.length - 1; i >= 0; i--) {
-            if (this.lines[i].isAtRight(point)) {
-                return false;
-            }
-        }
-        return true;
     };
 
     // test if two polygons are equal: Corners have to belong to the same UniquePoints object 
@@ -217,5 +215,7 @@ function UniquePolygons() {
         polygons.push(polygon);
         return true;
     };
+
+    // making images: add an imaging line, use mirrorsymmetry or rotation and mirroring as maapping
 
 }());

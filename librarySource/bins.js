@@ -50,9 +50,17 @@ function Bins() {
             let j = Math.floor((y - this.yMin) / this.side);
             if ((j >= 0) && (j < this.height)) {
                 this.bins[i + this.width * j].push(object);
-                console.log(this.bins[i + this.width * j]);
             }
         }
+    };
+
+    /**
+     * add a point (Vector2 object)
+     * @method Bins#addPoint
+     * @param {Vector2} p - any object with x and y fields
+     */
+    Bins.prototype.addPoint = function(p) {
+        this.addAtCoordinates(p, p.x, p.y);
     };
 
     /**
@@ -79,6 +87,15 @@ function Bins() {
     };
 
     /**
+     * adding an extended object to all bins its surrounding rectangle covers
+     * @method Bins#addObject
+     * @param {Object} object - to add to bin, with xMin,xMax,yMin and yMax fields
+     */
+    Bins.prototype.addObject = function(object) {
+        this.addAtCoordinateRange(object, object.xMin, object.xMax, object.yMin, object.yMax);
+    };
+
+    /**
      * get the bin defined by coordinates
      * keeping attention to limits
      * @method Bins.getAtCoordinates
@@ -91,12 +108,43 @@ function Bins() {
         if ((i >= 0) && (i < this.width)) {
             let j = Math.floor((y - this.yMin) / this.side);
             if ((j >= 0) && (j < this.height)) {
-                console.log(i + this.width * j);
                 return this.bins[i + this.width * j];
             } else {
                 return [];
             }
         } else return [];
+    };
+
+    /**
+     * get the bin defined by a point (Vector2)
+     * @method Bins#getAtPoint
+     * @param {Vector2} p
+     * @return {ArrayOfObjects}
+     */
+    Bins.prototype.getAtPoint = function(p) {
+        return this.getAtCoordinates(p.x, p.y);
+    };
+
+    /**
+     * find the first object that contains the point
+     * the bins have only objects with a contains(Vector2) method
+     * @method Bins#getFirstContains
+     * @param {Vector2} p
+     * @return object or null
+     */
+    Bins.prototype.getFirstContains = function(p) {
+        const bin = this.getAtPoint(p);
+        const length = bin.length;
+        console.log(bin);
+        var result;
+        for (var i = 0; i < length; i++) {
+            result = bin[i];
+            console.log(result);
+            if (result.contains(p)) {
+                return result;
+            }
+        }
+        return null;
     };
 
 
