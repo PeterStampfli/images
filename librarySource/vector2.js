@@ -139,6 +139,15 @@ function Vector2(x = 0, y = 0) {
     Vector2.prototype.isEqual = function(other) {
         return (Math.abs(this.x - other.x) < Vector2.epsilon) && (Math.abs(this.y - other.y) < Vector2.epsilon);
     };
+
+    /**
+     * logging a vector on the console
+     * @method Vector2.log 
+     */
+    Vector2.prototype.log = function() {
+        console.log("Vector2 (" + this.x + "," + this.y + ")");
+    };
+
 }());
 
 

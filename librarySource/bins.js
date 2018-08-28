@@ -147,5 +147,51 @@ function Bins() {
         return null;
     };
 
+    // mappings
+
+    /**
+     * repeated mirrors until point is inside a polygon without a mirror Line
+     * points not in a polygon will not be drawn (return lyapunov <0)
+     * making the structure
+     * @method Bins#structureRepeatedMirrors
+     * @param {Vector2} p - p.x will be set to number of mirrors+2
+     * @return number of reflections+1 for good points, -1 for points not to draw 
+     */
+    Bins.prototype.repeatedMirrors = function(p) {
+        var polygon;
+        let reflections = 0;
+        while (true) {
+            polygon = this.getFirstContains(p);
+            if (polygon) {
+                if (polygon.mirror(p)) {
+                    reflections++;
+                } else {
+                    return reflections;
+                }
+            } else {
+                return -1;
+            }
+        }
+    };
+
+    /**
+     * shift and rotate /mirror point if inside a polygon
+     * @method Bins#shiftRotateMirror
+     * @param {Vector2}
+     * @return -1 for bad point, 0 if not mirrored, 1 if mirrored
+     */
+    Bins.prototype.shiftRotateMirror = function(p) {
+        let polygon = this.getFirstContains(p);
+        if (polygon) {
+            if (polygon.shiftRotateMirror(p)) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return -1;
+        }
+    };
+
 
 }());

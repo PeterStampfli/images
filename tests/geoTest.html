@@ -27,6 +27,13 @@ console.log("hi");
 p=Polygon.ofCoordinates(1,0,5,0,4,6,1,4);
 p.log();
 
+p.addMappingLine(new Vector2(0,0),new Vector2(8,8));
+v=new Vector2(2,1)
+console.log(p.shiftRotateMirror(v))
+console.log(v);
+v.log();
+p.log();
+
 
 bins=new Bins();
 bins.setup(1,10,0,4,0.5);

@@ -232,11 +232,11 @@ function Line(a, b) {
      * use mirror at x-axis to get point with positive y-value
      * maps endpoint A to origin and endpoint B to the x-axis
      * use result to decorate polygon
-     * @method Line#mapToXAxis
+     * @method Line#shiftRotateMirror
      * @param {Vector2} point
      * @return true if mirror image, false else
      */
-    Line.prototype.mapToXAxis = function(point) {
+    Line.prototype.shiftRotateMirror = function(point) {
         point.x -= this.a.x;
         point.y -= this.a.y;
         const h = this.ex * point.x + this.ey * point.y;

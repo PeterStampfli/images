@@ -71,6 +71,10 @@ function Polygon(corners) {
             console.log(i + "  (" + lines[i].a.x + "," + lines[i].a.y + ")");
         }
         console.log("limits: " + this.xMin + " " + this.xMax + " " + this.yMin + " " + this.yMax);
+        if (this.mappingLine) {
+            const line = this.mappingLine;
+            console.log("mapping Line between: (" + line.a.x + "," + line.a.y + ") - (" + line.b.x + "," + line.b.y + ")");
+        }
     };
 
     /**
@@ -149,6 +153,48 @@ function Polygon(corners) {
         }
         return false;
     };
+
+
+    // making images: add an imaging line, use mirrorsymmetry or rotation and mirroring as mapping
+
+    /**
+     * add an imaging line, with endpoints from the unique points pool
+     * @method Polygon#addMappingLine
+     * @param {Vector2} a - endpoint
+     * @param {Vector2} b - endpoint
+     */
+    Polygon.prototype.addMappingLine = function(a, b) {
+        this.mappingLine = new Line(Vector2.unique.fromVector(a), Vector2.unique.fromVector(b));
+    };
+
+    /**
+     * mirror a point at the mapping line of the polygon
+     * @method Polygon#mirror
+     * @param {Vector2} p
+     * @return true if there is a mapping line, false else
+     */
+    Polygon.prototype.mirror = function(p) {
+        if (this.mappingLine) {
+            this.mappingLine.mirror(p);
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    /**
+     * shift (by end point a) and rotate (by - polar angle) a point
+     * use mirror at x-axis to get point with positive y-value
+     * maps endpoint A of mapping line to origin and endpoint B to the x-axis
+     * @method Polygon#shiftRotateMirror
+     * @param {Vector2} p
+     * @return true if mirror image, false else
+     */
+    Polygon.prototype.shiftRotateMirror = function(p) {
+        return this.mappingLine.shiftRotateMirror(p);
+    };
+
+
 }());
 
 
@@ -216,6 +262,5 @@ function UniquePolygons() {
         return true;
     };
 
-    // making images: add an imaging line, use mirrorsymmetry or rotation and mirroring as maapping
 
 }());
