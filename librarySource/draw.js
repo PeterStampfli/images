@@ -26,7 +26,7 @@ var Draw = {};
     /**
      * set the lineWidth
      * @method Draw.setLineWidth
-     * @param {float} theLineWidth
+     * @param {float} theLineWidth - in pixel
      */
     Draw.setLineWidth = function(theLineWidth) {
         lineWidth = theLineWidth;

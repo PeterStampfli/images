@@ -159,16 +159,52 @@ function Polygon(corners) {
 
     /**
      * add an imaging line, with endpoints from the unique points pool
-     * @method Polygon#addMappingLine
+     * @method Polygon#addMappingLineOfVectors
      * @param {Vector2} a - endpoint
      * @param {Vector2} b - endpoint
      */
-    Polygon.prototype.addMappingLine = function(a, b) {
+    Polygon.prototype.addMappingLineOfVectors = function(a, b) {
         this.mappingLine = new Line(Vector2.unique.fromVector(a), Vector2.unique.fromVector(b));
+        this.inversion = 0;
     };
 
     /**
-     * mirror a point at the mapping line of the polygon
+     * add an imaging line, with endpoints from the unique points pool
+     * @method Polygon#addMappingLineOfCoordinates
+     * @param {float} aX - endpoint coordinate
+     * @param {float} aY - endpoint coordinate
+     * @param {float} bX - endpoint coordinate
+     * @param {float} bY - endpoint coordinate
+     */
+    Polygon.prototype.addMappingLineOfCoordinates = function(aX, aY, bX, bY) {
+        this.mappingLine = new Line(Vector2.unique.fromCoordinates(aX, aY), Vector2.unique.fromCoordinates(bX, bY));
+        this.inversion = 0;
+    };
+
+    // use firstline (inverted)
+
+    /**
+     *make that first line is mapping line
+     * (first corner will be at (0,0) in image,first line points in x-axis direction)
+     *@method Polygon#firstLineMaps
+     */
+    Polygon.prototype.firstLineMaps = function() {
+        this.mappingLine = this.lines[0];
+        this.inversion = 0;
+    };
+
+    /**
+     *make that inverted first line is mapping line
+     * (second corner will be at (0,0) in image,first line points in negative x-axis direction, this mirrors)
+     *@method Polygon#firstLineInvertedMaps
+     */
+    Polygon.prototype.firstLineInvertedMaps = function() {
+        this.addMappingLineOfVectors(this.lines[0].b, this.lines[0].a);
+        this.inversion = 1;
+    };
+
+    /**
+     * mirror a point at the mapping line of the polygon (if there is a mapping line, for repeated mirroring)
      * @method Polygon#mirror
      * @param {Vector2} p
      * @return true if there is a mapping line, false else
@@ -188,10 +224,10 @@ function Polygon(corners) {
      * maps endpoint A of mapping line to origin and endpoint B to the x-axis
      * @method Polygon#shiftRotateMirror
      * @param {Vector2} p
-     * @return true if mirror image, false else
+     * @return number of mirror images (0,1, or 2)
      */
     Polygon.prototype.shiftRotateMirror = function(p) {
-        return this.mappingLine.shiftRotateMirror(p);
+        return this.mappingLine.shiftRotateMirror(p) + this.inversion;
     };
 
 

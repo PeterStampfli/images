@@ -234,7 +234,7 @@ function Line(a, b) {
      * use result to decorate polygon
      * @method Line#shiftRotateMirror
      * @param {Vector2} point
-     * @return true if mirror image, false else
+     * @return 1 if mirror image, 0 else
      */
     Line.prototype.shiftRotateMirror = function(point) {
         point.x -= this.a.x;
@@ -244,9 +244,9 @@ function Line(a, b) {
         point.x = h;
         if (point.y < 0) {
             point.y = -point.y;
-            return true;
+            return 1;
         }
-        return false;
+        return 0;
     };
 
 }());

@@ -178,16 +178,12 @@ function Bins() {
      * shift and rotate /mirror point if inside a polygon
      * @method Bins#shiftRotateMirror
      * @param {Vector2}
-     * @return -1 for bad point, 0 if not mirrored, 1 if mirrored
+     * @return -1 for bad point, 0 or 2 if not mirrored, 1 if mirrored
      */
     Bins.prototype.shiftRotateMirror = function(p) {
         let polygon = this.getFirstContains(p);
         if (polygon) {
-            if (polygon.shiftRotateMirror(p)) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return polygon.shiftRotateMirror(p);
         } else {
             return -1;
         }
