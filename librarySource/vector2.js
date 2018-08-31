@@ -216,6 +216,7 @@ function UniquePoints() {
 
     /**
      * create a unique point (Vector2) from another vector2
+     * the argument vector may be changed without further effect
      * @method UniquePoints#fromVector
      * @param {Vector2} v
      * @return Vector2 object for the point

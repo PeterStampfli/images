@@ -96,6 +96,26 @@ function Bins() {
     };
 
     /**
+     * adding extended objects to all bins its surrounding rectangle covers
+     * @method Bins#addObjects
+     * @param {ArrayOfObject} objects - to add to bin, with xMin,xMax,yMin and yMax fields
+     */
+    Bins.prototype.addObjects = function(objects) {
+        for (var i = objects.length - 1; i >= 0; i--) {
+            this.addObject(objects[i]);
+        }
+    };
+
+    /**
+     * adding the collected unique polygons to all bins its surrounding rectangle covers
+     * @method Bins#addUniquePolygons
+     * @param {UniquePolygons} unique - to add to bin, with xMin,xMax,yMin and yMax fields
+     */
+    Bins.prototype.addUniquePolygons = function(unique) {
+        this.addObjects(unique.polygons);
+    };
+
+    /**
      * get the bin defined by coordinates
      * keeping attention to limits
      * @method Bins.getAtCoordinates
@@ -135,11 +155,9 @@ function Bins() {
     Bins.prototype.getFirstContains = function(p) {
         const bin = this.getAtPoint(p);
         const length = bin.length;
-        console.log(bin);
         var result;
         for (var i = 0; i < length; i++) {
             result = bin[i];
-            console.log(result);
             if (result.contains(p)) {
                 return result;
             }

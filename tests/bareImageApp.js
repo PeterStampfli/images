@@ -2,8 +2,6 @@
 
 // create the UI elements and their interactions
 
-var p1;
-
 function creation() {
     "use strict";
     // first do single touch debug with desktop browser
@@ -203,88 +201,38 @@ function creation() {
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
 
-    function testMapImage(p) {
-
-        /*      if (p1.contains(p)) {
-                  p1.shiftRotateMirror(p);
-                  return 1;
-              }
-              return -1;*/
-        if (bins.shiftRotateMirror(p) < 0) {
-            return -1;
-        } else {
-            return 0.00;
+    function mapImage(p) {
+        if (p.x < 0) {
+            p.x = -p.x;
         }
-
-
+        if (p.y < 0) {
+            p.y = -p.y;
+        }
+        return 1;
     }
 
-
-    function testMapStructure(p) {
-        /*  
-          if (p1.contains(p)) {
-              p.x=p1.shiftRotateMirror(p);
-              return 1;
-          }
-          */
-        let result = bins.shiftRotateMirror(p);
+    function mapStructure(p) {
+        var result = 0;
+        if (p.x < 0) {
+            result++;
+        }
+        if (p.y < 0) {
+            result++;
+        }
         p.x = result;
-        return result;
+        return 1;
     }
-
-
 
     Make.initializeMap = function() {
-
-        Make.setMapping(testMapImage, testMapStructure);
+        Make.setMapping(mapImage, mapStructure);
     };
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
 
-        Draw.setLineWidth(2);
-        Draw.setColor("red");
-        p1.draw();
+        // some drawing
 
     };
-
-    //playing with polygons
-
-    var bins = new Bins();
-
-    bins.setup(-10, 10, -10, 10, 0.5);
-    var polygons = new UniquePolygons();
-    var left = new Vector2(0, 0);
-    var right = new Vector2(10, 0);
-    var top = new Vector2(5, 6);
-    var bottom = new Vector2(5, -6);
-    var center = new Vector2(5, 0);
-
-    p1 = polygons.addPolygonOfVectors(left, bottom, top);
-
-    polygons.log();
-
-    p1.firstLineMaps();
-
-
-
-
-    bins.addUniquePolygons(polygons);
-
-    let p = new Vector2(2, 0);
-    console.log(p);
-    console.log(p1.contains(p));
-    console.log(p1.shiftRotateMirror(p));
-    p.log();
-    /*      if (p1.contains(p)) {
-              p1.shiftRotateMirror(p);
-              return 1;
-          }
-          return -1;*/
-    p = new Vector2(2, 0);
-    console.log(bins.shiftRotateMirror(p));
-    p.log();
-
 }
 
 // adjust fontsize related dimesnions

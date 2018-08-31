@@ -73,7 +73,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let scale = this.outputImage.scale;
         let index = 0;
         let cutDisc = (this.discRadius > 0);
-        var discRadius2, discRadiusMinus2, alphaFactor;
+        var discRadius2, discRadiusMinus2, alphaFactor, lyapunov;
         if (cutDisc) {
             discRadius2 = this.discRadius * this.discRadius;
             // smooth cutting inside the disc to avoid wrong colors
@@ -102,14 +102,18 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     }
                     // making the tranmsform
                     if (r2 < discRadius2) {
-                        lyapunovArray[index] = mapping(position);
+                        lyapunov = mapping(position);
+                        lyapunovArray[index] = lyapunov;
+                        if (lyapunov < 0) {
+                            alphaArray[index] = 0;
+                        }
                     } else {
                         lyapunovArray[index] = -1;
                     }
                 } else {
-                    let lyapunov = mapping(position);
+                    lyapunov = mapping(position);
                     lyapunovArray[index] = lyapunov;
-                    if (lyapunov > 0) {
+                    if (lyapunov >= -0.001) {
                         alphaArray[index] = 255;
                     } else {
                         alphaArray[index] = 0;
@@ -140,7 +144,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] >= 0) {
+            if (lyapunovArray[index] >= -0.001) {
                 sum++;
                 sumX += xArray[index];
                 sumY += yArray[index];
@@ -190,7 +194,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] > 0) {
+            if (lyapunovArray[index] >= -0.001) {
                 x = xArray[index];
                 left = Math.min(left, x);
                 right = Math.max(right, x);
@@ -205,10 +209,12 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         upperRight.y = upper;
     };
 
-    let colorParityNull = new Color(200, 200, 0); //default yellow
-    let colorParityOdd = new Color(0, 120, 0); // default cyan
-    let colorParityEven = new Color(200, 120, 0); // default: brown
-    let colorParityOff = new Color(128, 128, 128, 0);
+    // default values for colors, can be changed
+
+    VectorMap.colorParityNull = new Color(200, 200, 0); //default yellow
+    VectorMap.colorParityOdd = new Color(0, 120, 0); // default cyan
+    VectorMap.colorParityEven = new Color(200, 120, 0); // default: brown
+    VectorMap.colorParityOff = new Color(128, 128, 128, 0);
 
 
     /**
@@ -220,10 +226,10 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     VectorMap.prototype.drawStructure = function() {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
-        let intOffColor = PixelCanvas.integerOf(colorParityOff);
-        let intColorParityNull = PixelCanvas.integerOf(colorParityNull);
-        let intColorParityOdd = PixelCanvas.integerOf(colorParityOdd);
-        let intColorParityEven = PixelCanvas.integerOf(colorParityEven);
+        let intOffColor = PixelCanvas.integerOf(VectorMap.colorParityOff);
+        let intColorParityNull = PixelCanvas.integerOf(VectorMap.colorParityNull);
+        let intColorParityOdd = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+        let intColorParityEven = PixelCanvas.integerOf(VectorMap.colorParityEven);
         let height = this.height;
         let width = this.width;
         let lyapunovArray = this.lyapunovArray;
@@ -231,7 +237,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         var parity;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] >= 0) {
+            if (lyapunovArray[index] >= -0.001) {
                 let parity = xArray[index];
                 if (parity == 0) {
                     pixel[index] = intColorParityNull;
@@ -284,7 +290,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let intOffColor = PixelCanvas.integerOf(offColor);
         var x, y, h, k;
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] >= 0) {
+            if (lyapunovArray[index] >= -0.001) {
                 x = xArray[index];
                 y = yArray[index];
                 // faster math floor instead of Math.round()
@@ -343,7 +349,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
             lyapunov = lyapunovArray[index] * baseLyapunov;
-            if (lyapunov > 0) {
+            if (lyapunov >= -0.001) {
                 x = xArray[index];
                 y = yArray[index];
                 h = shiftX + cosAngleScale * x - sinAngleScale * y;
@@ -403,7 +409,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
             lyapunov = lyapunovArray[index] * baseLyapunov;
-            if (lyapunov > 0) {
+            if (lyapunov >= -0.001) {
                 x = xArray[index];
                 y = yArray[index];
                 h = shiftX + cosAngleScale * x - sinAngleScale * y;
@@ -471,7 +477,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             if (index > 0.5 * length) {
                 // determine the rgb color part
                 // background or image ?
-                if (lyapunov >= 0) {
+                if (lyapunov >= -0.001) {
                     if (!inputImage.getHighQuality(color, h, k, lyapunov)) {
                         color.set(offColor);
                     }
@@ -482,7 +488,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 color.alpha = alphaArray[index];
             } else {
                 color.alpha = 255;
-                if (lyapunov >= 0) {
+                if (lyapunov >= -0.001) {
                     if (!inputImage.getNearest(color, h, k, lyapunov)) {
                         color.set(offColor);
                         color.alpha = 0;
@@ -535,7 +541,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
             lyapunov = lyapunovArray[index];
-            if (lyapunov >= 0) {
+            if (lyapunov >= -0.001) {
                 let x = xArray[index];
                 let y = yArray[index];
                 let h = shiftX + cosAngleScale * x - sinAngleScale * y;

@@ -3,7 +3,7 @@
  * has limits of coordinates, do not change points afterwards
  * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
- * @param {ArrayOfVector2} corners - the corner points in counter clockwise order, unique points
+ * @param {ArrayOfVector2} corners - the corner points in counter clockwise order, changing them changes the polygon, just in case ...
  */
 /* jshint esversion:6 */
 
@@ -29,32 +29,22 @@ function Polygon(corners) {
 
     /**
      * create a polygon from vector2
-     * creates unique points (vector2)
+     * creates unique points (vector2) (this is important to avoid dublicates, argument vectors may be calculated and reused)
      * @method Polygon.ofVectors
      * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
      * @return {Polygon}
      */
     Polygon.ofVectors = function(vectors) {
-        const length = arguments.length;
+        var args;
+        if (arguments.length === 1) {
+            args = vectors;
+        } else {
+            args = Array.from(arguments);
+        }
+        const length = args.length;
         const corners = [];
         for (var i = 0; i < length; i++) {
-            corners.push(Vector2.unique.fromVector(arguments[i]));
-        }
-        return new Polygon(corners);
-    };
-
-    /**
-     * create a polygon from coordinates
-     * creates unique points (vector2)
-     * @method Polygon.ofCoordinates
-     * @param {listOfFloat} list of floats, x,y coordinate pairs 
-     * @return {Polygon}
-     */
-    Polygon.ofCoordinates = function(coordinates) {
-        const length = arguments.length;
-        const corners = [];
-        for (var i = 0; i < length; i += 2) {
-            corners.push(Vector2.unique.fromCoordinates(arguments[i], arguments[i + 1]));
+            corners.push(Vector2.unique.fromVector(args[i]));
         }
         return new Polygon(corners);
     };
@@ -168,18 +158,6 @@ function Polygon(corners) {
         this.inversion = 0;
     };
 
-    /**
-     * add an imaging line, with endpoints from the unique points pool
-     * @method Polygon#addMappingLineOfCoordinates
-     * @param {float} aX - endpoint coordinate
-     * @param {float} aY - endpoint coordinate
-     * @param {float} bX - endpoint coordinate
-     * @param {float} bY - endpoint coordinate
-     */
-    Polygon.prototype.addMappingLineOfCoordinates = function(aX, aY, bX, bY) {
-        this.mappingLine = new Line(Vector2.unique.fromCoordinates(aX, aY), Vector2.unique.fromCoordinates(bX, bY));
-        this.inversion = 0;
-    };
 
     // use firstline (inverted)
 
@@ -190,7 +168,7 @@ function Polygon(corners) {
      */
     Polygon.prototype.firstLineMaps = function() {
         this.mappingLine = this.lines[0];
-        this.inversion = 0;
+        this.inversion = 2;
     };
 
     /**
@@ -267,6 +245,7 @@ function UniquePolygons() {
             console.log("polygon index " + i);
             polygons[i].log();
         }
+        console.log("---------------------------");
     };
 
     /**
@@ -278,7 +257,27 @@ function UniquePolygons() {
     };
 
     /**
-     * check if a polygon is alreday in the list,
+     * check if a polygon is already in the list,
+     * if not, return -1 
+     * if it is in the list return index>=0
+     * The polygons have to use the same UniquePoints
+     * @method UniquePolygons#isNew
+     * @param {Polygon} polygon
+     * @return true if it is not in the list==is isNew
+     */
+    UniquePolygons.prototype.indexOf = function(polygon) {
+        const polygons = this.polygons;
+        const length = polygons.length;
+        for (var i = 0; i < length; i++) {
+            if (polygon.isEqual(polygons[i])) {
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    /**
+     * avoid dublicates:check if a polygon is already in the list,
      * if not, return true and add to list
      * if it is in the list return false
      * The polygons have to use the same UniquePoints
@@ -287,16 +286,47 @@ function UniquePolygons() {
      * @return true if it is not in the list==is isNew
      */
     UniquePolygons.prototype.isNew = function(polygon) {
-        const polygons = this.polygons;
-        const length = polygons.length;
-        for (var i = 0; i < length; i++) {
-            if (polygon.isEqual(polygons[i])) {
-                return false;
-            }
+        if (this.indexOf(polygon) >= 0) {
+            return false;
+        } else {
+            this.polygons.push(polygon);
+            return true;
         }
-        polygons.push(polygon);
-        return true;
     };
 
+    /**
+     * add a polygon to the list if it is not there
+     * @method UniquePolygons#addPolygon 
+     * @param {Polygon} polygon
+     */
+    UniquePolygons.prototype.addPolygon = function(polygon) {
+        let index = this.indexOf(polygon);
+        if (index >= 0) {
+            return this.polygons[index];
+        } else {
+            this.polygons.push(polygon);
+            console.log(polygon);
+            console.log(this.polygons[this.polygons.length - 1]);
+            console.log(this.polygons[this.polygons.length - 1] == polygon);
+            return polygon;
+        }
+    };
+
+    /**
+     * create a polygon from vector2 and put it in the list iof not there, returns the polygon
+     * creates unique points (vector2)
+     * @method UniquePolygons.addPolygonOfVectors
+     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
+     * @return {Polygon}
+     */
+    UniquePolygons.prototype.addPolygonOfVectors = function(vectors) {
+        var args;
+        if (arguments.length === 1) {
+            args = vectors;
+        } else {
+            args = Array.from(arguments);
+        }
+        return this.addPolygon(Polygon.ofVectors(args));
+    };
 
 }());
