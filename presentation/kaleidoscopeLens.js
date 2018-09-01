@@ -1,5 +1,81 @@
 /* jshint esversion:6 */
 
+
+// test smoothing
+/**
+ * draw on a pixelcanvas use a map 
+ * if map is expanding use smoothing, if contracting use interpolation
+ * "invalid" points have a negative lyapunov value
+ * @method VectorMap#drawSimple
+ * returns true if colors are correct, else false
+ */
+VectorMap.prototype.drawHalf = function() {
+    let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
+    var lyapunov;
+    // image objects
+    let pixelCanvas = this.outputImage.pixelCanvas;
+    let pixel = pixelCanvas.pixel;
+    let inputImage = this.inputImage;
+    // input image data
+
+    // input transform data
+    let shiftX = this.inputTransform.shiftX;
+    let shiftY = this.inputTransform.shiftY;
+    let cosAngleScale = this.inputTransform.cosAngleScale;
+    let sinAngleScale = this.inputTransform.sinAngleScale;
+    // map dimensions
+    let height = this.height;
+    let width = this.width;
+    // map data
+    let xArray = this.xArray;
+    let yArray = this.yArray;
+    let lyapunovArray = this.lyapunovArray;
+    let alphaArray = this.alphaArray;
+    // color data
+    let offColor = new Color();
+    inputImage.averageImageColor(offColor);
+    let intOffColor = PixelCanvas.integerOf(offColor);
+    const color = new Color();
+    var x, y, h, k;
+    var success;
+    const length = xArray.length;
+    for (var index = 0; index < length; index++) {
+        lyapunov = lyapunovArray[index] * baseLyapunov;
+        let x = xArray[index];
+        let y = yArray[index];
+        let h = shiftX + cosAngleScale * x - sinAngleScale * y;
+        let k = shiftY + sinAngleScale * x + cosAngleScale * y;
+        if (index > 0.5 * length) {
+            // determine the rgb color part
+            // background or image ?
+            if (lyapunov >= -0.001) {
+                if (!inputImage.getHighQuality(color, h, k, lyapunov)) {
+                    color.set(offColor);
+                }
+            } else { // invalid points: use off color
+                color.set(offColor);
+            }
+            // add alpha part
+            color.alpha = alphaArray[index];
+        } else {
+            color.alpha = 255;
+            if (lyapunov >= -0.001) {
+                if (!inputImage.getNearest(color, h, k, lyapunov)) {
+                    color.set(offColor);
+                    color.alpha = 0;
+                }
+            } else { // invalid points: use off color
+                color.set(offColor);
+                color.alpha = 0;
+            }
+        }
+        // and show
+        pixelCanvas.setPixelAtIndex(color, index);
+    }
+    pixelCanvas.showPixel();
+};
+
+
 if (window.innerHeight > window.innerWidth) {
     document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
     console.log("high");

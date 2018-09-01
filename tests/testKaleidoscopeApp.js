@@ -2,7 +2,6 @@
 
 // create the UI elements and their interactions
 
-var p1;
 
 function creation() {
     "use strict";
@@ -213,7 +212,7 @@ function creation() {
         if (bins.shiftRotateMirror(p) < 0) {
             return -1;
         } else {
-            return 0.00;
+            return 1;
         }
 
 
@@ -244,7 +243,7 @@ function creation() {
 
         Draw.setLineWidth(2);
         Draw.setColor("red");
-        p1.draw();
+        polygons.draw();
 
     };
 
@@ -254,36 +253,24 @@ function creation() {
 
     bins.setup(-10, 10, -10, 10, 0.5);
     var polygons = new UniquePolygons();
-    var left = new Vector2(0, 0);
-    var right = new Vector2(10, 0);
-    var top = new Vector2(5, 6);
-    var bottom = new Vector2(5, -6);
-    var center = new Vector2(5, 0);
+    var left = new Vector2(-5, 0);
+    var right = new Vector2(5, 0);
+    var top = new Vector2(0, 10);
+    var bottom = new Vector2(0, -10);
+    var center = new Vector2(0, 0);
 
-    p1 = polygons.addPolygonOfVectors(left, bottom, top);
+    let p1 = polygons.addImagePolygon(left, bottom, center);
+    let p2 = polygons.addInvertedImagePolygon(bottom, right, center);
+    let p3 = polygons.addImagePolygon(right, top, center);
+    let p4 = polygons.addInvertedImagePolygon(top, left, center);
+
+
 
     polygons.log();
-
-    p1.firstLineMaps();
-
 
 
 
     bins.addUniquePolygons(polygons);
-
-    let p = new Vector2(2, 0);
-    console.log(p);
-    console.log(p1.contains(p));
-    console.log(p1.shiftRotateMirror(p));
-    p.log();
-    /*      if (p1.contains(p)) {
-              p1.shiftRotateMirror(p);
-              return 1;
-          }
-          return -1;*/
-    p = new Vector2(2, 0);
-    console.log(bins.shiftRotateMirror(p));
-    p.log();
 
 }
 

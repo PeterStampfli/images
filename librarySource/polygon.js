@@ -163,22 +163,22 @@ function Polygon(corners) {
 
     /**
      *make that first line is mapping line
-     * (first corner will be at (0,0) in image,first line points in x-axis direction)
+     * (first corner will be at (0,0) in image,first line points in positive x-axis direction)
+     * because polygon corners are counterclockwise and polygon is convex, all points will be y>0 after rotation
      *@method Polygon#firstLineMaps
      */
     Polygon.prototype.firstLineMaps = function() {
         this.mappingLine = this.lines[0];
-        this.inversion = 2;
     };
 
     /**
      *make that inverted first line is mapping line
      * (second corner will be at (0,0) in image,first line points in negative x-axis direction, this mirrors)
+     * because polygon corners are counterclockwise and polygon is convex, all points will be y<0 after rotation and there is a mirroring
      *@method Polygon#firstLineInvertedMaps
      */
     Polygon.prototype.firstLineInvertedMaps = function() {
         this.addMappingLineOfVectors(this.lines[0].b, this.lines[0].a);
-        this.inversion = 1;
     };
 
     /**
@@ -205,7 +205,7 @@ function Polygon(corners) {
      * @return number of mirror images (0,1, or 2)
      */
     Polygon.prototype.shiftRotateMirror = function(p) {
-        return this.mappingLine.shiftRotateMirror(p) + this.inversion;
+        return this.mappingLine.shiftRotateMirror(p);
     };
 
 
@@ -296,18 +296,15 @@ function UniquePolygons() {
 
     /**
      * add a polygon to the list if it is not there
-     * @method UniquePolygons#addPolygon 
+     * @method UniquePolygons#add
      * @param {Polygon} polygon
      */
-    UniquePolygons.prototype.addPolygon = function(polygon) {
+    UniquePolygons.prototype.add = function(polygon) {
         let index = this.indexOf(polygon);
         if (index >= 0) {
             return this.polygons[index];
         } else {
             this.polygons.push(polygon);
-            console.log(polygon);
-            console.log(this.polygons[this.polygons.length - 1]);
-            console.log(this.polygons[this.polygons.length - 1] == polygon);
             return polygon;
         }
     };
@@ -315,18 +312,56 @@ function UniquePolygons() {
     /**
      * create a polygon from vector2 and put it in the list iof not there, returns the polygon
      * creates unique points (vector2)
-     * @method UniquePolygons.addPolygonOfVectors
+     * @method UniquePolygons.addPolygon
      * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
      * @return {Polygon}
      */
-    UniquePolygons.prototype.addPolygonOfVectors = function(vectors) {
+    UniquePolygons.prototype.addPolygon = function(vectors) {
         var args;
         if (arguments.length === 1) {
             args = vectors;
         } else {
             args = Array.from(arguments);
         }
-        return this.addPolygon(Polygon.ofVectors(args));
+        return this.add(Polygon.ofVectors(args));
+    };
+
+    /**
+     * create an image polygon from vector2, the first line is themapping line,and put it in the list iof not there, returns the polygon
+     * creates unique points (vector2)
+     * @method UniquePolygons.addImagePolygon
+     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
+     * @return {Polygon}
+     */
+    UniquePolygons.prototype.addImagePolygon = function(vectors) {
+        var args;
+        if (arguments.length === 1) {
+            args = vectors;
+        } else {
+            args = Array.from(arguments);
+        }
+        const polygon = this.add(Polygon.ofVectors(args));
+        polygon.firstLineMaps();
+        return polygon;
+    };
+
+    /**
+     * create an image polygon from vector2, the inverted first line is the mapping line,and put it in the list iof not there, returns the polygon
+     * creates unique points (vector2)
+     * @method UniquePolygons.addInvertedImagePolygon
+     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
+     * @return {Polygon}
+     */
+    UniquePolygons.prototype.addInvertedImagePolygon = function(vectors) {
+        var args;
+        if (arguments.length === 1) {
+            args = vectors;
+        } else {
+            args = Array.from(arguments);
+        }
+        const polygon = this.add(Polygon.ofVectors(args));
+        polygon.firstLineInvertedMaps();
+        return polygon;
     };
 
 }());
