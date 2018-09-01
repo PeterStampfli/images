@@ -52,11 +52,17 @@ function Polygon(corners) {
     /**
      * log the polygon
      * @method Polygon#log
+     * @param {String} message - or nothind
      */
-    Polygon.prototype.log = function() {
+    Polygon.prototype.log = function(message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
         const lines = this.lines;
         const length = lines.length;
-        console.log("polygon corners");
+        console.log(message + "polygon with corners");
         for (var i = 0; i < length; i++) {
             console.log(i + "  (" + lines[i].a.x + "," + lines[i].a.y + ")");
         }
@@ -242,8 +248,7 @@ function UniquePolygons() {
         const polygons = this.polygons;
         const length = polygons.length;
         for (var i = 0; i < length; i++) {
-            console.log("polygon index " + i);
-            polygons[i].log();
+            polygons[i].log("index " + i);
         }
         console.log("---------------------------");
     };

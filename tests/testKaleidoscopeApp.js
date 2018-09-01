@@ -268,6 +268,12 @@ function creation() {
 
     polygons.log();
 
+    left.log("left");
+    right.log("right");
+    Vector2.difference(right, left).log("s");
+    Vector2.center(left, top).log("center");
+    Vector2.lerp(left, 1, top).log("ll");
+
 
 
     bins.addUniquePolygons(polygons);

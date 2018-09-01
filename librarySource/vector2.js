@@ -16,6 +16,8 @@ function Vector2(x = 0, y = 0) {
 (function() {
     "use strict";
 
+    //make vectors
+
     /**
      * set vector to given coordinate values
      * @method Vector2#setComponents
@@ -52,10 +54,12 @@ function Vector2(x = 0, y = 0) {
         return clone;
     };
 
+    // calculate with vectors
+
     /**
      * scale vector
      * @method Vector2#scale
-     * @param {Vector2} v - the model vector
+     * @param {float} factor 
      * @return {Vector2} - this, for chaining
      */
     Vector2.prototype.scale = function(factor) {
@@ -63,6 +67,85 @@ function Vector2(x = 0, y = 0) {
         this.y *= factor;
         return this;
     };
+
+    /**
+     * add a vector
+     * @method Vector2#add
+     * @param {Vector2} v - the other vector
+     * @return {Vector2} - this, for chaining
+     */
+    Vector2.prototype.add = function(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    };
+
+    /**
+     * subtract a vector
+     * @method Vector2#sub
+     * @param {Vector2} v - the other vector
+     * @return {Vector2} - this, for chaining
+     */
+    Vector2.prototype.sub = function(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+    };
+
+    // create calculated vectors
+
+    /**
+     * create a vector as the sum of two vectors, they remain unchanged
+     * @method Vector2.sum
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @return Vector2 object, sum of the vectors
+     */
+    Vector2.sum = function(a, b) {
+        return new Vector2(a.x + b.x, a.y + b.y);
+    };
+
+    /**
+     * create a vector as the difference of two vectors, they remain unchanged
+     * @method Vector2.difference
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @return Vector2 object, difference a-b of the vectors
+     */
+    Vector2.difference = function(a, b) {
+        return new Vector2(a.x - b.x, a.y - b.y);
+    };
+
+    /**
+     * calculate center (mean value) of any number of vectors
+     * @method Vector2.center
+     * @param {ListOfVector2} vectors
+     * @return Vector2, center of the vectors
+     */
+    Vector2.center = function(vectors) {
+        let length = arguments.length;
+        let x = 0;
+        let y = 0;
+        for (var i = 0; i < length; i++) {
+            x += arguments[i].x;
+            y += arguments[i].y;
+        }
+        return new Vector2(x / length, y / length);
+    };
+
+    /**
+     * linear interpolation between two vectors
+     * @method Vector2.lerp
+     * @param {Vector2} a
+     * @param {float} t - interpolation parameter
+     * @param {Vector2} b
+     * @return Vector2, (1-t)*a+t*b
+     */
+    Vector2.lerp = function(a, t, b) {
+        return new Vector2((1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y);
+    };
+
+    //manipulate vectors
 
     /**
      * get the polar angle
@@ -143,10 +226,19 @@ function Vector2(x = 0, y = 0) {
     /**
      * logging a vector on the console
      * @method Vector2.log 
+     * @param {String} message - or nothind
      */
-    Vector2.prototype.log = function() {
-        console.log("Vector2 (" + this.x + "," + this.y + ")");
+    Vector2.prototype.log = function(message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
+        console.log(message + "Vector2 (" + this.x + "," + this.y + ")");
     };
+
+
+
 
 }());
 
