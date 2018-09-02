@@ -204,11 +204,7 @@ function creation() {
 
     function testMapImage(p) {
 
-        /*      if (p1.contains(p)) {
-                  p1.shiftRotateMirror(p);
-                  return 1;
-              }
-              return -1;*/
+ 
         if (bins.shiftRotateMirror(p) < 0) {
             return -1;
         } else {
@@ -220,12 +216,9 @@ function creation() {
 
 
     function testMapStructure(p) {
-        /*  
-          if (p1.contains(p)) {
-              p.x=p1.shiftRotateMirror(p);
-              return 1;
-          }
-          */
+         //   Make.outputImage.adjustCanvasTransform();
+
+
         let result = bins.shiftRotateMirror(p);
         p.x = result;
         return result;
@@ -265,14 +258,6 @@ function creation() {
     let p4 = polygons.addInvertedImagePolygon(top, left, center);
 
 
-
-    polygons.log();
-
-    left.log("left");
-    right.log("right");
-    Vector2.difference(right, left).log("s");
-    Vector2.center(left, top).log("center");
-    Vector2.lerp(left, 1, top).log("ll");
 
 
 
@@ -474,6 +459,7 @@ window.onresize = function() {
 
     layout();
 
+
     if (Make.inputImageExists) {
         // do we have to reload the input image into the control image?
         // input image has to exist and the limits have changed
@@ -510,4 +496,5 @@ window.onresize = function() {
         Make.outputImage.place();
         Make.updateOutputImageIfUsingInputImage();
     }
+
 };

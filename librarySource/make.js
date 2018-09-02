@@ -581,6 +581,7 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
+        Make.outputImage.adjustCanvasTransform();
 
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
