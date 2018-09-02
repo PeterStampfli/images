@@ -65,6 +65,7 @@ function Bins() {
 
     /**
      * adding an extended object to all bins its surrounding rectangle covers
+     * attention to upper border bins
      * @method Bins#addAtCoordinateRange
      * @param {Object} object - to add to bin 
      * @param {float} xLow - low x-coordinate
@@ -74,9 +75,9 @@ function Bins() {
      */
     Bins.prototype.addAtCoordinateRange = function(object, xLow, xHigh, yLow, yHigh) {
         let iLow = Fast.clamp(0, Math.floor((xLow - this.xMin) / this.side), this.width - 1);
-        let iHigh = Fast.clamp(0, Math.floor((xHigh - this.xMin) / this.side), this.width - 1);
+        let iHigh = Fast.clamp(0, 1 + Math.floor((xHigh - this.xMin) / this.side), this.width - 1);
         let jLow = Fast.clamp(0, Math.floor((yLow - this.yMin) / this.side), this.height - 1);
-        let jHigh = Fast.clamp(0, Math.floor((yHigh - this.yMin) / this.side), this.height - 1);
+        let jHigh = Fast.clamp(0, 1 + Math.floor((yHigh - this.yMin) / this.side), this.height - 1);
         var jWidth;
         for (var j = jLow; j <= jHigh; j++) {
             jWidth = j * this.width;

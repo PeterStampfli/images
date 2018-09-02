@@ -204,7 +204,7 @@ function creation() {
 
     function testMapImage(p) {
 
- 
+
         if (bins.shiftRotateMirror(p) < 0) {
             return -1;
         } else {
@@ -216,7 +216,7 @@ function creation() {
 
 
     function testMapStructure(p) {
-         //   Make.outputImage.adjustCanvasTransform();
+        //   Make.outputImage.adjustCanvasTransform();
 
 
         let result = bins.shiftRotateMirror(p);
@@ -237,6 +237,7 @@ function creation() {
         Draw.setLineWidth(2);
         Draw.setColor("red");
         polygons.draw();
+        imageTiles.polygons.draw();
 
     };
 
@@ -258,10 +259,14 @@ function creation() {
     let p4 = polygons.addInvertedImagePolygon(top, left, center);
 
 
-
-
+    left.log();
+    left.rotate90().log();
+    imageTiles.addParallelogramA(Math.PI / 6, new Vector2(-8, -8), new Vector2(-8, 8));
 
     bins.addUniquePolygons(polygons);
+    bins.addUniquePolygons(imageTiles.polygons);
+    imageTiles.polygons.log("it");
+
 
 }
 

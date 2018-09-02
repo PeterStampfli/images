@@ -44,6 +44,19 @@ function Vector2(x = 0, y = 0) {
     };
 
     /**
+     * set the vector according to given polar angle and length
+     * @method Vector2#setPolar
+     * @param {float} length
+     * @param {float} angle
+     * @return {Vector2} - this, for chaining
+     */
+    Vector2.prototype.setPolar = function(length, angle) {
+        Fast.cosSin(angle);
+        this.x = length * Fast.cosResult;
+        this.y = length * Fast.sinResult;
+    };
+
+    /**
      * generate a clone of this vector
      * @method Vector2#clone
      * @return {Vector2} - a colne of this vector
@@ -55,6 +68,48 @@ function Vector2(x = 0, y = 0) {
     };
 
     // calculate with vectors
+    /**
+     * rotate 90 degrees counterclockwise
+     * @method Vector2#rotate90
+     * @ return the vector
+     */
+    Vector2.prototype.rotate90 = function() {
+        let h = -this.y;
+        this.y = this.x;
+        this.x = h;
+        return this;
+    };
+
+    /**
+     * rotate 180 degrees
+     * @method Vector2#rotate180
+     * @ return the vector
+     */
+    Vector2.prototype.rotate180 = function() {
+        this.x = -this.x;
+        this.y = -this.y;
+        return this;
+    };
+
+    /**
+     * mirror at the x-axis (inverting y)
+     * @method Vector2#mirrorAtXAxis
+     */
+    Vector2.prototype.mirrorAtXAxis = function() {
+        this.y = -this.y;
+    };
+
+    /**
+     * rotate the vector by given angle
+     * @method Vector2#rotate
+     * @param {float} angle - in radians
+     */
+    Vector2.prototype.rotate = function(angle) {
+        Fast.cosSin(angle);
+        let h = this.x * Fast.cosResult - this.y * Fast.sinResult;
+        this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
+        this.x = h;
+    };
 
     /**
      * scale vector
@@ -145,7 +200,7 @@ function Vector2(x = 0, y = 0) {
         return new Vector2((1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y);
     };
 
-    //manipulate vectors
+    //get vector data
 
     /**
      * get the polar angle
@@ -158,7 +213,7 @@ function Vector2(x = 0, y = 0) {
 
     /**
      * get the length
-     * @method Vector2#angle
+     * @method Vector2#length
      * @return {float} the length
      */
     Vector2.prototype.length = function() {
@@ -167,45 +222,13 @@ function Vector2(x = 0, y = 0) {
 
     /**
      * get the square length
-     * @method Vector2#angle
+     * @method Vector2#length2
      * @return {float} the length squared
      */
     Vector2.prototype.length2 = function() {
         return this.x * this.x + this.y * this.y;
     };
 
-    /**
-     * set the vector according to given polar angle and length
-     * @method Vector2#setPolar
-     * @param {float} length
-     * @param {float} angle
-     * @return {Vector2} - this, for chaining
-     */
-    Vector2.prototype.setPolar = function(length, angle) {
-        Fast.cosSin(angle);
-        this.x = length * Fast.cosResult;
-        this.y = length * Fast.sinResult;
-    };
-
-    /**
-     * mirror at the x-axis (inverting y)
-     * @method Vector2#mirrorAtXAxis
-     */
-    Vector2.prototype.mirrorAtXAxis = function() {
-        this.y = -this.y;
-    };
-
-    /**
-     * rotate the vector by given angle
-     * @method Vector2#rotate
-     * @param {float} angle - in radians
-     */
-    Vector2.prototype.rotate = function(angle) {
-        Fast.cosSin(angle);
-        let h = this.x * Fast.cosResult - this.y * Fast.sinResult;
-        this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
-        this.x = h;
-    };
 
     /**
      * comparing two vectors: accuracy for numbers to be considered as equal

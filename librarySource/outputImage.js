@@ -45,7 +45,6 @@ function OutputImage(idName) {
      */
     this.move = function(events) {
         this.shift(events.dx, events.dy);
-        this.adjustCanvasTransform();
         this.action();
     };
 
@@ -59,7 +58,6 @@ function OutputImage(idName) {
             } else {
                 outputImage.zoom(1 / outputImage.zoomFactor, mouseEvents.x, mouseEvents.y);
             }
-            outputImage.adjustCanvasTransform();
             outputImage.action();
         }
     };
@@ -77,7 +75,6 @@ function OutputImage(idName) {
             if (outputImage.canZoom) {
                 outputImage.zoom(touchEvents.lastDistance / touchEvents.distance, touchEvents.centerX, touchEvents.centerY);
                 outputImage.shift(touchEvents.dx, touchEvents.dy);
-                outputImage.adjustCanvasTransform();
                 outputImage.action();
             }
         }
@@ -205,9 +202,11 @@ function OutputImage(idName) {
     /**
      * make that the canvas context transform agrees with the input transform from pixel to coordinates
      * this is equivalent to the transform from space coordinates to pixel indices
+     * call in beginning of method to draw output
      * @method OutputImage#adjustCanvasTransform
      */
     OutputImage.prototype.adjustCanvasTransform = function() {
+        console.log("adjust");
         let context = this.pixelCanvas.canvasContext;
         context.setTransform(1, 0, 0, 1, -this.cornerX / this.scale, -this.cornerY / this.scale); // unshift
         context.transform(1 / this.scale, 0, 0, 1 / this.scale, 0, 0);
@@ -228,7 +227,6 @@ function OutputImage(idName) {
         } else {
             console.log(" ***Output.setCoordinates: width of canvas=0");
         }
-        this.adjustCanvasTransform();
     };
 
     /**
