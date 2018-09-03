@@ -236,7 +236,7 @@ function creation() {
 
         Draw.setLineWidth(2);
         Draw.setColor("red");
-        polygons.draw();
+        //  polygons.draw();
         imageTiles.polygons.draw();
 
     };
@@ -259,13 +259,12 @@ function creation() {
     let p4 = polygons.addInvertedImagePolygon(top, left, center);
 
 
-    left.log();
-    left.rotate90().log();
-    imageTiles.addParallelogramA(Math.PI / 6, new Vector2(-8, -8), new Vector2(-8, 8));
 
-    bins.addUniquePolygons(polygons);
+    imageTiles.addTwoColorPolygon(6, new Vector2(10, -3), new Vector2(10, 3));
+
+    // bins.addUniquePolygons(polygons);
     bins.addUniquePolygons(imageTiles.polygons);
-    imageTiles.polygons.log("it");
+    // imageTiles.polygons.log("it");
 
 
 }

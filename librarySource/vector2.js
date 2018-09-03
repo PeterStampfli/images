@@ -248,7 +248,7 @@ function Vector2(x = 0, y = 0) {
 
     /**
      * logging a vector on the console
-     * @method Vector2.log 
+     * @method Vector2#log 
      * @param {String} message - or nothind
      */
     Vector2.prototype.log = function(message) {

@@ -241,10 +241,16 @@ function UniquePolygons() {
 
     /**
      * log the polygons
-     * @method UniquePoints.log
+     * @method UniquePoints#log
+     * @param {String} message - or nothing
      */
-    UniquePolygons.prototype.log = function() {
-        console.log("Unique polygons");
+    UniquePolygons.prototype.log = function(message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
+        console.log(message + "Unique polygons");
         const polygons = this.polygons;
         const length = polygons.length;
         for (var i = 0; i < length; i++) {
