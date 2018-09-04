@@ -247,7 +247,7 @@ function creation() {
 
     bins.setup(-10, 10, -10, 10, 0.5);
 
-
+    iterateTiling.start(5);
     imageTiles.allSymmetric = false;
 
     imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));

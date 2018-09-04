@@ -8,7 +8,13 @@
 
 var imageTiles = {};
 
-imageTiles.polygons = new UniquePolygons();
+/**
+ * reset, simply clearing all polygons
+ * @method imageTiles.reset
+ */
+imageTiles.reset = function() {
+    imageTiles.polygons = new UniquePolygons();
+};
 
 /**
  * switch to always using symmetric polygons

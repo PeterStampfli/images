@@ -306,6 +306,25 @@ function UniquePolygons() {
     };
 
     /**
+     * avoid dublicates:check if a polygon with given corners is already in the list,
+     * if not, return true and add to list
+     * if it is in the list return false
+     * The polygons have to use the same UniquePoints
+     * @method UniquePolygons#isNewPolygon
+     * @param {Polygon} vectors - corners
+     * @return true if it is not in the list==is isNew
+     */
+    UniquePolygons.prototype.isNewPolygon = function(vectors) {
+        var args;
+        if (arguments.length === 1) {
+            args = vectors;
+        } else {
+            args = Array.from(arguments);
+        }
+        return this.isNew(Polygon.ofVectors(args));
+    };
+
+    /**
      * add a polygon to the list if it is not there
      * @method UniquePolygons#add
      * @param {Polygon} polygon
