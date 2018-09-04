@@ -338,40 +338,32 @@ function UniquePolygons() {
     };
 
     /**
-     * create an image polygon from vector2, the first line is themapping line,and put it in the list iof not there, returns the polygon
-     * creates unique points (vector2)
-     * @method UniquePolygons.addImagePolygon
-     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
-     * @return {Polygon}
-     */
-    UniquePolygons.prototype.addImagePolygon = function(vectors) {
-        var args;
-        if (arguments.length === 1) {
-            args = vectors;
-        } else {
-            args = Array.from(arguments);
-        }
-        const polygon = this.add(Polygon.ofVectors(args));
-        polygon.firstLineMaps();
-        return polygon;
-    };
-
-    /**
-     * create an image polygon from vector2, the inverted first line is the mapping line,and put it in the list iof not there, returns the polygon
+     * create an image polygon from vector2, the first line is the mapping line
+     * put it in the list if it is not there, returns the polygon
+     * choose whether the first corner maps to zero (or the second)
      * creates unique points (vector2)
      * @method UniquePolygons.addInvertedImagePolygon
+     * @param {boolean} firstCornerMapsToZero
      * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
      * @return {Polygon}
      */
-    UniquePolygons.prototype.addInvertedImagePolygon = function(vectors) {
+    UniquePolygons.prototype.addImagePolygon = function(firstCornerMapsToZero, vectors) {
         var args;
-        if (arguments.length === 1) {
+        if (arguments.length === 2) {
             args = vectors;
         } else {
-            args = Array.from(arguments);
+            const length = arguments.length;
+            args = Array(length - 1);
+            for (var i = 1; i < length; i++) {
+                args[i - 1] = arguments[i];
+            }
         }
         const polygon = this.add(Polygon.ofVectors(args));
-        polygon.firstLineInvertedMaps();
+        if (firstCornerMapsToZero) {
+            polygon.firstLineMaps();
+        } else {
+            polygon.firstLineInvertedMaps();
+        }
         return polygon;
     };
 

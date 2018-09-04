@@ -246,21 +246,12 @@ function creation() {
     var bins = new Bins();
 
     bins.setup(-10, 10, -10, 10, 0.5);
-    var polygons = new UniquePolygons();
-    var left = new Vector2(-5, 0);
-    var right = new Vector2(5, 0);
-    var top = new Vector2(0, 10);
-    var bottom = new Vector2(0, -10);
-    var center = new Vector2(0, 0);
-
-    let p1 = polygons.addImagePolygon(left, bottom, center);
-    let p2 = polygons.addInvertedImagePolygon(bottom, right, center);
-    let p3 = polygons.addImagePolygon(right, top, center);
-    let p4 = polygons.addInvertedImagePolygon(top, left, center);
 
 
+    imageTiles.allSymmetric = false;
 
-    imageTiles.addTwoColorPolygon(6, new Vector2(10, -3), new Vector2(10, 3));
+    imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));
+    imageTiles.addTwoColorParallelogram(false, Math.PI / 6, new Vector2(-5, -5), new Vector2(-5, 5));
 
     // bins.addUniquePolygons(polygons);
     bins.addUniquePolygons(imageTiles.polygons);
