@@ -12,37 +12,62 @@ iterateTiling.structure = []; // of unique polygons
 
 // the polygons for the image are in imageTiles
 
-//maximum number of iterations
-iterateTiling.maxIterations = 0;
-
 /**
- * clear and set up data depending on number of maximum iterations
- * @method iterateTiling.start
+ * set maximum number of iterations
+ * @method iterateTiling.setMaxIterations
  * @param {integer} maxIterations
  */
-iterateTiling.start = function(maxIterations) {
+iterateTiling.setMaxIterations = function(maxIterations) {
     iterateTiling.maxIterations = maxIterations;
-    iterateTiling.structure.length = 0;
-    for (var i = 0; i < maxIterations; i++) {
-        iterateTiling.structure.push(new UniquePolygons());
-    }
-    imageTiles.reset();
 };
 
 /*
  * how to do it:
  * 
- * function generateTiling(...){
- *  iterateTiling.start(maxIterations);
- *  tilingPolygon(0,...);
- *  tilingPolygon(0,...);
+ * iterateTiling.initialPolygons=theTiling.initial;
+ * theTiling.initial=function(){
+ *  theTiling.polygon(0,...);
+ *  theTiling.polygon(0,...);
  *  ..............
  * }
  * 
- * function tilingPolygon(ite, ....){
+ * theTiling.polygon=function(ite, ....){
  *  calculate corners
- *  if (iterateTiling.structure[ite].isNewPolygon(corners)){  // do only something if new, add polygon to list
- * 
- * 
+ *  if (iterateTiling.structure[ite].isNewPolygon(corners)){  // do only something if new, adds polygon to list
+ *   if (ite<iterateTiling.maxIterations){            // continue iterative decomposition
+ *     theTiling.polygon(ite+1, ....)
+ *     theTiling.polygon(ite+1, ....)
+ *     theTiling.polygon(ite+1, ....)
+ *    ...............................
+ *   }
+ *   else {                                  // generate image
+ *    imageTiles.add....
+ *    imageTiles.add....
+ *    imageTiles.add....
+ *   }
+ *  }
  * }
  */
+
+/**
+ * tiling dependent: initial polygons
+ * @method iterateTiling.initialPolygons
+ */
+iterateTiling.initialPolygons = function() {};
+
+/**
+ * make the tiling 
+ * @method iterateTiling.generateStructure
+ */
+iterateTiling.generateStructure = function() {
+    // clear and set up data depending on number of maximum iterations
+    iterateTiling.structure.length = 0;
+    for (var i = 0; i < iterateTiling.maxIterations; i++) {
+        iterateTiling.structure.push(new UniquePolygons());
+    }
+    imageTiles.reset();
+    // calling initial polygons -> structure through iterations
+    iterateTiling.initialPolygons();
+    // put polygons into bins
+    imageTiles.bins.addUniquePolygons(imageTiles.polygons);
+};

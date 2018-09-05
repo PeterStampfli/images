@@ -8,13 +8,67 @@
 
 var imageTiles = {};
 
+// the bins for polygons
+imageTiles.bins = new Bins();
+
 /**
- * reset, simply clearing all polygons
+ * setup the dimensions (region and bin size)
+ * @method imageTiles.dimensions
+ * @param {float}  xMin 
+ * @param {float}  xMax
+ * @param {float}  yMin 
+ * @param {float}  yMax
+ * @param {float}  side - length of the squares mapping to bins
+ */
+imageTiles.dimensions = function(xMin, xMax, yMin, yMax, side) {
+    this.bins.dimensions(xMin, xMax, yMin, yMax, side);
+};
+
+/**
+ * reset, simply clearing all polygons and bins
  * @method imageTiles.reset
  */
 imageTiles.reset = function() {
     imageTiles.polygons = new UniquePolygons();
+    imageTiles.bins.empty();
 };
+
+// making maps
+/**
+ * creating structure data depending on the position of a point
+ * @method imageTiles.mapStructure
+ * @param {Vector2} p - position
+ * @return +1 for a valid point, -1 for an invalid point outside tiling
+ */
+imageTiles.mapStructure = function(p) {
+    let result = imageTiles.bins.shiftRotateMirror(p);
+    p.x = result;
+    return result;
+};
+
+/**
+ * creating image data depending on the position of a point
+ * @method imageTiles.mapStructure
+ * @param {Vector2} p - position
+ * @return +1 for a valid point, -1 for an invalid point outside tiling
+ */
+imageTiles.mapImage = function(p) {
+    if (imageTiles.bins.shiftRotateMirror(p) < 0) {
+        return -1;
+    } else {
+        return 1;
+    }
+};
+
+/**
+ * set the mapping methods
+ * @method imageTiles.setMapping
+ */
+imageTiles.setMapping = function() {
+    Make.setMapping(imageTiles.mapImage, imageTiles.mapStructure);
+};
+
+// the tiles
 
 /**
  * switch to always using symmetric polygons

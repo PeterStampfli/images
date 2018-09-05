@@ -200,63 +200,34 @@ function creation() {
 
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-10, 10, -10);
+    imageTiles.dimensions(-10, 10, -10, 10, 0.5);
 
+    imageTiles.allSymmetric = false;
 
-    function testMapImage(p) {
-
-
-        if (bins.shiftRotateMirror(p) < 0) {
-            return -1;
-        } else {
-            return 1;
-        }
-
-
-    }
-
-
-    function testMapStructure(p) {
-        //   Make.outputImage.adjustCanvasTransform();
-
-
-        let result = bins.shiftRotateMirror(p);
-        p.x = result;
-        return result;
-    }
-
-
+    imageTiles.setMapping();
 
     Make.initializeMap = function() {
 
-        Make.setMapping(testMapImage, testMapStructure);
     };
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-
         Draw.setLineWidth(2);
         Draw.setColor("red");
         //  polygons.draw();
         imageTiles.polygons.draw();
-
     };
 
     //playing with polygons
 
-    var bins = new Bins();
+    iterateTiling.initialPolygons = function() {
+        imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));
+        imageTiles.addTwoColorParallelogram(false, Math.PI / 6, new Vector2(-5, -5), new Vector2(-5, 5));
+    };
 
-    bins.setup(-10, 10, -10, 10, 0.5);
 
-    iterateTiling.start(5);
-    imageTiles.allSymmetric = false;
-
-    imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));
-    imageTiles.addTwoColorParallelogram(false, Math.PI / 6, new Vector2(-5, -5), new Vector2(-5, 5));
-
-    // bins.addUniquePolygons(polygons);
-    bins.addUniquePolygons(imageTiles.polygons);
-    // imageTiles.polygons.log("it");
-
+    iterateTiling.setMaxIterations(5);
+    iterateTiling.generateStructure();
 
 }
 

@@ -13,15 +13,15 @@ function Bins() {
     "use strict";
 
     /**
-     * setup the dimensions and create empty bins
-     * @method Bins#setup
+     * setup the dimensions (region and bin size)
+     * @method Bins#dimensions
      * @param {float}  xMin 
      * @param {float}  xMax
      * @param {float}  yMin 
      * @param {float}  yMax
      * @param {float}  side - length of the squares mapping to bins
      */
-    Bins.prototype.setup = function(xMin, xMax, yMin, yMax, side) {
+    Bins.prototype.dimensions = function(xMin, xMax, yMin, yMax, side) {
         this.xMin = xMin;
         this.xMax = xMax;
         this.yMin = yMin;
@@ -29,13 +29,19 @@ function Bins() {
         this.side = side;
         this.width = Math.floor((xMax - xMin) / side) + 1;
         this.height = Math.floor((yMax - yMin) / side) + 1;
+    };
+
+    /**
+     * reset: empty bins with same dimensions as before
+     * @method Bins#empty
+     */
+    Bins.prototype.empty = function() {
         this.bins.length = 0;
         const size = this.width * this.height;
         for (var i = 0; i < size; i++) {
             this.bins.push([]);
         }
     };
-
     /**
      * adding a point like object to its matching bin
      * keeping attention to limits
