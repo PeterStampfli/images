@@ -331,7 +331,11 @@ function UniquePolygons() {
      */
     UniquePolygons.prototype.add = function(polygon) {
         let index = this.indexOf(polygon);
+
+
         if (index >= 0) {
+            console.log("old image");
+
             return this.polygons[index];
         } else {
             this.polygons.push(polygon);

@@ -220,13 +220,16 @@ function creation() {
 
     //playing with polygons
 
-    iterateTiling.initialPolygons = function() {
+    /*   iterateTiling.initialPolygons = function() {
         imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));
         imageTiles.addTwoColorParallelogram(false, Math.PI / 6, new Vector2(-5, -5), new Vector2(-5, 5));
     };
 
+*/
 
-    iterateTiling.setMaxIterations(5);
+    iterateTiling.initialPolygons = ambe.initialStar;
+
+    iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
 }
