@@ -215,17 +215,9 @@ function creation() {
         Draw.setLineWidth(2);
         Draw.setColor("red");
         //  polygons.draw();
-        imageTiles.polygons.draw();
+        // imageTiles.polygons.draw();
     };
 
-    //playing with polygons
-
-    /*   iterateTiling.initialPolygons = function() {
-        imageTiles.addTwoColorPolygon(false, 6, new Vector2(10, -3), new Vector2(10, 3));
-        imageTiles.addTwoColorParallelogram(false, Math.PI / 6, new Vector2(-5, -5), new Vector2(-5, 5));
-    };
-
-*/
 
     iterateTiling.initialPolygons = ambe.initialStar;
 

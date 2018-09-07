@@ -11,6 +11,9 @@ var imageTiles = {};
 // the bins for polygons
 imageTiles.bins = new Bins();
 
+// scaling for the tiles (make them independent of size)
+imageTiles.scale = 1;
+
 /**
  * setup the dimensions (region and bin size)
  * @method imageTiles.dimensions
@@ -56,6 +59,7 @@ imageTiles.mapImage = function(p) {
     if (imageTiles.bins.shiftRotateMirror(p) < 0) {
         return -1;
     } else {
+        p.scale(imageTiles.scale);
         return 1;
     }
 };
