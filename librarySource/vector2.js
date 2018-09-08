@@ -83,7 +83,7 @@ function Vector2(x = 0, y = 0) {
     /**
      * rotate 180 degrees
      * @method Vector2#rotate180
-     * @ return the vector
+     * @return the vector
      */
     Vector2.prototype.rotate180 = function() {
         this.x = -this.x;
@@ -109,6 +109,7 @@ function Vector2(x = 0, y = 0) {
         let h = this.x * Fast.cosResult - this.y * Fast.sinResult;
         this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
         this.x = h;
+        return this;
     };
 
     /**

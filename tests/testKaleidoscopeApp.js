@@ -219,7 +219,8 @@ function creation() {
     };
 
 
-    iterateTiling.initialPolygons = ambe.initialStar;
+    //   iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = small12.start;
 
     iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
