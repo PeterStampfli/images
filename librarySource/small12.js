@@ -58,7 +58,6 @@ var small12 = {};
                 const centerLeftRatio = 1 / (1 + Math.sqrt(2) * 2 * Fast.cos(Math.PI / 12));
                 const centerLeft = Vector2.lerp(center, centerLeftRatio, left);
                 const centerRight = Vector2.lerp(center, centerLeftRatio, right);
-
             } else {
                 // end iteration, make an image tile
                 imageTiles.addSymmetricParallelogram(small12.angle, left, right);
@@ -68,7 +67,15 @@ var small12 = {};
 
     small12.triangleC = function(ite, counterclockwise, a, b, c) {
         if (iterateTiling.structure[ite].isNewPolygon(a, b, c)) {
-            if (ite < iterateTiling.maxIterations) {} else {
+            if (ite < iterateTiling.maxIterations) {
+                const bc = Vector2.lerp(c, small12.ratio, b);
+                const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
+                const center = Vector2.difference(bc, c).add(ca);
+                const ac = Vector2.lerp(a, 2 / (1 + small12.rt3), c);
+                const ba = Vector2.lerp(b, small12.ratio, a);
+                const ab = Vector2.lerp(a, small12.rt32 * small12.ratio, b);
+                const m = Vector2.center(a, b);
+            } else {
                 if (counterclockwise) {
                     imageTiles.addSymmetricPolygon(3, a, b);
                 } else {
@@ -79,7 +86,26 @@ var small12 = {};
     };
 
     small12.quarterSquare = function(ite, corner, center) {
-
+        const a = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(Math.pi / 4).add(center);
+        const b = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(-Math.pi / 4).add(center);
+        if (iterateTiling.structure[ite].isNewPolygon(center, b, corner, a)) {
+            if (ite < iterateTiling.maxIterations) {
+                const aCorner = Vector2.lerp(a, small12.ratio, corner);
+                const bCorner = Vector2.lerp(b, small12.ratio, corner);
+                const aCenter = Vector2.lerp(a, small12.ratio, center);
+                const bCenter = Vector2.lerp(b, small12.ratio, center);
+                const ab = Vector2.difference(aCenter, a).add(aCorner);
+                const ba = Vector2.difference(bCenter, b).add(bCorner);
+            } else {
+                // corner of the full triangle
+                a.scale(2).sub(corner);
+                if (counterclockwise) {
+                    imageTiles.addSymmetricPolygon(4, corner, a);
+                } else {
+                    imageTiles.addSymmetricPolygon(4, a, corner);
+                }
+            }
+        }
 
     };
 
