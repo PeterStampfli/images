@@ -288,6 +288,7 @@ var Make = {};
             Make.getMapOutputCenter();
             Make.shiftMapToCenter();
             Make.getMapOutputRange();
+            Make.limitLyapunov();
             Make.adjustSpaceToInputPixelMapping();
         }
         Make.updateOutputImage();
@@ -321,6 +322,7 @@ var Make = {};
             if (Make.newMapRequiresInputImageAdjustment) {
                 Make.newMapRequiresInputImageAdjustment = false;
                 Make.getMapOutputRange();
+                Make.limitLyapunov();
                 Make.adjustSpaceToInputPixelMapping();
             }
             Make.showStructure = false;
@@ -415,9 +417,11 @@ var Make = {};
      */
     Make.fillFaktor = 0.7;
 
-    // the extend of the output of the nonlinear mapping
-    Make.lowerLeft = new Vector2();
-    Make.upperRight = new Vector2();
+    // the extend of the output of the nonlinear mapping, combined with the scale of the first mapping 
+    //    scale = Make.outputImage.scale;
+
+    Make.lowerLeft = new Vector2(); // xMin,yMin
+    Make.upperRight = new Vector2(); // xMax,yMax
 
     /**
      * get the range of the nonlinear mapping 
@@ -426,6 +430,19 @@ var Make = {};
      */
     Make.getMapOutputRange = function() {
         Make.map.getOutputRange(Make.lowerLeft, Make.upperRight);
+    };
+
+    /**
+     * limit the lyapunov coefficients of the vector map such that
+     * the sampled area for one pixel is not larger than the area covered by all pixel centers (rough fix)
+     * with a reduction fudge factor (because we take the surrounding rectangle of pixel hits)
+     * @method Make.limitLyapunov
+     */
+    Make.limitLyapunov = function() {
+        let reduction = 0.5;
+        let surface = (Make.upperRight.x - Make.lowerLeft.x) * (Make.upperRight.y - Make.lowerLeft.y);
+        let maxValue = Math.sqrt(reduction * surface) / Make.outputImage.scale;
+        Make.map.limitLyapunov(maxValue);
     };
 
     /**
@@ -472,6 +489,7 @@ var Make = {};
             return;
         }
         Make.getMapOutputRange();
+        Make.limitLyapunov();
         Make.adjustSpaceToInputPixelMapping();
         Make.updateOutputImage();
     };
@@ -555,6 +573,8 @@ var Make = {};
             Make.map.make(Make.mappingInputImage);
             Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
         }
+        Make.getMapOutputRange();
+        Make.limitLyapunov();
         Make.updateOutputImage();
     };
 
@@ -595,8 +615,6 @@ var Make = {};
                 return;
             }
             Make.controlImage.semiTransparent();
-
-
             // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
             if (Make.imageQuality == "low") {
                 Make.map.drawFast();
@@ -617,7 +635,5 @@ var Make = {};
      * @method Make.updateOutputImage
      */
     Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
-
-
 
 }());

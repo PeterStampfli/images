@@ -129,6 +129,20 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
     /**
+     * limit the Lyapunov coefficients
+     * @method VectorMap#limitLyapunov
+     * @param {float} maxValue
+     */
+    VectorMap.prototype.limitLyapunov = function(maxValue) {
+        let lyapunovArray = this.lyapunovArray;
+        for (var i = lyapunovArray.length - 1; i >= 0; i--) {
+            if (lyapunovArray[i] > maxValue) {
+                lyapunovArray[i] = maxValue;
+            }
+        }
+    };
+
+    /**
      * determine center of gravity of map (to shift it to origin)
      * "invalid" points are marked with negative lyapunov coefficient -> do not count
      * @method VectorMap#getOutputCenter
