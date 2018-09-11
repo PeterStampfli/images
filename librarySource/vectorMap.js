@@ -129,6 +129,57 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
     /**
+     * recalculate the lyapunov coefficient based on the maps differences
+     * taking out the output image scale
+     * @method VectorMap#lyapunovFromDifferences
+     */
+    VectorMap.prototype.lyapunovFromDifferences = function() {
+        console.log("yes");
+        let iScale = 1 / this.outputImage.scale;
+        let width = this.width;
+        let widthM = this.width - 1;
+        let heightM = this.height - 1;
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let lyapunovArray = this.lyapunovArray;
+        var xPlusX, x, yPlusX, y;
+        var index;
+        var lyapunov;
+        var ax, ay, bx, by;
+        // don't do upper borders
+        for (var j = 0; j < heightM; j++) {
+            index = j * width;
+            xPlusX = xArray[index];
+            yPlusX = yArray[index];
+            for (var i = 0; i < widthM; i++) {
+                x = xPlusX;
+                xPlusX = xArray[index + 1];
+                y = yPlusX;
+                yPlusX = yArray[index + 1];
+                lyapunov = lyapunovArray[index];
+                // if lyapunov <0 then it is an invalid pount, do not change that
+                if (lyapunov > 0) {
+                    // the vectors for the sides of the pixel square
+                    ax = xPlusX - x;
+                    ay = yPlusX - y;
+                    bx = xArray[index + width] - x;
+                    by = yArray[index + width] - y;
+                    lyapunov = iScale * Math.sqrt(Math.abs(ax * by - ay * bx));
+                    lyapunovArray[index] = lyapunov;
+                }
+                index++;
+            }
+            // the right column
+            lyapunovArray[index] = lyapunov;
+        }
+        // the top row
+        let indexMax = width * this.height;
+        for (index = indexMax - width; index < indexMax; index++) {
+            lyapunovArray[index] = lyapunovArray[index - width];
+        }
+    };
+
+    /**
      * limit the Lyapunov coefficients
      * @method VectorMap#limitLyapunov
      * @param {float} maxValue

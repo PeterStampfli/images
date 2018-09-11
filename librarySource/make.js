@@ -43,6 +43,9 @@ var Make = {};
 
     Make.imageQuality = "low";
 
+    // calculate the lyapunov coefficient from differences
+    Make.getLyapunovFromDifferences = true;
+
     // creating the interaction elements
     //____________________________________________________________________________________________
 
@@ -433,6 +436,7 @@ var Make = {};
     };
 
     /**
+     * recalculates lyapunov from differences if flag set
      * limit the lyapunov coefficients of the vector map such that
      * the sampled area for one pixel is not larger than the area covered by all pixel centers (rough fix)
      * with a reduction fudge factor (because we take the surrounding rectangle of pixel hits)
@@ -440,6 +444,9 @@ var Make = {};
      */
     Make.limitLyapunov = function() {
         let reduction = 0.5;
+        if (Make.getLyapunovFromDifferences) {
+            Make.map.lyapunovFromDifferences();
+        }
         let surface = (Make.upperRight.x - Make.lowerLeft.x) * (Make.upperRight.y - Make.lowerLeft.y);
         let maxValue = Math.sqrt(reduction * surface) / Make.outputImage.scale;
         Make.map.limitLyapunov(maxValue);
