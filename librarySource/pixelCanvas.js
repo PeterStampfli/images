@@ -948,6 +948,9 @@ function PixelCanvas(idName) {
                 this.integralBlue = new Array(size);
             }
         }
+        var iRed, iRedLast, iRedBelow, iRedBelowLast;
+        var iGreen, iGreenLast, iGreenBelow, iGreenBelowLast;
+        var iBlue, iBlueLast, iBlueBelow, iBlueBelowLast;
         // do the first line of zeros
         for (i = 0; i < widthPlus; i++) {
             this.integralRed[i] = 0;
@@ -959,17 +962,35 @@ function PixelCanvas(idName) {
             jWidthPlus = j * widthPlus;
             jWidth = (j - 1) * width - 1; // index to pixels, with compensation for extra row and column of the table
             this.integralRed[jWidthPlus] = 0;
+            iRed = 0;
+            iRedBelow = 0;
+            iGreen = 0;
+            iGreenBelow = 0;
+            iBlue = 0;
+            iBlueBelow = 0;
             this.integralGreen[jWidthPlus] = 0;
             this.integralBlue[jWidthPlus] = 0;
             for (i = 1; i < widthPlus; i++) {
                 index = jWidthPlus + i; // index to integrals
                 this.getPixelAtIndex(color, i + jWidth);
                 integral = this.integralRed;
-                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.red;
+                iRedLast = iRed;
+                iRedBelowLast = iRedBelow;
+                iRedBelow = integral[index - widthPlus];
+                iRed = iRedLast + iRedBelow - iRedBelowLast + color.red;
+                integral[index] = iRed;
                 integral = this.integralGreen;
-                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.green;
+                iGreenLast = iGreen;
+                iGreenBelowLast = iGreenBelow;
+                iGreenBelow = integral[index - widthPlus];
+                iGreen = iGreenLast + iGreenBelow - iGreenBelowLast + color.green;
+                integral[index] = iGreen;
                 integral = this.integralBlue;
-                integral[index] = integral[index - 1] + integral[index - widthPlus] - integral[index - widthPlus - 1] + color.blue;
+                iBlueLast = iBlue;
+                iBlueBelowLast = iBlueBelow;
+                iBlueBelow = integral[index - widthPlus];
+                iBlue = iBlueLast + iBlueBelow - iBlueBelowLast + color.blue;
+                integral[index] = iBlue;
             }
         }
     };
