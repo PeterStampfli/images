@@ -22,9 +22,14 @@ var small12 = {};
         const mLow = new Vector2(right.x, 0);
         const mHigh = mLow.clone().rotate(small12.angle);
         for (var i = 0; i < 1; i++) {
-            //  small12.rhomb(0, zero, right);
-            small12.triangleA(0, true, top, right, mHigh);
-            //  small12.triangleA(0,false,bottom,right,mLow);
+            small12.rhomb(0, zero, right);
+            //  small12.triangleA(0, true, top, right, mHigh);
+
+            // test
+            //     small12.triangleB(0, true, top, right, mHigh);
+            //     small12.triangleA(0,false,bottom,right,mLow);
+            //    small12.triangleC(0,false,bottom,right,mLow);
+            //    small12.quarterSquare(0,zero,right);
             bottom.rotate(small12.angle);
             top.rotate(small12.angle);
             right.rotate(small12.angle);
@@ -65,7 +70,7 @@ var small12 = {};
                 small12.triangleC(ite + 1, true, bottom, centerLeft, bottomLeft);
                 small12.triangleC(ite + 1, false, top, centerLeft, topLeft);
                 small12.triangleC(ite + 1, false, bottom, centerRight, bottomRight);
-                small12.triangleC(ite + 1, true, top, centerRight, topLeft);
+                small12.triangleC(ite + 1, true, top, centerRight, topRight);
                 small12.quarterSquare(ite + 1, bottom, center);
                 small12.quarterSquare(ite + 1, top, center);
                 small12.quarterSquare(ite + 1, centerLeft, center);
@@ -89,7 +94,7 @@ var small12 = {};
                 // iterating tiles
                 // same for all
                 small12.quarterSquare(ite + 1, center, c);
-                small12.triangleC(ite + 1, counterclockwise, ac, center, ca);
+                small12.triangleB(ite + 1, counterclockwise, ac, center, ca);
                 small12.triangleB(ite + 1, !counterclockwise, b, center, bc);
                 // different
                 small12.rhomb(ite + 1, b, ac);
@@ -112,12 +117,12 @@ var small12 = {};
                 const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
                 const center = Vector2.difference(bc, c).add(ca);
                 const ac = Vector2.lerp(a, 2 / (3 + small12.rt3), c);
-                const ba = Vector2.lerp(b, small12.ratio, a);
-                const ab = Vector2.lerp(a, small12.rt32 * small12.ratio, b);
+                const ba = Vector2.lerp(b, small12.rt32 * small12.ratio, a);
+                const ab = Vector2.lerp(a, small12.ratio, b);
                 // iterating tiles
                 // same for all
                 small12.quarterSquare(ite + 1, center, c);
-                small12.triangleC(ite + 1, counterclockwise, ac, center, ca);
+                small12.triangleA(ite + 1, counterclockwise, ac, center, ca);
                 small12.triangleB(ite + 1, !counterclockwise, b, center, bc);
                 // different
                 small12.rhomb(ite + 1, a, center);
@@ -140,7 +145,7 @@ var small12 = {};
                 const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
                 const center = Vector2.difference(bc, c).add(ca);
                 const ac = Vector2.lerp(a, 2 / (3 + small12.rt3), c);
-                const ba = Vector2.lerp(b, small12.ratio, a);
+                const ba = Vector2.lerp(b, small12.rt32 * small12.ratio, a);
                 const ab = Vector2.lerp(a, small12.rt32 * small12.ratio, b);
                 const m = Vector2.center(a, b);
                 // iterating tiles
@@ -150,6 +155,7 @@ var small12 = {};
                 small12.triangleB(ite + 1, !counterclockwise, b, center, bc);
                 // different
                 small12.triangleB(ite + 1, !counterclockwise, a, ac, ab);
+                small12.triangleB(ite + 1, counterclockwise, b, center, ba);
                 small12.quarterSquare(ite + 1, ac, m);
                 small12.quarterSquare(ite + 1, center, m);
             } else {

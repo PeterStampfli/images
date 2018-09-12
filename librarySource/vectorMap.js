@@ -134,7 +134,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#lyapunovFromDifferences
      */
     VectorMap.prototype.lyapunovFromDifferences = function() {
-        console.log("yes");
         let iScale = 1 / this.outputImage.scale;
         let width = this.width;
         let widthM = this.width - 1;
