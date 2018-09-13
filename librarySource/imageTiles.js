@@ -14,6 +14,12 @@ imageTiles.bins = new Bins();
 // scaling for the tiles (make them independent of size)
 imageTiles.scale = 1;
 
+// use shifting to adjust symmetric polygons
+imageTiles.shiftForSymmetricParallelograms = true;
+
+// working around ... to pass parameter
+Polygon.imageShift = 0;
+
 /**
  * setup the dimensions (region and bin size)
  * @method imageTiles.dimensions
@@ -163,16 +169,31 @@ imageTiles.addSymmetricParallelogram = function(angle, left, right) {
     const bottomLeft = Vector2.center(bottom, left);
     const topRight = Vector2.center(top, right);
     const topLeft = Vector2.center(top, left);
-    const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
-    const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
-    imageTiles.polygons.addImagePolygon(true, left, bottomLeft, centerLeft);
-    imageTiles.polygons.addImagePolygon(true, bottom, bottomRight, centerRight, center);
-    imageTiles.polygons.addImagePolygon(true, right, topRight, centerRight);
-    imageTiles.polygons.addImagePolygon(true, top, topLeft, centerLeft, center);
-    imageTiles.polygons.addImagePolygon(false, bottomLeft, bottom, center, centerLeft);
-    imageTiles.polygons.addImagePolygon(false, bottomRight, right, centerRight);
-    imageTiles.polygons.addImagePolygon(false, topRight, top, center, centerRight);
-    imageTiles.polygons.addImagePolygon(false, topLeft, left, centerLeft);
+    if (imageTiles.shiftForSymmetricParallelograms) {
+        const shift = 1 / Math.tan(angle);
+        Polygon.imageShift = shift;
+        imageTiles.polygons.addImagePolygon(true, bottom, bottomRight, center);
+        imageTiles.polygons.addImagePolygon(true, top, topLeft, center);
+        imageTiles.polygons.addImagePolygon(false, bottomLeft, bottom, center);
+        imageTiles.polygons.addImagePolygon(false, topRight, top, center);
+        Polygon.imageShift = -shift;
+        imageTiles.polygons.addImagePolygon(true, left, bottomLeft, center);
+        imageTiles.polygons.addImagePolygon(true, right, topRight, center);
+        imageTiles.polygons.addImagePolygon(false, topLeft, left, center);
+        imageTiles.polygons.addImagePolygon(false, bottomRight, right, center);
+        Polygon.imageShift = 0;
+    } else {
+        const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
+        const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
+        imageTiles.polygons.addImagePolygon(true, left, bottomLeft, centerLeft);
+        imageTiles.polygons.addImagePolygon(true, bottom, bottomRight, centerRight, center);
+        imageTiles.polygons.addImagePolygon(true, right, topRight, centerRight);
+        imageTiles.polygons.addImagePolygon(true, top, topLeft, centerLeft, center);
+        imageTiles.polygons.addImagePolygon(false, bottomLeft, bottom, center, centerLeft);
+        imageTiles.polygons.addImagePolygon(false, bottomRight, right, centerRight);
+        imageTiles.polygons.addImagePolygon(false, topRight, top, center, centerRight);
+        imageTiles.polygons.addImagePolygon(false, topLeft, left, centerLeft);
+    }
 };
 
 /**

@@ -14,7 +14,7 @@ var small12 = {};
 
     // starting the iteration with a dodecagon
     small12.start = function() {
-        const side = 3;
+        const side = 6;
         const zero = new Vector2(0, 0);
         const bottom = new Vector2(side, 0);
         const top = bottom.clone().rotate(small12.angle);

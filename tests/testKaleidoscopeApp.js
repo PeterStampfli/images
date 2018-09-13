@@ -222,7 +222,7 @@ function creation() {
     //   iterateTiling.initialPolygons = ambe.start;
     iterateTiling.initialPolygons = small12.start;
 
-    iterateTiling.setMaxIterations(3);
+    iterateTiling.setMaxIterations(2);
     iterateTiling.generateStructure();
 
 }

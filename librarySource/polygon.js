@@ -211,7 +211,9 @@ function Polygon(corners) {
      * @return number of mirror images (0,1, or 2)
      */
     Polygon.prototype.shiftRotateMirror = function(p) {
-        return this.mappingLine.shiftRotateMirror(p);
+        let result = this.mappingLine.shiftRotateMirror(p);
+        p.x += this.shift * p.y; // shearing
+        return result;
     };
 
 
@@ -328,6 +330,7 @@ function UniquePolygons() {
      * add a polygon to the list if it is not there
      * @method UniquePolygons#add
      * @param {Polygon} polygon
+     * @return the polygon, stored in the list
      */
     UniquePolygons.prototype.add = function(polygon) {
         let index = this.indexOf(polygon);
@@ -383,6 +386,8 @@ function UniquePolygons() {
         } else {
             polygon.firstLineInvertedMaps();
         }
+        console.log("add");
+        polygon.shift = Polygon.imageShift;
         return polygon;
     };
 
