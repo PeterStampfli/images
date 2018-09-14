@@ -219,10 +219,11 @@ function creation() {
     };
 
 
+    iterateTiling.initialPolygons = penrose.start;
     //   iterateTiling.initialPolygons = ambe.start;
-    iterateTiling.initialPolygons = small12.start;
+    // iterateTiling.initialPolygons = small12.start;
 
-    iterateTiling.setMaxIterations(2);
+    iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
 }

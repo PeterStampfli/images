@@ -386,7 +386,6 @@ function UniquePolygons() {
         } else {
             polygon.firstLineInvertedMaps();
         }
-        console.log("add");
         polygon.shift = Polygon.imageShift;
         return polygon;
     };
