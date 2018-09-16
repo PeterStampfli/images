@@ -102,11 +102,25 @@ function Select(idName) {
     };
 
     /**
-     * adding an action function for an option
-     * @method Select#addAction
+     * adding an option with a name and an action function
+     * @method Select#addOption
+     * @param {String} name - of the option
      * @param {function} fun - what to do, a function()
      */
-    Select.prototype.addAction = function(fun) {
+    Select.prototype.addOption = function(name, fun) {
+        this.element.innerHTML += "<option>" + name + "</option>";
         this.actions.push(fun);
     };
+
+    /**
+     * set the index of the selected option, clamped to existing options
+     * @method Select#setIndex
+     * @param {integer} i
+     */
+    Select.prototype.setIndex = function(i) {
+        this.element.selectedIndex = Fast.clamp(0, i, this.actions.length - 1);
+    };
+
+
+
 }());

@@ -15,10 +15,6 @@
 
 <select id="test">
 
-    <option> one</option>
-    <option> two</option>
-    <option> three</option>
-
 </select>
 
 
@@ -26,6 +22,7 @@
 </body>
 
 <script src="../librarySource/button.js"></script>
+<script src="../librarySource/fastFun.js"></script>
 <script src="../librarySource/select.js"></script>
 
 
@@ -42,16 +39,15 @@
   f1=function(){
   console.log("one");
   }
-  s.addAction(f1);
+  s.addOption("1",f1);
   f2=function(){
-  console.log("two");
+  console.log("zwei");
   }
-  s.addAction(f2);
-  f3=function(){
-  console.log("three");
-  }
-  s.addAction(f3);
+  s.addOption("zwei",f2);
+ 
   
+  s.setIndex(5);
+
 </script>
 
 </html>

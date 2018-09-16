@@ -24,12 +24,12 @@
         <span id="inputImageName"></span>
     </p>
 
-       <p>    
+    <p>    
         <strong>Showing:</strong>
-        <button id=showStructure>structure</button>
-        <button id=showImage>image</button>
+        <select id="show">
+        </select>
     </p>
-
+       
     
     
     <p>
@@ -42,11 +42,10 @@
         <input id="size"></input>
     </p>
 
-    <p>
+      <p>
         <strong>Quality:</strong>
-        <button id="lowQuality">low</button>
-        <button id="highQuality">high</button>
-        <button id="veryHighQuality">very high</button>
+        <select id="quality">
+        </select>
     </p>
     
 </div>
@@ -55,6 +54,7 @@
 
 
 <script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/select.js"></script>
 <script src="../librarySource/linearTransform.js"></script>
 <script src="../librarySource/keyboardEvents.js"></script>
 <script src="../librarySource/color.js"></script>

@@ -115,31 +115,30 @@ function creation() {
     let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
     imageInputButton.onClick = function() {
         imageInputButton.fileInput.click();
-        structureImageChoiceButtons.setPressed(showImageButton);
+        showSelect.setIndex(1);
         activateControls(true);
     };
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
 
     // choose between showing the structure or the image
-    let structureImageChoiceButtons = new Selection();
-    let showStructureButton = structureImageChoiceButtons.createButton("showStructure");
-    let showImageButton = structureImageChoiceButtons.createButton("showImage");
+    let showSelect = new Select("show");
 
-    showStructureButton.onPress = function() {
-        Make.switchToShowingStructure();
-        activateControls(false);
-    };
+    showSelect.addOption("structure",
+        function() {
+            Make.switchToShowingStructure();
+            activateControls(false);
+        });
 
-    showImageButton.onPress = function() {
-        if (!Make.inputImageExists) {
-            imageInputButton.fileInput.click();
-        } else {
-            Make.switchToShowingImage();
-        }
-        //DOM.style("#arrowController", "display", "initial");
-        activateControls(true);
-    };
+    showSelect.addOption("image",
+        function() {
+            if (!Make.inputImageExists) {
+                imageInputButton.fileInput.click();
+            } else {
+                Make.switchToShowingImage();
+            }
+            activateControls(true);
+        });
 
     // image size, square format
     Make.sizeButton = Make.createSquareImageSizeButton("size");
@@ -152,20 +151,22 @@ function creation() {
         }
     }
 
-    let qualityChoiceButtons = new Selection();
-    let lowQualityButton = qualityChoiceButtons.createButton("lowQuality");
-    let highQualityButton = qualityChoiceButtons.createButton("highQuality");
-    let veryHighQualityButton = qualityChoiceButtons.createButton("veryHighQuality");
+    let qualitySelect = new Select("quality");
 
-    lowQualityButton.onPress = function() {
-        changeQuality("low");
-    };
-    highQualityButton.onPress = function() {
-        changeQuality("high");
-    };
-    veryHighQualityButton.onPress = function() {
-        changeQuality("veryHigh");
-    };
+    qualitySelect.addOption("low",
+        function() {
+            changeQuality("low");
+        });
+
+    qualitySelect.addOption("high",
+        function() {
+            changeQuality("high");
+        });
+
+    qualitySelect.addOption("very high",
+        function() {
+            changeQuality("veryHigh");
+        });
 
     //=====================================================================================================================================
     // UI elements depending on actual image and its symmetries
@@ -266,19 +267,19 @@ function creation() {
 
     let tilingSelect = new Select("tiling");
 
-    tilingSelect.addAction(
+    tilingSelect.addOption("regular",
         function() {
             setNButton.setRange(2, 10000);
             changeTiling("regular");
         });
 
-    tilingSelect.addAction(
+    tilingSelect.addOption("uniform truncated",
         function() {
             setNButton.setRange(3, 10000);
             changeTiling("semiRegular1");
         });
 
-    tilingSelect.addAction(
+    tilingSelect.addOption("rectified",
         function() {
             setNButton.setRange(3, 10000);
             changeTiling("semiRegular2");
