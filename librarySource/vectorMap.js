@@ -145,8 +145,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         var index;
         var lyapunov;
         var ax, ay, bx, by;
-        // don't do upper borders
-        for (var j = 0; j < heightM; j++) {
+        // don't do borders
+        for (var j = 1; j < heightM; j++) {
             index = j * width;
             xPlusX = xArray[index];
             yPlusX = yArray[index];
@@ -161,6 +161,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     // the vectors for the sides of the pixel square
                     ax = xPlusX - x;
                     ay = yPlusX - y;
+                    // beware of invalid points ????, no seems to be ok
                     bx = xArray[index + width] - x;
                     by = yArray[index + width] - y;
                     lyapunov = iScale * Math.sqrt(Math.abs(ax * by - ay * bx));
@@ -168,13 +169,18 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 }
                 index++;
             }
-            // the right column
+            // the right column copies
             lyapunovArray[index] = lyapunov;
+            // the left column copies
+            lyapunovArray[index - widthM] = lyapunovArray[index - widthM + 1];
         }
         // the top row
         let indexMax = width * this.height;
         for (index = indexMax - width; index < indexMax; index++) {
             lyapunovArray[index] = lyapunovArray[index - width];
+        }
+        for (index = 0; index < width; index++) {
+            lyapunovArray[index] = lyapunovArray[index + width];
         }
     };
 

@@ -263,24 +263,26 @@ function creation() {
     setNButton.onChange = updateMapNoReset;
 
 
-    let tilingChoiceButtons = new Selection();
-    let regularTilingButton = tilingChoiceButtons.createButton("regular");
-    let semireg1TilingButton = tilingChoiceButtons.createButton("semiRegular1");
-    let semireg2TilingButton = tilingChoiceButtons.createButton("semiRegular2");
 
-    regularTilingButton.onPress = function() {
-        setNButton.setRange(2, 10000);
-        changeTiling("regular");
-    };
-    semireg1TilingButton.onPress = function() {
-        setNButton.setRange(3, 10000);
-        changeTiling("semiRegular1");
-    };
-    semireg2TilingButton.onPress = function() {
-        setNButton.setRange(3, 10000);
-        changeTiling("semiRegular2");
-    };
+    let tilingSelect = new Select("tiling");
 
+    tilingSelect.addAction(
+        function() {
+            setNButton.setRange(2, 10000);
+            changeTiling("regular");
+        });
+
+    tilingSelect.addAction(
+        function() {
+            setNButton.setRange(3, 10000);
+            changeTiling("semiRegular1");
+        });
+
+    tilingSelect.addAction(
+        function() {
+            setNButton.setRange(3, 10000);
+            changeTiling("semiRegular2");
+        });
 }
 
 // adjust fontsize related dimesnions

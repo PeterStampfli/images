@@ -50,14 +50,13 @@
     sum of angles = <span id="sum"></span> <sup>o</sup>
     </p>     
   
-    
     <p>
         <strong>Tiling:</strong>
-        <button id="regular">regular</button>
-        <button id="semiRegular1">semireg. 1</button>
-        <button id="semiRegular2">semireg. 2</button>
-    </p>
-    
+        <select id="tiling">
+            <option> regular</option>
+            <option> uniform truncated</option>
+            <option> rectified</option>
+            </select>
     <p>
         <strong>Output image:</strong>
         <button id="saveOutputImage">save</button>
@@ -81,6 +80,7 @@
 
 
 <script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/select.js"></script>
 <script src="../librarySource/linearTransform.js"></script>
 <script src="../librarySource/keyboardEvents.js"></script>
 <script src="../librarySource/color.js"></script>

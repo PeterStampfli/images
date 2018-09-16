@@ -28,7 +28,6 @@ var penrose = {};
             penrose.halfKite(0, true, zero, base, cornerUp);
             penrose.halfKite(0, false, zero, base, cornerDown);
 
-
             base.rotate(penrose.pi25);
             cornerUp.rotate(penrose.pi25);
             cornerDown.rotate(penrose.pi25);
@@ -77,5 +76,42 @@ var penrose = {};
         }
 
     };
+
+    penrose.halfDart = function(ite, counterClockwise, a, b, c) {
+        console.log(iterateTiling.maxIterations);
+        console.log(ite);
+
+        if (iterateTiling.structure[ite].isNewPolygon(a, b, c)) {
+            if (ite < iterateTiling.maxIterations) {
+
+
+
+
+
+                if (counterClockwise) {
+
+
+                } else {
+
+
+                }
+
+
+
+            } else {
+                if (counterClockwise) {
+                    Polygon.imageShift = 0;
+
+                    imageTiles.polygons.addImagePolygon(true, c, a, b);
+                } else {
+                    imageTiles.polygons.addImagePolygon(false, a, c, b);
+                }
+            }
+
+
+        }
+
+    };
+
 
 }());
