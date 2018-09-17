@@ -213,23 +213,11 @@ function creation() {
         let n = setNButton.getValue();
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n));
         if (tiling == "regular") {
-            if (isElliptic()) {
-                threeMirrorsKaleidoscope.setKMNSpherical(k, m, n);
-            } else {
                 threeMirrorsKaleidoscope.setKMN(k, m, n);
-            }
-        } else if (tiling == "semiRegular1") {
-            if (isElliptic()) {
-                cutCornersKaleidoscope.setKMNSpherical(k, m, n);
-            } else {
+        } else if (tiling == "uniformTruncated") {
                 cutCornersKaleidoscope.setKMN(k, m, n);
-            }
-        } else if (tiling == "semiRegular2") {
-            if (isElliptic()) {
-                cutSidesKaleidoscope.setKMNSpherical(k, m, n);
-            } else {
+        } else if (tiling == "rectified") {
                 cutSidesKaleidoscope.setKMN(k, m, n);
-            }
         } else {
             console.log("nosuch tiling: " + tiling);
         }
@@ -276,13 +264,13 @@ function creation() {
     tilingSelect.addOption("uniform truncated",
         function() {
             setNButton.setRange(3, 10000);
-            changeTiling("semiRegular1");
+            changeTiling("uniformTruncated");
         });
 
     tilingSelect.addOption("rectified",
         function() {
             setNButton.setRange(3, 10000);
-            changeTiling("semiRegular2");
+            changeTiling("rectified");
         });
 }
 
@@ -453,7 +441,6 @@ function layout() {
 window.onload = function() {
     "use strict";
     basicKaleidoscope.worldRadiusElliptic = 0.97;
-    basicKaleidoscope.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic - 0.02;
     sphericalToElliptic.setup();
 
     creation();
