@@ -35,18 +35,6 @@ threeMirrorsKaleidoscope = {};
     };
 
     /**
-     * set the rotational symmetries at corners for a projection of spherical image
-     * @method basicKaleidoscope.setKMNSpherical
-     * @param {integer} k - symmetry at center corner
-     * @param {integer} m - symmetry at "right" corner
-     * @param {integer} n - symmetry at "left" corner
-     */
-    threeMirrorsKaleidoscope.setKMNSpherical = function(k, m, n) {
-        threeMirrorsKaleidoscope.setKMN(k, m, n);
-        Make.setMapping(threeMirrorsKaleidoscope.mapInputImageSpherical, threeMirrorsKaleidoscope.mapStructureSpherical);
-    };
-
-    /**
      * map the position for using an input image,
      * @method threeMirrorsKaleidoscope.mapInputImage
      * @param {Vector2} v - the vector to map
@@ -67,39 +55,6 @@ threeMirrorsKaleidoscope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     threeMirrorsKaleidoscope.mapStructure = function(position) {
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
-            dihedral.map(position);
-        }
-        position.x = basicKaleidoscope.reflections + Dihedral.reflections;
-        return lyapunov;
-    };
-
-    /**
-     * map the position for using an input image, spherical geometry
-     * @method threeMirrorsKaleidoscope.mapInputImageSpherical
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    threeMirrorsKaleidoscope.mapInputImageSpherical = function(position) {
-        let sphereLyapunov = sphericalToElliptic.map(position);
-        if (sphereLyapunov < 0) return -1;
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
-            dihedral.map(position);
-        }
-        return lyapunov * sphereLyapunov;
-    };
-
-    /**
-     * map the position for showing the structure, spherical geometry
-     * @method threeMirrorsKaleidoscope.mapStructureSpherical
-     * @param {Vector2} v - the vector to map, x-component will be number of reflections
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    threeMirrorsKaleidoscope.mapStructureSpherical = function(position) {
-        let sphereLyapunov = sphericalToElliptic.map(position);
-        if (sphereLyapunov < 0) return -1;
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
             dihedral.map(position);

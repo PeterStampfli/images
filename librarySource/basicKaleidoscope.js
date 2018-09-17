@@ -177,7 +177,7 @@ basicKaleidoscope = {};
             Make.map.discRadius = basicKaleidoscope.worldRadiusHyperbolic;
         }
     };
-    
+
     // what depends on the projection and the geometry
     //  Make.map.discRadius 
     // the projection

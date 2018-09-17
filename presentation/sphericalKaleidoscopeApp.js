@@ -213,11 +213,11 @@ function creation() {
         let n = setNButton.getValue();
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n));
         if (tiling == "regular") {
-                threeMirrorsKaleidoscope.setKMN(k, m, n);
+            threeMirrorsKaleidoscope.setKMN(k, m, n);
         } else if (tiling == "uniformTruncated") {
-                cutCornersKaleidoscope.setKMN(k, m, n);
+            cutCornersKaleidoscope.setKMN(k, m, n);
         } else if (tiling == "rectified") {
-                cutSidesKaleidoscope.setKMN(k, m, n);
+            cutSidesKaleidoscope.setKMN(k, m, n);
         } else {
             console.log("nosuch tiling: " + tiling);
         }

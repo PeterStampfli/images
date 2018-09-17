@@ -65,20 +65,6 @@ cutCornersKaleidoscope = {};
         }
     };
 
-
-    /**
-     * set the rotational symmetries at corners, for spherical image
-     * prepare for cutting corners
-     * @method cutCornersKaleidoscope.setKMNSpherical
-     * @param {integer} k - symmetry at center corner
-     * @param {integer} m - symmetry at "right" corner
-     * @param {integer} n - symmetry at "left" corner
-     */
-    cutCornersKaleidoscope.setKMNSpherical = function(k, m, n) {
-        cutCornersKaleidoscope.setKMN(k, m, n);
-        Make.setMapping(cutCornersKaleidoscope.mapInputImageSpherical, cutCornersKaleidoscope.mapStructureSpherical);
-    };
-
     /**
      * drawing the kaleidoscope additional elements
      * @method cutCornersKaleidoscope.drawAdditional
@@ -124,54 +110,6 @@ cutCornersKaleidoscope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     cutCornersKaleidoscope.mapStructureElliptic = function(position) {
-        let lyapunov = basicMap(position);
-        let reflections = basicKaleidoscope.reflections;
-        if (lyapunov >= 0) {
-            dihedral.map(position);
-            reflections += Dihedral.reflections;
-            let factor = addCircle.invertOutsideIn(position);
-            if (factor > 0) {
-                lyapunov *= factor;
-                reflections++;
-            }
-            if (halfAngleLine.mirrorLeftToRight(position) > 0) {
-                reflections++;
-            }
-        }
-        position.x = reflections;
-        return lyapunov;
-    };
-
-    /**
-     * map the position for using an input image, spherical geometry
-     * @method cutCornersKaleidoscope.mapInputImageSpherical
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    cutCornersKaleidoscope.mapInputImageSpherical = function(position) {
-        let sphereLyapunov = sphericalToElliptic.map(position);
-        if (sphereLyapunov < 0) return -1;
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
-            dihedral.map(position);
-            let factor = addCircle.invertOutsideIn(position);
-            if (factor > 0) {
-                lyapunov *= factor;
-            }
-            halfAngleLine.mirrorLeftToRight(position);
-        }
-        return lyapunov * sphereLyapunov;
-    };
-
-    /**
-     * map the position for showing the structure, elliptic geometry
-     * @method cutCornersKaleidoscope.mapStructureSpherical
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    cutCornersKaleidoscope.mapStructureSpherical = function(position) {
-        let sphereLyapunov = sphericalToElliptic.map(position);
-        if (sphereLyapunov < 0) return -1;
         let lyapunov = basicMap(position);
         let reflections = basicKaleidoscope.reflections;
         if (lyapunov >= 0) {
