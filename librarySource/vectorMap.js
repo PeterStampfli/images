@@ -500,6 +500,4 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         controlCanvas.showPixel();
     };
 
-
-
 }());

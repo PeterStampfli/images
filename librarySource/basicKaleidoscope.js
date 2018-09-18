@@ -153,7 +153,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
-            Make.map.discRadius = basicKaleidoscope.ellipticDiscRadius;
+            projection.elliptic();
         }
         // euklidic, final
         else if (basicKaleidoscope.angleSum > 0.999999) {
@@ -164,7 +164,8 @@ basicKaleidoscope = {};
             basicKaleidoscope.line.update();
             dihedral.generateLines(basicKaleidoscope.line, basicKaleidoscope.lines);
             Fast.update(lines);
-            Make.map.discRadius = -1;
+            projection.euclidic();
+
         }
         // hyperbolic, raw, adjust
         else {
@@ -174,7 +175,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusHyperbolic);
-            Make.map.discRadius = basicKaleidoscope.worldRadiusHyperbolic;
+            projection.hyperbolic();
         }
     };
 
@@ -216,15 +217,12 @@ basicKaleidoscope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     basicKaleidoscope.mapElliptic = function(position) {
-        let lyapunov = 1;
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[dihedral.getSectorIndex(position)].invertOutsideIn(position);
-            if (factor >= 0) {
-                lyapunov *= factor;
-            } else {
-                basicKaleidoscope.reflections = iter;
-                return lyapunov;
+        if (projection.map(position) > 0) {
+            for (var iter = 0; iter < maxIterations; iter++) {
+                if (circles[dihedral.getSectorIndex(position)].invertOutsideIn(position) < 0) {
+                    basicKaleidoscope.reflections = iter;
+                    return 1;
+                }
             }
         }
         return -1;
@@ -236,15 +234,15 @@ basicKaleidoscope = {};
      * sets basicKaleidoscope.reflections to the number of iterations
      * @method basicKaleidoscope.mapEuclidic
      * @param {Vector2} position - the vector to map
-     * @return float, if 1 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @return float, if 1 iteration has converged, if <0 iteration has failed
      */
     basicKaleidoscope.mapEuclidic = function(position) {
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            let factor = lines[dihedral.getSectorIndex(position)].mirrorLeftToRight(position);
-            if (factor < 0) {
-                basicKaleidoscope.reflections = iter;
-                return 1;
+        if (projection.map(position) > 0) {
+            for (var iter = 0; iter < maxIterations; iter++) {
+                if (lines[dihedral.getSectorIndex(position)].mirrorLeftToRight(position) < 0) {
+                    basicKaleidoscope.reflections = iter;
+                    return 1;
+                }
             }
         }
         return -1;
@@ -260,125 +258,17 @@ basicKaleidoscope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     basicKaleidoscope.mapHyperbolic = function(position) {
-        /*
-        if (position.x * position.x + position.y * position.y > basicKaleidoscope.worldRadius2) { // eliminate points outside the world
-            return -1;
-        }
-        */
-        let lyapunov = 1;
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            let factor = circles[dihedral.getSectorIndex(position)].invertInsideOut(position);
-            if (factor >= 0) {
-                lyapunov *= factor;
-            } else {
-                basicKaleidoscope.reflections = iter;
-                return lyapunov;
+        if (projection.map(position) > 0) {
+            for (var iter = 0; iter < maxIterations; iter++) {
+                if (circles[dihedral.getSectorIndex(position)].invertInsideOut(position) < 0) {
+                    basicKaleidoscope.reflections = iter;
+                    return 1;
+                }
             }
         }
         return -1;
     };
 
-    // and drawing the trajectories
-
-
-    /**
-     * draws the trajectory from mapping a vector into the polygon
-     * and generates points with relative sizes
-     * @method basicKaleidoscope.drawTrajectory
-     * @param {arrayOfVector2} positions - last position at start is starting position, all map results will be pushed onto this array
-     * @param {arrayOfFloats} sizes - last size is used for start, all map results will be pushed onto
-     * @return float if >0 total lyapunov coefficient, if <0 mapping failed
-     */
-    basicKaleidoscope.drawTrajectory = function(positions, sizes) {
-        let size = sizes[sizes.length - 1];
-        let position = positions[positions.length - 1].clone();
-        let factor = 1;
-        var iter;
-        for (iter = 0; iter < maxIterations; iter++) {
-            switch (basicKaleidoscope.geometry) { // we draw only one trajectory and need not be efficient
-                case basicKaleidoscope.elliptic:
-                    factor = circles[dihedral.getSectorIndex(position)].drawInvertOutsideIn(position);
-                    break;
-                case basicKaleidoscope.euclidic:
-                    factor = lines[dihedral.getSectorIndex(position)].drawMirrorLeftToRight(position);
-                    break;
-                case basicKaleidoscope.hyperbolic:
-                    factor = circles[dihedral.getSectorIndex(position)].drawInvertInsideOut(position);
-                    break;
-            }
-            if (factor >= 0) {
-                size *= factor;
-                positions.push(position.clone());
-                sizes.push(size);
-            } else {
-                return size;
-            }
-        }
-        return -1;
-    };
-
-
-    /**
-     * draw the points of the trajectory with correct relative sizes, smallest is nullradius
-     * @method basicKaleidoscope.drawEndPoints
-     * @param {ArrayVector2} positions
-     * @param {ArrayOfFloat} sizes
-     * @param {float} nullRadius
-     */
-    basicKaleidoscope.drawEndPoints = function(positions, sizes, nullRadius) {
-        let sizesLength = sizes.length;
-        let endSize = sizes[sizesLength - 1];
-        if (endSize < 0) {
-            return;
-        }
-        if (endSize < 1) {
-            nullRadius /= endSize;
-        }
-        for (var i = 0; i < sizesLength; i++) {
-            Draw.circle(nullRadius * sizes[i], positions[i]);
-        }
-    };
-
-    /**
-     * draw the triangle mirror lines for derived kaleidoscopes
-     * @method basicKaleidoscope.drawTriangle
-     */
-    basicKaleidoscope.drawTriangle = function(v) {
-        basicKaleidoscope.dihedral.drawMirrors();
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                basicKaleidoscope.circle.draw();
-                break;
-            case basicKaleidoscope.euclidic:
-                basicKaleidoscope.line.draw();
-                break;
-            case basicKaleidoscope.hyperbolic:
-                basicKaleidoscope.circle.draw();
-                break;
-        }
-    };
-
-
-    /**
-     * check if a point is inside the triangle
-     * @method basicKaleidoscope.isInsideTriangle
-     * @param {Vector2} v
-     * @return true if v is inside the triangle
-     */
-    basicKaleidoscope.isInsideTriangle = function(v) {
-        if (!basicKaleidoscope.dihedral.isInside(v)) {
-            return false;
-        }
-        switch (basicKaleidoscope.geometry) {
-            case basicKaleidoscope.elliptic:
-                return basicKaleidoscope.circle.contains(v);
-            case basicKaleidoscope.euclidic:
-                return !basicKaleidoscope.line.isAtLeft(v);
-            case basicKaleidoscope.hyperbolic:
-                return (v.x * v.x + v.y * v.y < basicKaleidoscope.worldRadius2) && !basicKaleidoscope.circle.contains(v);
-        }
-    };
 
 
 

@@ -63,6 +63,7 @@ function updateKMN() {
     });
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
+
     basicKaleidoscope.drawTriangle();
 }
 

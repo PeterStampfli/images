@@ -14,12 +14,10 @@ threeMirrorsKaleidoscope = {};
 (function() {
     "use strict";
 
-
     // the mappings
     // note that basicKaleidoscope is a namespace, dihedral is an object
     let dihedral = basicKaleidoscope.dihedral;
     var basicMap;
-
 
     /**
      * set the rotational symmetries at corners
@@ -62,30 +60,5 @@ threeMirrorsKaleidoscope = {};
         position.x = basicKaleidoscope.reflections + Dihedral.reflections;
         return lyapunov;
     };
-
-    /**
-     * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map
-     * @method threeMirrorsKaleidoscope.drawTrajectory
-     * @param {Vector2} position
-     * @param {float} nullRadius
-     * @param {String} pointColor - color for (end)ponts, css strings
-     */
-    threeMirrorsKaleidoscope.drawTrajectory = function(position, nullRadius, pointColor) {
-        let positions = [];
-        positions.push(position.clone());
-        let sizes = [];
-        sizes.push(1);
-        let lyapunov = basicKaleidoscope.drawTrajectory(positions, sizes);
-        if (lyapunov > 0) {
-            let position = positions[positions.length - 1].clone();
-            dihedral.drawMap(position);
-            positions.push(position);
-            sizes.push(sizes[sizes.length - 1]);
-            Draw.setColor(pointColor);
-            basicKaleidoscope.drawEndPoints(positions, sizes, nullRadius);
-        }
-    };
-
-
 
 }());

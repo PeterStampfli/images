@@ -7,7 +7,6 @@
 
 projection = {};
 
-
 (function() {
     "use strict";
 
@@ -61,7 +60,6 @@ projection = {};
         Make.map.discRadius = projection.euclidicDiscRadius;
     };
 
-
     /**
      * setup for hyperbolic geometry
      * @method projection.hyperbolic
@@ -70,6 +68,5 @@ projection = {};
         projection.map = projection.hyperbolicMap;
         Make.map.discRadius = projection.hyperbolicDiscRadius;
     };
-
 
 }());

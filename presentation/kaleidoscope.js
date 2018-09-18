@@ -1,5 +1,7 @@
 /* jshint esversion:6 */
 
+
+
 if (window.innerHeight > window.innerWidth) {
     document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
     console.log("high");
