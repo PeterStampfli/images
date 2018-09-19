@@ -207,8 +207,11 @@ function OutputImage(idName) {
      */
     OutputImage.prototype.adjustCanvasTransform = function() {
         let context = this.pixelCanvas.canvasContext;
-        context.setTransform(1, 0, 0, 1, -this.cornerX / this.scale, -this.cornerY / this.scale); // unshift
-        context.transform(1 / this.scale, 0, 0, 1 / this.scale, 0, 0);
+        context.resetTransform();
+        //      context.setTransform(1, 0, 0, 1, -this.cornerX / this.scale, -this.cornerY / this.scale); // unshift
+        context.translate(-this.cornerX / this.scale, -this.cornerY / this.scale); // unshift
+        // context.transform(1 / this.scale, 0, 0, 1 / this.scale, 0, 0);
+        context.scale(1 / this.scale, 1 / this.scale);
     };
 
     /**

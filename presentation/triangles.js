@@ -49,6 +49,8 @@ function updateKMN() {
     angleSum = Math.round(angleSum);
     sum.innerHTML = "" + angleSum;
     basicKaleidoscope.setKMN(k, m, n);
+
+
     basicKaleidoscope.adjustIntersection();
 
     yellow = new Color(255, 255, 128, 255);
@@ -61,10 +63,12 @@ function updateKMN() {
             color.set(background);
         }
     });
+
     Draw.setColor(Layout.mirrorColor);
     Draw.setLineWidth(Layout.lineWidth);
 
     basicKaleidoscope.drawTriangle();
+
 }
 
 
@@ -104,6 +108,7 @@ if (window.innerHeight > window.innerWidth) {
 
     Make.setInitialOutputImageSpace(-0.25, 1, -0.25);
     Make.resetOutputImageSpace();
+    Make.outputImage.adjustCanvasTransform();
 
     basicKaleidoscope.intersectionMirrorXAxis = 0.6;
     text = new BigDiv("text");
