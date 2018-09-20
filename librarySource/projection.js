@@ -69,4 +69,15 @@ projection = {};
         Make.map.discRadius = projection.hyperbolicDiscRadius;
     };
 
+    // making the projections
+    // elliptic
+    projection.ellipticStereographic = function() {
+        projection.ellipticMap = projection.identityMap;
+        projection.ellipticDiscRadius = -1;
+    };
+
+
+
+
+
 }());

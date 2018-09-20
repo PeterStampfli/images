@@ -211,7 +211,7 @@ function creation() {
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
-        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n));
+        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
         if (tiling == "regular") {
             threeMirrorsKaleidoscope.setKMN(k, m, n);
         } else if (tiling == "uniformTruncated") {
@@ -220,6 +220,22 @@ function creation() {
             cutSidesKaleidoscope.setKMN(k, m, n);
         } else {
             console.log("nosuch tiling: " + tiling);
+        }
+        // the choosers for projection
+        DOM.style("#ellipticDiv,#euclidicDiv,#hyperbolicDiv", "display", "none");
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                sum.innerHTML += ", elliptic geometry";
+                DOM.style("#ellipticDiv", "display", "initial");
+                break;
+            case basicKaleidoscope.euclidic:
+                sum.innerHTML += ", Euklidic geometry";
+                DOM.style("#euclidicDiv", "display", "initial");
+                break;
+            case basicKaleidoscope.hyperbolic:
+                sum.innerHTML += ", hyperbolic geometry";
+                DOM.style("#hyperbolicDiv", "display", "initial");
+                break;
         }
     };
 
@@ -232,8 +248,6 @@ function creation() {
             Make.allowResetInputMap = true;
         }
     }
-
-
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -251,7 +265,7 @@ function creation() {
     setNButton.setValue(3);
     setNButton.onChange = updateMapNoReset;
 
-
+    // the different tilings
 
     let tilingSelect = new Select("tiling");
 
@@ -272,6 +286,21 @@ function creation() {
             setNButton.setRange(3, 10000);
             changeTiling("rectified");
         });
+
+    // the projections (depending on space geometry)
+
+    let ellipticProjectionSelect = new Select("selectEllipticProjection");
+    ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
+    ellipticProjectionSelect.addOption("bla", function() {});
+
+
+    let euclidicProjectionSelect = new Select("selectEuclidicProjection");
+
+
+
+    let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
+
+
 }
 
 // adjust fontsize related dimesnions
