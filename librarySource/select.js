@@ -46,7 +46,6 @@ function Select(idName) {
      * action upon change, strategy pattern
      */
     this.element.onchange = function() {
-        console.log(select.element.selectedIndex);
         select.actions[select.element.selectedIndex]();
     };
 

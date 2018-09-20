@@ -40,7 +40,7 @@ projection = {};
     projection.euclidicDiscRadius = -1;
     projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
 
-    // set the projection depending on the geometry
+    // set the projection depending on the geometry. In basicKaleidoscope.setKMN
 
     /**
      * setup for elliptic geometry
@@ -69,14 +69,37 @@ projection = {};
         Make.map.discRadius = projection.hyperbolicDiscRadius;
     };
 
+    function updateMap() {
+        Make.allowResetInputMap = false;
+        Make.updateNewMap();
+        Make.allowResetInputMap = true;
+    }
+
     // making the projections
     // elliptic
     projection.ellipticStereographic = function() {
         projection.ellipticMap = projection.identityMap;
         projection.ellipticDiscRadius = -1;
+        updateMap();
     };
 
-
+    projection.ellipticNormal = function() {
+        let iWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
+        projection.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic;
+        projection.ellipticMap = function(position) {
+            let r2worldRadius2 = Math.hypot(position.x, position.y) * iWorldradius2;
+            let rt = (1 - r2worldRadius2);
+            if (rt > 0.00001) {
+                let mapFactor = 1 / (1 + Math.sqrt(rt));
+                position.x *= mapFactor;
+                position.y *= mapFactor;
+                return 1;
+            } else {
+                return -1;
+            }
+        };
+        updateMap();
+    };
 
 
 

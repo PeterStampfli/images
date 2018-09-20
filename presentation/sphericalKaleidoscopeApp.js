@@ -239,16 +239,6 @@ function creation() {
         }
     };
 
-    // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
-    function changeTiling(newTiling) {
-        if (newTiling != tiling) {
-            tiling = newTiling;
-            Make.allowResetInputMap = false;
-            Make.updateNewMap();
-            Make.allowResetInputMap = true;
-        }
-    }
-
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
@@ -266,6 +256,16 @@ function creation() {
     setNButton.onChange = updateMapNoReset;
 
     // the different tilings
+
+    // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
+    function changeTiling(newTiling) {
+        if (newTiling != tiling) {
+            tiling = newTiling;
+            Make.allowResetInputMap = false;
+            Make.updateNewMap();
+            Make.allowResetInputMap = true;
+        }
+    }
 
     let tilingSelect = new Select("tiling");
 
@@ -291,7 +291,7 @@ function creation() {
 
     let ellipticProjectionSelect = new Select("selectEllipticProjection");
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
-    ellipticProjectionSelect.addOption("bla", function() {});
+    ellipticProjectionSelect.addOption("normal (sphere)", projection.ellipticNormal);
 
 
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
@@ -470,8 +470,6 @@ function layout() {
 window.onload = function() {
     "use strict";
     basicKaleidoscope.worldRadiusElliptic = 0.97;
-    sphericalToElliptic.setup();
-
     creation();
     layout();
     // independent of layout
