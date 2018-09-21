@@ -299,11 +299,15 @@ function creation() {
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
+    euclidicProjectionSelect.addOption("normal", projection.euclidicNormal);
 
 
     // for hyperbolic geometry
     let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
-
+    hyperbolicProjectionSelect.addOption("Poincaré disc", projection.hyperbolicPoincareDisc);
+    hyperbolicProjectionSelect.addOption("Beltrami-Klein disc", projection.hyperbolicKleinDisc);
+    hyperbolicProjectionSelect.addOption("Poincaré plane", projection.hyperbolicPoincarePlane);
+    hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
 
 }
 

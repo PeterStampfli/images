@@ -130,6 +130,93 @@ projection = {};
         updateMap();
     };
 
+    // euclidic
+
+    projection.euclidicNormal = function() {
+        projection.euclidicMap = projection.identityMap;
+        projection.euclidicDiscRadius = -1;
+        updateMap();
+    };
+
+
+    //hyperbolic
+
+    projection.hyperbolicPoincareDisc = function() {
+        projection.hyperbolicMap = projection.identityMap;
+        projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
+        updateMap();
+    };
+
+    let iHyperbolicWorldradius2 = 1 / (basicKaleidoscope.worldRadiusHyperbolic * basicKaleidoscope.worldRadiusHyperbolic);
+
+    // go from klein disc to poincare disc, return 1
+    function kleinPoincare(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iHyperbolicWorldradius2;
+
+        let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+        position.x *= mapFactor;
+        position.y *= mapFactor;
+        return 1;
+    }
+
+    projection.hyperbolicKleinDisc = function() {
+        projection.hyperbolicMap = kleinPoincare;
+        projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
+        updateMap();
+    };
+
+    // go from halfplane y>hyperbolic world radius to disc with hyperbolic worldRadius 
+    function halfplaneDisc(position) {
+        position.y += basicKaleidoscope.worldRadiusHyperbolic;
+        if (position.y > 0) {
+            let r2 = position.x * position.x + position.y * position.y;
+            let base = basicKaleidoscope.worldRadiusHyperbolic / (r2 + 2 * position.y + 1);
+            position.y = -2 * position.x * base;
+            position.x = (r2 - 1) * base;
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    projection.hyperbolicPoincarePlane = function() {
+        projection.hyperbolicDiscRadius = -1;
+        projection.hyperbolicMap = halfplaneDisc;
+        updateMap();
+    };
+
+    // go from band model (hyperbolicWorldradius>abs(y) to disc with hyperbolic world radius
+
+    let bandScale = Math.PI * 0.5 / basicKaleidoscope.worldRadiusHyperbolic;
+
+    function bandDisc(position) {
+        if (Math.abs(position.y) < basicKaleidoscope.worldRadiusHyperbolic) {
+            position.scale(bandScale);
+            let exp2u = Fast.exp(position.x);
+            let expm2u = 1 / exp2u;
+            Fast.cosSin(position.y);
+            let base = basicKaleidoscope.worldRadiusHyperbolic / (exp2u + expm2u + 2 * Fast.cosResult);
+            position.x = (exp2u - expm2u) * base;
+            position.y = 2 * Fast.sinResult * base;
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+
+    let v = new Vector2(0, basicKaleidoscope.worldRadiusHyperbolic - 0.001);
+    console.log(bandDisc(v));
+    v.log("t");
+
+    projection.hyperbolicBulatovBand = function() {
+        projection.hyperbolicDiscRadius = -1;
+        projection.hyperbolicMap = bandDisc;
+        updateMap();
+    };
+
+
+
     // for switching betwwen geometries (remembering the projection)
 
     projection.ellipticMap = projection.ellipticNormal;
