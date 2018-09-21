@@ -289,15 +289,19 @@ function creation() {
 
     // the projections (depending on space geometry)
 
+    // for elliptic geometry
+
     let ellipticProjectionSelect = new Select("selectEllipticProjection");
+    ellipticProjectionSelect.addOption("normal (spherical)", projection.ellipticNormal);
+    ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
-    ellipticProjectionSelect.addOption("normal (sphere)", projection.ellipticNormal);
+    ellipticProjectionSelect.addOption("mercator", projection.ellipticMercator);
 
-
+    // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
 
 
-
+    // for hyperbolic geometry
     let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
 
 
@@ -469,7 +473,6 @@ function layout() {
 
 window.onload = function() {
     "use strict";
-    basicKaleidoscope.worldRadiusElliptic = 0.97;
     creation();
     layout();
     // independent of layout

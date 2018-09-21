@@ -22,7 +22,7 @@ basicKaleidoscope = {};
 
     // parameters that determine the image size
     //  access from outside to be able to change values. defaults:
-    basicKaleidoscope.worldRadiusElliptic = 0.6;
+    basicKaleidoscope.worldRadiusElliptic = 0.97;
     basicKaleidoscope.worldRadiusHyperbolic = 0.97;
     basicKaleidoscope.intersectionMirrorXAxis = 0.3; // intersection of third mirror with x-axis
 

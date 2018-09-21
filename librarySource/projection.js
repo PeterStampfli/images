@@ -28,18 +28,6 @@ projection = {};
         return 1;
     };
 
-    projection.ellipticMap = projection.identityMap;
-    projection.euclidicMap = projection.identityMap;
-    projection.hyperbolicMap = projection.identityMap;
-
-    // the cutoff radius for map making
-    //           Make.map.discRadius = -1; if there is no cutoff    (default)
-    //  Make.map.discRadius=value of the projection disc
-
-    projection.ellipticDiscRadius = -1;
-    projection.euclidicDiscRadius = -1;
-    projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
-
     // set the projection depending on the geometry. In basicKaleidoscope.setKMN
 
     /**
@@ -83,24 +71,78 @@ projection = {};
         updateMap();
     };
 
+    let iEllipticWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
+    let ellipticWorldradius2 = basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic;
+
+    projection.ellipticNormalMap = function(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iEllipticWorldradius2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > 0.00001) {
+            let mapFactor = 1 / (1 + Math.sqrt(rt));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
+        } else {
+            return -1;
+        }
+    };
+
     projection.ellipticNormal = function() {
-        let iWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
         projection.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic;
+        projection.ellipticMap = projection.ellipticNormalMap;
+        updateMap();
+    };
+
+    projection.ellipticGonomic = function() {
+        let iEllipticWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
+        projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
-            let r2worldRadius2 = Math.hypot(position.x, position.y) * iWorldradius2;
-            let rt = (1 - r2worldRadius2);
-            if (rt > 0.00001) {
-                let mapFactor = 1 / (1 + Math.sqrt(rt));
-                position.x *= mapFactor;
-                position.y *= mapFactor;
-                return 1;
-            } else {
-                return -1;
-            }
+            let r2worldRadius2 = Math.hypot(position.x, position.y) * iEllipticWorldradius2;
+            let mapFactor = 1 / (1 + Math.sqrt(1 + (position.x * position.x + position.y * position.y) * iEllipticWorldradius2));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
         };
         updateMap();
     };
 
+    projection.ellipticMercator = function() {
+        projection.ellipticDiscRadius = -1;
+        projection.ellipticMap = function(position) {
+            Fast.cosSin(position.x);
+            let r = Fast.exp(-position.y);
+            position.x = r * Fast.cosResult;
+            position.y = r * Fast.sinResult;
+            return 1;
+        };
+        updateMap();
+    };
+
+    projection.ellipticGonomicCylinder = function() {
+        projection.ellipticDiscRadius = -1;
+        projection.ellipticMap = function(position) {
+            Fast.cosSin(position.x);
+            let r = ellipticWorldradius2 / (position.y + Math.hypot(position.y, basicKaleidoscope.worldRadiusElliptic));
+            position.x = r * Fast.cosResult;
+            position.y = r * Fast.sinResult;
+            return 1;
+        };
+        updateMap();
+    };
+
+    // for switching betwwen geometries (remembering the projection)
+
+    projection.ellipticMap = projection.ellipticNormal;
+    projection.euclidicMap = projection.identityMap;
+    projection.hyperbolicMap = projection.identityMap;
+
+    // the cutoff radius for map making
+    //           Make.map.discRadius = -1; if there is no cutoff    (default)
+    //  Make.map.discRadius=value of the projection disc
+
+    projection.ellipticDiscRadius = basicKaleidoscope.ellipticDiscRadius;
+    projection.euclidicDiscRadius = -1;
+    projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
 
 
 }());
