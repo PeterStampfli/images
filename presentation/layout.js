@@ -52,7 +52,7 @@ var Layout = {};
      * @method Layout.setFontSizes
      */
     Layout.setFontSizes = function() {
-        DOM.style("p,button,input,table", "fontSize", Layout.basicFontSize + px);
+        DOM.style("p,button,input,table,select", "fontSize", Layout.basicFontSize + px);
         DOM.style("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + px);
         DOM.style("p,h1,.topButton,table", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
         DOM.style(".topButton", "marginBottom", "0px");
