@@ -212,15 +212,20 @@ function creation() {
         let m = setMButton.getValue();
         let n = setNButton.getValue();
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
-        if (tiling == "regular") {
-            threeMirrorsKaleidoscope.setKMN(k, m, n);
-        } else if (tiling == "uniformTruncated") {
-            cutCornersKaleidoscope.setKMN(k, m, n);
-        } else if (tiling == "rectified") {
-            cutSidesKaleidoscope.setKMN(k, m, n);
-        } else {
-            console.log("nosuch tiling: " + tiling);
+        switch (tiling) {
+            case "regular":
+                threeMirrorsKaleidoscope.setKMN(k, m, n);
+                break;
+            case "uniformTruncated":
+                cutCornersKaleidoscope.setKMN(k, m, n);
+                break;
+            case "rectified":
+                cutSidesKaleidoscope.setKMN(k, m, n);
+                break;
+            default:
+                console.log("nosuch tiling: " + tiling);
         }
+
         // the choosers for projection
         DOM.style("#ellipticDiv,#euclidicDiv,#hyperbolicDiv", "display", "none");
         switch (basicKaleidoscope.geometry) {

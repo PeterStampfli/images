@@ -131,11 +131,108 @@ projection = {};
     };
 
     // euclidic
+    // the usual straight view
 
     projection.euclidicNormal = function() {
         projection.euclidicMap = projection.identityMap;
         projection.euclidicDiscRadius = -1;
         updateMap();
+    };
+
+    // spiral view
+    let spiralNumber1 = 0;
+    let spiralNumber2 = 1;
+    let spiralVector1 = new Vector2();
+    let spiralVector2 = new Vector2();
+    let spiralVector = new Vector2();
+    let rt3 = Math.sqrt(3);
+
+    // called at each basicKaleidoscope.setKMN call, every time Make.initializMap is called
+    projection.makeSpiralVector = function(k, m, n) {
+        console.log("make spiralvector");
+        console.log("length scale " + basicKaleidoscope.intersectionMirrorXAxis);
+        // setting up the two spiralvectors, reduced units 
+        // length scale = basicKaleidoscope.intersectionMirrorXAxis
+        switch (k) {
+            case 2:
+                console.log("k 2");
+                switch (m) {
+                    case 3:
+                        console.log("236");
+                        spiralVector1.setComponents(3, rt3);
+                        spiralVector2.setComponents(0, 2 * rt3);
+                        break;
+                    case 4:
+                        console.log("244");
+                        spiralVector1.setComponents(2, 0);
+                        spiralVector2.setComponents(0, 2);
+                        break;
+                    case 6:
+                        console.log("263");
+                        spiralVector1.setComponents(1, rt3);
+                        spiralVector2.setComponents(2, 0);
+                        break;
+                }
+                break;
+            case 3:
+                console.log("k 3");
+                switch (m) {
+                    case 2:
+                        console.log("326");
+                        spiralVector1.setComponents(0, 2 * rt3);
+                        spiralVector2.setComponents(3, rt3);
+                        break;
+                    case 3:
+                        console.log("333");
+                        spiralVector1.setComponents(1, 0);
+                        spiralVector2.setComponents(0.5, 0.5 * rt3);
+                        break;
+                    case 6:
+                        console.log("362");
+                        spiralVector1.setComponents(0, rt3);
+                        spiralVector2.setComponents(1.5, 0.5 * rt3);
+                        break;
+                }
+                break;
+            case 4:
+                console.log("k 4");
+                switch (m) {
+                    case 2:
+                        console.log("424");
+                        spiralVector1.setComponents(2, 0);
+                        spiralVector2.setComponents(0, 2);
+                        break;
+                    case 4:
+                        console.log("442");
+                        spiralVector1.setComponents(1, 1);
+                        spiralVector2.setComponents(1, -1);
+                        break;
+                }
+                break;
+            case 6:
+                console.log("k 6");
+                switch (m) {
+                    case 2:
+                        console.log("623");
+                        spiralVector1.setComponents(2, 0);
+                        spiralVector2.setComponents(1, rt3);
+                        break;
+                    case 3:
+                        console.log("632");
+                        spiralVector1.setComponents(0, rt3);
+                        spiralVector2.setComponents(1.5, rt3 * 0.5);
+                        break;
+                }
+                break;
+        }
+        spiralVector1.log("one");
+        spiralVector2.log("two");
+
+        spiralVector1.scale(spiralNumber1);
+        spiralVector2.scale(spiralNumber2);
+        spiralVector.set(spiralVector1).add(spiralVector2);
+        spiralVector.log("total");
+
     };
 
 
@@ -203,11 +300,6 @@ projection = {};
             return -1;
         }
     }
-
-
-    let v = new Vector2(0, basicKaleidoscope.worldRadiusHyperbolic - 0.001);
-    console.log(bandDisc(v));
-    v.log("t");
 
     projection.hyperbolicBulatovBand = function() {
         projection.hyperbolicDiscRadius = -1;

@@ -164,6 +164,7 @@ basicKaleidoscope = {};
             basicKaleidoscope.line.update();
             dihedral.generateLines(basicKaleidoscope.line, basicKaleidoscope.lines);
             Fast.update(lines);
+            projection.makeSpiralVector(k, m, n);
             projection.euclidic();
 
         }
