@@ -140,8 +140,8 @@ projection = {};
     };
 
     // spiral view
-    let spiralNumber1 = 0;
-    let spiralNumber2 = 1;
+    let spiralNumber1 = 2;
+    let spiralNumber2 = 6;
     let spiralVector1 = new Vector2();
     let spiralVector2 = new Vector2();
     let spiralVector = new Vector2();
@@ -232,9 +232,30 @@ projection = {};
         spiralVector2.scale(spiralNumber2);
         spiralVector.set(spiralVector1).add(spiralVector2);
         spiralVector.log("total");
+        // make a "periodic vector" defining a path with period 2 pi
+        spiralVector.scale(basicKaleidoscope.intersectionMirrorXAxis * 0.5 / Math.PI);
 
     };
 
+    // the map 
+    function basicEuclidicSpiral(position) {
+        // use the complex log to map the plane into a strip
+        // y goes from -pi to +pi, 
+        let x = 0.5 * Fast.log(position.x * position.x + position.y * position.y);
+        let y = Fast.atan2(position.y, position.x);
+        // going from (x,y) to (x,y+2*pi) we have to get the same image
+        // so y has to go along a periodic vector with period 2*pi
+        // scale and rotate 
+        position.x = y * spiralVector.x + x * spiralVector.y;
+        position.y = y * spiralVector.y - x * spiralVector.x;
+        return 1;
+    }
+
+    projection.euclidicSpiralTest = function() {
+        projection.euclidicDiscRadius = -1;
+        projection.euclidicMap = basicEuclidicSpiral;
+        updateMap();
+    };
 
     //hyperbolic
 
