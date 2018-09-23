@@ -149,92 +149,71 @@ projection = {};
 
     // called at each basicKaleidoscope.setKMN call, every time Make.initializMap is called
     projection.makeSpiralVector = function(k, m, n) {
-        console.log("make spiralvector");
-        console.log("length scale " + basicKaleidoscope.intersectionMirrorXAxis);
         // setting up the two spiralvectors, reduced units 
         // length scale = basicKaleidoscope.intersectionMirrorXAxis
         switch (k) {
             case 2:
-                console.log("k 2");
                 switch (m) {
                     case 3:
-                        console.log("236");
                         spiralVector1.setComponents(3, rt3);
                         spiralVector2.setComponents(0, 2 * rt3);
                         break;
                     case 4:
-                        console.log("244");
                         spiralVector1.setComponents(2, 0);
                         spiralVector2.setComponents(0, 2);
                         break;
                     case 6:
-                        console.log("263");
                         spiralVector1.setComponents(1, rt3);
                         spiralVector2.setComponents(2, 0);
                         break;
                 }
                 break;
             case 3:
-                console.log("k 3");
                 switch (m) {
                     case 2:
-                        console.log("326");
                         spiralVector1.setComponents(0, 2 * rt3);
                         spiralVector2.setComponents(3, rt3);
                         break;
                     case 3:
-                        console.log("333");
-                        spiralVector1.setComponents(1, 0);
-                        spiralVector2.setComponents(0.5, 0.5 * rt3);
+                        spiralVector1.setComponents(1.5, 0.5 * rt3);
+                        spiralVector2.setComponents(0, rt3);
                         break;
                     case 6:
-                        console.log("362");
                         spiralVector1.setComponents(0, rt3);
                         spiralVector2.setComponents(1.5, 0.5 * rt3);
                         break;
                 }
                 break;
             case 4:
-                console.log("k 4");
                 switch (m) {
                     case 2:
-                        console.log("424");
                         spiralVector1.setComponents(2, 0);
                         spiralVector2.setComponents(0, 2);
                         break;
                     case 4:
-                        console.log("442");
                         spiralVector1.setComponents(1, 1);
                         spiralVector2.setComponents(1, -1);
                         break;
                 }
                 break;
             case 6:
-                console.log("k 6");
                 switch (m) {
                     case 2:
-                        console.log("623");
                         spiralVector1.setComponents(2, 0);
                         spiralVector2.setComponents(1, rt3);
                         break;
                     case 3:
-                        console.log("632");
                         spiralVector1.setComponents(0, rt3);
                         spiralVector2.setComponents(1.5, rt3 * 0.5);
                         break;
                 }
                 break;
         }
-        spiralVector1.log("one");
-        spiralVector2.log("two");
-
         spiralVector1.scale(spiralNumber1);
         spiralVector2.scale(spiralNumber2);
         spiralVector.set(spiralVector1).add(spiralVector2);
-        spiralVector.log("total");
         // make a "periodic vector" defining a path with period 2 pi
         spiralVector.scale(basicKaleidoscope.intersectionMirrorXAxis * 0.5 / Math.PI);
-
     };
 
     // the map 
@@ -252,6 +231,32 @@ projection = {};
     }
 
     projection.euclidicSpiralTest = function() {
+        spiralNumber1 = 0;
+        spiralNumber2 = 1;
+        projection.euclidicDiscRadius = -1;
+        projection.euclidicMap = basicEuclidicSpiral;
+        updateMap();
+    };
+
+    projection.euclidicSingleSpiral = function() {
+        spiralNumber1 = 7;
+        spiralNumber2 = 1;
+        projection.euclidicDiscRadius = -1;
+        projection.euclidicMap = basicEuclidicSpiral;
+        updateMap();
+    };
+
+    projection.euclidicDoubleSpiral = function() {
+        spiralNumber1 = 8;
+        spiralNumber2 = 2;
+        projection.euclidicDiscRadius = -1;
+        projection.euclidicMap = basicEuclidicSpiral;
+        updateMap();
+    };
+
+    projection.euclidicTripleSpiral = function() {
+        spiralNumber1 = 9;
+        spiralNumber2 = 3;
         projection.euclidicDiscRadius = -1;
         projection.euclidicMap = basicEuclidicSpiral;
         updateMap();

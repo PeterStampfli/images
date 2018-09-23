@@ -305,7 +305,10 @@ function creation() {
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
     euclidicProjectionSelect.addOption("normal", projection.euclidicNormal);
-    euclidicProjectionSelect.addOption("spiralTest", projection.euclidicSpiralTest);
+    euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
+    euclidicProjectionSelect.addOption("double spiral", projection.euclidicDoubleSpiral);
+    euclidicProjectionSelect.addOption("triple spiral", projection.euclidicTripleSpiral);
+    // euclidicProjectionSelect.addOption("spiralTest", projection.euclidicSpiralTest);
 
 
     // for hyperbolic geometry
