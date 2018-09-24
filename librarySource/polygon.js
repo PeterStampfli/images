@@ -216,6 +216,24 @@ function Polygon(corners) {
         return result;
     };
 
+    /**
+     * for more versatility, map a point with method to be choosen as
+     *     Polygon.prototype.map=Polygon.prototype.someMappingMethod;
+     * @method Polygon#map
+     * @param {Vector2} p
+     * @return number of mirror images (0,1, or 2)
+     */
+    Polygon.prototype.map = function(p) {
+        return 0;
+    };
+
+    /**
+     * make that the map method is the shiftRotateMirror
+     * Polygon.mapWithShiftRotateMirror
+     */
+    Polygon.mapWithShiftRotateMirror = function() {
+        Polygon.prototype.map = Polygon.prototype.shiftRotateMirror;
+    };
 
 }());
 

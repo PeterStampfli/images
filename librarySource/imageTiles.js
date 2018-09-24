@@ -50,7 +50,7 @@ imageTiles.reset = function() {
  * @return +1 for a valid point, -1 for an invalid point outside tiling
  */
 imageTiles.mapStructure = function(p) {
-    let result = imageTiles.bins.shiftRotateMirror(p);
+    let result = imageTiles.bins.map(p);
     p.x = result;
     return result;
 };
@@ -62,7 +62,7 @@ imageTiles.mapStructure = function(p) {
  * @return +1 for a valid point, -1 for an invalid point outside tiling
  */
 imageTiles.mapImage = function(p) {
-    if (imageTiles.bins.shiftRotateMirror(p) < 0) {
+    if (imageTiles.bins.map(p) < 0) {
         return -1;
     } else {
         p.scale(imageTiles.scale);

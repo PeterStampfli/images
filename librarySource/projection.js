@@ -239,7 +239,7 @@ projection = {};
     };
 
     projection.euclidicSingleSpiral = function() {
-        spiralNumber1 = 7;
+        spiralNumber1 = 6;
         spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
         projection.euclidicMap = basicEuclidicSpiral;
@@ -247,7 +247,7 @@ projection = {};
     };
 
     projection.euclidicDoubleSpiral = function() {
-        spiralNumber1 = 8;
+        spiralNumber1 = 6;
         spiralNumber2 = 2;
         projection.euclidicDiscRadius = -1;
         projection.euclidicMap = basicEuclidicSpiral;

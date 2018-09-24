@@ -214,5 +214,20 @@ function Bins() {
         }
     };
 
+    /**
+     * map a point if inside a polygon
+     * @method Bins#map
+     * @param {Vector2}
+     * @return -1 for bad point outside polygon, 0 or 2 if not mirrored, 1 if mirrored
+     */
+    Bins.prototype.map = function(p) {
+        let polygon = this.getFirstContains(p);
+        if (polygon) {
+            return polygon.map(p);
+        } else {
+            return -1;
+        }
+    };
+
 
 }());

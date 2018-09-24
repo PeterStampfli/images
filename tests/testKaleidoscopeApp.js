@@ -220,10 +220,11 @@ function creation() {
     };
 
 
-    iterateTiling.initialPolygons = penrose.start;
-    //   iterateTiling.initialPolygons = ambe.start;
+    // iterateTiling.initialPolygons = penrose.start;
+    iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
 
+    Polygon.mapWithShiftRotateMirror();
     iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
