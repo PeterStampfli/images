@@ -42,7 +42,7 @@ imageTiles.reset = function() {
     imageTiles.bins.empty();
 };
 
-// making maps
+// making maps, using the (generic) map(position) method of polygons
 /**
  * creating structure data depending on the position of a point
  * @method imageTiles.mapStructure
@@ -57,7 +57,7 @@ imageTiles.mapStructure = function(p) {
 
 /**
  * creating image data depending on the position of a point
- * @method imageTiles.mapStructure
+ * @method imageTiles.mapImage
  * @param {Vector2} p - position
  * @return +1 for a valid point, -1 for an invalid point outside tiling
  */
@@ -86,6 +86,34 @@ imageTiles.setMapping = function() {
  */
 imageTiles.allSymmetric = false;
 
+// for more versatility: generic addParallelogram and addRegularPolygon
+
+/**
+ * create an image parallelogram composed of tiles
+ * add the tiles to imageTiles.polygons
+ * (here generic do nothing interface)
+ * @method imageTiles.addParallelogram
+ * @param {float} angle
+ * @param {Vector2} left
+ * @param {Vector2} right
+ * @param {boolean} leftCornerMapsToZero - for "two color" parallelgrams (may be omitted)
+ */
+imageTiles.addParallelogram = function(angle, left, right, leftCornerMapsToZero) {};
+
+
+/**
+ * create a regular polygon
+ * given a first and a second corner, the polygon lies at left of the line from first to second
+ * @method imageTiles.addRegularPolygon
+ * @param {integer} n - number of sides
+ * @param {Vector2} firstCorner - of type A, matching (0,0)
+ * @param {Vector2} secondCorner 
+ * @param {boolean} firstCornerMapsToZero - for "two color" polygons (may be omitted)
+ */
+imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {};
+
+
+
 /**
  * create an image parallelgram with directed sides, two different corner types
  * consists of four triangle tiles, add the tiles to polygons
@@ -107,10 +135,17 @@ imageTiles.addTwoColorParallelogram = function(leftCornerMapsToZero, angle, left
         halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        imageTiles.polygons.addImagePolygon(leftCornerMapsToZero, left, bottom, center);
-        imageTiles.polygons.addImagePolygon(!leftCornerMapsToZero, bottom, right, center);
-        imageTiles.polygons.addImagePolygon(leftCornerMapsToZero, right, top, center);
-        imageTiles.polygons.addImagePolygon(!leftCornerMapsToZero, top, left, center);
+        if (leftCornerMapsToZero) {
+            imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom);
+            imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom);
+            imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top);
+            imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top);
+        } else {
+            imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(bottom, left);
+            imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(bottom, right);
+            imageTiles.polygons.addPolygon(right, top, center).addBaseline(top, right);
+            imageTiles.polygons.addPolygon(top, left, center).addBaseline(top, left);
+        }
     }
 };
 

@@ -164,29 +164,6 @@ function Polygon(corners) {
         this.inversion = 0;
     };
 
-
-    // use firstline (inverted)
-
-    /**
-     *make that first line is mapping line
-     * (first corner will be at (0,0) in image,first line points in positive x-axis direction)
-     * because polygon corners are counterclockwise and polygon is convex, all points will be y>0 after rotation
-     *@method Polygon#firstLineMaps
-     */
-    Polygon.prototype.firstLineMaps = function() {
-        this.mappingLine = this.lines[0];
-    };
-
-    /**
-     *make that inverted first line is mapping line
-     * (second corner will be at (0,0) in image,first line points in negative x-axis direction, this mirrors)
-     * because polygon corners are counterclockwise and polygon is convex, all points will be y<0 after rotation and there is a mirroring
-     *@method Polygon#firstLineInvertedMaps
-     */
-    Polygon.prototype.firstLineInvertedMaps = function() {
-        this.addMappingLineOfVectors(this.lines[0].b, this.lines[0].a);
-    };
-
     /**
      * mirror a point at the mapping line of the polygon (if there is a mapping line, for repeated mirroring)
      * @method Polygon#mirror
@@ -211,6 +188,7 @@ function Polygon(corners) {
      * @method Polygon#addBaseline
      * @param {Vector2} a
      * @param {Vector2} b
+     * @return Polygon, for chaining, adding more
      */
     Polygon.prototype.addBaseline = function(a, b) {
         this.a = a.clone();
@@ -260,6 +238,7 @@ function Polygon(corners) {
     /**
      * for more versatility, map a point with method to be choosen as
      *     Polygon.prototype.map=Polygon.prototype.someMappingMethod;
+     * here a generic stub that does nothing
      * @method Polygon#map
      * @param {Vector2} p
      * @return number of mirror images (0,1, or 2)
@@ -441,10 +420,8 @@ function UniquePolygons() {
         }
         const polygon = this.add(Polygon.ofVectors(args));
         if (firstCornerMapsToZero) {
-            polygon.firstLineMaps();
             polygon.addBaseline(args[0], args[1]);
         } else {
-            polygon.firstLineInvertedMaps();
             polygon.addBaseline(args[1], args[0]);
         }
         polygon.shift = Polygon.imageShift;
