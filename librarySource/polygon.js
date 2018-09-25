@@ -202,17 +202,58 @@ function Polygon(corners) {
         }
     };
 
+    // making mapping more explicite and transparent
+
     /**
-     * shift (by end point a) and rotate (by - polar angle) a point
+     * adding a base line to the polygon for translation, rotation and scaling
+     * actually map point a to (0,0) and b to (1,0)
+     * polygon.a=a and polygon.vx=(b.x-a.x)/|b-a|**2, vy= ...
+     * @method Polygon#addBaseline
+     * @param {Vector2} a
+     * @param {Vector2} b
+     */
+    Polygon.prototype.addBaseline = function(a, b) {
+        this.a = a.clone();
+        let ab = Vector2.difference(b, a);
+        ab.scale(1 / ab.length2());
+        this.vx = ab.x;
+        this.vy = ab.y;
+    };
+
+    /**
+     * apply the baseline on a point
+     * mirror at x-axis if point.y<0
+     * @method Polygon#applyBaseline
+     * @param {Vector2} position - will be transformed
+     * @return 0 if no mirroring, 1 if mirrored
+     */
+    Polygon.prototype.applyBaseline = function(position) {
+        position.sub(this.a);
+        let y = -this.vy * position.x + this.vx * position.y;
+        position.x = this.vx * position.x + this.vy * position.y;
+        if (y > 0) {
+            position.y = y;
+            return 0;
+        } else {
+            position.y = -y;
+            return 1;
+        }
+    };
+
+
+    /**
+     * shift,scale and rotate a point
      * use mirror at x-axis to get point with positive y-value
-     * maps endpoint A of mapping line to origin and endpoint B to the x-axis
+     * maps endpoint A of mapping line to origin and endpoint B to the x-axis (1,0)
+     * no shear, no scale
      * @method Polygon#shiftRotateMirror
      * @param {Vector2} p
      * @return number of mirror images (0,1, or 2)
      */
     Polygon.prototype.shiftRotateMirror = function(p) {
-        let result = this.mappingLine.shiftRotateMirror(p);
-        p.x += this.shift * p.y; // shearing
+        //     let result = this.mappingLine.shiftRotateMirror(p);
+        //     p.x += this.shift * p.y; // shearing
+        let result = this.applyBaseline(p);
         return result;
     };
 
@@ -401,8 +442,10 @@ function UniquePolygons() {
         const polygon = this.add(Polygon.ofVectors(args));
         if (firstCornerMapsToZero) {
             polygon.firstLineMaps();
+            polygon.addBaseline(args[0], args[1]);
         } else {
             polygon.firstLineInvertedMaps();
+            polygon.addBaseline(args[1], args[0]);
         }
         polygon.shift = Polygon.imageShift;
         return polygon;
