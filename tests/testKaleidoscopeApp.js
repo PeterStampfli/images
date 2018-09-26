@@ -220,6 +220,8 @@ function creation() {
     };
 
 
+    imageTiles.allSymmetric = true;
+    imageTiles.shiftForSymmetricParallelograms = false;
 
 
 
@@ -228,6 +230,9 @@ function creation() {
     // iterateTiling.initialPolygons = small12.start;
 
     Polygon.mapWithShiftRotateMirror();
+    Polygon.mapWithShiftRotateMirrorShear();
+
+
     iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 

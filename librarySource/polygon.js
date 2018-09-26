@@ -183,6 +183,7 @@ function Polygon(corners) {
 
     /**
      * adding a base line to the polygon for translation, rotation and scaling
+     * setting shear value equal to zero as default
      * actually map point a to (0,0) and b to (1,0)
      * polygon.a=a and polygon.vx=(b.x-a.x)/|b-a|**2, vy= ...
      * @method Polygon#addBaseline
@@ -196,7 +197,18 @@ function Polygon(corners) {
         ab.scale(1 / ab.length2());
         this.vx = ab.x;
         this.vy = ab.y;
+        this.shear = 0;
     };
+
+    /**
+     * set a nonzero value for the shear coefficient
+     * @method Polygon.prototype.setShear
+     * @param {float} shear
+     */
+    Polygon.prototype.setShear = function(shear) {
+        this.shear = shear;
+    };
+
 
     /**
      * apply the baseline on a point
@@ -220,6 +232,19 @@ function Polygon(corners) {
 
 
     /**
+     * for more versatility, map a point with method to be choosen as
+     *     Polygon.prototype.map=Polygon.prototype.someMappingMethod;
+     * here a generic stub that does nothing
+     * @method Polygon#map
+     * @param {Vector2} p
+     * @return number of mirror images (0,1, or 2)
+     */
+    Polygon.prototype.map = function(p) {
+        return 0;
+    };
+
+
+    /**
      * shift,scale and rotate a point
      * use mirror at x-axis to get point with positive y-value
      * maps endpoint A of mapping line to origin and endpoint B to the x-axis (1,0)
@@ -236,23 +261,34 @@ function Polygon(corners) {
     };
 
     /**
-     * for more versatility, map a point with method to be choosen as
-     *     Polygon.prototype.map=Polygon.prototype.someMappingMethod;
-     * here a generic stub that does nothing
-     * @method Polygon#map
-     * @param {Vector2} p
-     * @return number of mirror images (0,1, or 2)
-     */
-    Polygon.prototype.map = function(p) {
-        return 0;
-    };
-
-    /**
      * make that the map method is the shiftRotateMirror
      * Polygon.mapWithShiftRotateMirror
      */
     Polygon.mapWithShiftRotateMirror = function() {
         Polygon.prototype.map = Polygon.prototype.shiftRotateMirror;
+    };
+
+    /**
+     * shift,scale and rotate a point, do shearing
+     * use mirror at x-axis to get point with positive y-value
+     * maps endpoint A of mapping line to origin and endpoint B to the x-axis (1,0)
+     * uses shearing as indicated by this.shear
+     * @method Polygon#shiftRotateMirrorShear
+     * @param {Vector2} p
+     * @return number of mirror images (0,1, or 2)
+     */
+    Polygon.prototype.shiftRotateMirrorShear = function(p) {
+        let result = this.applyBaseline(p);
+        p.x += this.shear * p.y; // shearing
+        return result;
+    };
+
+    /**
+     * make that the map method is the shiftRotateMirror
+     * Polygon.mapWithShiftRotateMirrorShear
+     */
+    Polygon.mapWithShiftRotateMirrorShear = function() {
+        Polygon.prototype.map = Polygon.prototype.shiftRotateMirrorShear;
     };
 
 }());

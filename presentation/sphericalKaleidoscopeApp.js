@@ -297,14 +297,14 @@ function creation() {
     // for elliptic geometry
 
     let ellipticProjectionSelect = new Select("selectEllipticProjection");
-    ellipticProjectionSelect.addOption("normal (spherical)", projection.ellipticNormal);
+    ellipticProjectionSelect.addOption("orthographic", projection.ellipticNormal);
     ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
     ellipticProjectionSelect.addOption("mercator", projection.ellipticMercator);
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
-    euclidicProjectionSelect.addOption("normal", projection.euclidicNormal);
+    euclidicProjectionSelect.addOption("direct", projection.euclidicNormal);
     euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
     euclidicProjectionSelect.addOption("double spiral", projection.euclidicDoubleSpiral);
     // euclidicProjectionSelect.addOption("triple spiral", projection.euclidicTripleSpiral);

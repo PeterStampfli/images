@@ -175,10 +175,18 @@ imageTiles.addTwoColorPolygon = function(firstCornerMapsToZero, n, firstCorner, 
         for (var i = 0; i < n; i++) {
             first.set(center).add(centerFirst);
             second.set(center).add(centerSecond);
-            if (i & 1) {
-                imageTiles.polygons.addImagePolygon(!firstCornerMapsToZero, first, second, center);
+            if (firstCornerMapsToZero) {
+                if (i & 1) {
+                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
+                } else {
+                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
+                }
             } else {
-                imageTiles.polygons.addImagePolygon(firstCornerMapsToZero, first, second, center);
+                if (i & 1) {
+                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
+                } else {
+                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
+                }
             }
             centerFirst.rotate(alpha);
             centerSecond.rotate(alpha);
@@ -220,14 +228,16 @@ imageTiles.addSymmetricParallelogram = function(angle, left, right) {
     } else {
         const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
         const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
-        imageTiles.polygons.addImagePolygon(true, left, bottomLeft, centerLeft);
-        imageTiles.polygons.addImagePolygon(true, bottom, bottomRight, centerRight, center);
-        imageTiles.polygons.addImagePolygon(true, right, topRight, centerRight);
-        imageTiles.polygons.addImagePolygon(true, top, topLeft, centerLeft, center);
-        imageTiles.polygons.addImagePolygon(false, bottomLeft, bottom, center, centerLeft);
-        imageTiles.polygons.addImagePolygon(false, bottomRight, right, centerRight);
-        imageTiles.polygons.addImagePolygon(false, topRight, top, center, centerRight);
-        imageTiles.polygons.addImagePolygon(false, topLeft, left, centerLeft);
+        imageTiles.polygons.addPolygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft);
+        imageTiles.polygons.addPolygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight);
+        imageTiles.polygons.addPolygon(right, topRight, centerRight).addBaseline(right, topRight);
+        imageTiles.polygons.addPolygon(top, topLeft, centerLeft, center).addBaseline(top, topLeft);
+
+
+        imageTiles.polygons.addPolygon(bottomLeft, bottom, center, centerLeft).addBaseline(bottom, bottomLeft);
+        imageTiles.polygons.addPolygon(bottomRight, right, centerRight).addBaseline(right, bottomRight);
+        imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
+        imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
     }
 };
 
@@ -254,8 +264,8 @@ imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
         first.set(center).add(centerFirst);
         middle.set(center).add(centerMiddle);
         second.set(center).add(centerSecond);
-        imageTiles.polygons.addImagePolygon(true, first, middle, center);
-        imageTiles.polygons.addImagePolygon(false, middle, second, center);
+        imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
+        imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
         centerFirst.rotate(alpha);
         centerMiddle.rotate(alpha);
         centerSecond.rotate(alpha);
