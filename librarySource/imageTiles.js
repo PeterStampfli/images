@@ -80,11 +80,7 @@ imageTiles.setMapping = function() {
 
 // the tiles
 
-/**
- * switch to always using symmetric polygons
- * @var {boolean} imageTiles.allSymmetric
- */
-imageTiles.allSymmetric = false;
+
 
 // for more versatility: generic addParallelogram and addRegularPolygon
 
@@ -100,7 +96,6 @@ imageTiles.allSymmetric = false;
  */
 imageTiles.addParallelogram = function(angle, left, right, leftCornerMapsToZero) {};
 
-
 /**
  * create a regular polygon
  * given a first and a second corner, the polygon lies at left of the line from first to second
@@ -111,8 +106,6 @@ imageTiles.addParallelogram = function(angle, left, right, leftCornerMapsToZero)
  * @param {boolean} firstCornerMapsToZero - for "two color" polygons (may be omitted)
  */
 imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {};
-
-
 
 /**
  * create an image parallelgram with directed sides, two different corner types
@@ -127,25 +120,21 @@ imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCorne
  * @param {Vector2} right
  */
 imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMapsToZero) {
-    if (imageTiles.allSymmetric) {
-        imageTiles.addSymmetricParallelogram(angle, left, right);
+    const center = Vector2.center(left, right);
+    const halfDiagonal = Vector2.difference(center, left);
+    halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
+    const top = Vector2.sum(center, halfDiagonal);
+    const bottom = Vector2.difference(center, halfDiagonal);
+    if (leftCornerMapsToZero) {
+        imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom);
+        imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom);
+        imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top);
+        imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top);
     } else {
-        const center = Vector2.center(left, right);
-        const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
-        const top = Vector2.sum(center, halfDiagonal);
-        const bottom = Vector2.difference(center, halfDiagonal);
-        if (leftCornerMapsToZero) {
-            imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom);
-            imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom);
-            imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top);
-            imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top);
-        } else {
-            imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(bottom, left);
-            imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(bottom, right);
-            imageTiles.polygons.addPolygon(right, top, center).addBaseline(top, right);
-            imageTiles.polygons.addPolygon(top, left, center).addBaseline(top, left);
-        }
+        imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(bottom, left);
+        imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(bottom, right);
+        imageTiles.polygons.addPolygon(right, top, center).addBaseline(top, right);
+        imageTiles.polygons.addPolygon(top, left, center).addBaseline(top, left);
     }
 };
 
@@ -160,37 +149,32 @@ imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMap
  * @param {Vector2} secondCorner 
  */
 imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
-    if (imageTiles.allSymmetric) {
-        imageTiles.addSymmetricPolygon(n, firstCorner, secondCorner);
-    } else {
-        const middle = Vector2.center(firstCorner, secondCorner);
-        const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
-        const center = Vector2.difference(middle, centerMiddle);
-        const centerFirst = Vector2.difference(firstCorner, center);
-        const centerSecond = Vector2.difference(secondCorner, center);
-        const alpha = 2 * Math.PI / n;
-        const first = new Vector2();
-        const second = new Vector2();
-
-        for (var i = 0; i < n; i++) {
-            first.set(center).add(centerFirst);
-            second.set(center).add(centerSecond);
-            if (firstCornerMapsToZero) {
-                if (i & 1) {
-                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-                } else {
-                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-                }
+    const middle = Vector2.center(firstCorner, secondCorner);
+    const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
+    const center = Vector2.difference(middle, centerMiddle);
+    const centerFirst = Vector2.difference(firstCorner, center);
+    const centerSecond = Vector2.difference(secondCorner, center);
+    const alpha = 2 * Math.PI / n;
+    const first = new Vector2();
+    const second = new Vector2();
+    for (var i = 0; i < n; i++) {
+        first.set(center).add(centerFirst);
+        second.set(center).add(centerSecond);
+        if (firstCornerMapsToZero) {
+            if (i & 1) {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
             } else {
-                if (i & 1) {
-                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-                } else {
-                    imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-                }
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
             }
-            centerFirst.rotate(alpha);
-            centerSecond.rotate(alpha);
+        } else {
+            if (i & 1) {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
+            } else {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
+            }
         }
+        centerFirst.rotate(alpha);
+        centerSecond.rotate(alpha);
     }
 };
 
@@ -239,6 +223,35 @@ imageTiles.addSymmetricParallelogram = function(angle, left, right) {
         imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
         imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
     }
+};
+/**
+ * create a symmetric image parallelogram, all corners of same type, 4 triangles and 4 quads
+ * all corners map to (0,0), no shear
+ * @method imageTiles.addStraightSymmetricParallelogram
+ * @param {float} angle
+ * @param {Vector2} left
+ * @param {Vector2} right
+ */
+imageTiles.addStraightSymmetricParallelogram = function(angle, left, right) {
+    const center = Vector2.center(left, right);
+    const halfDiagonal = Vector2.difference(center, left);
+    halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
+    const top = Vector2.sum(center, halfDiagonal);
+    const bottom = Vector2.difference(center, halfDiagonal);
+    const bottomRight = Vector2.center(bottom, right);
+    const bottomLeft = Vector2.center(bottom, left);
+    const topRight = Vector2.center(top, right);
+    const topLeft = Vector2.center(top, left);
+    const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
+    const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
+    imageTiles.polygons.addPolygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft);
+    imageTiles.polygons.addPolygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight);
+    imageTiles.polygons.addPolygon(right, topRight, centerRight).addBaseline(right, topRight);
+    imageTiles.polygons.addPolygon(top, topLeft, centerLeft, center).addBaseline(top, topLeft);
+    imageTiles.polygons.addPolygon(bottomLeft, bottom, center, centerLeft).addBaseline(bottom, bottomLeft);
+    imageTiles.polygons.addPolygon(bottomRight, right, centerRight).addBaseline(right, bottomRight);
+    imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
+    imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
 };
 
 /**

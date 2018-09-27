@@ -21,9 +21,9 @@ var small12 = {};
         const right = new Vector2(side * (1 + small12.rt32), side * 0.5);
         const mLow = new Vector2(right.x, 0);
         const mHigh = mLow.clone().rotate(small12.angle);
-        for (var i = 0; i < 1; i++) {
+        for (var i = 0; i < 12; i++) {
             small12.rhomb(0, zero, right);
-            //  small12.triangleA(0, true, top, right, mHigh);
+            small12.triangleA(0, true, top, right, mHigh);
 
             // test
             //     small12.triangleB(0, true, top, right, mHigh);

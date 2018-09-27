@@ -223,24 +223,20 @@ function creation() {
     imageTiles.allSymmetric = false;
     imageTiles.shiftForSymmetricParallelograms = false;
 
-    //???????????????????
-    imageTiles.addParallelogram = imageTiles.addTwoColorParallelogram;
 
-
-    imageTiles.addRegularPolygon = imageTiles.addTwoColorPolygon;
-
-
+    ambe.twoColorImage();
+    ambe.straightSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
     iterateTiling.initialPolygons = ambe.start;
-    // iterateTiling.initialPolygons = small12.start;
+    //   iterateTiling.initialPolygons = small12.start;
 
-    Polygon.mapWithShiftRotateMirror();
-    Polygon.mapWithShiftRotateMirrorShear();
+    //   Polygon.mapWithShiftRotateMirror();
+    //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(1);
+    iterateTiling.setMaxIterations(2);
     iterateTiling.generateStructure();
 
 }

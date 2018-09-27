@@ -89,6 +89,8 @@ if (window.innerHeight > window.innerWidth) {
     Make.createArrowController("arrowController", false);
     Make.arrowController.setSize(100);
     Make.arrowController.setPosition(0, 0);
+    projection.ellipticMap = projection.identityMap;
+
     Make.createMap();
     Make.setOutputSize(window.innerHeight);
 

@@ -337,7 +337,7 @@ projection = {};
 
     // for switching betwwen geometries (remembering the projection)
 
-    projection.ellipticMap = projection.ellipticNormal;
+    projection.ellipticMap = projection.ellipticNormalMap;
     projection.euclidicMap = projection.identityMap;
     projection.hyperbolicMap = projection.identityMap;
 

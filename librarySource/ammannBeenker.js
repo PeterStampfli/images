@@ -115,4 +115,28 @@ var ambe = {};
         }
     };
 
+    // choosing the different "colorings"
+
+    /**
+     * choose the "two color" mode for image tiles
+     * @method ambe.twoColorImage
+     */
+    ambe.twoColorImage = function() {
+        imageTiles.addParallelogram = imageTiles.addTwoColorParallelogram;
+        imageTiles.addRegularPolygon = imageTiles.addTwoColorPolygon;
+        Polygon.mapWithShiftRotateMirror();
+    };
+
+    /**
+     * choose "symmetric" image without shear
+     * @method ambe.straightSymmetricImage
+     */
+    ambe.straightSymmetricImage = function() {
+        imageTiles.addParallelogram = imageTiles.addStraightSymmetricParallelogram;
+        imageTiles.addRegularPolygon = imageTiles.addSymmetricPolygon;
+        Polygon.mapWithShiftRotateMirror();
+
+    };
+
+
 }());
