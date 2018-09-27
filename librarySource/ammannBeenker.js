@@ -83,7 +83,7 @@ var ambe = {};
                 ambe.triangle(ite + 1, !firstCornerMapsToZero, true, top, centerRight, topRight);
             } else {
                 // end iteration, make an image tile
-                imageTiles.addTwoColorParallelogram(firstCornerMapsToZero, Math.PI / 4, left, right);
+                imageTiles.addParallelogram(Math.PI / 4, left, right, firstCornerMapsToZero);
             }
         }
     };
@@ -107,9 +107,9 @@ var ambe = {};
                 ambe.triangle(ite + 1, firstCornerMapsToZero, counterclockwise, c, ca, bc);
             } else {
                 if (counterclockwise) {
-                    imageTiles.addTwoColorPolygon(firstCornerMapsToZero, 4, a, b);
+                    imageTiles.addRegularPolygon(4, a, b, firstCornerMapsToZero);
                 } else {
-                    imageTiles.addTwoColorPolygon(firstCornerMapsToZero, 4, c, b);
+                    imageTiles.addRegularPolygon(4, c, b, firstCornerMapsToZero);
                 }
             }
         }

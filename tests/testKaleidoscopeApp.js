@@ -220,8 +220,15 @@ function creation() {
     };
 
 
-    imageTiles.allSymmetric = true;
+    imageTiles.allSymmetric = false;
     imageTiles.shiftForSymmetricParallelograms = false;
+
+    //???????????????????
+    imageTiles.addParallelogram = imageTiles.addTwoColorParallelogram;
+
+
+    imageTiles.addRegularPolygon = imageTiles.addTwoColorPolygon;
+
 
 
 
@@ -238,7 +245,7 @@ function creation() {
 
 }
 
-// adjust fontsize related dimesnions
+// adjust fontsize related dimensions
 
 // adjust fontsizes, margins, borders and so on
 // call later, we first have to create DOM elements before setting their styles

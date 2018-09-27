@@ -126,7 +126,7 @@ imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCorne
  * @param {Vector2} left
  * @param {Vector2} right
  */
-imageTiles.addTwoColorParallelogram = function(leftCornerMapsToZero, angle, left, right) {
+imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMapsToZero) {
     if (imageTiles.allSymmetric) {
         imageTiles.addSymmetricParallelogram(angle, left, right);
     } else {
@@ -159,7 +159,7 @@ imageTiles.addTwoColorParallelogram = function(leftCornerMapsToZero, angle, left
  * @param {Vector2} firstCorner - of type A, matching (0,0)
  * @param {Vector2} secondCorner 
  */
-imageTiles.addTwoColorPolygon = function(firstCornerMapsToZero, n, firstCorner, secondCorner) {
+imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
     if (imageTiles.allSymmetric) {
         imageTiles.addSymmetricPolygon(n, firstCorner, secondCorner);
     } else {
