@@ -63,54 +63,50 @@ var ambe = {};
         halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        if (iterateTiling.structure[ite].isNewPolygon(left, bottom, right, top)) {
-            if (ite < iterateTiling.maxIterations) {
-                // continue iteration, create more points
-                const bottomLeft = Vector2.lerp(left, ambe.ratio, bottom);
-                const topLeft = Vector2.lerp(left, ambe.ratio, top);
-                const bottomRight = Vector2.lerp(right, ambe.ratio, bottom);
-                const topRight = Vector2.lerp(right, ambe.ratio, top);
-                const centerRatio = Math.tan(Math.PI / 8) / (2 + Math.tan(Math.PI / 8));
-                const centerLeft = Vector2.lerp(center, centerRatio, left);
-                const centerRight = Vector2.lerp(center, centerRatio, right);
-                // tiles of the new generation
-                ambe.rhomb(ite + 1, firstCornerMapsToZero, left, centerLeft);
-                ambe.rhomb(ite + 1, !firstCornerMapsToZero, bottom, top);
-                ambe.rhomb(ite + 1, firstCornerMapsToZero, right, centerRight);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, true, bottom, centerLeft, bottomLeft);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, false, top, centerLeft, topLeft);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, false, bottom, centerRight, bottomRight);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, true, top, centerRight, topRight);
-            } else {
-                // end iteration, make an image tile
-                imageTiles.addParallelogram(Math.PI / 4, left, right, firstCornerMapsToZero);
-            }
+        if (ite < iterateTiling.maxIterations) {
+            // continue iteration, create more points
+            const bottomLeft = Vector2.lerp(left, ambe.ratio, bottom);
+            const topLeft = Vector2.lerp(left, ambe.ratio, top);
+            const bottomRight = Vector2.lerp(right, ambe.ratio, bottom);
+            const topRight = Vector2.lerp(right, ambe.ratio, top);
+            const centerRatio = Math.tan(Math.PI / 8) / (2 + Math.tan(Math.PI / 8));
+            const centerLeft = Vector2.lerp(center, centerRatio, left);
+            const centerRight = Vector2.lerp(center, centerRatio, right);
+            // tiles of the new generation
+            ambe.rhomb(ite + 1, firstCornerMapsToZero, left, centerLeft);
+            ambe.rhomb(ite + 1, !firstCornerMapsToZero, bottom, top);
+            ambe.rhomb(ite + 1, firstCornerMapsToZero, right, centerRight);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, true, bottom, centerLeft, bottomLeft);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, false, top, centerLeft, topLeft);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, false, bottom, centerRight, bottomRight);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, true, top, centerRight, topRight);
+        } else {
+            // end iteration, make an image tile
+            imageTiles.addParallelogram(Math.PI / 4, left, right, firstCornerMapsToZero);
         }
     };
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
-        if (iterateTiling.structure[ite].isNewPolygon(a, b, c)) {
-            if (ite < iterateTiling.maxIterations) {
-                //create points for the new generation
-                const ab = Vector2.lerp(a, ambe.ratio, b);
-                const bc = Vector2.lerp(b, ambe.ratio, c);
-                const hypoRatio = 1 / (ambe.rt2 + 2);
-                const ac = Vector2.lerp(a, hypoRatio, c);
-                const ca = Vector2.lerp(c, hypoRatio, a);
-                const m = Vector2.center(a, c);
-                const center = Vector2.lerp(b, 1 / (1 + 1 / ambe.rt2), m);
-                // tiles of the new generation
-                ambe.rhomb(ite + 1, firstCornerMapsToZero, a, center);
-                ambe.rhomb(ite + 1, !firstCornerMapsToZero, b, ca);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, counterclockwise, b, center, ab);
-                ambe.triangle(ite + 1, !firstCornerMapsToZero, !counterclockwise, ca, center, ac);
-                ambe.triangle(ite + 1, firstCornerMapsToZero, counterclockwise, c, ca, bc);
+        if (ite < iterateTiling.maxIterations) {
+            //create points for the new generation
+            const ab = Vector2.lerp(a, ambe.ratio, b);
+            const bc = Vector2.lerp(b, ambe.ratio, c);
+            const hypoRatio = 1 / (ambe.rt2 + 2);
+            const ac = Vector2.lerp(a, hypoRatio, c);
+            const ca = Vector2.lerp(c, hypoRatio, a);
+            const m = Vector2.center(a, c);
+            const center = Vector2.lerp(b, 1 / (1 + 1 / ambe.rt2), m);
+            // tiles of the new generation
+            ambe.rhomb(ite + 1, firstCornerMapsToZero, a, center);
+            ambe.rhomb(ite + 1, !firstCornerMapsToZero, b, ca);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, counterclockwise, b, center, ab);
+            ambe.triangle(ite + 1, !firstCornerMapsToZero, !counterclockwise, ca, center, ac);
+            ambe.triangle(ite + 1, firstCornerMapsToZero, counterclockwise, c, ca, bc);
+        } else {
+            if (counterclockwise) {
+                imageTiles.addRegularPolygon(4, a, b, firstCornerMapsToZero);
             } else {
-                if (counterclockwise) {
-                    imageTiles.addRegularPolygon(4, a, b, firstCornerMapsToZero);
-                } else {
-                    imageTiles.addRegularPolygon(4, c, b, firstCornerMapsToZero);
-                }
+                imageTiles.addRegularPolygon(4, c, b, firstCornerMapsToZero);
             }
         }
     };
