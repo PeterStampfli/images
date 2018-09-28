@@ -127,12 +127,10 @@ imageTiles.addRegularHalfPolygon = function(n, firstCorner, secondCorner, firstC
  * @method imageTiles.addTwoColorParallelogram
  * @param {boolean} leftCornerMapsToZero
  * @param {float} angle
- * @param {Vector2} left
- * @param {Vector2} right
+ * @param {Vector2} left - clone if changed later
+ * @param {Vector2} right - clone if changed later
  */
-imageTiles.addTwoColorParallelogram = function(angle, leftp, rightp, leftCornerMapsToZero) {
-    const left = leftp.clone();
-    const right = rightp.clone();
+imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMapsToZero) {
     const center = Vector2.center(left, right);
     const halfDiagonal = Vector2.difference(center, left);
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
@@ -324,9 +322,41 @@ imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
     const first = new Vector2();
     const second = new Vector2();
     for (var i = 0; i < n; i++) {
-        first.set(center).add(centerFirst);
-        middle.set(center).add(centerMiddle);
-        second.set(center).add(centerSecond);
+        let first = Vector2.sum(center, centerFirst);
+        let middle = Vector2.sum(center, centerMiddle);
+        let second = Vector2.sum(center, centerSecond);
+        imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
+        imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
+        centerFirst.rotate(alpha);
+        centerMiddle.rotate(alpha);
+        centerSecond.rotate(alpha);
+    }
+};
+
+/**
+ * create a half of a regular polygon, all corners of the same type
+ * given number n of sides, a first and a second corner, 
+ * the polygon lies at left of the line from first to second
+ * all corners map to (0,0)
+ * @method imageTiles.addSymmetricHalfPolygon
+ * @param {integer} n - number of sides
+ * @param {Vector2} firstCorner 
+ * @param {Vector2} secondCorner 
+ */
+imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
+    const middle = Vector2.center(firstCorner, secondCorner);
+    const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
+    const center = Vector2.difference(middle, centerMiddle);
+    const centerFirst = Vector2.difference(firstCorner, center);
+    const centerSecond = Vector2.difference(secondCorner, center);
+    const alpha = 2 * Math.PI / n;
+    const first = new Vector2();
+    const second = new Vector2();
+    const n2 = n / 2;
+    for (var i = 0; i < n2; i++) {
+        let first = Vector2.sum(center, centerFirst);
+        let middle = Vector2.sum(center, centerMiddle);
+        let second = Vector2.sum(center, centerSecond);
         imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
         imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
         centerFirst.rotate(alpha);

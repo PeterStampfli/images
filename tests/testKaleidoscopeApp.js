@@ -215,7 +215,7 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(2);
         Draw.setColor("red");
-        //  polygons.draw();
+        iterateTiling.structure[0].draw();
         // imageTiles.polygons.draw();
     };
 
@@ -225,7 +225,7 @@ function creation() {
 
 
     ambe.twoColorImage();
-    //  ambe.straightSymmetricImage();
+    ambe.straightSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
@@ -262,7 +262,7 @@ function adjustFont(fontSize) {
     // width of number input buttons
     const inputWidthToFontsize = 3.5;
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
-    DOM.style("p,button,input,table", "fontSize", fontSize + px);
+    DOM.style("p,button,input,table,select", "fontSize", fontSize + px);
     DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
     DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");

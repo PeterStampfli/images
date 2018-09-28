@@ -256,7 +256,7 @@ function adjustFont(fontSize) {
     // width of number input buttons
     const inputWidthToFontsize = 3.5;
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
-    DOM.style("p,button,input,table", "fontSize", fontSize + px);
+    DOM.style("p,button,input,table,select", "fontSize", fontSize + px);
     DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
     DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");

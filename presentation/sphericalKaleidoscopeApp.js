@@ -307,6 +307,7 @@ function creation() {
     euclidicProjectionSelect.addOption("direct", projection.euclidicNormal);
     euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
     euclidicProjectionSelect.addOption("double spiral", projection.euclidicDoubleSpiral);
+    euclidicProjectionSelect.addOption("disc", projection.euclidicDisc);
     // euclidicProjectionSelect.addOption("triple spiral", projection.euclidicTripleSpiral);
     // euclidicProjectionSelect.addOption("spiralTest", projection.euclidicSpiralTest);
 

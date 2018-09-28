@@ -443,7 +443,7 @@ var Make = {};
      * @method Make.limitLyapunov
      */
     Make.limitLyapunov = function() {
-        let reduction = 0.5;
+        let reduction = 1;
         if (Make.getLyapunovFromDifferences) {
             Make.map.lyapunovFromDifferences();
         }

@@ -262,6 +262,19 @@ projection = {};
         updateMap();
     };
 
+    projection.euclidicDisc = function() {
+        projection.euclidicDiscRadius = basicKaleidoscope.worldRadiusElliptic;
+        const ir = 1 / basicKaleidoscope.worldRadiusElliptic;
+        const base = 0.5;
+        projection.euclidicMap = function(position) {
+            const scale = base / (1 - Math.hypot(position.x, position.y) * ir);
+            position.scale(scale);
+            return 1;
+        };
+        updateMap();
+    };
+
+
     //hyperbolic
 
     projection.hyperbolicPoincareDisc = function() {

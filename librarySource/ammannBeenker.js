@@ -44,10 +44,10 @@ var ambe = {};
         const rhomb1Bottom = new Vector2(side, 0);
         const rhomb1Top = new Vector2(side / ambe.rt2, side / ambe.rt2);
         for (var i = 0; i < 8; i++) {
-            ambe.rhomb(0, true, zero, rhomb1Right);
-            ambe.rhomb(0, false, rhomb2Right, rhomb2Left);
-            ambe.triangle(0, false, true, rhomb2Right, rhomb1Right, rhomb1Bottom);
-            ambe.triangle(0, false, false, rhomb2Left, rhomb1Right, rhomb1Top);
+            ambe.rhomb(0, true, zero, rhomb1Right.clone());
+            ambe.rhomb(0, false, rhomb2Right.clone(), rhomb2Left.clone());
+            ambe.triangle(0, false, true, rhomb2Right.clone(), rhomb1Right.clone(), rhomb1Bottom.clone());
+            ambe.triangle(0, false, false, rhomb2Left.clone(), rhomb1Right.clone(), rhomb1Top.clone());
             rhomb1Right.rotate(ambe.angle);
             rhomb2Right.rotate(ambe.angle);
             rhomb2Left.rotate(ambe.angle);
@@ -63,6 +63,8 @@ var ambe = {};
         halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
+        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const bottomLeft = Vector2.lerp(left, ambe.ratio, bottom);
@@ -87,6 +89,11 @@ var ambe = {};
     };
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
+        if (counterclockwise) {
+            iterateTiling.structure[ite].addPolygon(a, b, c);
+        } else {
+            iterateTiling.structure[ite].addPolygon(c, b, a);
+        }
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const ab = Vector2.lerp(a, ambe.ratio, b);
@@ -131,6 +138,7 @@ var ambe = {};
     ambe.straightSymmetricImage = function() {
         imageTiles.addParallelogram = imageTiles.addStraightSymmetricParallelogram;
         imageTiles.addRegularPolygon = imageTiles.addSymmetricPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addSymmetricHalfPolygon;
         Polygon.mapWithShiftRotateMirror();
 
     };
