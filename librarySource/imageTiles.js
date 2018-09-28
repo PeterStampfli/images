@@ -108,6 +108,17 @@ imageTiles.addParallelogram = function(angle, left, right, leftCornerMapsToZero)
 imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {};
 
 /**
+ * create a regular polygon, only first half
+ * given a first and a second corner, the polygon lies at left of the line from first to second
+ * @method imageTiles.addRegularPolygon
+ * @param {integer} n - number of sides
+ * @param {Vector2} firstCorner - of type A, matching (0,0)
+ * @param {Vector2} secondCorner 
+ * @param {boolean} firstCornerMapsToZero - for "two color" polygons (may be omitted)
+ */
+imageTiles.addRegularHalfPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {};
+
+/**
  * create an image parallelgram with directed sides, two different corner types
  * consists of four triangle tiles, add the tiles to polygons
  * specifying two points across the diagonal and the opening angle at these points
@@ -119,7 +130,9 @@ imageTiles.addRegularPolygon = function(n, firstCorner, secondCorner, firstCorne
  * @param {Vector2} left
  * @param {Vector2} right
  */
-imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMapsToZero) {
+imageTiles.addTwoColorParallelogram = function(angle, leftp, rightp, leftCornerMapsToZero) {
+    const left = leftp.clone();
+    const right = rightp.clone();
     const center = Vector2.center(left, right);
     const halfDiagonal = Vector2.difference(center, left);
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
@@ -155,11 +168,48 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
     const centerFirst = Vector2.difference(firstCorner, center);
     const centerSecond = Vector2.difference(secondCorner, center);
     const alpha = 2 * Math.PI / n;
-    const first = new Vector2();
-    const second = new Vector2();
     for (var i = 0; i < n; i++) {
-        first.set(center).add(centerFirst);
-        second.set(center).add(centerSecond);
+        let first = Vector2.sum(center, centerFirst);
+        let second = Vector2.sum(center, centerSecond);
+        if (firstCornerMapsToZero) {
+            if (i & 1) {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
+            } else {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
+            }
+        } else {
+            if (i & 1) {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
+            } else {
+                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
+            }
+        }
+        centerFirst.rotate(alpha);
+        centerSecond.rotate(alpha);
+    }
+};
+
+/**
+ * create half of a "two-color" regular polygon, all corners of the same type
+ * given even number n of sides, a first and a second corner, the polygon lies at left of the line from first to second
+ * choose whether the "first" corner maps to zero (or the "second" corner)
+ * @method imageTiles.addTwoColorPolygon
+ * @param {boolean} firstCornerMapsToZero
+ * @param {integer} n - number of sides
+ * @param {Vector2} firstCorner - of type A, matching (0,0)
+ * @param {Vector2} secondCorner 
+ */
+imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
+    const middle = Vector2.center(firstCorner, secondCorner);
+    const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
+    const center = Vector2.difference(middle, centerMiddle);
+    const centerFirst = Vector2.difference(firstCorner, center);
+    const centerSecond = Vector2.difference(secondCorner, center);
+    const alpha = 2 * Math.PI / n;
+    const n2 = n / 2;
+    for (var i = 0; i < n2; i++) {
+        let first = Vector2.sum(center, centerFirst);
+        let second = Vector2.sum(center, centerSecond);
         if (firstCornerMapsToZero) {
             if (i & 1) {
                 imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);

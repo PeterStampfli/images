@@ -355,18 +355,13 @@ function Polygons() {
 
     /**
      * create a polygon from vector2 and put it in the list if not there, returns the polygon
+     * clone vectors, if changed later ...
      * @method Polygons.addPolygon
-     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
+     * @param {ListOfVector2} vectors, list of Vector2 objects
      * @return {Polygon}
      */
     Polygons.prototype.addPolygon = function(vectors) {
-        var args;
-        if (arguments.length === 1) {
-            args = vectors;
-        } else {
-            args = Array.from(arguments);
-        }
-        return this.add(Polygon.ofVectors(args));
+        return this.add(new Polygon(Array.from(arguments)));
     };
 
     /**

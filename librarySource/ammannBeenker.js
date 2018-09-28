@@ -104,9 +104,9 @@ var ambe = {};
             ambe.triangle(ite + 1, firstCornerMapsToZero, counterclockwise, c, ca, bc);
         } else {
             if (counterclockwise) {
-                imageTiles.addRegularPolygon(4, a, b, firstCornerMapsToZero);
+                imageTiles.addRegularHalfPolygon(4, a, b, firstCornerMapsToZero);
             } else {
-                imageTiles.addRegularPolygon(4, c, b, firstCornerMapsToZero);
+                imageTiles.addRegularHalfPolygon(4, c, b, firstCornerMapsToZero);
             }
         }
     };
@@ -120,6 +120,7 @@ var ambe = {};
     ambe.twoColorImage = function() {
         imageTiles.addParallelogram = imageTiles.addTwoColorParallelogram;
         imageTiles.addRegularPolygon = imageTiles.addTwoColorPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addTwoColorHalfPolygon;
         Polygon.mapWithShiftRotateMirror();
     };
 
