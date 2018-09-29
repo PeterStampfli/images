@@ -14,9 +14,6 @@ imageTiles.bins = new Bins();
 // scaling for the tiles (make them independent of size)
 imageTiles.scale = 1;
 
-// use shifting to adjust symmetric polygons
-imageTiles.shiftForSymmetricParallelograms = true;
-
 // working around ... to pass parameter
 Polygon.imageShift = 0;
 
@@ -228,52 +225,6 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
 
 /**
  * create a symmetric image parallelogram, all corners of same type, 4 triangles and 4 quads
- * all corners map to (0,0)
- * @method imageTiles.addSymmetricParallelogram
- * @param {float} angle
- * @param {Vector2} left
- * @param {Vector2} right
- */
-imageTiles.addSymmetricParallelogram = function(angle, left, right) {
-    const center = Vector2.center(left, right);
-    const halfDiagonal = Vector2.difference(center, left);
-    halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
-    const top = Vector2.sum(center, halfDiagonal);
-    const bottom = Vector2.difference(center, halfDiagonal);
-    const bottomRight = Vector2.center(bottom, right);
-    const bottomLeft = Vector2.center(bottom, left);
-    const topRight = Vector2.center(top, right);
-    const topLeft = Vector2.center(top, left);
-    if (imageTiles.shiftForSymmetricParallelograms) {
-        const shift = 1 / Math.tan(angle);
-        Polygon.imageShift = shift;
-        imageTiles.polygons.addImagePolygon(true, bottom, bottomRight, center);
-        imageTiles.polygons.addImagePolygon(true, top, topLeft, center);
-        imageTiles.polygons.addImagePolygon(false, bottomLeft, bottom, center);
-        imageTiles.polygons.addImagePolygon(false, topRight, top, center);
-        Polygon.imageShift = -shift;
-        imageTiles.polygons.addImagePolygon(true, left, bottomLeft, center);
-        imageTiles.polygons.addImagePolygon(true, right, topRight, center);
-        imageTiles.polygons.addImagePolygon(false, topLeft, left, center);
-        imageTiles.polygons.addImagePolygon(false, bottomRight, right, center);
-        Polygon.imageShift = 0;
-    } else {
-        const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
-        const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
-        imageTiles.polygons.addPolygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft);
-        imageTiles.polygons.addPolygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight);
-        imageTiles.polygons.addPolygon(right, topRight, centerRight).addBaseline(right, topRight);
-        imageTiles.polygons.addPolygon(top, topLeft, centerLeft, center).addBaseline(top, topLeft);
-
-
-        imageTiles.polygons.addPolygon(bottomLeft, bottom, center, centerLeft).addBaseline(bottom, bottomLeft);
-        imageTiles.polygons.addPolygon(bottomRight, right, centerRight).addBaseline(right, bottomRight);
-        imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
-        imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
-    }
-};
-/**
- * create a symmetric image parallelogram, all corners of same type, 4 triangles and 4 quads
  * all corners map to (0,0), no shear
  * @method imageTiles.addStraightSymmetricParallelogram
  * @param {float} angle
@@ -363,4 +314,34 @@ imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
         centerMiddle.rotate(alpha);
         centerSecond.rotate(alpha);
     }
+};
+
+/**
+ * create a symmetric image parallelogram with sheared mapping, all corners of same type, 4 triangles
+ * all corners map to (0,0)
+ * @method imageTiles.addShearedSymmetricParallelogram
+ * @param {float} angle
+ * @param {Vector2} left
+ * @param {Vector2} right
+ */
+imageTiles.addShearedSymmetricParallelogram = function(angle, left, right) {
+    const center = Vector2.center(left, right);
+    const halfDiagonal = Vector2.difference(center, left);
+    halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
+    const top = Vector2.sum(center, halfDiagonal);
+    const bottom = Vector2.difference(center, halfDiagonal);
+    const bottomRight = Vector2.center(bottom, right);
+    const bottomLeft = Vector2.center(bottom, left);
+    const topRight = Vector2.center(top, right);
+    const topLeft = Vector2.center(top, left);
+    const shift = 1 / Math.tan(angle);
+    const shear = 1 / Math.tan(angle);
+    imageTiles.polygons.addPolygon(bottom, bottomRight, center).addBaseline(bottom, bottomRight).setShear(shear);
+    imageTiles.polygons.addPolygon(top, topLeft, center).addBaseline(top, topLeft).setShear(shear);
+    imageTiles.polygons.addPolygon(bottomLeft, bottom, center).addBaseline(bottom, bottomLeft).setShear(shear);
+    imageTiles.polygons.addPolygon(topRight, top, center).addBaseline(top, topRight).setShear(shear);
+    imageTiles.polygons.addPolygon(left, bottomLeft, center).addBaseline(left, bottomLeft).setShear(-shear);
+    imageTiles.polygons.addPolygon(right, topRight, center).addBaseline(right, topRight).setShear(-shear);
+    imageTiles.polygons.addPolygon(topLeft, left, center).addBaseline(left, topLeft).setShear(-shear);
+    imageTiles.polygons.addPolygon(bottomRight, right, center).addBaseline(right, bottomRight).setShear(-shear);
 };

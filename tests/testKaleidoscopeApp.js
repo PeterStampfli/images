@@ -220,12 +220,10 @@ function creation() {
     };
 
 
-    imageTiles.allSymmetric = false;
-    imageTiles.shiftForSymmetricParallelograms = false;
-
 
     ambe.twoColorImage();
     ambe.straightSymmetricImage();
+    ambe.shearedSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;

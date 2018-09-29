@@ -198,6 +198,7 @@ function Polygon(corners) {
         this.vx = ab.x;
         this.vy = ab.y;
         this.shear = 0;
+        return this;
     };
 
     /**
@@ -364,35 +365,5 @@ function Polygons() {
         return this.add(new Polygon(Array.from(arguments)));
     };
 
-    /**
-     * create an image polygon from vector2, the first line is the mapping line
-     * put it in the list if it is not there, returns the polygon
-     * choose whether the first corner maps to zero (or the second)
-     * creates unique points (vector2)
-     * @method Polygons.addInvertedImagePolygon
-     * @param {boolean} firstCornerMapsToZero
-     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
-     * @return {Polygon}
-     */
-    Polygons.prototype.addImagePolygon = function(firstCornerMapsToZero, vectors) {
-        var args;
-        if (arguments.length === 2) {
-            args = vectors;
-        } else {
-            const length = arguments.length;
-            args = Array(length - 1);
-            for (var i = 1; i < length; i++) {
-                args[i - 1] = arguments[i];
-            }
-        }
-        const polygon = this.add(Polygon.ofVectors(args));
-        if (firstCornerMapsToZero) {
-            polygon.addBaseline(args[0], args[1]);
-        } else {
-            polygon.addBaseline(args[1], args[0]);
-        }
-        polygon.shift = Polygon.imageShift;
-        return polygon;
-    };
 
 }());

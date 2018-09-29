@@ -143,5 +143,17 @@ var ambe = {};
 
     };
 
+    /**
+     * choose "sheared symmetric" image without shear
+     * @method ambe.shearedSymmetricImage
+     */
+    ambe.shearedSymmetricImage = function() {
+        imageTiles.addParallelogram = imageTiles.addShearedSymmetricParallelogram;
+        imageTiles.addRegularPolygon = imageTiles.addSymmetricPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addSymmetricHalfPolygon;
+        Polygon.mapWithShiftRotateMirrorShear();
+
+    };
+
 
 }());
