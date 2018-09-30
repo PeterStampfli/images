@@ -216,6 +216,8 @@ function creation() {
         Draw.setLineWidth(2);
         Draw.setColor("red");
         iterateTiling.structure[0].draw();
+        Draw.setColor("blue");
+        iterateTiling.structure[1].draw();
         // imageTiles.polygons.draw();
     };
 
@@ -223,12 +225,13 @@ function creation() {
 
     ambe.twoColorImage();
     ambe.straightSymmetricImage();
-    ambe.shearedSymmetricImage();
+    //   ambe.shearedSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
-    //   iterateTiling.initialPolygons = small12.start;
+    //iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = small12.start;
+    iterateTiling.initialPolygons = stampfli.start;
 
     //   Polygon.mapWithShiftRotateMirror();
     //   Polygon.mapWithShiftRotateMirrorShear();
