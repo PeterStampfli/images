@@ -27,7 +27,7 @@ var stampfli = {};
         for (var i = 0; i < 1; i++) {
             // stampfli.rhomb(0, zero, right.clone());
             //      stampfli.triangle(0, bottom.clone(), rightMirrored.clone(), right.clone());
-            stampfli.square(0, right.clone(), extra.clone());
+            stampfli.square(0, zero, new Vector2(8, 8));
 
             bottom.rotate(stampfli.angle);
             top.rotate(stampfli.angle);
@@ -147,7 +147,47 @@ var stampfli = {};
             const rightTop = Vector2.difference(right, er2);
             const bottomRight = Vector2.sum(bottom, el2);
             const rightBottom = Vector2.difference(right, el2);
+            const leftBottomCenter = Vector2.sum(leftBottom, er);
+            const centerBottom = Vector2.sum(leftBottomCenter, el);
+            const rightBottomCenter = Vector2.sum(centerBottom, er);
+            const centerRight = Vector2.sum(centerBottom, el2);
+            const centerLeft = Vector2.difference(centerBottom, er2);
+            const centerTop = Vector2.sum(centerLeft, el2);
+            const rightTopCenter = Vector2.sum(centerTop, el);
+            const leftTopCenter = Vector2.sum(leftTop, el);
 
+            stampfli.rhomb(ite + 1, left, leftBottomCenter);
+            stampfli.rhomb(ite + 1, left, centerLeft);
+            stampfli.rhomb(ite + 1, left, leftTopCenter);
+            stampfli.triangle(ite + 1, leftBottom, Vector2.difference(leftBottomCenter, el2), leftBottomCenter);
+            stampfli.triangle(ite + 1, centerLeft, leftTopCenter, Vector2.difference(leftTopCenter, el2));
+            stampfli.triangle(ite + 1, centerLeft, Vector2.difference(leftBottomCenter, er2), leftBottomCenter);
+            stampfli.rhomb(ite + 1, centerBottom, bottom);
+            stampfli.rhomb(ite + 1, leftBottomCenter, bottom);
+            stampfli.rhomb(ite + 1, rightBottomCenter, bottom);
+            stampfli.triangle(ite + 1, bottomRight, Vector2.sum(rightBottomCenter, er2), rightBottomCenter);
+            stampfli.triangle(ite + 1, centerBottom, leftBottomCenter, Vector2.sum(leftBottomCenter, er2));
+            stampfli.triangle(ite + 1, centerBottom, Vector2.difference(rightBottomCenter, el2), rightBottomCenter);
+
+            stampfli.rhomb(ite + 1, right, rightBottomCenter);
+            stampfli.rhomb(ite + 1, right, centerRight);
+            stampfli.rhomb(ite + 1, right, rightTopCenter);
+            stampfli.triangle(ite + 1, rightTopCenter, rightTop, Vector2.sum(rightTopCenter, el2));
+            stampfli.triangle(ite + 1, centerRight, rightBottomCenter, Vector2.sum(rightBottomCenter, el2));
+            stampfli.triangle(ite + 1, centerRight, Vector2.sum(centerRight, el), rightTopCenter);
+            stampfli.rhomb(ite + 1, top, rightTopCenter);
+            stampfli.rhomb(ite + 1, top, centerTop);
+            stampfli.rhomb(ite + 1, top, leftTopCenter);
+            stampfli.triangle(ite + 1, topLeft, Vector2.difference(topLeft, el), leftTopCenter);
+            stampfli.triangle(ite + 1, centerTop, Vector2.sum(leftTopCenter, el2), leftTopCenter);
+            stampfli.triangle(ite + 1, centerTop, rightTopCenter, Vector2.difference(rightTopCenter, er2));
+
+            stampfli.square(ite + 1, centerLeft, centerRight);
+            stampfli.triangle(ite + 1, centerBottom, centerLeft, leftBottomCenter);
+            stampfli.triangle(ite + 1, centerRight, centerBottom, rightBottomCenter);
+            stampfli.triangle(ite + 1, centerRight, rightTopCenter, centerTop);
+
+            stampfli.triangle(ite + 1, centerTop, leftTopCenter, centerLeft);
 
 
         } else {
