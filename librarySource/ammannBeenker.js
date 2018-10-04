@@ -144,7 +144,7 @@ var ambe = {};
     };
 
     /**
-     * choose "sheared symmetric" image without shear
+     * choose "sheared symmetric" image
      * @method ambe.shearedSymmetricImage
      */
     ambe.shearedSymmetricImage = function() {
