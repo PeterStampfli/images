@@ -25,8 +25,6 @@ var Layout = {};
 
     // first create new elements before setting styles
 
-    console.log(fontSize);
-
     DOM.create("a", "homeButton", "#navigation", "Home");
     DOM.attribute("#homeButton", "href", "home.html");
     DOM.create("a", "kaleidoscopeButton", "#navigation", "Kaleidoscope");

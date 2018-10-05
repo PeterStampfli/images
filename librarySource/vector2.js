@@ -92,6 +92,32 @@ function Vector2(x = 0, y = 0) {
     };
 
     /**
+     * rotate 45 degrees (counterclockwise)
+     * @method Vector2#rotate45
+     * @return the vector
+     */
+    const cos45 = Fast.cos(Math.PI / 4);
+    const sin45 = Fast.sin(Math.PI / 4);
+    Vector2.prototype.rotate45 = function() {
+        let h = this.x * cos45 - this.y * sin45;
+        this.y = this.x * sin45 + this.y * cos45;
+        this.x = h;
+        return this;
+    };
+
+    /**
+     * rotate minus 45 degrees (clockwise)
+     * @method Vector2#rotate45
+     * @return the vector
+     */
+    Vector2.prototype.rotateM45 = function() {
+        let h = this.x * cos45 + this.y * sin45;
+        this.y = -this.x * sin45 + this.y * cos45;
+        this.x = h;
+        return this;
+    };
+
+    /**
      * mirror at the x-axis (inverting y)
      * @method Vector2#mirrorAtXAxis
      */

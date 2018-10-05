@@ -34,7 +34,7 @@ if (window.innerHeight > window.innerWidth) {
     Make.setInitialOutputImageSpace(-1, 1, -1);
     Make.resetOutputImageSpace();
 
-    basicKaleidoscope.worldRadiusElliptic = 0.6;
+    basicKaleidoscope.worldRadiusElliptic = 0.5;
     cutCornersKaleidoscope.setKMN(3, 5, 2);
 
     Layout.createOpenImage();
