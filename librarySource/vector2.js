@@ -81,6 +81,18 @@ function Vector2(x = 0, y = 0) {
     };
 
     /**
+     * rotate 90 degrees clockwise
+     * @method Vector2#rotateM90
+     * @ return the vector
+     */
+    Vector2.prototype.rotateM90 = function() {
+        let h = this.y;
+        this.y = -this.x;
+        this.x = h;
+        return this;
+    };
+
+    /**
      * rotate 180 degrees
      * @method Vector2#rotate180
      * @return the vector
@@ -107,12 +119,38 @@ function Vector2(x = 0, y = 0) {
 
     /**
      * rotate minus 45 degrees (clockwise)
-     * @method Vector2#rotate45
+     * @method Vector2#rotateM45
      * @return the vector
      */
     Vector2.prototype.rotateM45 = function() {
         let h = this.x * cos45 + this.y * sin45;
         this.y = -this.x * sin45 + this.y * cos45;
+        this.x = h;
+        return this;
+    };
+
+    /**
+     * rotate 30 degrees (counterclockwise)
+     * @method Vector2#rotate30
+     * @return the vector
+     */
+    const cos30 = Fast.cos(Math.PI / 6);
+    const sin30 = Fast.sin(Math.PI / 6);
+    Vector2.prototype.rotate30 = function() {
+        let h = this.x * cos30 - this.y * sin30;
+        this.y = this.x * sin30 + this.y * cos30;
+        this.x = h;
+        return this;
+    };
+
+    /**
+     * rotate minus 30 degrees (clockwise)
+     * @method Vector2#rotateM30
+     * @return the vector
+     */
+    Vector2.prototype.rotateM30 = function() {
+        let h = this.x * cos30 + this.y * sin30;
+        this.y = -this.x * sin30 + this.y * cos30;
         this.x = h;
         return this;
     };
