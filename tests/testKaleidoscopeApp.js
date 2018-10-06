@@ -217,7 +217,7 @@ function creation() {
         Draw.setColor("red");
         iterateTiling.structure[0].draw();
         Draw.setColor("blue");
-        iterateTiling.structure[1].draw();
+        //iterateTiling.structure[1].draw();
         // imageTiles.polygons.draw();
     };
 
@@ -229,18 +229,35 @@ function creation() {
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
+    // iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
 
-    //   Polygon.mapWithShiftRotateMirror();
+    Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(1);
+    iterateTiling.setMaxIterations(0);
     iterateTiling.generateStructure();
 
+    const a = new Vector2(-4, 0);
+    const b = new Vector2(4, 0);
+    const c = new Vector2(-2, 4);
+    const gamma = new Vector2(0.25, 2);
+    Polygon.setGamma(gamma);
+
+    iterateTiling.structure[0].addPolygon(a, b, c);
+
+    const imagePolygon = imageTiles.polygons.addPolygon(a, b, c);
+    imagePolygon.addTriangleMapping(a, b, c);
+
+
+    imageTiles.bins.addUniquePolygons(imageTiles.polygons);
+    const p = new Vector2(0, 4);
+    p.log("origin");
+    imagePolygon.map(p);
+    p.log("mapped");
 }
 
 // adjust fontsize related dimensions

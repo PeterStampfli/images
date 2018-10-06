@@ -198,6 +198,7 @@ function Polygon(corners) {
         this.vx = ab.x;
         this.vy = ab.y;
         this.shear = 0;
+        this.yScale = 1;
         return this;
     };
 
@@ -231,6 +232,33 @@ function Polygon(corners) {
         }
     };
 
+    /**
+     * set coordinates of point gamma for triangle mapping, as it is the same for many polygons
+     * @method Polygon.setGamma
+     * @param {Vector2} gamma
+     */
+    Polygon.setGamma = function(gamma) {
+        this.gammaX = gamma.x;
+        this.gammaY = gamma.y;
+    };
+
+    /**
+     * add a triangle mapping to a polygon
+     * point a maps to (0,0)
+     * point b maps to (1,0)
+     * point c maps to (gamma.x,gamma.y)
+     * @method Polygon#addTriangleMapping
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {Vector2} c
+     */
+    Polygon.prototype.addTriangleMapping = function(a, b, c) {
+        this.addBaseline(a, b);
+        const cClone = c.clone();
+        this.applyBaseline(cClone);
+        this.yScale = Polygon.gammaY / cClone.y;
+        this.shear = (Polygon.gammaX - cClone.x) / Polygon.gammaY;
+    };
 
     /**
      * for more versatility, map a point with method to be choosen as
@@ -243,7 +271,6 @@ function Polygon(corners) {
     Polygon.prototype.map = function(p) {
         return 0;
     };
-
 
     /**
      * shift,scale and rotate a point
@@ -270,10 +297,9 @@ function Polygon(corners) {
     };
 
     /**
-     * shift,scale and rotate a point, do shearing
+     * shift,scale and rotate a point, 
      * use mirror at x-axis to get point with positive y-value
-     * maps endpoint A of mapping line to origin and endpoint B to the x-axis (1,0)
-     * uses shearing as indicated by this.shear
+     * do shearing as indicated by this.shear
      * @method Polygon#shiftRotateMirrorShear
      * @param {Vector2} p
      * @return number of mirror images (0,1, or 2)
@@ -285,12 +311,37 @@ function Polygon(corners) {
     };
 
     /**
-     * make that the map method is the shiftRotateMirror
+     * make that the map method is the shiftRotateMirrorShear
      * Polygon.mapWithShiftRotateMirrorShear
      */
     Polygon.mapWithShiftRotateMirrorShear = function() {
         Polygon.prototype.map = Polygon.prototype.shiftRotateMirrorShear;
     };
+
+    /**
+     * shift, scale and rotate a point
+     * use mirror at x-axis to get point with positive y-value
+     * do scaling in y-direction, do shearing
+     * @method Polygon#shiftRotateMirrorScaleShear
+     * @param {Vector2} p
+     * @return number of mirror images (0,1, or 2)
+     */
+    Polygon.prototype.shiftRotateMirrorScaleShear = function(p) {
+        let result = this.applyBaseline(p);
+        p.y *= this.yScale;
+        p.x += this.shear * p.y; // shearing
+        return result;
+    };
+
+
+    /**
+     * make that the map method is the shiftRotateMirror
+     * Polygon.mapWithShiftRotateMirrorScaleShear
+     */
+    Polygon.mapWithShiftRotateMirrorScaleShear = function() {
+        Polygon.prototype.map = Polygon.prototype.shiftRotateMirrorScaleShear;
+    };
+
 
 }());
 
@@ -326,7 +377,7 @@ function Polygons() {
         } else {
             message = "";
         }
-        console.log(message + "Unique polygons");
+        console.log(message + "Polygons");
         const polygons = this.polygons;
         const length = polygons.length;
         for (var i = 0; i < length; i++) {
