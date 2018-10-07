@@ -133,17 +133,10 @@ imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMap
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
     const top = Vector2.sum(center, halfDiagonal);
     const bottom = Vector2.difference(center, halfDiagonal);
-    if (leftCornerMapsToZero) {
-        imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom);
-        imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom);
-        imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top);
-        imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top);
-    } else {
-        imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(bottom, left);
-        imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(bottom, right);
-        imageTiles.polygons.addPolygon(right, top, center).addBaseline(top, right);
-        imageTiles.polygons.addPolygon(top, left, center).addBaseline(top, left);
-    }
+    imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom, leftCornerMapsToZero);
+    imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom, leftCornerMapsToZero);
+    imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top, leftCornerMapsToZero);
+    imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top, leftCornerMapsToZero);
 };
 
 /**
@@ -166,19 +159,7 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
     for (var i = 0; i < n; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        if (firstCornerMapsToZero) {
-            if (i & 1) {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-            } else {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-            }
-        } else {
-            if (i & 1) {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-            } else {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-            }
-        }
+        imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first, firstCornerMapsToZero === ((i & 1) === 0));
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }
@@ -205,19 +186,7 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
     for (var i = 0; i < n2; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        if (firstCornerMapsToZero) {
-            if (i & 1) {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-            } else {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-            }
-        } else {
-            if (i & 1) {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second);
-            } else {
-                imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first);
-            }
-        }
+        imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first, firstCornerMapsToZero === ((i & 1) === 0));
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }

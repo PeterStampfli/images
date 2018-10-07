@@ -219,21 +219,23 @@ function creation() {
         Draw.setColor("blue");
         //iterateTiling.structure[1].draw();
         // imageTiles.polygons.draw();
+
     };
 
 
 
     ambe.twoColorImage();
-    ambe.straightSymmetricImage();
+    //ambe.straightSymmetricImage();
     //   ambe.shearedSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    // iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
 
+    Polygon.mapWithShiftRotateMirror();
     Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
@@ -246,18 +248,20 @@ function creation() {
     const c = new Vector2(-2, 4);
     const gamma = new Vector2(0.25, 2);
     Polygon.setGamma(gamma);
+    Polygon.setCenter(c);
 
     iterateTiling.structure[0].addPolygon(a, b, c);
 
     const imagePolygon = imageTiles.polygons.addPolygon(a, b, c);
-    imagePolygon.addTriangleMapping(a, b, c);
+    imagePolygon.addTriangleMapping(a, b, true);
 
 
     imageTiles.bins.addUniquePolygons(imageTiles.polygons);
-    const p = new Vector2(0, 4);
+    const p = new Vector2(-2, 4);
     p.log("origin");
     imagePolygon.map(p);
     p.log("mapped");
+
 }
 
 // adjust fontsize related dimensions

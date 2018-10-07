@@ -184,16 +184,23 @@ function Polygon(corners) {
     /**
      * adding a base line to the polygon for translation, rotation and scaling
      * setting shear value equal to zero as default
-     * actually map point a to (0,0) and b to (1,0)
+     * actually map point a to (0,0) and b to (1,0), or inversely
      * polygon.a=a and polygon.vx=(b.x-a.x)/|b-a|**2, vy= ...
      * @method Polygon#addBaseline
      * @param {Vector2} a
      * @param {Vector2} b
+     * @param {boolean} aMapsToZero - optional, default is true, if false a and b are inverted
      * @return Polygon, for chaining, adding more
      */
-    Polygon.prototype.addBaseline = function(a, b) {
-        this.a = a.clone();
-        let ab = Vector2.difference(b, a);
+    Polygon.prototype.addBaseline = function(a, b, aMapsToZero) {
+        var ab;
+        if ((arguments.length === 2) || aMapsToZero) {
+            this.a = a.clone();
+            ab = Vector2.difference(b, a);
+        } else {
+            this.a = b.clone();
+            ab = Vector2.difference(a, b);
+        }
         ab.scale(1 / ab.length2());
         this.vx = ab.x;
         this.vy = ab.y;
@@ -233,31 +240,52 @@ function Polygon(corners) {
     };
 
     /**
-     * set coordinates of point gamma for triangle mapping, as it is the same for many polygons
+     * set coordinates of center point for triangle mapping in the output image space
+     * @method Polygon.setCenter
+     * @param {Vector2} center
+     */
+    Polygon.setCenter = function(center) {
+        Polygon.center = center.clone();
+    };
+
+    /**
+     * set coordinates of (center) point gamma for triangle mapping in the input image space
+     * it is the same for many polygons
      * @method Polygon.setGamma
      * @param {Vector2} gamma
      */
     Polygon.setGamma = function(gamma) {
-        this.gammaX = gamma.x;
-        this.gammaY = gamma.y;
+        Polygon.gammaX = gamma.x;
+        Polygon.gammaY = gamma.y;
     };
 
     /**
      * add a triangle mapping to a polygon
+     * requires and automatically sets Polygon.shiftRotateMirrorScaleShear();
      * point a maps to (0,0)
      * point b maps to (1,0)
-     * point c maps to (gamma.x,gamma.y)
+     * point (Polygon.centerX,Polygon.centerY) maps to (Polygon.gammaX,Polygon.gammaY)
      * @method Polygon#addTriangleMapping
      * @param {Vector2} a
      * @param {Vector2} b
-     * @param {Vector2} c
+     * @param {boolean} aMapsToZero - optional, default is true, if false a and b are inverted
      */
-    Polygon.prototype.addTriangleMapping = function(a, b, c) {
-        this.addBaseline(a, b);
-        const cClone = c.clone();
-        this.applyBaseline(cClone);
-        this.yScale = Polygon.gammaY / cClone.y;
-        this.shear = (Polygon.gammaX - cClone.x) / Polygon.gammaY;
+    Polygon.prototype.addTriangleMapping = function(a, b, aMapsToZero) {
+        Polygon.mapWithShiftRotateMirrorScaleShear();
+
+        this.addBaseline(a, b, (arguments.length === 2) || aMapsToZero);
+
+        const centerClone = Polygon.center.clone();
+        centerClone.log("cc");
+        this.applyBaseline(centerClone);
+        console.log("gY " + Polygon.gammaY);
+        centerClone.log("cc");
+
+        this.yScale = Polygon.gammaY / centerClone.y;
+        this.shear = (Polygon.gammaX - centerClone.x) / Polygon.gammaY;
+        console.log("yscale " + this.yScale);
+        console.log(Polygon.gammaY / centerClone.y);
+        console.log("shear " + this.shear);
     };
 
     /**
