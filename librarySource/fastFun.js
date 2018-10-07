@@ -327,6 +327,18 @@ var Fast = {};
     };
 
     /**
+     * check if two numbers are equal
+     * @method Fast.areEqual
+     * @param {float} one
+     * @param {float} two
+     * @return true if both numbers are nearly equal (within epsilon)
+     */
+    Fast.epsilon = 0.001;
+    Fast.areEqual = function(one, two) {
+        return Math.abs(one - two) < Fast.epsilon;
+    };
+
+    /**
      * get last element of any array
      * @method Fast.last
      * @param {array} array

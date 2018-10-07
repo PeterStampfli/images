@@ -230,7 +230,7 @@ function creation() {
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
+    // iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
@@ -246,7 +246,7 @@ function creation() {
     const a = new Vector2(-4, 0);
     const b = new Vector2(4, 0);
     const c = new Vector2(-2, 4);
-    const gamma = new Vector2(0.25, 2);
+    const gamma = new Vector2(0.25, 1);
     Polygon.setGamma(gamma);
     Polygon.setCenter(c);
 
@@ -257,10 +257,22 @@ function creation() {
 
 
     imageTiles.bins.addUniquePolygons(imageTiles.polygons);
-    const p = new Vector2(-2, 4);
+    let p = new Vector2(-2, 4);
     p.log("origin");
     imagePolygon.map(p);
     p.log("mapped");
+
+    const fun = rotation.create(3 * Math.PI / 2);
+    console.log(fun);
+    const fun2 = rotation.createMirrored(Math.PI / 6);
+    fun(new Vector2(1, 0)).log("f");
+    fun2(new Vector2(1, 0)).log("f2");
+    fun(fun(new Vector2(1, 0))).log("f");
+    fun2(fun2(new Vector2(1, 0))).log("f2");
+
+    console.log(-4 % 1.5);
+
+
 
 }
 

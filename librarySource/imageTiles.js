@@ -159,7 +159,7 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
     for (var i = 0; i < n; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first, firstCornerMapsToZero === ((i & 1) === 0));
+        imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }
@@ -186,7 +186,7 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
     for (var i = 0; i < n2; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, second, center).addBaseline(second, first, firstCornerMapsToZero === ((i & 1) === 0));
+        imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }
