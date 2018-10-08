@@ -337,9 +337,7 @@ function Vector2(x = 0, y = 0) {
      */
     Vector2.toPool = function(vectors) {
         const length = arguments.length;
-
         for (var i = 0; i < length; i++) {
-            console.log(i);
             Vector2.pool.push(arguments[i]);
         }
     };

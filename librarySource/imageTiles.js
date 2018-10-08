@@ -137,6 +137,7 @@ imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMap
     imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom, leftCornerMapsToZero);
     imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top, leftCornerMapsToZero);
     imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top, leftCornerMapsToZero);
+    Vector2.toPool(halfDiagonal);
 };
 
 /**
@@ -163,6 +164,7 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }
+    Vector2.toPool(middle, centerMiddle, centerFirst, centerSecond);
 };
 
 /**
@@ -190,6 +192,7 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
         centerFirst.rotate(alpha);
         centerSecond.rotate(alpha);
     }
+    Vector2.toPool(middle, centerMiddle, centerFirst, centerSecond);
 };
 
 /**
@@ -220,6 +223,7 @@ imageTiles.addStraightSymmetricParallelogram = function(angle, left, right) {
     imageTiles.polygons.addPolygon(bottomRight, right, centerRight).addBaseline(right, bottomRight);
     imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
     imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
+    Vector2.toPool(halfDiagonal);
 };
 
 /**
@@ -251,6 +255,7 @@ imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
         centerMiddle.rotate(alpha);
         centerSecond.rotate(alpha);
     }
+    Vector2.toPool(centerFirst, centerSecond, centerMiddle, middle);
 };
 
 /**
@@ -283,6 +288,7 @@ imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
         centerMiddle.rotate(alpha);
         centerSecond.rotate(alpha);
     }
+    Vector2.toPool(centerFirst, centerSecond, centerMiddle, middle);
 };
 
 /**
@@ -313,4 +319,5 @@ imageTiles.addShearedSymmetricParallelogram = function(angle, left, right) {
     imageTiles.polygons.addPolygon(right, topRight, center).addBaseline(right, topRight).setShear(-shear);
     imageTiles.polygons.addPolygon(topLeft, left, center).addBaseline(left, topLeft).setShear(-shear);
     imageTiles.polygons.addPolygon(bottomRight, right, center).addBaseline(right, bottomRight).setShear(-shear);
+    Vector2.toPool(halfDiagonal);
 };

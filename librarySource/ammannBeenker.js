@@ -57,14 +57,13 @@ var ambe = {};
     };
 
     ambe.rhomb = function(ite, firstCornerMapsToZero, left, right) {
-        // create the corner points
+        // create the corner points and add polygon to structure data
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
         halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
-
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const bottomLeft = Vector2.lerp(left, ambe.ratio, bottom);
@@ -86,6 +85,7 @@ var ambe = {};
             // end iteration, make an image tile
             imageTiles.addParallelogram(Math.PI / 4, left, right, firstCornerMapsToZero);
         }
+        Vector2.toPool(halfDiagonal);
     };
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
@@ -109,6 +109,7 @@ var ambe = {};
             ambe.triangle(ite + 1, !firstCornerMapsToZero, counterclockwise, b, center, ab);
             ambe.triangle(ite + 1, !firstCornerMapsToZero, !counterclockwise, ca, center, ac);
             ambe.triangle(ite + 1, firstCornerMapsToZero, counterclockwise, c, ca, bc);
+            Vector2.toPool(m);
         } else {
             if (counterclockwise) {
                 imageTiles.addRegularHalfPolygon(4, a, b, firstCornerMapsToZero);

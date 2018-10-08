@@ -73,9 +73,43 @@ rotation = {};
      * @return a function that rotates a vector
      */
     rotation.createMirrored = function(angle) {
+        angle -= 2 * Math.PI * Math.floor(0.5 * angle / Math.PI);
+        var result;
+        if (Fast.areEqual(angle, 0)) {
+            result = function(p) {
+                p.y = -p.y;
+                return p;
+            };
+            return result;
+        }
+        if (Fast.areEqual(angle, 0.5 * Math.PI)) {
+            result = function(p) {
+                const h = p.y;
+                p.y = -p.x;
+                p.x = -h;
+                return p;
+            };
+            return result;
+        }
+        if (Fast.areEqual(angle, Math.PI)) {
+            result = function(p) {
+                p.x = -p.x;
+                p.y = p.y;
+                return p;
+            };
+            return result;
+        }
+        if (Fast.areEqual(angle, 1.5 * Math.PI)) {
+            result = function(p) {
+                const h = p.y;
+                p.y = p.x;
+                p.x = h;
+                return p;
+            };
+            return result;
+        }
         const cosAngle = Fast.cos(angle);
         const sinAngle = Fast.sin(angle);
-        var result;
         result = function(p) {
             const h = cosAngle * p.x - sinAngle * p.y;
             p.y = -(sinAngle * p.x + cosAngle * p.y);
