@@ -62,9 +62,7 @@ function Vector2(x = 0, y = 0) {
      * @return {Vector2} - a colne of this vector
      */
     Vector2.prototype.clone = function() {
-        let clone = new Vector2();
-        clone.set(this);
-        return clone;
+        return Vector2.fromPool(this);
     };
 
     // calculate with vectors
@@ -222,7 +220,7 @@ function Vector2(x = 0, y = 0) {
      * @return Vector2 object, sum of the vectors
      */
     Vector2.sum = function(a, b) {
-        return new Vector2(a.x + b.x, a.y + b.y);
+        return Vector2.fromPool(a.x + b.x, a.y + b.y);
     };
 
     /**
@@ -233,7 +231,7 @@ function Vector2(x = 0, y = 0) {
      * @return Vector2 object, difference a-b of the vectors
      */
     Vector2.difference = function(a, b) {
-        return new Vector2(a.x - b.x, a.y - b.y);
+        return Vector2.fromPool(a.x - b.x, a.y - b.y);
     };
 
     /**
@@ -250,7 +248,7 @@ function Vector2(x = 0, y = 0) {
             x += arguments[i].x;
             y += arguments[i].y;
         }
-        return new Vector2(x / length, y / length);
+        return Vector2.fromPool(x / length, y / length);
     };
 
     /**
@@ -262,7 +260,7 @@ function Vector2(x = 0, y = 0) {
      * @return Vector2, (1-t)*a+t*b
      */
     Vector2.lerp = function(a, t, b) {
-        return new Vector2((1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y);
+        return Vector2.fromPool((1 - t) * a.x + t * b.x, (1 - t) * a.y + t * b.y);
     };
 
     //get vector data
@@ -325,7 +323,55 @@ function Vector2(x = 0, y = 0) {
         console.log(message + "Vector2 (" + this.x + "," + this.y + ")");
     };
 
+    // a pool for Vector2 objects, speeding up iterated tilings by recycling intermediates
+    /**
+     * an array for recycled vector2 objects
+     * @var Vector2.pool
+     */
+    Vector2.pool = [];
 
+    /**
+     * put vector2 objects on the pool for recycling
+     * @method Vector2.toPool
+     * @param {Vector2 ...} vectors
+     */
+    Vector2.toPool = function(vectors) {
+        const length = arguments.length;
+
+        for (var i = 0; i < length; i++) {
+            console.log(i);
+            Vector2.pool.push(arguments[i]);
+        }
+    };
+
+    /**
+     * get a vector2 object from the pool or create one
+     * can set components from coordinate pair or clone a vector2 object
+     * @method Vector2.fromPool
+     * @param {float or Vector2 or nothing} x
+     * @param {float or nothing} x
+     * @return Vector2
+     */
+    Vector2.fromPool = function(x, y) {
+        var result;
+        if (Vector2.pool.length === 0) {
+            result = new Vector2();
+        } else {
+            result = Vector2.pool.pop();
+        }
+        switch (arguments.length) {
+            case 0:
+                result.setComponents(0, 0);
+                break;
+            case 1:
+                result.set(x);
+                break;
+            case 2:
+                result.setComponents(x, y);
+                break;
+        }
+        return result;
+    };
 
 
 }());

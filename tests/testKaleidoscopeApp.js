@@ -230,7 +230,7 @@ function creation() {
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    // iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
@@ -265,13 +265,14 @@ function creation() {
     const fun = rotation.create(3 * Math.PI / 2);
     console.log(fun);
     const fun2 = rotation.createMirrored(Math.PI / 6);
-    fun(new Vector2(1, 0)).log("f");
-    fun2(new Vector2(1, 0)).log("f2");
-    fun(fun(new Vector2(1, 0))).log("f");
-    fun2(fun2(new Vector2(1, 0))).log("f2");
 
-    console.log(-4 % 1.5);
-
+    let v = Vector2.fromPool(0, 8);
+    v.log();
+    let vv = Vector2.fromPool(2, 8);
+    vv.log();
+    Vector2.toPool(v, vv);
+    let v3 = Vector2.fromPool();
+    v3.log();
 
 
 }
