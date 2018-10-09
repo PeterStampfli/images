@@ -75,6 +75,32 @@ imageTiles.setMapping = function() {
     Make.setMapping(imageTiles.mapImage, imageTiles.mapStructure);
 };
 
+// fast efficient rotation
+/**
+ * set the rotation angle
+ * @method imageTiles.setRotationAngle
+ * @param {float} angle
+ */
+imageTiles.setRotationAngle = function(angle) {
+    Fast.cosSin(angle);
+    imageTiles.cosAngle = Fast.cosResult;
+    imageTiles.sinAngle = Fast.sinResult;
+};
+
+/**
+ * rotate a vector by the given angle
+ * @method imageTiles.rotate
+ * @param {Vector2} p
+ * @return the changed vector for chaining
+ */
+imageTiles.rotate = function(p) {
+    const h = imageTiles.cosAngle * p.x - imageTiles.sinAngle * p.y;
+    p.y = imageTiles.sinAngle * p.x + imageTiles.cosAngle * p.y;
+    p.x = h;
+    return p;
+};
+
+
 // the tiles
 
 
@@ -183,14 +209,14 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
     const center = Vector2.difference(middle, centerMiddle);
     const centerFirst = Vector2.difference(firstCorner, center);
     const centerSecond = Vector2.difference(secondCorner, center);
-    const alpha = 2 * Math.PI / n;
+    imageTiles.setRotationAngle(2 * Math.PI / n);
     const n2 = n / 2;
     for (var i = 0; i < n2; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
         imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
-        centerFirst.rotate(alpha);
-        centerSecond.rotate(alpha);
+        imageTiles.rotate(centerFirst);
+        imageTiles.rotate(centerSecond);
     }
     Vector2.toPool(middle, centerMiddle, centerFirst, centerSecond);
 };

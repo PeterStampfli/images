@@ -225,8 +225,8 @@ function creation() {
 
 
     ambe.twoColorImage();
-    ambe.straightSymmetricImage();
-    ambe.shearedSymmetricImage();
+    //    ambe.straightSymmetricImage();
+    //   ambe.shearedSymmetricImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
@@ -240,7 +240,7 @@ function creation() {
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(2);
+    iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);
@@ -273,6 +273,11 @@ function creation() {
     Vector2.toPool(v, vv);
     let v3 = Vector2.fromPool();
     v3.log();
+    imageTiles.setRotationAngle(Math.PI / 6);
+    console.log(imageTiles.cosAngle);
+    console.log(imageTiles.sinAngle);
+
+    imageTiles.rotate(new Vector2(0, 1)).log("rot");
 
 
 }
