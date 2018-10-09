@@ -55,7 +55,8 @@ threeMirrorsKaleidoscope = {};
     threeMirrorsKaleidoscope.mapStructure = function(position) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
+            //dihedral.map(position);
         }
         position.x = basicKaleidoscope.reflections + Dihedral.reflections;
         return lyapunov;

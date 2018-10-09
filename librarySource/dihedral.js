@@ -14,6 +14,7 @@ function Dihedral() {
     this.nDiv2Pi = 0; // n/2pi is inverse of two times the angle
     this.cosAngle = 1;
     this.sinAngle = 0;
+    this.maps = [];
 
     const dihedral = this;
 
@@ -95,6 +96,13 @@ function Dihedral() {
         Fast.cosSin(this.angle);
         this.cosAngle = Fast.cosResult;
         this.sinAngle = Fast.sinResult;
+        // generate the mapping function to map a point in each sector to the sector 0
+        this.maps.length = 2 * n + 1;
+        for (var i = 0; i < n; i++) {
+            this.maps[2 * i] = rotation.create(-2 * i * this.angle);
+            this.maps[2 * i + 1] = rotation.createMirrored(-2 * (i + 1) * this.angle);
+        }
+        this.maps[2 * n] = rotation.create(0);
     };
 
 
@@ -102,27 +110,29 @@ function Dihedral() {
 
     /**
      * maps a vector into the first sector using rotations and mirror image
+     * given the sector number of the point
+     * sets Dihedral.reflections to the number of reflections
+     * @method Dihedral#mapOfSector
+     * @param {integer} i - index of the sector
+     * @param {Vector2} v - the vector of the point to map
+     */
+    Dihedral.prototype.mapOfSector = function(i, p) {
+        Dihedral.reflections = i;
+        this.maps[i](p);
+    };
+
+
+    /**
+     * maps a vector into the first sector using rotations and mirror image
      * sets Dihedral.reflections to the number of reflections
      * @method Dihedral#map
      * @param {Vector2} v - the vector of the point to map
      */
-    Dihedral.prototype.map = function(v) {
-        let angleOfV = Fast.atan2(v.y, v.x);
-        angleOfV *= this.nDiv2Pi;
-        let reflections = Math.floor(angleOfV);
-        angleOfV -= reflections;
-        reflections = Math.abs(reflections) << 1; // take care of "negative" rotations,shift-multiply by two
-        if (angleOfV > 0.5) {
-            angleOfV = 1 - angleOfV;
-            reflections++;
-        }
-        angleOfV /= this.nDiv2Pi;
-        let r = Math.hypot(v.x, v.y);
-        Fast.cosSin(angleOfV);
-        v.x = r * Fast.cosResult;
-        v.y = r * Fast.sinResult;
-        Dihedral.reflections = reflections;
+
+    Dihedral.prototype.map = function(p) {
+        this.mapOfSector(this.getSectorIndex(p), p);
     };
+
 
     function drawLine(angle) {
         Dihedral.vector.setPolar(big, angle);

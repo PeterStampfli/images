@@ -225,7 +225,7 @@ function creation() {
 
 
     ambe.twoColorImage();
-    //    ambe.straightSymmetricImage();
+    ambe.straightSymmetricImage();
     //   ambe.shearedSymmetricImage();
 
 

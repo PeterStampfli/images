@@ -182,13 +182,13 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
     const center = Vector2.difference(middle, centerMiddle);
     const centerFirst = Vector2.difference(firstCorner, center);
     const centerSecond = Vector2.difference(secondCorner, center);
-    const alpha = 2 * Math.PI / n;
+    imageTiles.setRotationAngle(2 * Math.PI / n);
     for (var i = 0; i < n; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
         imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
-        centerFirst.rotate(alpha);
-        centerSecond.rotate(alpha);
+        imageTiles.rotate(centerFirst);
+        imageTiles.rotate(centerSecond);
     }
     Vector2.toPool(middle, centerMiddle, centerFirst, centerSecond);
 };
@@ -268,18 +268,16 @@ imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
     const center = Vector2.difference(middle, centerMiddle);
     const centerFirst = Vector2.difference(firstCorner, center);
     const centerSecond = Vector2.difference(secondCorner, center);
-    const alpha = 2 * Math.PI / n;
-    const first = new Vector2();
-    const second = new Vector2();
+    imageTiles.setRotationAngle(2 * Math.PI / n);
     for (var i = 0; i < n; i++) {
         let first = Vector2.sum(center, centerFirst);
         let middle = Vector2.sum(center, centerMiddle);
         let second = Vector2.sum(center, centerSecond);
         imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
         imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
-        centerFirst.rotate(alpha);
-        centerMiddle.rotate(alpha);
-        centerSecond.rotate(alpha);
+        imageTiles.rotate(centerFirst);
+        imageTiles.rotate(centerMiddle);
+        imageTiles.rotate(centerSecond);
     }
     Vector2.toPool(centerFirst, centerSecond, centerMiddle, middle);
 };
@@ -300,9 +298,7 @@ imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
     const center = Vector2.difference(middle, centerMiddle);
     const centerFirst = Vector2.difference(firstCorner, center);
     const centerSecond = Vector2.difference(secondCorner, center);
-    const alpha = 2 * Math.PI / n;
-    const first = new Vector2();
-    const second = new Vector2();
+    imageTiles.setRotationAngle(2 * Math.PI / n);
     const n2 = n / 2;
     for (var i = 0; i < n2; i++) {
         let first = Vector2.sum(center, centerFirst);
@@ -310,9 +306,9 @@ imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
         let second = Vector2.sum(center, centerSecond);
         imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
         imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
-        centerFirst.rotate(alpha);
-        centerMiddle.rotate(alpha);
-        centerSecond.rotate(alpha);
+        imageTiles.rotate(centerFirst);
+        imageTiles.rotate(centerMiddle);
+        imageTiles.rotate(centerSecond);
     }
     Vector2.toPool(centerFirst, centerSecond, centerMiddle, middle);
 };
@@ -335,7 +331,6 @@ imageTiles.addShearedSymmetricParallelogram = function(angle, left, right) {
     const bottomLeft = Vector2.center(bottom, left);
     const topRight = Vector2.center(top, right);
     const topLeft = Vector2.center(top, left);
-    const shift = 1 / Math.tan(angle);
     const shear = 1 / Math.tan(angle);
     imageTiles.polygons.addPolygon(bottom, bottomRight, center).addBaseline(bottom, bottomRight).setShear(shear);
     imageTiles.polygons.addPolygon(top, topLeft, center).addBaseline(top, topLeft).setShear(shear);

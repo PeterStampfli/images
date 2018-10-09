@@ -1,6 +1,5 @@
 // functions that generate rotating functions
 /* jshint esversion:6 */
-console.log("*");
 
 /**
  * rotating a vector by a given fixed angle
@@ -54,8 +53,9 @@ rotation = {};
             };
             return result;
         }
-        const cosAngle = Fast.cos(angle);
-        const sinAngle = Fast.sin(angle);
+        Fast.cosSin(angle);
+        const cosAngle = Fast.cosResult;
+        const sinAngle = Fast.sinResult;
         result = function(p) {
             const h = cosAngle * p.x - sinAngle * p.y;
             p.y = sinAngle * p.x + cosAngle * p.y;
@@ -108,8 +108,9 @@ rotation = {};
             };
             return result;
         }
-        const cosAngle = Fast.cos(angle);
-        const sinAngle = Fast.sin(angle);
+        Fast.cosSin(angle);
+        const cosAngle = Fast.cosResult;
+        const sinAngle = Fast.sinResult;
         result = function(p) {
             const h = cosAngle * p.x - sinAngle * p.y;
             p.y = -(sinAngle * p.x + cosAngle * p.y);

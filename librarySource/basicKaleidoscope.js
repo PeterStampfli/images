@@ -209,6 +209,10 @@ basicKaleidoscope = {};
 
 
     // the mappings (as building blocks)
+    // the number of reflections
+    basicKaleidoscope.reflections = 0;
+    // the sector containing the position
+    basicKaleidoscope.sectorIndex = 0;
 
     /**
      * maps a vector into the polygon, for elliptic geometry
@@ -220,7 +224,8 @@ basicKaleidoscope = {};
     basicKaleidoscope.mapElliptic = function(position) {
         if (projection.map(position) > 0) {
             for (var iter = 0; iter < maxIterations; iter++) {
-                if (circles[dihedral.getSectorIndex(position)].invertOutsideIn(position) < 0) {
+                basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
+                if (circles[basicKaleidoscope.sectorIndex].invertOutsideIn(position) < 0) {
                     basicKaleidoscope.reflections = iter;
                     return 1;
                 }
