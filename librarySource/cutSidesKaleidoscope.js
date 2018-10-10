@@ -92,7 +92,7 @@ cutSidesKaleidoscope = {};
     cutSidesKaleidoscope.mapInputImageElliptic = function(position) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             let factor = addCircle.invertOutsideIn(position);
             if (factor > 0) {
                 lyapunov *= factor;
@@ -111,7 +111,7 @@ cutSidesKaleidoscope = {};
         let lyapunov = basicMap(position);
         let reflections = basicKaleidoscope.reflections;
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             reflections += Dihedral.reflections;
             let factor = addCircle.invertOutsideIn(position);
             if (factor > 0) {
@@ -132,7 +132,7 @@ cutSidesKaleidoscope = {};
     cutSidesKaleidoscope.mapInputImageEuclidic = function(position) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             let factor = addLine.mirrorRightToLeft(position);
             if (factor > 0) {
                 lyapunov *= factor;
@@ -151,7 +151,7 @@ cutSidesKaleidoscope = {};
         let lyapunov = basicMap(position);
         let reflections = basicKaleidoscope.reflections;
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             reflections += Dihedral.reflections;
             let factor = addLine.mirrorRightToLeft(position);
             if (factor > 0) {
@@ -172,7 +172,7 @@ cutSidesKaleidoscope = {};
     cutSidesKaleidoscope.mapInputImageHyperbolic = function(position) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             let factor = addCircle.invertInsideOut(position);
             if (factor > 0) {
                 lyapunov *= factor;
@@ -191,7 +191,7 @@ cutSidesKaleidoscope = {};
         let lyapunov = basicMap(position);
         let reflections = basicKaleidoscope.reflections;
         if (lyapunov >= 0) {
-            dihedral.map(position);
+            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
             reflections += Dihedral.reflections;
             let factor = addCircle.invertInsideOut(position);
             if (factor > 0) {

@@ -245,7 +245,8 @@ basicKaleidoscope = {};
     basicKaleidoscope.mapEuclidic = function(position) {
         if (projection.map(position) > 0) {
             for (var iter = 0; iter < maxIterations; iter++) {
-                if (lines[dihedral.getSectorIndex(position)].mirrorLeftToRight(position) < 0) {
+                basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
+                if (lines[basicKaleidoscope.sectorIndex].mirrorLeftToRight(position) < 0) {
                     basicKaleidoscope.reflections = iter;
                     return 1;
                 }
@@ -266,7 +267,8 @@ basicKaleidoscope = {};
     basicKaleidoscope.mapHyperbolic = function(position) {
         if (projection.map(position) > 0) {
             for (var iter = 0; iter < maxIterations; iter++) {
-                if (circles[dihedral.getSectorIndex(position)].invertInsideOut(position) < 0) {
+                basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
+                if (circles[basicKaleidoscope.sectorIndex].invertInsideOut(position) < 0) {
                     basicKaleidoscope.reflections = iter;
                     return 1;
                 }
@@ -274,8 +276,5 @@ basicKaleidoscope = {};
         }
         return -1;
     };
-
-
-
 
 }());
