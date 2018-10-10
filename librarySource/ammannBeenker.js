@@ -127,31 +127,31 @@ var ambe = {};
      */
     ambe.twoColorImage = function() {
         imageTiles.addParallelogram = imageTiles.addTwoColorParallelogram;
-        imageTiles.addRegularPolygon = imageTiles.addTwoColorPolygon;
-        imageTiles.addRegularHalfPolygon = imageTiles.addTwoColorHalfPolygon;
+        imageTiles.addRegularPolygon = imageTiles.addTwoColorRegularPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addTwoColorRegularHalfPolygon;
         Polygon.mapWithShiftRotateMirror();
     };
 
     /**
-     * choose "symmetric" image without shear
+     * choose "single color" image without shear
      * @method ambe.straightSymmetricImage
      */
-    ambe.straightSymmetricImage = function() {
-        imageTiles.addParallelogram = imageTiles.addStraightSymmetricParallelogram;
-        imageTiles.addRegularPolygon = imageTiles.addSymmetricPolygon;
-        imageTiles.addRegularHalfPolygon = imageTiles.addSymmetricHalfPolygon;
+    ambe.straightSingleColorImage = function() {
+        imageTiles.addParallelogram = imageTiles.addStraightSingleColorParallelogram;
+        imageTiles.addRegularPolygon = imageTiles.addSingleColorRegularPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addSingleColorRegularHalfPolygon;
         Polygon.mapWithShiftRotateMirror();
 
     };
 
     /**
-     * choose "sheared symmetric" image
+     * choose "sheared single color" image
      * @method ambe.shearedSymmetricImage
      */
-    ambe.shearedSymmetricImage = function() {
-        imageTiles.addParallelogram = imageTiles.addShearedSymmetricParallelogram;
-        imageTiles.addRegularPolygon = imageTiles.addSymmetricPolygon;
-        imageTiles.addRegularHalfPolygon = imageTiles.addSymmetricHalfPolygon;
+    ambe.shearedSingleColorImage = function() {
+        imageTiles.addParallelogram = imageTiles.addShearedSingleColorParallelogram;
+        imageTiles.addRegularPolygon = imageTiles.addSingleColorRegularPolygon;
+        imageTiles.addRegularHalfPolygon = imageTiles.addSingleColorRegularHalfPolygon;
         Polygon.mapWithShiftRotateMirrorShear();
 
     };

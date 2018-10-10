@@ -271,8 +271,6 @@ function Polygon(corners) {
         this.applyBaseline(centerClone);
         this.yScale = Polygon.gammaY / centerClone.y;
         this.shear = (Polygon.gammaX - centerClone.x) / Polygon.gammaY;
-        console.log(this.shear);
-        console.log(this.yScale);
     };
 
 

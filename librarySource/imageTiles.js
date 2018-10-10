@@ -170,13 +170,13 @@ imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMap
  * create a "two-color" regular polygon, all corners of the same type
  * given even number n of sides, a first and a second corner, the polygon lies at left of the line from first to second
  * choose whether the "first" corner maps to zero (or the "second" corner)
- * @method imageTiles.addTwoColorPolygon
+ * @method imageTiles.addTwoColorRegularPolygon
  * @param {boolean} firstCornerMapsToZero
  * @param {integer} n - number of sides
  * @param {Vector2} firstCorner - of type A, matching (0,0)
  * @param {Vector2} secondCorner 
  */
-imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
+imageTiles.addTwoColorRegularPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
     const middle = Vector2.center(firstCorner, secondCorner);
     const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
     const center = Vector2.difference(middle, centerMiddle);
@@ -197,13 +197,13 @@ imageTiles.addTwoColorPolygon = function(n, firstCorner, secondCorner, firstCorn
  * create half of a "two-color" regular polygon, all corners of the same type
  * given even number n of sides, a first and a second corner, the polygon lies at left of the line from first to second
  * choose whether the "first" corner maps to zero (or the "second" corner)
- * @method imageTiles.addTwoColorPolygon
+ * @method imageTiles.addTwoColorRegularHalfPolygon
  * @param {boolean} firstCornerMapsToZero
  * @param {integer} n - number of sides
  * @param {Vector2} firstCorner - of type A, matching (0,0)
  * @param {Vector2} secondCorner 
  */
-imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
+imageTiles.addTwoColorRegularHalfPolygon = function(n, firstCorner, secondCorner, firstCornerMapsToZero) {
     const middle = Vector2.center(firstCorner, secondCorner);
     const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
     const center = Vector2.difference(middle, centerMiddle);
@@ -224,12 +224,12 @@ imageTiles.addTwoColorHalfPolygon = function(n, firstCorner, secondCorner, first
 /**
  * create a symmetric image parallelogram, all corners of same type, 4 triangles and 4 quads
  * all corners map to (0,0), no shear
- * @method imageTiles.addStraightSymmetricParallelogram
+ * @method imageTiles.addStraightSingleColorParallelogram
  * @param {float} angle
  * @param {Vector2} left
  * @param {Vector2} right
  */
-imageTiles.addStraightSymmetricParallelogram = function(angle, left, right) {
+imageTiles.addStraightSingleColorParallelogram = function(angle, left, right) {
     const center = Vector2.center(left, right);
     const halfDiagonal = Vector2.difference(center, left);
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
@@ -257,12 +257,12 @@ imageTiles.addStraightSymmetricParallelogram = function(angle, left, right) {
  * given number n of sides, a first and a second corner, 
  * the polygon lies at left of the line from first to second
  * all corners map to (0,0)
- * @method imageTiles.addSymmetricPolygon
+ * @method imageTiles.addSingleColorRegularPolygon
  * @param {integer} n - number of sides
  * @param {Vector2} firstCorner 
  * @param {Vector2} secondCorner 
  */
-imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
+imageTiles.addSingleColorRegularPolygon = function(n, firstCorner, secondCorner) {
     const middle = Vector2.center(firstCorner, secondCorner);
     const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
     const center = Vector2.difference(middle, centerMiddle);
@@ -287,12 +287,12 @@ imageTiles.addSymmetricPolygon = function(n, firstCorner, secondCorner) {
  * given number n of sides, a first and a second corner, 
  * the polygon lies at left of the line from first to second
  * all corners map to (0,0)
- * @method imageTiles.addSymmetricHalfPolygon
+ * @method imageTiles.addSingleColorRegularHalfPolygon
  * @param {integer} n - number of sides
  * @param {Vector2} firstCorner 
  * @param {Vector2} secondCorner 
  */
-imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
+imageTiles.addSingleColorRegularHalfPolygon = function(n, firstCorner, secondCorner) {
     const middle = Vector2.center(firstCorner, secondCorner);
     const centerMiddle = Vector2.difference(firstCorner, middle).scale(1 / Math.tan(Math.PI / n)).rotate90();
     const center = Vector2.difference(middle, centerMiddle);
@@ -316,12 +316,12 @@ imageTiles.addSymmetricHalfPolygon = function(n, firstCorner, secondCorner) {
 /**
  * create a symmetric image parallelogram with sheared mapping, all corners of same type, 4 triangles
  * all corners map to (0,0)
- * @method imageTiles.addShearedSymmetricParallelogram
+ * @method imageTiles.addShearedSingleColorParallelogram
  * @param {float} angle
  * @param {Vector2} left
  * @param {Vector2} right
  */
-imageTiles.addShearedSymmetricParallelogram = function(angle, left, right) {
+imageTiles.addShearedSingleColorParallelogram = function(angle, left, right) {
     const center = Vector2.center(left, right);
     const halfDiagonal = Vector2.difference(center, left);
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();

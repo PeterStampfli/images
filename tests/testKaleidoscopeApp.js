@@ -225,12 +225,12 @@ function creation() {
 
 
     ambe.twoColorImage();
-    ambe.straightSymmetricImage();
-    //   ambe.shearedSymmetricImage();
+    ambe.straightSingleColorImage();
+    ambe.shearedSingleColorImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
+    // iterateTiling.initialPolygons = ambe.start;
     // iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
@@ -246,38 +246,49 @@ function creation() {
     const a = new Vector2(-4, 0);
     const b = new Vector2(4, 0);
     const c = new Vector2(-2, 4);
-    const gamma = new Vector2(0.25, 1);
+    const gamma = new Vector2(0.1, 1);
     Polygon.setGamma(gamma);
     Polygon.setCenter(c);
 
-    iterateTiling.structure[0].addPolygon(a, b, c);
+    //  iterateTiling.structure[0].addPolygon(a, b, c);
+    /*
+        const imagePolygon = imageTiles.polygons.addPolygon(a, b, c);
+        imagePolygon.addTriangleMapping(a, b, true);
+    */
 
-    const imagePolygon = imageTiles.polygons.addPolygon(a, b, c);
-    imagePolygon.addTriangleMapping(a, b, true);
 
+    function twoColorHalfQuad(a, b, c, center, aMapsToZero) {
+        Polygon.setCenter(center);
+        imageTiles.polygons.addPolygon(a, b, center).addTriangleMapping(a, b, aMapsToZero);
+        imageTiles.polygons.addPolygon(b, c, center).addTriangleMapping(b, c, !aMapsToZero);
+    }
+
+    function twoColorQuad(a, b, c, d, center, aMapsToZero) {
+        twoColorHalfQuad(a, b, c, center, aMapsToZero);
+        twoColorHalfQuad(c, d, a, center, aMapsToZero);
+    }
+
+    function singleColorHalfQuad(a, b, c, center) {
+        Polygon.setCenter(center);
+        const ab = Vector2.center(a, b);
+        const bc = Vector2.center(b, c);
+        imageTiles.polygons.addPolygon(a, ab, center).addTriangleMapping(a, ab);
+        imageTiles.polygons.addPolygon(b, center, ab).addTriangleMapping(b, ab);
+        imageTiles.polygons.addPolygon(b, bc, center).addTriangleMapping(b, bc);
+        imageTiles.polygons.addPolygon(c, center, bc).addTriangleMapping(c, bc);
+    }
+
+    function singleColorQuad(a, b, c, d, center) {
+        singleColorHalfQuad(a, b, c, center);
+        singleColorHalfQuad(c, d, a, center);
+    }
+
+
+
+    singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
+    // singleColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
 
     imageTiles.bins.addUniquePolygons(imageTiles.polygons);
-    let p = new Vector2(-2, 4);
-    p.log("origin");
-    imagePolygon.map(p);
-    p.log("mapped");
-
-    const fun = rotation.create(3 * Math.PI / 2);
-    console.log(fun);
-    const fun2 = rotation.createMirrored(Math.PI / 6);
-
-    let v = Vector2.fromPool(0, 8);
-    v.log();
-    let vv = Vector2.fromPool(2, 8);
-    vv.log();
-    Vector2.toPool(v, vv);
-    let v3 = Vector2.fromPool();
-    v3.log();
-    imageTiles.setRotationAngle(Math.PI / 6);
-    console.log(imageTiles.cosAngle);
-    console.log(imageTiles.sinAngle);
-
-    imageTiles.rotate(new Vector2(0, 1)).log("rot");
 
 
 }
