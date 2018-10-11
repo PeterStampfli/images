@@ -217,7 +217,7 @@ function creation() {
         Draw.setColor("red");
         iterateTiling.structure[0].draw();
         Draw.setColor("blue");
-        //iterateTiling.structure[1].draw();
+        // iterateTiling.structure[1].draw();
         // imageTiles.polygons.draw();
 
     };
@@ -226,21 +226,21 @@ function creation() {
 
     ambe.twoColorImage();
     ambe.straightSingleColorImage();
-    ambe.shearedSingleColorImage();
+    //   ambe.shearedSingleColorImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
     // iterateTiling.initialPolygons = ambe.start;
-    // iterateTiling.initialPolygons = small12.start;
+    iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
 
-    Polygon.mapWithShiftRotateMirror();
-    Polygon.mapWithShiftRotateMirrorScaleShear();
+    //  Polygon.mapWithShiftRotateMirror();
+    //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(1);
+    iterateTiling.setMaxIterations(2);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);
@@ -285,7 +285,7 @@ function creation() {
 
 
 
-    singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
+    // singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
     // singleColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
 
     imageTiles.bins.addUniquePolygons(imageTiles.polygons);

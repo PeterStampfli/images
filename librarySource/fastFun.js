@@ -43,8 +43,6 @@ var Fast = {};
     var nSinIntervalsM1 = nIntervals - 1;
     var sinTabFactor = nIntervals / 2 / Math.PI;
     const sinTable = Fast.makeTable(0, 2 * Math.PI, nIntervals, Math.sin);
-
-
     const cosTable = Fast.makeTable(0, 2 * Math.PI, nIntervals, Math.cos);
 
     /**
@@ -60,7 +58,8 @@ var Fast = {};
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        return sinTable[index] * (1 - x) + sinTable[index + 1] * x;
+        const base = sinTable[index];
+        return base + (sinTable[index + 1] - base) * x;
     };
 
     /**
@@ -76,7 +75,8 @@ var Fast = {};
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        return cosTable[index] * (1 - x) + cosTable[index + 1] * x;
+        const base = cosTable[index];
+        return base + (cosTable[index + 1] - base) * x;
     };
 
     /**
@@ -104,8 +104,10 @@ var Fast = {};
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        Fast.cosResult = cosTable[index] * (1 - x) + cosTable[index + 1] * x;
-        Fast.sinResult = sinTable[index] * (1 - x) + sinTable[index + 1] * x;
+        Fast.cosResult = cosTable[index];
+        Fast.cosResult += (cosTable[index + 1] - Fast.cosResult) * x;
+        Fast.sinResult = sinTable[index];
+        Fast.sinResult += (sinTable[index + 1] - Fast.sinResult) * x;
     };
 
     /*
@@ -126,8 +128,9 @@ var Fast = {};
         x = expTabFracFactor * (x - indexToIntPart);
         indexToFractPart = Math.floor(x);
         x -= indexToFractPart;
+        const fractPartBase = expTabFracPart[indexToFractPart++];
         return expTabIntPart[Math.max(0, Math.min(expTabIntPartMaxIndex, indexToIntPart - expMinArgument))] *
-            (expTabFracPart[indexToFractPart++] * (1 - x) + expTabFracPart[indexToFractPart] * x);
+            (fractPartBase + (expTabFracPart[indexToFractPart] - fractPartBase) * x);
     };
 
     /*
@@ -189,7 +192,8 @@ var Fast = {};
         x = (x / iDiv - 1) * logTabFactor;
         index = Math.floor(x);
         x -= index;
-        return ln + logTable[index] * (1 - x) + logTable[index + 1] * x;
+        const base = logTable[index];
+        return ln + base + (logTable[index + 1] - base) * x;
     };
 
     /*
@@ -216,24 +220,28 @@ var Fast = {};
                     x = atanTabFactor * y / x;
                     index = Math.floor(x);
                     x -= index;
-                    return atanTable[index] * (1 - x) + atanTable[index + 1] * x;
+                    const base = atanTable[index];
+                    return base + (atanTable[index + 1] - base) * x;
                 } else {
                     x = atanTabFactor * x / (y + 1e-30);
                     index = Math.floor(x);
                     x -= index;
-                    return 1.5707963268 - (atanTable[index] * (1 - x) + atanTable[index + 1] * x);
+                    const base = atanTable[index];
+                    return 1.5707963268 - (base + (atanTable[index + 1] - base) * x);
                 }
             } else {
                 if (x > -y) {
                     x = -atanTabFactor * y / x;
                     index = Math.floor(x);
                     x -= index;
-                    return -(atanTable[index] * (1 - x) + atanTable[index + 1] * x);
+                    const base = atanTable[index];
+                    return -(base + (atanTable[index + 1] - base) * x);
                 } else {
                     x = -atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
-                    return -1.5707963268 + atanTable[index] * (1 - x) + atanTable[index + 1] * x;
+                    const base = atanTable[index];
+                    return -1.5707963268 + base + (atanTable[index + 1] - base) * x;
                 }
             }
         } else {
@@ -242,24 +250,28 @@ var Fast = {};
                     x = -atanTabFactor * y / x;
                     index = Math.floor(x);
                     x -= index;
-                    return 3.1415926536 - (atanTable[index] * (1 - x) + atanTable[index + 1] * x);
+                    const base = atanTable[index];
+                    return 3.1415926536 - (base + (atanTable[index + 1] - base) * x);
                 } else {
                     x = -atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
-                    return 1.5707963268 + atanTable[index] * (1 - x) + atanTable[index + 1] * x;
+                    const base = atanTable[index];
+                    return 1.5707963268 + base + (atanTable[index + 1] - base) * x;
                 }
             } else {
                 if (x < y) {
                     x = atanTabFactor * y / x;
                     index = Math.floor(x);
                     x -= index;
-                    return -3.1415926536 + atanTable[index] * (1 - x) + atanTable[index + 1] * x;
+                    const base = atanTable[index];
+                    return -3.1415926536 + base + (atanTable[index + 1] - base) * x;
                 } else {
                     x = atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
-                    return -1.5707963268 - (atanTable[index] * (1 - x) + atanTable[index + 1] * x);
+                    const base = atanTable[index];
+                    return -1.5707963268 - (base + (atanTable[index + 1] - base) * x);
                 }
             }
         }
@@ -301,7 +313,8 @@ var Fast = {};
         x = gaussTabFactor * x;
         index = Math.floor(x);
         x -= index;
-        return gaussTable[index] * (1 - x) + gaussTable[index + 1] * x;
+        const base = gaussTable[index];
+        return base + (gaussTable[index + 1] - base) * x;
     };
 
     /**
