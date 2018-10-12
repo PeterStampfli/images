@@ -35,7 +35,7 @@ imageTiles.dimensions = function(xMin, xMax, yMin, yMax, side) {
  * @method imageTiles.reset
  */
 imageTiles.reset = function() {
-    imageTiles.polygons = new Polygons();
+    imageTiles.polygons = [];
     imageTiles.bins.empty();
 };
 

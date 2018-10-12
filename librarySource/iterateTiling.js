@@ -63,11 +63,11 @@ iterateTiling.generateStructure = function() {
     // clear and set up data depending on number of maximum iterations
     iterateTiling.structure.length = 0;
     for (var i = 0; i <= iterateTiling.maxIterations; i++) {
-        iterateTiling.structure.push(new Polygons());
+        iterateTiling.structure.push([]); // push empty arrays
     }
     imageTiles.reset();
     // calling initial polygons -> structure through iterations
     iterateTiling.initialPolygons();
     // put polygons into bins
-    imageTiles.bins.addUniquePolygons(imageTiles.polygons);
+    imageTiles.bins.addObjects(imageTiles.polygons);
 };

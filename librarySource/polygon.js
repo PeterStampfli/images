@@ -1,13 +1,20 @@
 /**
  * representing polygons as a list of lines, winding counterclockwise
  * has limits of coordinates, do not change points afterwards
+ * points are not cloned to save time and space, be aware of what you do
  * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
- * @param {ArrayOfVector2} corners - the corner points in counter clockwise order, changing them changes the polygon, just in case ...
+ * @param {ArrayOfVector2 or Vector2...} vectors - the corner points in counter clockwise order, as array or list
  */
 /* jshint esversion:6 */
 
-function Polygon(corners) {
+function Polygon(vectors) {
+    var corners;
+    if (arguments.length === 1) {
+        corners = vectors;
+    } else {
+        corners = Array.from(arguments);
+    }
     this.lines = [];
     this.xMin = corners[0].x;
     this.xMax = corners[0].x;
@@ -27,27 +34,6 @@ function Polygon(corners) {
 (function() {
     "use strict";
 
-    /**
-     * create a polygon from vector2 array or repeated args
-     * the vectors are cloned because they might be changed later
-     * @method Polygon.ofVectors
-     * @param {ListOfVector2} vectors, list of Vector2 objects or Vector2 array
-     * @return {Polygon}
-     */
-    Polygon.ofVectors = function(vectors) {
-        var args;
-        if (arguments.length === 1) {
-            args = vectors;
-        } else {
-            args = Array.from(arguments);
-        }
-        const length = args.length;
-        const corners = [];
-        for (var i = 0; i < length; i++) {
-            corners.push(args[i].clone());
-        }
-        return new Polygon(corners);
-    };
 
     /**
      * log the polygon
@@ -262,6 +248,7 @@ function Polygon(corners) {
     /**
      * adjust yScale and shear parameters for triangle mapping
      * using the current gamma and center points
+     * using the baseline that has been added to the polygon
      * requires and automatically sets Polygon.shiftRotateMirrorScaleShear();
      * @method Polygon#adjustScaleShearTriangleMapping
      */
@@ -370,80 +357,6 @@ function Polygon(corners) {
      */
     Polygon.mapWithShiftRotateMirrorScaleShear = function() {
         Polygon.prototype.map = Polygon.prototype.shiftRotateMirrorScaleShear;
-    };
-
-
-}());
-
-
-/**
- * collections/pools of polygons, for iterations
- * use polygons to create the image
- * @constructor Polygons
- */
-function Polygons() {
-    this.polygons = [];
-}
-
-(function() {
-    "use strict";
-
-    /**
-     * reset -> empty the list of polygons
-     * @method UniquePoints#reset
-     */
-    Polygons.prototype.reset = function() {
-        this.polygons.length = 0;
-    };
-
-    /**
-     * log the polygons
-     * @method UniquePoints#log
-     * @param {String} message - or nothing
-     */
-    Polygons.prototype.log = function(message) {
-        if (message) {
-            message += ": ";
-        } else {
-            message = "";
-        }
-        console.log(message + "Polygons");
-        const polygons = this.polygons;
-        const length = polygons.length;
-        for (var i = 0; i < length; i++) {
-            polygons[i].log("index " + i);
-        }
-        console.log("---------------------------");
-    };
-
-    /**
-     * draw the lines of all polygons
-     * @method Polygons#draw
-     */
-    Polygons.prototype.draw = function() {
-        Draw.array(this.polygons);
-    };
-
-    /**
-     * add a polygon to the list if it is not there
-     * @method Polygons#add
-     * @param {Polygon} polygon
-     * @return the polygon, stored in the list
-     */
-    Polygons.prototype.add = function(polygon) {
-        this.polygons.push(polygon);
-        return polygon;
-    };
-
-    /**
-     * create a polygon from vector2 and put it in the list if not there, returns the polygon
-     * clone vectors, if changed later ...
-     * @method Polygons.addPolygon
-     * @param {ListOfVector2} vectors, list of Vector2 objects
-     * @return {Polygon}
-     */
-    Polygons.prototype.addPolygon = function(vectors) {
-        return this.add(new Polygon(Array.from(arguments)));
     };
 
 

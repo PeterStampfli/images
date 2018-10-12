@@ -231,7 +231,7 @@ function creation() {
 
     // iterateTiling.initialPolygons = penrose.start;
     // iterateTiling.initialPolygons = ambe.start;
-    iterateTiling.initialPolygons = small12.start;
+    //iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
 
@@ -256,39 +256,74 @@ function creation() {
         imagePolygon.addTriangleMapping(a, b, true);
     */
 
+    // determine and set gamma for an array of polygons, typically triangles, with given center, and baseline
 
-    function twoColorHalfQuad(a, b, c, center, aMapsToZero) {
-        Polygon.setCenter(center);
-        imageTiles.polygons.addPolygon(a, b, center).addTriangleMapping(a, b, aMapsToZero);
-        imageTiles.polygons.addPolygon(b, c, center).addTriangleMapping(b, c, !aMapsToZero);
+    let center = new Vector2();
+
+    function setGamma(triangles) {
+        let sumX = 0;
+        let sumY = 0;
+        let nTriangles = triangles.length;
+        for (var i = 0; i < nTriangles; i++) {
+            center.set(Polygons.center);
+            triangles[i].applyBaseline(center);
+            sumX += center.x;
+            sumY += center.y;
+        }
+        Polygons.gamma.setComponents(sumX / nTriangles, sumY / nTriangles);
     }
 
-    function twoColorQuad(a, b, c, d, center, aMapsToZero) {
-        twoColorHalfQuad(a, b, c, center, aMapsToZero);
-        twoColorHalfQuad(c, d, a, center, aMapsToZero);
+    function adjustTriangleMapping(triangles) {
+        let nTriangles = triangles.length;
+        for (var i = 0; i < nTriangles; i++) {
+            triangles[i].adjustScaleShearTriangleMapping();
+        }
     }
 
-    function singleColorHalfQuad(a, b, c, center) {
-        Polygon.setCenter(center);
-        const ab = Vector2.center(a, b);
-        const bc = Vector2.center(b, c);
-        imageTiles.polygons.addPolygon(a, ab, center).addTriangleMapping(a, ab);
-        imageTiles.polygons.addPolygon(b, center, ab).addTriangleMapping(b, ab);
-        imageTiles.polygons.addPolygon(b, bc, center).addTriangleMapping(b, bc);
-        imageTiles.polygons.addPolygon(c, center, bc).addTriangleMapping(c, bc);
-    }
+    let triangles = [];
+    /*
+        function twoColorHalfQuad(a, b, c, center, aMapsToZero) {
+            Polygon.setCenter(center);
+            triangles.length=0;
+            triangles.push(imageTiles.polygons.addPolygon(a, b, center).addBaseline(a, b, aMapsToZero));
+            triangles.push(imageTiles.polygons.addPolygon(b, c, center).addBaseline(b, c, !aMapsToZero));
+            adjustTriangleMapping(triangles);
+        }
 
-    function singleColorQuad(a, b, c, d, center) {
-        singleColorHalfQuad(a, b, c, center);
-        singleColorHalfQuad(c, d, a, center);
-    }
+        function twoColorQuad(a, b, c, d, center, aMapsToZero) {
+            twoColorHalfQuad(a, b, c, center, aMapsToZero);
+            twoColorHalfQuad(c, d, a, center, aMapsToZero);
+        }
+
+        function singleColorHalfQuad(a, b, c, center) {
+            Polygon.setCenter(center);
+            const ab = Vector2.center(a, b);
+            const bc = Vector2.center(b, c);
+            imageTiles.polygons.addPolygon(a, ab, center).addTriangleMapping(a, ab);
+            imageTiles.polygons.addPolygon(b, center, ab).addTriangleMapping(b, ab);
+            imageTiles.polygons.addPolygon(b, bc, center).addTriangleMapping(b, bc);
+            imageTiles.polygons.addPolygon(c, center, bc).addTriangleMapping(c, bc);
+        }
+
+        function singleColorQuad(a, b, c, d, center) {
+            singleColorHalfQuad(a, b, c, center);
+            singleColorHalfQuad(c, d, a, center);
+        }
 
 
 
-    // singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
-    // singleColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
+        // singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
+     //    twoColorQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
+         twoColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
+    */
+    imageTiles.bins.addObjects(imageTiles.polygons);
+    const test = [];
+    test.push(new Vector2(8, 9));
+    test.push(new Vector2(3338, 9));
+    Fast.logArrayOfObjects(test, "****");
 
-    imageTiles.bins.addUniquePolygons(imageTiles.polygons);
+    const poly = new Polygon(a, b, c);
+    poly.log("pp");
 
 
 }

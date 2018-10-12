@@ -386,9 +386,11 @@ var Fast = {};
     };
 
     /**
-     * print out a small array
+     * log a small array 
      * @method Fast.logSmallArray
      * @param {Array} data
+     * @param {integer} width - number of items in a row
+     * @param {integer} height - number of rows
      */
     Fast.logSmallArray = function(data, width, height) {
         var out;
@@ -402,6 +404,25 @@ var Fast = {};
             console.log(out);
 
         }
+    };
+
+    /**
+     * log an array of objects with a log() method
+     * @method Fast.logArrayOfObjects
+     * @param {String} message - or nothing
+     */
+    Fast.logArrayOfObjects = function(data, message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
+        console.log(message + "Array:");
+        const length = data.length;
+        for (var i = 0; i < length; i++) {
+            data[i].log("index " + i);
+        }
+        console.log("-------------END--------------");
     };
 
     //console.time("stcihwort")
