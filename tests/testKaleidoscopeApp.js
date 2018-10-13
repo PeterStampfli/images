@@ -225,15 +225,15 @@ function creation() {
 
 
     ambe.twoColorImage();
-    ambe.straightSingleColorImage();
-    //   ambe.shearedSingleColorImage();
+    //ambe.straightSingleColorImage();
+    ambe.shearedSingleColorImage();
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
-    //iterateTiling.initialPolygons = small12.start;
-    //  iterateTiling.initialPolygons = stampfli.start;
-    //  iterateTiling.initialPolygons = octagon.start;
+    // iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = small12.start;
+    iterateTiling.initialPolygons = stampfli.start;
+    iterateTiling.initialPolygons = octagon.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();

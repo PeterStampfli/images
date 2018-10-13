@@ -46,7 +46,7 @@ var stampfli = {};
         halfDiagonal.scale(Math.tan(small12.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const er = Vector2.difference(bottom, left).scale(stampfli.ratio);
@@ -82,7 +82,7 @@ var stampfli = {};
     };
 
     stampfli.triangle = function(ite, a, b, c) {
-        iterateTiling.structure[ite].addPolygon(a, b, c);
+        iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const ab = Vector2.lerp(a, stampfli.ratio, b);
@@ -127,7 +127,7 @@ var stampfli = {};
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
 
-        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
 

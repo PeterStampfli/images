@@ -199,9 +199,11 @@ function Polygon(vectors) {
      * set a nonzero value for the shear coefficient
      * @method Polygon.prototype.setShear
      * @param {float} shear
+     * @return the polygon for chaining
      */
     Polygon.prototype.setShear = function(shear) {
         this.shear = shear;
+        return this;
     };
 
 

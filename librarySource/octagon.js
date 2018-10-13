@@ -29,9 +29,6 @@ var octagon = {};
     };
 
 
-
-
-
     octagon.rhomb = function(ite, left, right) {
         // create the corner points
         const center = Vector2.center(left, right);
@@ -39,7 +36,7 @@ var octagon = {};
         halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             const leftBottom = Vector2.lerp(left, octagon.ratio, bottom);
             const leftTop = Vector2.lerp(left, octagon.ratio, top);
@@ -66,7 +63,7 @@ var octagon = {};
 
     // 45,90,45 triangle counterclockwise
     octagon.triangle = function(ite, a, b, c) {
-        iterateTiling.structure[ite].addPolygon(a, b, c);
+        iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const ab = Vector2.lerp(a, octagon.ratio, b);
@@ -95,7 +92,7 @@ var octagon = {};
     };
 
     octagon.octagon = function(ite, left, right) {
-        // iterateTiling.structure[ite].addPolygon(a, b, c);
+        // iterateTiling.structure[ite].push(new Polygon(a, b, c));
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
         //    generate all corner points, begins with right
@@ -104,7 +101,7 @@ var octagon = {};
             corners[i] = Vector2.sum(center, halfDiagonal);
             halfDiagonal.rotate45();
         }
-        iterateTiling.structure[ite].add(new Polygon(corners));
+        iterateTiling.structure[ite].push(new Polygon(corners));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const er = Vector2.difference(corners[1], corners[0]).scale(octagon.ratio);

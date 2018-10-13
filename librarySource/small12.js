@@ -46,7 +46,7 @@ var small12 = {};
         halfDiagonal.scale(Math.tan(small12.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const leftBottom = Vector2.lerp(left, small12.ratio, bottom);
@@ -85,20 +85,19 @@ var small12 = {};
     small12.halfTriangleImage = function(counterclockwise, a, b, c) {
         const ab = Vector2.center(a, b);
         const ac = Vector2.lerp(a, 0.66666, c);
-        console.log(counterclockwise);
         if (counterclockwise) {
-            imageTiles.polygons.addPolygon(a, ab, ac).addBaseline(a, ab);
-            imageTiles.polygons.addPolygon(b, ac, ab).addBaseline(b, ab);
-            imageTiles.polygons.addPolygon(b, c, ac).addBaseline(b, c);
+            imageTiles.polygons.push(new Polygon(a, ab, ac).addBaseline(a, ab));
+            imageTiles.polygons.push(new Polygon(b, ac, ab).addBaseline(b, ab));
+            imageTiles.polygons.push(new Polygon(b, c, ac).addBaseline(b, c));
         } else {
-            imageTiles.polygons.addPolygon(ab, a, ac).addBaseline(a, ab);
-            imageTiles.polygons.addPolygon(ac, b, ab).addBaseline(b, ab);
-            imageTiles.polygons.addPolygon(c, b, ac).addBaseline(b, c);
+            imageTiles.polygons.push(new Polygon(ab, a, ac).addBaseline(a, ab));
+            imageTiles.polygons.push(new Polygon(ac, b, ab).addBaseline(b, ab));
+            imageTiles.polygons.push(new Polygon(c, b, ac).addBaseline(b, c));
         }
     };
 
     small12.triangleA = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].addPolygon(a, b, c);
+        iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, small12.ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
@@ -121,7 +120,7 @@ var small12 = {};
     };
 
     small12.triangleB = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].addPolygon(a, b, c);
+        iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, small12.ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
@@ -145,7 +144,7 @@ var small12 = {};
     };
 
     small12.triangleC = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].addPolygon(a, b, c);
+        iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, small12.ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
@@ -172,7 +171,7 @@ var small12 = {};
     small12.quarterSquare = function(ite, corner, center) {
         const a = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(Math.PI / 4).add(center);
         const b = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(-Math.PI / 4).add(center);
-        iterateTiling.structure[ite].addPolygon(center, b, corner, a);
+        iterateTiling.structure[ite].push(new Polygon(center, b, corner, a));
         if (ite < iterateTiling.maxIterations) {
             const aCorner = Vector2.lerp(a, small12.ratio, corner);
             const bCorner = Vector2.lerp(b, small12.ratio, corner);
@@ -191,8 +190,8 @@ var small12 = {};
         } else {
             // a.scale(2).sub(corner);
             // imageTiles.addSymmetricPolygon(4, corner, a);
-            imageTiles.polygons.addPolygon(corner, a, center).addBaseline(corner, a);
-            imageTiles.polygons.addPolygon(b, corner, center).addBaseline(corner, b);
+            imageTiles.polygons.push(new Polygon(corner, a, center).addBaseline(corner, a));
+            imageTiles.polygons.push(new Polygon(b, corner, center).addBaseline(corner, b));
 
         }
     };
