@@ -231,9 +231,9 @@ function creation() {
 
     // iterateTiling.initialPolygons = penrose.start;
     // iterateTiling.initialPolygons = ambe.start;
-    iterateTiling.initialPolygons = small12.start;
-    iterateTiling.initialPolygons = stampfli.start;
-    iterateTiling.initialPolygons = octagon.start;
+    //   iterateTiling.initialPolygons = small12.start;
+    //  iterateTiling.initialPolygons = stampfli.start;
+    //  iterateTiling.initialPolygons = octagon.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
@@ -244,8 +244,12 @@ function creation() {
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);
-    const b = new Vector2(4, 0);
-    const c = new Vector2(-2, 4);
+    const b = new Vector2(0, -4);
+
+    const c = new Vector2(4, 0);
+    const d = new Vector2(-2, 4);
+    const center = new Vector2(0, 0);
+
     const gamma = new Vector2(0.1, 1);
     Polygon.setGamma(gamma);
     Polygon.setCenter(c);
@@ -257,18 +261,20 @@ function creation() {
     */
 
     // determine and set gamma for an array of polygons, typically triangles, with given center, and baseline
+    // resulting from the dissection  of a polygon
+    // gamma does not depend on orientation and size of polygon. Only on shape and dissection (center)
 
-    let center = new Vector2();
+    let centerToGamma = new Vector2();
 
     function setGamma(triangles) {
         let sumX = 0;
         let sumY = 0;
         let nTriangles = triangles.length;
         for (var i = 0; i < nTriangles; i++) {
-            center.set(Polygons.center);
-            triangles[i].applyBaseline(center);
-            sumX += center.x;
-            sumY += center.y;
+            centerToGamma.set(Polygons.center);
+            triangles[i].applyBaseline(centerToGamma);
+            sumX += centerToGamma.x;
+            sumY += centerToGamma.y;
         }
         Polygons.gamma.setComponents(sumX / nTriangles, sumY / nTriangles);
     }
@@ -316,14 +322,23 @@ function creation() {
      //    twoColorQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
          twoColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
     */
-    imageTiles.bins.addObjects(imageTiles.polygons);
-    const test = [];
-    test.push(new Vector2(8, 9));
-    test.push(new Vector2(3338, 9));
-    Fast.logArrayOfObjects(test, "****");
 
-    const poly = new Polygon(a, b, c);
-    poly.log("pp");
+    imageTiles.twoColorQuadDecomposition(triangles, a, b, c, d, center, true);
+
+    imageTiles.calculateGamma(gamma, center, triangles);
+    gamma.log("gamma");
+
+    Polygon.center = center;
+    Polygon.gamma = gamma;
+
+    imageTiles.adjustTriangleMapping(triangles);
+
+    imageTiles.addTriangles(triangles);
+
+    imageTiles.bins.addObjects(imageTiles.polygons);
+
+    Fast.logArrayOfObjects(triangles);
+    Fast.logArrayOfObjects(imageTiles.polygons);
 
 
 }
