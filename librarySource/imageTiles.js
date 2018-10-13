@@ -159,10 +159,10 @@ imageTiles.addTwoColorParallelogram = function(angle, left, right, leftCornerMap
     halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
     const top = Vector2.sum(center, halfDiagonal);
     const bottom = Vector2.difference(center, halfDiagonal);
-    imageTiles.polygons.addPolygon(left, bottom, center).addBaseline(left, bottom, leftCornerMapsToZero);
-    imageTiles.polygons.addPolygon(bottom, right, center).addBaseline(right, bottom, leftCornerMapsToZero);
-    imageTiles.polygons.addPolygon(right, top, center).addBaseline(right, top, leftCornerMapsToZero);
-    imageTiles.polygons.addPolygon(top, left, center).addBaseline(left, top, leftCornerMapsToZero);
+    imageTiles.polygons.push(new Polygon(left, bottom, center).addBaseline(left, bottom, leftCornerMapsToZero));
+    imageTiles.polygons.push(new Polygon(bottom, right, center).addBaseline(right, bottom, leftCornerMapsToZero));
+    imageTiles.polygons.push(new Polygon(right, top, center).addBaseline(right, top, leftCornerMapsToZero));
+    imageTiles.polygons.push(new Polygon(top, left, center).addBaseline(left, top, leftCornerMapsToZero));
     Vector2.toPool(halfDiagonal);
 };
 
@@ -186,7 +186,7 @@ imageTiles.addTwoColorRegularPolygon = function(n, firstCorner, secondCorner, fi
     for (var i = 0; i < n; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
+        imageTiles.polygons.push(new Polygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1)));
         imageTiles.rotate(centerFirst);
         imageTiles.rotate(centerSecond);
     }
@@ -214,7 +214,7 @@ imageTiles.addTwoColorRegularHalfPolygon = function(n, firstCorner, secondCorner
     for (var i = 0; i < n2; i++) {
         let first = Vector2.sum(center, centerFirst);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1));
+        imageTiles.polygons.push(new Polygon(first, second, center).addBaseline(first, second, firstCornerMapsToZero != (i & 1)));
         imageTiles.rotate(centerFirst);
         imageTiles.rotate(centerSecond);
     }
@@ -241,14 +241,14 @@ imageTiles.addStraightSingleColorParallelogram = function(angle, left, right) {
     const topLeft = Vector2.center(top, left);
     const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
     const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
-    imageTiles.polygons.addPolygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft);
-    imageTiles.polygons.addPolygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight);
-    imageTiles.polygons.addPolygon(right, topRight, centerRight).addBaseline(right, topRight);
-    imageTiles.polygons.addPolygon(top, topLeft, centerLeft, center).addBaseline(top, topLeft);
-    imageTiles.polygons.addPolygon(bottomLeft, bottom, center, centerLeft).addBaseline(bottom, bottomLeft);
-    imageTiles.polygons.addPolygon(bottomRight, right, centerRight).addBaseline(right, bottomRight);
-    imageTiles.polygons.addPolygon(topRight, top, center, centerRight).addBaseline(top, topRight);
-    imageTiles.polygons.addPolygon(topLeft, left, centerLeft).addBaseline(left, topLeft);
+    imageTiles.polygons.push(new Polygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft));
+    imageTiles.polygons.push(new Polygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight));
+    imageTiles.polygons.push(new Polygon(right, topRight, centerRight).addBaseline(right, topRight));
+    imageTiles.polygons.push(new Polygon(top, topLeft, centerLeft, center).addBaseline(top, topLeft));
+    imageTiles.polygons.push(new Polygon(bottomLeft, bottom, center, centerLeft).addBaseline(bottom, bottomLeft));
+    imageTiles.polygons.push(new Polygon(bottomRight, right, centerRight).addBaseline(right, bottomRight));
+    imageTiles.polygons.push(new Polygon(topRight, top, center, centerRight).addBaseline(top, topRight));
+    imageTiles.polygons.push(new Polygon(topLeft, left, centerLeft).addBaseline(left, topLeft));
     Vector2.toPool(halfDiagonal);
 };
 
@@ -273,8 +273,8 @@ imageTiles.addSingleColorRegularPolygon = function(n, firstCorner, secondCorner)
         let first = Vector2.sum(center, centerFirst);
         let middle = Vector2.sum(center, centerMiddle);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
-        imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
+        imageTiles.polygons.push(new Polygon(first, middle, center).addBaseline(first, middle));
+        imageTiles.polygons.push(new Polygon(middle, second, center).addBaseline(second, middle));
         imageTiles.rotate(centerFirst);
         imageTiles.rotate(centerMiddle);
         imageTiles.rotate(centerSecond);
@@ -304,8 +304,8 @@ imageTiles.addSingleColorRegularHalfPolygon = function(n, firstCorner, secondCor
         let first = Vector2.sum(center, centerFirst);
         let middle = Vector2.sum(center, centerMiddle);
         let second = Vector2.sum(center, centerSecond);
-        imageTiles.polygons.addPolygon(first, middle, center).addBaseline(first, middle);
-        imageTiles.polygons.addPolygon(middle, second, center).addBaseline(second, middle);
+        imageTiles.polygons.push(new Polygon(first, middle, center).addBaseline(first, middle));
+        imageTiles.polygons.push(new Polygon(middle, second, center).addBaseline(second, middle));
         imageTiles.rotate(centerFirst);
         imageTiles.rotate(centerMiddle);
         imageTiles.rotate(centerSecond);
@@ -332,13 +332,13 @@ imageTiles.addShearedSingleColorParallelogram = function(angle, left, right) {
     const topRight = Vector2.center(top, right);
     const topLeft = Vector2.center(top, left);
     const shear = 1 / Math.tan(angle);
-    imageTiles.polygons.addPolygon(bottom, bottomRight, center).addBaseline(bottom, bottomRight).setShear(shear);
-    imageTiles.polygons.addPolygon(top, topLeft, center).addBaseline(top, topLeft).setShear(shear);
-    imageTiles.polygons.addPolygon(bottomLeft, bottom, center).addBaseline(bottom, bottomLeft).setShear(shear);
-    imageTiles.polygons.addPolygon(topRight, top, center).addBaseline(top, topRight).setShear(shear);
-    imageTiles.polygons.addPolygon(left, bottomLeft, center).addBaseline(left, bottomLeft).setShear(-shear);
-    imageTiles.polygons.addPolygon(right, topRight, center).addBaseline(right, topRight).setShear(-shear);
-    imageTiles.polygons.addPolygon(topLeft, left, center).addBaseline(left, topLeft).setShear(-shear);
-    imageTiles.polygons.addPolygon(bottomRight, right, center).addBaseline(right, bottomRight).setShear(-shear);
+    imageTiles.polygons.push(new Polygon(bottom, bottomRight, center).addBaseline(bottom, bottomRight).setShear(shear));
+    imageTiles.polygons.push(new Polygon(top, topLeft, center).addBaseline(top, topLeft).setShear(shear));
+    imageTiles.polygons.push(new Polygon(bottomLeft, bottom, center).addBaseline(bottom, bottomLeft).setShear(shear));
+    imageTiles.polygons.push(new Polygon(topRight, top, center).addBaseline(top, topRight).setShear(shear));
+    imageTiles.polygons.push(new Polygon(left, bottomLeft, center).addBaseline(left, bottomLeft).setShear(-shear));
+    imageTiles.polygons.push(new Polygon(right, topRight, center).addBaseline(right, topRight).setShear(-shear));
+    imageTiles.polygons.push(new Polygon(topLeft, left, center).addBaseline(left, topLeft).setShear(-shear));
+    imageTiles.polygons.push(new Polygon(bottomRight, right, center).addBaseline(right, bottomRight).setShear(-shear));
     Vector2.toPool(halfDiagonal);
 };

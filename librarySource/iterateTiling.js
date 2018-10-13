@@ -56,6 +56,15 @@ iterateTiling.setMaxIterations = function(maxIterations) {
 iterateTiling.initialPolygons = function() {};
 
 /**
+ * draw the polygon structure of one generation
+ * @method iterateTiling.drawStructure
+ * @param {integrer} i - number of generation
+ */
+iterateTiling.drawStructure = function(i) {
+    Draw.array(iterateTiling.structure[i]);
+};
+
+/**
  * make the tiling 
  * @method iterateTiling.generateStructure
  */

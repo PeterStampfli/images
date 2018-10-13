@@ -63,7 +63,7 @@ var ambe = {};
         halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        iterateTiling.structure[ite].addPolygon(left, bottom, right, top);
+        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const bottomLeft = Vector2.lerp(left, ambe.ratio, bottom);
@@ -90,9 +90,9 @@ var ambe = {};
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
         if (counterclockwise) {
-            iterateTiling.structure[ite].addPolygon(a, b, c);
+            iterateTiling.structure[ite].push(new Polygon(a, b, c));
         } else {
-            iterateTiling.structure[ite].addPolygon(c, b, a);
+            iterateTiling.structure[ite].push(new Polygon(c, b, a));
         }
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
