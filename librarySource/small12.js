@@ -7,20 +7,23 @@ var small12 = {};
 (function() {
     "use strict";
 
-    small12.rt3 = Math.sqrt(3);
-    small12.rt32 = small12.rt3 / 2;
-    small12.angle = Math.PI / 6;
-    small12.ratio = 1 / (1 + small12.rt3);
+    const rt3 = Math.sqrt(3);
+    const rt32 = rt3 / 2;
+    const angle = Math.PI / 6;
+    const tanPi12 = Math.tan(Math.PI / 12);
+    const ratio = 1 / (1 + rt3);
+    const centerLeftRatioRhomb = 1 / (1 + Math.sqrt(2) * 2 * Fast.cos(Math.PI / 12));
+    const rt05 = Math.sqrt(0.5);
 
     // starting the iteration with a dodecagon
     small12.start = function() {
         const side = 4;
         const zero = new Vector2(0, 0);
         const bottom = new Vector2(side, 0);
-        const top = bottom.clone().rotate(small12.angle);
-        const right = new Vector2(side * (1 + small12.rt32), side * 0.5);
+        const top = bottom.clone().rotate30();
+        const right = new Vector2(side * (1 + rt32), side * 0.5);
         const mLow = new Vector2(right.x, 0);
-        const mHigh = mLow.clone().rotate(small12.angle);
+        const mHigh = mLow.clone().rotate30();
         for (var i = 0; i < 12; i++) {
             small12.rhomb(0, zero, right.clone());
             small12.triangleA(0, true, top.clone(), right.clone(), mHigh.clone());
@@ -31,11 +34,11 @@ var small12 = {};
             //     small12.triangleA(0,false,bottom,right,mLow);
             //    small12.triangleC(0,false,bottom,right,mLow);
             //    small12.quarterSquare(0,zero,right);
-            bottom.rotate(small12.angle);
-            top.rotate(small12.angle);
-            right.rotate(small12.angle);
-            mLow.rotate(small12.angle);
-            mHigh.rotate(small12.angle);
+            bottom.rotate30();
+            top.rotate30();
+            right.rotate30();
+            mLow.rotate30();
+            mHigh.rotate30();
         }
     };
 
@@ -43,23 +46,23 @@ var small12 = {};
         // create the corner points
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(small12.angle * 0.5)).rotate90();
+        halfDiagonal.scale(tanPi12).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
-            const leftBottom = Vector2.lerp(left, small12.ratio, bottom);
-            const bottomLeft = Vector2.lerp(bottom, small12.rt32 * small12.ratio, left);
-            const rightBottom = Vector2.lerp(right, small12.ratio, bottom);
-            const bottomRight = Vector2.lerp(bottom, small12.rt32 * small12.ratio, right);
-            const leftTop = Vector2.lerp(left, small12.ratio, top);
-            const topLeft = Vector2.lerp(top, small12.rt32 * small12.ratio, left);
-            const rightTop = Vector2.lerp(right, small12.ratio, top);
-            const topRight = Vector2.lerp(top, small12.rt32 * small12.ratio, right);
-            const centerLeftRatio = 1 / (1 + Math.sqrt(2) * 2 * Fast.cos(Math.PI / 12));
-            const centerLeft = Vector2.lerp(center, centerLeftRatio, left);
-            const centerRight = Vector2.lerp(center, centerLeftRatio, right);
+            const leftBottom = Vector2.lerp(left, ratio, bottom);
+            const bottomLeft = Vector2.lerp(bottom, rt32 * ratio, left);
+            const rightBottom = Vector2.lerp(right, ratio, bottom);
+            const bottomRight = Vector2.lerp(bottom, rt32 * ratio, right);
+            const leftTop = Vector2.lerp(left, ratio, top);
+            const topLeft = Vector2.lerp(top, rt32 * ratio, left);
+            const rightTop = Vector2.lerp(right, ratio, top);
+            const topRight = Vector2.lerp(top, rt32 * ratio, right);
+            const centerLeft = Vector2.lerp(center, centerLeftRatioRhomb, left);
+            const centerRight = Vector2.lerp(center, centerLeftRatioRhomb, right);
             // iterating tiles
             small12.rhomb(ite + 1, left, centerLeft);
             small12.rhomb(ite + 1, right, centerRight);
@@ -77,7 +80,7 @@ var small12 = {};
             small12.quarterSquare(ite + 1, centerRight, center);
         } else {
             // end iteration, make an image tile
-            imageTiles.addParallelogram(small12.angle, left, right);
+            imageTiles.addParallelogram(angle, left, right);
         }
 
     };
@@ -99,12 +102,12 @@ var small12 = {};
     small12.triangleA = function(ite, counterclockwise, a, b, c) {
         iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
-            const bc = Vector2.lerp(c, small12.ratio, b);
-            const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
+            const bc = Vector2.lerp(c, ratio, b);
+            const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
             const center = Vector2.difference(bc, c).add(ca);
-            const ac = Vector2.lerp(a, 2 / (3 + small12.rt3), c);
-            const ba = Vector2.lerp(b, small12.ratio, a);
-            const ab = Vector2.lerp(a, small12.rt32 * small12.ratio, b);
+            const ac = Vector2.lerp(a, 2 / (3 + rt3), c);
+            const ba = Vector2.lerp(b, ratio, a);
+            const ab = Vector2.lerp(a, rt32 * ratio, b);
             // iterating tiles
             // same for all
             small12.quarterSquare(ite + 1, center, c);
@@ -122,12 +125,12 @@ var small12 = {};
     small12.triangleB = function(ite, counterclockwise, a, b, c) {
         iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
-            const bc = Vector2.lerp(c, small12.ratio, b);
-            const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
+            const bc = Vector2.lerp(c, ratio, b);
+            const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
             const center = Vector2.difference(bc, c).add(ca);
-            const ac = Vector2.lerp(a, 2 / (3 + small12.rt3), c);
-            const ba = Vector2.lerp(b, small12.rt32 * small12.ratio, a);
-            const ab = Vector2.lerp(a, small12.ratio, b);
+            const ac = Vector2.lerp(a, 2 / (3 + rt3), c);
+            const ba = Vector2.lerp(b, rt32 * ratio, a);
+            const ab = Vector2.lerp(a, ratio, b);
             // iterating tiles
             // same for all
             small12.quarterSquare(ite + 1, center, c);
@@ -146,12 +149,12 @@ var small12 = {};
     small12.triangleC = function(ite, counterclockwise, a, b, c) {
         iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
-            const bc = Vector2.lerp(c, small12.ratio, b);
-            const ca = Vector2.lerp(c, 1 / (3 + small12.rt3), a);
+            const bc = Vector2.lerp(c, ratio, b);
+            const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
             const center = Vector2.difference(bc, c).add(ca);
-            const ac = Vector2.lerp(a, 2 / (3 + small12.rt3), c);
-            const ba = Vector2.lerp(b, small12.rt32 * small12.ratio, a);
-            const ab = Vector2.lerp(a, small12.rt32 * small12.ratio, b);
+            const ac = Vector2.lerp(a, 2 / (3 + rt3), c);
+            const ba = Vector2.lerp(b, rt32 * ratio, a);
+            const ab = Vector2.lerp(a, rt32 * ratio, b);
             const m = Vector2.center(a, b);
             // iterating tiles
             // same for all
@@ -169,14 +172,14 @@ var small12 = {};
     };
 
     small12.quarterSquare = function(ite, corner, center) {
-        const a = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(Math.PI / 4).add(center);
-        const b = Vector2.difference(corner, center).scale(Math.sqrt(0.5)).rotate(-Math.PI / 4).add(center);
+        const a = Vector2.difference(corner, center).scale(rt05).rotate45().add(center);
+        const b = Vector2.difference(corner, center).scale(rt05).rotateM45().add(center);
         iterateTiling.structure[ite].push(new Polygon(center, b, corner, a));
         if (ite < iterateTiling.maxIterations) {
-            const aCorner = Vector2.lerp(a, small12.ratio, corner);
-            const bCorner = Vector2.lerp(b, small12.ratio, corner);
-            const aCenter = Vector2.lerp(a, small12.ratio, center);
-            const bCenter = Vector2.lerp(b, small12.ratio, center);
+            const aCorner = Vector2.lerp(a, ratio, corner);
+            const bCorner = Vector2.lerp(b, ratio, corner);
+            const aCenter = Vector2.lerp(a, ratio, center);
+            const bCenter = Vector2.lerp(b, ratio, center);
             const ab = Vector2.difference(aCenter, a).add(aCorner);
             const ba = Vector2.difference(bCenter, b).add(bCorner);
             // iterating tiles
@@ -192,7 +195,6 @@ var small12 = {};
             // imageTiles.addSymmetricPolygon(4, corner, a);
             imageTiles.polygons.push(new Polygon(corner, a, center).addBaseline(corner, a));
             imageTiles.polygons.push(new Polygon(b, corner, center).addBaseline(corner, b));
-
         }
     };
 

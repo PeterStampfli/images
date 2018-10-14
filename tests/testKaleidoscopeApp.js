@@ -230,8 +230,8 @@ function creation() {
 
 
     // iterateTiling.initialPolygons = penrose.start;
-    // iterateTiling.initialPolygons = ambe.start;
-    //   iterateTiling.initialPolygons = small12.start;
+    //iterateTiling.initialPolygons = ambe.start;
+    iterateTiling.initialPolygons = small12.start;
     //  iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
 
@@ -240,7 +240,7 @@ function creation() {
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(2);
+    iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);
@@ -322,25 +322,25 @@ function creation() {
      //    twoColorQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
          twoColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
     */
+    /*
+        imageTiles.twoColorQuadDecomposition(triangles, a, b, c, d, center, true);
 
-    imageTiles.twoColorQuadDecomposition(triangles, a, b, c, d, center, true);
+        imageTiles.calculateGamma(gamma, center, triangles);
+        gamma.log("gamma");
 
-    imageTiles.calculateGamma(gamma, center, triangles);
-    gamma.log("gamma");
+        Polygon.center = center;
+        Polygon.gamma = gamma;
 
-    Polygon.center = center;
-    Polygon.gamma = gamma;
+        imageTiles.adjustTriangleMapping(triangles);
 
-    imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addTriangles(triangles);
 
-    imageTiles.addTriangles(triangles);
+        imageTiles.bins.addObjects(imageTiles.polygons);
 
-    imageTiles.bins.addObjects(imageTiles.polygons);
+        Fast.logArrayOfObjects(triangles);
+        Fast.logArrayOfObjects(imageTiles.polygons);
 
-    Fast.logArrayOfObjects(triangles);
-    Fast.logArrayOfObjects(imageTiles.polygons);
-
-
+    */
 }
 
 // adjust fontsize related dimensions

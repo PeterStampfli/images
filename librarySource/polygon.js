@@ -146,12 +146,12 @@ function Polygon(vectors) {
      * @param {Vector2} b - endpoint
      */
     Polygon.prototype.addMappingLineOfVectors = function(a, b) {
-        this.mappingLine = new Line(Vector2.unique.fromVector(a), Vector2.unique.fromVector(b));
-        this.inversion = 0;
+        this.mappingLine = new Line(a, b);
     };
 
     /**
      * mirror a point at the mapping line of the polygon (if there is a mapping line, for repeated mirroring)
+     * final polygons have no mirror line
      * @method Polygon#mirror
      * @param {Vector2} p
      * @return true if there is a mapping line, false else
@@ -179,17 +179,19 @@ function Polygon(vectors) {
      * @return Polygon, for chaining, adding more
      */
     Polygon.prototype.addBaseline = function(a, b, aMapsToZero) {
-        var ab;
+        var abx, aby;
         if ((arguments.length === 2) || aMapsToZero) {
-            this.a = a.clone();
-            ab = Vector2.difference(b, a);
+            this.a = a;
+            this.vx = b.x - a.x;
+            this.vy = b.y - a.y;
         } else {
-            this.a = b.clone();
-            ab = Vector2.difference(a, b);
+            this.a = b;
+            this.vx = a.x - b.x;
+            this.vy = a.y - b.y;
         }
-        ab.scale(1 / ab.length2());
-        this.vx = ab.x;
-        this.vy = ab.y;
+        let scale = 1 / (this.vx * this.vx + this.vy * this.vy);
+        this.vx *= scale;
+        this.vy *= scale;
         this.shear = 0;
         this.yScale = 1;
         return this;
@@ -233,7 +235,7 @@ function Polygon(vectors) {
      * @param {Vector2} center
      */
     Polygon.setCenter = function(center) {
-        Polygon.center = center.clone();
+        Polygon.center = center;
     };
 
     /**
@@ -254,9 +256,11 @@ function Polygon(vectors) {
      * requires and automatically sets Polygon.shiftRotateMirrorScaleShear();
      * @method Polygon#adjustScaleShearTriangleMapping
      */
+    const centerClone = new Vector2();
+
     Polygon.prototype.adjustScaleShearTriangleMapping = function() {
         Polygon.mapWithShiftRotateMirrorScaleShear();
-        const centerClone = Polygon.center.clone();
+        centerClone.set(Polygon.center);
         this.applyBaseline(centerClone);
         this.yScale = Polygon.gammaY / centerClone.y;
         this.shear = (Polygon.gammaX - centerClone.x) / Polygon.gammaY;

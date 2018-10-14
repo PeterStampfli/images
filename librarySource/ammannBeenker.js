@@ -32,6 +32,7 @@ var ambe = {};
 
     ambe.rt2 = Math.sqrt(2);
     ambe.angle = Math.PI / 4;
+    ambe.tanPi8 = Math.tan(Math.PI / 8);
     ambe.ratio = 1 / (1 + Math.sqrt(2));
 
 
@@ -48,11 +49,11 @@ var ambe = {};
             ambe.rhomb(0, false, rhomb2Right.clone(), rhomb2Left.clone());
             ambe.triangle(0, false, true, rhomb2Right.clone(), rhomb1Right.clone(), rhomb1Bottom.clone());
             ambe.triangle(0, false, false, rhomb2Left.clone(), rhomb1Right.clone(), rhomb1Top.clone());
-            rhomb1Right.rotate(ambe.angle);
-            rhomb2Right.rotate(ambe.angle);
-            rhomb2Left.rotate(ambe.angle);
-            rhomb1Bottom.rotate(ambe.angle);
-            rhomb1Top.rotate(ambe.angle);
+            rhomb1Right.rotate45();
+            rhomb2Right.rotate45();
+            rhomb2Left.rotate45();
+            rhomb1Bottom.rotate45();
+            rhomb1Top.rotate45();
         }
     };
 
@@ -60,9 +61,10 @@ var ambe = {};
         // create the corner points and add polygon to structure data
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
+        halfDiagonal.scale(ambe.tanPi8).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
@@ -70,7 +72,7 @@ var ambe = {};
             const topLeft = Vector2.lerp(left, ambe.ratio, top);
             const bottomRight = Vector2.lerp(right, ambe.ratio, bottom);
             const topRight = Vector2.lerp(right, ambe.ratio, top);
-            const centerRatio = Math.tan(Math.PI / 8) / (2 + Math.tan(Math.PI / 8));
+            const centerRatio = ambe.tanPi8 / (2 + ambe.tanPi8);
             const centerLeft = Vector2.lerp(center, centerRatio, left);
             const centerRight = Vector2.lerp(center, centerRatio, right);
             // tiles of the new generation
@@ -85,7 +87,6 @@ var ambe = {};
             // end iteration, make an image tile
             imageTiles.addParallelogram(Math.PI / 4, left, right, firstCornerMapsToZero);
         }
-        Vector2.toPool(halfDiagonal);
     };
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
@@ -155,6 +156,5 @@ var ambe = {};
         Polygon.mapWithShiftRotateMirrorShear();
 
     };
-
 
 }());
