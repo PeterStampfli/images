@@ -7,10 +7,11 @@ var stampfli = {};
 (function() {
     "use strict";
 
-    stampfli.rt3 = Math.sqrt(3);
-    stampfli.rt32 = stampfli.rt3 / 2;
-    stampfli.angle = Math.PI / 6;
-    stampfli.ratio = 1 / (2 + stampfli.rt3);
+    const rt3 = Math.sqrt(3);
+    const rt32 = rt3 / 2;
+    const angle = Math.PI / 6;
+    const ratio = 1 / (2 + rt3);
+    const tanPI12 = Math.tan(Math.PI / 12);
 
 
 
@@ -19,23 +20,19 @@ var stampfli = {};
         const side = 4;
         const zero = new Vector2(0, 0);
         const bottom = new Vector2(side, 0);
-        const top = bottom.clone().rotate(stampfli.angle);
-        const right = new Vector2(side * (1 + stampfli.rt32), side * 0.5);
-        const rightMirrored = new Vector2(side * (1 + stampfli.rt32), -side * 0.5);
-
-        const extra = new Vector2(side * (2 + stampfli.rt32), -side * 0.5);
-        for (var i = 0; i < 1; i++) {
-            // stampfli.rhomb(0, zero, right.clone());
-            //      stampfli.triangle(0, bottom.clone(), rightMirrored.clone(), right.clone());
-            stampfli.square(0, zero, new Vector2(8, 8));
-
-            bottom.rotate(stampfli.angle);
-            top.rotate(stampfli.angle);
-            right.rotate(stampfli.angle);
-            rightMirrored.rotate(stampfli.angle);
-            extra.rotate(stampfli.angle);
+        const top = bottom.clone().rotate30();
+        const right = new Vector2(side * (1 + rt32), side * 0.5);
+        const rightMirrored = new Vector2(side * (1 + rt32), -side * 0.5);
+        const extra = new Vector2(side * (2 + rt32), -side * 0.5);
+        for (var i = 0; i < 12; i++) {
+            stampfli.rhomb(0, zero, right.clone());
+            stampfli.triangle(0, bottom.clone(), rightMirrored.clone(), right.clone());
+            bottom.rotate30();
+            top.rotate30();
+            right.rotate30();
+            rightMirrored.rotate30();
+            extra.rotate30();
         }
-        //  stampfli.border(0,new Vector2(-3,0),new Vector2(3,0));
     };
 
 
@@ -43,16 +40,17 @@ var stampfli = {};
         // create the corner points
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(small12.angle * 0.5)).rotate90();
+        halfDiagonal.scale(tanPI12).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
-            const er = Vector2.difference(bottom, left).scale(stampfli.ratio);
-            const er2 = er.clone().rotate(-stampfli.angle);
-            const el = Vector2.difference(top, left).scale(stampfli.ratio);
-            const el2 = el.clone().rotate(stampfli.angle);
+            const er = Vector2.difference(bottom, left).scale(ratio);
+            const er2 = er.clone().rotateM30();
+            const el = Vector2.difference(top, left).scale(ratio);
+            const el2 = el.clone().rotate30();
             const leftBottom = Vector2.sum(left, er);
             const leftCenter = Vector2.sum(leftBottom, el);
             stampfli.rhomb(ite + 1, left, leftCenter);
@@ -77,7 +75,7 @@ var stampfli = {};
             stampfli.triangle(ite + 1, rightCenter, Vector2.difference(right, er), Vector2.sum(topRight, el));
         } else {
             // end iteration, make an image tile
-            imageTiles.addParallelogram(stampfli.angle, left, right);
+            imageTiles.addParallelogram(angle, left, right);
         }
     };
 
@@ -85,12 +83,12 @@ var stampfli = {};
         iterateTiling.structure[ite].push(new Polygon(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
-            const ab = Vector2.lerp(a, stampfli.ratio, b);
+            const ab = Vector2.lerp(a, ratio, b);
             const er = Vector2.difference(ab, a);
-            const er2 = er.clone().rotate(-stampfli.angle);
-            const e = er.clone().rotate(stampfli.angle);
-            const el = e.clone().rotate(stampfli.angle);
-            const el2 = el.clone().rotate(stampfli.angle);
+            const er2 = er.clone().rotateM30();
+            const e = er.clone().rotate30();
+            const el = e.clone().rotate30();
+            const el2 = el.clone().rotate30();
             const ac = Vector2.sum(el, a);
             const am = Vector2.sum(e, a);
             const mc = Vector2.sum(er, am);
@@ -123,24 +121,18 @@ var stampfli = {};
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
         halfDiagonal.rotate90();
-
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
-
-            const leftBottom = Vector2.lerp(left, stampfli.ratio, bottom);
-
-
+            const leftBottom = Vector2.lerp(left, ratio, bottom);
             const er2 = Vector2.difference(leftBottom, left);
-            const er = er2.clone().rotate(stampfli.angle);
-            const el = er.clone().rotate(stampfli.angle);
-            const el2 = el.clone().rotate(stampfli.angle);
-
+            const er = er2.clone().rotate30();
+            const el = er.clone().rotate30();
+            const el2 = el.clone().rotate30();
             const leftTop = Vector2.sum(left, el2);
-
             const bottomLeft = Vector2.difference(bottom, er2);
             const topLeft = Vector2.difference(top, el2);
             const topRight = Vector2.sum(top, er2);
@@ -155,7 +147,6 @@ var stampfli = {};
             const centerTop = Vector2.sum(centerLeft, el2);
             const rightTopCenter = Vector2.sum(centerTop, el);
             const leftTopCenter = Vector2.sum(leftTop, el);
-
             stampfli.rhomb(ite + 1, left, leftBottomCenter);
             stampfli.rhomb(ite + 1, left, centerLeft);
             stampfli.rhomb(ite + 1, left, leftTopCenter);
@@ -168,7 +159,6 @@ var stampfli = {};
             stampfli.triangle(ite + 1, bottomRight, Vector2.sum(rightBottomCenter, er2), rightBottomCenter);
             stampfli.triangle(ite + 1, centerBottom, leftBottomCenter, Vector2.sum(leftBottomCenter, er2));
             stampfli.triangle(ite + 1, centerBottom, Vector2.difference(rightBottomCenter, el2), rightBottomCenter);
-
             stampfli.rhomb(ite + 1, right, rightBottomCenter);
             stampfli.rhomb(ite + 1, right, centerRight);
             stampfli.rhomb(ite + 1, right, rightTopCenter);
@@ -181,20 +171,15 @@ var stampfli = {};
             stampfli.triangle(ite + 1, topLeft, Vector2.difference(topLeft, el), leftTopCenter);
             stampfli.triangle(ite + 1, centerTop, Vector2.sum(leftTopCenter, el2), leftTopCenter);
             stampfli.triangle(ite + 1, centerTop, rightTopCenter, Vector2.difference(rightTopCenter, er2));
-
             stampfli.square(ite + 1, centerLeft, centerRight);
             stampfli.triangle(ite + 1, centerBottom, centerLeft, leftBottomCenter);
             stampfli.triangle(ite + 1, centerRight, centerBottom, rightBottomCenter);
             stampfli.triangle(ite + 1, centerRight, rightTopCenter, centerTop);
-
             stampfli.triangle(ite + 1, centerTop, leftTopCenter, centerLeft);
-
-
         } else {
             // end iteration, make an image tile
             imageTiles.addRegularPolygon(4, left, bottom);
         }
-
     };
 
 
