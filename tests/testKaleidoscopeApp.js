@@ -212,13 +212,15 @@ function creation() {
     };
 
     Make.updateOutputImage = function() {
-        Make.updateMapOutput();
-        Draw.setLineWidth(2);
-        Draw.setColor("red");
-        iterateTiling.drawStructure(0);
+        //   Make.updateMapOutput();
+        Make.outputImage.adjustCanvasTransform();
+        Make.outputImage.pixelCanvas.fillScreen("white");
+
+        Draw.setLineWidth(4);
         Draw.setColor("blue");
-        // iterateTiling.structure[1].draw();
-        // imageTiles.polygons.draw();
+        iterateTiling.drawStructure(2);
+        Draw.setColor("red");
+        iterateTiling.drawStructure(1);
 
     };
 
@@ -233,14 +235,14 @@ function creation() {
     iterateTiling.initialPolygons = ambe.start;
     //iterateTiling.initialPolygons = small12.start;
     iterateTiling.initialPolygons = stampfli.start;
-    //  iterateTiling.initialPolygons = octagon.start;
+    iterateTiling.initialPolygons = octagon.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(1);
+    iterateTiling.setMaxIterations(3);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

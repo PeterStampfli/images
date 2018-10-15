@@ -93,8 +93,11 @@ function PixelCanvas(idName) {
      * @param {String} style - fill style
      */
     PixelCanvas.prototype.fillScreen = function(style) {
+        this.canvasContext.save();
+        this.canvasContext.setTransform(1, 0, 0, 1, 0, 0);
         this.canvasContext.fillStyle = style;
         this.canvasContext.fillRect(0, 0, this.width, this.height);
+        this.canvasContext.restore();
     };
 
     /**

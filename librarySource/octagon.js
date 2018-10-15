@@ -10,7 +10,8 @@ var octagon = {};
 
     octagon.ratio = 1 / (2 + Math.sqrt(2));
 
-
+    ambe.ratio = 1 / (1 + Math.sqrt(2));
+    ambe.rt2 = Math.sqrt(2);
 
     octagon.start = function() {
         const side = 3.5;
@@ -26,6 +27,7 @@ var octagon = {};
             rhomb1Bottom.rotate45();
         }
         octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
+        //  octagon.rhomb(0, new Vector2(-8, 0), new Vector2(9, 0));
     };
 
 
@@ -33,7 +35,7 @@ var octagon = {};
         // create the corner points
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(ambe.angle * 0.5)).rotate90();
+        halfDiagonal.scale(Math.tan(Math.PI / 8)).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
@@ -63,7 +65,7 @@ var octagon = {};
 
     // 45,90,45 triangle counterclockwise
     octagon.triangle = function(ite, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        iterateTiling.structure[ite].push(new Polygon(a, b, c, Vector2.sum(a, c).sub(b)));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const ab = Vector2.lerp(a, octagon.ratio, b);
