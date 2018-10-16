@@ -212,11 +212,11 @@ function creation() {
     };
 
     Make.updateOutputImage = function() {
-        //   Make.updateMapOutput();
-        Make.outputImage.adjustCanvasTransform();
-        Make.outputImage.pixelCanvas.fillScreen("white");
+        Make.updateMapOutput();
+        // Make.outputImage.adjustCanvasTransform();
+        //Make.outputImage.pixelCanvas.fillScreen("white");
 
-        Draw.setLineWidth(4);
+        Draw.setLineWidth(1);
         Draw.setColor("blue");
         iterateTiling.drawStructure(2);
         Draw.setColor("red");
@@ -242,7 +242,7 @@ function creation() {
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(3);
+    iterateTiling.setMaxIterations(2);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

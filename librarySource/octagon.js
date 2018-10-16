@@ -8,16 +8,18 @@ var octagon = {};
 (function() {
     "use strict";
 
-    octagon.ratio = 1 / (2 + Math.sqrt(2));
+    const octagonRatio = 1 / (2 + Math.sqrt(2));
 
-    ambe.ratio = 1 / (1 + Math.sqrt(2));
-    ambe.rt2 = Math.sqrt(2);
+    const ambeRatio = 1 / (1 + Math.sqrt(2));
+    const rt2 = Math.sqrt(2);
+    const tanPI8 = Math.tan(Math.PI / 8);
+    const angle = Math.PI / 4;
 
     octagon.start = function() {
         const side = 3.5;
         const zero = new Vector2(0, 0);
-        const rhomb1Right = new Vector2(side * (1 + 1 / ambe.rt2), side / ambe.rt2);
-        const rhomb1RightMirrored = new Vector2(side * (1 + 1 / ambe.rt2), -side / ambe.rt2);
+        const rhomb1Right = new Vector2(side * (1 + 1 / rt2), side / rt2);
+        const rhomb1RightMirrored = new Vector2(side * (1 + 1 / rt2), -side / rt2);
         const rhomb1Bottom = new Vector2(side, 0);
         for (var i = 0; i < 8; i++) {
             //   octagon.rhomb(0, zero, rhomb1Right.clone());
@@ -27,7 +29,6 @@ var octagon = {};
             rhomb1Bottom.rotate45();
         }
         octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
-        //  octagon.rhomb(0, new Vector2(-8, 0), new Vector2(9, 0));
     };
 
 
@@ -35,31 +36,32 @@ var octagon = {};
         // create the corner points
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(Math.PI / 8)).rotate90();
+        halfDiagonal.scale(tanPI8).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
-            const leftBottom = Vector2.lerp(left, octagon.ratio, bottom);
-            const leftTop = Vector2.lerp(left, octagon.ratio, top);
+            const leftBottom = Vector2.lerp(left, octagonRatio, bottom);
+            const leftTop = Vector2.lerp(left, octagonRatio, top);
             const leftCenter = Vector2.sum(leftBottom, leftTop).sub(left);
             octagon.rhomb(ite + 1, left, leftCenter);
-            const bottomLeft = Vector2.lerp(bottom, octagon.ratio, left);
-            const topLeft = Vector2.lerp(top, octagon.ratio, left);
+            const bottomLeft = Vector2.lerp(bottom, octagonRatio, left);
+            const topLeft = Vector2.lerp(top, octagonRatio, left);
             octagon.triangle(ite + 1, bottomLeft, leftCenter, leftBottom);
             octagon.triangle(ite + 1, leftTop, leftCenter, topLeft);
-            const rightBottom = Vector2.lerp(right, octagon.ratio, bottom);
-            const rightTop = Vector2.lerp(right, octagon.ratio, top);
+            const rightBottom = Vector2.lerp(right, octagonRatio, bottom);
+            const rightTop = Vector2.lerp(right, octagonRatio, top);
             const rightCenter = Vector2.sum(rightBottom, rightTop).sub(right);
             octagon.rhomb(ite + 1, right, rightCenter);
-            const bottomRight = Vector2.lerp(bottom, octagon.ratio, right);
-            const topRight = Vector2.lerp(top, octagon.ratio, right);
+            const bottomRight = Vector2.lerp(bottom, octagonRatio, right);
+            const topRight = Vector2.lerp(top, octagonRatio, right);
             octagon.triangle(ite + 1, rightBottom, rightCenter, bottomRight);
             octagon.triangle(ite + 1, topRight, rightCenter, rightTop);
             octagon.octagon(ite + 1, leftCenter, rightCenter);
         } else {
             // end iteration, make an image tile
-            imageTiles.addParallelogram(Math.PI / 4, left, right);
+            imageTiles.addParallelogram(angle, left, right);
         }
     };
 
@@ -68,14 +70,14 @@ var octagon = {};
         iterateTiling.structure[ite].push(new Polygon(a, b, c, Vector2.sum(a, c).sub(b)));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
-            const ab = Vector2.lerp(a, octagon.ratio, b);
-            const ba = Vector2.lerp(b, octagon.ratio, a);
-            const bc = Vector2.lerp(b, octagon.ratio, c);
-            const cb = Vector2.lerp(c, octagon.ratio, b);
+            const ab = Vector2.lerp(a, octagonRatio, b);
+            const ba = Vector2.lerp(b, octagonRatio, a);
+            const bc = Vector2.lerp(b, octagonRatio, c);
+            const cb = Vector2.lerp(c, octagonRatio, b);
             const center = Vector2.center(a, c);
-            const aCenter = Vector2.lerp(center, ambe.ratio, a);
-            const bCenter = Vector2.lerp(center, ambe.ratio, b);
-            const cCenter = Vector2.lerp(center, ambe.ratio, c);
+            const aCenter = Vector2.lerp(center, ambeRatio, a);
+            const bCenter = Vector2.lerp(center, ambeRatio, b);
+            const cCenter = Vector2.lerp(center, ambeRatio, c);
             let bcCenter = Vector2.difference(center, cCenter).add(cb);
             let abCenter = Vector2.difference(center, aCenter).add(ab);
             octagon.rhomb(ite + 1, center, ab);
@@ -103,10 +105,11 @@ var octagon = {};
             corners[i] = Vector2.sum(center, halfDiagonal);
             halfDiagonal.rotate45();
         }
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new Polygon(corners));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
-            const er = Vector2.difference(corners[1], corners[0]).scale(octagon.ratio);
+            const er = Vector2.difference(corners[1], corners[0]).scale(octagonRatio);
             const er2 = er.clone().rotateM45();
             const el = er.clone().rotate45();
             const el2 = el.clone().rotate45();
@@ -131,6 +134,8 @@ var octagon = {};
                 p6.rotate45();
                 p7.rotate45();
             }
+            Vector2.toPool(er, er2, el, el2);
+            Vector2.toPool(p1, p2, p3, p4, p5, p6, p7);
         } else {
             imageTiles.addRegularPolygon(8, corners[0], corners[1]);
         }
