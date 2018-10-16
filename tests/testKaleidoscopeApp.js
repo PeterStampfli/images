@@ -218,31 +218,35 @@ function creation() {
 
         Draw.setLineWidth(1);
         Draw.setColor("blue");
-        iterateTiling.drawStructure(2);
-        Draw.setColor("red");
         iterateTiling.drawStructure(1);
+        Draw.setColor("red");
+        iterateTiling.drawStructure(2);
 
     };
 
 
 
     ambe.twoColorImage();
-    //ambe.straightSingleColorImage();
-    ambe.shearedSingleColorImage();
+    ambe.straightSingleColorImage();
+    //  ambe.shearedSingleColorImage();
 
+    // select decoration for each one
+    penroseRhombs.slimWithStraightDeco = true;
+    penroseRhombs.fatWithStraightDeco = false;
 
     // iterateTiling.initialPolygons = penrose.start;
     iterateTiling.initialPolygons = ambe.start;
     //iterateTiling.initialPolygons = small12.start;
     iterateTiling.initialPolygons = stampfli.start;
     iterateTiling.initialPolygons = octagon.start;
+    iterateTiling.initialPolygons = penroseRhombs.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(2);
+    iterateTiling.setMaxIterations(6);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

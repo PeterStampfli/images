@@ -1,5 +1,4 @@
-// eight folr rotational symmetry with octagons
-// use things defined for ammann-beenker
+// eight fold rotational symmetry with octagons
 /* jshint esversion:6 */
 
 var octagon = {};

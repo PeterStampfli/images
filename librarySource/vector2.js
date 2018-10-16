@@ -154,6 +154,32 @@ function Vector2(x = 0, y = 0) {
     };
 
     /**
+     * rotate 72 degrees (counterclockwise)
+     * @method Vector2#rotate30
+     * @return the vector
+     */
+    const cos72 = Fast.cos(Math.PI / 2.5);
+    const sin72 = Fast.sin(Math.PI / 2.5);
+    Vector2.prototype.rotate72 = function() {
+        let h = this.x * cos72 - this.y * sin72;
+        this.y = this.x * sin72 + this.y * cos72;
+        this.x = h;
+        return this;
+    };
+
+    /**
+     * rotate minus 72 degrees (clockwise)
+     * @method Vector2#rotateM72
+     * @return the vector
+     */
+    Vector2.prototype.rotateM72 = function() {
+        let h = this.x * cos72 + this.y * sin72;
+        this.y = -this.x * sin72 + this.y * cos72;
+        this.x = h;
+        return this;
+    };
+
+    /**
      * mirror at the x-axis (inverting y)
      * @method Vector2#mirrorAtXAxis
      */
