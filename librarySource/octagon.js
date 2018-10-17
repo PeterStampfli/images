@@ -15,19 +15,24 @@ var octagon = {};
     const angle = Math.PI / 4;
 
     octagon.start = function() {
-        const side = 3.5;
+        const side = iterateTiling.initialSpaceLimit/(1+1/rt2);
         const zero = new Vector2(0, 0);
         const rhomb1Right = new Vector2(side * (1 + 1 / rt2), side / rt2);
         const rhomb1RightMirrored = new Vector2(side * (1 + 1 / rt2), -side / rt2);
         const rhomb1Bottom = new Vector2(side, 0);
+        const rhomb1Top=new Vector2(side*(1+rt2),0);
         for (var i = 0; i < 8; i++) {
-            //   octagon.rhomb(0, zero, rhomb1Right.clone());
-            //  octagon.triangle(0, rhomb1Right.clone(), rhomb1Bottom.clone(), rhomb1RightMirrored.clone());
+               octagon.rhomb(0, zero, rhomb1Right.clone());
+              octagon.triangle(0, rhomb1Right.clone(), rhomb1Bottom.clone(), rhomb1RightMirrored.clone());
+              if (i&1){
+                  octagon.triangle(0, rhomb1RightMirrored.clone(), rhomb1Top.clone(), rhomb1Right.clone());
+              }
             rhomb1Right.rotate45();
             rhomb1RightMirrored.rotate45();
             rhomb1Bottom.rotate45();
+            rhomb1Top.rotate45();
         }
-        octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
+      //  octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
     };
 
 
@@ -38,8 +43,8 @@ var octagon = {};
         halfDiagonal.scale(tanPI8).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
+        Vector2.toPool(halfDiagonal);    
+        iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             const leftBottom = Vector2.lerp(left, octagonRatio, bottom);
             const leftTop = Vector2.lerp(left, octagonRatio, top);
@@ -66,7 +71,7 @@ var octagon = {};
 
     // 45,90,45 triangle counterclockwise
     octagon.triangle = function(ite, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c, Vector2.sum(a, c).sub(b)));
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const ab = Vector2.lerp(a, octagonRatio, b);
@@ -105,7 +110,7 @@ var octagon = {};
             halfDiagonal.rotate45();
         }
         Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(corners));
+        iterateTiling.structure[ite].push(new PolyPoint(corners));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const er = Vector2.difference(corners[1], corners[0]).scale(octagonRatio);

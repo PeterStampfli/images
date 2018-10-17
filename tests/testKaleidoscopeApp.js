@@ -216,11 +216,11 @@ function creation() {
         // Make.outputImage.adjustCanvasTransform();
         //Make.outputImage.pixelCanvas.fillScreen("white");
 
-        Draw.setLineWidth(1);
+        Draw.setLineWidth(2);
         Draw.setColor("blue");
         // iterateTiling.drawStructure(1);
         Draw.setColor("red");
-        iterateTiling.drawStructure(3);
+        iterateTiling.drawStructure(1);
 
     };
 
@@ -239,14 +239,13 @@ function creation() {
     //iterateTiling.initialPolygons = small12.start;
     iterateTiling.initialPolygons = stampfli.start;
     iterateTiling.initialPolygons = octagon.start;
-    iterateTiling.initialPolygons = penroseRhombs.start;
+    //iterateTiling.initialPolygons = penroseRhombs.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
-
-    iterateTiling.setMaxIterations(3);
+    iterateTiling.setMaxIterations(2);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

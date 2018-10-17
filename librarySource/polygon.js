@@ -13,7 +13,7 @@ function Polygon(vectors) {
     if (arguments.length === 1) {
         corners = vectors;
     } else {
-        corners = arguments;
+        corners = Array.from(arguments);
     }
     this.lines = [];
     this.xMin = corners[0].x;
@@ -28,7 +28,7 @@ function Polygon(vectors) {
         this.yMin = Math.min(this.yMin, corners[i].y);
         this.yMax = Math.max(this.yMax, corners[i].y);
     }
-    this.lines.push(new Line(Fast.last(corners), corners[0]));
+    this.lines.push(new Line(corners[cornersLenght-1], corners[0]));
 }
 
 (function() {

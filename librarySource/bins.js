@@ -27,8 +27,8 @@ function Bins() {
         this.yMin = yMin;
         this.yMax = yMax;
         this.side = side;
-        this.width = Math.floor((xMax - xMin) / side) + 1;
-        this.height = Math.floor((yMax - yMin) / side) + 1;
+        this.width = Math.floor((xMax - xMin) / side) ;
+        this.height = Math.floor((yMax - yMin) / side) ;
     };
 
     /**
@@ -80,12 +80,12 @@ function Bins() {
      * @param {float} yHigh - high y-coordinate
      */
     Bins.prototype.addAtCoordinateRange = function(object, xLow, xHigh, yLow, yHigh) {
-        let iLow = Fast.clamp(0, Math.floor((xLow - this.xMin) / this.side), this.width - 1);
-        let iHigh = Fast.clamp(0, 1 + Math.floor((xHigh - this.xMin) / this.side), this.width - 1);
-        let jLow = Fast.clamp(0, Math.floor((yLow - this.yMin) / this.side), this.height - 1);
-        let jHigh = Fast.clamp(0, 1 + Math.floor((yHigh - this.yMin) / this.side), this.height - 1);
+        let iLow = Fast.clamp(0, Math.floor((xLow - this.xMin) / this.side), this.width);
+        let iHigh = Fast.clamp(0, 2 + Math.floor((xHigh - this.xMin) / this.side), this.width);
+        let jLow = Fast.clamp(0, Math.floor((yLow - this.yMin) / this.side), this.height);
+        let jHigh = Fast.clamp(0, 2 + Math.floor((yHigh - this.yMin) / this.side), this.height);
         var jWidth;
-        for (var j = jLow; j <= jHigh; j++) {
+        for (var j = jLow; j < jHigh; j++) {
             jWidth = j * this.width;
             for (var i = iLow; i < iHigh; i++) {
                 this.bins[i + jWidth].push(object);
