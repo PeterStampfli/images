@@ -7,6 +7,9 @@
 
 iterateTiling = {};
 
+// use initially for output image
+iterateTiling.initialSpaceLimit = 10;
+
 // has polygons for each generation
 iterateTiling.structure = []; // of unique polygons
 
@@ -54,6 +57,35 @@ iterateTiling.setMaxIterations = function(maxIterations) {
  * @method iterateTiling.initialPolygons
  */
 iterateTiling.initialPolygons = function() {};
+
+/**
+ * test if a polygon (its corners) is out side the initial visible space
+ * 
+ * 
+ */
+iterateTiling.isOutside = function(corners) {
+    var theCorners;
+    if (arguments.length === 1) {
+        theCorners = corners;
+    } else {
+        theCorners = arguments;
+    }
+    const nCorners = theCorners.length;
+    let tooHigh = true;
+    let tooLow = true;
+    let tooRight = true;
+    let tooLeft = true;
+    var corner;
+    const limit = iterateTiling.initialSpaceLimit + 1;
+    for (var i = 0; i < nCorners; i++) {
+        corner = theCorners[i];
+        tooHigh = tooHigh && (corner.y > limit);
+        tooLow = tooLow && (corner.y < -limit);
+        tooLeft = tooLeft && (corner.x < -limit);
+        tooRight = tooRight && (corner.x > limit);
+    }
+    return tooHigh || tooLow || tooLeft || tooRight;
+};
 
 /**
  * draw the polygon structure of one generation

@@ -67,6 +67,7 @@ var Draw = {};
 
     /**
      * draw a line between two points a and b, without endcircles
+     * but taking into account the spaace required for endcircles
      * @method Draw.lineWithoutEnds
      * @param {Vector2} a
      * @param {Vector2} b

@@ -218,9 +218,9 @@ function creation() {
 
         Draw.setLineWidth(1);
         Draw.setColor("blue");
-        iterateTiling.drawStructure(1);
+        // iterateTiling.drawStructure(1);
         Draw.setColor("red");
-        iterateTiling.drawStructure(2);
+        iterateTiling.drawStructure(3);
 
     };
 
@@ -246,7 +246,7 @@ function creation() {
     //   Polygon.mapWithShiftRotateMirrorShear();
 
 
-    iterateTiling.setMaxIterations(6);
+    iterateTiling.setMaxIterations(3);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

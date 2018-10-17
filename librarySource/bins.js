@@ -191,22 +191,7 @@ function Bins() {
     };
 
     /**
-     * shift and rotate /mirror point if inside a polygon
-     * @method Bins#shiftRotateMirror
-     * @param {Vector2}
-     * @return -1 for bad point, 0 or 2 if not mirrored, 1 if mirrored
-     */
-    Bins.prototype.shiftRotateMirror = function(p) {
-        let polygon = this.getFirstContains(p);
-        if (polygon) {
-            return polygon.shiftRotateMirror(p);
-        } else {
-            return -1;
-        }
-    };
-
-    /**
-     * map a point if inside a polygon
+     * map a point if inside a polygon, using the polygon.map() method
      * @method Bins#map
      * @param {Vector2}
      * @return -1 for bad point outside polygon, 0 or 2 if not mirrored, 1 if mirrored

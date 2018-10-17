@@ -13,7 +13,7 @@ function Polygon(vectors) {
     if (arguments.length === 1) {
         corners = vectors;
     } else {
-        corners = Array.from(arguments);
+        corners = arguments;
     }
     this.lines = [];
     this.xMin = corners[0].x;

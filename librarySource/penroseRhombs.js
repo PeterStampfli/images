@@ -31,7 +31,10 @@ var penroseRhombs = {};
     };
 
     penroseRhombs.slim = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        if (iterateTiling.isOutside(a, b, c)) {
+            return;
+        }
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const ab = Vector2.lerp(b, ratio, a);
             penroseRhombs.fat(ite + 1, counterclockwise, c, ab, b);
@@ -48,7 +51,10 @@ var penroseRhombs = {};
     };
 
     penroseRhombs.fat = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        if (iterateTiling.isOutside(a, b, c)) {
+            return;
+        }
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const ba = Vector2.lerp(a, ratio, b);
             const ca = Vector2.lerp(c, centerRatio, a);

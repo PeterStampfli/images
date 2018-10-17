@@ -245,17 +245,18 @@ var imageTiles = {};
      * @param {Vector2} right
      */
     imageTiles.addStraightSingleColorParallelogram = function(angle, left, right) {
+        const tanAngle2 = Math.tan(angle * 0.5);
         const center = Vector2.center(left, right);
         const halfDiagonal = Vector2.difference(center, left);
-        halfDiagonal.scale(Math.tan(angle * 0.5)).rotate90();
+        halfDiagonal.scale(tanAngle2).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         const bottomRight = Vector2.center(bottom, right);
         const bottomLeft = Vector2.center(bottom, left);
         const topRight = Vector2.center(top, right);
         const topLeft = Vector2.center(top, left);
-        const centerLeft = Vector2.difference(bottomLeft, left).scale(Math.tan(0.5 * angle)).rotate90().add(bottomLeft);
-        const centerRight = Vector2.difference(topRight, right).scale(Math.tan(0.5 * angle)).rotate90().add(topRight);
+        const centerLeft = Vector2.difference(bottomLeft, left).scale(tanAngle2).rotate90().add(bottomLeft);
+        const centerRight = Vector2.difference(topRight, right).scale(tanAngle2).rotate90().add(topRight);
         imageTiles.polygons.push(new Polygon(left, bottomLeft, centerLeft).addBaseline(left, bottomLeft));
         imageTiles.polygons.push(new Polygon(bottom, bottomRight, centerRight, center).addBaseline(bottom, bottomRight));
         imageTiles.polygons.push(new Polygon(right, topRight, centerRight).addBaseline(right, topRight));
