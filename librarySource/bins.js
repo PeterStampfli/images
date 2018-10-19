@@ -27,8 +27,8 @@ function Bins() {
         this.yMin = yMin;
         this.yMax = yMax;
         this.side = side;
-        this.width = Math.floor((xMax - xMin) / side) ;
-        this.height = Math.floor((yMax - yMin) / side) ;
+        this.width = Math.floor((xMax - xMin) / side);
+        this.height = Math.floor((yMax - yMin) / side);
     };
 
     /**

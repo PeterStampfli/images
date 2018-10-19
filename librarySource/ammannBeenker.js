@@ -39,7 +39,7 @@ var ambe = {};
 
 
     ambe.start = function() {
-        const side = 3.5;
+        const side = iterateTiling.initialSpaceLimit / (1 + 1 / rt2);
         const zero = new Vector2(0, 0);
         const rhomb1Right = new Vector2(side * (1 + 1 / rt2), side / rt2);
         const rhomb2Right = new Vector2(side * (1 + rt2), 0);
@@ -48,7 +48,7 @@ var ambe = {};
         const rhomb1Top = new Vector2(side / rt2, side / rt2);
         for (var i = 0; i < 8; i++) {
             ambe.rhomb(0, true, zero, rhomb1Right.clone());
-            ambe.rhomb(0, false, rhomb2Right.clone(), rhomb2Left.clone());
+            // ambe.rhomb(0, false, rhomb2Right.clone(), rhomb2Left.clone());
             ambe.triangle(0, false, true, rhomb2Right.clone(), rhomb1Right.clone(), rhomb1Bottom.clone());
             ambe.triangle(0, false, false, rhomb2Left.clone(), rhomb1Right.clone(), rhomb1Top.clone());
             rhomb1Right.rotate45();
@@ -67,7 +67,7 @@ var ambe = {};
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
+        iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const bottomLeft = Vector2.lerp(left, ratio, bottom);
@@ -92,11 +92,7 @@ var ambe = {};
     };
 
     ambe.triangle = function(ite, firstCornerMapsToZero, counterclockwise, a, b, c) {
-        if (counterclockwise) {
-            iterateTiling.structure[ite].push(new Polygon(a, b, c));
-        } else {
-            iterateTiling.structure[ite].push(new Polygon(c, b, a));
-        }
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             //create points for the new generation
             const ab = Vector2.lerp(a, ratio, b);

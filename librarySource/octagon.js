@@ -15,24 +15,24 @@ var octagon = {};
     const angle = Math.PI / 4;
 
     octagon.start = function() {
-        const side = iterateTiling.initialSpaceLimit/(1+1/rt2);
+        const side = iterateTiling.initialSpaceLimit / (1 + 1 / rt2);
         const zero = new Vector2(0, 0);
         const rhomb1Right = new Vector2(side * (1 + 1 / rt2), side / rt2);
         const rhomb1RightMirrored = new Vector2(side * (1 + 1 / rt2), -side / rt2);
         const rhomb1Bottom = new Vector2(side, 0);
-        const rhomb1Top=new Vector2(side*(1+rt2),0);
+        const rhomb1Top = new Vector2(side * (1 + rt2), 0);
         for (var i = 0; i < 8; i++) {
-               octagon.rhomb(0, zero, rhomb1Right.clone());
-              octagon.triangle(0, rhomb1Right.clone(), rhomb1Bottom.clone(), rhomb1RightMirrored.clone());
-              if (i&1){
-                  octagon.triangle(0, rhomb1RightMirrored.clone(), rhomb1Top.clone(), rhomb1Right.clone());
-              }
+            octagon.rhomb(0, zero, rhomb1Right.clone());
+            octagon.triangle(0, rhomb1Right.clone(), rhomb1Bottom.clone(), rhomb1RightMirrored.clone());
+            if (i & 1) {
+                octagon.triangle(0, rhomb1RightMirrored.clone(), rhomb1Top.clone(), rhomb1Right.clone());
+            }
             rhomb1Right.rotate45();
             rhomb1RightMirrored.rotate45();
             rhomb1Bottom.rotate45();
             rhomb1Top.rotate45();
         }
-      //  octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
+        //  octagon.octagon(0, new Vector2(-8, 0), new Vector2(9, 0));
     };
 
 
@@ -43,7 +43,7 @@ var octagon = {};
         halfDiagonal.scale(tanPI8).rotate90();
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
-        Vector2.toPool(halfDiagonal);    
+        Vector2.toPool(halfDiagonal);
         iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             const leftBottom = Vector2.lerp(left, octagonRatio, bottom);

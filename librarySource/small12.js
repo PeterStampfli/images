@@ -17,7 +17,7 @@ var small12 = {};
 
     // starting the iteration with a dodecagon
     small12.start = function() {
-        const side = 4;
+        const side = 2 * iterateTiling.initialSpaceLimit / (1 + rt3);
         const zero = new Vector2(0, 0);
         const bottom = new Vector2(side, 0);
         const top = bottom.clone().rotate30();
@@ -50,7 +50,7 @@ var small12 = {};
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
+        iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const leftBottom = Vector2.lerp(left, ratio, bottom);
@@ -100,7 +100,7 @@ var small12 = {};
     };
 
     small12.triangleA = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
@@ -123,7 +123,7 @@ var small12 = {};
     };
 
     small12.triangleB = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
@@ -147,7 +147,7 @@ var small12 = {};
     };
 
     small12.triangleC = function(ite, counterclockwise, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             const bc = Vector2.lerp(c, ratio, b);
             const ca = Vector2.lerp(c, 1 / (3 + rt3), a);
@@ -174,7 +174,7 @@ var small12 = {};
     small12.quarterSquare = function(ite, corner, center) {
         const a = Vector2.difference(corner, center).scale(rt05).rotate45().add(center);
         const b = Vector2.difference(corner, center).scale(rt05).rotateM45().add(center);
-        iterateTiling.structure[ite].push(new Polygon(center, b, corner, a));
+        iterateTiling.structure[ite].push(new PolyPoint(center, b, corner, a));
         if (ite < iterateTiling.maxIterations) {
             const aCorner = Vector2.lerp(a, ratio, corner);
             const bCorner = Vector2.lerp(b, ratio, corner);

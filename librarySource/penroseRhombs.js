@@ -17,7 +17,7 @@ var penroseRhombs = {};
     penroseRhombs.fatWithStraightDeco = true;
 
     penroseRhombs.start = function() {
-        const side = 15;
+        const side = 13.5;
         const zero = new Vector2(0, 0);
         const b1 = new Vector2(side, 0);
         const b2 = b1.clone().rotate72();

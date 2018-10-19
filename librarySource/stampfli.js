@@ -17,7 +17,7 @@ var stampfli = {};
 
     // starting the iteration with a dodecagon
     stampfli.start = function() {
-        const side = 4;
+        const side = 2 * iterateTiling.initialSpaceLimit / (1 + rt3);
         const zero = new Vector2(0, 0);
         const bottom = new Vector2(side, 0);
         const top = bottom.clone().rotate30();
@@ -44,7 +44,7 @@ var stampfli = {};
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
+        iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const er = Vector2.difference(bottom, left).scale(ratio);
@@ -80,7 +80,7 @@ var stampfli = {};
     };
 
     stampfli.triangle = function(ite, a, b, c) {
-        iterateTiling.structure[ite].push(new Polygon(a, b, c));
+        iterateTiling.structure[ite].push(new PolyPoint(a, b, c));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const ab = Vector2.lerp(a, ratio, b);
@@ -124,7 +124,7 @@ var stampfli = {};
         const top = Vector2.sum(center, halfDiagonal);
         const bottom = Vector2.difference(center, halfDiagonal);
         Vector2.toPool(halfDiagonal);
-        iterateTiling.structure[ite].push(new Polygon(left, bottom, right, top));
+        iterateTiling.structure[ite].push(new PolyPoint(left, bottom, right, top));
         if (ite < iterateTiling.maxIterations) {
             // continue iteration, create more points
             const leftBottom = Vector2.lerp(left, ratio, bottom);

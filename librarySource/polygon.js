@@ -28,7 +28,7 @@ function Polygon(vectors) {
         this.yMin = Math.min(this.yMin, corners[i].y);
         this.yMax = Math.max(this.yMax, corners[i].y);
     }
-    this.lines.push(new Line(corners[cornersLenght-1], corners[0]));
+    this.lines.push(new Line(corners[cornersLenght - 1], corners[0]));
 }
 
 (function() {

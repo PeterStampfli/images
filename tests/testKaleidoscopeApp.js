@@ -220,7 +220,7 @@ function creation() {
         Draw.setColor("blue");
         // iterateTiling.drawStructure(1);
         Draw.setColor("red");
-        iterateTiling.drawStructure(1);
+        iterateTiling.drawStructure(0);
 
     };
 
@@ -236,10 +236,10 @@ function creation() {
 
     // iterateTiling.initialPolygons = penrose.start;
     iterateTiling.initialPolygons = ambe.start;
-    //iterateTiling.initialPolygons = small12.start;
+    iterateTiling.initialPolygons = small12.start;
     iterateTiling.initialPolygons = stampfli.start;
-    iterateTiling.initialPolygons = octagon.start;
-    //iterateTiling.initialPolygons = penroseRhombs.start;
+    // iterateTiling.initialPolygons = octagon.start;
+    // iterateTiling.initialPolygons = penroseRhombs.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
