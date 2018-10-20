@@ -263,7 +263,7 @@ function Vector2(x = 0, y = 0) {
     /**
      * calculate center (mean value) of any number of vectors
      * @method Vector2.center
-     * @param {ListOfVector2} vectors
+     * @param {ListOfVector2} vectors, or array of vectors
      * @return Vector2, center of the vectors
      */
     Vector2.center = function(vectors) {
@@ -275,6 +275,17 @@ function Vector2(x = 0, y = 0) {
             y += arguments[i].y;
         }
         return Vector2.fromPool(x / length, y / length);
+    };
+
+    /**
+     * middle between two vectors
+     * @method Vector2.middle
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @return Vector2
+     */
+    Vector2.middle = function(a, b) {
+        return Vector2.fromPool(0.5 * (a.x + b.x), 0.5 * (a.y + b.y));
     };
 
     /**

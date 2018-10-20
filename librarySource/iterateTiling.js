@@ -53,7 +53,7 @@ iterateTiling.setMaxIterations = function(maxIterations) {
  */
 
 /**
- * tiling dependent: initial polygons
+ * tiling dependent: initial polygons, for tests - do nothing grid
  * @method iterateTiling.initialPolygons
  */
 iterateTiling.initialPolygons = function() {};
@@ -106,6 +106,7 @@ iterateTiling.generateStructure = function() {
     for (var i = 0; i <= iterateTiling.maxIterations; i++) {
         iterateTiling.structure.push([]); // push empty arrays
     }
+    // clear polygons and empty bins
     imageTiles.reset();
     // calling initial polygons -> structure through iterations
     iterateTiling.initialPolygons();

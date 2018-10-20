@@ -45,12 +45,12 @@ var imageTiles = {};
 
     /**
      * add triangle tiles to the array
-     * @method imageTiles.addTriangles
-     * @param {ArrayOfTriangles} triangles
+     * @method imageTiles.addPolygons
+     * @param {ArrayOfPolygons} polygons, with mapping
      */
-    imageTiles.addTriangles = function(triangles) {
-        triangles.forEach(triangle => {
-            imageTiles.polygons.push(triangle);
+    imageTiles.addPolygons = function(polygons) {
+        polygons.forEach(polygon => {
+            imageTiles.polygons.push(polygon);
         });
     };
 
@@ -393,6 +393,10 @@ var imageTiles = {};
         });
     };
 
+    // more general mapping
+    let triangles = [];
+    let gamma = new Vector2();
+
     // decompositions for quads:
 
     // penrose note: can build full kites and darts
@@ -403,8 +407,8 @@ var imageTiles = {};
     /**
      * decompose a quadrangle into image triangles tiles, one for each side
      * based on a two-color labeling for the corners
-     * @method imageTiles.twoColorQuadDecomposition
-     * @param {ArrayOfPolygons} triangles - will have generated triangles
+     * adjust the triangle mapping, add to tiles
+     * @method imageTiles.addTwoColorQuad
      * @param {Vector2} a
      * @param {Vector2} b
      * @param {Vector2} c
@@ -412,12 +416,78 @@ var imageTiles = {};
      * @param {Vector2} center
      * @param {boolean} aMapsToZero
      */
-    imageTiles.twoColorQuadDecomposition = function(triangles, a, b, c, d, center, aMapsToZero) {
+    imageTiles.addTwoColorQuad = function(a, b, c, d, center, aMapsToZero) {
         triangles.length = 0;
         triangles.push(new Polygon(a, b, center).addBaseline(a, b, aMapsToZero));
         triangles.push(new Polygon(b, c, center).addBaseline(b, c, !aMapsToZero));
         triangles.push(new Polygon(c, d, center).addBaseline(c, d, aMapsToZero));
         triangles.push(new Polygon(d, a, center).addBaseline(d, a, !aMapsToZero));
+        imageTiles.calculateGamma(gamma, center, triangles);
+        Polygon.setCenter(center);
+        Polygon.setGamma(gamma);
+        imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addPolygons(triangles);
+    };
+
+    /**
+     * decompose a quadrangle into image triangles tiles, two for each side
+     * each corner is the same
+     * adjust the triangle mapping, add to tiles
+     * @method imageTiles.addSingleColorQuad
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {Vector2} c
+     * @param {Vector2} d
+     * @param {Vector2} center
+     */
+    imageTiles.addSingleColorQuad = function(a, b, c, d, center) {
+        var middle;
+        triangles.length = 0;
+        middle = Vector2.center(a, b);
+        triangles.push(new Polygon(a, middle, center).addBaseline(a, middle));
+        triangles.push(new Polygon(middle, b, center).addBaseline(b, middle));
+        middle = Vector2.center(b, c);
+        triangles.push(new Polygon(b, middle, center).addBaseline(b, middle));
+        triangles.push(new Polygon(middle, c, center).addBaseline(c, middle));
+        middle = Vector2.center(c, d);
+        triangles.push(new Polygon(c, middle, center).addBaseline(c, middle));
+        triangles.push(new Polygon(middle, d, center).addBaseline(d, middle));
+        middle = Vector2.center(d, a);
+        triangles.push(new Polygon(d, middle, center).addBaseline(d, middle));
+        triangles.push(new Polygon(middle, a, center).addBaseline(a, middle));
+
+        imageTiles.calculateGamma(gamma, center, triangles);
+        Polygon.setCenter(center);
+        Polygon.setGamma(gamma);
+        imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addPolygons(triangles);
+    };
+
+    /**
+     * decompose an irregular polygon into image triangles tiles, two for each side
+     * each corner is the same
+     * adjust the triangle mapping, add to tiles
+     * @method imageTiles.addSingleColorQuad
+     * @param {Vector2List} corners
+     * @param {Vector2} center
+     */
+    imageTiles.addSingleColorPolygon = function(corners, theCenter) {
+        var a, b, middle;
+        triangles.length = 0;
+        const cornersLength = arguments.length - 1;
+        const center = arguments[cornersLength];
+        for (var i = 0; i < arguments; i++) {
+            middle = Vector2.center(a, b);
+            triangles.push(new Polygon(a, middle, center).addBaseline(a, middle));
+            triangles.push(new Polygon(middle, b, center).addBaseline(b, middle));
+
+        }
+
+        imageTiles.calculateGamma(gamma, center, triangles);
+        Polygon.setCenter(center);
+        Polygon.setGamma(gamma);
+        imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addPolygons(triangles);
     };
 
 

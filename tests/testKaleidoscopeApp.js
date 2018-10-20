@@ -235,11 +235,11 @@ function creation() {
     penroseRhombs.fatWithStraightDeco = false;
 
     // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
-    iterateTiling.initialPolygons = small12.start;
-    iterateTiling.initialPolygons = stampfli.start;
-    // iterateTiling.initialPolygons = octagon.start;
-    // iterateTiling.initialPolygons = penroseRhombs.start;
+    //  iterateTiling.initialPolygons = ambe.start;
+    //   iterateTiling.initialPolygons = small12.start;
+    // iterateTiling.initialPolygons = stampfli.start;
+    //  iterateTiling.initialPolygons = octagon.start;
+    //   iterateTiling.initialPolygons = penroseRhombs.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
@@ -253,45 +253,29 @@ function creation() {
 
     const c = new Vector2(4, 0);
     const d = new Vector2(-2, 4);
-    const center = new Vector2(0, 0);
+    const center = new Vector2(1, -1);
 
-    const gamma = new Vector2(0.1, 1);
-    Polygon.setGamma(gamma);
-    Polygon.setCenter(c);
 
-    //  iterateTiling.structure[0].addPolygon(a, b, c);
-    /*
-        const imagePolygon = imageTiles.polygons.addPolygon(a, b, c);
-        imagePolygon.addTriangleMapping(a, b, true);
-    */
 
-    // determine and set gamma for an array of polygons, typically triangles, with given center, and baseline
-    // resulting from the dissection  of a polygon
-    // gamma does not depend on orientation and size of polygon. Only on shape and dissection (center)
+    iterateTiling.structure[0].push(new Polygon(a, b, c, d));
 
-    let centerToGamma = new Vector2();
-
-    function setGamma(triangles) {
-        let sumX = 0;
-        let sumY = 0;
-        let nTriangles = triangles.length;
-        for (var i = 0; i < nTriangles; i++) {
-            centerToGamma.set(Polygons.center);
-            triangles[i].applyBaseline(centerToGamma);
-            sumX += centerToGamma.x;
-            sumY += centerToGamma.y;
-        }
-        Polygons.gamma.setComponents(sumX / nTriangles, sumY / nTriangles);
-    }
-
-    function adjustTriangleMapping(triangles) {
-        let nTriangles = triangles.length;
-        for (var i = 0; i < nTriangles; i++) {
-            triangles[i].adjustScaleShearTriangleMapping();
-        }
-    }
+    // use code in imageTiles.js
 
     let triangles = [];
+    let gamma = new Vector2();
+
+
+
+    //    imageTiles.addSingleColorQuad ( a, b, c, d, center, true) ;
+    imageTiles.addSingleColorPolygon(a, b, c, center);
+
+
+
+
+
+    imageTiles.bins.addObjects(imageTiles.polygons);
+
+
     /*
         function twoColorHalfQuad(a, b, c, center, aMapsToZero) {
             Polygon.setCenter(center);
