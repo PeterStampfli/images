@@ -252,12 +252,14 @@ function creation() {
     const b = new Vector2(0, -4);
 
     const c = new Vector2(4, 0);
-    const d = new Vector2(-2, 4);
+    const d = new Vector2(2, 4);
+    const e = new Vector2(-2, 6);
+    const f = new Vector2(-3, 4);
     const center = new Vector2(1, -1);
 
 
 
-    iterateTiling.structure[0].push(new Polygon(a, b, c, d));
+    iterateTiling.structure[0].push(new Polygon(a, b, c, d, e, f));
 
     // use code in imageTiles.js
 
@@ -267,7 +269,7 @@ function creation() {
 
 
     //    imageTiles.addSingleColorQuad ( a, b, c, d, center, true) ;
-    imageTiles.addSingleColorPolygon(a, b, c, center);
+    imageTiles.addTwoColorPolygon(a, b, c, d, e, f, true);
 
 
 
@@ -276,60 +278,6 @@ function creation() {
     imageTiles.bins.addObjects(imageTiles.polygons);
 
 
-    /*
-        function twoColorHalfQuad(a, b, c, center, aMapsToZero) {
-            Polygon.setCenter(center);
-            triangles.length=0;
-            triangles.push(imageTiles.polygons.addPolygon(a, b, center).addBaseline(a, b, aMapsToZero));
-            triangles.push(imageTiles.polygons.addPolygon(b, c, center).addBaseline(b, c, !aMapsToZero));
-            adjustTriangleMapping(triangles);
-        }
-
-        function twoColorQuad(a, b, c, d, center, aMapsToZero) {
-            twoColorHalfQuad(a, b, c, center, aMapsToZero);
-            twoColorHalfQuad(c, d, a, center, aMapsToZero);
-        }
-
-        function singleColorHalfQuad(a, b, c, center) {
-            Polygon.setCenter(center);
-            const ab = Vector2.center(a, b);
-            const bc = Vector2.center(b, c);
-            imageTiles.polygons.addPolygon(a, ab, center).addTriangleMapping(a, ab);
-            imageTiles.polygons.addPolygon(b, center, ab).addTriangleMapping(b, ab);
-            imageTiles.polygons.addPolygon(b, bc, center).addTriangleMapping(b, bc);
-            imageTiles.polygons.addPolygon(c, center, bc).addTriangleMapping(c, bc);
-        }
-
-        function singleColorQuad(a, b, c, d, center) {
-            singleColorHalfQuad(a, b, c, center);
-            singleColorHalfQuad(c, d, a, center);
-        }
-
-
-
-        // singleColorQuad(new Vector2(-6, 0), new Vector2(0, -6), new Vector2(7, 2), new Vector2(-2, 10), new Vector2(1.5, 0), true);
-     //    twoColorQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
-         twoColorHalfQuad(new Vector2(-6,0),new Vector2(0,-6),new Vector2(7,2),new Vector2(1.5,0),true);
-    */
-    /*
-        imageTiles.twoColorQuadDecomposition(triangles, a, b, c, d, center, true);
-
-        imageTiles.calculateGamma(gamma, center, triangles);
-        gamma.log("gamma");
-
-        Polygon.center = center;
-        Polygon.gamma = gamma;
-
-        imageTiles.adjustTriangleMapping(triangles);
-
-        imageTiles.addTriangles(triangles);
-
-        imageTiles.bins.addObjects(imageTiles.polygons);
-
-        Fast.logArrayOfObjects(triangles);
-        Fast.logArrayOfObjects(imageTiles.polygons);
-
-    */
 }
 
 // adjust fontsize related dimensions

@@ -468,21 +468,31 @@ var imageTiles = {};
      * each corner is the same
      * adjust the triangle mapping, add to tiles
      * @method imageTiles.addSingleColorQuad
-     * @param {Vector2List} corners
-     * @param {Vector2} center
+     * @param {Vector2List} corners - list of corner vectors
      */
-    imageTiles.addSingleColorPolygon = function(corners, theCenter) {
-        var a, b, middle;
+    imageTiles.addSingleColorPolygon = function(corners) {
+        var a, b, middle, i;
         triangles.length = 0;
-        const cornersLength = arguments.length - 1;
-        const center = arguments[cornersLength];
-        for (var i = 0; i < arguments; i++) {
+        const cornersLength = arguments.length;
+        let sumX = 0;
+        let sumY = 0;
+        for (i = 0; i < cornersLength; i++) {
+            sumX += arguments[i].x;
+            sumY += arguments[i].y;
+        }
+        const center = new Vector2(sumX / cornersLength, sumY / cornersLength);
+        for (i = 1; i < cornersLength; i++) {
+            a = arguments[i - 1];
+            b = arguments[i];
             middle = Vector2.center(a, b);
             triangles.push(new Polygon(a, middle, center).addBaseline(a, middle));
             triangles.push(new Polygon(middle, b, center).addBaseline(b, middle));
-
         }
-
+        a = arguments[cornersLength - 1];
+        b = arguments[0];
+        middle = Vector2.center(a, b);
+        triangles.push(new Polygon(a, middle, center).addBaseline(a, middle));
+        triangles.push(new Polygon(middle, b, center).addBaseline(b, middle));
         imageTiles.calculateGamma(gamma, center, triangles);
         Polygon.setCenter(center);
         Polygon.setGamma(gamma);
@@ -490,8 +500,40 @@ var imageTiles = {};
         imageTiles.addPolygons(triangles);
     };
 
-
-
-
+    /**
+     * decompose an irregular polygon into image triangles tiles, one for each side
+     * should have an even number of sides
+     * two kinds of corners
+     * adjust the triangle mapping, add to tiles
+     * @method imageTiles.addSingleColorQuad
+     * @param {Vector2List} corners - list of corner vectors
+     * @param {boolean} firstCornerMapsToZero
+     */
+    imageTiles.addTwoColorPolygon = function(corners, firstCornerMapsToZeroParameter) {
+        var a, b, i;
+        triangles.length = 0;
+        const cornersLength = arguments.length - 1;
+        let firstCornerMapsToZero = arguments[cornersLength];
+        let sumX = 0;
+        let sumY = 0;
+        for (i = 0; i < cornersLength; i++) {
+            sumX += arguments[i].x;
+            sumY += arguments[i].y;
+        }
+        const center = new Vector2(sumX / cornersLength, sumY / cornersLength);
+        for (i = 1; i < cornersLength; i++) {
+            a = arguments[i - 1];
+            b = arguments[i];
+            triangles.push(new Polygon(a, b, center).addBaseline(a, b, firstCornerMapsToZero != (i & 1)));
+        }
+        a = arguments[cornersLength - 1];
+        b = arguments[0];
+        triangles.push(new Polygon(a, b, center).addBaseline(a, b, firstCornerMapsToZero != (cornersLength & 1)));
+        imageTiles.calculateGamma(gamma, center, triangles);
+        Polygon.setCenter(center);
+        Polygon.setGamma(gamma);
+        imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addPolygons(triangles);
+    };
 
 }());
