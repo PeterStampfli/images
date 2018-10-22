@@ -215,12 +215,13 @@ function creation() {
         Make.updateMapOutput();
         // Make.outputImage.adjustCanvasTransform();
         //Make.outputImage.pixelCanvas.fillScreen("white");
-
-        Draw.setLineWidth(2);
-        Draw.setColor("blue");
-        // iterateTiling.drawStructure(1);
+        Draw.setLineWidth(3);
         Draw.setColor("red");
-        iterateTiling.drawStructure(0);
+        iterateTiling.drawStructure(2);
+
+        Draw.setLineWidth(1);
+        Draw.setColor("blue");
+        iterateTiling.drawStructure(1);
 
     };
 
@@ -240,12 +241,13 @@ function creation() {
     // iterateTiling.initialPolygons = stampfli.start;
     //  iterateTiling.initialPolygons = octagon.start;
     //   iterateTiling.initialPolygons = penroseRhombs.start;
+    iterateTiling.initialPolygons = kite8.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
-    iterateTiling.setMaxIterations(2);
+    iterateTiling.setMaxIterations(5);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);
@@ -259,7 +261,7 @@ function creation() {
 
 
 
-    iterateTiling.structure[0].push(new Polygon(a, b, c, d, e, f));
+    //  iterateTiling.structure[0].push(new Polygon(a, b, c, d, e, f));
 
     // use code in imageTiles.js
 
@@ -269,13 +271,13 @@ function creation() {
 
 
     //    imageTiles.addSingleColorQuad ( a, b, c, d, center, true) ;
-    imageTiles.addTwoColorPolygon(a, b, c, d, e, f, true);
+    //   imageTiles.addTwoColorPolygon(a, b, c, d, e, f, true);
 
 
 
 
 
-    imageTiles.bins.addObjects(imageTiles.polygons);
+    //  imageTiles.bins.addObjects(imageTiles.polygons);
 
 
 }

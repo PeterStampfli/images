@@ -464,6 +464,34 @@ var imageTiles = {};
     };
 
     /**
+     * decompose half of a quadrangle into image triangles tiles, two for each side
+     * each corner is the same
+     * adjust the triangle mapping, add to tiles
+     * @method imageTiles.addSingleColorHalfQuad
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {Vector2} c
+     * @param {Vector2} center
+     */
+    imageTiles.addSingleColorHalfQuad = function(a, b, c, center) {
+        var middle;
+        triangles.length = 0;
+        middle = Vector2.center(a, b);
+        triangles.push(new Polygon(a, middle, center).addBaseline(a, middle));
+        triangles.push(new Polygon(middle, b, center).addBaseline(b, middle));
+        middle = Vector2.center(b, c);
+        triangles.push(new Polygon(b, middle, center).addBaseline(b, middle));
+        triangles.push(new Polygon(middle, c, center).addBaseline(c, middle));
+
+
+        imageTiles.calculateGamma(gamma, center, triangles);
+        Polygon.setCenter(center);
+        Polygon.setGamma(gamma);
+        imageTiles.adjustTriangleMapping(triangles);
+        imageTiles.addPolygons(triangles);
+    };
+
+    /**
      * decompose an irregular polygon into image triangles tiles, two for each side
      * each corner is the same
      * adjust the triangle mapping, add to tiles

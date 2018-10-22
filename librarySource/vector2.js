@@ -236,6 +236,20 @@ function Vector2(x = 0, y = 0) {
         return this;
     };
 
+    /**
+     * linear interpolation to another vector
+     * @method Vector2#lerp
+     * @param {float} t - interpolation parameter
+     * @param {Vector2} b
+     * @return this
+     */
+    Vector2.prototype.lerp = function(t, b) {
+        this.x = (1 - t) * this.x + t * b.x;
+        this.y = (1 - t) * this.y + t * b.y;
+        return this;
+    };
+
+
     // create calculated vectors
 
     /**
