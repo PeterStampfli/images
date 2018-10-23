@@ -36,8 +36,6 @@ var ambe = {};
     const ratio = 1 / (1 + Math.sqrt(2));
     const hypoRatio = 1 / (rt2 + 2);
 
-
-
     ambe.start = function() {
         const side = iterateTiling.initialSpaceLimit / (1 + 1 / rt2);
         const zero = new Vector2(0, 0);
