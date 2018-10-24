@@ -217,11 +217,11 @@ function creation() {
         //Make.outputImage.pixelCanvas.fillScreen("white");
         Draw.setLineWidth(3);
         Draw.setColor("red");
-        iterateTiling.drawStructure(0);
+        //   iterateTiling.drawStructure(0);
 
         Draw.setLineWidth(1);
         Draw.setColor("blue");
-        iterateTiling.drawStructure(1);
+        //   iterateTiling.drawStructure(1);
 
     };
 
@@ -242,13 +242,13 @@ function creation() {
     //  iterateTiling.initialPolygons = octagon.start;
     //   iterateTiling.initialPolygons = penroseRhombs.start;
     iterateTiling.initialPolygons = kite8.start;
-    iterateTiling.initialPolygons = squareTriangle8.start;
+    iterateTiling.initialPolygons = triangles12.start;
 
     //  Polygon.mapWithShiftRotateMirror();
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
-    iterateTiling.setMaxIterations(1);
+    iterateTiling.setMaxIterations(3);
     iterateTiling.generateStructure();
 
     const a = new Vector2(-4, 0);

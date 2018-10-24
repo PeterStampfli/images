@@ -248,19 +248,18 @@ projection = {};
 
     projection.euclidicDoubleSpiral = function() {
         spiralNumber1 = 6;
-        spiralNumber2 = 2;
+        spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
-        projection.euclidicMap = basicEuclidicSpiral;
+        projection.euclidicMap = function(p) {
+            p.scale(1.3);
+            cayley(p);
+            basicEuclidicSpiral(p);
+            return 1;
+        };
         updateMap();
     };
 
-    projection.euclidicTripleSpiral = function() {
-        spiralNumber1 = 9;
-        spiralNumber2 = 3;
-        projection.euclidicDiscRadius = -1;
-        projection.euclidicMap = basicEuclidicSpiral;
-        updateMap();
-    };
+
 
     projection.euclidicDisc = function() {
         projection.euclidicDiscRadius = basicKaleidoscope.worldRadiusElliptic;
@@ -301,14 +300,22 @@ projection = {};
         updateMap();
     };
 
+    // cayley transform w=(z-i)/(z+i)
+    function cayley(position) {
+        let r2 = position.x * position.x + position.y * position.y;
+        let base = 1 / (r2 + 2 * position.y + 1.00001);
+        position.y = -2 * position.x * base;
+        position.x = (r2 - 1) * base;
+    }
+
     // go from halfplane y>hyperbolic world radius to disc with hyperbolic worldRadius 
+    // cayley transform
     function halfplaneDisc(position) {
         position.y += basicKaleidoscope.worldRadiusHyperbolic;
         if (position.y > 0) {
-            let r2 = position.x * position.x + position.y * position.y;
-            let base = basicKaleidoscope.worldRadiusHyperbolic / (r2 + 2 * position.y + 1);
-            position.y = -2 * position.x * base;
-            position.x = (r2 - 1) * base;
+            cayley(position);
+            position.x *= basicKaleidoscope.worldRadiusHyperbolic;
+            position.y *= basicKaleidoscope.worldRadiusHyperbolic;
             return 1;
         } else {
             return -1;

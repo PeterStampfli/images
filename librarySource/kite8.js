@@ -10,7 +10,6 @@ var kite8 = {};
     const rt2 = Math.sqrt(2);
 
     kite8.start = function() {
-
         const side = iterateTiling.initialSpaceLimit / (1 + 1 / rt2);
         const zero = new Vector2(0, 0);
         const rhomb1Right = new Vector2(side * (1 + 1 / rt2), side / rt2);
