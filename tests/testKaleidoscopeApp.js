@@ -248,8 +248,10 @@ function creation() {
     //  Polygon.mapWithShiftRotateMirrorScaleShear();
     //   Polygon.mapWithShiftRotateMirrorShear();
 
-    iterateTiling.setMaxIterations(3);
-    iterateTiling.generateStructure();
+    iterateTiling.setMaxIterations(1);
+    //  iterateTiling.generateStructure();
+
+    distortedSquares.generate();
 
     const a = new Vector2(-4, 0);
     const b = new Vector2(0, -4);

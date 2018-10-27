@@ -31,7 +31,7 @@ var imageTiles = {};
      * @param {float}  side - length of the squares mapping to bins
      */
     imageTiles.dimensions = function(xMin, xMax, yMin, yMax, side) {
-        this.bins.dimensions(xMin, xMax, yMin, yMax, side);
+        imageTiles.bins.dimensions(xMin, xMax, yMin, yMax, side);
     };
 
     /**
