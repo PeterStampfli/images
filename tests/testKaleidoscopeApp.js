@@ -218,6 +218,7 @@ function creation() {
         Draw.setLineWidth(3);
         Draw.setColor("red");
         //   iterateTiling.drawStructure(0);
+      //  distortedSquares.drawStructure();
 
         Draw.setLineWidth(1);
         Draw.setColor("blue");
@@ -251,37 +252,20 @@ function creation() {
     iterateTiling.setMaxIterations(1);
     //  iterateTiling.generateStructure();
 
+    
+        distortedSquares.distortion = function(position) {
+            let factor=Math.hypot(position.x,position.y)/distortedSquares.size;
+            factor*=1.5;
+            factor=Math.min(factor,0.9);
+            position.x+=(Math.random()-0.5)*distortedSquares.side*factor;
+            position.y+=(Math.random()-0.5)*distortedSquares.side*factor;
+        };
+
+    
     distortedSquares.generate();
 
-    const a = new Vector2(-4, 0);
-    const b = new Vector2(0, -4);
-
-    const c = new Vector2(4, 0);
-    const d = new Vector2(2, 4);
-    const e = new Vector2(-2, 6);
-    const f = new Vector2(-3, 4);
-    const center = new Vector2(1, -1);
-
-
-
-    //  iterateTiling.structure[0].push(new Polygon(a, b, c, d, e, f));
-
-    // use code in imageTiles.js
-
-    let triangles = [];
-    let gamma = new Vector2();
-
-
-
-    //    imageTiles.addSingleColorQuad ( a, b, c, d, center, true) ;
-    //   imageTiles.addTwoColorPolygon(a, b, c, d, e, f, true);
-
-
-
-
-
-    //  imageTiles.bins.addObjects(imageTiles.polygons);
-
+   
+    
 
 }
 
