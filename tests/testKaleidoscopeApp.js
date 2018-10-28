@@ -81,8 +81,12 @@ function creation() {
     Make.controlImage.touchEvents.startAction = function() {
         DOM.style("#text", "zIndex", "9");
     };
+
     Make.arrowController.outAction = function() {
         text.click();
+    };
+    Make.arrowController.downAction = function() {
+        DOM.style("#text", "zIndex", "9");
     };
 
     // special layout dependent method for placing arrowController
@@ -218,7 +222,7 @@ function creation() {
         Draw.setLineWidth(3);
         Draw.setColor("red");
         //   iterateTiling.drawStructure(0);
-      //  distortedSquares.drawStructure();
+        //  distortedSquares.drawStructure();
 
         Draw.setLineWidth(1);
         Draw.setColor("blue");
@@ -252,20 +256,20 @@ function creation() {
     iterateTiling.setMaxIterations(1);
     //  iterateTiling.generateStructure();
 
-    
-        distortedSquares.distortion = function(position) {
-            let factor=Math.hypot(position.x,position.y)/distortedSquares.size;
-            factor*=1.5;
-            factor=Math.min(factor,0.9);
-            position.x+=(Math.random()-0.5)*distortedSquares.side*factor;
-            position.y+=(Math.random()-0.5)*distortedSquares.side*factor;
-        };
 
-    
+    distortedSquares.distortion = function(position) {
+        let factor = Math.hypot(position.x, position.y) / distortedSquares.size;
+        factor *= 1.5;
+        factor = Math.min(factor, 0.9);
+        position.x += (Math.random() - 0.5) * distortedSquares.side * factor;
+        position.y += (Math.random() - 0.5) * distortedSquares.side * factor;
+    };
+
+
     distortedSquares.generate();
 
-   
-    
+
+
 
 }
 

@@ -76,9 +76,14 @@ function creation() {
     Make.controlImage.touchEvents.startAction = function() {
         DOM.style("#text", "zIndex", "9");
     };
+
     Make.arrowController.outAction = function() {
         text.click();
     };
+    Make.arrowController.downAction = function() {
+        DOM.style("#text", "zIndex", "9");
+    };
+
 
     // special layout dependent method for placing arrowController
     Make.arrowController.place = function() {

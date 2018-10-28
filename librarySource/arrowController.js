@@ -52,6 +52,12 @@ function ArrowController(idName, isVisible = true) {
      */
     this.outAction = function() {};
 
+    /*
+     * what to do upon a down event (inside the circle)
+     */
+    this.downAction = function() {};
+
+
     // access to this in callbacks
     const arrowController = this;
 
@@ -65,6 +71,7 @@ function ArrowController(idName, isVisible = true) {
         this.mouseEvents.downAction = function(mouseEvents) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
                 mouseEvents.pressed = true;
+                arrowController.downAction();
             } else {
                 mouseEvents.pressed = false;
                 arrowController.outAction();
@@ -94,7 +101,9 @@ function ArrowController(idName, isVisible = true) {
 
         // if touch outside the circle
         this.touchEvents.startAction = function(touchEvents) {
-            if (!arrowController.isOnDisc(touchEvents.x, touchEvents.y)) {
+            if (arrowController.isOnDisc(touchEvents.x, touchEvents.y)) {
+                arrowController.downAction();
+            } else {
                 arrowController.touchEvents.deleteAllTouches();
                 arrowController.outAction();
             }
