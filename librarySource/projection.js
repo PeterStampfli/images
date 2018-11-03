@@ -71,8 +71,9 @@ projection = {};
         updateMap();
     };
 
-    let iEllipticWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
     let ellipticWorldradius2 = basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic;
+    let iEllipticWorldradius2 = 1 / ellipticWorldradius2;
+
 
     projection.ellipticNormalMap = function(position) {
         let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iEllipticWorldradius2;
@@ -94,7 +95,6 @@ projection = {};
     };
 
     projection.ellipticGonomic = function() {
-        let iEllipticWorldradius2 = 1 / (basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic);
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
             let r2worldRadius2 = Math.hypot(position.x, position.y) * iEllipticWorldradius2;
@@ -264,7 +264,7 @@ projection = {};
     projection.euclidicDisc = function() {
         projection.euclidicDiscRadius = basicKaleidoscope.worldRadiusElliptic;
         const ir = 1 / basicKaleidoscope.worldRadiusElliptic;
-        const base = 0.5;
+        const base = 1;
         projection.euclidicMap = function(position) {
             const scale = base / (1 - Math.hypot(position.x, position.y) * ir);
             position.scale(scale);
@@ -282,12 +282,12 @@ projection = {};
         updateMap();
     };
 
-    let iHyperbolicWorldradius2 = 1 / (basicKaleidoscope.worldRadiusHyperbolic * basicKaleidoscope.worldRadiusHyperbolic);
+    let hyperbolicWorldradius2 = basicKaleidoscope.worldRadiusHyperbolic * basicKaleidoscope.worldRadiusHyperbolic;
+    let iHyperbolicWorldradius2 = 1 / hyperbolicWorldradius2;
 
     // go from klein disc to poincare disc, return 1
     function kleinPoincare(position) {
         let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iHyperbolicWorldradius2;
-
         let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
         position.x *= mapFactor;
         position.y *= mapFactor;
@@ -311,7 +311,7 @@ projection = {};
     // go from halfplane y>hyperbolic world radius to disc with hyperbolic worldRadius 
     // cayley transform
     function halfplaneDisc(position) {
-        position.y += basicKaleidoscope.worldRadiusHyperbolic;
+        position.y = basicKaleidoscope.worldRadiusHyperbolic - position.y;
         if (position.y > 0) {
             cayley(position);
             position.x *= basicKaleidoscope.worldRadiusHyperbolic;
@@ -353,6 +353,33 @@ projection = {};
         updateMap();
     };
 
+    projection.hyperbolicGans = function() {
+        projection.hyperbolicDiscRadius = -1;
+        projection.hyperbolicMap = function(position) {
+            let mapFactor = 1 / (1 + Math.sqrt(1 + (position.x * position.x + position.y * position.y) * iHyperbolicWorldradius2));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
+        };
+        updateMap();
+    };
+
+    projection.hyperbolicMercator = function() {
+        projection.hyperbolicDiscRadius = -1;
+        projection.hyperbolicMap = function(position) {
+            position.y = basicKaleidoscope.worldRadiusHyperbolic - position.y;
+            if (position.y > 0) {
+                Fast.cosSin(position.x);
+                let r = basicKaleidoscope.worldRadiusHyperbolic * Fast.exp(-position.y);
+                position.x = r * Fast.cosResult;
+                position.y = r * Fast.sinResult;
+                return 1;
+            } else {
+                return -1;
+            }
+        };
+        updateMap();
+    };
 
 
     // for switching betwwen geometries (remembering the projection)

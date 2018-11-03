@@ -305,15 +305,16 @@ function creation() {
     ellipticProjectionSelect.addOption("orthographic", projection.ellipticNormal);
     ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
-    ellipticProjectionSelect.addOption("Mercator", projection.ellipticMercator);
-    ellipticProjectionSelect.addOption("gonomic cylindrical", projection.ellipticGonomicCylinder);
+    ellipticProjectionSelect.addOption("mercator", projection.ellipticMercator);
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
     euclidicProjectionSelect.addOption("direct", projection.euclidicNormal);
     euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
     euclidicProjectionSelect.addOption("double spiral", projection.euclidicDoubleSpiral);
-    euclidicProjectionSelect.addOption("disc", projection.euclidicDisc);
+    //euclidicProjectionSelect.addOption("disc", projection.euclidicDisc);
+    // euclidicProjectionSelect.addOption("triple spiral", projection.euclidicTripleSpiral);
+    // euclidicProjectionSelect.addOption("spiralTest", projection.euclidicSpiralTest);
 
 
     // for hyperbolic geometry
@@ -322,8 +323,9 @@ function creation() {
     hyperbolicProjectionSelect.addOption("Beltrami-Klein disc", projection.hyperbolicKleinDisc);
     hyperbolicProjectionSelect.addOption("Poincaré plane", projection.hyperbolicPoincarePlane);
     hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
-    hyperbolicProjectionSelect.addOption("Gans model", projection.hyperbolicGans);
-    hyperbolicProjectionSelect.addOption("Mercator", projection.hyperbolicMercator);
+    hyperbolicProjectionSelect.addOption("pseudo gonomic", projection.hyperbolicGonomic);
+    hyperbolicProjectionSelect.addOption("pseudo normal", projection.hyperbolicNormal);
+    hyperbolicProjectionSelect.addOption("pseudo mercator", projection.hyperbolicMercator);
 
 }
 
