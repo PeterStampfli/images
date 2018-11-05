@@ -249,4 +249,18 @@ function Line(a, b) {
         return 0;
     };
 
+    /**
+     * logging a line on the console
+     * @method Vector2#log 
+     * @param {String} message - or nothind
+     */
+    Line.prototype.log = function(message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
+        console.log(message + "Line from (" + this.a.x + "," + this.a.y + ") to (" + this.b.x + "," + this.b.y + ")");
+    };
+
 }());

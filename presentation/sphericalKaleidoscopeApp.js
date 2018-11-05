@@ -306,7 +306,7 @@ function creation() {
     ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
     ellipticProjectionSelect.addOption("Mercator", projection.ellipticMercator);
-    ellipticProjectionSelect.addOption("gonomic cylindrical", projection.ellipticGonomicCylinder);
+    ellipticProjectionSelect.addOption("gonomic cylindric", projection.ellipticGonomicCylinder);
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");

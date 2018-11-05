@@ -269,7 +269,16 @@ function creation() {
     distortedSquares.generate();
 
 
+    let c = new Circle(5, new Vector2(0, 0));
+    let l = new Line(new Vector2(0, 0), new Vector2(10, 0));
 
+    c.log();
+
+    l.log();
+
+    console.log(c.intersectsLine(l));
+    Circle.intersection1.log();
+    Circle.intersection2.log();
 
 }
 

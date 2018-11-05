@@ -184,4 +184,52 @@ function Circle(radius, center) {
 
     };
 
+    /**
+     * logging a circle on the console
+     * @method circle#log 
+     * @param {String} message - or nothind
+     */
+    Circle.prototype.log = function(message) {
+        if (message) {
+            message += ": ";
+        } else {
+            message = "";
+        }
+        console.log(message + "Circle of radius " + this.radius + " at (" + this.center.x + "," + this.center.y + ")");
+    };
+
+    Circle.intersection1 = new Vector2();
+    Circle.intersection2 = new Vector2();
+
+    /**
+     * intersections of a circle with a line
+     * results in Circle.intersection1 and Circle.intersection2
+     * (Vector2 objs, will be overwritten)
+     * @method Circle#IntersectsLine
+     * @param {Line} line
+     * @return boolean, true if there are intersection(s)
+     */
+    Circle.prototype.intersectsLine = function(line) {
+        const aCenterX = this.center.x - line.a.x;
+        const aCenterY = this.center.y - line.a.y;
+        // distance between line and center of sphere
+        let a = line.ex * aCenterY - line.ey * aCenterX;
+        a = this.radius2 - a * a;
+        if (a >= 0) {
+            // half the distance between the two intersections
+            a = Math.sqrt(a);
+            // mean of the two intersections
+            let baseX = line.ex * aCenterX + line.ey * aCenterY;
+            let baseY = line.a.y + line.ey * baseX;
+            baseX = line.a.x + line.ex * baseX;
+            Circle.intersection1.setComponents(baseX + a * line.ex, baseY + a * line.ey);
+            Circle.intersection2.setComponents(baseX - a * line.ex, baseY - a * line.ey);
+            return true;
+        } else {
+            Circle.intersection1.setComponents(0, 0);
+            Circle.intersection2.setComponents(0, 0);
+            return false;
+        }
+    };
+
 }());
