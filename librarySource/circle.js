@@ -1,16 +1,15 @@
 /**
  * a circle as an object with a radius, square of radius and center vector
  * @constructor Circle
- * @param {float} radius 
- * @param {Vector2} center
+ * @param {float} radius, default 0
+ * @param {Vector2} center, default (0,0)
  */
 
 /* jshint esversion:6 */
 
-function Circle(radius, center) {
-    "use strict";
+function Circle(radius = 0, center = new Vector2()) {
     this.setRadius(radius);
-    this.setCenter(center);
+    this.center = center;
 }
 
 (function() {
@@ -29,13 +28,35 @@ function Circle(radius, center) {
     };
 
     /**
-     * set center vector
+     * set center vector value
      * @method Circle#setCenter
-     * @param {float} radius 
-     * @param {Vector2} center
+     * @param {Vector2} center, to be copied
      */
     Circle.prototype.setCenter = function(center) {
-        this.center = center;
+        this.center.set(center);
+    };
+
+    /**
+     * set radius and center vector
+     * @method Circle#setRadiusCenter
+     * @param {float} radius 
+     * @param {Vector2} center, to be copied
+     */
+    Circle.prototype.setRadiusCenter = function(radius, center) {
+        this.setRadius(radius);
+        this.setCenter(center);
+    };
+
+    /**
+     * set radius and center vector componentrs
+     * @method Circle#setRadiusCenterXY
+     * @param {float} radius 
+     * @param {float} centerX, x-component
+     * @param {float} centerY, y-component
+     */
+    Circle.prototype.setRadiusCenterXY = function(radius, centerX, centerY) {
+        this.setRadius(radius);
+        this.center.setComponents(centerX, centerY);
     };
 
     /**

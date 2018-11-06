@@ -225,9 +225,6 @@ basicKaleidoscope = {};
         if (projection.map(position) > 0) {
             for (var iter = 0; iter < maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
-
-
-
                 if (circles[basicKaleidoscope.sectorIndex].invertOutsideIn(position) < 0) {
                     basicKaleidoscope.reflections = iter;
                     return 1;
