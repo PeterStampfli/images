@@ -224,9 +224,10 @@ function creation() {
         //   iterateTiling.drawStructure(0);
         //  distortedSquares.drawStructure();
 
-        Draw.setLineWidth(1);
-        Draw.setColor("blue");
+        //  Draw.setLineWidth(1);
+        //  Draw.setColor("blue");
         //   iterateTiling.drawStructure(1);
+        circleScope.draw();
 
     };
 
@@ -271,6 +272,8 @@ function creation() {
 
 
     circleScope.setDihedral(4);
+    circleScope.circle1.setRadiusCenterXY(6, 6, 6);
+    circleScope.discRadius = 6;
     circleScope.setMapping();
 
 }

@@ -10,12 +10,16 @@ circleScope = {};
 
 (function() {
     "use strict";
+    circleScope.maxIterations = 100;
+    circleScope.discRadius = -1;
 
     circleScope.circle1 = new Circle();
     circleScope.circle2 = new Circle();
     circleScope.dihedral = new Dihedral();
-    let reflections = 0;
+    var reflections;
     let dihedral = circleScope.dihedral;
+    let circle1 = circleScope.circle1;
+    let circle2 = circleScope.circle2;
 
     /**
      * set dihedral order
@@ -31,9 +35,43 @@ circleScope = {};
      * @method circleScope.setMapping
      */
     circleScope.setMapping = function() {
+        Make.map.discRadius = circleScope.discRadius;
         Make.setMapping(circleScope.mapInputImage, circleScope.mapStructure);
     };
 
+    /**
+     * drawing the mirrors 
+     * @method circleScope.draw 
+     */
+    circleScope.draw = function() {
+        dihedral.drawMirrors();
+        circle1.draw();
+        circle2.draw();
+    };
+
+
+    /**
+     * the basic mapping, returns negative number if iteration fails
+     * sets number of reflections
+     * @method circleScope.basicMap
+     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     */
+    circleScope.basicMap = function(position) {
+        reflections = 0;
+
+        for (var i = circleScope.maxIterations; i > 0; i--) {
+            dihedral.map(position);
+            reflections += Dihedral.reflections;
+            if ((circle1.invertInsideOut(position) > 0) || (circle2.invertInsideOut(position) > 0)) {
+                reflections++;
+            } else {
+                return 1;
+            }
+
+        }
+
+        return -1;
+    };
 
     /**
      * map the position for using an input image,
@@ -42,8 +80,8 @@ circleScope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     circleScope.mapInputImage = function(position) {
-        let lyapunov = 1;
-        return lyapunov;
+        return circleScope.basicMap(position);
+
     };
 
     /**
@@ -53,9 +91,10 @@ circleScope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     circleScope.mapStructure = function(position) {
-        let lyapunov = 1;
+        let result = circleScope.basicMap(position);
+
         position.x = reflections;
-        return lyapunov;
+        return result;
     };
 
 
