@@ -125,6 +125,7 @@ cutCornersKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 
@@ -169,6 +170,7 @@ cutCornersKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 
@@ -213,6 +215,7 @@ cutCornersKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 

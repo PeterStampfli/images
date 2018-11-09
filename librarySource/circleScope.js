@@ -12,7 +12,14 @@ circleScope = {};
 (function() {
     "use strict";
     circleScope.maxIterations = 100;
+    // radius of a poincare disc ??
     circleScope.discRadius = -1;
+    // cutoff or not
+    circleScope.discCutoff = true;
+    // remap if out side
+    circleScope.discRemap = false;
+    // remap if outside for image
+    circleScope.discRemapForImage = true;
 
     circleScope.circle1 = new Circle();
     circleScope.circle2 = new Circle();
@@ -36,7 +43,12 @@ circleScope = {};
      * @method circleScope.setMapping
      */
     circleScope.setMapping = function() {
-        Make.map.discRadius = circleScope.discRadius;
+        circleScope.discRadius2 = circleScope.discRadius * circleScope.discRadius;
+        if (circleScope.discCutoff) {
+            Make.map.discRadius = circleScope.discRadius;
+        } else {
+            Make.map.discRadius = -1;
+        }
         Make.setMapping(circleScope.mapInputImage, circleScope.mapStructure);
     };
 
@@ -57,14 +69,25 @@ circleScope = {};
      * @method circleScope.basicMap
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
+
+    // uses a so called map-method of circles, can be invertInsideOut or invertOutsideIn
     circleScope.basicMap = function(position) {
         reflections = 0;
 
         for (var i = circleScope.maxIterations; i > 0; i--) {
             dihedral.map(position);
             reflections += Dihedral.reflections;
-            if ((circle1.invertInsideOut(position) > 0) || (circle2.invertInsideOut(position) > 0)) {
+            if ((circle1.map(position) > 0) || (circle2.map(position) > 0)) {
                 reflections++;
+                if (circleScope.discRemap) {
+                    let r2 = position.x * position.x + position.y * position.y;
+                    if (r2 > circleScope.discRadius2) {
+                        r2 = circleScope.discRadius2 / r2;
+                        position.x *= r2;
+                        position.y *= r2;
+                        reflections++;
+                    }
+                }
             } else {
                 return 1;
             }
@@ -81,8 +104,17 @@ circleScope = {};
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     circleScope.mapInputImage = function(position) {
-        return circleScope.basicMap(position);
+        let result = circleScope.basicMap(position);
 
+        if (circleScope.discRemapForImage) {
+            let r2 = position.x * position.x + position.y * position.y;
+            if (r2 > circleScope.discRadius2) {
+                r2 = circleScope.discRadius2 / r2;
+                position.x *= r2;
+                position.y *= r2;
+            }
+        }
+        return result;
     };
 
     /**
@@ -94,7 +126,15 @@ circleScope = {};
     circleScope.mapStructure = function(position) {
         let result = circleScope.basicMap(position);
 
+
+
+        if (position.x * position.x + position.y * position.y > circleScope.discRadius2) {
+            position.y = 2;
+        } else {
+            position.y = 1;
+        }
         position.x = reflections;
+
         return result;
     };
 
@@ -117,9 +157,15 @@ circleScope = {};
         console.log(centerX1);
         const centerX2 = r + centerX1;
         const radius2 = tanPIK * centerX2;
-        circleScope.discRadius = centerX2;
         circleScope.circle1.setRadiusCenterXY(r, centerX1, 0);
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
         circleScope.circle2.setRadiusCenterXY(radius2, centerX2, radius2);
+        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+
+        circleScope.discRadius = centerX2;
+        circleScope.discCutoff = false;
+        circleScope.discRemap = false;
+        circleScope.discRemapForImage = true;
 
         circleScope.setMapping();
 

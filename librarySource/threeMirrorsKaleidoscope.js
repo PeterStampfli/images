@@ -58,6 +58,7 @@ threeMirrorsKaleidoscope = {};
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
         }
         position.x = basicKaleidoscope.reflections + Dihedral.reflections;
+        position.y = 1;
         return lyapunov;
     };
 

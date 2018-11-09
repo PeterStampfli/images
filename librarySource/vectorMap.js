@@ -282,14 +282,19 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     // default values for colors, can be changed
 
     VectorMap.colorParityNull = new Color(200, 200, 0); //default yellow
-    VectorMap.colorParityOdd = new Color(0, 120, 0); // default cyan
+    VectorMap.colorParityOdd = new Color(0, 120, 0); // default dark green
     VectorMap.colorParityEven = new Color(200, 120, 0); // default: brown
     VectorMap.colorParityOff = new Color(128, 128, 128, 0);
 
+    // colors for second sector
+    VectorMap.colorParityNull2 = new Color(0, 100, 255); //default blue
+    VectorMap.colorParityOdd2 = new Color(155, 0, 0); // default red
+    VectorMap.colorParityEven2 = new Color(0, 0, 200); // default: dark blue
 
     /**
      * draw on a pixelcanvas use a map
      * color showing structure, based on parity stored in this.xArray
+     * and sector stored in this.yArray
      * "invalid" points have a negative lyapunov value
      * @method VectorMap#drawStructure
      */
@@ -300,21 +305,40 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let intColorParityNull = PixelCanvas.integerOf(VectorMap.colorParityNull);
         let intColorParityOdd = PixelCanvas.integerOf(VectorMap.colorParityOdd);
         let intColorParityEven = PixelCanvas.integerOf(VectorMap.colorParityEven);
+        let intColorParityNull2 = PixelCanvas.integerOf(VectorMap.colorParityNull2);
+        let intColorParityOdd2 = PixelCanvas.integerOf(VectorMap.colorParityOdd2);
+        let intColorParityEven2 = PixelCanvas.integerOf(VectorMap.colorParityEven2);
         let height = this.height;
         let width = this.width;
         let lyapunovArray = this.lyapunovArray;
         let xArray = this.xArray;
+        let yArray = this.yArray;
         var parity;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
                 let parity = xArray[index];
+                let sector = yArray[index];
+                //sector=2;
                 if (parity == 0) {
-                    pixel[index] = intColorParityNull;
+                    if (sector === 2) {
+                        pixel[index] = intColorParityNull2;
+                    } else {
+                        pixel[index] = intColorParityNull;
+                    }
                 } else if (parity & 1) {
-                    pixel[index] = intColorParityOdd;
+                    if (sector === 2) {
+                        pixel[index] = intColorParityOdd2;
+                    } else {
+                        pixel[index] = intColorParityOdd;
+                    }
+
                 } else {
-                    pixel[index] = intColorParityEven;
+                    if (sector === 2) {
+                        pixel[index] = intColorParityEven2;
+                    } else {
+                        pixel[index] = intColorParityEven;
+                    }
                 }
             } else {
                 pixel[index] = intOffColor;

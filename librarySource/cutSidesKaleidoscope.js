@@ -120,6 +120,7 @@ cutSidesKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 
@@ -160,6 +161,7 @@ cutSidesKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 
@@ -200,6 +202,7 @@ cutSidesKaleidoscope = {};
             }
         }
         position.x = reflections;
+        position.y = 1;
         return lyapunov;
     };
 

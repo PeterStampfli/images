@@ -271,9 +271,9 @@ function creation() {
 
 
 
-    circleScope.setDihedral(4);
-    circleScope.circle1.setRadiusCenterXY(6, 6, 6);
-    circleScope.discRadius = 6;
+
+
+
 
 
     circleScope.doubleTriangleK2infty(5, 3);
