@@ -274,7 +274,11 @@ function creation() {
     circleScope.setDihedral(4);
     circleScope.circle1.setRadiusCenterXY(6, 6, 6);
     circleScope.discRadius = 6;
-    circleScope.setMapping();
+
+
+    circleScope.doubleTriangleK2infty(5, 3);
+    // circleScope.setMapping();
+    console.log("? " + Fast.atan2(-1, 0));
 
 }
 

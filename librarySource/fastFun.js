@@ -212,9 +212,11 @@ var Fast = {};
      * @return {float} the atan2(y,x) value
      */
 
+    // take care of (0,0)
+
     Fast.atan2 = function(y, x) {
         var index;
-        if (x >= 0) {
+        if (x > 0) {
             if (y > 0) {
                 if (x > y) {
                     x = atanTabFactor * y / x;
@@ -223,20 +225,20 @@ var Fast = {};
                     const base = atanTable[index];
                     return base + (atanTable[index + 1] - base) * x;
                 } else {
-                    x = atanTabFactor * x / (y + 1e-30);
+                    x = atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
                     const base = atanTable[index];
                     return 1.5707963268 - (base + (atanTable[index + 1] - base) * x);
                 }
             } else {
-                if (x > -y) {
+                if (y > -x) {
                     x = -atanTabFactor * y / x;
                     index = Math.floor(x);
                     x -= index;
                     const base = atanTable[index];
                     return -(base + (atanTable[index + 1] - base) * x);
-                } else {
+                } else { // y<=-x<0
                     x = -atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
@@ -244,8 +246,8 @@ var Fast = {};
                     return -1.5707963268 + base + (atanTable[index + 1] - base) * x;
                 }
             }
-        } else {
-            if (y >= 0) {
+        } else if (x < 0) {
+            if (y > 0) {
                 if (x < -y) {
                     x = -atanTabFactor * y / x;
                     index = Math.floor(x);
@@ -253,6 +255,9 @@ var Fast = {};
                     const base = atanTable[index];
                     return 3.1415926536 - (base + (atanTable[index + 1] - base) * x);
                 } else {
+                    if (x > -Fast.epsilon) { // on the x-axis, y>0
+                        return 1.5707963268;
+                    }
                     x = -atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
@@ -266,13 +271,19 @@ var Fast = {};
                     x -= index;
                     const base = atanTable[index];
                     return -3.1415926536 + base + (atanTable[index + 1] - base) * x;
-                } else {
+                } else { // y<=x<0
                     x = atanTabFactor * x / y;
                     index = Math.floor(x);
                     x -= index;
                     const base = atanTable[index];
                     return -1.5707963268 - (base + (atanTable[index + 1] - base) * x);
                 }
+            }
+        } else { // x=0 we are on the y-axis
+            if (y >= 0) {
+                return 1.5707963268;
+            } else {
+                return -1.5707963268;
             }
         }
     };
@@ -402,7 +413,6 @@ var Fast = {};
                 out += " " + data[j * width + i];
             }
             console.log(out);
-
         }
     };
 

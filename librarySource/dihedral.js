@@ -118,6 +118,10 @@ function Dihedral() {
      */
     Dihedral.prototype.mapOfSector = function(i, p) {
         Dihedral.reflections = i;
+        if (this.maps[i] == null) {
+            console.log(i);
+            p.log();
+        }
         this.maps[i](p);
     };
 
@@ -244,6 +248,8 @@ function Dihedral() {
      * @return integer index of the sector with point v
      */
     Dihedral.prototype.getSectorIndex = function(v) {
+        // get the angle
+        // mirror symmetry at x-axis: angle=>-angle
         let result = Fast.atan2(v.y, v.x);
         if (result < 0) {
             result += zpi;

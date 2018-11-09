@@ -1,5 +1,6 @@
 /**
  * similar to threeMirrorskaleidoscope+basicKaleidoscop, but with two circles instead of one
+ * both circles invert inside out
  * @namespace circleScope
  */
 
@@ -96,6 +97,35 @@ circleScope = {};
         position.x = reflections;
         return result;
     };
+
+    /**
+     * setup for circles with centers on each straight mirror line,intersecting at right angles, the other straight line as tangent.
+     * thus combination of two (k,2,infinity) kaleidoscopes, k has to be three or larger
+     * the larger circles touch the poincare disc border of the other one
+     * @method circleScope.doubleTriangleK2infty
+     * @param {integer} k - basic dihedral order, 3 or larger
+     * @param {float} r - radius of first circle
+     */
+    circleScope.doubleTriangleK2infty = function(k, r) {
+        k = Math.max(3, k);
+        circleScope.setDihedral(k);
+        const sinPIK = Fast.sin(Math.PI / k);
+        const cosPIK = Fast.cos(Math.PI / k);
+        const tanPIK = sinPIK / cosPIK;
+        const centerX1 = r / sinPIK;
+        console.log(sinPIK);
+        console.log(centerX1);
+        const centerX2 = r + centerX1;
+        const radius2 = tanPIK * centerX2;
+        circleScope.discRadius = centerX2;
+        circleScope.circle1.setRadiusCenterXY(r, centerX1, 0);
+        circleScope.circle2.setRadiusCenterXY(radius2, centerX2, radius2);
+
+        circleScope.setMapping();
+
+    };
+
+
 
 
 }());
