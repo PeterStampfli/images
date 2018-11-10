@@ -21,13 +21,11 @@ circleScope = {};
     // remap if outside for image
     circleScope.discRemapForImage = true;
 
-    circleScope.circle1 = new Circle();
-    circleScope.circle2 = new Circle();
+   
     circleScope.dihedral = new Dihedral();
     var reflections;
     let dihedral = circleScope.dihedral;
-    let circle1 = circleScope.circle1;
-    let circle2 = circleScope.circle2;
+  
 
     /**
      * set dihedral order
@@ -58,8 +56,8 @@ circleScope = {};
      */
     circleScope.draw = function() {
         dihedral.drawMirrors();
-        circle1.draw();
-        circle2.draw();
+        circleScope.circle1.draw();
+        circleScope.circle2.draw();
     };
 
 
@@ -77,7 +75,7 @@ circleScope = {};
         for (var i = circleScope.maxIterations; i > 0; i--) {
             dihedral.map(position);
             reflections += Dihedral.reflections;
-            if ((circle1.map(position) > 0) || (circle2.map(position) > 0)) {
+            if ((circleScope.circle1.map(position) > 0) || (circleScope.circle2.map(position) > 0)) {
                 reflections++;
                 if (circleScope.discRemap) {
                     let r2 = position.x * position.x + position.y * position.y;
@@ -152,17 +150,17 @@ circleScope = {};
         const sinPIK = Fast.sin(Math.PI / k);
         const cosPIK = Fast.cos(Math.PI / k);
         const tanPIK = sinPIK / cosPIK;
-        const centerX1 = r / sinPIK;
-        console.log(sinPIK);
-        console.log(centerX1);
-        const centerX2 = r + centerX1;
-        const radius2 = tanPIK * centerX2;
-        circleScope.circle1.setRadiusCenterXY(r, centerX1, 0);
+        const center1 = new Vector2(r / sinPIK,0);
+                const radius2 = tanPIK * r *(1+1/sinPIK);
+
+        const center2 = new Vector2(r + center1.x,radius2);
+        circleScope.circle1=new Circle(r,center1);
         circleScope.circle1.map = circleScope.circle1.invertInsideOut;
-        circleScope.circle2.setRadiusCenterXY(radius2, centerX2, radius2);
+        
+        circleScope.circle2=new Circle(radius2,center2);
         circleScope.circle2.map = circleScope.circle2.invertInsideOut;
 
-        circleScope.discRadius = centerX2;
+        circleScope.discRadius = center2.x;
         circleScope.discCutoff = false;
         circleScope.discRemap = false;
         circleScope.discRemapForImage = true;
@@ -171,7 +169,54 @@ circleScope = {};
 
     };
 
+/**
+ * set up the second circle as an outer circle with hyperbolic or elliptic geometry
+ * @method circleScope.outerReflection
+ * @param {float} radius of circle, or intersection of line with x-axis
+     * @param {integer} k - symmetry at center corner
+     * @param {integer} m - symmetry at "right" corner
+     * @param {integer} n - symmetry at "left" corner
+ */
+circleScope.outerReflection=function(radius,k,m,n){
+    
+    
+}
 
 
+/**
+ * a chain of two circles with same radius and adjustable intersection angle 
+ * @method circleScope.chaink2n2
+  * @param {integer} k - rotational symmetry of all
+* @param {float} radius
+ * @param {float} x - position of upper circle center
+ * @param {integer} n - rotational symmetry at intersection of circles
+ */
+circleScope.chaink2n2=function(k,radius,x,n){
+        k = Math.max(3, k);
+        circleScope.setDihedral(k);
+        const d=2*radius*Fast.cos(0.5*Math.PI/n);
+        const y=Math.min(x*Math.tan(Math.PI/k),d);
+        const center1=new Vector2(x,y);
+        const center2x=x+Math.sqrt(d*d-y*y);
+        const center2=new Vector2(center2x,0);
+        const middle=Vector2.middle(center1,center2);
+        center1.log("c1");
+        center2.log("c2");
+        middle.log();
+        circleScope.discRadius=middle.length();
+        console.log(circleScope.discRadius);
+               circleScope.discCutoff = false;
+        circleScope.discRemap = false;
+        circleScope.discRemapForImage = true;
 
+        
+        circleScope.circle1=new Circle(radius,center1);
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
+        circleScope.circle2=new Circle(radius,center2);
+        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+
+        circleScope.setMapping();
+
+        
+}
 }());

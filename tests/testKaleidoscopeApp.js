@@ -277,8 +277,13 @@ function creation() {
 
 
     circleScope.doubleTriangleK2infty(5, 3);
+    // change k later ???
     // circleScope.setMapping();
-    console.log("? " + Fast.atan2(-1, 0));
+
+    
+    circleScope.outerReflection(4,2,2,3);
+    
+    circleScope.chaink2n2(3,3,3,2);
 
 }
 
