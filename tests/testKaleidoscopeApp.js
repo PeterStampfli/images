@@ -220,7 +220,7 @@ function creation() {
         // Make.outputImage.adjustCanvasTransform();
         //Make.outputImage.pixelCanvas.fillScreen("white");
         Draw.setLineWidth(3);
-        Draw.setColor("red");
+        Draw.setColor("black");
         //   iterateTiling.drawStructure(0);
         //  distortedSquares.drawStructure();
 
@@ -257,34 +257,48 @@ function creation() {
     iterateTiling.setMaxIterations(1);
     //  iterateTiling.generateStructure();
 
-
-    distortedSquares.distortion = function(position) {
-        let factor = Math.hypot(position.x, position.y) / distortedSquares.size;
-        factor *= 1.5;
-        factor = Math.min(factor, 0.9);
-        position.x += (Math.random() - 0.5) * distortedSquares.side * factor;
-        position.y += (Math.random() - 0.5) * distortedSquares.side * factor;
-    };
-
-
-    distortedSquares.generate();
+    /*
+        distortedSquares.distortion = function(position) {
+            let factor = Math.hypot(position.x, position.y) / distortedSquares.size;
+            factor *= 1.5;
+            factor = Math.min(factor, 0.9);
+            position.x += (Math.random() - 0.5) * distortedSquares.side * factor;
+            position.y += (Math.random() - 0.5) * distortedSquares.side * factor;
+        };
 
 
+        distortedSquares.generate();
+
+    */
+    VectorMap.colorParityNull = new Color(200, 200, 0); //default yellow
+    VectorMap.colorParityOdd = new Color(0, 130, 0); // default dark green
+    VectorMap.colorParityEven = new Color(200, 170, 0); // default: brown
+    VectorMap.colorParityOff = new Color(128, 128, 128, 0);
+
+    // colors for second sector
+    VectorMap.colorParityNull2 = new Color(0, 100, 255); //default blue
+    VectorMap.colorParityOdd2 = new Color(150, 0, 0); // default red
+    VectorMap.colorParityEven2 = new Color(0, 0, 150); // default: dark blue
 
 
 
 
+    VectorMap.colorParityNull2 = VectorMap.colorParityEven2;
+    VectorMap.colorParityNull = VectorMap.colorParityEven;
 
 
-    circleScope.doubleTriangleK2infty(5, 3);
+
+    circleScope.doubleTriangleK2infty(4, 3);
+
+
     // change k later ???
     // circleScope.setMapping();
 
-    
+    /*
     circleScope.outerReflection(4,2,2,3);
     
     circleScope.chaink2n2(3,3,3,2);
-
+*/
 }
 
 // adjust fontsize related dimensions

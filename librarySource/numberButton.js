@@ -4,8 +4,8 @@
  * 
  * @constructor NumberButton
  * @param {String} idName name (id) of an html text input element
- * @param {String} idPlus - optional, id for plus button
- * @param {String} idMinus - optional, id for minus button
+ * @param {String} idPlus - optional, id of an HTML button element, for plus button
+ * @param {String} idMinus - optional, id of an HTML button element, for minus button
  */
 
 /* jshint esversion:6 */
@@ -33,7 +33,7 @@ function NumberButton(idName, idPlus, idMinus) {
 
     /**
      * action upon change, strategy pattern
-     * @method Button#onclick
+     * @method NumberButton#onclick
      * @param {integer} value
      */
     this.onChange = function(value) {};
@@ -118,19 +118,25 @@ function NumberButton(idName, idPlus, idMinus) {
         this.element.value = number.toString();
         this.lastValue = number;
     };
+
     /**
      * set the text of a button of type="text" according to a given number
-     * check if it is in the range, if number changes do this.onchange
+     * check if it is a number and clamp it in the range, if number changes do this.onchange
      * thus we can use it for initialization
      * @method NumberButton#updateValue
      * @param {integer} number - the number value to show in the button
      */
     NumberButton.prototype.updateValue = function(number) {
-        number = Math.min(this.maxValue, Math.max(this.minValue, number));
-        let lastValue = this.lastValue;
-        this.setValue(number);
-        if (lastValue != number) { // does it really change??
-            this.onChange(number);
+        if (isNaN(number)) { // overwrite grabahge, do nothing
+            this.setValue(this.lastValue);
+        } else {
+            number = Math.min(this.maxValue, Math.max(this.minValue, number));
+            if (this.lastValue != number) { // does it really change??
+                this.setValue(number); // update numbers before action
+                this.onChange(number);
+            } else { // it does not change, clean up garbage
+                this.setValue(this.lastValue);
+            }
         }
     };
 
