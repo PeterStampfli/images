@@ -435,6 +435,35 @@ var Fast = {};
         console.log("-------------END--------------");
     };
 
+    /**
+     * solve quadratic equation ax**2+bx+c=0
+     * returns true for real solutions
+     * solutions are in Fast.xLow and Fast.xHigh
+     * @method Fast.quadraticEquation
+     * @param {float} a
+     * @param {float} b
+     * @param {float} c
+     */
+    Fast.xLow = 0;
+    Fast.xHigh = 0;
+
+    Fast.quadraticEquation = function(a, b, c) {
+        const rootArg = b * b - 4 * a * c;
+        if (rootArg < 0) {
+            Fast.xHigh = 0;
+            Fast.xLow = 0;
+            return false;
+        }
+        if (b / a > 0) {
+            Fast.xLow = 0.5 * (-b - Math.sqrt(rootArg)) / a;
+            Fast.xHigh = c / a / Fast.xLow;
+        } else {
+            Fast.xHigh = 0.5 * (-b + Math.sqrt(rootArg)) / a;
+            Fast.xLow = c / a / Fast.xHigh;
+        }
+        return true;
+    };
+
     //console.time("stcihwort")
     //console.timeEnd("stcihwort")
 

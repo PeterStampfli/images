@@ -1,5 +1,6 @@
 /**
  * a button to input numbers together with a slider
+ * default is value between 0 and 1
  * @constructor Range
  * @param {String} idText - id of HTML input element type text
  * @param {String} idRange - id of HTML input element, type range
@@ -10,12 +11,10 @@
 function Range(idText, idRange) {
     this.textElement = document.getElementById(idText);
     this.rangeElement = document.getElementById(idRange);
-
-    // limiting the number range: defaults, minimum is zero, maximum is very large
-    this.minValue = 0;
-    this.maxValue = 1000000000;
-    // remember the last value, for starters an extremely improbable value
-    this.lastValue = -1000000000;
+    this.rangeElement.step = "any";
+    this.setStep(0.01);
+    this.setValue(0.5);
+    this.setRange(0, 1);
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
 
     const range = this;
@@ -23,8 +22,6 @@ function Range(idText, idRange) {
     // the text element alone
     this.textHover = false;
     this.textPressed = false;
-
-    // styling
     this.updateTextStyle();
 
     // hovering
@@ -40,9 +37,6 @@ function Range(idText, idRange) {
 
     // doing things
     this.textElement.onchange = function() {
-        //  button.updateValue(button.getValue());
-        console.log("changes " + range.getValueText());
-
         range.updateValue(range.getValueText());
     };
 
@@ -57,21 +51,13 @@ function Range(idText, idRange) {
         range.updateTextStyle();
     };
 
-
-
-
-
     // the range element alone
     this.rangeHover = false;
     this.rangePressed = false;
-
     this.updateRangeStyle();
 
     // doing things
     this.rangeElement.onchange = function() {
-        //  button.updateValue(button.getValue());
-        console.log("changes " + range.getValueText());
-
         range.updateValue(range.getValueRange());
     };
 
@@ -86,16 +72,12 @@ function Range(idText, idRange) {
         range.updateRangeStyle();
     };
 
-    // both elements
-
-
     /**
      * action upon change, strategy pattern
      * @method Range#onclick
      * @param {integer} value
      */
     this.onChange = function(value) {};
-
 }
 
 
@@ -108,7 +90,6 @@ function Range(idText, idRange) {
      * @method NumberButton#colorStyleDefaults
      */
     Range.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
-
 
     /**
      * update the color style of the text input element depending on whether its pressed or hovered
@@ -175,7 +156,6 @@ function Range(idText, idRange) {
         return parseFloat(this.rangeElement.value);
     };
 
-
     /**
      * set the values of the text input element and the rangeElement
      * sets lastValue to same number
@@ -184,11 +164,12 @@ function Range(idText, idRange) {
      * @param {integer} number - the number value to show in the button
      */
     Range.prototype.setValue = function(number) {
+        console.log(number);
+        number = this.quantize(number);
         this.textElement.value = number.toString();
         this.rangeElement.value = number.toString();
         this.lastValue = number;
     };
-
 
     /**
      * set the textInput and rangeInput according to a given number
@@ -201,7 +182,7 @@ function Range(idText, idRange) {
         if (isNaN(number)) { // overwrite grabahge, do nothing
             this.setValue(this.lastValue);
         } else {
-            number = Math.min(this.maxValue, Math.max(this.minValue, number));
+            number = Fast.clamp(this.minValue, number, this.maxValue);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
                 this.onChange(number);
@@ -210,4 +191,58 @@ function Range(idText, idRange) {
             }
         }
     };
+
+    /**
+     * set the allowed range of numbers, correct value if out of range
+     * @method Range#setRange
+     * @param {integer} minValue
+     * @param {integer} maxValue
+     */
+    Range.prototype.setRange = function(minValue, maxValue) {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.rangeElement.min = minValue;
+        this.rangeElement.max = maxValue;
+        // clamp value in range
+        this.setValue(Fast.clamp(this.minValue, this.lastValue, this.maxValue));
+    };
+
+    /**
+     * quantize a number according to step
+     * @method Range#quantize
+     * @param {float} x
+     * @return float, quantized x
+     */
+    Range.prototype.quantize = function(x) {
+        return this.step * Math.round(x / this.step);
+    };
+
+    /**
+     * set the step of the slider, used too for quantization of text input/output
+     * @method Range#setStep
+     * @param {float} step
+     */
+    Range.prototype.setStep = function(step) {
+        this.step = step;
+        this.rangeElement.step = step;
+    };
+
+    /**
+     * create a range button combination
+     * Attention: set font sizes afterwards
+     * @method Range.create
+     * @param {String} idSpan - id of the span containing the number button
+     * @return Range
+     */
+    Range.create = function(idSpan) {
+        DOM.create("input", idSpan + "text", "#" + idSpan);
+        DOM.attribute("#" + idSpan + "text", "type", "text", "maxlength", "4");
+        DOM.create("input", idSpan + "range", "#" + idSpan);
+        DOM.attribute("#" + idSpan + "range", "type", "range");
+
+
+        let range = new Range(idSpan + "text", idSpan + "range");
+        return range;
+    };
+
 }());

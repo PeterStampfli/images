@@ -92,10 +92,8 @@ function NumberButton(idName, idPlus, idMinus) {
     NumberButton.prototype.setRange = function(minValue, maxValue) {
         this.minValue = minValue;
         this.maxValue = maxValue;
-        let value = this.getValue();
-        if (value < minValue) {
-            this.setValue(minValue);
-        }
+        // clamp value in range
+        this.setValue(Fast.clamp(this.minValue, this.getValue(), this.maxValue));
     };
 
     /**
@@ -130,7 +128,7 @@ function NumberButton(idName, idPlus, idMinus) {
         if (isNaN(number)) { // overwrite grabahge, do nothing
             this.setValue(this.lastValue);
         } else {
-            number = Math.min(this.maxValue, Math.max(this.minValue, number));
+            number = Fast.clamp(this.minValue, number, this.maxValue);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
                 this.onChange(number);
