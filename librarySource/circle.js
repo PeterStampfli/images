@@ -2,14 +2,31 @@
  * a circle as an object with a radius, square of radius and center vector
  * @constructor Circle
  * @param {float} radius, default 0
- * @param {Vector2} center, default (0,0)
+ * @param {Vector2 | float} center, default (0,0), or component x
+ * @param {float} optional centerY
  */
 
 /* jshint esversion:6 */
 
-function Circle(radius = 0, center = new Vector2()) {
-    this.setRadius(radius);
-    this.center = center;
+function Circle(radius, center, centerY) {
+    switch (arguments.length) {
+        case 0:
+            this.setRadius(0);
+            this.center = new Vector2(0, 0);
+            break;
+        case 1:
+            this.setRadius(radius);
+            this.center = new Vector2(0, 0);
+            break;
+        case 2:
+            this.setRadius(radius);
+            this.center = center;
+            break;
+        case 3:
+            this.setRadius(radius);
+            this.center = new Vector2(center, centerY);
+            break;
+    }
 }
 
 (function() {

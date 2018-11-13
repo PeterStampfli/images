@@ -36,79 +36,14 @@
 		<canvas id="controlCanvas" ></canvas>
 		<canvas id="arrowController" ></canvas>
 </body>
-<script src="../librarySource/color.js"></script>
-<script src="../librarySource/vector2.js"></script>
-<script src="../librarySource/keyboardEvents.js"></script>
-<script src="../librarySource/vectorMap.js"></script>
-<script src="../librarySource/mouseEvents.js"></script>
-<script src="../librarySource/twoMirrors.js"></script>
 <script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/vector2.js"></script>
+
 <script src="../librarySource/circle.js"></script>
-<script src="../librarySource/point.js"></script>
-<script src="../librarySource/line.js"></script>
-<script src="../librarySource/button.js"></script>
-<script src="../librarySource/fileButton.js"></script>
-<script src="../librarySource/numberButton.js"></script>
-<script src="../librarySource/switchButton.js"></script>
-<script src="../librarySource/selection.js"></script>
-<script src="../librarySource/fileSaver.js"></script>
-<script src="../librarySource/pixelCanvas.js"></script>
-<script src="../librarySource/outputImage.js"></script>
-<script src="../librarySource/controlImage.js"></script>
-<script src="../librarySource/arrowController.js"></script>
-<script src="../librarySource/twoMirrors.js"></script>
-<script src="../librarySource/make.js"></script>
 
 
 <script type="text/javascript">
-    console.log("start "+sessionStorage.getItem("size"));
-
-    console.log("hi");
-    console.log(localStorage.getItem("size"));
-    
-setKButton= Make.createMapParameterButton("setK","plus","minus");
-
-setKButton.setValue(5);
-setKButton.setRange(2,100000)
-
-  Make.initializeMap=function(){
-  twoMirrors.setK(setKButton.getValue());
-  }
-
-sizeButton=Make.createSquareImageSizeButton("size");
-sizeButton.setValue(300);
-
- Make.createSmootingChoice("none","2x2");
-
-Make.createInterpolationChoice ("next","linear","quadratic")
-
-
-Make.createOutputImageNoColorSymmetry("outputCanvas")
-
-
-Make.outputImage.stopZoom();
-
-Make.createControlImage("controlCanvas",200)
-
-Make.createArrowController("arrowController",200)
-
-
-
-Make.createSaveImagePng("dd","newoutput");
-
-
-//Make.createImageInputButton("imageInput")
-Make.createImageInput("b","o");
-
-
-Make.setOutputSize(300,300)
- Make.setInitialOutputImageSpace(-1,1,-1);
-           Make.resetOutputImageSpace();
-
-Make.setMapping(twoMirrors.vectorMapping,twoMirrors.reflectionsMapping);
-  
-Make.updateNewMap();
-
+  new Circle(2,33,444).log();
 
 
 </script>

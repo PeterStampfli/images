@@ -28,15 +28,6 @@ circleScope = {};
 
 
     /**
-     * set dihedral order
-     * @method circleScope.setDihedral
-     * @param {integer} k, the order
-     */
-    circleScope.setDihedral = function(k) {
-        circleScope.dihedral.setOrder(k);
-    };
-
-    /**
      * set the mappings
      * @method circleScope.setMapping
      */
@@ -137,6 +128,103 @@ circleScope = {};
     };
 
     /**
+     * set coloring/cutoff disc radius
+     * @method circleScope.setDiscRadius
+     * @param {float} radius
+     */
+    circleScope.setDiscRadius = function(radius) {
+        circleScope.discRadius = radius;
+        circleScope.discRadius2 = radius * radius;
+    };
+
+
+    /**
+     * set dihedral order
+     * @method circleScope.setDihedral
+     * @param {integer} k, the order
+     */
+    circleScope.setDihedral = function(k) {
+        circleScope.dihedral.setOrder(k);
+    };
+
+
+    /**
+     * get dihedral order
+     * @method circleScope.setDihedral
+     * @result {integer} k, the order
+     */
+    circleScope.getDihedral = function() {
+        return circleScope.dihedral.n;
+    };
+
+
+
+    /**
+     * outer circle is circle number one
+     * set second circle to zero if there should be only one
+     * and make shure that it does nothing
+     * @method circleScope.secondCircleZero
+     */
+    circleScope.secondCircleZero = function() {
+        circleScope.circle2 = new Circle(0, new Vector2(0, 0));
+        circleScope.circle2.map = function(p) {
+            return -1;
+        };
+    };
+
+    /**
+     * set up the first circle as an outer circle with hyperbolic, euclidic or elliptic geometry
+     * set dihedral order before
+     * @method circleScope.outerReflection
+     * @param {float} radius of circle, or intersection of line with x-axis
+     * @param {integer} m - symmetry at "right" corner
+     * @param {integer} n - symmetry at "left" corner
+     */
+    circleScope.outerReflection = function(radius, m, n) {
+        const k = circleScope.getDihedral();
+        console.log("k " + k);
+        const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
+        console.log("angsu " + angleSum);
+
+        const cosGamma = Fast.cos(Math.PI / k);
+        const sinGamma = Fast.sin(Math.PI / k);
+        const cosAlpha = Fast.cos(Math.PI / m);
+        const sinAlpha = Fast.sin(Math.PI / m);
+        const cosBeta = Fast.cos(Math.PI / n);
+        const sinBeta = Fast.sin(Math.PI / n);
+        // elliptic, raw, adjust
+        if (angleSum > 1.000001) {
+
+            circle.setRadius(1);
+            circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
+
+
+
+        }
+        // euklidic, final
+        else if (angleSum > 0.999999) {
+
+            line.a.setComponents(intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
+            line.b.setComponents(intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
+            line.update();
+
+
+
+        }
+        // hyperbolic, raw, adjust
+        else {
+
+            circle.setRadius(1);
+            circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
+
+
+        }
+
+
+    };
+
+
+    /**
      * setup for circles with centers on each straight mirror line,intersecting at right angles, the other straight line as tangent.
      * thus combination of two (k,2,infinity) kaleidoscopes, k has to be three or larger
      * the larger circles touch the poincare disc border of the other one
@@ -160,7 +248,7 @@ circleScope = {};
         circleScope.circle2 = new Circle(radius2, center2);
         circleScope.circle2.map = circleScope.circle2.invertInsideOut;
 
-        circleScope.discRadius = center2.x;
+        circleScope.setDiscRadius(center2.x);
         circleScope.discCutoff = false;
         circleScope.discRemap = false;
         circleScope.discRemapForImage = true;
@@ -169,18 +257,6 @@ circleScope = {};
 
     };
 
-    /**
-     * set up the second circle as an outer circle with hyperbolic or elliptic geometry
-     * @method circleScope.outerReflection
-     * @param {float} radius of circle, or intersection of line with x-axis
-     * @param {integer} k - symmetry at center corner
-     * @param {integer} m - symmetry at "right" corner
-     * @param {integer} n - symmetry at "left" corner
-     */
-    circleScope.outerReflection = function(radius, k, m, n) {
-
-
-    };
 
 
     /**
@@ -204,6 +280,8 @@ circleScope = {};
         center2.log("c2");
         middle.log();
         circleScope.discRadius = middle.length();
+
+
         console.log(circleScope.discRadius);
         circleScope.discCutoff = false;
         circleScope.discRemap = false;
@@ -212,12 +290,15 @@ circleScope = {};
 
         circleScope.circle1 = new Circle(radius, center1);
         circleScope.circle1.map = circleScope.circle1.invertInsideOut;
-        circleScope.circle2 = new Circle(radius, center2);
-        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+        //   circleScope.circle2 = new Circle(radius, center2);
+        //   circleScope.circle2.map = circleScope.circle2.invertInsideOut;
 
         circleScope.setMapping();
 
 
     };
+
+
+
 
 }());
