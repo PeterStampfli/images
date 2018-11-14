@@ -289,13 +289,13 @@ function creation() {
 
 
     circleScope.doubleTriangleK2infty(4, 3);
-    circleScope.secondCircleZero();
+    circleScope.circle2 = circleScope.circleZero();
     circleScope.setDiscRadius(100000000);
 
-    circleScope.setDihedral(5);
+    circleScope.setDihedral(4);
 
 
-    circleScope.outerReflection(4.5, 2, 4);
+    circleScope.circle1 = circleScope.reflection(4.5, 2, 4, true);
 
 
     // change k later ???

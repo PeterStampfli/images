@@ -160,27 +160,29 @@ circleScope = {};
 
 
     /**
-     * outer circle is circle number one
-     * set second circle to zero if there should be only one
-     * and make shure that it does nothing
+     * make a circle that does nothing
      * @method circleScope.secondCircleZero
+     * @return Circle, radius zero map method does nothing
      */
-    circleScope.secondCircleZero = function() {
-        circleScope.circle2 = new Circle(0, new Vector2(0, 0));
-        circleScope.circle2.map = function(p) {
+    circleScope.circleZero = function() {
+        const circle = new Circle(0, new Vector2(0, 0));
+        circle.map = function(p) {
             return -1;
         };
+        return circle;
     };
 
     /**
-     * set up the first circle as an outer circle with hyperbolic, euclidic or elliptic geometry
+     * generate an object (circle or line ) as reflection border with hyperbolic, euclidic or elliptic geometry
      * set dihedral order before
-     * @method circleScope.outerReflection
+     * @method circleScope.reflection
      * @param {float} radius of circle, or intersection of line with x-axis
      * @param {integer} m - symmetry at "right" corner
      * @param {integer} n - symmetry at "left" corner
+     * @param {boolean} outer - true for outer (towards the center), false for inner reflection (away fromcenter)
+     * @return circle or line suitable as outer reflection
      */
-    circleScope.outerReflection = function(radius, m, n) {
+    circleScope.reflection = function(radius, m, n, outer) {
         const k = circleScope.getDihedral();
         console.log("k " + k);
         const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
@@ -192,35 +194,38 @@ circleScope = {};
         const sinAlpha = Fast.sin(Math.PI / m);
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
-        // elliptic, raw, adjust
+        // elliptic
         if (angleSum > 1.000001) {
-
-            circle.setRadius(1);
-            circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
-
-
+            const circle = new Circle(radius, -radius * (cosAlpha * cosGamma + cosBeta) / sinGamma, -radius * cosAlpha);
+            if (outer) {
+                circle.map = circle.invertOutsideIn;
+            } else {
+                circle.map = circle.invertInsideOut;
+            }
+            return circle;
 
         }
-        // euklidic, final
+        // euklidic
         else if (angleSum > 0.999999) {
-
-            line.a.setComponents(intersectionMirrorXAxis - big * cosAlpha, big * sinAlpha);
-            line.b.setComponents(intersectionMirrorXAxis + big * cosAlpha, -big * sinAlpha);
-            line.update();
-
-
-
+            const big = 100000;
+            const line = new Line(new Vector2(radius - big * cosAlpha, big * sinAlpha), new Vector2(radius + big * cosAlpha, -big * sinAlpha));
+            if (outer) {
+                line.map = line.mirrorLeftToRight;
+            } else {
+                line.map = line.mirrorRightToLeft;
+            }
+            return line;
         }
-        // hyperbolic, raw, adjust
+        // hyperbolic
         else {
-
-            circle.setRadius(1);
-            circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
-
-
+            const circle = new Circle(radius, radius * (cosAlpha * cosGamma + cosBeta) / sinGamma, radius * cosAlpha);
+            if (outer) {
+                circle.map = circle.invertInsideOut;
+            } else {
+                circle.map = circle.invertOutsideIn;
+            }
+            return circle;
         }
-
-
     };
 
 
