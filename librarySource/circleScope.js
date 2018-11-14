@@ -173,7 +173,7 @@ circleScope = {};
     };
 
     /**
-     * generate an object (circle or line ) as reflection border with hyperbolic, euclidic or elliptic geometry
+     * generate an object (circle or line ) as outer reflection border with hyperbolic, euclidic or elliptic geometry
      * set dihedral order before
      * @method circleScope.reflection
      * @param {float} radius of circle, or intersection of line with x-axis
@@ -182,7 +182,7 @@ circleScope = {};
      * @param {boolean} outer - true for outer (towards the center), false for inner reflection (away fromcenter)
      * @return circle or line suitable as outer reflection
      */
-    circleScope.reflection = function(radius, m, n, outer) {
+    circleScope.outerReflection = function(radius, m, n) {
         const k = circleScope.getDihedral();
         console.log("k " + k);
         const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
@@ -197,37 +197,48 @@ circleScope = {};
         // elliptic
         if (angleSum > 1.000001) {
             const circle = new Circle(radius, -radius * (cosAlpha * cosGamma + cosBeta) / sinGamma, -radius * cosAlpha);
-            if (outer) {
-                circle.map = circle.invertOutsideIn;
-            } else {
-                circle.map = circle.invertInsideOut;
-            }
+            circle.map = circle.invertOutsideIn;
             return circle;
-
         }
         // euklidic
         else if (angleSum > 0.999999) {
             const big = 100000;
             const line = new Line(new Vector2(radius - big * cosAlpha, big * sinAlpha), new Vector2(radius + big * cosAlpha, -big * sinAlpha));
-            if (outer) {
-                line.map = line.mirrorLeftToRight;
-            } else {
-                line.map = line.mirrorRightToLeft;
-            }
+            line.map = line.mirrorLeftToRight;
             return line;
         }
         // hyperbolic
         else {
             const circle = new Circle(radius, radius * (cosAlpha * cosGamma + cosBeta) / sinGamma, radius * cosAlpha);
-            if (outer) {
-                circle.map = circle.invertInsideOut;
-            } else {
-                circle.map = circle.invertOutsideIn;
-            }
+            circle.map = circle.invertInsideOut;
             return circle;
         }
     };
 
+    /**
+     * generate a circle as inner reflecting element
+     * 
+     * set dihedral order before
+     * @method circleScope.innerReflection
+     * @param {float} radius of circle, or intersection of line with x-axis
+     * @param {integer} n - symmetry at "left" corner, intersection with upper inclined reflecting line
+     * @return Circle for inner reflection
+     */
+    circleScope.innerReflection = function(radius, m, n) {
+        const k = circleScope.getDihedral();
+
+
+        const cosGamma = Fast.cos(Math.PI / k);
+        const sinGamma = Fast.sin(Math.PI / k);
+        const cosAlpha = Fast.cos(Math.PI / m);
+        const sinAlpha = Fast.sin(Math.PI / m);
+        const cosBeta = Fast.cos(Math.PI / n);
+        const sinBeta = Fast.sin(Math.PI / n);
+
+        const circle = new Circle(radius, radius * (cosAlpha * cosGamma + cosBeta) / sinGamma, radius * cosAlpha);
+        circle.map = circle.invertInsideOut;
+        return circle;
+    };
 
     /**
      * setup for circles with centers on each straight mirror line,intersecting at right angles, the other straight line as tangent.

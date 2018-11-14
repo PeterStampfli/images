@@ -292,10 +292,11 @@ function creation() {
     circleScope.circle2 = circleScope.circleZero();
     circleScope.setDiscRadius(100000000);
 
-    circleScope.setDihedral(4);
+    circleScope.setDihedral(3);
 
 
-    circleScope.circle1 = circleScope.reflection(4.5, 2, 4, true);
+    circleScope.circle1 = circleScope.outerReflection(4.5, 2, 4);
+    circleScope.circle1 = circleScope.innerReflection(4.5, 3, 3);
 
 
     // change k later ???
