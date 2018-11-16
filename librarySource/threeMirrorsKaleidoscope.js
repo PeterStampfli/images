@@ -28,38 +28,25 @@ threeMirrorsKaleidoscope = {};
      */
     threeMirrorsKaleidoscope.setKMN = function(k, m, n) {
         basicKaleidoscope.setKMN(k, m, n);
-        Make.setMapping(threeMirrorsKaleidoscope.mapInputImage, threeMirrorsKaleidoscope.mapStructure);
+        Make.setMapping(threeMirrorsKaleidoscope.mapInputImage, threeMirrorsKaleidoscope.mapInputImage);
         basicMap = basicKaleidoscope.map;
     };
 
     /**
      * map the position for using an input image,
+     * set lyapunov (if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed)
+     * and number of reflections
      * @method threeMirrorsKaleidoscope.mapInputImage
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    threeMirrorsKaleidoscope.mapInputImage = function(position) {
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
-            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
-        }
-        return lyapunov;
-    };
-
-    /**
-     * map the position for showing the structure
-     * @method threeMirrorsKaleidoscope.mapStructure
      * @param {Vector2} v - the vector to map, x-component will be number of reflections
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @param {Object} otherResults - with fields reflections and lyapunov
      */
-    threeMirrorsKaleidoscope.mapStructure = function(position) {
+    threeMirrorsKaleidoscope.mapInputImage = function(position, furtherResults) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
         }
-        position.x = basicKaleidoscope.reflections + Dihedral.reflections;
-        position.y = 1;
-        return lyapunov;
+        furtherResults.reflections = basicKaleidoscope.reflections + Dihedral.reflections;
+        furtherResults.lyapunov = lyapunov;
     };
 
 }());

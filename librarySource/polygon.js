@@ -4,7 +4,7 @@
  * points are not cloned to save time and space, be aware of what you do
  * if needed, attach additional lines and other objects as fields to do mappings
  * @constructor Polygon
- * @param {ArrayOfVector2 or Vector2...} vectors - the corner points in counter clockwise order, as array or list
+ * @param {ArrayOfVector2 | Vector2List} vectors - the corner points in counter clockwise order, as array or list
  */
 /* jshint esversion:6 */
 

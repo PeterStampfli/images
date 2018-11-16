@@ -384,7 +384,7 @@ function Vector2(x = 0, y = 0) {
     /**
      * put vector2 objects on the pool for recycling
      * @method Vector2.toPool
-     * @param {Vector2 ...} vectors
+     * @param {Vector2List} vectors
      */
     Vector2.toPool = function(vectors) {
         const length = arguments.length;
@@ -397,8 +397,8 @@ function Vector2(x = 0, y = 0) {
      * get a vector2 object from the pool or create one
      * can set components from coordinate pair or clone a vector2 object
      * @method Vector2.fromPool
-     * @param {float or Vector2 or nothing} x
-     * @param {float or nothing} x
+     * @param {float | Vector2 | nothing} x
+     * @param {float | nothing} x
      * @return Vector2
      */
     Vector2.fromPool = function(x, y) {

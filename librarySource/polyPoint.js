@@ -2,7 +2,7 @@
  * lightweight version of polygon
  * saves only corners and draws line between corners
  * @constructor PolyPoint
- * @param {ArrayOfVector2 or Vector2...} vectors - the corner points in counter clockwise order, as array or list
+ * @param {ArrayOfVector2 | Vector2List} vectors - the corner points in counter clockwise order, as array or list
  */
 /* jshint esversion:6 */
 

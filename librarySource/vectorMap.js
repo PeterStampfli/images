@@ -17,6 +17,12 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.height = 2;
     this.xArray = new Float32Array(4);
     this.yArray = new Float32Array(4);
+    // for showing the structure, lyapunov>0: numbers indexing the desired color
+    this.structureNumberArray = new Uint8ClampedArray(4);
+    this.structureColors = new Uint32Array(256); // beware of the sign bit
+
+    this.createSimpleColorTable();
+
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
     this.inputTransform = inputTransform;
@@ -45,14 +51,40 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             this.width = width;
             this.height = height;
             const length = width * height;
-            //       if (length > this.xArray.length) {
             this.xArray = new Float32Array(length);
             this.yArray = new Float32Array(length);
             this.lyapunovArray = new Float32Array(length);
+            this.structureNumberArray = new Uint8ClampedArray(length);
             this.alphaArray = new Uint8ClampedArray(length);
-            //      }
         }
     };
+
+
+    // default values for colors, can be changed
+
+    VectorMap.colorParityNull = new Color(200, 200, 0); //default yellow
+    VectorMap.colorParityOdd = new Color(0, 120, 0); // default dark green
+    VectorMap.colorParityEven = new Color(200, 120, 0); // default: brown
+    VectorMap.colorParityOff = new Color(128, 128, 128, 0);
+
+
+    // make a color table!
+
+
+    /**
+     * generate a color table for showing the structure
+     * using the simple colors
+     * @method VectorMap.createSimpleColorTable
+     */
+    VectorMap.prototype.createSimpleColorTable = function() {
+        this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
+        for (var i = 0; i < 255; i++) {
+            this.structureColors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
+            this.structureColors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+        }
+        this.structureColors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
+    };
+
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
@@ -62,18 +94,23 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     VectorMap.prototype.make = function(mapping) {
         this.exists = true;
         let position = new Vector2();
+        let furtherResults = {};
+        furtherResults.reflections = 0;
+        furtherResults.lyapunov = 0;
         let x = 0;
         let y = 0;
         let width = this.width;
         let height = this.height;
         let xArray = this.xArray;
         let yArray = this.yArray;
+
         let lyapunovArray = this.lyapunovArray;
+        let structureNumberArray = this.structureNumberArray;
         let alphaArray = this.alphaArray;
         let scale = this.outputImage.scale;
         let index = 0;
         let cutDisc = (this.discRadius > 0);
-        var discRadius2, discRadiusMinus2, alphaFactor, lyapunov;
+        var discRadius2, discRadiusMinus2, alphaFactor;
         if (cutDisc) {
             discRadius2 = this.discRadius * this.discRadius;
             // smooth cutting inside the disc to avoid wrong colors
@@ -102,18 +139,20 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     }
                     // making the tranmsform
                     if (r2 < discRadius2) {
-                        lyapunov = mapping(position);
-                        lyapunovArray[index] = lyapunov;
-                        if (lyapunov < 0) {
+                        mapping(position, furtherResults);
+                        lyapunovArray[index] = furtherResults.lyapunov;
+                        structureNumberArray[index] = furtherResults.reflections;
+                        if (furtherResults.lyapunov < 0) {
                             alphaArray[index] = 0;
                         }
                     } else {
                         lyapunovArray[index] = -1;
                     }
                 } else {
-                    lyapunov = mapping(position);
-                    lyapunovArray[index] = lyapunov;
-                    if (lyapunov >= -0.001) {
+                    mapping(position, furtherResults);
+                    lyapunovArray[index] = furtherResults.lyapunov;
+                    structureNumberArray[index] = furtherResults.reflections;
+                    if (furtherResults.lyapunov >= -0.001) {
                         alphaArray[index] = 255;
                     } else {
                         alphaArray[index] = 0;
@@ -279,17 +318,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         upperRight.y = upper;
     };
 
-    // default values for colors, can be changed
-
-    VectorMap.colorParityNull = new Color(200, 200, 0); //default yellow
-    VectorMap.colorParityOdd = new Color(0, 120, 0); // default dark green
-    VectorMap.colorParityEven = new Color(200, 120, 0); // default: brown
-    VectorMap.colorParityOff = new Color(128, 128, 128, 0);
-
-    // colors for second sector
-    VectorMap.colorParityNull2 = new Color(0, 100, 255); //default blue
-    VectorMap.colorParityOdd2 = new Color(155, 0, 0); // default red
-    VectorMap.colorParityEven2 = new Color(0, 0, 200); // default: dark blue
 
     /**
      * draw on a pixelcanvas use a map
@@ -301,47 +329,20 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     VectorMap.prototype.drawStructure = function() {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
-        let intOffColor = PixelCanvas.integerOf(VectorMap.colorParityOff);
-        let intColorParityNull = PixelCanvas.integerOf(VectorMap.colorParityNull);
-        let intColorParityOdd = PixelCanvas.integerOf(VectorMap.colorParityOdd);
-        let intColorParityEven = PixelCanvas.integerOf(VectorMap.colorParityEven);
-        let intColorParityNull2 = PixelCanvas.integerOf(VectorMap.colorParityNull2);
-        let intColorParityOdd2 = PixelCanvas.integerOf(VectorMap.colorParityOdd2);
-        let intColorParityEven2 = PixelCanvas.integerOf(VectorMap.colorParityEven2);
-        let height = this.height;
-        let width = this.width;
+        let intColorOff = this.intColorOff;
+
+
         let lyapunovArray = this.lyapunovArray;
-        let xArray = this.xArray;
-        let yArray = this.yArray;
+        let structureNumberArray = this.structureNumberArray;
+        let structureColors = this.structureColors;
+
         var parity;
-        const length = xArray.length;
+        const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                let parity = xArray[index];
-                let sector = yArray[index];
-                //sector=2;
-                if (parity == 0) {
-                    if (sector === 2) {
-                        pixel[index] = intColorParityNull2;
-                    } else {
-                        pixel[index] = intColorParityNull;
-                    }
-                } else if (parity & 1) {
-                    if (sector === 2) {
-                        pixel[index] = intColorParityOdd2;
-                    } else {
-                        pixel[index] = intColorParityOdd;
-                    }
-
-                } else {
-                    if (sector === 2) {
-                        pixel[index] = intColorParityEven2;
-                    } else {
-                        pixel[index] = intColorParityEven;
-                    }
-                }
+                pixel[index] = structureColors[structureNumberArray[index]];
             } else {
-                pixel[index] = intOffColor;
+                pixel[index] = intColorOff;
             }
         }
         pixelCanvas.showPixel();
@@ -371,9 +372,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let shiftY = this.inputTransform.shiftY;
         let cosAngleScale = this.inputTransform.cosAngleScale;
         let sinAngleScale = this.inputTransform.sinAngleScale;
-        // map dimensions
-        let height = this.height;
-        let width = this.width;
         // map data
         let xArray = this.xArray;
         let yArray = this.yArray;
@@ -426,9 +424,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let shiftY = this.inputTransform.shiftY;
         let cosAngleScale = this.inputTransform.cosAngleScale;
         let sinAngleScale = this.inputTransform.sinAngleScale;
-        // map dimensions
-        let height = this.height;
-        let width = this.width;
         // map data
         let xArray = this.xArray;
         let yArray = this.yArray;
@@ -486,9 +481,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let shiftY = this.inputTransform.shiftY;
         let cosAngleScale = this.inputTransform.cosAngleScale;
         let sinAngleScale = this.inputTransform.sinAngleScale;
-        // map dimensions
-        let height = this.height;
-        let width = this.width;
         // map data
         let xArray = this.xArray;
         let yArray = this.yArray;

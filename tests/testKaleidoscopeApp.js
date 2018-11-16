@@ -228,6 +228,14 @@ function creation() {
         //  Draw.setColor("blue");
         //   iterateTiling.drawStructure(1);
         circleScope.draw();
+        Draw.setColor("red");
+        //   iterateTiling.drawStructure(0);
+        //  distortedSquares.drawStructure();
+
+        //  Draw.setLineWidth(1);
+        //  Draw.setColor("blue");
+        //   iterateTiling.drawStructure(1);
+        multiCircles.draw();
 
     };
 
@@ -296,17 +304,31 @@ function creation() {
 
 
     circleScope.circle1 = circleScope.outerReflection(4.5, 2, 4);
-    circleScope.circle1 = circleScope.innerReflection(4.5, 3, 3);
+    circleScope.circle1 = circleScope.innerReflection(4, 4, 3);
+    //   circleScope.circle2 = circleScope.outerReflection(8, 2, 2);
 
 
+
+    //   circleScope.twoCirclesWorld(3,4,3,0);
     // change k later ???
     // circleScope.setMapping();
+    const r = 6;
 
+    circleScope.circle1 = circleScope.outerReflection(6, 3, 3);
+    const n = 4;
+    const r2 = 0.5 * r / Math.sqrt(3) / Math.cos(Math.PI / n);
+    circleScope.circle2 = new Circle(r2, r / 2, 0.5 * r / Math.sqrt(3));
+    circleScope.circle2.map = circleScope.circle2.invertInsideOut;
     /*
     circleScope.outerReflection(4,2,2,3);
     
     circleScope.chaink2n2(3,3,3,2);
 */
+    console.log(Fast.cosLawSideC(1, 1, Math.PI / 3));
+    console.log(Fast.cosLawAngleGamma(1, 1.41, 1) / Math.PI);
+
+    multiCircles.addCircle(3, 2, 4);
+    multiCircles.addLine(1, 1, 4, 9);
 }
 
 // adjust fontsize related dimensions

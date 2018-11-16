@@ -173,16 +173,17 @@ var Make = {};
 
 
     // symmetry dependent mapping routines (Vector2->Vector2)
-    // the mapping for using an input image
-    // returning the lyapunov coefficient
-    Make.mappingInputImage = function(position) {
-        return 1;
+    /**
+     * does nothing
+     * @method Make.mapping
+     * @param {Vector2} v - the vector to map, x-component will be number of reflections
+     * @param {Object} otherResults - with fields reflections and lyapunov
+     */
+    Make.mapping = function(position, otherResults) {
+        otherResults.lyapunov = 1;
+        otherResults.reflections = 0;
     };
 
-    // the mapping to show the structure
-    Make.mappingStructure = function(position) {
-        return 1;
-    };
 
     /**
      * set range for the output pixel to space mapping, call before setting the mapping 
@@ -208,15 +209,11 @@ var Make = {};
 
     /**
      * set the mapping functions for the structure map, 
-     *  maybe reset the output pixel to space transform
-     * 
      * @method Make.setMapping
-     * @param {function} mappingInputImage - function(mapIn -> mapOut) for an input image
-     * @param {function} mappingStructure - function(mapIn -> mapOut.x) parity
+     * @param {function} mapping
      */
-    Make.setMapping = function(mappingInputImage, mappingStructure) {
-        Make.mappingInputImage = mappingInputImage;
-        Make.mappingStructure = mappingStructure;
+    Make.setMapping = function(mapping) {
+        Make.mapping = mapping;
     };
 
     /*
@@ -279,19 +276,18 @@ var Make = {};
      */
     Make.updateNewMap = function() {
         Make.initializeMap();
-        if (Make.mappingInputImage == null) {
+        if (Make.mapping == null) {
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
+        Make.map.make(Make.mapping);
+        Make.getMapOutputCenter();
+        Make.shiftMapToCenter();
+        Make.getMapOutputRange();
+        Make.limitLyapunov();
         if (Make.showStructure || !Make.inputImageExists) {
-            Make.map.make(Make.mappingStructure);
             Make.newMapRequiresInputImageAdjustment = true;
         } else {
-            Make.map.make(Make.mappingInputImage);
-            Make.getMapOutputCenter();
-            Make.shiftMapToCenter();
-            Make.getMapOutputRange();
-            Make.limitLyapunov();
             Make.adjustSpaceToInputPixelMapping();
         }
         Make.updateOutputImage();
@@ -305,7 +301,6 @@ var Make = {};
      */
     Make.switchToShowingStructure = function() {
         if (!Make.showStructure) {
-            Make.map.make(Make.mappingStructure);
             Make.showStructure = true;
             Make.controlImage.semiTransparent();
             Make.controlImage.pixelCanvas.showPixel();
@@ -320,12 +315,8 @@ var Make = {};
      */
     Make.switchToShowingImage = function() {
         if (Make.showStructure) {
-            Make.map.make(Make.mappingInputImage);
-            Make.shiftMapToCenter();
             if (Make.newMapRequiresInputImageAdjustment) {
                 Make.newMapRequiresInputImageAdjustment = false;
-                Make.getMapOutputRange();
-                Make.limitLyapunov();
                 Make.adjustSpaceToInputPixelMapping();
             }
             Make.showStructure = false;
@@ -378,7 +369,7 @@ var Make = {};
      * @method Make.updateNewOutputImageSize
      */
     Make.updateNewOutputImageSize = function() {
-        if (Make.mappingInputImage == null) {
+        if (Make.mapping == null) {
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
@@ -479,14 +470,11 @@ var Make = {};
     Make.readImageAction = function() {
         if (Make.showStructure || !Make.inputImageExists) {
             Make.inputImageExists = true;
-            Make.showStructure = false; // and create the map!! (everything from zero)
-            if (Make.mappingInputImage == null) {
+            Make.showStructure = false;
+            if (Make.mapping == null) {
                 console.log("*** (Make)readImageAction: there is no mapping function !");
                 return;
             }
-            Make.map.make(Make.mappingInputImage);
-            Make.getMapOutputCenter();
-            Make.shiftMapToCenter();
         }
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
@@ -495,8 +483,6 @@ var Make = {};
             console.log("*** Make.readImage: map does not exist !");
             return;
         }
-        Make.getMapOutputRange();
-        Make.limitLyapunov();
         Make.adjustSpaceToInputPixelMapping();
         Make.updateOutputImage();
     };

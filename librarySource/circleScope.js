@@ -314,7 +314,37 @@ circleScope = {};
 
     };
 
+    /**
+     * combination of two circles, touching each others wolrdradius
+     * imnsideOut
+     * choose radius and distance of center from origin of first circle
+     * intersection symmetry of circles
+     * angle for first circle
+     * @method circleScope.twoCirclesWorld
+     * @param {float} radius1
+     * @param {float} distance1
+     * @param {integer} n - symmetry at intersection
+     * @param {float} angle1
+     */
+    circleScope.twoCirclesWorld = function(radius1, distance1, n, angle1) {
+        const ratio = Math.sqrt((distance1 + radius1) / (distance1 - radius1));
+        console.log("tau", ratio);
+        const distance2 = ratio * distance1;
+        const radius2 = ratio * radius1;
 
+
+        const beta = Math.PI / n;
+        const distance = Math.sqrt(radius1 * radius1 + radius2 * radius2 - 2 * radius1 * radius2 * Math.cos(Math.PI - beta));
+        const deltaPhi = Math.acos((distance1 * distance1 + distance2 * distance2 - distance * distance) / 2 / distance1 / distance2);
+        const angle2 = angle1 + deltaPhi;
+        circleScope.circle1 = new Circle(radius1);
+        circleScope.circle1.center.setPolar(distance1, angle1);
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
+        circleScope.circle2 = new Circle(radius2);
+        circleScope.circle2.center.setPolar(distance2, angle2);
+        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+
+    };
 
 
 }());

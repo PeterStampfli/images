@@ -2,8 +2,10 @@
  * representing lines between two points (Vector2), do update if points change !!!
  * these are directed lines, line from a to b is different to line from b to a
  * @constructor Line
- * @param {Vector2} a - first endpoint
- * @param {Vector2} b - second endpoint
+ * @param {Vector2|float} a - first endpoint, or x-component of a
+ * @param {Vector2|float} b - second endpoint, or y-component of a
+ * @param {float} bx - x-component of b ,optional
+ * @param {float} by - y-component of b ,optional
  */
 
 /**
@@ -26,9 +28,14 @@
 
 /* jshint esversion:6 */
 
-function Line(a, b) {
+function Line(a, b, bx, by) {
     "use strict";
-    this.setAB(a, b);
+    if (arguments.length === 2) {
+        this.setAB(a, b);
+    } else {
+        this.a = new Vector2(a, b);
+        this.b = new Vector2(bx, by);
+    }
     this.update();
 }
 

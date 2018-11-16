@@ -328,16 +328,6 @@ var Fast = {};
         return base + (gaussTable[index + 1] - base) * x;
     };
 
-    /**
-     * for convenience:find the cathe=sqrt(hypo**2-other cathe**)
-     * @method Fast.cathe
-     * @param {float} hypot
-     * @param {float} cathe
-     * @return float - sqrt(hypot**2-cathe**2)
-     */
-    Fast.cathe = function(hypot, cathe) {
-        return Math.sqrt(hypot * hypot - cathe * cathe);
-    };
 
     /**
      * return a value clamped between max and min  
@@ -462,6 +452,41 @@ var Fast = {};
             Fast.xLow = c / a / Fast.xHigh;
         }
         return true;
+    };
+
+    // triangles
+
+    /**
+     * for convenience:find the cathe=sqrt(hypo**2-other cathe**)
+     * @method Fast.cathe
+     * @param {float} hypot
+     * @param {float} cathe
+     * @return float - sqrt(hypot**2-cathe**2)
+     */
+    Fast.cathe = function(hypot, cathe) {
+        return Math.sqrt(hypot * hypot - cathe * cathe);
+    };
+
+    /**
+     * length of side c of a triangle with sides of length a and b, meeting at an angle gamma
+     * @method Fast.cosLawSideC
+     * @param {float} a
+     * @param {float} b
+     * @param {float} gamma
+     */
+    Fast.cosLawSideC = function(a, b, gamma) {
+        return Math.sqrt(a * a + b * b - 2 * a * b * Fast.cos(gamma));
+    };
+
+    /**
+     * amngle gamma of a triangle with sides of length a,b and c
+     * @method Fast.cosLawAngleGamma
+     * @param {float} a
+     * @param {float} b
+     * @param {float} c
+     */
+    Fast.cosLawAngleGamma = function(a, b, c) {
+        return Math.acos((a * a + b * b - c * c) / (2 * a * b));
     };
 
     //console.time("stcihwort")

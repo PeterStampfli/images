@@ -275,7 +275,7 @@ function PixelCanvas(idName) {
     /**
      * calculate center of opaque pixels
      * @method PixelCanvas#centerOfOpaque
-     * @param {Vector} center - will be set to the center position
+     * @param {Vector2} center - will be set to the center position
      */
     PixelCanvas.prototype.centerOfOpaque = function(center) {
         const pixelComponents = this.pixelComponents;
