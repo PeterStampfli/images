@@ -1,5 +1,6 @@
 /**
- * creating mirroring tiles for an image and collecting them
+ * creating matching mirroring tiles for an image and collecting them
+ * mapping the image
  * simple tiles for quasiperiodic lattices, cutting pieces out of an input image an putting them together with mirror symmetry at joints
  * all tiles have the same length for the sides
  * @namespace imageTiles
@@ -54,31 +55,20 @@ var imageTiles = {};
         });
     };
 
-    // making maps, using the (generic) map(position) method of polygons
-    /**
-     * creating structure data depending on the position of a point
-     * @method imageTiles.mapStructure
-     * @param {Vector2} p - position
-     * @return +1 for a valid point, -1 for an invalid point outside tiling
-     */
-    imageTiles.mapStructure = function(p) {
-        let result = imageTiles.bins.map(p);
-        p.x = result;
-        return result;
-    };
 
     /**
      * creating image data depending on the position of a point
-     * @method imageTiles.mapImage
+     * @method imageTiles.map
      * @param {Vector2} p - position
-     * @return +1 for a valid point, -1 for an invalid point outside tiling
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    imageTiles.mapImage = function(p) {
-        if (imageTiles.bins.map(p) < 0) {
-            return -1;
+    imageTiles.map = function(p, furtherResults) {
+        furtherResults.reflections = imageTiles.bins.map(p);
+        if (furtherResults.reflections < 0) {
+            furtherResults.lyapunov = -1;
         } else {
             p.scale(imageTiles.scale);
-            return 1;
+            furtherResults.lyapunov = 1;
         }
     };
 
@@ -87,7 +77,7 @@ var imageTiles = {};
      * @method imageTiles.setMapping
      */
     imageTiles.setMapping = function() {
-        Make.setMapping(imageTiles.mapImage, imageTiles.mapStructure);
+        Make.setMapping(imageTiles.map);
     };
 
     // fast efficient rotation

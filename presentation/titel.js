@@ -39,6 +39,9 @@ if (window.innerHeight > window.innerWidth) {
 
     Layout.createOpenImage();
 
+    Make.showStructure = true;
+
+
 
 
     Make.readImageWithFilePathAtSetup("GamlaStan.jpg");

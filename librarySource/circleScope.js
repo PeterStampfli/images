@@ -38,7 +38,7 @@ circleScope = {};
         } else {
             Make.map.discRadius = -1;
         }
-        Make.setMapping(circleScope.mapInputImage, circleScope.mapStructure);
+        Make.setMapping(circleScope.map);
     };
 
     /**
@@ -51,50 +51,25 @@ circleScope = {};
         circleScope.circle2.draw();
     };
 
-
-    /**
-     * the basic mapping, returns negative number if iteration fails
-     * sets number of reflections
-     * @method circleScope.basicMap
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-
-    // uses a so called map-method of circles, can be invertInsideOut or invertOutsideIn
-    circleScope.basicMap = function(position) {
-        reflections = 0;
-
-        for (var i = circleScope.maxIterations; i > 0; i--) {
-            dihedral.map(position);
-            reflections += Dihedral.reflections;
-            if ((circleScope.circle1.map(position) > 0) || (circleScope.circle2.map(position) > 0)) {
-                reflections++;
-                if (circleScope.discRemap) {
-                    let r2 = position.x * position.x + position.y * position.y;
-                    if (r2 > circleScope.discRadius2) {
-                        r2 = circleScope.discRadius2 / r2;
-                        position.x *= r2;
-                        position.y *= r2;
-                        reflections++;
-                    }
-                }
-            } else {
-                return 1;
-            }
-
-        }
-
-        return -1;
-    };
-
     /**
      * map the position for using an input image,
      * @method circleScope.mapInputImage
      * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    circleScope.mapInputImage = function(position) {
-        let result = circleScope.basicMap(position);
-
+    circleScope.map = function(position, furtherResults) {
+        furtherResults.lyapunov = -1;
+        furtherResults.reflections = 0;
+        for (var i = circleScope.maxIterations; i > 0; i--) {
+            dihedral.map(position);
+            furtherResults.reflections += Dihedral.reflections;
+            if ((circleScope.circle1.map(position) > 0) || (circleScope.circle2.map(position) > 0)) {
+                furtherResults.reflections++;
+            } else {
+                furtherResults.lyapunov = 1;
+                break;
+            }
+        }
         if (circleScope.discRemapForImage) {
             let r2 = position.x * position.x + position.y * position.y;
             if (r2 > circleScope.discRadius2) {
@@ -103,29 +78,8 @@ circleScope = {};
                 position.y *= r2;
             }
         }
-        return result;
     };
 
-    /**
-     * map the position for showing the structure
-     * @method circleScope.mapStructure
-     * @param {Vector2} v - the vector to map, x-component will be number of reflections
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    circleScope.mapStructure = function(position) {
-        let result = circleScope.basicMap(position);
-
-
-
-        if (position.x * position.x + position.y * position.y > circleScope.discRadius2) {
-            position.y = 2;
-        } else {
-            position.y = 1;
-        }
-        position.x = reflections;
-
-        return result;
-    };
 
     /**
      * set coloring/cutoff disc radius

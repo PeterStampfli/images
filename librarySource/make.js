@@ -475,9 +475,15 @@ var Make = {};
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         Make.arrowController.show();
+        // check if we need to create a new map
         if (!Make.map.exists) {
-            console.log("*** Make.readImage: map does not exist !");
-            return;
+            Make.initializeMap();
+            Make.map.make(Make.mapping);
+            Make.getMapOutputCenter();
+            Make.shiftMapToCenter();
+            Make.getMapOutputRange();
+            Make.limitLyapunov();
+            Make.newMapRequiresInputImageAdjustment = false;
         }
         Make.adjustSpaceToInputPixelMapping();
         Make.updateOutputImage();
@@ -573,6 +579,7 @@ var Make = {};
     };
 
     /**
+     * part of Make.updateOutputImage
      * redraw output:
      * if showInputImage
      * do everything for changes in the space to input image mapping 
