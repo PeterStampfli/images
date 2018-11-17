@@ -270,8 +270,7 @@ var Make = {};
 
     /**
      * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
-     * calls Make.initializeMap: has to get parameters and to call Make.setMapping
-     * to fix Make.mappingStructure and Make.mappingInputImage
+     * calls tiling dependent Make.initializeMap: which has to set parameters and to call Make.setMapping to set Make.mapping
      * @method Make.updateNewMap
      */
     Make.updateNewMap = function() {
@@ -373,12 +372,9 @@ var Make = {};
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
-        if (Make.showStructure || !Make.inputImageExists) {
-            Make.map.make(Make.mappingStructure);
-        } else {
-            Make.map.make(Make.mappingInputImage);
-            Make.shiftMapToCenter();
-        }
+
+        Make.map.make(Make.mapping);
+        Make.shiftMapToCenter();
         Make.updateOutputImage();
     };
 
@@ -556,16 +552,8 @@ var Make = {};
      * @method Make.shiftScaleOutputImage
      */
     Make.shiftScaleOutputImage = function() {
-        if (Make.mappingInputImage == null) {
-            console.log("*** Make.shiftScaleOutputImage: there is no mapping function !");
-            return;
-        }
-        if (Make.showStructure || !Make.inputImageExists) {
-            Make.map.make(Make.mappingStructure);
-        } else {
-            Make.map.make(Make.mappingInputImage);
-            Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
-        }
+        Make.map.make(Make.mapping);
+        Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
         Make.getMapOutputRange();
         Make.limitLyapunov();
         Make.updateOutputImage();

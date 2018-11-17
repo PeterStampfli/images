@@ -46,7 +46,7 @@ cutCornersKaleidoscope = {};
                 cutCornersKaleidoscope.addCircle.setRadius(basicKaleidoscope.circle.radius);
                 cutCornersKaleidoscope.addCircle.center.set(basicKaleidoscope.circle.center);
                 cutCornersKaleidoscope.halfAngleLine.mirror(cutCornersKaleidoscope.addCircle.center);
-                Make.setMapping(cutCornersKaleidoscope.mapInputImageElliptic, cutCornersKaleidoscope.mapStructureElliptic);
+                Make.setMapping(cutCornersKaleidoscope.mapElliptic);
                 break;
             case basicKaleidoscope.euclidic:
                 cutCornersKaleidoscope.addLine.a.set(basicKaleidoscope.line.a);
@@ -54,13 +54,13 @@ cutCornersKaleidoscope = {};
                 cutCornersKaleidoscope.addLine.b.set(basicKaleidoscope.line.b);
                 cutCornersKaleidoscope.halfAngleLine.mirror(cutCornersKaleidoscope.addLine.b);
                 cutCornersKaleidoscope.addLine.update();
-                Make.setMapping(cutCornersKaleidoscope.mapInputImageEuclidic, cutCornersKaleidoscope.mapStructureEuclidic);
+                Make.setMapping(cutCornersKaleidoscope.mapEuclidic);
                 break;
             case basicKaleidoscope.hyperbolic:
                 cutCornersKaleidoscope.addCircle.setRadius(basicKaleidoscope.circle.radius);
                 cutCornersKaleidoscope.addCircle.center.set(basicKaleidoscope.circle.center);
                 cutCornersKaleidoscope.halfAngleLine.mirror(cutCornersKaleidoscope.addCircle.center);
-                Make.setMapping(cutCornersKaleidoscope.mapInputImageHyperbolic, cutCornersKaleidoscope.mapStructureHyperbolic);
+                Make.setMapping(cutCornersKaleidoscope.mapHyperbolic);
                 break;
         }
     };
@@ -85,138 +85,69 @@ cutCornersKaleidoscope = {};
     };
 
     /**
-     * map the position for using an input image, elliptic geometry
-     * @method cutCornersKaleidoscope.mapInputImageElliptic
+     * map the position for using an elliptic geometry
+     * @method cutCornersKaleidoscope.mapElliptic
      * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    cutCornersKaleidoscope.mapInputImageElliptic = function(position) {
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
+    cutCornersKaleidoscope.mapElliptic = function(position, furtherResults) {
+        furtherResults.lyapunov = basicMap(position);
+        if (furtherResults.lyapunov >= 0) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
+            furtherResults.reflections = basicKaleidoscope.reflections + Dihedral.reflections;
             let factor = addCircle.invertOutsideIn(position);
             if (factor > 0) {
-                lyapunov *= factor;
-            }
-            halfAngleLine.mirrorLeftToRight(position);
-        }
-        return lyapunov;
-    };
-
-    /**
-     * map the position for showing the structure, elliptic geometry
-     * @method cutCornersKaleidoscope.mapStructureElliptic
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    cutCornersKaleidoscope.mapStructureElliptic = function(position) {
-        let lyapunov = basicMap(position);
-        let reflections = basicKaleidoscope.reflections;
-        if (lyapunov >= 0) {
-            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
-            reflections += Dihedral.reflections;
-            let factor = addCircle.invertOutsideIn(position);
-            if (factor > 0) {
-                lyapunov *= factor;
-                reflections++;
+                furtherResults.lyapunov *= factor;
+                furtherResults.reflections++;
             }
             if (halfAngleLine.mirrorLeftToRight(position) > 0) {
-                reflections++;
+                furtherResults.reflections++;
             }
         }
-        position.x = reflections;
-        position.y = 1;
-        return lyapunov;
     };
 
     /**
      * map the position for using an input image, euclidic geometry
-     * @method cutCornersKaleidoscope.mapInputImageEuclidic
+     * @method cutCornersKaleidoscope.mapEuclidic
      * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    cutCornersKaleidoscope.mapInputImageEuclidic = function(position) {
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
+    cutCornersKaleidoscope.mapEuclidic = function(position, furtherResults) {
+        furtherResults.lyapunov = basicMap(position);
+        if (furtherResults.lyapunov >= 0) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
+            furtherResults.reflections = basicKaleidoscope.reflections + Dihedral.reflections;
             let factor = addLine.mirrorRightToLeft(position);
             if (factor > 0) {
-                lyapunov *= factor;
+                furtherResults.lyapunov *= factor;
+                furtherResults.reflections++;
             }
-            halfAngleLine.mirrorLeftToRight(position);
-        }
-        return lyapunov;
-    };
-
-    /**
-     * map the position for showing the structure, euclidic geometry
-     * @method cutCornersKaleidoscope.mapStructureEuclidic
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    cutCornersKaleidoscope.mapStructureEuclidic = function(position) {
-        let lyapunov = basicMap(position);
-        let reflections = basicKaleidoscope.reflections;
-        if (lyapunov >= 0) {
-            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
-            reflections += Dihedral.reflections;
-            let factor = addLine.mirrorRightToLeft(position);
-            if (factor > 0) {
-                lyapunov *= factor;
-                reflections++;
-            }
-            if (halfAngleLine.mirrorRightToLeft(position) > 0) {
-                reflections++;
+            if (halfAngleLine.mirrorLeftToRight(position) > 0) {
+                furtherResults.reflections++;
             }
         }
-        position.x = reflections;
-        position.y = 1;
-        return lyapunov;
     };
 
     /**
      * map the position for using an input image, hyperbolic geometry
-     * @method cutCornersKaleidoscope.mapInputImageHyperbolic
+     * @method cutCornersKaleidoscope.mapHyperbolic
      * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    cutCornersKaleidoscope.mapInputImageHyperbolic = function(position) {
-        let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
+    cutCornersKaleidoscope.mapHyperbolic = function(position, furtherResults) {
+        furtherResults.lyapunov = basicMap(position);
+        if (furtherResults.lyapunov >= 0) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
+            furtherResults.reflections = basicKaleidoscope.reflections + Dihedral.reflections;
             let factor = addCircle.invertInsideOut(position);
             if (factor > 0) {
-                lyapunov *= factor;
-            }
-            halfAngleLine.mirrorLeftToRight(position);
-        }
-        return lyapunov;
-    };
-
-    /**
-     * map the position for showing the structure, hyperbolic geometry
-     * @method cutCornersKaleidoscope.mapStructureHyperbolic
-     * @param {Vector2} v - the vector to map
-     * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
-     */
-    cutCornersKaleidoscope.mapStructureHyperbolic = function(position) {
-        let lyapunov = basicMap(position);
-        let reflections = basicKaleidoscope.reflections;
-        if (lyapunov >= 0) {
-            dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
-            reflections += Dihedral.reflections;
-            let factor = addCircle.invertInsideOut(position);
-            if (factor > 0) {
-                lyapunov *= factor;
-                reflections++;
+                furtherResults.lyapunov *= factor;
+                furtherResults.reflections++;
             }
             if (halfAngleLine.mirrorLeftToRight(position) > 0) {
-                reflections++;
+                furtherResults.reflections++;
             }
         }
-        position.x = reflections;
-        position.y = 1;
-        return lyapunov;
     };
 
     /**

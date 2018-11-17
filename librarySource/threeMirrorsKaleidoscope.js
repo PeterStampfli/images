@@ -28,19 +28,19 @@ threeMirrorsKaleidoscope = {};
      */
     threeMirrorsKaleidoscope.setKMN = function(k, m, n) {
         basicKaleidoscope.setKMN(k, m, n);
-        Make.setMapping(threeMirrorsKaleidoscope.mapInputImage, threeMirrorsKaleidoscope.mapInputImage);
+        Make.setMapping(threeMirrorsKaleidoscope.map);
         basicMap = basicKaleidoscope.map;
     };
 
     /**
-     * map the position for using an input image,
+     * map the position
      * set lyapunov (if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed)
      * and number of reflections
-     * @method threeMirrorsKaleidoscope.mapInputImage
+     * @method threeMirrorsKaleidoscope.map
      * @param {Vector2} v - the vector to map, x-component will be number of reflections
-     * @param {Object} otherResults - with fields reflections and lyapunov
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    threeMirrorsKaleidoscope.mapInputImage = function(position, furtherResults) {
+    threeMirrorsKaleidoscope.map = function(position, furtherResults) {
         let lyapunov = basicMap(position);
         if (lyapunov >= 0) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
