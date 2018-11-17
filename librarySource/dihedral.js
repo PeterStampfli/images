@@ -32,30 +32,19 @@ function Dihedral() {
         return (v.y * dihedral.cosAngle <= v.x * dihedral.sinAngle);
     };
 
-
     /**
-     * a vector mapping, creating a rosette from an input image, for use in the VectorMap
-     * @method Dihedral#vectorMapping
-     * @param {Vector2} position
-     * @return {float} 1 - any point is ok, lyapunov value 1 trivially
+     * map the position 
+     * @method Dihedral.mapping
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections and lyapunov
      */
-    this.vectorMapping = function(position) {
+
+    this.mapping = function(position, furtherResults) {
         dihedral.map(position);
-        return 1;
+        furtherResults.lyapunov = 1;
+        furtherResults.reflections = Dihedral.reflections;
     };
 
-
-    /**
-     * mapping to the number of reflections
-     * @method Dihedral#reflectionsMapping
-     * @param {Vector2} position
-     * @return {float} 1 - any point is ok, lyapunov value 1 trivially
-     */
-    this.reflectionsMapping = function(position) {
-        dihedral.map(position);
-        position.x = Dihedral.reflections;
-        return 1;
-    };
 
 
     /**

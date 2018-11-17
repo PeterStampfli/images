@@ -311,8 +311,10 @@ function creation() {
     circleScope.chaink2n2(3,3,3,2);
 */
 
-    multiCircles.addCircle(3, 2, 4);
-    multiCircles.addLine(1, 1, 4, 9);
+    multiCircles.addCircleInsideOut(2, 2 * Math.cos(Math.PI / 6), 4);
+    multiCircles.addCircleInsideOut(2, -2 * Math.cos(Math.PI / 6), 4);
+    // multiCircles.addLineRightLeft(1, 1, 7, 5);
+    multiCircles.setMapping();
 }
 
 // adjust fontsize related dimensions

@@ -38,6 +38,10 @@ multiCircles = {};
         multiCircles.elements.length = 0;
     };
 
+    // do nothing function, for decorations (presentations)
+
+    function doNothing() {}
+
     /**
      * add a circle to elements, without mapping method
      * @method multiCircles.addCircle
@@ -48,6 +52,7 @@ multiCircles = {};
      */
     multiCircles.addCircle = function(radius, centerX, centerY) {
         const circle = new Circle(radius, centerX, centerY);
+        circle.map = doNothing;
         multiCircles.elements.push(circle);
         return circle;
     };
@@ -91,6 +96,7 @@ multiCircles = {};
      */
     multiCircles.addLine = function(ax, ay, bx, by) {
         const line = new Line(ax, ay, bx, by);
+        line.map = doNothing;
         multiCircles.elements.push(line);
         return line;
     };
@@ -137,9 +143,44 @@ multiCircles = {};
         } else {
             Make.map.discRadius = -1;
         }
-        Make.setMapping(multiCircles.mapInputImage, multiCircles.mapStructure);
+        Make.setMapping(multiCircles.map);
     };
 
+    /**
+     * doing something to finish the mapping
+     * here it does nothing, rewrite to do something
+     * @method multiCircles.finishMap
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections and lyapunov
+     */
+    multiCircles.finishMap = function(position, furtherResults) {};
+
+    /**
+     * map the position for using an input image
+     * @method multiCircles.mapEuclidic
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections and lyapunov
+     */
+    multiCircles.map = function(position, furtherResults) {
+        furtherResults.lyapunov = -1;
+        furtherResults.reflections = 0;
+        const elements = multiCircles.elements;
+        const elementsLength = elements.length;
+        for (var i = multiCircles.maxIterations; i > 0; i--) {
+            let noChange = true;
+            for (var j = elementsLength - 1; j >= 0; j--) {
+                if (elements[j].map(position) >= 0) {
+                    noChange = false;
+                    furtherResults.reflections++;
+                }
+            }
+            if (noChange) {
+                furtherResults.lyapunov = 1;
+                break;
+            }
+        }
+        multiCircles.finishMap(position, furtherResults);
+    };
 
 
 

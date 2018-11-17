@@ -43,7 +43,7 @@ if (window.innerHeight > window.innerWidth) {
     dihedral = new Dihedral();
 
     basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
-    Make.setMapping(dihedral.vectorMapping, dihedral.reflectionsMapping);
+    Make.setMapping(dihedral.mapping);
 
     let setKButton = Layout.createNumberButton("n");
     setKButton.setRange(2, 10000);

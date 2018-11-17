@@ -42,6 +42,7 @@ function Circle(radius, center, centerY) {
     Circle.prototype.setRadius = function(radius) {
         this.radius = radius;
         this.radius2 = radius * radius;
+        this.radius07 = 0.7 * radius;
     };
 
     /**
@@ -161,7 +162,13 @@ function Circle(radius, center, centerY) {
      */
     Circle.prototype.invertInsideOut = function(v) {
         const dx = v.x - this.center.x;
+        if (Math.abs(dx) > this.radius) {
+            return -1;
+        }
         const dy = v.y - this.center.y;
+        if (Math.abs(dy) > this.radius) {
+            return -1;
+        }
         const pointR2 = dx * dx + dy * dy;
         if (this.radius2 - 0.0001 > pointR2) {
             const factor = this.radius2 / pointR2;
@@ -188,7 +195,7 @@ function Circle(radius, center, centerY) {
     };
 
     /**
-     * invert a point at the circle ONLY if the point lies INSIDE the circle
+     * invert a point at the circle ONLY if the point lies poutside the circle
      * @method Circle#invertOutsideIn
      * @param {Vector2} v - vector, position of the point
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
@@ -196,6 +203,9 @@ function Circle(radius, center, centerY) {
     Circle.prototype.invertOutsideIn = function(v) {
         const dx = v.x - this.center.x;
         const dy = v.y - this.center.y;
+        if ((Math.abs(dx) < this.radius07) && (Math.abs(dy) < this.radius07)) {
+            return -1;
+        }
         const pointR2 = dx * dx + dy * dy;
         if (this.radius2 + 0.0001 < pointR2) {
             const factor = this.radius2 / pointR2;
