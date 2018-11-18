@@ -49,4 +49,6 @@ threeMirrorsKaleidoscope = {};
         furtherResults.lyapunov = lyapunov;
     };
 
+    // more in presentation.extras !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!¨
+    //******************************************************************
 }());

@@ -311,10 +311,17 @@ function creation() {
     circleScope.chaink2n2(3,3,3,2);
 */
 
-    multiCircles.addCircleInsideOut(2, 2 * Math.cos(Math.PI / 6), 4);
-    multiCircles.addCircleInsideOut(2, -2 * Math.cos(Math.PI / 6), 4);
-    // multiCircles.addLineRightLeft(1, 1, 7, 5);
+    // multiCircles.addCircleInsideOut(2, 2 * Math.cos(Math.PI / 6), 4);
+    //   multiCircles.addCircleInsideOut(2, -2 * Math.cos(Math.PI / 6), 4);
+    multiCircles.addLineRightLeft(0, 0, 10, 0);
+    multiCircles.addLineLeftRight(0, 0, 10, 10);
     multiCircles.setMapping();
+
+
+    multiCircles.setupMouseForTrajectory();
+
+
+
 }
 
 // adjust fontsize related dimensions
@@ -322,6 +329,10 @@ function creation() {
 // adjust fontsizes, margins, borders and so on
 // call later, we first have to create DOM elements before setting their styles
 
+// fontsize dependent quantities
+var Layout = {};
+Layout.lineWidth = 1;
+Layout.nullRadius = 1;
 
 function adjustFont(fontSize) {
     "use strict";
@@ -337,11 +348,19 @@ function adjustFont(fontSize) {
     const borderWidthToFontsize = 0.15;
     // width of number input buttons
     const inputWidthToFontsize = 3.5;
+    // weight of lines in the canvas
+    const lineWidthToSize = 0.2;
+    // size of null radius in pixels
+    const nullRadiusToSize = 0.7;
+
     DOM.style("h1", "fontSize", relativeH1Fontsize * fontSize + px);
     DOM.style("p,button,input,table,select", "fontSize", fontSize + px);
     DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
     DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
     DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
+
+    Layout.lineWidth = lineWidthToSize * fontSize;
+    Layout.nullRadius = nullRadiusToSize * fontSize;
 }
 
 
