@@ -17,8 +17,12 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.height = 2;
     this.xArray = new Float32Array(4);
     this.yArray = new Float32Array(4);
-    // for showing the structure, lyapunov>0: numbers indexing the desired color
-    this.structureNumberArray = new Uint8ClampedArray(4);
+    // for showing the structure: number of reflections
+    this.reflectionsArray = new Uint8ClampedArray(4);
+    // the color sector (for color symmetry...)
+    this.colorSectorArray = new Uint8Array(4);
+
+
     this.structureColors = new Uint32Array(256); // beware of the sign bit
 
     this.createSimpleColorTable();
@@ -54,7 +58,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             this.xArray = new Float32Array(length);
             this.yArray = new Float32Array(length);
             this.lyapunovArray = new Float32Array(length);
-            this.structureNumberArray = new Uint8ClampedArray(length);
+            this.reflectionsArray = new Uint8ClampedArray(length);
+            this.colorSectorArray = new Uint8Array(length);
             this.alphaArray = new Uint8ClampedArray(length);
         }
     };
@@ -85,6 +90,38 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         this.structureColors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
     };
 
+    /**
+     * generate a color table for showing the structure with given hue
+     * full intensity for 0 reflections, double attenuation for odd, single attenuation for even number of reflections
+     * sets also color for invalid (off) points
+     * @method VectorMap.createColorTable
+     * @param {float} hue - between 0 and 6, going from red to yellow to green to cyan to blue to magenta to red
+     * @param {integer} attenuation - between 0 and 127, for even or odd number of reflections
+     */
+    VectorMap.prototype.createStructureColorTable = function(hue, attenuation) {
+        const color = new Color();
+        color.grey = 0;
+        color.hue = hue;
+        color.colorIntensity = 255;
+        color.rgbFromHig();
+        const intColorNull = PixelCanvas.integerOf(color);
+        color.colorIntensity = 255 - attenuation;
+        color.rgbFromHig();
+        const intColorEven = PixelCanvas.integerOf(color);
+        color.colorIntensity = 255 - 2 * attenuation;
+        color.rgbFromHig();
+        const intColorOdd = PixelCanvas.integerOf(color);
+        const colors = new Uint32Array(256);
+
+
+        this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
+        for (var i = 0; i < 255; i++) {
+            this.structureColors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
+            this.structureColors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+        }
+        this.structureColors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
+    };
+
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
@@ -95,17 +132,21 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         this.exists = true;
         let position = new Vector2();
         let furtherResults = {};
+        // default results for mappings that do not chenge the fields
+        // number of reflections (for showing the mirror structure
         furtherResults.reflections = 0;
-        furtherResults.lyapunov = 0;
-        let x = 0;
-        let y = 0;
+        // valid points have lyapunov>0, less than zero means that method has not converged or other problem
+        furtherResults.lyapunov = 1;
+        // the color (symmetry) sector
+        furtherResults.colorSector = 0;
         let width = this.width;
         let height = this.height;
         let xArray = this.xArray;
         let yArray = this.yArray;
 
         let lyapunovArray = this.lyapunovArray;
-        let structureNumberArray = this.structureNumberArray;
+        let reflectionsArray = this.reflectionsArray;
+        let colorSectorArray = this.colorSectorArray;
         let alphaArray = this.alphaArray;
         let scale = this.outputImage.scale;
         let index = 0;
@@ -119,6 +160,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             discRadiusMinus2 *= discRadiusMinus2;
             alphaFactor = 255.9 / (discRadius2 - discRadiusMinus2);
         }
+        let x = 0;
+        let y = 0;
         y = this.outputImage.cornerY;
         for (var j = 0; j < height; j++) {
             x = this.outputImage.cornerX;
@@ -141,7 +184,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     if (r2 < discRadius2) {
                         mapping(position, furtherResults);
                         lyapunovArray[index] = furtherResults.lyapunov;
-                        structureNumberArray[index] = furtherResults.reflections;
+                        reflectionsArray[index] = furtherResults.reflections;
+                        colorSectorArray[index] = furtherResults.colorSector;
                         if (furtherResults.lyapunov < 0) {
                             alphaArray[index] = 0;
                         }
@@ -151,7 +195,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 } else {
                     mapping(position, furtherResults);
                     lyapunovArray[index] = furtherResults.lyapunov;
-                    structureNumberArray[index] = furtherResults.reflections;
+                    reflectionsArray[index] = furtherResults.reflections;
+                    colorSectorArray[index] = furtherResults.colorSector;
                     if (furtherResults.lyapunov >= -0.001) {
                         alphaArray[index] = 255;
                     } else {
@@ -333,14 +378,14 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
 
         let lyapunovArray = this.lyapunovArray;
-        let structureNumberArray = this.structureNumberArray;
+        let reflectionsArray = this.reflectionsArray;
         let structureColors = this.structureColors;
 
         var parity;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                pixel[index] = structureColors[structureNumberArray[index]];
+                pixel[index] = structureColors[reflectionsArray[index]];
             } else {
                 pixel[index] = intColorOff;
             }
