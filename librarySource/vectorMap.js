@@ -22,8 +22,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     // the color sector (for color symmetry...)
     this.colorSectorArray = new Uint8Array(4);
 
-
-    this.structureColors = new Uint32Array(256); // beware of the sign bit
+    // an array [colorSector] of arrays of integer colors ( new Uint32Array(256)
+    this.structureColorCollection = [];
 
     this.createSimpleColorTable();
 
@@ -77,28 +77,32 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
 
     /**
-     * generate a color table for showing the structure
+     * generate a color table for showing the structure, default, for only one color sector
      * using the simple colors
      * @method VectorMap.createSimpleColorTable
      */
     VectorMap.prototype.createSimpleColorTable = function() {
         this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
+        const colors = new Uint32Array(256);
         for (var i = 0; i < 255; i++) {
-            this.structureColors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
-            this.structureColors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+            colors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
+            colors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
         }
-        this.structureColors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
+        colors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
+        this.structureColorCollection = [colors];
     };
 
     /**
      * generate a color table for showing the structure with given hue
+     *  and add to the table of colors
      * full intensity for 0 reflections, double attenuation for odd, single attenuation for even number of reflections
      * sets also color for invalid (off) points
-     * @method VectorMap.createColorTable
+     * @method VectorMap#addStructureColors
      * @param {float} hue - between 0 and 6, going from red to yellow to green to cyan to blue to magenta to red
      * @param {integer} attenuation - between 0 and 127, for even or odd number of reflections
      */
-    VectorMap.prototype.createStructureColorTable = function(hue, attenuation) {
+    VectorMap.prototype.addStructureColors = function(hue, attenuation) {
+        this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
         const color = new Color();
         color.grey = 0;
         color.hue = hue;
@@ -114,14 +118,32 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const colors = new Uint32Array(256);
 
 
-        this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
         for (var i = 0; i < 255; i++) {
-            this.structureColors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
-            this.structureColors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+            colors[i++] = intColorEven;
+            colors[i] = intColorOdd;
         }
-        this.structureColors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
+        colors[0] = intColorNull;
+        this.structureColorCollection.push(colors);
     };
 
+    /**
+     * make a collection of color tables, put in structureColorCollection
+     * depending on number of colors (sectors), first hue, difference in hue, 
+     * attenuation of intensity
+     * @method VectorMap#makeColorCollection
+     * @param {integer} nColors
+     * @param {float} firstHue
+     * @param {float} deltaHue
+     * @param {float} attenuation
+     */
+    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
+        this.structureColorCollection = [];
+        let hue = firstHue;
+        for (var i = 0; i < nColors; i++) {
+            this.addStructureColors(hue, attenuation);
+            hue += deltaHue;
+        }
+    };
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
@@ -137,7 +159,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         furtherResults.reflections = 0;
         // valid points have lyapunov>0, less than zero means that method has not converged or other problem
         furtherResults.lyapunov = 1;
-        // the color (symmetry) sector
+        // the color (symmetry) sector, default value for images without color symmetry...
         furtherResults.colorSector = 0;
         let width = this.width;
         let height = this.height;
@@ -375,17 +397,14 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let intColorOff = this.intColorOff;
-
-
         let lyapunovArray = this.lyapunovArray;
         let reflectionsArray = this.reflectionsArray;
-        let structureColors = this.structureColors;
-
-        var parity;
+        let colorSectorArray = this.colorSectorArray;
+        let structureColorCollection = this.structureColorCollection;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                pixel[index] = structureColors[reflectionsArray[index]];
+                pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
             } else {
                 pixel[index] = intColorOff;
             }
@@ -393,7 +412,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
     };
 
-    let offColor = new Color(0, 0, 0, 0);
 
     /**
      * draw on a pixelcanvas use a map and an input image as fast as you can
@@ -421,8 +439,10 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let colorSectorArray = this.colorSectorArray;
         const length = xArray.length;
         // other
+        let offColor = new Color(0, 0, 0, 0);
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         var x, y, h, k;
@@ -475,7 +495,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         let alphaArray = this.alphaArray;
         // color data
-        let offColor = new Color();
+        let offColor = new Color(0, 0, 0, 0);
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
@@ -491,13 +511,13 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // beware of byte order
                 if (inputImage.getVeryHighQuality(color, h, k, lyapunov)) {
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                    color.alpha = alphaArray[index];
                 } else { // invalid points: use off color
                     color.set(offColor);
                 }
             } else {
                 color.set(offColor);
             }
-            color.alpha = alphaArray[index];
             pixelCanvas.setPixelAtIndex(color, index);
         }
         pixelCanvas.showPixel();
@@ -532,7 +552,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let lyapunovArray = this.lyapunovArray;
         let alphaArray = this.alphaArray;
         // color data
-        let offColor = new Color();
+        let offColor = new Color(0, 0, 0, 0);
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
@@ -548,13 +568,13 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // beware of byte order
                 if (inputImage.getHighQuality(color, h, k, lyapunov)) {
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                    color.alpha = alphaArray[index];
                 } else { // invalid points: use off color
                     color.set(offColor);
                 }
             } else {
                 color.set(offColor);
             }
-            color.alpha = alphaArray[index];
             pixelCanvas.setPixelAtIndex(color, index);
         }
         pixelCanvas.showPixel();

@@ -320,7 +320,7 @@ function creation() {
 
     multiCircles.setupMouseForTrajectory();
 
-    Make.map.createStructureColorTable(0, 20);
+    //  Make.map.makeColorCollection(5,0, 1,40);
 
 }
 
