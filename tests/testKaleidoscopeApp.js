@@ -320,7 +320,8 @@ function creation() {
 
     multiCircles.setupMouseForTrajectory();
 
-    //  Make.map.makeColorCollection(5,0, 1,40);
+    Make.map.makeColorCollection(5, 0, 1, 40);
+    Make.map.colorSymmetry = VectorMap.colorInversion;
 
 }
 

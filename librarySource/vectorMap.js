@@ -412,6 +412,30 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
     };
 
+    // color symmetry: colorSector=0: no change in color
+    // other values:special color changing routine!
+
+    /**
+     * change the color, if it is not in the symmetry sector 0
+     *  default: does nothing
+     * change using map.colorSymmetry=somefunction, where map=new VectorMap instance
+     * @method VectorMap#colorSymmetry
+     * @param {integer} colorSector - number of color modification
+     * @param {Color} color - change it
+     */
+    VectorMap.prototype.colorSymmetry = function(colorSector, color) {};
+
+    /**
+     * two-color symmetry: invert the color for sector 1
+     * @method VectorMap.colorInversion
+     * @param {integer} colorSector - number of color modification
+     * @param {Color} color - change it
+     */
+    VectorMap.colorInversion = function(colorSector, color) {
+        if (colorSector === 1) {
+            color.invert();
+        }
+    };
 
     /**
      * draw on a pixelcanvas use a map and an input image as fast as you can
@@ -445,6 +469,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let offColor = new Color(0, 0, 0, 0);
         inputImage.averageImageColor(offColor);
         let intOffColor = PixelCanvas.integerOf(offColor);
+        const color = new Color();
         var x, y, h, k;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
@@ -453,10 +478,18 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // faster math floor instead of Math.round()
                 h = (shiftX + cosAngleScale * x - sinAngleScale * y) | 0;
                 k = (shiftY + sinAngleScale * x + cosAngleScale * y) | 0;
-                if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) {
+                if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) { // outside the input image
                     pixel[index] = intOffColor;
-                } else {
-                    pixel[index] = inputImagePixel[h + k * inputImageWidth];
+                } else { // inside the input image: colorSector=0 means no color change
+                    const colorSector = colorSectorArray[index];
+                    if (colorSector === 0) {
+                        pixel[index] = inputImagePixel[h + k * inputImageWidth];
+                    } else { // the color changes, get color in components, change color, set pixel
+                        inputImage.getPixelAtIndex(color, h + k * inputImageWidth);
+                        this.colorSymmetry(colorSector, color);
+                        color.alpha = 255;
+                        pixelCanvas.setPixelAtIndex(color, index);
+                    }
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
                 }
             } else {
@@ -493,6 +526,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let colorSectorArray = this.colorSectorArray;
         let alphaArray = this.alphaArray;
         // color data
         let offColor = new Color(0, 0, 0, 0);
@@ -511,6 +545,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // beware of byte order
                 if (inputImage.getVeryHighQuality(color, h, k, lyapunov)) {
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                    this.colorSymmetry(colorSectorArray[index], color);
                     color.alpha = alphaArray[index];
                 } else { // invalid points: use off color
                     color.set(offColor);
@@ -550,6 +585,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
+        let colorSectorArray = this.colorSectorArray;
         let alphaArray = this.alphaArray;
         // color data
         let offColor = new Color(0, 0, 0, 0);
@@ -568,6 +604,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // beware of byte order
                 if (inputImage.getHighQuality(color, h, k, lyapunov)) {
                     controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                    this.colorSymmetry(colorSectorArray[index], color);
                     color.alpha = alphaArray[index];
                 } else { // invalid points: use off color
                     color.set(offColor);
