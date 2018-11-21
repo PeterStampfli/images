@@ -425,18 +425,18 @@ var Fast = {};
         console.log("-------------END--------------");
     };
 
+    Fast.xLow = 0;
+    Fast.xHigh = 0;
     /**
      * solve quadratic equation ax**2+bx+c=0
-     * returns true for real solutions
+     * only for real solutions
      * solutions are in Fast.xLow and Fast.xHigh
      * @method Fast.quadraticEquation
      * @param {float} a
      * @param {float} b
      * @param {float} c
+     * @return {boolean} true if there are real solutions
      */
-    Fast.xLow = 0;
-    Fast.xHigh = 0;
-
     Fast.quadraticEquation = function(a, b, c) {
         const rootArg = b * b - 4 * a * c;
         if (rootArg < 0) {
@@ -469,23 +469,25 @@ var Fast = {};
 
     /**
      * length of side c of a triangle with sides of length a and b, meeting at an angle gamma
-     * @method Fast.cosLawSideC
+     * resulting from cosine law (generalized phytagoras)
+     * @method Fast.triangleCOfABGamma
      * @param {float} a
      * @param {float} b
      * @param {float} gamma
      */
-    Fast.cosLawSideC = function(a, b, gamma) {
+    Fast.triangleCOfABGamma = function(a, b, gamma) {
         return Math.sqrt(a * a + b * b - 2 * a * b * Fast.cos(gamma));
     };
 
     /**
-     * amngle gamma of a triangle with sides of length a,b and c
-     * @method Fast.cosLawAngleGamma
+     * angle gamma of a triangle with sides of length a,b and c
+     * resulting from cosine law (generalized phytagoras)
+     * @method Fast.triangleGammaOfABC
      * @param {float} a
      * @param {float} b
      * @param {float} c
      */
-    Fast.cosLawAngleGamma = function(a, b, c) {
+    Fast.triangleGammaOfABC = function(a, b, c) {
         return Math.acos((a * a + b * b - c * c) / (2 * a * b));
     };
 

@@ -37,6 +37,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     //    basicKaleidoscope.geometry=basicKaleidoscope.isHyperbolic
     this.alphaArray = new Uint8ClampedArray(4);
     this.discRadius = -1; // if <0: fills the entire plane, if>0 the disc radius
+    this.noColorSymmetry();
 }
 
 (function() {
@@ -127,25 +128,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
     /**
-     * make a collection of color tables, put in structureColorCollection
-     * depending on number of colors (sectors), first hue, difference in hue, 
-     * attenuation of intensity
-     * @method VectorMap#makeColorCollection
-     * @param {integer} nColors
-     * @param {float} firstHue
-     * @param {float} deltaHue
-     * @param {float} attenuation
-     */
-    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
-        this.structureColorCollection = [];
-        let hue = firstHue;
-        for (var i = 0; i < nColors; i++) {
-            this.addStructureColors(hue, attenuation);
-            hue += deltaHue;
-        }
-    };
-
-    /**
      * make a map using a supplied function mapping(mapIn,mapOut)
      * @method VectorMap#make
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
@@ -160,7 +142,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         // valid points have lyapunov>0, less than zero means that method has not converged or other problem
         furtherResults.lyapunov = 1;
         // the color (symmetry) sector, default value for images without color symmetry...
-        furtherResults.colorSector = 0;
+        furtherResults.colorSector = 3;
         let width = this.width;
         let height = this.height;
         let xArray = this.xArray;
@@ -385,6 +367,24 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         upperRight.y = upper;
     };
 
+    /**
+     * make a collection of color tables, put in structureColorCollection
+     * depending on number of colors (sectors), first hue, difference in hue, 
+     * attenuation of intensity
+     * @method VectorMap#makeColorCollection
+     * @param {integer} nColors
+     * @param {float} firstHue
+     * @param {float} deltaHue
+     * @param {float} attenuation
+     */
+    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
+        this.structureColorCollection = [];
+        let hue = firstHue;
+        for (var i = 0; i < nColors; i++) {
+            this.addStructureColors(hue, attenuation);
+            hue += deltaHue;
+        }
+    };
 
     /**
      * draw on a pixelcanvas use a map
@@ -425,16 +425,133 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.colorSymmetry = function(colorSector, color) {};
 
+    // choosing the color symmetries
+
     /**
-     * two-color symmetry: invert the color for sector 1
-     * @method VectorMap.colorInversion
-     * @param {integer} colorSector - number of color modification
-     * @param {Color} color - change it
+     * switching off any color symmetry, default
+     * @method VectorMap#noColorSymmetry
      */
-    VectorMap.colorInversion = function(colorSector, color) {
-        if (colorSector === 1) {
-            color.invert();
+    VectorMap.prototype.noColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {};
+    };
+
+    /**
+     * two-color symmetry: invert the color for sector 1 and larger
+     * @method VectorMap#inversionColorSymmetry
+     */
+    VectorMap.prototype.inversionColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector > 0) {
+                color.invert();
+            }
+        };
+    };
+
+    /**
+     * two-color symmetry: invert the hue for sector 1 and larger
+     * @method VectorMap#hueInversionColorSymmetry
+     */
+    VectorMap.prototype.hueInversionColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector > 0) {
+                color.invertHue();
+            }
+        };
+    };
+
+    /**
+     * three-color symmetry: rotate the rgb components
+     * @method VectorMap#rgbRotationColorSymmetry
+     */
+    VectorMap.prototype.rgbRotationColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector === 1) {
+                color.rotation();
+            } else if (colorSector === 2) {
+                color.inverseRotation();
+            }
+        };
+    };
+
+    /**
+     * six-color symmetry: rotate the rgb components and invert
+     * @method VectorMap#rgbRotationColorSymmetry
+     */
+    VectorMap.prototype.rgbRotationInversionColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if ((colorSector === 1) || (colorSector === 4)) {
+                color.rotation();
+            } else if ((colorSector === 2) || (colorSector === 5)) {
+                color.inverseRotation();
+            }
+            if (colorSector >= 3) {
+                color.invert();
+            }
+        };
+    };
+
+    /**
+     * four-color symmetry: color inversion and hue inversion
+     * @method VectorMap#doubleInversionColorSymmetry
+     */
+    VectorMap.prototype.doubleInversionColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector & 1) {
+                color.invertHue();
+            }
+            if (colorSector & 2) {
+                color.invert();
+            }
+        };
+    };
+
+    /**
+     * shift the hue: set number of hues/symmetry sectors
+     * @method VectorMap#setNumberOfHues
+     * @param {integer} nHues
+     */
+    VectorMap.prototype.setNumberOfHues = function(nHues) {
+        this.hueShifts = [];
+        for (var i = 0; i < nHues; i++) {
+            this.hueShifts.push(6 / nHues * i);
         }
+    };
+
+    /**
+     * n color symmetry: shift the hue depending on the colorSector and total number of sectors
+     * @method VectorMap#hueShiftColorSymmetry
+     * @param {integer} numberOfSectors
+     */
+    VectorMap.prototype.hueShiftColorSymmetry = function(numberOfSectors) {
+        this.setNumberOfHues(numberOfSectors);
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector > 0) {
+                color.higFromRgb();
+                color.hue += this.hueShifts[colorSector];
+                color.rgbFromHig();
+            }
+        };
+    };
+
+    /**
+     * bn color symmetry: shift the hue and invert depending on the colorSector and total number of sectors
+     * @method VectorMap#hueShiftInversionColorSymmetry
+     * @param {integer} numberOfSectors
+     */
+    VectorMap.prototype.hueShiftInversionColorSymmetry = function(numberOfSectors) {
+        const nHues = Math.floor((numberOfSectors + 1) / 2);
+        this.setNumberOfHues(nHues);
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector >= nHues) {
+                colorSector -= nHues;
+                color.invert();
+            }
+            if (colorSector > 0) {
+                color.higFromRgb();
+                color.hue += this.hueShifts[colorSector];
+                color.rgbFromHig();
+            }
+        };
     };
 
     /**
