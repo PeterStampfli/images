@@ -468,28 +468,59 @@ var Fast = {};
     };
 
     /**
+     * find the lenght of a side of a triangle. The lenghts of two sides are known and the angle joining the two sides
      * length of side c of a triangle with sides of length a and b, meeting at an angle gamma
      * resulting from cosine law (generalized phytagoras)
-     * @method Fast.triangleCOfABGamma
+     * @method Fast.triangleCOfAGammaB
      * @param {float} a
-     * @param {float} b
      * @param {float} gamma
+     * @param {float} b
+     * @return length of side c
      */
-    Fast.triangleCOfABGamma = function(a, b, gamma) {
+    Fast.triangleCOfAGammaB = function(a, gamma, b) {
         return Math.sqrt(a * a + b * b - 2 * a * b * Fast.cos(gamma));
     };
 
     /**
+     * find an angle of a triangle. The lenght of all three sides are known
      * angle gamma of a triangle with sides of length a,b and c
      * resulting from cosine law (generalized phytagoras)
      * @method Fast.triangleGammaOfABC
      * @param {float} a
      * @param {float} b
      * @param {float} c
+     * @return angle gamma
      */
     Fast.triangleGammaOfABC = function(a, b, c) {
         return Math.acos((a * a + b * b - c * c) / (2 * a * b));
     };
+
+    /**
+     *  find the length of a side of a triangle
+     * the length of two sides is known and an angle joining the unknown side with one known side
+     * returns true if there is a solution, false if none
+     * lengths are in Fast.xLow and Fast.xHigh
+     * @method Fast.triangleAOfBetaCB
+     * @param {float} beta 
+     * @param {float} c
+     * @param {float} b
+     */
+    Fast.triangleAOfBetaCB = function(beta, c, b) {
+        Fast.cosSin(beta);
+        let d = c * Fast.sinResult; // distance of point A between sides b and c to the unknown side a
+        if (b < d) {
+            Fast.xHigh = 0;
+            Fast.xLow = 0;
+            return false;
+        } else {
+            const base = c * Fast.cosResult;
+            d = Math.sqrt(b * b - d * d);
+            Fast.xLow = base - d;
+            Fast.xHigh = base + d;
+            return true;
+        }
+    };
+
 
     //console.time("stcihwort")
     //console.timeEnd("stcihwort")

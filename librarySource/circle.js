@@ -280,4 +280,37 @@ function Circle(radius, center, centerY) {
         }
     };
 
+
+    /**
+     * intersections of a circle with a second circle
+     * results in Circle.intersection1 and Circle.intersection2
+     * (Vector2 objs, will be overwritten)
+     * @method Circle#intersectsCircle
+     * @param {Circle} circle
+     * @return boolean, true if there are intersection(s)
+     */
+    Circle.prototype.intersectsCircle = function(circle) {
+        let ex = circle.center.x - this.center.x;
+        let ey = circle.center.y - this.center.y;
+        const d = Math.hypot(ex, ey);
+        if (d > circle.radius + this.radius) {
+            Circle.intersection1.setComponents(0, 0);
+            Circle.intersection2.setComponents(0, 0);
+            return false;
+        } else {
+            ex /= d;
+            ey /= d;
+            const d1 = 0.5 * (d + (this.radius2 - circle.radius2) / d);
+            console.log(d1);
+            const baseX = this.center.x + ex * d1;
+            const baseY = this.center.y + ey * d1;
+            const h = Math.sqrt(this.radius2 - d1 * d1);
+            Circle.intersection1.setComponents(baseX - h * ey, baseY + h * ex);
+            Circle.intersection2.setComponents(baseX + h * ey, baseY - h * ex);
+
+            return true;
+        }
+    };
+
+
 }());

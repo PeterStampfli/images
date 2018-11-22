@@ -10,7 +10,7 @@ var Draw = {};
 (function() {
     "use strict";
 
-    var context, outputImage, lineWidth;
+    var context, outputImage, lineWidth, nullRadius;
     var color;
 
     /**
@@ -40,6 +40,16 @@ var Draw = {};
     Draw.setColor = function(theColor) {
         color = theColor;
     };
+
+    /**
+     * set the nullradius for drawing points/vector2 objects
+     * @method Draw.setNullRadius
+     * @param {float} theNullRadius
+     */
+    Draw.setNullRadius = function(theNullRadius) {
+        nullRadius = theNullRadius;
+    };
+
 
     /*
      * start a drawing by setting the context and moving to start point
@@ -108,6 +118,15 @@ var Draw = {};
         Draw.start(center.x + radius, center.y);
         context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
         context.stroke();
+    };
+
+    /**
+     * draw a point/vector2 as a small circle at its position
+     * @method Draw.vector2
+     * @param {Vector2} p
+     */
+    Draw.vector2 = function(p) {
+        Draw.circle(nullRadius * outputImage.scale, p);
     };
 
     /**
@@ -184,10 +203,7 @@ var Draw = {};
             h = alpha;
             alpha = beta;
             beta = h;
-
-
         }
-
         angleA += alpha;
         angleB -= beta;
         if (angleB < angleA) {

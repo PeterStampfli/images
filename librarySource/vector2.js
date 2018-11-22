@@ -374,6 +374,14 @@ function Vector2(x = 0, y = 0) {
         console.log(message + "Vector2 (" + this.x + "," + this.y + ")");
     };
 
+    /**
+     * draw at the vector position a small circle
+     * @method Vector2#draw
+     */
+    Vector2.prototype.draw = function() {
+        Draw.vector2(this);
+    };
+
     // a pool for Vector2 objects, speeding up iterated tilings by recycling intermediates
     /**
      * an array for recycled vector2 objects

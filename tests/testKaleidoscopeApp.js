@@ -236,6 +236,12 @@ function creation() {
         //  Draw.setColor("blue");
         //   iterateTiling.drawStructure(1);
         multiCircles.draw();
+        Draw.setNullRadius(10);
+
+        c1.draw();
+        c2.draw();
+        Circle.intersection1.draw();
+        Circle.intersection2.draw();
 
     };
 
@@ -265,51 +271,6 @@ function creation() {
     iterateTiling.setMaxIterations(1);
     iterateTiling.generateStructure();
 
-    /*
-        distortedSquares.distortion = function(position) {
-            let factor = Math.hypot(position.x, position.y) / distortedSquares.size;
-            factor *= 1.5;
-            factor = Math.min(factor, 0.9);
-            position.x += (Math.random() - 0.5) * distortedSquares.side * factor;
-            position.y += (Math.random() - 0.5) * distortedSquares.side * factor;
-        };
-
-
-        distortedSquares.generate();
-
-    */
-
-    /*
-
-        circleScope.doubleTriangleK2infty(4, 3);
-        circleScope.circle2 = circleScope.circleZero();
-        circleScope.setDiscRadius(100000000);
-
-        circleScope.setDihedral(3);
-
-
-        circleScope.circle1 = circleScope.outerReflection(4.5, 2, 4);
-        circleScope.circle1 = circleScope.innerReflection(4, 4, 3);
-        //   circleScope.circle2 = circleScope.outerReflection(8, 2, 2);
-
-
-
-        //   circleScope.twoCirclesWorld(3,4,3,0);
-        // change k later ???
-        // circleScope.setMapping();
-        const r = 6;
-
-        circleScope.circle1 = circleScope.outerReflection(6, 3, 3);
-        const n = 4;
-        const r2 = 0.5 * r / Math.sqrt(3) / Math.cos(Math.PI / n);
-        circleScope.circle2 = new Circle(r2, r / 2, 0.5 * r / Math.sqrt(3));
-        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-        */
-    /*
-    circleScope.outerReflection(4,2,2,3);
-    
-    circleScope.chaink2n2(3,3,3,2);
-*/
 
     // multiCircles.addCircleInsideOut(2, 2 * Math.cos(Math.PI / 6), 4);
     //   multiCircles.addCircleInsideOut(2, -2 * Math.cos(Math.PI / 6), 4);
@@ -328,6 +289,14 @@ function creation() {
 
     Make.map.hueShiftInversionColorSymmetry(4);
 
+
+
+    const c1 = new Circle(2, 0, 0);
+    const c2 = new Circle(4, 2, 3);
+
+    console.log(c1.intersectsCircle(c2));
+    Circle.intersection1.log();
+    Circle.intersection2.log();
 }
 
 // adjust fontsize related dimensions
