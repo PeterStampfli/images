@@ -217,69 +217,21 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        // Make.outputImage.adjustCanvasTransform();
-        //Make.outputImage.pixelCanvas.fillScreen("white");
-        Draw.setLineWidth(3);
-        Draw.setColor("black");
-        //   iterateTiling.drawStructure(0);
-        //  distortedSquares.drawStructure();
 
-        //  Draw.setLineWidth(1);
-        //  Draw.setColor("blue");
-        //   iterateTiling.drawStructure(1);
-        //     circleScope.draw();
+        Draw.setLineWidth(5);
+
         Draw.setColor("red");
-        //   iterateTiling.drawStructure(0);
-        //  distortedSquares.drawStructure();
 
-        //  Draw.setLineWidth(1);
-        //  Draw.setColor("blue");
-        //   iterateTiling.drawStructure(1);
-        multiCircles.draw();
-        Draw.setNullRadius(10);
 
-        c1.draw();
-        c2.draw();
-        Circle.intersection1.draw();
-        Circle.intersection2.draw();
+        circleScope.draw();
+
 
     };
 
 
 
-    ambe.twoColorImage();
-    ambe.straightSingleColorImage();
-    //  ambe.shearedSingleColorImage();
-
-    // select decoration for each one
-    penroseRhombs.slimWithStraightDeco = true;
-    penroseRhombs.fatWithStraightDeco = false;
-
-    // iterateTiling.initialPolygons = penrose.start;
-    iterateTiling.initialPolygons = ambe.start;
-    //   iterateTiling.initialPolygons = small12.start;
-    // iterateTiling.initialPolygons = stampfli.start;
-    //  iterateTiling.initialPolygons = octagon.start;
-    //   iterateTiling.initialPolygons = penroseRhombs.start;
-    //   iterateTiling.initialPolygons = kite8.start;
-    //   iterateTiling.initialPolygons = triangles12.start;
-
-    //  Polygon.mapWithShiftRotateMirror();
-    //  Polygon.mapWithShiftRotateMirrorScaleShear();
-    //   Polygon.mapWithShiftRotateMirrorShear();
-
-    iterateTiling.setMaxIterations(1);
-    iterateTiling.generateStructure();
 
 
-    // multiCircles.addCircleInsideOut(2, 2 * Math.cos(Math.PI / 6), 4);
-    //   multiCircles.addCircleInsideOut(2, -2 * Math.cos(Math.PI / 6), 4);
-    multiCircles.addLineRightLeft(0, 0, 10, 0);
-    multiCircles.addLineLeftRight(0, 0, 10, 10);
-    multiCircles.setMapping();
-
-
-    multiCircles.setupMouseForTrajectory();
 
     Make.map.makeColorCollection(5, 0, 1, 40);
 
@@ -290,13 +242,14 @@ function creation() {
     Make.map.hueShiftInversionColorSymmetry(4);
 
 
+    circleScope.setMapping();
+    circleScope.setDihedral(5);
+    circleScope.setupMouseForTrajectory();
 
-    const c1 = new Circle(2, 0, 0);
-    const c2 = new Circle(4, 2, 3);
+    //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
+    // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
+    circleScope.triangleKaleidoscope(5, 2, 4);
 
-    console.log(c1.intersectsCircle(c2));
-    Circle.intersection1.log();
-    Circle.intersection2.log();
 }
 
 // adjust fontsize related dimensions
@@ -306,7 +259,7 @@ function creation() {
 
 // fontsize dependent quantities
 var Layout = {};
-Layout.lineWidth = 1;
+Layout.lineWidth = 0.3;
 Layout.nullRadius = 1;
 
 function adjustFont(fontSize) {

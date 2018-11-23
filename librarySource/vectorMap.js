@@ -142,12 +142,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         // valid points have lyapunov>0, less than zero means that method has not converged or other problem
         furtherResults.lyapunov = 1;
         // the color (symmetry) sector, default value for images without color symmetry...
-        furtherResults.colorSector = 3;
+        furtherResults.colorSector = 0;
         let width = this.width;
         let height = this.height;
         let xArray = this.xArray;
         let yArray = this.yArray;
-
         let lyapunovArray = this.lyapunovArray;
         let reflectionsArray = this.reflectionsArray;
         let colorSectorArray = this.colorSectorArray;

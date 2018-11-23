@@ -151,7 +151,7 @@ multiCircles = {};
      * here it does nothing, rewrite to do something
      * @method multiCircles.finishMap
      * @param {Vector2} v - the vector to map
-     * @param {Object} furtherResults - with fields reflections and lyapunov
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
     multiCircles.finishMap = function(position, furtherResults) {};
 
@@ -159,7 +159,7 @@ multiCircles = {};
      * map the position for using an input image
      * @method multiCircles.mapEuclidic
      * @param {Vector2} v - the vector to map
-     * @param {Object} furtherResults - with fields reflections and lyapunov
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
     multiCircles.map = function(position, furtherResults) {
         furtherResults.lyapunov = -1;
@@ -192,7 +192,7 @@ multiCircles = {};
 
     /**
      * set up mouse listeners on output image for drawing trajectory
-     * @method setupMouseForTrajectory
+     * @method multiCircles.setupMouseForTrajectory
      */
     multiCircles.setupMouseForTrajectory = function() {
         Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
@@ -227,7 +227,6 @@ multiCircles = {};
         const lastPosition = new Vector2();
         // do the mapping and draw lines
         Draw.setColor(trajectoryColor);
-        Draw.setLineWidth(Layout.lineWidth);
         for (var i = multiCircles.maxIterations; i > 0; i--) {
             let noChange = true;
             for (var j = elementsLength - 1; j >= 0; j--) {
