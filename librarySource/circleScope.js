@@ -94,12 +94,23 @@ circleScope = {};
     circleScope.map = function(position, furtherResults) {
         furtherResults.lyapunov = -1;
         furtherResults.reflections = 0;
+        dihedral.map(position);
+        furtherResults.reflections += Dihedral.reflections;
         for (var i = circleScope.maxIterations; i > 0; i--) {
-            dihedral.map(position);
-            furtherResults.reflections += Dihedral.reflections;
-            if ((circleScope.circle1.map(position) > 0) || (circleScope.circle2.map(position) > 0)) {
+            let noChange = true;
+            if (circleScope.circle1.map(position) > 0) {
+                noChange = false;
                 furtherResults.reflections++;
-            } else {
+                dihedral.map(position);
+                furtherResults.reflections += Dihedral.reflections;
+            }
+            if (circleScope.circle2.map(position) > 0) {
+                noChange = false;
+                furtherResults.reflections++;
+                dihedral.map(position);
+                furtherResults.reflections += Dihedral.reflections;
+            }
+            if (noChange) {
                 furtherResults.lyapunov = 1;
                 break;
             }
@@ -141,27 +152,36 @@ circleScope = {};
         // do the mapping and draw lines
         Draw.setColor(circleScope.trajectoryColor);
         Draw.setLineWidth(Layout.lineWidth);
+        dihedral.drawMap(position);
+        positions.push(position.clone());
+        sizes.push(size);
         for (var i = circleScope.maxIterations; i > 0; i--) {
-            dihedral.drawMap(position);
-            positions.push(position.clone());
-            sizes.push(size);
+            let noChange = true;
             lastPosition.set(position);
             let factor = circleScope.circle1.map(position);
             if (factor >= 0) {
+                noChange = false;
                 size *= factor;
                 sizes.push(size);
                 positions.push(position.clone());
                 Draw.line(lastPosition, position);
-            } else {
-                let factor = circleScope.circle2.map(position);
-                if (factor >= 0) {
-                    size *= factor;
-                    sizes.push(size);
-                    positions.push(position.clone());
-                    Draw.line(lastPosition, position);
-                } else {
-                    break;
-                }
+                dihedral.drawMap(position);
+                positions.push(position.clone());
+                sizes.push(size);
+            }
+            factor = circleScope.circle2.map(position);
+            if (factor >= 0) {
+                noChange = false;
+                size *= factor;
+                sizes.push(size);
+                positions.push(position.clone());
+                Draw.line(lastPosition, position);
+                dihedral.drawMap(position);
+                positions.push(position.clone());
+                sizes.push(size);
+            }
+            if (noChange) {
+                break;
             }
         }
         // draw the endpoints, scaled sizes
@@ -278,21 +298,17 @@ circleScope = {};
 
     /**
      * generate a triangle kaleidoscope with hyperbolic, euclidic or elliptic geometry
-     * sets dihedral to k and returns a reflecting element
+     * sets dihedral to k and sets circle1 to reflecting element
      * worldradius adjusted to 9.7
      * @method circleScope.triangle
      * @param {integer} k - symmetry at center
      * @param {integer} m - symmetry at "right" corner
      * @param {integer} n - symmetry at "left" corner
-     * @param {boolean} outer - true for outer (towards the center), false for inner reflection (away fromcenter)
-     * @return circle or line suitable as outer reflection
      */
     circleScope.triangleKaleidoscope = function(k, m, n) {
+        circleScope.circle2 = circleScope.circleZero();
         circleScope.setDihedral(k);
         const angleSum = 1.0 / k + 1.0 / m + 1.0 / n;
-        console.log("angsu " + angleSum);
-
-
         const cosAlpha = Fast.cos(Math.PI / m);
         const sinAlpha = Fast.sin(Math.PI / m);
         const cosBeta = Fast.cos(Math.PI / n);
@@ -329,8 +345,70 @@ circleScope = {};
                     furtherResults.colorSector = 0;
                 }
             };
-
         }
+    };
+
+
+    /**
+     * generate a triangle kaleidoscope with hyperbolic, euclidic or elliptic geometry
+     * with an additional circle at the center
+     * worldradius adjusted to 9.7
+     * @method circleScope.triangleCentralCircle
+     * @param {integer} k1 - order of dihedral group of image
+     * @param {integer} m1 - symmetry at "right" corner of basic triangle
+     * @param {integer} n1 - symmetry at "left" corner of basic triangle
+     * @param {integer} k2 - symmetry of intersection of additional circle with circle side of triangle
+     * @param {integer} m2 - symmetry of intersection of additional circle with "right" side of triangle
+     * @param {integer} n2 - symmetry of intersection of additional circle with "right" side of triangle
+     */
+    circleScope.triangleCentralCircle = function(k1, m1, n1, k2, m2, n2) {
+        circleScope.setDihedral(k1);
+        const angleSum = 1.0 / k1 + 1.0 / m1 + 1.0 / n1;
+        console.log("angsu " + angleSum);
+
+
+        const cosAlpha1 = Fast.cos(Math.PI / m1);
+        const sinAlpha1 = Fast.sin(Math.PI / m1);
+        const cosBeta1 = Fast.cos(Math.PI / n1);
+        const sinBeta1 = Fast.sin(Math.PI / n1);
+
+
+
+        // elliptic
+        if (angleSum > 1.000001) {
+            const circle1 = circleScope.circleOutsideIn(1, -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1, cosAlpha1);
+            circleScope.circle1 = circle1;
+            let worldradius = Math.sqrt(1 - circle1.center.length2());
+            circle1.scale(9.7 / worldradius);
+            circleScope.noFinishMap();
+        }
+        // euklidic
+        else if (angleSum > 0.999999) {
+            const big = 100000;
+            const line = circleScope.lineLeftRight(6 - big * cosAlpha1, big * sinAlpha1, 6 + big * cosAlpha1, -big * sinAlpha1);
+            circleScope.circle1 = line;
+            circleScope.noFinishMap();
+        }
+        // hyperbolic
+        else {
+            const circle1 = circleScope.circleInsideOut(1, (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1, cosAlpha1);
+            circleScope.circle1 = circle1;
+            let worldradius2 = circle1.center.length2() - 1;
+            console.log(worldradius2);
+            circle1.scale(9.7 / Math.sqrt(worldradius2));
+            worldradius2 = 9.7 * 9.7;
+            circleScope.finishMap = function(position, furtherResults) {
+                let l2 = position.length2();
+                if (l2 > worldradius2) {
+                    position.scale(worldradius2 / l2);
+                    furtherResults.colorSector = 1;
+                } else {
+                    furtherResults.colorSector = 0;
+                }
+            };
+        }
+
+
     };
 
 }());

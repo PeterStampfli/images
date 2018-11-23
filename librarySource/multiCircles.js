@@ -197,17 +197,17 @@ multiCircles = {};
     multiCircles.setupMouseForTrajectory = function() {
         Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
             Make.outputImage.mouseEvents.dragAction(mouseEvents);
-            Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-                Make.updateOutputImage();
-            };
-            Make.outputImage.move = function(mouseEvents) {
-                let nullRadius = Make.outputImage.scale * Layout.nullRadius;
-                Make.updateOutputImage();
-                mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
-                Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-                imagePosition.set(mousePosition);
-                multiCircles.drawTrajectory(imagePosition);
-            };
+        };
+        Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
+            Make.updateOutputImage();
+        };
+        Make.outputImage.move = function(mouseEvents) {
+            let nullRadius = Make.outputImage.scale * Layout.nullRadius;
+            Make.updateOutputImage();
+            mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
+            Make.outputImage.pixelToSpaceCoordinates(mousePosition);
+            imagePosition.set(mousePosition);
+            multiCircles.drawTrajectory(imagePosition);
         };
     };
 
