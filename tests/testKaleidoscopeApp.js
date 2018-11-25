@@ -248,7 +248,8 @@ function creation() {
 
     //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
-    circleScope.triangleCentralCircle(4, 2, 4);
+    circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
+
 
 }
 

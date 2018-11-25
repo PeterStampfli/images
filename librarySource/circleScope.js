@@ -364,51 +364,108 @@ circleScope = {};
     circleScope.triangleCentralCircle = function(k1, m1, n1, k2, m2, n2) {
         circleScope.setDihedral(k1);
         const angleSum = 1.0 / k1 + 1.0 / m1 + 1.0 / n1;
-        console.log("angsu " + angleSum);
-
-
         const cosAlpha1 = Fast.cos(Math.PI / m1);
         const sinAlpha1 = Fast.sin(Math.PI / m1);
         const cosBeta1 = Fast.cos(Math.PI / n1);
         const sinBeta1 = Fast.sin(Math.PI / n1);
 
+        const cosAlpha2 = Fast.cos(Math.PI / m2);
+        const sinAlpha2 = Fast.sin(Math.PI / m2);
+        const cosBeta2 = Fast.cos(Math.PI / n2);
+        const sinBeta2 = Fast.sin(Math.PI / n2);
+        const cosGamma2 = Fast.cos(Math.PI / k2);
+        const sinGamma2 = Fast.sin(Math.PI / k2);
 
+        // for the line containing the center of the second circle
+        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+        const v = cosAlpha2;
+        // separate colorsectors
+        var separator1 = -cosGamma1 / sinGamma1;
+        var separator2;
+        var cx, cy;
+
+        function triangleSectors(position, furtherResults) {
+            const dx = position.x - cx;
+            const dy = position.y - cy;
+            if (dx < 0) {
+                if (dy < separator1 * dx) {
+                    furtherResults.colorSector = 3;
+                } else {
+                    furtherResults.colorSector = 2;
+                }
+            } else {
+                if (dy < separator2 * dx) {
+                    furtherResults.colorSector = 1;
+                } else {
+                    furtherResults.colorSector = 2;
+                }
+            }
+        }
 
         // elliptic
         if (angleSum > 1.000001) {
             const circle1 = circleScope.circleOutsideIn(1, -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1, cosAlpha1);
             circleScope.circle1 = circle1;
             let worldradius = Math.sqrt(1 - circle1.center.length2());
-            circle1.scale(9.7 / worldradius);
-            circleScope.noFinishMap();
+            const center1 = circle1.center;
+            const r1 = circle1.radius;
+            const a = u * u + v * v - 1;
+            const b = -2 * (center1.x * u + center1.y * v - r1 * cosGamma2);
+            const c = center1.length2() - r1 * r1;
+            if (Fast.quadraticEquation(a, b, c)) {
+                const r2 = Fast.xHigh;
+                cx = r2 * u;
+                cy = r2 * v;
+                const circle2 = circleScope.circleInsideOut(r2, cx, cy);
+                circleScope.circle2 = circle2;
+                separator2 = (circle2.center.y - circle1.center.y) / (circle2.center.x - circle1.center.x);
+                circleScope.finishMap = triangleSectors;
+            }
         }
         // euklidic
         else if (angleSum > 0.999999) {
             const big = 100000;
-            const line = circleScope.lineLeftRight(6 - big * cosAlpha1, big * sinAlpha1, 6 + big * cosAlpha1, -big * sinAlpha1);
+            const dBase = 6;
+            const line = circleScope.lineLeftRight(dBase - big * cosAlpha1, big * sinAlpha1, dBase + big * cosAlpha1, -big * sinAlpha1);
             circleScope.circle1 = line;
-            circleScope.noFinishMap();
+            const r2 = sinAlpha1 * dBase / (sinAlpha1 * u + cosAlpha1 * v + cosGamma2);
+            cx = r2 * u;
+            cy = r2 * v;
+            const circle2 = circleScope.circleInsideOut(r2, cx, cy);
+            circleScope.circle2 = circle2;
+            separator2 = cosAlpha1 / sinAlpha1;
+            circleScope.finishMap = triangleSectors;
         }
         // hyperbolic
         else {
             const circle1 = circleScope.circleInsideOut(1, (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1, cosAlpha1);
             circleScope.circle1 = circle1;
             let worldradius2 = circle1.center.length2() - 1;
-            console.log(worldradius2);
             circle1.scale(9.7 / Math.sqrt(worldradius2));
             worldradius2 = 9.7 * 9.7;
+            const center1 = circle1.center;
+            const r1 = circle1.radius;
+            const a = u * u + v * v - 1;
+            const b = -2 * (center1.x * u + center1.y * v + r1 * cosGamma2);
+            const c = center1.length2() - r1 * r1;
+            if (Fast.quadraticEquation(a, b, c)) {
+                const r2 = Fast.xLow;
+                cx = r2 * u;
+                cy = r2 * v;
+                const circle2 = circleScope.circleInsideOut(r2, cx, cy);
+                circleScope.circle2 = circle2;
+                separator2 = (circle2.center.y - circle1.center.y) / (circle2.center.x - circle1.center.x);
+            }
             circleScope.finishMap = function(position, furtherResults) {
                 let l2 = position.length2();
                 if (l2 > worldradius2) {
                     position.scale(worldradius2 / l2);
-                    furtherResults.colorSector = 1;
-                } else {
                     furtherResults.colorSector = 0;
+                } else {
+                    triangleSectors(position, furtherResults);
                 }
             };
         }
-
-
     };
 
 }());

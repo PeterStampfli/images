@@ -459,6 +459,30 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
     /**
+     * two-color symmetry: invert the color for sector 0 only
+     * @method VectorMap#inversionColorSymmetrySectorZero
+     */
+    VectorMap.prototype.inversionColorSymmetrySectorZero = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector === 0) {
+                color.invert();
+            }
+        };
+    };
+
+    /**
+     * two-color symmetry: invert the hue for sector 0 only
+     * @method VectorMap#hueInversionColorSymmetrySectorZero
+     */
+    VectorMap.prototype.hueInversionColorSymmetrySectorZero = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector === 0) {
+                color.invertHue();
+            }
+        };
+    };
+
+    /**
      * three-color symmetry: rotate the rgb components
      * @method VectorMap#rgbRotationColorSymmetry
      */
