@@ -216,6 +216,7 @@ function creation() {
     };
 
     Make.updateOutputImage = function() {
+       
         Make.updateMapOutput();
 
         Draw.setLineWidth(5);
@@ -223,7 +224,8 @@ function creation() {
         Draw.setColor("red");
 
 
-        circleScope.draw();
+      //  circleScope.draw();
+        multiCircles.draw();
 
 
     };
@@ -233,7 +235,7 @@ function creation() {
 
 
 
-    Make.map.makeColorCollection(5, 0, 1, 40);
+   // Make.map.makeColorCollection(5, 0, 1, 40);
 
 
     Make.map.noColorSymmetry();
@@ -242,13 +244,15 @@ function creation() {
     Make.map.hueShiftInversionColorSymmetry(4);
 
 
-    circleScope.setMapping();
-    circleScope.setDihedral(5);
-    circleScope.setupMouseForTrajectory();
+  //  circleScope.setMapping();
+  //  circleScope.setDihedral(5);
+  //  circleScope.setupMouseForTrajectory();
 
     //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
-    circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
+ //   circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
+    multiCircles.setMapping();
+    apollinius.start(1,4);
 
 
 }
