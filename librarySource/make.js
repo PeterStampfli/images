@@ -65,6 +65,8 @@ var Make = {};
     Make.inputImageExists = false;
     // show structure even if input image exists (for presentation)
     Make.showStructure = false;
+    // show number of iterations
+    Make.showIterations = false;
 
     // reset the input transform if the map changes or input image changes ??
     Make.allowResetInputMap = true;
@@ -284,7 +286,7 @@ var Make = {};
         Make.shiftMapToCenter();
         Make.getMapOutputRange();
         Make.limitLyapunov();
-        if (Make.showStructure || !Make.inputImageExists) {
+        if (Make.showIterations || Make.showStructure || !Make.inputImageExists) {
             Make.newMapRequiresInputImageAdjustment = true;
         } else {
             Make.adjustSpaceToInputPixelMapping();
@@ -300,7 +302,24 @@ var Make = {};
      */
     Make.switchToShowingStructure = function() {
         if (!Make.showStructure) {
+            Make.showIterations = false;
             Make.showStructure = true;
+            Make.controlImage.semiTransparent();
+            Make.controlImage.pixelCanvas.showPixel();
+            Make.updateOutputImage();
+        }
+    };
+
+    /**
+     * switch to showing iterations, does nothing if structure already shown
+     * grey out control canvas
+     * @method Make.switchToShowingIterations
+     */
+    Make.switchToShowingIterations = function() {
+        if (!Make.showIterations) {
+            Make.showIterations = true;
+            Make.showStructure = false;
+
             Make.controlImage.semiTransparent();
             Make.controlImage.pixelCanvas.showPixel();
             Make.updateOutputImage();
@@ -313,28 +332,16 @@ var Make = {};
      * @method Make.switchToShowingImage
      */
     Make.switchToShowingImage = function() {
-        if (Make.showStructure) {
+        if (Make.showIterations || Make.showStructure) {
             if (Make.newMapRequiresInputImageAdjustment) {
                 Make.newMapRequiresInputImageAdjustment = false;
                 Make.adjustSpaceToInputPixelMapping();
             }
+            Make.showIterations = false;
             Make.showStructure = false;
             Make.updateOutputImage();
         }
     };
-
-    /**
-     * switch between showing structure and image
-     * @method Make.switchStructureImage
-     */
-    Make.switchStructureImage = function() {
-        if (Make.showStructure) {
-            Make.switchToShowingImage();
-        } else {
-            Make.switchToShowingStructure();
-        }
-    };
-
 
     /**
      * create a button to change between structure and image, put before setting font sizes
@@ -464,9 +471,10 @@ var Make = {};
      * @method Make.readImageAction
      */
     Make.readImageAction = function() {
-        if (Make.showStructure || !Make.inputImageExists) {
+        if (Make.showIterations || Make.showStructure || !Make.inputImageExists) {
             Make.inputImageExists = true;
             Make.showStructure = false;
+            Make.showIterations = false;
             if (Make.mapping == null) {
                 console.log("*** (Make)readImageAction: there is no mapping function !");
                 return;
@@ -573,7 +581,7 @@ var Make = {};
      * @method Make.updateOutputImageIfUsingInputImage
      */
     Make.updateOutputImageIfUsingInputImage = function() {
-        if (!Make.showStructure && Make.inputImageExists) {
+        if (!Make.showIterations && !Make.showStructure && Make.inputImageExists) {
             Make.updateOutputImage();
         }
     };
@@ -595,7 +603,9 @@ var Make = {};
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
         }
-        if (Make.showStructure || !Make.inputImageExists) { // show structure
+        if (Make.showIterations) { // show structure
+            Make.map.drawIterations();
+        } else if (Make.showStructure || !Make.inputImageExists) { // show structure
             Make.map.drawStructure();
         } else {
             if (Make.inputImage.width == 0) {

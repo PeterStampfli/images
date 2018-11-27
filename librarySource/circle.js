@@ -124,10 +124,10 @@ function Circle(radius, center, centerY) {
         const dy = v.y - this.center.y;
         return this.radius2 >= dx * dx + dy * dy;
     };
-    
+
     // beware of hitting the circle center
-    const epsilon2=1e-8;
-    const iEpsilon2=1/epsilon2;
+    const epsilon2 = 1e-8;
+    const iEpsilon2 = 1 / epsilon2;
 
     /**
      * invert a point at the circle
@@ -139,16 +139,15 @@ function Circle(radius, center, centerY) {
         const dx = v.x - this.center.x;
         const dy = v.y - this.center.y;
         const pointR2 = dx * dx + dy * dy;
-        if (pointR2<epsilon2){
-            v.x=iEpsilon2;
-            v.y=iEpsilon2;
+        if (pointR2 < epsilon2) {
+            v.x = iEpsilon2;
+            v.y = iEpsilon2;
             return iEpsilon2;
-        }
-        else {
-        const factor = this.radius2 / pointR2;
-        v.x = this.center.x + dx * factor;
-        v.y = this.center.y + dy * factor;
-        return factor;
+        } else {
+            const factor = this.radius2 / pointR2;
+            v.x = this.center.x + dx * factor;
+            v.y = this.center.y + dy * factor;
+            return factor;
         }
     };
 
@@ -181,12 +180,11 @@ function Circle(radius, center, centerY) {
             return -1;
         }
         const pointR2 = dx * dx + dy * dy;
-        if (pointR2<epsilon2){
-            v.x=iEpsilon2;
-            v.y=iEpsilon2;
+        if (pointR2 < epsilon2) {
+            v.x = iEpsilon2;
+            v.y = iEpsilon2;
             return iEpsilon2;
-        }
-        else if (this.radius2 - 0.0001 > pointR2) {
+        } else if (this.radius2 - 0.0001 > pointR2) {
             const factor = this.radius2 / pointR2;
             v.x = this.center.x + dx * factor;
             v.y = this.center.y + dy * factor;

@@ -387,8 +387,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     /**
      * draw on a pixelcanvas use a map
-     * color showing structure, based on parity stored in this.xArray
-     * and sector stored in this.yArray
+     * color showing structure, based on reflectionsArray and colorSectorArray
      * "invalid" points have a negative lyapunov value
      * @method VectorMap#drawStructure
      */
@@ -404,6 +403,32 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
                 pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
+            } else {
+                pixel[index] = intColorOff;
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
+
+    /**
+     * draw on a pixelcanvas use a map
+     * color showing number of iterations, based on iterationsArray
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawIterations
+     */
+    VectorMap.prototype.drawIterations = function() {
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let intColorOff = this.intColorOff;
+        let lyapunovArray = this.lyapunovArray;
+        let reflectionsArray = this.reflectionsArray;
+        let colorSectorArray = this.colorSectorArray;
+        let structureColorCollection = this.structureColorCollection;
+        const length = lyapunovArray.length;
+        for (var index = 0; index < length; index++) {
+            if (lyapunovArray[index] >= -0.001) {
+                pixel[index] = structureColorCollection[0][0];
             } else {
                 pixel[index] = intColorOff;
             }
