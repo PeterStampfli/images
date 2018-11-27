@@ -19,6 +19,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.yArray = new Float32Array(4);
     // for showing the structure: number of reflections
     this.reflectionsArray = new Uint8ClampedArray(4);
+    // for showing convergence, number of iterations
+    this.iterationsArray = new Uint8ClampedArray(4);
     // the color sector (for color symmetry...)
     this.colorSectorArray = new Uint8Array(4);
 
@@ -60,6 +62,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             this.yArray = new Float32Array(length);
             this.lyapunovArray = new Float32Array(length);
             this.reflectionsArray = new Uint8ClampedArray(length);
+            this.iterationsArray = new Uint8ClampedArray(length);
             this.colorSectorArray = new Uint8Array(length);
             this.alphaArray = new Uint8ClampedArray(length);
         }
@@ -117,14 +120,36 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         color.rgbFromHig();
         const intColorOdd = PixelCanvas.integerOf(color);
         const colors = new Uint32Array(256);
-
-
         for (var i = 0; i < 255; i++) {
             colors[i++] = intColorEven;
             colors[i] = intColorOdd;
         }
         colors[0] = intColorNull;
         this.structureColorCollection.push(colors);
+    };
+
+    VectorMap.gamma = 2;
+
+    /**
+     * make a color table for showing convergence
+     * depending on VectorMap.gamma value
+     * @method VectorMap#createIterationsColors
+     * @param {integer} maxIterations
+     */
+    VectorMap.prototype.createIterationsColors = function(maxIterations) {
+        const iMaxIterations = 1.0 / maxIterations;
+        const color = new Color();
+        const colors = new Uint32Array(256);
+
+        for (var i = 0; i < 255; i++) {
+            let bright = Math.round(255 * Math.pow(i * iMaxIterations, gamma));
+            color.red = bright;
+            color.green = bright;
+            color.blue = bright;
+            colors[i] = PixelCanvas.integerOf(color);
+        }
+
+
     };
 
     /**
@@ -143,12 +168,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         furtherResults.lyapunov = 1;
         // the color (symmetry) sector, default value for images without color symmetry...
         furtherResults.colorSector = 0;
+        // number of iterations
+        furtherResults.iterations = 0;
         let width = this.width;
         let height = this.height;
         let xArray = this.xArray;
         let yArray = this.yArray;
         let lyapunovArray = this.lyapunovArray;
         let reflectionsArray = this.reflectionsArray;
+        let iterationsArray = this.iterationsArray;
         let colorSectorArray = this.colorSectorArray;
         let alphaArray = this.alphaArray;
         let scale = this.outputImage.scale;
@@ -165,6 +193,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         let x = 0;
         let y = 0;
+        let maxIterations = 0;
         y = this.outputImage.cornerY;
         for (var j = 0; j < height; j++) {
             x = this.outputImage.cornerX;
@@ -189,6 +218,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                         lyapunovArray[index] = furtherResults.lyapunov;
                         reflectionsArray[index] = furtherResults.reflections;
                         colorSectorArray[index] = furtherResults.colorSector;
+                        iterationsArray[index] = furtherResults.iterations;
+                        maxIterations = Math.max(maxIterations, furtherResults.iterations);
                         if (furtherResults.lyapunov < 0) {
                             alphaArray[index] = 0;
                         }
@@ -200,6 +231,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     lyapunovArray[index] = furtherResults.lyapunov;
                     reflectionsArray[index] = furtherResults.reflections;
                     colorSectorArray[index] = furtherResults.colorSector;
+                    iterationsArray[index] = furtherResults.iterations;
+                    maxIterations = Math.max(maxIterations, furtherResults.iterations);
                     if (furtherResults.lyapunov >= -0.001) {
                         alphaArray[index] = 255;
                     } else {
@@ -213,6 +246,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             }
             y += scale;
         }
+        maxIterations = Math.min(255, maxIterations);
+        console.log(maxIterations);
     };
 
     /**

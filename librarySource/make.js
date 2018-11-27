@@ -304,8 +304,10 @@ var Make = {};
         if (!Make.showStructure) {
             Make.showIterations = false;
             Make.showStructure = true;
-            Make.controlImage.semiTransparent();
-            Make.controlImage.pixelCanvas.showPixel();
+            if (Make.inputImageExists) {
+                Make.controlImage.semiTransparent();
+                Make.controlImage.pixelCanvas.showPixel();
+            }
             Make.updateOutputImage();
         }
     };
@@ -319,9 +321,10 @@ var Make = {};
         if (!Make.showIterations) {
             Make.showIterations = true;
             Make.showStructure = false;
-
-            Make.controlImage.semiTransparent();
-            Make.controlImage.pixelCanvas.showPixel();
+            if (Make.inputImageExists) {
+                Make.controlImage.semiTransparent();
+                Make.controlImage.pixelCanvas.showPixel();
+            }
             Make.updateOutputImage();
         }
     };

@@ -164,6 +164,7 @@ multiCircles = {};
     multiCircles.map = function(position, furtherResults) {
         furtherResults.lyapunov = -1;
         furtherResults.reflections = 0;
+        furtherResults.iterations = 0;
         const elements = multiCircles.elements;
         const elementsLength = elements.length;
         for (var i = multiCircles.maxIterations; i > 0; i--) {
@@ -172,6 +173,7 @@ multiCircles = {};
                 if (elements[j].map(position) >= 0) {
                     noChange = false;
                     furtherResults.reflections++;
+                    furtherResults.iterations++;
                 }
             }
             if (noChange) {

@@ -133,9 +133,17 @@ function creation() {
     // choose between showing the structure or the image
     let showSelect = new Select("show");
 
+
     showSelect.addOption("structure",
         function() {
             Make.switchToShowingStructure();
+            activateControls(false);
+        });
+
+
+    showSelect.addOption("convergence",
+        function() {
+            Make.switchToShowingIterations();
             activateControls(false);
         });
 
@@ -216,6 +224,7 @@ function creation() {
     };
 
     Make.updateOutputImage = function() {
+
 
         Make.updateMapOutput();
 
