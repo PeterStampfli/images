@@ -19,6 +19,7 @@ apollinius = {};
 
     const extendedCircle1 = new Circle();
     const extendedCircle2 = new Circle();
+    const toCircle3 = new Vector2();
 
 
     /**
@@ -37,8 +38,6 @@ apollinius = {};
         // find circle radius
         // soddys equation
         const sum1 = 1 / r1 + 1 / r2 + 1 / r3;
-        console.log("sum1 " + sum1);
-        const x = sum1 + 1 / 0.5358983848622456;
 
         const sum2 = 1 / r1 / r1 + 1 / r2 / r2 + 1 / r3 / r3;
 
@@ -49,14 +48,17 @@ apollinius = {};
         const b = -2 * sum1;
         const c = 2 * sum2 - sum1 * sum1;
         Fast.quadraticEquation(a, b, c);
+        // the larger solution gives the smaller radius of incircle
         const r = 1 / Fast.xHigh;
         console.log(r);
         // find circle center
-
+        // get two possible centers from intersection of circles
 
         extendedCircle1.setRadiusCenter(r + r1, circle1.center);
         extendedCircle2.setRadiusCenter(r + r2, circle2.center);
-        console.log(extendedCircle1.intersectsCircle(extendedCircle2));
+        extendedCircle1.intersectsCircle(extendedCircle2);
+
+        // get solution with smaller distance to circle 3
 
 
         multiCircles.addCircleInsideOut(r, 0, 0);

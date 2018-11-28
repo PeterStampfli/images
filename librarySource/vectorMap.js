@@ -128,7 +128,24 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         this.structureColorCollection.push(colors);
     };
 
-    VectorMap.gamma = 2;
+    /**
+     * make a collection of color tables, put in structureColorCollection
+     * depending on number of colors (sectors), first hue, difference in hue, 
+     * attenuation of intensity
+     * @method VectorMap#makeColorCollection
+     * @param {integer} nColors
+     * @param {float} firstHue
+     * @param {float} deltaHue
+     * @param {float} attenuation
+     */
+    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
+        this.structureColorCollection = [];
+        let hue = firstHue;
+        for (var i = 0; i < nColors; i++) {
+            this.addStructureColors(hue, attenuation);
+            hue += deltaHue;
+        }
+    };
 
     /**
      * make a color table for showing convergence
@@ -137,20 +154,43 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {integer} maxIterations
      */
     VectorMap.prototype.createIterationsColors = function(maxIterations) {
-        const iMaxIterations = 1.0 / maxIterations;
         const color = new Color();
         const colors = new Uint32Array(256);
-
+        // making the colors by parts interpolated
+        const low = 5;
+        const highFraction = 0.05;
+        const lowRed = 0;
+        const lowGreen = 0;
+        const lowBlue = 200;
+        const highRed = 0;
+        const highBlue = 0;
+        const highGreen = 255;
+        const maxRed = 255;
+        const maxGreen = 255;
+        const maxBlue = 255;
+        const high = highFraction * maxIterations;
+        var bright = 100;
         for (var i = 0; i < 255; i++) {
-            let bright = Math.round(255 * Math.pow(i * iMaxIterations, gamma));
-            color.red = bright;
-            color.green = bright;
-            color.blue = bright;
+            if (i < low) {
+                color.red = Fast.clamp(0, i * lowRed / low, 255);
+                color.green = Fast.clamp(0, i * lowGreen / low, 255);
+                color.blue = Fast.clamp(0, i * lowBlue / low, 255);
+            } else if (i < high) {
+                color.red = Fast.clamp(0, lowRed + (i - low) * (highRed - lowRed) / (high - low), 255);
+                color.green = Fast.clamp(0, lowGreen + (i - low) * (highGreen - lowGreen) / (high - low), 255);
+                color.blue = Fast.clamp(0, lowBlue + (i - low) * (highBlue - lowBlue) / (high - low), 255);
+            } else {
+                color.red = Fast.clamp(0, highRed + (i - high) * (maxRed - highRed) / (maxIterations - high), 255);
+                color.green = Fast.clamp(0, highGreen + (i - high) * (maxGreen - highGreen) / (maxIterations - high), 255);
+                color.blue = Fast.clamp(0, highBlue + (i - high) * (maxBlue - highBlue) / (maxIterations - high), 255);
+            }
             colors[i] = PixelCanvas.integerOf(color);
         }
-
-
+        this.iterationsColors = colors;
     };
+
+    // histogram of iterations and cumulated histogram
+    let iterationsHistogram = new Array(256);
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
@@ -194,11 +234,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let x = 0;
         let y = 0;
         let maxIterations = 0;
+        var i, j;
+        for (i = 0; i < 256; i++) {
+            iterationsHistogram[i] = 0;
+        }
         y = this.outputImage.cornerY;
-        for (var j = 0; j < height; j++) {
+        for (j = 0; j < height; j++) {
             x = this.outputImage.cornerX;
             let y2 = y * y;
-            for (var i = 0; i < width; i++) {
+            for (i = 0; i < width; i++) {
                 position.x = x;
                 position.y = y;
                 if (cutDisc) {
@@ -218,7 +262,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                         lyapunovArray[index] = furtherResults.lyapunov;
                         reflectionsArray[index] = furtherResults.reflections;
                         colorSectorArray[index] = furtherResults.colorSector;
+                        furtherResults.iterations = Math.min(255, furtherResults.iterations);
                         iterationsArray[index] = furtherResults.iterations;
+                        iterationsHistogram[furtherResults.iterations]++;
                         maxIterations = Math.max(maxIterations, furtherResults.iterations);
                         if (furtherResults.lyapunov < 0) {
                             alphaArray[index] = 0;
@@ -231,7 +277,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     lyapunovArray[index] = furtherResults.lyapunov;
                     reflectionsArray[index] = furtherResults.reflections;
                     colorSectorArray[index] = furtherResults.colorSector;
+                    furtherResults.iterations = Math.min(255, furtherResults.iterations);
                     iterationsArray[index] = furtherResults.iterations;
+                    iterationsHistogram[furtherResults.iterations]++;
                     maxIterations = Math.max(maxIterations, furtherResults.iterations);
                     if (furtherResults.lyapunov >= -0.001) {
                         alphaArray[index] = 255;
@@ -247,7 +295,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             y += scale;
         }
         maxIterations = Math.min(255, maxIterations);
-        console.log(maxIterations);
+        this.createIterationsColors(maxIterations);
     };
 
     /**
@@ -402,25 +450,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
     /**
-     * make a collection of color tables, put in structureColorCollection
-     * depending on number of colors (sectors), first hue, difference in hue, 
-     * attenuation of intensity
-     * @method VectorMap#makeColorCollection
-     * @param {integer} nColors
-     * @param {float} firstHue
-     * @param {float} deltaHue
-     * @param {float} attenuation
-     */
-    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
-        this.structureColorCollection = [];
-        let hue = firstHue;
-        for (var i = 0; i < nColors; i++) {
-            this.addStructureColors(hue, attenuation);
-            hue += deltaHue;
-        }
-    };
-
-    /**
      * draw on a pixelcanvas use a map
      * color showing structure, based on reflectionsArray and colorSectorArray
      * "invalid" points have a negative lyapunov value
@@ -458,12 +487,16 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let intColorOff = this.intColorOff;
         let lyapunovArray = this.lyapunovArray;
         let reflectionsArray = this.reflectionsArray;
+        let iterationsArray = this.iterationsArray;
         let colorSectorArray = this.colorSectorArray;
         let structureColorCollection = this.structureColorCollection;
+        let iterationsColors = this.iterationsColors;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                pixel[index] = structureColorCollection[0][0];
+                pixel[index] = iterationsColors[reflectionsArray[index]];
+                // console.log(index+" "+reflectionsArray[index])
+                // pixel[index] = iterationsColors[100];
             } else {
                 pixel[index] = intColorOff;
             }
