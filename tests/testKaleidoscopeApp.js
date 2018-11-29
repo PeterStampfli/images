@@ -228,7 +228,7 @@ function creation() {
 
         Make.updateMapOutput();
 
-        Draw.setLineWidth(5);
+        Draw.setLineWidth(2);
 
         Draw.setColor("red");
 
@@ -261,7 +261,7 @@ function creation() {
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
     //   circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
     multiCircles.setMapping();
-    apollinius.start(1, 4);
+    apollinius.start(0, 6);
 
 
 }
