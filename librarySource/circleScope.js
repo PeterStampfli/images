@@ -94,6 +94,7 @@ circleScope = {};
     circleScope.map = function(position, furtherResults) {
         furtherResults.lyapunov = -1;
         furtherResults.reflections = 0;
+        furtherResults.iterations = 0;
         dihedral.map(position);
         furtherResults.reflections += Dihedral.reflections;
         for (var i = circleScope.maxIterations; i > 0; i--) {
@@ -101,12 +102,14 @@ circleScope = {};
             if (circleScope.circle1.map(position) > 0) {
                 noChange = false;
                 furtherResults.reflections++;
+                furtherResults.iterations++;
                 dihedral.map(position);
                 furtherResults.reflections += Dihedral.reflections;
             }
             if (circleScope.circle2.map(position) > 0) {
                 noChange = false;
                 furtherResults.reflections++;
+                furtherResults.iterations++;
                 dihedral.map(position);
                 furtherResults.reflections += Dihedral.reflections;
             }
@@ -116,6 +119,7 @@ circleScope = {};
             }
         }
         circleScope.finishMap(position, furtherResults);
+
     };
 
 
@@ -144,6 +148,7 @@ circleScope = {};
      * @param {Vector2} position
      */
     circleScope.drawTrajectory = function(position) {
+        let iterations = 0;
         const positions = [];
         positions.push(position.clone());
         const sizes = [];
@@ -161,6 +166,7 @@ circleScope = {};
             let factor = circleScope.circle1.map(position);
             if (factor >= 0) {
                 noChange = false;
+                iterations++;
                 size *= factor;
                 sizes.push(size);
                 positions.push(position.clone());
@@ -169,9 +175,11 @@ circleScope = {};
                 positions.push(position.clone());
                 sizes.push(size);
             }
+            lastPosition.set(position);
             factor = circleScope.circle2.map(position);
             if (factor >= 0) {
                 noChange = false;
+                iterations++;
                 size *= factor;
                 sizes.push(size);
                 positions.push(position.clone());
@@ -293,8 +301,6 @@ circleScope = {};
         line.map = line.mirrorLeftToRight;
         return line;
     };
-
-
 
     /**
      * generate a triangle kaleidoscope with hyperbolic, euclidic or elliptic geometry
@@ -468,4 +474,22 @@ circleScope = {};
         }
     };
 
+
+    /**
+     * generate a hyperbolic quadrangle
+     * sets dihedral to k and sets circle1 to reflecting element
+     * worldradius adjusted to 9.7
+     * @method circleScope.hyperbolicQuadrangle
+     * @param {integer} k - symmetry at center
+     * @param {integer} m - symmetry at "right" corner
+     * @param {integer} n - symmetry at "middle" corner
+     * @param {integer} p - symmetry at left corner
+     * @param {float} a - 0...1, fix point of circle at the right, fractional distance from center
+     */
+    circleScope.hyperbolicQuadrangle = function(k, m, n) {
+        circleScope.circle2 = circleScope.circleZero();
+        circleScope.setDihedral(k);
+
+
+    };
 }());

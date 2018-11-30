@@ -296,6 +296,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         maxIterations = Math.min(255, maxIterations);
         this.createIterationsColors(maxIterations);
+        console.log("max iter " + maxIterations);
     };
 
     /**
@@ -494,7 +495,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                pixel[index] = iterationsColors[reflectionsArray[index]];
+                pixel[index] = iterationsColors[iterationsArray[index]];
                 // console.log(index+" "+reflectionsArray[index])
                 // pixel[index] = iterationsColors[100];
             } else {

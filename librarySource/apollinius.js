@@ -30,45 +30,44 @@ apollinius = {};
      * @param {Circle} circle3
      */
     apollinius.generate = function(ite, circle1, circle2, circle3) {
-              if (ite>=1){
-        const r1 = circle1.radius;
-        const r2 = circle2.radius;
-        const r3 = circle3.radius;
-        // find circle radius
-        // soddys equation
-        const sum1 = 1 / r1 + 1 / r2 + 1 / r3;
-        const sum2 = 1 / r1 / r1 + 1 / r2 / r2 + 1 / r3 / r3;
-        const a = 1;
-        const b = -2 * sum1;
-        const c = 2 * sum2 - sum1 * sum1;
-        Fast.quadraticEquation(a, b, c);
-        // the larger solution gives the smaller radius of incircle
-        const r = 1 / Fast.xHigh;
-        console.log(r);
-        // find circle center
-        // get two possible centers from intersection of circles
-        extendedCircle1.setRadiusCenter(r + r1, circle1.center);
-        extendedCircle2.setRadiusCenter(r + r2, circle2.center);
-        extendedCircle1.intersectsCircle(extendedCircle2);
-        // get solution with smaller distance to circle 3
-        const d1=toCircle3.set(Circle.intersection1).sub(circle3.center).length2();
-        const d2=toCircle3.set(Circle.intersection2).sub(circle3.center).length2();
-        
-      
+        if (ite >= 1) {
+            const r1 = circle1.radius;
+            const r2 = circle2.radius;
+            const r3 = circle3.radius;
+            // find circle radius
+            // soddys equation
+            const sum1 = 1 / r1 + 1 / r2 + 1 / r3;
+            const sum2 = 1 / r1 / r1 + 1 / r2 / r2 + 1 / r3 / r3;
+            const a = 1;
+            const b = -2 * sum1;
+            const c = 2 * sum2 - sum1 * sum1;
+            Fast.quadraticEquation(a, b, c);
+            // the larger solution gives the smaller radius of incircle
+            const r = 1 / Fast.xHigh;
+            console.log(r);
+            // find circle center
+            // get two possible centers from intersection of circles
+            extendedCircle1.setRadiusCenter(r + r1, circle1.center);
+            extendedCircle2.setRadiusCenter(r + r2, circle2.center);
+            extendedCircle1.intersectsCircle(extendedCircle2);
+            // get solution with smaller distance to circle 3
+            const d1 = toCircle3.set(Circle.intersection1).sub(circle3.center).length2();
+            const d2 = toCircle3.set(Circle.intersection2).sub(circle3.center).length2();
 
-        var newCircle;
-        if (d1<d2){
-         newCircle=multiCircles.addCircleInsideOut(r, Circle.intersection1.x,Circle.intersection1.y);
+
+
+            var newCircle;
+            if (d1 < d2) {
+                newCircle = multiCircles.addCircleInsideOut(r, Circle.intersection1.x, Circle.intersection1.y);
+            } else {
+                newCircle = multiCircles.addCircleInsideOut(r, Circle.intersection2.x, Circle.intersection2.y);
+            }
+
+
+            apollinius.generate(ite - 1, newCircle, circle1, circle2);
+            apollinius.generate(ite - 1, newCircle, circle2, circle3);
+            apollinius.generate(ite - 1, newCircle, circle3, circle1);
         }
-else {
-         newCircle=multiCircles.addCircleInsideOut(r, Circle.intersection2.x,Circle.intersection2.y);
-        }
-        
-  
-        apollinius.generate(ite-1,newCircle,circle1,circle2);
-        apollinius.generate(ite-1,newCircle,circle2,circle3);
-         apollinius.generate(ite-1,newCircle,circle3,circle1);
-              }
     };
 
     /**
