@@ -36,10 +36,12 @@ function Circle(radius, center, centerY) {
 
     /**
      * set radius, square of radius 
+     * no negative radius!
      * @method Circle#setRadius
      * @param {float} radius 
      */
     Circle.prototype.setRadius = function(radius) {
+        radius=Math.max(0,radius);
         this.radius = radius;
         this.radius2 = radius * radius;
         this.radius07 = 0.7 * radius;

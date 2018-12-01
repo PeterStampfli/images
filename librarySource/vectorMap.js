@@ -147,47 +147,30 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
     };
 
+   
+    VectorMap.iterationGamma = 0.5;
+    VectorMap.iterationReduction = 0.2;
+
     /**
      * make a color table for showing convergence
-     * depending on VectorMap.gamma value
+     * depending on VectorMap.iterationGamma value
      * @method VectorMap#createIterationsColors
      * @param {integer} maxIterations
      */
     VectorMap.prototype.createIterationsColors = function(maxIterations) {
         const color = new Color();
         const colors = new Uint32Array(256);
-        // making the colors by parts interpolated
-        const low = 5;
-        const highFraction = 0.05;
-        const lowRed = 0;
-        const lowGreen = 0;
-        const lowBlue = 200;
-        const highRed = 0;
-        const highBlue = 0;
-        const highGreen = 255;
-        const maxRed = 255;
-        const maxGreen = 255;
-        const maxBlue = 255;
-        const high = highFraction * maxIterations;
-        var bright = 100;
+        maxIterations *= VectorMap.iterationReduction;
         for (var i = 0; i < 255; i++) {
-            if (i < low) {
-                color.red = Fast.clamp(0, i * lowRed / low, 255);
-                color.green = Fast.clamp(0, i * lowGreen / low, 255);
-                color.blue = Fast.clamp(0, i * lowBlue / low, 255);
-            } else if (i < high) {
-                color.red = Fast.clamp(0, lowRed + (i - low) * (highRed - lowRed) / (high - low), 255);
-                color.green = Fast.clamp(0, lowGreen + (i - low) * (highGreen - lowGreen) / (high - low), 255);
-                color.blue = Fast.clamp(0, lowBlue + (i - low) * (highBlue - lowBlue) / (high - low), 255);
-            } else {
-                color.red = Fast.clamp(0, highRed + (i - high) * (maxRed - highRed) / (maxIterations - high), 255);
-                color.green = Fast.clamp(0, highGreen + (i - high) * (maxGreen - highGreen) / (maxIterations - high), 255);
-                color.blue = Fast.clamp(0, highBlue + (i - high) * (maxBlue - highBlue) / (maxIterations - high), 255);
-            }
+            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow(i / maxIterations, VectorMap.iterationGamma)), 255);
+            color.red = bright;
+            color.blue = bright;
+            color.green = bright;
             colors[i] = PixelCanvas.integerOf(color);
         }
         this.iterationsColors = colors;
     };
+
 
     // histogram of iterations and cumulated histogram
     let iterationsHistogram = new Array(256);
@@ -296,7 +279,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         maxIterations = Math.min(255, maxIterations);
         this.createIterationsColors(maxIterations);
-        console.log("max iter " + maxIterations);
     };
 
     /**

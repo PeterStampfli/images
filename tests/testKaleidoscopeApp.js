@@ -124,7 +124,7 @@ function creation() {
     let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
     imageInputButton.onClick = function() {
         imageInputButton.fileInput.click();
-        showSelect.setIndex(1);
+        showSelect.setIndex(2);
         activateControls(true);
     };
 
@@ -244,13 +244,13 @@ function creation() {
 
 
 
-    Make.map.makeColorCollection(5, 0, 1, 40);
+   // Make.map.makeColorCollection(5, 0, 1, 40);
 
 
     Make.map.noColorSymmetry();
 
 
-    Make.map.hueShiftInversionColorSymmetry(4);
+   // Make.map.hueShiftInversionColorSymmetry(4);
 
 
     circleScope.setMapping();
@@ -259,62 +259,11 @@ function creation() {
 
     //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
-    circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
+  //  circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
     //  multiCircles.setMapping();
     //   apollinius.start(0, 6);
-
-
-    const v = new Vector2();
-    let x = 7;
-    let y = 1;
-
-    v.setComponents(x, y);
-    v.log("origin");
-    const further = {};
-    circleScope.map(v, further);
-    v.log("mapped");
-    console.log(further.iterations);
-
-    y = -y;
-    v.setComponents(x, y);
-    v.log("origin");
-    circleScope.map(v, further);
-    v.log("mapped");
-    console.log(further.iterations);
-
-    VectorMap.redGamma = 0.5;
-    VectorMap.blueGamma = 0.4;
-    VectorMap.greenGamma = 0.4;
-    VectorMap.redThreshold = 0.0;
-    VectorMap.greenThreshold = 0.0;
-    VectorMap.blueThreshold = 0.0;
-
-    VectorMap.gamma = 0.5;
-    VectorMap.reduction = 0.2;
-
-    /**
-     * make a color table for showing convergence
-     * depending on VectorMap.gamma value
-     * @method VectorMap#createIterationsColors
-     * @param {integer} maxIterations
-     */
-
-
-    VectorMap.prototype.createIterationsColors = function(maxIterations) {
-        const color = new Color();
-        const colors = new Uint32Array(256);
-        maxIterations *= VectorMap.reduction;
-        for (var i = 0; i < 255; i++) {
-            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow(i / maxIterations, VectorMap.gamma)), 255);
-            color.red = bright;
-            color.blue = bright;
-            color.green = bright;
-
-
-            colors[i] = PixelCanvas.integerOf(color);
-        }
-        this.iterationsColors = colors;
-    };
+    
+    circleScope.hyperbolicQuadrangle(3,4,3,2,0.7);
 
 
 }
@@ -331,7 +280,6 @@ Layout.nullRadius = 1;
 
 function adjustFont(fontSize) {
     "use strict";
-
 
     // define general relations between text elements and font size, independent of window dimensions
     //===============================================================================
