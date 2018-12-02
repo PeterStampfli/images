@@ -502,8 +502,16 @@ circleScope = {};
         const y1=r1*cosAlpha;
         circleScope.circle1=circleScope.circleInsideOut(r1,x1,y1);
         // the second circle (two possibilities ??)
-        const f=1/(r1*cosBeta+cosDelta/cosGamma1*y1);
-        const g=f*(x1+sinGamma1/cosGamma1*y1);
+        const f=1/(r1*cosBeta-cosDelta/cosGamma1*y1);
+        const g=-f*(x1+sinGamma1/cosGamma1*y1);
+        
+        console.log(r1)
+        console.log(cosBeta)
+        console.log(r1*cosBeta);
+        console.log(cosDelta/cosGamma1*y1)
+        
+        console.log("g "+g);
+        console.log("f "+f);
         const h0=-cosDelta/cosGamma1*f*worldradius*worldradius;
         const h1=(sinGamma1-cosDelta*g)/cosGamma1;
         const k0=f*worldradius*worldradius;
@@ -516,12 +524,13 @@ circleScope = {};
         console.log(Fast.xLow);
         console.log(Fast.xHigh);
         
-        const x2=Fast.xLow;
+        let x2=Fast.xLow;
+         x2=Fast.xHigh;
         
         const r2=k0+k1*x2;
         const y2=h0+h1*x2;
         console.log(r2);
-                circleScope.circle2=circleScope.circleInsideOut(r2,-x2,-y2);
+                circleScope.circle2=circleScope.circleInsideOut(r2,x2,y2);
 
         
 

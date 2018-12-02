@@ -263,7 +263,7 @@ function creation() {
     //  multiCircles.setMapping();
     //   apollinius.start(0, 6);
     
-    circleScope.hyperbolicQuadrangle(3,4,3,2,0.7);
+    circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
 
 
 }
