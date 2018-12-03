@@ -244,13 +244,13 @@ function creation() {
 
 
 
-   // Make.map.makeColorCollection(5, 0, 1, 40);
+    Make.map.makeColorCollection(5, 0, 1, 40);
 
 
     Make.map.noColorSymmetry();
 
 
-   // Make.map.hueShiftInversionColorSymmetry(4);
+    Make.map.hueShiftInversionColorSymmetry(4);
 
 
     circleScope.setMapping();
@@ -263,7 +263,9 @@ function creation() {
     //  multiCircles.setMapping();
     //   apollinius.start(0, 6);
     
-    circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
+   // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
+  //  circleScope.hyperbolicQuadranglek222(3,0.6);
+    circleScope.hyperbolicKite(2,8,2);
 
 
 }
