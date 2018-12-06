@@ -266,6 +266,18 @@ function creation() {
    // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
   //  circleScope.hyperbolicQuadranglek222(3,0.6);
     circleScope.hyperbolicKite(2,8,2);
+    
+    function f(x){
+      return  4-Math.exp(x);
+        
+    }
+    
+    console.log(f(5));
+    const data={};
+    data.x1=11;
+    data.x2=0;
+    console.log(Fast.regulaFalsi(f,data));
+    console.log(data);
 
 
 }

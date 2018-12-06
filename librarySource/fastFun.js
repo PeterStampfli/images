@@ -521,7 +521,85 @@ var Fast = {};
         }
     };
 
-
+    
+    /**
+     * find a braket of opposed function values
+     * @method Fast#bracket
+     * @param {function} f - f(x)
+     * @param {Object} data - with x1 and x2 field as input and output
+     * @return true if bracket found with f(x1)*f(x2)<0, false else
+     */
+    Fast.bracket=function(f,data){
+        let f1=f(data.x1);
+        let f2=f(data.x2);
+        const maxIt=50;
+        const factor=1.5;
+        for (var i=0;i<maxIt;i++){
+            if ((f1*f2)<0) {
+                return true;
+            }
+            if (Math.abs(f1)>Math.abs(f2)){
+                data.x1=data.x2+factor*(data.x2-data.x1);
+                f1=f(data.x1);
+            }
+            else {
+                 data.x2=data.x1+factor*(data.x1-data.x2);
+                f1=f(data.x2);
+            }
+        }
+        console.log("**** Bracket failed "+f);
+        return false;
+    }
+    
+    /**
+     * find zero of a function with bisection
+     * @method Fast#bisection
+     * @param {function} f - f(x)
+     * @param {Object} data - with x1 and x2 field as input and output
+     * @return true if zero found, in data.x1, false else
+     */
+    Fast.regulaFalsi=function(f,data){
+         let f1=f(data.x1);
+        let f2=f(data.x2);
+        const epsilon=0.00001;
+        const maxIt=50;
+        // get bracket if not already there
+        if (f1*f2>0){
+           if ( !Fast.bracket(f,data)){
+               return false;
+           }
+        }
+        // make that f(data.x1)<0, if not exchange
+        if (f1>0){
+            let h=f1;
+            f1=f2;
+            f2=h;
+            h=data.x1;
+            data.x1=data.x2;
+            data.x2=h;
+            console.log("switch");
+        }
+        // find zero
+         for (var i=0;i<maxIt;i++){
+            if (Math.abs(data.x2-data.x1)<epsilon){
+                return true;
+            }
+            let xn=0.5*(data.x1+data.x2);
+            let fn=f(xn);
+            if (fn<0){
+                f1=fn;
+                data.x1=xn;
+            }
+            else {
+                f2=fn;
+                data.x2=xn;
+            }
+            console.log(i)
+            console.log(data)
+            console.log(f1+" "+f2);
+         }
+        return false;
+    };
     //console.time("stcihwort")
     //console.timeEnd("stcihwort")
 
