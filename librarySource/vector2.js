@@ -51,9 +51,9 @@ function Vector2(x = 0, y = 0) {
      * @return {Vector2} - this, for chaining
      */
     Vector2.prototype.setPolar = function(length, angle) {
-        Fast.cosSin(angle);
-        this.x = length * Fast.cosResult;
-        this.y = length * Fast.sinResult;
+        Fast.cosSin(angle, this);
+        this.x *= length;
+        this.y *= length;
     };
 
     /**

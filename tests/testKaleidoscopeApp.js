@@ -259,26 +259,32 @@ function creation() {
 
     //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
-  //  circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
+    //  circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
     //  multiCircles.setMapping();
     //   apollinius.start(0, 6);
-    
-   // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
-  //  circleScope.hyperbolicQuadranglek222(3,0.6);
-    circleScope.hyperbolicKite(2,8,2);
-    
-    function f(x){
-      return  4-Math.exp(x);
-        
+
+    // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
+    //  circleScope.hyperbolicQuadranglek222(3,0.6);
+    circleScope.hyperbolicKite(2, 8, 2);
+
+    function f(x) {
+        return 4 - Math.exp(x);
+
     }
-    
+
     console.log(f(5));
-    const data={};
-    data.x1=11;
-    data.x2=0;
-    console.log(Fast.regulaFalsi(f,data));
+    const data = new Vector2(0, 1);
+
+    console.log(Fast.bisection(f, data));
     console.log(data);
 
+
+    //console.log(Fast.triangleAOfBetaCB(Math.PI/2,10,14,data))
+    const x = 0.1;
+    Fast.cosSin(x, data);
+    data.log();
+    console.log(Fast.cos(x));
+    console.log(Fast.sin(x));
 
 }
 

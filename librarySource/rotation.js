@@ -53,9 +53,8 @@ rotation = {};
             };
             return result;
         }
-        Fast.cosSin(angle);
-        const cosAngle = Fast.cosResult;
-        const sinAngle = Fast.sinResult;
+        const cosAngle = Fast.cos(this.angle);
+        const sinAngle = Fast.sin(this.angle);
         result = function(p) {
             const h = cosAngle * p.x - sinAngle * p.y;
             p.y = sinAngle * p.x + cosAngle * p.y;
@@ -108,9 +107,8 @@ rotation = {};
             };
             return result;
         }
-        Fast.cosSin(angle);
-        const cosAngle = Fast.cosResult;
-        const sinAngle = Fast.sinResult;
+        const cosAngle = Fast.cos(this.angle);
+        const sinAngle = Fast.sin(this.angle);
         result = function(p) {
             const h = cosAngle * p.x - sinAngle * p.y;
             p.y = -(sinAngle * p.x + cosAngle * p.y);

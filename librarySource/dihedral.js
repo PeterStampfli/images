@@ -82,9 +82,8 @@ function Dihedral() {
         this.angle = Math.PI / n;
         this.nDivPi = n / Math.PI;
         this.nDiv2Pi = 0.5 / this.angle;
-        Fast.cosSin(this.angle);
-        this.cosAngle = Fast.cosResult;
-        this.sinAngle = Fast.sinResult;
+        this.cosAngle = Fast.cos(this.angle);
+        this.sinAngle = Fast.sin(this.angle);
         // generate the mapping function to map a point in each sector to the sector 0
         this.maps.length = 2 * n + 1;
         for (var i = 0; i < n; i++) {

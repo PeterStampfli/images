@@ -473,24 +473,24 @@ circleScope = {};
             };
         }
     };
-    
+
     // make a fist circle
     // depending on symmetry of intersection with the straight mirror at right
     //  and smallest distance of circle to center
     // r - 0...1, determine point of circle at the right, fractional distance from center
     //  m - symmetry at "right" corner
-        const worldradius=9.7;
-        
-        function firstCircle(m,r){
-               const cosAlpha = Fast.cos(Math.PI / m);
+    const worldradius = 9.7;
+
+    function firstCircle(m, r) {
+        const cosAlpha = Fast.cos(Math.PI / m);
         const sinAlpha = Fast.sin(Math.PI / m);
-                r=Fast.clamp(0.05,r,0.95);   // beware of singularity               
-        const r1=0.5*worldradius*(1/r-r);
-        const x1=Math.hypot(worldradius,r1*sinAlpha);
-        const y1=r1*cosAlpha;
-        circleScope.circle1=circleScope.circleInsideOut(r1,x1,y1);
-            
-        }
+        r = Fast.clamp(0.05, r, 0.95); // beware of singularity               
+        const r1 = 0.5 * worldradius * (1 / r - r);
+        const x1 = Math.hypot(worldradius, r1 * sinAlpha);
+        const y1 = r1 * cosAlpha;
+        circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
+
+    }
 
 
     /**
@@ -504,46 +504,46 @@ circleScope = {};
      * @param {integer} p - symmetry at left corner
      * @param {float} r - 0...1, determine point of circle at the right, fractional distance from center
      */
-    circleScope.hyperbolicQuadrangle = function(k, m, n,p,r) {
-        circleScope.setDihedral(k);                 // cosGamma1, sinGamma1
-        firstCircle(m,r);
-        const x1=circleScope.circle1.center.x;
-        const y1=circleScope.circle1.center.y;
-        const r1=circleScope.circle1.radius;
+    circleScope.hyperbolicQuadrangle = function(k, m, n, p, r) {
+        circleScope.setDihedral(k); // cosGamma1, sinGamma1
+        firstCircle(m, r);
+        const x1 = circleScope.circle1.center.x;
+        const y1 = circleScope.circle1.center.y;
+        const r1 = circleScope.circle1.radius;
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
-      const cosDelta = Fast.cos(Math.PI / p);
+        const cosDelta = Fast.cos(Math.PI / p);
         const sinDelta = Fast.sin(Math.PI / p);
-       
+
         // the second circle (two possibilities ??)
-        const f=1/(r1*cosBeta-cosDelta/cosGamma1*y1);
-        const g=-f*(x1+sinGamma1/cosGamma1*y1);
-        
-       
-        console.log("g "+g);
-        console.log("f "+f);
-        const h0=-cosDelta/cosGamma1*f*worldradius*worldradius;
-        const h1=(sinGamma1-cosDelta*g)/cosGamma1;
-        const k0=f*worldradius*worldradius;
-        const k1=g;
-        const a=1+h1*h1-k1*k1;
-        const b=2*(h0*h1-k0*k1);
-        const c=h0*h0-k0*k0-worldradius*worldradius;
-        
-        console.log(Fast.quadraticEquation(a,b,c));
+        const f = 1 / (r1 * cosBeta - cosDelta / cosGamma1 * y1);
+        const g = -f * (x1 + sinGamma1 / cosGamma1 * y1);
+
+
+        console.log("g " + g);
+        console.log("f " + f);
+        const h0 = -cosDelta / cosGamma1 * f * worldradius * worldradius;
+        const h1 = (sinGamma1 - cosDelta * g) / cosGamma1;
+        const k0 = f * worldradius * worldradius;
+        const k1 = g;
+        const a = 1 + h1 * h1 - k1 * k1;
+        const b = 2 * (h0 * h1 - k0 * k1);
+        const c = h0 * h0 - k0 * k0 - worldradius * worldradius;
+
+        console.log(Fast.quadraticEquation(a, b, c));
         console.log(Fast.xLow);
         console.log(Fast.xHigh);
-        
-        let x2=Fast.xLow;
-         x2=Fast.xHigh;
-        
-        const r2=k0+k1*x2;
-        const y2=h0+h1*x2;
+
+        let x2 = Fast.xLow;
+        x2 = Fast.xHigh;
+
+        const r2 = k0 + k1 * x2;
+        const y2 = h0 + h1 * x2;
         console.log(r2);
-                circleScope.circle2=circleScope.circleInsideOut(r2,x2,y2);
+        circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
     };
-    
-    
+
+
     /**
      * generate a hyperbolic quadrangle with three right angles
      * at least one of k,m,n,or p has to be larger than 2 (k?)
@@ -552,50 +552,50 @@ circleScope = {};
      * @param {integer} k - symmetry at center
      * @param {float} r - 0...1, determine point of circle at the right, fractional distance from center
      */
-    circleScope.hyperbolicQuadranglek222 = function(k,r) {
-        circleScope.setDihedral(k);                 // cosGamma1, sinGamma1
-        Make.map.discRadius=worldradius;
-        firstCircle(2,r);
-        const x1=circleScope.circle1.center.x;
-        const y1=circleScope.circle1.center.y;
-        const r1=circleScope.circle1.radius;
-        const worldradius2=worldradius*worldradius;
-        const d2=worldradius2/x1/cosGamma1;
+    circleScope.hyperbolicQuadranglek222 = function(k, r) {
+        circleScope.setDihedral(k); // cosGamma1, sinGamma1
+        Make.map.discRadius = worldradius;
+        firstCircle(2, r);
+        const x1 = circleScope.circle1.center.x;
+        const y1 = circleScope.circle1.center.y;
+        const r1 = circleScope.circle1.radius;
+        const worldradius2 = worldradius * worldradius;
+        const d2 = worldradius2 / x1 / cosGamma1;
         console.log(d2);
-        const r2=Math.sqrt(d2*d2-worldradius2);
-        circleScope.circle2=circleScope.circleInsideOut(r2,d2*cosGamma1,d2*sinGamma1);
-         
+        const r2 = Math.sqrt(d2 * d2 - worldradius2);
+        circleScope.circle2 = circleScope.circleInsideOut(r2, d2 * cosGamma1, d2 * sinGamma1);
+
     };
-    
+
     /**
      * generate a hyperbolic tiling with kites
      * @method circleScope.hyperbolicKite
- * @param {integer} k - symmetry at center
+     * @param {integer} k - symmetry at center
      * @param {integer} m - symmetry at corners with straight lines
      * @param {integer} n - symmetry at corner of the two circles
      */
-    circleScope.hyperbolicKite=function(k,m,n){
-         circleScope.setDihedral(k);
-        Make.map.discRadius=worldradius;
+    circleScope.hyperbolicKite = function(k, m, n) {
+        circleScope.setDihedral(k);
+        Make.map.discRadius = worldradius;
         const cosAlpha = Fast.cos(Math.PI / m);
         const sinAlpha = Fast.sin(Math.PI / m);
-        const cosBeta2 = Fast.cos(Math.PI /2/ n);
-        const sinBeta2 = Fast.sin(Math.PI / 2/n);
-        const cosGamma2=Fast.cos(Math.PI/2/k);
-        const sinGamma2=Fast.sin(Math.PI/2/k);
-        const x1=(cosAlpha * cosGamma2 + cosBeta2) / sinGamma2;
-        const y1=cosAlpha;
-            circleScope.circle1 = circleScope.circleInsideOut(1, x1, y1);
-            
-            
-            const x2=x1*cosGamma1+y1*sinGamma1;
-            const y2=x1*sinGamma1-y1*cosGamma1;
-                        circleScope.circle2 = circleScope.circleInsideOut(1, x2, y2);
+        const cosBeta2 = Fast.cos(Math.PI / 2 / n);
+        const sinBeta2 = Fast.sin(Math.PI / 2 / n);
+        const cosGamma2 = Fast.cos(Math.PI / 2 / k);
+        const sinGamma2 = Fast.sin(Math.PI / 2 / k);
+        const x1 = (cosAlpha * cosGamma2 + cosBeta2) / sinGamma2;
+        const y1 = cosAlpha;
+        circleScope.circle1 = circleScope.circleInsideOut(1, x1, y1);
 
-            let worldradius2 = circleScope.circle1.center.length2() - 1; 
-                        circleScope.circle1.scale(worldradius / Math.sqrt(worldradius2));
-                        circleScope.circle2.scale(worldradius / Math.sqrt(worldradius2));
+
+        const x2 = x1 * cosGamma1 + y1 * sinGamma1;
+        const y2 = x1 * sinGamma1 - y1 * cosGamma1;
+        circleScope.circle2 = circleScope.circleInsideOut(1, x2, y2);
+
+        let worldradius2 = circleScope.circle1.center.length2() - 1;
+        circleScope.circle1.scale(worldradius / Math.sqrt(worldradius2));
+        circleScope.circle2.scale(worldradius / Math.sqrt(worldradius2));
 
     };
-        
+
 }());

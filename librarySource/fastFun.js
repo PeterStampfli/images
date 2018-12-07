@@ -81,33 +81,23 @@ var Fast = {};
 
     /**
      * pair of fast cos and sin function values from interpolation
-     * results in global vars fastSinResult and fastCoeResult
+     * use only if calculated very often (for each pixel)
      * @function cosSin
      * @memberof Fast
      * @param {float} x
+     * @param {Vector2} v - unit vector at angle x, v.x =cos(x) and v.y=sin(x) values,
      */
 
-    /**
-     * last cosine value calculated by Fast.cosSin
-     * @var {float} cosResult 
-     * @memberof Fast
-     */
-
-    /**
-     * last sine value calculated by Fast.cosSin
-     * @var {float} sinResult 
-     * @memberof Fast
-     */
-    Fast.cosSin = function(x) {
+    Fast.cosSin = function(x, v) {
         var index;
         x *= sinTabFactor;
         index = Math.floor(x);
         x -= index;
         index = index & nSinIntervalsM1;
-        Fast.cosResult = cosTable[index];
-        Fast.cosResult += (cosTable[index + 1] - Fast.cosResult) * x;
-        Fast.sinResult = sinTable[index];
-        Fast.sinResult += (sinTable[index + 1] - Fast.sinResult) * x;
+        v.x = cosTable[index];
+        v.x += (cosTable[index + 1] - v.x) * x;
+        v.y = sinTable[index];
+        v.y += (sinTable[index + 1] - v.y) * x;
     };
 
     /*
@@ -498,14 +488,16 @@ var Fast = {};
     /**
      *  find the length of a side of a triangle
      * the length of two sides is known and an angle joining the unknown side with one known side
-     * returns true if there is a solution, false if none
-     * lengths are in Fast.xLow and Fast.xHigh
+     * returns number of solutions (0,1 or 2 as only positive lengths count)
+     * solutions in data
      * @method Fast.triangleAOfBetaCB
      * @param {float} beta 
      * @param {float} c
      * @param {float} b
+     * @param {Vector2} data - x and y fields are used to return lengths (Vector2 has a pool)
+     * @return integer - number of solutions (0,1 or 2 as only positive lengths count)
      */
-    Fast.triangleAOfBetaCB = function(beta, c, b) {
+    Fast.triangleAOfBetaCB = function(beta, c, b, data) {
         Fast.cosSin(beta);
         let d = c * Fast.sinResult; // distance of point A between sides b and c to the unknown side a
         if (b < d) {
@@ -515,89 +507,96 @@ var Fast = {};
         } else {
             const base = c * Fast.cosResult;
             d = Math.sqrt(b * b - d * d);
-            Fast.xLow = base - d;
-            Fast.xHigh = base + d;
+            data.x = base - d;
+            data.y = base + d;
             return true;
         }
     };
 
-    
+
     /**
      * find a braket of opposed function values
      * @method Fast#bracket
      * @param {function} f - f(x)
-     * @param {Object} data - with x1 and x2 field as input and output
+     * @param {Vector2} data - x and y fields are used as input and output for the interval (Vector2 has a pool)
      * @return true if bracket found with f(x1)*f(x2)<0, false else
      */
-    Fast.bracket=function(f,data){
-        let f1=f(data.x1);
-        let f2=f(data.x2);
-        const maxIt=50;
-        const factor=1.5;
-        for (var i=0;i<maxIt;i++){
-            if ((f1*f2)<0) {
+    Fast.bracket = function(f, data) {
+        let x1 = data.x;
+        let x2 = data.y;
+        let f1 = f(x1);
+        let f2 = f(x2);
+        const maxIt = 50;
+        const factor = 1.5;
+        for (var i = 0; i < maxIt; i++) {
+            if ((f1 * f2) < 0) {
+                data.x = x1;
+                data.y = x2;
                 return true;
             }
-            if (Math.abs(f1)>Math.abs(f2)){
-                data.x1=data.x2+factor*(data.x2-data.x1);
-                f1=f(data.x1);
-            }
-            else {
-                 data.x2=data.x1+factor*(data.x1-data.x2);
-                f1=f(data.x2);
+            if (Math.abs(f1) > Math.abs(f2)) {
+                x1 = x2 + factor * (x2 - x1);
+                f1 = f(x1);
+            } else {
+                x2 = x1 + factor * (x1 - x2);
+                f1 = f(x2);
             }
         }
-        console.log("**** Bracket failed "+f);
+        console.log("**** Bracket failed " + f);
         return false;
-    }
-    
+    };
+
     /**
      * find zero of a function with bisection
      * @method Fast#bisection
      * @param {function} f - f(x)
-     * @param {Object} data - with x1 and x2 field as input and output
+     * @param {Vector2} data - x and y fields are used (Vector2 has a pool)
      * @return true if zero found, in data.x1, false else
      */
-    Fast.regulaFalsi=function(f,data){
-         let f1=f(data.x1);
-        let f2=f(data.x2);
-        const epsilon=0.00001;
-        const maxIt=50;
+    Fast.bisection = function(f, data) {
+        let x1 = data.x;
+        let x2 = data.y;
+        let f1 = f(x1);
+        let f2 = f(x2);
+        const epsilon = 0.00001;
+        const maxIt = 50;
         // get bracket if not already there
-        if (f1*f2>0){
-           if ( !Fast.bracket(f,data)){
-               return false;
-           }
+        if (f1 * f2 > 0) {
+            if (!Fast.bracket(f, data)) {
+                return false;
+            }
+            x1 = data.x;
+            x2 = data.y;
+            f1 = f(x1);
+            f2 = f(x2);
         }
-        // make that f(data.x1)<0, if not exchange
-        if (f1>0){
-            let h=f1;
-            f1=f2;
-            f2=h;
-            h=data.x1;
-            data.x1=data.x2;
-            data.x2=h;
-            console.log("switch");
+        // make that f(x1)<0, if not exchange
+        if (f1 > 0) {
+            let h = f1;
+            f1 = f2;
+            f2 = h;
+            h = x1;
+            x1 = x2;
+            x2 = h;
         }
         // find zero
-         for (var i=0;i<maxIt;i++){
-            if (Math.abs(data.x2-data.x1)<epsilon){
+        for (var i = 0; i < maxIt; i++) {
+            if (Math.abs(x2 - x1) < epsilon) {
+                data.x = x1;
+                data.y = x2;
                 return true;
             }
-            let xn=0.5*(data.x1+data.x2);
-            let fn=f(xn);
-            if (fn<0){
-                f1=fn;
-                data.x1=xn;
+            let xn = 0.5 * (x1 + x2);
+            let fn = f(xn);
+            if (fn < 0) {
+                f1 = fn;
+                x1 = xn;
+            } else {
+                f2 = fn;
+                x2 = xn;
             }
-            else {
-                f2=fn;
-                data.x2=xn;
-            }
-            console.log(i)
-            console.log(data)
-            console.log(f1+" "+f2);
-         }
+        }
+        console.log("**** bisection failed " + f);
         return false;
     };
     //console.time("stcihwort")
