@@ -71,6 +71,7 @@ projection = {};
         updateMap();
     };
 
+    const v = new Vector2();
     let ellipticWorldradius2 = basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic;
     let iEllipticWorldradius2 = 1 / ellipticWorldradius2;
 
@@ -109,10 +110,10 @@ projection = {};
     projection.ellipticMercator = function() {
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
-            Fast.cosSin(position.x);
+            Fast.cosSin(position.x, v);
             let r = Fast.exp(-position.y);
-            position.x = r * Fast.cosResult;
-            position.y = r * Fast.sinResult;
+            position.x = r * v.x;
+            position.y = r * v.y;
             return 1;
         };
         updateMap();
@@ -121,10 +122,10 @@ projection = {};
     projection.ellipticGonomicCylinder = function() {
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
-            Fast.cosSin(position.x);
+            Fast.cosSin(position.x, v);
             let r = ellipticWorldradius2 / (position.y + Math.hypot(position.y, basicKaleidoscope.worldRadiusElliptic));
-            position.x = r * Fast.cosResult;
-            position.y = r * Fast.sinResult;
+            position.x = r * v.x;
+            position.y = r * v.y;
             return 1;
         };
         updateMap();
@@ -337,10 +338,10 @@ projection = {};
             position.scale(bandScale);
             let exp2u = Fast.exp(position.x);
             let expm2u = 1 / exp2u;
-            Fast.cosSin(position.y);
-            let base = basicKaleidoscope.worldRadiusHyperbolic / (exp2u + expm2u + 2 * Fast.cosResult);
+            Fast.cosSin(position.y, v);
+            let base = basicKaleidoscope.worldRadiusHyperbolic / (exp2u + expm2u + 2 * v.x);
             position.x = (exp2u - expm2u) * base;
-            position.y = 2 * Fast.sinResult * base;
+            position.y = 2 * v.y * base;
             return 1;
         } else {
             return -1;
@@ -369,10 +370,10 @@ projection = {};
         projection.hyperbolicMap = function(position) {
             position.y = basicKaleidoscope.worldRadiusHyperbolic - position.y;
             if (position.y > 0) {
-                Fast.cosSin(position.x);
+                Fast.cosSin(position.x, v);
                 let r = basicKaleidoscope.worldRadiusHyperbolic * Fast.exp(-position.y);
-                position.x = r * Fast.cosResult;
-                position.y = r * Fast.sinResult;
+                position.x = r * v.x;
+                position.y = r * v.y;
                 return 1;
             } else {
                 return -1;

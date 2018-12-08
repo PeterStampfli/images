@@ -499,12 +499,10 @@ window.onload = function() {
     Make.arrowController.drawOrientation();
     // fit output image into the surrounding div
     let outputSize = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
-
     Make.setOutputSize(outputSize);
     Make.sizeButton.setValue(outputSize);
     Make.resetOutputImageSpace();
     Make.showStructure = true;
-
     Make.updateNewMap();
 };
 

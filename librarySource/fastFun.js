@@ -415,8 +415,7 @@ var Fast = {};
         console.log("-------------END--------------");
     };
 
-    Fast.xLow = 0;
-    Fast.xHigh = 0;
+
     /**
      * solve quadratic equation ax**2+bx+c=0
      * only for real solutions
@@ -425,22 +424,25 @@ var Fast = {};
      * @param {float} a
      * @param {float} b
      * @param {float} c
+     * @param {Vector2} data - x and y fields are the lower and higher solutions, data.x < data.y
      * @return {boolean} true if there are real solutions
      */
-    Fast.quadraticEquation = function(a, b, c) {
+    Fast.quadraticEquation = function(a, b, c, data) {
         const rootArg = b * b - 4 * a * c;
         if (rootArg < 0) {
-            Fast.xHigh = 0;
-            Fast.xLow = 0;
+            data.x = 0;
+            data.y = 0;
             return false;
         }
-        if (b / a > 0) {
-            Fast.xLow = 0.5 * (-b - Math.sqrt(rootArg)) / a;
-            Fast.xHigh = c / a / Fast.xLow;
+        if (b > 0) {
+            data.x = 0.5 * (-b - Math.sqrt(rootArg)) / a;
+            data.y = c / a / data.x;
         } else {
-            Fast.xHigh = 0.5 * (-b + Math.sqrt(rootArg)) / a;
-            Fast.xLow = c / a / Fast.xHigh;
+            data.y = 0.5 * (-b + Math.sqrt(rootArg)) / a;
+            data.x = c / a / data.y;
         }
+        console.log(a * data.x * data.x + b * data.x + c);
+        console.log(a * data.y * data.y + b * data.y + c);
         return true;
     };
 

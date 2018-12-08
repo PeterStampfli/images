@@ -374,7 +374,7 @@ var Make = {};
     //___________________________________________________________________________
 
     /**
-     * show result of a new output size or new map, does not recalculate anything to avoid side effects
+     * show result of a new output size, does not recalculate space to input image pixel mapping to avoid side effects
      * @method Make.updateNewOutputImageSize
      */
     Make.updateNewOutputImageSize = function() {
@@ -382,9 +382,9 @@ var Make = {};
             console.log("*** Make.updateMap: there is no mapping function !");
             return;
         }
-
         Make.map.make(Make.mapping);
         Make.shiftMapToCenter();
+        Make.limitLyapunov();
         Make.updateOutputImage();
     };
 
@@ -600,8 +600,8 @@ var Make = {};
      * @method Make.updateOutputImageNoColorSymmetry
      */
     Make.updateMapOutput = function() {
+        console.log("updateoutput");
         Make.outputImage.adjustCanvasTransform();
-
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;

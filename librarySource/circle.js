@@ -262,18 +262,16 @@ function Circle(radius, center, centerY) {
         console.log(message + "Circle of radius " + this.radius + " at (" + this.center.x + "," + this.center.y + ")");
     };
 
-    Circle.intersection1 = new Vector2();
-    Circle.intersection2 = new Vector2();
-
     /**
      * intersections of a circle with a line
-     * results in Circle.intersection1 and Circle.intersection2
-     * (Vector2 objs, will be overwritten)
+     * results in intersection1 and intersection2
      * @method Circle#IntersectsLine
      * @param {Line} line
+     * @param {Vector2} intersection1
+     * @param {Vector2} intersection2
      * @return boolean, true if there are intersection(s)
      */
-    Circle.prototype.intersectsLine = function(line) {
+    Circle.prototype.intersectsLine = function(line, intersection1, intersection2) {
         const aCenterX = this.center.x - line.a.x;
         const aCenterY = this.center.y - line.a.y;
         // distance between line and center of sphere
@@ -286,12 +284,12 @@ function Circle(radius, center, centerY) {
             let baseX = line.ex * aCenterX + line.ey * aCenterY;
             let baseY = line.a.y + line.ey * baseX;
             baseX = line.a.x + line.ex * baseX;
-            Circle.intersection1.setComponents(baseX + a * line.ex, baseY + a * line.ey);
-            Circle.intersection2.setComponents(baseX - a * line.ex, baseY - a * line.ey);
+            intersection1.setComponents(baseX + a * line.ex, baseY + a * line.ey);
+            intersection2.setComponents(baseX - a * line.ex, baseY - a * line.ey);
             return true;
         } else {
-            Circle.intersection1.setComponents(0, 0);
-            Circle.intersection2.setComponents(0, 0);
+            intersection1.setComponents(0, 0);
+            intersection2.setComponents(0, 0);
             return false;
         }
     };
@@ -303,27 +301,28 @@ function Circle(radius, center, centerY) {
      * (Vector2 objs, will be overwritten)
      * @method Circle#intersectsCircle
      * @param {Circle} circle
+     * @param {Vector2} intersection1
+     * @param {Vector2} intersection2
      * @return boolean, true if there are intersection(s)
      */
-    Circle.prototype.intersectsCircle = function(circle) {
+    Circle.prototype.intersectsCircle = function(circle, intersection1, intersection2) {
         let ex = circle.center.x - this.center.x;
         let ey = circle.center.y - this.center.y;
-        const d = Math.hypot(ex, ey);
+        let d = Math.hypot(ex, ey);
         if (d > circle.radius + this.radius) {
-            Circle.intersection1.setComponents(0, 0);
-            Circle.intersection2.setComponents(0, 0);
+            intersection1.setComponents(0, 0);
+            intersection2.setComponents(0, 0);
             return false;
         } else {
             ex /= d;
             ey /= d;
-            const d1 = 0.5 * (d + (this.radius2 - circle.radius2) / d);
-            console.log(d1);
-            const baseX = this.center.x + ex * d1;
-            const baseY = this.center.y + ey * d1;
-            const h = Math.sqrt(this.radius2 - d1 * d1);
-            Circle.intersection1.setComponents(baseX - h * ey, baseY + h * ex);
-            Circle.intersection2.setComponents(baseX + h * ey, baseY - h * ex);
-
+            d = 0.5 * (d + (this.radius2 - circle.radius2) / d);
+            console.log(d);
+            const baseX = this.center.x + ex * d;
+            const baseY = this.center.y + ey * d;
+            const h = Math.sqrt(this.radius2 - d * d);
+            intersection1.setComponents(baseX - h * ey, baseY + h * ex);
+            intersection2.setComponents(baseX + h * ey, baseY - h * ex);
             return true;
         }
     };

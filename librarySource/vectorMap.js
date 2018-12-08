@@ -181,6 +181,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
     VectorMap.prototype.make = function(mapping) {
+        console.log("makemap");
         this.exists = true;
         let position = new Vector2();
         let furtherResults = {};
@@ -439,6 +440,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawStructure
      */
     VectorMap.prototype.drawStructure = function() {
+        console.log("dtrawstructure");
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let intColorOff = this.intColorOff;
@@ -448,7 +450,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let structureColorCollection = this.structureColorCollection;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
-            if (lyapunovArray[index] >= -0.001) {
+            if ((lyapunovArray[index] >= -0.001)) {
                 pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
             } else {
                 pixel[index] = intColorOff;

@@ -157,6 +157,8 @@ function creation() {
             activateControls(true);
         });
 
+
+
     // image size, square format
     Make.sizeButton = Make.createSquareImageSizeButton("size");
 
@@ -265,7 +267,7 @@ function creation() {
 
     // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
     //  circleScope.hyperbolicQuadranglek222(3,0.6);
-    circleScope.hyperbolicKite(2, 8, 2);
+    circleScope.hyperbolicKite(3, 8, 2);
 
     function f(x) {
         return 4 - Math.exp(x);
@@ -285,6 +287,16 @@ function creation() {
     data.log();
     console.log(Fast.cos(x));
     console.log(Fast.sin(x));
+    console.log(Fast.quadraticEquation(1, 2, 2, data));
+    data.log("q");
+    const v1 = new Vector2();
+    const v2 = new Vector2();
+    const line = new Line(0, 0, 1, 0);
+    const circle = new Circle(10, 0, 6);
+    const circle2 = new Circle(8, 0, 0);
+    console.log(circle.intersectsCircle(circle2, v1, v2));
+    v1.log();
+    v2.log();
 
 }
 

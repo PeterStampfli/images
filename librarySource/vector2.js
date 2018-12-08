@@ -192,10 +192,11 @@ function Vector2(x = 0, y = 0) {
      * @method Vector2#rotate
      * @param {float} angle - in radians
      */
+    const v = new Vector2();
     Vector2.prototype.rotate = function(angle) {
-        Fast.cosSin(angle);
-        let h = this.x * Fast.cosResult - this.y * Fast.sinResult;
-        this.y = this.x * Fast.sinResult + this.y * Fast.cosResult;
+        Fast.cosSin(angle, v);
+        let h = this.x * v.x - this.y * v.y;
+        this.y = this.x * v.y + this.y * v.x;
         this.x = h;
         return this;
     };
