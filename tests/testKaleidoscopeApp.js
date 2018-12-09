@@ -246,13 +246,13 @@ function creation() {
 
 
 
-    Make.map.makeColorCollection(5, 0, 1, 40);
+    //  Make.map.makeColorCollection(5, 0, 1, 40);
 
 
     Make.map.noColorSymmetry();
 
 
-    Make.map.hueShiftInversionColorSymmetry(4);
+    //   Make.map.hueShiftInversionColorSymmetry(4);
 
 
     circleScope.setMapping();
@@ -265,38 +265,11 @@ function creation() {
     //  multiCircles.setMapping();
     //   apollinius.start(0, 6);
 
-    // circleScope.hyperbolicQuadrangle(4,2,3,2,0.6);
     //  circleScope.hyperbolicQuadranglek222(3,0.6);
-    circleScope.hyperbolicKite(3, 8, 2);
+    //circleScope.hyperbolicKite(3, 8, 2);
 
-    function f(x) {
-        return 4 - Math.exp(x);
+    circleScope.hyperbolicQuadrangle(2, 3, 3, 3, 0.3);
 
-    }
-
-    console.log(f(5));
-    const data = new Vector2(0, 1);
-
-    console.log(Fast.bisection(f, data));
-    console.log(data);
-
-
-    //console.log(Fast.triangleAOfBetaCB(Math.PI/2,10,14,data))
-    const x = 0.1;
-    Fast.cosSin(x, data);
-    data.log();
-    console.log(Fast.cos(x));
-    console.log(Fast.sin(x));
-    console.log(Fast.quadraticEquation(1, 2, 2, data));
-    data.log("q");
-    const v1 = new Vector2();
-    const v2 = new Vector2();
-    const line = new Line(0, 0, 1, 0);
-    const circle = new Circle(10, 0, 6);
-    const circle2 = new Circle(8, 0, 0);
-    console.log(circle.intersectsCircle(circle2, v1, v2));
-    v1.log();
-    v2.log();
 
 }
 

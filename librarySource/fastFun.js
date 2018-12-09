@@ -441,8 +441,8 @@ var Fast = {};
             data.y = 0.5 * (-b + Math.sqrt(rootArg)) / a;
             data.x = c / a / data.y;
         }
-        console.log(a * data.x * data.x + b * data.x + c);
-        console.log(a * data.y * data.y + b * data.y + c);
+        //   console.log(a * data.x * data.x + b * data.x + c);
+        //   console.log(a * data.y * data.y + b * data.y + c);
         return true;
     };
 
