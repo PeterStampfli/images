@@ -60,11 +60,10 @@ var Make = {};
      */
     Make.inputTransform = new LinearTransform();
 
-    // check wether to show structure or input image
-    // only if input image exists
+    // defaults: no input image, show structure
     Make.inputImageExists = false;
     // show structure even if input image exists (for presentation)
-    Make.showStructure = false;
+    Make.showStructure = true;
     // show number of iterations
     Make.showIterations = false;
 

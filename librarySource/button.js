@@ -60,7 +60,6 @@ function Button(idName) {
         button.hover = false;
         button.element.onmouseup();
     };
-
 }
 
 
@@ -156,5 +155,19 @@ function Button(idName) {
         };
     };
 
+    /**
+     * create a button that goes to another html page
+     * @method Button.createGoToLocation
+     * @param {String} id - of the html element that serves as button
+     * @param {String} target - url of the new html page
+     * @return Button element, just in case
+     */
+    Button.createGoToLocation = function(id, target) {
+        const button = new Button(id);
+        button.onClick = function() {
+            window.location = target;
+        };
+        return button;
+    };
 
 }());
