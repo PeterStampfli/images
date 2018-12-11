@@ -164,26 +164,26 @@ basicUI = {};
             basicUI.landscapeFormat();
         }
     };
-    
-    
+
+
     /**
      * enable/disable mouse and touch on control image and arrow controller
      * @method basicUI.activateControls
      * @param {boolean} status - true to enable control image and mouse controller
      */
-    basicUI.activateControls=function(status) {
+    basicUI.activateControls = function(status) {
         Make.controlImage.mouseEvents.isActive = status;
         Make.arrowController.mouseEvents.isActive = status;
         Make.controlImage.touchEvents.isActive = status;
         Make.arrowController.touchEvents.isActive = status;
     };
 
-  /** update the 2nd nonlinear map that defines the geometry 
-   * without reseting the 3rd mapping for the input image pixels
-   * for changing the projection
-   * @method basicUI.updateMapNoReset
-   */
-    basicUI.updateMapNoReset=function() {
+    /** update the 2nd nonlinear map that defines the geometry 
+     * without reseting the 3rd mapping for the input image pixels
+     * for changing the projection
+     * @method basicUI.updateMapNoReset
+     */
+    basicUI.updateMapNoReset = function() {
         Make.allowResetInputMap = false;
         Make.updateNewMap();
         Make.allowResetInputMap = true;

@@ -205,7 +205,8 @@ function ControlImage(idName, isVisible = true) {
     };
 
     /**
-     * adjust scales and offset such that the map fills reasonably the input image after scaling and shift
+     * adjust scales and offset such that the map fills reasonably the input image after scaling and shift,
+     * set angle to zero
      * @method ControlImage
      * @param {Vector2} lowerLeft - coordinates of lower left corner (xMin,yMin) of the map output
      * @param {float} fillFactor - how much of the input image is sampled
@@ -218,7 +219,7 @@ function ControlImage(idName, isVisible = true) {
         let centerY = 0.5 * (upperRight.y + lowerLeft.y);
         // multiply map by this.scale to get a reasonable fill by the map range
         let scale = fillFactor * Math.min(inputImage.width / xWidth, inputImage.height / yWidth);
-        this.linearTransform.setScale(scale);
+        this.linearTransform.setAngleScale(0, scale);
         //put the scaled map into the center
         this.linearTransform.shiftX = inputImage.width / 2 - scale * centerX;
         this.linearTransform.shiftY = inputImage.height / 2 - scale * centerY;

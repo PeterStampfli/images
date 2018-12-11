@@ -39,6 +39,7 @@ function LinearTransform() {
      * @param {float} scale
      */
     LinearTransform.prototype.setAngleScale = function(angle, scale) {
+        this.angle = angle;
         this.scale = scale;
         this.cosAngleScale = scale * Fast.cos(angle);
         this.sinAngleScale = scale * Fast.sin(angle);

@@ -454,17 +454,15 @@ var Make = {};
      * @method Make.adjustSpaceToInputPixelMapping
      */
     Make.adjustSpaceToInputPixelMapping = function() {
-        if (Make.allowResetInputMap) {
-            Make.arrowController.angle = 0;
-            Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
-        }
+
     };
 
     /*
      * open a new input image (the mapping has to be defined):
      * if no image has yet been read: make mapping
-     * put it in controlImage, set parameters of the space to input image mapping
-     * to give a good sampling range (fillfactor ?)
+     * put it in controlImage, 
+     * reset parameters of the space to input image mapping to give a good sampling range (fillfactor ?)
+     * (Note: do this only here)
      * redraw as for changes in 3rd mapping
      */
 
@@ -495,8 +493,10 @@ var Make = {};
             Make.limitLyapunov();
             Make.newMapRequiresInputImageAdjustment = false;
         }
-        Make.adjustSpaceToInputPixelMapping();
+        Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
+        Make.arrowController.drawOrientation();
         Make.updateOutputImage();
+        console.log("angle " + Make.arrowController.angle);
     };
 
     /**

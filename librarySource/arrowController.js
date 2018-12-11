@@ -229,7 +229,6 @@ function ArrowController(idName, isVisible = true) {
      * @param {MouseEvents} mouseEvents
      */
     ArrowController.prototype.changeAngleOnWheel = function(mouseEvents) {
-
         var deltaAngle = 0.05;
         if (mouseEvents.wheelDelta > 0) {
             deltaAngle *= -1;
@@ -241,16 +240,11 @@ function ArrowController(idName, isVisible = true) {
         this.action();
     };
 
-
-
-
-
     /**
      * change scale and angle of input transform according to an events object, that has x,y,lastX and lastY fields
      * @method ArrowController#changeScaleAngle
      * @param {event} events
      */
-
     ArrowController.prototype.changeScaleAngle = function(events) {
         let radius = this.pixelCanvas.canvas.width / 2;
         // coordinates relative to the center of the image
