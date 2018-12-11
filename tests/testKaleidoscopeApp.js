@@ -28,13 +28,7 @@ function creation() {
     // functions for the UI elements
     //=================================================================================
 
-    // enable/disable mouse and touch on control image and arrow controller
-    function activateControls(status) {
-        Make.controlImage.mouseEvents.isActive = status;
-        Make.arrowController.mouseEvents.isActive = status;
-        Make.controlImage.touchEvents.isActive = status;
-        Make.arrowController.touchEvents.isActive = status;
-    }
+  
 
     // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
     function updateMapNoReset() {
@@ -62,7 +56,7 @@ function creation() {
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
     // disable mouse and touch for control image and arrow controller as long as no input image
-    activateControls(false);
+    basicUI.activateControls(false);
 
     // "text" is the collection of text-based control elements
     DOM.style("#text", "position", "fixed", "overflow", "auto");
@@ -116,7 +110,7 @@ function creation() {
     imageInputButton.onClick = function() {
         imageInputButton.fileInput.click();
         showSelect.setIndex(2);
-        activateControls(true);
+        basicUI.activateControls(true);
     };
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
@@ -128,14 +122,14 @@ function creation() {
     showSelect.addOption("structure",
         function() {
             Make.switchToShowingStructure();
-            activateControls(false);
+            basicUI.activateControls(false);
         });
 
 
     showSelect.addOption("convergence",
         function() {
             Make.switchToShowingIterations();
-            activateControls(false);
+            basicUI.activateControls(false);
         });
 
     showSelect.addOption("image",
@@ -145,7 +139,7 @@ function creation() {
             } else {
                 Make.switchToShowingImage();
             }
-            activateControls(true);
+            basicUI.activateControls(true);
         });
 
 
