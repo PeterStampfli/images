@@ -67,9 +67,6 @@ var Make = {};
     // show number of iterations
     Make.showIterations = false;
 
-    // reset the input transform if the map changes or input image changes ??
-    Make.allowResetInputMap = true;
-
     /*
     the other elements depend on page layout and need an identifier
     create them here
@@ -264,14 +261,10 @@ var Make = {};
      */
     Make.initializeMap = function() {};
 
-    /*
-     * need to know if we have a new map and have to adjust mapping to the input image
-     */
-    Make.newMapRequiresInputImageAdjustment = false;
-
     /**
      * show result of a new structure mapping, call after changing the mapping functions and initial output range (if required?)
      * calls tiling dependent Make.initializeMap: which has to set parameters and to call Make.setMapping to set Make.mapping
+     * does NOT change the mapping from 
      * @method Make.updateNewMap
      */
     Make.updateNewMap = function() {
@@ -285,12 +278,7 @@ var Make = {};
         Make.shiftMapToCenter();
         Make.getMapOutputRange();
         Make.limitLyapunov();
-        if (Make.showIterations || Make.showStructure || !Make.inputImageExists) {
-            Make.newMapRequiresInputImageAdjustment = true;
-        } else {
-            Make.adjustSpaceToInputPixelMapping();
-        }
-        Make.updateOutputImage();
+         Make.updateOutputImage();
     };
 
 
@@ -330,32 +318,14 @@ var Make = {};
 
     /**
      * switch to showing image
-     * takes care of the case that the map changed while showing the structure
      * @method Make.switchToShowingImage
      */
     Make.switchToShowingImage = function() {
         if (Make.showIterations || Make.showStructure) {
-            if (Make.newMapRequiresInputImageAdjustment) {
-                Make.newMapRequiresInputImageAdjustment = false;
-                Make.adjustSpaceToInputPixelMapping();
-            }
             Make.showIterations = false;
             Make.showStructure = false;
             Make.updateOutputImage();
         }
-    };
-
-    /**
-     * create a button to change between structure and image, put before setting font sizes
-     * @method Make.createStructureImageButton
-     * @param {String} id - of the span for the button
-     */
-    Make.createStructureImageButton = function(id) {
-        let buttonElement = DOM.create("button", "structureImageButton", "#" + id, "structure/image");
-        let button = new Button("structureImageButton");
-        button.onClick = function() {
-            Make.switchStructureImage();
-        };
     };
 
 
@@ -448,15 +418,6 @@ var Make = {};
         Make.map.limitLyapunov(maxValue);
     };
 
-    /**
-     * reset the parameters of the space to input pixel mapping for a new input image or a new map 
-     * sample given part of input image
-     * @method Make.adjustSpaceToInputPixelMapping
-     */
-    Make.adjustSpaceToInputPixelMapping = function() {
-
-    };
-
     /*
      * open a new input image (the mapping has to be defined):
      * if no image has yet been read: make mapping
@@ -491,12 +452,10 @@ var Make = {};
             Make.shiftMapToCenter();
             Make.getMapOutputRange();
             Make.limitLyapunov();
-            Make.newMapRequiresInputImageAdjustment = false;
         }
         Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
         Make.arrowController.drawOrientation();
         Make.updateOutputImage();
-        console.log("angle " + Make.arrowController.angle);
     };
 
     /**

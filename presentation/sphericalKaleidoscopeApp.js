@@ -335,14 +335,12 @@ window.onresize = function() {
         // input image has to exist and the limits have changed
         // else we only need to place it in its new position
         const updateControlImage = ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
-
         if (updateControlImage) {
             Make.controlImage.loadInputImage(Make.inputImage); // places the image too
         } else {
             Make.controlImage.place();
         }
     }
-
     // determine the new output image size
     // the output image should always fill the div, minimal size
     let outputImageSizeMin = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
@@ -353,7 +351,6 @@ window.onresize = function() {
     if (outputImageWasInside) {
         newOutputImageSize = outputImageSizeMin;
     }
-
     if (newOutputImageSize !== oldOutputImageSize) {
         // if the size of the output image has changed, then we have to redo everything
         Make.setOutputSize(newOutputImageSize, newOutputImageSize);
