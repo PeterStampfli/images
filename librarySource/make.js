@@ -278,7 +278,7 @@ var Make = {};
         Make.shiftMapToCenter();
         Make.getMapOutputRange();
         Make.limitLyapunov();
-         Make.updateOutputImage();
+        Make.updateOutputImage();
     };
 
 

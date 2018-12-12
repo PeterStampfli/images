@@ -236,17 +236,17 @@ function creation() {
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
     setKButton.setValue(5);
-    setKButton.onChange = basicUI.updateMapNoReset;
+    setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
-    setMButton.onChange = basicUI.updateMapNoReset;
+    setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
     setNButton.setValue(3);
-    setNButton.onChange = basicUI.updateMapNoReset;
+    setNButton.onChange = Make.updateNewMap;
 
     // the different tilings
 
@@ -254,9 +254,7 @@ function creation() {
     function changeTiling(newTiling) {
         if (newTiling != tiling) {
             tiling = newTiling;
-            Make.allowResetInputMap = false;
             Make.updateNewMap();
-            Make.allowResetInputMap = true;
         }
     }
 

@@ -57,18 +57,12 @@ projection = {};
         Make.map.discRadius = projection.hyperbolicDiscRadius;
     };
 
-    function updateMap() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
-    }
-
     // making the projections
     // elliptic
     projection.ellipticStereographic = function() {
         projection.ellipticMap = projection.identityMap;
         projection.ellipticDiscRadius = -1;
-        updateMap();
+        Make.updateNewMap();
     };
 
     const v = new Vector2();
@@ -92,7 +86,7 @@ projection = {};
     projection.ellipticNormal = function() {
         projection.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic;
         projection.ellipticMap = projection.ellipticNormalMap;
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.ellipticGonomic = function() {
@@ -104,7 +98,7 @@ projection = {};
             position.y *= mapFactor;
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.ellipticMercator = function() {
@@ -116,7 +110,7 @@ projection = {};
             position.y = r * v.y;
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.ellipticGonomicCylinder = function() {
@@ -128,7 +122,7 @@ projection = {};
             position.y = r * v.y;
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
     // euclidic
@@ -137,7 +131,7 @@ projection = {};
     projection.euclidicNormal = function() {
         projection.euclidicMap = projection.identityMap;
         projection.euclidicDiscRadius = -1;
-        updateMap();
+        Make.updateNewMap();
     };
 
     // spiral view
@@ -236,7 +230,7 @@ projection = {};
         spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
         projection.euclidicMap = basicEuclidicSpiral;
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.euclidicSingleSpiral = function() {
@@ -244,7 +238,7 @@ projection = {};
         spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
         projection.euclidicMap = basicEuclidicSpiral;
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.euclidicDoubleSpiral = function() {
@@ -257,7 +251,7 @@ projection = {};
             basicEuclidicSpiral(p);
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
 
@@ -271,7 +265,7 @@ projection = {};
             position.scale(scale);
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
 
@@ -280,7 +274,7 @@ projection = {};
     projection.hyperbolicPoincareDisc = function() {
         projection.hyperbolicMap = projection.identityMap;
         projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
-        updateMap();
+        Make.updateNewMap();
     };
 
     let hyperbolicWorldradius2 = basicKaleidoscope.worldRadiusHyperbolic * basicKaleidoscope.worldRadiusHyperbolic;
@@ -298,7 +292,7 @@ projection = {};
     projection.hyperbolicKleinDisc = function() {
         projection.hyperbolicMap = kleinPoincare;
         projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
-        updateMap();
+        Make.updateNewMap();
     };
 
     // cayley transform w=(z-i)/(z+i)
@@ -326,7 +320,7 @@ projection = {};
     projection.hyperbolicPoincarePlane = function() {
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = halfplaneDisc;
-        updateMap();
+        Make.updateNewMap();
     };
 
     // go from band model (hyperbolicWorldradius>abs(y) to disc with hyperbolic world radius
@@ -351,7 +345,7 @@ projection = {};
     projection.hyperbolicBulatovBand = function() {
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = bandDisc;
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.hyperbolicGans = function() {
@@ -362,7 +356,7 @@ projection = {};
             position.y *= mapFactor;
             return 1;
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
     projection.hyperbolicMercator = function() {
@@ -379,7 +373,7 @@ projection = {};
                 return -1;
             }
         };
-        updateMap();
+        Make.updateNewMap();
     };
 
 

@@ -28,15 +28,6 @@ function creation() {
     // functions for the UI elements
     //=================================================================================
 
-
-
-    // update the 2nd nonlinear map that defines the geometry without reseting the 3rd mapping for the input image pixels
-    function updateMapNoReset() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
-    }
-
     //================================================================================
     // creating canvas and text elements and layout independent styles
     //==================================================================================

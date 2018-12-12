@@ -178,16 +178,6 @@ basicUI = {};
         Make.arrowController.touchEvents.isActive = status;
     };
 
-    /** update the 2nd nonlinear map that defines the geometry 
-     * without reseting the 3rd mapping for the input image pixels
-     * for changing the projection
-     * @method basicUI.updateMapNoReset
-     */
-    basicUI.updateMapNoReset = function() {
-        Make.allowResetInputMap = false;
-        Make.updateNewMap();
-        Make.allowResetInputMap = true;
-    };
 
     /**
      * onload make the layout and create elements that do not depend on the actual image
