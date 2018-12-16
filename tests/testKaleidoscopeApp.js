@@ -1,93 +1,11 @@
 /* jshint esversion:6 */
 
-// create the UI elements and their interactions
+
 
 
 function creation() {
     "use strict";
-    // first do single touch debug with desktop browser
-    TouchEvents.doubleTouchDebug = false;
-    //----------------------------------------------------------------------------------
 
-    Make.imageQuality = "low";
-
-    //  define general constants
-    //=================================================================================
-    const backgroundColor = "#888888";
-    const textBackgroundColor = "#eeeeee";
-    const outputImageBackgroundColor = "#666666";
-    const controlImageBackgroundColor = "white";
-    const px = "px";
-
-    // some styling, body already exists 
-    //===============================================================================
-    DOM.style("body", "backgroundColor", backgroundColor);
-    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
-
-    //=====================================================================================
-    // functions for the UI elements
-    //=================================================================================
-
-    //================================================================================
-    // creating canvas and text elements and layout independent styles
-    //==================================================================================
-
-    Make.createOutputImage("outputCanvas");
-    Draw.setOutputImage(Make.outputImage);
-
-
-
-    Make.createControlImage("controlCanvas");
-    Make.createMap();
-    Make.createArrowController("arrowController", true);
-    Make.arrowController.backGroundColor = "#444444";
-    Make.arrowController.arrowColor = "#ffffff";
-    DOM.style("#outputCanvas", "backgroundColor", outputImageBackgroundColor);
-    DOM.style("#controlCanvas", "backgroundColor", controlImageBackgroundColor);
-    DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
-
-    // disable mouse and touch for control image and arrow controller as long as no input image
-    basicUI.activateControls(false);
-
-    // "text" is the collection of text-based control elements
-    DOM.style("#text", "position", "fixed", "overflow", "auto");
-    DOM.style("#text", "right", 0 + px, "bottom", 0 + px);
-    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
-
-    const text = document.getElementById("text");
-
-    // switching (foreground/background) between controlimage/arrowcontroller and text based control elements
-    text.onclick = function() {
-        DOM.style("#text", "zIndex", "11");
-    };
-    Make.controlImage.mouseEvents.downAction = function() {
-        DOM.style("#text", "zIndex", "9");
-    };
-    Make.controlImage.touchEvents.startAction = function() {
-        DOM.style("#text", "zIndex", "9");
-    };
-
-    Make.arrowController.outAction = function() {
-        text.click();
-    };
-    Make.arrowController.downAction = function() {
-        DOM.style("#text", "zIndex", "9");
-    };
-
-    // special layout dependent method for placing arrowController
-    Make.arrowController.place = function() {
-        if (window.innerWidth > window.innerHeight) {
-            let controlImageHeight = Make.controlImage.pixelCanvas.height;
-            let arrowControlSize = Math.floor(Math.min(window.innerHeight - controlImageHeight, Make.controlImage.maxWidth)) - 1;
-            Make.arrowController.setSize(arrowControlSize);
-            Make.controlImage.arrowController.setPosition(Make.controlImage.limitLeft + 0.5 * (Make.controlImage.maxWidth - arrowControlSize), controlImageHeight);
-        } else {
-            let controlImageWidth = Make.controlImage.pixelCanvas.width;
-            let arrowControlSize = Math.floor(Math.min(window.innerWidth - controlImageWidth, Make.controlImage.maxHeight)) - 1;
-            Make.arrowController.setSize(arrowControlSize);
-            Make.controlImage.arrowController.setPosition(controlImageWidth, Make.controlImage.limitTop + 0.5 * (Make.controlImage.maxHeight - arrowControlSize));
-        }
-    };
 
 
     //==============================================================================================
@@ -100,7 +18,7 @@ function creation() {
     let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
     imageInputButton.onClick = function() {
         imageInputButton.fileInput.click();
-        showSelect.setIndex(2);
+        showSelect.setIndex(1);
         basicUI.activateControls(true);
     };
 
@@ -117,12 +35,6 @@ function creation() {
         });
 
 
-    showSelect.addOption("convergence",
-        function() {
-            Make.switchToShowingIterations();
-            basicUI.activateControls(false);
-        });
-
     showSelect.addOption("image",
         function() {
             if (!Make.inputImageExists) {
@@ -133,6 +45,12 @@ function creation() {
             basicUI.activateControls(true);
         });
 
+    // as function
+    showSelect.addOption("convergence",
+        function() {
+            Make.switchToShowingIterations();
+            basicUI.activateControls(false);
+        });
 
 
     // image size, square format
