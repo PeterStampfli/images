@@ -92,7 +92,8 @@ function creation() {
 
     circleScope.hyperbolicQuadrangle(2, 3, 3, 3, 0.3);
 
-
+    console.log(document.getElementById("quality"));
+    console.log(DOM.idExists("quality"));
 }
 
 

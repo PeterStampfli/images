@@ -13,6 +13,16 @@ var DOM = {};
     "use strict";
 
     /**
+     * check if an element with given id exists
+     * @method DOM.idExists
+     * @param {String} id
+     * @return boolean, true if id exists, false else
+     */
+    DOM.idExists = function(id) {
+        return !!document.getElementById(id);
+    };
+
+    /**
      * create an element, give it an id, add to parent,if it has a text, add text to element 
      * if an element with the id already exists then nothing will be done
      * @method DOM.create

@@ -103,48 +103,51 @@ basicUI = {};
     //  create the elements in the text control panel that are independent of particular image/symmetry
 
 
-    // image input and output
-    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
-    imageInputButton.onClick = function() {
-        imageInputButton.fileInput.click();
-        showSelect.setIndex(1);
-        basicUI.activateControls(true);
-    };
+    // image input and output id id "openInputImage" exists
+    if (DOM.idExists("openInputImage")) {
+
+        let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
+        imageInputButton.onClick = function() {
+            imageInputButton.fileInput.click();
+            showSelect.setIndex(1);
+            basicUI.activateControls(true);
+        };
+    }
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
 
-    // choose between showing the structure or the image
-    let showSelect = new Select("show");
+    // choose between showing the structure or the image, if id "show" exists
+    if (DOM.idExists("show")) {
+        var showSelect = new Select("show");
 
-
-    showSelect.addOption("structure",
-        function() {
-            Make.switchToShowingStructure();
-            basicUI.activateControls(false);
-        });
-
-
-    showSelect.addOption("image",
-        function() {
-            if (!Make.inputImageExists) {
-                imageInputButton.fileInput.click();
-            } else {
-                Make.switchToShowingImage();
-            }
-            basicUI.activateControls(true);
-        });
-
-    /**
-     * add option to show convergence to the showSelect button
-     * @method basicUI.showSelectAddConvergence
-     */
-    basicUI.showSelectAddConvergence = function() {
-        showSelect.addOption("convergence",
+        showSelect.addOption("structure",
             function() {
-                Make.switchToShowingIterations();
+                Make.switchToShowingStructure();
                 basicUI.activateControls(false);
             });
-    };
+
+        showSelect.addOption("image",
+            function() {
+                if (!Make.inputImageExists) {
+                    imageInputButton.fileInput.click();
+                } else {
+                    Make.switchToShowingImage();
+                }
+                basicUI.activateControls(true);
+            });
+
+        /**
+         * add option to show convergence to the showSelect button
+         * @method basicUI.showSelectAddConvergence
+         */
+        basicUI.showSelectAddConvergence = function() {
+            showSelect.addOption("convergence",
+                function() {
+                    Make.switchToShowingIterations();
+                    basicUI.activateControls(false);
+                });
+        };
+    }
 
     // image size, square format
     Make.sizeButton = Make.createSquareImageSizeButton("size");
@@ -157,23 +160,25 @@ basicUI = {};
         }
     }
 
-    let qualitySelect = new Select("quality");
+    // make selection for quality if id "quality" exists
+    if (DOM.idExists("quality")) {
+        let qualitySelect = new Select("quality");
 
-    qualitySelect.addOption("low",
-        function() {
-            changeQuality("low");
-        });
+        qualitySelect.addOption("low",
+            function() {
+                changeQuality("low");
+            });
 
-    qualitySelect.addOption("high",
-        function() {
-            changeQuality("high");
-        });
+        qualitySelect.addOption("high",
+            function() {
+                changeQuality("high");
+            });
 
-    qualitySelect.addOption("very high",
-        function() {
-            changeQuality("veryHigh");
-        });
-
+        qualitySelect.addOption("very high",
+            function() {
+                changeQuality("veryHigh");
+            });
+    }
 
     /** adjust fontsizes, margins, borders and so on
      * line widths and nullradius
