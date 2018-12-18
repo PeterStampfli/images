@@ -55,13 +55,16 @@ if (window.innerHeight > window.innerWidth) {
     let imagePosition = new Vector2();
 
     // the mapping for using an input image, only points inside the circle
-    Make.mappingInputImage = function(position) {
+    inversionMap = function(position, furtherResults) {
         if (extraCircle.contains(position)) {
             mirrorCircle.invertInsideOut(position);
-            return 1;
+            furtherResults.lyapunov = 1;
+        } else {
+            furtherResults.lyapunov = -1;
         }
-        return -1;
     };
+
+    Make.setMapping(inversionMap);
 
     Make.updateOutputImage = function() {
         let nullRadius = Make.outputImage.scale * Layout.nullRadius;

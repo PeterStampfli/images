@@ -174,14 +174,6 @@ var Layout = {};
     };
 
 
-    /**
-     * create a button to change between structure and image
-     * @method Layout.createStructureImageButton
-     * @param {String} id - of the span for the button
-     */
-    Layout.createStructureImageButton = function(id) {
-        Make.createStructureImageButton(id);
-    };
 
     /**
      * create open image command with key "i"

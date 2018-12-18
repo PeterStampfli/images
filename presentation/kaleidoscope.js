@@ -10,7 +10,20 @@ if (window.innerHeight > window.innerWidth) {
 } else {
 
     Layout.setup("circleInversion.html", "kaleidoscopeLens.html");
-    Layout.createStructureImageButton("change");
+
+
+    // choose between showing the structure or the image
+    let showSelect = new Select("show");
+
+    showSelect.addOption("image",
+        function() {
+            Make.switchToShowingImage();
+        });
+
+    showSelect.addOption("structure",
+        function() {
+            Make.switchToShowingStructure();
+        });
 
     Layout.activateFontSizeChanges();
 

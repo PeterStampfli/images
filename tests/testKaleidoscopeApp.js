@@ -6,81 +6,6 @@
 function creation() {
     "use strict";
 
-
-
-    //==============================================================================================
-    // create UI elements with their actions that are independent of the actual image structure/symmetry
-    //===============================================================================================
-
-
-
-    // image input and output
-    let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
-    imageInputButton.onClick = function() {
-        imageInputButton.fileInput.click();
-        showSelect.setIndex(1);
-        basicUI.activateControls(true);
-    };
-
-    Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
-
-    // choose between showing the structure or the image
-    let showSelect = new Select("show");
-
-
-    showSelect.addOption("structure",
-        function() {
-            Make.switchToShowingStructure();
-            basicUI.activateControls(false);
-        });
-
-
-    showSelect.addOption("image",
-        function() {
-            if (!Make.inputImageExists) {
-                imageInputButton.fileInput.click();
-            } else {
-                Make.switchToShowingImage();
-            }
-            basicUI.activateControls(true);
-        });
-
-    // as function
-    showSelect.addOption("convergence",
-        function() {
-            Make.switchToShowingIterations();
-            basicUI.activateControls(false);
-        });
-
-
-    // image size, square format
-    Make.sizeButton = Make.createSquareImageSizeButton("size");
-
-    //  choosing image quality
-    function changeQuality(newQuality) {
-        if (Make.imageQuality != newQuality) {
-            Make.imageQuality = newQuality;
-            Make.updateOutputImage();
-        }
-    }
-
-    let qualitySelect = new Select("quality");
-
-    qualitySelect.addOption("low",
-        function() {
-            changeQuality("low");
-        });
-
-    qualitySelect.addOption("high",
-        function() {
-            changeQuality("high");
-        });
-
-    qualitySelect.addOption("very high",
-        function() {
-            changeQuality("veryHigh");
-        });
-
     //=====================================================================================================================================
     // UI elements depending on actual image and its symmetries
     //==============================================================================================================
@@ -178,56 +103,10 @@ window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
+    basicUI.showSelectAddConvergence();
 };
 
 window.onresize = function() {
     "use strict";
-    // get old sizes, see if they change -> need redraw
-    // we have square images
-    const oldOutputImageSize = Make.outputImage.pixelCanvas.width;
-    const oldControlImageMaxWidth = Make.controlImage.maxWidth;
-    const oldControlImageMaxHeight = Make.controlImage.maxHeight;
-    // check if the output image is inside its div -> resize upon change to fill the div 
-    const outputImageWasInside = (oldOutputImageSize <= Make.outputImage.divWidth) && (oldOutputImageSize <= Make.outputImage.divHeight);
-
-    basicUI.layout();
-
-
-    if (Make.inputImageExists) {
-        // do we have to reload the input image into the control image?
-        // input image has to exist and the limits have changed
-        // else we only need to place it in its new position
-        const updateControlImage = ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
-
-        if (updateControlImage) {
-            Make.controlImage.loadInputImage(Make.inputImage); // places the image too
-        } else {
-            Make.controlImage.place();
-        }
-    }
-
-    // determine the new output image size
-    // the output image should always fill the div, minimal size
-    let outputImageSizeMin = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
-    // if the output image is smaller, then its size should increase
-    let newOutputImageSize = Math.max(outputImageSizeMin, oldOutputImageSize);
-    // if the ouput image was completely inside its div, then it should have the new minimum size, can reduce output image size
-    // if the output image has been larger, it does not change, except that it has been too small for the new layout, that's already done
-    if (outputImageWasInside) {
-        newOutputImageSize = outputImageSizeMin;
-    }
-
-    if (newOutputImageSize !== oldOutputImageSize) {
-        // if the size of the output image has changed, then we have to redo everything
-        Make.setOutputSize(newOutputImageSize, newOutputImageSize);
-        Make.sizeButton.setValue(newOutputImageSize);
-        Make.updateNewOutputImageSize();
-
-    } else {
-        // else we have to place the output image in its div and if the controlimage has been updated 
-        //then we have to redo the input pixel mapping to correctly indicate sampled pixels
-        Make.outputImage.place();
-        Make.updateOutputImageIfUsingInputImage();
-    }
-
+    basicUI.onresize();
 };

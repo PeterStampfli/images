@@ -156,7 +156,7 @@ circleScope = {};
         sizes.push(size);
         // do the mapping and draw lines
         Draw.setColor(circleScope.trajectoryColor);
-        Draw.setLineWidth(Layout.lineWidth);
+        Draw.setLineWidth(basicUI.lineWidth);
         dihedral.drawMap(position);
         positions.push(position.clone());
         sizes.push(size);
@@ -194,7 +194,7 @@ circleScope = {};
         }
         // draw the endpoints, scaled sizes
         Draw.setColor(circleScope.pointColor);
-        let nullRadius = Make.outputImage.scale * Layout.nullRadius;
+        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
         let sizesLength = sizes.length;
         let endSize = sizes[sizesLength - 1];
         if (endSize > 0) {
@@ -219,7 +219,7 @@ circleScope = {};
             Make.updateOutputImage();
         };
         Make.outputImage.move = function(mouseEvents) {
-            let nullRadius = Make.outputImage.scale * Layout.nullRadius;
+            let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
             Make.updateOutputImage();
             mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
             Make.outputImage.pixelToSpaceCoordinates(mousePosition);
