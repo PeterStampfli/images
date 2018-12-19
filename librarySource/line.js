@@ -85,9 +85,27 @@ function Line(a, b, bx, by) {
     Line.prototype.update = function() {
         this.ex = this.b.x - this.a.x;
         this.ey = this.b.y - this.a.y;
-        const factor = 1 / Math.hypot(this.ex, this.ey);
+        const factor = 1 / Math.max(Math.hypot(this.ex, this.ey) + 1e-10);
         this.ex *= factor;
         this.ey *= factor;
+    };
+
+    /**
+     * set the line length, extending or contracting the line
+     * for not having the line ends on display
+     * @method Line#setLength
+     * @param {float} length
+     */
+    Line.prototype.setLength = function(length) {
+        const centerX = 0.5 * (this.a.x + this.b.x);
+        const centerY = 0.5 * (this.a.y + this.b.y);
+        length *= 0.5;
+        this.a.x = centerX - length * this.ex;
+        this.b.x = centerX + length * this.ex;
+        this.a.y = centerY - length * this.ey;
+        this.b.y = centerY + length * this.ey;
+        this.update();
+
     };
 
     /**

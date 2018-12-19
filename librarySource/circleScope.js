@@ -493,7 +493,6 @@ circleScope = {};
     circleScope.hyperbolicQuadrangle = function(k, m, n, p, r) {
 
 
-        console.log(worldradius);
         circleScope.setDihedral(k); // cosGamma1, sinGamma1
         // the first circle
         const cosAlpha = Fast.cos(Math.PI / m);
@@ -503,7 +502,6 @@ circleScope = {};
         const x1 = Math.hypot(worldradius, r1 * sinAlpha);
         const y1 = r1 * cosAlpha;
         circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
-        circleScope.circle1.log("1");
 
         // the second circle
         circleScope.circle2 = circleScope.circleZero();
@@ -523,16 +521,14 @@ circleScope = {};
             const a = f1 * f1 + g1 * g1 - 1;
             const b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
             const c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
-            console.log(a);
-            console.log(b);
-            console.log(c);
-            console.log(Fast.quadraticEquation(a, b, c, solutions));
-            solutions.log("solutions for r2");
-            const r2 = solutions.x;
-            const x2 = f0 * worldradius2 + f1 * r2;
-            const y2 = g0 * worldradius2 + g1 * r2;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            circleScope.circle2.log("2");
+            if (Fast.quadraticEquation(a, b, c, solutions)) {
+                const r2 = solutions.x;
+                const x2 = f0 * worldradius2 + f1 * r2;
+                const y2 = g0 * worldradius2 + g1 * r2;
+                circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            } else {
+                console.log("**** no solution for second circle");
+            }
         } else if (m > 2) {
             console.log("m");
             const f0 = worldradius2 / y1;
@@ -540,16 +536,16 @@ circleScope = {};
             const a = f1 * f1 - cosDelta * cosDelta;
             const b = 2 * f0 * f1;
             const c = f0 * f0 - worldradius2;
-            console.log(Fast.quadraticEquation(a, b, c, solutions));
-            solutions.log("solutions for r2");
-            const r2 = solutions.x;
-            const x2 = r2 * cosDelta;
-            const y2 = f0 + f1 * r2;
+            if (Fast.quadraticEquation(a, b, c, solutions)) {
+                const r2 = solutions.x;
+                const x2 = r2 * cosDelta;
+                const y2 = f0 + f1 * r2;
 
 
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            circleScope.circle2.log("2");
-
+                circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            } else {
+                console.log("**** no solution for second circle");
+            }
         }
 
     };

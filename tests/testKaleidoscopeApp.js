@@ -16,6 +16,16 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+
+
+    let viewSelect = new Select("view");
+    viewSelect.addOption("direct", function() {
+        console.log("direct view");
+    });
+    viewSelect.addOption("circle inversion", function() {
+        console.log("inverted view");
+    });
+
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
 
@@ -54,11 +64,16 @@ function creation() {
 
         Draw.setLineWidth(basicUI.lineWidth);
 
+        Draw.setColor("black");
+        line.draw();
+        l.draw();
+
+
+        //    circleScope.draw();
+        multiCircles.draw();
         Draw.setColor("red");
 
-
-        circleScope.draw();
-        //  multiCircles.draw();
+        multiCircles.inversionCircle.draw();
 
 
     };
@@ -76,11 +91,11 @@ function creation() {
 
     //   Make.map.hueShiftInversionColorSymmetry(4);
 
-
-    circleScope.setMapping();
-    circleScope.setDihedral(5);
-    circleScope.setupMouseForTrajectory();
-
+    /*
+        circleScope.setMapping();
+        circleScope.setDihedral(5);
+        circleScope.setupMouseForTrajectory();
+    */
     //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
     // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
     //  circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
@@ -90,10 +105,20 @@ function creation() {
     //  circleScope.hyperbolicQuadranglek222(3,0.6);
     //circleScope.hyperbolicKite(3, 8, 2);
 
-    circleScope.hyperbolicQuadrangle(2, 3, 3, 3, 0.3);
+    //   circleScope.hyperbolicQuadrangle(2, 3, 3, 3, 0.3);
 
-    console.log(document.getElementById("quality"));
-    console.log(DOM.idExists("quality"));
+
+    multiCircles.setMapping();
+    multiCircles.setInversionCircle(5, 0, 0);
+    const c = multiCircles.addCircleInsideOut(4, -4, 0);
+
+    multiCircles.finishMap = multiCircles.limitMap;
+    multiCircles.projection = multiCircles.circleInversionProjection;
+    var line = new Line(1, 2, 0, 4);
+    // line.setLength(8);
+    var l = multiCircles.inversionCircle.lineOfCircleIntersection(c);
+    l.log();
+    l.setLength(100);
 }
 
 

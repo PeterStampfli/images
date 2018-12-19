@@ -38,9 +38,7 @@ multiCircles = {};
         multiCircles.elements.length = 0;
     };
 
-    // do nothing function, for decorations (presentations)
 
-    function doNothing() {}
 
     /**
      * add a circle to elements, without mapping method
@@ -52,7 +50,6 @@ multiCircles = {};
      */
     multiCircles.addCircle = function(radius, centerX, centerY) {
         const circle = new Circle(radius, centerX, centerY);
-        circle.map = doNothing;
         multiCircles.elements.push(circle);
         return circle;
     };
@@ -147,13 +144,67 @@ multiCircles = {};
     };
 
     /**
+     * doing nothing, as identity projection or transform after the iterative mapping
+     * @method multiCircles.doNothing
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    multiCircles.doNothing = function(position, furtherResults) {};
+
+    /**
+     * doing a projection before the mapping
+     * here it does nothing, rewrite to do something
+     * @method multiCircles.projection
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    multiCircles.projection = multiCircles.doNothing;
+
+    // circle inversion as projection
+    multiCircles.inversionCircle = new Circle(1, 0, 0);
+
+    /**
+     * set the data for the inversion circle used for projection
+     * @method multiCircles.setInversionCircle
+     * @param {float} radius
+     * @param {float} centerX
+     * @param {float} centerY
+     */
+    multiCircles.setInversionCircle = function(radius, centerX, centerY) {
+        multiCircles.inversionCircle.setRadiusCenterXY(radius, centerX, centerY);
+    };
+
+    /**
+     * use circle inversion as initial projection
+     * @method multiCircles.circleInversionProjection
+     * @param {Vector2} v - the vector to map
+     */
+    multiCircles.circleInversionProjection = function(v) {
+        multiCircles.inversionCircle.invert(v);
+    };
+
+    /**
      * doing something to finish the mapping
      * here it does nothing, rewrite to do something
      * @method multiCircles.finishMap
      * @param {Vector2} v - the vector to map
      * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
-    multiCircles.finishMap = function(position, furtherResults) {};
+    multiCircles.finishMap = multiCircles.doNothing;
+
+    /**
+     * limit the mapping, set lyapunov=-1 if position too large, after mapping
+     * @method multiCircles.limitMap
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    multiCircles.mapLimit = 10;
+    multiCircles.limitMap = function(v, furtherResults) {
+        if ((v.x < -multiCircles.mapLimit) || (v.x > multiCircles.mapLimit) || (v.y < -multiCircles.mapLimit) || (v.y > multiCircles.mapLimit)) {
+            furtherResults.lyapunov = -1;
+        }
+    };
+
 
     /**
      * map the position for using an input image
@@ -165,6 +216,7 @@ multiCircles = {};
         furtherResults.lyapunov = -1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
+        multiCircles.projection(position);
         const elements = multiCircles.elements;
         const elementsLength = elements.length;
         for (var i = multiCircles.maxIterations; i > 0; i--) {

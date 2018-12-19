@@ -327,5 +327,25 @@ function Circle(radius, center, centerY) {
         }
     };
 
+    /**
+     * create a line that connects the intersection points of this circle and another one
+     * @method Circle#lineOfCircleIntersection
+     * @param {Circle} circle
+     * @return Line connecting the intersection points, or zero
+     */
+    Circle.prototype.lineOfCircleIntersection = function(circle) {
+        const a = Vector2.fromPool();
+        const b = Vector2.fromPool();
+        if (this.intersectsCircle(circle, a, b)) {
+            return new Line(a, b);
+
+        } else {
+            a.toPool();
+            b.toPool();
+            return null;
+        }
+
+
+    };
 
 }());
