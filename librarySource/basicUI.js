@@ -104,9 +104,10 @@ basicUI = {};
 
 
     // image input and output id id "openInputImage" exists
+    var imageInputButton;
     if (DOM.idExists("openInputImage")) {
 
-        let imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
+        imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
             imageInputButton.fileInput.click();
             showSelect.setIndex(1);
