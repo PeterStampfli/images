@@ -317,7 +317,6 @@ function Circle(radius, center, centerY) {
             ex /= d;
             ey /= d;
             d = 0.5 * (d + (this.radius2 - circle.radius2) / d);
-            console.log(d);
             const baseX = this.center.x + ex * d;
             const baseY = this.center.y + ey * d;
             const h = Math.sqrt(this.radius2 - d * d);
@@ -338,14 +337,11 @@ function Circle(radius, center, centerY) {
         const b = Vector2.fromPool();
         if (this.intersectsCircle(circle, a, b)) {
             return new Line(a, b);
-
         } else {
             a.toPool();
             b.toPool();
             return null;
         }
-
-
     };
 
 }());

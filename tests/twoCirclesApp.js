@@ -13,21 +13,6 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-    Make.updateNewMap = function() {
-        Make.initializeMap();
-        if (Make.mapping == null) {
-            console.log("*** Make.updateMap: there is no mapping function !");
-            return;
-        }
-        Make.map.make(Make.mapping);
-        //   Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
-        Make.getMapOutputRange();
-        Make.limitLyapunov();
-        Make.updateOutputImage();
-    };
-
-
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
         console.log("direct view");
@@ -68,18 +53,33 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
         Draw.setColor("black");
-        intersectionLine.draw();
+        //      intersectionLine.draw();
         multiCircles.draw();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
     };
 
     multiCircles.setMapping();
-    //  multiCircles.finishMap = multiCircles.limitMap;
-    multiCircles.setInversionCircle(5, 2, 0);
-    const circle = multiCircles.addCircleOutsideIn(8, -6, 0);
-    var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
-    intersectionLine.setLength(100);
+
+    const n = 5;
+    const alpha = Math.PI / n;
+    const cosAlpha = Fast.cos(alpha);
+    const r1 = 11;
+    const r2 = 8;
+    const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
+
+    const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, 0);
+    const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, 0);
+    const i1 = new Vector2();
+    const i2 = new Vector2();
+
+    circle1.intersectsCircle(circle2, i1, i2);
+
+
+    multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length(), i1);
+
+    //  var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
+    // intersectionLine.setLength(100);
 }
 
 window.onload = function() {
