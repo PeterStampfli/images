@@ -53,7 +53,8 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
         Draw.setColor("black");
-        //      intersectionLine.draw();
+        intersectionLine1.draw();
+        intersectionLine2.draw();
         multiCircles.draw();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
@@ -61,25 +62,28 @@ function creation() {
 
     multiCircles.setMapping();
 
+    // choose n interactively
     const n = 5;
     const alpha = Math.PI / n;
     const cosAlpha = Fast.cos(alpha);
-    const r1 = 11;
-    const r2 = 8;
+    const r1 = 10;
+    const r2 = 7;
     const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
 
-    const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, 0);
-    const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, 0);
+    const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, -1);
+    const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, -1);
     const i1 = new Vector2();
     const i2 = new Vector2();
 
     circle1.intersectsCircle(circle2, i1, i2);
 
 
-    multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length(), i1);
+    multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length() * 1.2, i1);
 
-    //  var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
-    // intersectionLine.setLength(100);
+    var intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(circle1);
+    intersectionLine1.setLength(100);
+    var intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(circle2);
+    intersectionLine2.setLength(100);
 }
 
 window.onload = function() {

@@ -13,21 +13,6 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-    Make.updateNewMap = function() {
-        Make.initializeMap();
-        if (Make.mapping == null) {
-            console.log("*** Make.updateMap: there is no mapping function !");
-            return;
-        }
-        Make.map.make(Make.mapping);
-        //   Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
-        Make.getMapOutputRange();
-        Make.limitLyapunov();
-        Make.updateOutputImage();
-    };
-
-
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
         console.log("direct view");

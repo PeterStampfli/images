@@ -274,8 +274,8 @@ var Make = {};
             return;
         }
         Make.map.make(Make.mapping);
-        Make.getMapOutputCenter();
-        Make.shiftMapToCenter();
+        //   Make.getMapOutputCenter();
+        //  Make.shiftMapToCenter();
         Make.getMapOutputRange();
         Make.limitLyapunov();
         Make.updateOutputImage();
@@ -352,7 +352,7 @@ var Make = {};
             return;
         }
         Make.map.make(Make.mapping);
-        Make.shiftMapToCenter();
+        //     Make.shiftMapToCenter();
         Make.limitLyapunov();
         Make.updateOutputImage();
     };
@@ -448,8 +448,8 @@ var Make = {};
         if (!Make.map.exists) {
             Make.initializeMap();
             Make.map.make(Make.mapping);
-            Make.getMapOutputCenter();
-            Make.shiftMapToCenter();
+            //      Make.getMapOutputCenter();
+            //      Make.shiftMapToCenter();
             Make.getMapOutputRange();
             Make.limitLyapunov();
         }
@@ -528,7 +528,7 @@ var Make = {};
      */
     Make.shiftScaleOutputImage = function() {
         Make.map.make(Make.mapping);
-        Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
+        //     Make.shiftMapToCenter(); // with same data for center as before, and same settings for space to input image map 
         Make.getMapOutputRange();
         Make.limitLyapunov();
         Make.updateOutputImage();
