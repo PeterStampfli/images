@@ -344,6 +344,15 @@ function Vector2(x = 0, y = 0) {
         return this.x * this.x + this.y * this.y;
     };
 
+    /**
+     * get the distance between this point and another vector
+     * @method Vector2#distance
+     * @param {Vector2} v
+     * @return {float} the length
+     */
+    Vector2.prototype.distance = function(v) {
+        return Math.hypot(v.x - this.x, v.y - this.y); // Math.sqrt is very fast, as fast as fastSin
+    };
 
     /**
      * comparing two vectors: accuracy for numbers to be considered as equal

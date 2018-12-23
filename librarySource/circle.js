@@ -128,8 +128,8 @@ function Circle(radius, center, centerY) {
     };
 
     // beware of hitting the circle center
-    const epsilon2 = 1e-8;
-    const iEpsilon2 = 1 / epsilon2;
+    const epsilon = 0.0001;
+    const epsilon2 = epsilon * epsilon;
 
     /**
      * invert a point at the circle
@@ -140,17 +140,11 @@ function Circle(radius, center, centerY) {
     Circle.prototype.invert = function(v) {
         const dx = v.x - this.center.x;
         const dy = v.y - this.center.y;
-        const pointR2 = dx * dx + dy * dy;
-        if (pointR2 < epsilon2) {
-            v.x = iEpsilon2;
-            v.y = iEpsilon2;
-            return iEpsilon2;
-        } else {
-            const factor = this.radius2 / pointR2;
-            v.x = this.center.x + dx * factor;
-            v.y = this.center.y + dy * factor;
-            return factor;
-        }
+        const pointR2 = dx * dx + dy * dy + epsilon2;
+        const factor = this.radius2 / pointR2;
+        v.x = this.center.x + dx * factor;
+        v.y = this.center.y + dy * factor;
+        return factor;
     };
 
     /**
@@ -181,12 +175,8 @@ function Circle(radius, center, centerY) {
         if (Math.abs(dy) > this.radius) {
             return -1;
         }
-        const pointR2 = dx * dx + dy * dy;
-        if (pointR2 < epsilon2) {
-            v.x = iEpsilon2;
-            v.y = iEpsilon2;
-            return iEpsilon2;
-        } else if (this.radius2 - 0.0001 > pointR2) {
+        const pointR2 = dx * dx + dy * dy + epsilon2;
+        if (this.radius2 - 0.0001 > pointR2) {
             const factor = this.radius2 / pointR2;
             v.x = this.center.x + dx * factor;
             v.y = this.center.y + dy * factor;
@@ -342,6 +332,21 @@ function Circle(radius, center, centerY) {
             b.toPool();
             return null;
         }
+    };
+
+    /**
+     * invert a line at this circle, returning a circle
+     * @method Circle#invertLine
+     * @param {Line} line
+     * @return Circle from inversion
+     */
+    Circle.prototype.invertLine = function(line) {
+        const dParallel = (this.center.x - line.a.x) * line.ex + (this.center.y - line.a.y) * line.ey;
+        const inversionCenter = new Vector2(line.a.x + line.ex * dParallel, line.a.y + line.ey * dParallel);
+        this.invert(inversionCenter);
+        inversionCenter.lerp(0.5, this.center);
+        const radius = this.center.distance(inversionCenter);
+        return new Circle(radius, inversionCenter);
     };
 
 }());

@@ -57,6 +57,9 @@ function creation() {
         multiCircles.draw();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
+        c.draw();
+        l.draw();
+        il.draw();
     };
 
     multiCircles.setMapping();
@@ -65,6 +68,11 @@ function creation() {
     const circle = multiCircles.addCircleOutsideIn(8, -6, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
     intersectionLine.setLength(100);
+
+    const c = new Circle(4, 5, 0);
+    const l = new Line(2, -9, 2, 9);
+    const il = c.invertLine(l);
+
 }
 
 window.onload = function() {
