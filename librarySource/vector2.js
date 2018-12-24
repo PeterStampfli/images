@@ -400,7 +400,15 @@ function Vector2(x = 0, y = 0) {
     Vector2.pool = [];
 
     /**
-     * put vector2 objects on the pool for recycling
+     * put this vector back to the pool
+     * @method Vector2#toPool
+     */
+    Vector2.prototype.toPool = function() {
+        Vector2.pool.push(this);
+    };
+
+    /**
+     * put many vector2 objects on the pool for recycling
      * @method Vector2.toPool
      * @param {Vector2List} vectors
      */
