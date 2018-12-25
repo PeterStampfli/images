@@ -92,36 +92,37 @@ circleScope = {};
      * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
     circleScope.map = function(position, furtherResults) {
-        furtherResults.lyapunov = -1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
         dihedral.map(position);
         furtherResults.reflections += Dihedral.reflections;
-        for (var i = circleScope.maxIterations; i > 0; i--) {
-            let noChange = true;
+        var i = circleScope.maxIterations;
+        var changed = true;
+        while ((i > 0) && changed) {
+            i--;
+            changed = false;
             if (circleScope.circle1.map(position) > 0) {
-                noChange = false;
+                changed = true;
                 furtherResults.reflections++;
                 furtherResults.iterations++;
                 dihedral.map(position);
                 furtherResults.reflections += Dihedral.reflections;
             }
             if (circleScope.circle2.map(position) > 0) {
-                noChange = false;
+                changed = true;
                 furtherResults.reflections++;
                 furtherResults.iterations++;
                 dihedral.map(position);
                 furtherResults.reflections += Dihedral.reflections;
             }
-            if (noChange) {
-                furtherResults.lyapunov = 1;
-                break;
-            }
+        }
+        if (changed) {
+            furtherResults.lyapunov = -1;
+        } else {
+            furtherResults.lyapunov = 1;
         }
         circleScope.finishMap(position, furtherResults);
-
     };
-
 
     /**
      * drawing the mirrors 
@@ -133,14 +134,12 @@ circleScope = {};
         circleScope.circle2.draw();
     };
 
-
     // drawing the trajectory
 
     let mousePosition = new Vector2();
     const lastPosition = new Vector2();
     circleScope.pointColor = new Color(255, 255, 255);
     circleScope.trajectoryColor = new Color(255, 255, 0);
-
 
     /**
      * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map
@@ -160,12 +159,15 @@ circleScope = {};
         dihedral.drawMap(position);
         positions.push(position.clone());
         sizes.push(size);
-        for (var i = circleScope.maxIterations; i > 0; i--) {
-            let noChange = true;
+        var i = circleScope.maxIterations;
+        var changed = true;
+        while ((i > 0) && changed) {
+            i--;
+            changed = false;
             lastPosition.set(position);
             let factor = circleScope.circle1.map(position);
             if (factor >= 0) {
-                noChange = false;
+                changed = true;
                 iterations++;
                 size *= factor;
                 sizes.push(size);
@@ -178,7 +180,7 @@ circleScope = {};
             lastPosition.set(position);
             factor = circleScope.circle2.map(position);
             if (factor >= 0) {
-                noChange = false;
+                changed = true;
                 iterations++;
                 size *= factor;
                 sizes.push(size);
@@ -187,9 +189,6 @@ circleScope = {};
                 dihedral.drawMap(position);
                 positions.push(position.clone());
                 sizes.push(size);
-            }
-            if (noChange) {
-                break;
             }
         }
         // draw the endpoints, scaled sizes
@@ -242,7 +241,6 @@ circleScope = {};
 
     circleScope.circle1 = circleScope.circleZero();
     circleScope.circle2 = circleScope.circleZero();
-
 
     /**
      * create a circle with inside out mapping method
@@ -354,7 +352,6 @@ circleScope = {};
         }
     };
 
-
     /**
      * generate a triangle kaleidoscope with hyperbolic, euclidic or elliptic geometry
      * with an additional circle at the center
@@ -389,7 +386,7 @@ circleScope = {};
         var separator1 = -cosGamma1 / sinGamma1;
         var separator2;
         var cx, cy;
-
+        // the finishing function to mark the different triangles
         function triangleSectors(position, furtherResults) {
             const dx = position.x - cx;
             const dy = position.y - cy;
@@ -407,7 +404,6 @@ circleScope = {};
                 }
             }
         }
-
         // elliptic
         if (angleSum > 1.000001) {
             const circle1 = circleScope.circleOutsideIn(1, -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1, cosAlpha1);
@@ -474,11 +470,9 @@ circleScope = {};
         }
     };
 
-
     const worldradius = 9.7;
     const worldradius2 = worldradius * worldradius;
     const solutions = new Vector2();
-
 
     /**
      * generate a hyperbolic quadrangle
@@ -491,8 +485,6 @@ circleScope = {};
      * @param {float} r - 0...1, determine point of circle at the right, fractional distance from center
      */
     circleScope.hyperbolicQuadrangle = function(k, m, n, p, r) {
-
-
         circleScope.setDihedral(k); // cosGamma1, sinGamma1
         // the first circle
         const cosAlpha = Fast.cos(Math.PI / m);
@@ -502,22 +494,18 @@ circleScope = {};
         const x1 = Math.hypot(worldradius, r1 * sinAlpha);
         const y1 = r1 * cosAlpha;
         circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
-
         // the second circle
         circleScope.circle2 = circleScope.circleZero();
         const cosBeta = Fast.cos(Math.PI / n);
         const sinBeta = Fast.sin(Math.PI / n);
         const cosDelta = Fast.cos(Math.PI / p);
         const sinDelta = Fast.sin(Math.PI / p);
-
-
         if (k > 2) {
             const tanGamma1 = sinGamma1 / cosGamma1;
             const f0 = 1 / (x1 + y1 * tanGamma1);
             const f1 = f0 * (y1 * cosDelta / cosGamma1 - r1 * cosBeta);
             const g0 = f0 * tanGamma1;
             const g1 = f1 * tanGamma1 - cosDelta / cosGamma1;
-
             const a = f1 * f1 + g1 * g1 - 1;
             const b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
             const c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
@@ -540,16 +528,12 @@ circleScope = {};
                 const r2 = solutions.x;
                 const x2 = r2 * cosDelta;
                 const y2 = f0 + f1 * r2;
-
-
                 circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
             } else {
                 console.log("**** no solution for second circle");
             }
         }
-
     };
-
 
     /**
      * generate a hyperbolic quadrangle with three right angles

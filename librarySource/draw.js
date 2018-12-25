@@ -50,6 +50,23 @@ var Draw = {};
         nullRadius = theNullRadius;
     };
 
+    /**
+     * set the line to solid
+     * @method Draw.solidLine
+     */
+    Draw.solidLine = function() {
+        context.setLineDash([]);
+    };
+
+    /** 
+     * set the line to dashed, independent of output image size
+     * @method Draw.dashedLine
+     * @param {integer} dashLength
+     * @param {integer} gapLength
+     */
+    Draw.dashedLine = function(dashLength, gapLength) {
+        context.setLineDash([dashLength * outputImage.scale, gapLength * outputImage.scale]);
+    };
 
     /*
      * start a drawing by setting the context and moving to start point

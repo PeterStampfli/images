@@ -219,19 +219,23 @@ multiCircles = {};
         multiCircles.projection(position);
         const elements = multiCircles.elements;
         const elementsLength = elements.length;
-        for (var i = multiCircles.maxIterations; i > 0; i--) {
-            let noChange = true;
+        var i = circleScope.maxIterations;
+        var changed = true;
+        while ((i > 0) && changed) {
+            i--;
+            changed = false;
             for (var j = elementsLength - 1; j >= 0; j--) {
                 if (elements[j].map(position) >= 0) {
-                    noChange = false;
+                    changed = true;
                     furtherResults.reflections++;
                     furtherResults.iterations++;
                 }
             }
-            if (noChange) {
-                furtherResults.lyapunov = 1;
-                break;
-            }
+        }
+        if (changed) {
+            furtherResults.lyapunov = -1;
+        } else {
+            furtherResults.lyapunov = 1;
         }
         multiCircles.finishMap(position, furtherResults);
     };
@@ -281,21 +285,21 @@ multiCircles = {};
         const lastPosition = new Vector2();
         // do the mapping and draw lines
         Draw.setColor(trajectoryColor);
-        for (var i = multiCircles.maxIterations; i > 0; i--) {
-            let noChange = true;
+        var i = circleScope.maxIterations;
+        var changed = true;
+        while ((i > 0) && changed) {
+            i--;
+            changed = false;
             for (var j = elementsLength - 1; j >= 0; j--) {
                 lastPosition.set(position);
                 let factor = elements[j].map(position);
                 if (factor >= 0) {
-                    noChange = false;
+                    changed = true;
                     size *= factor;
                     sizes.push(size);
                     positions.push(position.clone());
                     Draw.line(lastPosition, position);
                 }
-            }
-            if (noChange) {
-                break;
             }
         }
         // draw the endpoints, scaled sizes

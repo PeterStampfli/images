@@ -53,9 +53,12 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
         Draw.setColor("black");
+        Draw.dashedLine(4, 6);
         intersectionLine1.draw();
         intersectionLine2.draw();
+
         multiCircles.draw();
+        Draw.solidLine();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
     };

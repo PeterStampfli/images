@@ -53,6 +53,9 @@ function creation() {
     Make.setInitialOutputImageSpace(-10, 10, -10);
     imageTiles.dimensions(-10, 10, -10, 10, 0.5);
 
+
+    const range = new Range("theText", "theRange");
+
     imageTiles.allSymmetric = false;
 
     imageTiles.setMapping();
