@@ -1,8 +1,5 @@
 /* jshint esversion:6 */
 
-
-
-
 function creation() {
     "use strict";
 
@@ -16,19 +13,37 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-
-
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
         console.log("direct view");
-        multiCircles.projection = multiCircles.doNothing;
+        circleScope.projection = circleScope.circleInversionProjection;
         Make.updateNewMap();
     });
     viewSelect.addOption("circle inversion", function() {
         console.log("inverted view");
-        multiCircles.projection = multiCircles.circleInversionProjection;
+        circleScope.projection = circleScope.doNothing;
         Make.updateNewMap();
     });
+    circleScope.projection = circleScope.circleInversionProjection;
+
+    //choosing the symmetries, and set initial values
+    let setKButton = NumberButton.create("k");
+    setKButton.setRange(2, 10000);
+    setKButton.setValue(5);
+    setKButton.onChange = Make.updateNewMap;
+
+    let setMButton = NumberButton.create("m");
+    setMButton.setRange(2, 10000);
+    setMButton.setValue(2);
+    setMButton.onChange = Make.updateNewMap;
+
+    let setNButton = NumberButton.create("n");
+    setNButton.setRange(2, 10000);
+    setNButton.setValue(3);
+    setNButton.onChange = Make.updateNewMap;
+
+    // show the sum of angles
+    let sum = document.getElementById("sum");
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -50,87 +65,44 @@ function creation() {
     // where Make.updateMapOutput is the method to draw the image according to the map
 
     // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-10, 10, -10);
-    imageTiles.dimensions(-10, 10, -10, 10, 0.5);
+    Make.setInitialOutputImageSpace(-15, 15, -15);
 
+    Make.map.makeColorCollection(2, 1, 2, 64);
+    Make.map.hueInversionColorSymmetry();
 
-    const range = Range.create("radius");
+    const worldRadius = 9.7;
+    const worldRadius2 = worldRadius * worldRadius;
 
-    imageTiles.allSymmetric = false;
+    const angle = Math.PI / 12;
+    const radius = 7;
+    const d = Math.hypot(radius, worldRadius);
+    circleScope.setInversionCircle(radius, d * Fast.cos(angle), d * Fast.sin(angle));
 
-    imageTiles.setMapping();
 
     Make.initializeMap = function() {
+        let k = setKButton.getValue();
+        let m = setMButton.getValue();
+        let n = setNButton.getValue();
+        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
+        circleScope.triangleKaleidoscope(k, m, n);
 
     };
 
     Make.updateOutputImage = function() {
-
-
         Make.updateMapOutput();
-
         Draw.setLineWidth(basicUI.lineWidth);
-
         Draw.setColor("black");
-        line.draw();
-        l.draw();
+        Draw.dashedLine(4, 6);
+        circleScope.draw();
 
-
-        //    circleScope.draw();
-        multiCircles.draw();
+        Draw.solidLine();
         Draw.setColor("red");
-
-        multiCircles.inversionCircle.draw();
-
-
     };
 
+    circleScope.setMapping();
 
 
-
-
-
-    //  Make.map.makeColorCollection(5, 0, 1, 40);
-
-
-    Make.map.noColorSymmetry();
-
-
-    //   Make.map.hueShiftInversionColorSymmetry(4);
-
-    /*
-        circleScope.setMapping();
-        circleScope.setDihedral(5);
-        circleScope.setupMouseForTrajectory();
-    */
-    //    circleScope.circle2=circleScope.circleInsideOut(0.33,0.44,0);
-    // circleScope.circle1=circleScope.lineLeftRight(0.43,0,0.4,1);
-    //  circleScope.triangleCentralCircle(5, 2, 4, 3000, 5, 5);
-    //  multiCircles.setMapping();
-    //   apollinius.start(0, 6);
-
-    //  circleScope.hyperbolicQuadranglek222(3,0.6);
-    //circleScope.hyperbolicKite(3, 8, 2);
-
-    //   circleScope.hyperbolicQuadrangle(2, 3, 3, 3, 0.3);
-
-
-    multiCircles.setMapping();
-    multiCircles.setInversionCircle(5, 2, 0);
-    const c = multiCircles.addCircleInsideOut(8, -6, 0);
-
-    multiCircles.finishMap = multiCircles.limitMap;
-    // multiCircles.projection = multiCircles.circleInversionProjection;
-    var line = new Line(1, 2, 0, 4);
-    // line.setLength(8);
-    var l = multiCircles.inversionCircle.lineOfCircleIntersection(c);
-    l.log();
-    l.setLength(100);
 }
-
-
-
-
 
 window.onload = function() {
     "use strict";

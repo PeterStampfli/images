@@ -1,19 +1,22 @@
 /**
  * a button to input numbers together with a slider
  * default is value between 0 and 1
- * @constructor Range
- * @param {String} idText - id of HTML input element type text
- * @param {String} idRange - id of HTML input element, type range
+ * @constructor Range - better use Range.create
+ * @param {String} idText - id of HTML input element, will be set to type text
+ * @param {String} idRange - id of HTML input element, will be set to type range
  */
 
 /* jshint esversion:6 */
 
 function Range(idText, idRange) {
     this.textElement = document.getElementById(idText);
+    this.textElement.setAttribute("type", "text");
     this.rangeElement = document.getElementById(idRange);
+    this.rangeElement.setAttribute("type", "range");
+    this.rangeElement.setAttribute("class", "range");
     this.rangeElement.step = "any";
     this.setStep(0.01);
-    this.setValue(0.5);
+    this.lastValue = 0.5;
     this.setRange(0, 1);
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
 
@@ -157,6 +160,15 @@ function Range(idText, idRange) {
     };
 
     /**
+     * get the value for doing something
+     * @method Range#getValueRange
+     * @return float - the value
+     */
+    Range.prototype.getValue = function() {
+        return this.lastValue;
+    };
+
+    /**
      * set the values of the text input element and the rangeElement
      * sets lastValue to same number
      * does nothing else, use it for initialization
@@ -179,7 +191,7 @@ function Range(idText, idRange) {
      * @param {float} number - the number value to show in the button
      */
     Range.prototype.updateValue = function(number) {
-        if (isNaN(number)) { // overwrite grabahge, do nothing
+        if (isNaN(number)) { // overwrite garbage, do nothing
             this.setValue(this.lastValue);
         } else {
             number = Fast.clamp(this.minValue, number, this.maxValue);
@@ -236,11 +248,7 @@ function Range(idText, idRange) {
      */
     Range.create = function(idSpan) {
         DOM.create("input", idSpan + "text", "#" + idSpan);
-        DOM.attribute("#" + idSpan + "text", "type", "text", "maxlength", "4");
         DOM.create("input", idSpan + "range", "#" + idSpan);
-        DOM.attribute("#" + idSpan + "range", "type", "range");
-
-
         let range = new Range(idSpan + "text", idSpan + "range");
         return range;
     };

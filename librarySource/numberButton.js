@@ -2,8 +2,8 @@
  * a button to input numbers, needs an input element
  * <input type="text" class="numbers" id="outputWidthChooser" maxlength="4" />
  * 
- * @constructor NumberButton
- * @param {String} idName name (id) of an html text input element
+ * @constructor NumberButton - better use NumberButton.create
+ * @param {String} idName name (id) of an html (text) input element, attribute type will be set to text
  * @param {String} idPlus - optional, id of an HTML button element, for plus button
  * @param {String} idMinus - optional, id of an HTML button element, for minus button
  */
@@ -14,6 +14,7 @@ function NumberButton(idName, idPlus, idMinus) {
     "use strict";
 
     this.element = document.getElementById(idName);
+    this.element.setAttribute("type", "text");
     this.hover = false;
     this.pressed = false;
     // limiting the number range: defaults, minimum is zero, maximum is very large
@@ -158,7 +159,7 @@ function NumberButton(idName, idPlus, idMinus) {
 
 
     /**
-     * create an number button with up and down buttons
+     * create an number button with up and down buttons, maximum 4 digits
      * Attention: set font sizes afterwards
      * @method NumberButton.create
      * @param {String} idSpan - id of the span conatining the number button
@@ -166,7 +167,6 @@ function NumberButton(idName, idPlus, idMinus) {
      */
     NumberButton.create = function(idSpan) {
         DOM.create("input", idSpan + "input", "#" + idSpan);
-        DOM.attribute("#" + idSpan + "input", "type", "text", "maxlength", "4");
         DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
         DOM.create("button", idSpan + "up", "#" + idSpan, "up");
         DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");

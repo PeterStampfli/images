@@ -20,7 +20,6 @@ circleScope = {};
     circleScope.dihedral = new Dihedral();
     let dihedral = circleScope.dihedral;
 
-
     /**
      * set coloring/cutoff disc radius
      * @method circleScope.setDiscRadius
@@ -42,7 +41,7 @@ circleScope = {};
         cosGamma1 = Fast.cos(Math.PI / k);
         sinGamma1 = Fast.sin(Math.PI / k);
     };
-
+    circleScope.setDihedral(1);
 
     /**
      * get dihedral order
@@ -84,6 +83,46 @@ circleScope = {};
         circleScope.finishMap = function(position, furtherResults) {};
     };
 
+    /**
+     * doing nothing, as identity projection or transform after the iterative mapping
+     * @method circleScope.doNothing
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    circleScope.doNothing = function(position, furtherResults) {};
+
+    /**
+     * doing a projection before the mapping
+     * here it does nothing, rewrite to do something
+     * @method circleScope.projection
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    circleScope.projection = circleScope.doNothing;
+
+
+    // circle inversion as projection
+    circleScope.inversionCircle = new Circle(1, 0, 0);
+
+    /**
+     * set the data for the inversion circle used for projection
+     * @method circleScope.setInversionCircle
+     * @param {float} radius
+     * @param {float} centerX
+     * @param {float} centerY
+     */
+    circleScope.setInversionCircle = function(radius, centerX, centerY) {
+        circleScope.inversionCircle.setRadiusCenterXY(radius, centerX, centerY);
+    };
+
+    /**
+     * use circle inversion as initial projection
+     * @method circleScope.circleInversionProjection
+     * @param {Vector2} v - the vector to map
+     */
+    circleScope.circleInversionProjection = function(v) {
+        circleScope.inversionCircle.invert(v);
+    };
 
     /**
      * map the position for using an input image,
@@ -94,6 +133,7 @@ circleScope = {};
     circleScope.map = function(position, furtherResults) {
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
+        circleScope.projection(position);
         dihedral.map(position);
         furtherResults.reflections += Dihedral.reflections;
         var i = circleScope.maxIterations;
@@ -319,6 +359,7 @@ circleScope = {};
         const sinBeta = Fast.sin(Math.PI / n);
         // elliptic
         if (angleSum > 1.000001) {
+            circleScope.geometry = "elliptic";
             const circle = circleScope.circleOutsideIn(1, -(cosAlpha * cosGamma1 + cosBeta) / sinGamma1, cosAlpha);
             circleScope.circle1 = circle;
             let worldradius = Math.sqrt(1 - circle.center.length2());
@@ -327,6 +368,7 @@ circleScope = {};
         }
         // euklidic
         else if (angleSum > 0.999999) {
+            circleScope.geometry = "euklidic";
             const big = 100000;
             const line = circleScope.lineLeftRight(6 - big * cosAlpha, big * sinAlpha, 6 + big * cosAlpha, -big * sinAlpha);
             circleScope.circle1 = line;
@@ -334,6 +376,7 @@ circleScope = {};
         }
         // hyperbolic
         else {
+            circleScope.geometry = "hyperbolic";
             const circle = circleScope.circleInsideOut(1, (cosAlpha * cosGamma1 + cosBeta) / sinGamma1, cosAlpha);
             circleScope.circle1 = circle;
             let worldradius2 = circle.center.length2() - 1;

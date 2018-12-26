@@ -15,9 +15,7 @@ function Dihedral() {
     this.cosAngle = 1;
     this.sinAngle = 0;
     this.maps = [];
-
     const dihedral = this;
-
 
     /**
      * check if a point is in the first sector between the mirror lines
@@ -45,8 +43,6 @@ function Dihedral() {
         furtherResults.reflections = Dihedral.reflections;
     };
 
-
-
     /**
      * do the mapping using simple mirrors and draw the trajectory
      * @method Dihedral#drawMap
@@ -59,7 +55,6 @@ function Dihedral() {
             Draw.arc(v, Dihedral.vector, Dihedral.pointZero);
         }
     };
-
 }
 
 
@@ -93,7 +88,6 @@ function Dihedral() {
         this.maps[2 * n] = rotation.create(0);
     };
 
-
     // mapping a vector
 
     /**
@@ -113,24 +107,39 @@ function Dihedral() {
         this.maps[i](p);
     };
 
-
     /**
      * maps a vector into the first sector using rotations and mirror image
      * sets Dihedral.reflections to the number of reflections
      * @method Dihedral#map
      * @param {Vector2} v - the vector of the point to map
      */
-
     Dihedral.prototype.map = function(p) {
         this.mapOfSector(this.getSectorIndex(p), p);
     };
 
 
+    /**
+     * get lower line of reflection
+     * @method Dihedral#getLowerLine
+     * @return Line - at polar angle zero 
+     */
+    Dihedral.prototype.getLowerLine = function() {
+        return new Line(0, 0, big, 0);
+    };
+
+    /**
+     * get upper line of reflection
+     * @method Dihedral#getUpperLine
+     * @return Line - at polar angle zero 
+     */
+    Dihedral.prototype.getUpperLine = function() {
+        return new Line(0, 0, big * Fast.cos(this.angle), big * Fast.sin(this.angle));
+    };
+
     function drawLine(angle) {
         Dihedral.vector.setPolar(big, angle);
         Draw.line(Dihedral.pointZero, Dihedral.vector);
     }
-
     /**
      * draw the mirror lines on outputimage
      * @method Dihedral#drawMirrors
@@ -151,7 +160,6 @@ function Dihedral() {
     };
 
     // creating symmetric elements
-
 
     /**
      * generate an array of symmetric copies of a circle

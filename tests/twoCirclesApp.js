@@ -25,6 +25,17 @@ function creation() {
         Make.updateNewMap();
     });
 
+
+    let setNButton = NumberButton.create("n");
+    setNButton.setRange(2, 10000);
+    setNButton.setValue(4);
+    setNButton.onChange = Make.updateNewMap;
+
+    let secondCircle = Range.create("secondCircle");
+    secondCircle.setRange(0.1, 1);
+    secondCircle.setValue(0.6);
+    secondCircle.onChange = Make.updateNewMap;
+
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
 
@@ -47,7 +58,37 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
-    Make.initializeMap = function() {};
+    var intersectionLine1, intersectionLine2;
+
+    Make.initializeMap = function() {
+        console.log("init");
+        let n = setNButton.getValue();
+        console.log(n);
+        const alpha = Math.PI / n;
+        const cosAlpha = Fast.cos(alpha);
+        const r1 = 10;
+        const r2 = r1 * secondCircle.getValue();
+        console.log(r2);
+        const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
+        multiCircles.reset();
+
+        const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, -3);
+        const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, -3);
+        const i1 = new Vector2();
+        const i2 = new Vector2();
+
+        circle1.intersectsCircle(circle2, i1, i2);
+
+
+        multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length() * 1.2, i1);
+
+        intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(circle1);
+        intersectionLine1.setLength(100);
+        intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(circle2);
+        intersectionLine2.setLength(100);
+
+
+    };
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
@@ -65,28 +106,7 @@ function creation() {
 
     multiCircles.setMapping();
 
-    // choose n interactively
-    const n = 5;
-    const alpha = Math.PI / n;
-    const cosAlpha = Fast.cos(alpha);
-    const r1 = 10;
-    const r2 = 7;
-    const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
 
-    const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, -1);
-    const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, -1);
-    const i1 = new Vector2();
-    const i2 = new Vector2();
-
-    circle1.intersectsCircle(circle2, i1, i2);
-
-
-    multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length() * 1.2, i1);
-
-    var intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(circle1);
-    intersectionLine1.setLength(100);
-    var intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(circle2);
-    intersectionLine2.setLength(100);
 }
 
 window.onload = function() {
