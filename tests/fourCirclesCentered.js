@@ -14,17 +14,15 @@ function creation() {
     Button.createGoToLocation("home", "home.html");
 
     let viewSelect = new Select("view");
-    viewSelect.addOption("direct", function() {
-        console.log("direct view");
-        circleScope.projection = circleScope.circleInversionProjection;
+    let numberOfCircles = 4;
+    viewSelect.addOption("four circles", function() {
+        numberOfCircles = 4;
         Make.updateNewMap();
     });
-    viewSelect.addOption("circle inversion", function() {
-        console.log("inverted view");
-        circleScope.projection = circleScope.doNothing;
+    viewSelect.addOption("three circles", function() {
+        numberOfCircles = 3;
         Make.updateNewMap();
     });
-    circleScope.projection = circleScope.circleInversionProjection;
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -44,6 +42,23 @@ function creation() {
 
     // show the sum of angles
     let sum = document.getElementById("sum");
+
+
+    //choosing the symmetries, and set initial values
+    let setK2Button = NumberButton.create("k2");
+    setK2Button.setRange(2, 10000);
+    setK2Button.setValue(3);
+    setK2Button.onChange = Make.updateNewMap;
+
+    let setM2Button = NumberButton.create("m2");
+    setM2Button.setRange(2, 10000);
+    setM2Button.setValue(3);
+    setM2Button.onChange = Make.updateNewMap;
+
+    let setN2Button = NumberButton.create("n2");
+    setN2Button.setRange(2, 10000);
+    setN2Button.setValue(3);
+    setN2Button.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -67,52 +82,37 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-15, 15, -15);
 
-    Make.map.makeColorCollection(2, 1, 2, 64);
+    Make.map.makeColorCollection(4, 1, 1, 64);
     Make.map.hueInversionColorSymmetry();
 
-    const worldRadius = 9.7;
-    const worldRadius2 = worldRadius * worldRadius;
 
-    const angle = Math.PI / 12;
-    const radius = 7;
-    const d = Math.hypot(radius, worldRadius);
-    circleScope.setInversionCircle(radius, d * Fast.cos(angle), d * Fast.sin(angle));
-
-    var circle1, circle2, circle3;
 
 
     Make.initializeMap = function() {
+        console.log("circles: " + numberOfCircles);
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
-        circleScope.triangleKaleidoscope(k, m, n);
-        circle1 = circleScope.inversionCircle.invertLine(circleScope.dihedral.getLowerLine());
-        circle2 = circleScope.inversionCircle.invertLine(circleScope.dihedral.getUpperLine());
-        if (circleScope.geometry === "euklidic") {
-            circle3 = circleScope.inversionCircle.invertLine(circleScope.circle1);
+        if (numberOfCircles === 3) {
+            circleScope.triangleKaleidoscope(k, m, n);
         } else {
-            circle3 = circleScope.inversionCircle.invertCircle(circleScope.circle1);
+            let k2 = setK2Button.getValue();
+            let m2 = setM2Button.getValue();
+            let n2 = setN2Button.getValue();
+            circleScope.triangleCentralCircle(k, m, n, k2, m2, n2);
         }
     };
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
-        Draw.setColor("black");
-        Draw.dashedLine(4, 6);
+        Draw.setColor("white");
         circleScope.draw();
-        Draw.solidLine();
-        circle1.draw();
-        circle2.draw();
-        circle3.draw();
-        Draw.setColor("red");
-        circleScope.inversionCircle.draw();
+
     };
 
     circleScope.setMapping();
-
-
 }
 
 window.onload = function() {

@@ -405,8 +405,10 @@ circleScope = {};
      * @param {integer} n1 - symmetry at "left" corner of basic triangle
      * @param {integer} k2 - symmetry of intersection of additional circle with circle side of triangle
      * @param {integer} m2 - symmetry of intersection of additional circle with "right" side of triangle
-     * @param {integer} n2 - symmetry of intersection of additional circle with "right" side of triangle
+     * @param {integer} n2 - symmetry of intersection of additional circle with "left" side of triangle
      */
+    const data = new Vector2();
+
     circleScope.triangleCentralCircle = function(k1, m1, n1, k2, m2, n2) {
         circleScope.setDihedral(k1);
         const angleSum = 1.0 / k1 + 1.0 / m1 + 1.0 / n1;
@@ -457,8 +459,8 @@ circleScope = {};
             const a = u * u + v * v - 1;
             const b = -2 * (center1.x * u + center1.y * v - r1 * cosGamma2);
             const c = center1.length2() - r1 * r1;
-            if (Fast.quadraticEquation(a, b, c)) {
-                const r2 = Fast.xHigh;
+            if (Fast.quadraticEquation(a, b, c, data)) {
+                const r2 = data.y;
                 cx = r2 * u;
                 cy = r2 * v;
                 const circle2 = circleScope.circleInsideOut(r2, cx, cy);
@@ -493,8 +495,8 @@ circleScope = {};
             const a = u * u + v * v - 1;
             const b = -2 * (center1.x * u + center1.y * v + r1 * cosGamma2);
             const c = center1.length2() - r1 * r1;
-            if (Fast.quadraticEquation(a, b, c)) {
-                const r2 = Fast.xLow;
+            if (Fast.quadraticEquation(a, b, c, data)) {
+                const r2 = data.x;
                 cx = r2 * u;
                 cy = r2 * v;
                 const circle2 = circleScope.circleInsideOut(r2, cx, cy);
