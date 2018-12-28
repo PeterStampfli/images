@@ -148,7 +148,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     };
 
 
-    VectorMap.iterationGamma = 0.5;
+    VectorMap.iterationGamma = 0.75;
     VectorMap.iterationReduction = 0.2;
 
     /**

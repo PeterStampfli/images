@@ -13,16 +13,7 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-    let viewSelect = new Select("view");
-    let numberOfCircles = 4;
-    viewSelect.addOption("four circles", function() {
-        numberOfCircles = 4;
-        Make.updateNewMap();
-    });
-    viewSelect.addOption("three circles", function() {
-        numberOfCircles = 3;
-        Make.updateNewMap();
-    });
+
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -40,25 +31,21 @@ function creation() {
     setNButton.setValue(3);
     setNButton.onChange = Make.updateNewMap;
 
+    let setPButton = NumberButton.create("p");
+    setPButton.setRange(2, 10000);
+    setPButton.setValue(3);
+    setPButton.onChange = Make.updateNewMap;
+
     // show the sum of angles
     let sum = document.getElementById("sum");
 
 
-    //choosing the symmetries, and set initial values
-    let setK2Button = NumberButton.create("k2");
-    setK2Button.setRange(2, 10000);
-    setK2Button.setValue(3);
-    setK2Button.onChange = Make.updateNewMap;
+    let circleSize = Range.create("circleSize");
+    circleSize.setRange(0.1, 1);
+    circleSize.setValue(0.6);
+    circleSize.onChange = Make.updateNewMap;
 
-    let setM2Button = NumberButton.create("m2");
-    setM2Button.setRange(2, 10000);
-    setM2Button.setValue(4);
-    setM2Button.onChange = Make.updateNewMap;
 
-    let setN2Button = NumberButton.create("n2");
-    setN2Button.setRange(2, 10000);
-    setN2Button.setValue(3);
-    setN2Button.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -95,23 +82,14 @@ function creation() {
 
 
     Make.initializeMap = function() {
-        console.log("circles: " + numberOfCircles);
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
-        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
-        if (numberOfCircles === 3) {
-            circleScope.triangleKaleidoscope(k, m, n);
-        } else {
-            let k2 = setK2Button.getValue();
-            let m2 = setM2Button.getValue();
-            let n2 = setN2Button.getValue();
-            circleScope.triangleCentralCircle(k, m, n, k2, m2, n2);
-            /*  const circle=circleScope.circle1;
-              circleScope.circle1=circleScope.circle2;
-              circleScope.circle2=circle;
-              */
-        }
+        let p = setPButton.getValue();
+        sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n + 1 / p)) + "<sup>o</sup>";
+        const theCircleSize = circleSize.getValue();
+        console.log(theCircleSize);
+        circleScope.hyperbolicQuadrangle(k, m, n, p, theCircleSize);
     };
 
     Make.updateOutputImage = function() {
