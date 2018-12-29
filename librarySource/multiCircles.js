@@ -93,7 +93,6 @@ multiCircles = {};
      */
     multiCircles.addLine = function(ax, ay, bx, by) {
         const line = new Line(ax, ay, bx, by);
-        line.map = doNothing;
         multiCircles.elements.push(line);
         return line;
     };

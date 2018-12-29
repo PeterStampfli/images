@@ -533,19 +533,19 @@ circleScope = {};
     circleScope.hyperbolicQuadrangle = function(k, m, n, p, r) {
         circleScope.setDihedral(k); // cosGamma1, sinGamma1
         // the first circle
-        const cosAlpha = Fast.cos(Math.PI / m);
-        const sinAlpha = Fast.sin(Math.PI / m);
-        r = Fast.clamp(0.05, r, 0.95); // beware of singularity               
+        const cosAlpha = Math.cos(Math.PI / m);
+        const sinAlpha = Math.sin(Math.PI / m);
+        r = Math.clamp(0.05, r, 0.95); // beware of singularity               
         const r1 = 0.5 * worldradius * (1 / r - r);
         const x1 = Math.hypot(worldradius, r1 * sinAlpha);
         const y1 = r1 * cosAlpha;
         circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
         // the second circle
         circleScope.circle2 = circleScope.circleZero();
-        const cosBeta = Fast.cos(Math.PI / n);
-        const sinBeta = Fast.sin(Math.PI / n);
-        const cosDelta = Fast.cos(Math.PI / p);
-        const sinDelta = Fast.sin(Math.PI / p);
+        const cosBeta = Math.cos(Math.PI / n);
+        const sinBeta = Math.sin(Math.PI / n);
+        const cosDelta = Math.cos(Math.PI / p);
+        const sinDelta = Math.sin(Math.PI / p);
         if (k > 2) {
             const tanGamma1 = sinGamma1 / cosGamma1;
             const f0 = 1 / (x1 + y1 * tanGamma1);
