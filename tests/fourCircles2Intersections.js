@@ -37,7 +37,7 @@ function creation() {
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
-    setNButton.setValue(3);
+    setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
     // show the sum of angles
@@ -45,10 +45,7 @@ function creation() {
 
 
     //choosing the symmetries, and set initial values
-    let setK2Button = NumberButton.create("k2");
-    setK2Button.setRange(2, 10000);
-    setK2Button.setValue(3);
-    setK2Button.onChange = Make.updateNewMap;
+
 
     let setM2Button = NumberButton.create("m2");
     setM2Button.setRange(2, 10000);
@@ -59,6 +56,11 @@ function creation() {
     setN2Button.setRange(2, 10000);
     setN2Button.setValue(3);
     setN2Button.onChange = Make.updateNewMap;
+
+    let secondCircle = Range.create("secondCircle");
+    secondCircle.setRange(0.1, 1);
+    secondCircle.setValue(0.6);
+    secondCircle.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -103,10 +105,11 @@ function creation() {
         if (numberOfCircles === 3) {
             circleScope.triangleKaleidoscope(k, m, n);
         } else {
-            let k2 = setK2Button.getValue();
+            let k2 = 10000;
             let m2 = setM2Button.getValue();
             let n2 = setN2Button.getValue();
-            circleScope.triangleCentralCircle(k, m, n, k2, m2, n2);
+            let factor = secondCircle.getValue();
+            circleScope.triangleCentralCircleReduced(k, m, n, factor, m2, n2);
             /*  const circle=circleScope.circle1;
               circleScope.circle1=circleScope.circle2;
               circleScope.circle2=circle;
