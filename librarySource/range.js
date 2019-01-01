@@ -176,7 +176,6 @@ function Range(idText, idRange) {
      * @param {integer} number - the number value to show in the button
      */
     Range.prototype.setValue = function(number) {
-        console.log(number);
         number = this.quantize(number);
         this.textElement.value = number.toString();
         this.rangeElement.value = number.toString();
