@@ -116,7 +116,7 @@ function creation() {
 
         const h2 = rho * rho + 1 + 2 * rho * cosBeta;
         const f0 = x1 - xi * cosGamma;
-        const f1 = sinGamma * cosDelta;
+        const f1 = -sinGamma * cosDelta;
         const g0 = -xi * sinGamma;
         const g1 = rho * cosAlpha + cosGamma * cosDelta;
 
@@ -128,11 +128,21 @@ function creation() {
         console.log(c);
         if (Fast.quadraticEquation(a, b, c, solutions)) {
             console.log("solution");
+            const r2 = solutions.x;
+            const r1 = rho * r2;
+            const y1 = r1 * cosAlpha;
+            const x2 = xi * cosGamma + r2 * cosDelta * sinGamma;
+            const y2 = xi * sinGamma - r2 * cosDelta * cosGamma;
+
+            circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
+            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+
         } else {
             console.log("****** no solution");
         }
 
     };
+
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
