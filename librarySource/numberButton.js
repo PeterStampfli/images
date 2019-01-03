@@ -2,17 +2,21 @@
  * a button to input numbers, needs an input element
  * <input type="text" class="numbers" id="outputWidthChooser" maxlength="4" />
  * 
+ * default is for integer numbers, can be changed to float with given step size (rounding)
+ * default range is 0 to 1000000000
+ * 
  * @constructor NumberButton - better use NumberButton.create
  * @param {String} idName name (id) of an html (text) input element, attribute type will be set to text
- * @param {String} idPlus - optional, id of an HTML button element, for plus button
- * @param {String} idMinus - optional, id of an HTML button element, for minus button
+ * @param {String} idPlus - optional, id of an HTML button element, for plus button, increases by 1
+ * @param {String} idMinus - optional, id of an HTML button element, for minus button, decreases by 1
  */
 
 /* jshint esversion:6 */
 
 function NumberButton(idName, idPlus, idMinus) {
     "use strict";
-
+    this.isInteger = true;
+    this.step = 1;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
     this.hover = false;
@@ -85,6 +89,19 @@ function NumberButton(idName, idPlus, idMinus) {
     NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
+     * set numbers to float
+     * @method NumberButton#setFloat
+     * @param {float} step - the step size (rounding), default is 0.0001
+     */
+    NumberButton.prototype.setFloat = function(step) {
+        if (arguments.length < 1) {
+            step = 0.0001;
+        }
+        this.isInteger = false;
+        this.step = step;
+    };
+
+    /**
      * set the allowed range of numbers, correct value if out of range
      * @method NumberButton#setRange
      * @param {integer} minValue
@@ -97,13 +114,29 @@ function NumberButton(idName, idPlus, idMinus) {
         this.setValue(Fast.clamp(this.minValue, this.getValue(), this.maxValue));
     };
 
+
+    /**
+     * quantize a number according to step
+     * @method NumberButton#quantize
+     * @param {float} x
+     * @return float, quantized x
+     */
+    NumberButton.prototype.quantize = function(x) {
+        return this.step * Math.round(x / this.step);
+    };
+
+
     /**
      * read the integer value of the text of a button of type="text"
      * @method NumberButton#getValue
      * @returns {integer} value resulting from parsing the button text
      */
     NumberButton.prototype.getValue = function() {
-        return parseInt(this.element.value, 10);
+        if (this.isInteger) {
+            return parseInt(this.element.value, 10);
+        } else {
+            return this.quantize(parseFloat(this.element.value));
+        }
     };
 
     /**
@@ -114,6 +147,11 @@ function NumberButton(idName, idPlus, idMinus) {
      * @param {integer} number - the number value to show in the button
      */
     NumberButton.prototype.setValue = function(number) {
+        if (!this.isInteger) {
+            number = this.quantize(number);
+        } else {
+            number = Math.floor(number);
+        }
         this.element.value = number.toString();
         this.lastValue = number;
     };

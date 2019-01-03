@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>numberButtontest</title>
+</head>
+<body>
+
+<p> number <br>
+<span id="a"></span>
+<span id="2"></span>
+<span id="3"></span>
+
+</p>
+
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/dom.js"></script>
+
+<script src="../librarySource/numberButton.js"></script>
+
+
+<script type="text/javascript">
+    
+    nb=NumberButton.create("a","2","3");
+    nb.setFloat(0.01);
+    nb.setValue(7.5);
+    nb.setRange(-10,10);
+    nb.onChange=function(x){
+    console.log(x);
+    }
+    e="-2.3";
+   console.log(parseFloat(e));
+ 
+</script>
+
+</html>

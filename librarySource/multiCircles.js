@@ -259,7 +259,7 @@ multiCircles = {};
             Make.updateOutputImage();
         };
         Make.outputImage.move = function(mouseEvents) {
-            let nullRadius = Make.outputImage.scale * Layout.nullRadius;
+            let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
             Make.updateOutputImage();
             mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
             Make.outputImage.pixelToSpaceCoordinates(mousePosition);
@@ -303,7 +303,7 @@ multiCircles = {};
         }
         // draw the endpoints, scaled sizes
         Draw.setColor(pointColor);
-        let nullRadius = Make.outputImage.scale * Layout.nullRadius;
+        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
         let sizesLength = sizes.length;
         let endSize = sizes[sizesLength - 1];
         if (endSize > 0) {

@@ -23,7 +23,7 @@ function creation() {
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(2);
+    setMButton.setValue(3);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.create("n");
@@ -137,8 +137,34 @@ function creation() {
             circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
             circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
 
+            const m12 = (x2 - x1) / (y2 - y1);
+            const c12 = x1 - m12 * y1;
+            const m2 = -sinGamma / cosGamma;
+            const c2 = x2 - m2 * y2;
+            const inversionRadius2 = 0.25 * ((x1 + x2) * (x1 + x2) + (y1 + y2) * (y1 + y2));
+            circleScope.finishMap = function(position, furtherResults) {
+                furtherResults.colorSector = 1;
+                if (position.y < y1) {
+                    if (position.x < x1) {
+                        furtherResults.colorSector = 0;
+                    }
+                } else if (position.y < y2) {
+                    if (position.x < c12 + m12 * position.y) {
+                        furtherResults.colorSector = 0;
+                    }
+                } else {
+                    if (position.x < c2 + m2 * position.y) {
+                        furtherResults.colorSector = 0;
+                    }
+                }
+                if (furtherResults.colorSector === 1) {
+                    position.scale(inversionRadius2 / position.length2());
+                }
+            };
+
         } else {
             console.log("****** no solution");
+            circleScope.finishMap = function(position, furtherResults) {};
         }
 
     };
