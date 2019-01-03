@@ -154,6 +154,7 @@ function creation() {
     let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
     hyperbolicProjectionSelect.addOption("Poincaré disc", projection.hyperbolicPoincareDisc);
     hyperbolicProjectionSelect.addOption("Beltrami-Klein disc", projection.hyperbolicKleinDisc);
+    hyperbolicProjectionSelect.addOption("inverted Klein disc", projection.hyperbolicInvertedKleinDisc);
     hyperbolicProjectionSelect.addOption("Poincaré plane", projection.hyperbolicPoincarePlane);
     hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
     hyperbolicProjectionSelect.addOption("Gans model", projection.hyperbolicGans);

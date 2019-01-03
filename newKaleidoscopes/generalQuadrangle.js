@@ -13,8 +13,6 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-
-
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);

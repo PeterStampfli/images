@@ -295,6 +295,23 @@ projection = {};
         Make.updateNewMap();
     };
 
+    projection.hyperbolicInvertedKleinDisc = function() {
+        projection.hyperbolicMap = function(position) {
+            const scale = hyperbolicWorldradius2 / position.length2();
+            if (scale <= 1) {
+                position.scale(scale);
+                kleinPoincare(position); // sonst inverted poincare disc
+                return 1;
+            } else {
+                //       kleinPoincare(position);                  // sonst inverted poincare disc
+
+                return 1;
+            }
+        };
+        projection.hyperbolicDiscRadius = -1;
+        Make.updateNewMap();
+    };
+
     // cayley transform w=(z-i)/(z+i)
     function cayley(position) {
         let r2 = position.x * position.x + position.y * position.y;
