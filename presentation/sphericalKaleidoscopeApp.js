@@ -92,11 +92,13 @@ function creation() {
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
+    setMButton.setFloat(0.01);
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.create("n");
+    setNButton.setFloat(0.01);
     setNButton.setRange(2, 10000);
     setNButton.setValue(3);
     setNButton.onChange = Make.updateNewMap;
@@ -154,7 +156,6 @@ function creation() {
     let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
     hyperbolicProjectionSelect.addOption("Poincaré disc", projection.hyperbolicPoincareDisc);
     hyperbolicProjectionSelect.addOption("Beltrami-Klein disc", projection.hyperbolicKleinDisc);
-    hyperbolicProjectionSelect.addOption("inverted Klein disc", projection.hyperbolicInvertedKleinDisc);
     hyperbolicProjectionSelect.addOption("Poincaré plane", projection.hyperbolicPoincarePlane);
     hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
     hyperbolicProjectionSelect.addOption("Gans model", projection.hyperbolicGans);
