@@ -17,7 +17,7 @@ function creation() {
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
-    setKButton.setRange(2, 10000);
+    setKButton.setRange(3, 10000);
     setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
@@ -41,7 +41,7 @@ function creation() {
 
 
     let circleSize = Range.create("circleSize");
-    circleSize.setRange(0.1, 1);
+    circleSize.setRange(0.0, 1);
     circleSize.setValue(0.6);
     circleSize.onChange = Make.updateNewMap;
 
@@ -69,7 +69,7 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-15, 15, -15);
 
-    Make.map.makeColorCollection(4, 1, 1, 64);
+    Make.map.makeColorCollection(2, 1, 2.5, 64);
     Make.map.hueInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
