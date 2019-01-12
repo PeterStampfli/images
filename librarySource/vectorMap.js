@@ -150,6 +150,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     VectorMap.iterationGamma = 0.75;
     VectorMap.iterationReduction = 0.2;
+    VectorMap.iterationThreshold = 2;
 
     /**
      * make a color table for showing convergence
@@ -162,7 +163,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const colors = new Uint32Array(256);
         maxIterations *= VectorMap.iterationReduction;
         for (var i = 0; i < 255; i++) {
-            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow(i / maxIterations, VectorMap.iterationGamma)), 255);
+            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow((i - VectorMap.iterationThreshold) / maxIterations, VectorMap.iterationGamma)), 255);
             color.red = bright;
             color.blue = bright;
             color.green = bright;
@@ -177,6 +178,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
+     * create iteration colors
      * @method VectorMap#make
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */

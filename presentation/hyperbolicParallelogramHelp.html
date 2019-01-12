@@ -15,42 +15,68 @@
 <div class="vSpace"> </div>
 <div class="vSpace"> </div>
 <h1>
-Help for the Kaleidoscope application
+Help for the "hyperbolic Parallelogram" application
 </h1>
 
 <div class="vSpace"> </div>
 
 
 <p>
-This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.
+This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.<br>
+It makes tilings of hyperbolic space using a parallelogram and its morror image.
 </p>
 
 
 <div class="vSpace"> </div>
 
     
-    <h1>Output image</h1>
+<h1>Output image</h1>
 <p>
-At the left you see the output image. It first shows only its structure:
+At the left you see the output image. It first shows only its structure. The white lines show the generating lines and circles. They are borders of the basic parallelogram. Repeated mirror images at the straight lines and inversions in the circles generate a tiling.<br>
+The yellowish disc is a Poincaré disc representation of hyperbolic space with a tiling:
 </p>
+<p>
     <table>
             <tr>
-            <td>yellow</td> <td>-</td> <td>The basic triangle</td>
+            <td>bright yellow</td> <td>-</td> <td>The basic parallelogram</td>
             </tr>
             <tr>
-            <td>green</td><td>-</td> <td>Mirror images of the basic triangle or parts of it</td>
+            <td>brown</td><td>-</td> <td>Mirror images of the basic parallelogram</td>
             </tr>
             <tr>
-            <td>brown</td><td>-</td> <td>Copies of the basic triangle or parts of it</td>
+            <td>darkened yellow</td><td>-</td> <td>Translated copies of the basic parallelogram</td>
             </tr>
     </table>
 </p>
 <p>
-    <strong>Use the control panel at the right side to open an input image!</strong>
+Outside you see an inverted Poincaré disc:
+<p>
+    <table>
+            <tr>
+            <td>bright blue</td> <td>-</td> <td>The basic parallelogram, one corner lies at infinity.</td>
+            </tr>
+            <tr>
+            <td>dark blue</td><td>-</td> <td>Mirror images of the basic parallelogram</td>
+            </tr>
+            <tr>
+            <td>blue</td><td>-</td> <td>Translated copies of the basic parallelogram</td>
+            </tr>
+    </table>
+</p>
+
+</p>
+
+<p>
+    <strong>Use the control panel at the right side to open an input image!</strong><br>
+    It decorates the tiling of the yellow Poincaré disc. The outside is decorated with the same image but using inverted hues.
 </p>
 <p>
 Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
 </p>
+
+
+
+
 <div class="vSpace"> </div>
 
 <h1>Control panel</h1>
@@ -61,6 +87,16 @@ In the lower part of the right hand side you find a control panel.
 Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
 </p>
 <p>
+<strong> You can choose what you will see:</strong> <br>
+"structure" shows simply the tiling.<br>
+"image" maps an input image like a skin on the tiling.<br>
+"convergence" shows the points that need a lot of inversions in the circles to get mapped into the basic parallelogram. More inversions give a lighter color. The number of inversions diverges at the boundary of the Poincaré disc.
+</p>
+
+<p>
+<strong> You can choose if you want to show the lines and circles that generate the image.</strong>
+</p>
+<p>
 <strong> You can choose the rotational symmetries:</strong>
 </p>
 <p>
@@ -69,39 +105,20 @@ Use it to open an input image or to switch between showing the structure of the 
             <td>center</td> <td>-</td> <td>Rotational symmetry at the <em>center</em> of the image.</td>
             </tr>
             <tr>
-            <td>left</td><td>-</td> <td>Symmetry at the <em>left</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            <td>upper</td><td>-</td> <td>Symmetry at the intersection between the upper circle and straight line</td>
             </tr>
             <tr>
-            <td>right</td><td>-</td> <td>Symmetry at the <em>right</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            <td>middle</td><td>-</td> <td>Symmetry at the intersection between the two circles</td>
+            </tr><tr>
+            <td>lower</td><td>-</td> <td>Symmetry at the intersection between the lower circle and straight line</td>
             </tr>
     </table>
 </p>
 
 <p>
-The result depends on the sum of angles of the basic triangle:<br>
-An image of a decrated hemisphere if the sum is more than 180<sup>0</sup>, an Euclidean image if it is exactly 180<sup>0</sup> and a hyperbolic image if it is less than 180<sup>0</sup>.
+ <strong>You can choose the size of the upper circle.</strong> Using a value of 1 gives maximum size such that it touches the lower line and the parallelogram becomes a triangle. Using a value of 0 makes that the upper circle vanishes and we get a triangle too.
 </p>
 
-<p>
-<strong>You can choose the tiling type:</strong>
-</p>
-<p>
-    <table>
-            <tr>
-            <td>regular</td> <td>-</td> <td>The image is a decoration of a regular tiling by a (regular) polygon.</td>
-            </tr>
-            <tr>
-            <td>uniform truncated&nbsp1</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by octagons and squares.</td>
-            </tr>
-            <tr>
-            <td>rectified &nbsp2</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by hexagons and equilateral triangles.</td>
-            </tr>
-    </table>
-</p>
-
-<p>
-<strong>You can change the view.</strong> The kaleidoscopic image does not really change, you simply see different projections.
-</p>
 <p>
  <strong>You can save the output image</strong> as a png. You will find it in the download folder as "kaleidoscope.png"
 </p>

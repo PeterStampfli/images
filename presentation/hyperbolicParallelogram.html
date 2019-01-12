@@ -5,7 +5,7 @@
 
 
 <head>
-    <title>hyperbolicQuadrangle</title>
+    <title>hyperbolicParallelogram</title>
 </head>
 
 <body>
@@ -18,7 +18,7 @@
         <button id=home>home</button>
     </p>
     
-        <p>
+    <p>
         <strong>Input image:</strong>
         <button id="openInputImage">open</button>
         <span id="inputImageName"></span>
@@ -29,10 +29,12 @@
         <select id="show">
         </select>
     </p>
-       
-          
-    
 
+    <p>    
+        <strong>Generating Elements:</strong>
+        <select id="generators">
+        </select>
+    </p>
          
     <p>
         <strong>Choose rotational symmetries:</strong> <br>
@@ -42,31 +44,27 @@
             <td>center</td> <td><span id=k></span>
             </tr>
             <tr>
-            <td>left</td> <td><span id=m></span>
+            <td>upper</td> <td><span id=m></span>
             </tr>
             <tr>
             <td>middle</td>
             <td><span id=n></span>
             </tr>
             <tr>
-            <td>right</td>
+            <td>lower</td>
             <td><span id=p></span>
             </tr>
         </table>
     </p>
            
-            
-    
-           
     <p>
     sum of angles = <span id="sum"></span> 
     </p>    
     
-      <p>
-    <strong>Size of upper circle: </strong> <br>
-    <span id="circleSize"></span>
+    <p>
+        <strong>Size of upper circle: </strong> <br>
+        <span id="circleSize"></span>
     </p>
-
         
     <p>
         <strong>Output image:</strong>
@@ -78,7 +76,7 @@
         <input id="size"></input>
     </p>
 
-      <p>
+    <p>
         <strong>Quality:</strong>
         <select id="quality">
         </select>
@@ -98,12 +96,9 @@
 <script src="../librarySource/vectorMap.js"></script>
 <script src="../librarySource/mouseEvents.js"></script>
 <script src="../librarySource/touchEvents.js"></script>
-<script src="../librarySource/log.js"></script>
 <script src="../librarySource/circle.js"></script>
 <script src="../librarySource/point.js"></script>
 <script src="../librarySource/line.js"></script>
-<script src="../librarySource/polygon.js"></script>
-<script src="../librarySource/polyPoint.js"></script>
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
 <script src="../librarySource/switchButton.js"></script>
@@ -115,31 +110,14 @@
 <script src="../librarySource/controlImage.js"></script>
 <script src="../librarySource/arrowController.js"></script>
 <script src="../librarySource/dihedral.js"></script>
-<script src="../librarySource/bins.js"></script>
-<script src="../librarySource/imageTiles.js"></script>
-<script src="../librarySource/iterateTiling.js"></script>
-
 
 <script src="../librarySource/make.js"></script>
 <script src="../librarySource/dom.js"></script>
 <script src="../librarySource/draw.js"></script>
 <script src="../librarySource/bigDiv.js"></script>
-
-<script src="../librarySource/ammannBeenker.js"></script>
-<script src="../librarySource/small12.js"></script>
-<script src="../librarySource/stampfli.js"></script>
-<script src="../librarySource/octagon.js"></script>
-<script src="../librarySource/penrose.js"></script>
-<script src="../librarySource/penroseRhombs.js"></script>
-<script src="../librarySource/kite8.js"></script>
-<script src="../librarySource/triangles12.js"></script>
-<script src="../librarySource/stressedSquares.js"></script>
 <script src="../librarySource/circleScope.js"></script>
-<script src="../librarySource/multiCircles.js"></script>
-<script src="../librarySource/apollinius.js"></script>
 <script src="../librarySource/basicUI.js"></script>
 
-<script src="hyperbolicQuadrangle.js"></script>
-
+<script src="hyperbolicParallelogram.js"></script>
 
 </html>

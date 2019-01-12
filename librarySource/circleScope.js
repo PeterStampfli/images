@@ -681,6 +681,7 @@ circleScope = {};
             let l2 = position.length2();
             if (l2 > worldradius2) {
                 furtherResults.colorSector = 1;
+                position.scale(worldradius2 / l2);
             } else {
                 furtherResults.colorSector = 0;
             }
