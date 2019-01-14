@@ -147,9 +147,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
     };
 
-
+    // luminosity starts at threshold and increases up to saturation
     VectorMap.iterationGamma = 0.75;
-    VectorMap.iterationReduction = 0.2;
+    VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 2;
 
     /**
@@ -158,12 +158,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#createIterationsColors
      * @param {integer} maxIterations
      */
-    VectorMap.prototype.createIterationsColors = function(maxIterations) {
+    VectorMap.prototype.createIterationsColors = function() {
         const color = new Color();
         const colors = new Uint32Array(256);
-        maxIterations *= VectorMap.iterationReduction;
         for (var i = 0; i < 255; i++) {
-            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow((i - VectorMap.iterationThreshold) / maxIterations, VectorMap.iterationGamma)), 255);
+            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow((i - VectorMap.iterationThreshold) / VectorMap.iterationSaturation, VectorMap.iterationGamma)), 255);
             color.red = bright;
             color.blue = bright;
             color.green = bright;
@@ -218,7 +217,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         let x = 0;
         let y = 0;
-        let maxIterations = 0;
         var i, j;
         for (i = 0; i < 256; i++) {
             iterationsHistogram[i] = 0;
@@ -250,7 +248,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                         furtherResults.iterations = Math.min(255, furtherResults.iterations);
                         iterationsArray[index] = furtherResults.iterations;
                         iterationsHistogram[furtherResults.iterations]++;
-                        maxIterations = Math.max(maxIterations, furtherResults.iterations);
                         if (furtherResults.lyapunov < 0) {
                             alphaArray[index] = 0;
                         }
@@ -265,7 +262,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     furtherResults.iterations = Math.min(255, furtherResults.iterations);
                     iterationsArray[index] = furtherResults.iterations;
                     iterationsHistogram[furtherResults.iterations]++;
-                    maxIterations = Math.max(maxIterations, furtherResults.iterations);
                     if (furtherResults.lyapunov >= -0.001) {
                         alphaArray[index] = 255;
                     } else {
@@ -279,8 +275,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             }
             y += scale;
         }
-        maxIterations = Math.min(255, maxIterations);
-        this.createIterationsColors(maxIterations);
+        this.createIterationsColors();
     };
 
     /**

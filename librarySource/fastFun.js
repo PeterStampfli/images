@@ -421,7 +421,7 @@ var Fast = {};
      * only for real solutions
      * solutions are in Fast.xLow and Fast.xHigh
      * @method Fast.quadraticEquation
-     * @param {float} a
+     * @param {float} a - has to be diffferent from zero, check before !!!
      * @param {float} b
      * @param {float} c
      * @param {Vector2} data - x and y fields are the lower and higher solutions, data.x < data.y

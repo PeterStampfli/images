@@ -629,64 +629,7 @@ circleScope = {};
     const worldradius2 = worldradius * worldradius;
     const solutions = new Vector2();
 
-    /**
-     * generate a hyperbolic quadrangle
-     * at least one of k,m,n,or p has to be larger than 2 
-     * @method circleScope.hyperbolicQuadrangle
-     * @param {integer} k - symmetry at center
-     * @param {integer} m - symmetry at "right" corner
-     * @param {integer} n - symmetry at "middle" corner
-     * @param {integer} p - symmetry at left corner
-     * @param {float} r - 0...1, determine point of circle at the right, fractional distance from center
-     */
-    circleScope.hyperbolicQuadrangle = function(k, m, n, p, r) {
-        circleScope.setDihedral(k); // cosGamma1, sinGamma1
-        const cosAlpha = Math.cos(Math.PI / m);
-        const sinAlpha = Math.sin(Math.PI / m);
-        const cosBeta = Math.cos(Math.PI / n);
-        const sinBeta = Math.sin(Math.PI / n);
-        const cosDelta = Math.cos(Math.PI / p);
-        const sinDelta = Math.sin(Math.PI / p);
-        // the first circle
-        let x1 = 5; // trial value
-        let rMax = x1 * sinGamma1 / (1 + cosAlpha * cosGamma1);
-        let r1 = r * rMax;
-        let y1 = r1 * cosAlpha;
-        // calculate worldradius and adjust to desired value
-        const w2 = x1 * x1 + y1 * y1 - r1 * r1;
-        const scale = Math.sqrt(worldradius2 / w2);
-        x1 *= scale;
-        y1 *= scale;
-        r1 *= scale;
-        circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
-        // the second circle
-        circleScope.circle2 = circleScope.circleZero();
-        const tanGamma1 = sinGamma1 / cosGamma1;
-        const f0 = 1 / (x1 + y1 * tanGamma1);
-        const f1 = f0 * (y1 * cosDelta / cosGamma1 - r1 * cosBeta);
-        const g0 = f0 * tanGamma1;
-        const g1 = f1 * tanGamma1 - cosDelta / cosGamma1;
-        const a = f1 * f1 + g1 * g1 - 1;
-        const b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
-        const c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            const r2 = solutions.x;
-            const x2 = f0 * worldradius2 + f1 * r2;
-            const y2 = g0 * worldradius2 + g1 * r2;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-        } else {
-            console.log("**** no solution for second circle");
-        }
-        circleScope.finishMap = function(position, furtherResults) {
-            let l2 = position.length2();
-            if (l2 > worldradius2) {
-                furtherResults.colorSector = 1;
-                position.scale(worldradius2 / l2);
-            } else {
-                furtherResults.colorSector = 0;
-            }
-        };
-    };
+
 
 
 }());
