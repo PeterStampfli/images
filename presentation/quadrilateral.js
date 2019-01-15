@@ -13,25 +13,6 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-    let geometry = new Select("geometry");
-    let hyperbolic = true;
-
-    geometry.addOption("hyperbolic",
-        function() {
-            if (!hyperbolic) {
-                hyperbolic = true;
-                Make.updateNewMap();
-            }
-        });
-
-    geometry.addOption("fractal",
-        function() {
-            if (hyperbolic) {
-                hyperbolic = false;
-                Make.updateNewMap();
-            }
-        });
-
     let generators = new Select("generators");
     let showGenerators = true;
 
@@ -85,6 +66,7 @@ function creation() {
 
     let circlePosition = Range.create("circlePosition");
     circlePosition.setRange(0.0, 1);
+    circlePosition.setValue(0.0);
     circlePosition.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     
@@ -107,7 +89,6 @@ function creation() {
     const solutions = new Vector2();
 
     Make.initializeMap = function() {
-        console.log("hyperbolic " + hyperbolic);
 
         let k = setKButton.getValue();
         let m = setMButton.getValue();
@@ -122,6 +103,7 @@ function creation() {
         const sinBeta = Math.sin(Math.PI / n);
         const cosGamma = Math.cos(Math.PI / k);
         const sinGamma = Math.sin(Math.PI / k);
+        const tanGamma = sinGamma / cosGamma;
         const cosDelta = Math.cos(Math.PI / p);
         const sinDelta = Math.sin(Math.PI / p);
         // the first circle, its size relative to maximum value
@@ -138,19 +120,22 @@ function creation() {
         r1 *= scale;
         circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
         // the second circle and finish map depending on geometry
+        var r2, x2, y2;
+        var a, b, c;
+        var f, g, f0, f1, g0, g1;
+        var xiLow, xiHigh, xiHyperbolic;
 
 
         circleScope.circle2 = circleScope.circleZero();
 
 
-        // limits for position
+        // limits for position (fractal case)
 
-        const f = sinGamma / (1 + cosGamma * cosDelta);
-        const g = cosGamma + f * sinGamma * cosDelta;
-        const a = g * g;
-        const b = -2 * (g * x1 + f * (y1 + r1 * cosBeta));
-        const c = worldradius2;
-        var xiLow, xiHigh;
+        f = sinGamma / (1 + cosGamma * cosDelta);
+        g = cosGamma + f * sinGamma * cosDelta;
+        a = g * g;
+        b = -2 * (g * x1 + f * (y1 + r1 * cosBeta));
+        c = worldradius2;
         if (Fast.quadraticEquation(a, b, c, solutions)) {
             xiLow = solutions.x;
             xiHigh = solutions.y;
@@ -160,56 +145,50 @@ function creation() {
             xiLow = 1;
             xiHigh = 2;
         }
+        // position in hyperbolic case
 
-        if (hyperbolic) {
-            const tanGamma = sinGamma / cosGamma;
-            const f0 = 1 / (x1 + y1 * tanGamma);
-            console.log(f0);
-            const f1 = f0 * (y1 * cosDelta / cosGamma - r1 * cosBeta);
-            const g0 = f0 * tanGamma;
-            const g1 = f1 * tanGamma - cosDelta / cosGamma;
-            const a = f1 * f1 + g1 * g1 - 1;
-            const b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
-            const c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
-            var r2, x2, y2;
-            if (Math.abs(a) < 0.001) {
-                console.log("azero");
-                r2 = -c / b;
-                x2 = f0 * worldradius2 + f1 * r2;
-                y2 = g0 * worldradius2 + g1 * r2;
-                circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-                solutions.log("hap radius");
-            } else if (Fast.quadraticEquation(a, b, c, solutions)) {
-                r2 = solutions.x;
-                x2 = f0 * worldradius2 + f1 * r2;
-                y2 = g0 * worldradius2 + g1 * r2;
-                circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-                solutions.log("hap radius");
+        f0 = 1 / (x1 + y1 * tanGamma);
+        f1 = f0 * (y1 * cosDelta / cosGamma - r1 * cosBeta);
+        g0 = f0 * tanGamma;
+        g1 = f1 * tanGamma - cosDelta / cosGamma;
+        a = f1 * f1 + g1 * g1 - 1;
+        b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
+        c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
+        if (Math.abs(a) < 0.001) {
+            console.log("azero");
+            r2 = -c / b;
+            x2 = f0 * worldradius2 + f1 * r2;
+            y2 = g0 * worldradius2 + g1 * r2;
+            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            solutions.log("hap radius");
+        } else if (Fast.quadraticEquation(a, b, c, solutions)) {
+            r2 = solutions.x;
+            x2 = f0 * worldradius2 + f1 * r2;
+            y2 = g0 * worldradius2 + g1 * r2;
+            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            solutions.log("hap radius");
+        } else {
+            console.log("**** no solution for second circle");
+            r2 = 0;
+            x2 = 0;
+            y2 = 0;
+        }
+        // adjust joyce for position of second circle
+        xiHyperbolic = x2 * cosGamma + y2 * sinGamma;
+        console.log("xiHyperbolic " + xiHyperbolic);
+
+
+        circleScope.finishMap = function(position, furtherResults) {
+            let l2 = position.length2();
+            if (l2 > worldradius2) {
+                furtherResults.colorSector = 1;
+                position.scale(worldradius2 / l2);
             } else {
-                console.log("**** no solution for second circle");
-                r2 = 0;
-                x2 = 0;
-                y2 = 0;
+                furtherResults.colorSector = 0;
             }
-            // adjust joyce for position of second circle
-            const xi = x2 * cosGamma + y2 * sinGamma;
-            console.log("xi " + xi);
+        };
 
 
-            circleScope.finishMap = function(position, furtherResults) {
-                let l2 = position.length2();
-                if (l2 > worldradius2) {
-                    furtherResults.colorSector = 1;
-                    position.scale(worldradius2 / l2);
-                } else {
-                    furtherResults.colorSector = 0;
-                }
-            };
-        }
-        // fractal geometry
-        else {
-
-        }
     };
 
     Make.updateOutputImage = function() {
