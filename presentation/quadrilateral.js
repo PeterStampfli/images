@@ -166,27 +166,70 @@ function creation() {
             x2 = f0 * worldradius2 + f1 * r2;
             y2 = g0 * worldradius2 + g1 * r2;
             circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            solutions.log("hap radius");
+
         } else {
-            console.log("**** no solution for second circle");
+            console.log("**** no solution for hyperbolic second circle");
             r2 = 0;
             x2 = 0;
             y2 = 0;
         }
-        // adjust joyce for position of second circle
+        circleScope.circle2.log("circle2hyper");
+
+        // position of second circle for hyperbolic image
         xiHyperbolic = x2 * cosGamma + y2 * sinGamma;
         console.log("xiHyperbolic " + xiHyperbolic);
+        // interpolation of position
+        const x = circlePosition.getValue();
+        const xi0 = xiHyperbolic;
+        const xi1 = xiLow;
+        const xi = xi0 + x * (xi1 - xi0);
+        f0 = x1 - xi * cosGamma;
+        f1 = -sinGamma * cosDelta;
+        g0 = y1 - xi * sinGamma;
+        g1 = cosGamma * cosDelta;
+        a = 1 - f1 * f1 - g1 * g1;
+        b = 2 * (r1 * cosBeta - f0 * f1 - g0 * g1);
+        c = r1 * r1 - f0 * f0 - g0 * g0;
+
+        if (Fast.quadraticEquation(a, b, c, solutions)) {
+            r2 = solutions.y;
+            solutions.log("r2");
+            x2 = xi * cosGamma + r2 * sinGamma * cosDelta;
+            y2 = xi * sinGamma - r2 * cosGamma * cosDelta;
+            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            circleScope.circle2.log("circle2");
 
 
-        circleScope.finishMap = function(position, furtherResults) {
-            let l2 = position.length2();
-            if (l2 > worldradius2) {
-                furtherResults.colorSector = 1;
-                position.scale(worldradius2 / l2);
-            } else {
-                furtherResults.colorSector = 0;
-            }
-        };
+        } else {
+            console.log("**** no solution for general second circle");
+            r2 = 0;
+            x2 = 0;
+            y2 = 0;
+        }
+        // separating regions, and remapping
+        const m2 = 1 / tanGamma;
+        if (x2 < x1) {
+            const m12 = (y1 - y2) / (x1 - x2 + 0.00001);
+
+            circleScope.finishMap = function(position, furtherResults) {
+
+                /*
+                 if (l2 > worldradius2) {
+                    position.scale(worldradius2 / l2);
+                    furtherResults.colorSector = 1;
+                } else {
+                    furtherResults.colorSector = 0;
+                }
+                */
+
+            };
+        } else {
+            const m12 = (y2 - y1) / (x2 - x1 + 0.00001);
+
+            circleScope.finishMap = function(position, furtherResults) {
+
+            };
+        }
 
 
     };
