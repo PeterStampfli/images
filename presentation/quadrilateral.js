@@ -80,7 +80,7 @@ function creation() {
 
     circleScope.maxIterations = 200;
 
-    VectorMap.iterationGamma = 0.9;
+    VectorMap.iterationGamma = 0.8;
     VectorMap.iterationSaturation = 8;
     VectorMap.iterationThreshold = 2;
 
@@ -89,7 +89,6 @@ function creation() {
     const solutions = new Vector2();
 
     Make.initializeMap = function() {
-
         let k = setKButton.getValue();
         let m = setMButton.getValue();
         let n = setNButton.getValue();
@@ -124,13 +123,7 @@ function creation() {
         var a, b, c;
         var f, g, f0, f1, g0, g1;
         var xiLow, xiHigh, xiHyperbolic;
-
-
-        circleScope.circle2 = circleScope.circleZero();
-
-
         // limits for position (fractal case)
-
         f = sinGamma / (1 + cosGamma * cosDelta);
         g = cosGamma + f * sinGamma * cosDelta;
         a = g * g;
@@ -139,14 +132,12 @@ function creation() {
         if (Fast.quadraticEquation(a, b, c, solutions)) {
             xiLow = solutions.x;
             xiHigh = solutions.y;
-            solutions.log("xilimits");
         } else {
             console.log("**** no solution for limits");
             xiLow = 1;
             xiHigh = 2;
         }
         // position in hyperbolic case
-
         f0 = 1 / (x1 + y1 * tanGamma);
         f1 = f0 * (y1 * cosDelta / cosGamma - r1 * cosBeta);
         g0 = f0 * tanGamma;
@@ -155,29 +146,21 @@ function creation() {
         b = 2 * worldradius2 * (f1 * f0 + g1 * g0);
         c = worldradius2 * worldradius2 * (f0 * f0 + g0 * g0) - worldradius2;
         if (Math.abs(a) < 0.001) {
-            console.log("azero");
             r2 = -c / b;
             x2 = f0 * worldradius2 + f1 * r2;
             y2 = g0 * worldradius2 + g1 * r2;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            solutions.log("hap radius");
         } else if (Fast.quadraticEquation(a, b, c, solutions)) {
             r2 = solutions.x;
             x2 = f0 * worldradius2 + f1 * r2;
             y2 = g0 * worldradius2 + g1 * r2;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-
         } else {
             console.log("**** no solution for hyperbolic second circle");
             r2 = 0;
             x2 = 0;
             y2 = 0;
         }
-        circleScope.circle2.log("circle2hyper");
-
         // position of second circle for hyperbolic image
         xiHyperbolic = x2 * cosGamma + y2 * sinGamma;
-        console.log("xiHyperbolic " + xiHyperbolic);
         // interpolation of position
         const x = circlePosition.getValue();
         const xi0 = xiHyperbolic;
@@ -190,16 +173,11 @@ function creation() {
         a = 1 - f1 * f1 - g1 * g1;
         b = 2 * (r1 * cosBeta - f0 * f1 - g0 * g1);
         c = r1 * r1 - f0 * f0 - g0 * g0;
-
         if (Fast.quadraticEquation(a, b, c, solutions)) {
             r2 = solutions.y;
-            solutions.log("r2");
             x2 = xi * cosGamma + r2 * sinGamma * cosDelta;
             y2 = xi * sinGamma - r2 * cosGamma * cosDelta;
             circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            circleScope.circle2.log("circle2");
-
-
         } else {
             console.log("**** no solution for general second circle");
             r2 = 0;
@@ -210,24 +188,51 @@ function creation() {
         const m2 = 1 / tanGamma;
         if (x2 < x1) {
             const m12 = (y1 - y2) / (x1 - x2 + 0.00001);
-
             circleScope.finishMap = function(position, furtherResults) {
-
-                /*
-                 if (l2 > worldradius2) {
-                    position.scale(worldradius2 / l2);
+                if (position.x > x1) {
                     furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());
+                } else if (position.x > x2) {
+                    if (position.y > y2 + m12 * (position.x - x2)) {
+                        furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());
+                    } else {
+                        furtherResults.colorSector = 0;
+                    }
                 } else {
-                    furtherResults.colorSector = 0;
+                    if (position.y > y2 + m2 * (x2 - position.x)) {
+                        furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());
+                    } else {
+                        furtherResults.colorSector = 0;
+                    }
                 }
-                */
-
             };
         } else {
             const m12 = (y2 - y1) / (x2 - x1 + 0.00001);
-
             circleScope.finishMap = function(position, furtherResults) {
-
+                if (position.x>x2){
+                 furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());
+                }
+                else {
+                    if (position.y>y2+m2*(x2-position.x)){
+                            furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());
+                    }
+                    else if (position.x>x1){
+                        if (position.y>y1+m12*(position.x-x1)){
+                                                    furtherResults.colorSector = 0;
+                        }
+                        else {
+                             furtherResults.colorSector = 1;
+                    position.scale(worldradius2/position.length2());                          
+                        }
+                    }
+                    else {
+                                            furtherResults.colorSector = 0;
+                    }
+                }
             };
         }
 
