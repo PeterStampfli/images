@@ -77,10 +77,12 @@ function creation() {
 
     Make.map.makeColorCollection(2, 1, 2.5, 80);
     Make.map.hueInversionColorSymmetry();
+    Make.map.inversionColorSymmetry();
+    Make.map.lightnessInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
 
-    VectorMap.iterationGamma = 0.8;
+    VectorMap.iterationGamma = 0.7;
     VectorMap.iterationSaturation = 8;
     VectorMap.iterationThreshold = 2;
 
@@ -231,8 +233,6 @@ function creation() {
                 }
             };
         }
-
-
     };
 
     Make.updateOutputImage = function() {
@@ -252,6 +252,7 @@ window.onload = function() {
     creation();
     basicUI.onload();
     basicUI.showSelectAddConvergence();
+    basicUI.showSelectAddConvergenceStructure();
 };
 
 window.onresize = function() {

@@ -458,6 +458,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     /**
      * draw on a pixelcanvas use a map
      * color showing number of iterations, based on iterationsArray
+     * or showing structure, based on reflectionsArray and colorSectorArray
      * "invalid" points have a negative lyapunov value
      * @method VectorMap#drawIterations
      */
@@ -479,6 +480,49 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // pixel[index] = iterationsColors[100];
             } else {
                 pixel[index] = intColorOff;
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
+    /**
+     * draw on a pixelcanvas use a map
+     * color showing number of iterations, based on iterationsArray
+     * or showing structure, based on reflectionsArray and colorSectorArray
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawIterationsStructure
+     */
+    VectorMap.prototype.drawIterationsStructure = function() {
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let intColorOff = this.intColorOff;
+        let lyapunovArray = this.lyapunovArray;
+        let reflectionsArray = this.reflectionsArray;
+        let iterationsArray = this.iterationsArray;
+        let colorSectorArray = this.colorSectorArray;
+        let structureColorCollection = this.structureColorCollection;
+        let iterationsColors = this.iterationsColors;
+        let index = 0;
+        const width = this.width;
+        const width2 = Math.floor(this.width / 2);
+        const height = this.height;
+        var i, j;
+        for (j = 0; j < height; j++) {
+            for (i = 0; i < width2; i++) {
+                if (lyapunovArray[index] >= -0.001) {
+                    pixel[index] = iterationsColors[iterationsArray[index]];
+                } else {
+                    pixel[index] = intColorOff;
+                }
+                index++;
+            }
+            for (i = width2; i < width; i++) {
+                if (lyapunovArray[index] >= -0.001) {
+                    pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
+                } else {
+                    pixel[index] = intColorOff;
+                }
+                index++;
             }
         }
         pixelCanvas.showPixel();
@@ -527,6 +571,18 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         this.colorSymmetry = function(colorSector, color) {
             if (colorSector > 0) {
                 color.invertHue();
+            }
+        };
+    };
+
+    /**
+     * two-color symmetry: invert the lightness for sector 1 and larger
+     * @method VectorMap#lightnessInversionColorSymmetry
+     */
+    VectorMap.prototype.lightnessInversionColorSymmetry = function() {
+        this.colorSymmetry = function(colorSector, color) {
+            if (colorSector > 0) {
+                color.invertLightness();
             }
         };
     };

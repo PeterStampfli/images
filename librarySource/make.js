@@ -288,7 +288,7 @@ var Make = {};
      * @method Make.switchToShowingStructure
      */
     Make.switchToShowingStructure = function() {
-        if (!Make.showStructure) {
+        if (!Make.showStructure || Make.showIterations) {
             Make.showIterations = false;
             Make.showStructure = true;
             if (Make.inputImageExists) {
@@ -305,7 +305,7 @@ var Make = {};
      * @method Make.switchToShowingIterations
      */
     Make.switchToShowingIterations = function() {
-        if (!Make.showIterations) {
+        if (!Make.showIterations || Make.showStructure) {
             Make.showIterations = true;
             Make.showStructure = false;
             if (Make.inputImageExists) {
@@ -328,6 +328,17 @@ var Make = {};
         }
     };
 
+    /**
+     * switch to showing image
+     * @method Make.switchToShowingImage
+     */
+    Make.switchToShowingIterationsStructure = function() {
+        if (!Make.showIterations || !Make.showStructure) {
+            Make.showIterations = true;
+            Make.showStructure = true;
+            Make.updateOutputImage();
+        }
+    };
 
     /*
      * initialization typically:
@@ -564,7 +575,11 @@ var Make = {};
             return;
         }
         if (Make.showIterations) { // show structure
-            Make.map.drawIterations();
+            if (Make.showStructure) {
+                Make.map.drawIterationsStructure();
+            } else {
+                Make.map.drawIterations();
+            }
         } else if (Make.showStructure || !Make.inputImageExists) { // show structure
             Make.map.drawStructure();
         } else {

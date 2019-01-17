@@ -148,6 +148,18 @@ basicUI = {};
                     basicUI.activateControls(false);
                 });
         };
+
+        /**
+         * add option to show composite consvergence and structure to the showSelect button
+         * @method basicUI.showSelectAddConvergence
+         */
+        basicUI.showSelectAddConvergenceStructure = function() {
+            showSelect.addOption("convergence/structure",
+                function() {
+                    Make.switchToShowingIterationsStructure();
+                    basicUI.activateControls(false);
+                });
+        };
     }
 
     // image size, square format

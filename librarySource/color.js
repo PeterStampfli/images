@@ -118,6 +118,17 @@ function Color(red = 0, green = 0, blue = 0, alpha = 255) { // default is opaque
     };
 
     /**
+     * invert lightness
+     * @method Color#invertLightness
+     */
+    Color.prototype.invertLightness = function() {
+        var base = 255 - (Math.max(this.red, this.green, this.blue) + Math.min(this.red, this.green, this.blue));
+        this.red = base + this.red;
+        this.green = base + this.green;
+        this.blue = base + this.blue;
+    };
+
+    /**
      * color rotation, exchange components cyclically, r<-g<-b<-r
      * @method Color#rotation
      */
