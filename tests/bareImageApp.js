@@ -230,7 +230,7 @@ function creation() {
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
 
-        // some drawing
+        // SOME DRAWING
 
     };
 }

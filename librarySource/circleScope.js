@@ -279,7 +279,7 @@ circleScope = {};
         };
         return circle;
     };
-    
+
     /**
      * make a circle that does nothing
      * @method circleScope.secondCircleZero
@@ -287,9 +287,10 @@ circleScope = {};
      */
     circleScope.circleDeco = function(radius, centerX, centerY) {
         const circle = new Circle(radius, centerX, centerY);
-            circle.map = function(p) {
+        circle.map = function(p) {
             return -1;
-        };        return circle;
+        };
+        return circle;
     };
 
     circleScope.circle1 = circleScope.circleZero();

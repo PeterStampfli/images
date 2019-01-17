@@ -116,27 +116,23 @@ function NumberButton(idName, idPlus, idMinus) {
 
 
     /**
-     * quantize a number according to step
-     * @method NumberButton#quantize
+     * quantize a number according to step and clamp to range
+     * @method NumberButton#quantizeClamp
      * @param {float} x
      * @return float, quantized x
      */
-    NumberButton.prototype.quantize = function(x) {
-        return this.step * Math.round(x / this.step);
+    NumberButton.prototype.quantizeClamp = function(x) {
+        return Fast.clamp(this.minValue, this.step * Math.round(x / this.step), this.maxValue);
     };
 
 
     /**
-     * read the integer value of the text of a button of type="text"
+     * read the value of the text of a button of type="text"
      * @method NumberButton#getValue
      * @returns {integer} value resulting from parsing the button text
      */
     NumberButton.prototype.getValue = function() {
-        if (this.isInteger) {
-            return parseInt(this.element.value, 10);
-        } else {
-            return this.quantize(parseFloat(this.element.value));
-        }
+        return this.quantizeClamp(parseFloat(this.element.value));
     };
 
     /**
@@ -145,29 +141,30 @@ function NumberButton(idName, idPlus, idMinus) {
      * does nothing else, use it for initialization
      * @method NumberButton#setValue
      * @param {integer} number - the number value to show in the button
+     * @param {String} text - default is number to string
      */
-    NumberButton.prototype.setValue = function(number) {
-        if (!this.isInteger) {
-            number = this.quantize(number);
-        } else {
-            number = Math.floor(number);
-        }
-        this.element.value = number.toString();
+    NumberButton.prototype.setValue = function(number, text) {
+        number = this.quantizeClamp(number);
         this.lastValue = number;
+        if (arguments.length < 2) {
+            this.element.value = number.toString();
+        } else {
+            this.element.value = text;
+        }
     };
 
     /**
      * set the text of a button of type="text" according to a given number
-     * check if it is a number and clamp it in the range, if number changes do this.onchange
+     * check if it is a number and quantize it and clamp it in the range, if number changes do this.onchange
      * thus we can use it for initialization
      * @method NumberButton#updateValue
      * @param {integer} number - the number value to show in the button
      */
     NumberButton.prototype.updateValue = function(number) {
-        if (isNaN(number)) { // overwrite grabahge, do nothing
+        if (isNaN(number)) { // overwrite garbage, do nothing
             this.setValue(this.lastValue);
         } else {
-            number = Fast.clamp(this.minValue, number, this.maxValue);
+            number = this.quantizeClamp(number);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
                 this.onChange(number);

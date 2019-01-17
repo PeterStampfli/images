@@ -51,8 +51,6 @@ function PixelCanvas(idName) {
         this.canvas.style.display = "none";
         document.querySelector("body").appendChild(this.canvas);
     }
-
-
     this.canvasContext = this.canvas.getContext('2d');
     this.imageData = null;
     this.pixel = null;
@@ -106,6 +104,23 @@ function PixelCanvas(idName) {
      */
     PixelCanvas.prototype.blueScreen = function() {
         this.fillScreen(this.blueScreenColor);
+    };
+
+    /**
+     * make an error message
+     * @method PixelCanvas#errorMessage
+     * @param {list of Strings} message - multiple texts, one for each line
+     */
+    PixelCanvas.prototype.errorMessage = function(message) {
+        this.fillScreen("red");
+        this.canvasContext.fillStyle = "black";
+        this.canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+        const fontsize = Math.floor(this.width / 10);
+        this.canvasContext.font = fontsize + "px serif";
+        this.canvasContext.fillText("Error", fontsize, fontsize);
+        for (var i = 0; i < arguments.length; i++) {
+            this.canvasContext.fillText(arguments[i], fontsize, this.height / 2 + (i - 1) * fontsize * 1.2);
+        }
     };
 
     /**

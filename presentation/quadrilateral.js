@@ -191,18 +191,18 @@ function creation() {
             circleScope.finishMap = function(position, furtherResults) {
                 if (position.x > x1) {
                     furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());
+                    position.scale(worldradius2 / position.length2());
                 } else if (position.x > x2) {
                     if (position.y > y2 + m12 * (position.x - x2)) {
                         furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());
+                        position.scale(worldradius2 / position.length2());
                     } else {
                         furtherResults.colorSector = 0;
                     }
                 } else {
                     if (position.y > y2 + m2 * (x2 - position.x)) {
                         furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());
+                        position.scale(worldradius2 / position.length2());
                     } else {
                         furtherResults.colorSector = 0;
                     }
@@ -211,26 +211,22 @@ function creation() {
         } else {
             const m12 = (y2 - y1) / (x2 - x1 + 0.00001);
             circleScope.finishMap = function(position, furtherResults) {
-                if (position.x>x2){
-                 furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());
-                }
-                else {
-                    if (position.y>y2+m2*(x2-position.x)){
+                if (position.x > x2) {
+                    furtherResults.colorSector = 1;
+                    position.scale(worldradius2 / position.length2());
+                } else {
+                    if (position.y > y2 + m2 * (x2 - position.x)) {
+                        furtherResults.colorSector = 1;
+                        position.scale(worldradius2 / position.length2());
+                    } else if (position.x > x1) {
+                        if (position.y > y1 + m12 * (position.x - x1)) {
+                            furtherResults.colorSector = 0;
+                        } else {
                             furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());
-                    }
-                    else if (position.x>x1){
-                        if (position.y>y1+m12*(position.x-x1)){
-                                                    furtherResults.colorSector = 0;
+                            position.scale(worldradius2 / position.length2());
                         }
-                        else {
-                             furtherResults.colorSector = 1;
-                    position.scale(worldradius2/position.length2());                          
-                        }
-                    }
-                    else {
-                                            furtherResults.colorSector = 0;
+                    } else {
+                        furtherResults.colorSector = 0;
                     }
                 }
             };
