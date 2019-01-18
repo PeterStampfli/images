@@ -32,8 +32,6 @@ function creation() {
             }
         });
 
-
-
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
     setKButton.setRange(3, 10000);
@@ -42,7 +40,7 @@ function creation() {
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(2);
+    setMButton.setValue(3);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.create("n");
@@ -60,13 +58,12 @@ function creation() {
 
     let circleSize = Range.create("circleSize");
     circleSize.setRange(0.0, 1);
-    circleSize.setValue(0.94);
+    circleSize.setValue(0.88);
     circleSize.onChange = Make.updateNewMap;
-
 
     let circlePosition = Range.create("circlePosition");
     circlePosition.setRange(0.0, 1);
-    circlePosition.setValue(0.0);
+    circlePosition.setValue(0.75);
     circlePosition.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     

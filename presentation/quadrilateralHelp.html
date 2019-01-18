@@ -11,7 +11,6 @@
 <body>
 <noscript>Please enable javascript!!!</noscript>
 
-<div id="navigation"></div>
 <div class="vSpace"> </div>
 <div class="vSpace"> </div>
 <h1>
@@ -23,7 +22,7 @@ Help for the kaleidoscope application using quadrilaterals
 
 <p>
 This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.<br>
-It makes tilings of hyperbolic space using a parallelogram and its morror image.
+It makes hyperbolic and fractal tilings using two quadrilaterals and their mirror images.
 </p>
 
 
@@ -32,34 +31,37 @@ It makes tilings of hyperbolic space using a parallelogram and its morror image.
     
 <h1>Output image</h1>
 <p>
-At the left you see the output image. It first shows only its structure. The white lines show the generating lines and circles. They are borders of the basic parallelogram. Repeated mirror images at the straight lines and inversions in the circles generate a tiling.<br>
-The yellowish disc is a Poincaré disc representation of hyperbolic space with a tiling:
+At the left you see the output image. It first shows only its structure. The white lines show the generating lines and circles. They are borders of two quadrilaterals. Their repeated mirror images at the straight lines and inversions in the circles generate a tiling.
+</p>
+
+<p>
+Near the center you see images of a quadrilateral that has a corner at the center:
 </p>
 <p>
     <table>
             <tr>
-            <td>bright yellow</td> <td>-</td> <td>The basic parallelogram</td>
+            <td>bright yellow</td> <td>-</td> <td>The original quadrilateral</td>
             </tr>
             <tr>
-            <td>brown</td><td>-</td> <td>Mirror images of the basic parallelogram</td>
+            <td>brown</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
             </tr>
             <tr>
-            <td>darkened yellow</td><td>-</td> <td>Translated copies of the basic parallelogram</td>
+            <td>darkened yellow</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
             </tr>
     </table>
 </p>
 <p>
-Outside you see an inverted Poincaré disc:
+Far away you see images of a quadrilateral that has a corner at infinity:
 <p>
     <table>
             <tr>
-            <td>bright blue</td> <td>-</td> <td>The basic parallelogram, one corner lies at infinity.</td>
+            <td>bright blue</td> <td>-</td> <td>The original quadrilateral.</td>
             </tr>
             <tr>
-            <td>dark blue</td><td>-</td> <td>Mirror images of the basic parallelogram</td>
+            <td>dark blue</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
             </tr>
             <tr>
-            <td>blue</td><td>-</td> <td>Translated copies of the basic parallelogram</td>
+            <td>blue</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
             </tr>
     </table>
 </p>
@@ -68,13 +70,11 @@ Outside you see an inverted Poincaré disc:
 
 <p>
     <strong>Use the control panel at the right side to open an input image!</strong><br>
-    It decorates the tiling of the yellow Poincaré disc. The outside is decorated with the same image but using inverted hues.
+    It decorates the tiling. Near the center its true colors are used. Far away we have transformed colors.
 </p>
 <p>
 Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
 </p>
-
-
 
 
 <div class="vSpace"> </div>
@@ -87,10 +87,20 @@ In the lower part of the right hand side you find a control panel.
 Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
 </p>
 <p>
-<strong> You can choose what you will see:</strong> <br>
-"structure" shows simply the tiling.<br>
-"image" maps an input image like a skin on the tiling.<br>
-"convergence" shows the points that need a lot of inversions in the circles to get mapped into the basic parallelogram. More inversions give a lighter color. The number of inversions diverges at the boundary of the Poincaré disc.
+<strong> You can choose what to see:</strong> <br>
+</p>
+<p>
+    <table>
+            <tr>
+            <td>structure</td> <td>-</td> <td>The tiling.</td>
+            </tr>
+            <tr>
+            <td>image</td><td>-</td> <td>Maps an input image like a skin on the tiling.</td>
+            </tr>
+            <tr>
+            <td>convergence</td><td>-</td> <td>Light points need a lot of inversions in the circles to go to the original quadrilaterals. </td>
+            </tr>
+    </table>
 </p>
 
 <p>
@@ -116,7 +126,10 @@ Use it to open an input image or to switch between showing the structure of the 
 </p>
 
 <p>
- <strong>You can choose the size of the upper circle.</strong> Using a value of 1 gives maximum size such that it touches the lower line and the parallelogram becomes a triangle. Using a value of 0 makes that the upper circle vanishes and we get a triangle too.
+    <strong>You can choose the size of the upper circle.</strong>
+</p>
+<p>
+    <strong>You can choose the fractal character of the image.</strong> A value of zero gives a Poincaré disc representation of a periodic tiling of hyperbolic space.
 </p>
 
 <p>
