@@ -9,7 +9,7 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "hyperbolicParallelogramHelp.html");
+    Button.createGoToLocation("help", "quadrilateralHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
