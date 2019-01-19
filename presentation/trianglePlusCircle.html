@@ -5,7 +5,7 @@
 
 
 <head>
-    <title>fourCirclesCentered</title>
+    <title>trianglePlusCircle</title>
 </head>
 
 <body>
@@ -29,15 +29,20 @@
         <select id="show">
         </select>
     </p>
-       
-          
+    
+    
     <p>
-        <strong>View:</strong>
+        <strong>Number of elements:</strong>
         <select id="view">
         </select>
     </p>
 
-         
+    <p>    
+        <strong>Generating Elements:</strong>
+        <select id="generators">
+        </select>
+    </p>
+          
     <p>
         <strong>Basic triangle:</strong> <br>
         Choose rotational symmetries
@@ -46,10 +51,10 @@
             <td>center</td> <td><span id=k></span>
             </tr>
             <tr>
-            <td>left</td> <td><span id=m></span>
+            <td>upper</td> <td><span id=m></span>
             </tr>
             <tr>
-            <td>right</td>
+            <td>lower</td>
             <td><span id=n></span>
             </tr>
         </table>
@@ -62,19 +67,25 @@
             
     <p>
         <strong>Central circle:</strong> <br>
-        Choose rotational symmetries
+        Choose rotational symmetries of intersection with
         <table>
             <tr>
-            <td>center</td> <td><span id=k2></span>
+            <td>other circle</td> <td><span id=k2></span>
             </tr>
             <tr>
-            <td>left</td> <td><span id=m2></span>
+            <td>upper line</td> <td><span id=m2></span>
             </tr>
             <tr>
-            <td>right</td>
+            <td>lower line</td>
             <td><span id=n2></span>
             </tr>
-        </table>
+        </table> 
+    </p>
+        
+    <p>
+        <strong>Size of central circle: </strong> <br>
+        (no intersection with upper line)<br>
+        <span id="circleSize"></span>
     </p>
     
         

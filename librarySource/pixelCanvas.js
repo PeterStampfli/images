@@ -115,9 +115,10 @@ function PixelCanvas(idName) {
         this.fillScreen("red");
         this.canvasContext.fillStyle = "black";
         this.canvasContext.setTransform(1, 0, 0, 1, 0, 0);
-        const fontsize = Math.floor(this.width / 10);
-        this.canvasContext.font = fontsize + "px serif";
-        this.canvasContext.fillText("Error", fontsize, fontsize);
+        const fontsize = Math.floor(this.width / 15);
+        this.canvasContext.font = 2 * fontsize + "px sans serif";
+        this.canvasContext.fillText("Error", fontsize, 3 * fontsize);
+        this.canvasContext.font = fontsize + "px sans serif";
         for (var i = 0; i < arguments.length; i++) {
             this.canvasContext.fillText(arguments[i], fontsize, this.height / 2 + (i - 1) * fontsize * 1.2);
         }

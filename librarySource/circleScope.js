@@ -268,15 +268,22 @@ circleScope = {};
     };
 
     /**
+     * a nothing map 
+     * @method circleScope.nothingMap
+     * @return -1 because it does nothing
+     */
+    circleScope.nothingMap = function() {
+        return -1;
+    };
+
+    /**
      * make a circle that does nothing
      * @method circleScope.circleZero
      * @return Circle, radius zero map method does nothing
      */
     circleScope.circleZero = function() {
         const circle = new Circle(0, new Vector2(0, 0));
-        circle.map = function(p) {
-            return -1;
-        };
+        circle.map = circleScope.nothingMap;
         return circle;
     };
 
@@ -287,9 +294,7 @@ circleScope = {};
      */
     circleScope.circleDeco = function(radius, centerX, centerY) {
         const circle = new Circle(radius, centerX, centerY);
-        circle.map = function(p) {
-            return -1;
-        };
+        circle.map = circleScope.nothingMap;
         return circle;
     };
 
