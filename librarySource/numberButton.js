@@ -185,10 +185,10 @@ function NumberButton(idName, idPlus, idMinus) {
         this.minusButton = new Button(idMinus);
         let numberButton = this;
         this.plusButton.onClick = function() {
-            numberButton.updateValue(numberButton.getValue() + 1);
+            numberButton.updateValue(numberButton.lastValue + 1);
         };
         this.minusButton.onClick = function() {
-            numberButton.updateValue(numberButton.getValue() - 1);
+            numberButton.updateValue(numberButton.lastValue - 1);
         };
     };
 

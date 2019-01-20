@@ -174,12 +174,18 @@ function Range(idText, idRange) {
      * does nothing else, use it for initialization
      * @method Range#setValue
      * @param {integer} number - the number value to show in the button
+     * @param {String} text - default is number to string
      */
-    Range.prototype.setValue = function(number) {
+    Range.prototype.setValue = function(number, text) {
         number = this.quantize(number);
+        this.lastValue = number;
         this.textElement.value = number.toString();
         this.rangeElement.value = number.toString();
-        this.lastValue = number;
+        if (arguments.length < 2) {
+            this.textElement.value = number.toString();
+        } else {
+            this.textElement.value = text;
+        }
     };
 
     /**
