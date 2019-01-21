@@ -631,14 +631,16 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.rgbRotationInversionColorSymmetry = function() {
         this.colorSymmetry = function(colorSector, color) {
-            if ((colorSector === 1) || (colorSector === 4)) {
-                color.rotation();
-            } else if ((colorSector === 2) || (colorSector === 5)) {
-                color.inverseRotation();
-            }
             if (colorSector >= 3) {
                 color.invert();
+                colorSector -= 3;
             }
+            if (colorSector === 1) {
+                color.rotation();
+            } else if (colorSector === 2) {
+                color.inverseRotation();
+            }
+
         };
     };
 

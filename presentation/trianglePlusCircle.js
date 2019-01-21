@@ -120,7 +120,7 @@ function creation() {
     Make.setInitialOutputImageSpace(-11, 11, -11);
 
     Make.map.makeColorCollection(4, 1, 1, 64);
-    Make.map.hueInversionColorSymmetry();
+    Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
 
@@ -200,7 +200,7 @@ function creation() {
                 let l2 = position.length2();
                 if (l2 > worldradius2) {
                     position.scale(worldradius2 / l2);
-                    furtherResults.colorSector = 0;
+                    furtherResults.colorSector = 3;
                 } else {
                     threeTriangleSectors(position, furtherResults);
                 }
@@ -215,16 +215,48 @@ function creation() {
         const dy = position.y - y2;
         if (dx < 0) {
             if (dy < m2 * dx) {
-                furtherResults.colorSector = 3;
-            } else {
                 furtherResults.colorSector = 2;
+            } else {
+                furtherResults.colorSector = 1;
             }
         } else {
             if (dy < m12 * dx) {
-                furtherResults.colorSector = 1;
+                furtherResults.colorSector = 0;
             } else {
-                furtherResults.colorSector = 2;
+                furtherResults.colorSector = 1;
             }
+        }
+    }
+
+
+    // separate the quadrilateral and the triangle in the big triangle
+    // make two sectors
+    function quadrilateralTriangleSectors(position, furtherResults) {
+        const dx = position.x - x2;
+        const dy = position.y - y2;
+        if (dx < 0) {
+            if (dy < m2 * dx) {
+                furtherResults.colorSector = 0;
+            } else {
+                furtherResults.colorSector = 1;
+            }
+        } else {
+            if (dy < m12 * dx) {
+                furtherResults.colorSector = 0;
+            } else {
+                furtherResults.colorSector = 1;
+            }
+        }
+    }
+
+    // separate inside/outside of worlddisc
+    function insideOutsideSectors(position, furtherResults) {
+        let l2 = position.length2();
+        if (l2 > worldradius2) {
+            position.scale(worldradius2 / l2);
+            furtherResults.colorSector = 3;
+        } else {
+            furtherResults.colorSector = 0;
         }
     }
 
@@ -242,14 +274,13 @@ function creation() {
         cosGamma1 = Fast.cos(Math.PI / k1);
         sinGamma1 = Fast.sin(Math.PI / k1);
         setupFirstCircle();
+        circleScope.circle2 = circleScope.circleZero(); // no second circle for fails
+        circleScope.finishMap = insideOutsideSectors; // for three circles everything done
         if (sumAngles > 0.99) {
             // show error message if not hyperbolic
             circleScope.circle1.map = circleScope.nothingMap;
             circleScope.circle2 = circleScope.circleZero();
-        } else if (numberOfCircles === 3) {
-            // for three circles we are ok
-            circleScope.circle2 = circleScope.circleZero();
-        } else {
+        } else if (numberOfCircles === 4) {
             let k2 = setK2Button.getValue();
             let m2 = setM2Button.getValue();
             let n2 = setN2Button.getValue();
@@ -262,23 +293,54 @@ function creation() {
             if (threeIntersections) {
                 secondCircleThreeIntersections();
             } else {
-                console.log("two intersections");
-
-                // calculate max radius
+                // calculate max radius (kollision with upper horizontal line)
+                var f, g, a, b, c, xi, rKollision;
+                f = (1 + cosGamma1 * cosBeta2) / sinGamma1;
+                g = f * cosGamma1 + sinGamma1 * cosBeta2;
+                a = g * g;
+                b = -2 * (g * x1 + y1 + r1 * cosGamma2);
+                c = x1 * x1 + y1 * y1 - r1 * r1;
+                if (Fast.quadraticEquation(a, b, c, solutions)) {
+                    rKollision = solutions.x;
+                } else {
+                    console.log("**** no solution for limits");
+                    rKollision = 1;
+                }
                 // get radius from choosen value
-
-                const r = circleSize.getValue();
-                console.log(r);
-
+                r2 = rKollision * circleSize.getValue();
+                console.log(r2);
+                // find position
+                const f0 = x1 - r2 * sinGamma1 * cosBeta2;
+                const f1 = -cosGamma1;
+                const g0 = y1 + r2 * cosGamma1 * cosBeta2;
+                const g1 = -sinGamma1;
+                a = f1 * f1 + g1 * g1;
+                b = 2 * (f1 * f0 + g1 * g0);
+                c = f0 * f0 + g0 * g0 - r1 * r1 - r2 * r2 - 2 * r1 * r2 * cosGamma2;
+                if (Fast.quadraticEquation(a, b, c, solutions)) {
+                    xi = solutions.x;
+                    x2 = xi * cosGamma1 + r2 * sinGamma1 * cosBeta2;
+                    y2 = xi * sinGamma1 - r2 * cosGamma1 * cosBeta2;
+                } else {
+                    console.log("**** no solution for position");
+                    rKollision = 1;
+                    x2 = 1;
+                    y2 = 1;
+                }
                 // set circle
-
-                circleScope.circle2 = circleScope.circleZero();
+                circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+                setupSeparators();
                 // map regions
-                circleScope.finishMap = function(position, furtherResults) {};
-
-
+                circleScope.finishMap = function(position, furtherResults) {
+                    let l2 = position.length2();
+                    if (l2 > worldradius2) {
+                        position.scale(worldradius2 / l2);
+                        furtherResults.colorSector = 3;
+                    } else {
+                        quadrilateralTriangleSectors(position, furtherResults);
+                    }
+                };
             }
-
 
         }
     };
@@ -309,6 +371,7 @@ window.onload = function() {
     creation();
     basicUI.onload();
     basicUI.showSelectAddConvergence();
+    basicUI.showSelectAddConvergenceStructure();
 };
 
 window.onresize = function() {
