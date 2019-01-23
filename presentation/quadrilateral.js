@@ -248,8 +248,7 @@ window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
-    basicUI.showSelectAddConvergence();
-    basicUI.showSelectAddConvergenceStructure();
+    basicUI.showSelectAdd();
 };
 
 window.onresize = function() {

@@ -106,11 +106,15 @@ basicUI = {};
     // image input and output id id "openInputImage" exists
     var imageInputButton;
     if (DOM.idExists("openInputImage")) {
-
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
             imageInputButton.fileInput.click();
-            showSelect.setIndex(1);
+            if (!Make.showingInputImage) { // switch to showing image if it is not shown
+                showSelect.setIndex(1);
+                Make.draw = function() {
+                    Make.drawImage();
+                };
+            }
             basicUI.activateControls(true);
         };
     }
@@ -118,45 +122,60 @@ basicUI = {};
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
 
     // choose between showing the structure or the image, if id "show" exists
+    // note that only things happen if option is changed!
     if (DOM.idExists("show")) {
         var showSelect = new Select("show");
 
         showSelect.addOption("structure",
             function() {
-                Make.switchToShowingStructure();
+                console.log("structure");
+                Make.showingInputImage = false;
+                Make.clearControlImage();
+                Make.draw = function() {
+                    Make.map.drawStructure();
+                };
+                Make.updateOutputImage();
                 basicUI.activateControls(false);
             });
 
         showSelect.addOption("image",
             function() {
                 if (!Make.inputImageExists) {
-                    imageInputButton.fileInput.click();
+                    imageInputButton.onClick();
                 } else {
-                    Make.switchToShowingImage();
+                    Make.showingInputImage = true;
+                    Make.draw = function() {
+                        Make.drawImage();
+                    };
+                    Make.updateOutputImage();
+                    basicUI.activateControls(true);
                 }
-                basicUI.activateControls(true);
             });
 
         /**
-         * add option to show convergence to the showSelect button
-         * @method basicUI.showSelectAddConvergence
+         * add more options to the showSelect button
+         * @method basicUI.showSelectAdd
          */
-        basicUI.showSelectAddConvergence = function() {
+        basicUI.showSelectAdd = function() {
             showSelect.addOption("convergence",
                 function() {
-                    Make.switchToShowingIterations();
+                    Make.showingInputImage = false;
+                    Make.clearControlImage();
+                    Make.draw = function() {
+                        Make.map.drawIterations();
+                    };
+                    Make.updateOutputImage();
                     basicUI.activateControls(false);
                 });
-        };
 
-        /**
-         * add option to show composite consvergence and structure to the showSelect button
-         * @method basicUI.showSelectAddConvergence
-         */
-        basicUI.showSelectAddConvergenceStructure = function() {
             showSelect.addOption("convergence/structure",
                 function() {
-                    Make.switchToShowingIterationsStructure();
+                    Make.showingInputImage = false;
+                    Make.clearControlImage();
+                    Make.draw = function() {
+                        Make.map.drawIterationsStructure();
+                    };
+                    Make.updateOutputImage();
                     basicUI.activateControls(false);
                 });
         };

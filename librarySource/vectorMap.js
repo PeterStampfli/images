@@ -528,6 +528,82 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
     };
 
+
+    /**
+     * draw on a pixelcanvas use a map and an input image as fast as you can
+     * draw convergence on left hand side
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawFast
+     */
+    /*  VectorMap.prototype.drawIterationsImageFast = function() {
+        // image objects
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let inputImage = this.inputImage;
+        let controlImage = this.controlImage;
+        let controlCanvas = controlImage.pixelCanvas;
+        let controlDivInputSize = controlImage.controlDivInputSize;
+        // input image data
+        let inputImageWidth = inputImage.width;
+        let inputImageHeight = inputImage.height;
+        let inputImagePixel = inputImage.pixel;
+        // transform data
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
+        // map data
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let lyapunovArray = this.lyapunovArray;
+        let colorSectorArray = this.colorSectorArray;
+        const length = xArray.length;
+        // other
+        let offColor = new Color(0, 0, 0, 0);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
+        const color = new Color();
+        var x, y, h, k;
+        //iterating
+        let index = 0;
+        const width = this.width;
+        const width2 = Math.floor(this.width / 2);
+        const height = this.height;
+        var i, j;
+       
+        
+        
+        
+        for ( index = 0; index < length; index++) {
+            if (lyapunovArray[index] >= -0.001) {
+                x = xArray[index];
+                y = yArray[index];
+                // faster math floor instead of Math.round()
+                h = (shiftX + cosAngleScale * x - sinAngleScale * y) | 0;
+                k = (shiftY + sinAngleScale * x + cosAngleScale * y) | 0;
+                if ((h < 0) || (h >= inputImageWidth) || (k < 0) || (k >= inputImageHeight)) { // outside the input image
+                    pixel[index] = intOffColor;
+                } else { // inside the input image: colorSector=0 means no color change
+                    const colorSector = colorSectorArray[index];
+                    if (colorSector === 0) {
+                        pixel[index] = inputImagePixel[h + k * inputImageWidth];
+                    } else { // the color changes, get color in components, change color, set pixel
+                        inputImage.getPixelAtIndex(color, h + k * inputImageWidth);
+                        this.colorSymmetry(colorSector, color);
+                        color.alpha = 255;
+                        pixelCanvas.setPixelAtIndex(color, index);
+                    }
+                    controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                }
+            } else {
+                pixel[index] = intOffColor;
+            }
+        }
+        pixelCanvas.showPixel();
+        controlCanvas.showPixel();
+    };
+*/
+
     // color symmetry: colorSector=0: no change in color
     // other values:special color changing routine!
 

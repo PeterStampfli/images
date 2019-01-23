@@ -61,11 +61,10 @@ var Make = {};
     Make.inputTransform = new LinearTransform();
 
     // defaults: no input image, show structure
+    // exist an input image?
     Make.inputImageExists = false;
-    // show structure even if input image exists (for presentation)
-    Make.showStructure = true;
-    // show number of iterations
-    Make.showIterations = false;
+    // showing input image somehow
+    Make.showingInputImage = false;
 
     /*
     the other elements depend on page layout and need an identifier
@@ -160,6 +159,7 @@ var Make = {};
 
     /**
      * create the map with connection to outputImage,controlImage and arrowController
+     * make that structure will be shown
      * @method Make.createMap 
      */
     Make.createMap = function() {
@@ -281,62 +281,14 @@ var Make = {};
         Make.updateOutputImage();
     };
 
-
     /**
-     * switch to showing structure, does nothing if structure already shown
-     * grey out control canvas
-     * @method Make.switchToShowingStructure
+     * clear the control image if input image is not used, but exists
+     * @method Make.clearControlImage
      */
-    Make.switchToShowingStructure = function() {
-        if (!Make.showStructure || Make.showIterations) {
-            Make.showIterations = false;
-            Make.showStructure = true;
-            if (Make.inputImageExists) {
-                Make.controlImage.semiTransparent();
-                Make.controlImage.pixelCanvas.showPixel();
-            }
-            Make.updateOutputImage();
-        }
-    };
-
-    /**
-     * switch to showing iterations, does nothing if structure already shown
-     * grey out control canvas
-     * @method Make.switchToShowingIterations
-     */
-    Make.switchToShowingIterations = function() {
-        if (!Make.showIterations || Make.showStructure) {
-            Make.showIterations = true;
-            Make.showStructure = false;
-            if (Make.inputImageExists) {
-                Make.controlImage.semiTransparent();
-                Make.controlImage.pixelCanvas.showPixel();
-            }
-            Make.updateOutputImage();
-        }
-    };
-
-    /**
-     * switch to showing image
-     * @method Make.switchToShowingImage
-     */
-    Make.switchToShowingImage = function() {
-        if (Make.showIterations || Make.showStructure) {
-            Make.showIterations = false;
-            Make.showStructure = false;
-            Make.updateOutputImage();
-        }
-    };
-
-    /**
-     * switch to showing image
-     * @method Make.switchToShowingImage
-     */
-    Make.switchToShowingIterationsStructure = function() {
-        if (!Make.showIterations || !Make.showStructure) {
-            Make.showIterations = true;
-            Make.showStructure = true;
-            Make.updateOutputImage();
+    Make.clearControlImage = function() {
+        if (Make.inputImageExists) {
+            Make.controlImage.semiTransparent();
+            Make.controlImage.pixelCanvas.showPixel();
         }
     };
 
@@ -443,15 +395,8 @@ var Make = {};
      * @method Make.readImageAction
      */
     Make.readImageAction = function() {
-        if (Make.showIterations || Make.showStructure || !Make.inputImageExists) {
-            Make.inputImageExists = true;
-            Make.showStructure = false;
-            Make.showIterations = false;
-            if (Make.mapping == null) {
-                console.log("*** (Make)readImageAction: there is no mapping function !");
-                return;
-            }
-        }
+        Make.inputImageExists = true;
+        Make.showingInputImage = true;
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         Make.arrowController.show();
@@ -553,8 +498,39 @@ var Make = {};
      * @method Make.updateOutputImageIfUsingInputImage
      */
     Make.updateOutputImageIfUsingInputImage = function() {
-        if (!Make.showIterations && !Make.showStructure && Make.inputImageExists) {
+        if (Make.showingInputImage) {
             Make.updateOutputImage();
+        }
+    };
+
+    /**
+     * draw the image, using custom function to show whatever
+     * @method Make.draw
+     */
+    Make.draw = function() {
+        Make.map.drawStructure();
+    };
+
+    /**
+     * draw using the input image, varying quality
+     * @method Make.drawImage
+     */
+    Make.drawImage = function() {
+        if (Make.inputImage.width == 0) {
+            console.log("*** Make.updateOutputImage: input image not loaded !");
+            return;
+        }
+        Make.controlImage.semiTransparent();
+        // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
+        if (Make.imageQuality == "low") {
+            Make.map.drawFast();
+            // Make.map.drawIterationsImageFast();
+        } else if (Make.imageQuality == "high") {
+            Make.map.drawHighQuality();
+        } else if (Make.imageQuality == "veryHigh") {
+            Make.map.drawVeryHighQuality();
+        } else {
+            console.log(" **** unknown image quality " + Make.imageQuality);
         }
     };
 
@@ -568,37 +544,16 @@ var Make = {};
      * simply redraw
      * @method Make.updateOutputImageNoColorSymmetry
      */
+    let no = 0;
     Make.updateMapOutput = function() {
+        no++;
+        console.log("redraw " + no);
         Make.outputImage.adjustCanvasTransform();
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");
             return;
         }
-        if (Make.showIterations) { // show structure
-            if (Make.showStructure) {
-                Make.map.drawIterationsStructure();
-            } else {
-                Make.map.drawIterations();
-            }
-        } else if (Make.showStructure || !Make.inputImageExists) { // show structure
-            Make.map.drawStructure();
-        } else {
-            if (Make.inputImage.width == 0) {
-                console.log("*** Make.updateOutputImage: input image not loaded !");
-                return;
-            }
-            Make.controlImage.semiTransparent();
-            // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
-            if (Make.imageQuality == "low") {
-                Make.map.drawFast();
-            } else if (Make.imageQuality == "high") {
-                Make.map.drawHighQuality();
-            } else if (Make.imageQuality == "veryHigh") {
-                Make.map.drawVeryHighQuality();
-            } else {
-                console.log(" **** unknown image quality " + Make.imageQuality);
-            }
-        }
+        Make.draw();
     };
 
     /**
