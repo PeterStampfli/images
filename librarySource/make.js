@@ -396,7 +396,6 @@ var Make = {};
      */
     Make.readImageAction = function() {
         Make.inputImageExists = true;
-        Make.showingInputImage = true;
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         Make.arrowController.show();
@@ -520,6 +519,7 @@ var Make = {};
             console.log("*** Make.updateOutputImage: input image not loaded !");
             return;
         }
+        console.log("iamge quality " + Make.imageQuality);
         Make.controlImage.semiTransparent();
         // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
         if (Make.imageQuality == "low") {

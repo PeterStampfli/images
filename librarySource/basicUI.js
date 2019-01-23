@@ -108,14 +108,15 @@ basicUI = {};
     if (DOM.idExists("openInputImage")) {
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
-            imageInputButton.fileInput.click();
             if (!Make.showingInputImage) { // switch to showing image if it is not shown
                 showSelect.setIndex(1);
+                Make.showingInputImage = true;
                 Make.draw = function() {
                     Make.drawImage();
                 };
             }
             basicUI.activateControls(true);
+            imageInputButton.fileInput.click();
         };
     }
 
@@ -140,15 +141,15 @@ basicUI = {};
 
         showSelect.addOption("image",
             function() {
+                Make.showingInputImage = true;
+                Make.draw = function() {
+                    Make.drawImage();
+                };
+                basicUI.activateControls(true);
                 if (!Make.inputImageExists) {
-                    imageInputButton.onClick();
+                    imageInputButton.fileInput.click();
                 } else {
-                    Make.showingInputImage = true;
-                    Make.draw = function() {
-                        Make.drawImage();
-                    };
                     Make.updateOutputImage();
-                    basicUI.activateControls(true);
                 }
             });
 
@@ -178,6 +179,22 @@ basicUI = {};
                     Make.updateOutputImage();
                     basicUI.activateControls(false);
                 });
+
+            showSelect.addOption("convergence/image",
+                function() {
+                    console.log("opt convimage");
+                    Make.showingInputImage = true;
+                    Make.draw = function() {
+                        Make.controlImage.semiTransparent();
+                        Make.map.drawIterationsImage();
+                    };
+                    basicUI.activateControls(true);
+                    if (!Make.inputImageExists) {
+                        imageInputButton.fileInput.click();
+                    } else {
+                        Make.updateOutputImage();
+                    }
+                });
         };
     }
 
@@ -193,6 +210,7 @@ basicUI = {};
     }
 
     // make selection for quality if id "quality" exists
+    // else choose high quality
     if (DOM.idExists("quality")) {
         let qualitySelect = new Select("quality");
 
@@ -210,7 +228,10 @@ basicUI = {};
             function() {
                 changeQuality("veryHigh");
             });
+    } else {
+        Make.imageQuality = "high";
     }
+
 
     /** adjust fontsizes, margins, borders and so on
      * line widths and nullradius
