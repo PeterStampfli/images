@@ -161,7 +161,11 @@ function creation() {
         // position of second circle for hyperbolic image
         xiHyperbolic = x2 * cosGamma + y2 * sinGamma;
         // interpolation of position
-        const x = circlePosition.getValue();
+        let x = circlePosition.getValue();
+        // goes from 0 to 1
+        // near 0 not much happens
+        const acceleration = 1.6;
+        x = acceleration * x + (1 - acceleration) * x * x;
         const xi0 = xiHyperbolic;
         const xi1 = xiLow;
         const xi = xi0 + x * (xi1 - xi0);

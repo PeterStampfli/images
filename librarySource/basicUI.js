@@ -193,6 +193,22 @@ basicUI = {};
                         Make.updateOutputImage();
                     }
                 });
+
+            showSelect.addOption("convergence/structure/image",
+                function() {
+                    console.log("opt convimage");
+                    Make.showingInputImage = true;
+                    basicUI.activateControls(true);
+                    Make.draw = function() {
+                        Make.controlImage.semiTransparent();
+                        Make.map.drawIterationsStructureImage();
+                    };
+                    if (!Make.inputImageExists) {
+                        imageInputButton.fileInput.click();
+                    } else {
+                        Make.updateOutputImage();
+                    }
+                });
         };
     }
 
