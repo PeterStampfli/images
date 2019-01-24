@@ -666,18 +666,9 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const height2 = Math.floor(this.height / 2);
         var i, j;
 
-        for (j = 0; j < height; j++) {
-            for (i = 0; i < width2; i++) {
-                if (lyapunovArray[index] >= -0.001) {
-                    pixel[index] = iterationsColors[iterationsArray[index]];
-                } else {
-                    pixel[index] = intColorOff;
-                }
-                index++;
-            }
-            for (i = width2; i < width; i++) {
+        for (j = 0; j < height2; j++) {
+            for (i = 0; i < width; i++) {
                 lyapunov = lyapunovArray[index] * baseLyapunov;
-
                 if (lyapunov >= -0.001) {
                     x = xArray[index];
                     y = yArray[index];
@@ -695,6 +686,24 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                     color.set(offColor);
                 }
                 pixelCanvas.setPixelAtIndex(color, index);
+                index++;
+            }
+        }
+        for (j = height2; j < height; j++) {
+            for (i = 0; i < width2; i++) {
+                if (lyapunovArray[index] >= -0.001) {
+                    pixel[index] = iterationsColors[iterationsArray[index]];
+                } else {
+                    pixel[index] = intColorOff;
+                }
+                index++;
+            }
+            for (i = width2; i < width; i++) {
+                if (lyapunovArray[index] >= -0.001) {
+                    pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
+                } else {
+                    pixel[index] = intColorOff;
+                }
                 index++;
             }
         }

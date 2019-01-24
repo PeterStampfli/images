@@ -4,53 +4,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <head>
-    <title>help (Kaleidoscope App)</title>
+    <title>help (Circle in Triangle Kaleidoscope)</title>
      <link rel="stylesheet" type="text/css" href="basicLayout.css">
 </head>
 
 <body>
 <noscript>Please enable javascript!!!</noscript>
 
-<div id="navigation"></div>
 <div class="vSpace"> </div>
 <div class="vSpace"> </div>
 <h1>
-Help for the Kaleidoscope application
+Help for the kaleidoscope application using quadrilaterals
 </h1>
 
 <div class="vSpace"> </div>
 
 
 <p>
-This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.
+This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.<br>
+It makes hyperbolic and fractal tilings using two quadrilaterals and their mirror images.
 </p>
 
 
 <div class="vSpace"> </div>
 
     
-    <h1>Output image</h1>
+<h1>Output image</h1>
 <p>
-At the left you see the output image. It first shows only its structure:
+At the left you see the output image. It first shows only its structure. The white lines show the generating lines and circles. They are borders of two quadrilaterals. Their repeated mirror images at the straight lines and inversions in the circles generate a tiling.
 </p>
+
+<p>
+Near the center you see images of a quadrilateral that has a corner at the center:
+</p>
+<p>
     <table>
             <tr>
-            <td>yellow</td> <td>-</td> <td>The basic triangle</td>
+            <td>bright yellow</td> <td>-</td> <td>The original quadrilateral</td>
             </tr>
             <tr>
-            <td>green</td><td>-</td> <td>Mirror images of the basic triangle or parts of it</td>
+            <td>brown</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
             </tr>
             <tr>
-            <td>brown</td><td>-</td> <td>Copies of the basic triangle or parts of it</td>
+            <td>darkened yellow</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
             </tr>
     </table>
 </p>
 <p>
-    <strong>Use the control panel at the right side to open an input image!</strong>
+Far away you see images of a quadrilateral that has a corner at infinity:
+<p>
+    <table>
+            <tr>
+            <td>bright blue</td> <td>-</td> <td>The original quadrilateral.</td>
+            </tr>
+            <tr>
+            <td>dark blue</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
+            </tr>
+            <tr>
+            <td>blue</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
+            </tr>
+    </table>
+</p>
+
+</p>
+
+<p>
+    <strong>Use the control panel at the right side to open an input image!</strong><br>
+    It decorates the tiling. Near the center its true colors are used. Far away we have transformed colors.
 </p>
 <p>
 Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
 </p>
+
+
 <div class="vSpace"> </div>
 
 <h1>Control panel</h1>
@@ -61,6 +87,26 @@ In the lower part of the right hand side you find a control panel.
 Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
 </p>
 <p>
+<strong> You can choose what to see:</strong> <br>
+</p>
+<p>
+    <table>
+            <tr>
+            <td>structure</td> <td>-</td> <td>The tiling.</td>
+            </tr>
+            <tr>
+            <td>image</td><td>-</td> <td>Maps an input image like a skin on the tiling.</td>
+            </tr>
+            <tr>
+            <td>convergence</td><td>-</td> <td>Light points need a lot of inversions in the circles to go to the original quadrilaterals. </td>
+            </tr>
+    </table>
+</p>
+
+<p>
+<strong> You can choose if you want to show the lines and circles that generate the image.</strong>
+</p>
+<p>
 <strong> You can choose the rotational symmetries:</strong>
 </p>
 <p>
@@ -69,39 +115,23 @@ Use it to open an input image or to switch between showing the structure of the 
             <td>center</td> <td>-</td> <td>Rotational symmetry at the <em>center</em> of the image.</td>
             </tr>
             <tr>
-            <td>left</td><td>-</td> <td>Symmetry at the <em>left</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            <td>upper</td><td>-</td> <td>Symmetry at the intersection between the upper circle and straight line</td>
             </tr>
             <tr>
-            <td>right</td><td>-</td> <td>Symmetry at the <em>right</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            <td>middle</td><td>-</td> <td>Symmetry at the intersection between the two circles</td>
+            </tr><tr>
+            <td>lower</td><td>-</td> <td>Symmetry at the intersection between the lower circle and straight line</td>
             </tr>
     </table>
 </p>
 
 <p>
-The result depends on the sum of angles of the basic triangle:<br>
-An image of a decrated hemisphere if the sum is more than 180<sup>0</sup>, an Euclidean image if it is exactly 180<sup>0</sup> and a hyperbolic image if it is less than 180<sup>0</sup>.
+    <strong>You can choose the size of the upper circle.</strong>
+</p>
+<p>
+    <strong>You can choose the fractal character of the image.</strong> A value of zero gives a Poincaré disc representation of a periodic tiling of hyperbolic space.
 </p>
 
-<p>
-<strong>You can choose the tiling type:</strong>
-</p>
-<p>
-    <table>
-            <tr>
-            <td>regular</td> <td>-</td> <td>The image is a decoration of a regular tiling by a (regular) polygon.</td>
-            </tr>
-            <tr>
-            <td>uniform truncated</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by octagons and squares.</td>
-            </tr>
-            <tr>
-            <td>rectified</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by hexagons and equilateral triangles.</td>
-            </tr>
-    </table>
-</p>
-
-<p>
-<strong>You can change the view.</strong> The kaleidoscopic image does not really change, you simply see different projections.
-</p>
 <p>
  <strong>You can save the output image</strong> as a png. You will find it in the download folder as "kaleidoscope.png"
 </p>
@@ -113,22 +143,6 @@ An image of a decrated hemisphere if the sum is more than 180<sup>0</sup>, an Eu
 <strong>To see hidden image parts lying outside the window use the scroll bars.</strong> Using scroll bars does not change the image and is reasonably fast. If you drag or zoom the image with the mouse then you <em>change</em> the image and this becomes very slow for large images. 
 </p>
 
-<p>
-<strong>Choose the image quality:</strong>
-<p>
-    <table>
-            <tr>
-            <td>low</td> <td>-</td> <td>Uses nearest neighbor sampling. Very fast, for exploration only. Switch to higher quality before saving an image. </td>
-            </tr>
-            <tr>
-            <td>high</td><td>-</td> <td>Uses anti-aliasing and linear interpolation. Suitable for most cases.</td>
-            </tr>
-            <tr>
-            <td>very&nbsphigh</td><td>-</td> <td>Uses anti-aliasing and cubic interpolation. Very slow. Use only if linear interpolation leaves artificial bright and dark lines.</td>
-            </tr>
-    </table>
-</p>
-</p>
 
 <h1>Input image</h1>
 
