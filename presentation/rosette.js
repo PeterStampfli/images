@@ -15,14 +15,25 @@ if (window.innerHeight > window.innerWidth) {
     // choose between showing the structure or the image
     let showSelect = new Select("show");
 
+
     showSelect.addOption("image",
         function() {
-            Make.switchToShowingImage();
+            Make.showingInputImage = true;
+            Make.draw = function() {
+                Make.drawImage();
+            };
+            Make.updateOutputImage();
         });
 
     showSelect.addOption("structure",
         function() {
-            Make.switchToShowingStructure();
+            console.log("structure");
+            Make.showingInputImage = false;
+            Make.clearControlImage();
+            Make.draw = function() {
+                Make.map.drawStructure();
+            };
+            Make.updateOutputImage();
         });
 
 

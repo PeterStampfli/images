@@ -408,13 +408,24 @@ var Make = {};
             Make.getMapOutputRange();
             Make.limitLyapunov();
         }
+
+        if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
+            Make.showingInputImage = true;
+            Make.draw = function() {
+                Make.drawImage();
+            };
+        }
+
+
+
         Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
         Make.arrowController.drawOrientation();
         Make.updateOutputImage();
     };
 
     /**
-     * create an image input button, and link to output element
+     * create an image input button, 
+     * loading an image with callback function to show new results
      * @method Make.createImageInput
      * @param {String} idButton - name (id) of the (button) html element
      * @param {String} idFileNameOutput - optional, name (id) of the output html element for file name

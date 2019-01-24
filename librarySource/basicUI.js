@@ -31,6 +31,7 @@ basicUI = {};
 
     /**
      * enable/disable mouse and touch on control image and arrow controller
+     *  does not make them visible
      * @method basicUI.activateControls
      * @param {boolean} status - true to enable control image and mouse controller
      */
@@ -103,19 +104,16 @@ basicUI = {};
     //  create the elements in the text control panel that are independent of particular image/symmetry
 
 
-    // image input and output id id "openInputImage" exists
+    // create image input button if "openInputImage" exists
     var imageInputButton;
     if (DOM.idExists("openInputImage")) {
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
-            if (!Make.showingInputImage) { // switch to showing image if it is not shown
+            if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
                 showSelect.setIndex(1);
-                Make.showingInputImage = true;
-                Make.draw = function() {
-                    Make.drawImage();
-                };
             }
             basicUI.activateControls(true);
+
             imageInputButton.fileInput.click();
         };
     }
@@ -132,11 +130,11 @@ basicUI = {};
                 console.log("structure");
                 Make.showingInputImage = false;
                 Make.clearControlImage();
+                basicUI.activateControls(false);
                 Make.draw = function() {
                     Make.map.drawStructure();
                 };
                 Make.updateOutputImage();
-                basicUI.activateControls(false);
             });
 
         showSelect.addOption("image",
@@ -162,33 +160,33 @@ basicUI = {};
                 function() {
                     Make.showingInputImage = false;
                     Make.clearControlImage();
+                    basicUI.activateControls(false);
                     Make.draw = function() {
                         Make.map.drawIterations();
                     };
                     Make.updateOutputImage();
-                    basicUI.activateControls(false);
                 });
 
             showSelect.addOption("convergence/structure",
                 function() {
                     Make.showingInputImage = false;
                     Make.clearControlImage();
+                    basicUI.activateControls(false);
                     Make.draw = function() {
                         Make.map.drawIterationsStructure();
                     };
                     Make.updateOutputImage();
-                    basicUI.activateControls(false);
                 });
 
             showSelect.addOption("convergence/image",
                 function() {
                     console.log("opt convimage");
                     Make.showingInputImage = true;
+                    basicUI.activateControls(true);
                     Make.draw = function() {
                         Make.controlImage.semiTransparent();
                         Make.map.drawIterationsImage();
                     };
-                    basicUI.activateControls(true);
                     if (!Make.inputImageExists) {
                         imageInputButton.fileInput.click();
                     } else {

@@ -74,8 +74,8 @@ function creation() {
 
     Make.map.makeColorCollection(2, 1, 2.5, 80);
     Make.map.hueInversionColorSymmetry();
-    Make.map.inversionColorSymmetry();
-    Make.map.lightnessInversionColorSymmetry();
+    //  Make.map.inversionColorSymmetry();
+    //   Make.map.lightnessInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
 
