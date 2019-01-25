@@ -194,6 +194,22 @@ basicUI = {};
                     }
                 });
 
+            showSelect.addOption("structure/image",
+                function() {
+                    console.log("opt convimage");
+                    Make.showingInputImage = true;
+                    basicUI.activateControls(true);
+                    Make.draw = function() {
+                        Make.controlImage.semiTransparent();
+                        Make.map.drawStructureImage();
+                    };
+                    if (!Make.inputImageExists) {
+                        imageInputButton.fileInput.click();
+                    } else {
+                        Make.updateOutputImage();
+                    }
+                });
+
             showSelect.addOption("convergence/structure/image",
                 function() {
                     console.log("opt convimage");
@@ -269,7 +285,7 @@ basicUI = {};
         // width of range input elements
         const rangeWidthToFontSize = 10;
         // weight of lines in the canvas
-        const lineWidthToSize = 0.2;
+        const lineWidthToSize = 0.25;
         // size of null radius in pixels
         const nullRadiusToSize = 0.7;
 

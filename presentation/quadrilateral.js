@@ -74,13 +74,13 @@ function creation() {
 
     Make.map.makeColorCollection(2, 1, 2.5, 80);
     Make.map.hueInversionColorSymmetry();
-    //  Make.map.inversionColorSymmetry();
+    Make.map.inversionColorSymmetry();
     //   Make.map.lightnessInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
 
-    VectorMap.iterationGamma = 0.6;
-    VectorMap.iterationSaturation = 7;
+    VectorMap.iterationGamma = 0.8;
+    VectorMap.iterationSaturation = 6;
     VectorMap.iterationThreshold = 2;
 
     const worldradius = 9.7;
@@ -240,7 +240,7 @@ function creation() {
         Make.updateMapOutput();
         if (showGenerators) {
             Draw.setLineWidth(basicUI.lineWidth);
-            Draw.setColor("white");
+            Draw.setColor("black");
             circleScope.draw();
         }
     };

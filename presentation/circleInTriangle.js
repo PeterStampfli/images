@@ -311,7 +311,7 @@ function creation() {
             Make.updateMapOutput();
             if (showGenerators) {
                 Draw.setLineWidth(basicUI.lineWidth);
-                Draw.setColor("white");
+                Draw.setColor("black");
                 circleScope.draw();
                 if (numberOfCircles === 5) {
                     Draw.circle(worldradius, zero);
