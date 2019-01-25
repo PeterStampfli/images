@@ -11,3 +11,7 @@ http://geometricolor.ch/interpolation.html
 http://geometricolor.ch/end.html
 http://geometricolor.ch/circleInversion.html
 http://geometricolor.ch/sphericalKaleidoscopeApp.html
+http://geometricolor.ch/circleInTriangle.html
+http://geometricolor.ch/circleInTriangleHelp.html
+http://geometricolor.ch/quadrilateral.html
+http://geometricolor.ch/quadrilateralHelp.html

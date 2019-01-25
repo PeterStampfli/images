@@ -11,7 +11,7 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "help.html");
+    Button.createGoToLocation("help", "sphericalKaleidoscopeHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
