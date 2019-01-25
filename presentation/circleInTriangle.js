@@ -124,8 +124,6 @@ function creation() {
     circleScope.setWorldradius(worldradius);
     const solutions = new Vector2();
 
-    circleScope.setupMouseForTrajectory();
-
     var sumAngles;
     // the first circle
     var r1, x1, y1;
@@ -219,7 +217,7 @@ function creation() {
         const dy = position.y - y2;
         if (dx < 0) {
             if (dy < m2 * dx) {
-                furtherResults.colorSector = 2;
+                furtherResults.colorSector = 0;
             } else {
                 furtherResults.colorSector = 1;
                 position.x -= transSector1X;
@@ -227,7 +225,7 @@ function creation() {
             }
         } else {
             if (dy < m12 * dx) {
-                furtherResults.colorSector = 0;
+                furtherResults.colorSector = 2;
                 position.x -= transSector0X;
             } else {
                 furtherResults.colorSector = 1;
@@ -281,14 +279,12 @@ function creation() {
             // show error message if not hyperbolic
             circleScope.circle1.map = circleScope.nothingMap;
         } else if (numberOfCircles === 4) {
-
             secondCircleThreeIntersections();
         } else if (numberOfCircles === 5) {
             console.log("five");
             secondCircleThreeIntersections();
             circleScope.circle2 = circleScope.circleInsideOutLimited(r2, x2, y2);
             circleScope.projection = function(position) {
-
                 const length2 = position.x * position.x + position.y * position.y;
                 if (length2 > worldradius2) {
                     const scale = worldradius2 / length2;
@@ -297,7 +293,6 @@ function creation() {
                     position.y *= scale;
                 }
                 circleScope.finishMap = function(position, furtherResults) {
-
                     threeTriangleSectors(position, furtherResults);
                     if (circleScope.reflectionsAtWorldradius & 1) {
                         furtherResults.colorSector += 3;
@@ -324,7 +319,7 @@ function creation() {
             }
         } else {
             Make.outputImage.pixelCanvas.errorMessage("The basic triangle is",
-                "not hyperbolic.", "Please increase the", "rotational symmetries.");
+                "not hyperbolic.", "Please increase its", "rotational symmetries.");
             Make.outputImage.adjustCanvasTransform();
             Draw.setLineWidth(basicUI.lineWidth);
             Draw.setColor("white");

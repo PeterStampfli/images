@@ -79,8 +79,8 @@ function creation() {
 
     circleScope.maxIterations = 200;
 
-    VectorMap.iterationGamma = 0.7;
-    VectorMap.iterationSaturation = 8;
+    VectorMap.iterationGamma = 0.6;
+    VectorMap.iterationSaturation = 7;
     VectorMap.iterationThreshold = 2;
 
     const worldradius = 9.7;
