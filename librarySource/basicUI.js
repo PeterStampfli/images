@@ -285,7 +285,7 @@ basicUI = {};
         // width of range input elements
         const rangeWidthToFontSize = 10;
         // weight of lines in the canvas
-        const lineWidthToSize = 0.25;
+        const lineWidthToSize = 0.35;
         // size of null radius in pixels
         const nullRadiusToSize = 0.7;
 

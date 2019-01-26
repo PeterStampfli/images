@@ -52,18 +52,18 @@ function creation() {
     // basic triangle
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
-    setKButton.setValue(5);
+    setKButton.setValue(3);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(2);
+    setMButton.setValue(3);
     setMButton.onChange = Make.updateNewMap;
 
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
-    setNButton.setValue(4);
+    setNButton.setValue(6);
     setNButton.onChange = Make.updateNewMap;
 
     // show the sum of angles
@@ -78,7 +78,7 @@ function creation() {
 
     let setM2Button = NumberButton.create("m2");
     setM2Button.setRange(2, 10000);
-    setM2Button.setValue(4);
+    setM2Button.setValue(2);
     setM2Button.onChange = Make.updateNewMap;
 
     let setN2Button = NumberButton.create("n2");
@@ -109,7 +109,7 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-11, 11, -11);
 
-    Make.map.makeColorCollection(6, 1, 1, 64);
+    Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
     Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
@@ -141,17 +141,12 @@ function creation() {
     function setupSeparators() {
         m2 = -cosGamma1 / sinGamma1;
         m12 = (y2 - y1) / (x2 - x1);
-
         transSector0X = x2 + Math.sqrt(r2 * r2 - y2 * y2);
-        console.log(transSector0X);
         const d = -x2 * sinGamma1 + y2 * cosGamma1;
         const l = Math.sqrt(r2 * r2 - d * d);
         const displacement = (x2 * cosGamma1 + y2 * sinGamma1 + l);
         transSector1X = cosGamma1 * displacement;
         transSector1Y = sinGamma1 * displacement;
-        console.log(transSector1X);
-        console.log(transSector1Y);
-
     }
 
 
@@ -217,9 +212,9 @@ function creation() {
         const dy = position.y - y2;
         if (dx < 0) {
             if (dy < m2 * dx) {
-                furtherResults.colorSector = 0;
-            } else {
                 furtherResults.colorSector = 1;
+            } else {
+                furtherResults.colorSector = 0;
                 position.x -= transSector1X;
                 position.y -= transSector1Y;
             }
@@ -228,7 +223,7 @@ function creation() {
                 furtherResults.colorSector = 2;
                 position.x -= transSector0X;
             } else {
-                furtherResults.colorSector = 1;
+                furtherResults.colorSector = 0;
                 position.x -= transSector1X;
                 position.y -= transSector1Y;
             }
@@ -311,7 +306,7 @@ function creation() {
             Make.updateMapOutput();
             if (showGenerators) {
                 Draw.setLineWidth(basicUI.lineWidth);
-                Draw.setColor("black");
+                Draw.setColor("white");
                 circleScope.draw();
                 if (numberOfCircles === 5) {
                     Draw.circle(worldradius, zero);

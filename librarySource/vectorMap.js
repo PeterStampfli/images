@@ -105,18 +105,19 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {float} hue - between 0 and 6, going from red to yellow to green to cyan to blue to magenta to red
      * @param {integer} attenuation - between 0 and 127, for even or odd number of reflections
      */
-    VectorMap.prototype.addStructureColors = function(hue, attenuation) {
+    VectorMap.prototype.addStructureColors = function(hue, whiteOrigin, attenuationOdd) {
         this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
         const color = new Color();
-        color.grey = 0;
+        color.grey = whiteOrigin;
         color.hue = hue;
-        color.colorIntensity = 255;
+        color.colorIntensity = 255 - whiteOrigin;
         color.rgbFromHig();
         const intColorNull = PixelCanvas.integerOf(color);
-        color.colorIntensity = 255 - attenuation;
+        color.grey = 0;
+        color.colorIntensity = 255;
         color.rgbFromHig();
         const intColorEven = PixelCanvas.integerOf(color);
-        color.colorIntensity = 255 - 2 * attenuation;
+        color.colorIntensity = 255 - attenuationOdd;
         color.rgbFromHig();
         const intColorOdd = PixelCanvas.integerOf(color);
         const colors = new Uint32Array(256);
@@ -138,11 +139,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {float} deltaHue
      * @param {float} attenuation
      */
-    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuation) {
+    VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuationEven, attenuationOdd) {
         this.structureColorCollection = [];
         let hue = firstHue;
         for (var i = 0; i < nColors; i++) {
-            this.addStructureColors(hue, attenuation);
+            this.addStructureColors(hue, attenuationEven, attenuationOdd);
             hue += deltaHue;
         }
     };

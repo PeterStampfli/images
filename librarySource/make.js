@@ -530,7 +530,6 @@ var Make = {};
             console.log("*** Make.updateOutputImage: input image not loaded !");
             return;
         }
-        console.log("iamge quality " + Make.imageQuality);
         Make.controlImage.semiTransparent();
         // generate image by looking up input colors at result of the nonlinear map, transformed by space to input image transform and possibly color symmetry
         if (Make.imageQuality == "low") {
@@ -555,10 +554,7 @@ var Make = {};
      * simply redraw
      * @method Make.updateOutputImageNoColorSymmetry
      */
-    let no = 0;
     Make.updateMapOutput = function() {
-        no++;
-        console.log("redraw " + no);
         Make.outputImage.adjustCanvasTransform();
         if (!Make.map.exists) {
             console.log("*** Make.updateOutputImage: map does not exist !");

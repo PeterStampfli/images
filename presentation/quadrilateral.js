@@ -63,7 +63,7 @@ function creation() {
 
     let circlePosition = Range.create("circlePosition");
     circlePosition.setRange(0.0, 1);
-    circlePosition.setValue(0.75);
+    circlePosition.setValue(0.8);
     circlePosition.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     
@@ -73,6 +73,8 @@ function creation() {
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
     Make.map.makeColorCollection(2, 1, 2.5, 80);
+    Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+
     Make.map.hueInversionColorSymmetry();
     Make.map.inversionColorSymmetry();
     //   Make.map.lightnessInversionColorSymmetry();
@@ -240,7 +242,7 @@ function creation() {
         Make.updateMapOutput();
         if (showGenerators) {
             Draw.setLineWidth(basicUI.lineWidth);
-            Draw.setColor("black");
+            Draw.setColor("white");
             circleScope.draw();
         }
     };
