@@ -57,13 +57,13 @@ function creation() {
     let sum = document.getElementById("sum");
 
     let circleSize = Range.create("circleSize");
-    circleSize.setRange(0.0, 1);
-    circleSize.setValue(0.88);
+    circleSize.setRange(0.01, 0.99);
+    circleSize.setValue(0.9);
     circleSize.onChange = Make.updateNewMap;
 
     let circlePosition = Range.create("circlePosition");
     circlePosition.setRange(0.0, 1);
-    circlePosition.setValue(0.8);
+    circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     
@@ -81,9 +81,9 @@ function creation() {
 
     circleScope.maxIterations = 200;
 
-    VectorMap.iterationGamma = 0.8;
+    VectorMap.iterationGamma = 1.1;
     VectorMap.iterationSaturation = 6;
-    VectorMap.iterationThreshold = 2;
+    VectorMap.iterationThreshold = 1;
 
     const worldradius = 9.7;
     const worldradius2 = worldradius * worldradius;
@@ -238,11 +238,14 @@ function creation() {
         }
     };
 
+    // line width should relate to output image size!!
+    const lineWidthToImageSize = 0.005;
+
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if (showGenerators) {
-            Draw.setLineWidth(basicUI.lineWidth);
-            Draw.setColor("white");
+            Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
+            Draw.setColor("black");
             circleScope.draw();
         }
     };

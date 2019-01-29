@@ -115,9 +115,9 @@ function creation() {
     circleScope.maxIterations = 200;
 
 
-    VectorMap.iterationGamma = 0.7;
-    VectorMap.iterationSaturation = 8;
-    VectorMap.iterationThreshold = 2;
+    VectorMap.iterationGamma = 1.2;
+    VectorMap.iterationSaturation = 10;
+    VectorMap.iterationThreshold = 5;
 
     const worldradius = 9.7;
     const worldradius2 = worldradius * worldradius;
@@ -243,6 +243,8 @@ function creation() {
     }
 
     Make.initializeMap = function() {
+        Make.map.discRadius = -1;
+
         // get data
         let k1 = setKButton.getValue();
         let m1 = setMButton.getValue();
@@ -276,7 +278,7 @@ function creation() {
         } else if (numberOfCircles === 4) {
             secondCircleThreeIntersections();
         } else if (numberOfCircles === 5) {
-            console.log("five");
+            Make.map.discRadius = worldradius;
             secondCircleThreeIntersections();
             circleScope.circle2 = circleScope.circleInsideOutLimited(r2, x2, y2);
             circleScope.projection = function(position) {
@@ -293,11 +295,12 @@ function creation() {
                         furtherResults.colorSector += 3;
                     }
                 };
-
             };
-
         }
     };
+
+    // line width should relate to output image size!!
+    const lineWidthToImageSize = 0.005;
 
     const zero = new Vector2();
 
@@ -305,8 +308,8 @@ function creation() {
         if (sumAngles < 0.99) {
             Make.updateMapOutput();
             if (showGenerators) {
-                Draw.setLineWidth(basicUI.lineWidth);
-                Draw.setColor("white");
+                Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
+                Draw.setColor("black");
                 circleScope.draw();
                 if (numberOfCircles === 5) {
                     Draw.circle(worldradius, zero);
