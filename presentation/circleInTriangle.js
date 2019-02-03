@@ -29,6 +29,82 @@ function creation() {
     });
     viewSelect.setIndex(1);
 
+    Make.map.discRadius = -1;
+    circleScope.projection = circleScope.doNothing;
+
+    let projection = new Select("projection");
+    projection.addOption("Poincaré disc surrounded", function() {
+        circleScope.projection = circleScope.doNothing;
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Poincaré disc only", function() {
+        circleScope.projection = circleScope.doNothing;
+        Make.map.discRadius = worldradius;
+        Make.updateNewMap();
+    });
+    projection.addOption("Poincaré plane both", function() {
+        circleScope.projection = function(position) {
+            position.y = worldradius - position.y;
+            position.x /= worldradius;
+            position.y /= worldradius;
+            // cayley transform
+            let r2 = position.x * position.x + position.y * position.y;
+            let base = 1 / (r2 + 2 * position.y + 1.00001);
+            position.y = -2 * position.x * base * worldradius;
+            position.x = (r2 - 1) * base * worldradius;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Poincaré plane single", function() {
+        circleScope.projection = function(position) {
+            position.y = worldradius - position.y;
+            if (position.y < 0) {
+                return -1;
+            }
+            position.x /= worldradius;
+            position.y /= worldradius;
+            // cayley transform
+            let r2 = position.x * position.x + position.y * position.y;
+            let base = 1 / (r2 + 2 * position.y + 1.00001);
+            position.y = -2 * position.x * base * worldradius;
+            position.x = (r2 - 1) * base * worldradius;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+
+
+    projection.addOption("Klein disc surrounded", function() {
+        circleScope.projection = function(position) {
+            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+            if (r2worldRadius2 < 1) {
+                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+                position.x *= mapFactor;
+                position.y *= mapFactor;
+            }
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Klein disc only", function() {
+        circleScope.projection = function(position) {
+            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+            let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
+        };
+        Make.map.discRadius = worldradius;
+        Make.updateNewMap();
+    });
+
+
+
     let generators = new Select("generators");
     let showGenerators = true;
 
@@ -243,7 +319,6 @@ function creation() {
     }
 
     Make.initializeMap = function() {
-        Make.map.discRadius = -1;
 
         // get data
         let k1 = setKButton.getValue();
@@ -269,7 +344,6 @@ function creation() {
         sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
         circleScope.setDihedral(k1);
         setupFirstCircle();
-        circleScope.projection = circleScope.doNothing;
         circleScope.circle2 = circleScope.circleZero(); // no second circle for fails
         circleScope.finishMap = insideOutsideSectors; // for three circles everything done
         if (sumAngles > 0.99) {

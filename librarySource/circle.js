@@ -175,27 +175,25 @@ function Circle(radius, center, centerY) {
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.invertInsideOut = function(v) {
+        let result = -1;
         const dx = v.x - this.center.x;
-        if (Math.abs(dx) > this.radius) {
-            return -1;
+        let pointR2 = dx * dx;
+        if (pointR2 < this.radius2) {
+            const dy = v.y - this.center.y;
+            pointR2 += dy * dy;
+            if (this.radius2 - 0.0001 > pointR2) {
+                if (pointR2 < epsilon2) {
+                    v.x = this.center.x + iEpsilon2;
+                    v.y = this.center.y + iEpsilon2;
+                    result = iEpsilon2;
+                } else {
+                    result = this.radius2 / pointR2;
+                    v.x = this.center.x + dx * result;
+                    v.y = this.center.y + dy * result;
+                }
+            }
         }
-        const dy = v.y - this.center.y;
-        if (Math.abs(dy) > this.radius) {
-            return -1;
-        }
-        const pointR2 = dx * dx + dy * dy;
-
-        if (pointR2 < epsilon2) {
-            v.x = this.center.x + iEpsilon2;
-            v.y = this.center.y + iEpsilon2;
-            return iEpsilon2;
-        } else if (this.radius2 - 0.0001 > pointR2) {
-            const factor = this.radius2 / pointR2;
-            v.x = this.center.x + dx * factor;
-            v.y = this.center.y + dy * factor;
-            return factor;
-        }
-        return -1;
+        return result;
     };
 
     /**
@@ -222,9 +220,6 @@ function Circle(radius, center, centerY) {
     Circle.prototype.invertOutsideIn = function(v) {
         const dx = v.x - this.center.x;
         const dy = v.y - this.center.y;
-        if ((Math.abs(dx) < this.radius07) && (Math.abs(dy) < this.radius07)) {
-            return -1;
-        }
         const pointR2 = dx * dx + dy * dy;
         if (this.radius2 + 0.0001 < pointR2) {
             const factor = this.radius2 / pointR2;

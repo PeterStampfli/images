@@ -103,7 +103,9 @@ circleScope = {};
      * @param {Vector2} v - the vector to map
      * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
-    circleScope.doNothing = function(position, furtherResults) {};
+    circleScope.doNothing = function(position, furtherResults) {
+        return 1;
+    };
 
     /**
      * doing a projection before the mapping
@@ -136,6 +138,7 @@ circleScope = {};
      */
     circleScope.circleInversionProjection = function(v) {
         circleScope.inversionCircle.invert(v);
+        return 1;
     };
 
     /**
@@ -152,7 +155,10 @@ circleScope = {};
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
         circleScope.reflectionsAtWorldradius = 0;
-        circleScope.projection(position);
+        if (circleScope.projection(position) < -0.1) {
+            furtherResults.lyapunov = -1;
+            return;
+        }
         dihedral.map(position);
         furtherResults.reflections += Dihedral.reflections;
         var i = circleScope.maxIterations;
