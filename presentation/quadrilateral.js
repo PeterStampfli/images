@@ -13,6 +13,101 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+
+    let projection = new Select("projection");
+    projection.addOption("Poincaré disc surrounded", function() {
+        circleScope.projection = circleScope.doNothing;
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Poincaré disc only", function() {
+        circleScope.projection = circleScope.doNothing;
+        Make.map.discRadius = worldradius;
+        Make.updateNewMap();
+    });
+
+    projection.addOption("Poincaré plane both", function() {
+        circleScope.projection = function(position) {
+            position.y = worldradius - position.y;
+            position.x /= worldradius;
+            position.y /= worldradius;
+            // cayley transform
+            let r2 = position.x * position.x + position.y * position.y;
+            let base = 1 / (r2 + 2 * position.y + 1.00001);
+            position.y = -2 * position.x * base * worldradius;
+            position.x = (r2 - 1) * base * worldradius;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Poincaré plane single", function() {
+        circleScope.projection = function(position) {
+            position.y = worldradius - position.y;
+            if (position.y < 0) {
+                return -1;
+            }
+            position.x /= worldradius;
+            position.y /= worldradius;
+            // cayley transform
+            let r2 = position.x * position.x + position.y * position.y;
+            let base = 1 / (r2 + 2 * position.y + 1.00001);
+            position.y = -2 * position.x * base * worldradius;
+            position.x = (r2 - 1) * base * worldradius;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+
+
+
+    projection.addOption("Klein disc surrounded", function() {
+        circleScope.projection = function(position) {
+            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+            if (r2worldRadius2 < 1) {
+                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+                position.x *= mapFactor;
+                position.y *= mapFactor;
+            }
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Klein disc only", function() {
+        circleScope.projection = function(position) {
+            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+            let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
+        };
+        Make.map.discRadius = worldradius;
+        Make.updateNewMap();
+    });
+
+    var v = new Vector2();
+
+    projection.addOption("Bulatov band", function() {
+        let bandScale = Math.PI * 0.5 / worldradius;
+        circleScope.projection = function(position) {
+            if (Math.abs(position.y) > worldradius) {
+                return -1;
+            }
+            position.scale(bandScale);
+            let exp2u = Fast.exp(position.x);
+            let expm2u = 1 / exp2u;
+            Fast.cosSin(position.y, v);
+            let base = worldradius / (exp2u + expm2u + 2 * v.x);
+            position.x = (exp2u - expm2u) * base;
+            position.y = 2 * v.y * base;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+
     let generators = new Select("generators");
     let showGenerators = true;
 
@@ -57,7 +152,8 @@ function creation() {
     let sum = document.getElementById("sum");
 
     let circleSize = Range.create("circleSize");
-    circleSize.setRange(0.01, 0.99);
+    circleSize.setStep(0.001);
+    circleSize.setRange(0.01, 0.998);
     circleSize.setValue(0.9);
     circleSize.onChange = Make.updateNewMap;
 

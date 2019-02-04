@@ -103,7 +103,26 @@ function creation() {
         Make.updateNewMap();
     });
 
+    var v = new Vector2();
 
+    projection.addOption("Bulatov band", function() {
+        let bandScale = Math.PI * 0.5 / worldradius;
+        circleScope.projection = function(position) {
+            if (Math.abs(position.y) > worldradius) {
+                return -1;
+            }
+            position.scale(bandScale);
+            let exp2u = Fast.exp(position.x);
+            let expm2u = 1 / exp2u;
+            Fast.cosSin(position.y, v);
+            let base = worldradius / (exp2u + expm2u + 2 * v.x);
+            position.x = (exp2u - expm2u) * base;
+            position.y = 2 * v.y * base;
+            return 1;
+        };
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
 
     let generators = new Select("generators");
     let showGenerators = true;
