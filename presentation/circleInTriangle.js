@@ -210,6 +210,9 @@ function creation() {
     circleScope.maxIterations = 200;
 
 
+    circleScope.setupMouseForTrajectory();
+
+
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
@@ -245,31 +248,16 @@ function creation() {
     }
 
 
-    // setting up the first circle/line, making the triangle
+    // setting up the first circle/line, making the triangle, always hyperbolic
     function setupFirstCircle() {
-        if (sumAngles > 1.0001) { // elliptic
-            r1 = 1;
-            x1 = -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
-            y1 = cosAlpha1;
-            const scale = Math.sqrt(worldradius2 / (1 - x1 * x1 + y1 * y1));
-            r1 *= scale;
-            x1 *= scale;
-            y1 *= scale;
-            circleScope.circle1 = circleScope.circleOutsideIn(r1, x1, y1);
-        } else if (sumAngles > 0.999999) { // euklidic
-            const big = 100000;
-            x1 = 3; // intersection with x-axis
-            circleScope.circle1 = circleScope.lineLeftRight(x1 - big * cosAlpha1, big * sinAlpha1, x1 + big * cosAlpha1, -big * sinAlpha1);
-        } else { // hyperbolic
-            r1 = 1;
-            x1 = (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
-            y1 = cosAlpha1;
-            const scale = Math.sqrt(worldradius2 / (x1 * x1 + y1 * y1 - 1));
-            r1 *= scale;
-            x1 *= scale;
-            y1 *= scale;
-            circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
-        }
+        r1 = 1;
+        x1 = (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
+        y1 = cosAlpha1;
+        const scale = Math.sqrt(worldradius2 / (x1 * x1 + y1 * y1 - 1));
+        r1 *= scale;
+        x1 *= scale;
+        y1 *= scale;
+        circleScope.addCircleInsideOut(r1, x1, y1);
     }
 
     // calculate the second circle for intersecting with all three sides
@@ -284,7 +272,7 @@ function creation() {
             r2 = solutions.x;
             x2 = r2 * u;
             y2 = r2 * v;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            circleScope.addCircleInsideOut(r2, x2, y2);
             setupSeparators();
             // the finishing function to mark the different triangles
             circleScope.finishMap = function(position, furtherResults) {
@@ -361,34 +349,34 @@ function creation() {
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
         sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
+        circleScope.reset();
         circleScope.setDihedral(k1);
-        setupFirstCircle();
-        circleScope.circle2 = circleScope.circleZero(); // no second circle for fails
-        circleScope.finishMap = insideOutsideSectors; // for three circles everything done
-        if (sumAngles > 0.99) {
-            // show error message if not hyperbolic
-            circleScope.circle1.map = circleScope.nothingMap;
-        } else if (numberOfCircles === 4) {
-            secondCircleThreeIntersections();
-        } else if (numberOfCircles === 5) {
-            Make.map.discRadius = worldradius;
-            secondCircleThreeIntersections();
-            circleScope.circle2 = circleScope.circleInsideOutLimited(r2, x2, y2);
-            circleScope.projection = function(position) {
-                const length2 = position.x * position.x + position.y * position.y;
-                if (length2 > worldradius2) {
-                    const scale = worldradius2 / length2;
-                    circleScope.reflectionsAtWorldradius++;
-                    position.x *= scale;
-                    position.y *= scale;
-                }
-                circleScope.finishMap = function(position, furtherResults) {
-                    threeTriangleSectors(position, furtherResults);
-                    if (circleScope.reflectionsAtWorldradius & 1) {
-                        furtherResults.colorSector += 3;
+        // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
+        if (sumAngles < 0.99) {
+            setupFirstCircle();
+            circleScope.finishMap = insideOutsideSectors; // for three circles everything done
+            if (numberOfCircles === 4) {
+                secondCircleThreeIntersections();
+            } else if (numberOfCircles === 5) {
+                secondCircleThreeIntersections();
+                // HACK
+                circleScope.elements[1] = circleScope.circleInsideOutLimited(r2, x2, y2);
+                circleScope.projection = function(position) {
+                    const length2 = position.x * position.x + position.y * position.y;
+                    if (length2 > worldradius2) {
+                        const scale = worldradius2 / length2;
+                        circleScope.reflectionsAtWorldradius++;
+                        position.x *= scale;
+                        position.y *= scale;
                     }
+                    circleScope.finishMap = function(position, furtherResults) {
+                        threeTriangleSectors(position, furtherResults);
+                        if (circleScope.reflectionsAtWorldradius & 1) {
+                            furtherResults.colorSector += 3;
+                        }
+                    };
                 };
-            };
+            }
         }
     };
 

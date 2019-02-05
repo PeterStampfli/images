@@ -1,6 +1,5 @@
 /**
- * similar to threeMirrorskaleidoscope+basicKaleidoscop, but with two circles instead of one
- * both circles invert inside out
+ * similar to threeMirrorskaleidoscope+basicKaleidoscop, but with many circles instead of one
  * @namespace circleScope
  */
 
@@ -14,8 +13,67 @@ circleScope = {};
     circleScope.maxIterations = 100;
     // radius of a poincare disc ??
     circleScope.discRadius = -1;
-    // cutoff or not
-    circleScope.discCutoff = true;
+
+
+    // the elements
+    circleScope.elements = [];
+    // the elements as arrays of symmetric copies according to dihedral symmetry
+    circleScope.symmetricElements = [];
+
+    /**
+     * reset things
+     * @method circleScope.reset
+     */
+    circleScope.reset = function() {
+        circleScope.elements.length = 0;
+    };
+
+
+
+    /**
+     * add a circle to elements, without mapping method
+     * @method circleScope.addCircle
+     * @param {float} radius
+     * @param {float} centerX
+     * @param {float} centerY
+     * @return Circle
+     */
+    circleScope.addCircle = function(radius, centerX, centerY) {
+        const circle = new Circle(radius, centerX, centerY);
+        circleScope.elements.push(circle);
+        return circle;
+    };
+
+    /**
+     * make symmetric circles in a new array, using the circle element at the top
+     * @method circleScope.makeSymmetricCircles
+     */
+    circleScope.makeSymmetricCircles = function() {
+        const index = circleScope.elements.length - 1;
+        console.log(index);
+        const circle = circleScope.elements[index];
+        if (circleScope.elements.length > circleScope.symmetricElements.length) {
+            circleScope.symmetricElements.push([]);
+        }
+        circleScope.dihedral.generateCircles(circle, circleScope.symmetricElements[index]);
+        console.log(circleScope.symmetricElements[index]);
+    };
+
+    /**
+     * add a circle to elements, with inside out mapping method
+     * @method circleScope.addCircleInsideOut
+     * @param {float} radius
+     * @param {float} centerX
+     * @param {float} centerY
+     * @return Circle
+     */
+    circleScope.addCircleInsideOut = function(radius, centerX, centerY) {
+        const circle = circleScope.addCircle(radius, centerX, centerY);
+        circle.map = circle.invertInsideOut;
+        circleScope.makeSymmetricCircles();
+        return circle;
+    };
+
 
     circleScope.dihedral = new Dihedral();
     let dihedral = circleScope.dihedral;
@@ -67,15 +125,10 @@ circleScope = {};
     };
 
     /**
-     * set the mappings
+     * set vectormap to use the circlescope mapping
      * @method circleScope.setMapping
      */
     circleScope.setMapping = function() {
-        if (circleScope.discCutoff) {
-            Make.map.discRadius = circleScope.discRadius;
-        } else {
-            Make.map.discRadius = -1;
-        }
         Make.setMapping(circleScope.map);
     };
 
@@ -155,6 +208,8 @@ circleScope = {};
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
         circleScope.reflectionsAtWorldradius = 0;
+        const elements = circleScope.elements;
+        const elementsLength = elements.length;
         if (circleScope.projection(position) < -0.1) {
             furtherResults.lyapunov = -1;
             return;
@@ -166,19 +221,14 @@ circleScope = {};
         while ((i > 0) && changed) {
             i--;
             changed = false;
-            if (circleScope.circle1.map(position) > 0) {
-                changed = true;
-                furtherResults.reflections++;
-                furtherResults.iterations++;
-                dihedral.map(position);
-                furtherResults.reflections += Dihedral.reflections;
-            }
-            if (circleScope.circle2.map(position) > 0) {
-                changed = true;
-                furtherResults.reflections++;
-                furtherResults.iterations++;
-                dihedral.map(position);
-                furtherResults.reflections += Dihedral.reflections;
+            for (var j = elementsLength - 1; j >= 0; j--) {
+                if (elements[j].map(position) >= 0) {
+                    changed = true;
+                    furtherResults.reflections++;
+                    furtherResults.iterations++;
+                    dihedral.map(position);
+                    furtherResults.reflections += Dihedral.reflections;
+                }
             }
         }
         furtherResults.reflections += circleScope.reflectionsAtWorldradius;
@@ -196,78 +246,39 @@ circleScope = {};
      */
     circleScope.draw = function() {
         dihedral.drawMirrors();
-        circleScope.circle1.draw();
-        circleScope.circle2.draw();
+        Draw.array(circleScope.elements);
     };
 
     // drawing the trajectory
 
     let mousePosition = new Vector2();
     const lastPosition = new Vector2();
-    circleScope.pointColor = new Color(255, 255, 255);
-    circleScope.trajectoryColor = new Color(255, 255, 0);
+    circleScope.trajectoryColor = new Color(255, 255, 255);
 
     /**
-     * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map
+     * draw the trajectory no endpoints 
      * @method circleScope.drawTrajectory
      * @param {Vector2} position
      */
     circleScope.drawTrajectory = function(position) {
-        let iterations = 0;
-        const positions = [];
-        positions.push(position.clone());
-        const sizes = [];
-        let size = 1;
-        sizes.push(size);
+        const elements = circleScope.elements;
+        const elementsLength = elements.length;
         // do the mapping and draw lines
         Draw.setColor(circleScope.trajectoryColor);
         Draw.setLineWidth(basicUI.lineWidth);
         dihedral.drawMap(position);
-        positions.push(position.clone());
-        sizes.push(size);
         var i = circleScope.maxIterations;
         var changed = true;
         while ((i > 0) && changed) {
             i--;
             changed = false;
-            lastPosition.set(position);
-            let factor = circleScope.circle1.map(position);
-            if (factor >= 0) {
-                changed = true;
-                iterations++;
-                size *= factor;
-                sizes.push(size);
-                positions.push(position.clone());
-                Draw.line(lastPosition, position);
-                dihedral.drawMap(position);
-                positions.push(position.clone());
-                sizes.push(size);
-            }
-            lastPosition.set(position);
-            factor = circleScope.circle2.map(position);
-            if (factor >= 0) {
-                changed = true;
-                iterations++;
-                size *= factor;
-                sizes.push(size);
-                positions.push(position.clone());
-                Draw.line(lastPosition, position);
-                dihedral.drawMap(position);
-                positions.push(position.clone());
-                sizes.push(size);
-            }
-        }
-        // draw the endpoints, scaled sizes
-        Draw.setColor(circleScope.pointColor);
-        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
-        let sizesLength = sizes.length;
-        let endSize = sizes[sizesLength - 1];
-        if (endSize > 0) {
-            if (endSize < 1) {
-                nullRadius /= endSize;
-            }
-            for (i = 0; i < sizesLength; i++) {
-                Draw.circle(nullRadius * sizes[i], positions[i]);
+            for (var j = elementsLength - 1; j >= 0; j--) {
+                lastPosition.set(position);
+                if (elements[j].map(position) >= 0) {
+                    changed = true;
+                    Draw.line(lastPosition, position);
+                    dihedral.drawMap(position);
+                }
             }
         }
     };

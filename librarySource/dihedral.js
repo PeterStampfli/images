@@ -162,7 +162,7 @@ function Dihedral() {
     // creating symmetric elements
 
     /**
-     * generate an array of symmetric copies of a circle
+     * generate an array of symmetric copies of a circle, including the mapping
      * @method Dihedral#generateCircles
      * @param {Circle} basicCircle
      * @param {ArrayOfCircle} circles - will be changed to have symmetric copies of the basicCircle
@@ -187,8 +187,10 @@ function Dihedral() {
         for (i = 0; i < circlesLength; i += 2) {
             circles[i].setRadius(basicCircle.radius);
             circles[i].center.set(circleCenter);
+            circles[i].map = basicCircle.map;
             circles[i + 1].setRadius(basicCircle.radius);
             circles[i + 1].center.set(circleCenterMirrored);
+            circles[i + 1].map = basicCircle.map;
             circleCenter.rotate(rotationAngle);
             circleCenterMirrored.rotate(rotationAngle);
         }
@@ -217,6 +219,7 @@ function Dihedral() {
         endPointA.set(basicLine.a);
         let endPointB = new Vector2();
         endPointB.set(basicLine.b);
+        // mirroring must exchange endpoints to compensate for inversion
         let endPointAMirrored = basicLine.b.clone();
         endPointAMirrored.mirrorAtXAxis();
         endPointAMirrored.rotate(rotationAngle);

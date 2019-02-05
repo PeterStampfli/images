@@ -208,7 +208,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let scale = this.outputImage.scale;
         let index = 0;
         let cutDisc = (this.discRadius > 0);
-        console.log(this.discRadius);
         var discRadius2, discRadiusMinus2, alphaFactor;
         if (cutDisc) {
             discRadius2 = this.discRadius * this.discRadius;
