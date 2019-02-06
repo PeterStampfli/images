@@ -100,10 +100,6 @@ function Dihedral() {
      */
     Dihedral.prototype.mapOfSector = function(i, p) {
         Dihedral.reflections = i;
-        if (this.maps[i] == null) {
-            console.log(i);
-            p.log();
-        }
         this.maps[i](p);
     };
 
@@ -114,7 +110,13 @@ function Dihedral() {
      * @param {Vector2} v - the vector of the point to map
      */
     Dihedral.prototype.map = function(p) {
-        this.mapOfSector(this.getSectorIndex(p), p);
+        // this.mapOfSector(this.getSectorIndex(p), p);
+        let result = Fast.atan2(p.y, p.x);
+        if (result < 0) {
+            result += zpi;
+        }
+        const index = Math.floor(this.nDivPi * result);
+        this.maps[index](p);
     };
 
 

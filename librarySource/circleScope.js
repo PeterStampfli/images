@@ -1,5 +1,6 @@
 /**
  * similar to threeMirrorskaleidoscope+basicKaleidoscop, but with many circles instead of one
+ * up to three circles?
  * @namespace circleScope
  */
 
@@ -26,7 +27,15 @@ circleScope = {};
      */
     circleScope.reset = function() {
         circleScope.elements.length = 0;
+        circle1.map = circleScope.doNothing;
+        circle2.map = circleScope.doNothing;
+        circle3.map = circleScope.doNothing;
     };
+
+    // the circes
+    circleScope.circle1 = new Circle();
+    circleScope.circle2 = new Circle();
+    circleScope.circle3 = new Circle();
 
 
 
@@ -134,6 +143,39 @@ circleScope = {};
 
 
     /**
+     * doing nothing, as identity projection or transform after the iterative mapping
+     * @method circleScope.doNothing
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    circleScope.doNothing = function(position, furtherResults) {
+        return 1;
+    };
+
+
+    /**
+     * doing a projection before the mapping
+     * here it does nothing, rewrite to do something
+     * @method circleScope.projection
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    circleScope.projection = circleScope.doNothing;
+
+
+
+    /**
+     * doing something to start the mapping
+     * here it does nothing, rewrite to do something,
+     * inversion at a straight line for translation ?
+     * inverting if outside world...
+     * @method circleScope.startMap
+     * @param {Vector2} v - the vector to map
+     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
+     */
+    circleScope.startMap = function(position, furtherResults) {};
+
+    /**
      * doing something to finish the mapping
      * here it does nothing, rewrite to do something
      * @method circleScope.finishMap
@@ -159,15 +201,6 @@ circleScope = {};
     circleScope.doNothing = function(position, furtherResults) {
         return 1;
     };
-
-    /**
-     * doing a projection before the mapping
-     * here it does nothing, rewrite to do something
-     * @method circleScope.projection
-     * @param {Vector2} v - the vector to map
-     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
-     */
-    circleScope.projection = circleScope.doNothing;
 
 
     // circle inversion as projection
@@ -210,12 +243,14 @@ circleScope = {};
         circleScope.reflectionsAtWorldradius = 0;
         const elements = circleScope.elements;
         const elementsLength = elements.length;
+        const symmetricElements = circleScope.symmetricElements;
         if (circleScope.projection(position) < -0.1) {
             furtherResults.lyapunov = -1;
             return;
         }
         dihedral.map(position);
         furtherResults.reflections += Dihedral.reflections;
+        // let sectorIndex = dihedral.getSectorIndex(position);
         var i = circleScope.maxIterations;
         var changed = true;
         while ((i > 0) && changed) {
@@ -224,13 +259,21 @@ circleScope = {};
             for (var j = elementsLength - 1; j >= 0; j--) {
                 if (elements[j].map(position) >= 0) {
                     changed = true;
+                    // sectorIndex = dihedral.getSectorIndex(position);
                     furtherResults.reflections++;
                     furtherResults.iterations++;
                     dihedral.map(position);
+
                     furtherResults.reflections += Dihedral.reflections;
                 }
             }
         }
+
+        //               circleScope.sectorIndex=sectorIndex;
+        // dihedral.mapOfSector(sectorIndex,position);
+        dihedral.map(position);
+        furtherResults.reflections += Dihedral.reflections;
+
         furtherResults.reflections += circleScope.reflectionsAtWorldradius;
         if (changed) {
             furtherResults.lyapunov = -1;
