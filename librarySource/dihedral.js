@@ -110,12 +110,13 @@ function Dihedral() {
      * @param {Vector2} v - the vector of the point to map
      */
     Dihedral.prototype.map = function(p) {
-        // this.mapOfSector(this.getSectorIndex(p), p);
+        //  this.mapOfSector(this.getSectorIndex(p), p);
         let result = Fast.atan2(p.y, p.x);
         if (result < 0) {
             result += zpi;
         }
         const index = Math.floor(this.nDivPi * result);
+        Dihedral.reflections = index;
         this.maps[index](p);
     };
 

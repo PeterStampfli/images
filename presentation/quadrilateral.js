@@ -193,6 +193,11 @@ function creation() {
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n + 1 / p)) + "<sup>o</sup>";
         // the angles
         circleScope.setDihedral(k); // cosGamma1, sinGamma1
+
+        circleScope.reset();
+
+        circleScope.startMap = circleScope.noMap;
+
         const cosAlpha = Math.cos(Math.PI / m);
         const sinAlpha = Math.sin(Math.PI / m);
         const cosBeta = Math.cos(Math.PI / n);
@@ -214,7 +219,11 @@ function creation() {
         x1 *= scale;
         y1 *= scale;
         r1 *= scale;
-        circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
+        // circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
+
+        circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
+
         // the second circle and finish map depending on geometry
         var r2, x2, y2;
         var a, b, c;
@@ -278,7 +287,11 @@ function creation() {
             r2 = solutions.y;
             x2 = xi * cosGamma + r2 * sinGamma * cosDelta;
             y2 = xi * sinGamma - r2 * cosGamma * cosDelta;
-            circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            //   circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
+            circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
+            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+
+
         } else {
             console.log("**** no solution for general second circle");
             r2 = 0;
@@ -342,7 +355,9 @@ function creation() {
         if (showGenerators) {
             Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
             Draw.setColor("black");
-            circleScope.draw();
+            circleScope.dihedral.drawMirrors();
+            circleScope.circle1.draw();
+            circleScope.circle2.draw();
         }
     };
 

@@ -257,7 +257,8 @@ function creation() {
         r1 *= scale;
         x1 *= scale;
         y1 *= scale;
-        circleScope.addCircleInsideOut(r1, x1, y1);
+        circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
     }
 
     // calculate the second circle for intersecting with all three sides
@@ -272,7 +273,8 @@ function creation() {
             r2 = solutions.x;
             x2 = r2 * u;
             y2 = r2 * v;
-            circleScope.addCircleInsideOut(r2, x2, y2);
+            circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
+            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
             setupSeparators();
             // the finishing function to mark the different triangles
             circleScope.finishMap = function(position, furtherResults) {
@@ -351,6 +353,7 @@ function creation() {
         sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
         circleScope.reset();
         circleScope.setDihedral(k1);
+        circleScope.startMap = circleScope.noMap;
         // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
         if (sumAngles < 0.99) {
             setupFirstCircle();
@@ -359,9 +362,24 @@ function creation() {
                 secondCircleThreeIntersections();
             } else if (numberOfCircles === 5) {
                 secondCircleThreeIntersections();
-                // HACK
-                circleScope.elements[1] = circleScope.circleInsideOutLimited(r2, x2, y2);
-                circleScope.projection = function(position) {
+
+                circleScope.circle2.map = function(position) {
+                    let first = this.invertInsideOut(position);
+                    if (first > 0) {
+                        const length2 = position.x * position.x + position.y * position.y;
+                        if (length2 > worldradius2) {
+                            const scale = worldradius2 / length2;
+                            circleScope.reflectionsAtWorldradius++;
+                            first *= scale;
+                            position.x *= scale;
+                            position.y *= scale;
+                        }
+                    }
+                    return first;
+                };
+
+
+                circleScope.startMap = function(position) {
                     const length2 = position.x * position.x + position.y * position.y;
                     if (length2 > worldradius2) {
                         const scale = worldradius2 / length2;
@@ -386,12 +404,17 @@ function creation() {
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
+        circleScope.circle1.log();
         if (sumAngles < 0.99) {
             Make.updateMapOutput();
             if (showGenerators) {
                 Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
                 Draw.setColor("black");
-                circleScope.draw();
+                circleScope.dihedral.drawMirrors();
+                circleScope.circle1.draw();
+                if (numberOfCircles > 3) {
+                    circleScope.circle2.draw();
+                }
                 if (numberOfCircles === 5) {
                     Draw.circle(worldradius, zero);
                 }
