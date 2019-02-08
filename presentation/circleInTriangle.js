@@ -208,10 +208,7 @@ function creation() {
     Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
-
-
     circleScope.setupMouseForTrajectory();
-
 
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 10;
@@ -404,7 +401,6 @@ function creation() {
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
-        circleScope.circle1.log();
         if (sumAngles < 0.99) {
             Make.updateMapOutput();
             if (showGenerators) {

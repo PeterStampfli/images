@@ -176,6 +176,7 @@ function creation() {
     //   Make.map.lightnessInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
+    circleScope.setupMouseForTrajectory();
 
     VectorMap.iterationGamma = 1.1;
     VectorMap.iterationSaturation = 6;

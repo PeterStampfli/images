@@ -20,6 +20,7 @@ function OutputImage(idName) {
 
     this.canMove = true;
     this.canZoom = true;
+    this.leftMouseButton = true; // true if left mouse button pressed or none (false if other buttons pressed)
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
@@ -38,6 +39,8 @@ function OutputImage(idName) {
      */
     this.action = function() {};
 
+
+
     /**
      * what to do if mouse or touch moves, change this to change touch and mouse behaviour
      * @method OutputImage#move
@@ -48,11 +51,18 @@ function OutputImage(idName) {
         this.action();
     };
 
+    /**
+     * what to do if  center button pressed  (down and drag events)
+     * @method OutputImage#centerAction
+     */
+    this.centerAction = function(events) {};
+
+    // hook to this
     const outputImage = this;
 
     // mouse wheel changes scale
     this.mouseEvents.wheelAction = function(mouseEvents) {
-        if (outputImage.canZoom) {
+        if (outputImage.canZoom && outputImage.leftMouseButton) {
             if (mouseEvents.wheelDelta > 0) {
                 outputImage.zoom(outputImage.zoomFactor, mouseEvents.x, mouseEvents.y);
             } else {
@@ -62,9 +72,31 @@ function OutputImage(idName) {
         }
     };
 
-    // mouse move shifts image
+    this.mouseEvents.downAction = function(mouseEvents) {
+        outputImage.leftMouseButton = (mouseEvents.button === 0);
+        if (!outputImage.leftMouseButton) {
+            outputImage.centerAction(mouseEvents);
+        }
+    };
+
+    // mouse move shifts image for left button
     this.mouseEvents.dragAction = function(mouseEvents) {
-        outputImage.move(mouseEvents);
+        if (outputImage.leftMouseButton) {
+            outputImage.move(mouseEvents);
+        } else {
+            outputImage.centerAction(mouseEvents);
+        }
+    };
+
+    this.mouseEvents.upAction = function(mouseEvents) {
+        outputImage.leftMouseButton = true;
+    };
+
+    this.mouseEvents.outAction = function(mouseEvents) {
+        if (!outputImage.leftMouseButton) {
+            Make.updateOutputImage();
+        }
+        outputImage.leftMouseButton = true;
     };
 
     // touch can move and scale, single touch move does same as mouse move

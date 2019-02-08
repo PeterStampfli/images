@@ -247,8 +247,11 @@ circleScope = {};
     circleScope.drawTrajectory = function(position) {
 
         // do the mapping and draw lines
+        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
+
         Draw.setColor(circleScope.trajectoryColor);
         Draw.setLineWidth(basicUI.lineWidth);
+        Draw.circle(nullRadius, position);
         dihedral.drawMap(position);
         var i = circleScope.maxIterations;
         var changed = true;
@@ -279,28 +282,21 @@ circleScope = {};
 
         }
         dihedral.drawMap(position);
-
+        Draw.circle(nullRadius, position);
     };
 
     /**
-     * set up mouse listeners on output image for drawing trajectory
+     * set up center and right mouse button action on output image for drawing trajectory
      * @method circleScope.setupMouseForTrajectory
      */
     circleScope.setupMouseForTrajectory = function() {
-        Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
-            Make.outputImage.mouseEvents.dragAction(mouseEvents);
-        };
-        Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-            Make.updateOutputImage();
-        };
-        Make.outputImage.move = function(mouseEvents) {
-            let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
+        Make.outputImage.centerAction = function(mouseEvents) {
             Make.updateOutputImage();
             mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
             Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-            Draw.setColor("red");
             circleScope.drawTrajectory(mousePosition);
         };
+
     };
 
     /**

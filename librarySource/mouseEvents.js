@@ -59,6 +59,7 @@ function MouseEvents(idName) {
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
     // the event data
+    this.button = -1;
     this.x = 0;
     this.y = 0;
     this.lastX = 0;
@@ -84,14 +85,17 @@ function MouseEvents(idName) {
 
     // we have only one single mouse event
     // so it is not necessary to use this.element.addEventListener("...",script)
+    // event.button=0 for left 2 for right button
 
     this.element.onmousedown = function(event) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
+            mouseEvents.button = event.button;
             mouseEvents.update(event);
             mouseEvents.pressed = true;
             mouseEvents.downAction(mouseEvents);
         }
+        return false;
     };
 
     this.element.onmouseup = function(event) {
@@ -103,6 +107,7 @@ function MouseEvents(idName) {
                 mouseEvents.upAction(mouseEvents);
             }
         }
+        return false;
     };
 
     this.element.onmouseenter = function(event) {
@@ -110,6 +115,7 @@ function MouseEvents(idName) {
         if (mouseEvents.isActive) {
             mouseEvents.mouseInside = true;
         }
+        return false;
     };
 
     this.element.onmouseleave = function(event) {
@@ -122,6 +128,7 @@ function MouseEvents(idName) {
                 mouseEvents.outAction(mouseEvents);
             }
         }
+        return false;
     };
 
     this.element.onmousemove = function(event) {
@@ -134,6 +141,7 @@ function MouseEvents(idName) {
                 mouseEvents.moveAction(mouseEvents);
             }
         }
+        return false;
     };
 
     this.element.onwheel = function(event) {
@@ -142,6 +150,7 @@ function MouseEvents(idName) {
             mouseEvents.update(event);
             mouseEvents.wheelAction(mouseEvents);
         }
+        return false;
     };
 
     // using keys for wheel actions
@@ -182,6 +191,7 @@ function MouseEvents(idName) {
      * @param {Event} event - object, containing event data
      */
     MouseEvents.prototype.update = function(event) {
+        this.button = event.button;
         this.lastX = this.x;
         this.lastY = this.y;
         [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);
