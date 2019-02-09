@@ -13,6 +13,25 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+    let viewSelect = new Select("view");
+    let numberOfCircles = 4;
+    DOM.style("#centerCircle", "display", "none");
+
+
+    viewSelect.addOption("four", function() {
+        numberOfCircles = 4;
+        Make.updateNewMap();
+        DOM.style("#centerCircle", "display", "none");
+    });
+    viewSelect.addOption("five", function() {
+        numberOfCircles = 5;
+        Make.updateNewMap();
+        DOM.style("#centerCircle", "display", "initial");
+    });
+
+    Make.map.discRadius = -1;
+    circleScope.projection = circleScope.doNothing;
+
 
     let projection = new Select("projection");
     projection.addOption("Poincaré disc surrounded", function() {
@@ -161,6 +180,24 @@ function creation() {
     circlePosition.setRange(0.0, 1);
     circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
+
+    // the third circle
+
+    //choosing the symmetries, and set initial values
+    let setK3Button = NumberButton.create("k3");
+    setK3Button.setRange(2, 10000);
+    setK3Button.setValue(3);
+    setK3Button.onChange = Make.updateNewMap;
+
+    let setM3Button = NumberButton.create("m3");
+    setM3Button.setRange(2, 10000);
+    setM3Button.setValue(2);
+    setM3Button.onChange = Make.updateNewMap;
+
+    let setN3Button = NumberButton.create("n3");
+    setN3Button.setRange(2, 10000);
+    setN3Button.setValue(3);
+    setN3Button.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     
     //==============================================================================================
@@ -346,6 +383,39 @@ function creation() {
                 }
             };
         }
+        if (numberOfCircles === 5) {
+            // the third circle
+            // generate
+            let k3Value = setK3Button.getValue();
+            let m3Value = setM3Button.getValue();
+            let n3Value = setN3Button.getValue();
+            const cosAlpha3 = Fast.cos(Math.PI / m3Value);
+            const sinAlpha3 = Fast.sin(Math.PI / m3Value);
+            const cosBeta3 = Fast.cos(Math.PI / n3Value);
+            const sinBeta3 = Fast.sin(Math.PI / n3Value);
+            const cosGamma3 = Fast.cos(Math.PI / k3Value);
+            const sinGamma3 = Fast.sin(Math.PI / k3Value);
+            // for the line containing the center of the second circle
+            const u = (cosBeta3 + cosAlpha3 * cosGamma) / sinGamma;
+            const v = cosAlpha3;
+            const a = u * u + v * v - 1;
+            const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
+            const c = x2 * x2 + y2 * y2 - r2 * r2;
+            if (Fast.quadraticEquation(a, b, c, solutions)) {
+                const r3 = solutions.x;
+                const x3 = r3 * u;
+                const y3 = r3 * v;
+                circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
+                circleScope.circle3.map = circleScope.circle3.invertInsideOut;
+                // the finishing function to mark the different triangles
+                circleScope.finishMap = function(position, furtherResults) {
+
+
+                };
+            }
+            console.log("fi");
+        }
+
     };
 
     // line width should relate to output image size!!
@@ -354,11 +424,16 @@ function creation() {
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if (showGenerators) {
-            Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
+            const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
+            Draw.setLineWidth(1.5 * lineWidth);
             Draw.setColor("black");
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
+            if (numberOfCircles > 4) {
+                Draw.setLineWidth(lineWidth);
+                circleScope.circle3.draw();
+            }
         }
     };
 

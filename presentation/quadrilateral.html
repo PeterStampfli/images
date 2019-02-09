@@ -46,23 +46,29 @@
         </select>
     </p>
     
+     
+    <p>
+        <strong>Number of elements:</strong>
+        <select id="view">
+        </select>
+    </p>
    
     <p>
-        <strong>Choose rotational symmetries:</strong> <br>
-        
+        <strong>Basic quadrilateral</strong> (heavy lines)<br>
+            Rotational symmetries at intersection between: <br>
         <table>
             <tr>
-            <td>center</td> <td><span id=k></span>
+            <td>straight lines</td> <td><span id=k></span>
             </tr>
             <tr>
-            <td>upper</td> <td><span id=m></span>
+            <td>upper line and circle</td> <td><span id=m></span>
             </tr>
             <tr>
-            <td>middle</td>
+            <td>circles</td>
             <td><span id=n></span>
             </tr>
             <tr>
-            <td>lower</td>
+            <td>lower line and circle</td>
             <td><span id=p></span>
             </tr>
         </table>
@@ -82,6 +88,25 @@
         <span id="circlePosition"></span>
     </p>
         
+               
+    <div id="centerCircle">
+    <p>
+        <strong>Center circle:</strong> (medium line)<br>
+        Rotational symmetries at intersection with
+        <table>
+            <tr>
+            <td>lower circle</td> <td><span id=k3></span>
+            </tr>
+            <tr>
+            <td>upper line</td> <td><span id=m3></span>
+            </tr>
+            <tr>
+            <td>lower line</td>
+            <td><span id=n3></span>
+            </tr>
+        </table> 
+    </p>
+    </div>
     <p>
         <strong>Output image:</strong>
         <button id="saveOutputImage">save</button>

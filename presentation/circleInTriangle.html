@@ -37,31 +37,32 @@
         </select>
     </p>
     
-    
-    <p>
-        <strong>Number of elements:</strong>
-        <select id="view">
-        </select>
-    </p>
-
+  
     <p>    
         <strong>Generating Elements:</strong>
         <select id="generators">
         </select>
     </p>
           
+      
     <p>
-        <strong>Basic triangle:</strong> <br>
-        Choose rotational symmetries
+        <strong>Number of elements:</strong>
+        <select id="view">
+        </select>
+    </p>
+
+    <p>
+        <strong>Basic triangle</strong> (heavy lines)<br>
+        Rotational symmetries at intersection between: <br>
         <table>
             <tr>
-            <td>center</td> <td><span id=k></span>
+            <td>straight lines</td> <td><span id=k></span>
             </tr>
             <tr>
-            <td>upper</td> <td><span id=m></span>
+            <td>circle and upper line</td> <td><span id=m></span>
             </tr>
             <tr>
-            <td>lower</td>
+            <td>circle and lower line</td>
             <td><span id=n></span>
             </tr>
         </table>
@@ -70,13 +71,14 @@
     <p>
     sum of angles = <span id="sum"></span> 
     </p>  
-           
+          
+    <div id="centerCircle">
     <p>
-        <strong>Central circle:</strong> <br>
-        Choose the rotational symmetries at
+        <strong>Center circle:</strong> (medium line)<br>
+        Rotational symmetries at intersection with
         <table>
             <tr>
-            <td>outer circle</td> <td><span id=k2></span>
+            <td>basic circle</td> <td><span id=k2></span>
             </tr>
             <tr>
             <td>upper line</td> <td><span id=m2></span>
@@ -87,6 +89,8 @@
             </tr>
         </table> 
     </p>
+    </div>
+    
         
     <p>
         <strong>Output image:</strong>

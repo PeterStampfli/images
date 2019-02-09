@@ -18,14 +18,17 @@ function creation() {
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
+        DOM.style("#centerCircle", "display", "none");
     });
     viewSelect.addOption("four", function() {
         numberOfCircles = 4;
         Make.updateNewMap();
+        DOM.style("#centerCircle", "display", "initial");
     });
     viewSelect.addOption("five", function() {
         numberOfCircles = 5;
         Make.updateNewMap();
+        DOM.style("#centerCircle", "display", "initial");
     });
     viewSelect.setIndex(1);
 
@@ -404,11 +407,13 @@ function creation() {
         if (sumAngles < 0.99) {
             Make.updateMapOutput();
             if (showGenerators) {
-                Draw.setLineWidth(lineWidthToImageSize * Make.outputImage.pixelCanvas.width);
+                const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
+                Draw.setLineWidth(1.5 * lineWidth);
                 Draw.setColor("black");
                 circleScope.dihedral.drawMirrors();
                 circleScope.circle1.draw();
                 if (numberOfCircles > 3) {
+                    Draw.setLineWidth(lineWidth);
                     circleScope.circle2.draw();
                 }
                 if (numberOfCircles === 5) {
