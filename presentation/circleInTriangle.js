@@ -18,17 +18,25 @@ function creation() {
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "none");
+        DOM.style("#centerCircle,#innerCircle", "display", "none");
     });
     viewSelect.addOption("four", function() {
         numberOfCircles = 4;
         Make.updateNewMap();
         DOM.style("#centerCircle", "display", "initial");
+        DOM.style("#innerCircle", "display", "none");
     });
-    viewSelect.addOption("five", function() {
+    viewSelect.addOption("five (simplified)", function() {
         numberOfCircles = 5;
         Make.updateNewMap();
         DOM.style("#centerCircle", "display", "initial");
+        DOM.style("#innerCircle", "display", "none");
+    });
+
+    viewSelect.addOption("five (general)", function() {
+        numberOfCircles = 6;
+        Make.updateNewMap();
+        DOM.style("#centerCircle,#innerCircle", "display", "initial");
     });
     viewSelect.setIndex(1);
 
@@ -169,6 +177,7 @@ function creation() {
 
 
     //choosing the symmetries, and set initial values
+    // second circle
     let setK2Button = NumberButton.create("k2");
     setK2Button.setRange(2, 10000);
     setK2Button.setValue(3);
@@ -184,6 +193,23 @@ function creation() {
     setN2Button.setValue(3);
     setN2Button.onChange = Make.updateNewMap;
 
+
+    //choosing the symmetries, and set initial values
+    // third circle
+    let setK3Button = NumberButton.create("k3");
+    setK3Button.setRange(2, 10000);
+    setK3Button.setValue(3);
+    setK3Button.onChange = Make.updateNewMap;
+
+    let setM3Button = NumberButton.create("m3");
+    setM3Button.setRange(2, 10000);
+    setM3Button.setValue(3);
+    setM2Button.onChange = Make.updateNewMap;
+
+    let setN3Button = NumberButton.create("n3");
+    setN3Button.setRange(2, 10000);
+    setN3Button.setValue(3);
+    setN3Button.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -229,6 +255,9 @@ function creation() {
     // the second circle
     var r2, x2, y2;
     var cosAlpha2, sinAlpha2, cosBeta2, sinBeta2, cosGamma2, sinGamma2;
+    // the third circle
+    var r3, x3, y3;
+    var cosAlpha3, sinAlpha3, cosBeta3, sinBeta3, cosGamma3, sinGamma3;
     // the three sectors
     //going from center of circle 1 to circle 2 
     // going from center of circle2 to the line
@@ -236,16 +265,6 @@ function creation() {
     // the translation vectors to make scanned region more compact
     var transSector0X, transSector1X, transSector1Y;
 
-    function setupSeparators() {
-        m2 = -cosGamma1 / sinGamma1;
-        m12 = (y2 - y1) / (x2 - x1);
-        transSector0X = x2 + Math.sqrt(r2 * r2 - y2 * y2);
-        const d = -x2 * sinGamma1 + y2 * cosGamma1;
-        const l = Math.sqrt(r2 * r2 - d * d);
-        const displacement = (x2 * cosGamma1 + y2 * sinGamma1 + l);
-        transSector1X = cosGamma1 * displacement;
-        transSector1Y = sinGamma1 * displacement;
-    }
 
 
     // setting up the first circle/line, making the triangle, always hyperbolic
@@ -275,7 +294,15 @@ function creation() {
             y2 = r2 * v;
             circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
             circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            setupSeparators();
+            // separators
+            m2 = -cosGamma1 / sinGamma1;
+            m12 = (y2 - y1) / (x2 - x1);
+            transSector0X = x2 + Math.sqrt(r2 * r2 - y2 * y2);
+            const d = -x2 * sinGamma1 + y2 * cosGamma1;
+            const l = Math.sqrt(r2 * r2 - d * d);
+            const displacement = (x2 * cosGamma1 + y2 * sinGamma1 + l);
+            transSector1X = cosGamma1 * displacement;
+            transSector1Y = sinGamma1 * displacement;
             // the finishing function to mark the different triangles
             circleScope.finishMap = function(position, furtherResults) {
                 let l2 = position.length2();
@@ -289,9 +316,26 @@ function creation() {
         }
     }
 
+    // calculate the third circle for intersecting with all three sides
+    function thirdCircleThreeIntersections() {
+        // for the line containing the center of the second circle
+        const u = (cosBeta3 + cosAlpha3 * cosGamma1) / sinGamma1;
+        const v = cosAlpha3;
+        const a = u * u + v * v - 1;
+        const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
+        const c = x2 * x2 + y2 * y2 - r2 * r2;
+        if (Fast.quadraticEquation(a, b, c, solutions)) {
+            r3 = solutions.x;
+            x3 = r3 * u;
+            y3 = r3 * v;
+            circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
+            circleScope.circle3.map = circleScope.circle3.invertInsideOut;
+        }
+    }
+
     // separate the three triangles in the big triangle
     // make three sectors
-    // sector 2 is close to origin, sector 0 is at x-axis, sector 1 at "diagonal" line
+    // sector 2 is close to origin, sector 1 is at x-axis, sector 0 at "diagonal" line
     function threeTriangleSectors(position, furtherResults) {
         const dx = position.x - x2;
         const dy = position.y - y2;
@@ -339,15 +383,6 @@ function creation() {
         sinBeta1 = Fast.sin(Math.PI / n1);
         cosGamma1 = Fast.cos(Math.PI / k1);
         sinGamma1 = Fast.sin(Math.PI / k1);
-        let k2 = setK2Button.getValue();
-        let m2 = setM2Button.getValue();
-        let n2 = setN2Button.getValue();
-        cosAlpha2 = Fast.cos(Math.PI / m2);
-        sinAlpha2 = Fast.sin(Math.PI / m2);
-        cosBeta2 = Fast.cos(Math.PI / n2);
-        sinBeta2 = Fast.sin(Math.PI / n2);
-        cosGamma2 = Fast.cos(Math.PI / k2);
-        sinGamma2 = Fast.sin(Math.PI / k2);
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
         sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
@@ -358,42 +393,61 @@ function creation() {
         if (sumAngles < 0.99) {
             setupFirstCircle();
             circleScope.finishMap = insideOutsideSectors; // for three circles everything done
-            if (numberOfCircles === 4) {
+            if (numberOfCircles >= 4) {
+                let k2 = setK2Button.getValue();
+                let m2 = setM2Button.getValue();
+                let n2 = setN2Button.getValue();
+                cosAlpha2 = Fast.cos(Math.PI / m2);
+                sinAlpha2 = Fast.sin(Math.PI / m2);
+                cosBeta2 = Fast.cos(Math.PI / n2);
+                sinBeta2 = Fast.sin(Math.PI / n2);
+                cosGamma2 = Fast.cos(Math.PI / k2);
+                sinGamma2 = Fast.sin(Math.PI / k2);
                 secondCircleThreeIntersections();
-            } else if (numberOfCircles === 5) {
-                secondCircleThreeIntersections();
-
-                circleScope.circle2.map = function(position) {
-                    let first = this.invertInsideOut(position);
-                    if (first > 0) {
+                if (numberOfCircles === 5) {
+                    // map with additional inversion
+                    circleScope.circle2.map = function(position) {
+                        let first = this.invertInsideOut(position);
+                        if (first > 0) {
+                            const length2 = position.x * position.x + position.y * position.y;
+                            if (length2 > worldradius2) {
+                                const scale = worldradius2 / length2;
+                                circleScope.reflectionsAtWorldradius++;
+                                first *= scale;
+                                position.x *= scale;
+                                position.y *= scale;
+                            }
+                        }
+                        return first;
+                    };
+                    circleScope.startMap = function(position) {
                         const length2 = position.x * position.x + position.y * position.y;
                         if (length2 > worldradius2) {
                             const scale = worldradius2 / length2;
                             circleScope.reflectionsAtWorldradius++;
-                            first *= scale;
                             position.x *= scale;
                             position.y *= scale;
                         }
-                    }
-                    return first;
-                };
-
-
-                circleScope.startMap = function(position) {
-                    const length2 = position.x * position.x + position.y * position.y;
-                    if (length2 > worldradius2) {
-                        const scale = worldradius2 / length2;
-                        circleScope.reflectionsAtWorldradius++;
-                        position.x *= scale;
-                        position.y *= scale;
-                    }
-                    circleScope.finishMap = function(position, furtherResults) {
-                        threeTriangleSectors(position, furtherResults);
-                        if (circleScope.reflectionsAtWorldradius & 1) {
-                            furtherResults.colorSector += 3;
-                        }
+                        circleScope.finishMap = function(position, furtherResults) {
+                            threeTriangleSectors(position, furtherResults);
+                            if (circleScope.reflectionsAtWorldradius & 1) {
+                                furtherResults.colorSector += 3;
+                            }
+                        };
                     };
-                };
+                } else if (numberOfCircles === 6) { // general case
+                    let k3 = setK3Button.getValue();
+                    let m3 = setM3Button.getValue();
+                    let n3 = setN3Button.getValue();
+                    cosAlpha3 = Fast.cos(Math.PI / m3);
+                    sinAlpha3 = Fast.sin(Math.PI / m3);
+                    cosBeta3 = Fast.cos(Math.PI / n3);
+                    sinBeta3 = Fast.sin(Math.PI / n3);
+                    cosGamma3 = Fast.cos(Math.PI / k3);
+                    sinGamma3 = Fast.sin(Math.PI / k3);
+                    thirdCircleThreeIntersections();
+
+                }
             }
         }
     };
@@ -417,7 +471,12 @@ function creation() {
                     circleScope.circle2.draw();
                 }
                 if (numberOfCircles === 5) {
+                    Draw.setLineWidth(0.7 * lineWidth);
                     Draw.circle(worldradius, zero);
+                }
+                if (numberOfCircles === 6) {
+                    Draw.setLineWidth(0.7 * lineWidth);
+                    circleScope.circle3.draw();
                 }
             }
         } else {

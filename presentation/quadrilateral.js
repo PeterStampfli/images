@@ -35,6 +35,11 @@ function creation() {
         DOM.style("#centerCircle", "display", "initial");
         Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
         Make.map.rgbRotationInversionColorSymmetry();
+        Make.map.structureColorCollection = [];
+        Make.map.addStructureColors(1, 140, 100);
+        Make.map.addStructureColors(2, 140, 100);
+        Make.map.addStructureColors(0, 140, 100);
+        Make.map.addStructureColors(3.5, 140, 100);
         Make.updateNewMap();
     });
 
@@ -214,12 +219,7 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
-    Make.map.makeColorCollection(2, 1, 2.5, 80);
-    Make.map.makeColorCollection(4, 1, 2.5, 140, 100);
 
-    Make.map.hueInversionColorSymmetry();
-    Make.map.inversionColorSymmetry();
-    //   Make.map.lightnessInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
