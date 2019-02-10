@@ -14,19 +14,28 @@ function creation() {
     Button.createGoToLocation("home", "home.html");
 
     let viewSelect = new Select("view");
-    let numberOfCircles = 4;
-    DOM.style("#centerCircle", "display", "none");
+    var numberOfCircles;
 
+    function four() {
+        numberOfCircles = 4;
+        DOM.style("#centerCircle", "display", "none");
+        Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+        Make.map.hueInversionColorSymmetry();
+        Make.map.inversionColorSymmetry();
+    }
+
+    four();
 
     viewSelect.addOption("four", function() {
-        numberOfCircles = 4;
+        four();
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "none");
     });
     viewSelect.addOption("five", function() {
         numberOfCircles = 5;
-        Make.updateNewMap();
         DOM.style("#centerCircle", "display", "initial");
+        Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
+        Make.map.rgbRotationInversionColorSymmetry();
+        Make.updateNewMap();
     });
 
     Make.map.discRadius = -1;
@@ -206,7 +215,7 @@ function creation() {
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
     Make.map.makeColorCollection(2, 1, 2.5, 80);
-    Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+    Make.map.makeColorCollection(4, 1, 2.5, 140, 100);
 
     Make.map.hueInversionColorSymmetry();
     Make.map.inversionColorSymmetry();
@@ -408,12 +417,84 @@ function creation() {
                 circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
                 circleScope.circle3.map = circleScope.circle3.invertInsideOut;
                 // the finishing function to mark the different triangles
-                circleScope.finishMap = function(position, furtherResults) {
-
-
-                };
+                // separating regions, and remapping
+                const m2 = 1 / tanGamma;
+                const m32 = (y2 - y3) / (x2 - x3 + 0.00001);
+                if (x2 < x1) {
+                    console.log("x2 < x1");
+                    const m12 = (y1 - y2) / (x1 - x2 + 0.00001);
+                    circleScope.finishMap = function(position, furtherResults) {
+                        if (position.x > x1) {
+                            furtherResults.colorSector = 3;
+                            position.scale(worldradius2 / position.length2());
+                        } else if (position.x > x2) {
+                            if (position.y > y2 + m12 * (position.x - x2)) {
+                                furtherResults.colorSector = 3;
+                                position.scale(worldradius2 / position.length2());
+                            } else {
+                                furtherResults.colorSector = 0;
+                            }
+                        } else {
+                            if (position.y > y2 + m2 * (x2 - position.x)) {
+                                furtherResults.colorSector = 3;
+                                position.scale(worldradius2 / position.length2());
+                            } else {
+                                furtherResults.colorSector = 0;
+                            }
+                        }
+                        // further subdivision only in sector 0
+                        if (furtherResults.colorSector === 0) {
+                            if (position.x < x3) {
+                                if (position.y < y3 + (x3 - position.x) * m2) {
+                                    furtherResults.colorSector = 1;
+                                } else {
+                                    furtherResults.colorSector = 2;
+                                }
+                            } else if (position.x < x2) {
+                                if (position.y > y3 + m32 * (position.x - x3)) {
+                                    furtherResults.colorSector = 2;
+                                }
+                            }
+                        }
+                    };
+                } else {
+                    const m12 = (y2 - y1) / (x2 - x1 + 0.00001);
+                    circleScope.finishMap = function(position, furtherResults) {
+                        if (position.x > x2) {
+                            furtherResults.colorSector = 3;
+                            position.scale(worldradius2 / position.length2());
+                        } else {
+                            if (position.y > y2 + m2 * (x2 - position.x)) {
+                                furtherResults.colorSector = 3;
+                                position.scale(worldradius2 / position.length2());
+                            } else if (position.x > x1) {
+                                if (position.y > y1 + m12 * (position.x - x1)) {
+                                    furtherResults.colorSector = 0;
+                                } else {
+                                    furtherResults.colorSector = 3;
+                                    position.scale(worldradius2 / position.length2());
+                                }
+                            } else {
+                                furtherResults.colorSector = 0;
+                            }
+                        }
+                        // further subdivision only in sector 0
+                        if (furtherResults.colorSector === 0) {
+                            if (position.x < x3) {
+                                if (position.y < y3 + (x3 - position.x) * m2) {
+                                    furtherResults.colorSector = 1;
+                                } else {
+                                    furtherResults.colorSector = 2;
+                                }
+                            } else if (position.x < x2) {
+                                if (position.y > y3 + m32 * (position.x - x3)) {
+                                    furtherResults.colorSector = 2;
+                                }
+                            }
+                        }
+                    };
+                }
             }
-            console.log("fi");
         }
 
     };

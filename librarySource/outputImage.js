@@ -21,6 +21,7 @@ function OutputImage(idName) {
     this.canMove = true;
     this.canZoom = true;
     this.leftMouseButton = true; // true if left mouse button pressed or none (false if other buttons pressed)
+    this.showsTrajectory = false; // true if trajectory above image
 
     this.pixelCanvas = new PixelCanvas(idName);
     this.mouseEvents = new MouseEvents(idName);
@@ -74,9 +75,14 @@ function OutputImage(idName) {
 
     this.mouseEvents.downAction = function(mouseEvents) {
         outputImage.leftMouseButton = (mouseEvents.button === 0);
-        if (!outputImage.leftMouseButton) {
+        if (outputImage.leftMouseButton) {
+            if (outputImage.showsTrajectory) {
+                Make.updateOutputImage();
+            }
+        } else {
             outputImage.centerAction(mouseEvents);
         }
+        outputImage.showsTrajectory = !outputImage.leftMouseButton;
     };
 
     // mouse move shifts image for left button
@@ -97,6 +103,7 @@ function OutputImage(idName) {
             Make.updateOutputImage();
         }
         outputImage.leftMouseButton = true;
+        outputImage.showsTrajectory = false;
     };
 
     // touch can move and scale, single touch move does same as mouse move
