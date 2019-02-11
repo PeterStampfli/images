@@ -14,17 +14,25 @@ function creation() {
     Button.createGoToLocation("home", "home.html");
 
     let viewSelect = new Select("view");
-    let numberOfCircles = 4;
+    var numberOfCircles;
+
+
+    function four() {
+        numberOfCircles = 4;
+        DOM.style("#centerCircle", "display", "initial");
+        DOM.style("#innerCircle", "display", "none");
+    }
+
+    four();
+
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
         DOM.style("#centerCircle,#innerCircle", "display", "none");
     });
     viewSelect.addOption("four", function() {
-        numberOfCircles = 4;
+        four();
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "initial");
-        DOM.style("#innerCircle", "display", "none");
     });
     viewSelect.addOption("five (simplified)", function() {
         numberOfCircles = 5;
@@ -158,12 +166,12 @@ function creation() {
     // basic triangle
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
-    setKButton.setValue(3);
+    setKButton.setValue(6);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(3);
+    setMButton.setValue(4);
     setMButton.onChange = Make.updateNewMap;
 
 
@@ -185,7 +193,7 @@ function creation() {
 
     let setM2Button = NumberButton.create("m2");
     setM2Button.setRange(2, 10000);
-    setM2Button.setValue(2);
+    setM2Button.setValue(4);
     setM2Button.onChange = Make.updateNewMap;
 
     let setN2Button = NumberButton.create("n2");
@@ -204,7 +212,7 @@ function creation() {
     let setM3Button = NumberButton.create("m3");
     setM3Button.setRange(2, 10000);
     setM3Button.setValue(3);
-    setM2Button.onChange = Make.updateNewMap;
+    setM3Button.onChange = Make.updateNewMap;
 
     let setN3Button = NumberButton.create("n3");
     setN3Button.setRange(2, 10000);
@@ -372,7 +380,6 @@ function creation() {
     }
 
     Make.initializeMap = function() {
-
         // get data
         let k1 = setKButton.getValue();
         let m1 = setMButton.getValue();
@@ -446,7 +453,37 @@ function creation() {
                     cosGamma3 = Fast.cos(Math.PI / k3);
                     sinGamma3 = Fast.sin(Math.PI / k3);
                     thirdCircleThreeIntersections();
+                    const m23 = (y3 - y2) / (x3 - x2);
 
+                    circleScope.finishMap = function(position, furtherResults) {
+                        let l2 = position.length2();
+                        if (l2 > worldradius2) {
+                            position.scale(0.33 * worldradius2 / l2);
+                            furtherResults.colorSector = 3;
+                        } else {
+                            if (position.x < x3) {
+                                if (position.y < y3 + (x3 - position.x) * m2) {
+                                    furtherResults.colorSector = 0;
+                                } else {
+                                    furtherResults.colorSector = 1;
+                                }
+                            } else if (position.x < x2) {
+                                if (position.y < y3 + (position.x - x3) * m23) {
+                                    furtherResults.colorSector = 2;
+                                } else if (position.y < y2 + (x2 - position.x) * m2) {
+                                    furtherResults.colorSector = 1;
+                                } else {
+                                    furtherResults.colorSector = 4;
+                                }
+                            } else {
+                                if (position.y < y2 + (position.x - x2) * m12) {
+                                    furtherResults.colorSector = 5;
+                                } else {
+                                    furtherResults.colorSector = 4;
+                                }
+                            }
+                        }
+                    };
                 }
             }
         }
