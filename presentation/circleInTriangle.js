@@ -34,15 +34,9 @@ function creation() {
         four();
         Make.updateNewMap();
     });
-    viewSelect.addOption("five (simplified)", function() {
-        numberOfCircles = 5;
-        Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "initial");
-        DOM.style("#innerCircle", "display", "none");
-    });
 
-    viewSelect.addOption("five (general)", function() {
-        numberOfCircles = 6;
+    viewSelect.addOption("five", function() {
+        numberOfCircles = 5;
         Make.updateNewMap();
         DOM.style("#centerCircle,#innerCircle", "display", "initial");
     });
@@ -270,8 +264,6 @@ function creation() {
     //going from center of circle 1 to circle 2 
     // going from center of circle2 to the line
     var m12, m2;
-    // the translation vectors to make scanned region more compact
-    var transSector0X, transSector1X, transSector1Y;
 
 
 
@@ -305,12 +297,7 @@ function creation() {
             // separators
             m2 = -cosGamma1 / sinGamma1;
             m12 = (y2 - y1) / (x2 - x1);
-            transSector0X = x2 + Math.sqrt(r2 * r2 - y2 * y2);
-            const d = -x2 * sinGamma1 + y2 * cosGamma1;
-            const l = Math.sqrt(r2 * r2 - d * d);
-            const displacement = (x2 * cosGamma1 + y2 * sinGamma1 + l);
-            transSector1X = cosGamma1 * displacement;
-            transSector1Y = sinGamma1 * displacement;
+
             // the finishing function to mark the different triangles
             circleScope.finishMap = function(position, furtherResults) {
                 let l2 = position.length2();
@@ -325,6 +312,8 @@ function creation() {
     }
 
     // calculate the third circle for intersecting with all three sides
+    // they are the two straight lines and the second circle
+    // same for all geometries
     function thirdCircleThreeIntersections() {
         // for the line containing the center of the second circle
         const u = (cosBeta3 + cosAlpha3 * cosGamma1) / sinGamma1;
@@ -343,7 +332,7 @@ function creation() {
 
     // separate the three triangles in the big triangle
     // make three sectors
-    // sector 2 is close to origin, sector 1 is at x-axis, sector 0 at "diagonal" line
+    // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
     function threeTriangleSectors(position, furtherResults) {
         const dx = position.x - x2;
         const dy = position.y - y2;
@@ -352,17 +341,17 @@ function creation() {
                 furtherResults.colorSector = 1;
             } else {
                 furtherResults.colorSector = 0;
-                position.x -= transSector1X;
-                position.y -= transSector1Y;
+                position.x -= x2;
+                position.y -= y2 + y2;
             }
         } else {
             if (dy < m12 * dx) {
                 furtherResults.colorSector = 2;
-                position.x -= transSector0X;
+                position.x -= x2;
             } else {
                 furtherResults.colorSector = 0;
-                position.x -= transSector1X;
-                position.y -= transSector1Y;
+                position.x -= x2;
+                position.y -= y2 + y2;
             }
         }
     }
@@ -411,38 +400,7 @@ function creation() {
                 cosGamma2 = Fast.cos(Math.PI / k2);
                 sinGamma2 = Fast.sin(Math.PI / k2);
                 secondCircleThreeIntersections();
-                if (numberOfCircles === 5) {
-                    // map with additional inversion
-                    circleScope.circle2.map = function(position) {
-                        let first = this.invertInsideOut(position);
-                        if (first > 0) {
-                            const length2 = position.x * position.x + position.y * position.y;
-                            if (length2 > worldradius2) {
-                                const scale = worldradius2 / length2;
-                                circleScope.reflectionsAtWorldradius++;
-                                first *= scale;
-                                position.x *= scale;
-                                position.y *= scale;
-                            }
-                        }
-                        return first;
-                    };
-                    circleScope.startMap = function(position) {
-                        const length2 = position.x * position.x + position.y * position.y;
-                        if (length2 > worldradius2) {
-                            const scale = worldradius2 / length2;
-                            circleScope.reflectionsAtWorldradius++;
-                            position.x *= scale;
-                            position.y *= scale;
-                        }
-                        circleScope.finishMap = function(position, furtherResults) {
-                            threeTriangleSectors(position, furtherResults);
-                            if (circleScope.reflectionsAtWorldradius & 1) {
-                                furtherResults.colorSector += 3;
-                            }
-                        };
-                    };
-                } else if (numberOfCircles === 6) { // general case
+                if (numberOfCircles === 5) { // general case
                     let k3 = setK3Button.getValue();
                     let m3 = setM3Button.getValue();
                     let n3 = setN3Button.getValue();
@@ -458,7 +416,7 @@ function creation() {
                     circleScope.finishMap = function(position, furtherResults) {
                         let l2 = position.length2();
                         if (l2 > worldradius2) {
-                            position.scale(0.33 * worldradius2 / l2);
+                            position.scale(0.25 * worldradius2 / l2);
                             furtherResults.colorSector = 3;
                         } else {
                             if (position.x < x3) {
@@ -466,20 +424,30 @@ function creation() {
                                     furtherResults.colorSector = 0;
                                 } else {
                                     furtherResults.colorSector = 1;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
                                 }
                             } else if (position.x < x2) {
                                 if (position.y < y3 + (position.x - x3) * m23) {
                                     furtherResults.colorSector = 2;
+                                    position.x -= x3;
                                 } else if (position.y < y2 + (x2 - position.x) * m2) {
                                     furtherResults.colorSector = 1;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
                                 } else {
                                     furtherResults.colorSector = 4;
+                                    position.x -= x2;
+                                    position.y -= y2 + y2;
                                 }
                             } else {
                                 if (position.y < y2 + (position.x - x2) * m12) {
                                     furtherResults.colorSector = 5;
+                                    position.x -= x2;
                                 } else {
                                     furtherResults.colorSector = 4;
+                                    position.x -= x2;
+                                    position.y -= y2 + y2;
                                 }
                             }
                         }
@@ -508,10 +476,6 @@ function creation() {
                     circleScope.circle2.draw();
                 }
                 if (numberOfCircles === 5) {
-                    Draw.setLineWidth(0.7 * lineWidth);
-                    Draw.circle(worldradius, zero);
-                }
-                if (numberOfCircles === 6) {
                     Draw.setLineWidth(0.7 * lineWidth);
                     circleScope.circle3.draw();
                 }

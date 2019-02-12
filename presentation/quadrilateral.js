@@ -337,8 +337,6 @@ function creation() {
             //   circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
             circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
             circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-
-
         } else {
             console.log("**** no solution for general second circle");
             r2 = 0;
@@ -420,40 +418,52 @@ function creation() {
                 // separating regions, and remapping
                 const m2 = 1 / tanGamma;
                 const m32 = (y2 - y3) / (x2 - x3 + 0.00001);
+                const outsideReduction = 0.4;
                 if (x2 < x1) {
                     console.log("x2 < x1");
                     const m12 = (y1 - y2) / (x1 - x2 + 0.00001);
                     circleScope.finishMap = function(position, furtherResults) {
                         if (position.x > x1) {
                             furtherResults.colorSector = 3;
-                            position.scale(worldradius2 / position.length2());
+                            position.scale(outsideReduction * worldradius2 / position.length2());
                         } else if (position.x > x2) {
                             if (position.y > y2 + m12 * (position.x - x2)) {
                                 furtherResults.colorSector = 3;
-                                position.scale(worldradius2 / position.length2());
+                                position.scale(outsideReduction * worldradius2 / position.length2());
                             } else {
                                 furtherResults.colorSector = 0;
                             }
                         } else {
                             if (position.y > y2 + m2 * (x2 - position.x)) {
                                 furtherResults.colorSector = 3;
-                                position.scale(worldradius2 / position.length2());
+                                position.scale(outsideReduction * worldradius2 / position.length2());
                             } else {
                                 furtherResults.colorSector = 0;
                             }
                         }
                         // further subdivision only in sector 0
+                        // sector 1 at center  - no shift
+                        // sector 2 close to inclined line - shift by x3,y3
+                        // sector 0 close to horizontal line - shift by x3
                         if (furtherResults.colorSector === 0) {
                             if (position.x < x3) {
                                 if (position.y < y3 + (x3 - position.x) * m2) {
                                     furtherResults.colorSector = 1;
                                 } else {
                                     furtherResults.colorSector = 2;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
                                 }
                             } else if (position.x < x2) {
                                 if (position.y > y3 + m32 * (position.x - x3)) {
                                     furtherResults.colorSector = 2;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
+                                } else { // sector 0
+                                    position.x -= x3;
                                 }
+                            } else { // sector 0
+                                position.x -= x3;
                             }
                         }
                     };
@@ -462,17 +472,17 @@ function creation() {
                     circleScope.finishMap = function(position, furtherResults) {
                         if (position.x > x2) {
                             furtherResults.colorSector = 3;
-                            position.scale(worldradius2 / position.length2());
+                            position.scale(outsideReduction * worldradius2 / position.length2());
                         } else {
                             if (position.y > y2 + m2 * (x2 - position.x)) {
                                 furtherResults.colorSector = 3;
-                                position.scale(worldradius2 / position.length2());
+                                position.scale(outsideReduction * worldradius2 / position.length2());
                             } else if (position.x > x1) {
                                 if (position.y > y1 + m12 * (position.x - x1)) {
                                     furtherResults.colorSector = 0;
                                 } else {
                                     furtherResults.colorSector = 3;
-                                    position.scale(worldradius2 / position.length2());
+                                    position.scale(outsideReduction * worldradius2 / position.length2());
                                 }
                             } else {
                                 furtherResults.colorSector = 0;
@@ -485,11 +495,19 @@ function creation() {
                                     furtherResults.colorSector = 1;
                                 } else {
                                     furtherResults.colorSector = 2;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
                                 }
                             } else if (position.x < x2) {
                                 if (position.y > y3 + m32 * (position.x - x3)) {
                                     furtherResults.colorSector = 2;
+                                    position.x -= x3;
+                                    position.y -= y3 + y3;
+                                } else { // sector 0
+                                    position.x -= x3;
                                 }
+                            } else { // sector 0
+                                position.x -= x3;
                             }
                         }
                     };
