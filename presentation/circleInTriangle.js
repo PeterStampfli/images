@@ -33,13 +33,16 @@ function creation() {
     viewSelect.addOption("four", function() {
         four();
         Make.updateNewMap();
+        DOM.style("#circleIntersection", "display", "initial");
     });
 
     viewSelect.addOption("five", function() {
         numberOfCircles = 5;
         Make.updateNewMap();
         DOM.style("#centerCircle,#innerCircle", "display", "initial");
+        DOM.style("#circleIntersection", "display", "initial");
     });
+
     viewSelect.setIndex(1);
 
     Make.map.discRadius = -1;
@@ -266,83 +269,6 @@ function creation() {
     var m12, m2;
 
 
-    // calculate the second circle for intersecting with all three sides
-    function secondCircleThreeIntersections() {
-        // for the line containing the center of the second circle
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        const a = u * u + v * v - 1;
-        const b = -2 * (x1 * u + y1 * v + r1 * cosGamma2);
-        const c = x1 * x1 + y1 * y1 - r1 * r1;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            r2 = solutions.x;
-            x2 = r2 * u;
-            y2 = r2 * v;
-            circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            // separators
-            m2 = -cosGamma1 / sinGamma1;
-            m12 = (y2 - y1) / (x2 - x1);
-
-            // the finishing function to mark the different triangles
-            circleScope.finishMap = function(position, furtherResults) {
-                let l2 = position.length2();
-                if (l2 > worldradius2) {
-                    position.scale(0.33 * worldradius2 / l2);
-                    furtherResults.colorSector = 3;
-                } else {
-                    threeTriangleSectors(position, furtherResults);
-                }
-            };
-        }
-    }
-
-    // calculate the third circle for intersecting with all three sides
-    // they are the two straight lines and the second circle
-    // same for all geometries
-    function thirdCircleThreeIntersections() {
-        // for the line containing the center of the second circle
-        const u = (cosBeta3 + cosAlpha3 * cosGamma1) / sinGamma1;
-        const v = cosAlpha3;
-        const a = u * u + v * v - 1;
-        const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
-        const c = x2 * x2 + y2 * y2 - r2 * r2;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            r3 = solutions.x;
-            x3 = r3 * u;
-            y3 = r3 * v;
-            circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
-            circleScope.circle3.map = circleScope.circle3.invertInsideOut;
-        }
-    }
-
-    // separate the three triangles in the big triangle
-    // make three sectors
-    // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
-    function threeTriangleSectors(position, furtherResults) {
-        const dx = position.x - x2;
-        const dy = position.y - y2;
-        if (dx < 0) {
-            if (dy < m2 * dx) {
-                furtherResults.colorSector = 1;
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        } else {
-            if (dy < m12 * dx) {
-                furtherResults.colorSector = 2;
-                position.x -= x2;
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        }
-    }
-
-
 
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
@@ -404,9 +330,6 @@ function creation() {
                 };
             } else { // four or more circles
                 // calculate the second circle for intersecting with all three sides
-
-
-                // for the line containing the center of the second circle
                 const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
                 const v = cosAlpha2;
                 const a = u * u + v * v - 1;
@@ -419,9 +342,8 @@ function creation() {
                     circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
                     circleScope.circle2.map = circleScope.circle2.invertInsideOut;
                     // separators
-                    m2 = -cosGamma1 / sinGamma1;
+                    m2 = cosGamma1 / sinGamma1;
                     m12 = (y2 - y1) / (x2 - x1);
-
                     // the finishing function to mark the different triangles
                     circleScope.finishMap = function(position, furtherResults) {
                         let l2 = position.length2();
@@ -429,17 +351,42 @@ function creation() {
                             position.scale(0.33 * worldradius2 / l2);
                             furtherResults.colorSector = 3;
                         } else {
-                            threeTriangleSectors(position, furtherResults);
+                            // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
+                            if (position.x < x2) {
+                                if (position.y < y2 + m2 * (x2 - position.x)) {
+                                    furtherResults.colorSector = 1;
+                                } else {
+                                    furtherResults.colorSector = 0;
+                                    position.x -= x2;
+                                    position.y -= y2 + y2;
+                                }
+                            } else {
+                                if (position.y < y2 + m12 * (position.x - x2)) {
+                                    furtherResults.colorSector = 2;
+                                    position.x -= x2;
+                                } else {
+                                    furtherResults.colorSector = 0;
+                                    position.x -= x2;
+                                    position.y -= y2 + y2;
+                                }
+                            }
                         }
                     };
                 }
-
                 if (numberOfCircles === 5) { // general case
-                    thirdCircleThreeIntersections();
-
-
-                    m2 = cosGamma1 / sinGamma1;
-
+                    // calculate the third circle for intersecting with all three sides
+                    const u = (cosBeta3 + cosAlpha3 * cosGamma1) / sinGamma1;
+                    const v = cosAlpha3;
+                    const a = u * u + v * v - 1;
+                    const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
+                    const c = x2 * x2 + y2 * y2 - r2 * r2;
+                    if (Fast.quadraticEquation(a, b, c, solutions)) {
+                        r3 = solutions.x;
+                        x3 = r3 * u;
+                        y3 = r3 * v;
+                        circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
+                        circleScope.circle3.map = circleScope.circle3.invertInsideOut;
+                    }
                     const m23 = (y3 - y2) / (x3 - x2);
                     circleScope.finishMap = function(position, furtherResults) {
                         let l2 = position.length2();
