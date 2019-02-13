@@ -266,20 +266,6 @@ function creation() {
     var m12, m2;
 
 
-
-    // setting up the first circle/line, making the triangle, always hyperbolic
-    function setupFirstCircle() {
-        r1 = 1;
-        x1 = (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
-        y1 = cosAlpha1;
-        const scale = Math.sqrt(worldradius2 / (x1 * x1 + y1 * y1 - 1));
-        r1 *= scale;
-        x1 *= scale;
-        y1 *= scale;
-        circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
-        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
-    }
-
     // calculate the second circle for intersecting with all three sides
     function secondCircleThreeIntersections() {
         // for the line containing the center of the second circle
@@ -357,19 +343,9 @@ function creation() {
     }
 
 
-    // separate inside/outside of worlddisc
-    function insideOutsideSectors(position, furtherResults) {
-        let l2 = position.length2();
-        if (l2 > worldradius2) {
-            position.scale(worldradius2 / l2);
-            furtherResults.colorSector = 3;
-        } else {
-            furtherResults.colorSector = 0;
-        }
-    }
 
     Make.initializeMap = function() {
-        // get data
+        // get data for all circles (may be needed for all geometries)
         let k1 = setKButton.getValue();
         let m1 = setMButton.getValue();
         let n1 = setNButton.getValue();
@@ -382,37 +358,89 @@ function creation() {
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
         sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
+        let k2 = setK2Button.getValue();
+        let m2 = setM2Button.getValue();
+        let n2 = setN2Button.getValue();
+        cosAlpha2 = Fast.cos(Math.PI / m2);
+        sinAlpha2 = Fast.sin(Math.PI / m2);
+        cosBeta2 = Fast.cos(Math.PI / n2);
+        sinBeta2 = Fast.sin(Math.PI / n2);
+        cosGamma2 = Fast.cos(Math.PI / k2);
+        sinGamma2 = Fast.sin(Math.PI / k2);
+        let k3 = setK3Button.getValue();
+        let m3 = setM3Button.getValue();
+        let n3 = setN3Button.getValue();
+        cosAlpha3 = Fast.cos(Math.PI / m3);
+        sinAlpha3 = Fast.sin(Math.PI / m3);
+        cosBeta3 = Fast.cos(Math.PI / n3);
+        sinBeta3 = Fast.sin(Math.PI / n3);
+        cosGamma3 = Fast.cos(Math.PI / k3);
+        sinGamma3 = Fast.sin(Math.PI / k3);
+        // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
         circleScope.startMap = circleScope.noMap;
         // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
-        if (sumAngles < 0.99) {
-            setupFirstCircle();
-            circleScope.finishMap = insideOutsideSectors; // for three circles everything done
-            if (numberOfCircles >= 4) {
-                let k2 = setK2Button.getValue();
-                let m2 = setM2Button.getValue();
-                let n2 = setN2Button.getValue();
-                cosAlpha2 = Fast.cos(Math.PI / m2);
-                sinAlpha2 = Fast.sin(Math.PI / m2);
-                cosBeta2 = Fast.cos(Math.PI / n2);
-                sinBeta2 = Fast.sin(Math.PI / n2);
-                cosGamma2 = Fast.cos(Math.PI / k2);
-                sinGamma2 = Fast.sin(Math.PI / k2);
-                secondCircleThreeIntersections();
-                if (numberOfCircles === 5) { // general case
-                    let k3 = setK3Button.getValue();
-                    let m3 = setM3Button.getValue();
-                    let n3 = setN3Button.getValue();
-                    cosAlpha3 = Fast.cos(Math.PI / m3);
-                    sinAlpha3 = Fast.sin(Math.PI / m3);
-                    cosBeta3 = Fast.cos(Math.PI / n3);
-                    sinBeta3 = Fast.sin(Math.PI / n3);
-                    cosGamma3 = Fast.cos(Math.PI / k3);
-                    sinGamma3 = Fast.sin(Math.PI / k3);
-                    thirdCircleThreeIntersections();
-                    const m23 = (y3 - y2) / (x3 - x2);
+        if (sumAngles < 0.99) { // hyperbolic
+            // set up the first circle, hyperbolic
+            r1 = 1;
+            x1 = (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
+            y1 = cosAlpha1;
+            const scale = Math.sqrt(worldradius2 / (x1 * x1 + y1 * y1 - 1));
+            r1 *= scale;
+            x1 *= scale;
+            y1 *= scale;
+            circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
+            circleScope.circle1.map = circleScope.circle1.invertInsideOut;
+            if (numberOfCircles === 3) { // for three circles, hyperbolic: treatment of triangle outside worlddisc
+                circleScope.finishMap = function(position, furtherResults) {
+                    let l2 = position.length2();
+                    if (l2 > worldradius2) {
+                        position.scale(worldradius2 / l2);
+                        furtherResults.colorSector = 3;
+                    } else {
+                        furtherResults.colorSector = 0;
+                    }
+                };
+            } else { // four or more circles
+                // calculate the second circle for intersecting with all three sides
 
+
+                // for the line containing the center of the second circle
+                const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+                const v = cosAlpha2;
+                const a = u * u + v * v - 1;
+                const b = -2 * (x1 * u + y1 * v + r1 * cosGamma2);
+                const c = x1 * x1 + y1 * y1 - r1 * r1;
+                if (Fast.quadraticEquation(a, b, c, solutions)) {
+                    r2 = solutions.x;
+                    x2 = r2 * u;
+                    y2 = r2 * v;
+                    circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
+                    circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+                    // separators
+                    m2 = -cosGamma1 / sinGamma1;
+                    m12 = (y2 - y1) / (x2 - x1);
+
+                    // the finishing function to mark the different triangles
+                    circleScope.finishMap = function(position, furtherResults) {
+                        let l2 = position.length2();
+                        if (l2 > worldradius2) {
+                            position.scale(0.33 * worldradius2 / l2);
+                            furtherResults.colorSector = 3;
+                        } else {
+                            threeTriangleSectors(position, furtherResults);
+                        }
+                    };
+                }
+
+                if (numberOfCircles === 5) { // general case
+                    thirdCircleThreeIntersections();
+
+
+                    m2 = cosGamma1 / sinGamma1;
+
+                    const m23 = (y3 - y2) / (x3 - x2);
                     circleScope.finishMap = function(position, furtherResults) {
                         let l2 = position.length2();
                         if (l2 > worldradius2) {
@@ -483,10 +511,7 @@ function creation() {
         } else {
             Make.outputImage.pixelCanvas.errorMessage("The basic triangle is",
                 "not hyperbolic.", "Please increase its", "rotational symmetries.");
-            Make.outputImage.adjustCanvasTransform();
-            Draw.setLineWidth(basicUI.lineWidth);
-            Draw.setColor("white");
-            circleScope.draw();
+
         }
     };
 
