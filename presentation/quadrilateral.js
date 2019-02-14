@@ -243,7 +243,7 @@ function creation() {
 
         circleScope.reset();
 
-        circleScope.startMap = circleScope.noMap;
+        circleScope.startMap = circleScope.nothingMap;
 
         const cosAlpha = Math.cos(Math.PI / m);
         const sinAlpha = Math.sin(Math.PI / m);
@@ -268,7 +268,7 @@ function creation() {
         r1 *= scale;
         // circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
 
-        circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
+        circleScope.circle1 = new Circle(r1, x1, y1);
         circleScope.circle1.map = circleScope.circle1.invertInsideOut;
 
         // the second circle and finish map depending on geometry
@@ -335,7 +335,7 @@ function creation() {
             x2 = xi * cosGamma + r2 * sinGamma * cosDelta;
             y2 = xi * sinGamma - r2 * cosGamma * cosDelta;
             //   circleScope.circle2 = circleScope.circleInsideOut(r2, x2, y2);
-            circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
+            circleScope.circle2 = new Circle(r2, x2, y2);
             circleScope.circle2.map = circleScope.circle2.invertInsideOut;
         } else {
             console.log("**** no solution for general second circle");
@@ -412,7 +412,7 @@ function creation() {
                 const r3 = solutions.x;
                 const x3 = r3 * u;
                 const y3 = r3 * v;
-                circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
+                circleScope.circle3 = new Circle(r3, x3, y3);
                 circleScope.circle3.map = circleScope.circle3.invertInsideOut;
                 // the finishing function to mark the different triangles
                 // separating regions, and remapping

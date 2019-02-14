@@ -162,18 +162,18 @@ function creation() {
     // basic triangle
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
-    setKButton.setValue(6);
+    setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
     setMButton.setRange(2, 10000);
-    setMButton.setValue(4);
+    setMButton.setValue(3);
     setMButton.onChange = Make.updateNewMap;
 
 
     let setNButton = NumberButton.create("n");
     setNButton.setRange(2, 10000);
-    setNButton.setValue(6);
+    setNButton.setValue(2);
     setNButton.onChange = Make.updateNewMap;
 
     // show the sum of angles
@@ -281,7 +281,7 @@ function creation() {
         r1 *= scale;
         x1 *= scale;
         y1 *= scale;
-        circleScope.circle1.setRadiusCenterXY(r1, x1, y1);
+        circleScope.circle1 = new Circle(r1, x1, y1);
         circleScope.circle1.map = circleScope.circle1.invertInsideOut;
         circleScope.finishMap = finishMapHyperbolicThree;
     }
@@ -298,7 +298,7 @@ function creation() {
             r2 = solutions.x;
             x2 = r2 * u;
             y2 = r2 * v;
-            circleScope.circle2.setRadiusCenterXY(r2, x2, y2);
+            circleScope.circle2 = new Circle(r2, x2, y2);
             circleScope.circle2.map = circleScope.circle2.invertInsideOut;
             // separators
             m2 = cosGamma1 / sinGamma1;
@@ -322,7 +322,7 @@ function creation() {
                 r3 = solutions.x;
                 x3 = r3 * u;
                 y3 = r3 * v;
-                circleScope.circle3.setRadiusCenterXY(r3, x3, y3);
+                circleScope.circle3 = new Circle(r3, x3, y3);
                 circleScope.circle3.map = circleScope.circle3.invertInsideOut;
                 m23 = (y3 - y2) / (x3 - x2);
                 circleScope.finishMap = finishMapHyperbolicFive;
@@ -413,9 +413,32 @@ function creation() {
         }
     }
 
+    //  euklidic
+    //=========================================================
+
+
+    // elliptic
+    //==========================================================
+
+    function firstCircleElliptic() {
+        // set up the first circle, elliptic
+        // same worldradius as hyperbolic
+        r1 = 1;
+        x1 = -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
+        y1 = -cosAlpha1;
+        const scale = Math.sqrt(worldradius2 / (1 - x1 * x1 - y1 * y1));
+        r1 *= scale;
+        x1 *= scale;
+        y1 *= scale;
+        circleScope.circle1 = new Circle(r1, x1, y1);
+        circleScope.circle1.map = circleScope.circle1.invertOutsideIn;
+        circleScope.finishMap = circleScope.doNothing;
+    }
+
 
 
     Make.initializeMap = function() {
+        console.log("initialize map");
         // get data for all circles (may be needed for all geometries)
         let k1 = setKButton.getValue();
         let m1 = setMButton.getValue();
@@ -450,7 +473,7 @@ function creation() {
         // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
-        circleScope.startMap = circleScope.noMap;
+        circleScope.startMap = circleScope.nothingMap;
         // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
         if (sumAngles < 0.99) { // hyperbolic
             switch (numberOfCircles) {
@@ -467,6 +490,13 @@ function creation() {
                     thirdCircleHyperbolic();
                     break;
             }
+        } else if (sumAngles < 1.01) {
+            console.log("euklid");
+            circleScope.finishMap = circleScope.doNothing;
+
+        } else {
+            console.log(" elliptic");
+            firstCircleElliptic();
         }
     };
 
@@ -476,27 +506,21 @@ function creation() {
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
-        if (sumAngles < 0.99) {
-            Make.updateMapOutput();
-            if (showGenerators) {
-                const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
-                Draw.setLineWidth(1.5 * lineWidth);
-                Draw.setColor("black");
-                circleScope.dihedral.drawMirrors();
-                circleScope.circle1.draw();
-                if (numberOfCircles > 3) {
-                    Draw.setLineWidth(lineWidth);
-                    circleScope.circle2.draw();
-                }
-                if (numberOfCircles === 5) {
-                    Draw.setLineWidth(0.7 * lineWidth);
-                    circleScope.circle3.draw();
-                }
+        Make.updateMapOutput();
+        if (showGenerators) {
+            const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
+            Draw.setLineWidth(1.5 * lineWidth);
+            Draw.setColor("black");
+            circleScope.dihedral.drawMirrors();
+            circleScope.circle1.draw();
+            if (numberOfCircles > 3) {
+                Draw.setLineWidth(lineWidth);
+                circleScope.circle2.draw();
             }
-        } else {
-            Make.outputImage.pixelCanvas.errorMessage("The basic triangle is",
-                "not hyperbolic.", "Please increase its", "rotational symmetries.");
-
+            if (numberOfCircles === 5) {
+                Draw.setLineWidth(0.7 * lineWidth);
+                circleScope.circle3.draw();
+            }
         }
     };
 

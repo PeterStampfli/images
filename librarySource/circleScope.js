@@ -15,23 +15,29 @@ circleScope = {};
     // radius of a poincare disc ??
     circleScope.discRadius = -1;
 
-    // the circes
-    circleScope.circle1 = new Circle();
-    circleScope.circle2 = new Circle();
-    circleScope.circle3 = new Circle();
-
-    circleScope.noMap = function(p) {
+    /**
+     * a nothing map 
+     * @method circleScope.nothingMap
+     * @return -1 because it does nothing
+     */
+    circleScope.nothingMap = function() {
         return -1;
     };
+
+    // circle doing nothing
+    const circleZero = new Circle();
+    circleZero.map = circleScope.nothingMap;
+
+
 
     /**
      * reset things set circles to doing no map, returning -1
      * @method circleScope.reset
      */
     circleScope.reset = function() {
-        circleScope.circle1.map = circleScope.noMap;
-        circleScope.circle2.map = circleScope.noMap;
-        circleScope.circle3.map = circleScope.noMap;
+        circleScope.circle1 = circleZero;
+        circleScope.circle2 = circleZero;
+        circleScope.circle3 = circleZero;
     };
 
 
@@ -126,13 +132,6 @@ circleScope = {};
      */
     circleScope.finishMap = circleScope.doNothing;
 
-    /**
-     * doing nothing, as identity projection or transform after the iterative mapping
-     * @method circleScope.doNothing
-     * @param {Vector2} v - the vector to map
-     * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
-     */
-    circleScope.doNothing = circleScope.doNothing;
 
 
     // circle inversion as projection/ startmap
@@ -206,9 +205,6 @@ circleScope = {};
                 dihedral.map(position);
                 furtherResults.reflections += Dihedral.reflections;
             }
-
-
-
         }
 
 
@@ -299,14 +295,7 @@ circleScope = {};
 
     };
 
-    /**
-     * a nothing map 
-     * @method circleScope.nothingMap
-     * @return -1 because it does nothing
-     */
-    circleScope.nothingMap = function() {
-        return -1;
-    };
+
 
     /**
      * make a circle that does nothing
