@@ -416,6 +416,17 @@ function creation() {
     //  euklidic
     //=========================================================
 
+    function firstLineEuklidic() {
+        const big = 100;
+        const intersectionFraction = 0.35;
+        const intersection = intersectionFraction * worldradius;
+        const ax = intersection + big * cosAlpha1;
+        const ay = -big * sinAlpha1;
+        const bx = intersection - big * cosAlpha1;
+        const by = big * sinAlpha1;
+        circleScope.circle1 = new Line(ax, ay, bx, by);
+        circleScope.circle1.map = circleScope.circle1.mirrorRightToLeft;
+    }
 
     // elliptic
     //==========================================================
@@ -432,7 +443,6 @@ function creation() {
         y1 *= scale;
         circleScope.circle1 = new Circle(r1, x1, y1);
         circleScope.circle1.map = circleScope.circle1.invertOutsideIn;
-        circleScope.finishMap = circleScope.doNothing;
     }
 
 
@@ -492,11 +502,15 @@ function creation() {
             }
         } else if (sumAngles < 1.01) {
             console.log("euklid");
+
+            firstLineEuklidic();
             circleScope.finishMap = circleScope.doNothing;
 
         } else {
             console.log(" elliptic");
             firstCircleElliptic();
+            circleScope.finishMap = circleScope.doNothing;
+
         }
     };
 
