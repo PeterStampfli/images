@@ -41,6 +41,17 @@ circleScope = {};
     };
 
 
+
+    /**
+     * all circles  no map, returning -1
+     * @method circleScope.noMapping
+     */
+    circleScope.noMapping = function() {
+        circleScope.circle1.map = circleScope.nothingMap;
+        circleScope.circle2.map = circleScope.nothingMap;
+        circleScope.circle3.map = circleScope.nothingMap;
+    };
+
     circleScope.dihedral = new Dihedral();
     let dihedral = circleScope.dihedral;
 
