@@ -181,7 +181,7 @@ function creation() {
 
 
     //choosing the symmetries, and set initial values
-    // second circle
+    // second circle, three intersections
     let setK2Button = NumberButton.create("k2");
     setK2Button.setRange(2, 10000);
     setK2Button.setValue(3);
@@ -197,6 +197,26 @@ function creation() {
     setN2Button.setValue(3);
     setN2Button.onChange = Make.updateNewMap;
 
+    // second circle, two intersections
+    let circleSize = Range.create("circleSize");
+    circleSize.setStep(0.001);
+    circleSize.setRange(0.0, 1);
+    circleSize.setValue(0.7);
+    circleSize.onChange = Make.updateNewMap;
+
+
+    let setM2sButton = NumberButton.create("m2s");
+    setM2sButton.setRange(2, 10000);
+    setM2sButton.setValue(4);
+    setM2sButton.onChange = Make.updateNewMap;
+
+    let setN2sButton = NumberButton.create("n2s");
+    setN2sButton.setRange(2, 10000);
+    setN2sButton.setValue(setN2Button.getValue());
+    setN2sButton.onChange = function() {
+        setN2Button.setValue(setN2sButton.getValue());
+        Make.updateNewMap();
+    };
 
     //choosing the symmetries, and set initial values
     // third circle
