@@ -20,7 +20,7 @@ function creation() {
     function four() {
         numberOfCircles = 4;
         DOM.style("#centerCircle", "display", "initial");
-        DOM.style("#innerCircle", "display", "none");
+        DOM.style("#innerCircle,#centerCircleSmall", "display", "none");
     }
 
     four();
@@ -28,18 +28,23 @@ function creation() {
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
-        DOM.style("#centerCircle,#innerCircle", "display", "none");
+        DOM.style("#centerCircle,#innerCircle,#centerCircleSmall", "display", "none");
     });
-    viewSelect.addOption("four", function() {
+    viewSelect.addOption("four I", function() {
         four();
         Make.updateNewMap();
-        DOM.style("#circleIntersection", "display", "initial");
     });
-
+    viewSelect.addOption("four II", function() {
+        numberOfCircles = -4;
+        Make.updateNewMap();
+        DOM.style("#centerCircleSmall", "display", "initial");
+        DOM.style("#centerCircle,#innerCircle", "display", "none");
+    });
     viewSelect.addOption("five", function() {
         numberOfCircles = 5;
         Make.updateNewMap();
         DOM.style("#centerCircle,#innerCircle", "display", "initial");
+        DOM.style("#centerCircleSmall", "display", "none");
     });
 
     viewSelect.setIndex(1);
@@ -190,25 +195,34 @@ function creation() {
     let setM2Button = NumberButton.create("m2");
     setM2Button.setRange(2, 10000);
     setM2Button.setValue(4);
-    setM2Button.onChange = Make.updateNewMap;
+    setM2Button.onChange = function() {
+        setM2sButton.setValue(setM2Button.getValue());
+        Make.updateNewMap();
+    };
 
     let setN2Button = NumberButton.create("n2");
     setN2Button.setRange(2, 10000);
     setN2Button.setValue(3);
-    setN2Button.onChange = Make.updateNewMap;
+    setN2Button.onChange = function() {
+        setN2sButton.setValue(setN2Button.getValue());
+        Make.updateNewMap();
+    };
 
     // second circle, two intersections
-    let circleSize = Range.create("circleSize");
-    circleSize.setStep(0.001);
-    circleSize.setRange(0.0, 1);
-    circleSize.setValue(0.7);
-    circleSize.onChange = Make.updateNewMap;
+    let circleSizeRange = Range.create("circleSize");
+    circleSizeRange.setStep(0.001);
+    circleSizeRange.setRange(0.0, 1);
+    circleSizeRange.setValue(0.7);
+    circleSizeRange.onChange = Make.updateNewMap;
 
 
     let setM2sButton = NumberButton.create("m2s");
     setM2sButton.setRange(2, 10000);
-    setM2sButton.setValue(4);
-    setM2sButton.onChange = Make.updateNewMap;
+    setM2sButton.setValue(setM2Button.getValue());
+    setM2sButton.onChange = function() {
+        setM2Button.setValue(setM2sButton.getValue());
+        Make.updateNewMap();
+    };
 
     let setN2sButton = NumberButton.create("n2s");
     setN2sButton.setRange(2, 10000);
@@ -449,6 +463,19 @@ function creation() {
         circleScope.finishMap = circleScope.doNothing;
     }
 
+    function secondCircleEuklidicAllIntersections() {
+        secondCircleExists = true;
+        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+        const v = cosAlpha2;
+        r2 = sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + cosGamma2);
+        x2 = r2 * u;
+        y2 = r2 * v;
+        m12 = cosAlpha1 / sinAlpha1;
+        circleScope.circle2 = new Circle(r2, x2, y2);
+        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+        circleScope.finishMap = finishMapEuclidicFourAllIntersections;
+    }
+
     // elliptic
     //==========================================================
 
@@ -523,7 +550,6 @@ function creation() {
 
 
     Make.initializeMap = function() {
-        console.log("initialize map");
         // get data for all circles (may be needed for all geometries)
         let k1 = setKButton.getValue();
         let m1 = setMButton.getValue();
@@ -546,6 +572,7 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
+        let circleSize = circleSizeRange.getValue();
         let k3 = setK3Button.getValue();
         let m3 = setM3Button.getValue();
         let n3 = setN3Button.getValue();
@@ -577,28 +604,38 @@ function creation() {
             }
         } else if (sumAngles < 1.01) {
             console.log("euklid");
+            switch (numberOfCircles) {
+                case 3:
+                    firstLineEuklidic();
+                    break;
+                case 4:
+                    firstLineEuklidic();
+                    secondCircleEuklidicAllIntersections();
+                    break;
+                case -4:
+                    console.log("neg");
+                    firstLineEuklidic();
+                    secondCircleExists = true;
+                    const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+                    const v = cosAlpha2;
+                    r2 = circleSize * sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + 1);
+                    x2 = r2 * u;
+                    y2 = r2 * v;
+                    m12 = cosAlpha1 / sinAlpha1;
+                    circleScope.circle2 = new Circle(r2, x2, y2);
+                    circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+                    circleScope.finishMap = finishMapEuclidicFourAllIntersections;
 
-            firstLineEuklidic();
-
-            secondCircleExists = true;
-
-
-            const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-            const v = cosAlpha2;
-            r2 = sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + cosGamma2);
-            x2 = r2 * u;
-            y2 = r2 * v;
-            m12 = cosAlpha1 / sinAlpha1;
-            circleScope.circle2 = new Circle(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            circleScope.finishMap = finishMapEuclidicFourAllIntersections;
-
-
-            thirdCircleHyperbolic();
 
 
 
-
+                    break;
+                case 5:
+                    firstLineEuklidic();
+                    secondCircleEuklidicAllIntersections();
+                    thirdCircleHyperbolic();
+                    break;
+            }
         } else {
             console.log(" elliptic");
             switch (numberOfCircles) {
@@ -615,11 +652,7 @@ function creation() {
                     thirdCircleHyperbolic();
                     break;
             }
-
-
-
         }
-
     };
 
     // line width should relate to output image size!!
