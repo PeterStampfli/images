@@ -146,21 +146,34 @@ function creation() {
 
     let generators = new Select("generators");
     let showGenerators = true;
+    let generatorColor = "black";
 
-    generators.addOption("show",
+    generators.addOption("show in black",
         function() {
-            if (!showGenerators) {
-                showGenerators = true;
-                Make.updateOutputImage();
-            }
+            showGenerators = true;
+            generatorColor = "black";
+            Make.updateOutputImage();
+        });
+
+
+    generators.addOption("show in white",
+        function() {
+            showGenerators = true;
+            generatorColor = "white";
+            Make.updateOutputImage();
+        });
+
+    generators.addOption("show in red",
+        function() {
+            showGenerators = true;
+            generatorColor = "red";
+            Make.updateOutputImage();
         });
 
     generators.addOption("hide",
         function() {
-            if (showGenerators) {
-                showGenerators = false;
-                Make.updateOutputImage();
-            }
+            showGenerators = false;
+            Make.updateOutputImage();
         });
 
     //choosing the symmetries, and set initial values
@@ -499,25 +512,19 @@ function creation() {
         secondCircleExists = false;
         const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
         const v = cosAlpha2;
-        console.log(u);
-        console.log(v);
         const a = u * u + v * v - 1;
         const b = -2 * (x1 * u + y1 * v - r1 * cosGamma2);
         const c = x1 * x1 + y1 * y1 - r1 * r1;
         if (Fast.quadraticEquation(a, b, c, solutions)) {
             secondCircleExists = true;
-            solutions.log();
             r2 = solutions.y;
             x2 = r2 * u;
             y2 = r2 * v;
             circleScope.circle2 = new Circle(r2, x2, y2);
             circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            circleScope.circle2.log("circle2 ell");
             // separators
             m22 = cosGamma1 / sinGamma1;
-            console.log("m2 " + m2);
             m12 = (y2 - y1) / (x2 - x1);
-            console.log(m12);
 
             // the finishing function to mark the different triangles
             circleScope.finishMap = finishMapEuclidicFourAllIntersections;
@@ -545,6 +552,26 @@ function creation() {
                 position.x -= x2;
                 position.y -= y2 + y2;
             }
+        }
+    }
+
+
+    function finishMapEuclidicFourSmall(position, furtherResults) {
+        // sector 1 is close to origin,  sector 0 is far away
+        if (position.x < x2) {
+            if (position.y < y2 + m22 * (x2 - position.x)) {
+                furtherResults.colorSector = 1;
+            } else {
+                furtherResults.colorSector = 0;
+                position.x -= x2;
+                position.y -= y2 + y2;
+            }
+        } else {
+
+            furtherResults.colorSector = 0;
+            position.x -= x2;
+            position.y -= y2 + y2;
+
         }
     }
 
@@ -596,6 +623,52 @@ function creation() {
                     firstCircleHyperbolic();
                     secondCircleHyperbolicAllIntersections();
                     break;
+                case -4:
+                    firstCircleHyperbolic();
+
+                    secondCircleExists = false;
+                    const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+                    const v = cosAlpha2;
+                    const a = u * u + v * v - 1;
+                    const b = -2 * (x1 * u + y1 * v + r1);
+                    const c = x1 * x1 + y1 * y1 - r1 * r1;
+                    if (Fast.quadraticEquation(a, b, c, solutions)) {
+                        secondCircleExists = true;
+                        r2 = circleSize * solutions.x;
+                        x2 = r2 * u;
+                        y2 = r2 * v;
+                        circleScope.circle2 = new Circle(r2, x2, y2);
+                        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+                        // separators
+                        m22 = cosGamma1 / sinGamma1;
+                        // the finishing function to mark the different triangles
+                        circleScope.finishMap = function(position, furtherResults) {
+                            let l2 = position.length2();
+                            if (l2 > worldradius2) {
+                                position.scale(0.33 * worldradius2 / l2);
+                                furtherResults.colorSector = 3;
+                            } else {
+                                // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
+                                if (position.x < x2) {
+                                    if (position.y < y2 + m22 * (x2 - position.x)) {
+                                        furtherResults.colorSector = 1;
+                                    } else {
+                                        furtherResults.colorSector = 0;
+                                        position.x -= x2;
+                                        position.y -= y2 + y2;
+                                    }
+                                } else {
+                                    furtherResults.colorSector = 0;
+                                    position.x -= x2;
+                                    position.y -= y2 + y2;
+                                }
+                            }
+                        };
+                    } else {
+                        console.log("no second circle");
+                    }
+
+                    break;
                 case 5:
                     firstCircleHyperbolic();
                     secondCircleHyperbolicAllIntersections();
@@ -613,7 +686,6 @@ function creation() {
                     secondCircleEuklidicAllIntersections();
                     break;
                 case -4:
-                    console.log("neg");
                     firstLineEuklidic();
                     secondCircleExists = true;
                     const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
@@ -621,10 +693,12 @@ function creation() {
                     r2 = circleSize * sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + 1);
                     x2 = r2 * u;
                     y2 = r2 * v;
-                    m12 = cosAlpha1 / sinAlpha1;
+
                     circleScope.circle2 = new Circle(r2, x2, y2);
                     circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-                    circleScope.finishMap = finishMapEuclidicFourAllIntersections;
+                    m22 = cosGamma1 / sinGamma1;
+
+                    circleScope.finishMap = finishMapEuclidicFourSmall;
 
 
 
@@ -646,6 +720,42 @@ function creation() {
                     firstCircleElliptic();
                     secondCircleEllipticAllIntersections();
                     break;
+                case -4:
+                    firstCircleElliptic();
+
+                    secondCircleExists = false;
+                    const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+                    const v = cosAlpha2;
+                    console.log(u);
+                    console.log(v);
+                    const a = u * u + v * v - 1;
+                    const b = -2 * (x1 * u + y1 * v - r1);
+                    const c = x1 * x1 + y1 * y1 - r1 * r1;
+                    if (Fast.quadraticEquation(a, b, c, solutions)) {
+                        secondCircleExists = true;
+                        solutions.log();
+                        r2 = circleSize * solutions.y;
+                        x2 = r2 * u;
+                        y2 = r2 * v;
+                        circleScope.circle2 = new Circle(r2, x2, y2);
+                        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+                        circleScope.circle2.log("circle2 ell");
+                        // separators
+                        m22 = cosGamma1 / sinGamma1;
+                        m12 = (y2 - y1) / (x2 - x1);
+                        console.log(m12);
+
+                        // the finishing function to mark the different triangles
+                        circleScope.finishMap = finishMapEuclidicFourSmall;
+                    } else {
+                        console.log("no second circle");
+                    }
+
+
+
+
+
+                    break;
                 case 5:
                     firstCircleElliptic();
                     secondCircleEllipticAllIntersections();
@@ -665,7 +775,8 @@ function creation() {
         if (showGenerators) {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
             Draw.setLineWidth(1.5 * lineWidth);
-            Draw.setColor("black");
+            Draw.setColor(generatorColor);
+            console.log(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             Draw.setLineWidth(lineWidth);
