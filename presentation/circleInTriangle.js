@@ -222,7 +222,7 @@ function creation() {
     };
 
     // second circle, two intersections
-    let circleSizeRange = Range.create("circleSize");
+    let circleSizeRange = Range.create("circleSizeChoice");
     circleSizeRange.setStep(0.001);
     circleSizeRange.setRange(0.0, 1);
     circleSizeRange.setValue(0.7);
@@ -313,7 +313,7 @@ function creation() {
     //going from center of circle 1 to circle 2 
     // going from center of circle2 to the line
     var m12, m22, m23;
-    var secondCircleExists, lineIntersection;
+    var secondCircleExists, lineIntersection, circleSize;
 
 
     // hyperbolic
@@ -352,6 +352,31 @@ function creation() {
             m12 = (y2 - y1) / (x2 - x1);
             // the finishing function to mark the different triangles
             circleScope.finishMap = finishMapHyperbolicFourAllIntersections;
+        } else {
+            console.log("no second circle");
+        }
+    }
+
+    function secondCircleHyperbolicFourSmall() {
+        secondCircleExists = false;
+        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
+        const v = cosAlpha2;
+        const a = u * u + v * v - 1;
+        const b = -2 * (x1 * u + y1 * v + r1);
+        const c = x1 * x1 + y1 * y1 - r1 * r1;
+        if (Fast.quadraticEquation(a, b, c, solutions)) {
+            secondCircleExists = true;
+            r2 = circleSize * solutions.x;
+            x2 = r2 * u;
+            y2 = r2 * v;
+            circleScope.circle2 = new Circle(r2, x2, y2);
+            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
+            circleScope.circle2.log("**");
+            console.log(circleSize);
+            // separators
+            m22 = cosGamma1 / sinGamma1;
+            // the finishing function to mark the different triangles
+            circleScope.finishMap = finishMapHyperbolicFourSmall;
         } else {
             console.log("no second circle");
         }
@@ -416,6 +441,29 @@ function creation() {
                     position.x -= x2;
                     position.y -= y2 + y2;
                 }
+            }
+        }
+    }
+
+    function finishMapHyperbolicFourSmall(position, furtherResults) {
+        let l2 = position.length2();
+        if (l2 > worldradius2) {
+            position.scale(0.33 * worldradius2 / l2);
+            furtherResults.colorSector = 3;
+        } else {
+            // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
+            if (position.x < x2) {
+                if (position.y < y2 + m22 * (x2 - position.x)) {
+                    furtherResults.colorSector = 1;
+                } else {
+                    furtherResults.colorSector = 0;
+                    position.x -= x2;
+                    position.y -= y2 + y2;
+                }
+            } else {
+                furtherResults.colorSector = 0;
+                position.x -= x2;
+                position.y -= y2 + y2;
             }
         }
     }
@@ -567,7 +615,6 @@ function creation() {
                 position.y -= y2 + y2;
             }
         } else {
-
             furtherResults.colorSector = 0;
             position.x -= x2;
             position.y -= y2 + y2;
@@ -599,7 +646,7 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
-        let circleSize = circleSizeRange.getValue();
+        circleSize = circleSizeRange.getValue();
         let k3 = setK3Button.getValue();
         let m3 = setM3Button.getValue();
         let n3 = setN3Button.getValue();
@@ -625,48 +672,9 @@ function creation() {
                     break;
                 case -4:
                     firstCircleHyperbolic();
+                    secondCircleHyperbolicFourSmall();
 
-                    secondCircleExists = false;
-                    const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-                    const v = cosAlpha2;
-                    const a = u * u + v * v - 1;
-                    const b = -2 * (x1 * u + y1 * v + r1);
-                    const c = x1 * x1 + y1 * y1 - r1 * r1;
-                    if (Fast.quadraticEquation(a, b, c, solutions)) {
-                        secondCircleExists = true;
-                        r2 = circleSize * solutions.x;
-                        x2 = r2 * u;
-                        y2 = r2 * v;
-                        circleScope.circle2 = new Circle(r2, x2, y2);
-                        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-                        // separators
-                        m22 = cosGamma1 / sinGamma1;
-                        // the finishing function to mark the different triangles
-                        circleScope.finishMap = function(position, furtherResults) {
-                            let l2 = position.length2();
-                            if (l2 > worldradius2) {
-                                position.scale(0.33 * worldradius2 / l2);
-                                furtherResults.colorSector = 3;
-                            } else {
-                                // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
-                                if (position.x < x2) {
-                                    if (position.y < y2 + m22 * (x2 - position.x)) {
-                                        furtherResults.colorSector = 1;
-                                    } else {
-                                        furtherResults.colorSector = 0;
-                                        position.x -= x2;
-                                        position.y -= y2 + y2;
-                                    }
-                                } else {
-                                    furtherResults.colorSector = 0;
-                                    position.x -= x2;
-                                    position.y -= y2 + y2;
-                                }
-                            }
-                        };
-                    } else {
-                        console.log("no second circle");
-                    }
+
 
                     break;
                 case 5:
