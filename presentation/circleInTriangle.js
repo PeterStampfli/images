@@ -1,5 +1,26 @@
 /* jshint esversion:6 */
 
+const worldradius = 9.7;
+const worldradius2 = worldradius * worldradius;
+circleScope.setWorldradius(worldradius);
+const solutions = new Vector2();
+
+var sumAngles;
+// the first circle
+var r1, x1, y1;
+var cosAlpha1, sinAlpha1, cosBeta1, sinBeta1, cosGamma1, sinGamma1;
+// the second circle
+var r2, x2, y2;
+var cosAlpha2, sinAlpha2, cosBeta2, sinBeta2, cosGamma2, sinGamma2;
+// the third circle
+var r3, x3, y3;
+var cosAlpha3, sinAlpha3, cosBeta3, sinBeta3, cosGamma3, sinGamma3;
+// the three sectors
+//going from center of circle 1 to circle 2 
+// going from center of circle2 to the line
+var m12, m22, m23;
+var secondCircleExists, lineIntersection, circleSize;
+
 function creation() {
     "use strict";
 
@@ -54,95 +75,35 @@ function creation() {
     Make.map.discRadius = -1;
     circleScope.projection = circleScope.doNothing;
 
-    let projection = new Select("projection");
-    projection.addOption("Poincaré disc surrounded", function() {
-        circleScope.projection = circleScope.doNothing;
-        Make.map.discRadius = -1;
+    let projectionHyperbolic = new Select("projectionHyperbolic");
+    var hyperbolicProjection = circleScope.doNothing;
+    var hyperbolicRadius = -1;
+
+    projectionHyperbolic.addOption("Poincaré disc surrounded", function() {
+        hyperbolicProjection = circleScope.doNothing;
+        hyperbolicRadius = -1;
         Make.updateNewMap();
     });
-    projection.addOption("Poincaré disc only", function() {
-        circleScope.projection = circleScope.doNothing;
-        Make.map.discRadius = worldradius;
+    projectionHyperbolic.addOption("Poincaré disc only", function() {
+        hyperbolicProjection = circleScope.doNothing;
+        hyperbolicRadius = worldradius;
         Make.updateNewMap();
     });
-    projection.addOption("Poincaré plane both", function() {
-        circleScope.projection = function(position) {
-            position.y = worldradius - position.y;
-            position.x /= worldradius;
-            position.y /= worldradius;
-            // cayley transform
-            let r2 = position.x * position.x + position.y * position.y;
-            let base = 1 / (r2 + 2 * position.y + 1.00001);
-            position.y = -2 * position.x * base * worldradius;
-            position.x = (r2 - 1) * base * worldradius;
-            return 1;
-        };
-        Make.map.discRadius = -1;
+    projectionHyperbolic.addOption("Poincaré plane both", function() {
+        hyperbolicProjection = poincarePlaneBoth;
+        hyperbolicRadius = -1;
         Make.updateNewMap();
     });
-    projection.addOption("Poincaré plane single", function() {
-        circleScope.projection = function(position) {
-            position.y = worldradius - position.y;
-            if (position.y < 0) {
-                return -1;
-            }
-            position.x /= worldradius;
-            position.y /= worldradius;
-            // cayley transform
-            let r2 = position.x * position.x + position.y * position.y;
-            let base = 1 / (r2 + 2 * position.y + 1.00001);
-            position.y = -2 * position.x * base * worldradius;
-            position.x = (r2 - 1) * base * worldradius;
-            return 1;
-        };
-        Make.map.discRadius = -1;
+    projectionHyperbolic.addOption("Poincaré plane single", function() {
+        hyperbolicProjection = poincarePlaneSingle;
+        hyperbolicRadius = -1;
         Make.updateNewMap();
     });
 
 
-    projection.addOption("Klein disc surrounded", function() {
-        circleScope.projection = function(position) {
-            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
-            if (r2worldRadius2 < 1) {
-                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
-                position.x *= mapFactor;
-                position.y *= mapFactor;
-            }
-            return 1;
-        };
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-    projection.addOption("Klein disc only", function() {
-        circleScope.projection = function(position) {
-            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
-            let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
-            position.x *= mapFactor;
-            position.y *= mapFactor;
-            return 1;
-        };
-        Make.map.discRadius = worldradius;
-        Make.updateNewMap();
-    });
-
-    var v = new Vector2();
-
-    projection.addOption("Bulatov band", function() {
-        let bandScale = Math.PI * 0.5 / worldradius;
-        circleScope.projection = function(position) {
-            if (Math.abs(position.y) > worldradius) {
-                return -1;
-            }
-            position.scale(bandScale);
-            let exp2u = Fast.exp(position.x);
-            let expm2u = 1 / exp2u;
-            Fast.cosSin(position.y, v);
-            let base = worldradius / (exp2u + expm2u + 2 * v.x);
-            position.x = (exp2u - expm2u) * base;
-            position.y = 2 * v.y * base;
-            return 1;
-        };
-        Make.map.discRadius = -1;
+    projectionHyperbolic.addOption("Klein disc", function() {
+        hyperbolicProjection = kleinDisc;
+        hyperbolicRadius = worldradius;
         Make.updateNewMap();
     });
 
@@ -296,374 +257,10 @@ function creation() {
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
 
-    const worldradius = 9.7;
-    const worldradius2 = worldradius * worldradius;
-    circleScope.setWorldradius(worldradius);
-    const solutions = new Vector2();
-
-    var sumAngles;
-    // the first circle
-    var r1, x1, y1;
-    var cosAlpha1, sinAlpha1, cosBeta1, sinBeta1, cosGamma1, sinGamma1;
-    // the second circle
-    var r2, x2, y2;
-    var cosAlpha2, sinAlpha2, cosBeta2, sinBeta2, cosGamma2, sinGamma2;
-    // the third circle
-    var r3, x3, y3;
-    var cosAlpha3, sinAlpha3, cosBeta3, sinBeta3, cosGamma3, sinGamma3;
-    // the three sectors
-    //going from center of circle 1 to circle 2 
-    // going from center of circle2 to the line
-    var m12, m22, m23;
-    var secondCircleExists, lineIntersection, circleSize;
 
 
-    // hyperbolic
-    //======================================================
-
-    function firstCircleHyperbolic() {
-        // set up the first circle, hyperbolic
-        r1 = 1;
-        x1 = (cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
-        y1 = cosAlpha1;
-        const scale = Math.sqrt(worldradius2 / (x1 * x1 + y1 * y1 - 1));
-        r1 *= scale;
-        x1 *= scale;
-        y1 *= scale;
-        circleScope.circle1 = new Circle(r1, x1, y1);
-        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
-        circleScope.finishMap = finishMapHyperbolicThree;
-    }
-
-    function secondCircleHyperbolicAllIntersections() { // calculate the second circle for intersecting with all three sides
-        secondCircleExists = false;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        const a = u * u + v * v - 1;
-        const b = -2 * (x1 * u + y1 * v + r1 * cosGamma2);
-        const c = x1 * x1 + y1 * y1 - r1 * r1;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            secondCircleExists = true;
-            r2 = solutions.x;
-            x2 = r2 * u;
-            y2 = r2 * v;
-            circleScope.circle2 = new Circle(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            // separators
-            m22 = cosGamma1 / sinGamma1;
-            m12 = (y2 - y1) / (x2 - x1);
-            // the finishing function to mark the different triangles
-            circleScope.finishMap = finishMapHyperbolicFourAllIntersections;
-        } else {
-            console.log("no second circle");
-        }
-    }
-
-    function secondCircleHyperbolicFourSmall() {
-        secondCircleExists = false;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        const a = u * u + v * v - 1;
-        const b = -2 * (x1 * u + y1 * v + r1);
-        const c = x1 * x1 + y1 * y1 - r1 * r1;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            secondCircleExists = true;
-            r2 = circleSize * solutions.x;
-            x2 = r2 * u;
-            y2 = r2 * v;
-            circleScope.circle2 = new Circle(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            circleScope.circle2.log("**");
-            console.log(circleSize);
-            // separators
-            m22 = cosGamma1 / sinGamma1;
-            // the finishing function to mark the different triangles
-            circleScope.finishMap = finishMapHyperbolicFourSmall;
-        } else {
-            console.log("no second circle");
-        }
-    }
-
-    function thirdCircleHyperbolic() {
-        // calculate the third circle for intersecting with all three sides
-        if (secondCircleExists) {
-            const u = (cosBeta3 + cosAlpha3 * cosGamma1) / sinGamma1;
-            const v = cosAlpha3;
-            const a = u * u + v * v - 1;
-            const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
-            const c = x2 * x2 + y2 * y2 - r2 * r2;
-            if (Fast.quadraticEquation(a, b, c, solutions)) {
-                r3 = solutions.x;
-                x3 = r3 * u;
-                y3 = r3 * v;
-                circleScope.circle3 = new Circle(r3, x3, y3);
-                circleScope.circle3.map = circleScope.circle3.invertInsideOut;
-                m23 = (y3 - y2) / (x3 - x2);
-                circleScope.finishMap = finishMapHyperbolicFive;
-            } else {
-                console.log("no third circle");
-            }
-        }
-    }
-
-    // finish map for basic triangle only
-    function finishMapHyperbolicThree(position, furtherResults) {
-        let l2 = position.length2();
-        if (l2 > worldradius2) {
-            position.scale(worldradius2 / l2);
-            furtherResults.colorSector = 3;
-        } else {
-            furtherResults.colorSector = 0;
-        }
-    }
-
-    // finish map for four circles with three intersections
-
-    function finishMapHyperbolicFourAllIntersections(position, furtherResults) {
-        let l2 = position.length2();
-        if (l2 > worldradius2) {
-            position.scale(0.33 * worldradius2 / l2);
-            furtherResults.colorSector = 3;
-        } else {
-            // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
-            if (position.x < x2) {
-                if (position.y < y2 + m22 * (x2 - position.x)) {
-                    furtherResults.colorSector = 1;
-                } else {
-                    furtherResults.colorSector = 0;
-                    position.x -= x2;
-                    position.y -= y2 + y2;
-                }
-            } else {
-                if (position.y < y2 + m12 * (position.x - x2)) {
-                    furtherResults.colorSector = 2;
-                    position.x -= x2;
-                } else {
-                    furtherResults.colorSector = 0;
-                    position.x -= x2;
-                    position.y -= y2 + y2;
-                }
-            }
-        }
-    }
-
-    function finishMapHyperbolicFourSmall(position, furtherResults) {
-        let l2 = position.length2();
-        if (l2 > worldradius2) {
-            position.scale(0.33 * worldradius2 / l2);
-            furtherResults.colorSector = 3;
-        } else {
-            // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
-            if (position.x < x2) {
-                if (position.y < y2 + m22 * (x2 - position.x)) {
-                    furtherResults.colorSector = 1;
-                } else {
-                    furtherResults.colorSector = 0;
-                    position.x -= x2;
-                    position.y -= y2 + y2;
-                }
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        }
-    }
-
-    function finishMapHyperbolicFive(position, furtherResults) {
-        let l2 = position.length2();
-        if (l2 > worldradius2) {
-            position.scale(0.25 * worldradius2 / l2);
-            furtherResults.colorSector = 3;
-        } else {
-            if (position.x < x3) {
-                if (position.y < y3 + (x3 - position.x) * m22) {
-                    furtherResults.colorSector = 0;
-                } else {
-                    furtherResults.colorSector = 1;
-                    position.x -= x3;
-                    position.y -= y3 + y3;
-                }
-            } else if (position.x < x2) {
-                if (position.y < y3 + (position.x - x3) * m23) {
-                    furtherResults.colorSector = 2;
-                    position.x -= x3;
-                } else if (position.y < y2 + (x2 - position.x) * m22) {
-                    furtherResults.colorSector = 1;
-                    position.x -= x3;
-                    position.y -= y3 + y3;
-                } else {
-                    furtherResults.colorSector = 4;
-                    position.x -= x2;
-                    position.y -= y2 + y2;
-                }
-            } else {
-                if (position.y < y2 + (position.x - x2) * m12) {
-                    furtherResults.colorSector = 5;
-                    position.x -= x2;
-                } else {
-                    furtherResults.colorSector = 4;
-                    position.x -= x2;
-                    position.y -= y2 + y2;
-                }
-            }
-        }
-    }
-
-    //  euklidic
-    //=========================================================
-
-    function firstLineEuklidic() {
-        const big = 100;
-        const intersectionFraction = 0.35;
-        lineIntersection = intersectionFraction * worldradius;
-        const ax = lineIntersection + big * cosAlpha1;
-        const ay = -big * sinAlpha1;
-        const bx = lineIntersection - big * cosAlpha1;
-        const by = big * sinAlpha1;
-        circleScope.circle1 = new Line(ax, ay, bx, by);
-        circleScope.circle1.map = circleScope.circle1.mirrorRightToLeft;
-        circleScope.finishMap = circleScope.doNothing;
-    }
-
-    function secondCircleEuklidicAllIntersections() {
-        secondCircleExists = true;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        r2 = sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + cosGamma2);
-        x2 = r2 * u;
-        y2 = r2 * v;
-        m12 = cosAlpha1 / sinAlpha1;
-        circleScope.circle2 = new Circle(r2, x2, y2);
-        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-        circleScope.finishMap = finishMapEuclidicFourAllIntersections;
-    }
-
-    function secondCircleEuklidicFourSmall() {
-        secondCircleExists = true;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        r2 = circleSize * sinAlpha1 * lineIntersection / (sinAlpha1 * u + cosAlpha1 * v + 1);
-        x2 = r2 * u;
-        y2 = r2 * v;
-        circleScope.circle2 = new Circle(r2, x2, y2);
-        circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-        m22 = cosGamma1 / sinGamma1;
-        circleScope.finishMap = finishMapEuclidicFourSmall;
-    }
 
 
-    function finishMapEuclidicFourAllIntersections(position, furtherResults) {
-        // sector 1 is close to origin, sector 2 is at x-axis, sector 0 at "diagonal" line
-        if (position.x < x2) {
-            if (position.y < y2 + m22 * (x2 - position.x)) {
-                furtherResults.colorSector = 1;
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        } else {
-            if (position.y < y2 + m12 * (position.x - x2)) {
-                furtherResults.colorSector = 2;
-                position.x -= x2;
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        }
-    }
-
-    function finishMapEuclidicFourSmall(position, furtherResults) {
-        // sector 1 is close to origin,  sector 0 is far away
-        if (position.x < x2) {
-            if (position.y < y2 + m22 * (x2 - position.x)) {
-                furtherResults.colorSector = 1;
-            } else {
-                furtherResults.colorSector = 0;
-                position.x -= x2;
-                position.y -= y2 + y2;
-            }
-        } else {
-            furtherResults.colorSector = 0;
-            position.x -= x2;
-            position.y -= y2 + y2;
-        }
-    }
-
-
-    // elliptic
-    //==========================================================
-
-    function firstCircleElliptic() {
-        // set up the first circle, elliptic
-        // same worldradius as hyperbolic
-        r1 = 1;
-        x1 = -(cosAlpha1 * cosGamma1 + cosBeta1) / sinGamma1;
-        y1 = -cosAlpha1;
-        const scale = Math.sqrt(worldradius2 / (1 - x1 * x1 - y1 * y1));
-        r1 *= scale;
-        x1 *= scale;
-        y1 *= scale;
-        circleScope.circle1 = new Circle(r1, x1, y1);
-        circleScope.circle1.map = circleScope.circle1.invertOutsideIn;
-        circleScope.finishMap = circleScope.doNothing;
-    }
-
-    function secondCircleEllipticAllIntersections() {
-        // calculate the second circle for intersecting with all three sides
-        secondCircleExists = false;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        const a = u * u + v * v - 1;
-        const b = -2 * (x1 * u + y1 * v - r1 * cosGamma2);
-        const c = x1 * x1 + y1 * y1 - r1 * r1;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            secondCircleExists = true;
-            r2 = solutions.y;
-            x2 = r2 * u;
-            y2 = r2 * v;
-            circleScope.circle2 = new Circle(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            // separators
-            m22 = cosGamma1 / sinGamma1;
-            m12 = (y2 - y1) / (x2 - x1);
-            // the finishing function to mark the different triangles
-            circleScope.finishMap = finishMapEuclidicFourAllIntersections;
-        } else {
-            console.log("no second circle");
-        }
-    }
-
-    function secondCircleEllipticFourSmall() {
-        secondCircleExists = false;
-        const u = (cosBeta2 + cosAlpha2 * cosGamma1) / sinGamma1;
-        const v = cosAlpha2;
-        console.log(u);
-        console.log(v);
-        const a = u * u + v * v - 1;
-        const b = -2 * (x1 * u + y1 * v - r1);
-        const c = x1 * x1 + y1 * y1 - r1 * r1;
-        if (Fast.quadraticEquation(a, b, c, solutions)) {
-            secondCircleExists = true;
-            solutions.log();
-            r2 = circleSize * solutions.y;
-            x2 = r2 * u;
-            y2 = r2 * v;
-            circleScope.circle2 = new Circle(r2, x2, y2);
-            circleScope.circle2.map = circleScope.circle2.invertInsideOut;
-            circleScope.circle2.log("circle2 ell");
-            // separators
-            m22 = cosGamma1 / sinGamma1;
-            m12 = (y2 - y1) / (x2 - x1);
-            console.log(m12);
-            // the finishing function to mark the different triangles
-            circleScope.finishMap = finishMapEuclidicFourSmall;
-        } else {
-            console.log("no second circle");
-        }
-    }
 
 
     Make.initializeMap = function() {
@@ -706,6 +303,9 @@ function creation() {
         // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
         if (sumAngles < 0.99) { // hyperbolic
             DOM.style("#projectionHyperbolicDiv", "display", "initial");
+            DOM.style("#projectionEuklidicDiv,#projectionEllipticDiv", "display", "none");
+            circleScope.projection = hyperbolicProjection;
+            Make.map.discRadius = hyperbolicRadius;
 
             switch (numberOfCircles) {
                 case 3:
@@ -727,7 +327,8 @@ function creation() {
             }
         } else if (sumAngles < 1.01) {
             console.log("euklid");
-            DOM.style("#projectionHyperbolicDiv", "display", "none");
+            DOM.style("#projectionEuklidicDiv", "display", "initial");
+            DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
 
             switch (numberOfCircles) {
                 case 3:
@@ -749,7 +350,8 @@ function creation() {
             }
         } else {
             console.log(" elliptic");
-            DOM.style("#projectionHyperbolicDiv", "display", "none");
+            DOM.style("#projectionEllipticDiv", "display", "initial");
+            DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
             switch (numberOfCircles) {
                 case 3:
                     firstCircleElliptic();
