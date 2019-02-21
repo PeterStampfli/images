@@ -71,3 +71,23 @@ function secondCircleEllipticFourSmall() {
         console.log("no second circle");
     }
 }
+
+
+// projections
+
+function mercator(position) {
+    position.scale(2 / worldradius);
+    Fast.cosSin(position.x, v);
+    let r = Fast.exp(-position.y) * worldradius;
+    position.x = r * v.x;
+    position.y = r * v.y;
+    return 1;
+}
+
+
+function gonomic(position) {
+    let mapFactor = 1 / (1 + Math.sqrt(1 + (position.x * position.x + position.y * position.y) / worldradius2));
+    position.x *= mapFactor;
+    position.y *= mapFactor;
+    return 1;
+}

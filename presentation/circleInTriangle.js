@@ -4,6 +4,7 @@ const worldradius = 9.7;
 const worldradius2 = worldradius * worldradius;
 circleScope.setWorldradius(worldradius);
 const solutions = new Vector2();
+const v = new Vector2();
 
 var sumAngles;
 // the first circle
@@ -72,9 +73,6 @@ function creation() {
 
     viewSelect.setIndex(1);
 
-    Make.map.discRadius = -1;
-    circleScope.projection = circleScope.doNothing;
-
     let projectionHyperbolic = new Select("projectionHyperbolic");
     var hyperbolicProjection = circleScope.doNothing;
     var hyperbolicRadius = -1;
@@ -92,24 +90,94 @@ function creation() {
     projectionHyperbolic.addOption("Poincaré plane both", function() {
         hyperbolicProjection = poincarePlaneBoth;
         hyperbolicRadius = -1;
+        generators.setIndex(0);
+        showGenerators = false;
         Make.updateNewMap();
     });
     projectionHyperbolic.addOption("Poincaré plane single", function() {
         hyperbolicProjection = poincarePlaneSingle;
         hyperbolicRadius = -1;
+        generators.setIndex(0);
+        showGenerators = false;
         Make.updateNewMap();
     });
-
-
     projectionHyperbolic.addOption("Klein disc", function() {
         hyperbolicProjection = kleinDisc;
         hyperbolicRadius = worldradius;
+        generators.setIndex(0);
+        showGenerators = false;
         Make.updateNewMap();
     });
+
+    let projectionEuklidic = new Select("projectionEuklidic");
+    var euklidicProjection = circleScope.doNothing;
+    var euklidicRadius = -1;
+
+    projectionEuklidic.addOption("Normal", function() {
+        euklidicProjection = circleScope.doNothing;
+        euklidicRadius = -1;
+        Make.updateNewMap();
+    });
+
+
+    projectionEuklidic.addOption("Inverted", function() {
+        euklidicProjection = function(position) {
+            position.scale(worldradius2 / position.length2());
+            return 1;
+        };
+        euklidicRadius = -1;
+        generators.setIndex(0);
+        showGenerators = false;
+        Make.updateNewMap();
+    });
+
+    let projectionElliptic = new Select("projectionElliptic");
+    var ellipticProjection = circleScope.doNothing;
+    var ellipticRadius = -1;
+
+    projectionElliptic.addOption("Stereographic", function() {
+        ellipticProjection = circleScope.doNothing;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionElliptic.addOption("Normal", function() {
+        ellipticProjection = kleinDisc;
+        ellipticRadius = worldradius;
+        generators.setIndex(0);
+        showGenerators = false;
+        Make.updateNewMap();
+    });
+
+    projectionElliptic.addOption("Mercator", function() {
+        ellipticProjection = mercator;
+        ellipticRadius = -1;
+        generators.setIndex(0);
+        showGenerators = false;
+        Make.updateNewMap();
+    });
+
+
+    projectionElliptic.addOption("Gonomic", function() {
+        ellipticProjection = gonomic;
+        ellipticRadius = -1;
+        generators.setIndex(0);
+        showGenerators = false;
+        Make.updateNewMap();
+    });
+
+
 
     let generators = new Select("generators");
     let showGenerators = true;
     let generatorColor = "black";
+
+
+    generators.addOption("hide",
+        function() {
+            showGenerators = false;
+            Make.updateOutputImage();
+        });
 
     generators.addOption("show in black",
         function() {
@@ -132,12 +200,7 @@ function creation() {
             generatorColor = "red";
             Make.updateOutputImage();
         });
-
-    generators.addOption("hide",
-        function() {
-            showGenerators = false;
-            Make.updateOutputImage();
-        });
+    generators.setIndex(1);
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -329,6 +392,8 @@ function creation() {
             console.log("euklid");
             DOM.style("#projectionEuklidicDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
+            circleScope.projection = euklidicProjection;
+            Make.map.discRadius = euklidicRadius;
 
             switch (numberOfCircles) {
                 case 3:
@@ -352,6 +417,8 @@ function creation() {
             console.log(" elliptic");
             DOM.style("#projectionEllipticDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
+            circleScope.projection = ellipticProjection;
+            Make.map.discRadius = ellipticRadius;
             switch (numberOfCircles) {
                 case 3:
                     firstCircleElliptic();
