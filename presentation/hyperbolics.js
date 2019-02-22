@@ -225,3 +225,37 @@ function kleinDisc(position) {
     position.y *= mapFactor;
     return 1;
 }
+
+function quincuncial(position) {
+    position.x /= worldradius;
+    position.y /= worldradius;
+    position.x -= Math.round(position.x);
+    position.y -= Math.round(position.y);
+
+    const h = position.x + position.y;
+    let invert = true;
+    position.y = 2 * (position.x - position.y);
+    position.x = 2 * h;
+
+    if (position.x > 1) {
+        position.x = 2 - position.x;
+    } else if (position.x < -1) {
+        position.x = -2 - position.x;
+    } else if (position.y > 1) {
+        position.y = 2 - position.y;
+    } else if (position.y < -1) {
+        position.y = -2 - position.y;
+    } else {
+        invert = false;
+    }
+
+    if (invert) {
+        const scale = 1 / (position.length2() + 0.0001);
+        position.scale(scale);
+    }
+
+    position.scale(worldradius);
+
+
+    return 1;
+}

@@ -87,6 +87,11 @@ function creation() {
         hyperbolicRadius = worldradius;
         Make.updateNewMap();
     });
+    projectionHyperbolic.addOption("Quincuncial", function() {
+        hyperbolicProjection = quincuncial;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
     projectionHyperbolic.addOption("Poincaré plane both", function() {
         hyperbolicProjection = poincarePlaneBoth;
         hyperbolicRadius = -1;
@@ -206,7 +211,7 @@ function creation() {
     // basic triangle
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10000);
-    setKButton.setValue(4);
+    setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.create("m");
