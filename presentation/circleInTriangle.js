@@ -76,49 +76,60 @@ function creation() {
     let projectionHyperbolic = new Select("projectionHyperbolic");
     var hyperbolicProjection = circleScope.doNothing;
     var hyperbolicRadius = -1;
+    var hyperbolicCanShowGenerators = true;
+
 
     projectionHyperbolic.addOption("Poincaré disc surrounded", function() {
+        hyperbolicCanShowGenerators = true;
         hyperbolicProjection = circleScope.doNothing;
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
     projectionHyperbolic.addOption("Poincaré disc only", function() {
+        hyperbolicCanShowGenerators = true;
         hyperbolicProjection = circleScope.doNothing;
         hyperbolicRadius = worldradius;
         Make.updateNewMap();
     });
-    projectionHyperbolic.addOption("Quincuncial", function() {
+    projectionHyperbolic.addOption("Quincuncial tiled", function() {
+        hyperbolicCanShowGenerators = false;
         hyperbolicProjection = quincuncial;
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
+    projectionHyperbolic.addOption("Quincuncial single", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = quincuncialSingle;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
     projectionHyperbolic.addOption("Poincaré plane both", function() {
+        hyperbolicCanShowGenerators = false;
         hyperbolicProjection = poincarePlaneBoth;
         hyperbolicRadius = -1;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
     projectionHyperbolic.addOption("Poincaré plane single", function() {
+        hyperbolicCanShowGenerators = false;
         hyperbolicProjection = poincarePlaneSingle;
         hyperbolicRadius = -1;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
     projectionHyperbolic.addOption("Klein disc", function() {
+        hyperbolicCanShowGenerators = false;
         hyperbolicProjection = kleinDisc;
         hyperbolicRadius = worldradius;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
 
     let projectionEuklidic = new Select("projectionEuklidic");
     var euklidicProjection = circleScope.doNothing;
     var euklidicRadius = -1;
+    var euklidicCanShowGenerators = true;
 
     projectionEuklidic.addOption("Normal", function() {
+        euklidicCanShowGenerators = true;
         euklidicProjection = circleScope.doNothing;
         euklidicRadius = -1;
         Make.updateNewMap();
@@ -126,39 +137,52 @@ function creation() {
 
 
     projectionEuklidic.addOption("Inverted", function() {
+        euklidicCanShowGenerators = false;
         euklidicProjection = function(position) {
             position.scale(worldradius2 / position.length2());
             return 1;
         };
         euklidicRadius = -1;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
 
     let projectionElliptic = new Select("projectionElliptic");
     var ellipticProjection = circleScope.doNothing;
     var ellipticRadius = -1;
+    var ellipticCanShowGenerators = true;
 
     projectionElliptic.addOption("Stereographic", function() {
+        ellipticCanShowGenerators = true;
         ellipticProjection = circleScope.doNothing;
         ellipticRadius = -1;
         Make.updateNewMap();
     });
 
     projectionElliptic.addOption("Normal", function() {
+        ellipticCanShowGenerators = false;
         ellipticProjection = kleinDisc;
         ellipticRadius = worldradius;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
 
+    projectionElliptic.addOption("Quincuncial tiled", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = quincuncial;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+    projectionElliptic.addOption("Quincuncial single", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = quincuncialSingle;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+
+
     projectionElliptic.addOption("Mercator", function() {
+        ellipticCanShowGenerators = false;
         ellipticProjection = mercator;
         ellipticRadius = -1;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
 
@@ -166,27 +190,23 @@ function creation() {
     projectionElliptic.addOption("Gonomic", function() {
         ellipticProjection = gonomic;
         ellipticRadius = -1;
-        generators.setIndex(0);
-        showGenerators = false;
         Make.updateNewMap();
     });
 
 
-
     let generators = new Select("generators");
-    let showGenerators = true;
     let generatorColor = "black";
+    let canShowGenerators = true;
+
 
 
     generators.addOption("hide",
         function() {
-            showGenerators = false;
             Make.updateOutputImage();
         });
 
     generators.addOption("show in black",
         function() {
-            showGenerators = true;
             generatorColor = "black";
             Make.updateOutputImage();
         });
@@ -194,18 +214,19 @@ function creation() {
 
     generators.addOption("show in white",
         function() {
-            showGenerators = true;
             generatorColor = "white";
             Make.updateOutputImage();
         });
 
     generators.addOption("show in red",
         function() {
-            showGenerators = true;
             generatorColor = "red";
             Make.updateOutputImage();
         });
     generators.setIndex(1);
+
+    let noGenerators = new Select("noGenerators");
+    noGenerators.addOption(" - - - ", function() {});
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -325,12 +346,6 @@ function creation() {
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
 
-
-
-
-
-
-
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
         let k1 = setKButton.getValue();
@@ -374,6 +389,11 @@ function creation() {
             DOM.style("#projectionEuklidicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = hyperbolicProjection;
             Make.map.discRadius = hyperbolicRadius;
+            canShowGenerators = hyperbolicCanShowGenerators;
+
+            console.log("hyp gen can show " + hyperbolicCanShowGenerators);
+            console.log("show gen " + canShowGenerators);
+            console.log("index " + generators.getIndex());
 
             switch (numberOfCircles) {
                 case 3:
@@ -399,6 +419,7 @@ function creation() {
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = euklidicProjection;
             Make.map.discRadius = euklidicRadius;
+            canShowGenerators = euklidicCanShowGenerators;
 
             switch (numberOfCircles) {
                 case 3:
@@ -424,6 +445,7 @@ function creation() {
             DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
             circleScope.projection = ellipticProjection;
             Make.map.discRadius = ellipticRadius;
+            canShowGenerators = ellipticCanShowGenerators;
             switch (numberOfCircles) {
                 case 3:
                     firstCircleElliptic();
@@ -443,6 +465,13 @@ function creation() {
                     break;
             }
         }
+        if (canShowGenerators) {
+            DOM.style("#generatorsDiv", "display", "initial");
+            DOM.style("#noGeneratorsDiv", "display", "none");
+        } else {
+            DOM.style("#generatorsDiv", "display", "none");
+            DOM.style("#noGeneratorsDiv", "display", "initial");
+        }
     };
 
     // line width should relate to output image size!!
@@ -452,7 +481,7 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        if (showGenerators) {
+        if ((generators.getIndex() > 0) && canShowGenerators) {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
             Draw.setLineWidth(1.5 * lineWidth);
             Draw.setColor(generatorColor);
@@ -465,7 +494,6 @@ function creation() {
             circleScope.circle3.draw();
         }
     };
-
     circleScope.setMapping();
 }
 

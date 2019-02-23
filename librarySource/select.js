@@ -117,7 +117,17 @@ function Select(idName) {
      * @param {integer} i
      */
     Select.prototype.setIndex = function(i) {
+        console.log("*** set index " + i);
         this.element.selectedIndex = Fast.clamp(0, i, this.actions.length - 1);
+    };
+
+    /**
+     * get the index of the selected option
+     * @method Select#setIndex
+     * @return {integer} i
+     */
+    Select.prototype.getIndex = function(i) {
+        return this.element.selectedIndex;
     };
 
 

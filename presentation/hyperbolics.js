@@ -226,16 +226,38 @@ function kleinDisc(position) {
     return 1;
 }
 
+const qEpsilon = 0.0001;
+
 function quincuncial(position) {
-    position.x /= worldradius;
-    position.y /= worldradius;
+    // periods are 2*worldradius, reduce to ranges -0.5 ... 0.5
+    let h = 0.25 / worldradius;
+    position.x *= h;
+    position.y *= h;
     position.x -= Math.round(position.x);
     position.y -= Math.round(position.y);
+    // lower part to up, diagonal shifts
+    if (position.y < 0) {
+        if (position.x > 0) {
+            position.x -= 0.5;
+        } else {
+            position.x += 0.5;
+        }
+        position.y += 0.5;
+    }
+    // left to right, rotate
+    if (position.x < 0) {
+        position.x = -position.x;
+        position.y = 0.5 - position.y;
+    }
+    // shift to center
+    position.x -= 0.25;
+    position.y -= 0.25;
 
-    const h = position.x + position.y;
-    let invert = true;
-    position.y = 2 * (position.x - position.y);
-    position.x = 2 * h;
+    // rotate 45 degrees, corners at (+-2,0) and (0,+-2)
+    h = position.x + position.y;
+    let invert = false;
+    position.y = 4 * (position.x - position.y);
+    position.x = 4 * h;
 
     if (position.x > 1) {
         position.x = 2 - position.x;
@@ -246,16 +268,37 @@ function quincuncial(position) {
     } else if (position.y < -1) {
         position.y = -2 - position.y;
     } else {
-        invert = false;
+        invert = true;
     }
 
+    // transform unit square (+-1,0) and (0,+-1) to unit circle
+    const x2 = position.x * position.x;
+    const y2 = position.y * position.y;
+    const r2 = x2 + y2;
+    var scale;
+    // beware of singularities
+    if (r2 < qEpsilon) {
+        scale = 1;
+    } else if (r2 + qEpsilon > 2) {
+        scale = 0.7071;
+    } else {
+        const x2y2 = x2 * y2;
+        scale = Math.sqrt((r2 - 2 * x2y2) / r2 / (1 - x2y2));
+    }
+    position.scale(scale);
+    // invert for lower hemisphere
     if (invert) {
         const scale = 1 / (position.length2() + 0.0001);
         position.scale(scale);
     }
-
     position.scale(worldradius);
-
-
     return 1;
+}
+
+
+function quincuncialSingle(position) {
+    if ((position.x > worldradius) || (position.x < -worldradius) || (position.y > worldradius) || (position.y < -worldradius)) {
+        return -1;
+    }
+    return quincuncial(position);
 }
