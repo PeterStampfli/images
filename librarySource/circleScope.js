@@ -306,6 +306,14 @@ circleScope = {};
 
     };
 
+    /**
+     * set up center and right mouse button action on output image for doing nothing
+     * @method circleScope.setupMouseForTrajectory
+     */
+    circleScope.setupMouseNoTrajectory = function() {
+        Make.outputImage.centerAction = function(mouseEvents) {};
+    };
+
 
 
     /**

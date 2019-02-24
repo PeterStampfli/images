@@ -1,5 +1,10 @@
 /* jshint esversion:6 */
 
+const worldradius = 11.9;
+const worldradius2 = worldradius * worldradius;
+const solutions = new Vector2();
+
+
 function creation() {
     "use strict";
 
@@ -45,21 +50,40 @@ function creation() {
 
     Make.map.discRadius = -1;
     circleScope.projection = circleScope.doNothing;
+    let canShowGenerators = true;
 
 
     let projection = new Select("projection");
     projection.addOption("Poincaré disc surrounded", function() {
+        canShowGenerators = true;
         circleScope.projection = circleScope.doNothing;
         Make.map.discRadius = -1;
         Make.updateNewMap();
     });
+
     projection.addOption("Poincaré disc only", function() {
+        canShowGenerators = true;
         circleScope.projection = circleScope.doNothing;
         Make.map.discRadius = worldradius;
         Make.updateNewMap();
     });
 
+    projection.addOption("Quincuncial tiled", function() {
+        canShowGenerators = false;
+        circleScope.projection = quincuncial;
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+    projection.addOption("Quincuncial single", function() {
+        canShowGenerators = false;
+        circleScope.projection = quincuncialSingle;
+        Make.map.discRadius = -1;
+        Make.updateNewMap();
+    });
+
+
     projection.addOption("Poincaré plane both", function() {
+        canShowGenerators = false;
         circleScope.projection = function(position) {
             position.y = worldradius - position.y;
             position.x /= worldradius;
@@ -74,7 +98,9 @@ function creation() {
         Make.map.discRadius = -1;
         Make.updateNewMap();
     });
+
     projection.addOption("Poincaré plane single", function() {
+        canShowGenerators = false;
         circleScope.projection = function(position) {
             position.y = worldradius - position.y;
             if (position.y < 0) {
@@ -93,22 +119,8 @@ function creation() {
         Make.updateNewMap();
     });
 
-
-
-    projection.addOption("Klein disc surrounded", function() {
-        circleScope.projection = function(position) {
-            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
-            if (r2worldRadius2 < 1) {
-                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
-                position.x *= mapFactor;
-                position.y *= mapFactor;
-            }
-            return 1;
-        };
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-    projection.addOption("Klein disc only", function() {
+    projection.addOption("Klein disc", function() {
+        canShowGenerators = false;
         circleScope.projection = function(position) {
             let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
             let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
@@ -122,43 +134,37 @@ function creation() {
 
     var v = new Vector2();
 
-    projection.addOption("Bulatov band", function() {
-        let bandScale = Math.PI * 0.5 / worldradius;
-        circleScope.projection = function(position) {
-            if (Math.abs(position.y) > worldradius) {
-                return -1;
-            }
-            position.scale(bandScale);
-            let exp2u = Fast.exp(position.x);
-            let expm2u = 1 / exp2u;
-            Fast.cosSin(position.y, v);
-            let base = worldradius / (exp2u + expm2u + 2 * v.x);
-            position.x = (exp2u - expm2u) * base;
-            position.y = 2 * v.y * base;
-            return 1;
-        };
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-
     let generators = new Select("generators");
-    let showGenerators = true;
-
-    generators.addOption("show",
-        function() {
-            if (!showGenerators) {
-                showGenerators = true;
-                Make.updateOutputImage();
-            }
-        });
+    let generatorColor = "black";
 
     generators.addOption("hide",
         function() {
-            if (showGenerators) {
-                showGenerators = false;
-                Make.updateOutputImage();
-            }
+            Make.updateOutputImage();
         });
+
+    generators.addOption("show in black",
+        function() {
+            generatorColor = "black";
+            Make.updateOutputImage();
+        });
+
+
+    generators.addOption("show in white",
+        function() {
+            generatorColor = "white";
+            Make.updateOutputImage();
+        });
+
+    generators.addOption("show in red",
+        function() {
+            generatorColor = "red";
+            Make.updateOutputImage();
+        });
+    generators.setIndex(1);
+
+    let noGenerators = new Select("noGenerators");
+    noGenerators.addOption(" - - - ", function() {});
+
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -228,9 +234,6 @@ function creation() {
     VectorMap.iterationSaturation = 6;
     VectorMap.iterationThreshold = 1;
 
-    const worldradius = 9.7;
-    const worldradius2 = worldradius * worldradius;
-    const solutions = new Vector2();
 
     Make.initializeMap = function() {
         let k = setKButton.getValue();
@@ -514,7 +517,15 @@ function creation() {
                 }
             }
         }
-
+        if (canShowGenerators) {
+            DOM.style("#generatorsDiv", "display", "initial");
+            DOM.style("#noGeneratorsDiv", "display", "none");
+            circleScope.setupMouseForTrajectory();
+        } else {
+            DOM.style("#generatorsDiv", "display", "none");
+            DOM.style("#noGeneratorsDiv", "display", "initial");
+            circleScope.setupMouseNoTrajectory();
+        }
     };
 
     // line width should relate to output image size!!
@@ -522,14 +533,15 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        if (showGenerators) {
+        if ((generators.getIndex() > 0) && canShowGenerators) {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
             Draw.setLineWidth(1.5 * lineWidth);
-            Draw.setColor("black");
+            Draw.setColor(generatorColor);
+            console.log(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
-            if (numberOfCircles > 4) {
+            if (numberOfCircles == 5) {
                 Draw.setLineWidth(lineWidth);
                 circleScope.circle3.draw();
             }

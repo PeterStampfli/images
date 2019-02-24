@@ -1,6 +1,6 @@
 /* jshint esversion:6 */
 
-const worldradius = 9.7;
+const worldradius = 11.9;
 const worldradius2 = worldradius * worldradius;
 circleScope.setWorldradius(worldradius);
 const solutions = new Vector2();
@@ -110,12 +110,14 @@ function creation() {
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
+
     projectionHyperbolic.addOption("Poincaré plane single", function() {
         hyperbolicCanShowGenerators = false;
         hyperbolicProjection = poincarePlaneSingle;
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
+
     projectionHyperbolic.addOption("Klein disc", function() {
         hyperbolicCanShowGenerators = false;
         hyperbolicProjection = kleinDisc;
@@ -334,7 +336,7 @@ function creation() {
     // where Make.updateMapOutput is the method to draw the image according to the map
 
     // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-11, 11, -11);
+    Make.setInitialOutputImageSpace(-12, 12, -12);
 
     Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
     Make.map.rgbRotationInversionColorSymmetry();
@@ -468,9 +470,11 @@ function creation() {
         if (canShowGenerators) {
             DOM.style("#generatorsDiv", "display", "initial");
             DOM.style("#noGeneratorsDiv", "display", "none");
+            circleScope.setupMouseForTrajectory();
         } else {
             DOM.style("#generatorsDiv", "display", "none");
             DOM.style("#noGeneratorsDiv", "display", "initial");
+            circleScope.setupMouseNoTrajectory();
         }
     };
 
