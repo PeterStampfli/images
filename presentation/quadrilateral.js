@@ -2,6 +2,7 @@
 
 const worldradius = 11.9;
 const worldradius2 = worldradius * worldradius;
+var quincuncinalRadius = worldradius;
 const solutions = new Vector2();
 
 

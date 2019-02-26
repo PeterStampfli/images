@@ -2,6 +2,7 @@
 
 const worldradius = 11.9;
 const worldradius2 = worldradius * worldradius;
+var quincuncinalRadius = worldradius;
 circleScope.setWorldradius(worldradius);
 const solutions = new Vector2();
 const v = new Vector2();
@@ -338,7 +339,16 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
-    Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
+    Make.map.structureColorCollection = [];
+    Make.map.addStructureColors(1, 140, 100);
+    Make.map.addStructureColors(2, 140, 100);
+    Make.map.addStructureColors(0, 140, 100);
+    Make.map.addStructureColors(3, 140, 100);
+    Make.map.addStructureColors(4, 140, 100);
+    Make.map.addStructureColors(5, 140, 100);
+
+
+
     Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
@@ -385,7 +395,7 @@ function creation() {
         circleScope.reset();
         circleScope.setDihedral(k1);
         circleScope.startMap = circleScope.nothingMap;
-        // do nothing, no elements, if not hyperbolic, updateOutputImage shows error message
+        quincuncinalRadius = worldradius;
         if (sumAngles < 0.99) { // hyperbolic
             DOM.style("#projectionHyperbolicDiv", "display", "initial");
             DOM.style("#projectionEuklidicDiv,#projectionEllipticDiv", "display", "none");
@@ -413,6 +423,7 @@ function creation() {
                     firstCircleHyperbolic();
                     secondCircleHyperbolicAllIntersections();
                     thirdCircleHyperbolic();
+                    quincuncinalRadius = Math.sqrt(circleScope.circle2.center.length2() - circleScope.circle2.radius * circleScope.circle2.radius);
                     break;
             }
         } else if (sumAngles < 1.01) {

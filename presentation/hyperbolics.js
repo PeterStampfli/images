@@ -291,7 +291,7 @@ function quincuncial(position) {
         const scale = 1 / (position.length2() + 0.0001);
         position.scale(scale);
     }
-    position.scale(worldradius);
+    position.scale(quincuncinalRadius);
     return 1;
 }
 
