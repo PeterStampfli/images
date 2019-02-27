@@ -139,8 +139,10 @@ function creation() {
 
     let ellipticProjectionSelect = new Select("selectEllipticProjection");
     ellipticProjectionSelect.addOption("orthographic", projection.ellipticNormal);
-    ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
+    ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
+    ellipticProjectionSelect.addOption("quincuncial tiled", projection.ellipticQuincuncial);
+    ellipticProjectionSelect.addOption("quincuncial single", projection.ellipticQuincuncialSingle);
     ellipticProjectionSelect.addOption("Mercator", projection.ellipticMercator);
     ellipticProjectionSelect.addOption("gonomic cylindric", projection.ellipticGonomicCylinder);
 
