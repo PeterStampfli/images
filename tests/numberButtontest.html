@@ -9,9 +9,6 @@
 
 <p> number <br>
 <span id="a"></span>
-<span id="2"></span>
-<span id="3"></span>
-
 </p>
 
 
@@ -26,14 +23,15 @@
 
 <script type="text/javascript">
     
-    nb=NumberButton.create("a","2","3");
+    nb=NumberButton.createInfinity("a");
     nb.setFloat(0.01);
     nb.setRange(-10,10);
     nb.setValue(7.5,"**");
     nb.onChange=function(x){
-    console.log(x);
+    console.log("change to "+x);
     }
-    
+    nb.setInfinite();
+    console.log(nb.getValue());
  
 </script>
 

@@ -238,13 +238,13 @@ function creation() {
     setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
-    let setMButton = NumberButton.create("m");
+    let setMButton = NumberButton.createInfinity("m");
     setMButton.setRange(2, 10000);
     setMButton.setValue(4);
     setMButton.onChange = Make.updateNewMap;
 
 
-    let setNButton = NumberButton.create("n");
+    let setNButton = NumberButton.createInfinity("n");
     setNButton.setRange(2, 10000);
     setNButton.setValue(2);
     setNButton.onChange = Make.updateNewMap;
@@ -255,12 +255,12 @@ function creation() {
 
     //choosing the symmetries, and set initial values
     // second circle, three intersections
-    let setK2Button = NumberButton.create("k2");
+    let setK2Button = NumberButton.createInfinity("k2");
     setK2Button.setRange(2, 10000);
     setK2Button.setValue(3);
     setK2Button.onChange = Make.updateNewMap;
 
-    let setM2Button = NumberButton.create("m2");
+    let setM2Button = NumberButton.createInfinity("m2");
     setM2Button.setRange(2, 10000);
     setM2Button.setValue(4);
     setM2Button.onChange = function() {
@@ -268,7 +268,7 @@ function creation() {
         Make.updateNewMap();
     };
 
-    let setN2Button = NumberButton.create("n2");
+    let setN2Button = NumberButton.createInfinity("n2");
     setN2Button.setRange(2, 10000);
     setN2Button.setValue(3);
     setN2Button.onChange = function() {
@@ -284,7 +284,7 @@ function creation() {
     circleSizeRange.onChange = Make.updateNewMap;
 
 
-    let setM2sButton = NumberButton.create("m2s");
+    let setM2sButton = NumberButton.createInfinity("m2s");
     setM2sButton.setRange(2, 10000);
     setM2sButton.setValue(setM2Button.getValue());
     setM2sButton.onChange = function() {
@@ -292,7 +292,7 @@ function creation() {
         Make.updateNewMap();
     };
 
-    let setN2sButton = NumberButton.create("n2s");
+    let setN2sButton = NumberButton.createInfinity("n2s");
     setN2sButton.setRange(2, 10000);
     setN2sButton.setValue(setN2Button.getValue());
     setN2sButton.onChange = function() {
@@ -302,17 +302,17 @@ function creation() {
 
     //choosing the symmetries, and set initial values
     // third circle
-    let setK3Button = NumberButton.create("k3");
+    let setK3Button = NumberButton.createInfinity("k3");
     setK3Button.setRange(2, 10000);
     setK3Button.setValue(3);
     setK3Button.onChange = Make.updateNewMap;
 
-    let setM3Button = NumberButton.create("m3");
+    let setM3Button = NumberButton.createInfinity("m3");
     setM3Button.setRange(2, 10000);
     setM3Button.setValue(3);
     setM3Button.onChange = Make.updateNewMap;
 
-    let setN3Button = NumberButton.create("n3");
+    let setN3Button = NumberButton.createInfinity("n3");
     setN3Button.setRange(2, 10000);
     setN3Button.setValue(3);
     setN3Button.onChange = Make.updateNewMap;

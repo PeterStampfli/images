@@ -1,20 +1,24 @@
 /**
- * a button to input numbers, needs an input element
- * <input type="text" class="numbers" id="outputWidthChooser" maxlength="4" />
+ * a button to input numbers,
  * 
  * default is for integer numbers, can be changed to float with given step size (rounding)
  * default range is 0 to 1000000000
+ * 
+ * possibility to have "infinite" (very large number)
  * 
  * @constructor NumberButton - better use NumberButton.create
  * @param {String} idName name (id) of an html (text) input element, attribute type will be set to text
  * @param {String} idPlus - optional, id of an HTML button element, for plus button, increases by 1
  * @param {String} idMinus - optional, id of an HTML button element, for minus button, decreases by 1
+ * @param {String} idInfinity - optional, id of an HTML button element, for infinity button
  */
 
 /* jshint esversion:6 */
 
-function NumberButton(idName, idPlus, idMinus) {
+function NumberButton(idName, idPlus, idMinus, idInfinity) {
     "use strict";
+    this.isInfinite = false; // choosing "infinity"
+    this.infinity = 1e10; // value for infinity
     this.isInteger = true;
     this.step = 1;
     this.element = document.getElementById(idName);
@@ -25,12 +29,18 @@ function NumberButton(idName, idPlus, idMinus) {
     this.minValue = 0;
     this.maxValue = 1000000000;
     // increasing and decreasing    
-    if (arguments.length > 1) {
+    if (arguments.length >= 3) {
         this.createPlusMinusButtons(idPlus, idMinus);
     } else {
         this.plusButton = null;
         this.MinusButton = null;
     }
+    if ((arguments.lenght === 2) || (arguments.length === 4)) {
+        this.createInfinityButton(idInfinity);
+    } else {
+        this.infinityButton = null;
+    }
+
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
@@ -46,7 +56,17 @@ function NumberButton(idName, idPlus, idMinus) {
     var button = this;
 
     this.element.onchange = function() {
-        button.updateValue(button.getValue());
+        if (button.isInfinite) { // get again finite numbers
+            button.isInfinite = false;
+            let number = parseFloat(button.element.value);
+            if (isNaN(number)) { // overwrite garbage, do nothing
+                number = button.lastValue;
+            }
+            button.setValue(number);
+            button.onChange(number);
+        } else {
+            button.updateValue(button.getValue());
+        }
     };
 
     // onfocus /onblur corresponds to pressed
@@ -132,7 +152,11 @@ function NumberButton(idName, idPlus, idMinus) {
      * @returns {integer} value resulting from parsing the button text
      */
     NumberButton.prototype.getValue = function() {
-        return this.quantizeClamp(parseFloat(this.element.value));
+        if (this.isInfinite) {
+            return this.infinity;
+        } else {
+            return this.quantizeClamp(parseFloat(this.element.value));
+        }
     };
 
     /**
@@ -144,6 +168,7 @@ function NumberButton(idName, idPlus, idMinus) {
      * @param {String} text - default is number to string
      */
     NumberButton.prototype.setValue = function(number, text) {
+        this.isInfinite = false;
         number = this.quantizeClamp(number);
         this.lastValue = number;
         if (arguments.length < 2) {
@@ -151,6 +176,15 @@ function NumberButton(idName, idPlus, idMinus) {
         } else {
             this.element.value = text;
         }
+    };
+
+    /**
+     * set button to infinite value
+     * @method NumberButton#setInfinite
+     */
+    NumberButton.prototype.setInfinite = function() {
+        this.isInfinite = true;
+        this.element.value = "∞";
     };
 
     /**
@@ -175,7 +209,7 @@ function NumberButton(idName, idPlus, idMinus) {
     };
 
     /**
-     * create buttons for increasing and decreasing the value
+     * create buttons for increasing and decreasing the value, switching from infinite to previous result
      * @method NumberButton#createPlusMinusButtons
      * @param {String} idPlus - id for the plus button
      * @param {String} idMinus - id for the minus button
@@ -185,13 +219,38 @@ function NumberButton(idName, idPlus, idMinus) {
         this.minusButton = new Button(idMinus);
         let numberButton = this;
         this.plusButton.onClick = function() {
-            numberButton.updateValue(numberButton.lastValue + 1);
+            if (numberButton.isInfinite) {
+                numberButton.setValue(numberButton.lastValue);
+                numberButton.onChange(numberButton.lastValue);
+            } else {
+                numberButton.updateValue(numberButton.lastValue + 1);
+            }
         };
         this.minusButton.onClick = function() {
-            numberButton.updateValue(numberButton.lastValue - 1);
+            if (numberButton.isInfinite) {
+                numberButton.setValue(numberButton.lastValue);
+                numberButton.onChange(numberButton.lastValue);
+            } else {
+                numberButton.updateValue(numberButton.lastValue - 1);
+            }
         };
     };
 
+    /** 
+     * create a button for infinite value
+     * @method NumberButton#createInfinityButton
+     * @param {String} idInfinity - id for the infinity button
+     */
+    NumberButton.prototype.createInfinityButton = function(idInfinity) {
+        this.infinityButton = new Button(idInfinity);
+        let numberButton = this;
+        this.infinityButton.onClick = function() {
+            if (!numberButton.isInfinite) {
+                numberButton.setInfinite();
+                numberButton.onChange(numberButton.infinity);
+            }
+        };
+    };
 
     /**
      * create an number button with up and down buttons, maximum 4 digits
@@ -208,6 +267,26 @@ function NumberButton(idName, idPlus, idMinus) {
         DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
         DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn", "borderRadius", 1000 + px);
         let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
+        return numberButton;
+    };
+
+    /**
+     * create an number button with up and down buttons and infinity button, maximum 4 digits
+     * Attention: set font sizes afterwards
+     * @method NumberButton.createInfinity
+     * @param {String} idSpan - id of the span conatining the number button
+     * @return NumberButton
+     */
+    NumberButton.createInfinity = function(idSpan) {
+        DOM.create("input", idSpan + "input", "#" + idSpan);
+        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
+        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
+        DOM.create("span", idSpan + "extraspace3", "#" + idSpan, " ");
+        DOM.create("button", idSpan + "infinity", "#" + idSpan, " ∞ ");
+        DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn" + ",#" + idSpan + "infinity", "borderRadius", 1000 + px);
+        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn", idSpan + "infinity");
         return numberButton;
     };
 
