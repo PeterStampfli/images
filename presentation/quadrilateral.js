@@ -173,12 +173,12 @@ function creation() {
     setKButton.setValue(3);
     setKButton.onChange = Make.updateNewMap;
 
-    let setMButton = NumberButton.create("m");
+    let setMButton = NumberButton.createInfinity("m");
     setMButton.setRange(2, 10000);
     setMButton.setValue(3);
     setMButton.onChange = Make.updateNewMap;
 
-    let setNButton = NumberButton.create("n");
+    let setNButton = NumberButton.createInfinity("n");
     setNButton.setRange(2, 10000);
     setNButton.setValue(2);
     setNButton.onChange = Make.updateNewMap;
@@ -205,17 +205,17 @@ function creation() {
     // the third circle
 
     //choosing the symmetries, and set initial values
-    let setK3Button = NumberButton.create("k3");
+    let setK3Button = NumberButton.createInfinity("k3");
     setK3Button.setRange(2, 10000);
     setK3Button.setValue(3);
     setK3Button.onChange = Make.updateNewMap;
 
-    let setM3Button = NumberButton.create("m3");
+    let setM3Button = NumberButton.createInfinity("m3");
     setM3Button.setRange(2, 10000);
     setM3Button.setValue(2);
     setM3Button.onChange = Make.updateNewMap;
 
-    let setN3Button = NumberButton.create("n3");
+    let setN3Button = NumberButton.createInfinity("n3");
     setN3Button.setRange(2, 10000);
     setN3Button.setValue(3);
     setN3Button.onChange = Make.updateNewMap;
