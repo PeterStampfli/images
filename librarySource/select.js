@@ -117,7 +117,6 @@ function Select(idName) {
      * @param {integer} i
      */
     Select.prototype.setIndex = function(i) {
-        console.log("*** set index " + i);
         this.element.selectedIndex = Fast.clamp(0, i, this.actions.length - 1);
     };
 

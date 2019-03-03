@@ -27,6 +27,9 @@ function Circle(radius, center, centerY) {
             this.center = new Vector2(center, centerY);
             break;
     }
+    this.excenter = new Vector2();
+    this.excenterToCenter = new Vector2();
+    this.setExcenter(this.center);
 }
 
 (function() {
@@ -77,6 +80,28 @@ function Circle(radius, center, centerY) {
     Circle.prototype.setRadiusCenterXY = function(radius, centerX, centerY) {
         this.setRadius(radius);
         this.center.setComponents(centerX, centerY);
+    };
+
+
+    /**
+     * set excentric center for circle inversion
+     * @method Circle#setExcenter
+     * @param {Vector2} center, to be copied
+     */
+    Circle.prototype.setExcenter = function(center) {
+        this.setExcenterXY(center.x, center.y);
+    };
+
+    /**
+     * set excentric center for circle inversion using components
+     * @method Circle#setExcenterXY
+     * @param {float} x
+     * @param {float} y
+     */
+    Circle.prototype.setExcenterXY = function(x, y) {
+        this.excenter.setComponents(x, y);
+        this.excenter.log("*");
+        this.excenterToCenter.setComponents(this.center.x - x, this.center.y - y);
     };
 
     /**
@@ -243,7 +268,21 @@ function Circle(radius, center, centerY) {
             Draw.line(v, Circle.vector);
         }
         return result;
+    };
 
+
+    /**
+     * invert a point at the circle using the excentric inversion center
+     * @method Circle#invertExcentric
+     * @param {Vector2} v - vector, position of the point
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)
+     */
+    Circle.prototype.invertExcentric = function(v) {
+        const excenterToPointX = v.x - this.excenter.x;
+        const excenterToPointY = v.y - this.excenter.y;
+        const excenterToPointLenght2 = excenterToPointX * excenterToPointX + excenterToPointY * excenterToPointY;
+
+        return 1;
     };
 
     /**

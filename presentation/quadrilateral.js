@@ -538,7 +538,6 @@ function creation() {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
             Draw.setLineWidth(1.5 * lineWidth);
             Draw.setColor(generatorColor);
-            console.log(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();

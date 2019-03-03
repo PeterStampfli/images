@@ -402,11 +402,6 @@ function creation() {
             circleScope.projection = hyperbolicProjection;
             Make.map.discRadius = hyperbolicRadius;
             canShowGenerators = hyperbolicCanShowGenerators;
-
-            console.log("hyp gen can show " + hyperbolicCanShowGenerators);
-            console.log("show gen " + canShowGenerators);
-            console.log("index " + generators.getIndex());
-
             switch (numberOfCircles) {
                 case 3:
                     firstCircleHyperbolic();
@@ -427,7 +422,6 @@ function creation() {
                     break;
             }
         } else if (sumAngles < 1.01) {
-            console.log("euklid");
             DOM.style("#projectionEuklidicDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = euklidicProjection;
@@ -500,7 +494,6 @@ function creation() {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
             Draw.setLineWidth(1.5 * lineWidth);
             Draw.setColor(generatorColor);
-            console.log(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             Draw.setLineWidth(lineWidth);
@@ -523,3 +516,13 @@ window.onresize = function() {
     "use strict";
     basicUI.onresize();
 };
+
+
+const disc = new Circle(1, 2, 3);
+disc.log();
+disc.setExcenterXY(77, 88);
+disc.excenter.log("ex");
+
+let vv = new Vector2(8, 9);
+console.log(disc.invertExcentric(vv));
+vv.log();
