@@ -100,8 +100,8 @@ function Circle(radius, center, centerY) {
      */
     Circle.prototype.setExcenterXY = function(x, y) {
         this.excenter.setComponents(x, y);
-        this.excenter.log("*");
         this.excenterToCenter.setComponents(this.center.x - x, this.center.y - y);
+        this.excenterToCenter2 = this.excenterToCenter.length2();
     };
 
     /**
@@ -200,25 +200,22 @@ function Circle(radius, center, centerY) {
      * @return {float} local scale factor of the mapping (Lyapunov coefficient)>0 if point inverted, else -1
      */
     Circle.prototype.invertInsideOut = function(v) {
-        let result = -1;
         const dx = v.x - this.center.x;
-        let pointR2 = dx * dx;
-        if (pointR2 < this.radius2) {
-            const dy = v.y - this.center.y;
-            pointR2 += dy * dy;
-            if (this.radius2 - 0.0001 > pointR2) {
-                if (pointR2 < epsilon2) {
-                    v.x = this.center.x + iEpsilon2;
-                    v.y = this.center.y + iEpsilon2;
-                    result = iEpsilon2;
-                } else {
-                    result = this.radius2 / pointR2;
-                    v.x = this.center.x + dx * result;
-                    v.y = this.center.y + dy * result;
-                }
+        const dy = v.y - this.center.y;
+        const pointR2 = dx * dx + dy * dy;
+        if (this.radius2 - 0.0001 > pointR2) {
+            if (pointR2 < epsilon2) {
+                v.x = this.center.x + iEpsilon2;
+                v.y = this.center.y + iEpsilon2;
+                return iEpsilon2;
+            } else {
+                const factor = this.radius2 / pointR2;
+                v.x = this.center.x + dx * factor;
+                v.y = this.center.y + dy * factor;
+                return factor;
             }
         }
-        return result;
+        return -1;
     };
 
     /**
@@ -280,9 +277,38 @@ function Circle(radius, center, centerY) {
     Circle.prototype.invertExcentric = function(v) {
         const excenterToPointX = v.x - this.excenter.x;
         const excenterToPointY = v.y - this.excenter.y;
-        const excenterToPointLenght2 = excenterToPointX * excenterToPointX + excenterToPointY * excenterToPointY;
-
+        const excenterToPoint2 = excenterToPointX * excenterToPointX + excenterToPointY * excenterToPointY;
+        if (excenterToPoint2 < epsilon2) {
+            v.x = this.excenter.x + iEpsilon2;
+            v.y = this.excenter.y + iEpsilon2;
+            return 1;
+        }
+        let d2 = this.excenterToCenter.x * excenterToPointY - this.excenterToCenter.y * excenterToPointX;
+        d2 = d2 * d2 / excenterToPoint2;
+        let excenterToCircle2 = Math.sqrt(this.radius2 - d2) + Math.sqrt(this.excenterToCenter2 - d2);
+        excenterToCircle2 *= excenterToCircle2;
+        const factor = excenterToCircle2 / excenterToPoint2;
+        v.x = this.excenter.x + factor * excenterToPointX;
+        v.y = this.excenter.y + factor * excenterToPointY;
         return 1;
+    };
+
+
+    /**
+     * invert a point at the circle using the excentric inversion center if inside the circle
+     * @method Circle#invertExcentricInsideOut
+     * @param {Vector2} v - vector, position of the point
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)
+     */
+    Circle.prototype.invertExcentricInsideOut = function(v) {
+        const dx = v.x - this.center.x;
+        const dy = v.y - this.center.y;
+        const pointR2 = dx * dx + dy * dy;
+        if (this.radius2 - 0.0001 > pointR2) {
+            this.invertExcentric(v);
+            return 1;
+        }
+        return -1;
     };
 
     /**

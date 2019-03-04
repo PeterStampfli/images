@@ -516,13 +516,3 @@ window.onresize = function() {
     "use strict";
     basicUI.onresize();
 };
-
-
-const disc = new Circle(1, 2, 3);
-disc.log();
-disc.setExcenterXY(77, 88);
-disc.excenter.log("ex");
-
-let vv = new Vector2(8, 9);
-console.log(disc.invertExcentric(vv));
-vv.log();
