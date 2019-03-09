@@ -57,18 +57,30 @@ function creation() {
         multiCircles.draw();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
-
+        Draw.setColor("blue");
+        exCenterCircle.draw();
 
 
     };
 
     multiCircles.setMapping();
     //  multiCircles.finishMap = multiCircles.limitMap;
-    multiCircles.setInversionCircle(5, 2, 0);
-    const circle = multiCircles.addCircleOutsideIn(8, -6, 0);
+    multiCircles.setInversionCircle(5, 8, 0);
+    const circle = multiCircles.addCircleOutsideIn(8, 0, 0);
+    circle.map = circle.invertExcentricOutsideIn;
+
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
     intersectionLine.setLength(100);
 
+    circle.setExcenterXY(3, 3);
+
+    const exCenterCircle = new Circle(0.5, circle.excenter);
+    exCenterCircle.log("exc");
+
+    const v = new Vector2(-0, 8);
+    v.log("start");
+    circle.invertExcentric(v);
+    v.log("inverted");
 
 
 }

@@ -278,6 +278,7 @@ function Circle(radius, center, centerY) {
         const excenterToPointX = v.x - this.excenter.x;
         const excenterToPointY = v.y - this.excenter.y;
         const excenterToPoint2 = excenterToPointX * excenterToPointX + excenterToPointY * excenterToPointY;
+        //  console.log("excenterToPoint2 "+excenterToPoint2);
         if (excenterToPoint2 < epsilon2) {
             v.x = this.excenter.x + iEpsilon2;
             v.y = this.excenter.y + iEpsilon2;
@@ -285,8 +286,17 @@ function Circle(radius, center, centerY) {
         }
         let d2 = this.excenterToCenter.x * excenterToPointY - this.excenterToCenter.y * excenterToPointX;
         d2 = d2 * d2 / excenterToPoint2;
-        let excenterToCircle2 = Math.sqrt(this.radius2 - d2) + Math.sqrt(this.excenterToCenter2 - d2);
+        // console.log("d2 "+d2);
+        //  console.log("this.excenterToCenter2 "+this.excenterToCenter2);
+        let sign = excenterToPointX * this.excenterToCenter.x + excenterToPointY * this.excenterToCenter.y;
+        if (sign > 0) {
+            sign = 1;
+        } else {
+            sign = -1;
+        }
+        let excenterToCircle2 = Math.sqrt(this.radius2 - d2) + sign * Math.sqrt(this.excenterToCenter2 - d2);
         excenterToCircle2 *= excenterToCircle2;
+        //   console.log("excenterToCircle2 "+excenterToCircle2);
         const factor = excenterToCircle2 / excenterToPoint2;
         v.x = this.excenter.x + factor * excenterToPointX;
         v.y = this.excenter.y + factor * excenterToPointY;
@@ -305,6 +315,24 @@ function Circle(radius, center, centerY) {
         const dy = v.y - this.center.y;
         const pointR2 = dx * dx + dy * dy;
         if (this.radius2 - 0.0001 > pointR2) {
+            this.invertExcentric(v);
+            return 1;
+        }
+        return -1;
+    };
+
+
+    /**
+     * invert a point at the circle using the excentric inversion center if outside the circle
+     * @method Circle#invertExcentricOutsideIn
+     * @param {Vector2} v - vector, position of the point
+     * @return {float} local scale factor of the mapping (Lyapunov coefficient)
+     */
+    Circle.prototype.invertExcentricOutsideIn = function(v) {
+        const dx = v.x - this.center.x;
+        const dy = v.y - this.center.y;
+        const pointR2 = dx * dx + dy * dy;
+        if (this.radius2 + 0.0001 < pointR2) {
             this.invertExcentric(v);
             return 1;
         }
