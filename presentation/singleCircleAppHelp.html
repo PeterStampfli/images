@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<head>
+    <title>help (Kaleidoscope App)</title>
+     <link rel="stylesheet" type="text/css" href="basicLayout.css">
+</head>
+
+<body>
+<noscript>Please enable javascript!!!</noscript>
+
+<div id="navigation"></div>
+<div class="vSpace"> </div>
+<div class="vSpace"> </div>
+<h1>
+Help for the Kaleidoscope application
+</h1>
+
+<div class="vSpace"> </div>
+
+
+<p>
+This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.
+</p>
+
+
+<div class="vSpace"> </div>
+
+    
+    <h1>Output image</h1>
+<p>
+At the left you see the output image. It first shows only its structure:
+</p>
+    <table>
+            <tr>
+            <td>yellow</td> <td>-</td> <td>The basic triangle</td>
+            </tr>
+            <tr>
+            <td>green</td><td>-</td> <td>Mirror images of the basic triangle or parts of it</td>
+            </tr>
+            <tr>
+            <td>brown</td><td>-</td> <td>Copies of the basic triangle or parts of it</td>
+            </tr>
+    </table>
+</p>
+<p>
+    <strong>Use the control panel at the right side to open an input image!</strong>
+</p>
+<p>
+Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
+</p>
+<div class="vSpace"> </div>
+
+<h1>Control panel</h1>
+<p>
+In the lower part of the right hand side you find a control panel.
+</p>
+<p>
+Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
+</p>
+<p>
+<strong> Choose the rotational symmetries:</strong>
+</p>
+<p>
+    <table>
+            <tr>
+            <td>center</td> <td>-</td> <td>Rotational symmetry at the <em>center</em> of the image.</td>
+            </tr>
+            <tr>
+            <td>left</td><td>-</td> <td>Symmetry at the <em>left</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            </tr>
+            <tr>
+            <td>right</td><td>-</td> <td>Symmetry at the <em>right</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
+            </tr>
+    </table>
+</p>
+
+<p>
+The result depends on the sum of angles of the basic triangle:<br>
+It has spherical (elliptic) geometry if the sum is larger than 180<sup>0</sup>, Euclidean geometry if the sum is exactly 180<sup>0</sup> and a hyperbolic geometry if the sum is smaller than 180<sup>0</sup>.
+</p>
+
+<p>
+<strong>Choose the tiling type:</strong>
+</p>
+<p>
+    <table>
+            <tr>
+            <td>regular</td> <td>-</td> <td>The image is a decoration of a regular tiling by a (regular) polygon.</td>
+            </tr>
+            <tr>
+            <td>uniform truncated</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by octagons and squares.</td>
+            </tr>
+            <tr>
+            <td>rectified</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by hexagons and equilateral triangles.</td>
+            </tr>
+    </table>
+</p>
+
+<p>
+<strong>You can change the view.</strong> The kaleidoscopic image does not really change, you simply see different projections.
+</p>
+<p>
+ <strong>Save the output image</strong> as a png. You will find it in the download folder as "kaleidoscope.png"
+</p>
+
+<p>
+<strong>Choose the output image size</strong>. Only the resolution changes and you will always get the same overall image. Large sizes will take a lot of time and the computer can become unresponsive for several minutes. <em>Be patient</em>. Maximum side length is 10'000 pixels, giving an image of 100 megapixel. The browser then would need nearly 2 gigabytes of memory for the image and structure data.
+</p>
+<p>
+<strong>To see hidden image parts lying outside the window use the scroll bars.</strong> Using scroll bars does not change the image and is reasonably fast. If you drag or zoom the image with the mouse then you <em>change</em> the image and this becomes very slow for large images. 
+</p>
+
+<p>
+<strong>Choose the image quality:</strong>
+<p>
+    <table>
+            <tr>
+            <td>low</td> <td>-</td> <td>Uses nearest neighbor sampling. Very fast, for exploration only. Switch to higher quality before saving an image. </td>
+            </tr>
+            <tr>
+            <td>high</td><td>-</td> <td>Uses anti-aliasing and linear interpolation. Suitable for most cases.</td>
+            </tr>
+            <tr>
+            <td>very&nbsphigh</td><td>-</td> <td>Uses anti-aliasing and cubic interpolation. Very slow. Use only if linear interpolation leaves artificial bright and dark lines.</td>
+            </tr>
+    </table>
+</p>
+</p>
+
+<h1>Input image</h1>
+
+<p>
+Once you open an input image you will see it in the upper right. It may be partially covered by the control panel. To bring it to the foreground click or touch it. At the same time a dark disc with an arrow will appear. Click or touch remaining parts of the control panel to bring it back to the foreground.
+</p>
+<p>
+Pixels of the input image appearing in the output image are shown in full color. Unused pixels are faded out.
+</p>
+<p>
+Drag with the mouse or touch to shift the position of sampled pixels. With the mouse wheel or the "Z" and "z" keys you can change the size of the sampled region. With two finger touch you can zoom and rotate.
+</p>
+<p>
+Dragging the mouse or touch on the disc with the arrow zooms and rotates the sampled region of the input image. Turning the mouse wheel or touching the "Z" and "z" keys only rotates.
+</p>
+
+<p>
+
+</body>
+
+
+<script src="../librarySource/dom.js"></script>
+
+<script src="basicLayout.js"></script>
+
+
+
+</html>

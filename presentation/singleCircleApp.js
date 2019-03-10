@@ -9,9 +9,11 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "help.html");
+    Button.createGoToLocation("help", "singleCircleAppHelp.html");
     // where is the home ??
-    Button.createGoToLocation("home", "home.html");
+
+    basicUI.activateControls(true);
+
 
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
@@ -52,31 +54,27 @@ function creation() {
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
-        Draw.setColor("black");
+        Draw.setColor("#90ccff");
         intersectionLine.draw();
         multiCircles.draw();
         Draw.setColor("red");
         multiCircles.inversionCircle.draw();
-
-
-
     };
 
     multiCircles.setMapping();
     //  multiCircles.finishMap = multiCircles.limitMap;
-    multiCircles.setInversionCircle(5, 2, 0);
-    const circle = multiCircles.addCircleOutsideIn(8, -6, 0);
+    multiCircles.setInversionCircle(7, 2.5, 0);
+    const circle = multiCircles.addCircleOutsideIn(6, -3.5, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
     intersectionLine.setLength(100);
-
-
-
 }
 
 window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
+    Make.readImageWithFilePathAtSetup("schachbrett.jpg");
+
 };
 
 window.onresize = function() {
