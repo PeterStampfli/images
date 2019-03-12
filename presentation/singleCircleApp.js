@@ -14,6 +14,8 @@ function creation() {
 
     basicUI.activateControls(true);
 
+    Make.imageQuality = "high";
+
 
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
@@ -52,6 +54,8 @@ function creation() {
     Make.initializeMap = function() {};
 
     Make.updateOutputImage = function() {
+        console.log(Make.imageQuality);
+
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
         Draw.setColor("#90ccff");

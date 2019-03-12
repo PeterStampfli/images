@@ -533,6 +533,7 @@ function creation() {
     const lineWidthToImageSize = 0.005;
 
     Make.updateOutputImage = function() {
+        console.log(Make.imageQuality);
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
             const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;

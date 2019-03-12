@@ -4,18 +4,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <head>
-    <title>help (Kaleidoscope App)</title>
+    <title>help (single circle App)</title>
      <link rel="stylesheet" type="text/css" href="basicLayout.css">
 </head>
 
 <body>
-<noscript>Please enable javascript!!!</noscript>
 
-<div id="navigation"></div>
 <div class="vSpace"> </div>
 <div class="vSpace"> </div>
 <h1>
-Help for the Kaleidoscope application
+Help for the single circle application
 </h1>
 
 <div class="vSpace"> </div>
@@ -31,25 +29,11 @@ This app does its work only on <em>your computer</em> and your images stay on yo
     
     <h1>Output image</h1>
 <p>
-At the left you see the output image. It first shows only its structure:
+At the left you see the output image. 
 </p>
-    <table>
-            <tr>
-            <td>yellow</td> <td>-</td> <td>The basic triangle</td>
-            </tr>
-            <tr>
-            <td>green</td><td>-</td> <td>Mirror images of the basic triangle or parts of it</td>
-            </tr>
-            <tr>
-            <td>brown</td><td>-</td> <td>Copies of the basic triangle or parts of it</td>
-            </tr>
-    </table>
-</p>
+
 <p>
-    <strong>Use the control panel at the right side to open an input image!</strong>
-</p>
-<p>
-Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
+Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. 
 </p>
 <div class="vSpace"> </div>
 
@@ -58,82 +42,36 @@ Drag with the mouse or touch to change the visible part of the output image. Tur
 In the lower part of the right hand side you find a control panel.
 </p>
 <p>
-Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
-</p>
-<p>
-<strong> Choose the rotational symmetries:</strong>
-</p>
-<p>
-    <table>
-            <tr>
-            <td>center</td> <td>-</td> <td>Rotational symmetry at the <em>center</em> of the image.</td>
-            </tr>
-            <tr>
-            <td>left</td><td>-</td> <td>Symmetry at the <em>left</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
-            </tr>
-            <tr>
-            <td>right</td><td>-</td> <td>Symmetry at the <em>right</em> hand corner of the basic triangle (seen from center and for regular tilings.)</td>
-            </tr>
-    </table>
+Use it to open another input image. 
+
+
 </p>
 
 <p>
-The result depends on the sum of angles of the basic triangle:<br>
-It has spherical (elliptic) geometry if the sum is larger than 180<sup>0</sup>, Euclidean geometry if the sum is exactly 180<sup>0</sup> and a hyperbolic geometry if the sum is smaller than 180<sup>0</sup>.
+You can select the <strong>view</strong>. The app opens using the direct view.
 </p>
 
 <p>
-<strong>Choose the tiling type:</strong>
-</p>
-<p>
-    <table>
-            <tr>
-            <td>regular</td> <td>-</td> <td>The image is a decoration of a regular tiling by a (regular) polygon.</td>
-            </tr>
-            <tr>
-            <td>uniform truncated</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by octagons and squares.</td>
-            </tr>
-            <tr>
-            <td>rectified</td><td>-</td> <td>The image is a decoration of a semiregular tiling such as the tiling by hexagons and equilateral triangles.</td>
-            </tr>
-    </table>
+Direct view: Part of the input image is shown without distortion inside the blue circle. Outside the blue circle we see what is inside, but inverted in this circle. Note that close to the circle we have approximately a mirror image. Far away we have strong distortion.
 </p>
 
 <p>
-<strong>You can change the view.</strong> The kaleidoscopic image does not really change, you simply see different projections.
+Circle inversion view: Shows the same as the direct view, but inverted in the red circle. The center of the red circle lies on the blue circle. Inversion in the red circle maps the blue circle onto the straight blue line. Thus inversion in the blue circle becomes a mirror image at the blue line.
 </p>
+
 <p>
  <strong>Save the output image</strong> as a png. You will find it in the download folder as "kaleidoscope.png"
 </p>
 
 <p>
-<strong>Choose the output image size</strong>. Only the resolution changes and you will always get the same overall image. Large sizes will take a lot of time and the computer can become unresponsive for several minutes. <em>Be patient</em>. Maximum side length is 10'000 pixels, giving an image of 100 megapixel. The browser then would need nearly 2 gigabytes of memory for the image and structure data.
-</p>
-<p>
-<strong>To see hidden image parts lying outside the window use the scroll bars.</strong> Using scroll bars does not change the image and is reasonably fast. If you drag or zoom the image with the mouse then you <em>change</em> the image and this becomes very slow for large images. 
+<strong>Choose the output image size</strong>. Only the resolution changes and you will always get the same overall image. 
 </p>
 
-<p>
-<strong>Choose the image quality:</strong>
-<p>
-    <table>
-            <tr>
-            <td>low</td> <td>-</td> <td>Uses nearest neighbor sampling. Very fast, for exploration only. Switch to higher quality before saving an image. </td>
-            </tr>
-            <tr>
-            <td>high</td><td>-</td> <td>Uses anti-aliasing and linear interpolation. Suitable for most cases.</td>
-            </tr>
-            <tr>
-            <td>very&nbsphigh</td><td>-</td> <td>Uses anti-aliasing and cubic interpolation. Very slow. Use only if linear interpolation leaves artificial bright and dark lines.</td>
-            </tr>
-    </table>
-</p>
-</p>
 
 <h1>Input image</h1>
 
 <p>
-Once you open an input image you will see it in the upper right. It may be partially covered by the control panel. To bring it to the foreground click or touch it. At the same time a dark disc with an arrow will appear. Click or touch remaining parts of the control panel to bring it back to the foreground.
+You see it in the upper right for landscape and in the lower left for pportrait orientation. It may be partially covered by the control panel. To bring it to the foreground click or touch it. At the same time a dark disc with an arrow will appear. Click or touch remaining parts of the control panel to bring it back to the foreground.
 </p>
 <p>
 Pixels of the input image appearing in the output image are shown in full color. Unused pixels are faded out.
