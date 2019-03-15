@@ -16,15 +16,16 @@ function creation() {
 
     Make.imageQuality = "high";
 
+    let invertedView = false;
 
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
-        console.log("direct view");
+        invertedView = false;
         multiCircles.projection = multiCircles.doNothing;
         Make.updateNewMap();
     });
     viewSelect.addOption("circle inversion", function() {
-        console.log("inverted view");
+        invertedView = true;
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
@@ -58,11 +59,16 @@ function creation() {
 
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
-        Draw.setColor("#90ccff");
-        intersectionLine.draw();
+        Draw.setColor("grey");
+        //  equator.draw();
+        Draw.setColor("#bbbbff");
         multiCircles.draw();
-        Draw.setColor("red");
-        multiCircles.inversionCircle.draw();
+        if (invertedView) {
+            Draw.setColor("orange");
+            intersectionLine.draw();
+            Draw.setColor("red");
+            multiCircles.inversionCircle.draw();
+        }
     };
 
     multiCircles.setMapping();
@@ -70,6 +76,10 @@ function creation() {
     multiCircles.setInversionCircle(7, 2.5, 0);
     const circle = multiCircles.addCircleOutsideIn(6, -3.5, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
+
+    var equator = new Circle(intersectionLine.a.clone().sub(intersectionLine.b).length() / 2, intersectionLine.a.clone().add(intersectionLine.b).scale(0.5));
+
+
     intersectionLine.setLength(100);
 }
 
@@ -78,7 +88,6 @@ window.onload = function() {
     creation();
     basicUI.onload();
     Make.readImageWithFilePathAtSetup("schachbrett.jpg");
-
 };
 
 window.onresize = function() {

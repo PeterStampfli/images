@@ -13,27 +13,35 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+    Make.imageQuality = "high";
+
+
     let viewSelect = new Select("view");
+    let invertedView = false;
+
     viewSelect.addOption("direct", function() {
         console.log("direct view");
+        invertedView = false;
         multiCircles.projection = multiCircles.doNothing;
         Make.updateNewMap();
     });
     viewSelect.addOption("circle inversion", function() {
         console.log("inverted view");
+        invertedView = true;
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
 
 
     let setNButton = NumberButton.create("n");
-    setNButton.setRange(2, 10000);
+    setNButton.setFloat(0.1);
+    setNButton.setRange(2, 100);
     setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
     let secondCircle = Range.create("secondCircle");
     secondCircle.setRange(0.1, 1);
-    secondCircle.setValue(0.6);
+    secondCircle.setValue(0.5);
     secondCircle.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
@@ -60,60 +68,64 @@ function creation() {
 
     var intersectionLine1, intersectionLine2;
 
+    var h = 4;
+    var equator;
+
     Make.initializeMap = function() {
-        console.log("init");
         let n = setNButton.getValue();
-        console.log(n);
         const alpha = Math.PI / n;
         const cosAlpha = Fast.cos(alpha);
         const r1 = 10;
         const r2 = r1 * secondCircle.getValue();
-        console.log(r2);
         const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
         multiCircles.reset();
 
-        const circle1 = multiCircles.addCircleOutsideIn(r1, d / 2, -3);
-        const circle2 = multiCircles.addCircleOutsideIn(r2, -d / 2, -3);
+        const c1 = multiCircles.addCircleOutsideIn(r1, d, 0);
+        const c2 = multiCircles.addCircleOutsideIn(r2, 0, 0);
         const i1 = new Vector2();
         const i2 = new Vector2();
 
-        circle1.intersectsCircle(circle2, i1, i2);
+        c1.intersectsCircle(c2, i1, i2);
+        c1.center.x -= i1.x;
+        c2.center.x -= i1.x;
+        c1.scale(h / Math.abs(i1.y));
+        c2.scale(h / Math.abs(i1.y));
 
+        multiCircles.inversionCircle = new Circle(Math.sqrt(2) * h, 0, h);
 
-        multiCircles.inversionCircle = new Circle(Vector2.difference(i1, i2).length() * 1.2, i1);
-
-        intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(circle1);
+        intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
         intersectionLine1.setLength(100);
-        intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(circle2);
+        intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
         intersectionLine2.setLength(100);
-
-
+        equator = new Circle(h, 0, 0);
     };
 
     Make.updateOutputImage = function() {
+        console.log(Make.imageQuality);
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
-        Draw.setColor("black");
-        Draw.dashedLine(4, 6);
-        intersectionLine1.draw();
-        intersectionLine2.draw();
-
+        Draw.setColor("#bbbbff");
         multiCircles.draw();
-        Draw.solidLine();
-        Draw.setColor("red");
-        multiCircles.inversionCircle.draw();
+        if (invertedView) {
+            Draw.setColor("red");
+            multiCircles.inversionCircle.draw();
+            Draw.setColor("orange");
+            intersectionLine1.draw();
+            intersectionLine2.draw();
+            Draw.setColor("black");
+            equator.draw();
+        }
     };
-
     multiCircles.setMapping();
-
-
 }
 
 window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
-    basicUI.showSelectAddConvergence();
+    basicUI.activateControls(true);
+    Make.readImageWithFilePathAtSetup("roseBuilding.jpg");
+
 };
 
 window.onresize = function() {
