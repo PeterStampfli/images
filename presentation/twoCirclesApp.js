@@ -9,9 +9,8 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "help.html");
+    Button.createGoToLocation("help", "twoCirclesAppHelp.html");
     // where is the home ??
-    Button.createGoToLocation("home", "home.html");
 
     Make.imageQuality = "high";
 
@@ -41,7 +40,7 @@ function creation() {
 
     let secondCircle = Range.create("secondCircle");
     secondCircle.setRange(0.1, 1);
-    secondCircle.setValue(0.5);
+    secondCircle.setValue(1);
     secondCircle.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
@@ -68,8 +67,9 @@ function creation() {
 
     var intersectionLine1, intersectionLine2;
 
-    var h = 4;
+    var h = 3.5;
     var equator;
+    const xAxis=new Line(-1000,0,1000,0);
 
     Make.initializeMap = function() {
         let n = setNButton.getValue();
@@ -104,16 +104,19 @@ function creation() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
+        Draw.setColor("black");
+            equator.draw();
         Draw.setColor("#bbbbff");
         multiCircles.draw();
         if (invertedView) {
             Draw.setColor("red");
             multiCircles.inversionCircle.draw();
-            Draw.setColor("orange");
+            Draw.setColor("#aa6622");
+            xAxis.draw();
+            Draw.setColor("#ff8844");
             intersectionLine1.draw();
             intersectionLine2.draw();
-            Draw.setColor("black");
-            equator.draw();
+            
         }
     };
     multiCircles.setMapping();
