@@ -69,7 +69,7 @@ function creation() {
 
     var h = 3.5;
     var equator;
-    const xAxis=new Line(-1000,0,1000,0);
+    const xAxis = new Line(-1000, 0, 1000, 0);
 
     Make.initializeMap = function() {
         let n = setNButton.getValue();
@@ -105,7 +105,7 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidth);
         Draw.setColor("black");
-            equator.draw();
+        equator.draw();
         Draw.setColor("#bbbbff");
         multiCircles.draw();
         if (invertedView) {
@@ -116,7 +116,7 @@ function creation() {
             Draw.setColor("#ff8844");
             intersectionLine1.draw();
             intersectionLine2.draw();
-            
+
         }
     };
     multiCircles.setMapping();

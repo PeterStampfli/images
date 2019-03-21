@@ -11,22 +11,22 @@ function creation() {
     // the help page depends on the things we are generating
     Button.createGoToLocation("help", "help.html");
     // where is the home ??
-    
+
 
     Make.imageQuality = "high";
 
-            Make.map.discRadius = -1;
+    Make.map.discRadius = -1;
 
-            function wavesmap(position, furtherResults) {
+    function wavesmap(position, furtherResults) {
         furtherResults.lyapunov = 1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
-    };
-    
-    
-                    Make.setMapping(wavesmap);
+    }
 
-  
+
+    Make.setMapping(wavesmap);
+
+
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -53,13 +53,13 @@ function creation() {
 
 
     Make.initializeMap = function() {
-        
+
     };
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
-        
+
     };
 }
 

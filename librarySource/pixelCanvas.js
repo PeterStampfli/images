@@ -109,7 +109,7 @@ function PixelCanvas(idName) {
     /**
      * make an error message
      * @method PixelCanvas#errorMessage
-     * @param {list of Strings} message - multiple texts, one for each line
+     * @param {listOfStrings} message - multiple texts, one for each line
      */
     PixelCanvas.prototype.errorMessage = function(message) {
         this.fillScreen("red");
