@@ -16,8 +16,8 @@ function creation() {
     Make.imageQuality = "high";
 
     Make.map.discRadius = -1;
-    
- 
+
+
     let setRotButton = NumberButton.create("rot");
     setRotButton.setRange(3, 20);
     setRotButton.setValue(5);
@@ -68,14 +68,10 @@ function creation() {
     // where Make.updateMapOutput is the method to draw the image according to the map
 
     // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-10, 10, -10);
-
-
-
+    Make.setInitialOutputImageSpace(-30, 30, -30);
 
 
     Make.initializeMap = function() {
-        console.log("init");
         let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
         if (sumWaves.oddRotSymmetry) {
@@ -86,7 +82,6 @@ function creation() {
     };
 
     Make.updateOutputImage = function() {
-        console.log(Make.imageQuality);
         Make.updateMapOutput();
 
     };
@@ -96,21 +91,22 @@ window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
-/*
-        showSelect.addOption("structure",
-            function() {
-                console.log("structure");
-                Make.showingInputImage = false;
-                Make.clearControlImage();
-                basicUI.activateControls(false);
-                Make.draw = function() {
-                    Make.map.drawStructure();
-                };
-                Make.updateOutputImage();
-            });
-*/
-        
-    console.log(Make.inputImageExists);
+    /*
+     * change the action
+     * 
+            showSelect.addOption("structure",
+                function() {
+                    console.log("structure");
+                    Make.showingInputImage = false;
+                    Make.clearControlImage();
+                    basicUI.activateControls(false);
+                    Make.draw = function() {
+                        Make.map.drawStructure();
+                    };
+                    Make.updateOutputImage();
+                });
+    */
+
 };
 
 window.onresize = function() {

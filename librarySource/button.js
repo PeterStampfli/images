@@ -151,10 +151,8 @@ function Button(idName) {
             button.onFileInput(file);
         }, this.accept);
         this.onClick = function() {
-            console.log("inputbuttonclick")
             this.fileInput.click();
         };
-        console.log(this.onClick);
     };
 
     /**

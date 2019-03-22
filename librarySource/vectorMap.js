@@ -457,8 +457,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         pixelCanvas.showPixel();
     };
-    
-   /**
+
+    /**
      * draw on a pixelcanvas use a map
      * color showing structure, based on absolute values of x- and y-coordinates
      * using green and magenta
@@ -466,7 +466,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {float} xAbsMax - maximum of absolute value of x-coordinate
      * @param {float} yAbsMax - maximum of absolute value of y-coordinate
      */
-    VectorMap.prototype.drawStructureGreenMagenta = function(xAbsMax,yAbsMax) {
+    VectorMap.prototype.drawStructureGreenMagenta = function(xAbsMax, yAbsMax) {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let intColorOff = this.intColorOff;

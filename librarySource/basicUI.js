@@ -106,21 +106,26 @@ basicUI = {};
 
     // create image input button if "openInputImage" exists
     var imageInputButton;
+    var showSelectImage = false;
     if (DOM.idExists("openInputImage")) {
-        console.log("creatingimipb2");
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
-            if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
-                basicUI.showSelect.setIndex(1);
+            if (basicUI.showSelect) {
+                if (!showSelectImage) {
+                    showSelectImage = true;
+                    basicUI.showSelectAddImage();
+                }
+                if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
+                    basicUI.showSelect.setIndex(basicUI.showSelect.actions.length - 1);
+                }
             }
             basicUI.activateControls(true);
-            console.log("click")
-
             imageInputButton.fileInput.click();
         };
     }
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
+    basicUI.showSelect = false;
 
     // choose between showing the structure or the image, if id "show" exists
     // note that only things happen if option is changed!
@@ -139,23 +144,18 @@ basicUI = {};
                 Make.updateOutputImage();
             });
 
-        basicUI.showSelect.addOption("image",
-            function() {
-                Make.showingInputImage = true;
-                Make.draw = function() {
-                    Make.drawImage();
-                };
-                basicUI.activateControls(true);
-                console.log(Make.inputImageExists);
-                
-                if (!Make.inputImageExists) {
-                    console.log("input")
-                  //  imageInputButton.fileInput.click();
-                    imageInputButton.onClick();
-                } else {
+        // add option to show image when input image read
+        basicUI.showSelectAddImage = function() {
+            basicUI.showSelect.addOption("image",
+                function() {
+                    Make.showingInputImage = true;
+                    Make.draw = function() {
+                        Make.drawImage();
+                    };
+                    basicUI.activateControls(true);
                     Make.updateOutputImage();
-                }
-            });
+                });
+        };
 
         /**
          * add more options to the showSelect button
@@ -182,54 +182,6 @@ basicUI = {};
                         Make.map.drawIterationsStructure();
                     };
                     Make.updateOutputImage();
-                });
-
-            basicUI.showSelect.addOption("convergence/image",
-                function() {
-                    console.log("opt convimage");
-                    Make.showingInputImage = true;
-                    basicUI.activateControls(true);
-                    Make.draw = function() {
-                        Make.controlImage.semiTransparent();
-                        Make.map.drawIterationsImage();
-                    };
-                    if (!Make.inputImageExists) {
-                        imageInputButton.fileInput.click();
-                    } else {
-                        Make.updateOutputImage();
-                    }
-                });
-
-            basicUI.showSelect.addOption("structure/image",
-                function() {
-                    console.log("opt convimage");
-                    Make.showingInputImage = true;
-                    basicUI.activateControls(true);
-                    Make.draw = function() {
-                        Make.controlImage.semiTransparent();
-                        Make.map.drawStructureImage();
-                    };
-                    if (!Make.inputImageExists) {
-                        imageInputButton.fileInput.click();
-                    } else {
-                        Make.updateOutputImage();
-                    }
-                });
-
-            basicUI.showSelect.addOption("convergence/structure/image",
-                function() {
-                    console.log("opt convimage");
-                    Make.showingInputImage = true;
-                    basicUI.activateControls(true);
-                    Make.draw = function() {
-                        Make.controlImage.semiTransparent();
-                        Make.map.drawIterationsStructureImage();
-                    };
-                    if (!Make.inputImageExists) {
-                        imageInputButton.fileInput.click();
-                    } else {
-                        Make.updateOutputImage();
-                    }
                 });
         };
     }
