@@ -17,10 +17,22 @@ function creation() {
 
     Make.map.discRadius = -1;
 
+
+    sumWaves.setRotationalSymmetry(8);
+
+
+
+
     function wavesmap(position, furtherResults) {
         furtherResults.lyapunov = 1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
+
+        sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
+
+        position.x = sumWaves.cosines1(1);
+        position.y = sumWaves.cosines2Even(1, 1) + sumWaves.cosines2Even(1, 2);
+
     }
 
 
