@@ -16,27 +16,35 @@ function creation() {
     Make.imageQuality = "high";
 
     Make.map.discRadius = -1;
+    
+ 
+    let setRotButton = NumberButton.create("rot");
+    setRotButton.setRange(3, 20);
+    setRotButton.setValue(5);
+    setRotButton.onChange = Make.updateNewMap;
 
 
-    sumWaves.setRotationalSymmetry(8);
 
 
-
-
-    function wavesmap(position, furtherResults) {
+    function mapOdd(position, furtherResults) {
         furtherResults.lyapunov = 1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
-
         sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
-
         position.x = sumWaves.cosines1(1);
-        position.y = sumWaves.cosines2Even(1, 1) + sumWaves.cosines2Even(1, 2);
+        position.y = sumWaves.sines1(1);
+    }
 
+    function mapEven(position, furtherResults) {
+        furtherResults.lyapunov = 1;
+        furtherResults.reflections = 0;
+        furtherResults.iterations = 0;
+        sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
+        position.x = sumWaves.cosines1(1);
+        position.y = sumWaves.cosines2Even(1, 1);
     }
 
 
-    Make.setMapping(wavesmap);
 
 
 
@@ -64,8 +72,17 @@ function creation() {
 
 
 
-    Make.initializeMap = function() {
 
+
+    Make.initializeMap = function() {
+        console.log("init");
+        let rot = setRotButton.getValue();
+        sumWaves.setRotationalSymmetry(rot);
+        if (sumWaves.oddRotSymmetry) {
+            Make.setMapping(mapOdd);
+        } else {
+            Make.setMapping(mapEven);
+        }
     };
 
     Make.updateOutputImage = function() {
@@ -79,9 +96,21 @@ window.onload = function() {
     "use strict";
     creation();
     basicUI.onload();
-    basicUI.activateControls(true);
-    Make.readImageWithFilePathAtSetup("roseBuilding.jpg");
-
+/*
+        showSelect.addOption("structure",
+            function() {
+                console.log("structure");
+                Make.showingInputImage = false;
+                Make.clearControlImage();
+                basicUI.activateControls(false);
+                Make.draw = function() {
+                    Make.map.drawStructure();
+                };
+                Make.updateOutputImage();
+            });
+*/
+        
+    console.log(Make.inputImageExists);
 };
 
 window.onresize = function() {

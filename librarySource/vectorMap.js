@@ -388,6 +388,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {Vector2} newOrigin
      */
     VectorMap.prototype.shiftOutput = function(newOrigin) {
+        console.log("shifting the map");
         let dx = -newOrigin.x;
         let dy = -newOrigin.y;
         let xArray = this.xArray;
@@ -439,6 +440,33 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawStructure
      */
     VectorMap.prototype.drawStructure = function() {
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let intColorOff = this.intColorOff;
+        let lyapunovArray = this.lyapunovArray;
+        let reflectionsArray = this.reflectionsArray;
+        let colorSectorArray = this.colorSectorArray;
+        let structureColorCollection = this.structureColorCollection;
+        const length = lyapunovArray.length;
+        for (var index = 0; index < length; index++) {
+            if ((lyapunovArray[index] >= -0.001)) {
+                pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
+            } else {
+                pixel[index] = intColorOff;
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+    
+   /**
+     * draw on a pixelcanvas use a map
+     * color showing structure, based on absolute values of x- and y-coordinates
+     * using green and magenta
+     * @method VectorMap#drawStructureGreenMagenta
+     * @param {float} xAbsMax - maximum of absolute value of x-coordinate
+     * @param {float} yAbsMax - maximum of absolute value of y-coordinate
+     */
+    VectorMap.prototype.drawStructureGreenMagenta = function(xAbsMax,yAbsMax) {
         let pixelCanvas = this.outputImage.pixelCanvas;
         let pixel = pixelCanvas.pixel;
         let intColorOff = this.intColorOff;

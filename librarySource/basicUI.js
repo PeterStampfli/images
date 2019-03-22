@@ -107,12 +107,14 @@ basicUI = {};
     // create image input button if "openInputImage" exists
     var imageInputButton;
     if (DOM.idExists("openInputImage")) {
+        console.log("creatingimipb2");
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
         imageInputButton.onClick = function() {
             if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
-                showSelect.setIndex(1);
+                basicUI.showSelect.setIndex(1);
             }
             basicUI.activateControls(true);
+            console.log("click")
 
             imageInputButton.fileInput.click();
         };
@@ -123,9 +125,9 @@ basicUI = {};
     // choose between showing the structure or the image, if id "show" exists
     // note that only things happen if option is changed!
     if (DOM.idExists("show")) {
-        var showSelect = new Select("show");
+        basicUI.showSelect = new Select("show");
 
-        showSelect.addOption("structure",
+        basicUI.showSelect.addOption("structure",
             function() {
                 console.log("structure");
                 Make.showingInputImage = false;
@@ -137,15 +139,19 @@ basicUI = {};
                 Make.updateOutputImage();
             });
 
-        showSelect.addOption("image",
+        basicUI.showSelect.addOption("image",
             function() {
                 Make.showingInputImage = true;
                 Make.draw = function() {
                     Make.drawImage();
                 };
                 basicUI.activateControls(true);
+                console.log(Make.inputImageExists);
+                
                 if (!Make.inputImageExists) {
-                    imageInputButton.fileInput.click();
+                    console.log("input")
+                  //  imageInputButton.fileInput.click();
+                    imageInputButton.onClick();
                 } else {
                     Make.updateOutputImage();
                 }
@@ -156,7 +162,7 @@ basicUI = {};
          * @method basicUI.showSelectAdd
          */
         basicUI.showSelectAdd = function() {
-            showSelect.addOption("convergence",
+            basicUI.showSelect.addOption("convergence",
                 function() {
                     Make.showingInputImage = false;
                     Make.clearControlImage();
@@ -167,7 +173,7 @@ basicUI = {};
                     Make.updateOutputImage();
                 });
 
-            showSelect.addOption("convergence/structure",
+            basicUI.showSelect.addOption("convergence/structure",
                 function() {
                     Make.showingInputImage = false;
                     Make.clearControlImage();
@@ -178,7 +184,7 @@ basicUI = {};
                     Make.updateOutputImage();
                 });
 
-            showSelect.addOption("convergence/image",
+            basicUI.showSelect.addOption("convergence/image",
                 function() {
                     console.log("opt convimage");
                     Make.showingInputImage = true;
@@ -194,7 +200,7 @@ basicUI = {};
                     }
                 });
 
-            showSelect.addOption("structure/image",
+            basicUI.showSelect.addOption("structure/image",
                 function() {
                     console.log("opt convimage");
                     Make.showingInputImage = true;
@@ -210,7 +216,7 @@ basicUI = {};
                     }
                 });
 
-            showSelect.addOption("convergence/structure/image",
+            basicUI.showSelect.addOption("convergence/structure/image",
                 function() {
                     console.log("opt convimage");
                     Make.showingInputImage = true;

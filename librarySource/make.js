@@ -408,16 +408,12 @@ var Make = {};
             Make.getMapOutputRange();
             Make.limitLyapunov();
         }
-
         if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
             Make.showingInputImage = true;
             Make.draw = function() {
                 Make.drawImage();
             };
         }
-
-
-
         Make.controlImage.adjustScaleShift(Make.lowerLeft, Make.upperRight, Make.fillFaktor, Make.inputImage);
         Make.arrowController.drawOrientation();
         Make.updateOutputImage();
