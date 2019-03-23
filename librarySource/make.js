@@ -89,7 +89,7 @@ var Make = {};
     recalculate structure map, reuse previous map range, space to input image pixel mapping remains unchanged
     */
     /**
-     * set the size of the output image, call Make.updateMap to see effect
+     * set the size of the output image and map, call Make.updateMap to see effect
      * @method Make.setOutputSize
      * @param {integer} width
      * @param {integer} height - default=width
@@ -331,6 +331,38 @@ var Make = {};
         sizeButton.setRange(100, 10000);
         sizeButton.onChange = function(size) {
             Make.setOutputSize(size, size);
+            Make.updateNewOutputImageSize();
+        };
+        return sizeButton;
+    };
+
+    /**
+     * create a button to change the width of the output image
+     * @method Make.createImageWidthButton
+     * @param {String} idName - of the html input element
+     * @return the button (a numberbutton)
+     */
+    Make.createImageWidthButton = function(idName) {
+        let sizeButton = new NumberButton(idName);
+        sizeButton.setRange(100, 10000);
+        sizeButton.onChange = function(width) {
+            Make.setOutputSize(width, Make.map.height);
+            Make.updateNewOutputImageSize();
+        };
+        return sizeButton;
+    };
+
+    /**
+     * create a button to change the height of the output image
+     * @method Make.createImageHeightButton
+     * @param {String} idName - of the html input element
+     * @return the button (a numberbutton)
+     */
+    Make.createImageHeightButton = function(idName) {
+        let sizeButton = new NumberButton(idName);
+        sizeButton.setRange(100, 10000);
+        sizeButton.onChange = function(height) {
+            Make.setOutputSize(Make.map.width, height);
             Make.updateNewOutputImageSize();
         };
         return sizeButton;

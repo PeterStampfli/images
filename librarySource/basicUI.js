@@ -187,7 +187,18 @@ basicUI = {};
     }
 
     // image size, square format
-    Make.sizeButton = Make.createSquareImageSizeButton("size");
+    if (DOM.idExists("size")) {
+        Make.sizeButton = Make.createSquareImageSizeButton("size");
+    }
+
+    // rectangular
+    if (DOM.idExists("width")) {
+        Make.widthButton = Make.createImageWidthButton("width");
+    }
+    if (DOM.idExists("height")) {
+        Make.heightButton = Make.createImageHeightButton("height");
+    }
+
 
     //  choosing image quality
     function changeQuality(newQuality) {
@@ -449,5 +460,90 @@ basicUI = {};
     };
 
 
+    /**
+     * onload make the layout and create elements that do not depend on the actual image
+     * fill the output div with a rectangular image
+     * @method basicUI.onloadRectangular
+     * @param {float} range - minimal (plus/minus) range of coordinates for output image
+     */
+    basicUI.onloadRectangular = function(range) {
+        console.log("onload rectangular");
+        basicUI.layout();
+        // independent of layout
+        Make.arrowController.drawOrientation();
+        // fit output image into the surrounding div
+        let outputSize = Math.floor(Math.min(Make.outputImage.divWidth, Make.outputImage.divHeight));
+        const width = Make.outputImage.divWidth;
+        const height = Make.outputImage.divHeight;
+        Make.setOutputSize(width, height);
+        Make.widthButton.setValue(width);
+        Make.heightButton.setValue(height);
+        Make.outputImage.setRanges(range);
+        Make.updateNewMap();
+    };
+
+    /**
+     * on resize changes size of elements, redraws if needed
+     * fill the output div with a rectangular image
+     * @method basicUI.onresizeRectangular
+     */
+    basicUI.onresizeRectangular = function() {
+        console.log("onresize rectangular");
+        // get old sizes, see if they change -> need redraw
+        // we have rectangular images
+
+
+        const oldOutputImageWidth = Make.outputImage.pixelCanvas.width;
+        const oldOutputImageHeight = Make.outputImage.pixelCanvas.height;
+
+        const oldControlImageMaxWidth = Make.controlImage.maxWidth;
+        const oldControlImageMaxHeight = Make.controlImage.maxHeight;
+        // check if the output image is inside its div -> resize upon change to fill the div 
+        const outputImageWasInside = (oldOutputImageWidth <= Make.outputImage.divWidth) && (oldOutputImageHeight <= Make.outputImage.divHeight);
+        // recalculate dimensions of new layout
+        basicUI.layout();
+        // the control image might need update if dimensions change
+        if (Make.inputImageExists) {
+            // do we have to reload the input image into the control image?
+            // input image has to exist and the limits have changed
+            // else we only need to place it in its new position
+            const updateControlImage = ((oldControlImageMaxWidth !== Make.controlImage.maxWidth) || (oldControlImageMaxHeight !== Make.controlImage.maxHeight));
+            if (updateControlImage) {
+                Make.controlImage.loadInputImage(Make.inputImage); // places the image too
+            } else {
+                Make.controlImage.place();
+            }
+        }
+
+        // determine the new output image size
+        // the output image should always fill the div, minimal size
+        const outputImageWidthMin = Math.floor(Make.outputImage.divWidth);
+        const outputImageHeightMin = Math.floor(Make.outputImage.divHeight);
+        // should the size of the output image change?
+        var newOutputImageWidth, newOutputImageHeight;
+        if (outputImageWasInside) {
+            // if the ouput image was completely inside its div, then it should again fill it
+            newOutputImageWidth = outputImageWidthMin;
+            newOutputImageHeight = outputImageHeightMin;
+        } else {
+            // if the output image has been larger and still is larger than the div it does not change
+            // if it does not fill the div then increase size
+            newOutputImageWidth = Math.max(outputImageWidthMin, oldOutputImageWidth);
+            newOutputImageHeight = Math.max(outputImageHeightMin, oldOutputImageHeight);
+        }
+        // do we need to redraw the output image 
+        if ((newOutputImageWidth !== oldOutputImageWidth) || (newOutputImageHeight !== oldOutputImageHeight)) {
+            // if the size of the output image has changed, then we have to redo everything
+            Make.setOutputSize(newOutputImageWidth, newOutputImageHeight);
+            Make.widthButton.setValue(newOutputImageWidth);
+            Make.heightButton.setValue(newOutputImageHeight);
+            Make.updateNewOutputImageSize();
+        } else {
+            // else we have to place the output image in its div and if the controlimage has been updated 
+            //then we have to redo the input pixel mapping to correctly indicate sampled pixels
+            Make.outputImage.place();
+            Make.updateOutputImageIfUsingInputImage();
+        }
+    };
 
 }());

@@ -155,7 +155,7 @@ function OutputImage(idName) {
 
     /**
      * set size of the output canvas and its scale, create pixel, use together with other size dependent setup
-     * sets overflow style of surrounding div
+     * keeps center in place
      * @method OutputImage#setSize
      * @param {float} width
      * @param {float} height - default is width
@@ -163,8 +163,12 @@ function OutputImage(idName) {
     OutputImage.prototype.setSize = function(width, height = width) {
         width = Math.round(width);
         height = Math.round(height);
+        const centerX = this.cornerX + 0.5 * this.scale * this.pixelCanvas.width;
+        const centerY = this.cornerY + 0.5 * this.scale * this.pixelCanvas.height;
         if (this.pixelCanvas.width > 0) {
             this.scale *= Math.sqrt((this.pixelCanvas.width - 1) * (this.pixelCanvas.height - 1) / (width - 1) / (height - 1));
+            this.cornerX = centerX - 0.5 * this.scale * width;
+            this.cornerY = centerY - 0.5 * this.scale * height;
         }
         this.pixelCanvas.setupOnscreen(width, height); // does nothing if size has not changed
         this.place();
@@ -261,10 +265,34 @@ function OutputImage(idName) {
      * @param {float} xMax - highest value for x-coordinate
      */
     OutputImage.prototype.setCoordinates = function(xMin, yMin, xMax) {
+        console.log("setcoordinates");
+        //  a=b;
         this.cornerX = xMin;
         this.cornerY = yMin;
         if (this.pixelCanvas.width > 1) {
             this.scale = (xMax - xMin) / (this.pixelCanvas.width - 1);
+        } else {
+            console.log(" ***Output.setCoordinates: width of canvas=0");
+        }
+    };
+
+    /**
+     * set coordinates, transform and adjust canvas transform for given range of smaller axis
+     * @method OutputImage#setRanges
+     * @param {float} range - coordinates for smaller side go from -range to +range
+     */
+    OutputImage.prototype.setRanges = function(range) {
+        if (this.pixelCanvas.width > 0) {
+            if (this.pixelCanvas.width > this.pixelCanvas.height) { // height is smaller, determines scale
+                this.cornerY = -range;
+                this.scale = 2 * range / (this.pixelCanvas.height - 1);
+                this.cornerX = -range * this.pixelCanvas.width / this.pixelCanvas.height;
+            } else {
+                this.cornerX = -range;
+                this.scale = 2 * range / (this.pixelCanvas.width - 1);
+                this.cornerY = -range * this.pixelCanvas.height / this.pixelCanvas.width;
+            }
+
         } else {
             console.log(" ***Output.setCoordinates: width of canvas=0");
         }

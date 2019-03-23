@@ -46,12 +46,6 @@ function creation() {
 
 
 
-
-
-    // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-50, 50, -50);
-
-
     Make.initializeMap = function() {
         let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
@@ -83,7 +77,7 @@ window.onload = function() {
     Make.draw = function() {
         drawGreenMagenta();
     };
-    basicUI.onload();
+    basicUI.onloadRectangular(50);
 
 
     basicUI.showSelect.actions[0] =
@@ -103,5 +97,5 @@ window.onload = function() {
 
 window.onresize = function() {
     "use strict";
-    basicUI.onresize();
+    basicUI.onresizeRectangular();
 };
