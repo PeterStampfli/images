@@ -9,7 +9,7 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "help.html");
+    Button.createGoToLocation("help", "wavesHelp.html");
     // where is the home ??
 
 
@@ -68,7 +68,7 @@ function creation() {
     // where Make.updateMapOutput is the method to draw the image according to the map
 
     // setting initial range of space coordinates for output image (1st linear transform)
-    Make.setInitialOutputImageSpace(-30, 30, -30);
+    Make.setInitialOutputImageSpace(-50, 50, -50);
 
 
     Make.initializeMap = function() {
@@ -87,25 +87,36 @@ function creation() {
     };
 }
 
+function drawGreenMagenta() {
+    xAbsMax = Math.max(Math.abs(Make.lowerLeft.x), Math.abs(Make.upperRight.x));
+    yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
+    Make.map.drawStructureGreenMagenta(xAbsMax, yAbsMax);
+
+
+
+}
+
 window.onload = function() {
     "use strict";
     creation();
+    Make.draw = function() {
+        drawGreenMagenta();
+    };
     basicUI.onload();
-    /*
-     * change the action
-     * 
-            showSelect.addOption("structure",
-                function() {
-                    console.log("structure");
-                    Make.showingInputImage = false;
-                    Make.clearControlImage();
-                    basicUI.activateControls(false);
-                    Make.draw = function() {
-                        Make.map.drawStructure();
-                    };
-                    Make.updateOutputImage();
-                });
-    */
+
+
+    basicUI.showSelect.actions[0] =
+        function() {
+            console.log("structure");
+            Make.showingInputImage = false;
+            Make.clearControlImage();
+            basicUI.activateControls(false);
+            Make.draw = function() {
+                drawGreenMagenta();
+            };
+            Make.updateOutputImage();
+        };
+
 
 };
 

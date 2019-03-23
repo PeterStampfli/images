@@ -458,6 +458,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
     };
 
+    const greenMagenta = new Color();
+
     /**
      * draw on a pixelcanvas use a map
      * color showing structure, based on absolute values of x- and y-coordinates
@@ -467,20 +469,22 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {float} yAbsMax - maximum of absolute value of y-coordinate
      */
     VectorMap.prototype.drawStructureGreenMagenta = function(xAbsMax, yAbsMax) {
-        let pixelCanvas = this.outputImage.pixelCanvas;
-        let pixel = pixelCanvas.pixel;
-        let intColorOff = this.intColorOff;
-        let lyapunovArray = this.lyapunovArray;
-        let reflectionsArray = this.reflectionsArray;
-        let colorSectorArray = this.colorSectorArray;
-        let structureColorCollection = this.structureColorCollection;
-        const length = lyapunovArray.length;
+        const magnification = 20;
+        const xFactor = 255.9 * magnification / xAbsMax;
+        const yFactor = 255.9 * magnification / yAbsMax;
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        // map data
+        const xArray = this.xArray;
+        const yArray = this.yArray;
+        const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            if ((lyapunovArray[index] >= -0.001)) {
-                pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
-            } else {
-                pixel[index] = intColorOff;
-            }
+            const green = Math.max(0, Math.min(255, 127.5 + xFactor * xArray[index]));
+            const magenta = Math.max(0, Math.min(255, 127.5 + yFactor * yArray[index]));
+            greenMagenta.green = green;
+            greenMagenta.red = magenta;
+            greenMagenta.blue = magenta;
+            pixelCanvas.setPixelAtIndex(greenMagenta, index);
         }
         pixelCanvas.showPixel();
     };
@@ -494,15 +498,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawIterations
      */
     VectorMap.prototype.drawIterations = function() {
-        let pixelCanvas = this.outputImage.pixelCanvas;
-        let pixel = pixelCanvas.pixel;
-        let intColorOff = this.intColorOff;
-        let lyapunovArray = this.lyapunovArray;
-        let reflectionsArray = this.reflectionsArray;
-        let iterationsArray = this.iterationsArray;
-        let colorSectorArray = this.colorSectorArray;
-        let structureColorCollection = this.structureColorCollection;
-        let iterationsColors = this.iterationsColors;
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const intColorOff = this.intColorOff;
+        const lyapunovArray = this.lyapunovArray;
+        const reflectionsArray = this.reflectionsArray;
+        const iterationsArray = this.iterationsArray;
+        const colorSectorArray = this.colorSectorArray;
+        const structureColorCollection = this.structureColorCollection;
+        const iterationsColors = this.iterationsColors;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
@@ -524,15 +528,15 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawIterationsStructure
      */
     VectorMap.prototype.drawIterationsStructure = function() {
-        let pixelCanvas = this.outputImage.pixelCanvas;
-        let pixel = pixelCanvas.pixel;
-        let intColorOff = this.intColorOff;
-        let lyapunovArray = this.lyapunovArray;
-        let reflectionsArray = this.reflectionsArray;
-        let iterationsArray = this.iterationsArray;
-        let colorSectorArray = this.colorSectorArray;
-        let structureColorCollection = this.structureColorCollection;
-        let iterationsColors = this.iterationsColors;
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const intColorOff = this.intColorOff;
+        const lyapunovArray = this.lyapunovArray;
+        const reflectionsArray = this.reflectionsArray;
+        const iterationsArray = this.iterationsArray;
+        const colorSectorArray = this.colorSectorArray;
+        const structureColorCollection = this.structureColorCollection;
+        const iterationsColors = this.iterationsColors;
         let index = 0;
         const width = this.width;
         const width2 = Math.floor(this.width / 2);
@@ -567,35 +571,35 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
         console.log("iterationsimage");
         // the pixel scaling (lyapunov coefficient)
-        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
+        const baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
         // input image objects
-        let pixelCanvas = this.outputImage.pixelCanvas;
-        let pixel = pixelCanvas.pixel;
-        let inputImage = this.inputImage;
-        let controlImage = this.controlImage;
-        let controlCanvas = controlImage.pixelCanvas;
-        let controlDivInputSize = controlImage.controlDivInputSize;
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const inputImage = this.inputImage;
+        const controlImage = this.controlImage;
+        const controlCanvas = controlImage.pixelCanvas;
+        const controlDivInputSize = controlImage.controlDivInputSize;
         // input transform data
-        let shiftX = this.inputTransform.shiftX;
-        let shiftY = this.inputTransform.shiftY;
-        let cosAngleScale = this.inputTransform.cosAngleScale;
-        let sinAngleScale = this.inputTransform.sinAngleScale;
+        const shiftX = this.inputTransform.shiftX;
+        const shiftY = this.inputTransform.shiftY;
+        const cosAngleScale = this.inputTransform.cosAngleScale;
+        const sinAngleScale = this.inputTransform.sinAngleScale;
         // map data
-        let xArray = this.xArray;
-        let yArray = this.yArray;
-        let lyapunovArray = this.lyapunovArray;
-        let reflectionsArray = this.reflectionsArray;
-        let iterationsArray = this.iterationsArray;
-        let alphaArray = this.alphaArray;
+        const xArray = this.xArray;
+        const yArray = this.yArray;
+        const lyapunovArray = this.lyapunovArray;
+        const reflectionsArray = this.reflectionsArray;
+        const iterationsArray = this.iterationsArray;
+        const alphaArray = this.alphaArray;
         // color data
-        let structureColorCollection = this.structureColorCollection;
-        let iterationsColors = this.iterationsColors;
-        let colorSectorArray = this.colorSectorArray;
+        const structureColorCollection = this.structureColorCollection;
+        const iterationsColors = this.iterationsColors;
+        const colorSectorArray = this.colorSectorArray;
         // color data
-        let offColor = new Color(0, 0, 0, 0);
+        const offColor = new Color(0, 0, 0, 0);
         inputImage.averageImageColor(offColor);
-        let intOffColor = PixelCanvas.integerOf(offColor);
+        const intOffColor = PixelCanvas.integerOf(offColor);
         const color = new Color();
         var x, y, h, k;
         //iterating
