@@ -11,6 +11,7 @@ function creation() {
     // the help page depends on the things we are generating
     Button.createGoToLocation("help", "wavesHelp.html");
     // where is the home ??
+    Button.createGoToLocation("home", "home.html");
 
 
     Make.imageQuality = "high";
@@ -22,6 +23,12 @@ function creation() {
     setRotButton.setRange(3, 20);
     setRotButton.setValue(5);
     setRotButton.onChange = Make.updateNewMap;
+
+    
+    let higherHarmonic = Range.create("higherHarmonic");
+    higherHarmonic.setRange(0, 1);
+    higherHarmonic.setValue(0);
+    higherHarmonic.onChange = Make.updateNewMap;
 
 
 
@@ -43,16 +50,20 @@ function creation() {
         position.x = sumWaves.cosines1(1);
         position.y = sumWaves.cosines2Even(1, 1);
     }
-
-
+    
+ 
 
     Make.initializeMap = function() {
         let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
+        const sharpness = higherHarmonic.getValue();
+      
         if (sumWaves.oddRotSymmetry) {
             Make.setMapping(mapOdd);
+           
         } else {
             Make.setMapping(mapEven);
+          
         }
     };
 
