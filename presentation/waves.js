@@ -1,5 +1,7 @@
 /* jshint esversion:6 */
 
+var wave;
+
 function creation() {
     "use strict";
 
@@ -19,16 +21,12 @@ function creation() {
     Make.map.discRadius = -1;
 
 
+
+
     let setRotButton = NumberButton.create("rot");
     setRotButton.setRange(3, 20);
     setRotButton.setValue(5);
     setRotButton.onChange = Make.updateNewMap;
-
-    
-    let higherHarmonic = Range.create("higherHarmonic");
-    higherHarmonic.setRange(0, 1);
-    higherHarmonic.setValue(0);
-    higherHarmonic.onChange = Make.updateNewMap;
 
 
 
@@ -50,20 +48,17 @@ function creation() {
         position.x = sumWaves.cosines1(1);
         position.y = sumWaves.cosines2Even(1, 1);
     }
-    
- 
 
     Make.initializeMap = function() {
         let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
-        const sharpness = higherHarmonic.getValue();
-      
+
         if (sumWaves.oddRotSymmetry) {
             Make.setMapping(mapOdd);
-           
+
         } else {
             Make.setMapping(mapEven);
-          
+
         }
     };
 
@@ -77,9 +72,6 @@ function drawGreenMagenta() {
     xAbsMax = Math.max(Math.abs(Make.lowerLeft.x), Math.abs(Make.upperRight.x));
     yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
     Make.map.drawStructureGreenMagenta(xAbsMax, yAbsMax);
-
-
-
 }
 
 window.onload = function() {

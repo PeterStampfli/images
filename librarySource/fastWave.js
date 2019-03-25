@@ -2,6 +2,8 @@
  * fast approximations to periodic function, period of 2*PI
  * @constructor FastWave
  */
+/* jshint esversion:6 */
+
 
 function FastWave() {
     "use strict";
@@ -90,6 +92,7 @@ function FastWave() {
     var tabFactor = nIntervals / 2 / Math.PI;
     FastWave.prototype.makeTriangleExpansionTable = function(n) {
         nHarmonics = n;
+        console.log("nha " + n);
         this.tableSinLike = Fast.makeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionSinLike);
         this.tableCosLike = Fast.makeTable(0, 2 * Math.PI, nIntervals, FastWave.triangleExpansionCosLike);
     };
@@ -106,7 +109,8 @@ function FastWave() {
         index = Math.floor(x);
         x -= index;
         index = index & nIntervalsM1;
-        return this.tableSinLike[index] * (1 - x) + this.tableSinLike[index + 1] * x;
+        const base = this.tableSinLike[index];
+        return base + (this.tableSinLike[index + 1] - base) * x;
     };
 
     /**
@@ -121,9 +125,9 @@ function FastWave() {
         index = Math.floor(x);
         x -= index;
         index = index & nIntervalsM1;
-        return this.tableCosLike[index] * (1 - x) + this.tableCosLike[index + 1] * x;
+        const base = this.tableCosLike[index];
+        return base + (this.tableCosLike[index + 1] - base) * x;
     };
-
 
     /**
      * pair of fast cos-like and sin-like function values from interpolation, result in this.sinLikeResult and this.cosLikeResult
@@ -139,6 +143,4 @@ function FastWave() {
         this.cosLikeResult = this.tableCosLike[index] * (1 - x) + this.tableCosLike[index + 1] * x;
         this.sinLikeResult = this.tableSinLike[index] * (1 - x) + this.tableSinLike[index + 1] * x;
     };
-
-
 }());

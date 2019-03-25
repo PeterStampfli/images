@@ -231,7 +231,7 @@ function Range(idText, idRange) {
      * @return float, quantized x
      */
     Range.prototype.quantize = function(x) {
-        return this.step * Math.floor(0.5+x / this.step);
+        return this.step * Math.floor(0.5 + x / this.step);
     };
 
     /**

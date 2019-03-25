@@ -459,7 +459,6 @@ basicUI = {};
         }
     };
 
-
     /**
      * onload make the layout and create elements that do not depend on the actual image
      * fill the output div with a rectangular image
@@ -467,7 +466,6 @@ basicUI = {};
      * @param {float} range - minimal (plus/minus) range of coordinates for output image
      */
     basicUI.onloadRectangular = function(range) {
-        console.log("onload rectangular");
         basicUI.layout();
         // independent of layout
         Make.arrowController.drawOrientation();
@@ -488,14 +486,10 @@ basicUI = {};
      * @method basicUI.onresizeRectangular
      */
     basicUI.onresizeRectangular = function() {
-        console.log("onresize rectangular");
         // get old sizes, see if they change -> need redraw
         // we have rectangular images
-
-
         const oldOutputImageWidth = Make.outputImage.pixelCanvas.width;
         const oldOutputImageHeight = Make.outputImage.pixelCanvas.height;
-
         const oldControlImageMaxWidth = Make.controlImage.maxWidth;
         const oldControlImageMaxHeight = Make.controlImage.maxHeight;
         // check if the output image is inside its div -> resize upon change to fill the div 
