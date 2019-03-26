@@ -52,18 +52,82 @@ function creation() {
     Make.initializeMap = function() {
         let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
-
         if (sumWaves.oddRotSymmetry) {
             Make.setMapping(mapOdd);
-
         } else {
             Make.setMapping(mapEven);
-
         }
     };
 
+    const basicVectors = [];
+    const lengths = [0, 0, 0, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+    ];
+    for (var i = 0; i < 20; i++) {
+        basicVectors.push(new Vector2());
+    }
+
+    function drawNothing() {}
+
+    const a = new Vector2();
+    const b = new Vector2();
+
+    function drawRosette() {
+        console.log("rosette");
+        const rot = setRotButton.getValue();
+        const l = lengths[rot];
+        const zPiDivRot = 2 * Math.PI / rot;
+        var i, j;
+        for (i = 0; i < rot; i++) {
+            const angle = zPiDivRot * (i + 0.5);
+            basicVectors[i].setComponents(l * Fast.cos(angle), l * Fast.sin(angle));
+        }
+        if (rot & 1) {
+            for (i = 0; i < rot; i++) {
+                a.setComponents(0, 0);
+                for (j = 0; j < rot / 2; j++) {
+                    b.set(a);
+                    b.add(basicVectors[(j + i) % rot]);
+                    Draw.line(a, b);
+                    a.set(b);
+                }
+                for (j = 0; j < rot / 2; j++) {
+                    b.set(a);
+                    b.sub(basicVectors[(j + i) % rot]);
+                    Draw.line(a, b);
+                    a.set(b);
+                }
+            }
+        } else {
+            for (i = 0; i < rot; i++) {
+                a.setComponents(0, 0);
+                for (j = 0; j < rot; j++) {
+                    b.set(a);
+                    b.add(basicVectors[(j + i) % rot]);
+                    Draw.line(a, b);
+                    a.set(b);
+                }
+            }
+        }
+    }
+
+    let drawGrid = drawNothing;
+
+    drawGrid = drawRosette;
+
+    // line width should relate to output image size!!
+    const lineWidthToImageSize = 0.003;
+
+    var gridColor = "yellow";
+
+
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
+        const lineWidth = lineWidthToImageSize * Math.sqrt(Make.outputImage.pixelCanvas.width * Make.outputImage.pixelCanvas.width);
+
+        Draw.setLineWidth(1.5 * lineWidth);
+        Draw.setColor(gridColor);
+        drawGrid();
 
     };
 }
@@ -73,6 +137,8 @@ function drawGreenMagenta() {
     yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
     Make.map.drawStructureGreenMagenta(xAbsMax, yAbsMax);
 }
+
+
 
 window.onload = function() {
     "use strict";
