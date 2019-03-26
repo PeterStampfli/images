@@ -20,6 +20,50 @@ function creation() {
 
     Make.map.discRadius = -1;
 
+        let drawGrid = drawNothing;
+            var gridColor = "yellow";
+
+
+    let gridSelect = new Select("grid");
+
+    gridSelect.addOption("none",
+        function() {
+            drawGrid = drawNothing;
+                        Make.updateOutputImage();
+        });
+
+    gridSelect.addOption("rosette (white)",
+        function() {
+            drawGrid = drawRosette;
+            gridColor = "white";
+            Make.updateOutputImage();
+
+        });
+
+    gridSelect.addOption("rosette (yellow)",
+        function() {
+            drawGrid = drawRosette;
+            gridColor = "yellow";
+            Make.updateOutputImage();
+
+        });
+
+    gridSelect.addOption("rosette (red)",
+        function() {
+            drawGrid = drawRosette;
+            gridColor = "red";
+            Make.updateOutputImage();
+
+        });
+
+    gridSelect.addOption("rosette (black)",
+        function() {
+            drawGrid = drawRosette;
+            gridColor = "black";
+            Make.updateOutputImage();
+
+        });
+
 
 
 
@@ -28,6 +72,7 @@ function creation() {
     setRotButton.setValue(5);
     setRotButton.onChange = Make.updateNewMap;
 
+    
 
 
 
@@ -60,8 +105,10 @@ function creation() {
     };
 
     const basicVectors = [];
-    const lengths = [0, 0, 0, 3, 4, 5, 6, 7, 8, 9, 10,
-        11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+    const lengths = [0, 0, 0, 8.35, 4.5, 28,
+    7.5, -82, 9.8, 84, 20.5,
+        160, 26, 13, 14, 15,
+        16, 17, 18, 19, 20
     ];
     for (var i = 0; i < 20; i++) {
         basicVectors.push(new Vector2());
@@ -79,7 +126,7 @@ function creation() {
         const zPiDivRot = 2 * Math.PI / rot;
         var i, j;
         for (i = 0; i < rot; i++) {
-            const angle = zPiDivRot * (i + 0.5);
+            const angle = zPiDivRot * i ;
             basicVectors[i].setComponents(l * Fast.cos(angle), l * Fast.sin(angle));
         }
         if (rot & 1) {
@@ -111,14 +158,12 @@ function creation() {
         }
     }
 
-    let drawGrid = drawNothing;
 
     drawGrid = drawRosette;
 
     // line width should relate to output image size!!
     const lineWidthToImageSize = 0.003;
 
-    var gridColor = "yellow";
 
 
     Make.updateOutputImage = function() {
