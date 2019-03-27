@@ -93,6 +93,20 @@ var Draw = {};
     };
 
     /**
+     * draw a line between two points with components
+     * @method Draw.lineCoordinates
+     * @param {float} ax
+     * @param {float} ay
+     * @param {float} bx
+     * @param {float} by
+     */
+    Draw.lineCoordinates = function(ax, ay, bx, by) {
+        Draw.start(ax, ay);
+        context.lineTo(bx, by);
+        context.stroke();
+    };
+
+    /**
      * draw a line between two points a and b, without endcircles
      * but taking into account the spaace required for endcircles
      * @method Draw.lineWithoutEnds

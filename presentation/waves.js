@@ -20,8 +20,8 @@ function creation() {
 
     Make.map.discRadius = -1;
 
-        let drawGrid = drawNothing;
-            var gridColor = "yellow";
+    let drawGrid = drawNothing;
+    var gridColor = "yellow";
 
 
     let gridSelect = new Select("grid");
@@ -29,7 +29,7 @@ function creation() {
     gridSelect.addOption("none",
         function() {
             drawGrid = drawNothing;
-                        Make.updateOutputImage();
+            Make.updateOutputImage();
         });
 
     gridSelect.addOption("rosette (white)",
@@ -68,11 +68,11 @@ function creation() {
 
 
     let setRotButton = NumberButton.create("rot");
-    setRotButton.setRange(3, 20);
+    setRotButton.setRange(3, 12);
     setRotButton.setValue(5);
     setRotButton.onChange = Make.updateNewMap;
 
-    
+
 
 
 
@@ -105,9 +105,9 @@ function creation() {
     };
 
     const basicVectors = [];
-    const lengths = [0, 0, 0, 8.35, 4.5, 28,
-    7.5, -82, 9.8, 84, 20.5,
-        160, 26, 13, 14, 15,
+    const lengths = [0, 0, 0, 8.35, 3.25, 28,
+        4.3, -82, 18.4, 84, 17.3,
+        160, 13.6, 13, 14, 15,
         16, 17, 18, 19, 20
     ];
     for (var i = 0; i < 20; i++) {
@@ -126,7 +126,7 @@ function creation() {
         const zPiDivRot = 2 * Math.PI / rot;
         var i, j;
         for (i = 0; i < rot; i++) {
-            const angle = zPiDivRot * i ;
+            const angle = zPiDivRot * i;
             basicVectors[i].setComponents(l * Fast.cos(angle), l * Fast.sin(angle));
         }
         if (rot & 1) {
