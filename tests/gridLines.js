@@ -38,7 +38,10 @@ function creation() {
     testLines.addRegularHalfPolygon(12, new Vector2(-10, -8), new Vector2(10, -8));
     testLines.addPolyline(new Vector2(-10, -10), new Vector2(-10, 10), new Vector2(10, -10));
 
-    ambe.set(20, 3);
+    ambe.set(20, 2);
+    penroseRhombs.set(60, 5); // use odd number!!
+    stampfli.set(30, 2);
+
 
     // line width should relate to output image size!!
     const lineWidthToImageSize = 0.003;
@@ -51,7 +54,9 @@ function creation() {
 
         Draw.setLineWidth(1.5 * lineWidth);
         Draw.setColor(gridColor);
-        ambe.draw();
+        //  ambe.draw();
+        //  penroseRhombs.draw();
+        stampfli.draw();
 
     };
 }

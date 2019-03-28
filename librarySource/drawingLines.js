@@ -62,6 +62,7 @@ function DrawingLines() {
         const bxs = this.bxs;
         const bys = this.bys;
         const length = axs.length;
+        /*
         for (var i = 0; i < length; i++) {
             if (Math.abs(ax - axs[i]) < eps && Math.abs(ay - ays[i]) < eps && Math.abs(bx - bxs[i]) < eps && Math.abs(by - bys[i]) < eps) {
                 return;
@@ -70,6 +71,7 @@ function DrawingLines() {
                 return;
             }
         }
+        */
         axs.push(ax);
         ays.push(ay);
         bxs.push(bx);
