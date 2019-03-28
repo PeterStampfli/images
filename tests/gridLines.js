@@ -34,6 +34,12 @@ function creation() {
     testLines.add(new Vector2(8, 10.0001), new Vector2(0.001, 0));
     console.log(testLines.isEmpty());
 
+    testLines.addRegularPolygon(7, new Vector2(-4, -8), new Vector2(4, -8));
+    testLines.addRegularHalfPolygon(12, new Vector2(-10, -8), new Vector2(10, -8));
+    testLines.addPolyline(new Vector2(-10, -10), new Vector2(-10, 10), new Vector2(10, -10));
+
+    ambe.set(20, 3);
+
     // line width should relate to output image size!!
     const lineWidthToImageSize = 0.003;
 
@@ -45,7 +51,7 @@ function creation() {
 
         Draw.setLineWidth(1.5 * lineWidth);
         Draw.setColor(gridColor);
-        testLines.draw();
+        ambe.draw();
 
     };
 }
