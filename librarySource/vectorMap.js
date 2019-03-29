@@ -462,28 +462,41 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     /**
      * draw on a pixelcanvas use a map
-     * color showing structure, based on absolute values of x- and y-coordinates
+     * color showing structure, 
      * using green and magenta
      * @method VectorMap#drawStructureGreenMagenta
-     * @param {float} xAbsMax - maximum of absolute value of x-coordinate
-     * @param {float} yAbsMax - maximum of absolute value of y-coordinate
+     * @param {float} xMin
+     * @param {float} xMax
+     * @param {float} yMin
+     * @param {float} yMax
      */
-    VectorMap.prototype.drawStructureGreenMagenta = function(xAbsMax, yAbsMax) {
+    VectorMap.prototype.drawStructureGreenMagenta = function(xMin, xMax, yMin, yMax) {
         const magnification = 20;
-        const xFactor = 255.9 * magnification / xAbsMax;
-        const yFactor = 255.9 * magnification / yAbsMax;
+        const xFactor = 255.9 * magnification / (xMax - xMin);
+        const yFactor = 255.9 * magnification / (yMax - yMin);
+        const xMean = (xMin + xMax) * 0.5;
+        const yMean = (yMin + yMax) * 0.5;
         const pixelCanvas = this.outputImage.pixelCanvas;
         const pixel = pixelCanvas.pixel;
         // map data
         const xArray = this.xArray;
         const yArray = this.yArray;
+        let colorSectorArray = this.colorSectorArray;
+        const colorSymmetryScale = 2 / 255;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            const green = Math.max(0, Math.min(255, 127.5 + xFactor * xArray[index]));
-            const magenta = Math.max(0, Math.min(255, 127.5 + yFactor * yArray[index]));
+            const green = Math.max(0, Math.min(255, 127.5 + xFactor * (xArray[index] - xMean)));
+            const magenta = Math.max(0, Math.min(255, 127.5 + yFactor * (yArray[index] - yMean)));
             greenMagenta.green = green;
             greenMagenta.red = magenta;
             greenMagenta.blue = magenta;
+            // do the color components color symmetry
+            // depending on colorSectorArray[index]*colorSymmetryScale
+            const base = colorSectorArray[index];
+            const t = 1 - colorSymmetryScale * base;
+            greenMagenta.red = base + t * greenMagenta.red;
+            greenMagenta.green = base + t * greenMagenta.green;
+            greenMagenta.blue = base + t * greenMagenta.blue;
             pixelCanvas.setPixelAtIndex(greenMagenta, index);
         }
         pixelCanvas.showPixel();
@@ -1204,5 +1217,78 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
         controlCanvas.showPixel();
     };
+
+
+    // modify Make.drawImage=function() {...} in main
+    /**
+     * draw on a pixelcanvas use a map and high quality pixel sampling
+     * if map is expanding use smoothing, if contracting use linear interpolation
+     * "invalid" points have a negative lyapunov value
+     * uses color inversion, control parameter is colorSectorArray
+     * (8bit unsigned integer) 0 correponds to original color,
+     * 255 to inverted color,linear interpolation
+     * @method VectorMap#draw2Colors
+     */
+    VectorMap.prototype.draw2Colors = function() {
+        // the pixel scaling (lyapunov)
+        let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
+        var lyapunov;
+        // image objects
+        let pixelCanvas = this.outputImage.pixelCanvas;
+        let pixel = pixelCanvas.pixel;
+        let inputImage = this.inputImage;
+        let controlImage = this.controlImage;
+        let controlCanvas = controlImage.pixelCanvas;
+        let controlDivInputSize = controlImage.controlDivInputSize;
+        // input transform data
+        let shiftX = this.inputTransform.shiftX;
+        let shiftY = this.inputTransform.shiftY;
+        let cosAngleScale = this.inputTransform.cosAngleScale;
+        let sinAngleScale = this.inputTransform.sinAngleScale;
+        // map data
+        let xArray = this.xArray;
+        let yArray = this.yArray;
+        let lyapunovArray = this.lyapunovArray;
+        let colorSectorArray = this.colorSectorArray;
+        let alphaArray = this.alphaArray;
+        // color data
+        let offColor = new Color(0, 0, 0, 0);
+        inputImage.averageImageColor(offColor);
+        let intOffColor = PixelCanvas.integerOf(offColor);
+        const color = new Color();
+        var x, y, h, k;
+        const length = xArray.length;
+        const colorSymmetryScale = 2 / 255;
+        for (var index = 0; index < length; index++) {
+            lyapunov = lyapunovArray[index] * baseLyapunov;
+            if (lyapunov >= -0.001) {
+                x = xArray[index];
+                y = yArray[index];
+                h = shiftX + cosAngleScale * x - sinAngleScale * y;
+                k = shiftY + sinAngleScale * x + cosAngleScale * y;
+                // beware of byte order
+                if (inputImage.getHighQuality(color, h, k, lyapunov)) {
+                    controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                    color.alpha = alphaArray[index];
+                } else { // invalid points: use off color
+                    color.set(offColor);
+                }
+            } else {
+                color.set(offColor);
+            }
+            // do the color components color symmetry
+            // depending on colorSectorArray[index]*colorSymmetryScale
+            const base = colorSectorArray[index];
+            const t = 1 - colorSymmetryScale * base;
+            color.red = base + t * color.red;
+            color.green = base + t * color.green;
+            color.blue = base + t * color.blue;
+
+            pixelCanvas.setPixelAtIndex(color, index);
+        }
+        pixelCanvas.showPixel();
+        controlCanvas.showPixel();
+    };
+
 
 }());

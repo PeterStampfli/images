@@ -18,6 +18,16 @@ function creation() {
 
     Make.imageQuality = "high";
 
+    // modification for 2 colorSector 
+    Make.drawImage = function() {
+        if (Make.inputImage.width == 0) {
+            console.log("*** Make.updateOutputImage: input image not loaded !");
+            return;
+        }
+        Make.controlImage.semiTransparent();
+        Make.map.draw2Colors();
+    };
+
     Make.map.discRadius = -1;
 
     let drawGrid = drawNothing;
@@ -74,35 +84,58 @@ function creation() {
             Make.updateOutputImage();
         });
 
-
-
-
     let setRotButton = NumberButton.create("rot");
     setRotButton.setRange(3, 12);
     setRotButton.setValue(5);
     setRotButton.onChange = Make.updateNewMap;
 
+    let colorSymmetry = false;
 
+    let colorSelect = new Select("colors");
 
+    colorSelect.addOption("single color",
+        function() {
+            colorSymmetry = false;
+            Make.updateNewMap();
+        });
+
+    colorSelect.addOption("two color",
+        function() {
+            colorSymmetry = true;
+            Make.updateNewMap();
+        });
+
+    // defaults (no change by mapping function): 
+    //furtherResults.reflections = 0;
+    //  furtherResults.lyapunov = 1;   will be recalculated
+    //   furtherResults.colorSector = 0;
+    //    furtherResults.iterations = 0;
 
 
     function mapOdd(position, furtherResults) {
-        furtherResults.lyapunov = 1;
-        furtherResults.reflections = 0;
-        furtherResults.iterations = 0;
         sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
         position.x = sumWaves.cosines1(1);
         position.y = sumWaves.sines1(1);
+        furtherResults.colorSector = 255;
     }
 
     function mapEven(position, furtherResults) {
-        furtherResults.lyapunov = 1;
-        furtherResults.reflections = 0;
-        furtherResults.iterations = 0;
         sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
         position.x = sumWaves.cosines1(1);
         position.y = sumWaves.cosines2Even(1, 1);
     }
+
+    // 2-colorsymmetry furtherResults.colorSector
+    const colorSymmetryAmplification = 10;
+
+    function mapEven2Colors(position, furtherResults) {
+        sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
+        const x = sumWaves.alternatingCosines1(1);
+        position.x = Math.abs(x);
+        //position.x=x;
+        position.y = sumWaves.cosines2Even(1, 1);
+    }
+
 
     Make.initializeMap = function() {
         let rot = setRotButton.getValue();
@@ -110,7 +143,12 @@ function creation() {
         if (sumWaves.oddRotSymmetry) {
             Make.setMapping(mapOdd);
         } else {
-            Make.setMapping(mapEven);
+            if (colorSymmetry) {
+                console.log("colorsymmetry");
+                Make.setMapping(mapEven2Colors);
+            } else {
+                Make.setMapping(mapEven);
+            }
         }
     };
 
@@ -205,9 +243,11 @@ function creation() {
 }
 
 function drawGreenMagenta() {
+    Make.lowerLeft.log("lowlef");
+    Make.upperRight.log("upperRight");
     xAbsMax = Math.max(Math.abs(Make.lowerLeft.x), Math.abs(Make.upperRight.x));
     yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
-    Make.map.drawStructureGreenMagenta(xAbsMax, yAbsMax);
+    Make.map.drawStructureGreenMagenta(Make.lowerLeft.x, Make.upperRight.x, Make.lowerLeft.y, Make.upperRight.y);
 }
 
 
