@@ -37,7 +37,6 @@ function creation() {
             drawGrid = drawRosette;
             gridColor = "white";
             Make.updateOutputImage();
-
         });
 
     gridSelect.addOption("rosette (yellow)",
@@ -45,15 +44,6 @@ function creation() {
             drawGrid = drawRosette;
             gridColor = "yellow";
             Make.updateOutputImage();
-
-        });
-
-    gridSelect.addOption("rosette (red)",
-        function() {
-            drawGrid = drawRosette;
-            gridColor = "red";
-            Make.updateOutputImage();
-
         });
 
     gridSelect.addOption("rosette (black)",
@@ -61,7 +51,27 @@ function creation() {
             drawGrid = drawRosette;
             gridColor = "black";
             Make.updateOutputImage();
+        });
 
+    gridSelect.addOption("tiling (white)",
+        function() {
+            drawGrid = drawTiling;
+            gridColor = "white";
+            Make.updateOutputImage();
+        });
+
+    gridSelect.addOption("tiling (yellow)",
+        function() {
+            drawGrid = drawTiling;
+            gridColor = "yellow";
+            Make.updateOutputImage();
+        });
+
+    gridSelect.addOption("tiling (black)",
+        function() {
+            drawGrid = drawTiling;
+            gridColor = "black";
+            Make.updateOutputImage();
         });
 
 
@@ -106,7 +116,7 @@ function creation() {
 
     const basicVectors = [];
     const lengths = [0, 0, 0, 8.35, 3.25, 28,
-        4.3, -82, 18.4, 84, 17.3,
+        4.3, -82, 18.3, 84, 17.3,
         160, 13.6, 13, 14, 15,
         16, 17, 18, 19, 20
     ];
@@ -158,8 +168,27 @@ function creation() {
         }
     }
 
+    const tilings = [];
 
-    drawGrid = drawRosette;
+    // default for tiling: rosette
+    for (i = 0; i <= 12; i++) {
+        tilings.push(drawRosette);
+    }
+
+    ambe.set(257.6, 3);
+    penroseRhombs.set(-808.95, 7); // use odd number!!
+    stampfli.set(188.6, 2);
+
+    tilings[5] = penroseRhombs.draw;
+    tilings[8] = ambe.draw;
+    tilings[12] = stampfli.draw;
+
+    function drawTiling() {
+        console.log("tiling");
+        const rot = setRotButton.getValue();
+        tilings[rot]();
+    }
+
 
     // line width should relate to output image size!!
     const lineWidthToImageSize = 0.003;
@@ -169,11 +198,9 @@ function creation() {
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         const lineWidth = lineWidthToImageSize * Math.sqrt(Make.outputImage.pixelCanvas.width * Make.outputImage.pixelCanvas.width);
-
         Draw.setLineWidth(1.5 * lineWidth);
         Draw.setColor(gridColor);
         drawGrid();
-
     };
 }
 
