@@ -51,7 +51,6 @@ sumWaves = {};
         for (var i = 0; i < sumWaves.dimSpace; i++) {
             unitVectorsX[i] = Math.cos(factor * i);
             unitVectorsY[i] = Math.sin(factor * i);
-            console.log(i + " " + unitVectorsX[i] + " " + unitVectorsY[i]);
         }
     };
 
@@ -82,11 +81,9 @@ sumWaves = {};
         return sum;
     };
 
-
-
     /**
      * sum of alternating cosine wave package with single nonzero k-component
-     * for 2-color symmetry with even rotational symmetry
+     * for 2-color symmetry with rotational symmetry which is multiple of four
      * @method sumWaves.alternatingCosines1
      * @param {float} k - wavevector component
      * @return {float} sum (cos(kx))
@@ -109,6 +106,23 @@ sumWaves = {};
         let sum = 0;
         for (var i = 0; i < sumWaves.dimSpace; i++) {
             sum += Fast.sin(k * positionTimesUnitvectors[i]);
+        }
+        return sum;
+    };
+
+    /**
+     * sum of alternating sine wave package with single nonzero k-component
+     * for 2-color symmetry with even rotational symmetry, two times odd number
+     * @method sumWaves.alternatingSines1
+     * @param {float} k - wavevector component
+     * @return {float} sum (cos(kx))
+     */
+    sumWaves.alternatingSines1 = function(k) {
+        let sum = 0;
+        let factor = 1;
+        for (var i = 0; i < sumWaves.dimSpace; i++) {
+            sum += factor * Fast.sin(k * positionTimesUnitvectors[i]);
+            factor = -factor;
         }
         return sum;
     };

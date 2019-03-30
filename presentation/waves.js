@@ -116,7 +116,6 @@ function creation() {
         sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
         position.x = sumWaves.cosines1(1);
         position.y = sumWaves.sines1(1);
-        furtherResults.colorSector = 255;
     }
 
     function mapEven(position, furtherResults) {
@@ -126,14 +125,22 @@ function creation() {
     }
 
     // 2-colorsymmetry furtherResults.colorSector
-    const colorSymmetryAmplification = 10;
+    const colorSymmetryAmplification = 4;
 
-    function mapEven2Colors(position, furtherResults) {
+    function mapEvenOdd2Colors(position, furtherResults) {
+        sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
+        const x = sumWaves.alternatingSines1(1);
+        position.x = Math.abs(x);
+        position.y = sumWaves.cosines2Even(1, 1);
+        furtherResults.colorSector = Math.max(0, Math.min(255, Math.floor(127.5 * (1 + colorSymmetryAmplification * x))));
+    }
+
+    function mapEvenEven2Colors(position, furtherResults) {
         sumWaves.calculatePositionTimesUnitvectors(position.x, position.y);
         const x = sumWaves.alternatingCosines1(1);
         position.x = Math.abs(x);
-        //position.x=x;
         position.y = sumWaves.cosines2Even(1, 1);
+        furtherResults.colorSector = Math.max(0, Math.min(255, Math.floor(127.5 * (1 + colorSymmetryAmplification * x))));
     }
 
 
@@ -145,7 +152,11 @@ function creation() {
         } else {
             if (colorSymmetry) {
                 console.log("colorsymmetry");
-                Make.setMapping(mapEven2Colors);
+                if (rot & 2) {
+                    Make.setMapping(mapEvenOdd2Colors);
+                } else {
+                    Make.setMapping(mapEvenEven2Colors);
+                }
             } else {
                 Make.setMapping(mapEven);
             }
@@ -243,8 +254,6 @@ function creation() {
 }
 
 function drawGreenMagenta() {
-    Make.lowerLeft.log("lowlef");
-    Make.upperRight.log("upperRight");
     xAbsMax = Math.max(Math.abs(Make.lowerLeft.x), Math.abs(Make.upperRight.x));
     yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
     Make.map.drawStructureGreenMagenta(Make.lowerLeft.x, Make.upperRight.x, Make.lowerLeft.y, Make.upperRight.y);
