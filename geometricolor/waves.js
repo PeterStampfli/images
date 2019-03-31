@@ -179,7 +179,6 @@ function creation() {
     const b = new Vector2();
 
     function drawRosette() {
-        console.log("rosette");
         const rot = setRotButton.getValue();
         const l = lengths[rot];
         const zPiDivRot = 2 * Math.PI / rot;
@@ -239,15 +238,14 @@ function creation() {
     }
 
 
-    // line width should relate to output image size!!
-    const lineWidthToImageSize = 0.003;
+    // line width should relate to unit length
 
-
+    const lineWidthToUnit=1;
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        const lineWidth = lineWidthToImageSize * Math.sqrt(Make.outputImage.pixelCanvas.width * Make.outputImage.pixelCanvas.width);
-        Draw.setLineWidth(1.5 * lineWidth);
+        let lineWidth=lineWidthToUnit/Make.outputImage.scale;
+        Draw.setLineWidth(lineWidth);
         Draw.setColor(gridColor);
         drawGrid();
     };
@@ -258,8 +256,6 @@ function drawGreenMagenta() {
     yAbsMax = Math.max(Math.abs(Make.lowerLeft.y), Math.abs(Make.upperRight.y));
     Make.map.drawStructureGreenMagenta(Make.lowerLeft.x, Make.upperRight.x, Make.lowerLeft.y, Make.upperRight.y);
 }
-
-
 
 window.onload = function() {
     "use strict";

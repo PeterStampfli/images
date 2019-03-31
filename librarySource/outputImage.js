@@ -12,6 +12,7 @@ function OutputImage(idName) {
     this.idName = idName;
     this.divName = idName + "div";
     this.bigDiv = new BigDiv(this.divName);
+    this.bigDiv.stopWheelScroll();
     this.setDivPosition(0, 0);
     if (document.getElementById(idName) == null) {
         DOM.create("canvas", idName, "#" + this.divName);
