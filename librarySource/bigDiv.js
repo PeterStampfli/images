@@ -15,7 +15,7 @@ function BigDiv(idName) {
     DOM.style("#" + this.idName, "zIndex", "4", "position", "fixed");
     DOM.style("#" + this.idName, "overflow", "auto");
     this.setPosition(0, 0);
-    this.element=document.getElementById(idName);
+    this.element = document.getElementById(idName);
 }
 
 (function() {
@@ -64,13 +64,13 @@ function BigDiv(idName) {
      * stop wheel scroll shifts vertical
      * @method BigDiv#stopWheelScroll
      */
-    BigDiv.prototype.stopWheelScroll=function(){
+    BigDiv.prototype.stopWheelScroll = function() {
         console.log("stopwh");
-        this.element.onwheel=function(event){
+        this.element.onwheel = function(event) {
             console.log("stop wheelscroll");
-                    event.preventDefault();
+            event.preventDefault();
         };
         return false;
     };
-    
+
 }());

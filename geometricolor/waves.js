@@ -42,27 +42,6 @@ function creation() {
             Make.updateOutputImage();
         });
 
-    gridSelect.addOption("rosette (white)",
-        function() {
-            drawGrid = drawRosette;
-            gridColor = "white";
-            Make.updateOutputImage();
-        });
-
-    gridSelect.addOption("rosette (yellow)",
-        function() {
-            drawGrid = drawRosette;
-            gridColor = "yellow";
-            Make.updateOutputImage();
-        });
-
-    gridSelect.addOption("rosette (black)",
-        function() {
-            drawGrid = drawRosette;
-            gridColor = "black";
-            Make.updateOutputImage();
-        });
-
     gridSelect.addOption("tiling (white)",
         function() {
             drawGrid = drawTiling;
@@ -77,6 +56,13 @@ function creation() {
             Make.updateOutputImage();
         });
 
+    gridSelect.addOption("tiling (red)",
+        function() {
+            drawGrid = drawTiling;
+            gridColor = "red";
+            Make.updateOutputImage();
+        });
+
     gridSelect.addOption("tiling (black)",
         function() {
             drawGrid = drawTiling;
@@ -84,10 +70,37 @@ function creation() {
             Make.updateOutputImage();
         });
 
-    let setRotButton = NumberButton.create("rot");
-    setRotButton.setRange(3, 12);
-    setRotButton.setValue(5);
-    setRotButton.onChange = Make.updateNewMap;
+        var rot=5;
+
+    let rotSelect = new Select("rotSymmetry");
+        
+    rotSelect.addOption("5-fold",
+                        function(){
+                            rot=5;
+                Make.updateNewMap();
+                        });
+      
+    rotSelect.addOption("8-fold",
+                        function(){
+                            rot=8;
+                Make.updateNewMap();
+                        });
+                        
+     
+    rotSelect.addOption("10-fold",
+                        function(){
+                            rot=10;
+                Make.updateNewMap();
+                        });
+ 
+        
+    rotSelect.addOption("12-fold",
+                        function(){
+                            rot=12;
+                Make.updateNewMap();
+                        });
+ 
+    
 
     let colorSymmetry = false;
 
@@ -145,7 +158,6 @@ function creation() {
 
 
     Make.initializeMap = function() {
-        let rot = setRotButton.getValue();
         sumWaves.setRotationalSymmetry(rot);
         if (sumWaves.oddRotSymmetry) {
             Make.setMapping(mapOdd);
@@ -179,7 +191,6 @@ function creation() {
     const b = new Vector2();
 
     function drawRosette() {
-        const rot = setRotButton.getValue();
         const l = lengths[rot];
         const zPiDivRot = 2 * Math.PI / rot;
         var i, j;
@@ -233,7 +244,6 @@ function creation() {
 
     function drawTiling() {
         console.log("tiling");
-        const rot = setRotButton.getValue();
         tilings[rot]();
     }
 
