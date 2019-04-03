@@ -36,34 +36,34 @@ function creation() {
 
     let gridSelect = new Select("grid");
 
-    gridSelect.addOption("none",
+    gridSelect.addOption("no",
         function() {
             drawGrid = drawNothing;
             Make.updateOutputImage();
         });
 
-    gridSelect.addOption("tiling (white)",
+    gridSelect.addOption("white",
         function() {
             drawGrid = drawTiling;
             gridColor = "white";
             Make.updateOutputImage();
         });
 
-    gridSelect.addOption("tiling (yellow)",
+    gridSelect.addOption("yellow",
         function() {
             drawGrid = drawTiling;
             gridColor = "yellow";
             Make.updateOutputImage();
         });
 
-    gridSelect.addOption("tiling (red)",
+    gridSelect.addOption("red",
         function() {
             drawGrid = drawTiling;
             gridColor = "red";
             Make.updateOutputImage();
         });
 
-    gridSelect.addOption("tiling (black)",
+    gridSelect.addOption("black",
         function() {
             drawGrid = drawTiling;
             gridColor = "black";
