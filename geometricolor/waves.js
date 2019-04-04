@@ -14,6 +14,8 @@ function creation() {
     Button.createGoToLocation("help", "wavesHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
+    Button.createGoToLocation("details", 
+                              "https://geometricolor.wordpress.com/2019/04/04/waves-a-browser-app-for-creating-quasiperiodic-wallpapers/");
 
 
     Make.imageQuality = "high";
