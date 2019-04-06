@@ -53,12 +53,18 @@ function creation() {
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
     Make.initializeMap = function() {};
+    
+    
+    // line width should relate to unit length
+
+    const lineWidthToUnit=0.25;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
-
         Make.updateMapOutput();
-        Draw.setLineWidth(basicUI.lineWidth);
+        //Draw.setLineWidth(basicUI.lineWidth);
+         let lineWidth=lineWidthToUnit/Make.outputImage.scale;
+        Draw.setLineWidth(lineWidth);
         Draw.setColor("grey");
         //  equator.draw();
         Draw.setColor("#bbbbff");

@@ -530,14 +530,13 @@ function creation() {
     };
 
     // line width should relate to output image size!!
-    const lineWidthToImageSize = 0.005;
+    const lineWidthToUnit=0.3;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-            const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
-            Draw.setLineWidth(1.5 * lineWidth);
+        Draw.setLineWidth(lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();

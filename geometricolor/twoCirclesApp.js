@@ -99,11 +99,17 @@ function creation() {
         intersectionLine2.setLength(100);
         equator = new Circle(h, 0, 0);
     };
+    
+     // line width should relate to unit length
+
+    const lineWidthToUnit=0.3;
+
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
-        Draw.setLineWidth(basicUI.lineWidth);
+        Draw.setLineWidth(lineWidthToUnit);
+         Draw.setDashedLine(0);
         Draw.setColor("black");
         equator.draw();
         Draw.setColor("#bbbbff");

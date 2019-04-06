@@ -100,14 +100,16 @@ if (window.innerHeight > window.innerWidth) {
 
     Make.initializeMap();
     // drawing the image with decos (updatekmn...)
+    
+            const lineWidthToUnit=0.03;
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(0.5 * Layout.lineWidth);
+    Draw.setLineWidth(0.5*lineWidthToUnit);
         Draw.setColor(Layout.addMirrorColor);
         basicKaleidoscope.drawPolygon();
         // basicKaleidoscope.dihedral.drawAddMirrors();
-        Draw.setLineWidth(Layout.lineWidth);
+    Draw.setLineWidth(lineWidthToUnit);
         Draw.setColor(Layout.mirrorColor);
         basicKaleidoscope.drawTriangle();
     };
@@ -125,7 +127,7 @@ if (window.innerHeight > window.innerWidth) {
         Make.updateOutputImage();
         mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
         Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-        Draw.setLineWidth(0.7 * Layout.lineWidth);
+    Draw.setLineWidth(0.7*lineWidthToUnit);
         Draw.setColor(Layout.trajectoryColor);
         threeMirrorsKaleidoscope.drawTrajectory(mousePosition, nullRadius, Layout.pointColor);
         if (basicKaleidoscope.geometry == basicKaleidoscope.hyperbolic) {

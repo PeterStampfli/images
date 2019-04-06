@@ -483,22 +483,22 @@ function creation() {
         }
     };
 
-    // line width should relate to output image size!!
-    const lineWidthToImageSize = 0.005;
+    // line width should relate to unit length
+
+    const lineWidthToUnit=0.15;
 
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-            const lineWidth = lineWidthToImageSize * Make.outputImage.pixelCanvas.width;
-            Draw.setLineWidth(1.5 * lineWidth);
+        Draw.setLineWidth(1.5*lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
-            Draw.setLineWidth(lineWidth);
+        Draw.setLineWidth(lineWidthToUnit);
             circleScope.circle2.draw();
-            Draw.setLineWidth(0.7 * lineWidth);
+        Draw.setLineWidth(0.7*lineWidthToUnit);
             circleScope.circle3.draw();
         }
     };

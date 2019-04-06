@@ -88,14 +88,16 @@ if (window.innerHeight > window.innerWidth) {
         dihedral.setOrder(setKButton.getValue());
     };
     Make.initializeMap();
+    
+        const lineWidthToUnit=0.02;
+
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(0.5 * Layout.lineWidth);
+        Draw.setLineWidth(lineWidthToUnit);
         Draw.setColor(Layout.addMirrorColor);
         dihedral.drawAddMirrors();
         Draw.setColor(Layout.mirrorColor);
-        Draw.setLineWidth(Layout.lineWidth);
         dihedral.drawMirrors();
     };
 

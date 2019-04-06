@@ -256,8 +256,7 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        let lineWidth=lineWidthToUnit/Make.outputImage.scale;
-        Draw.setLineWidth(lineWidth);
+        Draw.setLineWidth(lineWidthToUnit);
         Draw.setColor(gridColor);
         drawGrid();
     };

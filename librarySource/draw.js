@@ -24,9 +24,9 @@ var Draw = {};
     };
 
     /**
-     * set the lineWidth
+     * set the lineWidth, scaling with the image
      * @method Draw.setLineWidth
-     * @param {float} theLineWidth - in pixel
+     * @param {float} theLineWidth - in drawing (image) units
      */
     Draw.setLineWidth = function(theLineWidth) {
         lineWidth = theLineWidth;
@@ -44,7 +44,7 @@ var Draw = {};
     /**
      * set the nullradius for drawing points/vector2 objects
      * @method Draw.setNullRadius
-     * @param {float} theNullRadius
+     * @param {float} theNullRadius - in image units
      */
     Draw.setNullRadius = function(theNullRadius) {
         nullRadius = theNullRadius;
@@ -54,18 +54,18 @@ var Draw = {};
      * set the line to solid
      * @method Draw.solidLine
      */
-    Draw.solidLine = function() {
+    Draw.setSolidLine = function() {
         context.setLineDash([]);
     };
 
     /** 
-     * set the line to dashed, independent of output image size
+     * set the line to dashed, in units of the lineWidth (set before!)
      * @method Draw.dashedLine
-     * @param {integer} dashLength
-     * @param {integer} gapLength
+     * @param {integer} dashLength  - in image units, set to 0 for dots (round line ends)
+     * @param {integer} gapLength - in image units, default: dashLength, increased by 1 to compensate for round ends, 0 gives touching ends
      */
-    Draw.dashedLine = function(dashLength, gapLength) {
-        context.setLineDash([dashLength * outputImage.scale, gapLength * outputImage.scale]);
+    Draw.setDashedLine = function(dashLength, gapLength = dashLength) {
+        context.setLineDash([dashLength * lineWidth, (gapLength + 1) * lineWidth]);
     };
 
     /*
@@ -75,7 +75,7 @@ var Draw = {};
         context.lineCap = 'round';
         context.strokeStyle = color;
         context.fillStyle = color;
-        context.lineWidth = lineWidth * outputImage.scale;
+        context.lineWidth = lineWidth;
         context.beginPath();
         context.moveTo(x, y);
     };
