@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <head>
-    <title>help (Quadrilateral Kaleidoscope)</title>
+    <title>help (Circle in Triangle Kaleidoscope)</title>
      <link rel="stylesheet" type="text/css" href="basicLayout.css">
 </head>
 
@@ -14,63 +14,54 @@
 <div class="vSpace"> </div>
 <div class="vSpace"> </div>
 <h1>
-Help for the kaleidoscope using quadrilaterals
+Help for the kaleidoscope with a circle in a triangle
 </h1>
 
 <div class="vSpace"> </div>
+
 
 <p>
 This app does its work only on <em>your computer</em> and your images stay on your computer. No data will be transferred.<br>
 </p>
 
+
 <div class="vSpace"> </div>
+
     
 <h1>Output image</h1>
 <p>
-At the left you see the output image. It first shows only its structure. The black lines show the generating lines and circles. They are borders of two quadrilaterals. Their repeated mirror images at the straight lines and inversions in the circles generate the tiling.
+At the left you see the output image. It first shows only its structure. The black lines show the generating lines and circles. They are borders of triangles. Their repeated mirror images at the straight lines and inversions in the circles generate a tiling.
 </p>
 
 <p>
-You see images of a quadrilateral that has a corner at the center:
+You see images of a several triangles in different colors:
 </p>
 <p>
     <table>
             <tr>
-            <td>light yellow</td> <td>-</td> <td>The quadrilateral</td>
-            </tr>
-            <td>yellow</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
+            <td>light color</td> <td>-</td> <td>The original triangle</td>
             </tr>
             <tr>
-            <td>dark yellow</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
+            <td>color</td><td>-</td> <td>Rotated and translated copies of the triangle</td>
             </tr>
             <tr>
-            
-    </table>
-</p>
-<p>
-Far away from the center you see images of a quadrilateral that has a corner at infinity:
-</p>
-<p>
-    <table>
-            <tr>
-            <td>light blue</td> <td>-</td> <td>The quadrilateral.</td>
-            </tr>
-            <tr>
-            <td>blue</td><td>-</td> <td>Rotated and translated copies of the quadrilateral</td>
-            </tr>            <tr>
-            <td>dark blue</td><td>-</td> <td>Rotated mirror images of the quadrilateral</td>
+            <td>dark color</td><td>-</td> <td>Rotated mirror images of the triangle</td>
             </tr>
             
     </table>
 </p>
 
+<p>
+Triangles of the same basic color make a Poincaré disc representation of a tiled hyperbolic space.
+
 </p>
 
 <p>
-    <strong>Use the control panel at the lower right side to open an input image!</strong><br>
+    <strong>Use the control panel at the right side to open an input image!</strong><br>
+    It decorates the tiling using various transformations of its colors.
 </p>
 <p>
-Drag with the left mouse button or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. Press the right or center mouse button to see in white the trajectory resulting from multiple circle inversions and dihedral symmetry.
+Drag with the mouse or touch to change the visible part of the output image. Turn the mouse wheel, use two finger touch or type "Z" or "z" to zoom in or out. You always see exactly the pixels of the generated output image. Dragging and zooming really modifies the image and does not merely change its view. This might take some time.
 </p>
 
 
@@ -84,30 +75,37 @@ In the lower part of the right hand side you find a control panel.
 Use it to open an input image or to switch between showing the structure of the kaleidoscope or a kaleidoscopic image.
 </p>
 <p>
-<strong> Choose what you see:</strong> <br>
+<strong> Choose what you will see:</strong> <br>
 </p>
 <p>
     <table>
             <tr>
-            <td>structure</td> <td>-</td> <td>The quadrilaterals of the tiling, as discussed above.</td>
+            <td>structure</td> <td>-</td> <td>The tiling.</td>
             </tr>
             <tr>
             <td>image</td><td>-</td> <td>Maps an input image like a skin on the tiling.</td>
             </tr>
             <tr>
-            <td>convergence</td><td>-</td> <td>Points needing a lot of inversions in the circles to go to the original quadrilaterals are shown in white color. You see the limit set of the inversions and reflections. </td>
+            <td>convergence</td><td>-</td> <td>Points needing a lot of inversions in the circles to go to the original triangles are shown in white color. You see the limit set of the inversions and reflections. </td>
             </tr>
             <tr>
             <td>combinations</td><td>-</td> <td>Some of the three basic views are shown simultaneously. </td>
-            </tr>
-    </table>
+            </tr>    </table>
 </p>
+
+<p>
+<strong> Choose the number of elements used for generating the image.</strong><br>
+<em>Three</em> elements make a Poincaré disc representation of a tiled hyperbolic space. It is surrounded by an inverted image.<br>
+<em>Four</em> elements create a Poincaré disc representation of hyperbolic space with a periodic covering by discs. The small discs are Poincaré disc representations of tiled hyperbolic spaces. This is surrounded by an inverted image of a simple Poincaré disc representating a tiled hyperbolic space.<br>
+<em>Five</em> elements give similar results as four elements, but now some of the small discs of are images of the <em>entire disc</em>. The large disc is surrounded by an inverted image of itself.
 
 <p>
 <strong> Choose if the lines and circles that generate the image are visible.</strong>
 </p>
+
 <p>
-<strong> Choose the rotational symmetries:</strong>
+<strong> Choose the rotational symmetries of the basic triangle:</strong><br>
+It has to be hyperbolic. Its sum of angles should be smaller than 180<sup>o</sup>.
 </p>
 <p>
     <table>
@@ -115,22 +113,28 @@ Use it to open an input image or to switch between showing the structure of the 
             <td>center</td> <td>-</td> <td>Rotational symmetry at the <em>center</em> of the image.</td>
             </tr>
             <tr>
-            <td>upper</td><td>-</td> <td>Symmetry at the intersection between the upper circle and straight line</td>
+            <td>upper</td><td>-</td> <td>Symmetry at the intersection between the upper straight line and the outer circle</td>
             </tr>
             <tr>
-            <td>middle</td><td>-</td> <td>Symmetry at the intersection between the two circles</td>
-            </tr>
-            <tr>
-            <td>lower</td><td>-</td> <td>Symmetry at the intersection between the lower circle and straight line</td>
+            <td>lower</td><td>-</td> <td>Symmetry at the intersection between the lower straight line and the outer circle</td>
             </tr>
     </table>
 </p>
-
 <p>
-    <strong>Change the size of the upper circle.</strong>
+<strong> Choose the rotational symmetries for the central circle:</strong>
 </p>
 <p>
-    <strong>Change the fractal character of the image.</strong> A value of zero gives a Poincaré disc representing a periodic tiling of hyperbolic space. A increasing value moves the lower circle towards the center and increases the fractal dimension of the border between yellow and blue quadrilaterals.
+    <table>
+            <tr>
+            <td>outer circle</td> <td>-</td> <td>Rotational symmetry at the intersection with the outer circle.</td>
+            </tr>
+            <tr>
+            <td>upper line</td><td>-</td> <td>Symmetry at the intersection with the upper straight line.</td>
+            </tr>
+            <tr>
+            <td>lower line</td><td>-</td> <td>Symmetry at the intersection with the lower straight line</td>
+            </tr>
+    </table>
 </p>
 
 <p>

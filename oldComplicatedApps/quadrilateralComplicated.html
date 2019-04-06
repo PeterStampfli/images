@@ -30,6 +30,12 @@
         </select>
     </p>
 
+    <p>    
+        <strong>Projection:</strong>
+        <select id="projection">
+        </select>
+    </p>
+
     <div id="generatorsDiv">
         <p>    
             <strong>Generating Elements:</strong>
@@ -37,10 +43,24 @@
             </select>
         </p>
     </div>
-        
+
+    <div id="noGeneratorsDiv">
+        <p>    
+            <strong>Generating Elements:</strong>
+            <select id="noGenerators">
+            </select>
+        </p>
+    </div>    
+     
     <p>
-        <strong>
-            Rotational symmetries between: </strong><br>
+        <strong>Number of elements:</strong>
+        <select id="view">
+        </select>
+    </p>
+   
+    <p>
+        <strong>Basic quadrilateral</strong> (heavy lines)<br>
+            Rotational symmetries at intersection between: <br>
         <table>
             <tr>
             <td>straight lines</td> <td><span id="k"></span>
@@ -74,7 +94,24 @@
     </p>
         
                
-   
+    <div id="centerCircle">
+    <p>
+        <strong>Center circle:</strong> (medium line)<br>
+        Rotational symmetries at intersection with
+        <table>
+            <tr>
+            <td>lower circle</td> <td><span id="k3"></span>
+            </tr>
+            <tr>
+            <td>upper line</td> <td><span id="m3"></span>
+            </tr>
+            <tr>
+            <td>lower line</td>
+            <td><span id="n3"></span>
+            </tr>
+        </table> 
+    </p>
+    </div>
     <p>
         <strong>Output image:</strong>
         <button id="saveOutputImage">save</button>

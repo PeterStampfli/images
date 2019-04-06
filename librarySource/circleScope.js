@@ -257,7 +257,6 @@ circleScope = {};
         let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
 
         Draw.setColor(circleScope.trajectoryColor);
-        Draw.setLineWidth(basicUI.lineWidth);
         Draw.circle(nullRadius, position);
         dihedral.drawMap(position);
         var i = circleScope.maxIterations;

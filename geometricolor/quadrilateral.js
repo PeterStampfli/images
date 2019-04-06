@@ -18,120 +18,17 @@ function creation() {
     Button.createGoToLocation("help", "quadrilateralHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
-
-    let viewSelect = new Select("view");
-    var numberOfCircles;
-
-    function four() {
-        numberOfCircles = 4;
-        DOM.style("#centerCircle", "display", "none");
+    
+    var numberOfCircles = 4;
         Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
         Make.map.hueInversionColorSymmetry();
         Make.map.inversionColorSymmetry();
-    }
-
-    four();
-
-    viewSelect.addOption("four", function() {
-        four();
-        Make.updateNewMap();
-    });
-    viewSelect.addOption("five", function() {
-        numberOfCircles = 5;
-        DOM.style("#centerCircle", "display", "initial");
-        Make.map.makeColorCollection(6, 1, 0.8, 140, 100);
-        Make.map.rgbRotationInversionColorSymmetry();
-        Make.map.structureColorCollection = [];
-        Make.map.addStructureColors(1, 140, 100);
-        Make.map.addStructureColors(2, 140, 100);
-        Make.map.addStructureColors(0, 140, 100);
-        Make.map.addStructureColors(3.5, 140, 100);
-        Make.updateNewMap();
-    });
-
-    Make.map.discRadius = -1;
+   
+        Make.map.discRadius = -1;
     circleScope.projection = circleScope.doNothing;
     let canShowGenerators = true;
 
 
-    let projection = new Select("projection");
-    projection.addOption("Poincaré disc surrounded", function() {
-        canShowGenerators = true;
-        circleScope.projection = circleScope.doNothing;
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-
-    projection.addOption("Poincaré disc only", function() {
-        canShowGenerators = true;
-        circleScope.projection = circleScope.doNothing;
-        Make.map.discRadius = worldradius;
-        Make.updateNewMap();
-    });
-
-    projection.addOption("Quincuncial tiled", function() {
-        canShowGenerators = false;
-        circleScope.projection = quincuncial;
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-    projection.addOption("Quincuncial single", function() {
-        canShowGenerators = false;
-        circleScope.projection = quincuncialSingle;
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-
-
-    projection.addOption("Poincaré plane both", function() {
-        canShowGenerators = false;
-        circleScope.projection = function(position) {
-            position.y = worldradius - position.y;
-            position.x /= worldradius;
-            position.y /= worldradius;
-            // cayley transform
-            let r2 = position.x * position.x + position.y * position.y;
-            let base = 1 / (r2 + 2 * position.y + 1.00001);
-            position.y = -2 * position.x * base * worldradius;
-            position.x = (r2 - 1) * base * worldradius;
-            return 1;
-        };
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-
-    projection.addOption("Poincaré plane single", function() {
-        canShowGenerators = false;
-        circleScope.projection = function(position) {
-            position.y = worldradius - position.y;
-            if (position.y < 0) {
-                return -1;
-            }
-            position.x /= worldradius;
-            position.y /= worldradius;
-            // cayley transform
-            let r2 = position.x * position.x + position.y * position.y;
-            let base = 1 / (r2 + 2 * position.y + 1.00001);
-            position.y = -2 * position.x * base * worldradius;
-            position.x = (r2 - 1) * base * worldradius;
-            return 1;
-        };
-        Make.map.discRadius = -1;
-        Make.updateNewMap();
-    });
-
-    projection.addOption("Klein disc", function() {
-        canShowGenerators = false;
-        circleScope.projection = function(position) {
-            let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
-            let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
-            position.x *= mapFactor;
-            position.y *= mapFactor;
-            return 1;
-        };
-        Make.map.discRadius = worldradius;
-        Make.updateNewMap();
-    });
 
     var v = new Vector2();
 
@@ -163,10 +60,11 @@ function creation() {
         });
     generators.setIndex(1);
 
+    /*
     let noGenerators = new Select("noGenerators");
     noGenerators.addOption(" - - - ", function() {});
 
-
+*/
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
     setKButton.setRange(3, 10000);
@@ -202,24 +100,7 @@ function creation() {
     circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
 
-    // the third circle
-
-    //choosing the symmetries, and set initial values
-    let setK3Button = NumberButton.createInfinity("k3");
-    setK3Button.setRange(2, 10000);
-    setK3Button.setValue(3);
-    setK3Button.onChange = Make.updateNewMap;
-
-    let setM3Button = NumberButton.createInfinity("m3");
-    setM3Button.setRange(2, 10000);
-    setM3Button.setValue(2);
-    setM3Button.onChange = Make.updateNewMap;
-
-    let setN3Button = NumberButton.createInfinity("n3");
-    setN3Button.setRange(2, 10000);
-    setN3Button.setValue(3);
-    setN3Button.onChange = Make.updateNewMap;
-
+  
     // initializing map parameters, choosing the map in the method     
     //==============================================================================================
 
@@ -230,6 +111,7 @@ function creation() {
 
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
+
 
     VectorMap.iterationGamma = 1.1;
     VectorMap.iterationSaturation = 6;
@@ -392,141 +274,9 @@ function creation() {
                         furtherResults.colorSector = 0;
                     }
                 }
-            };
+            };       
         }
-        if (numberOfCircles === 5) {
-            // the third circle
-            // generate
-            let k3Value = setK3Button.getValue();
-            let m3Value = setM3Button.getValue();
-            let n3Value = setN3Button.getValue();
-            const cosAlpha3 = Fast.cos(Math.PI / m3Value);
-            const sinAlpha3 = Fast.sin(Math.PI / m3Value);
-            const cosBeta3 = Fast.cos(Math.PI / n3Value);
-            const sinBeta3 = Fast.sin(Math.PI / n3Value);
-            const cosGamma3 = Fast.cos(Math.PI / k3Value);
-            const sinGamma3 = Fast.sin(Math.PI / k3Value);
-            // for the line containing the center of the second circle
-            const u = (cosBeta3 + cosAlpha3 * cosGamma) / sinGamma;
-            const v = cosAlpha3;
-            const a = u * u + v * v - 1;
-            const b = -2 * (x2 * u + y2 * v + r2 * cosGamma3);
-            const c = x2 * x2 + y2 * y2 - r2 * r2;
-            if (Fast.quadraticEquation(a, b, c, solutions)) {
-                const r3 = solutions.x;
-                const x3 = r3 * u;
-                const y3 = r3 * v;
-                circleScope.circle3 = new Circle(r3, x3, y3);
-                circleScope.circle3.map = circleScope.circle3.invertInsideOut;
-                // the finishing function to mark the different triangles
-                // separating regions, and remapping
-                const m2 = 1 / tanGamma;
-                const m32 = (y2 - y3) / (x2 - x3 + 0.00001);
-                const outsideReduction = 0.4;
-                if (x2 < x1) {
-                    console.log("x2 < x1");
-                    const m12 = (y1 - y2) / (x1 - x2 + 0.00001);
-                    circleScope.finishMap = function(position, furtherResults) {
-                        if (position.x > x1) {
-                            furtherResults.colorSector = 3;
-                            position.scale(outsideReduction * worldradius2 / position.length2());
-                        } else if (position.x > x2) {
-                            if (position.y > y2 + m12 * (position.x - x2)) {
-                                furtherResults.colorSector = 3;
-                                position.scale(outsideReduction * worldradius2 / position.length2());
-                            } else {
-                                furtherResults.colorSector = 0;
-                            }
-                        } else {
-                            if (position.y > y2 + m2 * (x2 - position.x)) {
-                                furtherResults.colorSector = 3;
-                                position.scale(outsideReduction * worldradius2 / position.length2());
-                            } else {
-                                furtherResults.colorSector = 0;
-                            }
-                        }
-                        // further subdivision only in sector 0
-                        // sector 1 at center  - no shift
-                        // sector 2 close to inclined line - shift by x3,y3
-                        // sector 0 close to horizontal line - shift by x3
-                        if (furtherResults.colorSector === 0) {
-                            if (position.x < x3) {
-                                if (position.y < y3 + (x3 - position.x) * m2) {
-                                    furtherResults.colorSector = 1;
-                                } else {
-                                    furtherResults.colorSector = 2;
-                                    position.x -= x3;
-                                    position.y -= y3 + y3;
-                                }
-                            } else if (position.x < x2) {
-                                if (position.y > y3 + m32 * (position.x - x3)) {
-                                    furtherResults.colorSector = 2;
-                                    position.x -= x3;
-                                    position.y -= y3 + y3;
-                                } else { // sector 0
-                                    position.x -= x3;
-                                }
-                            } else { // sector 0
-                                position.x -= x3;
-                            }
-                        }
-                    };
-                } else {
-                    const m12 = (y2 - y1) / (x2 - x1 + 0.00001);
-                    circleScope.finishMap = function(position, furtherResults) {
-                        if (position.x > x2) {
-                            furtherResults.colorSector = 3;
-                            position.scale(outsideReduction * worldradius2 / position.length2());
-                        } else {
-                            if (position.y > y2 + m2 * (x2 - position.x)) {
-                                furtherResults.colorSector = 3;
-                                position.scale(outsideReduction * worldradius2 / position.length2());
-                            } else if (position.x > x1) {
-                                if (position.y > y1 + m12 * (position.x - x1)) {
-                                    furtherResults.colorSector = 0;
-                                } else {
-                                    furtherResults.colorSector = 3;
-                                    position.scale(outsideReduction * worldradius2 / position.length2());
-                                }
-                            } else {
-                                furtherResults.colorSector = 0;
-                            }
-                        }
-                        // further subdivision only in sector 0
-                        if (furtherResults.colorSector === 0) {
-                            if (position.x < x3) {
-                                if (position.y < y3 + (x3 - position.x) * m2) {
-                                    furtherResults.colorSector = 1;
-                                } else {
-                                    furtherResults.colorSector = 2;
-                                    position.x -= x3;
-                                    position.y -= y3 + y3;
-                                }
-                            } else if (position.x < x2) {
-                                if (position.y > y3 + m32 * (position.x - x3)) {
-                                    furtherResults.colorSector = 2;
-                                    position.x -= x3;
-                                    position.y -= y3 + y3;
-                                } else { // sector 0
-                                    position.x -= x3;
-                                }
-                            } else { // sector 0
-                                position.x -= x3;
-                            }
-                        }
-                    };
-                }
-            }
-        }
-        if (canShowGenerators) {
-            DOM.style("#generatorsDiv", "display", "initial");
-            DOM.style("#noGeneratorsDiv", "display", "none");
-            circleScope.setupMouseForTrajectory();
-        } else {
-            DOM.style("#generatorsDiv", "display", "none");
-            DOM.style("#noGeneratorsDiv", "display", "initial");
-            circleScope.setupMouseNoTrajectory();
-        }
+       
     };
 
     // line width should relate to output image size!!
@@ -535,17 +285,14 @@ function creation() {
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
-        if ((generators.getIndex() > 0) && canShowGenerators) {
+        if (generators.getIndex() > 0) {
         Draw.setLineWidth(lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
-            if (numberOfCircles == 5) {
-                Draw.setLineWidth(lineWidth);
-                circleScope.circle3.draw();
-            }
         }
+                Draw.setLineWidth(0.75*lineWidthToUnit);     // for trajectory
     };
 
     circleScope.setMapping();

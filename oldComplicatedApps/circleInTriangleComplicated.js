@@ -21,7 +21,7 @@ var cosAlpha3, sinAlpha3, cosBeta3, sinBeta3, cosGamma3, sinGamma3;
 //going from center of circle 1 to circle 2 
 // going from center of circle2 to the line
 var m12, m22, m23;
-var secondCircleExists, lineIntersection;
+var secondCircleExists, lineIntersection, circleSize;
 
 function creation() {
     "use strict";
@@ -43,22 +43,35 @@ function creation() {
     function four() {
         numberOfCircles = 4;
         DOM.style("#centerCircle", "display", "initial");
+        DOM.style("#innerCircle,#centerCircleSmall", "display", "none");
     }
 
     // startup configuration
     four();
 
+
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "none");
+        DOM.style("#centerCircle,#innerCircle,#centerCircleSmall", "display", "none");
     });
-    
-    viewSelect.addOption("four", function() {
+    viewSelect.addOption("four I", function() {
         four();
         Make.updateNewMap();
     });
-   
+    viewSelect.addOption("four II", function() {
+        numberOfCircles = -4;
+        Make.updateNewMap();
+        DOM.style("#centerCircleSmall", "display", "initial");
+        DOM.style("#centerCircle,#innerCircle", "display", "none");
+    });
+    viewSelect.addOption("five", function() {
+        numberOfCircles = 5;
+        Make.updateNewMap();
+        DOM.style("#centerCircle,#innerCircle", "display", "initial");
+        DOM.style("#centerCircleSmall", "display", "none");
+    });
+
     viewSelect.setIndex(1);
 
     let projectionHyperbolic = new Select("projectionHyperbolic");
@@ -66,13 +79,45 @@ function creation() {
     var hyperbolicRadius = -1;
     var hyperbolicCanShowGenerators = true;
 
-    projectionHyperbolic.addOption("Poincaré disc", function() {
+
+    projectionHyperbolic.addOption("Poincaré disc surrounded", function() {
         hyperbolicCanShowGenerators = true;
         hyperbolicProjection = circleScope.doNothing;
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
-    
+    projectionHyperbolic.addOption("Poincaré disc only", function() {
+        hyperbolicCanShowGenerators = true;
+        hyperbolicProjection = circleScope.doNothing;
+        hyperbolicRadius = worldradius;
+        Make.updateNewMap();
+    });
+    projectionHyperbolic.addOption("Quincuncial tiled", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = quincuncial;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+    projectionHyperbolic.addOption("Quincuncial single", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = quincuncialSingle;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionHyperbolic.addOption("Poincaré plane both", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = poincarePlaneBoth;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionHyperbolic.addOption("Poincaré plane single", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = poincarePlaneSingle;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
 
     projectionHyperbolic.addOption("Klein disc", function() {
         hyperbolicCanShowGenerators = false;
@@ -116,10 +161,38 @@ function creation() {
         Make.updateNewMap();
     });
 
-    projectionElliptic.addOption("Orthographic", function() {
+    projectionElliptic.addOption("Normal", function() {
         ellipticCanShowGenerators = false;
         ellipticProjection = kleinDisc;
         ellipticRadius = worldradius;
+        Make.updateNewMap();
+    });
+
+    projectionElliptic.addOption("Quincuncial tiled", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = quincuncial;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+    projectionElliptic.addOption("Quincuncial single", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = quincuncialSingle;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+
+
+    projectionElliptic.addOption("Mercator", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = mercator;
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+
+
+    projectionElliptic.addOption("Gonomic", function() {
+        ellipticProjection = gonomic;
+        ellipticRadius = -1;
         Make.updateNewMap();
     });
 
@@ -203,7 +276,46 @@ function creation() {
         Make.updateNewMap();
     };
 
-  
+    // second circle, two intersections
+    let circleSizeRange = Range.create("circleSizeChoice");
+    circleSizeRange.setStep(0.001);
+    circleSizeRange.setRange(0.0, 1);
+    circleSizeRange.setValue(0.7);
+    circleSizeRange.onChange = Make.updateNewMap;
+
+
+    let setM2sButton = NumberButton.createInfinity("m2s");
+    setM2sButton.setRange(2, 10000);
+    setM2sButton.setValue(setM2Button.getValue());
+    setM2sButton.onChange = function() {
+        setM2Button.setValue(setM2sButton.getValue());
+        Make.updateNewMap();
+    };
+
+    let setN2sButton = NumberButton.createInfinity("n2s");
+    setN2sButton.setRange(2, 10000);
+    setN2sButton.setValue(setN2Button.getValue());
+    setN2sButton.onChange = function() {
+        setN2Button.setValue(setN2sButton.getValue());
+        Make.updateNewMap();
+    };
+
+    //choosing the symmetries, and set initial values
+    // third circle
+    let setK3Button = NumberButton.createInfinity("k3");
+    setK3Button.setRange(2, 10000);
+    setK3Button.setValue(3);
+    setK3Button.onChange = Make.updateNewMap;
+
+    let setM3Button = NumberButton.createInfinity("m3");
+    setM3Button.setRange(2, 10000);
+    setM3Button.setValue(3);
+    setM3Button.onChange = Make.updateNewMap;
+
+    let setN3Button = NumberButton.createInfinity("n3");
+    setN3Button.setRange(2, 10000);
+    setN3Button.setValue(3);
+    setN3Button.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -269,6 +381,16 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
+        circleSize = circleSizeRange.getValue();
+        let k3 = setK3Button.getValue();
+        let m3 = setM3Button.getValue();
+        let n3 = setN3Button.getValue();
+        cosAlpha3 = Fast.cos(Math.PI / m3);
+        sinAlpha3 = Fast.sin(Math.PI / m3);
+        cosBeta3 = Fast.cos(Math.PI / n3);
+        sinBeta3 = Fast.sin(Math.PI / n3);
+        cosGamma3 = Fast.cos(Math.PI / k3);
+        sinGamma3 = Fast.sin(Math.PI / k3);
         // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
@@ -288,7 +410,17 @@ function creation() {
                     firstCircleHyperbolic();
                     secondCircleHyperbolicAllIntersections();
                     break;
-             }
+                case -4:
+                    firstCircleHyperbolic();
+                    secondCircleHyperbolicFourSmall();
+                    break;
+                case 5:
+                    firstCircleHyperbolic();
+                    secondCircleHyperbolicAllIntersections();
+                    thirdCircleHyperbolic();
+                    quincuncinalRadius = Math.sqrt(circleScope.circle2.center.length2() - circleScope.circle2.radius * circleScope.circle2.radius);
+                    break;
+            }
         } else if (sumAngles < 1.01) {
             DOM.style("#projectionEuklidicDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
@@ -304,7 +436,16 @@ function creation() {
                     firstLineEuklidic();
                     secondCircleEuklidicAllIntersections();
                     break;
-             }
+                case -4:
+                    firstLineEuklidic();
+                    secondCircleEuklidicFourSmall();
+                    break;
+                case 5:
+                    firstLineEuklidic();
+                    secondCircleEuklidicAllIntersections();
+                    thirdCircleHyperbolic();
+                    break;
+            }
         } else {
             console.log(" elliptic");
             DOM.style("#projectionEllipticDiv", "display", "initial");
@@ -319,6 +460,15 @@ function creation() {
                 case 4:
                     firstCircleElliptic();
                     secondCircleEllipticAllIntersections();
+                    break;
+                case -4:
+                    firstCircleElliptic();
+                    secondCircleEllipticFourSmall();
+                    break;
+                case 5:
+                    firstCircleElliptic();
+                    secondCircleEllipticAllIntersections();
+                    thirdCircleHyperbolic();
                     break;
             }
         }
@@ -348,6 +498,8 @@ function creation() {
             circleScope.circle1.draw();
         Draw.setLineWidth(lineWidthToUnit);
             circleScope.circle2.draw();
+        Draw.setLineWidth(0.7*lineWidthToUnit);
+            circleScope.circle3.draw();
         }
     };
     circleScope.setMapping();

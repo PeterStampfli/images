@@ -65,7 +65,6 @@ function BigDiv(idName) {
      * @method BigDiv#stopWheelScroll
      */
     BigDiv.prototype.stopWheelScroll = function() {
-        console.log("stopwh");
         this.element.onwheel = function(event) {
             console.log("stop wheelscroll");
             event.preventDefault();
