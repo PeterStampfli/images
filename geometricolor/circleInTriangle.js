@@ -178,6 +178,9 @@ function creation() {
 
     // show the sum of angles
     let sum = document.getElementById("sum");
+    let sum1 = document.getElementById("sum1");
+    let sum2 = document.getElementById("sum2");
+    let sum3 = document.getElementById("sum3");
 
 
     //choosing the symmetries, and set initial values
@@ -191,7 +194,6 @@ function creation() {
     setM2Button.setRange(2, 10000);
     setM2Button.setValue(4);
     setM2Button.onChange = function() {
-        setM2sButton.setValue(setM2Button.getValue());
         Make.updateNewMap();
     };
 
@@ -199,7 +201,6 @@ function creation() {
     setN2Button.setRange(2, 10000);
     setN2Button.setValue(3);
     setN2Button.onChange = function() {
-        setN2sButton.setValue(setN2Button.getValue());
         Make.updateNewMap();
     };
 
@@ -245,6 +246,21 @@ function creation() {
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
+    
+    function triangleGeometry(k,m,n){
+         let sumAngles = 1 / k + 1 / m + 1 / n;
+        let result ="sum of angles = " +Math.round(180 * sumAngles) + "<sup>o</sup>, ";
+        if (sumAngles<0.99){
+            result+="hyperbolic";
+        }
+        else if (sumAngles<1.01){
+            result+="euklidic";
+        }
+        else {
+            result+="elliptic";
+        }
+        return result+" geometry";
+    }
 
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
@@ -259,7 +275,7 @@ function creation() {
         sinGamma1 = Fast.sin(Math.PI / k1);
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
-        sum.innerHTML = "" + Math.round(180 * sumAngles) + "<sup>o</sup>";
+        sum.innerHTML = triangleGeometry(k1,m1,n1);
         let k2 = setK2Button.getValue();
         let m2 = setM2Button.getValue();
         let n2 = setN2Button.getValue();
@@ -269,6 +285,9 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
+        sum1.innerHTML="&nbsp "+triangleGeometry(k1,n2,m2);
+        sum2.innerHTML="&nbsp "+triangleGeometry(k2,m1,m2);
+        sum3.innerHTML="&nbsp "+triangleGeometry(k2,n1,n2);
         // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
@@ -306,7 +325,6 @@ function creation() {
                     break;
              }
         } else {
-            console.log(" elliptic");
             DOM.style("#projectionEllipticDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
             circleScope.projection = ellipticProjection;
