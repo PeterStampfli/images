@@ -300,6 +300,7 @@ function creation() {
 
 window.onload = function() {
     "use strict";
+        basicUI.squareImage=true;
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();

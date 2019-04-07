@@ -14,9 +14,6 @@ var cosAlpha1, sinAlpha1, cosBeta1, sinBeta1, cosGamma1, sinGamma1;
 // the second circle
 var r2, x2, y2;
 var cosAlpha2, sinAlpha2, cosBeta2, sinBeta2, cosGamma2, sinGamma2;
-// the third circle
-var r3, x3, y3;
-var cosAlpha3, sinAlpha3, cosBeta3, sinBeta3, cosGamma3, sinGamma3;
 // the three sectors
 //going from center of circle 1 to circle 2 
 // going from center of circle2 to the line
@@ -181,6 +178,9 @@ function creation() {
     let sum1 = document.getElementById("sum1");
     let sum2 = document.getElementById("sum2");
     let sum3 = document.getElementById("sum3");
+    let numbers1 = document.getElementById("numbers1");
+    let numbers2 = document.getElementById("numbers2");
+    let numbers3 = document.getElementById("numbers3");
 
 
     //choosing the symmetries, and set initial values
@@ -232,9 +232,9 @@ function creation() {
     Make.map.addStructureColors(1, 140, 100);
     Make.map.addStructureColors(2, 140, 100);
     Make.map.addStructureColors(0, 140, 100);
-    Make.map.addStructureColors(3, 140, 100);
-    Make.map.addStructureColors(4, 140, 100);
-    Make.map.addStructureColors(5, 140, 100);
+    Make.map.addStructureColors(3.5, 140, 100);
+   // Make.map.addStructureColors(4, 140, 100);
+   // Make.map.addStructureColors(5, 140, 100);
 
 
 
@@ -285,6 +285,9 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
+        numbers1.innerHTML="("+k1+", "+m2+", "+n2+"),";
+        numbers2.innerHTML="("+k2+", "+m2+", "+m1+"),";
+        numbers3.innerHTML="("+k2+", "+n1+", "+n2+"),";
         sum1.innerHTML="&nbsp "+triangleGeometry(k1,n2,m2);
         sum2.innerHTML="&nbsp "+triangleGeometry(k2,m1,m2);
         sum3.innerHTML="&nbsp "+triangleGeometry(k2,n1,n2);
@@ -373,6 +376,7 @@ function creation() {
 
 window.onload = function() {
     "use strict";
+        basicUI.squareImage=true;
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();

@@ -269,8 +269,11 @@ basicUI = {};
         basicUI.nullRadius = nullRadiusToSize * fontSize;
     };
 
+    basicUI.squareImage = false;
+
     /**
-     * make the layout for landscape orientation
+     * make the layout for landscape orientation, depending on basicUI.squareImage
+     * maximize control panel for square images
      * @method basiUI.landscapeFormat
      */
 
@@ -295,8 +298,13 @@ basicUI = {};
         // adjusting the maximum width for the output image
         var outputImageDivWidth = window.innerHeight;
         if (window.innerWidth > outputImageDivWidth + controlWidth) {
-            // if the width is larger increase the width of the output image div
-            outputImageDivWidth = window.innerWidth - controlWidth;
+            if (basicUI.squareImage) {
+                // square image:if the width is larger increase the width of the control panel
+                controlWidth = window.innerWidth - window.innerHeight;
+            } else {
+                // rectangular image:if the width is larger increase the width of the output image div
+                outputImageDivWidth = window.innerWidth - controlWidth;
+            }
         } else {
             // the screen is not very wide: rescale the widths
             let rescale = window.innerWidth / (outputImageDivWidth + controlWidth);
@@ -341,18 +349,23 @@ basicUI = {};
         // what happens if the sum of these heights is not equal to the window height?
 
         // the size of the controls at the bottom for sufficiently high screens
-        let controlImageHeight = controlTargetHeightFraction * window.innerWidth;
+        let controlHeight = controlTargetHeightFraction * window.innerWidth;
 
         // adjusting the maximum height for the output image
         let outputImageDivHeight = window.innerWidth;
-        if (window.innerHeight > outputImageDivHeight + controlImageHeight) {
-            // if the height is larger increase the height of the output image div
-            outputImageDivHeight = window.innerHeight - controlImageHeight;
+        if (window.innerHeight > outputImageDivHeight + controlHeight) {
+            if (basicUI.squareImage) {
+                //square image: if the height is larger increase the height of the control panel
+                controlHeight = window.innerHeight - window.innerWidth;
+            } else {
+                //rect image: if the height is larger increase the height of the output image div
+                outputImageDivHeight = window.innerHeight - controlImageHeight;
+            }
         } else {
             // the screen is not very high: rescale the heights
-            let rescale = window.innerHeight / (outputImageDivHeight + controlImageHeight);
+            let rescale = window.innerHeight / (outputImageDivHeight + controlHeight);
             outputImageDivHeight *= rescale;
-            controlImageHeight *= rescale;
+            controlHeight *= rescale;
         }
 
         // always use the full width for the output image
@@ -362,7 +375,7 @@ basicUI = {};
         // make up the control image dimensions
         let controlImageWidth = controlImageWidthFraction * window.innerWidth;
         // layout: control image at top close to space for output image
-        Make.controlImage.setDimensions(controlImageWidth, controlImageHeight);
+        Make.controlImage.setDimensions(controlImageWidth, controlHeight);
         Make.controlImage.setPosition(0, outputImageDivHeight);
         Make.controlImage.centerHorizontal = false; // put controlimage to left  (should always be visible)
         Make.controlImage.centerVertical = true;
@@ -370,7 +383,7 @@ basicUI = {};
         // the text UI control div
         let textMaxWidth = textMaxWidthFraction * window.innerWidth;
         DOM.style("#text", "maxWidth", textMaxWidth + px, "width", "initial");
-        DOM.style("#text", "maxHeight", "initial", "height", controlImageHeight + px);
+        DOM.style("#text", "maxHeight", "initial", "height", controlHeight + px);
     };
 
     /**
