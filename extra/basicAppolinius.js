@@ -15,8 +15,6 @@ function creation() {
     Make.imageQuality = "high";
     Make.map.discRadius = -1;
 
-
-
     Make.map.structureColorCollection = [];
     Make.map.addStructureColors(1, 100, 50);
     Make.map.addStructureColors(2, 100, 50);
@@ -127,60 +125,46 @@ function creation() {
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
 
+    const rt2 = Math.sqrt(2);
     const rt3 = Math.sqrt(3);
     var worldradius, worldradius2;
     worldradius = 9.7;
     worldradius2 = worldradius * worldradius;
 
 
+    // building blocks
+    function twoColorFinishMap(position, furtherResults) {
+        let l2 = position.length2();
+        if (l2 > worldradius2) {
+            position.scale(worldradius2 / l2);
+            furtherResults.colorSector = 3;
+        } else {
+            furtherResults.colorSector = 0;
+        }
+    }
 
-    Make.initializeMap = function() {
 
-        multiCircles.reset();
 
+    // basic triangle for simple poincare disc tiling with ideal triangle
+    // includes fitting inversion circle
+    function triangle() {
+        const d = 2 * worldradius;
+        const r = d / 2 * rt3;
+        multiCircles.addCircleInsideOut(r, 0, d);
+        multiCircles.addCircleInsideOut(r, r, -0.5 * d);
+        multiCircles.addCircleInsideOut(r, -r, -0.5 * d);
+        multiCircles.inversionCircle = new Circle(d / 2, 0, -d * 0.5);
+        multiCircles.finishMap = twoColorFinishMap;
+    }
+
+    // classical appolonius
+    function triangleAppolonius() {
+        triangle();
         const d = 2 * worldradius;
         const r = d / 2 * rt3;
         const rCenter = d - r;
         const rCenter05 = rCenter * 0.5;
-        const rho = rCenter / (1 + 2 / rt3);
-        const dRho = rho * 2 / rt3;
-        /* triangles
-                const c1 = multiCircles.addCircleInsideOut(r,0,d);
-                const c2 = multiCircles.addCircleInsideOut(r,r,-0.5*d);
-                const c3 = multiCircles.addCircleInsideOut(r,-r,-0.5*d);
-                
-                same as the basic stuff
-                        const c4 = multiCircles.addCircleInsideOut(rho,0,dRho);
-                        const c5 = multiCircles.addCircleInsideOut(rho,rho,-0.5*dRho);
-                        const c6 = multiCircles.addCircleInsideOut(rho,-rho,-0.5*dRho);
-        the basic stuff
-                
-           //     const c4 = multiCircles.addCircleInsideOut(rCenter,0,0);
-           more
-           //     const c5 = multiCircles.addCircleOutsideIn(r+d,0,0);
-          //      const c5 = multiCircles.addCircleOutsideIn(worldradius,0,0);
-           */
-
-        // squares
-        const c1 = multiCircles.addCircleInsideOut(worldradius, worldradius, worldradius);
-        const c2 = multiCircles.addCircleInsideOut(worldradius, worldradius, -worldradius);
-        const c3 = multiCircles.addCircleInsideOut(worldradius, -worldradius, worldradius);
-        const c4 = multiCircles.addCircleInsideOut(worldradius, -worldradius, -worldradius);
-
-        const rt2 = Math.sqrt(2);
-
-        /*
-        const rs=(rt2-1)/(1+rt2)*worldradius;
-        const s=rs;
-        const c5=multiCircles.addCircleInsideOut(rs,s,s);
-        const c6=multiCircles.addCircleInsideOut(rs,s,-s);
-        const c7=multiCircles.addCircleInsideOut(rs,-s,s);
-        const c8=multiCircles.addCircleInsideOut(rs,-s,-s);
-        */
-        const rrr = (rt2 - 1) * worldradius
-        const c5 = multiCircles.addCircleInsideOut(rrr, 0, 0);
-
-        multiCircles.inversionCircle = new Circle(d / 2, 0, -d * 0.5);
+        multiCircles.addCircleInsideOut(rCenter, 0, 0);
         multiCircles.finishMap = function(position, furtherResults) {
             let l2 = position.length2();
             if (l2 > worldradius2) {
@@ -195,10 +179,22 @@ function creation() {
                     furtherResults.colorSector = 2;
                 }
             }
+        };
+    }
 
-        }
+    function four() {
+        multiCircles.addCircleInsideOut(worldradius, worldradius, worldradius);
+        multiCircles.addCircleInsideOut(worldradius, worldradius, -worldradius);
+        multiCircles.addCircleInsideOut(worldradius, -worldradius, worldradius);
+        multiCircles.addCircleInsideOut(worldradius, -worldradius, -worldradius);
+        multiCircles.finishMap = twoColorFinishMap;
+        multiCircles.inversionCircle = new Circle(worldradius, 0, -worldradius);
+    }
 
-
+    function fourAppolonius() {
+        four();
+        const rrr = (rt2 - 1) * worldradius;
+        const c5 = multiCircles.addCircleInsideOut(rrr, 0, 0);
         multiCircles.finishMap = function(position, furtherResults) {
             let l2 = position.length2();
             if (l2 > worldradius2) {
@@ -219,9 +215,16 @@ function creation() {
                     }
                 }
             }
-        }
+        };
+    }
 
+    Make.initializeMap = function() {
 
+        multiCircles.reset();
+        fourAppolonius();
+
+        const d = 2 * worldradius;
+        const r = d / 2 * rt3;
 
 
         if (canShowGenerators) {
@@ -241,17 +244,11 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        console.log("drawing");
         Draw.setLineWidth(lineWidthToUnit);
-
         if ((generators.getIndex() > 0) && canShowGenerators) {
             Draw.setColor(generatorColor);
 
             multiCircles.draw();
-        }
-        if (invertedView) {
-
-
         }
     };
     multiCircles.setMapping();
