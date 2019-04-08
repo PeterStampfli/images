@@ -88,8 +88,8 @@ if (window.innerHeight > window.innerWidth) {
         dihedral.setOrder(setKButton.getValue());
     };
     Make.initializeMap();
-    
-        const lineWidthToUnit=0.02;
+
+    const lineWidthToUnit = 0.02;
 
 
     Make.updateOutputImage = function() {

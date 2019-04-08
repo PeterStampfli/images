@@ -65,13 +65,13 @@ if (window.innerHeight > window.innerWidth) {
     };
 
     Make.setMapping(inversionMap);
-            const lineWidthToUnit=0.02;
+    const lineWidthToUnit = 0.02;
 
 
     Make.updateOutputImage = function() {
         let nullRadius = Make.outputImage.scale * Layout.nullRadius;
         Make.updateMapOutput();
-    Draw.setLineWidth(lineWidthToUnit);
+        Draw.setLineWidth(lineWidthToUnit);
         Draw.setColor(Layout.lineColor);
         extraCircle.draw();
         Draw.setColor(Layout.mirrorColor);
@@ -90,7 +90,7 @@ if (window.innerHeight > window.innerWidth) {
         mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
         Make.outputImage.pixelToSpaceCoordinates(mousePosition);
         imagePosition.set(mousePosition);
-    Draw.setLineWidth(0.7*lineWidthToUnit);
+        Draw.setLineWidth(0.7 * lineWidthToUnit);
         Draw.setColor(Layout.trajectoryColor);
         let factor = mirrorCircle.drawInvert(imagePosition);
         Draw.setColor(Layout.pointColor);

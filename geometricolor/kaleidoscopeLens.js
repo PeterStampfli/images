@@ -165,8 +165,8 @@ if (window.innerHeight > window.innerWidth) {
 
     let lensObjectCorner = new Vector2();
     let hColor = new Color(0, 0, 0, 255);
-    
-            const lineWidthToUnit=5;
+
+    const lineWidthToUnit = 5;
 
 
     Make.updateOutputImage = function() {
@@ -180,7 +180,7 @@ if (window.innerHeight > window.innerWidth) {
         let lensObjectWidth = lens.pixelCanvas.width / lens.magnification * Make.outputImage.scale;
         let lensObjectHeight = lens.pixelCanvas.height / lens.magnification * Make.outputImage.scale;
         Draw.setColor(Layout.mirrorColor);
-    Draw.setLineWidth(lineWidthToUnit/2);
+        Draw.setLineWidth(lineWidthToUnit / 2);
         Draw.rectangle(lensObjectCorner.x, lensObjectCorner.y, lensObjectWidth, lensObjectHeight);
     };
 

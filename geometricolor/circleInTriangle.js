@@ -50,12 +50,12 @@ function creation() {
         Make.updateNewMap();
         DOM.style("#centerCircle", "display", "none");
     });
-    
+
     viewSelect.addOption("four", function() {
         four();
         Make.updateNewMap();
     });
-   
+
     viewSelect.setIndex(1);
 
     let projectionHyperbolic = new Select("projectionHyperbolic");
@@ -69,7 +69,7 @@ function creation() {
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
-    
+
 
     projectionHyperbolic.addOption("Klein disc", function() {
         hyperbolicCanShowGenerators = false;
@@ -204,7 +204,7 @@ function creation() {
         Make.updateNewMap();
     };
 
-  
+
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -233,8 +233,8 @@ function creation() {
     Make.map.addStructureColors(2, 140, 100);
     Make.map.addStructureColors(0, 140, 100);
     Make.map.addStructureColors(3.5, 140, 100);
-   // Make.map.addStructureColors(4, 140, 100);
-   // Make.map.addStructureColors(5, 140, 100);
+    // Make.map.addStructureColors(4, 140, 100);
+    // Make.map.addStructureColors(5, 140, 100);
 
 
 
@@ -246,21 +246,28 @@ function creation() {
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
-    
-    function triangleGeometry(k,m,n){
-         let sumAngles = 1 / k + 1 / m + 1 / n;
-        let result ="sum of angles = " +Math.round(180 * sumAngles) + "<sup>o</sup>, ";
-        if (sumAngles<0.99){
-            result+="hyperbolic";
+
+    function triangleGeometry(k, m, n) {
+        let sumAngles = 1 / k + 1 / m + 1 / n;
+        let result = "sum of angles = " + Math.round(180 * sumAngles) + "<sup>o</sup>, ";
+        if (sumAngles < 0.99) {
+            result += "hyperbolic";
+        } else if (sumAngles < 1.01) {
+            result += "euklidic";
+        } else {
+            result += "elliptic";
         }
-        else if (sumAngles<1.01){
-            result+="euklidic";
-        }
-        else {
-            result+="elliptic";
-        }
-        return result+" geometry";
+        return result + " geometry";
     }
+
+    function infty(i) {
+        if (i < 10000) {
+            return i;
+        } else {
+            return "∞";
+        }
+    }
+
 
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
@@ -275,7 +282,7 @@ function creation() {
         sinGamma1 = Fast.sin(Math.PI / k1);
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
-        sum.innerHTML = triangleGeometry(k1,m1,n1);
+        sum.innerHTML = triangleGeometry(k1, m1, n1);
         let k2 = setK2Button.getValue();
         let m2 = setM2Button.getValue();
         let n2 = setN2Button.getValue();
@@ -285,12 +292,12 @@ function creation() {
         sinBeta2 = Fast.sin(Math.PI / n2);
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
-        numbers1.innerHTML="("+k1+", "+m2+", "+n2+"),";
-        numbers2.innerHTML="("+k2+", "+m2+", "+m1+"),";
-        numbers3.innerHTML="("+k2+", "+n1+", "+n2+"),";
-        sum1.innerHTML="&nbsp "+triangleGeometry(k1,n2,m2);
-        sum2.innerHTML="&nbsp "+triangleGeometry(k2,m1,m2);
-        sum3.innerHTML="&nbsp "+triangleGeometry(k2,n1,n2);
+        numbers1.innerHTML = "(" + infty(k1) + ", " + infty(m2) + ", " + infty(n2) + "),";
+        numbers2.innerHTML = "(" + infty(k2) + ", " + infty(m2) + ", " + infty(m1) + "),";
+        numbers3.innerHTML = "(" + infty(k2) + ", " + infty(n1) + ", " + infty(n2) + "),";
+        sum1.innerHTML = "&nbsp " + triangleGeometry(k1, n2, m2);
+        sum2.innerHTML = "&nbsp " + triangleGeometry(k2, m1, m2);
+        sum3.innerHTML = "&nbsp " + triangleGeometry(k2, n1, n2);
         // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
@@ -310,7 +317,7 @@ function creation() {
                     firstCircleHyperbolic();
                     secondCircleHyperbolicAllIntersections();
                     break;
-             }
+            }
         } else if (sumAngles < 1.01) {
             DOM.style("#projectionEuklidicDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
@@ -326,7 +333,7 @@ function creation() {
                     firstLineEuklidic();
                     secondCircleEuklidicAllIntersections();
                     break;
-             }
+            }
         } else {
             DOM.style("#projectionEllipticDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
@@ -356,18 +363,18 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit=0.15;
+    const lineWidthToUnit = 0.15;
 
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-        Draw.setLineWidth(1.5*lineWidthToUnit);
+            Draw.setLineWidth(1.5 * lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
-        Draw.setLineWidth(lineWidthToUnit);
+            Draw.setLineWidth(lineWidthToUnit);
             circleScope.circle2.draw();
         }
     };
@@ -376,7 +383,7 @@ function creation() {
 
 window.onload = function() {
     "use strict";
-        basicUI.squareImage=true;
+    basicUI.squareImage = true;
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();

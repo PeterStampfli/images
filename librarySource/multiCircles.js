@@ -252,21 +252,23 @@ multiCircles = {};
      * @method multiCircles.setupMouseForTrajectory
      */
     multiCircles.setupMouseForTrajectory = function() {
-        Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
-            Make.outputImage.mouseEvents.dragAction(mouseEvents);
-        };
-        Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-            Make.updateOutputImage();
-        };
-        Make.outputImage.move = function(mouseEvents) {
-            let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
+        Make.outputImage.centerAction = function(mouseEvents) {
             Make.updateOutputImage();
             mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
             Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-            imagePosition.set(mousePosition);
-            multiCircles.drawTrajectory(imagePosition);
+            multiCircles.drawTrajectory(mousePosition);
         };
     };
+
+
+    /**
+     * set up center and right mouse button action on output image for doing nothing
+     * @method circleScope.setupMouseForTrajectory
+     */
+    multiCircles.setupMouseNoTrajectory = function() {
+        Make.outputImage.centerAction = function(mouseEvents) {};
+    };
+
 
     /**
      * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map

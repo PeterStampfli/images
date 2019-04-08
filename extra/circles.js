@@ -34,33 +34,33 @@ function creation() {
     Button.createGoToLocation("home", "home.html");
 
     let viewSelect = new Select("view");
-    var numberOfCircles=3;
+    var numberOfCircles = 3;
 
 
-   
+
 
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
         DOM.style("#centerCircle", "display", "none");
     });
-    
-    
-   
-    circleScope.projection=circleScope.doNothing;
-    var directView=true;
-    
+
+
+
+    circleScope.projection = circleScope.doNothing;
+    var directView = true;
+
     let projectionSelect = new Select("projection");
-    
+
 
     projectionSelect.addOption("direct", function() {
-            circleScope.projection=circleScope.doNothing;
-directView=true;
+        circleScope.projection = circleScope.doNothing;
+        directView = true;
         Make.updateNewMap();
     });
-    
 
-   
+
+
 
     let generators = new Select("generators");
     let generatorColor = "black";
@@ -115,10 +115,10 @@ directView=true;
 
     // show the sum of angles
     let sum = document.getElementById("sum");
-    
 
-   
-  
+
+
+
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -147,33 +147,31 @@ directView=true;
     Make.map.addStructureColors(2, 140, 100);
     Make.map.addStructureColors(0, 140, 100);
     Make.map.addStructureColors(3.5, 140, 100);
-   // Make.map.addStructureColors(4, 140, 100);
-   // Make.map.addStructureColors(5, 140, 100);
+    // Make.map.addStructureColors(4, 140, 100);
+    // Make.map.addStructureColors(5, 140, 100);
 
 
 
     Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
-            circleScope.setupMouseNoTrajectory();
+    circleScope.setupMouseNoTrajectory();
 
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
-    
-    function triangleGeometry(k,m,n){
-         let sumAngles = 1 / k + 1 / m + 1 / n;
-        let result ="sum of angles = " +Math.round(180 * sumAngles) + "<sup>o</sup>, ";
-        if (sumAngles<0.99){
-            result+="hyperbolic";
+
+    function triangleGeometry(k, m, n) {
+        let sumAngles = 1 / k + 1 / m + 1 / n;
+        let result = "sum of angles = " + Math.round(180 * sumAngles) + "<sup>o</sup>, ";
+        if (sumAngles < 0.99) {
+            result += "hyperbolic";
+        } else if (sumAngles < 1.01) {
+            result += "euklidic";
+        } else {
+            result += "elliptic";
         }
-        else if (sumAngles<1.01){
-            result+="euklidic";
-        }
-        else {
-            result+="elliptic";
-        }
-        return result+" geometry";
+        return result + " geometry";
     }
 
     Make.initializeMap = function() {
@@ -189,8 +187,8 @@ directView=true;
         sinGamma1 = Fast.sin(Math.PI / k1);
         // the triangle
         sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
-        sum.innerHTML = triangleGeometry(k1,m1,n1);
-       
+        sum.innerHTML = triangleGeometry(k1, m1, n1);
+
         // same for all
         circleScope.reset();
         circleScope.setDihedral(k1);
@@ -201,13 +199,13 @@ directView=true;
                 case 3:
                     firstCircleHyperbolic();
                     break;
-             }
+            }
         } else if (sumAngles < 1.01) {
             switch (numberOfCircles) {
                 case 3:
                     firstLineEuklidic();
                     break;
-             }
+            }
         } else {
             switch (numberOfCircles) {
                 case 3:
@@ -219,14 +217,14 @@ directView=true;
 
     // line width should relate to unit length
 
-    const lineWidthToUnit=0.15;
+    const lineWidthToUnit = 0.15;
 
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-        Draw.setLineWidth(1.5*lineWidthToUnit);
+            Draw.setLineWidth(1.5 * lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
@@ -237,7 +235,7 @@ directView=true;
 
 window.onload = function() {
     "use strict";
-        basicUI.squareImage=true;
+    basicUI.squareImage = true;
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();

@@ -14,8 +14,8 @@ function creation() {
     Button.createGoToLocation("help", "wavesHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
-    Button.createGoToLocation("details", 
-                              "https://geometricolor.wordpress.com/2019/04/04/waves-a-browser-app-for-creating-quasiperiodic-wallpapers/");
+    Button.createGoToLocation("details",
+        "https://geometricolor.wordpress.com/2019/04/04/waves-a-browser-app-for-creating-quasiperiodic-wallpapers/");
 
 
     Make.imageQuality = "high";
@@ -72,37 +72,37 @@ function creation() {
             Make.updateOutputImage();
         });
 
-        var rot=5;
+    var rot = 5;
 
     let rotSelect = new Select("rotSymmetry");
-        
+
     rotSelect.addOption("5-fold",
-                        function(){
-                            rot=5;
-                Make.updateNewMap();
-                        });
-      
+        function() {
+            rot = 5;
+            Make.updateNewMap();
+        });
+
     rotSelect.addOption("8-fold",
-                        function(){
-                            rot=8;
-                Make.updateNewMap();
-                        });
-                        
-     
+        function() {
+            rot = 8;
+            Make.updateNewMap();
+        });
+
+
     rotSelect.addOption("10-fold",
-                        function(){
-                            rot=10;
-                Make.updateNewMap();
-                        });
- 
-        
+        function() {
+            rot = 10;
+            Make.updateNewMap();
+        });
+
+
     rotSelect.addOption("12-fold",
-                        function(){
-                            rot=12;
-                Make.updateNewMap();
-                        });
- 
-    
+        function() {
+            rot = 12;
+            Make.updateNewMap();
+        });
+
+
 
     let colorSymmetry = false;
 
@@ -252,7 +252,7 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit=1;
+    const lineWidthToUnit = 1;
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();

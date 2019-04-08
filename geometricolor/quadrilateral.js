@@ -18,13 +18,13 @@ function creation() {
     Button.createGoToLocation("help", "quadrilateralHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
-    
+
     var numberOfCircles = 4;
-        Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
-        Make.map.hueInversionColorSymmetry();
-        Make.map.inversionColorSymmetry();
-   
-        Make.map.discRadius = -1;
+    Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+    Make.map.hueInversionColorSymmetry();
+    Make.map.inversionColorSymmetry();
+
+    Make.map.discRadius = -1;
     circleScope.projection = circleScope.doNothing;
     let canShowGenerators = true;
 
@@ -100,7 +100,7 @@ function creation() {
     circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
 
-  
+
     // initializing map parameters, choosing the map in the method     
     //==============================================================================================
 
@@ -274,25 +274,25 @@ function creation() {
                         furtherResults.colorSector = 0;
                     }
                 }
-            };       
+            };
         }
-       
+
     };
 
     // line width should relate to output image size!!
-    const lineWidthToUnit=0.3;
+    const lineWidthToUnit = 0.3;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
         if (generators.getIndex() > 0) {
-        Draw.setLineWidth(lineWidthToUnit);
+            Draw.setLineWidth(lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
         }
-                Draw.setLineWidth(0.75*lineWidthToUnit);     // for trajectory
+        Draw.setLineWidth(0.75 * lineWidthToUnit); // for trajectory
     };
 
     circleScope.setMapping();
@@ -300,7 +300,7 @@ function creation() {
 
 window.onload = function() {
     "use strict";
-        basicUI.squareImage=true;
+    basicUI.squareImage = true;
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();

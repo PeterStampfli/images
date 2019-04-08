@@ -65,7 +65,7 @@ function updateKMN() {
     });
 
     Draw.setColor(Layout.mirrorColor);
-        const lineWidthToUnit=0.03;
+    const lineWidthToUnit = 0.03;
 
     Draw.setLineWidth(lineWidthToUnit);
 
