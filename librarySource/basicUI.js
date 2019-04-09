@@ -11,6 +11,14 @@ basicUI = {};
 
     // do single touch debug with desktop browser, to enable double touch debug with mouse set to true
     TouchEvents.doubleTouchDebug = false;
+
+    // disable the context menue
+
+    const body = document.getElementsByTagName("body")[0];
+    body.oncontextmenu = function() {
+        return false;
+    };
+
     //----------------------------------------------------------------------------------
 
     Make.imageQuality = "low";

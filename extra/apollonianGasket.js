@@ -29,6 +29,42 @@ function creation() {
     VectorMap.iterationThreshold = 3;
 
 
+    const rt2 = Math.sqrt(2);
+    const rt3 = Math.sqrt(3);
+    var worldradius, worldradius2;
+    worldradius = 9.7;
+    worldradius2 = worldradius * worldradius;
+
+    triangleAppolonius();
+
+    let geoSelect = new Select("geometry");
+
+    geoSelect.addOption("triangle", function() {
+        multiCircles.reset();
+        triangle();
+        Make.updateNewMap();
+    });
+    geoSelect.addOption("Apollonian gasket", function() {
+        multiCircles.reset();
+        triangleAppolonius();
+        Make.updateNewMap();
+    });
+    geoSelect.addOption("square", function() {
+        multiCircles.reset();
+        four();
+        Make.updateNewMap();
+    });
+
+    geoSelect.addOption("Apollonian square gasket", function() {
+        multiCircles.reset();
+        fourAppolonius();
+        Make.updateNewMap();
+    });
+
+
+    geoSelect.setIndex(1);
+
+
     let viewSelect = new Select("view");
     let invertedView = false;
 
@@ -40,6 +76,28 @@ function creation() {
         canShowGenerators = true;
         Make.updateNewMap();
     });
+
+
+    function poincarePlane(position) {
+        position.x /= worldradius;
+        position.y /= worldradius;
+        // cayley transform
+        let r2 = position.x * position.x + position.y * position.y;
+        let base = 1 / (r2 + 2 * position.y + 1.00001);
+        position.y = -2 * position.x * base * worldradius;
+        position.x = (r2 - 1) * base * worldradius;
+        return 1;
+    }
+
+    viewSelect.addOption("Poincaré plane", function() {
+        console.log("direct view");
+        Make.map.discRadius = -1;
+        invertedView = false;
+        multiCircles.projection = poincarePlane;
+        canShowGenerators = false;
+        Make.updateNewMap();
+    });
+
     viewSelect.addOption("circle inversion", function() {
         console.log("inverted view");
         Make.map.discRadius = -1;
@@ -124,12 +182,6 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
-
-    const rt2 = Math.sqrt(2);
-    const rt3 = Math.sqrt(3);
-    var worldradius, worldradius2;
-    worldradius = 9.7;
-    worldradius2 = worldradius * worldradius;
 
 
     // building blocks
@@ -220,19 +272,17 @@ function creation() {
 
     Make.initializeMap = function() {
 
-        multiCircles.reset();
-        fourAppolonius();
-
-        const d = 2 * worldradius;
-        const r = d / 2 * rt3;
-
+        //     multiCircles.reset();
+        //    fourAppolonius();
 
         if (canShowGenerators) {
             DOM.style("#generatorsDiv", "display", "initial");
             DOM.style("#noGeneratorsDiv", "display", "none");
+            multiCircles.setupMouseForTrajectory();
         } else {
             DOM.style("#generatorsDiv", "display", "none");
             DOM.style("#noGeneratorsDiv", "display", "initial");
+            multiCircles.setupMouseNoTrajectory();
         }
 
     };

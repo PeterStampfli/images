@@ -70,6 +70,13 @@ function creation() {
         Make.updateNewMap();
     });
 
+    projectionHyperbolic.addOption("Poincaré plane", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicProjection = poincarePlane;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
 
     projectionHyperbolic.addOption("Klein disc", function() {
         hyperbolicCanShowGenerators = false;

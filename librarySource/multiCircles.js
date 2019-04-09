@@ -243,9 +243,7 @@ multiCircles = {};
 
     let mousePosition = new Vector2();
     let imagePosition = new Vector2();
-    let zero = new Vector2(0, 0);
-    let pointColor = new Color(255, 255, 255);
-    let trajectoryColor = new Color(255, 255, 0);
+
 
     /**
      * set up mouse listeners on output image for drawing trajectory
@@ -269,6 +267,8 @@ multiCircles = {};
         Make.outputImage.centerAction = function(mouseEvents) {};
     };
 
+    multiCircles.trajectoryColor = new Color(255, 255, 255);
+    const lastPosition = new Vector2();
 
     /**
      * draw the trajectory with endpoints of sizes reflecting the lyapunov coefficient of the map
@@ -276,16 +276,15 @@ multiCircles = {};
      * @param {Vector2} position
      */
     multiCircles.drawTrajectory = function(position) {
-        const positions = [];
-        positions.push(position.clone());
-        const sizes = [];
-        let size = 1;
-        sizes.push(size);
+        // do the mapping and draw lines
+        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
+
+        Draw.setColor(circleScope.trajectoryColor);
+        Draw.circle(nullRadius, position);
+
         const elements = multiCircles.elements;
         const elementsLength = elements.length;
-        const lastPosition = new Vector2();
         // do the mapping and draw lines
-        Draw.setColor(trajectoryColor);
         var i = circleScope.maxIterations;
         var changed = true;
         while ((i > 0) && changed) {
@@ -296,26 +295,13 @@ multiCircles = {};
                 let factor = elements[j].map(position);
                 if (factor >= 0) {
                     changed = true;
-                    size *= factor;
-                    sizes.push(size);
-                    positions.push(position.clone());
+
                     Draw.line(lastPosition, position);
                 }
             }
         }
         // draw the endpoints, scaled sizes
-        Draw.setColor(pointColor);
-        let nullRadius = Make.outputImage.scale * basicUI.nullRadius;
-        let sizesLength = sizes.length;
-        let endSize = sizes[sizesLength - 1];
-        if (endSize > 0) {
-            if (endSize < 1) {
-                nullRadius /= endSize;
-            }
-            for (i = 0; i < sizesLength; i++) {
-                Draw.circle(nullRadius * sizes[i], positions[i]);
-            }
-        }
+        Draw.circle(nullRadius, position);
     };
 
 }());
