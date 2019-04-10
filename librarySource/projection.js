@@ -135,6 +135,14 @@ projection = {};
         projection.euclidicDiscRadius = -1;
         Make.updateNewMap();
     };
+    projection.euclidicInverted = function() {
+        projection.euclidicMap = function(position) {
+            position.scale(ellipticWorldradius2 / position.length2());
+            return 1;
+        };
+        projection.euclidicDiscRadius = -1;
+        Make.updateNewMap();
+    };
 
     // spiral view
     let spiralNumber1 = 2;

@@ -149,6 +149,7 @@ function creation() {
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
     euclidicProjectionSelect.addOption("direct", projection.euclidicNormal);
+    euclidicProjectionSelect.addOption("inverted", projection.euclidicInverted);
     euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
     euclidicProjectionSelect.addOption("double spiral", projection.euclidicDoubleSpiral);
     euclidicProjectionSelect.addOption("disc", projection.euclidicDisc);

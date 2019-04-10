@@ -37,8 +37,15 @@ function creation() {
 
 
     projectionSelect.addOption("direct", function() {
-        circleScope.projection = circleScope.doNothing;
+        multiCircles.projection = circleScope.doNothing;
         directView = true;
+        Make.updateNewMap();
+    });
+
+    projectionSelect.addOption("inverted", function() {
+        circleScope.projection = circleScope.doNothing;
+        multiCircles.projection = multiCircles.circleInversionProjection;
+        directView = false;
         Make.updateNewMap();
     });
 
@@ -127,15 +134,13 @@ function creation() {
 
     Make.map.structureColorCollection = [];
     Make.map.addStructureColors(1, 140, 100);
-    Make.map.addStructureColors(2, 140, 100);
-    Make.map.addStructureColors(0, 140, 100);
     Make.map.addStructureColors(3.5, 140, 100);
     // Make.map.addStructureColors(4, 140, 100);
     // Make.map.addStructureColors(5, 140, 100);
 
 
 
-    Make.map.rgbRotationInversionColorSymmetry();
+    Make.map.inversionColorSymmetry();
 
     circleScope.maxIterations = 200;
     circleScope.setupMouseNoTrajectory();
@@ -177,8 +182,8 @@ function creation() {
         const d23 = Math.sqrt(r2 * r2 + r3 * r3 + 2 * r2 * r3 * Math.cos(Math.PI / n23));
         const gamma = Fast.triangleGammaOfABC(d12, d13, d23);
 
-        //??????????????????????????????
-        multiCircles.inversionCircle = new Circle(10, 0, 5);
+        const length2 = r1 * r1 / 4;
+
 
 
 
@@ -188,6 +193,11 @@ function creation() {
         let y2 = 0;
         let x3 = Math.cos(gamma) * d13;
         let y3 = -Math.sin(gamma) * d13;
+
+        const delta = Fast.triangleGammaOfABC(d12, r1, r2);
+        let xInv = Math.cos(delta) * r1;
+        let yInv = -Math.sin(delta) * r1;
+
 
         const xm = 0.333 * (x1 + x2 + x3);
         const ym = 0.333 * (y1 + y2 + y3);
@@ -200,6 +210,9 @@ function creation() {
         y2 -= ym;
         y3 -= ym;
 
+        xInv -= xm;
+        yInv -= ym;
+
         const m13 = (y3 - y1) / (x3 - x1);
         const m23 = (y3 - y2) / (x3 - x2);
 
@@ -208,20 +221,24 @@ function creation() {
         multiCircles.addCircleInsideOut(r2, x2, y2);
         multiCircles.addCircleInsideOut(r3, x3, y3);
 
+        multiCircles.inversionCircle = new Circle(0.5 * r1, xInv, yInv);
+
+
         multiCircles.finishMap = function(position, furtherResults) {
             const y = position.y - y1;
             if (y > 0) {
-                furtherResults.colorSector = 3;
+                furtherResults.colorSector = 0;
             } else {
                 const x = position.x - x1;
                 if (y < m13 * x) {
-                    furtherResults.colorSector = 3;
-                } else if (y < m23 * (x - d12)) {
-                    furtherResults.colorSector = 3;
-                } else {
                     furtherResults.colorSector = 0;
+                } else if (y < m23 * (x - d12)) {
+                    furtherResults.colorSector = 0;
+                } else {
+                    furtherResults.colorSector = 1;
                 }
             }
+
         };
     };
 
@@ -236,7 +253,12 @@ function creation() {
         if ((generators.getIndex() > 0) && canShowGenerators) {
             Draw.setLineWidth(1.5 * lineWidthToUnit);
             Draw.setColor(generatorColor);
+            Draw.setSolidLine();
             multiCircles.draw();
+            Draw.setDashedLine(0.5);
+            if (!directView) {
+                multiCircles.inversionCircle.draw();
+            }
 
         }
     };
