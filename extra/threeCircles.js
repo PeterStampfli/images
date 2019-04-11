@@ -85,7 +85,11 @@ function creation() {
         });
     generators.setIndex(1);
 
-
+    let width = Range.create("lineWidth");
+    width.setStep(0.001);
+    width.setRange(0.01, 0.6);
+    width.setValue(0.25);
+    width.onChange = Make.updateNewMap;
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -108,7 +112,23 @@ function creation() {
     // show the sum of angles
     let sum = document.getElementById("sum");
 
+    let s1 = Range.create("size1");
+    s1.setStep(0.001);
+    s1.setRange(0.01, 2);
+    s1.setValue(0.5);
+    s1.onChange = Make.updateNewMap;
 
+    let s2 = Range.create("size2");
+    s2.setStep(0.001);
+    s2.setRange(0.01, 2);
+    s2.setValue(0.5);
+    s2.onChange = Make.updateNewMap;
+
+    let s3 = Range.create("size3");
+    s3.setStep(0.001);
+    s3.setRange(0.01, 2);
+    s3.setValue(0.5);
+    s3.onChange = Make.updateNewMap;
 
     let inversionSize = Range.create("inversionSize");
     inversionSize.setStep(0.001);
@@ -152,7 +172,7 @@ function creation() {
     circleScope.maxIterations = 200;
     circleScope.setupMouseNoTrajectory();
 
-    VectorMap.iterationGamma = 1.2;
+    VectorMap.iterationGamma = 1.4;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
 
@@ -171,7 +191,7 @@ function creation() {
 
     Make.initializeMap = function() {
         multiCircles.reset();
-        const r = 10;
+        const r = 15;
         // get data for all circles (may be needed for all geometries)
         const n12 = setN12Button.getValue();
         const n13 = setN13Button.getValue();
@@ -179,9 +199,9 @@ function creation() {
         sum.innerHTML = triangleGeometry(n12, n13, n23);
         sumAngles = 1 / n12 + 1 / n13 + 1 / n23;
 
-        const r1 = r;
-        const r2 = r;
-        const r3 = r;
+        const r1 = r * s1.getValue();
+        const r2 = r * s2.getValue();
+        const r3 = r * s3.getValue();
 
 
         const d12 = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n12));
@@ -220,39 +240,36 @@ function creation() {
         xInv -= xm;
         yInv -= ym;
 
-        const m13 = (y3 - y1) / (x3 - x1);
-        const m23 = (y3 - y2) / (x3 - x2);
+
 
 
         multiCircles.addCircleInsideOut(r1, x1, y1);
         multiCircles.addCircleInsideOut(r2, x2, y2);
         if (numberOfCircles === 3) {
             multiCircles.addCircleInsideOut(r3, x3, y3);
+            const triangle = new Polygon(new Vector2(x1, y1), new Vector2(x3, y3), new Vector2(x2, y2));
             multiCircles.finishMap = function(position, furtherResults) {
-                const y = position.y - y1;
-                if (y > 0) {
-                    furtherResults.colorSector = 0;
+
+
+                if (triangle.contains(position)) {
+                    furtherResults.colorSector = 1;
                 } else {
-                    const x = position.x - x1;
-                    if (y < m13 * x) {
-                        furtherResults.colorSector = 0;
-                    } else if (y < m23 * (x - d12)) {
-                        furtherResults.colorSector = 0;
-                    } else {
-                        furtherResults.colorSector = 1;
-                    }
+                    furtherResults.colorSector = 0;
                 }
 
             };
         } else {
             multiCircles.finishMap = function(position, furtherResults) {
                 furtherResults.colorSector = 0;
+
             };
+
+
         }
 
         const inversionSizeValue = inversionSize.getValue();
 
-        multiCircles.inversionCircle = new Circle(inversionSizeValue * r1, xInv, yInv);
+        multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
 
 
 
@@ -260,14 +277,13 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit = 0.15;
 
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setLineWidth(1.5 * lineWidthToUnit);
+            Draw.setLineWidth(width.getValue());
             Draw.setColor(generatorColor);
             Draw.setSolidLine();
             multiCircles.draw();

@@ -252,7 +252,7 @@ function creation() {
 
     VectorMap.iterationGamma = 1.2;
     VectorMap.iterationSaturation = 8;
-    VectorMap.iterationThreshold = 4;
+    VectorMap.iterationThreshold = 3;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;
@@ -370,18 +370,17 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit = 0.15;
+    const lineWidthToUnit = 0.2;
 
     const zero = new Vector2();
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setLineWidth(1.5 * lineWidthToUnit);
+            Draw.setLineWidth(lineWidthToUnit);
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
-            Draw.setLineWidth(lineWidthToUnit);
             circleScope.circle2.draw();
         }
     };

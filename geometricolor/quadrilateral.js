@@ -280,7 +280,7 @@ function creation() {
     };
 
     // line width should relate to output image size!!
-    const lineWidthToUnit = 0.3;
+    const lineWidthToUnit = 0.2;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);

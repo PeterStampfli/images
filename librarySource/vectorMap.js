@@ -533,7 +533,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             }
         }
         pixelCanvas.showPixel();
-        console.log(iterationsArray[0]);
     };
 
     /**
