@@ -251,8 +251,8 @@ function creation() {
     circleScope.setupMouseForTrajectory();
 
     VectorMap.iterationGamma = 1.2;
-    VectorMap.iterationSaturation = 10;
-    VectorMap.iterationThreshold = 5;
+    VectorMap.iterationSaturation = 8;
+    VectorMap.iterationThreshold = 4;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;

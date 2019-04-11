@@ -20,12 +20,14 @@ function creation() {
     var numberOfCircles = 3;
 
 
-
-
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "none");
+    });
+
+    viewSelect.addOption("two", function() {
+        numberOfCircles = 2;
+        Make.updateNewMap();
     });
 
 
@@ -108,6 +110,11 @@ function creation() {
 
 
 
+    let inversionSize = Range.create("inversionSize");
+    inversionSize.setStep(0.001);
+    inversionSize.setRange(0.01, 0.998);
+    inversionSize.setValue(0.5);
+    inversionSize.onChange = Make.updateNewMap;
 
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
@@ -219,27 +226,36 @@ function creation() {
 
         multiCircles.addCircleInsideOut(r1, x1, y1);
         multiCircles.addCircleInsideOut(r2, x2, y2);
-        multiCircles.addCircleInsideOut(r3, x3, y3);
-
-        multiCircles.inversionCircle = new Circle(0.5 * r1, xInv, yInv);
-
-
-        multiCircles.finishMap = function(position, furtherResults) {
-            const y = position.y - y1;
-            if (y > 0) {
-                furtherResults.colorSector = 0;
-            } else {
-                const x = position.x - x1;
-                if (y < m13 * x) {
-                    furtherResults.colorSector = 0;
-                } else if (y < m23 * (x - d12)) {
+        if (numberOfCircles === 3) {
+            multiCircles.addCircleInsideOut(r3, x3, y3);
+            multiCircles.finishMap = function(position, furtherResults) {
+                const y = position.y - y1;
+                if (y > 0) {
                     furtherResults.colorSector = 0;
                 } else {
-                    furtherResults.colorSector = 1;
+                    const x = position.x - x1;
+                    if (y < m13 * x) {
+                        furtherResults.colorSector = 0;
+                    } else if (y < m23 * (x - d12)) {
+                        furtherResults.colorSector = 0;
+                    } else {
+                        furtherResults.colorSector = 1;
+                    }
                 }
-            }
 
-        };
+            };
+        } else {
+            multiCircles.finishMap = function(position, furtherResults) {
+                furtherResults.colorSector = 0;
+            };
+        }
+
+        const inversionSizeValue = inversionSize.getValue();
+
+        multiCircles.inversionCircle = new Circle(inversionSizeValue * r1, xInv, yInv);
+
+
+
     };
 
     // line width should relate to unit length

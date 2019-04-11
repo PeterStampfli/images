@@ -162,8 +162,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     VectorMap.prototype.createIterationsColors = function() {
         const color = new Color();
         const colors = new Uint32Array(256);
+        var bright;
         for (var i = 0; i < 255; i++) {
-            let bright = Fast.clamp(0, Math.floor(255.9 * Math.pow((i - VectorMap.iterationThreshold) / VectorMap.iterationSaturation, VectorMap.iterationGamma)), 255);
+            bright = Math.pow(Math.max(0, (i - VectorMap.iterationThreshold) / VectorMap.iterationSaturation), VectorMap.iterationGamma); // beware of power of negative numbers
+            bright = Fast.clamp(0, Math.floor(255.9 * bright), 255);
+            bright = 255 - bright;
             color.red = bright;
             color.blue = bright;
             color.green = bright;
@@ -178,7 +181,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     /**
      * make a map using a supplied function mapping(mapIn,mapOut)
-     * create iteration colors
      * @method VectorMap#make
      * @param {function} mapping - maps a position, return lyapunov coefficient>0 for valid points, <0 for invalid points
      */
@@ -525,12 +527,13 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             if (lyapunovArray[index] >= -0.001) {
                 pixel[index] = iterationsColors[iterationsArray[index]];
                 // console.log(index+" "+reflectionsArray[index])
-                // pixel[index] = iterationsColors[100];
             } else {
                 pixel[index] = intColorOff;
+                pixel[index] = iterationsColors[0];
             }
         }
         pixelCanvas.showPixel();
+        console.log(iterationsArray[0]);
     };
 
     /**
