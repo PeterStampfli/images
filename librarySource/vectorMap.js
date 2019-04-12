@@ -26,6 +26,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     // an array [colorSector] of arrays of integer colors ( new Uint32Array(256)
     this.structureColorCollection = [];
+    this.iterationsBrightness = Array(256);
+    this.sectorColor = [];
 
     this.createSimpleColorTable();
 
@@ -113,6 +115,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         color.colorIntensity = 255 - whiteOrigin;
         color.rgbFromHig();
         const intColorNull = PixelCanvas.integerOf(color);
+        this.sectorColor.push(new Color(color.red, color.green, color.blue));
         color.grey = 0;
         color.colorIntensity = 255;
         color.rgbFromHig();
@@ -171,6 +174,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             color.blue = bright;
             color.green = bright;
             colors[i] = PixelCanvas.integerOf(color);
+            this.iterationsBrightness[i] = bright;
         }
         this.iterationsColors = colors;
     };
@@ -504,7 +508,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         pixelCanvas.showPixel();
     };
 
-
     /**
      * draw on a pixelcanvas use a map
      * color showing number of iterations, based on iterationsArray
@@ -527,6 +530,45 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             if (lyapunovArray[index] >= -0.001) {
                 pixel[index] = iterationsColors[iterationsArray[index]];
                 // console.log(index+" "+reflectionsArray[index])
+            } else {
+                pixel[index] = intColorOff;
+                pixel[index] = iterationsColors[0];
+            }
+        }
+        pixelCanvas.showPixel();
+    };
+
+    /**
+     * draw on a pixelcanvas use a map
+     * color showing number of iterations, based on iterationsArray
+     * or showing structure, based on reflectionsArray and colorSectorArray
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawIterations
+     */
+    VectorMap.prototype.drawIterationsColored = function() {
+        console.log("col");
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const intColorOff = this.intColorOff;
+        const lyapunovArray = this.lyapunovArray;
+        const reflectionsArray = this.reflectionsArray;
+        const iterationsArray = this.iterationsArray;
+        const colorSectorArray = this.colorSectorArray;
+        const structureColorCollection = this.structureColorCollection;
+        const brightness = this.iterationsBrightness;
+        const iterationsColors = this.iterationsColors;
+        const length = lyapunovArray.length;
+        const color = new Color();
+        const sectorColor = this.sectorColor;
+        const i255 = 1 / 255.0;
+        for (var index = 0; index < length; index++) {
+            if (lyapunovArray[index] >= -0.001) {
+                let bright = i255 * brightness[iterationsArray[index]];
+                const baseColor = sectorColor[colorSectorArray[index]];
+                color.red = bright * baseColor.red;
+                color.green = bright * baseColor.green;
+                color.blue = bright * baseColor.blue;
+                pixelCanvas.setPixelAtIndex(color, index);
             } else {
                 pixel[index] = intColorOff;
                 pixel[index] = iterationsColors[0];
@@ -583,8 +625,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawIterationsImage
      */
     VectorMap.prototype.drawIterationsImage = function() {
-
-        console.log("iterationsimage");
         // the pixel scaling (lyapunov coefficient)
         const baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -757,7 +797,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         controlCanvas.showPixel();
     };
 
-
     /**
      * draw on a pixelcanvas use a map and an input image
      * draw convergence on left hand side
@@ -766,8 +805,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @method VectorMap#drawStructureImage
      */
     VectorMap.prototype.drawStructureImage = function() {
-
-        console.log("iterationsStructureimage");
         // the pixel scaling (lyapunov coefficient)
         let baseLyapunov = this.inputTransform.scale * this.outputImage.scale;
         var lyapunov;
@@ -807,7 +844,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const height = this.height;
         const height2 = Math.floor(this.height / 2);
         var i, j;
-
         for (j = 0; j < height; j++) {
             for (i = 0; i < width; i++) {
                 lyapunov = lyapunovArray[index] * baseLyapunov;

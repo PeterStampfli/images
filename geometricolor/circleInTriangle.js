@@ -127,12 +127,9 @@ function creation() {
         Make.updateNewMap();
     });
 
-
     let generators = new Select("generators");
     let generatorColor = "black";
     let canShowGenerators = true;
-
-
 
     generators.addOption("hide",
         function() {
@@ -144,7 +141,6 @@ function creation() {
             generatorColor = "black";
             Make.updateOutputImage();
         });
-
 
     generators.addOption("show in white",
         function() {
@@ -162,6 +158,14 @@ function creation() {
     let noGenerators = new Select("noGenerators");
     noGenerators.addOption(" - - - ", function() {});
 
+    let width = Range.create("lineWidth");
+    width.setStep(0.001);
+    width.setRange(0.01, 0.6);
+    width.setValue(0.25);
+    width.onChange = function() {
+        Make.updateOutputImage();
+    };
+
     //choosing the symmetries, and set initial values
     // basic triangle
     let setKButton = NumberButton.create("k");
@@ -173,7 +177,6 @@ function creation() {
     setMButton.setRange(2, 10000);
     setMButton.setValue(4);
     setMButton.onChange = Make.updateNewMap;
-
 
     let setNButton = NumberButton.createInfinity("n");
     setNButton.setRange(2, 10000);
@@ -188,7 +191,6 @@ function creation() {
     let numbers1 = document.getElementById("numbers1");
     let numbers2 = document.getElementById("numbers2");
     let numbers3 = document.getElementById("numbers3");
-
 
     //choosing the symmetries, and set initial values
     // second circle, three intersections
@@ -210,8 +212,6 @@ function creation() {
     setN2Button.onChange = function() {
         Make.updateNewMap();
     };
-
-
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -243,16 +243,14 @@ function creation() {
     // Make.map.addStructureColors(4, 140, 100);
     // Make.map.addStructureColors(5, 140, 100);
 
-
-
     Make.map.rgbRotationInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
 
-    VectorMap.iterationGamma = 1.2;
-    VectorMap.iterationSaturation = 8;
-    VectorMap.iterationThreshold = 3;
+    VectorMap.iterationGamma = 1.6;
+    VectorMap.iterationSaturation = 6;
+    VectorMap.iterationThreshold = 1;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;
@@ -274,7 +272,6 @@ function creation() {
             return "∞";
         }
     }
-
 
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
@@ -377,7 +374,7 @@ function creation() {
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setLineWidth(lineWidthToUnit);
+            Draw.setLineWidth(width.getValue());
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();

@@ -16,18 +16,16 @@ function creation() {
     Make.map.discRadius = -1;
 
     Make.map.structureColorCollection = [];
-    Make.map.addStructureColors(1, 100, 50);
-    Make.map.addStructureColors(2, 100, 50);
-    Make.map.addStructureColors(0, 100, 50);
-    Make.map.addStructureColors(3.5, 100, 50);
-    Make.map.addStructureColors(5, 100, 50);
+    Make.map.addStructureColors(1, 120, 70);
+    Make.map.addStructureColors(2, 120, 70);
+    Make.map.addStructureColors(0, 120, 70);
+    Make.map.addStructureColors(3.5, 120, 70);
+    Make.map.addStructureColors(5, 120, 70);
     Make.map.rgbRotationInversionColorSymmetry();
 
-
-    VectorMap.iterationGamma = 1.2;
-    VectorMap.iterationSaturation = 8;
-    VectorMap.iterationThreshold = 3;
-
+    VectorMap.iterationGamma = 1.6;
+    VectorMap.iterationSaturation = 6;
+    VectorMap.iterationThreshold = 1;
 
     const rt2 = Math.sqrt(2);
     const rt3 = Math.sqrt(3);
@@ -61,9 +59,7 @@ function creation() {
         Make.updateNewMap();
     });
 
-
     geoSelect.setIndex(1);
-
 
     let viewSelect = new Select("view");
     let invertedView = false;
@@ -76,7 +72,6 @@ function creation() {
         canShowGenerators = true;
         Make.updateNewMap();
     });
-
 
     function poincarePlane(position) {
         position.x /= worldradius;
@@ -124,12 +119,9 @@ function creation() {
         Make.updateNewMap();
     });
 
-
     let generators = new Select("generators");
     let generatorColor = "black";
     let canShowGenerators = true;
-
-
 
     generators.addOption("hide",
         function() {
@@ -141,7 +133,6 @@ function creation() {
             generatorColor = "black";
             Make.updateOutputImage();
         });
-
 
     generators.addOption("show in white",
         function() {
@@ -159,6 +150,13 @@ function creation() {
     let noGenerators = new Select("noGenerators");
     noGenerators.addOption(" - - - ", function() {});
 
+    let width = Range.create("lineWidth");
+    width.setStep(0.001);
+    width.setRange(0.01, 0.6);
+    width.setValue(0.25);
+    width.onChange = function() {
+        Make.updateOutputImage();
+    };
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -182,8 +180,6 @@ function creation() {
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-10, 10, -10);
 
-
-
     // building blocks
     function twoColorFinishMap(position, furtherResults) {
         let l2 = position.length2();
@@ -194,8 +190,6 @@ function creation() {
             furtherResults.colorSector = 0;
         }
     }
-
-
 
     // basic triangle for simple poincare disc tiling with ideal triangle
     // includes fitting inversion circle
@@ -271,10 +265,6 @@ function creation() {
     }
 
     Make.initializeMap = function() {
-
-        //     multiCircles.reset();
-        //    fourAppolonius();
-
         if (canShowGenerators) {
             DOM.style("#generatorsDiv", "display", "initial");
             DOM.style("#noGeneratorsDiv", "display", "none");
@@ -284,20 +274,13 @@ function creation() {
             DOM.style("#noGeneratorsDiv", "display", "initial");
             multiCircles.setupMouseNoTrajectory();
         }
-
     };
-
-    // line width should relate to unit length
-
-    const lineWidthToUnit = 0.2;
-
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(lineWidthToUnit);
         if ((generators.getIndex() > 0) && canShowGenerators) {
             Draw.setColor(generatorColor);
-
+            Draw.setLineWidth(width.getValue());
             multiCircles.draw();
         }
     };

@@ -28,8 +28,6 @@ function creation() {
     circleScope.projection = circleScope.doNothing;
     let canShowGenerators = true;
 
-
-
     var v = new Vector2();
 
     let generators = new Select("generators");
@@ -46,7 +44,6 @@ function creation() {
             Make.updateOutputImage();
         });
 
-
     generators.addOption("show in white",
         function() {
             generatorColor = "white";
@@ -60,11 +57,14 @@ function creation() {
         });
     generators.setIndex(1);
 
-    /*
-    let noGenerators = new Select("noGenerators");
-    noGenerators.addOption(" - - - ", function() {});
+    let width = Range.create("lineWidth");
+    width.setStep(0.001);
+    width.setRange(0.01, 0.6);
+    width.setValue(0.25);
+    width.onChange = function() {
+        Make.updateOutputImage();
+    };
 
-*/
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
     setKButton.setRange(3, 10000);
@@ -100,23 +100,18 @@ function creation() {
     circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
 
-
     // initializing map parameters, choosing the map in the method     
     //==============================================================================================
 
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
-
-
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
 
-
-    VectorMap.iterationGamma = 1.1;
+    VectorMap.iterationGamma = 1.6;
     VectorMap.iterationSaturation = 6;
     VectorMap.iterationThreshold = 1;
-
 
     Make.initializeMap = function() {
         let k = setKButton.getValue();
@@ -126,9 +121,7 @@ function creation() {
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n + 1 / p)) + "<sup>o</sup>";
         // the angles
         circleScope.setDihedral(k); // cosGamma1, sinGamma1
-
         circleScope.reset();
-
         circleScope.startMap = circleScope.nothingMap;
 
         const cosAlpha = Math.cos(Math.PI / m);
@@ -152,8 +145,6 @@ function creation() {
         x1 *= scale;
         y1 *= scale;
         r1 *= scale;
-        // circleScope.circle1 = circleScope.circleInsideOut(r1, x1, y1);
-
         circleScope.circle1 = new Circle(r1, x1, y1);
         circleScope.circle1.map = circleScope.circle1.invertInsideOut;
 
@@ -276,23 +267,18 @@ function creation() {
                 }
             };
         }
-
     };
-
-    // line width should relate to output image size!!
-    const lineWidthToUnit = 0.2;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
         if (generators.getIndex() > 0) {
-            Draw.setLineWidth(lineWidthToUnit);
+            Draw.setLineWidth(width.getValue());
             Draw.setColor(generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
         }
-        Draw.setLineWidth(0.75 * lineWidthToUnit); // for trajectory
     };
 
     circleScope.setMapping();

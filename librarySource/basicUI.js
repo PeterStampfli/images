@@ -181,6 +181,17 @@ basicUI = {};
                     Make.updateOutputImage();
                 });
 
+            basicUI.showSelect.addOption("convergence with color",
+                function() {
+                    Make.showingInputImage = false;
+                    Make.clearControlImage();
+                    basicUI.activateControls(false);
+                    Make.draw = function() {
+                        Make.map.drawIterationsColored();
+                    };
+                    Make.updateOutputImage();
+                });
+
             basicUI.showSelect.addOption("convergence/structure",
                 function() {
                     Make.showingInputImage = false;
@@ -206,7 +217,6 @@ basicUI = {};
     if (DOM.idExists("height")) {
         Make.heightButton = Make.createImageHeightButton("height");
     }
-
 
     //  choosing image quality
     function changeQuality(newQuality) {

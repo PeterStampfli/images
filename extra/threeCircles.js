@@ -30,8 +30,6 @@ function creation() {
         Make.updateNewMap();
     });
 
-
-
     circleScope.projection = circleScope.doNothing;
     var directView = true;
 
@@ -51,14 +49,9 @@ function creation() {
         Make.updateNewMap();
     });
 
-
-
-
     let generators = new Select("generators");
     let generatorColor = "black";
     let canShowGenerators = true;
-
-
 
     generators.addOption("hide",
         function() {
@@ -70,7 +63,6 @@ function creation() {
             generatorColor = "black";
             Make.updateOutputImage();
         });
-
 
     generators.addOption("show in white",
         function() {
@@ -89,7 +81,9 @@ function creation() {
     width.setStep(0.001);
     width.setRange(0.01, 0.6);
     width.setValue(0.25);
-    width.onChange = Make.updateNewMap;
+    width.onChange = function() {
+        Make.updateOutputImage();
+    };
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -136,7 +130,6 @@ function creation() {
     inversionSize.setValue(0.5);
     inversionSize.onChange = Make.updateNewMap;
 
-
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
 
@@ -165,8 +158,6 @@ function creation() {
     // Make.map.addStructureColors(4, 140, 100);
     // Make.map.addStructureColors(5, 140, 100);
 
-
-
     Make.map.inversionColorSymmetry();
 
     circleScope.maxIterations = 200;
@@ -175,6 +166,10 @@ function creation() {
     VectorMap.iterationGamma = 1.4;
     VectorMap.iterationSaturation = 10;
     VectorMap.iterationThreshold = 5;
+
+    VectorMap.iterationGamma = 1.6;
+    VectorMap.iterationSaturation = 6;
+    VectorMap.iterationThreshold = 1;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;
@@ -203,16 +198,10 @@ function creation() {
         const r2 = r * s2.getValue();
         const r3 = r * s3.getValue();
 
-
         const d12 = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n12));
         const d13 = Math.sqrt(r1 * r1 + r3 * r3 + 2 * r1 * r3 * Math.cos(Math.PI / n13));
         const d23 = Math.sqrt(r2 * r2 + r3 * r3 + 2 * r2 * r3 * Math.cos(Math.PI / n23));
         const gamma = Fast.triangleGammaOfABC(d12, d13, d23);
-
-        const length2 = r1 * r1 / 4;
-
-
-
 
         let x1 = 0;
         let y1 = 0;
@@ -224,7 +213,6 @@ function creation() {
         const delta = Fast.triangleGammaOfABC(d12, r1, r2);
         let xInv = Math.cos(delta) * r1;
         let yInv = -Math.sin(delta) * r1;
-
 
         const xm = 0.333 * (x1 + x2 + x3);
         const ym = 0.333 * (y1 + y2 + y3);
@@ -240,47 +228,30 @@ function creation() {
         xInv -= xm;
         yInv -= ym;
 
-
-
-
         multiCircles.addCircleInsideOut(r1, x1, y1);
         multiCircles.addCircleInsideOut(r2, x2, y2);
         if (numberOfCircles === 3) {
             multiCircles.addCircleInsideOut(r3, x3, y3);
             const triangle = new Polygon(new Vector2(x1, y1), new Vector2(x3, y3), new Vector2(x2, y2));
             multiCircles.finishMap = function(position, furtherResults) {
-
-
                 if (triangle.contains(position)) {
                     furtherResults.colorSector = 1;
                 } else {
                     furtherResults.colorSector = 0;
                 }
-
             };
         } else {
             multiCircles.finishMap = function(position, furtherResults) {
                 furtherResults.colorSector = 0;
-
             };
-
-
         }
 
         const inversionSizeValue = inversionSize.getValue();
-
         multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
-
-
-
     };
 
-    // line width should relate to unit length
-
-
-    const zero = new Vector2();
-
     Make.updateOutputImage = function() {
+        console.log("updatepoutputimage" + width.getValue());
         Make.updateMapOutput();
         if ((generators.getIndex() > 0) && canShowGenerators) {
             Draw.setLineWidth(width.getValue());
@@ -291,7 +262,6 @@ function creation() {
             if (!directView) {
                 multiCircles.inversionCircle.draw();
             }
-
         }
     };
     multiCircles.setMapping();
