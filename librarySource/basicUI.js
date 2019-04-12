@@ -134,6 +134,8 @@ basicUI = {};
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
     basicUI.showSelect = false;
+    DOM.style("#convergenceStyle", "display", "none");
+
 
     // choose between showing the structure or the image, if id "show" exists
     // note that only things happen if option is changed!
@@ -142,7 +144,7 @@ basicUI = {};
 
         basicUI.showSelect.addOption("structure",
             function() {
-                console.log("structure");
+                DOM.style("#convergenceStyle", "display", "none");
                 Make.showingInputImage = false;
                 Make.clearControlImage();
                 basicUI.activateControls(false);
@@ -156,6 +158,7 @@ basicUI = {};
         basicUI.showSelectAddImage = function() {
             basicUI.showSelect.addOption("image",
                 function() {
+                    DOM.style("#convergenceStyle", "display", "none");
                     Make.showingInputImage = true;
                     Make.draw = function() {
                         Make.drawImage();
@@ -172,6 +175,7 @@ basicUI = {};
         basicUI.showSelectAdd = function() {
             basicUI.showSelect.addOption("convergence",
                 function() {
+                    DOM.style("#convergenceStyle", "display", "initial");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -183,6 +187,7 @@ basicUI = {};
 
             basicUI.showSelect.addOption("convergence with color",
                 function() {
+                    DOM.style("#convergenceStyle", "display", "initial");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -194,6 +199,7 @@ basicUI = {};
 
             basicUI.showSelect.addOption("convergence/structure",
                 function() {
+                    DOM.style("#convergenceStyle", "display", "initial");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -436,6 +442,7 @@ basicUI = {};
         Make.sizeButton.setValue(outputSize);
         Make.resetOutputImageSpace();
         Make.updateNewMap();
+        Make.map.createIterationsColors();
     };
 
     /**
@@ -509,6 +516,7 @@ basicUI = {};
         Make.heightButton.setValue(height);
         Make.outputImage.setRanges(range);
         Make.updateNewMap();
+        Make.map.createIterationsColors();
     };
 
     /**

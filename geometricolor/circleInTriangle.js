@@ -33,6 +33,42 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+
+
+    VectorMap.iterationGamma = 1.6;
+    VectorMap.iterationSaturation = 6;
+    VectorMap.iterationThreshold = 1;
+
+
+    let gammaRange = Range.create("gammaRange");
+    gammaRange.setStep(0.001);
+    gammaRange.setRange(0.5, 3);
+    gammaRange.setValue(VectorMap.iterationGamma);
+    gammaRange.onChange = function() {
+        VectorMap.iterationGamma = gammaRange.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
+    let threshold = NumberButton.create("threshold");
+    threshold.setRange(1, 100);
+    threshold.setValue(VectorMap.iterationThreshold);
+    threshold.onChange = function() {
+        VectorMap.iterationThreshold = threshold.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
+    let saturation = NumberButton.create("saturation");
+    saturation.setRange(1, 100);
+    saturation.setValue(VectorMap.iterationSaturation);
+    saturation.onChange = function() {
+        VectorMap.iterationSaturation = saturation.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
+
     let viewSelect = new Select("view");
     var numberOfCircles;
 
@@ -130,33 +166,36 @@ function creation() {
     let generators = new Select("generators");
     let generatorColor = "black";
     let canShowGenerators = true;
+    DOM.style("#lineWidthDiv", "display", "initial");
 
     generators.addOption("hide",
         function() {
+            DOM.style("#lineWidthDiv", "display", "none");
+
             Make.updateOutputImage();
         });
 
     generators.addOption("show in black",
         function() {
+            DOM.style("#lineWidthDiv", "display", "initial");
             generatorColor = "black";
             Make.updateOutputImage();
         });
 
     generators.addOption("show in white",
         function() {
+            DOM.style("#lineWidthDiv", "display", "initial");
             generatorColor = "white";
             Make.updateOutputImage();
         });
 
     generators.addOption("show in red",
         function() {
+            DOM.style("#lineWidthDiv", "display", "initial");
             generatorColor = "red";
             Make.updateOutputImage();
         });
     generators.setIndex(1);
-
-    let noGenerators = new Select("noGenerators");
-    noGenerators.addOption(" - - - ", function() {});
 
     let width = Range.create("lineWidth");
     width.setStep(0.001);
@@ -213,24 +252,6 @@ function creation() {
         Make.updateNewMap();
     };
 
-    // initializing map parameters, choosing the map in the method     Make.initializeMap
-    // this is called before calculating the second map in geometrical space, this map  defines the geometry
-
-    // set the mapping  functions via:
-    //         Make.setMapping(mapInputImageMethod, mapStructureMethod);
-    // where
-    //  mapInputImageMethod(position) maps the Vector2 object position, 
-    //  returns the lyapunov coefficient>0 if mapping successful, returns value<0 if mapping not successful
-    // mapStructureMethod is similar, except that returned position.x is number of reflections
-    //  (Note that position.x=0 gets special color (no mapping...), colors defined in vectorMap.js
-
-    // setting a disc radius for the output image:
-    // Make.map.discRadius=???,  value >0 for output image clipped to circle, <0 for no clipping
-    //==========================================================================================================================
-
-    // if we need some special drawing over the image, modify:
-    //   Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
-    // where Make.updateMapOutput is the method to draw the image according to the map
 
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
@@ -247,10 +268,6 @@ function creation() {
 
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
-
-    VectorMap.iterationGamma = 1.6;
-    VectorMap.iterationSaturation = 6;
-    VectorMap.iterationThreshold = 1;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;

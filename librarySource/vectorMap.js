@@ -283,7 +283,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             }
             y += scale;
         }
-        this.createIterationsColors();
         console.timeEnd("makeMap");
     };
 
