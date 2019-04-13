@@ -18,6 +18,7 @@ function creation() {
     Button.createGoToLocation("help", "quadrilateralHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
+    basicUI.setupGenerators();
 
     var numberOfCircles = 4;
     Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
@@ -29,41 +30,6 @@ function creation() {
     let canShowGenerators = true;
 
     var v = new Vector2();
-
-    let generators = new Select("generators");
-    let generatorColor = "black";
-
-    generators.addOption("hide",
-        function() {
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in black",
-        function() {
-            generatorColor = "black";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in white",
-        function() {
-            generatorColor = "white";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in red",
-        function() {
-            generatorColor = "red";
-            Make.updateOutputImage();
-        });
-    generators.setIndex(1);
-
-    let width = Range.create("lineWidth");
-    width.setStep(0.001);
-    width.setRange(0.01, 0.6);
-    width.setValue(0.25);
-    width.onChange = function() {
-        Make.updateOutputImage();
-    };
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
@@ -272,9 +238,9 @@ function creation() {
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
-        if (generators.getIndex() > 0) {
-            Draw.setLineWidth(width.getValue());
-            Draw.setColor(generatorColor);
+        Draw.setLineWidth(basicUI.lineWidthRange.getValue());
+        if (basicUI.generators.getIndex() > 0) {
+            Draw.setColor(basicUI.generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();

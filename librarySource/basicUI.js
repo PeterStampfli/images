@@ -90,9 +90,6 @@ basicUI = {};
         text.click();
     };
 
-
-
-
     // special layout dependent method for placing arrowController
     // called in controlimage.place/controlimage.loadImage/Make.readImageAction
     Make.arrowController.place = function() {
@@ -135,7 +132,6 @@ basicUI = {};
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
     basicUI.showSelect = false;
     DOM.style("#convergenceStyle", "display", "none");
-
 
     // choose between showing the structure or the image, if id "show" exists
     // note that only things happen if option is changed!
@@ -255,6 +251,50 @@ basicUI = {};
         Make.imageQuality = "high";
     }
 
+    // setting up the choices for generators and line width
+
+    basicUI.setupGenerators = function() {
+        basicUI.generators = new Select("generators");
+        basicUI.generatorColor = "black";
+        basicUI.canShowGenerators = true;
+        DOM.style("#lineWidthDiv", "display", "initial");
+
+        basicUI.generators.addOption("hide",
+            function() {
+                DOM.style("#lineWidthDiv", "display", "none");
+                Make.updateOutputImage();
+            });
+
+        basicUI.generators.addOption("show in black",
+            function() {
+                DOM.style("#lineWidthDiv", "display", "initial");
+                basicUI.generatorColor = "black";
+                Make.updateOutputImage();
+            });
+
+        basicUI.generators.addOption("show in white",
+            function() {
+                DOM.style("#lineWidthDiv", "display", "initial");
+                basicUI.generatorColor = "white";
+                Make.updateOutputImage();
+            });
+
+        basicUI.generators.addOption("show in red",
+            function() {
+                DOM.style("#lineWidthDiv", "display", "initial");
+                basicUI.generatorColor = "red";
+                Make.updateOutputImage();
+            });
+        basicUI.generators.setIndex(1);
+
+        basicUI.lineWidthRange = Range.create("lineWidth");
+        basicUI.lineWidthRange.setStep(0.001);
+        basicUI.lineWidthRange.setRange(0.01, 0.6);
+        basicUI.lineWidthRange.setValue(0.25);
+        basicUI.lineWidthRange.onChange = function() {
+            Make.updateOutputImage();
+        };
+    };
 
     /** adjust fontsizes, margins, borders and so on
      * line widths and nullradius

@@ -16,9 +16,41 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
+
+    VectorMap.iterationGamma = 1.6;
+    VectorMap.iterationSaturation = 6;
+    VectorMap.iterationThreshold = 1;
+
+    let gammaRange = Range.create("gammaRange");
+    gammaRange.setStep(0.001);
+    gammaRange.setRange(0.5, 3);
+    gammaRange.setValue(VectorMap.iterationGamma);
+    gammaRange.onChange = function() {
+        VectorMap.iterationGamma = gammaRange.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
+    let threshold = NumberButton.create("threshold");
+    threshold.setRange(1, 100);
+    threshold.setValue(VectorMap.iterationThreshold);
+    threshold.onChange = function() {
+        VectorMap.iterationThreshold = threshold.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
+    let saturation = NumberButton.create("saturation");
+    saturation.setRange(1, 100);
+    saturation.setValue(VectorMap.iterationSaturation);
+    saturation.onChange = function() {
+        VectorMap.iterationSaturation = saturation.getValue();
+        Make.map.createIterationsColors();
+        Make.updateOutputImage();
+    };
+
     let viewSelect = new Select("view");
     var numberOfCircles = 3;
-
 
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
@@ -34,11 +66,12 @@ function creation() {
     var directView = true;
 
     let projectionSelect = new Select("projection");
-
+    multiCircles.setupMouseForTrajectory();
 
     projectionSelect.addOption("direct", function() {
         multiCircles.projection = circleScope.doNothing;
         directView = true;
+        multiCircles.setupMouseForTrajectory();
         Make.updateNewMap();
     });
 
@@ -46,44 +79,11 @@ function creation() {
         circleScope.projection = circleScope.doNothing;
         multiCircles.projection = multiCircles.circleInversionProjection;
         directView = false;
+        multiCircles.setupMouseNoTrajectory();
         Make.updateNewMap();
     });
 
-    let generators = new Select("generators");
-    let generatorColor = "black";
-    let canShowGenerators = true;
-
-    generators.addOption("hide",
-        function() {
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in black",
-        function() {
-            generatorColor = "black";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in white",
-        function() {
-            generatorColor = "white";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in red",
-        function() {
-            generatorColor = "red";
-            Make.updateOutputImage();
-        });
-    generators.setIndex(1);
-
-    let width = Range.create("lineWidth");
-    width.setStep(0.001);
-    width.setRange(0.01, 0.6);
-    width.setValue(0.25);
-    width.onChange = function() {
-        Make.updateOutputImage();
-    };
+    basicUI.setupGenerators();
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -96,7 +96,6 @@ function creation() {
     setN13Button.setRange(2, 10000);
     setN13Button.setValue(4);
     setN13Button.onChange = Make.updateNewMap;
-
 
     let setN23Button = NumberButton.createInfinity("n23");
     setN23Button.setRange(2, 10000);
@@ -130,25 +129,6 @@ function creation() {
     inversionSize.setValue(0.5);
     inversionSize.onChange = Make.updateNewMap;
 
-    // initializing map parameters, choosing the map in the method     Make.initializeMap
-    // this is called before calculating the second map in geometrical space, this map  defines the geometry
-
-    // set the mapping  functions via:
-    //         Make.setMapping(mapInputImageMethod, mapStructureMethod);
-    // where
-    //  mapInputImageMethod(position) maps the Vector2 object position, 
-    //  returns the lyapunov coefficient>0 if mapping successful, returns value<0 if mapping not successful
-    // mapStructureMethod is similar, except that returned position.x is number of reflections
-    //  (Note that position.x=0 gets special color (no mapping...), colors defined in vectorMap.js
-
-    // setting a disc radius for the output image:
-    // Make.map.discRadius=???,  value >0 for output image clipped to circle, <0 for no clipping
-    //==========================================================================================================================
-
-    // if we need some special drawing over the image, modify:
-    //   Make.updateOutputImage = Make.updateMapOutput; //default, if needed add some lines ...
-    // where Make.updateMapOutput is the method to draw the image according to the map
-
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
@@ -161,15 +141,6 @@ function creation() {
     Make.map.inversionColorSymmetry();
 
     circleScope.maxIterations = 200;
-    circleScope.setupMouseNoTrajectory();
-
-    VectorMap.iterationGamma = 1.4;
-    VectorMap.iterationSaturation = 10;
-    VectorMap.iterationThreshold = 5;
-
-    VectorMap.iterationGamma = 1.6;
-    VectorMap.iterationSaturation = 6;
-    VectorMap.iterationThreshold = 1;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;
@@ -245,17 +216,15 @@ function creation() {
                 furtherResults.colorSector = 0;
             };
         }
-
         const inversionSizeValue = inversionSize.getValue();
         multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
     };
 
     Make.updateOutputImage = function() {
-        console.log("updatepoutputimage" + width.getValue());
         Make.updateMapOutput();
-        if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setLineWidth(width.getValue());
-            Draw.setColor(generatorColor);
+        Draw.setLineWidth(basicUI.lineWidthRange.getValue()); // trajectory !!
+        if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators) {
+            Draw.setColor(basicUI.generatorColor);
             Draw.setSolidLine();
             multiCircles.draw();
             Draw.setDashedLine(0.5);
@@ -263,6 +232,7 @@ function creation() {
                 multiCircles.inversionCircle.draw();
             }
         }
+        Draw.setSolidLine();
     };
     multiCircles.setMapping();
 }

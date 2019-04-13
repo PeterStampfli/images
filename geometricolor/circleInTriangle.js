@@ -33,12 +33,9 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-
-
     VectorMap.iterationGamma = 1.6;
     VectorMap.iterationSaturation = 6;
     VectorMap.iterationThreshold = 1;
-
 
     let gammaRange = Range.create("gammaRange");
     gammaRange.setStep(0.001);
@@ -68,10 +65,8 @@ function creation() {
         Make.updateOutputImage();
     };
 
-
     let viewSelect = new Select("view");
     var numberOfCircles;
-
 
     function four() {
         numberOfCircles = 4;
@@ -163,47 +158,7 @@ function creation() {
         Make.updateNewMap();
     });
 
-    let generators = new Select("generators");
-    let generatorColor = "black";
-    let canShowGenerators = true;
-    DOM.style("#lineWidthDiv", "display", "initial");
-
-    generators.addOption("hide",
-        function() {
-            DOM.style("#lineWidthDiv", "display", "none");
-
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in black",
-        function() {
-            DOM.style("#lineWidthDiv", "display", "initial");
-            generatorColor = "black";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in white",
-        function() {
-            DOM.style("#lineWidthDiv", "display", "initial");
-            generatorColor = "white";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in red",
-        function() {
-            DOM.style("#lineWidthDiv", "display", "initial");
-            generatorColor = "red";
-            Make.updateOutputImage();
-        });
-    generators.setIndex(1);
-
-    let width = Range.create("lineWidth");
-    width.setStep(0.001);
-    width.setRange(0.01, 0.6);
-    width.setValue(0.25);
-    width.onChange = function() {
-        Make.updateOutputImage();
-    };
+    basicUI.setupGenerators();
 
     //choosing the symmetries, and set initial values
     // basic triangle
@@ -329,7 +284,7 @@ function creation() {
             DOM.style("#projectionEuklidicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = hyperbolicProjection;
             Make.map.discRadius = hyperbolicRadius;
-            canShowGenerators = hyperbolicCanShowGenerators;
+            basicUI.canShowGenerators = hyperbolicCanShowGenerators;
             switch (numberOfCircles) {
                 case 3:
                     firstCircleHyperbolic();
@@ -344,7 +299,7 @@ function creation() {
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = euklidicProjection;
             Make.map.discRadius = euklidicRadius;
-            canShowGenerators = euklidicCanShowGenerators;
+            basicUI.canShowGenerators = euklidicCanShowGenerators;
 
             switch (numberOfCircles) {
                 case 3:
@@ -360,7 +315,7 @@ function creation() {
             DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
             circleScope.projection = ellipticProjection;
             Make.map.discRadius = ellipticRadius;
-            canShowGenerators = ellipticCanShowGenerators;
+            basicUI.canShowGenerators = ellipticCanShowGenerators;
             switch (numberOfCircles) {
                 case 3:
                     firstCircleElliptic();
@@ -371,7 +326,7 @@ function creation() {
                     break;
             }
         }
-        if (canShowGenerators) {
+        if (basicUI.canShowGenerators) {
             DOM.style("#generatorsDiv", "display", "initial");
             DOM.style("#noGeneratorsDiv", "display", "none");
             circleScope.setupMouseForTrajectory();
@@ -390,9 +345,9 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setLineWidth(width.getValue());
-            Draw.setColor(generatorColor);
+        if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators) {
+            Draw.setLineWidth(basicUI.lineWidthRange.getValue());
+            Draw.setColor(basicUI.generatorColor);
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();

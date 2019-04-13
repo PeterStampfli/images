@@ -10,7 +10,7 @@ function creation() {
     // navigation
     // the help page depends on the things we are generating
     Button.createGoToLocation("help", "twoCirclesAppHelp.html");
-    // where is the home ??
+    basicUI.setupGenerators();
 
     Make.imageQuality = "high";
     Make.map.discRadius = -1;
@@ -34,6 +34,8 @@ function creation() {
     worldradius2 = worldradius * worldradius;
 
     triangleAppolonius();
+
+
 
     let geoSelect = new Select("geometry");
 
@@ -63,13 +65,17 @@ function creation() {
 
     let viewSelect = new Select("view");
     let invertedView = false;
+    DOM.style("#generatorsDiv", "display", "initial");
+    multiCircles.setupMouseForTrajectory();
 
     viewSelect.addOption("Poincaré disc", function() {
         console.log("direct view");
         Make.map.discRadius = -1;
         invertedView = false;
         multiCircles.projection = multiCircles.doNothing;
-        canShowGenerators = true;
+        basicUI.canShowGenerators = true;
+        DOM.style("#generatorsDiv", "display", "initial");
+        multiCircles.setupMouseForTrajectory();
         Make.updateNewMap();
     });
 
@@ -89,7 +95,9 @@ function creation() {
         Make.map.discRadius = -1;
         invertedView = false;
         multiCircles.projection = poincarePlane;
-        canShowGenerators = false;
+        basicUI.canShowGenerators = false;
+        DOM.style("#generatorsDiv", "display", "none");
+        multiCircles.setupMouseNoTrajectory();
         Make.updateNewMap();
     });
 
@@ -98,7 +106,9 @@ function creation() {
         Make.map.discRadius = -1;
         invertedView = true;
         multiCircles.projection = multiCircles.circleInversionProjection;
-        canShowGenerators = false;
+        basicUI.canShowGenerators = true;
+        DOM.style("#generatorsDiv", "display", "initial");
+        multiCircles.setupMouseNoTrajectory();
         Make.updateNewMap();
     });
 
@@ -115,51 +125,15 @@ function creation() {
         Make.map.discRadius = worldradius;
         invertedView = true;
         multiCircles.projection = kleinDisc;
-        canShowGenerators = false;
+        basicUI.canShowGenerators = false;
+        DOM.style("#generatorsDiv", "display", "none");
+        multiCircles.setupMouseNoTrajectory();
         Make.updateNewMap();
     });
 
-    let generators = new Select("generators");
-    let generatorColor = "black";
-    let canShowGenerators = true;
-
-    generators.addOption("hide",
-        function() {
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in black",
-        function() {
-            generatorColor = "black";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in white",
-        function() {
-            generatorColor = "white";
-            Make.updateOutputImage();
-        });
-
-    generators.addOption("show in red",
-        function() {
-            generatorColor = "red";
-            Make.updateOutputImage();
-        });
-    generators.setIndex(1);
-
-    let noGenerators = new Select("noGenerators");
-    noGenerators.addOption(" - - - ", function() {});
-
-    let width = Range.create("lineWidth");
-    width.setStep(0.001);
-    width.setRange(0.01, 0.6);
-    width.setValue(0.25);
-    width.onChange = function() {
-        Make.updateOutputImage();
-    };
-
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-10, 10, -10);
+    multiCircles.inversionCircle = new Circle(Math.sqrt(2) * worldradius, worldradius, 0);
 
     // building blocks
     function twoColorFinishMap(position, furtherResults) {
@@ -177,10 +151,9 @@ function creation() {
     function triangle() {
         const d = 2 * worldradius;
         const r = d / 2 * rt3;
-        multiCircles.addCircleInsideOut(r, 0, d);
-        multiCircles.addCircleInsideOut(r, r, -0.5 * d);
-        multiCircles.addCircleInsideOut(r, -r, -0.5 * d);
-        multiCircles.inversionCircle = new Circle(d / 2, 0, -d * 0.5);
+        multiCircles.addCircleInsideOut(r, -d, 0);
+        multiCircles.addCircleInsideOut(r, 0.5 * d, r);
+        multiCircles.addCircleInsideOut(r, 0.5 * d, -r);
         multiCircles.finishMap = twoColorFinishMap;
     }
 
@@ -198,9 +171,9 @@ function creation() {
                 position.scale(worldradius2 / l2);
                 furtherResults.colorSector = 3;
             } else {
-                if (position.y < -rCenter05) {
+                if (position.x > rCenter05) {
                     furtherResults.colorSector = 0;
-                } else if (position.x > 0) {
+                } else if (position.y > 0) {
                     furtherResults.colorSector = 1;
                 } else {
                     furtherResults.colorSector = 2;
@@ -215,7 +188,6 @@ function creation() {
         multiCircles.addCircleInsideOut(worldradius, -worldradius, worldradius);
         multiCircles.addCircleInsideOut(worldradius, -worldradius, -worldradius);
         multiCircles.finishMap = twoColorFinishMap;
-        multiCircles.inversionCircle = new Circle(worldradius, 0, -worldradius);
     }
 
     function fourAppolonius() {
@@ -245,25 +217,21 @@ function creation() {
         };
     }
 
-    Make.initializeMap = function() {
-        if (canShowGenerators) {
-            DOM.style("#generatorsDiv", "display", "initial");
-            DOM.style("#noGeneratorsDiv", "display", "none");
-            multiCircles.setupMouseForTrajectory();
-        } else {
-            DOM.style("#generatorsDiv", "display", "none");
-            DOM.style("#noGeneratorsDiv", "display", "initial");
-            multiCircles.setupMouseNoTrajectory();
-        }
-    };
+    Make.initializeMap = function() {};
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        if ((generators.getIndex() > 0) && canShowGenerators) {
-            Draw.setColor(generatorColor);
-            Draw.setLineWidth(width.getValue());
+        Draw.setLineWidth(basicUI.lineWidthRange.getValue());
+        if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators) {
+            Draw.setColor(basicUI.generatorColor);
+            Draw.setSolidLine();
             multiCircles.draw();
+            Draw.setDashedLine(0.5);
+            if (invertedView) {
+                multiCircles.inversionCircle.draw();
+            }
         }
+        Draw.setSolidLine();
     };
     multiCircles.setMapping();
 }
