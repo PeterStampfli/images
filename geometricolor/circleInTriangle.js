@@ -33,37 +33,7 @@ function creation() {
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
-    VectorMap.iterationGamma = 1.6;
-    VectorMap.iterationSaturation = 6;
-    VectorMap.iterationThreshold = 1;
-
-    let gammaRange = Range.create("gammaRange");
-    gammaRange.setStep(0.001);
-    gammaRange.setRange(0.5, 3);
-    gammaRange.setValue(VectorMap.iterationGamma);
-    gammaRange.onChange = function() {
-        VectorMap.iterationGamma = gammaRange.getValue();
-        Make.map.createIterationsColors();
-        Make.updateOutputImage();
-    };
-
-    let threshold = NumberButton.create("threshold");
-    threshold.setRange(1, 100);
-    threshold.setValue(VectorMap.iterationThreshold);
-    threshold.onChange = function() {
-        VectorMap.iterationThreshold = threshold.getValue();
-        Make.map.createIterationsColors();
-        Make.updateOutputImage();
-    };
-
-    let saturation = NumberButton.create("saturation");
-    saturation.setRange(1, 100);
-    saturation.setValue(VectorMap.iterationSaturation);
-    saturation.onChange = function() {
-        VectorMap.iterationSaturation = saturation.getValue();
-        Make.map.createIterationsColors();
-        Make.updateOutputImage();
-    };
+    basicUI.setupIterationStyle();
 
     let viewSelect = new Select("view");
     var numberOfCircles;
@@ -127,7 +97,6 @@ function creation() {
         euklidicRadius = -1;
         Make.updateNewMap();
     });
-
 
     projectionEuklidic.addOption("Inverted", function() {
         euklidicCanShowGenerators = false;

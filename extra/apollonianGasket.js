@@ -11,6 +11,7 @@ function creation() {
     // the help page depends on the things we are generating
     Button.createGoToLocation("help", "twoCirclesAppHelp.html");
     basicUI.setupGenerators();
+    basicUI.setupIterationStyle();
 
     Make.imageQuality = "high";
     Make.map.discRadius = -1;
@@ -34,8 +35,6 @@ function creation() {
     worldradius2 = worldradius * worldradius;
 
     triangleAppolonius();
-
-
 
     let geoSelect = new Select("geometry");
 

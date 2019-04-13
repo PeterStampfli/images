@@ -75,9 +75,7 @@ function creation() {
     circleScope.maxIterations = 200;
     circleScope.setupMouseForTrajectory();
 
-    VectorMap.iterationGamma = 1.6;
-    VectorMap.iterationSaturation = 6;
-    VectorMap.iterationThreshold = 1;
+    basicUI.setupIterationStyle();
 
     Make.initializeMap = function() {
         let k = setKButton.getValue();
