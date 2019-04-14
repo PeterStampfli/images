@@ -264,26 +264,22 @@ basicUI = {};
                 Make.updateOutputImage();
             });
 
-        basicUI.generators.addOption("show in black",
-            function() {
-                DOM.style("#lineWidthDiv", "display", "initial");
-                basicUI.generatorColor = "black";
-                Make.updateOutputImage();
-            });
+        function addColor(color) {
+            basicUI.generators.addOption(color,
+                function() {
+                    DOM.style("#lineWidthDiv", "display", "initial");
+                    basicUI.generatorColor = color;
+                    Make.updateOutputImage();
+                });
+        }
 
-        basicUI.generators.addOption("show in white",
-            function() {
-                DOM.style("#lineWidthDiv", "display", "initial");
-                basicUI.generatorColor = "white";
-                Make.updateOutputImage();
-            });
+        addColor("black");
+        addColor("blue");
+        addColor("red");
+        addColor("green");
+        addColor("yellow");
+        addColor("white");
 
-        basicUI.generators.addOption("show in red",
-            function() {
-                DOM.style("#lineWidthDiv", "display", "initial");
-                basicUI.generatorColor = "red";
-                Make.updateOutputImage();
-            });
         basicUI.generators.setIndex(1);
 
         basicUI.lineWidthRange = Range.create("lineWidth");

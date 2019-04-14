@@ -100,14 +100,17 @@ function creation() {
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
     Make.map.structureColorCollection = [];
-    Make.map.addStructureColors(1, 140, 100);
-    Make.map.addStructureColors(3.5, 140, 100);
+    Make.map.addStructureColors(1, 200, 100);
+    Make.map.addStructureColors(3.5, 200, 100);
     // Make.map.addStructureColors(4, 140, 100);
     // Make.map.addStructureColors(5, 140, 100);
 
-    Make.map.inversionColorSymmetry();
+    Make.map.hueInversionColorSymmetry();
 
     circleScope.maxIterations = 200;
+
+    const length = 2;
+    const length2 = length * length;
 
     function triangleGeometry(k, m, n) {
         let sumAngles = 1 / k + 1 / m + 1 / n;
@@ -152,8 +155,15 @@ function creation() {
         let xInv = Math.cos(delta) * r1;
         let yInv = -Math.sin(delta) * r1;
 
-        const xm = 0.333 * (x1 + x2 + x3);
-        const ym = 0.333 * (y1 + y2 + y3);
+        let xm = x1 + x2;
+        let ym = y1 + y2;
+        if (numberOfCircles === 3) {
+            xm = 0.333 * (xm + x3);
+            ym = 0.333 * (ym + y3);
+        } else {
+            xm *= 0.5;
+            ym *= 0.5;
+        }
 
         x1 -= xm;
         x2 -= xm;
@@ -176,11 +186,13 @@ function creation() {
                     furtherResults.colorSector = 1;
                 } else {
                     furtherResults.colorSector = 0;
+                    position.scale(length2 / position.length2());
                 }
             };
         } else {
             multiCircles.finishMap = function(position, furtherResults) {
                 furtherResults.colorSector = 0;
+                position.scale(length2 / position.length2());
             };
         }
         const inversionSizeValue = inversionSize.getValue();
