@@ -317,10 +317,16 @@ function creation() {
         if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators) {
             Draw.setLineWidth(basicUI.lineWidthRange.getValue());
             Draw.setColor(basicUI.generatorColor);
+            Draw.setSolidLine();
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
+            if ((sumAngles > 1.001) || (sumAngles < 0.99)) {
+                Draw.setDashedLine(0.5);
+                Draw.circle(worldradius, zero);
+            }
         }
+        Draw.setSolidLine();
     };
     circleScope.setMapping();
 }
@@ -331,6 +337,7 @@ window.onload = function() {
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();
+    basicUI.showSelectAddNothing();
 };
 
 window.onresize = function() {

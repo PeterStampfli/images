@@ -191,15 +191,20 @@ basicUI = {};
                     };
                     Make.updateOutputImage();
                 });
+        };
 
-            basicUI.showSelect.addOption("convergence/structure",
+        /*
+         * draw nothing, except generating elements
+         * */
+        basicUI.showSelectAddNothing = function() {
+            basicUI.showSelect.addOption("nothing",
                 function() {
-                    DOM.style("#convergenceStyle", "display", "initial");
+                    DOM.style("#convergenceStyle", "display", "none");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
                     Make.draw = function() {
-                        Make.map.drawIterationsStructure();
+                        Make.map.drawNothing();
                     };
                     Make.updateOutputImage();
                 });
@@ -284,7 +289,7 @@ basicUI = {};
 
         basicUI.lineWidthRange = Range.create("lineWidth");
         basicUI.lineWidthRange.setStep(0.001);
-        basicUI.lineWidthRange.setRange(0.001, 0.6);
+        basicUI.lineWidthRange.setRange(0.001, 2);
         basicUI.lineWidthRange.setValue(0.25);
         basicUI.lineWidthRange.onChange = function() {
             Make.updateOutputImage();

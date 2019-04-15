@@ -531,7 +531,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 // console.log(index+" "+reflectionsArray[index])
             } else {
                 pixel[index] = intColorOff;
-                pixel[index] = iterationsColors[0];
             }
         }
         pixelCanvas.showPixel();
@@ -570,12 +569,27 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 pixelCanvas.setPixelAtIndex(color, index);
             } else {
                 pixel[index] = intColorOff;
-                pixel[index] = iterationsColors[0];
             }
         }
         pixelCanvas.showPixel();
     };
 
+
+    /**
+     * draw on a pixelcanvas use a map
+     * nothing
+     * @method VectorMap#drawIterations
+     */
+    VectorMap.prototype.drawNothing = function() {
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const length = this.lyapunovArray.length;
+        const color = PixelCanvas.integerOf(new Color(255, 255, 255));
+        for (var index = 0; index < length; index++) {
+            pixel[index] = color;
+        }
+        pixelCanvas.showPixel();
+    };
     /**
      * draw on a pixelcanvas use a map
      * color showing number of iterations, based on iterationsArray
