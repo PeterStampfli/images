@@ -41,6 +41,7 @@ function creation() {
     function four() {
         numberOfCircles = 4;
         DOM.style("#centerCircle", "display", "initial");
+        DOM.style("#inversion", "display", "initial");
     }
 
     // startup configuration
@@ -50,6 +51,7 @@ function creation() {
         numberOfCircles = 3;
         Make.updateNewMap();
         DOM.style("#centerCircle", "display", "none");
+        DOM.style("#inversion", "display", "none");
     });
 
     viewSelect.addOption("four", function() {
@@ -132,17 +134,17 @@ function creation() {
     //choosing the symmetries, and set initial values
     // basic triangle
     let setKButton = NumberButton.create("k");
-    setKButton.setRange(2, 10000);
+    setKButton.setRange(2, 10);
     setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.createInfinity("m");
-    setMButton.setRange(2, 10000);
+    setMButton.setRange(2, 10);
     setMButton.setValue(4);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.createInfinity("n");
-    setNButton.setRange(2, 10000);
+    setNButton.setRange(2, 10);
     setNButton.setValue(2);
     setNButton.onChange = Make.updateNewMap;
 
@@ -158,21 +160,58 @@ function creation() {
     //choosing the symmetries, and set initial values
     // second circle, three intersections
     let setK2Button = NumberButton.createInfinity("k2");
-    setK2Button.setRange(2, 10000);
+    setK2Button.setRange(2, 10);
     setK2Button.setValue(3);
     setK2Button.onChange = Make.updateNewMap;
 
     let setM2Button = NumberButton.createInfinity("m2");
-    setM2Button.setRange(2, 10000);
+    setM2Button.setRange(2, 10);
     setM2Button.setValue(4);
     setM2Button.onChange = function() {
         Make.updateNewMap();
     };
 
     let setN2Button = NumberButton.createInfinity("n2");
-    setN2Button.setRange(2, 10000);
+    setN2Button.setRange(2, 10);
     setN2Button.setValue(3);
     setN2Button.onChange = function() {
+        Make.updateNewMap();
+    };
+
+    // symmetries
+    const rotationButton = new Button("rotation");
+    rotationButton.onClick = function() {
+        console.log("rotate");
+        let h = setKButton.getValue();
+        setKButton.setValue(setMButton.getValue());
+        setMButton.setValue(setNButton.getValue());
+        setNButton.setValue(h);
+        h = setM2Button.getValue();
+        setM2Button.setValue(setK2Button.getValue());
+        setK2Button.setValue(setN2Button.getValue());
+        setN2Button.setValue(h);
+        Make.updateNewMap();
+    };
+
+    function exchangeButtonValues(a, b) {
+        let h = a.getValue();
+        a.setValue(b.getValue());
+        b.setValue(h);
+    }
+
+    const mirrorButton = new Button("mirror");
+    mirrorButton.onClick = function() {
+        console.log("mirror");
+        exchangeButtonValues(setMButton, setNButton);
+        exchangeButtonValues(setM2Button, setN2Button);
+        Make.updateNewMap();
+    };
+
+    const inversionButton = new Button("inversion");
+    inversionButton.onClick = function() {
+        console.log("inversion");
+        exchangeButtonValues(setMButton, setM2Button);
+        exchangeButtonValues(setNButton, setN2Button);
         Make.updateNewMap();
     };
 
@@ -238,8 +277,8 @@ function creation() {
         cosGamma2 = Fast.cos(Math.PI / k2);
         sinGamma2 = Fast.sin(Math.PI / k2);
         numbers1.innerHTML = "(" + infty(k1) + ", " + infty(m2) + ", " + infty(n2) + "),";
-        numbers2.innerHTML = "(" + infty(k2) + ", " + infty(m2) + ", " + infty(m1) + "),";
-        numbers3.innerHTML = "(" + infty(k2) + ", " + infty(n1) + ", " + infty(n2) + "),";
+        numbers2.innerHTML = "(" + infty(m1) + ", " + infty(k2) + ", " + infty(m2) + "),";
+        numbers3.innerHTML = "(" + infty(n1) + ", " + infty(n2) + ", " + infty(k2) + "),";
         sum1.innerHTML = "&nbsp " + triangleGeometry(k1, n2, m2);
         sum2.innerHTML = "&nbsp " + triangleGeometry(k2, m1, m2);
         sum3.innerHTML = "&nbsp " + triangleGeometry(k2, n1, n2);

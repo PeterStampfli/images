@@ -48,6 +48,11 @@ function creation() {
         triangleAppolonius();
         Make.updateNewMap();
     });
+    geoSelect.addOption("Apollonian gasket plus", function() {
+        multiCircles.reset();
+        sevenAppolonius();
+        Make.updateNewMap();
+    });
     geoSelect.addOption("square", function() {
         multiCircles.reset();
         four();
@@ -179,6 +184,19 @@ function creation() {
                 }
             }
         };
+    }
+
+    // extra appolonius
+    function sevenAppolonius() {
+        triangleAppolonius();
+        const d = 2 * worldradius;
+        const r = d / 2 * rt3;
+        const rCenter = d - r;
+        const rho = (d * d - d * rCenter + rCenter * rCenter - r * r) / (2 * r + d - 2 * rCenter);
+        const dd = rCenter + rho;
+        multiCircles.addCircleInsideOut(rho, dd, 0);
+        multiCircles.addCircleInsideOut(rho, -0.5 * dd, rt3 * 0.5 * dd);
+        multiCircles.addCircleInsideOut(rho, -0.5 * dd, -rt3 * 0.5 * dd);
     }
 
     function four() {
