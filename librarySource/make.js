@@ -424,10 +424,16 @@ var Make = {};
 
     /** callback function to call after an image has been read
      *  puts image on controlImage, show result 
+     * update layout (controltext) in basicUI for first input image
      * @method Make.readImageAction
      */
     Make.readImageAction = function() {
-        Make.inputImageExists = true;
+        if (Make.inputImageExists) {
+            Make.inputImageExists = true;
+        } else {
+            Make.inputImageExists = true;
+            basicUI.layout();
+        }
         Make.inputImage.createIntegralColorTables();
         Make.controlImage.loadInputImage(Make.inputImage);
         Make.arrowController.show();

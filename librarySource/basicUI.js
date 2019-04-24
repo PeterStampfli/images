@@ -107,7 +107,6 @@ basicUI = {};
 
     //  create the elements in the text control panel that are independent of particular image/symmetry
 
-
     // create image input button if "openInputImage" exists
     var imageInputButton;
     var showSelectImage = false;
@@ -289,7 +288,7 @@ basicUI = {};
 
         basicUI.lineWidthRange = Range.create("lineWidth");
         basicUI.lineWidthRange.setStep(0.001);
-        basicUI.lineWidthRange.setRange(0.001, 2);
+        basicUI.lineWidthRange.setRange(0.001, 4);
         basicUI.lineWidthRange.setValue(0.25);
         basicUI.lineWidthRange.onChange = function() {
             Make.updateOutputImage();
@@ -416,6 +415,7 @@ basicUI = {};
 
         // make up the control image dimensions
         let controlImageHeight = controlImageHeightFraction * window.innerHeight;
+
         // layout: control image at top close to space for output image
         Make.controlImage.setDimensions(controlWidth, controlImageHeight);
         Make.controlImage.setPosition(outputImageDivWidth, 0); // limits
@@ -423,9 +423,14 @@ basicUI = {};
         Make.controlImage.centerHorizontal = true;
 
         // the text UI control div
-        let textMaxHeight = textMaxHeightFraction * window.innerHeight;
-        DOM.style("#text", "maxWidth", "initial", "width", controlWidth + px);
-        DOM.style("#text", "maxHeight", textMaxHeight + px, "height", "initial");
+        var textMaxHeight;
+        if (Make.inputImageExists) {
+            textMaxHeight = textMaxHeightFraction * window.innerHeight;
+        } else {
+            textMaxHeight = window.innerHeight;
+        }
+        DOM.style("#text", "width", controlWidth + px);
+        DOM.style("#text", "height", textMaxHeight + px);
     };
 
     /**
@@ -479,9 +484,15 @@ basicUI = {};
         Make.controlImage.centerVertical = true;
 
         // the text UI control div
-        let textMaxWidth = textMaxWidthFraction * window.innerWidth;
-        DOM.style("#text", "maxWidth", textMaxWidth + px, "width", "initial");
-        DOM.style("#text", "maxHeight", "initial", "height", controlHeight + px);
+        var textMaxWidth = textMaxWidthFraction * window.innerWidth;
+        if (Make.inputImageExists) {
+            textMaxWidth = textMaxWidthFraction * window.innerWidth;
+        } else {
+            textMaxWidth = window.innerWidth;
+        }
+
+        DOM.style("#text", "width", textMaxWidth + px);
+        DOM.style("#text", "height", controlHeight + px);
     };
 
     /**

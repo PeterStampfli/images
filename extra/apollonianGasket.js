@@ -17,10 +17,10 @@ function creation() {
     Make.map.discRadius = -1;
 
     Make.map.structureColorCollection = [];
-    Make.map.addStructureColors(1, 120, 70);
+    Make.map.addStructureColors(3.5, 120, 70);
     Make.map.addStructureColors(2, 120, 70);
     Make.map.addStructureColors(0, 120, 70);
-    Make.map.addStructureColors(3.5, 120, 70);
+    Make.map.addStructureColors(1, 120, 70);
     Make.map.addStructureColors(5, 120, 70);
     Make.map.rgbRotationInversionColorSymmetry();
 
