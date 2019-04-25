@@ -490,7 +490,7 @@ var Make = {};
      * @param {String} filePath - relative file path of image
      */
     Make.readImageWithFilePathAtSetup = function(filePath) {
-        Make.inputImage.readImageWithFilePath(filePath, Make.readImageAction);
+        Make.inputImage.readImageWithFilePath(filePath, Make.readImageAction); // it's a pixelcanvas
     };
 
 

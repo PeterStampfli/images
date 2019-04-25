@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width">
+<head>
+    <title>drag and drop</title>
+</head>
+
+<body>
+
+
+
+
+
+
+</body>
+
+
+
+<script type="text/javascript">
+
+
+
+
+
+
+  
+
+basicUI={};
+
+basicUI.dragAndDrop=function(){
+
+//  return true if we have an image file
+function isImageFile(file){
+    const fileNameParts=file.name.split(".");
+    if (fileNameParts.length===1){
+        return false;         // not a file because of missing extension
+    }
+    else {
+    const extension=fileNameParts[1].toLowerCase();
+    return (extension=="jpg")||(extension=="jpeg")||(extension=="png");
+    }
+    }
+
+
+window.ondrop=function(event) {
+  console.log('File(s) dropped');
+  event.preventDefault();
+  
+  // get first image file (if there is one)
+  var file;
+  let imageFileFound=false;
+  let i=0;
+  if (event.dataTransfer.items) {
+    // Use DataTransferItemList interface to access the file(s)
+    const length=event.dataTransfer.items.length;
+    
+    while(!imageFileFound&&(i<length)){
+      // If dropped items aren't files, reject them
+      if (event.dataTransfer.items[i].kind === 'file') {
+        file = event.dataTransfer.items[i].getAsFile();
+        imageFileFound=isImageFile(file);
+        i++;
+        console.log('..items. file[' + i + '].name = ' + file.name);
+        console.log('... file[' + i + '].type = ' + file.type);
+        
+        console.log(imageFileFound); 
+        // make function is image file
+      }
+    }
+  } else {
+  
+    // Use DataTransfer interface to access the file(s)
+    const length=event.dataTransfer.files.length;
+    while(!imageFileFound&&(i<length)){
+    
+    file=event.dataTransfer.files[i];
+    imageFileFound=isImageFile(file);
+        i++;
+      console.log('datatransfer.files... file[' + i + '].name = ' + file.name);
+              console.log(imageFileFound); 
+
+    }
+  }
+  // do something with the file if it is an imageFile
+  if (imageFileFound){
+  console.log("we have an image file "+file.name);
+  }
+  
+  };
+
+window.ondragover=function(event) {
+  event.preventDefault();
+};
+
+};
+
+basicUI.dragAndDrop();
+
+
+
+
+</script>
+
+</html>
