@@ -33,18 +33,18 @@ basicUI = {};
     //===============================================================================
     DOM.style("body", "backgroundColor", backgroundColor);
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
-    
-// interaction elements
- //   =========================================================
-    
+
+    // interaction elements
+    //   =========================================================
+
     /**
      * enable drag and drop for input images
      * @method basicUI.dragAndDrop
      */
-    
-    
-    
-    
+
+
+
+
 
     /**
      * enable/disable mouse and touch on control image and arrow controller
@@ -244,7 +244,7 @@ basicUI = {};
     // make selection for quality if id "quality" exists
     // else choose high quality
     if (DOM.idExists("quality")) {
-            Make.imageQuality = "low";
+        Make.imageQuality = "low";
         let qualitySelect = new Select("quality");
 
         qualitySelect.addOption("low",
