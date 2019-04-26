@@ -209,7 +209,8 @@ function PixelCanvas(idName) {
     };
 
     /**
-     * read an image from a file blob, set canvas to same size
+     * read an image from a file (or) blob, set canvas to same size
+     * NOTE probable confusion, file is an extension of blob: file instanceof Blob; // true
      * draw it on canvas, make its pixels and do some action after image is loaded
      * @method PixelCanvas#readImage
      * @param {File} file - file blob for input image

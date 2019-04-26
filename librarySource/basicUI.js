@@ -36,15 +36,7 @@ basicUI = {};
 
     // interaction elements
     //   =========================================================
-
-    /**
-     * enable drag and drop for input images
-     * @method basicUI.dragAndDrop
-     */
-
-
-
-
+    //==========================================================================
 
     /**
      * enable/disable mouse and touch on control image and arrow controller
@@ -117,25 +109,96 @@ basicUI = {};
 
     //  create the elements in the text control panel that are independent of particular image/symmetry
 
+    // image input
+
+    // what to change upon image input, 
+    function interfaceChangesUponImageInput() {
+        if (basicUI.showSelect) { // if a choice for what to see exists, then add show image
+            if (!showSelectImage) {
+                showSelectImage = true;
+                basicUI.showSelectAddImage();
+            }
+            if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
+                basicUI.showSelect.setIndex(basicUI.showSelect.actions.length - 1);
+            }
+        }
+        basicUI.activateControls(true);
+    }
+
+    /**
+     * enable drag and drop for input images
+     * @method basicUI.dragAndDrop
+     */
+    basicUI.dragAndDrop = function() {
+        //  return true if we have an image file
+        function isImageFile(file) {
+            const fileNameParts = file.name.split(".");
+            if (fileNameParts.length === 1) {
+                return false; // not a file because of missing extension
+            } else {
+                const extension = fileNameParts[1].toLowerCase();
+                return (extension == "jpg") || (extension == "jpeg") || (extension == "png");
+            }
+        }
+
+        window.ondrop = function(event) {
+            event.preventDefault();
+            // get first image file (if there is one)
+            var file;
+            let imageFileFound = false;
+            let i = 0;
+            if (event.dataTransfer.items) {
+                // Use DataTransferItemList interface to access the file(s)
+                const length = event.dataTransfer.items.length;
+                while (!imageFileFound && (i < length)) {
+                    // If dropped items aren't files, reject them
+                    if (event.dataTransfer.items[i].kind === 'file') {
+                        file = event.dataTransfer.items[i].getAsFile();
+                        imageFileFound = isImageFile(file);
+                        i++;
+                    }
+                }
+            } else {
+                // Use DataTransfer interface to access the file(s)
+                const length = event.dataTransfer.files.length;
+                while (!imageFileFound && (i < length)) {
+                    file = event.dataTransfer.files[i];
+                    imageFileFound = isImageFile(file);
+                    i++;
+                }
+            }
+            // do something with the file if it is an imageFile
+            if (imageFileFound) {
+                interfaceChangesUponImageInput();
+                if (DOM.idExists("inputImageName")) {
+                    const fileNameOutput = document.getElementById("inputImageName");
+                    fileNameOutput.innerHTML = file.name;
+                }
+                Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
+            }
+        };
+
+        // prevent default on dragover, else the browser will simply show the image
+        window.ondragover = function(event) {
+            event.preventDefault();
+        };
+    };
+
     // create image input button if "openInputImage" exists
+    // make drag and drop possible
     var imageInputButton;
     var showSelectImage = false;
     if (DOM.idExists("openInputImage")) {
         imageInputButton = Make.createImageInput("openInputImage", "inputImageName");
+        document.getElementById("inputImageName").innerHTML = "or use drag and drop";
+        basicUI.dragAndDrop();
         imageInputButton.onClick = function() {
-            if (basicUI.showSelect) {
-                if (!showSelectImage) {
-                    showSelectImage = true;
-                    basicUI.showSelectAddImage();
-                }
-                if (!Make.showingInputImage) { // switch to showing image view selection if image is not somehow shown
-                    basicUI.showSelect.setIndex(basicUI.showSelect.actions.length - 1);
-                }
-            }
-            basicUI.activateControls(true);
+            interfaceChangesUponImageInput();
             imageInputButton.fileInput.click();
         };
     }
+
+    // about the output image
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
     basicUI.showSelect = false;

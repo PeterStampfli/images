@@ -468,7 +468,6 @@ var Make = {};
     Make.createImageInput = function(idButton, idFileNameOutput) {
         let imageInputButton = new Button(idButton);
         imageInputButton.asFileInput();
-
         if (arguments.length > 1) {
             let fileNameOutput = document.getElementById(idFileNameOutput);
             imageInputButton.onFileInput = function(file) {
@@ -508,8 +507,6 @@ var Make = {};
             hiddenImageInput.click();
         }, key);
     };
-
-
 
     //        shifting and scaling the output image
     //___________________________________________________________________________
