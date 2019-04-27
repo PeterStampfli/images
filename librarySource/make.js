@@ -469,7 +469,7 @@ var Make = {};
         let imageInputButton = new Button(idButton);
         imageInputButton.asFileInput();
         if (arguments.length > 1) {
-            let fileNameOutput = document.getElementById(idFileNameOutput);
+            const fileNameOutput = document.getElementById(idFileNameOutput);
             imageInputButton.onFileInput = function(file) {
                 Make.inputImage.readImageFromFileBlob(file, Make.readImageAction);
                 fileNameOutput.innerHTML = file.name;
