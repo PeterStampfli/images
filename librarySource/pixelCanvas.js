@@ -45,6 +45,9 @@
 function PixelCanvas(idName) {
     "use strict";
     if (arguments.length > 0) {
+        if (document.getElementById(idName) == null) {
+            DOM.create("canvas", idName, "body");
+        }
         this.canvas = document.getElementById(idName);
     } else {
         this.canvas = document.createElement("canvas"); // off-screen canvas
@@ -234,6 +237,24 @@ function PixelCanvas(idName) {
      */
     PixelCanvas.prototype.readImageWithFilePath = function(filePath, action) {
         var image = this.createImageOnloadPixels(action);
+        image.src = filePath;
+    };
+
+    /**
+     * draw an image without changing canvas size, does not create pixels, image fills canvas
+     * beware of ratio
+     * @method PixelCanvas.drawImageWithFilePath
+     * @param {String} filePath - for input image
+     */
+    PixelCanvas.prototype.drawImageWithFilePath = function(filePath) {
+        console.log(filePath);
+        var pixelCanvas = this;
+        var image = new Image();
+        image.onload = function() {
+            pixelCanvas.canvasContext.drawImage(image, 0, 0, pixelCanvas.width, pixelCanvas.height);
+            console.log("ddd");
+        };
+        //  image.onerror=...
         image.src = filePath;
     };
 

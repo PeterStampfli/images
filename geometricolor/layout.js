@@ -7,6 +7,10 @@
 
 var Layout = {};
 
+// patching
+basicUI = {};
+basicUI.layout = function() {};
+
 
 (function() {
     "use strict";
@@ -183,6 +187,21 @@ var Layout = {};
         Make.createOpenImageKey("i");
     };
 
+    /**
+     * test if landscape format
+     * error message if not 
+     * @method Layout.isLandscape
+     * @return true if it is landscape
+     */
+    Layout.isLandscape = function() {
+        const result = window.innerHeight < window.innerWidth;
+        if (!result) {
+            document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
+            console.log("high");
 
+            DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
+        }
+        return result;
+    }
 
 }());

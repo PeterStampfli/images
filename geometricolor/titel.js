@@ -1,9 +1,6 @@
 /* jshint esversion:6 */
 
-if (window.innerHeight > window.innerWidth) {
-    document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
-    DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
-} else {
+if (Layout.isLandscape()) {
     Layout.setup("", "setup.html");
     Layout.activateFontSizeChanges();
     Layout.activateFontSizeChangesButtons();
