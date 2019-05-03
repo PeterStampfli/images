@@ -6,6 +6,8 @@ var quincuncinalRadius = worldradius;
 const solutions = new Vector2();
 
 
+
+
 function creation() {
     "use strict";
 
@@ -28,6 +30,26 @@ function creation() {
     Make.map.discRadius = -1;
     circleScope.projection = circleScope.doNothing;
     let canShowGenerators = true;
+    Make.map.drawSector = [true, true];
+
+    let visibleSelect = new Select("visible");
+    visibleSelect.addOption("all",
+        function() {
+            Make.map.drawSector = [true, true];
+            Make.updateOutputImage();
+        });
+
+    visibleSelect.addOption("inside",
+        function() {
+            Make.map.drawSector = [true, false];
+            Make.updateOutputImage();
+        });
+
+    visibleSelect.addOption("outside",
+        function() {
+            Make.map.drawSector = [false, true];
+            Make.updateOutputImage();
+        });
 
     var v = new Vector2();
 

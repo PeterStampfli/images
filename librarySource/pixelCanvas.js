@@ -61,6 +61,7 @@ function PixelCanvas(idName) {
     this.width = 0;
     this.height = 0;
     this.blueScreenColor = "#808080";
+    this.blueScreenColor = "#0000ff"; // equivalent to "#0000ffff"
     this.integralRed = new Uint32Array(1);
     this.integralBlue = new Uint32Array(1);
     this.integralGreen = new Uint32Array(1);
@@ -208,6 +209,9 @@ function PixelCanvas(idName) {
             pixelCanvas.createPixel();
             action();
         };
+        image.onerror = function() {
+            console.log("*** createImageOnloadPixels: loading image fails");
+        };
         return image;
     };
 
@@ -223,6 +227,9 @@ function PixelCanvas(idName) {
         var image = this.createImageOnloadPixels(action);
         fileReader.onload = function() {
             image.src = fileReader.result;
+        };
+        fileReader.onerror = function() {
+            console.log("*** readImageFromFileBlob - fileReader fails");
         };
         fileReader.readAsDataURL(file);
     };
@@ -247,14 +254,14 @@ function PixelCanvas(idName) {
      * @param {String} filePath - for input image
      */
     PixelCanvas.prototype.drawImageWithFilePath = function(filePath) {
-        console.log(filePath);
         var pixelCanvas = this;
         var image = new Image();
         image.onload = function() {
             pixelCanvas.canvasContext.drawImage(image, 0, 0, pixelCanvas.width, pixelCanvas.height);
-            console.log("ddd");
         };
-        //  image.onerror=...
+        image.onerror = function() {
+            pixelCanvas.errorMessage("File", filePath, "not found");
+        };
         image.src = filePath;
     };
 

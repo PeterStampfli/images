@@ -31,6 +31,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
 
     this.createSimpleColorTable();
 
+    this.drawSector = [true, true, true, true, true, true, true, true, true, true, true, true, true];
+
     this.lyapunovArray = new Float32Array(4); // array of lyapunov coefficient, negative for invalid points
     this.outputImage = outputImage;
     this.inputTransform = inputTransform;
@@ -1088,6 +1090,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         };
     };
 
+
     /**
      * draw on a pixelcanvas use a map and an input image as fast as you can
      * "invalid" points have a negative lyapunov value
@@ -1246,18 +1249,24 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         var x, y, h, k;
         const length = xArray.length;
         for (var index = 0; index < length; index++) {
-            lyapunov = lyapunovArray[index] * baseLyapunov;
-            if (lyapunov >= -0.001) {
-                x = xArray[index];
-                y = yArray[index];
-                h = shiftX + cosAngleScale * x - sinAngleScale * y;
-                k = shiftY + sinAngleScale * x + cosAngleScale * y;
-                // beware of byte order
-                if (inputImage.getHighQuality(color, h, k, lyapunov)) {
-                    controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
-                    this.colorSymmetry(colorSectorArray[index], color);
-                    color.alpha = alphaArray[index];
-                } else { // invalid points: use off color
+
+            if (this.drawSector[colorSectorArray[index]]) {
+
+                lyapunov = lyapunovArray[index] * baseLyapunov;
+                if (lyapunov >= -0.001) {
+                    x = xArray[index];
+                    y = yArray[index];
+                    h = shiftX + cosAngleScale * x - sinAngleScale * y;
+                    k = shiftY + sinAngleScale * x + cosAngleScale * y;
+                    // beware of byte order
+                    if (inputImage.getHighQuality(color, h, k, lyapunov)) {
+                        controlCanvas.setOpaque(h * controlDivInputSize, k * controlDivInputSize);
+                        this.colorSymmetry(colorSectorArray[index], color);
+                        color.alpha = alphaArray[index];
+                    } else { // invalid points: use off color
+                        color.set(offColor);
+                    }
+                } else {
                     color.set(offColor);
                 }
             } else {

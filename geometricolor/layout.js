@@ -64,6 +64,7 @@ basicUI.layout = function() {};
         DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
         Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
+        DOM.style(".buttonspace", "height", (1 + 2 * Layout.textMarginToSize + 2 * Layout.borderWidthToSize) * Layout.basicFontSize + px);
     };
 
     /**
@@ -112,7 +113,7 @@ basicUI.layout = function() {};
     /**
      * create an number button with up and down buttons
      * @method Layout.createNumberButton
-     * @param {String} idSpan - id of the span conatining the number button
+     * @param {String} idSpan - id of the span containing the number button
      * @return createNumberButton
      */
     Layout.createNumberButton = function(idSpan) {
@@ -177,8 +178,6 @@ basicUI.layout = function() {};
         DOM.style(".beforeInput", "display", "inline-block");
     };
 
-
-
     /**
      * create open image command with key "i"
      * @method Layout.createOpenImage
@@ -202,6 +201,36 @@ basicUI.layout = function() {};
             DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
         }
         return result;
-    }
+    };
+
+    /**
+     * create a canvas and draw an image
+     * @method Layout.drawImage
+     * @param {String} filePath - of image file 
+     */
+    Layout.drawImage = function(filePath) {
+        const outputCanvas = new PixelCanvas("outputCanvas");
+        outputCanvas.setSize(window.innerHeight, window.innerHeight);
+        outputCanvas.drawImageWithFilePath(filePath);
+    };
+
+    /**
+     * put navigation buttons to the right
+     * @method Layout.navigationAtRight
+     */
+    Layout.navigationAtRight = function() {
+        DOM.style("#topLeft", "left", window.innerHeight + px);
+        DOM.style("#topRight", "right", 0 + px);
+    };
+
+    /**
+     * create text div
+     * @method Layout.createTextDiv
+     */
+    Layout.createTextDiv = function() {
+        text = new BigDiv("text");
+        text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
+        text.setPosition(window.innerHeight, 0);
+    };
 
 }());
