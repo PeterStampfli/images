@@ -58,13 +58,19 @@ basicUI.layout = function() {};
     Layout.setFontSizes = function() {
         DOM.style("p,button,input,table,select", "fontSize", Layout.basicFontSize + px);
         DOM.style("h1", "fontSize", (Layout.h1ToSize * Layout.basicFontSize) + px);
-        DOM.style("p,h1,.topButton,table", "margin", (Layout.textMarginToSize * Layout.basicFontSize) + px);
+        Layout.marginSize = Layout.textMarginToSize * Layout.basicFontSize;
+        DOM.style("p,h1,.topButton,table", "margin", Layout.marginSize + px);
         DOM.style(".topButton", "marginBottom", "0px");
-        DOM.style("button,input", "borderWidth", Layout.borderWidthToSize * Layout.basicFontSize + px);
-        DOM.style("input,.topButton", "width", Layout.inputWidthToSize * Layout.basicFontSize + "px");
+        Layout.borderWidth = Layout.borderWidthToSize * Layout.basicFontSize;
+        DOM.style("button,input", "borderWidth", Layout.borderWidth + px);
+        Layout.buttonWidth = Layout.inputWidthToSize * Layout.basicFontSize;
+        Layout.totalButtonWidth = Layout.buttonWidth + 2 * Layout.marginSize + 2 * Layout.borderWidth;
+        Layout.totalButtonHeight = Layout.basicFontSize + 2 * Layout.marginSize + 2 * Layout.borderWidth;
+
+        DOM.style("input,.topButton", "width", Layout.buttonWidth + "px");
+        DOM.style(".buttonspace", "height", Layout.totalButtonHeight + px);
         Layout.lineWidth = Layout.lineWidthToSize * Layout.basicFontSize;
         Layout.nullRadius = Layout.nullRadiusToSize * Layout.basicFontSize;
-        DOM.style(".buttonspace", "height", (1 + 2 * Layout.textMarginToSize + 2 * Layout.borderWidthToSize) * Layout.basicFontSize + px);
     };
 
     /**

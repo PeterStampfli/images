@@ -90,6 +90,18 @@ function PixelCanvas(idName) {
     };
 
     /**
+     * set the position of the canvas, (left,top)-corner
+     * @method PixelCanvas#setPosition
+     * @param {float} left
+     * @param {float} top
+     */
+    PixelCanvas.prototype.setPosition = function(left, top) {
+        this.canvas.style.position = "absolute";
+        this.canvas.style.left = left + "px";
+        this.canvas.style.top = top + "px";
+    };
+
+    /**
      * fill screen with color
      * @method PixelCanvas#fillScreen
      * @param {String} style - fill style

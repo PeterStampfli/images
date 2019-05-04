@@ -1,11 +1,7 @@
 /* jshint esversion:6 */
 
-if (window.innerHeight > window.innerWidth) {
-    document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
-    console.log("high");
+if (Layout.isLandscape()) {
 
-    DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
-} else {
 
     Layout.setup("setup.html", "triangles.html");
 
@@ -110,6 +106,7 @@ if (window.innerHeight > window.innerWidth) {
     };
 
     Make.outputImage.move = function(mouseEvents) {
+        console.log("move");
         let nullRadius = Make.outputImage.scale * Layout.nullRadius;
         Make.updateOutputImage();
         mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
@@ -121,7 +118,7 @@ if (window.innerHeight > window.innerWidth) {
         Draw.setColor(Layout.trajectoryColor);
         dihedral.drawMap(imagePosition);
         Draw.setColor(Layout.pointColor);
-        Draw.circle(nullRadius, imagePosition);
+        //    Draw.circle(nullRadius, imagePosition);
 
     };
 
