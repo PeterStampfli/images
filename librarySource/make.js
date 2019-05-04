@@ -140,6 +140,10 @@ var Make = {};
         Make.controlImage = new ControlImage(idName, isVisible);
         Make.controlImage.linearTransform = Make.inputTransform;
         Make.controlImage.action = Make.updateOutputImageIfUsingInputImage; // update output image after mouse interaction only if we see an image and not the structure
+        if (!isVisible) { // dimensions for invisible thing
+            Make.controlImage.setDimensions(200, 200);
+            Make.controlImage.setPosition(0, 0);
+        }
     };
 
     /**
@@ -155,6 +159,10 @@ var Make = {};
         Make.controlImage.arrowController = Make.arrowController;
         Make.arrowController.drawOrientation();
         Make.arrowController.action = Make.updateOutputImageIfUsingInputImage;
+        if (!isVisible) {
+            Make.arrowController.setSize(100);
+            Make.arrowController.setPosition(0, 0);
+        }
     };
 
     /**

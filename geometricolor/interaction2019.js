@@ -2,15 +2,29 @@
 
 if (Layout.isLandscape()) {
 
-
     Layout.setup("setup.html", "triangles.html");
+    Layout.createOpenImage();
 
 
+    // setting up the images
+    // output image
+    Make.createOutputImage("outputCanvas");
+    Make.outputImage.setDivDimensions(window.innerHeight, window.innerHeight);
+    Make.outputImage.setDivPosition(0, 0);
+    //  Make.outputImage.stopZoom();
+    //  Make.outputImage.stopShift();
+    DOM.style("#outputCanvas", "cursor", "crosshair");
+    Draw.setOutputImage(Make.outputImage);
+    // hidden control images
+    Make.createControlImage("controlCanvas", false);
+    Make.createArrowController("arrowController", false);
+    Make.createMap(); // needs the images
+    Make.setOutputSize(window.innerHeight);
 
+    Layout.createTextDiv();
 
     // choose between showing the structure or the image
     let showSelect = new Select("show");
-
 
     showSelect.addOption("image",
         function() {
@@ -32,103 +46,43 @@ if (Layout.isLandscape()) {
             Make.updateOutputImage();
         });
 
-
-    Layout.activateFontSizeChanges();
-
-    Make.createOutputImage("outputCanvas");
-    Make.outputImage.setDivDimensions(window.innerHeight, window.innerHeight);
-    Make.outputImage.setDivPosition(0, 0);
-    Make.outputImage.stopZoom();
-    Make.outputImage.stopShift();
-    DOM.style("#outputCanvas", "cursor", "crosshair");
-    Draw.setOutputImage(Make.outputImage);
-
-    Make.createControlImage("controlCanvas", false);
-    Make.controlImage.setDimensions(200, 200);
-    Make.controlImage.setPosition(0, 0);
-    Make.createArrowController("arrowController", false);
-    Make.arrowController.setSize(100);
-    Make.arrowController.setPosition(0, 0);
-    Make.createMap();
-
-    Make.setOutputSize(window.innerHeight);
-
-
-
-    text = new BigDiv("text");
-    text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
-    text.setPosition(window.innerHeight, 0);
-
-
-    Make.setInitialOutputImageSpace(-1, 1, -1);
-    Make.resetOutputImageSpace();
-
-    dihedral = new Dihedral();
-
-    basicKaleidoscope.geometry = basicKaleidoscope.euclidic;
-    Make.setMapping(dihedral.mapping);
-
     let setKButton = Layout.createNumberButton("n");
     setKButton.setRange(2, 10000);
-
     setKButton.setValue(5);
     setKButton.onChange = function() {
         Make.updateNewMap();
     };
 
-    Layout.setFontSizes();
+    Layout.setFontSizes(); // after all button things are created
 
+    Make.setInitialOutputImageSpace(-10, 10, -10);
+    Make.resetOutputImageSpace();
 
+    circleScope.maxIterations = 200;
+    multiCircles.setMapping();
+    multiCircles.setupMouseForTrajectory();
 
     Make.initializeMap = function() {
-        dihedral.setOrder(setKButton.getValue());
+        //  multiCircles.finishMap = multiCircles.limitMap;
+        multiCircles.setInversionCircle(7, 2.5, 0);
+        const circle = multiCircles.addCircleOutsideIn(6, -3.5, 0);
     };
-    Make.initializeMap();
 
-    const lineWidthToUnit = 0.02;
-
+    const lineWidthToUnit = 0.015;
+    basicUI.nullRadius = 10;
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(lineWidthToUnit);
-        Draw.setColor(Layout.addMirrorColor);
-        dihedral.drawAddMirrors();
-        Draw.setColor(Layout.mirrorColor);
-        dihedral.drawMirrors();
-    };
-
-    let mousePosition = new Vector2();
-    let imagePosition = new Vector2();
-    let zero = new Vector2(0, 0);
-
-    Make.outputImage.mouseEvents.downAction = function(mouseEvents) {
-        Make.outputImage.mouseEvents.dragAction(mouseEvents);
-    };
-
-    Make.outputImage.move = function(mouseEvents) {
-        console.log("move");
-        let nullRadius = Make.outputImage.scale * Layout.nullRadius;
-        Make.updateOutputImage();
-        mousePosition.setComponents(mouseEvents.x, mouseEvents.y);
-        Make.outputImage.pixelToSpaceCoordinates(mousePosition);
-        Draw.setColor(Layout.pointColor);
-        Draw.setLineWidth(lineWidthToUnit);
-        Draw.circle(nullRadius, mousePosition);
-        imagePosition.set(mousePosition);
-        Draw.setColor(Layout.trajectoryColor);
-        dihedral.drawMap(imagePosition);
-        Draw.setColor(Layout.pointColor);
-        //    Draw.circle(nullRadius, imagePosition);
+        let lineWidth = lineWidthToUnit / Make.outputImage.scale;
+        Draw.setLineWidth(lineWidth);
+        Draw.setColor("grey");
+        //  equator.draw();
+        Draw.setColor("#bbbbff");
+        multiCircles.draw();
 
     };
 
-    Make.outputImage.mouseEvents.outAction = function(mouseEvents) {
-        Make.updateOutputImage();
-    };
-
-    Layout.createOpenImage();
-
+    Make.initializeMap();
 
     Make.readImageWithFilePathAtSetup("guard.jpg");
-
 }

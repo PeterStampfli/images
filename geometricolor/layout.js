@@ -15,6 +15,13 @@ basicUI.layout = function() {};
 (function() {
     "use strict";
 
+    // disable the context menu
+
+    const body = document.getElementsByTagName("body")[0];
+    body.oncontextmenu = function() {
+        return false;
+    };
+
 
     // defaults
     // relation between sizes and basicFontSize
@@ -202,8 +209,6 @@ basicUI.layout = function() {};
         const result = window.innerHeight < window.innerWidth;
         if (!result) {
             document.querySelector("body").innerHTML = "<div id='warn'><h1>Please change to <strong>landscape orientation</strong> and RELOAD the page</h1></div>";
-            console.log("high");
-
             DOM.style("#warn", "zIndex", "20", "position", "fixed", "top", "0px", "left", "0px", "backgroundColor", "yellow");
         }
         return result;
