@@ -111,7 +111,7 @@ basicUI.layout = function() {};
      */
     Layout.activateFontSizeChangesButtons = function() {
         DOM.create("button", "fontMinusButton", "#topLeft", "font-");
-        DOM.create("button", "fontPlusButton", "#topLeft", "font+");
+        DOM.create("button", "fontPlusButton", "#topRight", "font+");
         DOM.attribute("#fontMinusButton,#fontPlusButton", "class", "topButton");
         let fontMinusButton = new Button("fontMinusButton");
         fontMinusButton.onClick = function() {
@@ -242,6 +242,23 @@ basicUI.layout = function() {};
         text = new BigDiv("text");
         text.setDimensions(window.innerWidth - window.innerHeight, window.innerHeight);
         text.setPosition(window.innerHeight, 0);
+    };
+
+    /**
+     * load an image, return image for referencing, execute some action after loading
+     * @method Layout.loadImage
+     * @param {String} filePath - relative
+     * @param {function} action - callback
+     * @return image 
+     */
+    Layout.loadImage = function(filePath, action) {
+        var image = new Image();
+        image.onload = action;
+        image.onerror = function() {
+            console.log("**** loadImage: File " + filePath + " not found");
+        };
+        image.src = filePath;
+        return image;
     };
 
 }());
