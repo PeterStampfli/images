@@ -89,7 +89,9 @@ basicUI.layout = function() {};
         Layout.basicFontSize += amount;
         Layout.setFontSizes();
         localStorage.setItem("fontSize", Layout.basicFontSize);
-        Make.updateOutputImage();
+        if (!!Make.outputImage) {
+            Make.updateOutputImage();
+        }
     };
 
     /**
@@ -259,6 +261,35 @@ basicUI.layout = function() {};
         };
         image.src = filePath;
         return image;
+    };
+
+    /**
+     * layout for a page with one still image and navigation buttons
+     * @method Layout.oneImage
+     * @param {String} prev - url of page to go back, "" for home page
+     * @param {String} next - url of page to go to next, "" for home page
+     */
+    Layout.oneImage = function(prev, next) {
+        if (Layout.isLandscape()) {
+            Layout.setup(prev, next);
+            Layout.activateFontSizeChanges();
+            Layout.setFontSizes();
+            Layout.navigationAtRight();
+            Layout.createTextDiv();
+            DOM.create("canvas", "canvasId", "body");
+            const canvas = document.getElementById("canvasId");
+            canvas.width = window.innerHeight;
+            canvas.height = window.innerHeight;
+            const context = canvas.getContext("2d");
+
+            Layout.drawImage = function(filePath) {
+                const image = Layout.loadImage(filePath, function() {
+                    context.drawImage(image, 0, 0, window.innerHeight, window.innerHeight);
+                });
+            };
+        } else {
+            Layout.drawImage = function() {};
+        }
     };
 
 }());
