@@ -4,6 +4,7 @@ if (Layout.isLandscape()) {
 
     Layout.setup("setup.html", "triangles.html");
     Layout.createOpenImage();
+            Layout.navigationAtRight();
 
 
     // setting up the images
@@ -13,7 +14,6 @@ if (Layout.isLandscape()) {
     Make.outputImage.setDivPosition(0, 0);
     //  Make.outputImage.stopZoom();
     //  Make.outputImage.stopShift();
-    DOM.style("#outputCanvas", "cursor", "crosshair");
     Draw.setOutputImage(Make.outputImage);
     // hidden control images
     Make.createControlImage("controlCanvas", false);
@@ -22,6 +22,8 @@ if (Layout.isLandscape()) {
     Make.setOutputSize(window.innerHeight);
 
     Layout.createTextDiv();
+
+        if (DOM.idExists("show")) {
 
     // choose between showing the structure or the image
     let showSelect = new Select("show");
@@ -45,6 +47,7 @@ if (Layout.isLandscape()) {
             };
             Make.updateOutputImage();
         });
+        }
 
     let setKButton = Layout.createNumberButton("n");
     setKButton.setRange(2, 10000);
@@ -54,6 +57,7 @@ if (Layout.isLandscape()) {
     };
 
     Layout.setFontSizes(); // after all button things are created
+    DOM.style("#outputCanvas", "cursor", "crosshair");
 
     Make.setInitialOutputImageSpace(-10, 10, -10);
     Make.resetOutputImageSpace();
