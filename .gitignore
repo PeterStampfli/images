@@ -3,8 +3,10 @@
 **/*.css~
 **/*.html~
 
-#image files
+#image files and similar
 **/*.png
+**/*.jpg
+**/*.pdf
 
 # directories
 node_modules
