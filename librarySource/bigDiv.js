@@ -21,6 +21,8 @@ function BigDiv(idName) {
 (function() {
     "use strict";
 
+    const px = "px";
+
     /**
      * set position, preset to (0,0)
      * @method BigDiv#setPosition
