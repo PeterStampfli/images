@@ -171,10 +171,11 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         for (var i = 0; i < 255; i++) {
             bright = Math.pow(Math.max(0, (i - VectorMap.iterationThreshold) / VectorMap.iterationSaturation), VectorMap.iterationGamma); // beware of power of negative numbers
             bright = Fast.clamp(0, Math.floor(255.9 * bright), 255);
-            bright = 255 - bright;
-            color.red = bright;
-            color.blue = bright;
-            color.green = bright;
+            //bright = 255 - bright;
+            color.red = 0;
+            color.blue = 0;
+            color.green = 0;
+            color.alpha = bright;
             colors[i] = PixelCanvas.integerOf(color);
             this.iterationsBrightness[i] = bright;
         }

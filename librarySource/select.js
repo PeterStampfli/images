@@ -122,7 +122,7 @@ function Select(idName) {
 
     /**
      * get the index of the selected option
-     * @method Select#setIndex
+     * @method Select#getIndex
      * @return {integer} i
      */
     Select.prototype.getIndex = function(i) {

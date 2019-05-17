@@ -60,7 +60,7 @@ basicUI = {};
     Make.createArrowController("arrowController", true);
     Make.arrowController.backGroundColor = "#444444";
     Make.arrowController.arrowColor = "#ffffff";
-    DOM.style("#outputCanvas", "backgroundColor", outputImageBackgroundColor);
+    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
     DOM.style("#controlCanvas", "backgroundColor", controlImageBackgroundColor);
     DOM.style("#controlCanvas,#arrowController", "zIndex", "10");
 
@@ -212,6 +212,7 @@ basicUI = {};
         basicUI.showSelect.addOption("structure",
             function() {
                 DOM.style("#convergenceStyle", "display", "none");
+                DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                 Make.showingInputImage = false;
                 Make.clearControlImage();
                 basicUI.activateControls(false);
@@ -226,6 +227,7 @@ basicUI = {};
             basicUI.showSelect.addOption("image",
                 function() {
                     DOM.style("#convergenceStyle", "display", "none");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = true;
                     Make.draw = function() {
                         Make.drawImage();
@@ -243,6 +245,7 @@ basicUI = {};
             basicUI.showSelect.addOption("convergence",
                 function() {
                     DOM.style("#convergenceStyle", "display", "initial");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", "#ffffffff");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -255,6 +258,7 @@ basicUI = {};
             basicUI.showSelect.addOption("convergence with color",
                 function() {
                     DOM.style("#convergenceStyle", "display", "initial");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -272,6 +276,7 @@ basicUI = {};
             basicUI.showSelect.addOption("nothing",
                 function() {
                     DOM.style("#convergenceStyle", "display", "none");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
@@ -332,7 +337,7 @@ basicUI = {};
 
     basicUI.setupGenerators = function() {
         basicUI.generators = new Select("generators");
-        basicUI.generatorColor = "black";
+        basicUI.generatorColor = "#000000ff";
         basicUI.canShowGenerators = true;
         DOM.style("#lineWidthDiv", "display", "initial");
 
@@ -342,21 +347,21 @@ basicUI = {};
                 Make.updateOutputImage();
             });
 
-        function addColor(color) {
+        function addColor(color, rgbacolor) {
             basicUI.generators.addOption(color,
                 function() {
                     DOM.style("#lineWidthDiv", "display", "initial");
-                    basicUI.generatorColor = color;
+                    basicUI.generatorColor = rgbacolor;
                     Make.updateOutputImage();
                 });
         }
 
-        addColor("black");
-        addColor("blue");
-        addColor("red");
-        addColor("green");
-        addColor("yellow");
-        addColor("white");
+        addColor("black", "#000000ff");
+        addColor("blue", "#0000ffff");
+        addColor("red", "#ff0000ff");
+        addColor("green", "#00ff00ff");
+        addColor("yellow", "#ffffff00ff");
+        addColor("white", "#ffffffff");
 
         basicUI.generators.setIndex(1);
 
