@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>choosing controls</title>
+</head>
+
+<body>
+
+<img src="abendfalter.jpg" id="imageId"/>
+
+<div id="help">  
+
+
+    <h1> help</h1>
+
+    <p>
+    help text is a long help  that helps jabberwocky
+    </p>
+    
+    
+   
+</div>
+
+<div id="control">  
+
+
+    <h1> Control</h1>
+
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>  <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>  <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>  <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>  <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>  <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+    <p>
+    great control buttons and otherthings    
+    </p>
+    
+   
+</div>
+
+<div id="palette">  
+
+
+    <h1> Palette</h1>
+
+    <p>
+    a palette of tools
+    a palette of tools
+    a palette of tools
+    a palette of tools
+    a palette of tools
+    a palette of tools
+    </p>
+    
+    <p>
+    a palette of tools
+    </p>
+    
+     <p>
+    a palette of tools
+    </p>
+    
+    <p>
+    a palette of tools
+    </p>
+    
+    
+   
+</div>
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="choosingControls.js"></script>
+
+<script>
+
+    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+
+  
+  
+    controlDivs.create("help","show help",1);
+    controlDivs.create("palette","show palette",2);
+    controlDivs.create("control","control",1);
+    controlDivs.show("palette");
+    
+
+          controlDivs.setDimensions();
+    function resize(){
+          const px = "px";
+
+        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,
+        "position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none");
+        controlDivs.setDimensions();
+    }
+    
+    resize();
+    
+    window.onresize=resize;
+    
+</script>
+
+
+</html>

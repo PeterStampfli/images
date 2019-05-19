@@ -12,6 +12,8 @@ var DOM = {};
 (function() {
     "use strict";
 
+    const px = "px";
+
     /**
      * check if an element with given id exists
      * @method DOM.idExists
@@ -87,4 +89,50 @@ var DOM = {};
     DOM.class = function(selectors, value) {
         DOM.attribute(selectors, "class", value);
     };
+
+    /**
+     * hide all elements given as a list of strings
+     * @method DOM.hide
+     * @param {list of String} ids - comma separated id strings of elements to hide
+     */
+    DOM.hide = function(ids) {
+        for (var i = 0; i < arguments.length; i++) {
+            DOM.style("#" + arguments[i], "display", "none");
+        }
+    };
+
+    /**
+     * place an element fixed in the top right corner
+     * @method DOM.topRight
+     * @param {String} id
+     */
+    DOM.topRight = function(id) {
+        DOM.style("#" + id, "position", "fixed", "right", 0 + px, "top", 0 + px);
+    };
+    /**
+     * place an element fixed in the top left corner
+     * @method DOM.topLeft
+     * @param {String} id
+     */
+    DOM.topLeft = function(id) {
+        DOM.style("#" + id, "position", "fixed", "left", 0 + px, "top", 0 + px);
+    };
+    /**
+     * place an element fixed in the bottom right corner
+     * @method DOM.bottomRight
+     * @param {String} id
+     */
+    DOM.bottomRight = function(id) {
+        DOM.style("#" + id, "position", "fixed", "right", 0 + px, "bottom", 0 + px);
+    };
+
+    /**
+     * place an element fixed in the bottom left corner
+     * @method DOM.bottomLeft
+     * @param {String} id
+     */
+    DOM.bottomLeft = function(id) {
+        DOM.style("#" + id, "position", "fixed", "left", 0 + px, "bottom", 0 + px);
+    };
+
 }());
