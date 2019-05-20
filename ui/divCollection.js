@@ -28,60 +28,104 @@ const divCollection = {};
     // weight of button borders
     divCollection.borderWidthToFontsize = 0.15;
     // z-index for handles
-    divCollection.handleZIndex=9;
-    // basic z-index for divs, will be augmented by index to displayedIds
-    divCollection.divBaseZIndex=10;
+    divCollection.handleZIndex = 9;
+    // basic z-index for divs, will be augmented by index to displayed
+    divCollection.divBaseZIndex = 10;
 
     // private things
     const px = "px";
     // collection of divs with controls
-    // list of id names (Strings), for (re)sizing
-    const ids = [];
+    // list of id names (Strings)of the divs, for (re)sizing
+    const divIds = [];
+    // list of id names (Strings) of the handles, for (re)sizing
+    const handleIds = [];
     // list of relative widths
     const widths = [];
-    // list fo displayed ids, in inverse order of visibility, first is drawn first
-   const displayedIds=[];
-   
-   divCollection.log=function(){
-       console.log("all ids");
-       console.log(ids);
-       console.log("widths");
-       console.log(widths);
-       console.log("displayed");
-       console.log(displayedIds);
-   }
-   
-   // update the z-indices of the divs according to indices
-   function updateZIndices(){
-       for (var i=0;i<displayedIds;i++){
-           DOM.style("#"+displayedIds[i],"zIndex",divCollection.divBaseZIndex+i);
-       }
-   }
-   
-   // move element at given index to the end/top to make it full visible/remove
-   function moveToTop(index){
-    const element=displayedIds[index];
-    for (var i=index+1;i<displayedIds.length;i++){
-        displayedIds[i-1]=displayedIds[i];
-   }
-   displayedIds[displayedIds.length-1]=element;
-   }
-   
-   // add an element to the list of displayedIds, if already there, move to top 
-   divCollection.display=function(id){
-        index=displayedIds.indexOf(id);
-        if (index<0){
-            displayedIds.push(id);
+    // list for display divs, indices to the list, in inverse order of visibility, first is drawn first
+    const displayed = [];
+
+    divCollection.log = function() {
+        console.log("all divIds");
+        console.log(divIds);
+        console.log("widths");
+        console.log(widths);
+        console.log("displayed");
+        console.log(displayed);
+    };
+
+    // update the z-indices of the divs according to indices
+    function updateZIndices() {
+        for (var i = 0; i < displayed.length; i++) {
+            DOM.style("#" + divIds[displayed[i]], "zIndex", divCollection.divBaseZIndex + i + "");
+            console.log("#" + divIds[displayed[i]]);
+            console.log(divCollection.divBaseZIndex + i + "");
         }
-        else {
-            moveToTop(index);
+    }
+
+    // move element at given index to the end/top to make it full visible/remove
+    function moveToTopByIndex(index) {
+        const element = displayed[index];
+        for (var i = index + 1; i < displayed.length; i++) {
+            displayed[i - 1] = displayed[i];
         }
+        displayed[displayed.length - 1] = element;
+    }
+
+
+
+    // add an element to the list of displayed, if already there, move to top 
+    divCollection.show = function(id) {
+        const indexOfId = divIds.indexOf(id); // find index to the id
+        if (indexOfId >= 0) {
+            const index = displayed.indexOf(indexOfId);
+            if (index < 0) { // previously hidden
+                DOM.style("#" + id, "display", "block");
+                displayed.push(indexOfId);
+            } else {
+                moveToTopByIndex(index);
+            }
+            updateZIndices();
+        }
+    };
+
+    // hide the element at the top of the list
+    divCollection.hideTop = function() {
+        const indexOfId = displayed.pop();
+        DOM.style("#" + divIds[indexOfId], "display", "none");
+        console.log(divIds[indexOfId]);
         updateZIndices();
-   }
-       
-   
-    
-  // setting dimensions, call in startup and resize
+    };
+
+    // hide an element/ make it invisible
+    divCollection.hide = function(id) {
+        let indexOfId = divIds.indexOf(id); // find index to the id
+        console.log("index to id " + indexOfId);
+        if (indexOfId >= 0) {
+            const index = displayed.indexOf(indexOfId);
+            if (index >= 0) {
+                console.log(index);
+                moveToTopByIndex(index);
+                divCollection.hideTop();
+                console.log(displayed);
+            }
+        }
+    };
+
+
+
+    /**
+     * register a div ( for setting dimensions) and apply basic styles, hide
+     */
+    divCollection.register = function(id, width = 1) {
+        divIds.push(id);
+        widths.push(width);
+        DOM.style("#" + id, "maxHeight", window.innerHeight + px);
+        DOM.style("#" + id, "overflow", "auto");
+        DOM.style("#" + id, "backgroundColor", divCollection.backgroundColor);
+    };
+
+
+    // setting dimensions, call in startup and resize
 
     divCollection.setDimensions = function() {
         // set the font size, depending on the window height 
@@ -97,20 +141,17 @@ const divCollection = {};
         DOM.style("p,h1,table", "margin", divCollection.marginToFontsize * fontsize + px);
         DOM.style("button,input", "borderWidth", divCollection.borderWidthToFontsize * fontsize + px);
 
-        for (var i = 0; i < ids.length; i++) {
+        for (var i = 0; i < divIds.length; i++) {
             if (widths[i] > 0) {
-                DOM.style("#" + ids[i], "width", Math.min(widths[i] * controlWidth, window.innerWidth) + px);
+                DOM.style("#" + divIds[i], "width", Math.min(widths[i] * controlWidth, window.innerWidth) + px);
             }
         }
-    };   
-    
-    
-    
-    // hiding anything
-    
-    
-    
-    
-    }());
+    };
 
 
+
+
+
+
+
+}());

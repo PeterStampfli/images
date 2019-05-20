@@ -100,7 +100,7 @@ const controlDivs = {};
         widths.push(width);
         DOM.style("#" + id, "maxHeight", window.innerHeight + px);
         DOM.style("#" + id, "overflow", "auto");
-        DOM.bottomLeft(id);
+        DOM.topRight(id);
         DOM.style("#" + id, "backgroundColor", controlDivs.backgroundColor, "zIndex", "11");
 
         selector.addOption(text,

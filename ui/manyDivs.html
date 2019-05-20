@@ -226,10 +226,28 @@
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
   //<img src="abendfalter.jpg" id="imageId"/>
+  
+      DOM.hide("palette","help","control");
+      DOM.topRight("help");
+      DOM.topRight("palette");
+      DOM.topRight("control");
+
+  
+  divCollection.register("palette",2);
+  divCollection.register("help",1);
+  divCollection.register("control",1);
+  
+  divCollection.show("help");
+  divCollection.show("palette");
+  divCollection.show("control");
 
   divCollection.log();
-    DOM.hide("palette","help","control");
+  
+    divCollection.show("palette");
+  divCollection.log();
+  divCollection.show("help");
 
+divCollection.hide("control");
     function resize(){
       const px = "px";
         DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,
