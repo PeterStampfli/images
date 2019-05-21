@@ -45,10 +45,12 @@ const divCollection = {};
     const displayed = [];
 
     divCollection.log = function() {
-        console.log("all divIds");
+        console.log("all div ids");
         console.log(divIds);
-        console.log("widths");
+        console.log("all widths");
         console.log(widths);
+        console.log("all handle ids");
+        console.log(handleIds);
         console.log("displayed");
         console.log(displayed);
     };
@@ -57,21 +59,17 @@ const divCollection = {};
     function updateZIndices() {
         for (var i = 0; i < displayed.length; i++) {
             DOM.style("#" + divIds[displayed[i]], "zIndex", divCollection.divBaseZIndex + i + "");
-            console.log("#" + divIds[displayed[i]]);
-            console.log(divCollection.divBaseZIndex + i + "");
         }
     }
 
     // move element at given index to the end/top to make it full visible/remove
-    function moveToTopByIndex(index) {
+    function moveToTop(index) {
         const element = displayed[index];
         for (var i = index + 1; i < displayed.length; i++) {
             displayed[i - 1] = displayed[i];
         }
         displayed[displayed.length - 1] = element;
     }
-
-
 
     // add an element to the list of displayed, if already there, move to top 
     divCollection.show = function(id) {
@@ -82,7 +80,7 @@ const divCollection = {};
                 DOM.style("#" + id, "display", "block");
                 displayed.push(indexOfId);
             } else {
-                moveToTopByIndex(index);
+                moveToTop(index);
             }
             updateZIndices();
         }
@@ -92,7 +90,7 @@ const divCollection = {};
     divCollection.hideTop = function() {
         const indexOfId = displayed.pop();
         DOM.style("#" + divIds[indexOfId], "display", "none");
-        console.log(divIds[indexOfId]);
+        console.log("hiding " + divIds[indexOfId]);
         updateZIndices();
     };
 
@@ -104,24 +102,68 @@ const divCollection = {};
             const index = displayed.indexOf(indexOfId);
             if (index >= 0) {
                 console.log(index);
-                moveToTopByIndex(index);
+                moveToTop(index);
                 divCollection.hideTop();
                 console.log(displayed);
             }
         }
     };
 
+    // add a hide button to the top of the div 
+    // return id of button
+    function createHideButton(divId) {
+        const hideButtonId = divId + "hideButtonAtTop";
+        DOM.create("button", hideButtonId, "body", "hide");
+        DOM.style("#" + hideButtonId, "float", "right");
+        DOM.class("#" + hideButtonId, "hasMargin");
+        const hideButton = new Button(hideButtonId);
+        hideButton.onClick = function() {
+            console.log("hidebutton");
+            divCollection.hide(divId);
+        };
+        return hideButtonId;
+    }
+
+    divCollection.hideButtonAtTop = function(divId) {
+        const hideButtonId = createHideButton(divId);
+        const theDiv = document.getElementById(divId);
+        theDiv.insertBefore(document.getElementById(hideButtonId), theDiv.firstChild);
+    };
+
+    divCollection.hideButtonAtBottom = function(divId) {
+        const hideButtonId = createHideButton(divId);
+        const theDiv = document.getElementById(divId);
+        theDiv.insertBefore(document.getElementById(hideButtonId), null);
+    };
 
 
     /**
      * register a div ( for setting dimensions) and apply basic styles, hide
      */
-    divCollection.register = function(id, width = 1) {
-        divIds.push(id);
-        widths.push(width);
-        DOM.style("#" + id, "maxHeight", window.innerHeight + px);
-        DOM.style("#" + id, "overflow", "auto");
-        DOM.style("#" + id, "backgroundColor", divCollection.backgroundColor);
+    divCollection.register = function(divId, width = 1, handleId = "") {
+        if (DOM.idExists(divId)) {
+            divIds.push(divId);
+            widths.push(width);
+            handleIds.push(handleId);
+            DOM.style("#" + divId, "maxHeight", window.innerHeight + px);
+            DOM.style("#" + divId, "overflow", "auto", "display", "none");
+            DOM.style("#" + divId, "backgroundColor", divCollection.backgroundColor);
+            // make the div go to top if clicked, and visible !
+            const element = document.getElementById(divId);
+            element.onclick = function() {
+                console.log("element on click " + divId);
+                let indexOfId = divIds.indexOf(divId); // find index to the id
+                console.log("index to id " + indexOfId);
+                if (indexOfId >= 0) {
+                    const index = displayed.indexOf(indexOfId);
+                    if (index >= 0) {
+                        divCollection.show(divId);
+                    }
+                }
+            };
+        } else {
+            console.log("**** divCollection.register: no element with id " + divId);
+        }
     };
 
 
@@ -138,7 +180,8 @@ const divCollection = {};
         const controlWidth = Math.min(divCollection.controlWidthToFontsize * fontsize, window.innerWidth);
         DOM.style("h1", "fontSize", divCollection.relativeH1Fontsize * fontsize + px);
         DOM.style("p,button,input,table,select", "fontSize", fontsize + px);
-        DOM.style("p,h1,table", "margin", divCollection.marginToFontsize * fontsize + px);
+        // class "hasMargin" for buttons ... with margin
+        DOM.style("p,h1,table,.hasMargin", "margin", divCollection.marginToFontsize * fontsize + px);
         DOM.style("button,input", "borderWidth", divCollection.borderWidthToFontsize * fontsize + px);
 
         for (var i = 0; i < divIds.length; i++) {
@@ -149,7 +192,12 @@ const divCollection = {};
     };
 
 
-
+    // keyboard event to hide top div 
+    divCollection.addHideKey = function(key) {
+        KeyboardEvents.addFunction(function() {
+            divCollection.hideTop();
+        }, key);
+    };
 
 
 

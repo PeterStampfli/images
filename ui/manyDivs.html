@@ -216,6 +216,7 @@
 </body>
 
 <script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/select.js"></script>
 <script src="../librarySource/dom.js"></script>
@@ -226,16 +227,20 @@
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
   //<img src="abendfalter.jpg" id="imageId"/>
+  divCollection.addHideKey("h");
   
-      DOM.hide("palette","help","control");
       DOM.topRight("help");
       DOM.topRight("palette");
       DOM.topRight("control");
+      
+      divCollection.hideButtonAtTop("help");
+      divCollection.hideButtonAtBottom("palette");
 
   
   divCollection.register("palette",2);
   divCollection.register("help",1);
   divCollection.register("control",1);
+  divCollection.register("cscscsc",1);
   
   divCollection.show("help");
   divCollection.show("palette");
@@ -247,7 +252,7 @@
   divCollection.log();
   divCollection.show("help");
 
-divCollection.hide("control");
+//divCollection.hide("control");
     function resize(){
       const px = "px";
         DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,
