@@ -187,7 +187,10 @@
 
 
     <h1> Palette</h1>
-
+    
+    <p>
+    fontsize <span id="changeFontsize"></span>
+    </p>
     <p>
     a palette of tools
     a palette of tools
@@ -213,6 +216,10 @@
    
 </div>
 
+<p id="p">
+some rubbish
+</p>
+
 </body>
 
 <script src="../librarySource/fastFun.js"></script>
@@ -223,6 +230,10 @@
 <script src="divCollection.js"></script>
 
 <script>
+
+divCollection.createChangeFontsizeButtons("changeFontsize");
+divCollection.addFontsizeChangeKeys("F","f");
+
 
     DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
@@ -240,17 +251,18 @@
   divCollection.register("palette",2);
   divCollection.register("help",1);
   divCollection.register("control",1);
-  divCollection.register("cscscsc",1);
   
   divCollection.show("help");
   divCollection.show("palette");
   divCollection.show("control");
 
-  divCollection.log();
   
     divCollection.show("palette");
-  divCollection.log();
   divCollection.show("help");
+  
+DOM.wrapDiv("d","p");
+
+DOM.style("#d","backgroundColor","red");
 
 //divCollection.hide("control");
     function resize(){

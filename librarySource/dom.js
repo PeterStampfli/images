@@ -135,4 +135,15 @@ var DOM = {};
         DOM.style("#" + id, "position", "fixed", "left", 0 + px, "bottom", 0 + px);
     };
 
+    /**
+     * create a div and wrap it around an html-element
+     * @method DOM.wrapDiv
+     * @param {String} divId
+     * @param {String} elementId
+     */
+    DOM.wrapDiv = function(divId, elementId) {
+        DOM.create("div", divId, "body");
+        document.getElementById(divId).insertBefore(document.getElementById(elementId), null);
+    };
+
 }());

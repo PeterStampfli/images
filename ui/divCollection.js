@@ -13,10 +13,15 @@ const divCollection = {};
 
     // design parameters with default values
     // you can change the values, best at startup in window.onload (?)
-
-    divCollection.backgroundColor = "#eeeeee";
+    // background color and color for panel at the top
+    divCollection.topBackgroundColor = "#ffffff";
+    divCollection.topColor = "#444444";
+    // background color and color for panels below
+    divCollection.lowBackgroundColor = "#eeeeee";
+    divCollection.lowColor = "#000000";
     // fontsize as a fraction of smaller window dimension
-    divCollection.fontsizeToWindow = 0.025;
+    divCollection.fontsizeToWindowDefault = 0.025;
+    divCollection.fontsizeToWindow = divCollection.fontsizeToWindowDefault;
     // width of basic control panel as multiple of font size
     divCollection.controlWidthToFontsize = 20;
     // width of the top navigation button as a multiple of basic control panel size
@@ -45,14 +50,10 @@ const divCollection = {};
     const displayed = [];
 
     divCollection.log = function() {
-        console.log("all div ids");
-        console.log(divIds);
-        console.log("all widths");
-        console.log(widths);
-        console.log("all handle ids");
-        console.log(handleIds);
-        console.log("displayed");
-        console.log(displayed);
+        console.log("all div ids: " + divIds);
+        console.log("all widths: " + widths);
+        console.log("all handle ids: " + handleIds);
+        console.log("displayed (indices to div ids): " + displayed);
     };
 
     // update the z-indices of the divs according to indices
@@ -60,6 +61,16 @@ const divCollection = {};
         for (var i = 0; i < displayed.length; i++) {
             DOM.style("#" + divIds[displayed[i]], "zIndex", divCollection.divBaseZIndex + i + "");
         }
+    }
+
+    // update the z-indices of the divs according to indices
+    function updateColors() {
+        for (var i = 0; i < displayed.length - 1; i++) {
+            DOM.style("#" + divIds[displayed[i]], "color", divCollection.lowColor);
+            DOM.style("#" + divIds[displayed[i]], "backgroundColor", divCollection.lowBackgroundColor);
+        }
+        DOM.style("#" + divIds[displayed[displayed.length - 1]], "color", divCollection.topColor);
+        DOM.style("#" + divIds[displayed[displayed.length - 1]], "backgroundColor", divCollection.topBackgroundColor);
     }
 
     // move element at given index to the end/top to make it full visible/remove
@@ -83,6 +94,7 @@ const divCollection = {};
                 moveToTop(index);
             }
             updateZIndices();
+            updateColors();
         }
     };
 
@@ -90,8 +102,8 @@ const divCollection = {};
     divCollection.hideTop = function() {
         const indexOfId = displayed.pop();
         DOM.style("#" + divIds[indexOfId], "display", "none");
-        console.log("hiding " + divIds[indexOfId]);
         updateZIndices();
+        updateColors();
     };
 
     // hide an element/ make it invisible
@@ -101,37 +113,34 @@ const divCollection = {};
         if (indexOfId >= 0) {
             const index = displayed.indexOf(indexOfId);
             if (index >= 0) {
-                console.log(index);
                 moveToTop(index);
                 divCollection.hideTop();
-                console.log(displayed);
             }
         }
     };
 
-    // add a hide button to the top of the div 
+    // add a hide button  
     // return id of button
-    function createHideButton(divId) {
-        const hideButtonId = divId + "hideButtonAtTop";
+    function createHideButton(divId, hideButtonId) {
         DOM.create("button", hideButtonId, "body", "hide");
         DOM.style("#" + hideButtonId, "float", "right");
         DOM.class("#" + hideButtonId, "hasMargin");
         const hideButton = new Button(hideButtonId);
         hideButton.onClick = function() {
-            console.log("hidebutton");
             divCollection.hide(divId);
         };
-        return hideButtonId;
     }
 
     divCollection.hideButtonAtTop = function(divId) {
-        const hideButtonId = createHideButton(divId);
+        const hideButtonId = divId + "HideButtonAtTop";
+        createHideButton(divId, hideButtonId);
         const theDiv = document.getElementById(divId);
         theDiv.insertBefore(document.getElementById(hideButtonId), theDiv.firstChild);
     };
 
     divCollection.hideButtonAtBottom = function(divId) {
-        const hideButtonId = createHideButton(divId);
+        const hideButtonId = divId + "HideButtonAtBottom";
+        createHideButton(divId, hideButtonId);
         const theDiv = document.getElementById(divId);
         theDiv.insertBefore(document.getElementById(hideButtonId), null);
     };
@@ -147,13 +156,10 @@ const divCollection = {};
             handleIds.push(handleId);
             DOM.style("#" + divId, "maxHeight", window.innerHeight + px);
             DOM.style("#" + divId, "overflow", "auto", "display", "none");
-            DOM.style("#" + divId, "backgroundColor", divCollection.backgroundColor);
             // make the div go to top if clicked, and visible !
             const element = document.getElementById(divId);
             element.onclick = function() {
-                console.log("element on click " + divId);
                 let indexOfId = divIds.indexOf(divId); // find index to the id
-                console.log("index to id " + indexOfId);
                 if (indexOfId >= 0) {
                     const index = displayed.indexOf(indexOfId);
                     if (index >= 0) {
@@ -166,10 +172,47 @@ const divCollection = {};
         }
     };
 
+    // setting fontsize
+    divCollection.changeFontsize = function(factor) {
+        divCollection.fontsizeToWindow *= factor;
+        console.log(divCollection.fontsizeToWindow);
+        localStorage.setItem("fontsize", "" + divCollection.fontsizeToWindow);
+    };
+
+    const changeFontsizeFactor = 1.1;
+
+    // create change fontsize buttons in a span
+    divCollection.createChangeFontsizeButtons = function(idSpan) {
+        const increaseId = idSpan + "increase";
+        const decreaseId = idSpan + "decrease";
+        DOM.create("button", increaseId, "#" + idSpan, "increase");
+        DOM.create("span", idSpan + "extraspace", "#" + idSpan, " ");
+        DOM.create("button", decreaseId, "#" + idSpan, "decrease");
+        const increaseButton = new Button(increaseId);
+        increaseButton.onClick = function() {
+            divCollection.changeFontsize(changeFontsizeFactor);
+            divCollection.setDimensions();
+        };
+        const decreaseButton = new Button(decreaseId);
+        decreaseButton.onClick = function() {
+            divCollection.changeFontsize(1 / changeFontsizeFactor);
+            divCollection.setDimensions();
+        };
+    };
 
     // setting dimensions, call in startup and resize
+    // uses custom fontsizetowindow value if on localstorage, else default value (TODO)
 
     divCollection.setDimensions = function() {
+        if (localStorage.getItem("fontsize")) {
+            divCollection.fontsizeToWindow = parseFloat(localStorage.getItem("fontsize"));
+            console.log(localStorage.getItem("fontsize"));
+            console.log("fontsize custom stored: " + divCollection.fontsizeToWindow);
+        } else {
+            divCollection.fontsizeToWindow = divCollection.fontsizeToWindowDefault;
+            console.log("fontsize defaultsize: " + divCollection.fontsizeToWindow);
+        }
+
         // set the font size, depending on the window height 
         // trying to fit controls to window without vertical scrolling
         const fontsize = divCollection.fontsizeToWindow * window.innerHeight;
@@ -199,7 +242,17 @@ const divCollection = {};
         }, key);
     };
 
-
+    // keyboard event to increase/decrease font size
+    divCollection.addFontsizeChangeKeys = function(keyUp, keyDown) {
+        KeyboardEvents.addFunction(function() {
+            divCollection.changeFontsize(changeFontsizeFactor);
+            divCollection.setDimensions();
+        }, keyUp);
+        KeyboardEvents.addFunction(function() {
+            divCollection.changeFontsize(1 / changeFontsizeFactor);
+            divCollection.setDimensions();
+        }, keyDown);
+    };
 
 
 }());
