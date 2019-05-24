@@ -182,7 +182,6 @@ const divCollection = {};
             divIds.push(divId);
             widths.push(width);
             handleIds.push(handleId);
-            DOM.style("#" + divId, "maxHeight", window.innerHeight + px);
             DOM.style("#" + divId, "overflow", "auto", "display", "none");
             if (handleId != "") {
                 DOM.style("#" + handleId, "display", "block");
@@ -261,6 +260,8 @@ const divCollection = {};
         for (var i = 0; i < divIds.length; i++) {
             if (widths[i] > 0) {
                 DOM.style("#" + divIds[i], "width", Math.min(widths[i] * controlWidth, window.innerWidth) + px);
+                DOM.style("#" + divIds[i], "maxHeight", window.innerHeight + px);
+
             }
         }
     };
