@@ -89,6 +89,10 @@ const divCollection = {};
             const index = displayed.indexOf(indexOfId);
             if (index < 0) { // previously hidden
                 DOM.style("#" + id, "display", "block");
+                const handleId = handleIds[indexOfId];
+                if (handleId != "") {
+                    DOM.style("#" + handleId, "display", "none");
+                }
                 displayed.push(indexOfId);
             } else {
                 moveToTop(index);
@@ -102,6 +106,10 @@ const divCollection = {};
     divCollection.hideTop = function() {
         const indexOfId = displayed.pop();
         DOM.style("#" + divIds[indexOfId], "display", "none");
+        const handleId = handleIds[indexOfId];
+        if (handleId != "") {
+            DOM.style("#" + handleId, "display", "block");
+        }
         updateZIndices();
         updateColors();
     };
@@ -145,6 +153,26 @@ const divCollection = {};
         theDiv.insertBefore(document.getElementById(hideButtonId), null);
     };
 
+    /*
+     * create a handle as a button in a div to show a div
+     * return id of handle
+     */
+
+    // id of the dic and text for the button
+    divCollection.createHandle = function(divId, text) {
+        const handleId = divId + "handle";
+        const buttonId = handleId + "Button";
+        DOM.create("div", handleId, "body");
+        DOM.create("button", buttonId, "#" + handleId, text);
+        DOM.class("#" + buttonId, "hasMargin");
+        DOM.style("#" + handleId, "color", divCollection.lowColor, "backgroundColor", divCollection.lowBackgroundColor);
+        const showButton = new Button(buttonId);
+        showButton.onClick = function() {
+            divCollection.show(divId);
+        };
+        return handleId;
+    };
+
 
     /**
      * register a div ( for setting dimensions) and apply basic styles, hide
@@ -156,6 +184,9 @@ const divCollection = {};
             handleIds.push(handleId);
             DOM.style("#" + divId, "maxHeight", window.innerHeight + px);
             DOM.style("#" + divId, "overflow", "auto", "display", "none");
+            if (handleId != "") {
+                DOM.style("#" + handleId, "display", "block");
+            }
             // make the div go to top if clicked, and visible !
             const element = document.getElementById(divId);
             element.onclick = function() {
