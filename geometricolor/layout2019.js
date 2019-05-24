@@ -346,28 +346,23 @@ if (typeof Make !== "undefined") {
             var image0, image1, image2, image3;
 
             /**
-             * drawing a four images, for Layout.fourImages
+             * loading and drawing  four images, for Layout.fourImages
              * @method Layout.drawImages
              * @param {String} path0
              * @param {String} path1
              * @param {String} path2
              * @param {String} path3
              */
-            Layout.drawImages = function(path0, path1, path2, path3) {
+            Layout.loadImages = function(path0, path1, path2, path3) {
                 image0 = Layout.loadImage(path0, function() {
-                    context.drawImage(image0, 0, 0, size2, size2);
+                    context.drawImage(image0, 0, 0, size, size);
+                    showAll = false;
                 });
-                image1 = Layout.loadImage(path1, function() {
-                    context.drawImage(image1, size2, 0, size2, size2);
-                });
-                image2 = Layout.loadImage(path2, function() {
-                    context.drawImage(image2, 0, size2, size2, size2);
-                });
-                image3 = Layout.loadImage(path3, function() {
-                    context.drawImage(image3, size2, size2, size2, size2);
-                });
+                image1 = Layout.loadImage(path1, function() {});
+                image2 = Layout.loadImage(path2, function() {});
+                image3 = Layout.loadImage(path3, function() {});
             };
-            let showAll = true;
+            let showAll = false;
 
             canvas.onclick = function(event) {
                 event.preventDefault();
@@ -396,9 +391,70 @@ if (typeof Make !== "undefined") {
                 }
             };
         } else {
-            Layout.drawImages = function() {};
+            Layout.loadImages = function() {};
         }
     };
 
+
+    /**
+     * layout for a page with one image of many and navigation buttons
+     * @method Layout.fourImages
+     * @param {String} prev - url of page to go back, "" for home page
+     * @param {String} next - url of page to go to next, "" for home page
+     */
+    var context, size;
+    const images = [];
+
+    function drawImage0() {
+        context.drawImage(images[0], 0, 0, size, size);
+    }
+    
+    Layout.images = function(prev, next) {
+        if (Layout.isLandscape()) {
+            Layout.setup(prev, next);
+            Layout.activateFontSizeChanges();
+            Layout.setFontSizes();
+            Layout.navigationAtRight();
+            Layout.createTextDiv();
+            DOM.create("canvas", "canvasId", "body");
+            const canvas = document.getElementById("canvasId");
+            canvas.width = window.innerHeight;
+            canvas.height = window.innerHeight;
+            canvas.style.position = "absolute";
+            canvas.style.top = "0px";
+            canvas.style.left = "0px";
+            context = canvas.getContext("2d");
+            size = window.innerHeight;
+            let showing = 0;
+            var numberOfImages;
+
+
+            /**
+             * loading and drawing  four images, for Layout.fourImages
+             * @method Layout.drawImages
+             * @param {String ...} paths
+             */
+            Layout.loadImages = function(paths) {
+                numberOfImages = arguments.length;
+                images.length = numberOfImages;
+                for (var i = 0; i < numberOfImages; i++) {
+                    if (i === 0) {
+                        images[0] = Layout.loadImage(arguments[0], drawImage0);
+                    } else {
+                        images[i] = Layout.loadImage(arguments[i], function() {});
+                    }
+                }
+            };
+
+            canvas.onclick = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                showing = (showing + 1) % numberOfImages;
+                context.drawImage(images[showing], 0, 0, size, size);
+            };
+        } else {
+            Layout.images = function() {};
+        }
+    };
 
 }());

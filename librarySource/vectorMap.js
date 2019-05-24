@@ -168,7 +168,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const color = new Color();
         const colors = new Uint32Array(256);
         var bright;
-        for (var i = 0; i < 255; i++) {
+        for (var i = 0; i < 256; i++) {
             bright = Math.pow(Math.max(0, (i - VectorMap.iterationThreshold) / VectorMap.iterationSaturation), VectorMap.iterationGamma); // beware of power of negative numbers
             bright = Fast.clamp(0, Math.floor(255.9 * bright), 255);
             //bright = 255 - bright;
@@ -199,7 +199,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         // default results for mappings that do not chenge the fields
         // number of reflections (for showing the mirror structure
         furtherResults.reflections = 0;
-        // valid points have lyapunov>0, less than zero means that method has not converged or other problem
+        // valid points have lyapunov>0, less than zero means that method has not converged or other problem, -1000 means outside allowed region (circle)
         furtherResults.lyapunov = 1;
         // the color (symmetry) sector, default value for images without color symmetry...
         furtherResults.colorSector = 0;
@@ -263,7 +263,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                             alphaArray[index] = 0;
                         }
                     } else {
-                        lyapunovArray[index] = -1;
+                        lyapunovArray[index] = -1000;
                     }
                 } else {
                     mapping(position, furtherResults);
@@ -533,7 +533,13 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 pixel[index] = iterationsColors[iterationsArray[index]];
                 // console.log(index+" "+reflectionsArray[index])
             } else {
-                pixel[index] = intColorOff;
+                if (lyapunovArray[index] < -999) {
+                    pixel[index] = intColorOff; // outside disc ..
+                    pixel[index] = iterationsColors[255];
+
+                } else {
+                    pixel[index] = iterationsColors[255];
+                }
             }
         }
         pixelCanvas.showPixel();

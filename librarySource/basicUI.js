@@ -360,7 +360,7 @@ basicUI = {};
         addColor("blue", "#0000ffff");
         addColor("red", "#ff0000ff");
         addColor("green", "#00ff00ff");
-        addColor("yellow", "#ffffff00ff");
+        addColor("yellow", "#ffff00ff");
         addColor("white", "#ffffffff");
 
         basicUI.generators.setIndex(1);
