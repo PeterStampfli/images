@@ -570,11 +570,16 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const i255 = 1 / 255.0;
         for (var index = 0; index < length; index++) {
             if (lyapunovArray[index] >= -0.001) {
-                let bright = i255 * brightness[iterationsArray[index]];
+                // let bright = i255 * brightness[iterationsArray[index]];
                 const baseColor = sectorColor[colorSectorArray[index]];
-                color.red = bright * baseColor.red;
+                /*color.red = bright * baseColor.red;
                 color.green = bright * baseColor.green;
                 color.blue = bright * baseColor.blue;
+                */
+                color.red = baseColor.red;
+                color.green = baseColor.green;
+                color.blue = baseColor.blue;
+                color.alpha = 255 - brightness[iterationsArray[index]];
                 pixelCanvas.setPixelAtIndex(color, index);
             } else {
                 pixel[index] = intColorOff;

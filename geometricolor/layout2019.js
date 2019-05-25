@@ -408,7 +408,7 @@ if (typeof Make !== "undefined") {
     function drawImage0() {
         context.drawImage(images[0], 0, 0, size, size);
     }
-    
+
     Layout.images = function(prev, next) {
         if (Layout.isLandscape()) {
             Layout.setup(prev, next);

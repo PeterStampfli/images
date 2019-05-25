@@ -259,6 +259,7 @@ basicUI = {};
                 function() {
                     DOM.style("#convergenceStyle", "display", "initial");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
+                    DOM.style("#outputCanvasdiv", "backgroundColor", "#000000ff");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);
