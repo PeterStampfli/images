@@ -146,4 +146,38 @@ var DOM = {};
         document.getElementById(divId).insertBefore(document.getElementById(elementId), null);
     };
 
+    /**
+     * add a space to inner HTML of an element
+     * @method DOM.addSpace
+     * @param {String} id - of the element
+     */
+    DOM.addSpace = function(id) {
+        const element = document.getElementById(id);
+        element.innerHTML += " ";
+    };
+
+    /**
+     * create a unique id
+     * @method DOM.createId
+     * @returns integer 
+     */
+    let idNumber = 0;
+    DOM.createId = function() {
+        idNumber++;
+        return "DOM" + idNumber;
+    };
+
+    /**
+     * create a button with synthetic id in given parent, with given text
+     * @method createButton
+     * @param {String} parentId
+     * @param {String} text
+     * @return String, id of button
+     */
+    DOM.createButton = function(parentId, text) {
+        const buttonId = DOM.createId();
+        DOM.create("button", buttonId, "#" + parentId, text);
+        return buttonId;
+    };
+
 }());

@@ -71,6 +71,14 @@ function TextButton(idName) {
      */
     TextButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
+    /**
+     * get the cursor position
+     * @method TextButton#getCursor
+     * @return {integer} position - 0-indexed
+     */
+    TextButton.prototype.getCursor = function() {
+        return this.element.selectionEnd;
+    };
 
     /**
      * read the value of the text input
@@ -82,13 +90,59 @@ function TextButton(idName) {
     };
 
     /**
-     * set the value of the text input
+     * read the length of the text input
+     * @method TextButton#getLength
+     * @returns {integer}  the button text
+     */
+    TextButton.prototype.getLength = function() {
+        return this.element.value.length;
+    };
+
+    /**
+     * set the cursor position, keeping it in limits, set focus
+     * @method TextButton#setCursor
+     * @param {integer} position - 0-indexed
+     */
+    TextButton.prototype.setCursor = function(position) {
+        console.log(position);
+        position = Fast.clamp(0, position, Math.min(this.getLength() - 1));
+        this.element.focus();
+        this.element.setSelectionRange(position, position);
+    };
+
+    /**
+     * set the value of the text input, set cursor to end, set focus
      * @method TextButton#setValue
      * @param {String} text
      */
     TextButton.prototype.setValue = function(text) {
         this.element.value = text;
+        this.setCursor(text.length);
     };
 
+    /**
+     * add a text to the text of the button at cursor position, 
+     *  new cursor position will be at end of inserted text
+     * @method TextButton#add
+     * @param {String} addText
+     */
+    TextButton.prototype.add = function(addText) {
+        const text = this.getValue();
+        const selectionStart = this.element.selectionStart;
+        const before = text.slice(0, selectionStart);
+        const selectionEnd = this.element.selectionEnd;
+        const after = text.slice(selectionEnd);
+        this.setValue(before + addText + after);
+        this.setCursor(selectionStart + addText.length);
+    };
+
+    /**
+     * move cursor one position to the left
+     * selection collapses, end of selection counts
+     * @method TextButton#stepLeft
+     */
+    TextButton.prototype.stepLeft = function() {
+        this.setCursor(this.getCursor() - 1);
+    };
 
 }());

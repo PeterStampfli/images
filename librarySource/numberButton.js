@@ -260,13 +260,15 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @return NumberButton
      */
     NumberButton.create = function(idSpan) {
-        DOM.create("input", idSpan + "input", "#" + idSpan);
-        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
-        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
-        DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn", "borderRadius", 1000 + px);
-        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn");
+        const inputId = DOM.createId();
+        DOM.create("input", inputId, "#" + idSpan);
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, "up");
+        DOM.addSpace(idSpan);
+        const dnId = DOM.createButton(idSpan, "dn");
+        DOM.create("button", dnId, "#" + idSpan, "dn");
+        DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
+        let numberButton = new NumberButton(inputId, upId, dnId);
         return numberButton;
     };
 
@@ -278,15 +280,16 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @return NumberButton
      */
     NumberButton.createInfinity = function(idSpan) {
-        DOM.create("input", idSpan + "input", "#" + idSpan);
-        DOM.create("span", idSpan + "extraspace1", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "up", "#" + idSpan, "up");
-        DOM.create("span", idSpan + "extraspace2", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "dn", "#" + idSpan, "dn");
-        DOM.create("span", idSpan + "extraspace3", "#" + idSpan, " ");
-        DOM.create("button", idSpan + "infinity", "#" + idSpan, " ∞ ");
-        DOM.style("#" + idSpan + "up" + ",#" + idSpan + "dn" + ",#" + idSpan + "infinity", "borderRadius", 1000 + px);
-        let numberButton = new NumberButton(idSpan + "input", idSpan + "up", idSpan + "dn", idSpan + "infinity");
+        const inputId = DOM.createId();
+        DOM.create("input", inputId, "#" + idSpan);
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, "up");
+        DOM.addSpace(idSpan);
+        const dnId = DOM.createButton(idSpan, "dn");
+        DOM.addSpace(idSpan);
+        const infId = DOM.createButton(idSpan, " ∞ ");
+        DOM.style("#" + upId + ",#" + dnId + ",#" + infId, "borderRadius", 1000 + px);
+        let numberButton = new NumberButton(inputId, upId, dnId, infId);
         return numberButton;
     };
 
