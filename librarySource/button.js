@@ -170,4 +170,18 @@ function Button(idName) {
         return button;
     };
 
+
+    /**
+     * create a button that executes a function
+     * @method Button.createFunction
+     * @param {String} id - of the html element that serves as button
+     * @param {function} action 
+     * @return Button element, just in case
+     */
+    Button.createAction = function(id, action) {
+        const button = new Button(id);
+        button.onClick = action;
+        return button;
+    };
+
 }());

@@ -14,19 +14,62 @@ DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
 textInput = new TextButton("symbolsInput");
 
-textInput.setValue("ui");
 textInput.onChange = function(value) {
-    console.log(" changes " + value);
+    console.log(" do this " + value);
 };
 
-textInput.setValue("dasda");
 
-//textInput.stepLeft();
 
-//textInput.add("more");
+textInput.createAddButton("specialChars", "x");
+DOM.addSpace("specialChars");
+textInput.createAddButton("specialChars", "o");
+DOM.addSpace("specialChars");
+textInput.createAddButton("specialChars", "*");
+DOM.addSpace("specialChars");
+textInput.createAddButton("specialChars", "(");
+DOM.addSpace("specialChars");
+textInput.createAddButton("specialChars", ")");
 
-console.log(DOM.createId());
-console.log(DOM.createId());
-console.log(DOM.createId());
-console.log(DOM.createId());
-console.log(DOM.createId());
+
+textInput.createAddButton("zeroToFour", "0");
+DOM.addSpace("zeroToFour");
+textInput.createAddButton("zeroToFour", "1");
+DOM.addSpace("zeroToFour");
+textInput.createAddButton("zeroToFour", "2");
+DOM.addSpace("zeroToFour");
+textInput.createAddButton("zeroToFour", "3");
+DOM.addSpace("zeroToFour");
+textInput.createAddButton("zeroToFour", "4");
+
+
+textInput.createAddButton("fiveToNine", "5");
+DOM.addSpace("fiveToNine");
+textInput.createAddButton("fiveToNine", "6");
+DOM.addSpace("fiveToNine");
+textInput.createAddButton("fiveToNine", "7");
+DOM.addSpace("fiveToNine");
+textInput.createAddButton("fiveToNine", "8");
+DOM.addSpace("fiveToNine");
+textInput.createAddButton("fiveToNine", "9");
+
+
+textInput.createStepLeftButton("controls", "<=");
+DOM.addSpace("controls");
+textInput.createStepRightButton("controls", "=>");
+DOM.addSpace("controls");
+
+
+KeyboardEvents.addFunction(function() {
+    console.log("enter");
+    //   console.log(textInput.
+    // DOM.style(
+
+
+}, "Enter");
+
+q = document.getElementById("quark");
+DOM.style("#quark", "backgroundColor", "orange", "borderStyle", "inset", "width", "50px");
+
+q.onclick = function() {
+    console.log("click");
+}

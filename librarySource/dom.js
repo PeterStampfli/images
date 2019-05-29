@@ -153,7 +153,17 @@ var DOM = {};
      */
     DOM.addSpace = function(id) {
         const element = document.getElementById(id);
-        element.innerHTML += " ";
+        DOM.create("span", DOM.createId(), "#" + id, " ");
+    };
+
+    /**
+     * add a break to inner HTML of an element
+     * @method DOM.addBreak
+     * @param {String} id - of the element
+     */
+    DOM.addBreak = function(id) {
+        const element = document.getElementById(id);
+        DOM.create("br", DOM.createId(), "#" + id);
     };
 
     /**

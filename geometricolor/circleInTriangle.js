@@ -199,13 +199,12 @@ function creation() {
         b.setValue(h);
     }
 
-    const mirrorButton = new Button("mirror");
-    mirrorButton.onClick = function() {
+    Button.createAction("mirror", function() {
         console.log("mirror");
         exchangeButtonValues(setMButton, setNButton);
         exchangeButtonValues(setM2Button, setN2Button);
         Make.updateNewMap();
-    };
+    });
 
     const inversionButton = new Button("inversion");
     inversionButton.onClick = function() {

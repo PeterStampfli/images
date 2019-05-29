@@ -104,8 +104,7 @@ function TextButton(idName) {
      * @param {integer} position - 0-indexed
      */
     TextButton.prototype.setCursor = function(position) {
-        console.log(position);
-        position = Fast.clamp(0, position, Math.min(this.getLength() - 1));
+        position = Fast.clamp(0, position, Math.min(this.getLength()));
         this.element.focus();
         this.element.setSelectionRange(position, position);
     };
@@ -136,13 +135,55 @@ function TextButton(idName) {
         this.setCursor(selectionStart + addText.length);
     };
 
+
+
     /**
-     * move cursor one position to the left
+     * create a button to move cursor one position to the left
      * selection collapses, end of selection counts
      * @method TextButton#stepLeft
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
      */
-    TextButton.prototype.stepLeft = function() {
-        this.setCursor(this.getCursor() - 1);
+    TextButton.prototype.createStepLeftButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const textButton = this;
+        Button.createAction(buttonId, function() {
+            textButton.setCursor(textButton.getCursor() - 1);
+        });
+    };
+
+
+    /**
+     * create a button to move cursor one position to the right
+     * selection collapses, end of selection counts
+     * @method TextButton#stepLeft
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    TextButton.prototype.createStepRightButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const textButton = this;
+        Button.createAction(buttonId, function() {
+            textButton.setCursor(textButton.getCursor() + 1);
+        });
+    };
+
+
+    /**
+     * create a button to add text
+     * @method TextButton#createAddButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    TextButton.prototype.createAddButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const textButton = this;
+        Button.createAction(buttonId, function() {
+            textButton.add(text);
+        });
     };
 
 }());
