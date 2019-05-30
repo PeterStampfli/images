@@ -68,8 +68,12 @@ KeyboardEvents.addFunction(function() {
 }, "Enter");
 
 q = document.getElementById("quark");
-DOM.style("#quark", "backgroundColor", "orange", "borderStyle", "inset", "width", "50px");
+DOM.style("#quark", "width", "200px");
 
-q.onclick = function() {
-    console.log("click");
-}
+
+special = new SpecialInput("quark");
+
+special.setText("wasauchimmer");
+special.add("aaa");
+special.createStepLeftButton("ex", "<=");
+special.createAddButton("ex", "0");

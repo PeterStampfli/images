@@ -1,0 +1,262 @@
+/**
+ * a special input for text text with limited set of characters,
+ * 
+ * @constructor SpecialInput 
+ * @param {String} idName name (id) of a span or div
+ */
+
+/* jshint esversion:6 */
+
+
+function SpecialInput(idName) {
+    "use strict";
+    this.id = idName;
+    DOM.style("#" + idName, "borderStyle", "solid", "borderTopColor", "#777777", "borderLeftColor", "#777777", "borderBottomColor", "#dddddd", "borderRightColor", "#dddddd", "overflow", "auto");
+    this.element = document.getElementById(idName);
+    this.text = "";
+    this.cursorPosition = 0;
+    this.hover = false;
+    this.focus = false;
+    this.keepFocus = false;
+    this.element.style.cursor = "text";
+
+
+
+    // writing text with cursor position
+    // each character in its own span element (detect click position)
+    this.charSpans = [];
+
+    this.colorStyleDefaults();
+    this.updateStyle();
+    this.updateText();
+
+
+    var specialInput = this;
+
+
+    /**
+     * action upon change, strategy pattern
+     * @method NumberButton#onclick
+     * @param {integer} value
+     */
+    this.onChange = function(value) {};
+
+
+    this.element.onclick = function() {
+        specialInput.setFocus(true);
+    };
+
+    // loosing focus for clicking elsewhere
+    const body = document.getElementsByTagName("body")[0];
+    body.addEventListener("click", function() {
+        if (!specialInput.hover && !specialInput.keepFocus) {
+            specialInput.setFocus(false);
+        }
+        specialInput.keepFocus = false;
+    });
+
+    // hovering
+    this.element.onmouseenter = function() {
+        specialInput.hover = true;
+        specialInput.updateStyle();
+    };
+
+    this.element.onmouseleave = function() {
+        specialInput.hover = false;
+        specialInput.updateStyle();
+    };
+}
+
+
+
+(function() {
+    "use strict";
+
+    /**
+     * update the color style of the element depending on whether its pressed or hovered
+     * always call if states change, use for other buttons too
+     * @method SpecialInput#updateStyle
+     */
+    SpecialInput.prototype.updateStyle = function() {
+        if (this.focus) {
+            if (this.hover) {
+                this.element.style.color = this.colorDown;
+                this.element.style.backgroundColor = this.backgroundColorDown;
+            } else {
+                this.element.style.color = this.colorDown;
+                this.element.style.backgroundColor = this.backgroundColorDown;
+            }
+        } else {
+            if (this.hover) {
+                this.element.style.color = this.colorUpHover;
+                this.element.style.backgroundColor = this.backgroundColorUpHover;
+            } else {
+                this.element.style.color = this.colorUp;
+                this.element.style.backgroundColor = this.backgroundColorUp;
+            }
+        }
+    };
+
+    /**
+     * setup the color styles defaults, use for other buttons too
+     * @method SpecialInput#colorStyleDefaults
+     */
+    SpecialInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
+
+    /**
+     * write a text in the charSpans, with an extra m-space and a hidden X at end
+     * @method SpecialInput#write
+     * @param {String} text
+     */
+
+    function createNewSpanOnClickFunction(specialInput, i) {
+        const f = function() {
+            if (specialInput.cursorPosition < i) {
+                specialInput.setCursor(i - 1);
+            } else {
+                specialInput.setCursor(i);
+            }
+        };
+        return f;
+    }
+
+    SpecialInput.prototype.write = function(text) {
+        // create missing spans
+        for (let i = this.charSpans.length; i < text.length + 2; i++) {
+            const newSpan = DOM.create("span", DOM.createId(), "#" + this.id);
+            const specialInput = this;
+            newSpan.onclick = createNewSpanOnClickFunction(specialInput, i);
+            /*newSpan.onclick=function(){
+                console.log(i);
+               
+            };
+        */
+            this.charSpans.push(newSpan);
+        }
+        //write message to spans and make visible
+        for (let i = 0; i < text.length; i++) {
+            const theSpan = this.charSpans[i];
+            theSpan.innerHTML = text.charAt(i);
+            theSpan.style.display = "inline";
+            theSpan.style.visibility = "visible";
+        }
+        // a large space at end of text
+        let theSpan = this.charSpans[text.length];
+        theSpan.innerHTML = "&nbsp;";
+        theSpan.style.display = "inline";
+        theSpan.style.visibility = "visible";
+        // a hidden X to prevent span from collapsing
+        theSpan = this.charSpans[text.length + 1];
+        theSpan.innerHTML = "X";
+        theSpan.style.display = "inline";
+        theSpan.style.visibility = "hidden";
+        // clear empty spans
+        for (let i = text.length + 2; i < this.charSpans.length; i++) {
+            const theSpan = this.charSpans[i];
+            theSpan.innerHTML = "";
+            theSpan.style.display = "none";
+        }
+    };
+
+    /**
+     * update the text display, depending on focus add cursor
+     * @method SpecialInput.updateText
+     */
+    SpecialInput.prototype.updateText = function() {
+        var text;
+        if (this.focus) { // with focus show "cursor"
+            text = this.text.slice(0, this.cursorPosition);
+            text += "_";
+            text += this.text.slice(this.cursorPosition);
+        } else {
+            text = this.text;
+        }
+        this.write(text);
+    };
+
+    /**
+     * set that this input is in focus or not and update everything
+     * @method SpecialInput#setFocus
+     * @param {boolean} focus
+     */
+    SpecialInput.prototype.setFocus = function(focus) {
+        this.focus = focus;
+        this.updateStyle();
+        this.updateText();
+    };
+
+    /**
+     * set the cursor, make that it has focus
+     * @method SpecialInput#setFocus
+     * @param {integer} position
+     */
+    SpecialInput.prototype.setCursor = function(position) {
+        console.log("setCursor");
+        position = Fast.clamp(0, position, this.text.length);
+        this.cursorPosition = position;
+        this.setFocus(true);
+    };
+
+    /**
+     * set the text, put cursor at end make it focus
+     * @method SpecialInput#setText
+     * @param {String} text
+     */
+    SpecialInput.prototype.setText = function(text) {
+        this.text = text;
+        this.cursorPosition = text.length;
+        this.setFocus(true);
+    };
+
+
+    /**
+     * add a text at cursor position, 
+     *  new cursor position will be at end of inserted text
+     * @method SpecialInput#add
+     * @param {String} addText
+     */
+    SpecialInput.prototype.add = function(addText) {
+        let text = this.text.slice(0, this.cursorPosition);
+        text += addText;
+        const newCursorPosition = text.length;
+        text += this.text.slice(this.cursorPosition);
+        this.text = text;
+        this.cursorPosition = newCursorPosition;
+        this.setFocus(true);
+    };
+
+
+    /**
+     * create a button to move cursor one position to the left
+     * @method SpecialInput#stepLeft
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createStepLeftButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.setCursor(specialInput.cursorPosition - 1);
+            specialInput.keepFocus = true;
+        });
+    };
+
+
+    /**
+     * create a button to add text
+     * @method SpecialInput#createAddButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createAddButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.add(text);
+            specialInput.keepFocus = true;
+        });
+    };
+
+}());

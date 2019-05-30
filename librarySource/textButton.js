@@ -104,7 +104,7 @@ function TextButton(idName) {
      * @param {integer} position - 0-indexed
      */
     TextButton.prototype.setCursor = function(position) {
-        position = Fast.clamp(0, position, Math.min(this.getLength()));
+        position = Fast.clamp(0, position, this.getLength());
         this.element.focus();
         this.element.setSelectionRange(position, position);
     };

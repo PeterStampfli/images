@@ -26,6 +26,12 @@ function Button(idName) {
     this.onClick = function() {};
 
     /**
+     * action upon mouse down, strategy pattern
+     * @method Button#onMouseDown
+     */
+    this.onMouseDown = function() {};
+
+    /**
      * action after loading a new input file for file input buttons
      * @method Button#onFileInput
      * @param {File} file - input file object
@@ -40,6 +46,7 @@ function Button(idName) {
     this.element.onmousedown = function() {
         button.pressed = true;
         button.updateStyle();
+        button.onMouseDown();
     };
 
     this.element.onmouseup = function() {
