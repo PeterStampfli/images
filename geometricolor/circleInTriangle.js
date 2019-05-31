@@ -110,6 +110,13 @@ function creation() {
         Make.updateNewMap();
     });
 
+    projectionEuklidic.addOption("Spiral", function() {
+        euklidicCanShowGenerators = false;
+        euklidicProjection = basicEuclidicSpiral;
+        euklidicRadius = -1;
+        Make.updateNewMap();
+    });
+
     let projectionElliptic = new Select("projectionElliptic");
     var ellipticProjection = circleScope.doNothing;
     var ellipticRadius = -1;
@@ -302,6 +309,7 @@ function creation() {
                     break;
             }
         } else if (sumAngles < 1.01) {
+            makeSpiralVector(k1, m1, n1);
             DOM.style("#projectionEuklidicDiv", "display", "initial");
             DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
             circleScope.projection = euklidicProjection;

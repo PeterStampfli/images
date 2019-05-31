@@ -81,3 +81,100 @@ function finishMapEuclidicFourSmall(position, furtherResults) {
         position.y -= y2 + y2;
     }
 }
+
+
+// the spiral
+//=====================================================================
+
+// spiral view
+let spiralNumber1 = 2;
+let spiralNumber2 = 5;
+let spiralVector1 = new Vector2();
+let spiralVector2 = new Vector2();
+let spiralVector = new Vector2();
+let rt3 = Math.sqrt(3);
+
+// called at each basicKaleidoscope.setKMN call, every time Make.initializMap is called
+function makeSpiralVector(k, m, n) {
+    console.log("making sprial vector");
+    // setting up the two spiralvectors, reduced units 
+    // length scale = basicKaleidoscope.intersectionMirrorXAxis
+    // here lineIntersection
+    switch (k) {
+        case 2:
+            switch (m) {
+                case 3:
+                    spiralVector1.setComponents(3, rt3);
+                    spiralVector2.setComponents(0, 2 * rt3);
+                    break;
+                case 4:
+                    spiralVector1.setComponents(2, 0);
+                    spiralVector2.setComponents(0, 2);
+                    break;
+                case 6:
+                    spiralVector1.setComponents(1, rt3);
+                    spiralVector2.setComponents(2, 0);
+                    break;
+            }
+            break;
+        case 3:
+            switch (m) {
+                case 2:
+                    spiralVector1.setComponents(0, 2 * rt3);
+                    spiralVector2.setComponents(3, rt3);
+                    break;
+                case 3:
+                    spiralVector1.setComponents(1.5, 0.5 * rt3);
+                    spiralVector2.setComponents(0, rt3);
+                    break;
+                case 6:
+                    spiralVector1.setComponents(0, rt3);
+                    spiralVector2.setComponents(1.5, 0.5 * rt3);
+                    break;
+            }
+            break;
+        case 4:
+            switch (m) {
+                case 2:
+                    spiralVector1.setComponents(2, 0);
+                    spiralVector2.setComponents(0, 2);
+                    break;
+                case 4:
+                    spiralVector1.setComponents(1, 1);
+                    spiralVector2.setComponents(1, -1);
+                    break;
+            }
+            break;
+        case 6:
+            switch (m) {
+                case 2:
+                    spiralVector1.setComponents(2, 0);
+                    spiralVector2.setComponents(1, rt3);
+                    break;
+                case 3:
+                    spiralVector1.setComponents(0, rt3);
+                    spiralVector2.setComponents(1.5, rt3 * 0.5);
+                    break;
+            }
+            break;
+    }
+    spiralVector1.scale(spiralNumber1);
+    spiralVector2.scale(spiralNumber2);
+    spiralVector.set(spiralVector1).add(spiralVector2);
+    // make a "periodic vector" defining a path with period 2 pi
+    spiralVector.scale(lineIntersection * 0.5 / Math.PI);
+}
+
+// the map 
+function basicEuclidicSpiral(position) {
+    // use the complex log to map the plane into a strip
+    // y goes from -pi to +pi, 
+    let x = 0.5 * Fast.log(position.x * position.x + position.y * position.y);
+    let y = Fast.atan2(position.y, position.x);
+    // going from (x,y) to (x,y+2*pi) we have to get the same image
+    // so y has to go along a periodic vector with period 2*pi
+    // scale and rotate 
+    position.x = y * spiralVector.x + x * spiralVector.y;
+    position.y = y * spiralVector.y - x * spiralVector.x;
+    return 1;
+}
