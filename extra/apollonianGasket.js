@@ -33,6 +33,7 @@ function creation() {
     var worldradius, worldradius2;
     worldradius = 9.7;
     worldradius2 = worldradius * worldradius;
+    var orthographicStretch = 1; // factor from equator to worldradius
 
     triangleAppolonius();
 
@@ -116,6 +117,7 @@ function creation() {
         Make.updateNewMap();
     });
 
+
     function kleinDisc(position) {
         let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
         let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
@@ -124,11 +126,30 @@ function creation() {
         return 1;
     }
 
+
+
+
     viewSelect.addOption("klein disc", function() {
         console.log("klein view");
         Make.map.discRadius = worldradius;
         invertedView = true;
         multiCircles.projection = kleinDisc;
+        basicUI.canShowGenerators = false;
+        DOM.style("#generatorsDiv", "display", "none");
+        multiCircles.setupMouseNoTrajectory();
+        Make.updateNewMap();
+    });
+
+    viewSelect.addOption("orthographic", function() {
+        console.log("ortho view");
+        Make.map.discRadius = worldradius;
+        invertedView = true;
+        console.log(orthographicStretch);
+        multiCircles.projection = function(position) {
+            kleinDisc(position);
+            position.scale(orthographicStretch);
+            return 1;
+        };
         basicUI.canShowGenerators = false;
         DOM.style("#generatorsDiv", "display", "none");
         multiCircles.setupMouseNoTrajectory();
@@ -153,6 +174,7 @@ function creation() {
     // basic triangle for simple poincare disc tiling with ideal triangle
     // includes fitting inversion circle
     function triangle() {
+        orthographicStretch = 1;
         const d = 2 * worldradius;
         const r = d / 2 * rt3;
         multiCircles.addCircleInsideOut(r, -d, 0);
@@ -167,6 +189,8 @@ function creation() {
         const d = 2 * worldradius;
         const r = d / 2 * rt3;
         const rCenter = d - r;
+        orthographicStretch = rCenter / worldradius;
+        console.log("orthographicStretch " + orthographicStretch);
         const rCenter05 = rCenter * 0.5;
         multiCircles.addCircleInsideOut(rCenter, 0, 0);
         multiCircles.finishMap = function(position, furtherResults) {
@@ -200,6 +224,7 @@ function creation() {
     }
 
     function four() {
+        orthographicStretch = 1;
         multiCircles.addCircleInsideOut(worldradius, worldradius, worldradius);
         multiCircles.addCircleInsideOut(worldradius, worldradius, -worldradius);
         multiCircles.addCircleInsideOut(worldradius, -worldradius, worldradius);
@@ -211,6 +236,7 @@ function creation() {
         four();
         const rrr = (rt2 - 1) * worldradius;
         const c5 = multiCircles.addCircleInsideOut(rrr, 0, 0);
+        orthographicStretch = rrr / worldradius;
         multiCircles.finishMap = function(position, furtherResults) {
             let l2 = position.length2();
             if (l2 > worldradius2) {

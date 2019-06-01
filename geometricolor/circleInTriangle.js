@@ -65,10 +65,23 @@ function creation() {
     var hyperbolicProjection = circleScope.doNothing;
     var hyperbolicRadius = -1;
     var hyperbolicCanShowGenerators = true;
+    const hyperbolicInversionRadiusFactor = 0.5;
+    var hyperbolicInversionRadius2;
 
     projectionHyperbolic.addOption("Poincaré disc", function() {
         hyperbolicCanShowGenerators = true;
         hyperbolicProjection = circleScope.doNothing;
+        hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionHyperbolic.addOption("inverted Poincaré disc", function() {
+        hyperbolicCanShowGenerators = false;
+        hyperbolicInversionRadius2 = worldradius2 * hyperbolicInversionRadiusFactor * hyperbolicInversionRadiusFactor;
+        hyperbolicProjection = function(position) {
+            position.scale(hyperbolicInversionRadius2 / position.length2());
+            return 1;
+        };
         hyperbolicRadius = -1;
         Make.updateNewMap();
     });
@@ -92,6 +105,8 @@ function creation() {
     var euklidicProjection = circleScope.doNothing;
     var euklidicRadius = -1;
     var euklidicCanShowGenerators = true;
+    const euklidicInversionRadiusFactor = 0.5;
+    var euklidicInversionRadius2;
 
     projectionEuklidic.addOption("Normal", function() {
         euklidicCanShowGenerators = true;
@@ -102,8 +117,9 @@ function creation() {
 
     projectionEuklidic.addOption("Inverted", function() {
         euklidicCanShowGenerators = false;
+        euklidicInversionRadius2 = worldradius2 * euklidicInversionRadiusFactor * euklidicInversionRadiusFactor;
         euklidicProjection = function(position) {
-            position.scale(worldradius2 / position.length2());
+            position.scale(euklidicInversionRadius2 / position.length2());
             return 1;
         };
         euklidicRadius = -1;
@@ -129,9 +145,32 @@ function creation() {
         Make.updateNewMap();
     });
 
-    projectionElliptic.addOption("Orthographic", function() {
+    projectionElliptic.addOption("inverted Stereographic", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = function(position) {
+            position.scale(worldradius2 / position.length2());
+            return 1;
+        };
+        ellipticRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionElliptic.addOption("Orthographic (above)", function() {
         ellipticCanShowGenerators = false;
         ellipticProjection = kleinDisc;
+        ellipticRadius = worldradius;
+        Make.updateNewMap();
+    });
+
+    projectionElliptic.addOption("Orthographic (below)", function() {
+        ellipticCanShowGenerators = false;
+        ellipticProjection = ellipticProjection = function(position) {
+            const ok = kleinDisc(position);
+            if (ok >= 0) {
+                position.scale(worldradius2 / position.length2());
+            }
+            return ok;
+        };
         ellipticRadius = worldradius;
         Make.updateNewMap();
     });
