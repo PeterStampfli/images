@@ -23,6 +23,8 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     this.iterationsArray = new Uint8ClampedArray(4);
     // the color sector (for color symmetry...)
     this.colorSectorArray = new Uint8Array(4);
+    // an arry of color objetcs
+    this.structureColorObjectCollection = [];
 
     // an array [colorSector] of arrays of integer colors ( new Uint32Array(256)
     this.structureColorCollection = [];
@@ -92,12 +94,17 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
     VectorMap.prototype.createSimpleColorTable = function() {
         this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
         const colors = new Uint32Array(256);
+        const colorObjects=[];
+        colorObjects.push(VectorMap.colorParityOff);
         for (var i = 0; i < 255; i++) {
             colors[i++] = PixelCanvas.integerOf(VectorMap.colorParityEven);
             colors[i] = PixelCanvas.integerOf(VectorMap.colorParityOdd);
+            colorObjects.push(VectorMap.colorParityOdd);
+            colorObjects.push(VectorMap.colorParityEven);
         }
         colors[0] = PixelCanvas.integerOf(VectorMap.colorParityNull);
         this.structureColorCollection = [colors];
+        this.structureColorObjectCollection=[colorObjects];
     };
 
     /**
@@ -110,28 +117,38 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      * @param {integer} attenuation - between 0 and 127, for even or odd number of reflections
      */
     VectorMap.prototype.addStructureColors = function(hue, whiteOrigin, attenuationOdd) {
-        this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
-        const color = new Color();
-        color.grey = whiteOrigin;
-        color.hue = hue;
-        color.colorIntensity = 255 - whiteOrigin;
-        color.rgbFromHig();
-        const intColorNull = PixelCanvas.integerOf(color);
-        this.sectorColor.push(new Color(color.red, color.green, color.blue));
-        color.grey = 0;
-        color.colorIntensity = 255;
-        color.rgbFromHig();
-        const intColorEven = PixelCanvas.integerOf(color);
-        color.colorIntensity = 255 - attenuationOdd;
-        color.rgbFromHig();
-        const intColorOdd = PixelCanvas.integerOf(color);
+      this.intColorOff = PixelCanvas.integerOf(VectorMap.colorParityOff);
+        const colorZero = new Color();
+        colorZero.grey = whiteOrigin;
+        colorZero.hue = hue;
+        colorZero.colorIntensity = 255 - whiteOrigin;
+        colorZero.rgbFromHig();
+        const intColorNull = PixelCanvas.integerOf(colorZero);
+        this.sectorColor.push(colorZero);
+        const colorEven=new Color();
+        colorEven.grey = 0;
+         colorEven.hue = hue;
+       colorEven.colorIntensity = 255;
+        colorEven.rgbFromHig();
+        const intColorEven = PixelCanvas.integerOf(colorEven);
+        const colorOdd=new Color();
+       colorOdd.grey = 0;
+         colorOdd.hue = hue;
+        colorOdd.colorIntensity = 255 - attenuationOdd;
+        colorOdd.rgbFromHig();
+        const intColorOdd = PixelCanvas.integerOf(colorOdd);
         const colors = new Uint32Array(256);
-        for (var i = 0; i < 255; i++) {
+        const colorObjects=[];
+        colorObjects.push(colorZero);
+         colors[0] = intColorNull;
+       for (var i = 0; i < 255; i++) {
             colors[i++] = intColorEven;
             colors[i] = intColorOdd;
+            colorObjects.push(colorEven);
+            colorObjects.push(colorZero);
         }
-        colors[0] = intColorNull;
         this.structureColorCollection.push(colors);
+        this.structureColorObjectCollection.push(colorObjects);
     };
 
     /**
@@ -146,6 +163,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
      */
     VectorMap.prototype.makeColorCollection = function(nColors, firstHue, deltaHue, attenuationEven, attenuationOdd) {
         this.structureColorCollection = [];
+        this.structureColorObjectCollection.length=[];
         let hue = firstHue;
         for (var i = 0; i < nColors; i++) {
             this.addStructureColors(hue, attenuationEven, attenuationOdd);
@@ -587,6 +605,52 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         }
         pixelCanvas.showPixel();
     };
+    
+    /**
+     * draw on a pixelcanvas use a map
+     * color showing number of iterations, based on iterationsArray
+     * and structure, based on reflectionsArray and colorSectorArray
+     * "invalid" points have a negative lyapunov value
+     * @method VectorMap#drawIterations
+     */
+    VectorMap.prototype.drawConvergenceStructure = function() {
+        console.log("convergenceStructure");
+        const pixelCanvas = this.outputImage.pixelCanvas;
+        const pixel = pixelCanvas.pixel;
+        const intColorOff = this.intColorOff;
+        const lyapunovArray = this.lyapunovArray;
+        const reflectionsArray = this.reflectionsArray;
+        const iterationsArray = this.iterationsArray;
+        const colorSectorArray = this.colorSectorArray;
+        const structureColorCollection = this.structureColorCollection;
+           const structureColorObjectCollection= this.structureColorObjectCollection;
+
+        const brightness = this.iterationsBrightness;
+        const iterationsColors = this.iterationsColors;
+        const length = lyapunovArray.length;
+        const color = new Color();
+        const sectorColor = this.sectorColor;
+        const i255 = 1 / 255.0;
+        for (var index = 0; index < length; index++) {
+            if (lyapunovArray[index] >= -0.001) {
+                // let bright = i255 * brightness[iterationsArray[index]];
+                //const baseColor = sectorColor[colorSectorArray[index]];
+                const baseColor = structureColorObjectCollection[colorSectorArray[index]][reflectionsArray[index]];
+                /*color.red = bright * baseColor.red;
+                color.green = bright * baseColor.green;
+                color.blue = bright * baseColor.blue;
+                */
+                color.red = baseColor.red;
+                color.green = baseColor.green;
+                color.blue = baseColor.blue;
+                color.alpha = 255 - brightness[iterationsArray[index]];
+                pixelCanvas.setPixelAtIndex(color, index);
+            } else {
+                pixel[index] = intColorOff;
+            }
+        }
+        pixelCanvas.showPixel();
+    };
 
 
     /**
@@ -702,7 +766,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             }
             for (i = width2; i < width; i++) {
                 lyapunov = lyapunovArray[index] * baseLyapunov;
-
                 if (lyapunov >= -0.001) {
                     x = xArray[index];
                     y = yArray[index];

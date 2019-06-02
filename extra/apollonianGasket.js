@@ -15,13 +15,17 @@ function creation() {
 
     Make.imageQuality = "high";
     Make.map.discRadius = -1;
+    
+    const whiteOrigin=120;
+    const attenuationOdd=50;
 
     Make.map.structureColorCollection = [];
-    Make.map.addStructureColors(3.5, 120, 70);
-    Make.map.addStructureColors(2, 120, 70);
-    Make.map.addStructureColors(0, 120, 70);
-    Make.map.addStructureColors(1, 120, 70);
-    Make.map.addStructureColors(5, 120, 70);
+    Make.map.structureColorObjectCollection = [];
+    Make.map.addStructureColors(3, whiteOrigin, attenuationOdd);
+    Make.map.addStructureColors(2, whiteOrigin, attenuationOdd);
+    Make.map.addStructureColors(0, whiteOrigin, attenuationOdd);
+    Make.map.addStructureColors(1, whiteOrigin, attenuationOdd);
+    Make.map.addStructureColors(5, whiteOrigin, attenuationOdd);
     Make.map.rgbRotationInversionColorSymmetry();
 
     VectorMap.iterationGamma = 1.6;
@@ -140,13 +144,30 @@ function creation() {
         Make.updateNewMap();
     });
 
-    viewSelect.addOption("orthographic", function() {
+    viewSelect.addOption("orthographic (above)", function() {
         console.log("ortho view");
         Make.map.discRadius = worldradius;
         invertedView = true;
         console.log(orthographicStretch);
         multiCircles.projection = function(position) {
             kleinDisc(position);
+            position.scale(orthographicStretch);
+            return 1;
+        };
+        basicUI.canShowGenerators = false;
+        DOM.style("#generatorsDiv", "display", "none");
+        multiCircles.setupMouseNoTrajectory();
+        Make.updateNewMap();
+    });
+    
+    viewSelect.addOption("orthographic (below)", function() {
+        console.log("ortho view");
+        Make.map.discRadius = worldradius;
+        invertedView = true;
+        console.log(orthographicStretch);
+        multiCircles.projection = function(position) {
+            kleinDisc(position);
+            position.scale(worldradius2/position.length2());
             position.scale(orthographicStretch);
             return 1;
         };
@@ -191,6 +212,8 @@ function creation() {
         const rCenter = d - r;
         orthographicStretch = rCenter / worldradius;
         console.log("orthographicStretch " + orthographicStretch);
+        orthographicStretch=Math.sqrt(2)/(1+Math.sqrt(3));
+                console.log("orthographicStretch " + orthographicStretch);
         const rCenter05 = rCenter * 0.5;
         multiCircles.addCircleInsideOut(rCenter, 0, 0);
         multiCircles.finishMap = function(position, furtherResults) {
