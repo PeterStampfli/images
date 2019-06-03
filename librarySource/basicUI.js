@@ -301,6 +301,39 @@ basicUI = {};
                     Make.updateOutputImage();
                 });
         };
+
+
+        basicUI.showSelectAddTwoColorStructure = function() {
+            console.log("add2colstructure");
+            basicUI.showSelect.addOption("two color structure",
+                function() {
+                    DOM.style("#convergenceStyle", "display", "none");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", "#000000");
+                    Make.showingInputImage = false;
+                    Make.clearControlImage();
+                    basicUI.activateControls(false);
+                    Make.draw = function() {
+                        Make.map.drawTwoColorStructure();
+                    };
+                    Make.updateOutputImage();
+                });
+        };
+
+        basicUI.showSelectAddImageSector0 = function() {
+            console.log("image sector2");
+            basicUI.showSelect.addOption("image sector 0",
+                function() {
+                    DOM.style("#convergenceStyle", "display", "none");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", "#000000");
+                    Make.showingInputImage = true;
+                    Make.clearControlImage();
+                    basicUI.activateControls(true);
+                    Make.draw = function() {
+                        Make.map.drawHighQualitySector0();
+                    };
+                    Make.updateOutputImage();
+                });
+        };
     }
 
     // image size, square format

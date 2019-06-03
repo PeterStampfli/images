@@ -275,6 +275,9 @@ window.onload = function() {
     basicUI.squareImage = true;
     creation();
     basicUI.onload();
+    console.log("load");
+    //basicUI.showSelectAddImageSector0();
+    basicUI.showSelectAddTwoColorStructure();
     basicUI.showSelectAdd();
 };
 

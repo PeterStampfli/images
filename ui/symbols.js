@@ -7,57 +7,69 @@
 
 DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
+DOM.style("#symbolsInput", "width", "200px");
+
+
+special = new SpecialInput("symbolsInput");
+
+special.setText("whatever");
+special.setFocus(true);
 
 
 
 
-
-textInput = new TextButton("symbolsInput");
-
-textInput.onChange = function(value) {
-    console.log(" do this " + value);
+special.onEnter = function(value) {
+    console.log(" do this: " + value);
 };
 
 
 
-textInput.createAddButton("specialChars", "x");
+special.createAddButton("specialChars", "x");
 DOM.addSpace("specialChars");
-textInput.createAddButton("specialChars", "o");
+special.createAddButton("specialChars", "o");
 DOM.addSpace("specialChars");
-textInput.createAddButton("specialChars", "*");
+special.createAddButton("specialChars", "*");
 DOM.addSpace("specialChars");
-textInput.createAddButton("specialChars", "(");
+special.createAddButton("specialChars", "(");
 DOM.addSpace("specialChars");
-textInput.createAddButton("specialChars", ")");
+special.createAddButton("specialChars", ")");
 
 
-textInput.createAddButton("zeroToFour", "0");
+special.createAddButton("zeroToFour", "0");
 DOM.addSpace("zeroToFour");
-textInput.createAddButton("zeroToFour", "1");
+special.createAddButton("zeroToFour", "1");
 DOM.addSpace("zeroToFour");
-textInput.createAddButton("zeroToFour", "2");
+special.createAddButton("zeroToFour", "2");
 DOM.addSpace("zeroToFour");
-textInput.createAddButton("zeroToFour", "3");
+special.createAddButton("zeroToFour", "3");
 DOM.addSpace("zeroToFour");
-textInput.createAddButton("zeroToFour", "4");
+special.createAddButton("zeroToFour", "4");
 
 
-textInput.createAddButton("fiveToNine", "5");
+special.createAddButton("fiveToNine", "5");
 DOM.addSpace("fiveToNine");
-textInput.createAddButton("fiveToNine", "6");
+special.createAddButton("fiveToNine", "6");
 DOM.addSpace("fiveToNine");
-textInput.createAddButton("fiveToNine", "7");
+special.createAddButton("fiveToNine", "7");
 DOM.addSpace("fiveToNine");
-textInput.createAddButton("fiveToNine", "8");
+special.createAddButton("fiveToNine", "8");
 DOM.addSpace("fiveToNine");
-textInput.createAddButton("fiveToNine", "9");
+special.createAddButton("fiveToNine", "9");
 
 
-textInput.createStepLeftButton("controls", "<=");
+special.createStepLeftButton("controls", "<=");
 DOM.addSpace("controls");
-textInput.createStepRightButton("controls", "=>");
+special.createStepRightButton("controls", "=>");
 DOM.addSpace("controls");
+special.createClearCharButton("controls", "C");
+DOM.addSpace("controls");
+special.createClearAllButton("controls", "CE");
+DOM.addSpace("controls");
+special.createEnterButton("controls", "enter");
 
+special.createSetTextButton("examples", "2222");
+DOM.addSpace("examples");
+special.createSetTextButton("examples", "*732");
 
 KeyboardEvents.addFunction(function() {
     console.log("enter");
@@ -66,14 +78,3 @@ KeyboardEvents.addFunction(function() {
 
 
 }, "Enter");
-
-q = document.getElementById("quark");
-DOM.style("#quark", "width", "200px");
-
-
-special = new SpecialInput("quark");
-
-special.setText("wasauchimmer");
-special.add("aaa");
-special.createStepLeftButton("ex", "<=");
-special.createAddButton("ex", "0");

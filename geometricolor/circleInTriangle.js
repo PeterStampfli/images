@@ -422,6 +422,7 @@ window.onload = function() {
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();
+    basicUI.showSelectAddTwoColorStructure();
     basicUI.showSelectAddNothing();
 };
 

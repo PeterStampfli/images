@@ -35,11 +35,11 @@ function SpecialInput(idName) {
 
 
     /**
-     * action upon change, strategy pattern
+     * action upon "enter" command, strategy pattern
      * @method NumberButton#onclick
      * @param {integer} value
      */
-    this.onChange = function(value) {};
+    this.onEnter = function(value) {};
 
 
     this.element.onclick = function() {
@@ -194,18 +194,17 @@ function SpecialInput(idName) {
         console.log("setCursor");
         position = Fast.clamp(0, position, this.text.length);
         this.cursorPosition = position;
-        this.setFocus(true);
     };
 
     /**
-     * set the text, put cursor at end make it focus
+     * set the text, put cursor at end
+     * does not make focus, because from somewhere else it is set
      * @method SpecialInput#setText
      * @param {String} text
      */
     SpecialInput.prototype.setText = function(text) {
         this.text = text;
         this.cursorPosition = text.length;
-        this.setFocus(true);
     };
 
 
@@ -238,6 +237,24 @@ function SpecialInput(idName) {
         const specialInput = this;
         Button.createAction(buttonId, function() {
             specialInput.setCursor(specialInput.cursorPosition - 1);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+    };
+
+    /**
+     * create a button to move cursor one position to the right
+     * @method SpecialInput#createStepRightButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createStepRightButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.setCursor(specialInput.cursorPosition + 1);
+            specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
     };
@@ -255,6 +272,80 @@ function SpecialInput(idName) {
         const specialInput = this;
         Button.createAction(buttonId, function() {
             specialInput.add(text);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+    };
+
+    /**
+     * create a clear char button
+     * @method SpecialInput#createClearCharButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createClearCharButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            if (specialInput.cursorPosition > 0) {
+                specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
+                specialInput.setCursor(specialInput.cursorPosition - 1);
+
+            }
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+    };
+
+    /**
+     * create a clear all button
+     * @method SpecialInput#createClearAllButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createClearAllButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.text = "";
+            specialInput.setCursor(0);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+    };
+
+    /**
+     * create an enter button, do something with the symbol
+     * @method SpecialInput#createEnterButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createEnterButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.onEnter(specialInput.text);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+    };
+
+    /**
+     * create an set text button, 
+     * @method SpecialInput#createSetTextButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createSetTextButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.setText(text);
+            specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
     };
