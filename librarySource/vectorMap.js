@@ -139,14 +139,13 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         const intColorOdd = PixelCanvas.integerOf(colorOdd);
         const colors = new Uint32Array(256);
         const colorObjects = [];
-        colorObjects.push(colorZero);
-        colors[0] = intColorNull;
         for (var i = 0; i < 255; i++) {
             colors[i++] = intColorEven;
             colors[i] = intColorOdd;
             colorObjects.push(colorEven);
             colorObjects.push(colorZero);
         }
+        colors[0] = intColorNull;
         this.structureColorCollection.push(colors);
         this.structureColorObjectCollection.push(colorObjects);
     };

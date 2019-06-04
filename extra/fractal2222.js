@@ -265,23 +265,10 @@ function creation() {
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
     Make.map.structureColorCollection = [];
-    Make.map.structureColorObjectCollection = [];
-    let attenuation = 100;
-    let zeroWhite = 140;
-    Make.map.addStructureColors(1, zeroWhite, attenuation);
-    Make.map.addStructureColors(2, zeroWhite, attenuation);
-    Make.map.addStructureColors(0, zeroWhite, attenuation);
-    Make.map.addStructureColors(3.5, zeroWhite, attenuation);
-    Make.map.structureColorObjectCollection = [];
-    attenuation = 100;
-    zeroWhite = 130;
-    Make.map.addStructureColors(1, zeroWhite, attenuation);
-    zeroWhite = 120;
-    Make.map.addStructureColors(2, zeroWhite, attenuation);
-    zeroWhite = 80;
-    Make.map.addStructureColors(0, zeroWhite, attenuation);
-    zeroWhite = 80;
-    Make.map.addStructureColors(3.5, zeroWhite, attenuation);
+    Make.map.addStructureColors(1, 140, 100);
+    Make.map.addStructureColors(2, 140, 100);
+    Make.map.addStructureColors(0, 140, 100);
+    Make.map.addStructureColors(3.5, 140, 100);
     // Make.map.addStructureColors(4, 140, 100);
     // Make.map.addStructureColors(5, 140, 100);
 
@@ -311,97 +298,28 @@ function creation() {
         }
     }
 
+    const R = 4.5;
+    const m = 5;
+    const x = R * Math.cos(Math.PI / m);
+    const y = 7;
+    const r = Math.sqrt(x * x + y * y - R * R);
+
     Make.initializeMap = function() {
         // get data for all circles (may be needed for all geometries)
-        let k1 = setKButton.getValue();
-        let m1 = setMButton.getValue();
-        let n1 = setNButton.getValue();
-        cosAlpha1 = Fast.cos(Math.PI / m1);
-        sinAlpha1 = Fast.sin(Math.PI / m1);
-        cosBeta1 = Fast.cos(Math.PI / n1);
-        sinBeta1 = Fast.sin(Math.PI / n1);
-        cosGamma1 = Fast.cos(Math.PI / k1);
-        sinGamma1 = Fast.sin(Math.PI / k1);
-        // the triangle
-        sumAngles = 1 / k1 + 1 / m1 + 1 / n1;
-        sum.innerHTML = triangleGeometry(k1, m1, n1);
-        let k2 = setK2Button.getValue();
-        let m2 = setM2Button.getValue();
-        let n2 = setN2Button.getValue();
-        cosAlpha2 = Fast.cos(Math.PI / m2);
-        sinAlpha2 = Fast.sin(Math.PI / m2);
-        cosBeta2 = Fast.cos(Math.PI / n2);
-        sinBeta2 = Fast.sin(Math.PI / n2);
-        cosGamma2 = Fast.cos(Math.PI / k2);
-        sinGamma2 = Fast.sin(Math.PI / k2);
-        numbers1.innerHTML = "(" + infty(k1) + ", " + infty(m2) + ", " + infty(n2) + "),";
-        numbers2.innerHTML = "(" + infty(m1) + ", " + infty(k2) + ", " + infty(m2) + "),";
-        numbers3.innerHTML = "(" + infty(n1) + ", " + infty(n2) + ", " + infty(k2) + "),";
-        sum1.innerHTML = "&nbsp " + triangleGeometry(k1, n2, m2);
-        sum2.innerHTML = "&nbsp " + triangleGeometry(k2, m1, m2);
-        sum3.innerHTML = "&nbsp " + triangleGeometry(k2, n1, n2);
+
         // same for all
         circleScope.reset();
-        circleScope.setDihedral(k1);
+        circleScope.setDihedral(2);
         circleScope.startMap = circleScope.nothingMap;
-        quincuncinalRadius = worldradius;
-        if (sumAngles < 0.99) { // hyperbolic
-            DOM.style("#projectionHyperbolicDiv", "display", "initial");
-            DOM.style("#projectionEuklidicDiv,#projectionEllipticDiv", "display", "none");
-            circleScope.projection = hyperbolicProjection;
-            Make.map.discRadius = hyperbolicRadius;
-            basicUI.canShowGenerators = hyperbolicCanShowGenerators;
-            switch (numberOfCircles) {
-                case 3:
-                    firstCircleHyperbolic();
-                    break;
-                case 4:
-                    firstCircleHyperbolic();
-                    secondCircleHyperbolicAllIntersections();
-                    break;
-            }
-        } else if (sumAngles < 1.01) {
-            makeSpiralVector(k1, m1, n1);
-            DOM.style("#projectionEuklidicDiv", "display", "initial");
-            DOM.style("#projectionHyperbolicDiv,#projectionEllipticDiv", "display", "none");
-            circleScope.projection = euklidicProjection;
-            Make.map.discRadius = euklidicRadius;
-            basicUI.canShowGenerators = euklidicCanShowGenerators;
+        circleScope.circle1 = new Circle(r, 0, y);
 
-            switch (numberOfCircles) {
-                case 3:
-                    firstLineEuklidic();
-                    break;
-                case 4:
-                    firstLineEuklidic();
-                    secondCircleEuklidicAllIntersections();
-                    break;
-            }
-        } else {
-            DOM.style("#projectionEllipticDiv", "display", "initial");
-            DOM.style("#projectionHyperbolicDiv,#projectionEuklidicDiv", "display", "none");
-            circleScope.projection = ellipticProjection;
-            Make.map.discRadius = ellipticRadius;
-            basicUI.canShowGenerators = ellipticCanShowGenerators;
-            switch (numberOfCircles) {
-                case 3:
-                    firstCircleElliptic();
-                    break;
-                case 4:
-                    firstCircleElliptic();
-                    secondCircleEllipticAllIntersections();
-                    break;
-            }
-        }
-        if (basicUI.canShowGenerators) {
-            DOM.style("#generatorsDiv", "display", "initial");
-            DOM.style("#noGeneratorsDiv", "display", "none");
-            circleScope.setupMouseForTrajectory();
-        } else {
-            DOM.style("#generatorsDiv", "display", "none");
-            DOM.style("#noGeneratorsDiv", "display", "initial");
-            circleScope.setupMouseNoTrajectory();
-        }
+        circleScope.circle1.map = circleScope.circle1.invertInsideOut;
+        circleScope.circle2 = new Circle(R, -x, 0);
+
+        circleScope.circle2.map = circleScope.circle2.invertOutsideIn;
+        circleScope.finishMap = circleScope.doNothing;
+
+
     };
 
     // line width should relate to unit length
@@ -419,10 +337,7 @@ function creation() {
             circleScope.dihedral.drawMirrors();
             circleScope.circle1.draw();
             circleScope.circle2.draw();
-            if ((sumAngles > 1.001)) {
-                Draw.setDashedLine(0.5);
-                Draw.circle(worldradius, zero);
-            }
+
         }
         Draw.setSolidLine();
     };
