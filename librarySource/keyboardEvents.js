@@ -68,18 +68,19 @@ var KeyboardEvents = {};
 
     /*
      * event listener that sends out the keyboard signals to listeners and calls functions
+     * with event in call to prevent defaults
      */
     document.onkeydown = function(event) {
         var i;
         let key = event.key;
         //console.log(key);
         KeyboardEvents.keydownListeners.forEach(function(listener) {
-            listener.keydown(key);
+            listener.keydown(key, event);
         });
         let length = KeyboardEvents.functions.length;
         for (i = 0; i < length; i++) {
             if (key == KeyboardEvents.functionKeys[i]) {
-                KeyboardEvents.functions[i]();
+                KeyboardEvents.functions[i](event);
             }
         }
     };

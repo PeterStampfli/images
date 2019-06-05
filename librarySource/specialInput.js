@@ -277,8 +277,32 @@ function SpecialInput(idName) {
         });
     };
 
+
     /**
-     * create a clear char button
+     * create a button to add a character, add to keyboard events
+     * @method SpecialInput#createAddCharButton
+     * @param {String} parentId - button added at end of this element00
+     * @param {String} char
+     */
+    SpecialInput.prototype.createAddCharButton = function(parentId, char) {
+        const buttonId = DOM.createButton(parentId, char);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            specialInput.add(char);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+        });
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus) {
+                specialInput.add(char);
+            }
+        }, char);
+
+    };
+
+    /**
+     * create a clear char button, add backspace keyboard event
      * @method SpecialInput#createClearCharButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -296,6 +320,17 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        KeyboardEvents.addFunction(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (specialInput.focus) {
+                if (specialInput.cursorPosition > 0) {
+                    specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
+                    specialInput.setCursor(specialInput.cursorPosition - 1);
+                }
+                specialInput.setFocus(true);
+            }
+        }, "Backspace");
     };
 
     /**
@@ -331,6 +366,11 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus) {
+                specialInput.onEnter(specialInput.text);
+            }
+        }, "Enter");
     };
 
     /**
@@ -349,5 +389,7 @@ function SpecialInput(idName) {
             specialInput.keepFocus = true;
         });
     };
+
+
 
 }());
