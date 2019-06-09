@@ -145,6 +145,8 @@ function creation() {
     ellipticProjectionSelect.addOption("quincuncial single", projection.ellipticQuincuncialSingle);
     ellipticProjectionSelect.addOption("Mercator", projection.ellipticMercator);
     ellipticProjectionSelect.addOption("gonomic cylindric", projection.ellipticGonomicCylinder);
+    ellipticProjectionSelect.addOption("ortho/stereographic", projection.ellipticNormalStereo);
+    ellipticProjectionSelect.addOption("stereographic with equator", projection.ellipticStereographicEquator);
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
@@ -163,7 +165,6 @@ function creation() {
     hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
     hyperbolicProjectionSelect.addOption("Gans model", projection.hyperbolicGans);
     hyperbolicProjectionSelect.addOption("Mercator", projection.hyperbolicMercator);
-
 }
 
 

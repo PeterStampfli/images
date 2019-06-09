@@ -91,6 +91,47 @@ projection = {};
         Make.updateNewMap();
     };
 
+    const border = 0.03;
+    projection.ellipticNormalStereoMap = function(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iEllipticWorldradius2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > border) {
+            let mapFactor = 1 / (1 + Math.sqrt(rt));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            return 1;
+        } else if (rt < -border) {
+            position.scale(1 / r2worldRadius2);
+            return 1;
+        }
+        return -1;
+    };
+
+    projection.ellipticNormalStereo = function() {
+        projection.ellipticDiscRadius = -1;
+        projection.ellipticMap = projection.ellipticNormalStereoMap;
+        Make.updateNewMap();
+    };
+
+    projection.ellipticStereographicEquatorMap = function(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iEllipticWorldradius2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > border) {
+            position.scale(1 / r2worldRadius2);
+            return 1;
+        } else if (rt < -border) {
+            position.scale(1 / r2worldRadius2);
+            return 1;
+        }
+        return -1;
+    };
+
+    projection.ellipticStereographicEquator = function() {
+        projection.ellipticDiscRadius = -1;
+        projection.ellipticMap = projection.ellipticStereographicEquatorMap;
+        Make.updateNewMap();
+    };
+
     projection.ellipticGonomic = function() {
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {

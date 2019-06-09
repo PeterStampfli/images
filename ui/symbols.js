@@ -12,14 +12,14 @@ DOM.style("#symbolsInput", "width", "200px");
 
 special = new SpecialInput("symbolsInput");
 
-special.setText("whatever");
+special.setText("*532");
 special.setFocus(true);
 
+DOM.style("#result", "color", "green");
 
 
-
-special.onEnter = function(value) {
-    console.log(" do this: " + value);
+special.onEnter = function() {
+    document.getElementById("result").innerHTML = "Doing the symmetry of symbol: " + special.text;
 };
 
 
@@ -70,3 +70,6 @@ special.createEnterButton("controls", "enter");
 special.createSetTextButton("examples", "2222");
 DOM.addSpace("examples");
 special.createSetTextButton("examples", "*732");
+
+
+special.onEnter();

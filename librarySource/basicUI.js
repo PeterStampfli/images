@@ -245,7 +245,7 @@ basicUI = {};
             basicUI.showSelect.addOption("convergence",
                 function() {
                     DOM.style("#convergenceStyle", "display", "initial");
-                    DOM.style("#outputCanvasdiv", "backgroundColor", "#ffffffff");
+                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = false;
                     Make.clearControlImage();
                     basicUI.activateControls(false);

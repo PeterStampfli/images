@@ -240,6 +240,12 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus) {
+                specialInput.setCursor(specialInput.cursorPosition - 1);
+                specialInput.setFocus(true);
+            }
+        }, "ArrowLeft");
     };
 
     /**
@@ -257,6 +263,12 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus) {
+                specialInput.setCursor(specialInput.cursorPosition + 1);
+                specialInput.setFocus(true);
+            }
+        }, "ArrowRight");
     };
 
 
@@ -296,6 +308,8 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus) {
                 specialInput.add(char);
+                console.log(char);
+                console.log(event.ctrlKey);
             }
         }, char);
 
@@ -390,6 +404,48 @@ function SpecialInput(idName) {
         });
     };
 
+    // copy and paste
+    // hidden intermediate storage
+    SpecialInput.hiddenTextId = DOM.createId();
+    SpecialInput.hiddenText = DOM.create("input", SpecialInput.hiddenTextId, "body");
+    DOM.style("#" + SpecialInput.hiddenTextId, "display", "none");
+    /*
+     * onst source = document.querySelector('div.source');
 
+    source.addEventListener('copy', (event) => {
+        const selection = document.getSelection();
+        event.clipboardData.setData('text/plain', selection.toString().toUpperCase());
+        event.preventDefault();
+    });
+    */
+
+    function copy() {
+        console.log("copy");
+        DOM.style("#" + SpecialInput.hiddenTextId, "display", "initial");
+
+        var copyText = document.querySelector("#input");
+        SpecialInput.hiddenText.value = copyText.value;
+        SpecialInput.hiddenText.select();
+        document.execCommand("copy"); // "paste"
+        DOM.style("#" + SpecialInput.hiddenTextId, "display", "none");
+
+    }
+
+    document.querySelector("#copy").addEventListener("click", copy);
+
+    /* switch design mode on
+     * var mode = document.designMode; // read
+    document.designMode = "on" || "off";// write
+
+    function setClipboard(value) {
+        var tempInput = document.createElement("input");
+        tempInput.style = "position: absolute; left: -1000px; top: -1000px";
+        tempInput.value = value;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+    }
+    */
 
 }());
