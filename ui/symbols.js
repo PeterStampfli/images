@@ -66,6 +66,8 @@ DOM.addSpace("controls");
 special.createClearAllButton("controls", "CE");
 DOM.addSpace("controls");
 special.createEnterButton("controls", "enter");
+DOM.addSpace("controls");
+special.createCopyButton("controls", "copy");
 
 special.createSetTextButton("examples", "2222");
 DOM.addSpace("examples");

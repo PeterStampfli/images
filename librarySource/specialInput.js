@@ -404,48 +404,37 @@ function SpecialInput(idName) {
         });
     };
 
-    // copy and paste
-    // hidden intermediate storage
-    SpecialInput.hiddenTextId = DOM.createId();
-    SpecialInput.hiddenText = DOM.create("input", SpecialInput.hiddenTextId, "body");
-    DOM.style("#" + SpecialInput.hiddenTextId, "display", "none");
-    /*
-     * onst source = document.querySelector('div.source');
+    /**
+     * create a copy button and "copy" event to copy the symbol
+     * @method SpecialInput#createCopyButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     */
+    SpecialInput.prototype.createCopyButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        Button.createAction(buttonId, function() {
+            clipboardHandler.copy(specialInput.text);
+        });
+        // the copy event should copy this only if it has focus and
+        // the clipboardHandler did not cause the copy event
+        window.addEventListener("copy", function(event) {
+            if (specialInput.focus && !clipboardHandler.active) {
+                event.preventDefault();
+                event.stopPropagation();
+                clipboardHandler.copy(specialInput.text);
+            }
+        });
+        // paste is not possible, alert
+        window.addEventListener("paste", function(event) {
+            if (specialInput.focus && !clipboardHandler.active) {
+                event.preventDefault();
+                event.stopPropagation();
+                clipboardHandler.paste();
+            }
+        });
 
-    source.addEventListener('copy', (event) => {
-        const selection = document.getSelection();
-        event.clipboardData.setData('text/plain', selection.toString().toUpperCase());
-        event.preventDefault();
-    });
-    */
-
-    function copy() {
-        console.log("copy");
-        DOM.style("#" + SpecialInput.hiddenTextId, "display", "initial");
-
-        var copyText = document.querySelector("#input");
-        SpecialInput.hiddenText.value = copyText.value;
-        SpecialInput.hiddenText.select();
-        document.execCommand("copy"); // "paste"
-        DOM.style("#" + SpecialInput.hiddenTextId, "display", "none");
-
-    }
-
-    document.querySelector("#copy").addEventListener("click", copy);
-
-    /* switch design mode on
-     * var mode = document.designMode; // read
-    document.designMode = "on" || "off";// write
-
-    function setClipboard(value) {
-        var tempInput = document.createElement("input");
-        tempInput.style = "position: absolute; left: -1000px; top: -1000px";
-        tempInput.value = value;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-    }
-    */
+    };
 
 }());
