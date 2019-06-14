@@ -59,7 +59,7 @@ module.exports = function(grunt) {
         },
 
         jsbeautifier: {
-            files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js'],
+            files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js', 'linz/**/*.js'],
             options: {}
         },
 
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
         },
 
         jshint: {
-            files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js'],
+            files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js', 'linz/**/*.js'],
 
             options: {
                 // options here to override JSHint defaults

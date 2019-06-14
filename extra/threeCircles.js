@@ -30,6 +30,10 @@ function creation() {
         numberOfCircles = 2;
         Make.updateNewMap();
     });
+    viewSelect.addOption("one", function() {
+        numberOfCircles = 1;
+        Make.updateNewMap();
+    });
 
     circleScope.projection = circleScope.doNothing;
     var directView = true;
@@ -55,6 +59,7 @@ function creation() {
     //choosing the symmetries, and set initial values
     // basic triangle
     let setN12Button = NumberButton.createInfinity("n12");
+    setN12Button.setFloat();
     setN12Button.setRange(2, 10000);
     setN12Button.setValue(5);
     setN12Button.onChange = Make.updateNewMap;
@@ -92,8 +97,8 @@ function creation() {
 
     let inversionSize = Range.create("inversionSize");
     inversionSize.setStep(0.001);
-    inversionSize.setRange(0.01, 0.998);
-    inversionSize.setValue(0.5);
+    inversionSize.setRange(0.01, 0.4);
+    inversionSize.setValue(0.2);
     inversionSize.onChange = Make.updateNewMap;
 
     // setting initial range of space coordinates for output image (1st linear transform)
@@ -124,6 +129,8 @@ function creation() {
         }
         return result + " geometry";
     }
+
+    var intersectionLine1, intersectionLine2, invertedCircle3;
 
     Make.initializeMap = function() {
         multiCircles.reset();
@@ -175,11 +182,19 @@ function creation() {
 
         xInv -= xm;
         yInv -= ym;
-
-        multiCircles.addCircleInsideOut(r1, x1, y1);
-        multiCircles.addCircleInsideOut(r2, x2, y2);
+        const inversionSizeValue = inversionSize.getValue();
+        multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
+        const c1 = multiCircles.addCircleInsideOut(r1, x1, y1);
+        intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
+        intersectionLine1.setLength(100);
+        if (numberOfCircles > 1) {
+            const c2 = multiCircles.addCircleInsideOut(r2, x2, y2);
+            intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
+            intersectionLine2.setLength(100);
+        }
         if (numberOfCircles === 3) {
-            multiCircles.addCircleInsideOut(r3, x3, y3);
+            const circle3 = multiCircles.addCircleInsideOut(r3, x3, y3);
+            invertedCircle3 = multiCircles.inversionCircle.invertCircle(circle3);
             const triangle = new Polygon(new Vector2(x1, y1), new Vector2(x3, y3), new Vector2(x2, y2));
             multiCircles.finishMap = function(position, furtherResults) {
                 if (triangle.contains(position)) {
@@ -195,8 +210,7 @@ function creation() {
                 position.scale(length2 / position.length2());
             };
         }
-        const inversionSizeValue = inversionSize.getValue();
-        multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
+
     };
 
     Make.updateOutputImage = function() {
@@ -206,8 +220,17 @@ function creation() {
             Draw.setColor(basicUI.generatorColor);
             Draw.setSolidLine();
             multiCircles.draw();
-            Draw.setDashedLine(0.5);
             if (!directView) {
+                Draw.setColor("orange");
+                intersectionLine1.draw();
+                if (numberOfCircles > 1) {
+                    intersectionLine2.draw();
+                }
+                if (numberOfCircles > 2) {
+                    invertedCircle3.draw();
+                }
+                Draw.setColor("red");
+
                 multiCircles.inversionCircle.draw();
             }
         }

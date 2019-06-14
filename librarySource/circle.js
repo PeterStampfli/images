@@ -469,9 +469,9 @@ function Circle(radius, center, centerY) {
         }
         const near = Vector2.lerp(this.center, 1 - circleRadius / d, circle.center);
         const far = Vector2.lerp(this.center, 1 + circleRadius / d, circle.center);
-        near.log("near");
+        //  near.log("near");
         this.invert(near);
-        near.log("near inverted");
+        //  near.log("near inverted");
         this.invert(far);
         const radius = 0.5 * near.distance(far);
         const invertedCenter = Vector2.middle(near, far);

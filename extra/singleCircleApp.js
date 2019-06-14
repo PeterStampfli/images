@@ -57,7 +57,7 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit = 0.01;
+    const lineWidthToUnit = 0.008;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
@@ -67,20 +67,22 @@ function creation() {
         Draw.setLineWidth(lineWidth);
         Draw.setColor("grey");
         //  equator.draw();
-        Draw.setColor("#bbbbff");
+        Draw.setColor("black");
         multiCircles.draw();
         if (invertedView) {
             Draw.setColor("orange");
             intersectionLine.draw();
             Draw.setColor("red");
             multiCircles.inversionCircle.draw();
+            Draw.circle(0.3, new Vector2(6, 0));
         }
     };
 
     multiCircles.setMapping();
     //  multiCircles.finishMap = multiCircles.limitMap;
-    multiCircles.setInversionCircle(7, 2.5, 0);
-    const circle = multiCircles.addCircleOutsideIn(6, -3.5, 0);
+    multiCircles.setInversionCircle(6 * Math.sqrt(2), 6, 0);
+    const circle = multiCircles.addCircleOutsideIn(6,
+        0, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
 
     var equator = new Circle(intersectionLine.a.clone().sub(intersectionLine.b).length() / 2, intersectionLine.a.clone().add(intersectionLine.b).scale(0.5));

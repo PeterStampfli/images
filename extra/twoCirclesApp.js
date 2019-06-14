@@ -109,17 +109,19 @@ function creation() {
         console.log(Make.imageQuality);
         Make.updateMapOutput();
         Draw.setLineWidth(lineWidthToUnit);
-        Draw.setDashedLine(0);
+        // Draw.setDashedLine(0);
         Draw.setColor("black");
-        equator.draw();
-        Draw.setColor("#bbbbff");
+        // equator.draw();
+        Draw.setColor("black");
         multiCircles.draw();
         if (invertedView) {
             Draw.setColor("red");
             multiCircles.inversionCircle.draw();
+            Draw.circle(0.3, new Vector2(0, h));
+
             Draw.setColor("#aa6622");
-            xAxis.draw();
-            Draw.setColor("#ff8844");
+            //  xAxis.draw();
+            Draw.setColor("orange");
             intersectionLine1.draw();
             intersectionLine2.draw();
 
