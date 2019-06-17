@@ -79,12 +79,12 @@ function creation() {
 
     let circleSize = Range.create("circleSize");
     circleSize.setStep(0.001);
-    circleSize.setRange(0.01, 0.99);
+    circleSize.setRange(0.01, 1);
     circleSize.setValue(0.9);
     circleSize.onChange = Make.updateNewMap;
 
     let circlePosition = Range.create("circlePosition");
-    circlePosition.setRange(0.0, 0.99);
+    circlePosition.setRange(0.0, 1);
     circlePosition.setValue(0.81);
     circlePosition.onChange = Make.updateNewMap;
 
