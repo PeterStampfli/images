@@ -38,10 +38,6 @@ function creation() {
     setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
-    let secondCircle = Range.create("secondCircle");
-    secondCircle.setRange(0.1, 1);
-    secondCircle.setValue(1);
-    secondCircle.onChange = Make.updateNewMap;
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -71,27 +67,24 @@ function creation() {
     var equator;
     const xAxis = new Line(-1000, 0, 1000, 0);
 
+    var rStereo, rStereo2, iRStereo2;
+
     Make.initializeMap = function() {
         let n = setNButton.getValue();
         const alpha = Math.PI / n;
         const cosAlpha = Fast.cos(alpha);
         const r1 = 10;
-        const r2 = r1 * secondCircle.getValue();
+        const r2 = r1;
         const d = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * cosAlpha);
         multiCircles.reset();
 
-        const c1 = multiCircles.addCircleOutsideIn(r1, d, 0);
-        const c2 = multiCircles.addCircleOutsideIn(r2, 0, 0);
-        const i1 = new Vector2();
-        const i2 = new Vector2();
+        const c1 = multiCircles.addCircleOutsideIn(r1, d / 2, 0);
+        const c2 = multiCircles.addCircleOutsideIn(r2, -d / 2, 0);
 
-        c1.intersectsCircle(c2, i1, i2);
-        c1.center.x -= i1.x;
-        c2.center.x -= i1.x;
-        c1.scale(h / Math.abs(i1.y));
-        c2.scale(h / Math.abs(i1.y));
-
-        multiCircles.inversionCircle = new Circle(Math.sqrt(2) * h, 0, h);
+        rStereo = Math.sqrt(r1 * r1 - d * d / 4);
+        rStereo2 = rStereo * rStereo;
+        iRStereo2 = 1 / rStereo2;
+        multiCircles.inversionCircle = new Circle(Math.sqrt(2) * rStereo, 0, rStereo);
 
         intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
         intersectionLine1.setLength(100);
@@ -114,10 +107,12 @@ function creation() {
         // equator.draw();
         Draw.setColor("blue");
         multiCircles.draw();
+        Draw.setDashedLine(0, 1);
+        Draw.circle(rStereo, new Vector2());
+        Draw.setSolidLine();
         if (invertedView) {
             Draw.setColor("red");
             multiCircles.inversionCircle.draw();
-            Draw.circle(0.3, new Vector2(0, h));
 
             Draw.setColor("#aa6622");
             //  xAxis.draw();

@@ -666,7 +666,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
             if (lyapunovArray[index] >= -0.001) {
                 // let bright = i255 * brightness[iterationsArray[index]];
                 //const baseColor = sectorColor[colorSectorArray[index]];
-                const baseColor = structureColorObjectCollection[colorSectorArray[index]][1+reflectionsArray[index]&1];
+                const baseColor = structureColorObjectCollection[colorSectorArray[index]][1 + reflectionsArray[index] & 1];
                 /*color.red = bright * baseColor.red;
                 color.green = bright * baseColor.green;
                 color.blue = bright * baseColor.blue;
@@ -674,14 +674,14 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
                 color.red = baseColor.red;
                 color.green = baseColor.green;
                 color.blue = baseColor.blue;
-                if (reflectionsArray[index]===0){
-                    color.red=255;
-                    color.blue=255;
-                    color.green=255;
+                if (reflectionsArray[index] === 0) {
+                    color.red = 255;
+                    color.blue = 255;
+                    color.green = 255;
                 }
-                color.red*=(1- brightness[iterationsArray[index]]/255);
-                color.blue*=(1- brightness[iterationsArray[index]]/255);
-                color.green*=(1- brightness[iterationsArray[index]]/255);
+                color.red *= (1 - brightness[iterationsArray[index]] / 255);
+                color.blue *= (1 - brightness[iterationsArray[index]] / 255);
+                color.green *= (1 - brightness[iterationsArray[index]] / 255);
                 color.alpha = 255 - brightness[iterationsArray[index]];
                 color.alpha = 255;
                 pixelCanvas.setPixelAtIndex(color, index);

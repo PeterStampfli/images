@@ -17,18 +17,72 @@ function creation() {
     Make.imageQuality = "high";
 
     let invertedView = false;
+    let normalView = false;
+
+    function ellipticNormalMap(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iRStereo2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > 0.00001) {
+            let mapFactor = 1 / (1 + Math.sqrt(rt));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            position.scale(rStereo2 / position.length2());
+
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+
+
 
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
         invertedView = false;
+        normalView = false;
+        Make.map.discRadius = -1;
         multiCircles.projection = multiCircles.doNothing;
         Make.updateNewMap();
     });
     viewSelect.addOption("circle inversion", function() {
         invertedView = true;
+        normalView = false;
+        Make.map.discRadius = -1;
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
+
+
+
+    viewSelect.addOption("normal view", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        console.log(delta);
+        multiCircles.projection = function(position) {
+            return ellipticNormalMap(position);
+        };
+
+        Make.updateNewMap();
+    });
+
+
+    viewSelect.addOption("inverted normal view", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        console.log(delta);
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            multiCircles.circleInversionProjection(position);
+        };
+
+        Make.updateNewMap();
+    });
+
+
+
 
     // initializing map parameters, choosing the map in the method     Make.initializeMap
     // this is called before calculating the second map in geometrical space, this map  defines the geometry
@@ -64,25 +118,41 @@ function creation() {
         Make.updateMapOutput();
         //Draw.setLineWidth(basicUI.lineWidth);
         let lineWidth = lineWidthToUnit / Make.outputImage.scale;
-        Draw.setLineWidth(lineWidth);
-        Draw.setColor("grey");
-        //  equator.draw();
-        Draw.setColor("black");
-        multiCircles.draw();
-        if (invertedView) {
-            Draw.setColor("orange");
-            intersectionLine.draw();
-            Draw.setColor("red");
-            multiCircles.inversionCircle.draw();
-            Draw.circle(0.3, new Vector2(6, 0));
+        if (!normalView) {
+            Draw.setLineWidth(lineWidth);
+            Draw.setColor("grey");
+            //  equator.draw();
+            Draw.setSolidLine();
+            Draw.setColor("black");
+            multiCircles.draw();
+
+            Draw.setDashedLine(0, 1);
+            Draw.circle(rStereo, new Vector2());
+            Draw.setSolidLine();
+
+            if (invertedView) {
+                Draw.setColor("orange");
+                intersectionLine.draw();
+                Draw.setColor("red");
+                multiCircles.inversionCircle.draw();
+            }
         }
     };
 
     multiCircles.setMapping();
     //  multiCircles.finishMap = multiCircles.limitMap;
-    multiCircles.setInversionCircle(6 * Math.sqrt(2), 6, 0);
-    const circle = multiCircles.addCircleOutsideIn(6,
-        0, 0);
+
+    const r = 5;
+    const d = 4.5;
+    const border = 0.1
+    const delta = 2 * r * border;
+
+    const rStereo = Math.sqrt(r * r - d * d);
+    const rStereo2 = rStereo * rStereo;
+    const iRStereo2 = 1 / rStereo2
+    const rInv = Math.sqrt(2) * rStereo;
+    multiCircles.setInversionCircle(rInv, 0, -rStereo);
+    const circle = multiCircles.addCircleOutsideIn(r, d, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
 
     var equator = new Circle(intersectionLine.a.clone().sub(intersectionLine.b).length() / 2, intersectionLine.a.clone().add(intersectionLine.b).scale(0.5));
