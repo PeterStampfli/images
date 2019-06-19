@@ -415,8 +415,8 @@ basicUI = {};
 
         basicUI.lineWidthRange = Range.create("lineWidth");
         basicUI.lineWidthRange.setStep(0.001);
-        basicUI.lineWidthRange.setRange(0.000, 4);
-        basicUI.lineWidthRange.setValue(0.25);
+        basicUI.lineWidthRange.setRange(0.000, 1);
+        basicUI.lineWidthRange.setValue(0.1);
         basicUI.lineWidthRange.onChange = function() {
             Make.updateOutputImage();
         };

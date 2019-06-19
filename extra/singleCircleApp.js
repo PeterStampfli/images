@@ -26,16 +26,11 @@ function creation() {
             let mapFactor = 1 / (1 + Math.sqrt(rt));
             position.x *= mapFactor;
             position.y *= mapFactor;
-            position.scale(rStereo2 / position.length2());
-
             return 1;
         } else {
             return -1;
         }
     }
-
-
-
 
     let viewSelect = new Select("view");
     viewSelect.addOption("direct", function() {
@@ -52,32 +47,26 @@ function creation() {
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
-
-
-
     viewSelect.addOption("normal view", function() {
         invertedView = false;
         normalView = true;
         Make.map.discRadius = rStereo;
-        console.log(delta);
         multiCircles.projection = function(position) {
-            return ellipticNormalMap(position);
-        };
+            ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
 
+        };
         Make.updateNewMap();
     });
-
-
     viewSelect.addOption("inverted normal view", function() {
         invertedView = false;
         normalView = true;
         Make.map.discRadius = rStereo;
-        console.log(delta);
         multiCircles.projection = function(position) {
             ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
             multiCircles.circleInversionProjection(position);
         };
-
         Make.updateNewMap();
     });
 
@@ -123,7 +112,7 @@ function creation() {
             Draw.setColor("grey");
             //  equator.draw();
             Draw.setSolidLine();
-            Draw.setColor("black");
+            Draw.setColor("blue");
             multiCircles.draw();
 
             Draw.setDashedLine(0, 1);
@@ -143,15 +132,15 @@ function creation() {
     //  multiCircles.finishMap = multiCircles.limitMap;
 
     const r = 5;
-    const d = 4.5;
-    const border = 0.1
+    const d = 4;
+    const border = 0.1;
     const delta = 2 * r * border;
 
     const rStereo = Math.sqrt(r * r - d * d);
     const rStereo2 = rStereo * rStereo;
-    const iRStereo2 = 1 / rStereo2
+    const iRStereo2 = 1 / rStereo2;
     const rInv = Math.sqrt(2) * rStereo;
-    multiCircles.setInversionCircle(rInv, 0, -rStereo);
+    multiCircles.setInversionCircle(Math.sqrt(rStereo2 + (d + r) * (d + r)), d + r, 0);
     const circle = multiCircles.addCircleOutsideIn(r, d, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
 

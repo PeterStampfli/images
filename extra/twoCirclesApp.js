@@ -14,23 +14,57 @@ function creation() {
 
     Make.imageQuality = "high";
 
-
     let viewSelect = new Select("view");
     let invertedView = false;
+    let normalView = false;
+
+    function ellipticNormalMap(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iRStereo2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > 0.00001) {
+            let mapFactor = 1 / (1 + Math.sqrt(rt));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            position.scale(rStereo2 / position.length2());
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 
     viewSelect.addOption("direct", function() {
-        console.log("direct view");
         invertedView = false;
+        normalView = false;
+        Make.map.discRadius = -1;
         multiCircles.projection = multiCircles.doNothing;
         Make.updateNewMap();
     });
     viewSelect.addOption("circle inversion", function() {
-        console.log("inverted view");
         invertedView = true;
+        normalView = false;
+        Make.map.discRadius = -1;
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
-
+    viewSelect.addOption("normal view", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            return ellipticNormalMap(position);
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("inverted normal view", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            multiCircles.circleInversionProjection(position);
+        };
+        Make.updateNewMap();
+    });
 
     let setNButton = NumberButton.create("n");
     setNButton.setFloat(0.1);
@@ -103,23 +137,25 @@ function creation() {
         Make.updateMapOutput();
         Draw.setLineWidth(lineWidthToUnit);
         // Draw.setDashedLine(0);
-        Draw.setColor("black");
-        // equator.draw();
-        Draw.setColor("blue");
-        multiCircles.draw();
-        Draw.setDashedLine(0, 1);
-        Draw.circle(rStereo, new Vector2());
-        Draw.setSolidLine();
-        if (invertedView) {
-            Draw.setColor("red");
-            multiCircles.inversionCircle.draw();
+        if (!normalView) {
 
-            Draw.setColor("#aa6622");
-            //  xAxis.draw();
-            Draw.setColor("orange");
-            intersectionLine1.draw();
-            intersectionLine2.draw();
+            Draw.setColor("black");
+            // equator.draw();
+            //Draw.setColor("blue");
+            multiCircles.draw();
+            Draw.setDashedLine(0, 1);
+            Draw.circle(rStereo, new Vector2());
+            Draw.setSolidLine();
+            if (invertedView) {
+                Draw.setColor("red");
+                multiCircles.inversionCircle.draw();
 
+                Draw.setColor("#aa6622");
+                //  xAxis.draw();
+                Draw.setColor("orange");
+                intersectionLine1.draw();
+                intersectionLine2.draw();
+            }
         }
     };
     multiCircles.setMapping();

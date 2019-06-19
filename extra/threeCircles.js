@@ -18,22 +18,9 @@ function creation() {
     basicUI.setupGenerators();
     basicUI.setupIterationStyle();
 
-    let viewSelect = new Select("view");
     var numberOfCircles = 3;
 
-    viewSelect.addOption("three", function() {
-        numberOfCircles = 3;
-        Make.updateNewMap();
-    });
 
-    viewSelect.addOption("two", function() {
-        numberOfCircles = 2;
-        Make.updateNewMap();
-    });
-    viewSelect.addOption("one", function() {
-        numberOfCircles = 1;
-        Make.updateNewMap();
-    });
 
     circleScope.projection = circleScope.doNothing;
     var directView = true;
@@ -56,6 +43,9 @@ function creation() {
         Make.updateNewMap();
     });
 
+    // inverse stereographic projection, radius rs, particularly for elliptic case
+
+
     //choosing the symmetries, and set initial values
     // basic triangle
     let setN12Button = NumberButton.createInfinity("n12");
@@ -77,30 +67,6 @@ function creation() {
     // show the sum of angles
     let sum = document.getElementById("sum");
 
-    let s1 = Range.create("size1");
-    s1.setStep(0.001);
-    s1.setRange(0.01, 2);
-    s1.setValue(0.5);
-    s1.onChange = Make.updateNewMap;
-
-    let s2 = Range.create("size2");
-    s2.setStep(0.001);
-    s2.setRange(0.01, 2);
-    s2.setValue(0.5);
-    s2.onChange = Make.updateNewMap;
-
-    let s3 = Range.create("size3");
-    s3.setStep(0.001);
-    s3.setRange(0.01, 2);
-    s3.setValue(0.5);
-    s3.onChange = Make.updateNewMap;
-
-    let inversionSize = Range.create("inversionSize");
-    inversionSize.setStep(0.001);
-    inversionSize.setRange(0.01, 0.4);
-    inversionSize.setValue(0.2);
-    inversionSize.onChange = Make.updateNewMap;
-
     // setting initial range of space coordinates for output image (1st linear transform)
     Make.setInitialOutputImageSpace(-12, 12, -12);
 
@@ -121,16 +87,16 @@ function creation() {
         let sumAngles = 1 / k + 1 / m + 1 / n;
         let result = "sum of angles = " + Math.round(180 * sumAngles) + "<sup>o</sup>, ";
         if (sumAngles < 0.99) {
-            result += "hyperbolic";
+            return "hyperbolic";
         } else if (sumAngles < 1.01) {
-            result += "euklidic";
+            return "euklidic";
         } else {
-            result += "elliptic";
+            return "elliptic";
         }
-        return result + " geometry";
     }
 
-    var intersectionLine1, intersectionLine2, invertedCircle3;
+    var intersectionLine1, intersectionLine2, invertedCircle3, geometry;
+    var ys, rs;
 
     Make.initializeMap = function() {
         multiCircles.reset();
@@ -142,75 +108,98 @@ function creation() {
         sum.innerHTML = triangleGeometry(n12, n13, n23);
         sumAngles = 1 / n12 + 1 / n13 + 1 / n23;
 
-        const r1 = r * s1.getValue();
-        const r2 = r * s2.getValue();
-        const r3 = r * s3.getValue();
+        const r1 = r;
+        const r2 = r;
+        const r3 = r;
 
         const d12 = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n12));
         const d13 = Math.sqrt(r1 * r1 + r3 * r3 + 2 * r1 * r3 * Math.cos(Math.PI / n13));
         const d23 = Math.sqrt(r2 * r2 + r3 * r3 + 2 * r2 * r3 * Math.cos(Math.PI / n23));
         const gamma = Fast.triangleGammaOfABC(d12, d13, d23);
 
-        let x1 = 0;
+        let x1 = -d12 / 2;
         let y1 = 0;
-        let x2 = d12;
+        let x2 = d12 / 2;
         let y2 = 0;
-        let x3 = Math.cos(gamma) * d13;
+        let x3 = x1 + Math.cos(gamma) * d13;
         let y3 = -Math.sin(gamma) * d13;
 
-        const delta = Fast.triangleGammaOfABC(d12, r1, r2);
-        let xInv = Math.cos(delta) * r1;
-        let yInv = -Math.sin(delta) * r1;
 
-        let xm = x1 + x2;
-        let ym = y1 + y2;
-        if (numberOfCircles === 3) {
-            xm = 0.333 * (xm + x3);
-            ym = 0.333 * (ym + y3);
-        } else {
-            xm *= 0.5;
-            ym *= 0.5;
-        }
+        let xInv = 0;
+        let yInv = Math.sqrt(r * r - d12 * d12 / 4);
 
-        x1 -= xm;
-        x2 -= xm;
-        x3 -= xm;
+        const d = d12;
 
-        y1 -= ym;
-        y2 -= ym;
-        y3 -= ym;
+        ys = (x3 * x3 + y3 * y3 - d * d / 4) / 2 / y3;
 
-        xInv -= xm;
-        yInv -= ym;
-        const inversionSizeValue = inversionSize.getValue();
-        multiCircles.inversionCircle = new Circle(inversionSizeValue * r, xInv, yInv);
+
+        y1 -= ys;
+        y2 -= ys;
+        y3 -= ys;
+
+
+        const triangle = new Polygon(new Vector2(x1, y1), new Vector2(x3, y3), new Vector2(x2, y2));
         const c1 = multiCircles.addCircleInsideOut(r1, x1, y1);
-        intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
-        intersectionLine1.setLength(100);
-        if (numberOfCircles > 1) {
-            const c2 = multiCircles.addCircleInsideOut(r2, x2, y2);
+        const c2 = multiCircles.addCircleInsideOut(r2, x2, y2);
+        const circle3 = multiCircles.addCircleInsideOut(r3, x3, y3);
+
+
+        geometry = triangleGeometry(n13, n23, n12);
+        console.log(geometry);
+        if (geometry == "elliptic") {
+            console.log("e");
+            rs = Math.sqrt(r * r - d * d / 4 - ys * ys);
+
+            const rInv = Math.sqrt(rs * rs + (yInv - ys) * (yInv - ys));
+            multiCircles.inversionCircle = new Circle(rInv, xInv, yInv - ys);
+            intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
+            intersectionLine1.setLength(100);
             intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
             intersectionLine2.setLength(100);
-        }
-        if (numberOfCircles === 3) {
-            const circle3 = multiCircles.addCircleInsideOut(r3, x3, y3);
             invertedCircle3 = multiCircles.inversionCircle.invertCircle(circle3);
-            const triangle = new Polygon(new Vector2(x1, y1), new Vector2(x3, y3), new Vector2(x2, y2));
-            multiCircles.finishMap = function(position, furtherResults) {
-                if (triangle.contains(position)) {
-                    furtherResults.colorSector = 1;
-                } else {
-                    furtherResults.colorSector = 0;
-                    position.scale(length2 / position.length2());
-                }
-            };
-        } else {
             multiCircles.finishMap = function(position, furtherResults) {
                 furtherResults.colorSector = 0;
                 position.scale(length2 / position.length2());
             };
         }
+        if (geometry == "euklidic") {
+            console.log("eu");
+            rs = 0;
+            const inversionRadiusFactor = 0.3;
+            multiCircles.inversionCircle = new Circle(inversionRadiusFactor * r, xInv, -yInv - ys);
+            intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
+            intersectionLine1.setLength(100);
+            intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
+            intersectionLine2.setLength(100);
+            invertedCircle3 = multiCircles.inversionCircle.lineOfCircleIntersection(circle3);
+            invertedCircle3.setLength(100);
+            multiCircles.finishMap = function(position, furtherResults) {
+                furtherResults.colorSector = 0;
+                position.scale(length2 / position.length2());
 
+            };
+        }
+        if (geometry == "hyperbolic") {
+            console.log("hy");
+            rs = Math.sqrt(-r * r + d * d / 4 + ys * ys);
+
+            const rInv = Math.sqrt(-rs * rs + (yInv - ys) * (yInv - ys));
+
+            multiCircles.inversionCircle = new Circle(rInv, xInv, yInv - ys);
+            intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
+            intersectionLine1.setLength(100);
+            intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
+            intersectionLine2.setLength(100);
+            invertedCircle3 = multiCircles.inversionCircle.invertCircle(circle3);
+            multiCircles.finishMap = function(position, furtherResults) {
+                if (triangle.contains(position)) {
+                    furtherResults.colorSector = 0;
+                } else {
+                    furtherResults.colorSector = 1;
+                    position.scale(length2 / position.length2());
+                }
+            };
+        }
     };
 
     Make.updateOutputImage = function() {
@@ -220,15 +209,15 @@ function creation() {
             Draw.setColor(basicUI.generatorColor);
             Draw.setSolidLine();
             multiCircles.draw();
+            Draw.setDashedLine(0, 1);
+            Draw.circle(rs, new Vector2(0, 0));
+            Draw.setSolidLine();
+
             if (!directView) {
                 Draw.setColor("orange");
                 intersectionLine1.draw();
-                if (numberOfCircles > 1) {
-                    intersectionLine2.draw();
-                }
-                if (numberOfCircles > 2) {
-                    invertedCircle3.draw();
-                }
+                intersectionLine2.draw();
+                invertedCircle3.draw();
                 Draw.setColor("red");
 
                 multiCircles.inversionCircle.draw();
