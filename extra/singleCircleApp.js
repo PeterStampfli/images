@@ -47,7 +47,18 @@ function creation() {
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
-    viewSelect.addOption("normal view", function() {
+    viewSelect.addOption("normal view below", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("normal view above", function() {
         invertedView = false;
         normalView = true;
         Make.map.discRadius = rStereo;
@@ -58,7 +69,18 @@ function creation() {
         };
         Make.updateNewMap();
     });
-    viewSelect.addOption("inverted normal view", function() {
+    viewSelect.addOption("inverted normal view below", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+            multiCircles.circleInversionProjection(position);
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("inverted normal view above", function() {
         invertedView = false;
         normalView = true;
         Make.map.discRadius = rStereo;
@@ -141,6 +163,11 @@ function creation() {
     const iRStereo2 = 1 / rStereo2;
     const rInv = Math.sqrt(2) * rStereo;
     multiCircles.setInversionCircle(Math.sqrt(rStereo2 + (d + r) * (d + r)), d + r, 0);
+
+
+    multiCircles.inversionCircle = new Circle(Math.sqrt(2) * rStereo, 0, rStereo);
+
+
     const circle = multiCircles.addCircleOutsideIn(r, d, 0);
     var intersectionLine = multiCircles.inversionCircle.lineOfCircleIntersection(circle);
 

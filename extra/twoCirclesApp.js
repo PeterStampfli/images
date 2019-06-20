@@ -46,21 +46,48 @@ function creation() {
         multiCircles.projection = multiCircles.circleInversionProjection;
         Make.updateNewMap();
     });
-    viewSelect.addOption("normal view", function() {
-        invertedView = false;
-        normalView = true;
-        Make.map.discRadius = rStereo;
-        multiCircles.projection = function(position) {
-            return ellipticNormalMap(position);
-        };
-        Make.updateNewMap();
-    });
-    viewSelect.addOption("inverted normal view", function() {
+
+
+    viewSelect.addOption("normal view below", function() {
         invertedView = false;
         normalView = true;
         Make.map.discRadius = rStereo;
         multiCircles.projection = function(position) {
             ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("normal view above", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
+
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("inverted normal view below", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+            multiCircles.circleInversionProjection(position);
+        };
+        Make.updateNewMap();
+    });
+    viewSelect.addOption("inverted normal view above", function() {
+        invertedView = false;
+        normalView = true;
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
             multiCircles.circleInversionProjection(position);
         };
         Make.updateNewMap();

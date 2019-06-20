@@ -24,13 +24,30 @@ function creation() {
 
     circleScope.projection = circleScope.doNothing;
     var directView = true;
+    var normalView = false;
+
+    function ellipticNormalMap(position) {
+        let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iRStereo2;
+        let rt = (1 - r2worldRadius2);
+        if (rt > 0.00001) {
+            let mapFactor = 1 / (1 + Math.sqrt(rt));
+            position.x *= mapFactor;
+            position.y *= mapFactor;
+            position.scale(rStereo2 / position.length2());
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 
     let projectionSelect = new Select("projection");
     multiCircles.setupMouseForTrajectory();
 
     projectionSelect.addOption("direct", function() {
         multiCircles.projection = circleScope.doNothing;
+        Make.map.discRadius = -1;
         directView = true;
+        normalView = false;
         multiCircles.setupMouseForTrajectory();
         Make.updateNewMap();
     });
@@ -38,8 +55,64 @@ function creation() {
     projectionSelect.addOption("inverted", function() {
         circleScope.projection = circleScope.doNothing;
         multiCircles.projection = multiCircles.circleInversionProjection;
+        Make.map.discRadius = -1;
         directView = false;
+        normalView = false;
         multiCircles.setupMouseNoTrajectory();
+        Make.updateNewMap();
+    });
+
+
+    projectionSelect.addOption("normal view below", function() {
+        directView = true;
+        normalView = true;
+        multiCircles.setupMouseNoTrajectory();
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+
+        };
+        Make.updateNewMap();
+    });
+
+    projectionSelect.addOption("normal view above", function() {
+        directView = true;
+        normalView = true;
+        multiCircles.setupMouseNoTrajectory();
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
+        };
+        Make.updateNewMap();
+    });
+
+
+    projectionSelect.addOption("inverted normal view below", function() {
+        directView = true;
+        normalView = true;
+        multiCircles.setupMouseNoTrajectory();
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            // position.scale(rStereo2 / position.length2());
+            multiCircles.circleInversionProjection(position);
+
+        };
+        Make.updateNewMap();
+    });
+
+    projectionSelect.addOption("inverted normal view above", function() {
+        directView = true;
+        normalView = true;
+        multiCircles.setupMouseNoTrajectory();
+        Make.map.discRadius = rStereo;
+        multiCircles.projection = function(position) {
+            ellipticNormalMap(position);
+            position.scale(rStereo2 / position.length2());
+            multiCircles.circleInversionProjection(position);
+        };
         Make.updateNewMap();
     });
 
@@ -96,7 +169,7 @@ function creation() {
     }
 
     var intersectionLine1, intersectionLine2, invertedCircle3, geometry;
-    var ys, rs;
+    var ys, rStereo, rStereo2, iRStereo2;
 
     Make.initializeMap = function() {
         multiCircles.reset();
@@ -148,9 +221,9 @@ function creation() {
         console.log(geometry);
         if (geometry == "elliptic") {
             console.log("e");
-            rs = Math.sqrt(r * r - d * d / 4 - ys * ys);
+            rStereo = Math.sqrt(r * r - d * d / 4 - ys * ys);
 
-            const rInv = Math.sqrt(rs * rs + (yInv - ys) * (yInv - ys));
+            const rInv = Math.sqrt(rStereo * rStereo + (yInv - ys) * (yInv - ys));
             multiCircles.inversionCircle = new Circle(rInv, xInv, yInv - ys);
             intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
             intersectionLine1.setLength(100);
@@ -164,9 +237,9 @@ function creation() {
         }
         if (geometry == "euklidic") {
             console.log("eu");
-            rs = 0;
+            rStereo = 5;
             const inversionRadiusFactor = 0.3;
-            multiCircles.inversionCircle = new Circle(inversionRadiusFactor * r, xInv, -yInv - ys);
+            multiCircles.inversionCircle = new Circle(rStereo, xInv, -yInv - ys);
             intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
             intersectionLine1.setLength(100);
             intersectionLine2 = multiCircles.inversionCircle.lineOfCircleIntersection(c2);
@@ -181,9 +254,9 @@ function creation() {
         }
         if (geometry == "hyperbolic") {
             console.log("hy");
-            rs = Math.sqrt(-r * r + d * d / 4 + ys * ys);
+            rStereo = Math.sqrt(-r * r + d * d / 4 + ys * ys);
 
-            const rInv = Math.sqrt(-rs * rs + (yInv - ys) * (yInv - ys));
+            const rInv = Math.sqrt(-rStereo * rStereo + (yInv - ys) * (yInv - ys));
 
             multiCircles.inversionCircle = new Circle(rInv, xInv, yInv - ys);
             intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
@@ -200,17 +273,21 @@ function creation() {
                 }
             };
         }
+        rStereo2 = rStereo * rStereo;
+        iRStereo2 = 1 / rStereo2;
     };
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
         Draw.setLineWidth(basicUI.lineWidthRange.getValue()); // trajectory !!
-        if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators) {
+        if ((basicUI.generators.getIndex() > 0) && basicUI.canShowGenerators && !normalView) {
             Draw.setColor(basicUI.generatorColor);
             Draw.setSolidLine();
             multiCircles.draw();
             Draw.setDashedLine(0, 1);
-            Draw.circle(rs, new Vector2(0, 0));
+            if (geometry == "elliptic") {
+                Draw.circle(rStereo, new Vector2(0, 0));
+            }
             Draw.setSolidLine();
 
             if (!directView) {
