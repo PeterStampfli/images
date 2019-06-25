@@ -156,7 +156,7 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit = 0.4;
+    const lineWidthToUnit = 0.3;
 
 
     Make.updateOutputImage = function() {
@@ -168,7 +168,7 @@ function creation() {
 
             Draw.setColor("black");
             // equator.draw();
-            //Draw.setColor("blue");
+            Draw.setColor("blue");
             multiCircles.draw();
             Draw.setDashedLine(0, 1);
             Draw.circle(rStereo, new Vector2());

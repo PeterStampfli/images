@@ -237,7 +237,7 @@ function creation() {
         }
         if (geometry == "euklidic") {
             console.log("eu");
-            rStereo = 5;
+            rStereo = 4;
             const inversionRadiusFactor = 0.3;
             multiCircles.inversionCircle = new Circle(rStereo, xInv, -yInv - ys);
             intersectionLine1 = multiCircles.inversionCircle.lineOfCircleIntersection(c1);
