@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>complexTest</title>
+</head>
+
+<body>
+
+    check the console
+
+</body>
+
+
+<script src="complexN.js"></script>
+<script type="text/javascript">
+    a=complexN.create(1,-1);
+
+a.log("a");
+b=complexN.create(10,-1);
+
+b.log("b");
+
+c=b.mul(a).log("ab");
+c.div(a).log("b");
+console.log(c.abs());
+console.log(c.arg());
+c.rt().log("rt");
+c.mul(c).log();
+
+</script>
+
+</html>

@@ -122,7 +122,7 @@ function creation() {
 
     // line width should relate to unit length
 
-    const lineWidthToUnit = 0.005;
+    const lineWidthToUnit = 0.008;
 
     Make.updateOutputImage = function() {
         console.log(Make.imageQuality);
@@ -154,7 +154,7 @@ function creation() {
     //  multiCircles.finishMap = multiCircles.limitMap;
 
     const r = 5;
-    const d = 4;
+    const d = 0;
     const border = 0.1;
     const delta = 2 * r * border;
 
@@ -165,7 +165,7 @@ function creation() {
     multiCircles.setInversionCircle(Math.sqrt(rStereo2 + (d + r) * (d + r)), d + r, 0);
 
 
-    multiCircles.inversionCircle = new Circle(Math.sqrt(2) * rStereo, 0, rStereo);
+    multiCircles.inversionCircle = new Circle(Math.sqrt(2) * rStereo, rStereo, 0);
 
 
     const circle = multiCircles.addCircleOutsideIn(r, d, 0);

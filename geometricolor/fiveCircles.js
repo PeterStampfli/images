@@ -31,7 +31,7 @@ function creation() {
 
     // navigation
     // the help page depends on the things we are generating
-    Button.createGoToLocation("help", "circleInTriangleHelp.html");
+    //Button.createGoToLocation("help", "circleInTriangleHelp.html");
     // where is the home ??
     Button.createGoToLocation("home", "home.html");
 
@@ -83,6 +83,13 @@ function creation() {
         hyperbolicCanShowGenerators = true;
         hyperbolicProjection = circleScope.doNothing;
         hyperbolicRadius = -1;
+        Make.updateNewMap();
+    });
+
+    projectionHyperbolic.addOption("Poincaré disc only", function() {
+        hyperbolicCanShowGenerators = true;
+        hyperbolicProjection = circleScope.doNothing;
+        hyperbolicRadius = worldradius;
         Make.updateNewMap();
     });
 

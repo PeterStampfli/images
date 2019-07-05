@@ -283,7 +283,7 @@ function creation() {
     zeroWhite = 80;
     Make.map.addStructureColors(3.5, zeroWhite, attenuation);
     // all yellow
-    /* 
+    /*
         Make.map.structureColorObjectCollection = [];
 
    attenuation = 100;

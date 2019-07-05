@@ -14,7 +14,7 @@ class complexN {
     //convert to string
     toString(forMathematicaQ = false, prec = 4) {
         if (forMathematicaQ) {
-            return this.re.toFixed(prec) + "+ I " + this.im.toFixed(prec)
+            return this.re.toFixed(prec) + "+ I " + this.im.toFixed(prec);
         }
         // =================== to make it nicer ???
         else {
@@ -215,10 +215,10 @@ class complexN {
     // c.applyMobius(m) has the same functionality as m.applyTo(c)
     applyMobius(m) {
         if (m instanceof diskPreservingMobiusTransform) {
-            var Z = m.opQ ? this : this.conjugate();
+            let Z = m.opQ ? this : this.conjugate();
             return (Z.times(m.a).plus(m.c.conjugate())).divide(Z.times(m.c).plus(m.a.conjugate()));
         } else if (m instanceof mobiusTransform) {
-            var Z = m.opQ ? this : this.conjugate();
+            let Z = m.opQ ? this : this.conjugate();
             return (Z.times(m.a).plus(m.b)).divide(Z.times(m.c).plus(m.d));
         } else // presuming that m is an array [A,C,opQ]
         {
