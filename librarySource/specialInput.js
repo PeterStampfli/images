@@ -230,12 +230,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#stepLeft
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createStepLeftButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.setCursor(specialInput.cursorPosition - 1);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
@@ -246,6 +247,7 @@ function SpecialInput(idName) {
                 specialInput.setFocus(true);
             }
         }, "ArrowLeft");
+        return button;
     };
 
     /**
@@ -253,12 +255,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#createStepRightButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createStepRightButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.setCursor(specialInput.cursorPosition + 1);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
@@ -269,6 +272,7 @@ function SpecialInput(idName) {
                 specialInput.setFocus(true);
             }
         }, "ArrowRight");
+        return button;
     };
 
 
@@ -277,16 +281,18 @@ function SpecialInput(idName) {
      * @method SpecialInput#createAddButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createAddButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.add(text);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        return button;
     };
 
 
@@ -295,12 +301,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#createAddCharButton
      * @param {String} parentId - button added at end of this element00
      * @param {String} char
+     * @return Button
      */
     SpecialInput.prototype.createAddCharButton = function(parentId, char) {
         const buttonId = DOM.createButton(parentId, char);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.add(char);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
@@ -312,7 +319,7 @@ function SpecialInput(idName) {
                 console.log(event.ctrlKey);
             }
         }, char);
-
+        return button;
     };
 
     /**
@@ -320,12 +327,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#createClearCharButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createClearCharButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             if (specialInput.cursorPosition > 0) {
                 specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
                 specialInput.setCursor(specialInput.cursorPosition - 1);
@@ -345,24 +353,27 @@ function SpecialInput(idName) {
                 specialInput.setFocus(true);
             }
         }, "Backspace");
+        return button;
     };
 
     /**
-     * create a clear all button
+     * create a clear all button, clears all input
      * @method SpecialInput#createClearAllButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createClearAllButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.text = "";
             specialInput.setCursor(0);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        return button;
     };
 
     /**
@@ -370,12 +381,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#createEnterButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createEnterButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.onEnter(specialInput.text);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
@@ -385,23 +397,26 @@ function SpecialInput(idName) {
                 specialInput.onEnter(specialInput.text);
             }
         }, "Enter");
+        return button;
     };
 
     /**
-     * create an set text button, 
+     * create a set text button, sets text of this input
      * @method SpecialInput#createSetTextButton
      * @param {String} parentId - button added at end of this element
-     * @param {String} text
+     * @param {String} text - new text
+     * @return Button
      */
     SpecialInput.prototype.createSetTextButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             specialInput.setText(text);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        return button;
     };
 
     /**
@@ -409,12 +424,13 @@ function SpecialInput(idName) {
      * @method SpecialInput#createCopyButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
+     * @return Button
      */
     SpecialInput.prototype.createCopyButton = function(parentId, text) {
         const buttonId = DOM.createButton(parentId, text);
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
-        Button.createAction(buttonId, function() {
+        const button = Button.createAction(buttonId, function() {
             clipboardHandler.copy(specialInput.text);
         });
         // the copy event should copy this only if it has focus and
@@ -426,15 +442,7 @@ function SpecialInput(idName) {
                 clipboardHandler.copy(specialInput.text);
             }
         });
-        // paste is not possible, alert
-        window.addEventListener("paste", function(event) {
-            if (specialInput.focus && !clipboardHandler.active) {
-                event.preventDefault();
-                event.stopPropagation();
-                clipboardHandler.paste();
-            }
-        });
-
+        return button;
     };
 
 }());

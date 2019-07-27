@@ -435,7 +435,7 @@ function creation() {
             circleScope.circle1.draw();
             circleScope.circle2.draw();
             if ((sumAngles > 1.001)) {
-                Draw.setDashedLine(0.5);
+                Draw.setDashedLine(1);
                 Draw.circle(worldradius, zero);
             }
         }

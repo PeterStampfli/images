@@ -409,6 +409,8 @@ basicUI = {};
         addColor("red", "#ff0000ff");
         addColor("green", "#00ff00ff");
         addColor("yellow", "#ffff00ff");
+        addColor("magenta", "#ff00ffff");
+        addColor("cyan", "#00ffffff");
         addColor("white", "#ffffffff");
 
         basicUI.generators.setIndex(1);
@@ -429,7 +431,7 @@ basicUI = {};
 
         let gammaRange = Range.create("gammaRange");
         gammaRange.setStep(0.001);
-        gammaRange.setRange(0.5, 3);
+        gammaRange.setRange(0.2, 3);
         gammaRange.setValue(VectorMap.iterationGamma);
         gammaRange.onChange = function() {
             VectorMap.iterationGamma = gammaRange.getValue();

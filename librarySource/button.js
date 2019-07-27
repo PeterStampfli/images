@@ -12,12 +12,13 @@ function Button(idName) {
     "use strict";
 
     this.element = document.getElementById(idName);
+    // states
     this.pressed = false;
     this.hover = false;
+    this.active = true; // allows switching off
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
-
 
     /**
      * action upon click, strategy pattern
@@ -74,6 +75,7 @@ function Button(idName) {
     "use strict";
 
     // default colors
+    // for active button, depending on hoovering and if it is pressed
     Button.colorUp = "#444444";
     Button.colorUpHover = "black";
     Button.colorDownHover = "black";
@@ -82,6 +84,9 @@ function Button(idName) {
     Button.backgroundColorUpHover = "#ffffbb";
     Button.backgroundColorDownHover = "#ffff44";
     Button.backgroundColorDown = "#ffff88";
+    // for switched off
+    Button.colorInactive = "black";
+    Button.backgroundColorInactive = "#888888";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered
@@ -118,11 +123,28 @@ function Button(idName) {
         this.colorUpHover = Button.colorUpHover;
         this.colorDownHover = Button.colorDownHover;
         this.colorDown = Button.colorDown;
+        this.colorInactive = Button.colorInactive;
 
         this.backgroundColorUp = Button.backgroundColorUp;
         this.backgroundColorUpHover = Button.backgroundColorUpHover;
         this.backgroundColorDownHover = Button.backgroundColorDownHover;
         this.backgroundColorDown = Button.backgroundColorDown;
+        this.backgroundColorInactive = Button.colorInactive;
+    };
+
+    /**
+     * set if button is active
+     * @method Button#setActive
+     * @param {boolean} isActive
+     */
+    Button.prototype.setActive = function(isActive) {
+        this.isActive = isActive;
+        this.updateStyle();
+        if (isActive) {
+            this.element.style.cursor = "pointer";
+        } else {
+            this.element.style.cursor = "default";
+        }
     };
 
     /**
@@ -176,7 +198,6 @@ function Button(idName) {
         };
         return button;
     };
-
 
     /**
      * create a button that executes a function

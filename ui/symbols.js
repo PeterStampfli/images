@@ -55,6 +55,8 @@ DOM.addSpace("fiveToNine");
 special.createAddCharButton("fiveToNine", "8");
 DOM.addSpace("fiveToNine");
 special.createAddCharButton("fiveToNine", "9");
+DOM.addSpace("fiveToNine");
+const inftyButton = special.createAddCharButton("fiveToNine", "∞");
 
 
 special.createStepLeftButton("controls", "<=");
@@ -74,4 +76,5 @@ DOM.addSpace("examples");
 special.createSetTextButton("examples", "*732");
 
 
-special.onEnter();
+console.log(inftyButton);
+inftyButton.setActive(false);
