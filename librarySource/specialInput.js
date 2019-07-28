@@ -2,7 +2,7 @@
  * a special input for text text with limited set of characters,
  * 
  * @constructor SpecialInput 
- * @param {String} idName name (id) of a span or div
+ * @param {String} idName - name (id) of a span or div element that will contain the input
  */
 
 /* jshint esversion:6 */
@@ -11,51 +11,41 @@
 function SpecialInput(idName) {
     "use strict";
     this.id = idName;
-    DOM.style("#" + idName, "borderStyle", "solid", "borderTopColor", "#777777", "borderLeftColor", "#777777", "borderBottomColor", "#dddddd", "borderRightColor", "#dddddd", "overflow", "auto");
     this.element = document.getElementById(idName);
-    this.text = "";
-    this.cursorPosition = 0;
+    // styling the containing element to fit the usual inputs
+    DOM.style("#" + idName, "borderStyle", "solid", "borderTopColor", "#777777", "borderLeftColor", "#777777", "borderBottomColor", "#dddddd", "borderRightColor", "#dddddd", "overflow", "auto");
+    DOM.style("#" + idName, "cursor", "text");
+    //this.element.style.cursor = "text";
+    // loading and applying styles
+    this.colorStyleDefaults();
+    this.updateStyle();
+    // status
     this.hover = false;
     this.focus = false;
     this.keepFocus = false;
-    this.element.style.cursor = "text";
-
-
-
     // writing text with cursor position
+    this.text = "";
+    this.cursorPosition = 0;
     // each character in its own span element (detect click position)
     this.charSpans = [];
-
-    this.colorStyleDefaults();
-    this.updateStyle();
     this.updateText();
-
 
     var specialInput = this;
 
-
     /**
      * action upon "enter" command, strategy pattern
-     * @method NumberButton#onclick
+     * overwrite this dummy
+     * @method SpecialInput#onEnter
      * @param {integer} value
      */
     this.onEnter = function(value) {};
 
-
+    // clicking on the associated span element updates that this specialInput has focus
     this.element.onclick = function() {
         specialInput.setFocus(true);
     };
 
-    // loosing focus for clicking elsewhere
-    const body = document.getElementsByTagName("body")[0];
-    body.addEventListener("click", function() {
-        if (!specialInput.hover && !specialInput.keepFocus) {
-            specialInput.setFocus(false);
-        }
-        specialInput.keepFocus = false;
-    });
-
-    // hovering
+    // hovering: the mouse lies on the special input element
     this.element.onmouseenter = function() {
         specialInput.hover = true;
         specialInput.updateStyle();
@@ -65,9 +55,19 @@ function SpecialInput(idName) {
         specialInput.hover = false;
         specialInput.updateStyle();
     };
+
+    // loosing focus for clicking elsewhere
+    // if we click somewhere else than the specialInput element then it looses focus
+    // except if we click on a related button
+    // the related button acts before this event listener and sets specialInput.keepFocus=true
+    const body = document.getElementsByTagName("body")[0];
+    body.addEventListener("click", function() {
+        if (!specialInput.hover && !specialInput.keepFocus) {
+            specialInput.setFocus(false);
+        }
+        specialInput.keepFocus = false;
+    });
 }
-
-
 
 (function() {
     "use strict";
@@ -98,39 +98,51 @@ function SpecialInput(idName) {
     };
 
     /**
-     * setup the color styles defaults, use for other buttons too
+     * setup the color styles defaults, 
+     * most simple "default" case: use same as for other buttons too
      * @method SpecialInput#colorStyleDefaults
      */
     SpecialInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
-     * write a text in the charSpans, with an extra m-space and a hidden X at end
-     * @method SpecialInput#write
-     * @param {String} text
+     * set the width of the input element
+     * important for rescaling text size
+     * @method SpecialInput#setWidth
+     * @param {integer} width
      */
+    SpecialInput.prototype.setWidth = function(width) {
+        DOM.style("#" + this.id, "width", width + px);
+    };
 
-    function createNewSpanOnClickFunction(specialInput, i) {
+    // set the cursor of given special input and position as clicked on display
+    //  this is only because of GRUNT LINT checking
+
+    function setCursorFromPosition(specialInput, position) {
         const f = function() {
-            if (specialInput.cursorPosition < i) {
-                specialInput.setCursor(i - 1);
+            if (specialInput.cursorPosition < position) {
+                specialInput.setCursor(position - 1); // cursor is at left, compensate for span that shows the cursor
             } else {
-                specialInput.setCursor(i);
+                specialInput.setCursor(position);
             }
         };
         return f;
     }
 
+    /**
+     * write a text in the charSpans, 
+     * with an extra m-space and a hidden X at end
+     * (that's to be able to set cursor at end, and to prevent span(?) from collapsing
+     * @method SpecialInput#write
+     * @param {String} text
+     */
+
     SpecialInput.prototype.write = function(text) {
-        // create missing spans
+        // create missing spans, with a onClick function that sets the cursor position
+        // relative to index to text string
         for (let i = this.charSpans.length; i < text.length + 2; i++) {
             const newSpan = DOM.create("span", DOM.createId(), "#" + this.id);
             const specialInput = this;
-            newSpan.onclick = createNewSpanOnClickFunction(specialInput, i);
-            /*newSpan.onclick=function(){
-                console.log(i);
-               
-            };
-        */
+            newSpan.onclick = setCursorFromPosition(specialInput, i);
             this.charSpans.push(newSpan);
         }
         //write message to spans and make visible
@@ -150,7 +162,7 @@ function SpecialInput(idName) {
         theSpan.innerHTML = "X";
         theSpan.style.display = "inline";
         theSpan.style.visibility = "hidden";
-        // clear empty spans
+        // clear empty spans, hide
         for (let i = text.length + 2; i < this.charSpans.length; i++) {
             const theSpan = this.charSpans[i];
             theSpan.innerHTML = "";
@@ -159,7 +171,8 @@ function SpecialInput(idName) {
     };
 
     /**
-     * update the text display, depending on focus add cursor
+     * update the text display
+     *  if it has focus, then insert cursor as underscore
      * @method SpecialInput.updateText
      */
     SpecialInput.prototype.updateText = function() {
@@ -177,7 +190,7 @@ function SpecialInput(idName) {
     /**
      * set that this input is in focus or not and update everything
      * @method SpecialInput#setFocus
-     * @param {boolean} focus
+     * @param {boolean} focus - true if element has "focus" (including related buttons)
      */
     SpecialInput.prototype.setFocus = function(focus) {
         this.focus = focus;
@@ -191,13 +204,12 @@ function SpecialInput(idName) {
      * @param {integer} position
      */
     SpecialInput.prototype.setCursor = function(position) {
-        console.log("setCursor");
         position = Fast.clamp(0, position, this.text.length);
         this.cursorPosition = position;
     };
 
     /**
-     * set the text, put cursor at end
+     * set (paste) the text, put cursor at end
      * does not make focus, because from somewhere else it is set
      * @method SpecialInput#setText
      * @param {String} text
@@ -217,8 +229,8 @@ function SpecialInput(idName) {
     SpecialInput.prototype.add = function(addText) {
         let text = this.text.slice(0, this.cursorPosition);
         text += addText;
-        const newCursorPosition = text.length;
-        text += this.text.slice(this.cursorPosition);
+        const newCursorPosition = text.length; // new final cursor position
+        text += this.text.slice(this.cursorPosition); // add the rest of the text after initial cursor position
         this.text = text;
         this.cursorPosition = newCursorPosition;
         this.setFocus(true);
@@ -226,7 +238,7 @@ function SpecialInput(idName) {
 
 
     /**
-     * create a button to move cursor one position to the left
+     * create a button and keyboard commend to move cursor one position to the left
      * @method SpecialInput#stepLeft
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -242,7 +254,7 @@ function SpecialInput(idName) {
             specialInput.keepFocus = true;
         });
         KeyboardEvents.addFunction(function(event) {
-            if (specialInput.focus) {
+            if (specialInput.focus && button.active) {
                 specialInput.setCursor(specialInput.cursorPosition - 1);
                 specialInput.setFocus(true);
             }
@@ -251,7 +263,7 @@ function SpecialInput(idName) {
     };
 
     /**
-     * create a button to move cursor one position to the right
+     * create a button and keyboard commend to move cursor one position to the right
      * @method SpecialInput#createStepRightButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -267,7 +279,7 @@ function SpecialInput(idName) {
             specialInput.keepFocus = true;
         });
         KeyboardEvents.addFunction(function(event) {
-            if (specialInput.focus) {
+            if (specialInput.focus && button.active) {
                 specialInput.setCursor(specialInput.cursorPosition + 1);
                 specialInput.setFocus(true);
             }
@@ -278,6 +290,7 @@ function SpecialInput(idName) {
 
     /**
      * create a button to add text
+     * make shure that special input gets focus and stays in focus
      * @method SpecialInput#createAddButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -297,7 +310,7 @@ function SpecialInput(idName) {
 
 
     /**
-     * create a button to add a character, add to keyboard events
+     * create a button and keyboard command to add a character, add to keyboard events
      * @method SpecialInput#createAddCharButton
      * @param {String} parentId - button added at end of this element00
      * @param {String} char
@@ -313,10 +326,8 @@ function SpecialInput(idName) {
             specialInput.keepFocus = true;
         });
         KeyboardEvents.addFunction(function(event) {
-            if (specialInput.focus) {
+            if (specialInput.focus && button.active) {
                 specialInput.add(char);
-                console.log(char);
-                console.log(event.ctrlKey);
             }
         }, char);
         return button;
@@ -337,7 +348,6 @@ function SpecialInput(idName) {
             if (specialInput.cursorPosition > 0) {
                 specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
                 specialInput.setCursor(specialInput.cursorPosition - 1);
-
             }
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
@@ -345,7 +355,7 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (specialInput.focus) {
+            if (specialInput.focus && button.active) {
                 if (specialInput.cursorPosition > 0) {
                     specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
                     specialInput.setCursor(specialInput.cursorPosition - 1);
@@ -377,7 +387,7 @@ function SpecialInput(idName) {
     };
 
     /**
-     * create an enter button, do something with the symbol
+     * create an enter button and keyboard command, do something with the symbol
      * @method SpecialInput#createEnterButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -393,7 +403,7 @@ function SpecialInput(idName) {
             specialInput.keepFocus = true;
         });
         KeyboardEvents.addFunction(function(event) {
-            if (specialInput.focus) {
+            if (specialInput.focus && button.active) {
                 specialInput.onEnter(specialInput.text);
             }
         }, "Enter");
@@ -420,7 +430,7 @@ function SpecialInput(idName) {
     };
 
     /**
-     * create a copy button and "copy" event to copy the symbol
+     * create a copy button and "copy" event to copy the special input text to clipboard
      * @method SpecialInput#createCopyButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -436,7 +446,7 @@ function SpecialInput(idName) {
         // the copy event should copy this only if it has focus and
         // the clipboardHandler did not cause the copy event
         window.addEventListener("copy", function(event) {
-            if (specialInput.focus && !clipboardHandler.active) {
+            if (specialInput.focus && !clipboardHandler.active && button.active) {
                 event.preventDefault();
                 event.stopPropagation();
                 clipboardHandler.copy(specialInput.text);

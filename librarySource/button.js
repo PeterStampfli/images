@@ -19,6 +19,7 @@ function Button(idName) {
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
+    this.element.disabled = false;
 
     /**
      * action upon click, strategy pattern
@@ -45,28 +46,36 @@ function Button(idName) {
     var button = this;
 
     this.element.onmousedown = function() {
-        button.pressed = true;
-        button.updateStyle();
-        button.onMouseDown();
+        if (button.active) {
+            button.pressed = true;
+            button.updateStyle();
+            button.onMouseDown();
+        }
     };
 
     this.element.onmouseup = function() {
-        if (button.pressed) {
-            button.pressed = false;
-            button.onClick();
+        if (button.active) {
+            if (button.pressed) {
+                button.pressed = false;
+                button.onClick();
+            }
+            button.updateStyle();
         }
-        button.updateStyle();
     };
 
     // hovering
     this.element.onmouseenter = function() {
-        button.hover = true;
-        button.updateStyle();
+        if (button.active) {
+            button.hover = true;
+            button.updateStyle();
+        }
     };
 
     this.element.onmouseleave = function() {
-        button.hover = false;
-        button.element.onmouseup();
+        if (button.active) {
+            button.hover = false;
+            button.element.onmouseup();
+        }
     };
 }
 
@@ -86,7 +95,7 @@ function Button(idName) {
     Button.backgroundColorDown = "#ffff88";
     // for switched off
     Button.colorInactive = "black";
-    Button.backgroundColorInactive = "#888888";
+    Button.backgroundColorInactive = "#aaaaaa";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered
@@ -94,22 +103,27 @@ function Button(idName) {
      * @method Button#updateStyle
      */
     Button.prototype.updateStyle = function() {
-        if (this.pressed) {
-            if (this.hover) {
-                this.element.style.color = this.colorDownHover;
-                this.element.style.backgroundColor = this.backgroundColorDownHover;
+        if (this.active) {
+            if (this.pressed) {
+                if (this.hover) {
+                    this.element.style.color = this.colorDownHover;
+                    this.element.style.backgroundColor = this.backgroundColorDownHover;
+                } else {
+                    this.element.style.color = this.colorDown;
+                    this.element.style.backgroundColor = this.backgroundColorDown;
+                }
             } else {
-                this.element.style.color = this.colorDown;
-                this.element.style.backgroundColor = this.backgroundColorDown;
+                if (this.hover) {
+                    this.element.style.color = this.colorUpHover;
+                    this.element.style.backgroundColor = this.backgroundColorUpHover;
+                } else {
+                    this.element.style.color = this.colorUp;
+                    this.element.style.backgroundColor = this.backgroundColorUp;
+                }
             }
         } else {
-            if (this.hover) {
-                this.element.style.color = this.colorUpHover;
-                this.element.style.backgroundColor = this.backgroundColorUpHover;
-            } else {
-                this.element.style.color = this.colorUp;
-                this.element.style.backgroundColor = this.backgroundColorUp;
-            }
+            this.element.style.color = this.colorInactive;
+            this.element.style.backgroundColor = this.backgroundColorInactive;
         }
     };
 
@@ -129,7 +143,7 @@ function Button(idName) {
         this.backgroundColorUpHover = Button.backgroundColorUpHover;
         this.backgroundColorDownHover = Button.backgroundColorDownHover;
         this.backgroundColorDown = Button.backgroundColorDown;
-        this.backgroundColorInactive = Button.colorInactive;
+        this.backgroundColorInactive = Button.backgroundColorInactive;
     };
 
     /**
@@ -138,13 +152,16 @@ function Button(idName) {
      * @param {boolean} isActive
      */
     Button.prototype.setActive = function(isActive) {
-        this.isActive = isActive;
-        this.updateStyle();
+        this.active = isActive;
+        this.element.disabled = !isActive;
         if (isActive) {
             this.element.style.cursor = "pointer";
         } else {
             this.element.style.cursor = "default";
+            this.pressed = false;
+            this.hoover = false;
         }
+        this.updateStyle();
     };
 
     /**

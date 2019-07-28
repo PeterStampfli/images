@@ -7,10 +7,11 @@
 
 DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
-DOM.style("#symbolsInput", "width", "200px");
 
 
 special = new SpecialInput("symbolsInput");
+
+special.setWidth(200);
 
 special.setText("*532");
 special.setFocus(true);
@@ -35,7 +36,7 @@ DOM.addSpace("specialChars");
 special.createAddCharButton("specialChars", ")");
 
 
-special.createAddCharButton("zeroToFour", "0");
+const button0 = special.createAddCharButton("zeroToFour", "0");
 DOM.addSpace("zeroToFour");
 special.createAddCharButton("zeroToFour", "1");
 DOM.addSpace("zeroToFour");
@@ -78,3 +79,5 @@ special.createSetTextButton("examples", "*732");
 
 console.log(inftyButton);
 inftyButton.setActive(false);
+button0.setActive(false);
+//inftyButton.setActive(true);
