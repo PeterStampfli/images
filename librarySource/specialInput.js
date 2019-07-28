@@ -26,6 +26,8 @@ function SpecialInput(idName) {
     // writing text with cursor position
     this.text = "";
     this.cursorPosition = 0;
+    // parsing text
+    this.parsePosition = 0;
     // each character in its own span element (detect click position)
     this.charSpans = [];
     this.updateText();
@@ -33,12 +35,18 @@ function SpecialInput(idName) {
     var specialInput = this;
 
     /**
+     * action upon some text input changes (parsing), including change of cursor position, focus
+     * overwrite this dummy
+     * @method SpecialInput#onTextChange
+     */
+    this.onTextChange = function() {};
+
+    /**
      * action upon "enter" command, strategy pattern
      * overwrite this dummy
      * @method SpecialInput#onEnter
-     * @param {integer} value
      */
-    this.onEnter = function(value) {};
+    this.onEnter = function() {};
 
     // clicking on the associated span element updates that this specialInput has focus
     this.element.onclick = function() {
@@ -196,6 +204,8 @@ function SpecialInput(idName) {
         this.focus = focus;
         this.updateStyle();
         this.updateText();
+        this.colorBlack();
+        this.onTextChange();
     };
 
     /**
@@ -219,7 +229,6 @@ function SpecialInput(idName) {
         this.cursorPosition = text.length;
     };
 
-
     /**
      * add a text at cursor position, 
      *  new cursor position will be at end of inserted text
@@ -235,7 +244,6 @@ function SpecialInput(idName) {
         this.cursorPosition = newCursorPosition;
         this.setFocus(true);
     };
-
 
     /**
      * create a button and keyboard commend to move cursor one position to the left
@@ -287,9 +295,8 @@ function SpecialInput(idName) {
         return button;
     };
 
-
     /**
-     * create a button to add text
+     * create a button to add/insert text
      * make shure that special input gets focus and stays in focus
      * @method SpecialInput#createAddButton
      * @param {String} parentId - button added at end of this element
@@ -307,7 +314,6 @@ function SpecialInput(idName) {
         });
         return button;
     };
-
 
     /**
      * create a button and keyboard command to add a character, add to keyboard events
@@ -345,7 +351,7 @@ function SpecialInput(idName) {
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
         const button = Button.createAction(buttonId, function() {
-            if (specialInput.cursorPosition > 0) {
+            if (specialInput.cursorPosition > 0) { // can only clear character if cursor is not at extreme left
                 specialInput.text = specialInput.text.slice(0, specialInput.cursorPosition - 1) + specialInput.text.slice(specialInput.cursorPosition);
                 specialInput.setCursor(specialInput.cursorPosition - 1);
             }
@@ -398,20 +404,20 @@ function SpecialInput(idName) {
         DOM.style("#" + buttonId, "borderRadius", 1000 + px);
         const specialInput = this;
         const button = Button.createAction(buttonId, function() {
-            specialInput.onEnter(specialInput.text);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
+            specialInput.onEnter();
         });
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
-                specialInput.onEnter(specialInput.text);
+                specialInput.onEnter();
             }
         }, "Enter");
         return button;
     };
 
     /**
-     * create a set text button, sets text of this input
+     * create a set text button, sets text of this input, replaces existing text
      * @method SpecialInput#createSetTextButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text - new text
@@ -454,5 +460,80 @@ function SpecialInput(idName) {
         });
         return button;
     };
+
+    //=======================================================================
+    // parsing: interface independent of syntax
+    //=======================================================================
+
+    /**
+     * reset all span characters to color black
+     * @method SpecialInput#colorBlack
+     */
+    SpecialInput.prototype.colorBlack = function() {
+        for (var i = this.charSpans.length - 1; i >= 0; i--) {
+            this.charSpans[i].style.color = "black";
+        }
+    };
+
+    // reference position is this.parsePosition
+
+    /**
+     * start parsing: set parsePosition to initial
+     * @method SpecialInput#startParsing
+     */
+    SpecialInput.prototype.startParsing = function() {
+        this.parsePosition = 0;
+    };
+
+    /**
+     * advance parsing position, check if end reached, go past end
+     * @method SpecialInput#advanceParsing
+     * @return boolean, true if advancing, false if already at end
+     */
+    SpecialInput.prototype.advanceParsing = function() {
+        this.parsePosition = Math.min(this.parsePosition + 1, this.text.length);
+        return this.parsePosition < this.text.length;
+    };
+
+    /**
+     * get the character at parsing position
+     * @method SpecialInput#getCharParsing
+     * @return String contains character at parsing position, is empty if position gas advanced past last char
+     */
+    SpecialInput.prototype.getCharParsing = function() {
+        return this.text.charAt(this.parsePosition);
+    };
+
+    /**
+     *  mark error, paint chars before parsePosition black,
+     * chars at parsePosition and after in red
+     * if this.infocus include cursor character at this.cursorPosition
+     * cursor should be black
+     * @method SpecialInput#markErrorParsing
+     */
+    SpecialInput.prototype.markErrorParsing = function() {
+        // errorPosition is index to span with first error
+        // endPosition is after end of text
+        let startPosition = this.parsePosition;
+        let endPosition = this.text.length;
+        // correction for cursor (if in focus)
+        if (this.focus) {
+            if (this.cursorPosition <= startPosition) {
+                startPosition++;
+            }
+            endPosition++;
+        }
+        this.colorBlack();
+        for (var i = startPosition; i < endPosition; i++) {
+            this.charSpans[i].style.color = "red";
+        }
+
+
+        this.charSpans[this.cursorPosition].style.color = "black";
+
+
+
+    };
+
 
 }());

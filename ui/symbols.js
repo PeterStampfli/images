@@ -20,7 +20,15 @@ DOM.style("#result", "color", "green");
 
 
 special.onEnter = function() {
+    special.colorBlack();
     document.getElementById("result").innerHTML = "Doing the symmetry of symbol: " + special.text;
+    this.startParsing();
+    for (var i = 0; i < 10; i++) {
+        console.log(special.getCharParsing());
+        console.log("" + this.advanceParsing() + this.parsePosition + this.text.charAt(this.parsePosition));
+    }
+    special.parsePosition = 3;
+    special.markErrorParsing();
 };
 
 
