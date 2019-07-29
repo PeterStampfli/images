@@ -229,4 +229,26 @@ function Button(idName) {
         return button;
     };
 
+    /**
+     * enable (set active true) a list of buttons
+     * @method Button.enable
+     * @param {Button ...} buttons - a list of buttons
+     */
+    Button.enable = function(buttons) {
+        for (var i = 0; i < arguments.length; i++) {
+            arguments[i].setActive(true);
+        }
+    };
+
+    /**
+     * disable (set active false) a list of buttons
+     * @method Button.enable
+     * @param {Button ...} buttons - a list of buttons
+     */
+    Button.disable = function(buttons) {
+        for (var i = 0; i < arguments.length; i++) {
+            arguments[i].setActive(false);
+        }
+    };
+
 }());

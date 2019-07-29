@@ -505,6 +505,21 @@ function SpecialInput(idName) {
     };
 
     /**
+     * check if parsing character is in given string (as set of chars)
+     * @method SpecialInput#isCharParsing
+     * @param {String} chars - the characters for testing
+     * @return boolean, true if char at parsing position is contained in the chars string, false if end of parsing or not contained
+     */
+    SpecialInput.prototype.isCharParsing = function(chars) {
+        const char = this.getCharParsing();
+        if (char.length === 0) {
+            return false;
+        } else {
+            return chars.includes(char);
+        }
+    };
+
+    /**
      *  mark error, paint chars before parsePosition black,
      * chars at parsePosition and after in red
      * if this.infocus include cursor character at this.cursorPosition
@@ -527,12 +542,7 @@ function SpecialInput(idName) {
         for (var i = startPosition; i < endPosition; i++) {
             this.charSpans[i].style.color = "red";
         }
-
-
         this.charSpans[this.cursorPosition].style.color = "black";
-
-
-
     };
 
 
