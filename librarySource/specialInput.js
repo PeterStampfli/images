@@ -159,6 +159,11 @@ function SpecialInput(idName) {
             theSpan.innerHTML = text.charAt(i);
             theSpan.style.display = "inline";
             theSpan.style.visibility = "visible";
+            theSpan.className = "";
+        }
+        // blink corsor if focus and thus cursor visible
+        if (this.focus) { // with focus show "cursor"
+            this.charSpans[this.cursorPosition].className = "blinking";
         }
         // a large space at end of text
         let theSpan = this.charSpans[text.length];
@@ -493,6 +498,15 @@ function SpecialInput(idName) {
     SpecialInput.prototype.advanceParsing = function() {
         this.parsePosition = Math.min(this.parsePosition + 1, this.text.length);
         return this.parsePosition < this.text.length;
+    };
+
+    /**
+     * check if parsing before the cursor
+     * @method SpecialInput#beforeCursorParsing
+     * @return boolean - true if characters left of cursor are parsed
+     */
+    SpecialInput.prototype.beforeCursorParsing = function() {
+        return this.parsePosition < this.cursorPosition;
     };
 
     /**
