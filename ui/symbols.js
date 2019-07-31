@@ -20,24 +20,62 @@ DOM.style("#result", "color", "green");
 
 
 symbol.onEnter = function() {
+    var i, j;
     symbol.colorBlack();
-    let result = "Doing the symmetry of symbol: " + symbol.text;
+    let result = "";
     parse();
     if (wonders > 0) {
         result += "<br>wonders: " + wonders;
     }
-    if (miracles > 0) {
-        result += "<br>miracles: " + miracles;
-    }
     if (gyrations.length > 0) {
         result += "<br>gyrations: " + gyrations;
     }
+    if (miracles > 0) {
+        result += "<br>miracles: " + miracles;
+    }
     if (kaleidoscopes.length > 0) {
-        for (var i = 0; i < kaleidoscopes.length; i++) {
+        for (i = 0; i < kaleidoscopes.length; i++) {
             result += "<br>kaleidoscope: " + kaleidoscopes[i];
         }
     }
 
+    let equivalent = "";
+    for (i = 0; i < wonders; i++) {
+        equivalent += "o";
+    }
+    for (i = 0; i < gyrations.length; i++) {
+        if (gyrations[i] === "∞") {
+            equivalent += "∞";
+        } else if (gyrations[i] > 9) {
+            equivalent += "(" + gyrations[i] + ")";
+        } else {
+            equivalent += gyrations[i];
+        }
+    }
+    for (i = 0; i < miracles; i++) {
+        equivalent += "x";
+    }
+    for (i = 0; i < kaleidoscopes.length; i++) {
+        equivalent += "*";
+        const reflections = kaleidoscopes[i];
+
+        if ((reflections.length > 1) || (reflections[0] !== 1)) {
+            for (j = 0; j < reflections.length; j++) {
+                if (reflections[j] === "∞") {
+                    equivalent += "∞";
+                } else if (reflections[j] > 9) {
+                    equivalent += "(" + reflections[j] + ")";
+                } else {
+                    equivalent += reflections[j];
+                }
+            }
+
+        }
+
+    }
+
+
+    result += "<br>equivalent symbol: " + equivalent;
 
     document.getElementById("result").innerHTML = result;
 };
@@ -228,16 +266,16 @@ function parse() {
             console.log("a wonder");
             wonders++;
             symbol.advanceParsing();
-        } else if (symbol.isCharParsing("x")) {
-            console.log("a miracle");
-            miracles++;
-            symbol.advanceParsing();
         } else if (symbol.isCharParsing("∞1234556789(")) {
             const newGyrations = parseNumbers();
             if (newGyrations.length > 0) {
                 console.log("gyrations " + newGyrations);
                 gyrations = gyrations.concat(newGyrations);
             }
+        } else if (symbol.isCharParsing("x")) {
+            console.log("a miracle");
+            miracles++;
+            symbol.advanceParsing();
         } else if (symbol.isCharParsing("*")) {
             symbol.advanceParsing();
             let reflections = parseNumbers();
@@ -251,7 +289,5 @@ function parse() {
             failure();
             symbol.advanceParsing();
         }
-
-
     }
 }

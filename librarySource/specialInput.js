@@ -19,6 +19,7 @@ function SpecialInput(idName) {
     // loading and applying styles
     this.colorStyleDefaults();
     this.updateStyle();
+
     // status
     this.hover = false;
     this.focus = false;
@@ -51,6 +52,10 @@ function SpecialInput(idName) {
     // clicking on the associated span element updates that this specialInput has focus
     this.element.onclick = function() {
         specialInput.setFocus(true);
+    };
+    // moving the cursor to end (default if no click on characters)
+    this.element.onmouseup = function() {
+        specialInput.setCursor(specialInput.text.length);
     };
 
     // hovering: the mouse lies on the special input element
@@ -132,6 +137,7 @@ function SpecialInput(idName) {
             } else {
                 specialInput.setCursor(position);
             }
+            console.log("span.click");
         };
         return f;
     }
@@ -147,7 +153,7 @@ function SpecialInput(idName) {
     SpecialInput.prototype.write = function(text) {
         // create missing spans, with a onClick function that sets the cursor position
         // relative to index to text string
-        for (let i = this.charSpans.length; i < text.length + 2; i++) {
+        for (let i = this.charSpans.length; i < text.length; i++) {
             const newSpan = DOM.create("span", DOM.createId(), "#" + this.id);
             const specialInput = this;
             newSpan.onclick = setCursorFromPosition(specialInput, i);
@@ -158,25 +164,15 @@ function SpecialInput(idName) {
             const theSpan = this.charSpans[i];
             theSpan.innerHTML = text.charAt(i);
             theSpan.style.display = "inline";
-            theSpan.style.visibility = "visible";
             theSpan.className = "";
         }
         // blink corsor if focus and thus cursor visible
         if (this.focus) { // with focus show "cursor"
             this.charSpans[this.cursorPosition].className = "blinking";
         }
-        // a large space at end of text
-        let theSpan = this.charSpans[text.length];
-        theSpan.innerHTML = "&nbsp;";
-        theSpan.style.display = "inline";
-        theSpan.style.visibility = "visible";
-        // a hidden X to prevent span from collapsing
-        theSpan = this.charSpans[text.length + 1];
-        theSpan.innerHTML = "X";
-        theSpan.style.display = "inline";
-        theSpan.style.visibility = "hidden";
+
         // clear empty spans, hide
-        for (let i = text.length + 2; i < this.charSpans.length; i++) {
+        for (let i = text.length; i < this.charSpans.length; i++) {
             const theSpan = this.charSpans[i];
             theSpan.innerHTML = "";
             theSpan.style.display = "none";
