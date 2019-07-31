@@ -497,12 +497,12 @@ function SpecialInput(idName) {
     };
 
     /**
-     * check if parsing before the cursor
+     * check if parsing before or at the cursor (where the char eneters)
      * @method SpecialInput#beforeCursorParsing
      * @return boolean - true if characters left of cursor are parsed
      */
     SpecialInput.prototype.beforeCursorParsing = function() {
-        return this.parsePosition < this.cursorPosition;
+        return this.parsePosition <= this.cursorPosition;
     };
 
     /**

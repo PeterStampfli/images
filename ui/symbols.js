@@ -8,18 +8,12 @@
 DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
 
-
+DOM.style("#result", "color", "green");
 symbol = new SpecialInput("symbolsInput");
 
-symbol.setWidth(200);
-
-symbol.setText("*532");
-symbol.setFocus(true);
-
-DOM.style("#result", "color", "green");
 
 
-symbol.onEnter = function() {
+function parseAndAnalyze() {
     var i, j;
     symbol.colorBlack();
     let result = "";
@@ -78,7 +72,7 @@ symbol.onEnter = function() {
     result += "<br>equivalent symbol: " + equivalent;
 
     document.getElementById("result").innerHTML = result;
-};
+}
 
 
 
@@ -121,9 +115,9 @@ symbol.createStepLeftButton("controls", "<=");
 DOM.addSpace("controls");
 symbol.createStepRightButton("controls", "=>");
 DOM.addSpace("controls");
-symbol.createClearCharButton("controls", "C");
+symbol.createClearCharButton("controls", "del");
 DOM.addSpace("controls");
-symbol.createClearAllButton("controls", "CE");
+symbol.createClearAllButton("controls", "clear");
 DOM.addSpace("controls");
 symbol.createEnterButton("controls", "enter");
 DOM.addSpace("controls");
@@ -136,6 +130,16 @@ symbol.createSetTextButton("examples", "*732");
 //inftyButton.setActive(false);
 //button0.setActive(false);
 //inftyButton.setActive(true);
+
+/*
+ * activate all buttons
+ */
+function enableAllButtons() {
+    Button.enable(button0, button1, button2, button3, button4);
+    Button.enable(button5, button6, button7, button8, button9);
+    Button.enable(inftyButton, leftBraceButton, rightBraceButton);
+    Button.enable(miracleButton, wonderButton, kaleidoscopeButton);
+}
 
 
 // parsing, yet without button switching ...
@@ -193,8 +197,15 @@ function parseNumber() {
         symbol.advanceParsing();
         return 0;
     } else if (symbol.isCharParsing("(")) {
+
         // multi digit number in braces
         symbol.advanceParsing();
+        if (symbol.beforeCursorParsing()) {
+            enableAllButtons();
+            Button.disable(leftBraceButton, rightBraceButton, button0, inftyButton);
+            Button.disable(wonderButton, miracleButton, kaleidoscopeButton);
+        }
+
         if (symbol.isCharParsing("∞")) {
             failure();
             symbol.advanceParsing();
@@ -209,6 +220,10 @@ function parseNumber() {
             // first digit is zero: mark error, continue
             failure();
         }
+        if (symbol.beforeCursorParsing()) {
+            enableAllButtons();
+            Button.disable(leftBraceButton, inftyButton, wonderButton, miracleButton, kaleidoscopeButton);
+        }
         let numberString = "";
         while (symbol.isCharParsing("0123456789")) {
             numberString += symbol.getCharParsing();
@@ -217,10 +232,15 @@ function parseNumber() {
         if (symbol.isCharParsing(")")) {
             // the finishing right brace is ok
             symbol.advanceParsing();
+            if (symbol.beforeCursorParsing()) {
+                enableAllButtons();
+                Button.disable(rightBraceButton, button0);
+            }
         } else {
             // missing right brace: mark error, continue
             failure();
         }
+
         return parseInt(numberString, 10);
     } else {
         return -1;
@@ -234,11 +254,13 @@ function parseNumber() {
 
 function parseNumbers() {
     const numbers = [];
+
     let number = parseNumber();
     while (number !== -1) {
         if (number !== 0) {
             numbers.push(number);
         }
+
         number = parseNumber();
     }
     return numbers;
@@ -261,7 +283,13 @@ function parse() {
     gyrations = [];
     kaleidoscopes = [];
     console.log("parsing");
+    if (symbol.beforeCursorParsing()) {
+        enableAllButtons();
+        Button.disable(rightBraceButton, button0);
+    }
+
     while (symbol.getCharParsing().length > 0) {
+
         if (symbol.isCharParsing("o")) {
             console.log("a wonder");
             wonders++;
@@ -291,3 +319,13 @@ function parse() {
         }
     }
 }
+
+
+// setting up symbol
+
+
+symbol.setWidth(200);
+symbol.onTextChange = parseAndAnalyze;
+
+symbol.setText("*532");
+symbol.setFocus(true);
