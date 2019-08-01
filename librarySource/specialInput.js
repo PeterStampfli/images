@@ -22,6 +22,15 @@ function SpecialInput(idName) {
     // remember old symbols
     this.oldSymbols = [];
     this.lookingAt = 0;
+    // controlling buttons
+    this.enterButton = null;
+    this.copyButton = null;
+    this.stepRightButton = null;
+    this.stepLeftButton = null;
+    this.delButton = null;
+    this.clearButton = null;
+    this.prevButton = null;
+    this.nextButton = null;
 
     // status
     this.hover = false;
@@ -188,6 +197,38 @@ function SpecialInput(idName) {
      * @method SpecialInput.updateText
      */
     SpecialInput.prototype.updateText = function() {
+        if (this.enterButton != null) {
+            this.enterButton.setActive(this.text.length > 0);
+        }
+        if (this.clearButton != null) {
+            this.clearButton.setActive(this.text.length > 0);
+        }
+        if (this.copyButton != null) {
+            this.copyButton.setActive(this.text.length > 0);
+        }
+        if (this.delButton != null) {
+            this.delButton.setActive(this.cursorPosition > 0);
+        }
+        if (this.stepLeftButton != null) {
+            this.stepLeftButton.setActive(this.cursorPosition > 0);
+        }
+        if (this.stepRightButton != null) {
+            this.stepRightButton.setActive(this.cursorPosition < this.text.length);
+        }
+        if (this.prevButton != null) {
+            // can go to a different prev. symbol if 2 or more prev symbols or the one is different
+            console.log(this.lookingAt);
+            console.log(this.oldSymbols.length);
+            this.prevButton.setActive((this.lookingAt > 0) &&
+                ((this.oldSymbols.length > 1) ||
+                    (this.oldSymbols.length === 1) && !this.dublicateTopOfStack()));
+        }
+        if (this.nextButton != null) {
+            // can go to a different prev. symbol if 2 or more prev symbols or the one is different
+            console.log(this.lookingAt);
+            console.log(this.oldSymbols.length);
+            this.nextButton.setActive(this.lookingAt < this.oldSymbols.length - 1);
+        }
         var text;
         if (this.focus) { // with focus show "cursor"
             text = this.text.slice(0, this.cursorPosition);
@@ -229,6 +270,7 @@ function SpecialInput(idName) {
      * @param {String} text
      */
     SpecialInput.prototype.setText = function(text) {
+        console.log("settext " + text);
         this.text = text;
         this.cursorPosition = text.length;
     };
@@ -236,6 +278,7 @@ function SpecialInput(idName) {
     /**
      * add a text at cursor position, 
      *  new cursor position will be at end of inserted text
+     * looking at top of stack of old symbols
      * @method SpecialInput#add
      * @param {String} addText
      */
@@ -246,6 +289,7 @@ function SpecialInput(idName) {
         text += this.text.slice(this.cursorPosition); // add the rest of the text after initial cursor position
         this.text = text;
         this.cursorPosition = newCursorPosition;
+        this.lookingAt = this.oldSymbols.length;
         this.setFocus(true);
     };
 
@@ -265,6 +309,8 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        this.stepLeftButton = button;
+        button.setActive(false);
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 specialInput.setCursor(specialInput.cursorPosition - 1);
@@ -290,6 +336,8 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        this.stepRightButton = button;
+        button.setActive(false);
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 specialInput.setCursor(specialInput.cursorPosition + 1);
@@ -301,7 +349,7 @@ function SpecialInput(idName) {
 
     /**
      * create a button to add/insert text
-     * make shure that special input gets focus and stays in focus
+     * make sure that special input gets focus and stays in focus
      * @method SpecialInput#createAddButton
      * @param {String} parentId - button added at end of this element
      * @param {String} text
@@ -362,6 +410,8 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        this.delButton = button;
+        button.setActive(false);
         KeyboardEvents.addFunction(function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -393,6 +443,8 @@ function SpecialInput(idName) {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
         });
+        this.clearButton = button;
+        button.setActive(false);
         return button;
     };
 
@@ -413,16 +465,135 @@ function SpecialInput(idName) {
             if ((specialInput.oldSymbols.length === 0) || (specialInput.oldSymbols[specialInput.oldSymbols.length - 1] != specialInput.text)) {
                 specialInput.oldSymbols.push(specialInput.text);
             }
+            specialInput.lookingAt = specialInput.oldSymbols.length;
+            if (specialInput.prevButton != null) {
+                specialInput.prevButton.setActive(specialInput.oldSymbols.length > 1);
+            }
+            if (specialInput.nextButton != null) {
+                specialInput.nextButton.setActive(false);
+            }
             console.log(specialInput.oldSymbols);
             specialInput.onEnter();
         });
+        this.enterButton = button;
+        button.setActive(false);
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
+                if ((specialInput.oldSymbols.length === 0) || (specialInput.oldSymbols[specialInput.oldSymbols.length - 1] != specialInput.text)) {
+                    specialInput.oldSymbols.push(specialInput.text);
+                }
+                specialInput.lookingAt = specialInput.oldSymbols.length;
+                if (specialInput.prevButton != null) {
+                    specialInput.prevButton.setActive();
+                }
+                console.log(specialInput.oldSymbols);
                 specialInput.onEnter();
             }
         }, "Enter");
         return button;
     };
+
+    /**
+     * check if top of stack is the same as current text
+     * @method SpecialInput#dublicateTopOfStack
+     * @return boolean, true if top of stack is same as current
+     */
+    SpecialInput.prototype.dublicateTopOfStack = function() {
+        return (this.oldSymbols.length > 0) && (this.text == this.oldSymbols[this.oldSymbols.length - 1]);
+    };
+
+    /**
+     * create a button to go to previous input in old inputs stack
+     * if top of stack i
+     * @method SpecialInput#createPreviousButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     * @return Button
+     */
+    SpecialInput.prototype.createPreviousButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        const button = Button.createAction(buttonId, function() {
+
+
+            console.log("prev");
+            console.log("specialInput.lookingAt " + specialInput.lookingAt);
+            console.log("specialInput.oldSymbols.length-1 " + specialInput.oldSymbols.length);
+            specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
+            console.log("see " + specialInput.lookingAt);
+            if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
+                specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
+                console.log("skip dublicate");
+            }
+            specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+
+        });
+        this.prevButton = button;
+        button.setActive(false);
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus && button.active) {
+                console.log("prev");
+                specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
+                console.log("see " + specialInput.lookingAt);
+                if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
+                    specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
+                    console.log("skip dublicate");
+                }
+                specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
+                specialInput.setFocus(true);
+                specialInput.keepFocus = true;
+
+
+            }
+        }, "ArrowUp");
+
+
+        return button;
+    };
+
+    /**
+     * create a button to go to next input in the old input stack
+     * @method SpecialInput#createNextButton
+     * @param {String} parentId - button added at end of this element
+     * @param {String} text
+     * @return Button
+     */
+    SpecialInput.prototype.createNextButton = function(parentId, text) {
+        const buttonId = DOM.createButton(parentId, text);
+        DOM.style("#" + buttonId, "borderRadius", 1000 + px);
+        const specialInput = this;
+        const button = Button.createAction(buttonId, function() {
+
+            console.log("prev");
+            specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
+            console.log("see " + specialInput.lookingAt);
+            specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
+            specialInput.setFocus(true);
+            specialInput.keepFocus = true;
+
+        });
+        this.nextButton = button;
+        button.setActive(false);
+        KeyboardEvents.addFunction(function(event) {
+            if (specialInput.focus && button.active) {
+                console.log("prev");
+                specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
+                console.log("see " + specialInput.lookingAt);
+                specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
+                specialInput.setFocus(true);
+                specialInput.keepFocus = true;
+
+
+            }
+        }, "ArrowDown");
+
+
+        return button;
+    };
+
 
     /**
      * create a set text button, sets text of this input, replaces existing text
@@ -439,6 +610,7 @@ function SpecialInput(idName) {
             specialInput.setText(text);
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
+            specialInput.lookingAt = specialInput.oldSymbols.length;
         });
         return button;
     };
@@ -457,6 +629,8 @@ function SpecialInput(idName) {
         const button = Button.createAction(buttonId, function() {
             clipboardHandler.copy(specialInput.text);
         });
+        this.copyButton = button;
+        button.setActive(false);
         // the copy event should copy this only if it has focus and
         // the clipboardHandler did not cause the copy event
         window.addEventListener("copy", function(event) {

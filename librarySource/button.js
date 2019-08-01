@@ -92,10 +92,6 @@ function Button(idName) {
     Button.backgroundColorUp = "white";
     Button.backgroundColorUpHover = "#ffffbb";
     Button.backgroundColorDownHover = "#ffff44";
-
-    Button.backgroundColorUpHover = "red";
-    Button.backgroundColorDownHover = "green";
-
     Button.backgroundColorDown = "#ffff88";
     // for switched off
     Button.colorInactive = "black";

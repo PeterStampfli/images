@@ -75,7 +75,6 @@ function parseAndAnalyze() {
     result += "<br>equivalent symbol: " + equivalent;
 
     document.getElementById("result").innerHTML = result;
-    console.log("textchange )button " + rightBraceButton.hoover);
 
 }
 
@@ -119,6 +118,10 @@ const inftyButton = symbol.createAddCharButton("fiveToNine", "∞");
 symbol.createStepLeftButton("controls", "◄");
 DOM.addSpace("controls");
 symbol.createStepRightButton("controls", "►");
+DOM.addSpace("controls");
+symbol.createPreviousButton("controls", "▲");
+DOM.addSpace("controls");
+symbol.createNextButton("controls", "▼");
 DOM.addSpace("controls");
 symbol.createClearCharButton("controls", "del");
 DOM.addSpace("controls");
@@ -223,6 +226,10 @@ function parseNumber() {
             symbol.advanceParsing();
             return valueInfinity;
         }
+        while (symbol.isCharParsing("(")) {
+            failure();
+            symbol.advanceParsing();
+        }
         if (!symbol.isCharParsing("0123456789")) {
             // not a digit, thus not a number, mark error
             failure();
@@ -294,7 +301,6 @@ function parse() {
     miracles = 0;
     gyrations = [];
     kaleidoscopes = [];
-    console.log("parsing");
     if (symbol.beforeCursorParsing()) {
         enableAllButtons();
         Button.disable(rightBraceButton, button0);
@@ -303,17 +309,14 @@ function parse() {
     while (symbol.getCharParsing().length > 0) {
 
         if (symbol.isCharParsing("o")) {
-            console.log("a wonder");
             wonders++;
             symbol.advanceParsing();
         } else if (symbol.isCharParsing("∞1234556789(")) {
             const newGyrations = parseNumbers();
             if (newGyrations.length > 0) {
-                console.log("gyrations " + newGyrations);
                 gyrations = gyrations.concat(newGyrations);
             }
         } else if (symbol.isCharParsing("x")) {
-            console.log("a miracle");
             miracles++;
             symbol.advanceParsing();
         } else if (symbol.isCharParsing("*")) {
@@ -323,7 +326,6 @@ function parse() {
                 reflections = [1];
             }
             kaleidoscopes.push(reflections);
-            console.log("kaleidoscope " + reflections);
 
         } else {
             failure();
@@ -342,5 +344,4 @@ symbol.onEnter = function() {
     document.getElementById("image").innerHTML = "The image of symbol " + symbol.text;
 };
 
-symbol.setText("*532");
 symbol.setFocus(true);
