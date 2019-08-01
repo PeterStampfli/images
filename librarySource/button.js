@@ -10,7 +10,7 @@
 
 function Button(idName) {
     "use strict";
-
+    this.idName = idName;
     this.element = document.getElementById(idName);
     // states
     this.pressed = false;
@@ -92,6 +92,10 @@ function Button(idName) {
     Button.backgroundColorUp = "white";
     Button.backgroundColorUpHover = "#ffffbb";
     Button.backgroundColorDownHover = "#ffff44";
+
+    Button.backgroundColorUpHover = "red";
+    Button.backgroundColorDownHover = "green";
+
     Button.backgroundColorDown = "#ffff88";
     // for switched off
     Button.colorInactive = "black";
@@ -122,6 +126,7 @@ function Button(idName) {
                 }
             }
         } else {
+
             this.element.style.color = this.colorInactive;
             this.element.style.backgroundColor = this.backgroundColorInactive;
         }
@@ -159,7 +164,7 @@ function Button(idName) {
         } else {
             this.element.style.cursor = "default";
             this.pressed = false;
-            this.hoover = false;
+            this.hover = false;
         }
         this.updateStyle();
     };

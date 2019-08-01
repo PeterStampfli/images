@@ -19,6 +19,9 @@ function SpecialInput(idName) {
     // loading and applying styles
     this.colorStyleDefaults();
     this.updateStyle();
+    // remember old symbols
+    this.oldSymbols = [];
+    this.lookingAt = 0;
 
     // status
     this.hover = false;
@@ -407,6 +410,10 @@ function SpecialInput(idName) {
         const button = Button.createAction(buttonId, function() {
             specialInput.setFocus(true);
             specialInput.keepFocus = true;
+            if ((specialInput.oldSymbols.length === 0) || (specialInput.oldSymbols[specialInput.oldSymbols.length - 1] != specialInput.text)) {
+                specialInput.oldSymbols.push(specialInput.text);
+            }
+            console.log(specialInput.oldSymbols);
             specialInput.onEnter();
         });
         KeyboardEvents.addFunction(function(event) {

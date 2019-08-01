@@ -9,9 +9,12 @@ DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
 
 DOM.style("#result", "color", "green");
+DOM.style("#image", "color", "green", "fontSize", "32px");
+
 symbol = new SpecialInput("symbolsInput");
 
 
+var equivalent = "";
 
 function parseAndAnalyze() {
     var i, j;
@@ -33,7 +36,7 @@ function parseAndAnalyze() {
         }
     }
 
-    let equivalent = "";
+    equivalent = "";
     for (i = 0; i < wonders; i++) {
         equivalent += "o";
     }
@@ -72,6 +75,8 @@ function parseAndAnalyze() {
     result += "<br>equivalent symbol: " + equivalent;
 
     document.getElementById("result").innerHTML = result;
+    console.log("textchange )button " + rightBraceButton.hoover);
+
 }
 
 
@@ -111,15 +116,15 @@ DOM.addSpace("fiveToNine");
 const inftyButton = symbol.createAddCharButton("fiveToNine", "∞");
 
 
-symbol.createStepLeftButton("controls", "<=");
+symbol.createStepLeftButton("controls", "◄");
 DOM.addSpace("controls");
-symbol.createStepRightButton("controls", "=>");
+symbol.createStepRightButton("controls", "►");
 DOM.addSpace("controls");
 symbol.createClearCharButton("controls", "del");
 DOM.addSpace("controls");
 symbol.createClearAllButton("controls", "clear");
 DOM.addSpace("controls");
-symbol.createEnterButton("controls", "enter");
+symbol.createEnterButton("controls", "make it!");
 DOM.addSpace("controls");
 symbol.createCopyButton("controls", "copy");
 
@@ -127,9 +132,16 @@ symbol.createSetTextButton("examples", "2222");
 DOM.addSpace("examples");
 symbol.createSetTextButton("examples", "*732");
 
-//inftyButton.setActive(false);
-//button0.setActive(false);
-//inftyButton.setActive(true);
+
+// create a button to use equivalent symbol
+
+const useEquivalentButtonId = DOM.createButton("useEquivalent", "use the equivalent symbol");
+DOM.style("#" + useEquivalentButtonId, "borderRadius", 1000 + px);
+const button = Button.createAction(useEquivalentButtonId, function() {
+    symbol.setText(equivalent);
+    symbol.setFocus(true);
+    symbol.keepFocus = true;
+});
 
 /*
  * activate all buttons
@@ -326,6 +338,9 @@ function parse() {
 
 symbol.setWidth(200);
 symbol.onTextChange = parseAndAnalyze;
+symbol.onEnter = function() {
+    document.getElementById("image").innerHTML = "The image of symbol " + symbol.text;
+};
 
 symbol.setText("*532");
 symbol.setFocus(true);
