@@ -25,6 +25,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     this.element.setAttribute("type", "text");
     this.hover = false;
     this.pressed = false;
+    this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = 1000000000;

@@ -13,7 +13,7 @@ function TextButton(idName) {
     this.element.setAttribute("type", "text");
     this.hover = false;
     this.pressed = false;
-
+    this.active = true;
     this.colorStyleDefaults();
     this.updateStyle();
 

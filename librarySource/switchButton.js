@@ -15,6 +15,7 @@ function SwitchButton(idName) {
     this.pressed = false;
     this.mouseDown = false;
     this.hover = false;
+    this.active = true;
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
