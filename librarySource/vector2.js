@@ -10,6 +10,7 @@
 function Vector2(x = 0, y = 0) {
     this.x = x;
     this.y = y;
+    this.theAngle = 0; // actually undefined until explicitely calculated
 }
 
 
@@ -40,6 +41,7 @@ function Vector2(x = 0, y = 0) {
     Vector2.prototype.set = function(v) {
         this.x = v.x;
         this.y = v.y;
+        this.theAngle = v.theAngle;
         return this;
     };
 
@@ -54,15 +56,18 @@ function Vector2(x = 0, y = 0) {
         Fast.cosSin(angle, this);
         this.x *= length;
         this.y *= length;
+        this.theAngle = angle;
     };
 
     /**
      * generate a clone of this vector
      * @method Vector2#clone
-     * @return {Vector2} - a colne of this vector
+     * @return {Vector2} - a copy of this vector
      */
     Vector2.prototype.clone = function() {
-        return Vector2.fromPool(this);
+        result = Vector2.fromPool(this);
+        result.theAngle = this.theAngle;
+        return result;
     };
 
     // calculate with vectors
@@ -318,12 +323,13 @@ function Vector2(x = 0, y = 0) {
     //get vector data
 
     /**
-     * get the polar angle
+     * calculate the polar angle
      * @method Vector2#angle
      * @return {float} the angle
      */
     Vector2.prototype.angle = function() {
-        return Fast.atan2(this.y, this.x);
+        this.theAngle = Fast.atan2(this.y, this.x);
+        return this.theAngle;
     };
 
     /**
@@ -332,7 +338,7 @@ function Vector2(x = 0, y = 0) {
      * @return {float} the length
      */
     Vector2.prototype.length = function() {
-        return Math.hypot(this.x, this.y); // Math.sqrt is very fast, as fast as fastSin
+        return Math.hypot(this.x, this.y); // Math.sqrt is very fast, as fast as fastSin, Math.hypot is even faster
     };
 
     /**

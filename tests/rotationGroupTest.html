@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>rotationGroupTest</title>
+</head>
+
+<body>
+
+    check the console
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/rotation.js"></script>
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/rotationGroup.js"></script>
+
+<script type="text/javascript">
+    console.log("ha");
+    rg=new RotationGroup();
+    
+    n=6;
+    rg.setOrder(n);
+    console.log(rg.angle);
+console.log(rg.maps);
+v=new Vector2(1,0);
+console.log(rg.rotateMinus(v));
+console.log(rg.rotatePlus(v));
+</script>
+
+</html>

@@ -5,7 +5,7 @@
 
 
 <head>
-    <title>bareImageApp</title>
+    <title>double chain app</title>
 </head>
 
 <body>
@@ -13,12 +13,8 @@
 
 
 <div id="text">  
-    <p>
-        <button id=help>help</button>
-        <button id=home>home</button>
-    </p>
     
-    <p>
+        <p>
         <strong>Input image:</strong>
         <button id="openInputImage">open</button>
         <span id="inputImageName"></span>
@@ -29,7 +25,79 @@
         <select id="show">
         </select>
     </p>
+    
+     
+    <p>
+        <strong>Visible kaleidoscopic image:</strong>
+        <select id="visible">
+        </select>
+    </p>
+ 
+    
+    <div id="generatorsDiv">
+        <p>    
+            <strong>Generating Elements:</strong>
+            <select id="generators">
+            </select>
+        </p>
+        <div id="lineWidthDiv">
+        <p>
+            <strong>Line width: </strong> 
+            <span id="lineWidth"></span>
+        </p>
+        </div>
+    </div>
+   
        
+    <p>
+        <strong>Parameters:</strong> <br>
+        <table>
+            <tr>
+            <td>rotational symmetry at center</td> <td><span id="k"></span>
+            </tr>
+            <tr>
+            <td>radial power</td> <td><span id="r"></span>
+            </tr>
+        </table>
+    </p> 
+    
+    <p>
+        <strong> Rotational symmetry at first circle intersection</strong><br>
+        <span id="n1">
+    </p>
+   
+    <p>
+        <strong> Rotational symmetry at second circle intersection</strong><br>
+        <span id="n2">
+    </p>
+      
+    <p>
+        <strong>Radius of first circle: </strong> 
+        <span id="radius1"></span>
+    </p>
+      
+    <p>
+        <strong>Radius of second circle: </strong> 
+        <span id="radius2"></span>
+    </p>
+    
+    <p>    
+        <strong>Concentric reflecting circles:</strong>
+        <select id="concentric">
+        </select>
+    </p>
+    
+       
+    <p>
+        <strong> Rotational symmetry at inner circle</strong><br>
+        <span id="inner">
+    </p>
+      
+    <p>
+        <strong> Rotational symmetry at outer circle</strong><br>
+        <span id="outer">
+    </p>
+
  
     <p>
         <strong>Output image:</strong>
@@ -60,6 +128,7 @@
 <script src="../librarySource/line.js"></script>
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/range.js"></script>
 <script src="../librarySource/fileSaver.js"></script>
 <script src="../librarySource/pixelCanvas.js"></script>
 
@@ -82,8 +151,10 @@
 <script src="../librarySource/projection.js"></script>
 <script src="../librarySource/basicUI.js"></script>
 
+<script src="../librarySource/rotationGroup.js"></script>
+<script src="../librarySource/rotaScope.js"></script>
 
-<script src="bareImageApp.js"></script>
+<script src="doubleChainApp.js"></script>
 
 
 </html>
