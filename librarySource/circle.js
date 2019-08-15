@@ -342,15 +342,25 @@ function Circle(radius, center, centerY) {
     /**
      * logging a circle on the console
      * @method circle#log 
-     * @param {String} message - or nothind
+     * @param {String} message - or nothing
      */
     Circle.prototype.log = function(message) {
         if (message) {
-            message += ": ";
+            message += ":";
         } else {
-            message = "";
+            message = "Circle:";
         }
-        console.log(message + "Circle of radius " + this.radius + " at (" + this.center.x + "," + this.center.y + ")");
+        console.log(message + " " + this.toString());
+    };
+
+
+    /**
+     * make a string representing the circle
+     * @method Circle#toString
+     * @return {String} 
+     */
+    Circle.prototype.toString = function() {
+        return "radius " + this.radius + ", center " + this.center.toString();
     };
 
     /**

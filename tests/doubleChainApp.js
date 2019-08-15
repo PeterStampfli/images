@@ -55,19 +55,19 @@ function creation() {
     setN1Button.setValue(4);
     setN1Button.onChange = Make.updateNewMap;
 
-    
+
     let setN2Button = NumberButton.createInfinity("n2");
     setN2Button.setRange(2, 100);
     setN2Button.setValue(4);
     setN2Button.onChange = Make.updateNewMap;
-    
-    
+
+
     let setRadius1 = Range.create("radius1");
     setRadius1.setStep(0.001);
     setRadius1.setRange(0.1, 1);
     setRadius1.setValue(0.5);
     setRadius1.onChange = Make.updateNewMap;
-    
+
     let setRadius2 = Range.create("radius2");
     setRadius2.setStep(0.001);
     setRadius2.setRange(0.0, 1);
@@ -149,68 +149,62 @@ function creation() {
     var dBase, rBase, mBase;
 
     const data = new Vector2();
-    
-    var d1,x2,y2,dx1,dx2,dy1,dy2;
-    
-    var a,b,k;
-    
-    var circleA=new Circle();
-    var circleB=new Circle();
-    var centerA=new Vector2();
-    var centerB=new Vector2();
-    var intersection1=new Vector2();
-    var intersection2=new Vector2();
+
+    var d1, x2, y2, dx1, dx2, dy1, dy2;
+
+    var a, b, k;
+
+    var circleA = new Circle();
+    var circleB = new Circle();
+    var centerA = new Vector2();
+    var centerB = new Vector2();
+    var intersection1 = new Vector2();
+    var intersection2 = new Vector2();
 
 
     Make.initializeMap = function() {
         rotaScope.reset();
-         k = setKButton.getValue();
+        k = setKButton.getValue();
         let r = setRButton.getValue();
         let n1 = setN1Button.getValue();
         let n2 = setN2Button.getValue();
 
         rotaScope.setRosetteParameters(k, r);
 
-       let r1MaxRatio=Math.sin(Math.PI/k);
-       r1MaxRatio=Math.min(0.9,r1MaxRatio);
-       let ratio=r1MaxRatio*setRadius1.getValue();
+        let r1MaxRatio = Math.sin(Math.PI / k);
+        r1MaxRatio = Math.min(0.9, r1MaxRatio);
+        let ratio = r1MaxRatio * setRadius1.getValue();
         d1 = worldradius / Math.sqrt(1 - ratio * ratio);
-       let r1=ratio*d1;
+        let r1 = ratio * d1;
         rotaScope.circleInsideOut(r1, d1, 0);
-        
-        let r2Min=d1*Math.sin(Math.PI/k)-r1;
-        let r2Max=d1*Math.sin(Math.PI/k);
-        let r2=r2Min+setRadius2.getValue()*(r2Max-r2Min);
-        console.log("r2 "+r2);
-        
-         a=Math.sqrt(r1*r1+r2*r2+2*r1*r2*Math.cos(Math.PI/n1));
-         b=Math.sqrt(r1*r1+r2*r2+2*r1*r2*Math.cos(Math.PI/n2));
-        let d=2*d1*Math.sin(Math.PI/k);
-        let beta=Fast.triangleGammaOfABC(a,d,b);
-console.log("beta "+beta);
-        let gamma=Math.PI*0.5-Math.PI/k-beta;
-        console.log("gamma "+gamma);
-        x2=d1-a*Math.cos(gamma);
-        y2=a*Math.sin(gamma);
-        
-        centerA.setComponents(d1,0);
-        console.log(centerA);
-        circleA.setRadiusCenter(a,centerA);
-        console.log("A "+circleA.radius);
-        console.log("A "+circleA.center.x);
-        console.log("A "+circleA.center.y);
-        centerB.setComponents(d1*Math.cos(2*Math.PI/k),d1*Math.sin(2*Math.PI/k));
-           circleB.setRadiusCenter(b,centerB);
-     
-        
-                rotaScope.circleInsideOut(r2, x2, y2);
 
-        
+        let r2Min = d1 * Math.sin(Math.PI / k) - r1;
+        let r2Max = d1 * Math.sin(Math.PI / k);
+        let r2 = r2Min + setRadius2.getValue() * (r2Max - r2Min);
+
+        a = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n1));
+        b = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n2));
+        let d = 2 * d1 * Math.sin(Math.PI / k);
+        let beta = Fast.triangleGammaOfABC(a, d, b);
+        let gamma = Math.PI * 0.5 - Math.PI / k - beta;
+        x2 = d1 - a * Math.cos(gamma);
+        y2 = a * Math.sin(gamma);
+
+        centerA.setComponents(d1, 0);
+        console.log(centerA);
+        circleA.setRadiusCenter(a, centerA);
+        centerB.setComponents(d1 * Math.cos(2 * Math.PI / k), d1 * Math.sin(2 * Math.PI / k));
+        circleB.setRadiusCenter(b, centerB);
+
+
+        rotaScope.circleInsideOut(r2, x2, y2);
+
+
         // values for the border
-         dx1=x2-d1;
-         dy1=y2;
-        dx2=d1*Math.cos(2*Math.PI/k)-x2;
-        dy2=d1*Math.sin(2*Math.PI/k)-y2;
+        dx1 = x2 - d1;
+        dy1 = y2;
+        dx2 = d1 * Math.cos(2 * Math.PI / k) - x2;
+        dy2 = d1 * Math.sin(2 * Math.PI / k) - y2;
 
 
         /*
@@ -241,8 +235,8 @@ console.log("beta "+beta);
         furtherResults.iterations = 0;
         rotaScope.map(position, furtherResults);
         // distinction between inside and outside
-      
-        
+
+
         rotaScope.rotationGroup.rosette(position);
     }
 
@@ -257,9 +251,7 @@ console.log("beta "+beta);
         Draw.setSolidLine();
         rotaScope.drawSector();
         rotaScope.drawCircles();
-       console.log("A "+circleA.radius);
-        console.log("A "+circleA.center.x);
-        console.log("A "+circleA.center.y);
+
 
         circleA.draw();
         circleB.draw();

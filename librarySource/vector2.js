@@ -65,7 +65,7 @@ function Vector2(x = 0, y = 0) {
      * @return {Vector2} - a copy of this vector
      */
     Vector2.prototype.clone = function() {
-        result = Vector2.fromPool(this);
+        const result = Vector2.fromPool(this);
         result.theAngle = this.theAngle;
         return result;
     };
@@ -383,11 +383,20 @@ function Vector2(x = 0, y = 0) {
      */
     Vector2.prototype.log = function(message) {
         if (message) {
-            message += ": ";
+            message += ":";
         } else {
-            message = "";
+            message = "Vector2:";
         }
-        console.log(message + "Vector2 (" + this.x + "," + this.y + ")");
+        console.log(message + " " + this.toString());
+    };
+
+    /**
+     * make a string representing the vector
+     * @method Vector2#toString
+     * @return {String} 
+     */
+    Vector2.prototype.toString = function() {
+        return "(" + this.x + "," + this.y + ")";
     };
 
     /**

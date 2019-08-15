@@ -17,6 +17,7 @@ rotaScope = {};
     rotaScope.rotationGroup = rotationGroup;
     // a collection of inverting circles
     rotaScope.circles = [];
+    rotaScope.multiCircles = [];
     rotaScope.angles = [];
 
     // the concentric circles
@@ -54,6 +55,7 @@ rotaScope = {};
     rotaScope.reset = function() {
         rotaScope.circles.length = 0;
         rotaScope.angles.length = 0;
+        rotaScope.multiCircles.length = 0;
     };
 
     /**
@@ -80,8 +82,15 @@ rotaScope = {};
         circle.map = circle.invertInsideOut;
         rotaScope.circles.push(circle);
         rotaScope.angles.push(Math.atan2(centerY, centerX));
-        console.log(circle.center)
-        console.log(rotaScope.angles)
+        // The angle should not be too large ?? be generous
+        const multiCircle = [];
+        rotaScope.multiCircles.push(multiCircle);
+        const center = new Vector2(centerX, centerY);
+        for (var i = 2 * rotaScope.rotationGroup.n; i > 0; i--) {
+            multiCircle.push(new Circle(radius, center.clone()));
+            rotationGroup.rotatePlus(center);
+        }
+
         return circle;
     };
 
@@ -113,8 +122,7 @@ rotaScope = {};
                     delta += zPi;
                 }
                 const iMap = Math.round(delta / rotationGroup.angle);
-                if (iMap <0) console.log(iMap);
- if (iMap>rotationGroup.n) console.log(iMap);
+                const multiCircle = rotaScope.multiCircles[iCircle];
                 rotationGroup.maps[iMap](trialPosition);
                 if (rotaScope.circles[iCircle].map(trialPosition) > 0) {
                     furtherResults.reflections++;
@@ -172,7 +180,13 @@ rotaScope = {};
      */
     rotaScope.drawCircles = function() {
         for (var i = 0; i < rotaScope.circles.length; i++) {
-            rotaScope.rotationGroup.drawCircles(rotaScope.circles[i]);
+            const multiCircle = rotaScope.multiCircles[i];
+            for (var j = 0; j < rotaScope.rotationGroup.n; j++) {
+                multiCircle[j].draw();
+            }
+
+
+            // rotaScope.rotationGroup.drawCircles(rotaScope.circles[i]);
         }
         if (rotaScope.doInner) {
             Draw.circle(rotaScope.innerRadius, zero);
