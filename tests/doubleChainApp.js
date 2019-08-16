@@ -189,14 +189,10 @@ function creation() {
         let gamma = Math.PI * 0.5 - Math.PI / k - beta;
         x2 = d1 - a * Math.cos(gamma);
         y2 = a * Math.sin(gamma);
-
         centerA.setComponents(d1, 0);
-        console.log(centerA);
         circleA.setRadiusCenter(a, centerA);
         centerB.setComponents(d1 * Math.cos(2 * Math.PI / k), d1 * Math.sin(2 * Math.PI / k));
         circleB.setRadiusCenter(b, centerB);
-
-
         rotaScope.circleInsideOut(r2, x2, y2);
 
 

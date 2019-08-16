@@ -10,6 +10,9 @@ function creation() {
 
     rotaScope.rotationGroup.setOrder(5);
     rotaScope.rotationGroup.setRadialPower(2);
+    const rotationGroup = rotaScope.rotationGroup;
+
+    const dihedral = new Dihedral();
 
     Make.map.drawSector = [true, true];
 
@@ -38,6 +41,113 @@ function creation() {
             Make.updateOutputImage();
         });
 
+
+    let projectionMap = function(position) {
+        return 1;
+    };
+
+
+    // projection
+    let projectionSelect = new Select("projection");
+
+    projectionSelect.addOption("stereographic/poincaré disc",
+        function() {
+            console.log(" stereo");
+            Make.map.discRadius = -1;
+            projectionMap = function(position) {
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    projectionSelect.addOption("inverted",
+        function() {
+            console.log(" inverted");
+            Make.map.discRadius = -1;
+            projectionMap = function(position) {
+                position.scale(worldradius2 / position.length2());
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    projectionSelect.addOption("Poincaré plane",
+        function() {
+            console.log(" plane");
+            Make.map.discRadius = -1;
+            projectionMap = function(position) {
+                position.x /= worldradius;
+                position.y /= worldradius;
+                // cayley transform
+                let r2 = position.x * position.x + position.y * position.y;
+                let base = 1 / (r2 + 2 * position.y + 1.00001);
+                position.y = -2 * position.x * base * worldradius;
+                position.x = (r2 - 1) * base * worldradius;
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    projectionSelect.addOption("klein disc/orthographic (above)",
+        function() {
+            console.log(" klein");
+            Make.map.discRadius = worldradius;
+            projectionMap = function(position) {
+                let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+                position.x *= mapFactor;
+                position.y *= mapFactor;
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    projectionSelect.addOption("klein disc/orthographic (below)",
+        function() {
+            console.log(" klein below");
+            Make.map.discRadius = worldradius;
+            projectionMap = function(position) {
+                let r2worldRadius2 = (position.x * position.x + position.y * position.y) / worldradius2;
+                let mapFactor = 1 / (1 + Math.sqrt(1.00001 - r2worldRadius2));
+                position.x *= mapFactor;
+                position.y *= mapFactor;
+                position.scale(worldradius2 / position.length2());
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    // symmetries
+
+    let centerSymmetryMap = function(position) {
+        rotationGroup.rosette(position);
+    };
+
+    let symmetrySelect = new Select("symmetry");
+    symmetrySelect.addOption("rotational",
+        function() {
+            console.log(" rotational");
+            centerSymmetryMap = function(position) {
+                rotationGroup.rosette(position);
+            };
+            Make.updateNewMap();
+        });
+
+    symmetrySelect.addOption("dihedral",
+        function() {
+            console.log(" dihedral");
+            centerSymmetryMap = function(position) {
+                dihedral.map(position);
+            };
+            Make.updateNewMap();
+        });
+
+    symmetrySelect.addOption("none",
+        function() {
+            console.log(" none");
+            centerSymmetryMap = function(position) {};
+            Make.updateNewMap();
+        });
 
     let setKButton = NumberButton.create("k");
     setKButton.setRange(2, 10);
@@ -129,6 +239,8 @@ function creation() {
     var dBase, rBase, mBase;
 
     const data = new Vector2();
+    const testPosition = new Vector2();
+    var isHyperbolic;
 
 
     Make.initializeMap = function() {
@@ -136,16 +248,18 @@ function creation() {
         let k = setKButton.getValue();
         let r = setRButton.getValue();
         let n = setNButton.getValue();
-
         rotaScope.setRosetteParameters(k, r);
-
+        dihedral.setOrder(k);
         const ratio = Math.sin(Math.PI / k) / Math.cos(Math.PI / 2 / n);
         if (ratio > 1.001) { // elliptic
             dBase = worldradius / Math.sqrt(ratio * ratio - 1);
+            isHyperbolic = false;
         } else if (ratio > 0.999) { //euklidic
             dBase = worldradius;
+            isHyperbolic = false;
         } else { // hyperbolic
             dBase = worldradius / Math.sqrt(1 - ratio * ratio);
+            isHyperbolic = true;
         }
         rBase = ratio * dBase;
         rotaScope.circleInsideOut(rBase, dBase, 0);
@@ -156,13 +270,11 @@ function creation() {
 
         Fast.quadraticEquation(1, 2 * rBase * Math.cos(Math.PI / innerSymmetry), rBase * rBase - dBase * dBase, data);
         rotaScope.setInnerRadius(data.y);
-        console.log(data.y);
 
         let outerSymmetry = setOuterButton.getValue();
 
         Fast.quadraticEquation(1, -2 * rBase * Math.cos(Math.PI / outerSymmetry), rBase * rBase - dBase * dBase, data);
         rotaScope.setOuterRadius(data.y);
-        console.log(data.y);
 
     };
 
@@ -177,16 +289,29 @@ function creation() {
         furtherResults.lyapunov = 1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
+        if (projectionMap(position) < -0.1) {
+            furtherResults.lyapunov = -1;
+            return;
+        }
+
         rotaScope.map(position, furtherResults);
+        // determine sector independent of symmtry at center
+        testPosition.set(position);
+        rotationGroup.rotateToFirstFromValidAngle(testPosition);
+
         // distinction between inside and outside
-        if (position.y > mBase * (dBase - position.x)) {
+        if (testPosition.y > mBase * (dBase - testPosition.x)) {
             // outside, different color sector, invert position
             furtherResults.colorSector = 0;
             position.scale(worldradius2 / position.length2());
         } else {
             furtherResults.colorSector = 1;
         }
-        rotaScope.rotationGroup.rosette(position);
+        if (isHyperbolic) {
+            furtherResults.colorSector = 1 - furtherResults.colorSector;
+        }
+        // symmegtry at center
+        centerSymmetryMap(position);
     }
 
     Make.setMapping(map);
@@ -208,6 +333,7 @@ window.onload = function() {
     basicUI.squareImage = true;
     creation();
     basicUI.onload();
+    basicUI.showSelectAdd();
 };
 
 window.onresize = function() {

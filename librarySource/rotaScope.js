@@ -17,7 +17,7 @@ rotaScope = {};
     rotaScope.rotationGroup = rotationGroup;
     // a collection of inverting circles
     rotaScope.circles = [];
-    rotaScope.multiCircles = [];
+    const multiCircles = [];
     rotaScope.angles = [];
 
     // the concentric circles
@@ -55,7 +55,7 @@ rotaScope = {};
     rotaScope.reset = function() {
         rotaScope.circles.length = 0;
         rotaScope.angles.length = 0;
-        rotaScope.multiCircles.length = 0;
+        multiCircles.length = 0;
     };
 
     /**
@@ -71,6 +71,7 @@ rotaScope = {};
 
     /**
      * create a circle with inside out mapping method
+     * create rotationally symmetric images of the circle
      * @method rotaScope.circleInsideOut
      * @param {float} radius
      * @param {float} centerX
@@ -85,25 +86,25 @@ rotaScope = {};
         // The angle should not be too large ?? be generous
         const multiCircle = [];
         multiCircle.length = 2 * rotaScope.rotationGroup.n;
-        rotaScope.multiCircles.push(multiCircle);
+        multiCircles.push(multiCircle);
         const center = new Vector2(centerX, centerY);
         for (var i = 0; i < multiCircle.length; i++) {
             multiCircle[i] = new Circle(radius, center.clone());
             multiCircle[i].map = multiCircle[i].invertInsideOut;
             rotationGroup.rotatePlus(center);
         }
-
         return circle;
     };
 
 
     /**
-     * map the position using rotational symmetry and collection of inverting circles
+     * map the position using a collection of inverting circles
+     * (actually rotationally symmetric collections)
+     * the endpoint of the mapping may lie everythere, is not mapped to first sector
      * @method rotaScope.mapInputImage
      * @param {Vector2} v - the vector to map
      * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
-    const trialPosition = new Vector2();
     const zPi = 2 * Math.PI;
 
     rotaScope.map = function(position, furtherResults) {
@@ -117,22 +118,15 @@ rotaScope = {};
             changed = false;
             // try a mapping at each circle
             for (var iCircle = 0; iCircle < nCircles; iCircle++) {
-                trialPosition.set(position);
-                // rotate and try the position
-                //       let delta = rotaScope.angles[iCircle] - trialPosition.theAngle;
-                let delta = trialPosition.theAngle - rotaScope.angles[iCircle];
+                let delta = position.theAngle - rotaScope.angles[iCircle];
                 if (delta < 0) {
                     delta += zPi;
                 }
                 const iMap = Math.round(delta / rotationGroup.angle);
-                const multiCircle = rotaScope.multiCircles[iCircle];
-                //      rotationGroup.maps[iMap](trialPosition);
-                //         if (rotaScope.circles[iCircle].map(trialPosition) > 0) {
-                if (multiCircle[iMap].map(trialPosition) > 0) {
+                if (multiCircles[iCircle][iMap].map(position) > 0) {
                     furtherResults.reflections++;
                     furtherResults.iterations++;
                     changed = true;
-                    position.set(trialPosition);
                     position.angle();
                 }
             }
@@ -159,14 +153,10 @@ rotaScope = {};
             furtherResults.lyapunov = -1;
         } else {
             furtherResults.lyapunov = 1;
-            let delta = position.theAngle;
-            if (delta < 0) {
-                delta += 2 * Math.PI;
-            }
-            let iMap = Math.floor(delta / rotationGroup.angle);
-            rotationGroup.maps[rotationGroup.n - iMap](position);
         }
     };
+
+
 
     /**
      * drawing the sector
@@ -184,7 +174,7 @@ rotaScope = {};
      */
     rotaScope.drawCircles = function() {
         for (var i = 0; i < rotaScope.circles.length; i++) {
-            const multiCircle = rotaScope.multiCircles[i];
+            const multiCircle = multiCircles[i];
             for (var j = 0; j < rotaScope.rotationGroup.n; j++) {
                 multiCircle[j].draw();
             }

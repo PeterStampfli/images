@@ -139,6 +139,20 @@ function RotationGroup() {
         return v;
     };
 
+    /**
+     * map to first sector, position.angle has to have valid value
+     * @method RotationGroup#rotateToFirstFromValidAngle
+     * @param {Vector2} position - angle value !!!
+     */
+    RotationGroup.prototype.rotateToFirstFromValidAngle = function(position) {
+        let delta = position.theAngle;
+        if (delta < 0) {
+            delta += zpi;
+        }
+        const iMap = Math.floor(delta / this.angle);
+        this.maps[this.n - iMap](position);
+    };
+
     // drawing
     function drawLine(angle) {
         RotationGroup.vector.setPolar(big, angle);

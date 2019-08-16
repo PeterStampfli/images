@@ -164,7 +164,7 @@ function creation() {
 
     projectionElliptic.addOption("Orthographic (below)", function() {
         ellipticCanShowGenerators = false;
-        ellipticProjection = ellipticProjection = function(position) {
+        ellipticProjection = function(position) {
             const ok = kleinDisc(position);
             if (ok >= 0) {
                 position.scale(worldradius2 / position.length2());
