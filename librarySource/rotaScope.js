@@ -84,10 +84,12 @@ rotaScope = {};
         rotaScope.angles.push(Math.atan2(centerY, centerX));
         // The angle should not be too large ?? be generous
         const multiCircle = [];
+        multiCircle.length = 2 * rotaScope.rotationGroup.n;
         rotaScope.multiCircles.push(multiCircle);
         const center = new Vector2(centerX, centerY);
-        for (var i = 2 * rotaScope.rotationGroup.n; i > 0; i--) {
-            multiCircle.push(new Circle(radius, center.clone()));
+        for (var i = 0; i < multiCircle.length; i++) {
+            multiCircle[i] = new Circle(radius, center.clone());
+            multiCircle[i].map = multiCircle[i].invertInsideOut;
             rotationGroup.rotatePlus(center);
         }
 
@@ -117,14 +119,16 @@ rotaScope = {};
             for (var iCircle = 0; iCircle < nCircles; iCircle++) {
                 trialPosition.set(position);
                 // rotate and try the position
-                let delta = rotaScope.angles[iCircle] - trialPosition.theAngle;
+                //       let delta = rotaScope.angles[iCircle] - trialPosition.theAngle;
+                let delta = trialPosition.theAngle - rotaScope.angles[iCircle];
                 if (delta < 0) {
                     delta += zPi;
                 }
                 const iMap = Math.round(delta / rotationGroup.angle);
                 const multiCircle = rotaScope.multiCircles[iCircle];
-                rotationGroup.maps[iMap](trialPosition);
-                if (rotaScope.circles[iCircle].map(trialPosition) > 0) {
+                //      rotationGroup.maps[iMap](trialPosition);
+                //         if (rotaScope.circles[iCircle].map(trialPosition) > 0) {
+                if (multiCircle[iMap].map(trialPosition) > 0) {
                     furtherResults.reflections++;
                     furtherResults.iterations++;
                     changed = true;
