@@ -65,6 +65,39 @@ var DOM = {};
     };
 
     /**
+     * make that elements given as a list of ids are not shown
+     * @method DOM.displayNone
+     * @param {String ...} ids
+     */
+    DOM.displayNone = function(ids) {
+        for (var i = 0; i < arguments.length; i++) {
+            DOM.style("#" + arguments[i], "display", "none");
+        }
+    };
+
+    /**
+     * make that elements given as a list of ids are hidden
+     * @method DOM.displayHidden
+     * @param {String ...} ids
+     */
+    DOM.displayHidden = function(ids) {
+        for (var i = 0; i < arguments.length; i++) {
+            DOM.style("#" + arguments[i], "display", "none");
+        }
+    };
+
+    /**
+     * make that elements given as a list of ids are shown
+     * @method DOM.displayInitial
+     * @param {String ...} ids
+     */
+    DOM.display = function(ids) {
+        for (var i = 0; i < arguments.length; i++) {
+            DOM.style("#" + arguments[i], "display", "initial");
+        }
+    };
+
+    /**
      * set attribute as repeating attribute/value pairs
      * @method DOM.attribute
      * @param {String} selectors - comma separated list (tag,tag.class,.class,#id)
@@ -147,7 +180,7 @@ var DOM = {};
     };
 
     /**
-     * add a space to inner HTML of an element
+     * add a span with a space to inner HTML of an element
      * @method DOM.addSpace
      * @param {String} id - of the element
      */

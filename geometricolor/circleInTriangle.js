@@ -40,8 +40,7 @@ function creation() {
 
     function four() {
         numberOfCircles = 4;
-        DOM.style("#centerCircle", "display", "initial");
-        DOM.style("#inversion", "display", "initial");
+        DOM.display("centerCircle", "inversion");
     }
 
     // startup configuration
@@ -50,8 +49,7 @@ function creation() {
     viewSelect.addOption("three", function() {
         numberOfCircles = 3;
         Make.updateNewMap();
-        DOM.style("#centerCircle", "display", "none");
-        DOM.style("#inversion", "display", "none");
+        DOM.displayNone("centerCircle", "inversion");
     });
 
     viewSelect.addOption("four", function() {
