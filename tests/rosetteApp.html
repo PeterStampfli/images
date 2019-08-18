@@ -14,11 +14,33 @@
 
 <div id="text">  
     
-        <p>
+    <p>
         <strong>Input image:</strong>
         <button id="openInputImage">open</button>
         <span id="inputImageName"></span>
     </p>
+    
+    <div id="imageControlDiv">
+    <p>
+        <strong>Visible kaleidoscopic image parts:</strong>
+        <select id="visible">
+        </select>
+    </p>
+     
+    <p>
+        <strong>Additional kaleidoscopic image symmetry: </strong>
+        <select id="symmetry">
+        </select>
+    </p>
+    
+        <div id="radialPowerDiv">
+            <p>
+                <strong>Rotational rosette radial power: </strong>
+                <span id="r"></span>
+            </p> 
+        </div>
+    </div>
+ 
 
     <p>    
         <strong>Showing:</strong>
@@ -32,18 +54,7 @@
         </select>
     </p>
     
-    <p>
-        <strong>Visible kaleidoscopic image parts:</strong>
-        <select id="visible">
-        </select>
-    </p>
-     
-    <p>
-        <strong>Additional kaleidoscopic image symmetry:</strong>
-        <select id="symmetry">
-        </select>
-    </p>
- 
+    
     
     <div id="generatorsDiv">
         <p>    
@@ -61,19 +72,12 @@
    
        
     <p>
-        <strong>Parameters:</strong> <br>
-        <table>
-            <tr>
-            <td>rotational symmetry at center</td> <td><span id="k"></span>
-            </tr>
-            <tr>
-            <td>radial power</td> <td><span id="r"></span>
-            </tr>
-        </table>
-    </p> 
+        <strong>Rotational symmetry at center</strong>
+        <span id="k"></span>
+    </p>
     
     <p>
-        <strong> Rotational symmetry at circle intersection: </strong>
+        <strong>dihedral symmetry at circle intersection: </strong>
         <span id="n">
     </p>
     
@@ -85,14 +89,14 @@
     
     <div id="innerDiv">
         <p>
-            <strong> Rotational symmetry at inner circle</strong><br>
+            <strong> Rotational symmetry at inner circle</strong>
             <span id="inner">
         </p>
     </div>
       
     <div id="outerDiv">
         <p>
-                <strong> Rotational symmetry at outer circle</strong><br>
+                <strong> Rotational symmetry at outer circle</strong>
                 <span id="outer">
         </p>
     </div>

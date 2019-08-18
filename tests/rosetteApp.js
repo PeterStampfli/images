@@ -50,7 +50,7 @@ function creation() {
     // projection
     let projectionSelect = new Select("projection");
 
-    projectionSelect.addOption("stereographic/poincaré disc",
+    projectionSelect.addOption("stereographic/Poincaré disc",
         function() {
             console.log(" stereo");
             Make.map.discRadius = -1;
@@ -88,7 +88,7 @@ function creation() {
             Make.updateNewMap();
         });
 
-    projectionSelect.addOption("klein disc/orthographic (above)",
+    projectionSelect.addOption("Klein disc/orthographic (above)",
         function() {
             console.log(" klein");
             Make.map.discRadius = worldradius;
@@ -102,7 +102,7 @@ function creation() {
             Make.updateNewMap();
         });
 
-    projectionSelect.addOption("klein disc/orthographic (below)",
+    projectionSelect.addOption("Klein disc/orthographic (below)",
         function() {
             console.log(" klein below");
             Make.map.discRadius = worldradius;
@@ -122,11 +122,13 @@ function creation() {
     let centerSymmetryMap = function(position) {
         rotationGroup.rosette(position);
     };
+    DOM.display("radialPowerDiv");
 
     let symmetrySelect = new Select("symmetry");
     symmetrySelect.addOption("rotational",
         function() {
             console.log(" rotational");
+            DOM.display("radialPowerDiv");
             centerSymmetryMap = function(position) {
                 rotationGroup.rosette(position);
             };
@@ -136,6 +138,7 @@ function creation() {
     symmetrySelect.addOption("dihedral",
         function() {
             console.log(" dihedral");
+            DOM.displayNone("radialPowerDiv");
             centerSymmetryMap = function(position) {
                 dihedral.map(position);
             };
@@ -145,6 +148,7 @@ function creation() {
     symmetrySelect.addOption("none",
         function() {
             console.log(" none");
+            DOM.displayNone("radialPowerDiv");
             centerSymmetryMap = function(position) {};
             Make.updateNewMap();
         });
@@ -165,25 +169,33 @@ function creation() {
     setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
+    DOM.displayNone("innerDiv", "outerDiv");
+
     let concentricCircles = new Select("concentric");
     concentricCircles.addOption("none", function() {
         rotaScope.doInner = false;
         rotaScope.doOuter = false;
+        DOM.displayNone("innerDiv", "outerDiv");
         Make.updateNewMap();
     });
     concentricCircles.addOption("inner", function() {
         rotaScope.doInner = true;
         rotaScope.doOuter = false;
+        DOM.displayNone("outerDiv");
+        DOM.display("innerDiv");
         Make.updateNewMap();
     });
     concentricCircles.addOption("outer", function() {
         rotaScope.doInner = false;
         rotaScope.doOuter = true;
+        DOM.displayNone("innerDiv");
+        DOM.display("outerDiv");
         Make.updateNewMap();
     });
     concentricCircles.addOption("both", function() {
         rotaScope.doInner = true;
         rotaScope.doOuter = true;
+        DOM.display("innerDiv", "outerDiv");
         Make.updateNewMap();
     });
 

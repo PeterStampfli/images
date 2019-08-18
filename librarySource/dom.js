@@ -71,18 +71,9 @@ var DOM = {};
      */
     DOM.displayNone = function(ids) {
         for (var i = 0; i < arguments.length; i++) {
-            DOM.style("#" + arguments[i], "display", "none");
-        }
-    };
-
-    /**
-     * make that elements given as a list of ids are hidden
-     * @method DOM.displayHidden
-     * @param {String ...} ids
-     */
-    DOM.displayHidden = function(ids) {
-        for (var i = 0; i < arguments.length; i++) {
-            DOM.style("#" + arguments[i], "display", "none");
+            if (DOM.idExists(arguments[i])) {
+                DOM.style("#" + arguments[i], "display", "none");
+            }
         }
     };
 
@@ -93,7 +84,9 @@ var DOM = {};
      */
     DOM.display = function(ids) {
         for (var i = 0; i < arguments.length; i++) {
-            DOM.style("#" + arguments[i], "display", "initial");
+            if (DOM.idExists(arguments[i])) {
+                DOM.style("#" + arguments[i], "display", "initial");
+            }
         }
     };
 

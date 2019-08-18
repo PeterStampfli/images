@@ -193,6 +193,7 @@ basicUI = {};
         document.getElementById("inputImageName").innerHTML = "or use drag and drop";
         basicUI.dragAndDrop();
         imageInputButton.onClick = function() {
+            DOM.display("imageControlDiv");
             interfaceChangesUponImageInput();
             imageInputButton.fileInput.click();
         };
@@ -203,6 +204,7 @@ basicUI = {};
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
     basicUI.showSelect = false;
     DOM.style("#convergenceStyle", "display", "none");
+    DOM.displayNone("imageControlDiv");
 
     // choose between showing the structure or the image, if id "show" exists
     // note that only things happen if option is changed!
@@ -211,6 +213,7 @@ basicUI = {};
 
         basicUI.showSelect.addOption("structure",
             function() {
+                DOM.displayNone("imageControlDiv");
                 DOM.style("#convergenceStyle", "display", "none");
                 DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                 Make.showingInputImage = false;
@@ -223,9 +226,12 @@ basicUI = {};
             });
 
         // add option to show image when input image read
+        // special controls for input image in
+        // *****  "imageControlDiv"
         basicUI.showSelectAddImage = function() {
             basicUI.showSelect.addOption("image",
                 function() {
+                    DOM.display("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "none");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = true;
@@ -244,6 +250,7 @@ basicUI = {};
         basicUI.showSelectAdd = function() {
             basicUI.showSelect.addOption("convergence",
                 function() {
+                    DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "initial");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = false;
@@ -257,6 +264,7 @@ basicUI = {};
 
             basicUI.showSelect.addOption("convergence with color",
                 function() {
+                    DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "initial");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000ff");
@@ -271,6 +279,7 @@ basicUI = {};
 
             basicUI.showSelect.addOption("convergence with structure",
                 function() {
+                    DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "initial");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000ff");
@@ -290,6 +299,7 @@ basicUI = {};
         basicUI.showSelectAddNothing = function() {
             basicUI.showSelect.addOption("nothing",
                 function() {
+                    DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "none");
                     DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     Make.showingInputImage = false;
@@ -307,6 +317,7 @@ basicUI = {};
             console.log("add2colstructure");
             basicUI.showSelect.addOption("two color structure",
                 function() {
+                    DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "none");
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000");
                     Make.showingInputImage = false;
@@ -323,6 +334,7 @@ basicUI = {};
             console.log("image sector2");
             basicUI.showSelect.addOption("image sector 0",
                 function() {
+                    DOM.display("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "none");
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000");
                     Make.showingInputImage = true;
