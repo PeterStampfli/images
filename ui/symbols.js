@@ -77,7 +77,7 @@ function parseAndAnalyze() {
 
     result += "<br>equivalent symbol: " + equivalent;
 
-    document.getElementById("result").innerHTML = result;
+    document.getElementById("resultDiv").innerHTML = result;
 
 }
 

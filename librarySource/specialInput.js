@@ -5,17 +5,25 @@
  * @param {String} idName - name (id) of a span or div element that will contain the input
  */
 
-/* jshint esversion:6 */
+/*
+ * dependencies
+ * ==================================================================
+ * blinking.css
+ * keyboardEvents.js
+ * button.js
+ * clipboardHandler.js
+ * ====================================================================
+ */
 
+/* jshint esversion:6 */
 
 function SpecialInput(idName) {
     "use strict";
     this.id = idName;
     this.element = document.getElementById(idName);
     // styling the containing element to fit the usual inputs
-    DOM.style("#" + idName, "borderStyle", "solid", "borderTopColor", "#777777", "borderLeftColor", "#777777", "borderBottomColor", "#dddddd", "borderRightColor", "#dddddd", "overflow", "auto");
-    DOM.style("#" + idName, "cursor", "text");
-    //this.element.style.cursor = "text";
+    DOM.style("#" + idName, "borderStyle", "solid", "borderTopColor", "#777777", "borderLeftColor", "#777777", "borderBottomColor", "#dddddd", "borderRightColor", "#dddddd");
+    DOM.style("#" + idName, "cursor", "text", "overflow", "auto");
     // loading and applying styles
     this.colorStyleDefaults();
     this.updateStyle();
@@ -167,7 +175,8 @@ function SpecialInput(idName) {
     SpecialInput.prototype.write = function(text) {
         // create missing spans, with a onClick function that sets the cursor position
         // relative to index to text string
-        for (let i = this.charSpans.length; i < text.length; i++) {
+        // at least one span for a character to prevent collapse of the button
+        for (let i = this.charSpans.length; i < Math.max(1, text.length); i++) {
             const newSpan = DOM.create("span", DOM.createId(), "#" + this.id);
             const specialInput = this;
             newSpan.onclick = setCursorFromPosition(specialInput, i);
@@ -178,6 +187,7 @@ function SpecialInput(idName) {
             const theSpan = this.charSpans[i];
             theSpan.innerHTML = text.charAt(i);
             theSpan.style.display = "inline";
+            theSpan.style.visibility = "initial";
             theSpan.className = "";
         }
         // blink corsor if focus and thus cursor visible
@@ -190,6 +200,14 @@ function SpecialInput(idName) {
             const theSpan = this.charSpans[i];
             theSpan.innerHTML = "";
             theSpan.style.display = "none";
+        }
+        // prevent collapse if no text
+        if (text.length === 0) {
+            const theSpan = this.charSpans[0];
+            theSpan.innerHTML = "I";
+            theSpan.style.display = "inline";
+            theSpan.style.visibility = "hidden";
+            theSpan.className = "";
         }
     };
 
