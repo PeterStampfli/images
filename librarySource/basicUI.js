@@ -113,6 +113,8 @@ basicUI = {};
 
     // what to change upon image input, 
     function interfaceChangesUponImageInput() {
+        // show image controls if exists
+        DOM.display("imageControlDiv");
         if (basicUI.showSelect) { // if a choice for what to see exists, then add show image
             if (!showSelectImage) {
                 showSelectImage = true;
@@ -147,6 +149,7 @@ basicUI = {};
             var file;
             let imageFileFound = false;
             let i = 0;
+            // search in dropped items for first image file
             if (event.dataTransfer.items) {
                 // Use DataTransferItemList interface to access the file(s)
                 const length = event.dataTransfer.items.length;
@@ -167,7 +170,7 @@ basicUI = {};
                     i++;
                 }
             }
-            // do something with the file if it is an imageFile
+            // do something if an imageFile has been found
             if (imageFileFound) {
                 interfaceChangesUponImageInput();
                 if (DOM.idExists("inputImageName")) {
@@ -193,7 +196,6 @@ basicUI = {};
         document.getElementById("inputImageName").innerHTML = "or use drag and drop";
         basicUI.dragAndDrop();
         imageInputButton.onClick = function() {
-            DOM.display("imageControlDiv");
             interfaceChangesUponImageInput();
             imageInputButton.fileInput.click();
         };
@@ -226,8 +228,8 @@ basicUI = {};
             });
 
         // add option to show image when input image read
-        // special controls for input image in
-        // *****  "imageControlDiv"
+        // put special controls for input image in "imageControlDiv" 
+
         basicUI.showSelectAddImage = function() {
             basicUI.showSelect.addOption("image",
                 function() {
