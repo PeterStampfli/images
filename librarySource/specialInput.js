@@ -97,6 +97,8 @@ function SpecialInput(idName) {
 (function() {
     "use strict";
 
+    const px = "px";
+
     /**
      * update the color style of the element depending on whether its pressed or hovered
      * always call if states change, use for other buttons too
@@ -217,16 +219,12 @@ function SpecialInput(idName) {
         }
         if (this.prevButton != null) {
             // can go to a different prev. symbol if 2 or more prev symbols or the one is different
-            console.log(this.lookingAt);
-            console.log(this.oldSymbols.length);
             this.prevButton.setActive((this.lookingAt > 0) &&
                 ((this.oldSymbols.length > 1) ||
                     (this.oldSymbols.length === 1) && !this.dublicateTopOfStack()));
         }
         if (this.nextButton != null) {
             // can go to a different prev. symbol if 2 or more prev symbols or the one is different
-            console.log(this.lookingAt);
-            console.log(this.oldSymbols.length);
             this.nextButton.setActive(this.lookingAt < this.oldSymbols.length - 1);
         }
         var text;
@@ -259,7 +257,7 @@ function SpecialInput(idName) {
      * @param {integer} position
      */
     SpecialInput.prototype.setCursor = function(position) {
-        position = Fast.clamp(0, position, this.text.length);
+        position = Math.max(0, Math.min(position, this.text.length));
         this.cursorPosition = position;
     };
 
@@ -520,7 +518,7 @@ function SpecialInput(idName) {
             console.log("prev");
             console.log("specialInput.lookingAt " + specialInput.lookingAt);
             console.log("specialInput.oldSymbols.length-1 " + specialInput.oldSymbols.length);
-            specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
+            specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1));
             console.log("see " + specialInput.lookingAt);
             if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
                 specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
@@ -536,7 +534,7 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 console.log("prev");
-                specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
+                specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1));
                 console.log("see " + specialInput.lookingAt);
                 if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
                     specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
@@ -568,7 +566,7 @@ function SpecialInput(idName) {
         const button = Button.createAction(buttonId, function() {
 
             console.log("prev");
-            specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
+            specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1));
             console.log("see " + specialInput.lookingAt);
             specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
             specialInput.setFocus(true);
@@ -580,7 +578,7 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 console.log("prev");
-                specialInput.lookingAt = Fast.clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
+                specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1));
                 console.log("see " + specialInput.lookingAt);
                 specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
                 specialInput.setFocus(true);

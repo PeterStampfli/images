@@ -5,6 +5,9 @@
 
 /* jshint esversion:6 */
 
+const px = "px";
+
+
 DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
 
 
