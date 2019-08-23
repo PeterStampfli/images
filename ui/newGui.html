@@ -8,21 +8,36 @@
 </head>
 
 <body>
-  <img src="abendfalter.jpg" id="imageId"/>
+<!--     -->
+ <!--
+ <img src="abendfalter.jpg" id="imageId"/>
+-->
+<p>
+ <img src="abendfalter.jpg" id="imageId"/>
+ </p>
 
 </body>
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/dom.js"></script>
-<script src="gui.js"></script>
+<script src="newGui.js"></script>
 
 
 <script>
 const px = "px";
         DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,
-        "position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none");
+        "position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
         
-    
+gui=new newDat.GUI()
+
+
+
+        
+ DOM.create("p","nix","#"+gui.uiId,"relallvlrhrzzrtrfgt vbgg"); 
+ 
+ //gui.destroy();
+
+
 </script>
 
 

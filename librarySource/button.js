@@ -203,6 +203,22 @@ function Button(idName) {
     };
 
     /**
+     * destroy the button, taking care of all references
+     * may be too careful
+     * @method Button#destroy
+     */
+    Button.prototype.destroy = function() {
+        this.onClick = null;
+        this.onMouseDown = null;
+        this.onFileInput = null;
+        this.element.onmousedown = null;
+        this.element.onmouseup = null;
+        this.element.onmouseenter = null;
+        this.element.onmouseleave = null;
+        this.element.remove();
+    };
+
+    /**
      * create a button that goes to another html page
      * @method Button.createGoToLocation
      * @param {String} id - of the html element that serves as button
