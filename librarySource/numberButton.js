@@ -110,6 +110,18 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
+     * return a value clamped between max and min  
+     * @function clamp 
+     * @para {int/float} min 
+     * @para {int/float} x 
+     * @para {int/float} max  
+     */
+    function clamp(min, x, max) {
+        return Math.max(min, Math.min(x, max));
+    }
+
+
+    /**
      * set numbers to float
      * @method NumberButton#setFloat
      * @param {float} step - the step size (rounding), default is 0.0001
@@ -132,7 +144,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         this.minValue = minValue;
         this.maxValue = maxValue;
         // clamp value in range
-        this.setValue(Fast.clamp(this.minValue, this.getValue(), this.maxValue));
+        this.setValue(clamp(this.minValue, this.getValue(), this.maxValue));
     };
 
 
@@ -143,7 +155,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @return float, quantized x
      */
     NumberButton.prototype.quantizeClamp = function(x) {
-        return Fast.clamp(this.minValue, this.step * Math.round(x / this.step), this.maxValue);
+        return clamp(this.minValue, this.step * Math.round(x / this.step), this.maxValue);
     };
 
 

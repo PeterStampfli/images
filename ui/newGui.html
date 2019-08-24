@@ -20,13 +20,15 @@
 
 <script src="../librarySource/button.js"></script>
 <script src="../librarySource/dom.js"></script>
-<script src="newGui.js"></script>
+<script src="paramGui.js"></script>
 
 
 <script>
+
+newDat={};
+newDat.GUI=ParamGui;
 const px = "px";
-        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,
-        "position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
+        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,"position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
         
 gui=new newDat.GUI()
 
@@ -35,7 +37,7 @@ gui=new newDat.GUI()
         
  DOM.create("p","nix","#"+gui.uiId,"relallvlrhrzzrtrfgt vbgg"); 
  
- //gui.destroy();
+// gui.destroy();
 
 
 </script>

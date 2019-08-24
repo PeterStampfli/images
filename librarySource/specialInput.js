@@ -139,6 +139,19 @@ function SpecialInput(idName) {
      */
     SpecialInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
+
+    /**
+     * return a value clamped between max and min  
+     * @function clamp 
+     * @para {int/float} min 
+     * @para {int/float} x 
+     * @para {int/float} max  
+     */
+    function clamp(min, x, max) {
+        return Math.max(min, Math.min(x, max));
+    }
+
+
     /**
      * set the width of the input element
      * important for rescaling text size
@@ -275,7 +288,7 @@ function SpecialInput(idName) {
      * @param {integer} position
      */
     SpecialInput.prototype.setCursor = function(position) {
-        position = Math.max(0, Math.min(position, this.text.length));
+        position = clamp(0, position, this.text.length);
         this.cursorPosition = position;
     };
 
@@ -536,7 +549,7 @@ function SpecialInput(idName) {
             console.log("prev");
             console.log("specialInput.lookingAt " + specialInput.lookingAt);
             console.log("specialInput.oldSymbols.length-1 " + specialInput.oldSymbols.length);
-            specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1));
+            specialInput.lookingAt = clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
             console.log("see " + specialInput.lookingAt);
             if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
                 specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
@@ -552,7 +565,7 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 console.log("prev");
-                specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1));
+                specialInput.lookingAt = clamp(0, specialInput.lookingAt - 1, specialInput.oldSymbols.length - 1);
                 console.log("see " + specialInput.lookingAt);
                 if (specialInput.oldSymbols[specialInput.lookingAt] == specialInput.text) {
                     specialInput.lookingAt = Math.max(0, specialInput.lookingAt - 1);
@@ -584,7 +597,7 @@ function SpecialInput(idName) {
         const button = Button.createAction(buttonId, function() {
 
             console.log("prev");
-            specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1));
+            specialInput.lookingAt = clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
             console.log("see " + specialInput.lookingAt);
             specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
             specialInput.setFocus(true);
@@ -596,7 +609,7 @@ function SpecialInput(idName) {
         KeyboardEvents.addFunction(function(event) {
             if (specialInput.focus && button.active) {
                 console.log("prev");
-                specialInput.lookingAt = Math.max(0, Math.min(specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1));
+                specialInput.lookingAt = clamp(0, specialInput.lookingAt + 1, specialInput.oldSymbols.length - 1);
                 console.log("see " + specialInput.lookingAt);
                 specialInput.setText(specialInput.oldSymbols[specialInput.lookingAt]);
                 specialInput.setFocus(true);

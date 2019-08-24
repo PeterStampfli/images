@@ -203,8 +203,9 @@ function Button(idName) {
     };
 
     /**
-     * destroy the button, taking care of all references
+     * destroy the button, taking care of all references, deletes the associated html element
      * may be too careful
+     * set reference to the button to null
      * @method Button#destroy
      */
     Button.prototype.destroy = function() {
