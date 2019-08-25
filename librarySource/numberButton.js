@@ -266,6 +266,31 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     };
 
     /**
+     * destroy the button, taking care of all references, deletes the associated html element
+     * may be too careful
+     * set reference to the button to null
+     * @method NumberButton#destroy
+     */
+    NumberButton.prototype.destroy = function() {
+        this.onChange = null;
+        this.element.onfocus = null;
+        this.element.onblur = null;
+        this.element.onmouseenter = null;
+        this.element.onmouseleave = null;
+        this.element.remove();
+        if (this.plusButton != null) { // plus and minus come together
+            this.plusButton.destroy();
+            this.minusButton.destroy();
+            this.plusButton = null;
+            this.minusButton = null;
+        }
+        if (this.infinityButton != null) {
+            this.infinityButton.destroy();
+            this.infinityButton = null;
+        }
+    };
+
+    /**
      * create an number button with up and down buttons, maximum 4 digits
      * Attention: set font sizes afterwards
      * @method NumberButton.create

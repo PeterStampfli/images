@@ -5,15 +5,6 @@
  * @param {String} idName name (id) of an html select element
  */
 
-/*
-<select id="test">
-
-    <option> one</option>
-    <option> two</option>
-    <option> three</option>
-
-</select>
-*/
 
 /* jshint esversion:6 */
 
@@ -29,26 +20,16 @@ function Select(idName) {
     // a list of actions, one for each option
     this.actions = [];
 
-
-    /**
-     * action after loading a new input file for file input buttons
-     * @method Button#onFileInput
-     * @param {File} file - input file object
-     */
-    this.onFileInput = function(file) {};
-
-
     // a list of actions....
 
     var select = this;
 
     /**
-     * action upon change, strategy pattern
+     * action upon change
      */
     this.element.onchange = function() {
         select.actions[select.element.selectedIndex]();
     };
-
 
     // hovering
     this.element.onmouseenter = function() {
@@ -60,13 +41,10 @@ function Select(idName) {
         select.hover = false;
         select.updateStyle();
     };
-
 }
-
 
 (function() {
     "use strict";
-
 
     /**
      * update the color style of the element depending on whether its pressed or hovered
@@ -93,7 +71,6 @@ function Select(idName) {
         this.colorUpHover = Button.colorUpHover;
         this.colorDownHover = Button.colorDownHover;
         this.colorDown = Button.colorDown;
-
         this.backgroundColorUp = Button.backgroundColorUp;
         this.backgroundColorUpHover = Button.backgroundColorUpHover;
         this.backgroundColorDownHover = Button.backgroundColorDownHover;
@@ -130,5 +107,21 @@ function Select(idName) {
     };
 
 
+    /**
+     * destroy the select thing, taking care of all references, deletes the associated html element
+     * may be too careful
+     * set reference to the select to null
+     * @method NumberButton#destroy
+     */
+    Select.prototype.destroy = function() {
+        this.element.onchange = null;
+        this.element.onmouseenter = null;
+        this.element.onmouseleave = null;
+        this.element.remove();
+        for (var i = 0; i < this.actions.length; i++) {
+            this.actions[i] = null;
+        }
+        this.actions.length = 0;
+    };
 
 }());

@@ -14,6 +14,7 @@ function Range(idText, idRange) {
     this.rangeElement = document.getElementById(idRange);
     this.rangeElement.setAttribute("type", "range");
     this.rangeElement.setAttribute("class", "range");
+    this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
     this.setStep(0.01);
     this.lastValue = 0.5;
@@ -142,6 +143,17 @@ function Range(idText, idRange) {
 
 
     /**
+     * return a value clamped between max and min  
+     * @function clamp 
+     * @para {int/float} min 
+     * @para {int/float} x 
+     * @para {int/float} max  
+     */
+    function clamp(min, x, max) {
+        return Math.max(min, Math.min(x, max));
+    }
+
+    /**
      * read the float value of the text input element
      * @method Range#getValueText
      * @returns {float} value resulting from parsing the button text
@@ -199,7 +211,7 @@ function Range(idText, idRange) {
         if (isNaN(number)) { // overwrite garbage, do nothing
             this.setValue(this.lastValue);
         } else {
-            number = Fast.clamp(this.minValue, number, this.maxValue);
+            number = clamp(this.minValue, number, this.maxValue);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
                 this.onChange(number);
@@ -221,7 +233,7 @@ function Range(idText, idRange) {
         this.rangeElement.min = minValue;
         this.rangeElement.max = maxValue;
         // clamp value in range
-        this.setValue(Fast.clamp(this.minValue, this.lastValue, this.maxValue));
+        this.setValue(clamp(this.minValue, this.lastValue, this.maxValue));
     };
 
     /**
@@ -242,6 +254,26 @@ function Range(idText, idRange) {
     Range.prototype.setStep = function(step) {
         this.step = step;
         this.rangeElement.step = step;
+    };
+
+    /**
+     * destroy the range thing, taking care of all references, deletes the associated html element
+     * may be too careful
+     * set reference to the button to null
+     * @method Range#destroy
+     */
+    Range.prototype.destroy = function() {
+        this.onChange = null;
+        this.textElement.onchange = null;
+        this.textElement.onfocus = null;
+        this.textElement.onblur = null;
+        this.textElement.onmouseenter = null;
+        this.textElement.onmouseleave = null;
+        this.textElement.remove();
+        this.rangeElement.onmouseenter = null;
+        this.rangeElement.onmouseleave = null;
+        this.rangeElement.onchange = null;
+        this.rangeElement.remove();
     };
 
     /**

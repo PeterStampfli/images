@@ -98,8 +98,6 @@ ParamGui = function() {
             DOM.display(paramGui.uiId);
             DOM.displayNone(paramGui.handleId);
         };
-
-
     };
 
 

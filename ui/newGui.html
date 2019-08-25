@@ -19,6 +19,9 @@
 </body>
 
 <script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/range.js"></script>
 <script src="../librarySource/dom.js"></script>
 <script src="paramGui.js"></script>
 
@@ -37,6 +40,19 @@ gui=new newDat.GUI()
         
  DOM.create("p","nix","#"+gui.uiId,"relallvlrhrzzrtrfgt vbgg"); 
  
+  DOM.create("span","numbers","#"+gui.uiId); 
+  
+  n=Range.create("numbers");
+  n.destroy();
+
+
+  DOM.create("select","se","#"+gui.uiId); 
+  
+  s=new Select("se");
+  s.addOption("efe",function(){console.log("ff")});
+  s.addOption("222",function(){console.log("f222f")});
+
+ //s.destroy();
 // gui.destroy();
 
 
