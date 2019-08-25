@@ -100,8 +100,6 @@ ParamGui = function() {
         };
     };
 
-
-
     /**
      * destroy the gui, taking care of referencies
      * trying to avoid memory leaks
@@ -117,6 +115,87 @@ ParamGui = function() {
         this.ui = null;
         this.handle.remove();
         this.handle = null;
+    };
+
+    /**
+     * setting the callback function of a uiElement with a uiElement.callback field
+     * return this object after creating a uiElement
+     * setCallback.uiElement=createdElement;
+     * @object setCallback
+     */
+    const setCallback = {};
+    setCallback.uiElement = null;
+
+    /**
+     * method for setting the callback for numberbutton, range, select
+     * @method setCallback.onChange
+     * @param {function} callback
+     */
+    setCallback.onChange = function(callback) {
+        if (setCallback.uiElement != null) {
+            setCallback.uiElement.callback = callback;
+        } else {
+            console.log("setCallback: uiElement is null!");
+        }
+    };
+
+    /**
+     * method for setting the callback for button
+     * (same as onChange. but better name for this use case)
+     * @method setCallback.onClick
+     * @param {function} callback
+     */
+    setCallback.onClick = setCallback.onChange;
+
+    /**
+     * put a break in the ui
+     * @method ParamGui#break
+     */
+    ParamGui.prototype.break = function() {
+        DOM.create("br", DOM.createId(), "#" + this.uiId);
+    };
+
+
+    /**
+     * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line
+     * @method ParamGui#add 
+     * @param {object} params - an object with fields taking parameter values
+     * @param {String} key - id of the params field that the ui element changes, or button text
+     * @param {float/integer/array} low - determines lower limit/choices (optional)
+     * @param {float/integer} high - determines upper limit (optional)
+     * @param {float/integer} step - determines step size (optional)
+     * @return setCallback - as defined above
+     */
+    ParamGui.prototype.add = function(params, key, low, high, step) {
+        setCallback.uiElement = null;
+        if (arguments.length === 2) {
+            // only params and key generates a button with the keys text
+            console.log("generate button");
+        } else if (arguments.length === 3) {
+            // only one value range parameter
+            if (Array.isArray(arguments[2])) {
+                // an array as first value range parameter creates a select element
+                console.log("generate select");
+            } else if (Number.isInteger(arguments[2])) {
+                // a lower integer limit for a number button with infinity
+                console.log("generate infty number button");
+            } else {
+                console.log("***paramGui: 3 parameters. Invalid " + arguments[2]);
+            }
+        } else if (arguments.length === 4) {
+            // a lower and upper value range parameter
+            if (Number.isInteger(arguments[2]) && Number.isInteger(arguments[3])) {
+                // low and high limits are integers. generate number button
+                console.log("generate number button");
+            } else {
+                // one of the limits is float. generate range
+                console.log("generate range");
+            }
+        } else {
+            // three value range parameters. generate quantized range element
+            console.log("generate qunatized range");
+        }
+        return setCallback;
     };
 
 

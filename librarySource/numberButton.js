@@ -21,6 +21,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     this.infinity = 1e10; // value for infinity
     this.isInteger = true;
     this.step = 1;
+    this.idName = idName;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
     this.hover = false;

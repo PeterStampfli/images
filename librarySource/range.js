@@ -9,6 +9,8 @@
 /* jshint esversion:6 */
 
 function Range(idText, idRange) {
+    this.idText = idText;
+    this.idRange = idRange;
     this.textElement = document.getElementById(idText);
     this.textElement.setAttribute("type", "text");
     this.rangeElement = document.getElementById(idRange);

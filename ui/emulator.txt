@@ -1,0 +1,102 @@
+    <script src="lib/dat.gui.min2.js"></script>
+    
+     
+    // in orbifoldTester.html
+    //============================================================
+
+    // setting up controls
+    
+    // some global variables; 
+	var paramsGui; 
+
+    
+    //initialization
+	if(paramsGui){paramsGui.destroy()}	
+	paramsGui = new dat.GUI();
+	theGroup.guiParams=setupParameters(paramsGui,theGroup.guiParams); 
+	drawScene(globalMobTransform)
+	
+	The Number.isInteger() method determines whether a value an integer.
+	The isNaN() function determines whether a value is an illegal number (Not-a-Number).
+	Array.isArray(value)    (not typed array, only Array)
+    
+function setupParameters(gui,params){
+	var pp = theGroup.parN;
+	var ppp = theGroup.parCounts;
+	var i=0;
+	
+	// temp
+	if(typeof params["mode"] == "undefined"){
+		params["mode"]=1;}
+	gui.add(params,"mode",[1,2])
+	if(typeof params["depth"] == "undefined"){
+		params["depth"]=4;}
+	gui.add(params,"depth",0,6).onChange(onParamChanged); 
+	if(typeof params["margin"] == "undefined"){
+		params["margin"]=.01;}
+	gui.add(params,"margin",.001,.4).onChange(onParamChanged); 
+
+	
+	lengthKeys.forEach(function(key){
+		for(i=1;i<=theGroup.parCounts[key];i++)
+		{   if(typeof params[key+"_"+i.toString()+"_l"] == "undefined"){
+			params[key+"_"+i.toString()+"_l"]=2;}
+			gui.add(params,key+"_"+i.toString()+"_l",.4,4,.01).onChange(onParamChanged);
+				
+		}
+	})
+	
+	twistKeys.forEach(function(key){
+		for(i=1;i<=theGroup.parCounts[key];i++)
+		{   if(typeof params[key+"_"+i.toString()+"_t"] == "undefined"){
+			params[key+"_"+i.toString()+"_t"]=0;}
+			gui.add(params,key+"_"+i.toString()+"_t",-.5,.5,.01).onChange(onParamChanged);
+				
+		}
+	})
+	
+	
+	return params
+}
+
+
+gui.add(...)
+
+// using the parameter values
+
+	theGroup.guiParams=setupParameters(paramsGui,theGroup.guiParams); 
+	
+	// note that theGroup.guiParams default values are set, thus changes
+
+	// more somewhere else
+	
+	
+class tempGroup {
+	constructor(){
+		this.parCounts = [];
+		this.parN=0;
+		this.atomList = [];
+		this.guiParams={};
+	}
+}
+
+//  	// guiParams is a list of keys
+
+
+	var theGroup = new tempGroup
+	
+		if (theGroup.guiParams["mode"]==1){
+
+		
+	var genDepth = theGroup.guiParams["depth"];
+	var genMargin = theGroup.guiParams["margin"];
+	var mode=theGroup.guiParams["mode"]
+
+
+	
+	// external files
+	
+	<script src="js/Utilities.js"></script>
+    <script src="lib/dat.gui.min2.js"></script>
+	<script src="js/OrbifoldGeometrization.js"></script>
+   	 <link type="text/css" href="lib/modifiedDatGui.css" rel="stylesheet" >
