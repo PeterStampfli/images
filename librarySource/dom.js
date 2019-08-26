@@ -178,7 +178,6 @@ var DOM = {};
      * @param {String} id - of the element
      */
     DOM.addSpace = function(id) {
-        const element = document.getElementById(id);
         DOM.create("span", DOM.createId(), "#" + id, " ");
     };
 

@@ -28,7 +28,6 @@ ParamGui = function() {
 (function() {
     "use strict";
 
-
     // add some defaults, especially styles
     // styles, change the values of these fields if you do not like them
     // do changes in your program
@@ -39,14 +38,15 @@ ParamGui = function() {
     ParamGui.horizontalPosition = "right";
     // dimensions, in terms of pixels, if they should scale with window
     // then change these fieldsn in a resize function
-    ParamGui.width = 200;
+    ParamGui.width = 400;
     ParamGui.padding = 5;
+    ParamGui.vSpace = 5;
+    ParamGui.textTabWidth = 20;
     ParamGui.borderWidth = 3; // set to zero to make border disappear
     // colors
     ParamGui.backgroundColor = "#ffffff";
     ParamGui.textColor = "#444444";
     ParamGui.borderColor = "#777777";
-
 
     // setting the styles
     function styleDiv(id) {
@@ -148,13 +148,142 @@ ParamGui = function() {
     setCallback.onClick = setCallback.onChange;
 
     /**
+     * create an html element,return id
+     * @function ParamGui#create
+     * @param {String} tag
+     * @param {String} text - inner text, optional
+     * @return String, id of the element
+     */
+    ParamGui.prototype.create = function(tag, text) {
+        const id = DOM.createId();
+        if (arguments.length > 1) {
+            DOM.create(tag, id, "#" + this.uiId, text);
+        } else {
+            DOM.create(tag, id, "#" + this.uiId);
+        }
+        return id;
+    };
+
+    /**
      * put a break in the ui
      * @method ParamGui#break
      */
     ParamGui.prototype.break = function() {
-        DOM.create("br", DOM.createId(), "#" + this.uiId);
+        this.create("br");
     };
 
+    /**
+     * create a verticl space in the ui
+     * amount defined in ParamGui.vSpace
+     * @method ParamGui#vSpace
+     */
+    ParamGui.prototype.vSpace = function() {
+        const theDiv = this.create("div");
+        DOM.style("#" + theDiv, "height", ParamGui.vSpace + px);
+        DOM.style("#" + theDiv, "backgroundColor", "red");
+    };
+
+    /**
+     * put a horizontal spce in the ui
+     * @method ParamGui#hSpace
+     */
+    ParamGui.prototype.hSpace = function() {
+        DOM.addSpace(this.uiId);
+    };
+
+    /**
+     * create a text with minimal width in the ui (text with tab)
+     * minimum amount defined in ParamGui.textTab
+     * @method ParamGui#textTab
+     * @param {String} text
+     */
+    ParamGui.prototype.textTab = function(text) {
+        const theSpan = this.create("span", text);
+        DOM.style("#" + theSpan, "minWidth", "100px", "display", "inline-block");
+        DOM.style("#" + theSpan, "backgroundColor", "green");
+    };
+
+    /**
+     * create a button in the ui
+     * formatting?
+     * @method ParamGui#button
+     * @param {String} text
+     * @param {function} action (callback, optional)
+     * @return Button
+     */
+    ParamGui.prototype.button = function(text, action) {
+        const id = this.create("button", text);
+        const button = new Button(id);
+        if (arguments.length > 1) {
+            button.onClick = action;
+        }
+        this.uiElements.push(button);
+        return button;
+    };
+
+    /**
+     * create a finite number button in the ui, in a span
+     * formatting?
+     * @method ParamGui#numberButton
+     * @param {function} action (callback, optional)
+     * @return NumberButton
+     */
+    ParamGui.prototype.numberButton = function(action) {
+        const id = this.create("span");
+        const button = NumberButton.create(id);
+        if (arguments.length > 0) {
+            button.onChange = action;
+        }
+        this.uiElements.push(button);
+        return button;
+    };
+
+    /**
+     * create an "infinite" number button in the ui, in a span
+     * formatting?
+     * @method ParamGui#infinityNumberButton
+     * @param {function} action (callback, optional)
+     * @return NumberButton
+     */
+    ParamGui.prototype.infinityNumberButton = function(action) {
+        const id = this.create("span");
+        const button = NumberButton.createInfinity(id);
+        if (arguments.length > 0) {
+            button.onChange = action;
+        }
+        this.uiElements.push(button);
+        return button;
+    };
+
+    /**
+     * create an range thing in the ui, in a span
+     * formatting?
+     * @method ParamGui#range
+     * @param {function} action (callback, optional)
+     * @return Range
+     */
+    ParamGui.prototype.range = function(action) {
+        const id = this.create("span");
+        const range = Range.create(id);
+        if (arguments.length > 0) {
+            range.onChange = action;
+        }
+        this.uiElements.push(range);
+        return range;
+    };
+
+    /**
+     * create an select thing in the ui, in a span
+     * formatting?
+     * @method ParamGui#select
+     * @return Button
+     */
+    ParamGui.prototype.select = function() {
+        const id = this.create("select");
+        const select = new Select(id);
+        this.uiElements.push(select);
+        return select;
+    };
 
     /**
      * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line

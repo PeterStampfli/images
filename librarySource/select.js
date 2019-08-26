@@ -20,8 +20,6 @@ function Select(idName) {
     // a list of actions, one for each option
     this.actions = [];
 
-    // a list of actions....
-
     var select = this;
 
     /**

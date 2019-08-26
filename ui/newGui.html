@@ -48,9 +48,14 @@ gui.break();
 p={}
 gui.add(p,"blabla");
 
-  DOM.create("select","se","#"+gui.uiId); 
+gui.button("the next big thing",function(){console.log("ompf")});
+gui.break();
+gui.vSpace();
+gui.textTab("d");gui.hSpace();gui.break()
+nb=gui.range(function(){console.log(nb.getValue())});
+
   
-  s=new Select("se");
+  s=gui.select();
   s.addOption("efe",function(){console.log("ff")});
   s.addOption("222",function(){console.log("f222f")});
 
