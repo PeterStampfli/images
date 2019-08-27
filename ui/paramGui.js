@@ -39,10 +39,15 @@ ParamGui = function() {
     // dimensions, in terms of pixels, if they should scale with window
     // then change these fieldsn in a resize function
     ParamGui.width = 400;
-    ParamGui.padding = 5;
+    ParamGui.padding = 8;
     ParamGui.vSpace = 5;
     ParamGui.textTabWidth = 20;
     ParamGui.borderWidth = 3; // set to zero to make border disappear
+    ParamGui.numberButtonWidth = 40;
+    ParamGui.rangeWidth = 150;
+    ParamGui.rangeHOffset = 4;
+    ParamGui.textFontSize = 16;
+    ParamGui.buttonFontSize = 14;
     // colors
     ParamGui.backgroundColor = "#ffffff";
     ParamGui.textColor = "#444444";
@@ -67,6 +72,7 @@ ParamGui = function() {
         DOM.create("div", divId, "#" + parentId);
         DOM.style("#" + divId, "textAlign", "center");
         DOM.create("button", buttonId, "#" + divId, text);
+        DOM.style("#" + buttonId, "font-size", ParamGui.buttonFontSize + px);
         return buttonId;
     }
 
@@ -86,6 +92,10 @@ ParamGui = function() {
             DOM.displayNone(paramGui.uiId);
             DOM.display(paramGui.handleId);
         };
+
+        // space between
+        const theHDiv = this.create("div");
+        DOM.style("#" + theHDiv, "height", (ParamGui.padding - ParamGui.vSpace) + px);
         // setting up the handle div with button to show the ui
         this.handleId = DOM.createId();
         this.handle = DOM.create("div", this.handleId, "body");
@@ -180,7 +190,6 @@ ParamGui = function() {
     ParamGui.prototype.vSpace = function() {
         const theDiv = this.create("div");
         DOM.style("#" + theDiv, "height", ParamGui.vSpace + px);
-        DOM.style("#" + theDiv, "backgroundColor", "red");
     };
 
     /**
@@ -199,8 +208,7 @@ ParamGui = function() {
      */
     ParamGui.prototype.textTab = function(text) {
         const theSpan = this.create("span", text);
-        DOM.style("#" + theSpan, "minWidth", "100px", "display", "inline-block");
-        DOM.style("#" + theSpan, "backgroundColor", "green");
+        DOM.style("#" + theSpan, "minWidth", "100px", "display", "inline-block", "font-size", ParamGui.textFontSize + px);
     };
 
     /**
@@ -214,6 +222,7 @@ ParamGui = function() {
     ParamGui.prototype.button = function(text, action) {
         const id = this.create("button", text);
         const button = new Button(id);
+        DOM.style("#" + button.idName, "font-size", ParamGui.buttonFontSize + px);
         if (arguments.length > 1) {
             button.onClick = action;
         }
@@ -231,6 +240,7 @@ ParamGui = function() {
     ParamGui.prototype.numberButton = function(action) {
         const id = this.create("span");
         const button = NumberButton.create(id);
+        DOM.style("#" + button.idName, "width", ParamGui.numberButtonWidth + px, "font-size", ParamGui.buttonFontSize + px);
         if (arguments.length > 0) {
             button.onChange = action;
         }
@@ -248,6 +258,7 @@ ParamGui = function() {
     ParamGui.prototype.infinityNumberButton = function(action) {
         const id = this.create("span");
         const button = NumberButton.createInfinity(id);
+        DOM.style("#" + button.idName, "width", ParamGui.numberButtonWidth + px, "font-size", ParamGui.buttonFontSize + px);
         if (arguments.length > 0) {
             button.onChange = action;
         }
@@ -265,6 +276,8 @@ ParamGui = function() {
     ParamGui.prototype.range = function(action) {
         const id = this.create("span");
         const range = Range.create(id);
+        DOM.style("#" + range.idText, "width", ParamGui.numberButtonWidth + px, "font-size", ParamGui.buttonFontSize + px);
+        DOM.style("#" + range.idRange, "width", ParamGui.rangeWidth + px, "position", "relative", "top", ParamGui.rangeHOffset + px);
         if (arguments.length > 0) {
             range.onChange = action;
         }
@@ -280,6 +293,7 @@ ParamGui = function() {
      */
     ParamGui.prototype.select = function() {
         const id = this.create("select");
+        DOM.style("#" + id, "font-size", ParamGui.buttonFontSize + px);
         const select = new Select(id);
         this.uiElements.push(select);
         return select;
@@ -297,10 +311,7 @@ ParamGui = function() {
      */
     ParamGui.prototype.add = function(params, key, low, high, step) {
         setCallback.uiElement = null;
-        if (arguments.length === 2) {
-            // only params and key generates a button with the keys text
-            console.log("generate button");
-        } else if (arguments.length === 3) {
+        if (arguments.length === 3) {
             // only one value range parameter
             if (Array.isArray(arguments[2])) {
                 // an array as first value range parameter creates a select element
