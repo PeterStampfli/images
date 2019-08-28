@@ -13,6 +13,7 @@ function Range(idText, idRange) {
     this.idRange = idRange;
     this.textElement = document.getElementById(idText);
     this.textElement.setAttribute("type", "text");
+    DOM.style("#" + this.idText, "text-align", "right");
     this.rangeElement = document.getElementById(idRange);
     this.rangeElement.setAttribute("type", "range");
     this.rangeElement.setAttribute("class", "range");

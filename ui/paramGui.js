@@ -6,13 +6,10 @@
 
 /* jshint esversion:6 */
 
-
-
 /**
  * this is the actual Gui for parameters
  * @class ParamGui
  */
-
 
 /**
  * creating an empty div to show the controls
@@ -21,9 +18,7 @@
  */
 ParamGui = function() {
     this.setup();
-    console.log("setup");
 };
-
 
 (function() {
     "use strict";
@@ -41,7 +36,7 @@ ParamGui = function() {
     ParamGui.width = 400;
     ParamGui.padding = 8;
     ParamGui.vSpace = 5;
-    ParamGui.textTabWidth = 20;
+    ParamGui.textTabWidth = 70;
     ParamGui.borderWidth = 3; // set to zero to make border disappear
     ParamGui.numberButtonWidth = 40;
     ParamGui.rangeWidth = 150;
@@ -52,6 +47,8 @@ ParamGui = function() {
     ParamGui.backgroundColor = "#ffffff";
     ParamGui.textColor = "#444444";
     ParamGui.borderColor = "#777777";
+    // number button, default maximum value
+    ParamGui.defaultMaxNumber = 1000;
 
     // setting the styles
     function styleDiv(id) {
@@ -150,14 +147,6 @@ ParamGui = function() {
     };
 
     /**
-     * method for setting the callback for button
-     * (same as onChange. but better name for this use case)
-     * @method setCallback.onClick
-     * @param {function} callback
-     */
-    setCallback.onClick = setCallback.onChange;
-
-    /**
      * create an html element,return id
      * @function ParamGui#create
      * @param {String} tag
@@ -208,7 +197,7 @@ ParamGui = function() {
      */
     ParamGui.prototype.textTab = function(text) {
         const theSpan = this.create("span", text);
-        DOM.style("#" + theSpan, "minWidth", "100px", "display", "inline-block", "font-size", ParamGui.textFontSize + px);
+        DOM.style("#" + theSpan, "minWidth", ParamGui.textTabWidth + px, "display", "inline-block", "font-size", ParamGui.textFontSize + px);
     };
 
     /**
@@ -299,6 +288,15 @@ ParamGui = function() {
         return select;
     };
 
+    // freaking grunt
+    function makeSelectOptionAction(select, params, key, option) {
+        const action = function() {
+            params[key] = option;
+            select.callback();
+        };
+        return action;
+    }
+
     /**
      * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * @method ParamGui#add 
@@ -315,10 +313,46 @@ ParamGui = function() {
             // only one value range parameter
             if (Array.isArray(arguments[2])) {
                 // an array as first value range parameter creates a select element
-                console.log("generate select");
+                this.vSpace();
+                this.textTab(key);
+                this.hSpace();
+                const select = this.select();
+                this.break();
+                const options = arguments[2];
+                const currentValue = params[key];
+                let currentIndex = 0;
+                for (var i = 0; i < options.length; i++) {
+                    const option = options[i];
+                    if (currentValue == option) {
+                        currentIndex = i;
+                    }
+                    select.addOption(option, makeSelectOptionAction(select, params, key, option));
+                }
+                select.setIndex(currentIndex);
+
+                select.callback = function() {
+                    console.log("***** select option without action");
+                };
+                setCallback.uiElement = select;
+                return setCallback;
+
             } else if (Number.isInteger(arguments[2])) {
                 // a lower integer limit for a number button with infinity
-                console.log("generate infty number button");
+                this.vSpace();
+                this.textTab(key);
+                this.hSpace();
+                const numberbutton = this.infinityNumberButton(function() {
+                    params[key] = numberbutton.getValue();
+                    numberbutton.callback();
+                });
+                this.break();
+                numberbutton.setValue(params[key]);
+                numberbutton.setRange(arguments[2], ParamGui.defaultMaxNumber);
+                numberbutton.callback = function() {
+                    console.log("**** numberbutton without action");
+                };
+                setCallback.uiElement = numberbutton;
+                return setCallback;
             } else {
                 console.log("***paramGui: 3 parameters. Invalid " + arguments[2]);
             }
@@ -326,16 +360,58 @@ ParamGui = function() {
             // a lower and upper value range parameter
             if (Number.isInteger(arguments[2]) && Number.isInteger(arguments[3])) {
                 // low and high limits are integers. generate number button
-                console.log("generate number button");
+                this.vSpace();
+                this.textTab(key);
+                this.hSpace();
+                const numberbutton = this.numberButton(function() {
+                    params[key] = numberbutton.getValue();
+                    numberbutton.callback();
+                });
+                this.break();
+                numberbutton.setValue(params[key]);
+                numberbutton.setRange(arguments[2], arguments[3]);
+                numberbutton.callback = function() {
+                    console.log("**** numberbutton without action");
+                };
+                setCallback.uiElement = numberbutton;
+                return setCallback;
             } else {
                 // one of the limits is float. generate range
-                console.log("generate range");
+                this.vSpace();
+                this.textTab(key);
+                this.hSpace();
+                const range = this.range(function() {
+                    params[key] = range.getValue();
+                    range.callback();
+                });
+                this.break();
+                range.setValue(params[key]);
+                range.setRange(arguments[2], arguments[3]);
+                range.callback = function() {
+                    console.log("***** range without action");
+                };
+                setCallback.uiElement = range;
+                return setCallback;
             }
         } else {
             // three value range parameters. generate quantized range element
-            console.log("generate qunatized range");
+            this.vSpace();
+            this.textTab(key);
+            this.hSpace();
+            const range = this.range(function() {
+                params[key] = range.getValue();
+                range.callback();
+            });
+            this.break();
+            range.setValue(params[key]);
+            range.setRange(arguments[2], arguments[3]);
+            range.setStep(arguments[4]);
+            range.callback = function() {
+                console.log("**** range without action");
+            };
+            setCallback.uiElement = range;
+            return setCallback;
         }
-        return setCallback;
     };
 
 

@@ -40,26 +40,22 @@ gui=new newDat.GUI()
         
  
  
-p={}
-gui.add(p,"blabla",2);
+p={};
+p.nada=2;
+p.tiri="zwei"
+gui.add(p,"nada",1,5.2,0.5).onChange(function(){
+console.log("change paras n,t "+p.nada+", "+p.tiri);
 
-gui.button("the next big thing",function(){console.log("ompf")});
-gui.break();
-gui.vSpace();
-gui.textTab("das");
+});
 
-gui.hSpace();
-gui.textTab("das das ist es wsradsd nvbbv");
-gui.break()
-nb=gui.range(function(){console.log(nb.getValue())});
+gui.add(p,"tiri",["eins","zwei","drei"]).onChange(function(){
+console.log("change paras n,t "+p.nada+", "+p.tiri);
 
-  
-  s=gui.select();
-  s.addOption("efe",function(){console.log("ff")});
-  s.addOption("222",function(){console.log("f222f")});
+});
 
- //s.destroy();
-// gui.destroy();
+console.log("paras n,t "+p.nada+", "+p.tiri);
+
+
 
 
 </script>

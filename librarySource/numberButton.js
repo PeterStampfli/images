@@ -24,6 +24,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     this.idName = idName;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
+    DOM.style("#" + this.idName, "text-align", "right");
     this.hover = false;
     this.pressed = false;
     this.active = true;
@@ -302,9 +303,9 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         const inputId = DOM.createId();
         DOM.create("input", inputId, "#" + idSpan);
         DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, "up");
-        DOM.addSpace(idSpan);
         const dnId = DOM.createButton(idSpan, "dn");
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, "up");
         DOM.create("button", dnId, "#" + idSpan, "dn");
         DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
         let numberButton = new NumberButton(inputId, upId, dnId);
@@ -322,9 +323,9 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         const inputId = DOM.createId();
         DOM.create("input", inputId, "#" + idSpan);
         DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, "up");
-        DOM.addSpace(idSpan);
         const dnId = DOM.createButton(idSpan, "dn");
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, "up");
         DOM.addSpace(idSpan);
         const infId = DOM.createButton(idSpan, " ∞ ");
         DOM.style("#" + upId + ",#" + dnId + ",#" + infId, "borderRadius", 1000 + px);

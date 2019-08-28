@@ -76,6 +76,17 @@ function Select(idName) {
     };
 
     /**
+     * return a value clamped between max and min  
+     * @function clamp 
+     * @para {int/float} min 
+     * @para {int/float} x 
+     * @para {int/float} max  
+     */
+    function clamp(min, x, max) {
+        return Math.max(min, Math.min(x, max));
+    }
+
+    /**
      * adding an option with a name and an action function
      * @method Select#addOption
      * @param {String} name - of the option
@@ -92,7 +103,7 @@ function Select(idName) {
      * @param {integer} i
      */
     Select.prototype.setIndex = function(i) {
-        this.element.selectedIndex = Fast.clamp(0, i, this.actions.length - 1);
+        this.element.selectedIndex = clamp(0, i, this.actions.length - 1);
     };
 
     /**
