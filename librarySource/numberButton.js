@@ -22,6 +22,9 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     this.isInteger = true;
     this.step = 1;
     this.idName = idName;
+    this.idPlus = (arguments.length > 1) ? idPlus : false;
+    this.idMinus = (arguments.length > 2) ? idMinus : false;
+    this.idInfinity = (arguments.length > 3) ? idInfinity : false;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
     DOM.style("#" + this.idName, "text-align", "right");
@@ -97,6 +100,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
 
 (function() {
     "use strict";
+    const px = "px";
 
     /**
      * update the color style of the element depending on whether its pressed or hovered

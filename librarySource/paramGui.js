@@ -4,6 +4,15 @@
  * 
  */
 
+/*
+ * dependencies
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/range.js"></script>
+<script src="../librarySource/dom.js"></script>
+*/
+
 /* jshint esversion:6 */
 
 /**
@@ -23,31 +32,46 @@ ParamGui = function() {
 (function() {
     "use strict";
 
+    const px = "px";
+
     // add some defaults, especially styles
     // styles, change the values of these fields if you do not like them
     // do changes in your program
     // position (at corners)
     ParamGui.zIndex = 5; // z-index for ui divs, to keep them above others
-    // position in corners, default top right
+    // positioning, default top right corner
     ParamGui.verticalPosition = "top";
     ParamGui.horizontalPosition = "right";
     // dimensions, in terms of pixels, if they should scale with window
-    // then change these fieldsn in a resize function
-    ParamGui.width = 400;
+    // then change these fields in a resize function
+    // width of the ui panel
+    ParamGui.width = 350;
+    //ui spacing from border
     ParamGui.padding = 8;
-    ParamGui.vSpace = 5;
-    ParamGui.textTabWidth = 70;
+    // the vertical white space between elements on different lines
+    ParamGui.vSpace = 7;
+    // alignment: tab (minimal width) for writing the key strings
+    ParamGui.textTabWidth = 100;
+    // width of border around ui panel
     ParamGui.borderWidth = 3; // set to zero to make border disappear
-    ParamGui.numberButtonWidth = 40;
+    // width for buttons showing numbers
+    ParamGui.numberButtonWidth = 50;
+    // width (length) of the range slider
     ParamGui.rangeWidth = 150;
-    ParamGui.rangeHOffset = 4;
+    // vertical offset for the range sliders, to make them aligned
+    ParamGui.rangeVOffset = 4;
+    // font size for labels, ...
     ParamGui.textFontSize = 16;
+    // font size for text in buttons
     ParamGui.buttonFontSize = 14;
     // colors
+    // background of the ui panel
     ParamGui.backgroundColor = "#ffffff";
+    // color for text
     ParamGui.textColor = "#444444";
+    // color for the border of the ui panel
     ParamGui.borderColor = "#777777";
-    // number button, default maximum value
+    // number button, default maximum value for numbers
     ParamGui.defaultMaxNumber = 1000;
 
     // setting the styles
@@ -57,6 +81,7 @@ ParamGui = function() {
         const px0 = "0px";
         DOM.style(fullId, "zIndex", "10", "position", "fixed", ParamGui.verticalPosition, px0, ParamGui.horizontalPosition, px0);
         DOM.style(fullId, "width", ParamGui.width + px, "padding", ParamGui.padding + px);
+        DOM.style(fullId, "maxHeight", (window.innerHeight - 2 * ParamGui.borderWidth - 2 * ParamGui.padding) + px, "overflow", "auto");
         DOM.style(fullId, "backgroundColor", ParamGui.backgroundColor, "color", ParamGui.textColor);
         DOM.style(fullId, "borderWidth", ParamGui.borderWidth + px, "borderStyle", "solid", "borderColor", ParamGui.borderColor);
     }
@@ -229,7 +254,17 @@ ParamGui = function() {
     ParamGui.prototype.numberButton = function(action) {
         const id = this.create("span");
         const button = NumberButton.create(id);
-        DOM.style("#" + button.idName, "width", ParamGui.numberButtonWidth + px, "font-size", ParamGui.buttonFontSize + px);
+        DOM.style("#" + button.idName, "width", ParamGui.numberButtonWidth + px);
+        DOM.style("#" + button.idName, "font-size", ParamGui.buttonFontSize + px);
+        if (button.idPlus) {
+            DOM.style("#" + button.idPlus, "font-size", ParamGui.buttonFontSize + px);
+        }
+        if (button.idMinus) {
+            DOM.style("#" + button.idMinus, "font-size", ParamGui.buttonFontSize + px);
+        }
+        if (button.idInfinity) {
+            DOM.style("#" + button.idInfinity, "font-size", ParamGui.buttonFontSize + px);
+        }
         if (arguments.length > 0) {
             button.onChange = action;
         }
@@ -266,7 +301,7 @@ ParamGui = function() {
         const id = this.create("span");
         const range = Range.create(id);
         DOM.style("#" + range.idText, "width", ParamGui.numberButtonWidth + px, "font-size", ParamGui.buttonFontSize + px);
-        DOM.style("#" + range.idRange, "width", ParamGui.rangeWidth + px, "position", "relative", "top", ParamGui.rangeHOffset + px);
+        DOM.style("#" + range.idRange, "width", ParamGui.rangeWidth + px, "position", "relative", "top", ParamGui.rangeVOffset + px);
         if (arguments.length > 0) {
             range.onChange = action;
         }
