@@ -50,6 +50,8 @@ ParamGui = function() {
     ParamGui.padding = 8;
     // the vertical white space between elements on different lines
     ParamGui.vSpace = 7;
+    // (minimum) spacing between baseline of different elements
+    ParamGui.vSpacing = 20;
     // alignment: tab (minimal width) for writing the key strings
     ParamGui.textTabWidth = 100;
     // width of border around ui panel
@@ -64,6 +66,10 @@ ParamGui = function() {
     ParamGui.textFontSize = 16;
     // font size for text in buttons
     ParamGui.buttonFontSize = 14;
+    // size of the checkbox
+    ParamGui.checkboxSize = 20;
+    // vertical offset to align checkbox
+    ParamGui.checkboxVOffset = 4;
     // colors
     // background of the ui panel
     ParamGui.backgroundColor = "#ffffff";
@@ -226,8 +232,25 @@ ParamGui = function() {
     };
 
     /**
+     * create a checkbox in the ui
+     * @method ParamGui#checkbox
+     * @param {function} action (callback, optional)
+     * @return Checkbox
+     */
+    ParamGui.prototype.checkbox = function(action) {
+        const id = this.create("input");
+        const checkbox = new Checkbox(id);
+        //        DOM.style("#" + checkbox.idName, "width", ParamGui.checkboxSize + px, "height", ParamGui.checkboxSize + px);
+        //    DOM.style("#" + checkbox.idName, "position", "relative", "top", ParamGui.checkboxVOffset + px);
+        if (arguments.length > 0) {
+            checkbox.onChange = action;
+        }
+        this.uiElements.push(checkbox);
+        return checkbox;
+    };
+
+    /**
      * create a button in the ui
-     * formatting?
      * @method ParamGui#button
      * @param {String} text
      * @param {function} action (callback, optional)
@@ -334,6 +357,13 @@ ParamGui = function() {
 
     /**
      * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line
+     * params is an object that contains data as fields
+     * key is a String, the key to the field of params we want to change
+     * the value of params[key] determines the kind of uiElement together with
+     * parameters that define the values/ value range possible
+     * if the third parameter is an array or an object then this defines a selection ui element for all values of params[key]
+     * else
+     * if params[key] is boolean we get a checkbox
      * @method ParamGui#add 
      * @param {object} params - an object with fields taking parameter values
      * @param {String} key - id of the params field that the ui element changes, or button text
@@ -344,109 +374,17 @@ ParamGui = function() {
      */
     ParamGui.prototype.add = function(params, key, low, high, step) {
         setCallback.uiElement = null;
-        if (arguments.length === 3) {
-            // only one value range parameter
-            if (Array.isArray(arguments[2])) {
-                // an array as first value range parameter creates a select element
-                this.vSpace();
-                this.textTab(key);
-                this.hSpace();
-                const select = this.select();
-                this.break();
-                const options = arguments[2];
-                const currentValue = params[key];
-                let currentIndex = 0;
-                for (var i = 0; i < options.length; i++) {
-                    const option = options[i];
-                    if (currentValue == option) {
-                        currentIndex = i;
-                    }
-                    select.addOption(option, makeSelectOptionAction(select, params, key, option));
-                }
-                select.setIndex(currentIndex);
+        // everything in a div
+        const elementDivId = DOM.createId();
+        DOM.create("div", elementDivId, "#" + this.uiId);
+        DOM.style("#" + elementDivId, "minHeight", ParamGui.vSpacing + px);
+        DOM.style("#" + elementDivId, "backgroundColor", "yellow");
+        DOM.style("#" + elementDivId, "borderColor", "black", "borderWidth", "1px", "borderStyle", "solid");
 
-                select.callback = function() {
-                    console.log("***** select option without action");
-                };
-                setCallback.uiElement = select;
-                return setCallback;
 
-            } else if (Number.isInteger(arguments[2])) {
-                // a lower integer limit for a number button with infinity
-                this.vSpace();
-                this.textTab(key);
-                this.hSpace();
-                const numberbutton = this.infinityNumberButton(function() {
-                    params[key] = numberbutton.getValue();
-                    numberbutton.callback();
-                });
-                this.break();
-                numberbutton.setValue(params[key]);
-                numberbutton.setRange(arguments[2], ParamGui.defaultMaxNumber);
-                numberbutton.callback = function() {
-                    console.log("**** numberbutton without action");
-                };
-                setCallback.uiElement = numberbutton;
-                return setCallback;
-            } else {
-                console.log("***paramGui: 3 parameters. Invalid " + arguments[2]);
-            }
-        } else if (arguments.length === 4) {
-            // a lower and upper value range parameter
-            if (Number.isInteger(arguments[2]) && Number.isInteger(arguments[3])) {
-                // low and high limits are integers. generate number button
-                this.vSpace();
-                this.textTab(key);
-                this.hSpace();
-                const numberbutton = this.numberButton(function() {
-                    params[key] = numberbutton.getValue();
-                    numberbutton.callback();
-                });
-                this.break();
-                numberbutton.setValue(params[key]);
-                numberbutton.setRange(arguments[2], arguments[3]);
-                numberbutton.callback = function() {
-                    console.log("**** numberbutton without action");
-                };
-                setCallback.uiElement = numberbutton;
-                return setCallback;
-            } else {
-                // one of the limits is float. generate range
-                this.vSpace();
-                this.textTab(key);
-                this.hSpace();
-                const range = this.range(function() {
-                    params[key] = range.getValue();
-                    range.callback();
-                });
-                this.break();
-                range.setValue(params[key]);
-                range.setRange(arguments[2], arguments[3]);
-                range.callback = function() {
-                    console.log("***** range without action");
-                };
-                setCallback.uiElement = range;
-                return setCallback;
-            }
-        } else {
-            // three value range parameters. generate quantized range element
-            this.vSpace();
-            this.textTab(key);
-            this.hSpace();
-            const range = this.range(function() {
-                params[key] = range.getValue();
-                range.callback();
-            });
-            this.break();
-            range.setValue(params[key]);
-            range.setRange(arguments[2], arguments[3]);
-            range.setStep(arguments[4]);
-            range.callback = function() {
-                console.log("**** range without action");
-            };
-            setCallback.uiElement = range;
-            return setCallback;
-        }
+
+
+        return setCallback;
     };
 
 
