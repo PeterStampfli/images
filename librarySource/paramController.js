@@ -50,7 +50,7 @@ function ParamController(idContainer, params, key) {
     // checking parameters, for overloading methods
 
     // test if a variable is defined, and not missing in the call, 
-    // returns true if defined
+    // returns true if defined and not null
     // a missing parameter is "undefined"
     function isDefined(p) {
         return ((typeof p) !== "undefined") && (p !== null);
@@ -91,5 +91,32 @@ function ParamController(idContainer, params, key) {
     }
 
 
+
+
+    /**
+     * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line
+     * params is an object that contains data as fields
+     * key is a String, the key to the field of params we want to change
+     * the value of params[key] determines the kind of uiElement together with
+     * parameters that define the values/ value range possible
+     * if the third parameter is an array or an object then this defines a selection ui element for all values of params[key]
+     * options are value/key pairs as defined by the object, for an array value==key
+     * else
+     * if params[key] is undefined we get a button
+     * if params[key] is boolean we get a checkbox
+     * if params[key] is a String we get a text input 
+     * @method ParamController#add 
+     * @param {object} params - an object with fields taking parameter values
+     * @param {String} key - id of the params field that the ui element changes, or button text
+     * @param {float/integer/array} low - determines lower limit/choices (optional)
+     * @param {float/integer} high - determines upper limit (optional)
+     * @param {float/integer} step - determines step size (optional)
+     * @return this - for chaining
+     */
+    ParamController.prototype.add = function(params, key, low, high, step) {
+
+
+        return this;
+    };
 
 }());

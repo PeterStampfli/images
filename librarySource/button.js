@@ -217,6 +217,7 @@ function Button(idName) {
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
         this.element.remove();
+        this.element = null;
     };
 
     /**

@@ -127,6 +127,7 @@ function Select(idName) {
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
         this.element.remove();
+        this.element = null;
         for (var i = 0; i < this.actions.length; i++) {
             this.actions[i] = null;
         }

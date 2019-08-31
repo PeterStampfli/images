@@ -57,6 +57,7 @@ function Checkbox(idName) {
         this.onChange = null;
         this.element.onchange = null;
         this.element.remove();
+        this.element = null;
     };
 
 }());

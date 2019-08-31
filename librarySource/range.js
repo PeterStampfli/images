@@ -273,10 +273,12 @@ function Range(idText, idRange) {
         this.textElement.onmouseenter = null;
         this.textElement.onmouseleave = null;
         this.textElement.remove();
+        this.textElement = null;
         this.rangeElement.onmouseenter = null;
         this.rangeElement.onmouseleave = null;
         this.rangeElement.onchange = null;
         this.rangeElement.remove();
+        this.rangeElement = null;
     };
 
     /**

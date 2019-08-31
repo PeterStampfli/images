@@ -284,6 +284,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
         this.element.remove();
+        this.element = null;
         if (this.plusButton != null) { // plus and minus come together
             this.plusButton.destroy();
             this.minusButton.destroy();
