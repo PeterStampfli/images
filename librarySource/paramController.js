@@ -47,5 +47,49 @@ function ParamController(idContainer, params, key) {
     // vertical spacing: minimum height overall
     ParamController.minHeight = 30;
 
+    // checking parameters, for overloading methods
+
+    // test if a variable is defined, and not missing in the call, 
+    // returns true if defined
+    // a missing parameter is "undefined"
+    function isDefined(p) {
+        return ((typeof p) !== "undefined") && (p !== null);
+    }
+
+    // test if a variable is a boolean
+    function isBoolean(p) {
+        return ((typeof p) === "boolean");
+    }
+
+    // test if a variable is a string
+    function isString(p) {
+        return ((typeof p) === "string");
+    }
+
+    // test if a variable is an integer number
+    // excluding float, NaN and infinite numbers (because of Number.isInteger)
+    // returns true for 5.0 and other integers written as floating point
+    function isInteger(p) {
+        return ((typeof p) === "number") && (Number.isInteger(p));
+    }
+
+    // test if a variable is an floating point number
+    // excluding integer, NaN and infinite numbers
+    function isFloat(p) {
+        return ((typeof p) === "number") && (!Number.isNaN(p)) && (!Number.isInteger(p)) && (Number.isFinite(p));
+    }
+
+    // test if avariable is an array
+    function isArray(p) {
+        return ((typeof p) === "object") && (Array.isArray(p));
+    }
+
+    // test if a variable is an object
+    // excluding array and null
+    function isObject(p) {
+        return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
+    }
+
+
 
 }());
