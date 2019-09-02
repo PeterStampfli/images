@@ -18,7 +18,7 @@
 function NumberButton(idName, idPlus, idMinus, idInfinity) {
     "use strict";
     this.isInfinite = false; // choosing "infinity"
-    this.infinity = 1e10; // value for infinity
+    this.infinity = NumberButton.Infinity; // value for infinity
     this.isInteger = true;
     this.step = 1;
     this.idName = idName;
@@ -33,7 +33,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
-    this.maxValue = 1000000000;
+    this.maxValue = this.infinity;
     // increasing and decreasing    
     if (arguments.length >= 3) {
         this.createPlusMinusButtons(idPlus, idMinus);
@@ -102,6 +102,9 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     "use strict";
     const px = "px";
 
+    //effective value for infinity, change if too low
+    NumberButton.infinity = 1000;
+
     /**
      * update the color style of the element depending on whether its pressed or hovered
      * always call if states change, use for other buttons too
@@ -151,6 +154,15 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         this.maxValue = maxValue;
         // clamp value in range
         this.setValue(clamp(this.minValue, this.getValue(), this.maxValue));
+    };
+
+    /**
+     * set the lower limit for numbers, correct value if out of range
+     * @method NumberButton#setLow
+     * @param {integer} minValue
+     */
+    NumberButton.prototype.setLow = function(minValue) {
+        this.setRange(minValue, this.infinity);
     };
 
 

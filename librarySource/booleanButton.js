@@ -12,29 +12,30 @@ function BooleanButton(idName) {
     this.idName = idName;
     this.element = document.getElementById(idName);
     this.element.style.cursor = "pointer";
-    this.element.style.minWidth = "100px";
     this.value = false;
     this.mouseDown = false;
     this.hover = false;
     this.active = true;
+    this.textOn = "ON";
+    this.textOff = "OFF";
     this.colorStyleDefaults();
     this.updateStyle();
 
-
-
-
     /**
-     * action upon value change, strategy pattern
+     * action upon value change
      * @method Button#onChange
      */
-    this.onChange = function() {};
-
-
-
+    this.onChange = function() {
+        console.log("change");
+    };
 
     // a list of actions....
 
     var button = this;
+
+    this.element.onchange = function() {
+        button.onChange();
+    };
 
     this.element.onmousedown = function() {
         button.value = !button.value;
@@ -62,7 +63,6 @@ function BooleanButton(idName) {
     };
 }
 
-
 (function() {
     "use strict";
 
@@ -79,7 +79,6 @@ function BooleanButton(idName) {
     // for switched off
     BooleanButton.colorInactive = "black";
     BooleanButton.backgroundColorInactive = "#aaaaaa";
-
 
     /**
      * setup the color styles defaults
@@ -106,9 +105,9 @@ function BooleanButton(idName) {
      * @method BooleanButton#updateStyle
      */
     BooleanButton.prototype.updateStyle = function() {
-        console.log("sy");
         if (this.active) {
             if (this.value) {
+                this.element.innerHTML = this.textOn;
                 if (this.hover) {
                     this.element.style.color = this.colorOnHover;
                     this.element.style.backgroundColor = this.backgroundColorOnHover;
@@ -117,6 +116,7 @@ function BooleanButton(idName) {
                     this.element.style.backgroundColor = this.backgroundColorOn;
                 }
             } else {
+                this.element.innerHTML = this.textOff;
                 if (this.hover) {
                     this.element.style.color = this.colorOffHover;
                     this.element.style.backgroundColor = this.backgroundColorOffHover;
@@ -126,11 +126,52 @@ function BooleanButton(idName) {
                 }
             }
         } else {
-
+            this.element.innerHTML = "-";
             this.element.style.color = this.colorInactive;
             this.element.style.backgroundColor = this.backgroundColorInactive;
         }
     };
 
+    /**
+     * get value of booleanButton
+     * @method BooleanButton#getValue
+     * @return boolean, if on/off
+     */
+    BooleanButton.prototype.getValue = function() {
+        return this.value;
+    };
+
+    /**
+     * set value of booleanButton
+     * @method BooleanButton#setValue
+     * @param {boolean} onOff
+     */
+    BooleanButton.prototype.setValue = function(onOff) {
+        this.value = onOff;
+        this.updateStyle();
+    };
+
+    /**
+     * set alternative text for on/off states
+     * @method BooleanButton#setTexts
+     * @param {String} on
+     * @param {String} off 
+     */
+    BooleanButton.prototype.setTexts = function(on, off) {
+        this.textOn = on;
+        this.textOff = off;
+        this.updateStyle();
+    };
+
+    /**
+     * destroy the booleanButton
+     * @method BooleanButton#destroy
+     */
+    BooleanButton.prototype.destroy = function() {
+        this.onChange = null;
+        this.element.onchange = null;
+        this.element.remove();
+        this.element = null;
+    };
 
 }());

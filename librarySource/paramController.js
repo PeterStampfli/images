@@ -7,30 +7,35 @@
  * @param {String} idContainer - identifier of containing html element
  * @param {Object} params - object that has the parameter as a field
  * @param {String} key - for the field of params to change, params[key]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
  */
 
-function ParamController(idContainer, params, key) {
-    // a div for all controller elements
-    this.divId = DOM.createId();
-    this.div = DOM.create("div", this.divId, "#" + idContainer);
-
-    DOM.style("#" + this.divId, "minHeight", ParamController.minHeight + px);
-    DOM.style("#" + this.divId, "backgroundColor", "red");
+function ParamController(idContainer, params, key, low, high, step) {
     // remember params
     this.params = params;
     this.key = key;
-    const keySpanId = DOM.createId();
-    DOM.create("span", keySpanId, "#" + this.divId, key);
-    DOM.style("#" + keySpanId, "minWidth", ParamController.keyMinWidth + px, "display", "inline-block", "font-size", ParamController.keyFontSize + px);
-    DOM.addSpace(this.divId);
+    this.low = low;
+    this.high = high;
+    this.step = step;
+    // a containing div for controller and label elements
+    this.divId = DOM.createId();
+    this.div = DOM.create("div", this.divId, "#" + idContainer);
+    DOM.style("#" + this.divId, "minHeight", ParamController.minHeight + px);
+    //DOM.style("#" + this.divId, "backgroundColor", "red");
+    // a div for showing the key or other label, minimum width for alignment
     // the button or whatever the user interacts with
     this.uiElement = null;
+    // what should be done if value chnges or button clicked
+    this.callback = function() {
+        console.log("callback");
+    };
+    this.create();
 }
-
 
 (function() {
     "use strict";
-
     const px = "px";
 
     // add some defaults, especially styles
@@ -41,11 +46,18 @@ function ParamController(idContainer, params, key) {
 
     ParamController.keyMinWidth = 100;
 
-    // fontsize for key 
-    ParamController.keyFontSize = 16;
+    // fontsize for label/key 
+    ParamController.labelFontSize = 16;
 
-    // vertical spacing: minimum height overall
+    // vertical spacing: minimum height overall=== distance between baselines
+    //  if controller not too large/minHeight too low
     ParamController.minHeight = 30;
+
+    // minimum width for label (key), alignment
+    ParamController.labelWidth = 100;
+
+    // width (min) of on/off buttons
+    ParamController.onOffButtonWidth = 60;
 
     // checking parameters, for overloading methods
 
@@ -79,6 +91,14 @@ function ParamController(idContainer, params, key) {
         return ((typeof p) === "number") && (!Number.isNaN(p)) && (!Number.isInteger(p)) && (Number.isFinite(p));
     }
 
+    // test if a variable is a number
+    // excluding NaN and infinite numbers
+    function isNumber(p) {
+        return ((typeof p) === "number") && (!Number.isNaN(p)) && (Number.isFinite(p));
+    }
+
+
+
     // test if avariable is an array
     function isArray(p) {
         return ((typeof p) === "object") && (Array.isArray(p));
@@ -90,32 +110,67 @@ function ParamController(idContainer, params, key) {
         return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
     }
 
+    // make a label with given text and space
+    ParamController.prototype.createLabel = function(text) {
+        this.labelId = DOM.createId();
+        this.label = DOM.create("span", this.labelId, "#" + this.divId, text);
+        DOM.style("#" + this.labelId, "minWidth", ParamController.labelWidth + px, "display", "inline-block", "font-size", ParamController.labelFontSize + px);
+        // spacing between label and element
+        DOM.addSpace(this.divId);
+    };
 
-
-
-    /**
-     * adding a ui control element, same as in "lib/dat.gui.min2.js", one on each line
+    /*
+     * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * params is an object that contains data as fields
      * key is a String, the key to the field of params we want to change
      * the value of params[key] determines the kind of uiElement together with
      * parameters that define the values/ value range possible
-     * if the third parameter is an array or an object then this defines a selection ui element for all values of params[key]
-     * options are value/key pairs as defined by the object, for an array value==key
-     * else
-     * if params[key] is undefined we get a button
-     * if params[key] is boolean we get a checkbox
-     * if params[key] is a String we get a text input 
-     * @method ParamController#add 
-     * @param {object} params - an object with fields taking parameter values
-     * @param {String} key - id of the params field that the ui element changes, or button text
-     * @param {float/integer/array} low - determines lower limit/choices (optional)
-     * @param {float/integer} high - determines upper limit (optional)
-     * @param {float/integer} step - determines step size (optional)
-     * @return this - for chaining
      */
-    ParamController.prototype.add = function(params, key, low, high, step) {
+    ParamController.prototype.create = function() {
+        this.uiElement = null;
+        const controller = this;
+        if (isArray(this.low)) {
+            // an array defines the selection values, key and value are identical
+            console.log("create selection from array");
+        } else if (isObject(this.low)) {
+            // an object defines selection values as value[key] pair, key is shown as option
+            console.log("create selection from object");
+        } else {
+            const paramValue = this.params[this.key];
+            if (isBoolean(paramValue)) {
+                // the parameter value is boolean - thus make a BooleanButton
+                console.log("boolean button");
+                this.createLabel(this.key);
+                const id = DOM.createId();
+                DOM.create("button", id, "#" + this.divId);
+                DOM.style("#" + id, "minWidth", ParamController.onOffButtonWidth + px);
+                const button = new BooleanButton(id);
+                this.uiElement = button;
+                button.setValue(paramValue);
+                button.onChange = function() {
+                    controller.params[controller.key] = button.getValue();
+                    controller.callback();
+                };
+            } else if (!isDefined(paramValue)) {
+                // there is no parameter value with the key - thus make a button with the key as text, no label
+                console.log("button");
+            } else if (isString(paramValue)) {
+                // the parameter value is a string thus make a text input button
+                console.log("text input button");
+            } else if (isInteger(paramValue) && isInteger(this.low) && !isDefined(this.high) && !isDefined(this.step)) {
+                // the parameter value is integer, and the low limit too 
+                // high and step are not defined/ not supplied in call- make an (integer) number button with "infinity"==very large number
+                console.log("integer button with infinity");
+            } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && !isDefined(this.step)) {
+                // parameter value is integer, the low and high limits too, there is no step, thus make an integer number button
+                console.log("integer button");
+            } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
+                // param value and range limits are numbers, at least one is not integer or there is a step size given
+                // thus use a range element
+                console.log("range element");
+            }
 
-
+        }
         return this;
     };
 
