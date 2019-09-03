@@ -176,9 +176,10 @@ var DOM = {};
      * add a span with a space to inner HTML of an element
      * @method DOM.addSpace
      * @param {String} id - of the element
+     * @return html span with space
      */
     DOM.addSpace = function(id) {
-        DOM.create("span", DOM.createId(), "#" + id, " ");
+        return DOM.create("span", DOM.createId(), "#" + id, " ");
     };
 
     /**

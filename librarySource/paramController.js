@@ -49,6 +49,9 @@ function ParamController(idContainer, params, key, low, high, step) {
     // fontsize for label/key 
     ParamController.labelFontSize = 16;
 
+    // fontsize for buttons
+    ParamController.buttonFontSize = 14;
+
     // vertical spacing: minimum height overall=== distance between baselines
     //  if controller not too large/minHeight too low
     ParamController.minHeight = 30;
@@ -58,6 +61,12 @@ function ParamController(idContainer, params, key, low, high, step) {
 
     // width (min) of on/off buttons
     ParamController.onOffButtonWidth = 60;
+
+    // width for text input
+    ParamController.textInputWidth = 200;
+
+    // width for number input
+    ParamController.numberInputWidth = 60;
 
     // checking parameters, for overloading methods
 
@@ -110,13 +119,18 @@ function ParamController(idContainer, params, key, low, high, step) {
         return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
     }
 
-    // make a label with given text and space
+    /**
+     * make a label with given text and space
+     * make link to label and space elements, to be able to change/delete
+     * @method ParamController.createLabel
+     * @param {String} text
+     */
     ParamController.prototype.createLabel = function(text) {
         this.labelId = DOM.createId();
         this.label = DOM.create("span", this.labelId, "#" + this.divId, text);
         DOM.style("#" + this.labelId, "minWidth", ParamController.labelWidth + px, "display", "inline-block", "font-size", ParamController.labelFontSize + px);
         // spacing between label and element
-        DOM.addSpace(this.divId);
+        this.space = DOM.addSpace(this.divId);
     };
 
     /*
@@ -143,7 +157,7 @@ function ParamController(idContainer, params, key, low, high, step) {
                 this.createLabel(this.key);
                 const id = DOM.createId();
                 DOM.create("button", id, "#" + this.divId);
-                DOM.style("#" + id, "minWidth", ParamController.onOffButtonWidth + px);
+                DOM.style("#" + id, "minWidth", ParamController.onOffButtonWidth + px, "font-size", ParamController.buttonFontSize + px);
                 const button = new BooleanButton(id);
                 this.uiElement = button;
                 button.setValue(paramValue);
@@ -154,13 +168,49 @@ function ParamController(idContainer, params, key, low, high, step) {
             } else if (!isDefined(paramValue)) {
                 // there is no parameter value with the key - thus make a button with the key as text, no label
                 console.log("button");
+                this.createLabel("");
+                const id = DOM.createId();
+                DOM.create("button", id, "#" + this.divId, this.key);
+                DOM.style("#" + id, "font-size", ParamController.buttonFontSize + px);
+                const button = new Button(id);
+                this.uiElement = button;
+                button.onClick = function() {
+                    controller.callback();
+                };
             } else if (isString(paramValue)) {
                 // the parameter value is a string thus make a text input button
                 console.log("text input button");
+
+                this.createLabel(this.key);
+                const id = DOM.createId();
+                DOM.create("input", id, "#" + this.divId);
+                DOM.style("#" + id, "width", ParamController.textInputWidth + px, "font-size", ParamController.buttonFontSize + px);
+                const textInput = new TextInput(id);
+                textInput.setValue(paramValue);
+                this.uiElement = textInput;
+                textInput.onChange = function() {
+                    controller.params[controller.key] = textInput.getValue();
+                    controller.callback();
+                };
             } else if (isInteger(paramValue) && isInteger(this.low) && !isDefined(this.high) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit too 
                 // high and step are not defined/ not supplied in call- make an (integer) number button with "infinity"==very large number
                 console.log("integer button with infinity");
+                this.createLabel(this.key);
+                const id = DOM.createId();
+                DOM.create("span", id, "#" + this.divId);
+                const button = NumberButton.createInfinity(id);
+                DOM.style("#" + button.idName, "width", ParamController.numberInputWidth + px, "font-size", ParamController.buttonFontSize + px);
+                DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idInfinity, "font-size", ParamController.buttonFontSize + px);
+                button.setLow(this.low);
+                console.log(paramValue);
+                button.setValue(paramValue);
+                this.uiElement = button;
+                button.onChange = function() {
+                    controller.params[controller.key] = button.getValue();
+                    controller.callback();
+                };
+
             } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && !isDefined(this.step)) {
                 // parameter value is integer, the low and high limits too, there is no step, thus make an integer number button
                 console.log("integer button");

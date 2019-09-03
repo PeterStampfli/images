@@ -18,7 +18,7 @@
 function NumberButton(idName, idPlus, idMinus, idInfinity) {
     "use strict";
     this.isInfinite = false; // choosing "infinity"
-    this.infinity = NumberButton.Infinity; // value for infinity
+    this.infinity = NumberButton.infinity; // value for infinity
     this.isInteger = true;
     this.step = 1;
     this.idName = idName;
@@ -173,6 +173,10 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @return float, quantized x
      */
     NumberButton.prototype.quantizeClamp = function(x) {
+        console.log(this.minValue)
+        console.log(this.maxValue)
+        console.log(this.step)
+
         return clamp(this.minValue, this.step * Math.round(x / this.step), this.maxValue);
     };
 
@@ -199,8 +203,10 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @param {String} text - default is number to string
      */
     NumberButton.prototype.setValue = function(number, text) {
+        console.log(number);
         this.isInfinite = false;
         number = this.quantizeClamp(number);
+        console.log(number);
         this.lastValue = number;
         if (arguments.length < 2) {
             this.element.value = number.toString();
