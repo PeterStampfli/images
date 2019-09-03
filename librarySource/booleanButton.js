@@ -170,6 +170,10 @@ function BooleanButton(idName) {
     BooleanButton.prototype.destroy = function() {
         this.onChange = null;
         this.element.onchange = null;
+        this.element.onmousedown = null;
+        this.element.onmouseup = null;
+        this.element.onmouseenter = null;
+        this.element.onmouseleave = null;
         this.element.remove();
         this.element = null;
     };

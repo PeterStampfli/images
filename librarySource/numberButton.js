@@ -1,56 +1,74 @@
 /**
  * a button to input numbers,
  * 
- * default is for integer numbers, can be changed to float with given step size (rounding)
- * default range is 0 to 1000000000
+ * default is for integer numbers, can be changed to float with given step size (rounding) * 
  * 
- * possibility to have "infinite" (very large number)
- * 
- * @constructor NumberButton - better use NumberButton.create
+ * @constructor NumberButton - better use factory NumberButton.create
  * @param {String} idName name (id) of an html (text) input element, attribute type will be set to text
  * @param {String} idPlus - optional, id of an HTML button element, for plus button, increases by 1
  * @param {String} idMinus - optional, id of an HTML button element, for minus button, decreases by 1
- * @param {String} idInfinity - optional, id of an HTML button element, for infinity button
+ * @param {String} idMin - optional, id of an HTML button element, set number to minimum value
+ * @param {String} idMax - optional, id of an HTML button element,set number to maximum value
  */
 
 /* jshint esversion:6 */
 
-function NumberButton(idName, idPlus, idMinus, idInfinity) {
+function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     "use strict";
-    this.isInfinite = false; // choosing "infinity"
-    this.infinity = NumberButton.infinity; // value for infinity
-    this.isInteger = true;
-    this.step = 1;
     this.idName = idName;
-    this.idPlus = (arguments.length > 1) ? idPlus : false;
-    this.idMinus = (arguments.length > 2) ? idMinus : false;
-    this.idInfinity = (arguments.length > 3) ? idInfinity : false;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
     DOM.style("#" + this.idName, "text-align", "right");
+    this.idPlus = (arguments.length > 1) ? idPlus : false;
+    this.idMinus = (arguments.length > 2) ? idMinus : false;
+    this.idMin = (arguments.length > 3) ? idMin : false;
+    this.idMax = (arguments.length > 4) ? idMax : false;
     this.hover = false;
     this.pressed = false;
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
-    this.maxValue = this.infinity;
-    // increasing and decreasing    
-    if (arguments.length >= 3) {
-        this.createPlusMinusButtons(idPlus, idMinus);
-    } else {
-        this.plusButton = null;
-        this.MinusButton = null;
-    }
-    if ((arguments.lenght === 2) || (arguments.length === 4)) {
-        this.createInfinityButton(idInfinity);
-    } else {
-        this.infinityButton = null;
-    }
-
+    this.maxValue = NumberButton.maxValue;
+    this.step = 1;
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
+
+    const button = this;
+
+    // increasing and decreasing    
+    this.plusButton = null;
+    if (this.idPlus !== false) {
+        this.plusButton = new Button(idPlus);
+        this.plusButton.onClick = function() {
+            button.updateValue(button.lastValue + 1);
+        };
+    }
+    this.minusButton = null;
+    if (this.idMinus !== false) {
+        this.minusButton = new Button(idMinus);
+        this.minusButton.onClick = function() {
+            button.updateValue(button.lastValue - 1);
+        };
+    }
+
+    // go to max or min value
+    this.minButton = null;
+    if (this.idMin !== false) {
+        this.minButton = new Button(idMin);
+        this.minButton.onClick = function() {
+            button.updateValue(button.minValue);
+        };
+    }
+
+    this.maxButton = null;
+    if (this.idMax !== false) {
+        this.maxButton = new Button(idMax);
+        this.maxButton.onClick = function() {
+            button.updateValue(button.maxValue);
+        };
+    }
 
     /**
      * action upon change, strategy pattern
@@ -59,20 +77,8 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      */
     this.onChange = function(value) {};
 
-    var button = this;
-
     this.element.onchange = function() {
-        if (button.isInfinite) { // get again finite numbers
-            button.isInfinite = false;
-            let number = parseFloat(button.element.value);
-            if (isNaN(number)) { // overwrite garbage, do nothing
-                number = button.lastValue;
-            }
-            button.setValue(number);
-            button.onChange(number);
-        } else {
-            button.updateValue(button.getValue());
-        }
+        button.updateValue(button.getValue());
     };
 
     // onfocus /onblur corresponds to pressed
@@ -103,7 +109,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     const px = "px";
 
     //effective value for infinity, change if too low
-    NumberButton.infinity = 1000;
+    NumberButton.maxValue = 1000;
 
     /**
      * update the color style of the element depending on whether its pressed or hovered
@@ -119,28 +125,24 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
     /**
-     * return a value clamped between max and min  
-     * @function clamp 
-     * @para {int/float} min 
-     * @para {int/float} x 
-     * @para {int/float} max  
+     * quantize a number according to step and clamp to range
+     * @method NumberButton#quantizeClamp
+     * @param {float} x
+     * @return float, quantized x
      */
-    function clamp(min, x, max) {
-        return Math.max(min, Math.min(x, max));
-    }
-
+    NumberButton.prototype.quantizeClamp = function(x) {
+        return Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+    };
 
     /**
-     * set numbers to float
-     * @method NumberButton#setFloat
-     * @param {float} step - the step size (rounding), default is 0.0001
+     * change step to number smaller than 1 to get float
+     * @method NumberButton#setStep
+     * @param {float} step - the step size (rounding)
      */
-    NumberButton.prototype.setFloat = function(step) {
-        if (arguments.length < 1) {
-            step = 0.0001;
-        }
-        this.isInteger = false;
+    NumberButton.prototype.setStep = function(step) {
         this.step = step;
+        // quantize value
+        this.setValue(this.quantizeClamp(this.getValue()));
     };
 
     /**
@@ -153,7 +155,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         this.minValue = minValue;
         this.maxValue = maxValue;
         // clamp value in range
-        this.setValue(clamp(this.minValue, this.getValue(), this.maxValue));
+        this.setValue(this.quantizeClamp(this.getValue()));
     };
 
     /**
@@ -162,36 +164,18 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * @param {integer} minValue
      */
     NumberButton.prototype.setLow = function(minValue) {
-        this.setRange(minValue, this.infinity);
+        this.setRange(minValue, NumberButton.maxValue);
     };
-
-
-    /**
-     * quantize a number according to step and clamp to range
-     * @method NumberButton#quantizeClamp
-     * @param {float} x
-     * @return float, quantized x
-     */
-    NumberButton.prototype.quantizeClamp = function(x) {
-        console.log(this.minValue)
-        console.log(this.maxValue)
-        console.log(this.step)
-
-        return clamp(this.minValue, this.step * Math.round(x / this.step), this.maxValue);
-    };
-
 
     /**
      * read the value of the text of a button of type="text"
+     * note that the element.onchange routine makes shure that 
+     * the value will be a number if this is called after onchange event
      * @method NumberButton#getValue
      * @returns {integer} value resulting from parsing the button text
      */
     NumberButton.prototype.getValue = function() {
-        if (this.isInfinite) {
-            return this.infinity;
-        } else {
-            return this.quantizeClamp(parseFloat(this.element.value));
-        }
+        return this.quantizeClamp(parseFloat(this.element.value));
     };
 
     /**
@@ -199,29 +183,12 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      * sets lastValue to same number
      * does nothing else, use it for initialization
      * @method NumberButton#setValue
-     * @param {integer} number - the number value to show in the button
-     * @param {String} text - default is number to string
+     * @param {integer} number - the number value to show in the button, verified number !!
      */
-    NumberButton.prototype.setValue = function(number, text) {
-        console.log(number);
-        this.isInfinite = false;
+    NumberButton.prototype.setValue = function(number) {
         number = this.quantizeClamp(number);
-        console.log(number);
         this.lastValue = number;
-        if (arguments.length < 2) {
-            this.element.value = number.toString();
-        } else {
-            this.element.value = text;
-        }
-    };
-
-    /**
-     * set button to infinite value
-     * @method NumberButton#setInfinite
-     */
-    NumberButton.prototype.setInfinite = function() {
-        this.isInfinite = true;
-        this.element.value = "∞";
+        this.element.value = number.toString();
     };
 
     /**
@@ -238,55 +205,9 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
             number = this.quantizeClamp(number);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
-                this.onChange(number);
-            } else { // it does not change, clean up garbage
-                this.setValue(this.lastValue);
+                this.onChange();
             }
         }
-    };
-
-    /**
-     * create buttons for increasing and decreasing the value, switching from infinite to previous result
-     * @method NumberButton#createPlusMinusButtons
-     * @param {String} idPlus - id for the plus button
-     * @param {String} idMinus - id for the minus button
-     */
-    NumberButton.prototype.createPlusMinusButtons = function(idPlus, idMinus) {
-        this.plusButton = new Button(idPlus);
-        this.minusButton = new Button(idMinus);
-        let numberButton = this;
-        this.plusButton.onClick = function() {
-            if (numberButton.isInfinite) {
-                numberButton.setValue(numberButton.lastValue);
-                numberButton.onChange(numberButton.lastValue);
-            } else {
-                numberButton.updateValue(numberButton.lastValue + 1);
-            }
-        };
-        this.minusButton.onClick = function() {
-            if (numberButton.isInfinite) {
-                numberButton.setValue(numberButton.lastValue);
-                numberButton.onChange(numberButton.lastValue);
-            } else {
-                numberButton.updateValue(numberButton.lastValue - 1);
-            }
-        };
-    };
-
-    /** 
-     * create a button for infinite value
-     * @method NumberButton#createInfinityButton
-     * @param {String} idInfinity - id for the infinity button
-     */
-    NumberButton.prototype.createInfinityButton = function(idInfinity) {
-        this.infinityButton = new Button(idInfinity);
-        let numberButton = this;
-        this.infinityButton.onClick = function() {
-            if (!numberButton.isInfinite) {
-                numberButton.setInfinite();
-                numberButton.onChange(numberButton.infinity);
-            }
-        };
     };
 
     /**
@@ -297,21 +218,28 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
      */
     NumberButton.prototype.destroy = function() {
         this.onChange = null;
+        this.element.onChange = null;
         this.element.onfocus = null;
         this.element.onblur = null;
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
         this.element.remove();
         this.element = null;
-        if (this.plusButton != null) { // plus and minus come together
+        if (this.plusButton != null) {
             this.plusButton.destroy();
-            this.minusButton.destroy();
             this.plusButton = null;
+        }
+        if (this.minusButton != null) {
+            this.minusButton.destroy();
             this.minusButton = null;
         }
-        if (this.infinityButton != null) {
-            this.infinityButton.destroy();
-            this.infinityButton = null;
+        if (this.minButton != null) {
+            this.minButton.destroy();
+            this.minButton = null;
+        }
+        if (this.maxButton != null) {
+            this.maxButton.destroy();
+            this.maxButton = null;
         }
     };
 
@@ -336,7 +264,7 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
     };
 
     /**
-     * create an number button with up and down buttons and infinity button, maximum 4 digits
+     * create an number button with up and down buttons and max and min button, maximum 4 digits
      * Attention: set font sizes afterwards
      * @method NumberButton.createInfinity
      * @param {String} idSpan - id of the span conatining the number button
@@ -350,9 +278,11 @@ function NumberButton(idName, idPlus, idMinus, idInfinity) {
         DOM.addSpace(idSpan);
         const upId = DOM.createButton(idSpan, "up");
         DOM.addSpace(idSpan);
-        const infId = DOM.createButton(idSpan, " ∞ ");
-        DOM.style("#" + upId + ",#" + dnId + ",#" + infId, "borderRadius", 1000 + px);
-        let numberButton = new NumberButton(inputId, upId, dnId, infId);
+        const minId = DOM.createButton(idSpan, "min");
+        DOM.addSpace(idSpan);
+        const maxId = DOM.createButton(idSpan, "max");
+        DOM.style("#" + upId + ",#" + dnId + ",#" + minId + ",#" + maxId, "borderRadius", 1000 + px);
+        let numberButton = new NumberButton(inputId, upId, dnId, minId, maxId);
         return numberButton;
     };
 
