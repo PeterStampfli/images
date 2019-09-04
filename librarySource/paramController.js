@@ -29,7 +29,7 @@ function ParamController(idContainer, params, key, low, high, step) {
     this.uiElement = null;
     // what should be done if value chnges or button clicked
     this.callback = function() {
-        console.log("callback");
+        console.log("callback " + this.params[this.key]);
     };
     this.create();
 }
@@ -67,6 +67,12 @@ function ParamController(idContainer, params, key, low, high, step) {
 
     // width for number input
     ParamController.numberInputWidth = 60;
+
+    // length of slider for range element
+    ParamController.rangeSliderLength = 120;
+
+    // vertical offset for range slider
+    ParamController.rangeVOffset = 4;
 
     // checking parameters, for overloading methods
 
@@ -133,6 +139,17 @@ function ParamController(idContainer, params, key, low, high, step) {
         this.space = DOM.addSpace(this.divId);
     };
 
+
+    // freaking grunt
+    ParamController.prototype.makeSelectOptionAction = function(value) {
+        const controller = this;
+        const action = function() {
+            controller.params[controller.key] = value;
+            controller.callback();
+        };
+        return action;
+    };
+
     /*
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * params is an object that contains data as fields
@@ -143,9 +160,10 @@ function ParamController(idContainer, params, key, low, high, step) {
     ParamController.prototype.create = function() {
         this.uiElement = null;
         const controller = this;
+        const paramValue = this.params[this.key];
         if (isArray(this.low) || isObject(this.low)) {
             // determine option labels and values
-            var optionLabels, optionValues;
+            var optionLabels, optionValues, i;
             if (isArray(this.low)) {
                 // an array defines the selection values, key and value are identical
                 console.log("create selection from array");
@@ -156,16 +174,26 @@ function ParamController(idContainer, params, key, low, high, step) {
                 console.log("create selection from object");
                 optionLabels = Object.keys(this.low);
                 optionValues = [];
-                for (var i = 0; i < optionLabels.length; i++) {
+                for (i = 0; i < optionLabels.length; i++) {
                     optionValues.push(this.low[optionLabels[i]]);
                 }
             }
-
-            console.log(optionLabels);
-            console.log(optionValues);
-
+            this.createLabel(this.key);
+            const id = DOM.createId();
+            DOM.create("select", id, "#" + this.divId);
+            DOM.style("#" + id, "font-size", ParamController.buttonFontSize + px);
+            const select = new Select(id);
+            this.uiElement = select;
+            let currentIndex = 0;
+            for (i = 0; i < optionValues.length; i++) {
+                const value = optionValues[i];
+                if (paramValue == value) {
+                    currentIndex = i;
+                }
+                select.addOption(optionLabels[i], this.makeSelectOptionAction(value));
+            }
+            select.setIndex(currentIndex);
         } else {
-            const paramValue = this.params[this.key];
             if (isBoolean(paramValue)) {
                 // the parameter value is boolean - thus make a BooleanButton
                 console.log("boolean button");
@@ -215,7 +243,7 @@ function ParamController(idContainer, params, key, low, high, step) {
                 DOM.create("span", id, "#" + this.divId);
                 const button = NumberButton.createInfinity(id);
                 DOM.style("#" + button.idName, "width", ParamController.numberInputWidth + px, "font-size", ParamController.buttonFontSize + px);
-                DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idInfinity, "font-size", ParamController.buttonFontSize + px);
+                DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idMin + ",#" + button.idMax, "font-size", ParamController.buttonFontSize + px);
                 if (isInteger(this.high)) {
                     button.setRange(this.low, this.high);
                 } else {
@@ -233,8 +261,23 @@ function ParamController(idContainer, params, key, low, high, step) {
                 // param value and range limits are numbers, at least one is not integer or there is a step size given
                 // thus use a range element
                 console.log("range element");
+                this.createLabel(this.key);
+                const id = DOM.createId();
+                DOM.create("span", id, "#" + this.divId);
+                const range = Range.create(id);
+                DOM.style("#" + range.idText, "width", ParamController.numberInputWidth + px, "font-size", ParamController.buttonFontSize + px);
+                DOM.style("#" + range.idRange, "width", ParamController.rangeSliderLength + px, "position", "relative", "top", ParamController.rangeVOffset + px);
+                range.setRange(this.low, this.high);
+                if (isNumber(this.step)) {
+                    range.setStep(this.step);
+                }
+                range.setValue(paramValue);
+                this.uiElement = range;
+                range.onChange = function() {
+                    controller.params[controller.key] = range.getValue();
+                    controller.callback();
+                };
             }
-
         }
         return this;
     };

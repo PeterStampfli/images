@@ -20,6 +20,7 @@ function Range(idText, idRange) {
     this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
     this.setStep(0.01);
+    this.digits = 2;
     this.lastValue = 0.5;
     this.setRange(0, 1);
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
@@ -197,7 +198,7 @@ function Range(idText, idRange) {
         this.textElement.value = number.toString();
         this.rangeElement.value = number.toString();
         if (arguments.length < 2) {
-            this.textElement.value = number.toString();
+            this.textElement.value = number.toFixed(this.digits);
         } else {
             this.textElement.value = text;
         }
@@ -257,6 +258,16 @@ function Range(idText, idRange) {
     Range.prototype.setStep = function(step) {
         this.step = step;
         this.rangeElement.step = step;
+        this.digits = 1;
+        if (step < 0.1) {
+            this.digits = 2;
+        }
+        if (step < 0.01) {
+            this.digits = 3;
+        }
+        if (step < 0.001) {
+            this.digits = 4;
+        }
     };
 
     /**
