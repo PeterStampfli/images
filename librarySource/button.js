@@ -12,6 +12,7 @@ function Button(idName) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);
+    DOM.style("#" + idName, "borderRadius", 1000 + px);
     // states
     this.pressed = false;
     this.hover = false;

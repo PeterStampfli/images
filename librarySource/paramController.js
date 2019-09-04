@@ -143,12 +143,27 @@ function ParamController(idContainer, params, key, low, high, step) {
     ParamController.prototype.create = function() {
         this.uiElement = null;
         const controller = this;
-        if (isArray(this.low)) {
-            // an array defines the selection values, key and value are identical
-            console.log("create selection from array");
-        } else if (isObject(this.low)) {
-            // an object defines selection values as value[key] pair, key is shown as option
-            console.log("create selection from object");
+        if (isArray(this.low) || isObject(this.low)) {
+            // determine option labels and values
+            var optionLabels, optionValues;
+            if (isArray(this.low)) {
+                // an array defines the selection values, key and value are identical
+                console.log("create selection from array");
+                optionLabels = this.low;
+                optionValues = this.low;
+            } else {
+                // an object defines selection values as value[key] pair, key is shown as option
+                console.log("create selection from object");
+                optionLabels = Object.keys(this.low);
+                optionValues = [];
+                for (var i = 0; i < optionLabels.length; i++) {
+                    optionValues.push(this.low[optionLabels[i]]);
+                }
+            }
+
+            console.log(optionLabels);
+            console.log(optionValues);
+
         } else {
             const paramValue = this.params[this.key];
             if (isBoolean(paramValue)) {
@@ -180,7 +195,6 @@ function ParamController(idContainer, params, key, low, high, step) {
             } else if (isString(paramValue)) {
                 // the parameter value is a string thus make a text input button
                 console.log("text input button");
-
                 this.createLabel(this.key);
                 const id = DOM.createId();
                 DOM.create("input", id, "#" + this.divId);
@@ -192,17 +206,21 @@ function ParamController(idContainer, params, key, low, high, step) {
                     controller.params[controller.key] = textInput.getValue();
                     controller.callback();
                 };
-            } else if (isInteger(paramValue) && isInteger(this.low) && !isDefined(this.high) && !isDefined(this.step)) {
+            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit too 
-                // high and step are not defined/ not supplied in call- make an (integer) number button with "infinity"==very large number
-                console.log("integer button with infinity");
+                // high is integer or not defined and step is not defined/ not supplied in call- make an (integer) number button 
+                console.log("integer button");
                 this.createLabel(this.key);
                 const id = DOM.createId();
                 DOM.create("span", id, "#" + this.divId);
                 const button = NumberButton.createInfinity(id);
                 DOM.style("#" + button.idName, "width", ParamController.numberInputWidth + px, "font-size", ParamController.buttonFontSize + px);
                 DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idInfinity, "font-size", ParamController.buttonFontSize + px);
-                button.setLow(this.low);
+                if (isInteger(this.high)) {
+                    button.setRange(this.low, this.high);
+                } else {
+                    button.setLow(this.low);
+                }
                 console.log(paramValue);
                 button.setValue(paramValue);
                 this.uiElement = button;
@@ -211,9 +229,6 @@ function ParamController(idContainer, params, key, low, high, step) {
                     controller.callback();
                 };
 
-            } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && !isDefined(this.step)) {
-                // parameter value is integer, the low and high limits too, there is no step, thus make an integer number button
-                console.log("integer button");
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
                 // param value and range limits are numbers, at least one is not integer or there is a step size given
                 // thus use a range element
