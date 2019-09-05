@@ -162,37 +162,18 @@ function ParamController(idContainer, params, key, low, high, step) {
         const controller = this;
         const paramValue = this.params[this.key];
         if (isArray(this.low) || isObject(this.low)) {
-            // determine option labels and values
-            var optionLabels, optionValues, i;
-            if (isArray(this.low)) {
-                // an array defines the selection values, key and value are identical
-                console.log("create selection from array");
-                optionLabels = this.low;
-                optionValues = this.low;
-            } else {
-                // an object defines selection values as value[key] pair, key is shown as option
-                console.log("create selection from object");
-                optionLabels = Object.keys(this.low);
-                optionValues = [];
-                for (i = 0; i < optionLabels.length; i++) {
-                    optionValues.push(this.low[optionLabels[i]]);
-                }
-            }
             this.createLabel(this.key);
             const id = DOM.createId();
             DOM.create("select", id, "#" + this.divId);
             DOM.style("#" + id, "font-size", ParamController.buttonFontSize + px);
-            const select = new Select(id);
+            const select = new SelectValues(id);
             this.uiElement = select;
-            let currentIndex = 0;
-            for (i = 0; i < optionValues.length; i++) {
-                const value = optionValues[i];
-                if (paramValue == value) {
-                    currentIndex = i;
-                }
-                select.addOption(optionLabels[i], this.makeSelectOptionAction(value));
-            }
-            select.setIndex(currentIndex);
+            select.setLabelsValues(this.low);
+            select.setValue(paramValue);
+            select.onChange = function() {
+                controller.params[controller.key] = select.getValue();
+                controller.callback();
+            };
         } else {
             if (isBoolean(paramValue)) {
                 // the parameter value is boolean - thus make a BooleanButton

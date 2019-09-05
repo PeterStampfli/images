@@ -1,5 +1,5 @@
 /**
- * representing an hTML selection
+ * representing an hTML selection for selecting actions
  *
  * @constructor Select
  * @param {String} idName name (id) of an html select element
@@ -10,7 +10,7 @@
 
 function Select(idName) {
     "use strict";
-
+    this.idName = idName;
     this.element = document.getElementById(idName);
     this.hover = false;
     this.colorStyleDefaults();
@@ -93,7 +93,7 @@ function Select(idName) {
      * @param {function} fun - what to do, a function()
      */
     Select.prototype.addOption = function(name, fun) {
-        this.element.innerHTML += "<option>" + name + "</option>";
+        DOM.create("option", DOM.createId(), "#" + this.idName, name);
         this.actions.push(fun);
     };
 

@@ -22,7 +22,6 @@ function TextInput(idName) {
     this.colorStyleDefaults();
     this.updateStyle();
 
-
     /**
      * action upon change, strategy pattern
      * @method Button#onClick
@@ -59,7 +58,6 @@ function TextInput(idName) {
     };
 }
 
-
 (function() {
     "use strict";
     const px = "px";
@@ -76,7 +74,6 @@ function TextInput(idName) {
      * @method NumberButton#colorStyleDefaults
      */
     TextInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
-
 
     /**
      * get value of textInput
