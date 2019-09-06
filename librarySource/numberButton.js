@@ -205,7 +205,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
             number = this.quantizeClamp(number);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
-                this.onChange();
+                this.onChange(number);
             }
         }
     };
