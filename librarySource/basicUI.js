@@ -19,8 +19,6 @@ basicUI = {};
     };
 
     //----------------------------------------------------------------------------------
-
-
     //  define general constants
     //=================================================================================
     const backgroundColor = "#888888";
@@ -31,8 +29,9 @@ basicUI = {};
 
     // styling the body that already exists 
     //===============================================================================
-    DOM.style("body", "backgroundColor", backgroundColor);
-    DOM.style("body", "fontFamily", "'Open Sans', Arial, sans-serif");
+    DOM.style("body",
+        "backgroundColor", backgroundColor,
+        "fontFamily", "'Open Sans', Arial, sans-serif");
 
     // interaction elements
     //   =========================================================
@@ -69,9 +68,13 @@ basicUI = {};
 
     // "text" is the collection of text-based control elements
     const text = document.getElementById("text");
-    DOM.style("#text", "position", "fixed", "overflow", "auto");
-    DOM.style("#text", "right", 0 + px, "bottom", 0 + px);
-    DOM.style("#text", "backgroundColor", textBackgroundColor, "zIndex", "11");
+    DOM.style("#text",
+        "position", "fixed",
+        "overflow", "auto",
+        "right", 0 + px,
+        "bottom", 0 + px,
+        "backgroundColor", textBackgroundColor,
+        "zIndex", "11");
 
     // switching (foreground/background) between controlimage/arrowcontroller and text based control elements
     text.onclick = function() {
@@ -268,7 +271,6 @@ basicUI = {};
                 function() {
                     DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "initial");
-                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000ff");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
@@ -283,7 +285,6 @@ basicUI = {};
                 function() {
                     DOM.displayNone("imageControlDiv");
                     DOM.style("#convergenceStyle", "display", "initial");
-                    DOM.style("#outputCanvasdiv", "backgroundColor", outputImageBackgroundColor);
                     DOM.style("#outputCanvasdiv", "backgroundColor", "#000000ff");
                     Make.showingInputImage = false;
                     Make.clearControlImage();
@@ -572,8 +573,9 @@ basicUI = {};
         } else {
             textMaxHeight = window.innerHeight;
         }
-        DOM.style("#text", "width", controlWidth + px);
-        DOM.style("#text", "height", textMaxHeight + px);
+        DOM.style("#text",
+            "width", controlWidth + px,
+            "height", textMaxHeight + px);
     };
 
     /**
@@ -634,8 +636,9 @@ basicUI = {};
             textMaxWidth = window.innerWidth;
         }
 
-        DOM.style("#text", "width", textMaxWidth + px);
-        DOM.style("#text", "height", controlHeight + px);
+        DOM.style("#text",
+            "width", textMaxWidth + px,
+            "height", controlHeight + px);
     };
 
     /**
