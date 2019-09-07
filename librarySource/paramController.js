@@ -26,8 +26,8 @@ function ParamController(idContainer, object, property, low, high, step) {
     // the button or whatever the user interacts with
     this.uiElement = null;
     // what should be done if value changes or button clicked
-    this.callback = function() {
-        console.log("callback " + this.object[this.property]);
+    this.callback = function(value) {
+        console.log("callback value " + value);
     };
     this.create();
 }
@@ -141,7 +141,7 @@ function ParamController(idContainer, object, property, low, high, step) {
         const controller = this;
         const action = function() {
             controller.object[controller.property] = value;
-            controller.callback();
+            controller.callback(value);
         };
         return action;
     };
@@ -167,8 +167,9 @@ function ParamController(idContainer, object, property, low, high, step) {
             select.setLabelsValues(this.low);
             select.setValue(paramValue);
             select.onChange = function() {
-                controller.object[controller.property] = select.getValue();
-                controller.callback();
+                const value = select.getValue();
+                controller.object[controller.property] = value;
+                controller.callback(value);
             };
         } else {
             if (isBoolean(paramValue)) {
@@ -184,8 +185,9 @@ function ParamController(idContainer, object, property, low, high, step) {
                 this.uiElement = button;
                 button.setValue(paramValue);
                 button.onChange = function() {
-                    controller.object[controller.property] = button.getValue();
-                    controller.callback();
+                    const value = button.getValue();
+                    controller.object[controller.property] = value;
+                    controller.callback(value);
                 };
             } else if (!isDefined(paramValue)) {
                 // there is no parameter value with the property - thus make a button with the property as text, no label
@@ -212,8 +214,9 @@ function ParamController(idContainer, object, property, low, high, step) {
                 textInput.setValue(paramValue);
                 this.uiElement = textInput;
                 textInput.onChange = function() {
-                    controller.object[controller.property] = textInput.getValue();
-                    controller.callback();
+                    const value = textInput.getValue();
+                    controller.object[controller.property] = value;
+                    controller.callback(value);
                 };
             } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit too 
@@ -233,12 +236,12 @@ function ParamController(idContainer, object, property, low, high, step) {
                 } else {
                     button.setLow(this.low);
                 }
-                console.log(paramValue);
                 button.setValue(paramValue);
                 this.uiElement = button;
                 button.onChange = function() {
-                    controller.object[controller.property] = button.getValue();
-                    controller.callback();
+                    const value = button.getValue();
+                    controller.object[controller.property] = value;
+                    controller.callback(value);
                 };
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
                 // param value and range limits are numbers, at least one is not integer or there is a step size given
@@ -262,8 +265,9 @@ function ParamController(idContainer, object, property, low, high, step) {
                 range.setValue(paramValue);
                 this.uiElement = range;
                 range.onChange = function() {
-                    controller.object[controller.property] = range.getValue();
-                    controller.callback();
+                    const value = range.getValue();
+                    controller.object[controller.property] = value;
+                    controller.callback(value);
                 };
             }
         }
@@ -304,7 +308,7 @@ function ParamController(idContainer, object, property, low, high, step) {
     /**
      * set the callback function for onchange events
      * @method ParamController#onChange
-     * @param {function} callback
+     * @param {function} callback - function(value), with value of controller as argument
      * @return this
      */
     ParamController.prototype.onChange = function(callback) {
@@ -316,7 +320,7 @@ function ParamController(idContainer, object, property, low, high, step) {
      * set the callback function for onclick events
      * (same as onChange)
      * @method ParamController#onClick
-     * @param {function} callback
+     * @param {function} callback - function()
      * @return this
      */
     ParamController.prototype.onClick = function(callback) {

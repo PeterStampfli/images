@@ -92,20 +92,16 @@ function SelectValues(idName) {
     SelectValues.prototype.setLabelsValues = function(selections) {
         if (Array.isArray(selections)) {
             // an array defines the selection values, key and value are identical
-            console.log("create selection from array");
             this.labels = selections;
             this.values = selections;
         } else {
             // an object defines selection values as value[key] pair, key is shown as option
-            console.log("create selection from object");
             this.labels = Object.keys(selections);
             this.values = [];
             for (let i = 0; i < this.labels.length; i++) {
                 this.values.push(selections[this.labels[i]]);
             }
         }
-        console.log(this.labels);
-        console.log(this.values);
         while (this.element.firstChild) {
             this.element.removeChild(this.element.firstChild);
         }

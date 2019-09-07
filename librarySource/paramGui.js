@@ -35,7 +35,7 @@
  * autoPlace - boolean - placing the gui automatically?? - default: true
  * hideable - boolean - hide/show with keyboard "h" press - default: true
  * closed - boolean - start gui in closed state - default: false
- * closeOnTop - boolean - make a titlebar with show/hide button - default: false
+ * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
 
 ParamGui = function(params) {
@@ -51,12 +51,13 @@ ParamGui = function(params) {
     // read params object replacing defaults
     if (typeof params !== "undefined") {
         const keys = Object.keys(params);
-        console.log(keys);
         for (let i = 0; i < keys.length; i++) {
             this[keys[i]] = params[keys[i]];
-            console.log(this[keys[i]]);
         }
     }
+    // other parameters to change
+    // width default for root
+    this.width = ParamGui.width;
     this.setup();
 };
 
@@ -98,51 +99,61 @@ ParamGui = function(params) {
     ParamGui.textColor = "#444444";
     // color for the border of the ui panel
     ParamGui.borderColor = "#777777";
-    // color for top of folder with hide/show button
+    // color for top of folder with close/open button
     ParamGui.folderTopColor = "#000000";
     ParamGui.folderTopBackgroundColor = "#bbbbbb";
 
+    //=================================================================
+    // dom structure
+    // this.domElement contains all of the ParamGui object
+    // this.topDiv contains the title bar at the top if there is a name and open/close buttons
+    // this.bodyDiv contains the controls, folders and so on
+    //=========================================================================================
+
+
     ParamGui.prototype.setup = function() {
+        const paramGui = this;
         if (this.parent === null) {
             // the root element has to generate a div as containing DOMElement
             console.log("generate div");
-            this.containerId = DOM.createId();
-            this.container = DOM.create("div", this.containerId, "body");
+            this.domElementId = DOM.createId();
+            this.domElement = DOM.create("div", this.domElementId, "body");
             // put it on top
-            DOM.style("#" + this.containerId, "zIndex", "" + ParamGui.zIndex);
+            DOM.style("#" + this.domElementId, "zIndex", "" + ParamGui.zIndex);
             if (this.autoPlace) { // autoplacing into a corner
-                DOM.style("#" + this.containerId,
-                    "position", "fixed", ParamGui.verticalPosition, px0,
+                DOM.style("#" + this.domElementId,
+                    "position", "fixed",
+                    ParamGui.verticalPosition, px0,
                     ParamGui.horizontalPosition, px0);
             }
             // width, no padding, define spacing on elements
-            DOM.style("#" + this.containerId,
-                "width", ParamGui.width + px,
+            DOM.style("#" + this.domElementId,
+                "width", this.width + px,
                 "maxHeight", (window.innerHeight - 2 * ParamGui.borderWidth) + px,
-                "overflowY", "auto", "overflowX", "hidden");
-            DOM.style("#" + this.containerId,
+                "overflowY", "auto",
+                "overflowX", "hidden");
+            DOM.style("#" + this.domElementId,
                 "borderWidth", ParamGui.borderWidth + px,
                 "borderStyle", "solid",
                 "borderColor", ParamGui.borderColor,
                 "backgroundColor", ParamGui.backgroundColor);
         } else {
-            // folders have the parent div as container
-            this.containerId = this.parent.domElementId;
-            this.container = this.parent.domElement;
+            // folders have the parent bodyDiv as container
+            this.domElementId = this.parent.bodyDivId;
+            this.domElement = this.parent.bodyDiv;
         }
-        if (this.closeOnTop) {
-            // create divs with show/hide buttons
+        // a title bar on top if there is a name or close/open buttons
+        if ((this.closeOnTop) || (this.name !== "")) {
+            // create divs with open/close buttons
             console.log("closeOnTop");
             this.topDivId = DOM.createId();
-            DOM.create("div", this.topDivId, "#" + this.containerId);
-
+            DOM.create("div", this.topDivId, "#" + this.domElementId);
             DOM.style("#" + this.topDivId,
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
-                "width", ParamGui.width + px,
+                "width", this.width + px,
                 "paddingTop", ParamGui.paddingVertical + px,
                 "paddingBottom", ParamGui.paddingVertical + px);
-
             this.topLabelId = DOM.createId();
             this.topLabel = DOM.create("span", this.topLabelId, "#" + this.topDivId, this.name);
             DOM.style("#" + this.topLabelId,
@@ -152,31 +163,63 @@ ParamGui = function(params) {
                 "font-weight", "bold",
                 "paddingLeft", ParamGui.paddingHorizontal + px,
                 "paddingRight", ParamGui.paddingHorizontal + px);
+            // close and open buttons if wanted
+            if (this.closeOnTop) {
 
+                const closeButtonElementId = DOM.createId();
 
-            const hideButtonElementId = DOM.createId();
+                const closeButtonElement = DOM.create("button", closeButtonElementId, "#" + this.topDivId, "close");
+                const openButtonElementId = DOM.createId();
 
-            const hideButtonElement = DOM.create("button", hideButtonElementId, "#" + this.topDivId, "hide");
-            const showButtonElementId = DOM.createId();
+                const openButtonElement = DOM.create("button", openButtonElementId, "#" + this.topDivId, "open");
 
-            const showButtonElement = DOM.create("button", showButtonElementId, "#" + this.topDivId, "show");
-
-            DOM.style("#" + hideButtonElementId + ",#" + showButtonElementId,
-                "font-size", ParamGui.buttonFontSize + px);
-
-            this.hideButton = new Button(hideButtonElementId);
-            this.showButton = new Button(showButtonElementId);
+                DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
+                    "font-size", ParamGui.buttonFontSize + px);
+                this.closeButton = new Button(closeButtonElementId);
+                this.closeButton.onClick = function() {
+                    paramGui.closed = true;
+                    DOM.display(openButtonElementId);
+                    DOM.displayNone(closeButtonElementId, paramGui.bodyDivId);
+                };
+                this.openButton = new Button(openButtonElementId);
+                this.openButton.onClick = function() {
+                    paramGui.closed = false;
+                    DOM.displayNone(openButtonElementId);
+                    DOM.style("#" + closeButtonElementId, "display", "initial");
+                    DOM.style("#" + paramGui.bodyDivId, "display", "block");
+                };
+                // default:open
+                DOM.displayNone(openButtonElementId);
+            }
         }
-
-        // the ui elements go into their own div, this.domElement
-
-
-        this.domElementId = DOM.createId();
-        this.domElement = DOM.create("div", this.domElementId, "#" + this.containerId);
-        DOM.style("#" + this.domElementId,
-            "width", ParamGui.width + px,
+        // the ui elements go into their own div, the this.bodyDiv
+        this.bodyDivId = DOM.createId();
+        this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+        DOM.style("#" + this.bodyDivId,
+            "width", this.width + px,
             "paddingTop", ParamGui.paddingVertical + px,
             "paddingBottom", ParamGui.paddingVertical + px);
+        // close it initially?
+        if (this.closeOnTop && this.closed) {
+            this.closeButton.onClick();
+        }
 
+        // keyboard "h" open/closes (only root gui)
+        this.hidden = false;
+        if (this.hideable && (this.parent === null)) {
+            KeyboardEvents.addFunction(function() {
+                if (paramGui.hidden) {
+                    paramGui.hidden = false;
+                    DOM.style("#" + paramGui.domElementId, "display", "block");
+                } else {
+                    paramGui.hidden = true;
+                    DOM.style("#" + paramGui.domElementId, "display", "none");
+                }
+            }, "h");
+        }
     };
+
+
+
+
 }());
