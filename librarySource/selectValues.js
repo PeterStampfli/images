@@ -102,9 +102,6 @@ function SelectValues(idName) {
                 this.values.push(selections[this.labels[i]]);
             }
         }
-        while (this.element.firstChild) {
-            this.element.removeChild(this.element.firstChild);
-        }
         for (let i = 0; i < this.labels.length; i++) {
             DOM.create("option", DOM.createId(), "#" + this.idName, "" + this.labels[i]);
         }
@@ -148,10 +145,6 @@ function SelectValues(idName) {
         this.element.onmouseleave = null;
         this.element.remove();
         this.element = null;
-        for (var i = 0; i < this.actions.length; i++) {
-            this.actions[i] = null;
-        }
-        this.actions.length = 0;
     };
 
 }());

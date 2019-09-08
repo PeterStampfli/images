@@ -338,6 +338,7 @@ ParamGui = function(params) {
     /**
      * remove an element: destroy and remove from array of elements
      * @method ParamGui.remove
+     * @param {Object} element - to remove, with a destroy method
      */
     ParamGui.prototype.remove = function(element) {
         for (var i = this.elements.length - 1; i >= 0; i--) {
@@ -349,11 +350,23 @@ ParamGui = function(params) {
     };
 
     /**
-     * remove a folder means destroying it and removing from the list of elements
+     * remove a folder is same as remove element
+     * added because it is in the dat.gui api
+     * @method ParamGui.removeFolder
+     * @param {ParamGui} folder
      */
+    ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
-
-
+    /**
+     * this is here because it is in the dat.gui api
+     * not implemented
+     * @method ParamGui#getSaveObject
+     * @return empty object, instead of a JSON object representing the current state of this GUI as well as its remembered properties
+     */
+    ParamGui.prototype.getSaveObject = function() {
+        console.log("ParamGui#getSaveObject method not implemented");
+        return {};
+    };
 
     /**
      * destroy everything
@@ -392,6 +405,5 @@ ParamGui = function(params) {
             this.domElement = null;
         }
     };
-
 
 }());

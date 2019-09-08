@@ -275,13 +275,79 @@ function ParamController(idContainer, object, property, low, high, step) {
     };
 
     /**
+     * set the callback function for onchange events
+     * @method ParamController#onChange
+     * @param {function} callback - function(value), with value of controller as argument
+     * @return this
+     */
+    ParamController.prototype.onChange = function(callback) {
+        this.callback = callback;
+        return this;
+    };
+
+    /**
+     * set the callback function for onclick events
+     * (same as onChange)
+     * @method ParamController#onClick
+     * @param {function} callback - function()
+     * @return this
+     */
+    ParamController.prototype.onClick = ParamController.prototype.onChange;
+
+    /**
+     * set the callback function for onchange events, because it is the dat.gui api
+     * @method ParamController#onFinishChange
+     * @param {function} callback - function(value), with value of controller as argument
+     * @return this
+     */
+    ParamController.prototype.onFinishChange = ParamController.prototype.onChange;
+
+    /**
+     * set the value of the controller
+     * @method ParamController#setValue
+     * @param {whatever} value
+     */
+    ParamController.prototype.setValue = function(value) {
+        this.uiElement.setValue(value);
+    };
+
+    /**
+     * get the value of the controller
+     * @method ParamController#getValue
+     * @return {whatever} value
+     */
+    ParamController.prototype.getValue = function() {
+        return this.uiElement.getValue();
+    };
+
+    /**
+     * set the value of the controller according to the underlying object
+     * updates display automatically
+     * @method ParamController#listen
+     */
+    ParamController.prototype.listen = function() {
+        this.uiElement.setValue(this.object[this.property]);
+    };
+
+    /**
+     * same as ParamController#listen
+     * because of dat.gui api
+     * @method ParamController#updateDisplay
+     */
+    ParamController.prototype.updateDisplay = ParamController.prototype.listen;
+
+    /**
      * change the label text, instead of key, to show something more interesting
      * @method ParamController#setLabel
      * @param {String} label
      * @return this, for chaining
      */
     ParamController.prototype.setLabel = function(label) {
-        this.label.innerHTML = label;
+        this.label.removeChild(this.label.firstChild);
+
+
+        const textNode = document.createTextNode(label);
+        this.label.appendChild(textNode);
         return this;
     };
 
@@ -301,31 +367,29 @@ function ParamController(idContainer, object, property, low, high, step) {
      * @return this
      */
     ParamController.prototype.show = function() {
-        DOM.display(this.domElementId);
+        DOM.style("#" + this.domElementId, "display", "block");
         return this;
     };
 
     /**
-     * set the callback function for onchange events
-     * @method ParamController#onChange
-     * @param {function} callback - function(value), with value of controller as argument
-     * @return this
+     * destroy the controller
+     * @method ParamController#destroy
      */
-    ParamController.prototype.onChange = function(callback) {
-        this.callback = callback;
-        return this;
+    ParamController.prototype.destroy = function() {
+        this.uiElement.destroy();
+        this.uiElement = null;
+        this.label.remove();
+        this.label = null;
+        this.domElement.remove();
+        this.domElement = null;
+        this.object = null;
+        this.callback = null;
     };
 
     /**
-     * set the callback function for onclick events
-     * (same as onChange)
-     * @method ParamController#onClick
-     * @param {function} callback - function()
-     * @return this
+     * same as destroy, but is in dat.gui api
+     * @method ParamController.remove
      */
-    ParamController.prototype.onClick = function(callback) {
-        this.callback = callback;
-        return this;
-    };
+    ParamController.prototype.remove = ParamController.prototype.destroy;
 
 }());
