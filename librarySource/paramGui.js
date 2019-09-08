@@ -177,16 +177,11 @@ ParamGui = function(params) {
                     "font-size", ParamGui.buttonFontSize + px);
                 this.closeButton = new Button(closeButtonElementId);
                 this.closeButton.onClick = function() {
-                    paramGui.closed = true;
-                    DOM.display(openButtonElementId);
-                    DOM.displayNone(closeButtonElementId, paramGui.bodyDivId);
+                    paramGui.close();
                 };
                 this.openButton = new Button(openButtonElementId);
                 this.openButton.onClick = function() {
-                    paramGui.closed = false;
-                    DOM.displayNone(openButtonElementId);
-                    DOM.style("#" + closeButtonElementId, "display", "initial");
-                    DOM.style("#" + paramGui.bodyDivId, "display", "block");
+                    paramGui.open();
                 };
                 // default:open
                 DOM.displayNone(openButtonElementId);
@@ -203,22 +198,84 @@ ParamGui = function(params) {
         if (this.closeOnTop && this.closed) {
             this.closeButton.onClick();
         }
-
         // keyboard "h" open/closes (only root gui)
         this.hidden = false;
         if (this.hideable && (this.parent === null)) {
             KeyboardEvents.addFunction(function() {
                 if (paramGui.hidden) {
-                    paramGui.hidden = false;
-                    DOM.style("#" + paramGui.domElementId, "display", "block");
+                    paramGui.show();
                 } else {
-                    paramGui.hidden = true;
-                    DOM.style("#" + paramGui.domElementId, "display", "none");
+                    paramGui.hide();
                 }
             }, "h");
         }
     };
 
+    /**
+     * hide the gui/folder. (makes it disappear)
+     * note difference between root and folders
+     * @method ParamGui#hide
+     */
+    ParamGui.prototype.hide = function() {
+        if (this.parent === null) {
+            // root, hide all
+            DOM.style("#" + this.domElementId, "display", "none");
+        } else {
+            // folder, hide topDiv if exists, hide bodyDiv
+            if ((this.closeOnTop) || (this.name !== "")) {
+                DOM.style("#" + this.topDivId, "display", "none");
+            }
+            DOM.style("#" + this.bodyDivId, "display", "none");
+        }
+        this.hidden = true;
+    };
+
+    /**
+     * show the gui/folder. (makes it reappear)
+     * note difference between root and folders
+     * @method ParamGui#show
+     */
+    ParamGui.prototype.show = function() {
+        if (this.parent === null) {
+            // root, hide all
+            DOM.style("#" + this.domElementId, "display", "block");
+        } else {
+            // folder, show topDiv if exists, show bodyDiv
+            if ((this.closeOnTop) || (this.name !== "")) {
+                DOM.style("#" + this.topDivId, "display", "block");
+            }
+            DOM.style("#" + this.bodyDivId, "display", "block");
+        }
+        this.hidden = false;
+    };
+
+    /**
+     * open the body of a gui 
+     * only if there are open/close buttons
+     * @method ParamGui#open
+     */
+    ParamGui.prototype.open = function() {
+        if (this.closeOnTop) {
+            this.closed = false;
+            this.openButton.element.style.display = "none";
+            this.closeButton.element.style.display = "initial";
+            DOM.style("#" + this.bodyDivId, "display", "block");
+        }
+    };
+
+    /**
+     * close the body of a gui 
+     * only if there are open/close buttons
+     * @method ParamGui#open
+     */
+    ParamGui.prototype.close = function() {
+        if (this.closeOnTop) {
+            this.closed = false;
+            this.openButton.element.style.display = "initial";
+            this.closeButton.element.style.display = "none";
+            DOM.style("#" + this.bodyDivId, "display", "none");
+        }
+    };
 
 
 
