@@ -58,6 +58,9 @@ ParamGui = function(params) {
     // other parameters to change
     // width default for root
     this.width = ParamGui.width;
+    // a list of all folders, controllers and other elements
+    // must have a destroy method
+    this.elements = [];
     this.setup();
 };
 
@@ -147,7 +150,7 @@ ParamGui = function(params) {
             // create divs with open/close buttons
             console.log("closeOnTop");
             this.topDivId = DOM.createId();
-            DOM.create("div", this.topDivId, "#" + this.domElementId);
+            this.topDiv = DOM.create("div", this.topDivId, "#" + this.domElementId);
             DOM.style("#" + this.topDivId,
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
@@ -165,6 +168,13 @@ ParamGui = function(params) {
                 "paddingRight", ParamGui.paddingHorizontal + px);
             // close and open buttons if wanted
             if (this.closeOnTop) {
+                // closing the body replace it with a div of padding height
+                this.closedBodyDivId = DOM.createId();
+                this.closedBodyDiv = DOM.create("div", this.closedBodyDivId, "#" + this.domElementId);
+                DOM.style("#" + this.closedBodyDivId,
+                    "width", this.width + px,
+                    "height", ParamGui.paddingVertical + px,
+                    "display", "none");
 
                 const closeButtonElementId = DOM.createId();
 
@@ -225,6 +235,10 @@ ParamGui = function(params) {
             if ((this.closeOnTop) || (this.name !== "")) {
                 DOM.style("#" + this.topDivId, "display", "none");
             }
+            // see if we have to hide the body div in closed state
+            if (this.closeOnTop) {
+                DOM.style("#" + this.closedBodyDiv, "display", "none");
+            }
             DOM.style("#" + this.bodyDivId, "display", "none");
         }
         this.hidden = true;
@@ -233,18 +247,23 @@ ParamGui = function(params) {
     /**
      * show the gui/folder. (makes it reappear)
      * note difference between root and folders
+     * show in correct open/closed state (body)
      * @method ParamGui#show
      */
     ParamGui.prototype.show = function() {
         if (this.parent === null) {
-            // root, hide all
+            // root, show all
             DOM.style("#" + this.domElementId, "display", "block");
         } else {
-            // folder, show topDiv if exists, show bodyDiv
+            // folder, show topDiv if exists, including the buttons
             if ((this.closeOnTop) || (this.name !== "")) {
                 DOM.style("#" + this.topDivId, "display", "block");
             }
-            DOM.style("#" + this.bodyDivId, "display", "block");
+            if ((this.closeOnTop) && (this.closed)) {
+                DOM.style("#" + this.closedBodyDivId, "display", "block");
+            } else {
+                DOM.style("#" + this.bodyDivId, "display", "block");
+            }
         }
         this.hidden = false;
     };
@@ -252,6 +271,7 @@ ParamGui = function(params) {
     /**
      * open the body of a gui 
      * only if there are open/close buttons
+     * if hidden do not display body 
      * @method ParamGui#open
      */
     ParamGui.prototype.open = function() {
@@ -259,24 +279,119 @@ ParamGui = function(params) {
             this.closed = false;
             this.openButton.element.style.display = "none";
             this.closeButton.element.style.display = "initial";
-            DOM.style("#" + this.bodyDivId, "display", "block");
+            DOM.style("#" + this.closedBodyDivId, "display", "none");
+            if (!this.hidden) {
+                DOM.style("#" + this.bodyDivId, "display", "block");
+            }
         }
     };
 
     /**
      * close the body of a gui 
      * only if there are open/close buttons
+     * if hidden do not display closeBody
      * @method ParamGui#open
      */
     ParamGui.prototype.close = function() {
         if (this.closeOnTop) {
-            this.closed = false;
+            this.closed = true;
             this.openButton.element.style.display = "initial";
             this.closeButton.element.style.display = "none";
             DOM.style("#" + this.bodyDivId, "display", "none");
+            if (!this.hidden) {
+                DOM.style("#" + this.closedBodyDivId, "display", "block");
+            }
         }
     };
 
+    /**
+     * get the root (topmost parent) of the gui
+     * @method ParamGui#getRoot
+     * @return ParamGui object
+     */
+    ParamGui.prototype.getRoot = function() {
+        let root = this;
+        while (root.parent !== null) {
+            root = root.parent;
+        }
+        return root;
+    };
+
+    /**
+     * add a folder, it is a gui instance
+     * @method ParamGui#addFolder
+     * @param {String} folderName
+     * @return ParamGui instance (that's the folder)
+     */
+    ParamGui.prototype.addFolder = function(folderName) {
+        const folder = new ParamGui({
+            name: folderName,
+            closeOnTop: true,
+            parent: this,
+            autoPlace: false,
+            hideable: false
+        });
+        this.elements.push(folder);
+        return folder;
+    };
+
+    /**
+     * remove an element: destroy and remove from array of elements
+     * @method ParamGui.remove
+     */
+    ParamGui.prototype.remove = function(element) {
+        for (var i = this.elements.length - 1; i >= 0; i--) {
+            if (this.elements[i] === 5) {
+                arr.splice(i, 1);
+            }
+        }
+        element.destroy();
+    };
+
+    /**
+     * remove a folder means destroying it and removing from the list of elements
+     */
+
+
+
+
+    /**
+     * destroy everything
+     * @method ParamGui#destroy
+     */
+    ParamGui.prototype.destroy = function() {
+        console.log("destroy");
+        // destroy the ui elements and folders
+        for (var i = 0; i < this.elements.length; i++) {
+            this.elements[i].destroy();
+            this.elements[i] = null;
+        }
+        this.elements.length = 0;
+        // if exist destroy open/close buttons, and closedBodyDiv
+        if (this.closeOnTop) {
+            this.closeButton.destroy();
+            this.closeButton = null;
+            this.openButton.destroy();
+            this.openButton = null;
+            this.closedBodyDiv.remove();
+            this.closedBodyDiv = null;
+        }
+        // destroy top title element if exists
+        if ((this.closeOnTop) || (this.name !== "")) {
+            this.topLabel.remove();
+            this.topLabel = null;
+            this.topDiv.remove();
+            this.topDiv = null;
+        }
+        // destroy body
+        this.bodyDiv.remove();
+        this.bodyDiv = null;
+        // if root destroy main domElement
+        if (this.parent === null) {
+            this.domElement.remove();
+            this.domElement = null;
+        }
+    };
 
 
 }());
