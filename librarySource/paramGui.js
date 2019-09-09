@@ -29,6 +29,8 @@
 
 /*
  * setup parameters:
+ * As in dat.gui 
+ * 
  * name - String - name of the gui/gui folder - default: ""
  * load - Object - saved state of the gui (JSON) ??? - default: null
  * parent - ParamGui instance - the gui this one is nested in - default: null (root)
@@ -96,8 +98,10 @@ ParamGui = function(params) {
     ParamGui.labelFontSize = 16;
 
     // colors
-    // background of the ui panel
-    ParamGui.backgroundColor = "#ffffff";
+    // background of the root ui panel
+    ParamGui.rootBackgroundColor = "#ffffff";
+    // background for folder panels
+    ParamGui.folderBackgroundColor = "#eeeeee";
     // color for text
     ParamGui.textColor = "#444444";
     // color for the border of the ui panel
@@ -118,7 +122,6 @@ ParamGui = function(params) {
         const paramGui = this;
         if (this.parent === null) {
             // the root element has to generate a div as containing DOMElement
-            console.log("generate div");
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
             // put it on top
@@ -139,7 +142,7 @@ ParamGui = function(params) {
                 "borderWidth", ParamGui.borderWidth + px,
                 "borderStyle", "solid",
                 "borderColor", ParamGui.borderColor,
-                "backgroundColor", ParamGui.backgroundColor);
+                "backgroundColor", ParamGui.rootBackgroundColor);
         } else {
             // folders have the parent bodyDiv as container
             this.domElementId = this.parent.bodyDivId;
@@ -148,7 +151,6 @@ ParamGui = function(params) {
         // a title bar on top if there is a name or close/open buttons
         if ((this.closeOnTop) || (this.name !== "")) {
             // create divs with open/close buttons
-            console.log("closeOnTop");
             this.topDivId = DOM.createId();
             this.topDiv = DOM.create("div", this.topDivId, "#" + this.domElementId);
             DOM.style("#" + this.topDivId,
@@ -168,13 +170,7 @@ ParamGui = function(params) {
                 "paddingRight", ParamGui.paddingHorizontal + px);
             // close and open buttons if wanted
             if (this.closeOnTop) {
-                // closing the body replace it with a div of padding height
-                this.closedBodyDivId = DOM.createId();
-                this.closedBodyDiv = DOM.create("div", this.closedBodyDivId, "#" + this.domElementId);
-                DOM.style("#" + this.closedBodyDivId,
-                    "width", this.width + px,
-                    "height", ParamGui.paddingVertical + px,
-                    "display", "none");
+
 
                 const closeButtonElementId = DOM.createId();
 
@@ -202,11 +198,20 @@ ParamGui = function(params) {
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
         DOM.style("#" + this.bodyDivId,
             "width", this.width + px,
-            "paddingTop", ParamGui.paddingVertical + px,
-            "paddingBottom", ParamGui.paddingVertical + px);
+            "paddingTop", ParamGui.paddingVertical + px);
+        if (this.parent !== null) {
+            DOM.style("#" + this.bodyDivId, "backgroundColor", ParamGui.folderBackgroundColor);
+        }
+        // padding at end as extra divs, always visible
+        this.bottomPaddingDivId = DOM.createId();
+        DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
+        DOM.style("#" + this.bottomPaddingDivId,
+            "width", this.width + px,
+            "height", ParamGui.paddingVertical + px);
+
         // close it initially?
         if (this.closeOnTop && this.closed) {
-            this.closeButton.onClick();
+            this.close();
         }
         // keyboard "h" open/closes (only root gui)
         this.hidden = false;
@@ -227,21 +232,18 @@ ParamGui = function(params) {
      * @method ParamGui#hide
      */
     ParamGui.prototype.hide = function() {
-        if (this.parent === null) {
-            // root, hide all
-            DOM.style("#" + this.domElementId, "display", "none");
-        } else {
-            // folder, hide topDiv if exists, hide bodyDiv
-            if ((this.closeOnTop) || (this.name !== "")) {
-                DOM.style("#" + this.topDivId, "display", "none");
-            }
-            // see if we have to hide the body div in closed state
-            if (this.closeOnTop) {
-                DOM.style("#" + this.closedBodyDiv, "display", "none");
-            }
-            DOM.style("#" + this.bodyDivId, "display", "none");
-        }
         this.hidden = true;
+        if (this.parent === null) {
+            // root, hide base container with border
+            DOM.style("#" + this.domElementId, "display", "none");
+        }
+        // folder, hide topDiv if exists
+        if ((this.closeOnTop) || (this.name !== "")) {
+            DOM.style("#" + this.topDivId, "display", "none");
+        }
+        // hide body div and the bottom padding div
+        DOM.style("#" + this.bottomPaddingDivId, "display", "none");
+        DOM.style("#" + this.bodyDivId, "display", "none");
     };
 
     /**
@@ -251,21 +253,21 @@ ParamGui = function(params) {
      * @method ParamGui#show
      */
     ParamGui.prototype.show = function() {
-        if (this.parent === null) {
-            // root, show all
-            DOM.style("#" + this.domElementId, "display", "block");
-        } else {
-            // folder, show topDiv if exists, including the buttons
-            if ((this.closeOnTop) || (this.name !== "")) {
-                DOM.style("#" + this.topDivId, "display", "block");
-            }
-            if ((this.closeOnTop) && (this.closed)) {
-                DOM.style("#" + this.closedBodyDivId, "display", "block");
-            } else {
-                DOM.style("#" + this.bodyDivId, "display", "block");
-            }
-        }
         this.hidden = false;
+        if (this.parent === null) {
+            // root, show base container
+            DOM.style("#" + this.domElementId, "display", "block");
+        }
+        // folder, show topDiv if exists, including the buttons
+        if ((this.closeOnTop) || (this.name !== "")) {
+            DOM.style("#" + this.topDivId, "display", "block");
+        }
+        // show the body div if not closed or no close/open buttons
+        if ((!this.closed) || (!this.closeOnTop)) {
+            DOM.style("#" + this.bodyDivId, "display", "block");
+        }
+        // always show bottom padding
+        DOM.style("#" + this.bottomPaddingDivId, "display", "block");
     };
 
     /**
@@ -277,9 +279,9 @@ ParamGui = function(params) {
     ParamGui.prototype.open = function() {
         if (this.closeOnTop) {
             this.closed = false;
+            // the buttons are inside the topDiv, which is shown/hidden
             this.openButton.element.style.display = "none";
             this.closeButton.element.style.display = "initial";
-            DOM.style("#" + this.closedBodyDivId, "display", "none");
             if (!this.hidden) {
                 DOM.style("#" + this.bodyDivId, "display", "block");
             }
@@ -298,9 +300,6 @@ ParamGui = function(params) {
             this.openButton.element.style.display = "initial";
             this.closeButton.element.style.display = "none";
             DOM.style("#" + this.bodyDivId, "display", "none");
-            if (!this.hidden) {
-                DOM.style("#" + this.closedBodyDivId, "display", "block");
-            }
         }
     };
 
@@ -356,6 +355,34 @@ ParamGui = function(params) {
      * @param {ParamGui} folder
      */
     ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
+
+    /**
+     * add a controller for a parameter, depending on its value and limits
+     * @method ParamGui#add
+     * @param {Object} params - object that has the parameter as a field
+     * @param {String} property - key for the field of params to change, params[property]
+     * @param {float/integer/array} low - determines lower limit/choices (optional)
+     * @param {float/integer} high - determines upper limit (optional)
+     * @param {float/integer} step - determines step size (optional)
+     * @return {ParamController} object, the controller
+     */
+    ParamGui.prototype.add = function(params, property, low, high, step) {
+        const controller = new ParamController(this, params, property, low, high, step);
+        this.elements.push(controller);
+        return controller;
+    };
+
+    /**
+     * part of dat.gui, not implemented, generates a dummy button controller
+     * a controller for color
+     * @method ParamGui#addColor
+     * @param {Object} params - object that has the parameter as a field
+     * @param {String} property - key for the field of params to change, params[property]
+     * @return {ParamController} object
+     */
+    ParamGui.prototype.addColor = function(params, property) {
+        return this.add({}, "addColor not implemented");
+    };
 
     /**
      * this is here because it is in the dat.gui api

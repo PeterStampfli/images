@@ -4,23 +4,26 @@
  * a controller for a parameter
  * with visuals, in a common div
  * @creator ParamController
- * @param {String} idContainer - identifier of containing html element
- * @param {Object} object - object that has the parameter as a field
- * @param {String} property - for the field of object to change, object[property]
+ * @param {ParamGui} gui - the controller is in this gui
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - for the field of object to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
  */
 
-function ParamController(idContainer, object, property, low, high, step) {
-    this.object = object;
+function ParamController(gui, params, property, low, high, step) {
+    this.gui = gui;
+    this.params = params;
     this.property = property;
     this.low = low;
     this.high = high;
     this.step = step;
-    // the controller goes into this DOM element
+    // create a div for all elements of the controller
     this.domElementId = DOM.createId();
-    this.domElement = DOM.create("div", this.domElementId, "#" + idContainer);
+    // it lies in the bodyDiv of the ParamGui
+    this.domElement = DOM.create("div", this.domElementId, "#" + gui.bodyDivId);
+    // make a regular spacing between labels
     DOM.style("#" + this.domElementId, "minHeight", ParamController.minHeight + px);
     // a div for showing the property or other label, minimum width for alignment
     // the button or whatever the user interacts with
@@ -135,29 +138,28 @@ function ParamController(idContainer, object, property, low, high, step) {
             "paddingRight", ParamGui.paddingHorizontal + px);
     };
 
-
     // freaking grunt
     ParamController.prototype.makeSelectOptionAction = function(value) {
         const controller = this;
         const action = function() {
-            controller.object[controller.property] = value;
+            controller.params[controller.property] = value;
             controller.callback(value);
         };
         return action;
     };
 
-    /*
-     * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
-     * object contains data as fields
-     * property is a String, the property to the field of object we want to change
-     * the value of object[property] determines the kind of uiElement together with
-     * parameters that define the values/ value range possible
+    /**
+     * making a ui control element, same as in "lib/dat.gui.min2.js", one on eavh line
+     * using data stored in this.fields as defined in creator
+     * @method ParamController#create
      */
     ParamController.prototype.create = function() {
         this.uiElement = null;
         const controller = this;
-        const paramValue = this.object[this.property];
+        const paramValue = this.params[this.property];
         if (isArray(this.low) || isObject(this.low)) {
+            // this.low, the first parameter for limits is an array or object
+            // thus make a selection
             this.createLabel(this.property);
             const id = DOM.createId();
             DOM.create("select", id, "#" + this.domElementId);
@@ -168,12 +170,13 @@ function ParamController(idContainer, object, property, low, high, step) {
             select.setValue(paramValue);
             select.onChange = function() {
                 const value = select.getValue();
-                controller.object[controller.property] = value;
+                controller.params[controller.property] = value;
                 controller.callback(value);
             };
         } else {
             if (isBoolean(paramValue)) {
-                // the parameter value is boolean - thus make a BooleanButton
+                // the parameter value is boolean
+                // thus make a BooleanButton
                 console.log("boolean button");
                 this.createLabel(this.property);
                 const id = DOM.createId();
@@ -186,11 +189,12 @@ function ParamController(idContainer, object, property, low, high, step) {
                 button.setValue(paramValue);
                 button.onChange = function() {
                     const value = button.getValue();
-                    controller.object[controller.property] = value;
+                    controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             } else if (!isDefined(paramValue)) {
-                // there is no parameter value with the property - thus make a button with the property as text, no label
+                // there is no parameter value with the property
+                // thus make a button with the property as text, no label
                 console.log("button");
                 this.createLabel("");
                 const id = DOM.createId();
@@ -215,12 +219,13 @@ function ParamController(idContainer, object, property, low, high, step) {
                 this.uiElement = textInput;
                 textInput.onChange = function() {
                     const value = textInput.getValue();
-                    controller.object[controller.property] = value;
+                    controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit too 
-                // high is integer or not defined and step is not defined/ not supplied in call- make an (integer) number button 
+                // high is integer or not defined and step is not defined/ not supplied in call
+                // thus make an (integer) number button 
                 console.log("integer button");
                 this.createLabel(this.property);
                 const id = DOM.createId();
@@ -240,7 +245,7 @@ function ParamController(idContainer, object, property, low, high, step) {
                 this.uiElement = button;
                 button.onChange = function() {
                     const value = button.getValue();
-                    controller.object[controller.property] = value;
+                    controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
@@ -266,7 +271,7 @@ function ParamController(idContainer, object, property, low, high, step) {
                 this.uiElement = range;
                 range.onChange = function() {
                     const value = range.getValue();
-                    controller.object[controller.property] = value;
+                    controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             }
@@ -321,20 +326,22 @@ function ParamController(idContainer, object, property, low, high, step) {
     };
 
     /**
-     * set the value of the controller according to the underlying object
+     * set the value of the controller according to the actual value of the parameter in the params object
      * updates display automatically
-     * @method ParamController#listen
+     * @method ParamController#updateDisplay
      */
-    ParamController.prototype.listen = function() {
-        this.uiElement.setValue(this.object[this.property]);
+    ParamController.prototype.updateDisplay = function() {
+        this.uiElement.setValue(this.params[this.property]);
     };
 
     /**
-     * same as ParamController#listen
+     * not implemented: periodically call updateDisplay to show changes automatically
      * because of dat.gui api
-     * @method ParamController#updateDisplay
+     * @method ParamController#listen
      */
-    ParamController.prototype.updateDisplay = ParamController.prototype.listen;
+    ParamController.prototype.listen = function() {
+        console.log("***** ParamController#listen not implemented");
+    };
 
     /**
      * change the label text, instead of key, to show something more interesting
@@ -344,8 +351,6 @@ function ParamController(idContainer, object, property, low, high, step) {
      */
     ParamController.prototype.setLabel = function(label) {
         this.label.removeChild(this.label.firstChild);
-
-
         const textNode = document.createTextNode(label);
         this.label.appendChild(textNode);
         return this;
@@ -382,8 +387,9 @@ function ParamController(idContainer, object, property, low, high, step) {
         this.label = null;
         this.domElement.remove();
         this.domElement = null;
-        this.object = null;
+        this.params = null;
         this.callback = null;
+        this.gui = null;
     };
 
     /**
