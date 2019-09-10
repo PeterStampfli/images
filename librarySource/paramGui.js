@@ -371,6 +371,19 @@ ParamGui = function(params) {
      * @param {float/integer} step - determines step size (optional)
      * @return {ParamController} object, the controller
      */
+    /*
+     * if low is an object or array then make a selection
+     * if params[property] is undefined make a button (action defined by onClick method of the controller object
+     * if params[property] is boolean make a booleanButton
+     * if params[property] is a string make a text textInput  
+     * if params[property] is a function make a button with this function as onClick method !!!!!!!!!!!!!!!!!!!!!!!!!!
+     * =============================================================0
+     * if params[property] and low are integer and high is undefined (thus step undefined too) make a numberbutton
+     * if params[property],low and high are integer and step is undefined make a numberbutton
+     * if params[property],low, high and step are integer make a numberbutton 
+     * (else) if params[property],low and high are numbers make a range element
+     */
+
     ParamGui.prototype.add = function(params, property, low, high, step) {
         const controller = new ParamController(this, params, property, low, high, step);
         this.elements.push(controller);
@@ -399,6 +412,14 @@ ParamGui = function(params) {
         console.log("ParamGui#getSaveObject method not implemented");
         return {};
     };
+
+    /**
+     * this is in the dat.gui API
+     * don't know how to implement whatever
+     * @method ParamGui.remembered
+     * @param {Object} params - an object containing parameter values
+     */
+    ParamGui.prototype.remember = function(params) {};
 
     /**
      * destroy everything

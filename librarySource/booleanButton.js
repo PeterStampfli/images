@@ -11,7 +11,7 @@ function BooleanButton(idName) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);
-    DOM.style("#" + idName, "borderRadius", 1000 + px);
+    DOM.style("#" + idName, "borderRadius", "1000px");
     this.element.style.cursor = "pointer";
     this.value = false;
     this.mouseDown = false;

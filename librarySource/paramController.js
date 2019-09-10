@@ -13,12 +13,15 @@
  */
 
 function ParamController(gui, params, property, low, high, step) {
+    console.log("paramcontroller, property " + property + " value " + params[property]);
+    console.log(typeof params[property]);
     this.gui = gui;
     this.params = params;
     this.property = property;
     this.low = low;
     this.high = high;
     this.step = step;
+    const px = "px";
     // create a div for all elements of the controller
     this.domElementId = DOM.createId();
     // it lies in the bodyDiv of the ParamGui
@@ -222,7 +225,7 @@ function ParamController(gui, params, property, low, high, step) {
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
-            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
+            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && (!isDefined(this.step) || isInteger(this.step))) {
                 // the parameter value is integer, and the low limit too 
                 // high is integer or not defined and step is not defined/ not supplied in call
                 // thus make an (integer) number button 
@@ -338,18 +341,24 @@ function ParamController(gui, params, property, low, high, step) {
      * not implemented: periodically call updateDisplay to show changes automatically
      * because of dat.gui api
      * @method ParamController#listen
+     * @return this, for chaining
      */
     ParamController.prototype.listen = function() {
         console.log("***** ParamController#listen not implemented");
+        return this;
     };
 
     /**
-     * change the label text, instead of key, to show something more interesting
-     * @method ParamController#setLabel
+     * gve the controller a name ???
+     * changes the label text, instead of key, to show something more interesting
+     * @method ParamController#name
      * @param {String} label
      * @return this, for chaining
      */
-    ParamController.prototype.setLabel = function(label) {
+    ParamController.prototype.name = function(label) {
+        console.log("name");
+        console.log(this.labelId);
+        console.log(this.label);
         this.label.removeChild(this.label.firstChild);
         const textNode = document.createTextNode(label);
         this.label.appendChild(textNode);

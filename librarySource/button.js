@@ -12,7 +12,7 @@ function Button(idName) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);
-    DOM.style("#" + idName, "borderRadius", 1000 + px);
+    DOM.style("#" + idName, "borderRadius", "1000px"); // semicircle
     // states
     this.pressed = false;
     this.hover = false;
