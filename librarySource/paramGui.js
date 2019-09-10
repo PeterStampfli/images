@@ -6,11 +6,16 @@
 
 /*
  * dependencies
+<script src="../librarySource/keyboardEvents.js"></script>
 <script src="../librarySource/button.js"></script>
+<script src="../librarySource/booleanButton.js"></script>
+<script src="../librarySource/textInput.js"></script>
 <script src="../librarySource/numberButton.js"></script>
-<script src="../librarySource/select.js"></script>
+<script src="../librarySource/selectValues.js"></script>
 <script src="../librarySource/range.js"></script>
 <script src="../librarySource/dom.js"></script>
+<script src="../librarySource/paramController.js"></script>
+<script src="../librarySource/paramGui.js"></script>
 */
 
 /* jshint esversion:6 */
