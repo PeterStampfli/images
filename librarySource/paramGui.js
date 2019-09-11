@@ -66,7 +66,7 @@ ParamGui = function(params) {
     // width default for root
     this.width = ParamGui.width;
     // a list of all folders, controllers and other elements
-    // must have a destroy method
+    // must have a destroy method, an updateDisplayIfListening method
     this.elements = [];
     this.setup();
 };
@@ -96,11 +96,11 @@ ParamGui = function(params) {
     // width of border around ui panel
     ParamGui.borderWidth = 3; // set to zero to make border disappear
     // font size for buttons
-    ParamGui.buttonFontSize = 14;
+    ParamGui.buttonFontSize = 13;
     // minimum width for label (property), alignment
-    ParamGui.labelWidth = 100;
+    ParamGui.labelWidth = 140;
     // fontsize for label/property 
-    ParamGui.labelFontSize = 16;
+    ParamGui.labelFontSize = 14;
 
     // colors
     // background of the root ui panel
@@ -114,6 +114,9 @@ ParamGui = function(params) {
     // color for top of folder with close/open button
     ParamGui.folderTopColor = "#000000";
     ParamGui.folderTopBackgroundColor = "#bbbbbb";
+
+    //time in milliseconds betweenm listening updates
+    ParamGui.listeningInterval = 400;
 
     //=================================================================
     // dom structure
@@ -148,6 +151,27 @@ ParamGui = function(params) {
                 "borderStyle", "solid",
                 "borderColor", ParamGui.borderColor,
                 "backgroundColor", ParamGui.rootBackgroundColor);
+            //listening: root calls listeners
+            //controllers with an updateDisplay method
+            // controller#listen puts controller in this list
+            // remove/destroy folder has to remove its listeners
+            let intervalID = 0;
+
+            /**
+             * only for root gui 
+             * initiate periodical display update for listening elements
+             * @method ParamGui#startListening
+             */
+            this.startListening = function() {
+                if (intervalID === 0) {
+                    // gives a non-zero ID
+                    const gui = this;
+                    intervalID = setInterval(function() {
+                        gui.updateDisplayIfListening();
+                    }, ParamGui.listeningInterval);
+                }
+            };
+
         } else {
             // folders have the parent bodyDiv as container
             this.domElementId = this.parent.bodyDivId;
@@ -162,8 +186,7 @@ ParamGui = function(params) {
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
                 "width", this.width + px,
-                "paddingTop", ParamGui.paddingVertical + px,
-                "paddingBottom", ParamGui.paddingVertical + px);
+                "paddingTop", ParamGui.paddingVertical + px);
             this.topLabelId = DOM.createId();
             this.topLabel = DOM.create("span", this.topLabelId, "#" + this.topDivId, this.name);
             DOM.style("#" + this.topLabelId,
@@ -207,13 +230,14 @@ ParamGui = function(params) {
         if (this.parent !== null) {
             DOM.style("#" + this.bodyDivId, "backgroundColor", ParamGui.folderBackgroundColor);
         }
+        /**
         // padding at end as extra divs, always visible
         this.bottomPaddingDivId = DOM.createId();
         DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
         DOM.style("#" + this.bottomPaddingDivId,
             "width", this.width + px,
             "height", ParamGui.paddingVertical + px);
-
+**/
         // close it initially?
         if (this.closeOnTop && this.closed) {
             this.close();
@@ -345,10 +369,9 @@ ParamGui = function(params) {
      * @param {Object} element - to remove, with a destroy method
      */
     ParamGui.prototype.remove = function(element) {
-        for (var i = this.elements.length - 1; i >= 0; i--) {
-            if (this.elements[i] === 5) {
-                arr.splice(i, 1);
-            }
+        const index = this.elements.indexOf(element);
+        if (index >= 0) {
+            this.elements.splice(index, 1);
         }
         element.destroy();
     };
@@ -376,11 +399,10 @@ ParamGui = function(params) {
      * if params[property] is undefined make a button (action defined by onClick method of the controller object
      * if params[property] is boolean make a booleanButton
      * if params[property] is a string make a text textInput  
-     * if params[property] is a function make a button with this function as onClick method !!!!!!!!!!!!!!!!!!!!!!!!!!
-     * =============================================================0
+     * if params[property] is a function make a button with this function as onClick method 
      * if params[property] and low are integer and high is undefined (thus step undefined too) make a numberbutton
      * if params[property],low and high are integer and step is undefined make a numberbutton
-     * if params[property],low, high and step are integer make a numberbutton 
+     * if params[property],low, and high are integer and step equals 1, make a numberbutton 
      * (else) if params[property],low and high are numbers make a range element
      */
 
@@ -403,23 +425,44 @@ ParamGui = function(params) {
     };
 
     /**
+     * propagate updateDisplayIfListening events 
+     * @method ParamGui#updateDisplayIfListening
+     */
+    ParamGui.prototype.updateDisplayIfListening = function() {
+        this.elements.forEach(function(element) {
+            element.updateDisplayIfListening();
+        });
+    };
+
+    /**
      * this is here because it is in the dat.gui api
      * not implemented
      * @method ParamGui#getSaveObject
      * @return empty object, instead of a JSON object representing the current state of this GUI as well as its remembered properties
      */
     ParamGui.prototype.getSaveObject = function() {
-        console.log("ParamGui#getSaveObject method not implemented");
+        console.log("********ParamGui#getSaveObject method not implemented");
         return {};
     };
 
     /**
      * this is in the dat.gui API
      * don't know how to implement whatever
-     * @method ParamGui.remembered
+     * @method ParamGui#remember
      * @param {Object} params - an object containing parameter values
      */
-    ParamGui.prototype.remember = function(params) {};
+    ParamGui.prototype.remember = function(params) {
+        console.log("********ParamGui#remember method not implemented");
+    };
+
+    /**
+     * this is in the dat.gui API
+     * don't know how to implement whatever
+     * @method ParamGui#revert
+     */
+    ParamGui.prototype.revert = function(params) {
+        console.log("********ParamGui#revert method not implemented");
+    };
 
     /**
      * destroy everything

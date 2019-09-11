@@ -15,20 +15,23 @@
 function ParamController(gui, params, property, low, high, step) {
     console.log("paramcontroller, property " + property + " value " + params[property]);
     console.log(typeof params[property]);
+    console.log(low + " " + high + " " + step);
     this.gui = gui;
     this.params = params;
     this.property = property;
     this.low = low;
     this.high = high;
     this.step = step;
+    this.listening = false; // automatically update display
     const px = "px";
     // create a div for all elements of the controller
     this.domElementId = DOM.createId();
     // it lies in the bodyDiv of the ParamGui
     this.domElement = DOM.create("div", this.domElementId, "#" + gui.bodyDivId);
-    // make a regular spacing between labels
+    // make a regular spacing between labels ???
     DOM.style("#" + this.domElementId, "minHeight", ParamController.minHeight + px);
-    // a div for showing the property or other label, minimum width for alignment
+
+
     // the button or whatever the user interacts with
     this.uiElement = null;
     // what should be done if value changes or button clicked
@@ -36,6 +39,12 @@ function ParamController(gui, params, property, low, high, step) {
         console.log("callback value " + value);
     };
     this.create();
+    // padding at end as extra divs, always visible
+    this.bottomPaddingDivId = DOM.createId();
+    DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
+    DOM.style("#" + this.bottomPaddingDivId,
+        "width", this.width + px,
+        "height", ParamGui.paddingVertical + px);
 }
 
 (function() {
@@ -50,11 +59,11 @@ function ParamController(gui, params, property, low, high, step) {
 
 
     // fontsize for buttons
-    ParamController.buttonFontSize = 14;
+    ParamController.buttonFontSize = 11;
 
     // vertical spacing: minimum height overall=== distance between baselines
     //  if controller not too large/minHeight too low
-    ParamController.minHeight = 30;
+    ParamController.minHeight = 27;
 
 
 
@@ -195,8 +204,8 @@ function ParamController(gui, params, property, low, high, step) {
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
-            } else if (!isDefined(paramValue)) {
-                // there is no parameter value with the property
+            } else if (!isDefined(paramValue) || (typeof paramValue === "function")) {
+                // there is no parameter value with the property por it is a function
                 // thus make a button with the property as text, no label
                 console.log("button");
                 this.createLabel("");
@@ -205,9 +214,13 @@ function ParamController(gui, params, property, low, high, step) {
                 DOM.style("#" + id, "font-size", ParamController.buttonFontSize + px);
                 const button = new Button(id);
                 this.uiElement = button;
-                button.onClick = function() {
-                    controller.callback();
-                };
+                if (typeof paramValue === "function") {
+                    button.onClick = paramValue;
+                } else {
+                    button.onClick = function() {
+                        controller.callback();
+                    };
+                }
             } else if (isString(paramValue)) {
                 // the parameter value is a string thus make a text input button
                 console.log("text input button");
@@ -225,7 +238,7 @@ function ParamController(gui, params, property, low, high, step) {
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
-            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && (!isDefined(this.step) || isInteger(this.step))) {
+            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && (!isDefined(this.step) || (isNumber(this.step)) && Math.abs(this.step - 1) < 0.01)) {
                 // the parameter value is integer, and the low limit too 
                 // high is integer or not defined and step is not defined/ not supplied in call
                 // thus make an (integer) number button 
@@ -263,9 +276,16 @@ function ParamController(gui, params, property, low, high, step) {
                     "width", ParamController.numberInputWidth + px,
                     "font-size", ParamController.buttonFontSize + px);
                 DOM.style("#" + range.idRange,
-                    "width", ParamController.rangeSliderLength + px,
+                    "width", ParamController.rangeSliderLength + px);
+                DOM.style("#" + range.idText,
                     "position", "relative",
-                    "top", ParamController.rangeVOffset + px);
+                    "top", (-ParamController.rangeVOffset) + px);
+                console.log(this.labelId);
+                DOM.style("#" + this.labelId,
+                    "position", "relative",
+                    "top", (-ParamController.rangeVOffset) + px,
+                    "backgroundColor", "red"
+                );
                 range.setRange(this.low, this.high);
                 if (isNumber(this.step)) {
                     range.setStep(this.step);
@@ -338,30 +358,42 @@ function ParamController(gui, params, property, low, high, step) {
     };
 
     /**
+     * updateDisplay If controller is Listening 
+     * @method ParamController#updateDisplayIfListening
+     */
+    ParamController.prototype.updateDisplayIfListening = function() {
+        if (this.listening) {
+            this.updateDisplay();
+        }
+    };
+
+    /**
      * not implemented: periodically call updateDisplay to show changes automatically
      * because of dat.gui api
      * @method ParamController#listen
      * @return this, for chaining
      */
     ParamController.prototype.listen = function() {
-        console.log("***** ParamController#listen not implemented");
+        this.listening = true;
+        this.gui.getRoot().startListening();
         return this;
     };
 
     /**
-     * gve the controller a name ???
-     * changes the label text, instead of key, to show something more interesting
+     * changes the label text, instead of property name, to show something more interesting
+     * for buttons changes the button text
      * @method ParamController#name
      * @param {String} label
      * @return this, for chaining
      */
     ParamController.prototype.name = function(label) {
-        console.log("name");
-        console.log(this.labelId);
-        console.log(this.label);
-        this.label.removeChild(this.label.firstChild);
+        let toChange = this.label;
+        if (this.uiElement instanceof Button) {
+            toChange = this.uiElement.element;
+        }
+        toChange.removeChild(toChange.firstChild);
         const textNode = document.createTextNode(label);
-        this.label.appendChild(textNode);
+        toChange.appendChild(textNode);
         return this;
     };
 
