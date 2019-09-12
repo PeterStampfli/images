@@ -101,10 +101,12 @@ ParamGui = function(params) {
     ParamGui.labelWidth = 140;
     // fontsize for label/property 
     ParamGui.labelFontSize = 14;
+    // marking different folder levels
+    ParamGui.levelIndent = 10;
 
     // colors
     // background of the root ui panel
-    ParamGui.rootBackgroundColor = "#ffffff";
+    ParamGui.rootBackgroundColor = "#eeeeee";
     // background for folder panels
     ParamGui.folderBackgroundColor = "#eeeeee";
     // color for text
@@ -156,7 +158,6 @@ ParamGui = function(params) {
             // controller#listen puts controller in this list
             // remove/destroy folder has to remove its listeners
             let intervalID = 0;
-
             /**
              * only for root gui 
              * initiate periodical display update for listening elements
@@ -171,7 +172,6 @@ ParamGui = function(params) {
                     }, ParamGui.listeningInterval);
                 }
             };
-
         } else {
             // folders have the parent bodyDiv as container
             this.domElementId = this.parent.bodyDivId;
@@ -186,7 +186,8 @@ ParamGui = function(params) {
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
                 "width", this.width + px,
-                "paddingTop", ParamGui.paddingVertical + px);
+                "paddingTop", ParamGui.paddingVertical + px,
+                "paddingBottom", ParamGui.paddingVertical + px);
             this.topLabelId = DOM.createId();
             this.topLabel = DOM.create("span", this.topLabelId, "#" + this.topDivId, this.name);
             DOM.style("#" + this.topLabelId,
@@ -198,15 +199,10 @@ ParamGui = function(params) {
                 "paddingRight", ParamGui.paddingHorizontal + px);
             // close and open buttons if wanted
             if (this.closeOnTop) {
-
-
                 const closeButtonElementId = DOM.createId();
-
                 const closeButtonElement = DOM.create("button", closeButtonElementId, "#" + this.topDivId, "close");
                 const openButtonElementId = DOM.createId();
-
                 const openButtonElement = DOM.create("button", openButtonElementId, "#" + this.topDivId, "open");
-
                 DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
                     "font-size", ParamGui.buttonFontSize + px);
                 this.closeButton = new Button(closeButtonElementId);
@@ -225,19 +221,22 @@ ParamGui = function(params) {
         this.bodyDivId = DOM.createId();
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
         DOM.style("#" + this.bodyDivId,
-            "width", this.width + px,
             "paddingTop", ParamGui.paddingVertical + px);
         if (this.parent !== null) {
-            DOM.style("#" + this.bodyDivId, "backgroundColor", ParamGui.folderBackgroundColor);
+            DOM.style("#" + this.bodyDivId,
+                "backgroundColor", ParamGui.folderBackgroundColor,
+                "border-left", "solid",
+                "borderColor", ParamGui.folderTopBackgroundColor,
+                "border-left-width", ParamGui.levelIndent + px);
+
+            // padding at end as extra divs, always visible
+            // to separate folders
+            this.bottomPaddingDivId = DOM.createId();
+            DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
+            DOM.style("#" + this.bottomPaddingDivId,
+                "height", ParamGui.paddingVertical + px);
         }
-        /**
-        // padding at end as extra divs, always visible
-        this.bottomPaddingDivId = DOM.createId();
-        DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
-        DOM.style("#" + this.bottomPaddingDivId,
-            "width", this.width + px,
-            "height", ParamGui.paddingVertical + px);
-**/
+
         // close it initially?
         if (this.closeOnTop && this.closed) {
             this.close();

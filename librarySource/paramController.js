@@ -13,9 +13,9 @@
  */
 
 function ParamController(gui, params, property, low, high, step) {
-    console.log("paramcontroller, property " + property + " value " + params[property]);
-    console.log(typeof params[property]);
-    console.log(low + " " + high + " " + step);
+    // console.log("paramcontroller, property " + property + " value " + params[property]);
+    //  console.log(typeof params[property]);
+    // console.log(low + " " + high + " " + step);
     this.gui = gui;
     this.params = params;
     this.property = property;
@@ -57,15 +57,12 @@ function ParamController(gui, params, property, low, high, step) {
 
     // alignment: minimal width for writing the property strings
 
-
     // fontsize for buttons
     ParamController.buttonFontSize = 11;
 
     // vertical spacing: minimum height overall=== distance between baselines
     //  if controller not too large/minHeight too low
     ParamController.minHeight = 27;
-
-
 
     // width (min) of on/off buttons
     ParamController.onOffButtonWidth = 60;
@@ -277,15 +274,9 @@ function ParamController(gui, params, property, low, high, step) {
                     "font-size", ParamController.buttonFontSize + px);
                 DOM.style("#" + range.idRange,
                     "width", ParamController.rangeSliderLength + px);
-                DOM.style("#" + range.idText,
+                DOM.style("#" + range.idText + ",#" + this.labelId,
                     "position", "relative",
                     "top", (-ParamController.rangeVOffset) + px);
-                console.log(this.labelId);
-                DOM.style("#" + this.labelId,
-                    "position", "relative",
-                    "top", (-ParamController.rangeVOffset) + px,
-                    "backgroundColor", "red"
-                );
                 range.setRange(this.low, this.high);
                 if (isNumber(this.step)) {
                     range.setStep(this.step);
