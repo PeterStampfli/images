@@ -55,13 +55,8 @@ ParamGui = function(params) {
     this.hideable = true;
     this.closed = false;
     this.closeOnTop = false;
-    // read params object replacing defaults
-    if (typeof params !== "undefined") {
-        const keys = Object.keys(params);
-        for (let i = 0; i < keys.length; i++) {
-            this[keys[i]] = params[keys[i]];
-        }
-    }
+    // read/merge params object replacing defaults
+    Object.assign(this, params);
     // other parameters to change
     // width default for root
     this.width = ParamGui.width;
