@@ -98,7 +98,7 @@ ParamGui = function(params) {
     // font size for buttons
     ParamGui.buttonFontSize = 13;
     // minimum width for label (property), alignment
-    ParamGui.labelWidth = 140;
+    ParamGui.labelWidth = 110;
     // fontsize for label/property 
     ParamGui.labelFontSize = 14;
     // marking different folder levels
@@ -401,7 +401,7 @@ ParamGui = function(params) {
      * if params[property] is a function make a button with this function as onClick method 
      * if params[property] and low are integer and high is undefined (thus step undefined too) make a numberbutton
      * if params[property],low and high are integer and step is undefined make a numberbutton
-     * if params[property],low, and high are integer and step equals 1, make a numberbutton 
+     * if params[property],low, and high are integer and step equals 1, make a range with plus and minus buttons 
      * (else) if params[property],low and high are numbers make a range element
      */
 

@@ -8,15 +8,16 @@
 
 /* jshint esversion:6 */
 
-function Range(idText, idRange) {
+function Range(idText, idRange, idPlus, idMinus) {
     this.idText = idText;
     this.idRange = idRange;
+    this.idPlus = (arguments.length > 2) ? idPlus : false;
+    this.idMinus = (arguments.length > 3) ? idMinus : false;
     this.textElement = document.getElementById(idText);
     this.textElement.setAttribute("type", "text");
     DOM.style("#" + this.idText, "text-align", "right");
     this.rangeElement = document.getElementById(idRange);
     this.rangeElement.setAttribute("type", "range");
-    this.rangeElement.setAttribute("class", "range");
     this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
     this.setStep(0.01);
@@ -79,6 +80,23 @@ function Range(idText, idRange) {
         range.rangeHover = false;
         range.updateRangeStyle();
     };
+
+    // increasing and decreasing    
+    this.plusButton = null;
+    if (this.idPlus !== false) {
+        this.plusButton = new Button(idPlus);
+        this.plusButton.onClick = function() {
+            range.updateValue(range.getValue() + 1);
+        };
+    }
+    this.minusButton = null;
+    if (this.idMinus !== false) {
+        this.minusButton = new Button(idMinus);
+        this.minusButton.onClick = function() {
+            range.updateValue(range.getValue() - 1);
+        };
+    }
+
 
     /**
      * action upon change, strategy pattern
@@ -145,17 +163,15 @@ function Range(idText, idRange) {
         }
     };
 
-
     /**
-     * return a value clamped between max and min  
-     * @function clamp 
-     * @para {int/float} min 
-     * @para {int/float} x 
-     * @para {int/float} max  
+     * quantize a number according to step and clamp to range
+     * @method Range#quantizeClamp
+     * @param {float} x
+     * @return float, quantized and clamped x
      */
-    function clamp(min, x, max) {
-        return Math.max(min, Math.min(x, max));
-    }
+    Range.prototype.quantizeClamp = function(x) {
+        return Math.max(this.minValue, Math.min(this.step * Math.floor(0.5 + x / this.step), this.maxValue));
+    };
 
     /**
      * read the float value of the text input element
@@ -193,7 +209,7 @@ function Range(idText, idRange) {
      * @param {String} text - default is number to string
      */
     Range.prototype.setValue = function(number, text) {
-        number = this.quantize(number);
+        number = this.quantizeClamp(number);
         this.lastValue = number;
         this.textElement.value = number.toString();
         this.rangeElement.value = number.toString();
@@ -206,7 +222,8 @@ function Range(idText, idRange) {
 
     /**
      * set the textInput and rangeInput according to a given number
-     * check if it is a number and clamp it in the range, if number changes do this.onchange
+     * check if it is a number and clamp it in the range, 
+     * if number changes do this.onChange
      * thus we can use it for initialization
      * @method Range#updateValue
      * @param {float} number - the number value to show in the button
@@ -215,7 +232,7 @@ function Range(idText, idRange) {
         if (isNaN(number)) { // overwrite garbage, do nothing
             this.setValue(this.lastValue);
         } else {
-            number = clamp(this.minValue, number, this.maxValue);
+            number = this.quantizeClamp(number);
             if (this.lastValue != number) { // does it really change??
                 this.setValue(number); // update numbers before action
                 this.onChange(number);
@@ -237,17 +254,7 @@ function Range(idText, idRange) {
         this.rangeElement.min = minValue;
         this.rangeElement.max = maxValue;
         // clamp value in range
-        this.setValue(clamp(this.minValue, this.lastValue, this.maxValue));
-    };
-
-    /**
-     * quantize a number according to step
-     * @method Range#quantize
-     * @param {float} x
-     * @return float, quantized x
-     */
-    Range.prototype.quantize = function(x) {
-        return this.step * Math.floor(0.5 + x / this.step);
+        this.setValue(this.quantizeClamp(this.lastValue));
     };
 
     /**
@@ -290,6 +297,14 @@ function Range(idText, idRange) {
         this.rangeElement.onchange = null;
         this.rangeElement.remove();
         this.rangeElement = null;
+        if (this.plusButton != null) {
+            this.plusButton.destroy();
+            this.plusButton = null;
+        }
+        if (this.minusButton != null) {
+            this.minusButton.destroy();
+            this.minusButton = null;
+        }
     };
 
     /**
@@ -303,6 +318,25 @@ function Range(idText, idRange) {
         DOM.create("input", idSpan + "text", "#" + idSpan);
         DOM.create("input", idSpan + "range", "#" + idSpan);
         let range = new Range(idSpan + "text", idSpan + "range");
+        return range;
+    };
+
+    /**
+     * create a range button combination with plus/minus 1 buttons
+     * Attention: set font sizes afterwards
+     * @method Range.create
+     * @param {String} idSpan - id of the span containing the number button
+     * @return Range
+     */
+    Range.createPlusMinus = function(idSpan) {
+        DOM.create("input", idSpan + "text", "#" + idSpan);
+        DOM.create("input", idSpan + "range", "#" + idSpan);
+        const dnId = DOM.createButton(idSpan, "<");
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, ">");
+        DOM.style("#" + upId + ",#" + dnId, "borderRadius", "1000px");
+
+        let range = new Range(idSpan + "text", idSpan + "range", upId, dnId);
         return range;
     };
 

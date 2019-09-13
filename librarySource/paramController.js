@@ -30,8 +30,6 @@ function ParamController(gui, params, property, low, high, step) {
     this.domElement = DOM.create("div", this.domElementId, "#" + gui.bodyDivId);
     // make a regular spacing between labels ???
     DOM.style("#" + this.domElementId, "minHeight", ParamController.minHeight + px);
-
-
     // the button or whatever the user interacts with
     this.uiElement = null;
     // what should be done if value changes or button clicked
@@ -74,7 +72,8 @@ function ParamController(gui, params, property, low, high, step) {
     ParamController.numberInputWidth = 60;
 
     // length of slider for range element
-    ParamController.rangeSliderLength = 120;
+    ParamController.rangeSliderLengthShort = 80;
+    ParamController.rangeSliderLengthLong = 120;
 
     // vertical offset for range slider
     ParamController.rangeVOffset = 4;
@@ -235,9 +234,10 @@ function ParamController(gui, params, property, low, high, step) {
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
-            } else if (isInteger(paramValue) && isInteger(this.low) && (!isDefined(this.high) || isInteger(this.high)) && (!isDefined(this.step) || (isNumber(this.step)) && Math.abs(this.step - 1) < 0.01)) {
+            } else if (isInteger(paramValue) && isInteger(this.low) &&
+                (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit too 
-                // high is integer or not defined and step is not defined/ not supplied in call
+                // high is integer or not defined, and step is not defined/ not supplied in call
                 // thus make an (integer) number button 
                 console.log("integer button");
                 this.createLabel(this.property);
@@ -261,8 +261,44 @@ function ParamController(gui, params, property, low, high, step) {
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
+            } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && isNumber(this.step) && (Math.abs(this.step - 1) < 0.01)) {
+                // the parameter value is integer, and the low limit too 
+                // high is integer  and step is integerequal to 1
+                // thus make a range element with plus/minus button 
+                console.log("range plus minus ");
+                this.createLabel(this.property);
+                const id = DOM.createId();
+                DOM.create("span", id, "#" + this.domElementId);
+                const range = Range.createPlusMinus(id);
+                DOM.style("#" + range.idText,
+                    "width", ParamController.numberInputWidth + px,
+                    "font-size", ParamController.buttonFontSize + px);
+                DOM.style("#" + range.idRange,
+                    "width", ParamController.rangeSliderLengthShort + px);
+                DOM.style("#" + range.idText + ",#" + this.labelId,
+                    "position", "relative",
+                    "top", (-ParamController.rangeVOffset) + px);
+                if (range.idPlus) {
+                    DOM.style("#" + range.idPlus,
+                        "position", "relative",
+                        "top", (-ParamController.rangeVOffset) + px);
+                }
+                if (range.idMinus) {
+                    DOM.style("#" + range.idMinus,
+                        "position", "relative",
+                        "top", (-ParamController.rangeVOffset) + px);
+                }
+                range.setRange(this.low, this.high);
+                range.setStep(1);
+                range.setValue(paramValue);
+                this.uiElement = range;
+                range.onChange = function() {
+                    const value = range.getValue();
+                    controller.params[controller.property] = value;
+                    controller.callback(value);
+                };
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
-                // param value and range limits are numbers, at least one is not integer or there is a step size given
+                // param value and range limits are numbers, at least one is not integer or there is a step size given (different from 1)
                 // thus use a range element
                 console.log("range element");
                 this.createLabel(this.property);
@@ -273,7 +309,7 @@ function ParamController(gui, params, property, low, high, step) {
                     "width", ParamController.numberInputWidth + px,
                     "font-size", ParamController.buttonFontSize + px);
                 DOM.style("#" + range.idRange,
-                    "width", ParamController.rangeSliderLength + px);
+                    "width", ParamController.rangeSliderLengthLong + px);
                 DOM.style("#" + range.idText + ",#" + this.labelId,
                     "position", "relative",
                     "top", (-ParamController.rangeVOffset) + px);
