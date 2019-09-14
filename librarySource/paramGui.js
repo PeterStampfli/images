@@ -98,6 +98,8 @@ ParamGui = function(params) {
     ParamGui.labelFontSize = 14;
     // marking different folder levels
     ParamGui.levelIndent = 10;
+    // width of the open/close button span
+    ParamGui.openCloseButtonWidth = 20;
 
     // colors
     // background of the root ui panel
@@ -183,6 +185,57 @@ ParamGui = function(params) {
                 "width", this.width + px,
                 "paddingTop", ParamGui.paddingVertical + px,
                 "paddingBottom", ParamGui.paddingVertical + px);
+
+            // close and open buttons if wanted
+            if (this.closeOnTop) {
+                const closeButtonElementId = DOM.createId();
+                const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + this.topDivId, "▼");
+                const openButtonElementId = DOM.createId();
+                const openButtonElement = DOM.create("span", openButtonElementId, "#" + this.topDivId, "►");
+                this.closeButton = new Button(closeButtonElementId);
+                this.closeButton.onClick = function() {
+                    paramGui.close();
+                };
+                this.closeButton.backgroundColorDown = "#ffffff00";
+                this.closeButton.backgroundColorDownHover = "#ffffff00";
+                this.closeButton.backgroundColorUp = "#ffffff00";
+                this.closeButton.backgroundColorUpHover = "#ffffff00";
+                this.closeButton.colorUp = ParamGui.folderTopColor;
+                this.closeButton.colorUpHover = Button.backgroundColorUpHover;
+                this.closeButton.colorDown = Button.backgroundColorDown;
+                this.closeButton.colorDownHover = Button.backgroundColorDownHover;
+                this.openButton = new Button(openButtonElementId);
+                this.openButton.onClick = function() {
+                    paramGui.open();
+                };
+                this.openButton.backgroundColorDown = "#ffffff00";
+                this.openButton.backgroundColorDownHover = "#ffffff00";
+                this.openButton.backgroundColorUp = "#ffffff00";
+                this.openButton.backgroundColorUpHover = "#ffffff00";
+                this.openButton.colorUp = ParamGui.folderTopColor;
+                this.openButton.colorUpHover = Button.backgroundColorUpHover;
+                this.openButton.colorDown = Button.backgroundColorDown;
+                this.openButton.colorDownHover = Button.backgroundColorDownHover;
+                DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
+                    "font-size", ParamGui.buttonFontSize + px,
+                    "borderRadius", "0px",
+                    "paddingLeft", ParamGui.borderWidth + px,
+                    "font-size", ParamGui.labelFontSize + px,
+                    "backgroundColor", "#ffffff00",
+                    "display", "inline-block",
+                    "width", ParamGui.openCloseButtonWidth + px
+                );
+                // default:open
+                DOM.displayNone(openButtonElementId);
+            } else {
+                const spanId = DOM.createId();
+                const spanElement = DOM.create("span", spanId, "#" + this.topDivId);
+                DOM.style("#" + spanId,
+                    "display", "inline-block",
+                    "paddingLeft", ParamGui.borderWidth + px,
+                    "width", ParamGui.openCloseButtonWidth + px
+                );
+            }
             this.topLabelId = DOM.createId();
             this.topLabel = DOM.create("span", this.topLabelId, "#" + this.topDivId, this.name);
             DOM.style("#" + this.topLabelId,
@@ -190,27 +243,7 @@ ParamGui = function(params) {
                 "display", "inline-block",
                 "font-size", ParamGui.labelFontSize + px,
                 "font-weight", "bold",
-                "paddingLeft", ParamGui.paddingHorizontal + px,
                 "paddingRight", ParamGui.paddingHorizontal + px);
-            // close and open buttons if wanted
-            if (this.closeOnTop) {
-                const closeButtonElementId = DOM.createId();
-                const closeButtonElement = DOM.create("button", closeButtonElementId, "#" + this.topDivId, "close");
-                const openButtonElementId = DOM.createId();
-                const openButtonElement = DOM.create("button", openButtonElementId, "#" + this.topDivId, "open");
-                DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
-                    "font-size", ParamGui.buttonFontSize + px);
-                this.closeButton = new Button(closeButtonElementId);
-                this.closeButton.onClick = function() {
-                    paramGui.close();
-                };
-                this.openButton = new Button(openButtonElementId);
-                this.openButton.onClick = function() {
-                    paramGui.open();
-                };
-                // default:open
-                DOM.displayNone(openButtonElementId);
-            }
         }
         // the ui elements go into their own div, the this.bodyDiv
         this.bodyDivId = DOM.createId();
@@ -304,7 +337,7 @@ ParamGui = function(params) {
             this.closed = false;
             // the buttons are inside the topDiv, which is shown/hidden
             this.openButton.element.style.display = "none";
-            this.closeButton.element.style.display = "initial";
+            this.closeButton.element.style.display = "inline-block";
             if (!this.hidden) {
                 DOM.style("#" + this.bodyDivId, "display", "block");
             }
@@ -320,7 +353,7 @@ ParamGui = function(params) {
     ParamGui.prototype.close = function() {
         if (this.closeOnTop) {
             this.closed = true;
-            this.openButton.element.style.display = "initial";
+            this.openButton.element.style.display = "inline-block";
             this.closeButton.element.style.display = "none";
             DOM.style("#" + this.bodyDivId, "display", "none");
         }
