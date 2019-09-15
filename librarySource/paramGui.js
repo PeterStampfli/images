@@ -29,7 +29,7 @@
  * creating an empty div to show the controls
  * hiding and showing the controls
  * @creator ParamGui
- * @param {Object} params - setup parameters
+ * @param {...Object} params - setup parameters as fields (key,value pairs) of objects, multiple objects possible
  */
 
 /*
@@ -56,7 +56,9 @@ ParamGui = function(params) {
     this.closed = false;
     this.closeOnTop = false;
     // read/merge params object replacing defaults
-    Object.assign(this, params);
+    for (var i = 0; i < arguments.length; i++) {
+        ParamGui.updateValues(this, arguments[i]);
+    }
     // other parameters to change
     // width default for root
     this.width = ParamGui.width;
@@ -116,6 +118,39 @@ ParamGui = function(params) {
 
     //time in milliseconds betweenm listening updates
     ParamGui.listeningInterval = 400;
+
+    /**
+     * updating existing fields of first object by fields of second object
+     * both have to have the same value
+     * use instead of Object.assign(to,from) to avoid copying ALL (unwanted) fields
+     * @method ParamGui.updateValues
+     * @param {Object} toObject
+     * @param {Object} fromObject
+     */
+
+    ParamGui.updateValues = function(toObject, fromObject) {
+        if ((typeof toObject === "object") && (typeof fromObject === "object")) {
+            for (var key in fromObject) {
+                if (typeof toObject[key] === typeof fromObject[key]) {
+                    toObject[key] = fromObject[key];
+                }
+            }
+        }
+    };
+
+    /**
+     * handler for window.resize events:
+     * dispatches resize() calls to all GUIs
+     * @method ParamGui.resize
+     */
+    ParamGui.resize = function() {
+        console.log("resize");
+
+    };
+
+    // attach this handler to resize events
+    window.addEventListener("resize", ParamGui.resize, false);
+
 
     //=================================================================
     // dom structure
@@ -196,26 +231,12 @@ ParamGui = function(params) {
                 this.closeButton.onClick = function() {
                     paramGui.close();
                 };
-                this.closeButton.backgroundColorDown = "#ffffff00";
-                this.closeButton.backgroundColorDownHover = "#ffffff00";
-                this.closeButton.backgroundColorUp = "#ffffff00";
-                this.closeButton.backgroundColorUpHover = "#ffffff00";
-                this.closeButton.colorUp = ParamGui.folderTopColor;
-                this.closeButton.colorUpHover = Button.backgroundColorUpHover;
-                this.closeButton.colorDown = Button.backgroundColorDown;
-                this.closeButton.colorDownHover = Button.backgroundColorDownHover;
+                this.closeButton.colorStyleForTransparentSpan();
                 this.openButton = new Button(openButtonElementId);
                 this.openButton.onClick = function() {
                     paramGui.open();
                 };
-                this.openButton.backgroundColorDown = "#ffffff00";
-                this.openButton.backgroundColorDownHover = "#ffffff00";
-                this.openButton.backgroundColorUp = "#ffffff00";
-                this.openButton.backgroundColorUpHover = "#ffffff00";
-                this.openButton.colorUp = ParamGui.folderTopColor;
-                this.openButton.colorUpHover = Button.backgroundColorUpHover;
-                this.openButton.colorDown = Button.backgroundColorDown;
-                this.openButton.colorDownHover = Button.backgroundColorDownHover;
+                this.openButton.colorStyleForTransparentSpan();
                 DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
                     "font-size", ParamGui.buttonFontSize + px,
                     "borderRadius", "0px",

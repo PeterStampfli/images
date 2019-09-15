@@ -149,6 +149,22 @@ function Button(idName) {
     };
 
     /**
+     * color style for using transparent span with text as button
+     * @method Button#colorStyleForTransparentSpan
+     */
+    Button.prototype.colorStyleForTransparentSpan = function() {
+        const transparentWhite = "#ffffff00";
+        this.backgroundColorDown = transparentWhite;
+        this.backgroundColorDownHover = transparentWhite;
+        this.backgroundColorUp = transparentWhite;
+        this.backgroundColorUpHover = transparentWhite;
+        this.colorUp = ParamGui.folderTopColor;
+        this.colorUpHover = Button.backgroundColorUpHover;
+        this.colorDown = Button.backgroundColorDown;
+        this.colorDownHover = Button.backgroundColorDownHover;
+    };
+
+    /**
      * set if button is active
      * @method Button#setActive
      * @param {boolean} isActive
