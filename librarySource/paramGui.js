@@ -40,7 +40,7 @@
  * load - Object - saved state of the gui (JSON) ??? - default: null
  * parent - ParamGui instance - the gui this one is nested in - default: null (root)
  * autoPlace - boolean - placing the gui automatically?? - default: true
- * hideable - boolean - hide/show with keyboard "h" press - default: true
+ * hideable - boolean - hide/show with keyboard ParamGui.hideCharacter press ("h") - default: true
  * closed - boolean - start gui in closed state - default: false
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
@@ -118,6 +118,8 @@ ParamGui = function(params) {
 
     //time in milliseconds betweenm listening updates
     ParamGui.listeningInterval = 400;
+    // keyboard character to hide/show all guis
+    ParamGui.hideCharacter = "h";
 
     /**
      * updating existing fields of first object by fields of second object
@@ -137,6 +139,75 @@ ParamGui = function(params) {
             }
         }
     };
+
+    /**
+     * remove an element from an array (of listeners)
+     * removes dublicates
+     * @method ParamGui.removeArrayElement
+     * @param {Array} array
+     * @param {whatever} element
+     */
+    ParamGui.removeArrayElement = function(array, element) {
+        for (var i = array.length - 1; i >= 0; i--) {
+            if (element === array[i]) {
+                array.splice(i, 1);
+            }
+        }
+    };
+
+    // root GUI objects collection (listening, hiding)
+    ParamGui.rootGuis = [];
+
+    /**
+     * adding a root gui to the collection
+     * @method ParamGui.addRootGui
+     * @param {Gui} rootGui 
+     */
+    ParamGui.addRootGui = function(rootGui) {
+        ParamGui.rootGuis.push(rootGui);
+    };
+
+    /**
+     * remove a root gui from the list
+     * @method ParamGui.removeRootGui
+     * @param {Gui} rootGui 
+     */
+    ParamGui.removeRootGui = function(rootGui) {
+        ParamGui.removeArrayElement(ParamGui.rootGuis, rootGui);
+    };
+
+    /**
+     * initiate periodical display update for listening controllers 
+     * @method ParamGui.startListening
+     */
+    let intervalID = 0;
+    ParamGui.startListening = function() {
+        if (intervalID === 0) {
+            // gives a non-zero ID
+            const gui = this;
+            intervalID = setInterval(function() {
+                ParamGui.rootGuis.forEach(function(gui) {
+                    gui.updateDisplayIfListening();
+                });
+            }, ParamGui.listeningInterval);
+        }
+    };
+
+    // keyboard ParamGui.hideCharacter hide/shows all hideable guis
+    let hidden = false;
+    KeyboardEvents.addFunction(function() {
+        ParamGui.rootGuis.forEach(function(gui) {
+            if (gui.hideable) {
+                if (hidden) {
+                    gui.show();
+                } else {
+                    gui.hide();
+                }
+            }
+        });
+        hidden = !hidden;
+    }, ParamGui.hideCharacter);
+
 
     /**
      * handler for window.resize events:
@@ -163,6 +234,7 @@ ParamGui = function(params) {
     ParamGui.prototype.setup = function() {
         const paramGui = this;
         if (this.parent === null) {
+            ParamGui.addRootGui(this);
             // the root element has to generate a div as containing DOMElement
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
@@ -185,25 +257,6 @@ ParamGui = function(params) {
                 "borderStyle", "solid",
                 "borderColor", ParamGui.borderColor,
                 "backgroundColor", ParamGui.rootBackgroundColor);
-            //listening: root calls listeners
-            //controllers with an updateDisplay method
-            // controller#listen puts controller in this list
-            // remove/destroy folder has to remove its listeners
-            let intervalID = 0;
-            /**
-             * only for root gui 
-             * initiate periodical display update for listening elements
-             * @method ParamGui#startListening
-             */
-            this.startListening = function() {
-                if (intervalID === 0) {
-                    // gives a non-zero ID
-                    const gui = this;
-                    intervalID = setInterval(function() {
-                        gui.updateDisplayIfListening();
-                    }, ParamGui.listeningInterval);
-                }
-            };
         } else {
             // folders have the parent bodyDiv as container
             this.domElementId = this.parent.bodyDivId;
@@ -290,17 +343,7 @@ ParamGui = function(params) {
         if (this.closeOnTop && this.closed) {
             this.close();
         }
-        // keyboard "h" open/closes (only root gui)
-        this.hidden = false;
-        if (this.hideable && (this.parent === null)) {
-            KeyboardEvents.addFunction(function() {
-                if (paramGui.hidden) {
-                    paramGui.show();
-                } else {
-                    paramGui.hide();
-                }
-            }, "h");
-        }
+
     };
 
     /**
@@ -519,19 +562,17 @@ ParamGui = function(params) {
     ParamGui.prototype.destroy = function() {
         console.log("destroy");
         // destroy the ui elements and folders
-        for (var i = 0; i < this.elements.length; i++) {
+        for (var i = this.elements.length - 1; i >= 0; i--) {
+            // attention: destroying folders remove themselves from this array
             this.elements[i].destroy();
-            this.elements[i] = null;
         }
         this.elements.length = 0;
-        // if exist destroy open/close buttons, and closedBodyDiv
+        // if exist destroy open/close buttons
         if (this.closeOnTop) {
             this.closeButton.destroy();
             this.closeButton = null;
             this.openButton.destroy();
             this.openButton = null;
-            this.closedBodyDiv.remove();
-            this.closedBodyDiv = null;
         }
         // destroy top title element if exists
         if ((this.closeOnTop) || (this.name !== "")) {
@@ -547,6 +588,11 @@ ParamGui = function(params) {
         if (this.parent === null) {
             this.domElement.remove();
             this.domElement = null;
+            ParamGui.removeRootGui(this);
+        }
+        // folder: remove from parent GUI 
+        else {
+            ParamGui.removeArrayElement(this.parent.elements, this);
         }
     };
 

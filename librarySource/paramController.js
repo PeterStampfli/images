@@ -402,7 +402,7 @@ function ParamController(gui, params, property, low, high, step) {
      */
     ParamController.prototype.listen = function() {
         this.listening = true;
-        this.gui.getRoot().startListening();
+        ParamGui.startListening();
         return this;
     };
 
