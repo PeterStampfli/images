@@ -230,12 +230,12 @@ ParamGui = function(params) {
     // this.bodyDiv contains the controls, folders and so on
     //=========================================================================================
 
-
     ParamGui.prototype.setup = function() {
         const paramGui = this;
-        if (this.parent === null) {
+        if (this.isRoot()) {
             ParamGui.addRootGui(this);
             // the root element has to generate a div as containing DOMElement
+            // everything is in this div
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
             // put it on top
@@ -246,12 +246,14 @@ ParamGui = function(params) {
                     ParamGui.verticalPosition, px0,
                     ParamGui.horizontalPosition, px0);
             }
+            // main div for all contents
             // width, no padding, define spacing on elements
             DOM.style("#" + this.domElementId,
                 "width", this.width + px,
                 "maxHeight", (window.innerHeight - 2 * ParamGui.borderWidth) + px,
                 "overflowY", "auto",
                 "overflowX", "hidden");
+            // the border around everything
             DOM.style("#" + this.domElementId,
                 "borderWidth", ParamGui.borderWidth + px,
                 "borderStyle", "solid",
@@ -302,6 +304,7 @@ ParamGui = function(params) {
                 // default:open
                 DOM.displayNone(openButtonElementId);
             } else {
+                // no close/open buttons - occupy space with empty span for alignement
                 const spanId = DOM.createId();
                 const spanElement = DOM.create("span", spanId, "#" + this.topDivId);
                 DOM.style("#" + spanId,
@@ -319,12 +322,24 @@ ParamGui = function(params) {
                 "font-weight", "bold",
                 "paddingRight", ParamGui.paddingHorizontal + px);
         }
+        // padding at top as always visible separating line between gui title and rest
+        if (this.isRoot()) {
+
+            const topPaddingDivId = DOM.createId();
+            DOM.create("div", topPaddingDivId, "#" + this.domElementId);
+            DOM.style("#" + topPaddingDivId,
+                "height", ParamGui.paddingVertical + px,
+                "backgroundColor", "green"
+            );
+        }
         // the ui elements go into their own div, the this.bodyDiv
         this.bodyDivId = DOM.createId();
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
-        DOM.style("#" + this.bodyDivId,
-            "paddingTop", ParamGui.paddingVertical + px);
-        if (this.parent !== null) {
+
+        if (!this.isRoot()) {
+            // padding at top makes separating line between folders
+            DOM.style("#" + this.bodyDivId,
+                "paddingTop", ParamGui.paddingVertical + px);
             DOM.style("#" + this.bodyDivId,
                 "backgroundColor", ParamGui.folderBackgroundColor,
                 "border-left", "solid",
@@ -336,7 +351,9 @@ ParamGui = function(params) {
             this.bottomPaddingDivId = DOM.createId();
             DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + this.bottomPaddingDivId,
-                "height", ParamGui.paddingVertical + px);
+                "height", ParamGui.paddingVertical + px,
+                "backgroundColor", "red"
+            );
         }
 
         // close it initially?
@@ -346,6 +363,8 @@ ParamGui = function(params) {
 
     };
 
+    // hide and show might be used in a program to hide irrelevant parameters
+
     /**
      * hide the gui/folder. (makes it disappear)
      * note difference between root and folders
@@ -353,7 +372,7 @@ ParamGui = function(params) {
      */
     ParamGui.prototype.hide = function() {
         this.hidden = true;
-        if (this.parent === null) {
+        if (this.isRoot()) {
             // root, hide base container with border
             DOM.style("#" + this.domElementId, "display", "none");
         }
@@ -374,7 +393,7 @@ ParamGui = function(params) {
      */
     ParamGui.prototype.show = function() {
         this.hidden = false;
-        if (this.parent === null) {
+        if (this.isRoot()) {
             // root, show base container
             DOM.style("#" + this.domElementId, "display", "block");
         }
@@ -390,10 +409,12 @@ ParamGui = function(params) {
         DOM.style("#" + this.bottomPaddingDivId, "display", "block");
     };
 
+    // open/close should not be used in a program (makes no sense)
+    // use only in the gui
+
     /**
      * open the body of a gui 
      * only if there are open/close buttons
-     * if hidden do not display body 
      * @method ParamGui#open
      */
     ParamGui.prototype.open = function() {
@@ -402,16 +423,13 @@ ParamGui = function(params) {
             // the buttons are inside the topDiv, which is shown/hidden
             this.openButton.element.style.display = "none";
             this.closeButton.element.style.display = "inline-block";
-            if (!this.hidden) {
-                DOM.style("#" + this.bodyDivId, "display", "block");
-            }
+            DOM.style("#" + this.bodyDivId, "display", "block");
         }
     };
 
     /**
      * close the body of a gui 
      * only if there are open/close buttons
-     * if hidden do not display closeBody
      * @method ParamGui#open
      */
     ParamGui.prototype.close = function() {
@@ -424,13 +442,22 @@ ParamGui = function(params) {
     };
 
     /**
+     * check if this gui is the root gui (for better readability)
+     * @method ParamGui#isRoot
+     * @return boolean, true if this is rootGui
+     */
+    ParamGui.prototype.isRoot = function() {
+        return this.parent === null;
+    };
+
+    /**
      * get the root (topmost parent) of the gui
      * @method ParamGui#getRoot
      * @return ParamGui object
      */
     ParamGui.prototype.getRoot = function() {
         let root = this;
-        while (root.parent !== null) {
+        while (!root.isRoot()) {
             root = root.parent;
         }
         return root;
@@ -585,7 +612,7 @@ ParamGui = function(params) {
         this.bodyDiv.remove();
         this.bodyDiv = null;
         // if root destroy main domElement
-        if (this.parent === null) {
+        if (this.isRoot()) {
             this.domElement.remove();
             this.domElement = null;
             ParamGui.removeRootGui(this);

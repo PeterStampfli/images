@@ -41,6 +41,7 @@ function creation() {
     };
 
 
+
     // projection
     let projectionSelect = new Select("projection");
 
@@ -48,6 +49,16 @@ function creation() {
         function() {
             console.log(" stereo");
             Make.map.discRadius = -1;
+            projectionMap = function(position) {
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+    projectionSelect.addOption("Poincaré disc only",
+        function() {
+            console.log(" stereo");
+            Make.map.discRadius = worldradius;
             projectionMap = function(position) {
                 return 1;
             };
@@ -190,11 +201,16 @@ function creation() {
 
     Make.map.discRadius = -1; // not required, default
     Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+
+
+
     Make.map.hueInversionColorSymmetry();
     Make.map.inversionColorSymmetry();
 
     const worldradius = 10;
     const worldradius2 = worldradius * worldradius;
+
+
 
     var dBase, rBase, mBase;
 
@@ -275,7 +291,7 @@ function creation() {
         Draw.setLineWidth(basicUI.lineWidthRange.getValue());
         Draw.setColor(basicUI.generatorColor);
         Draw.setSolidLine();
-        rotaScope.drawSector();
+        //  rotaScope.drawSector();
         rotaScope.drawCircles();
     };
 }
@@ -286,6 +302,7 @@ window.onload = function() {
     creation();
     basicUI.onload();
     basicUI.showSelectAdd();
+    basicUI.showSelectAddNothing();
 };
 
 window.onresize = function() {
