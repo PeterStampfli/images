@@ -252,7 +252,7 @@ ParamGui = function(params) {
     //=================================================================
     // dom structure
     // this.domElement contains all of the ParamGui object
-    // this.titleDiv contains the title bar at the top if there is a name and open/close buttons
+    // this.outerTitleDiv contains the title bar at the top if there is a name and open/close buttons
     // this.bodyDiv contains the controls, folders and so on
     //=========================================================================================
 
@@ -261,23 +261,25 @@ ParamGui = function(params) {
     ParamGui.prototype.createTitle = function() {
         if ((this.closeOnTop) || (this.name !== "")) {
             // create title div for name and open/close buttons
-            this.titleDivId = DOM.createId();
-            this.titleDiv = DOM.create("div", this.titleDivId, "#" + this.domElementId);
+            this.outerTitleDivId = DOM.createId();
+            this.outerTitleDiv = DOM.create("div", this.outerTitleDivId, "#" + this.domElementId);
             // full width (background color!), excess will be hidden
-            DOM.style("#" + this.titleDivId,
+            DOM.style("#" + this.outerTitleDivId,
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
                 "width", this.width + px,
                 "paddingTop", ParamGui.paddingVertical + px,
                 "paddingBottom", ParamGui.paddingVertical + px);
+            // id of the div for writing the title and the open/close buttons
+            const titleDivId = this.outerTitleDivId;
             // create close and open buttons if wanted
             // small arrows (as for file system), before name
             if (this.closeOnTop) {
                 // button visuals
                 const closeButtonElementId = DOM.createId();
-                const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + this.titleDivId, "▼");
+                const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + titleDivId, "▼");
                 const openButtonElementId = DOM.createId();
-                const openButtonElement = DOM.create("span", openButtonElementId, "#" + this.titleDivId, "►");
+                const openButtonElement = DOM.create("span", openButtonElementId, "#" + titleDivId, "►");
                 // span length determines spacing between handles and gui/folder name
                 // make width large enough that the title label does not move
                 // padding left shifts buttons
@@ -305,7 +307,7 @@ ParamGui = function(params) {
             } else {
                 // no close/open buttons - occupy space with empty span for alignement
                 const spanId = DOM.createId();
-                const spanElement = DOM.create("span", spanId, "#" + this.titleDivId);
+                const spanElement = DOM.create("span", spanId, "#" + titleDivId);
                 DOM.style("#" + spanId,
                     "display", "inline-block",
                     "paddingLeft", ParamGui.borderWidth + px,
@@ -313,7 +315,7 @@ ParamGui = function(params) {
             }
             // write name of folder/gui in the title div
             this.topLabelId = DOM.createId();
-            this.topLabel = DOM.create("span", this.topLabelId, "#" + this.titleDivId, this.name);
+            this.topLabel = DOM.create("span", this.topLabelId, "#" + titleDivId, this.name);
             DOM.style("#" + this.topLabelId,
                 "display", "inline-block",
                 "font-size", ParamGui.labelFontSize + px,
@@ -421,7 +423,7 @@ ParamGui = function(params) {
         }
         // folder, hide topDiv if exists
         if ((this.closeOnTop) || (this.name !== "")) {
-            DOM.style("#" + this.titleDivId, "display", "none");
+            DOM.style("#" + this.outerTitleDivId, "display", "none");
         }
         // hide body div and the bottom padding div
         DOM.style("#" + this.bottomPaddingDivId, "display", "none");
@@ -442,7 +444,7 @@ ParamGui = function(params) {
         }
         // folder, show topDiv if exists, including the buttons
         if ((this.closeOnTop) || (this.name !== "")) {
-            DOM.style("#" + this.titleDivId, "display", "block");
+            DOM.style("#" + this.outerTitleDivId, "display", "block");
         }
         // show the body div if not closed or no close/open buttons
         if ((!this.closed) || (!this.closeOnTop)) {
@@ -648,8 +650,8 @@ ParamGui = function(params) {
         if ((this.closeOnTop) || (this.name !== "")) {
             this.topLabel.remove();
             this.topLabel = null;
-            this.titleDiv.remove();
-            this.titleDiv = null;
+            this.outerTitleDiv.remove();
+            this.outerTitleDiv = null;
         }
         // destroy body
         this.bodyDiv.remove();
