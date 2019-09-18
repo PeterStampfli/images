@@ -121,6 +121,32 @@ ParamGui = function(params) {
     // keyboard character to hide/show all guis
     ParamGui.hideCharacter = "h";
 
+    // defaults for controllers
+    // alignment: minimal width for writing the property strings
+
+    // fontsize for buttons
+    ParamGui.buttonFontSize = 11;
+
+    // vertical spacing: minimum height overall=== distance between baselines
+    //  if controller not too large/minHeight too low
+    ParamGui.minHeight = 27;
+
+    // width (min) of on/off buttons
+    ParamGui.onOffButtonWidth = 60;
+
+    // width for text input
+    ParamGui.textInputWidth = 200;
+
+    // width for number input
+    ParamGui.numberInputWidth = 60;
+
+    // length of slider for range element
+    ParamGui.rangeSliderLengthShort = 80;
+    ParamGui.rangeSliderLengthLong = 120;
+
+    // vertical offset for range slider
+    ParamGui.rangeVOffset = 4;
+
     /**
      * updating existing fields of first object by fields of second object
      * both have to have the same value

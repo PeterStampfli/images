@@ -200,7 +200,7 @@ function creation() {
     // where Make.updateMapOutput is the method to draw the image according to the map
 
     Make.map.discRadius = -1; // not required, default
-    Make.map.makeColorCollection(2, 1, 2.5, 140, 100);
+    Make.map.makeColorCollection(2, 1, 2.5, 0, 100);
 
 
 
