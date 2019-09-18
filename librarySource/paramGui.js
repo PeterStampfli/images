@@ -48,13 +48,13 @@
 ParamGui = function(params) {
     "use strict";
     // default values for parameters
-    this.name = "";
+    this.name = "controls";
     this.load = null;
     this.parent = null;
     this.autoPlace = true;
     this.hideable = true;
     this.closed = false;
-    this.closeOnTop = false;
+    this.closeOnTop = true;
     // read/merge params object replacing defaults
     for (var i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(this, arguments[i]);
@@ -92,12 +92,10 @@ ParamGui = function(params) {
     ParamGui.paddingVertical = 4;
     // width of border around ui panel
     ParamGui.borderWidth = 3; // set to zero to make border disappear
-    // font size for buttons
-    ParamGui.buttonFontSize = 13;
-    // minimum width for label (property), alignment
-    ParamGui.labelWidth = 110;
-    // fontsize for label/property 
-    ParamGui.labelFontSize = 14;
+    // height for the title div
+    ParamGui.titleHeight = 30;
+    // fontsize for tile of gui/folder 
+    ParamGui.titleFontSize = 14;
     // marking different folder levels
     ParamGui.levelIndent = 10;
     // width of the open/close button span
@@ -121,16 +119,17 @@ ParamGui = function(params) {
     // keyboard character to hide/show all guis
     ParamGui.hideCharacter = "h";
 
-    // defaults for controllers
-    // alignment: minimal width for writing the property strings
+    // defaults for controller dimensions
 
     // fontsize for buttons
-    ParamGui.buttonFontSize = 11;
-
+    ParamGui.buttonFontSize = 12;
     // vertical spacing: minimum height overall=== distance between baselines
     //  if controller not too large/minHeight too low
     ParamGui.minHeight = 27;
-
+    // (minimum) width for labels (horizontal alignement)
+    ParamGui.controllerLabelWidth = 80;
+    // fontsize for labels
+    ParamGui.controllerLabelFontSize = 14;
     // width (min) of on/off buttons
     ParamGui.onOffButtonWidth = 60;
 
@@ -144,7 +143,7 @@ ParamGui = function(params) {
     ParamGui.rangeSliderLengthShort = 80;
     ParamGui.rangeSliderLengthLong = 120;
 
-    // vertical offset for range slider
+    // vertical offset for range slider (alignment)
     ParamGui.rangeVOffset = 4;
 
     /**
@@ -234,7 +233,6 @@ ParamGui = function(params) {
         hidden = !hidden;
     }, ParamGui.hideCharacter);
 
-
     /**
      * handler for window.resize events:
      * dispatches resize() calls to all GUIs
@@ -268,10 +266,18 @@ ParamGui = function(params) {
                 "backgroundColor", ParamGui.folderTopBackgroundColor,
                 "color", ParamGui.folderTopColor,
                 "width", this.width + px,
-                "paddingTop", ParamGui.paddingVertical + px,
-                "paddingBottom", ParamGui.paddingVertical + px);
+                "height", ParamGui.titleHeight + px,
+                "position", "relative");
+            // put elements at center of div with fixed heigth
+            const innerTitleDivId = DOM.createId();
+            DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
+            DOM.style("#" + innerTitleDivId,
+                "position", "absolute",
+                "top", "50%",
+                "transform", "translateY(-50%)");
+
             // id of the div for writing the title and the open/close buttons
-            const titleDivId = this.outerTitleDivId;
+            const titleDivId = innerTitleDivId;
             // create close and open buttons if wanted
             // small arrows (as for file system), before name
             if (this.closeOnTop) {
@@ -284,10 +290,9 @@ ParamGui = function(params) {
                 // make width large enough that the title label does not move
                 // padding left shifts buttons
                 DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
-                    "font-size", ParamGui.buttonFontSize + px,
                     "borderRadius", "0px",
                     "paddingLeft", ParamGui.borderWidth + px,
-                    "font-size", ParamGui.labelFontSize + px,
+                    "font-size", ParamGui.titleFontSize + px,
                     "display", "inline-block",
                     "width", ParamGui.openCloseButtonWidth + px);
                 // default:open
@@ -318,7 +323,7 @@ ParamGui = function(params) {
             this.topLabel = DOM.create("span", this.topLabelId, "#" + titleDivId, this.name);
             DOM.style("#" + this.topLabelId,
                 "display", "inline-block",
-                "font-size", ParamGui.labelFontSize + px,
+                "font-size", ParamGui.titleFontSize + px,
                 "font-weight", "bold");
         }
     };
@@ -359,9 +364,7 @@ ParamGui = function(params) {
             const topPaddingDivId = DOM.createId();
             DOM.create("div", topPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + topPaddingDivId,
-                "height", ParamGui.paddingVertical + px,
-                "backgroundColor", "green"
-            );
+                "height", ParamGui.paddingVertical + px);
 
             // the ui elements go into their own div, the this.bodyDiv
             this.bodyDivId = DOM.createId();
@@ -395,9 +398,7 @@ ParamGui = function(params) {
             this.bottomPaddingDivId = DOM.createId();
             DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + this.bottomPaddingDivId,
-                "height", ParamGui.paddingVertical + px,
-                "backgroundColor", "red"
-            );
+                "height", ParamGui.paddingVertical + px);
 
         }
 

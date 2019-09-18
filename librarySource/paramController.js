@@ -112,9 +112,9 @@ function ParamController(gui, params, property, low, high, step) {
         this.labelId = DOM.createId();
         this.label = DOM.create("span", this.labelId, "#" + this.domElementId, text);
         DOM.style("#" + this.labelId,
-            "minWidth", ParamGui.labelWidth + px,
+            "minWidth", ParamGui.controllerLabelWidth + px,
             "display", "inline-block",
-            "font-size", ParamGui.labelFontSize + px,
+            "font-size", ParamGui.controllerLabelFontSize + px,
             "paddingLeft", ParamGui.paddingHorizontal + px,
             "paddingRight", ParamGui.paddingHorizontal + px);
     };
