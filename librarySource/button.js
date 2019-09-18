@@ -162,6 +162,7 @@ function Button(idName) {
         this.colorUpHover = Button.backgroundColorUpHover;
         this.colorDown = Button.backgroundColorDown;
         this.colorDownHover = Button.backgroundColorDownHover;
+        this.updateStyle();
     };
 
     /**

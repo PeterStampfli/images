@@ -181,7 +181,7 @@ ParamGui = function(params) {
         }
     };
 
-    // root GUI objects collection (listening, hiding)
+    // collection of root GUI (listening, hiding, resize)
     ParamGui.rootGuis = [];
 
     /**
@@ -252,9 +252,74 @@ ParamGui = function(params) {
     //=================================================================
     // dom structure
     // this.domElement contains all of the ParamGui object
-    // this.topDiv contains the title bar at the top if there is a name and open/close buttons
+    // this.titleDiv contains the title bar at the top if there is a name and open/close buttons
     // this.bodyDiv contains the controls, folders and so on
     //=========================================================================================
+
+    // create a title bar if gui has a name and/or open/close buttons
+    // created directly in the main DOM element
+    ParamGui.prototype.createTitle = function() {
+        if ((this.closeOnTop) || (this.name !== "")) {
+            // create title div for name and open/close buttons
+            this.titleDivId = DOM.createId();
+            this.titleDiv = DOM.create("div", this.titleDivId, "#" + this.domElementId);
+            // full width (background color!), excess will be hidden
+            DOM.style("#" + this.titleDivId,
+                "backgroundColor", ParamGui.folderTopBackgroundColor,
+                "color", ParamGui.folderTopColor,
+                "width", this.width + px,
+                "paddingTop", ParamGui.paddingVertical + px,
+                "paddingBottom", ParamGui.paddingVertical + px);
+            // create close and open buttons if wanted
+            // small arrows (as for file system), before name
+            if (this.closeOnTop) {
+                // button visuals
+                const closeButtonElementId = DOM.createId();
+                const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + this.titleDivId, "▼");
+                const openButtonElementId = DOM.createId();
+                const openButtonElement = DOM.create("span", openButtonElementId, "#" + this.titleDivId, "►");
+                // span length determines spacing between handles and gui/folder name
+                // make width large enough that the title label does not move
+                // padding left shifts buttons
+                DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
+                    "font-size", ParamGui.buttonFontSize + px,
+                    "borderRadius", "0px",
+                    "paddingLeft", ParamGui.borderWidth + px,
+                    "font-size", ParamGui.labelFontSize + px,
+                    "display", "inline-block",
+                    "width", ParamGui.openCloseButtonWidth + px);
+                // default:open
+                DOM.displayNone(openButtonElementId);
+                // button function
+                const paramGui = this;
+                this.closeButton = new Button(closeButtonElementId);
+                this.closeButton.colorStyleForTransparentSpan();
+                this.closeButton.onClick = function() {
+                    paramGui.close();
+                };
+                this.openButton = new Button(openButtonElementId);
+                this.openButton.colorStyleForTransparentSpan();
+                this.openButton.onClick = function() {
+                    paramGui.open();
+                };
+            } else {
+                // no close/open buttons - occupy space with empty span for alignement
+                const spanId = DOM.createId();
+                const spanElement = DOM.create("span", spanId, "#" + this.titleDivId);
+                DOM.style("#" + spanId,
+                    "display", "inline-block",
+                    "paddingLeft", ParamGui.borderWidth + px,
+                    "width", ParamGui.openCloseButtonWidth + px);
+            }
+            // write name of folder/gui in the title div
+            this.topLabelId = DOM.createId();
+            this.topLabel = DOM.create("span", this.topLabelId, "#" + this.titleDivId, this.name);
+            DOM.style("#" + this.topLabelId,
+                "display", "inline-block",
+                "font-size", ParamGui.labelFontSize + px,
+                "font-weight", "bold");
+        }
+    };
 
     ParamGui.prototype.setup = function() {
         const paramGui = this;
@@ -285,84 +350,35 @@ ParamGui = function(params) {
                 "borderStyle", "solid",
                 "borderColor", ParamGui.borderColor,
                 "backgroundColor", ParamGui.rootBackgroundColor);
-        } else {
-            // folders have the parent bodyDiv as container
-            this.domElementId = this.parent.bodyDivId;
-            this.domElement = this.parent.bodyDiv;
-        }
-        // a title bar on top if there is a name or close/open buttons
-        if ((this.closeOnTop) || (this.name !== "")) {
-            // create divs with open/close buttons
-            this.topDivId = DOM.createId();
-            this.topDiv = DOM.create("div", this.topDivId, "#" + this.domElementId);
-            DOM.style("#" + this.topDivId,
-                "backgroundColor", ParamGui.folderTopBackgroundColor,
-                "color", ParamGui.folderTopColor,
-                "width", this.width + px,
-                "paddingTop", ParamGui.paddingVertical + px,
-                "paddingBottom", ParamGui.paddingVertical + px);
-
-            // close and open buttons if wanted
-            if (this.closeOnTop) {
-                const closeButtonElementId = DOM.createId();
-                const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + this.topDivId, "▼");
-                const openButtonElementId = DOM.createId();
-                const openButtonElement = DOM.create("span", openButtonElementId, "#" + this.topDivId, "►");
-                this.closeButton = new Button(closeButtonElementId);
-                this.closeButton.onClick = function() {
-                    paramGui.close();
-                };
-                this.closeButton.colorStyleForTransparentSpan();
-                this.openButton = new Button(openButtonElementId);
-                this.openButton.onClick = function() {
-                    paramGui.open();
-                };
-                this.openButton.colorStyleForTransparentSpan();
-                DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
-                    "font-size", ParamGui.buttonFontSize + px,
-                    "borderRadius", "0px",
-                    "paddingLeft", ParamGui.borderWidth + px,
-                    "font-size", ParamGui.labelFontSize + px,
-                    "backgroundColor", "#ffffff00",
-                    "display", "inline-block",
-                    "width", ParamGui.openCloseButtonWidth + px
-                );
-                // default:open
-                DOM.displayNone(openButtonElementId);
-            } else {
-                // no close/open buttons - occupy space with empty span for alignement
-                const spanId = DOM.createId();
-                const spanElement = DOM.create("span", spanId, "#" + this.topDivId);
-                DOM.style("#" + spanId,
-                    "display", "inline-block",
-                    "paddingLeft", ParamGui.borderWidth + px,
-                    "width", ParamGui.openCloseButtonWidth + px
-                );
-            }
-            this.topLabelId = DOM.createId();
-            this.topLabel = DOM.create("span", this.topLabelId, "#" + this.topDivId, this.name);
-            DOM.style("#" + this.topLabelId,
-                "minWidth", ParamGui.labelWidth + px,
-                "display", "inline-block",
-                "font-size", ParamGui.labelFontSize + px,
-                "font-weight", "bold",
-                "paddingRight", ParamGui.paddingHorizontal + px);
-        }
-        // padding at top as always visible separating line between gui title and rest
-        if (this.isRoot()) {
-
+            // add the title
+            this.createTitle();
+            // padding at top as always visible separating line between root gui title and rest
+            // root has no "indentation"
             const topPaddingDivId = DOM.createId();
             DOM.create("div", topPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + topPaddingDivId,
                 "height", ParamGui.paddingVertical + px,
                 "backgroundColor", "green"
             );
-        }
-        // the ui elements go into their own div, the this.bodyDiv
-        this.bodyDivId = DOM.createId();
-        this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
 
-        if (!this.isRoot()) {
+            // the ui elements go into their own div, the this.bodyDiv
+            this.bodyDivId = DOM.createId();
+            this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+
+
+
+        } else {
+            // folders have the parent bodyDiv as container
+            this.domElementId = this.parent.bodyDivId;
+            this.domElement = this.parent.bodyDiv;
+            // add the title
+            this.createTitle();
+
+
+            // the ui elements go into their own div, the this.bodyDiv
+            this.bodyDivId = DOM.createId();
+            this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+
             // padding at top makes separating line between folders
             DOM.style("#" + this.bodyDivId,
                 "paddingTop", ParamGui.paddingVertical + px);
@@ -380,9 +396,10 @@ ParamGui = function(params) {
                 "height", ParamGui.paddingVertical + px,
                 "backgroundColor", "red"
             );
+
         }
 
-        // close it initially?
+        // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {
             this.close();
         }
@@ -404,7 +421,7 @@ ParamGui = function(params) {
         }
         // folder, hide topDiv if exists
         if ((this.closeOnTop) || (this.name !== "")) {
-            DOM.style("#" + this.topDivId, "display", "none");
+            DOM.style("#" + this.titleDivId, "display", "none");
         }
         // hide body div and the bottom padding div
         DOM.style("#" + this.bottomPaddingDivId, "display", "none");
@@ -425,7 +442,7 @@ ParamGui = function(params) {
         }
         // folder, show topDiv if exists, including the buttons
         if ((this.closeOnTop) || (this.name !== "")) {
-            DOM.style("#" + this.topDivId, "display", "block");
+            DOM.style("#" + this.titleDivId, "display", "block");
         }
         // show the body div if not closed or no close/open buttons
         if ((!this.closed) || (!this.closeOnTop)) {
@@ -631,8 +648,8 @@ ParamGui = function(params) {
         if ((this.closeOnTop) || (this.name !== "")) {
             this.topLabel.remove();
             this.topLabel = null;
-            this.topDiv.remove();
-            this.topDiv = null;
+            this.titleDiv.remove();
+            this.titleDiv = null;
         }
         // destroy body
         this.bodyDiv.remove();
