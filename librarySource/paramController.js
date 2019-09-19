@@ -70,6 +70,11 @@ function ParamController(gui, params, property, low, high, step) {
         return ((typeof p) === "string");
     }
 
+    // test if a variable is a function
+    function isFunction(p) {
+        return ((typeof p) === "function");
+    }
+
     // test if a variable is an integer number
     // excluding float, NaN and infinite numbers (because of Number.isInteger)
     // returns true for 5.0 and other integers written as floating point
@@ -184,12 +189,11 @@ function ParamController(gui, params, property, low, high, step) {
                 const button = new Button(id);
                 this.uiElement = button;
                 if (typeof paramValue === "function") {
-                    button.onClick = paramValue;
-                } else {
+                    this.callback = paramValue;
+                } 
                     button.onClick = function() {
                         controller.callback();
                     };
-                }
             } else if (isString(paramValue)) {
                 // the parameter value is a string thus make a text input button
                 console.log("text input button");
@@ -200,16 +204,16 @@ function ParamController(gui, params, property, low, high, step) {
                     "width", ParamGui.textInputWidth + px,
                     "font-size", ParamGui.buttonFontSize + px);
                 const textInput = new TextInput(id);
-                textInput.setValue(paramValue);
+             //   textInput.setValue(paramValue);
                 this.uiElement = textInput;
                 textInput.onChange = function() {
                     const value = textInput.getValue();
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
-            } else if (isInteger(paramValue) && isInteger(this.low) &&
+            } else if (isInteger(paramValue) && (!isDefined(this.low) ||isInteger(this.low)) &&
                 (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
-                // the parameter value is integer, and the low limit too 
+                // the parameter value is integer, and the low limit is integer or undefined 
                 // high is integer or not defined, and step is not defined/ not supplied in call
                 // thus make an (integer) number button 
                 console.log("integer button");
@@ -224,19 +228,18 @@ function ParamController(gui, params, property, low, high, step) {
                     "font-size", ParamGui.buttonFontSize + px);
                 if (isInteger(this.high)) {
                     button.setRange(this.low, this.high);
-                } else {
+                } else if (isInteger(this.low)){
                     button.setLow(this.low);
+                }
+                else {
+                                 button.setLow(0);       
                 }
                 button.setValue(paramValue);
                 this.uiElement = button;
-                button.onChange = function() {
-                    const value = button.getValue();
-                    controller.params[controller.property] = value;
-                    controller.callback(value);
-                };
+                
             } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && isNumber(this.step) && (Math.abs(this.step - 1) < 0.01)) {
                 // the parameter value is integer, and the low limit too 
-                // high is integer  and step is integerequal to 1
+                // high is integer  and step is integer equal to 1
                 // thus make a range element with plus/minus button 
                 console.log("range plus minus ");
                 this.createLabel(this.property);
@@ -265,11 +268,7 @@ function ParamController(gui, params, property, low, high, step) {
                 range.setStep(1);
                 range.setValue(paramValue);
                 this.uiElement = range;
-                range.onChange = function() {
-                    const value = range.getValue();
-                    controller.params[controller.property] = value;
-                    controller.callback(value);
-                };
+                
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
                 // param value and range limits are numbers, at least one is not integer or there is a step size given (different from 1)
                 // thus use a range element
@@ -292,12 +291,23 @@ function ParamController(gui, params, property, low, high, step) {
                 }
                 range.setValue(paramValue);
                 this.uiElement = range;
-                range.onChange = function() {
-                    const value = range.getValue();
+            }
+            else {
+                // no idea/error
+                             this.createLabel(this.property+" *** error");   
+            }
+            // set up onChange function of ui element (if exists)
+ /*           if (isDefined(this.uiElement)&&isFunction(this.uiElement.onChange)){
+                console.log("onchange");
+                const element=this.uiElement;
+            this.uiElement.onChange = function() {
+                    const value = element.getValue();
+                    console.log("hoho")
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             }
+            */
         }
         return this;
     };

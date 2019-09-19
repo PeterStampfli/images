@@ -90,6 +90,9 @@ function TextInput(idName) {
      * @param {String} text
      */
     TextInput.prototype.setValue = function(text) {
+        
+        console.log("setvalue textinput********************");
+        this.ffff();
         this.element.value = text;
     };
 

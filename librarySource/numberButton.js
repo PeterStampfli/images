@@ -254,9 +254,9 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         const inputId = DOM.createId();
         DOM.create("input", inputId, "#" + idSpan);
         DOM.addSpace(idSpan);
-        const dnId = DOM.createButton(idSpan, "<");
+        const dnId = DOM.createButton(idSpan, "-");
         DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, ">");
+        const upId = DOM.createButton(idSpan, "+");
         DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
         let numberButton = new NumberButton(inputId, upId, dnId);
         return numberButton;
