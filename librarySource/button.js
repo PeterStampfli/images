@@ -151,14 +151,15 @@ function Button(idName) {
     /**
      * color style for using transparent span with text as button
      * @method Button#colorStyleForTransparentSpan
+     * @param {String} color - for basic text (button state up, no hover)
      */
-    Button.prototype.colorStyleForTransparentSpan = function() {
+    Button.prototype.colorStyleForTransparentSpan = function(color) {
         const transparentWhite = "#ffffff00";
         this.backgroundColorDown = transparentWhite;
         this.backgroundColorDownHover = transparentWhite;
         this.backgroundColorUp = transparentWhite;
         this.backgroundColorUpHover = transparentWhite;
-        this.colorUp = ParamGui.folderTopColor;
+        this.colorUp = color;
         this.colorUpHover = Button.backgroundColorUpHover;
         this.colorDown = Button.backgroundColorDown;
         this.colorDownHover = Button.backgroundColorDownHover;
