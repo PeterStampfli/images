@@ -19,6 +19,8 @@ function ParamController(gui, params, property, low, high, step) {
     this.gui = gui;
     this.params = params;
     this.property = property;
+    // value of the parameter before some changes, needed to listening for changes
+    this.lastValue = this.params[this.property];
     this.low = low;
     this.high = high;
     this.step = step;
@@ -144,8 +146,7 @@ function ParamController(gui, params, property, low, high, step) {
         const controller = this;
         const paramValue = this.params[this.property];
         if (isArray(this.low) || isObject(this.low)) {
-            // this.low, the first parameter for limits is an array or object
-            // thus make a selection
+            // this.low, the first parameter for limits is an array or object, thus make a selection
             this.createLabel(this.property);
             const id = DOM.createId();
             DOM.create("select", id, "#" + this.domElementId);
@@ -154,15 +155,8 @@ function ParamController(gui, params, property, low, high, step) {
             this.uiElement = select;
             select.setLabelsValues(this.low);
             select.setValue(paramValue);
-            select.onChange = function() {
-                const value = select.getValue();
-                controller.params[controller.property] = value;
-                controller.callback(value);
-            };
-        } else {
-            if (isBoolean(paramValue)) {
-                // the parameter value is boolean
-                // thus make a BooleanButton
+        } else if (isBoolean(paramValue)) {
+                // the parameter value is boolean, thus make a BooleanButton
                 console.log("boolean button");
                 this.createLabel(this.property);
                 const id = DOM.createId();
@@ -173,13 +167,8 @@ function ParamController(gui, params, property, low, high, step) {
                 const button = new BooleanButton(id);
                 this.uiElement = button;
                 button.setValue(paramValue);
-                button.onChange = function() {
-                    const value = button.getValue();
-                    controller.params[controller.property] = value;
-                    controller.callback(value);
-                };
             } else if (!isDefined(paramValue) || (typeof paramValue === "function")) {
-                // there is no parameter value with the property por it is a function
+                // there is no parameter value with the property or it is a function
                 // thus make a button with the property as text, no label
                 console.log("button");
                 this.createLabel("");
@@ -190,10 +179,10 @@ function ParamController(gui, params, property, low, high, step) {
                 this.uiElement = button;
                 if (typeof paramValue === "function") {
                     this.callback = paramValue;
-                } 
-                    button.onClick = function() {
-                        controller.callback();
-                    };
+                }
+                button.onClick = function() {
+                    controller.callback();
+                };
             } else if (isString(paramValue)) {
                 // the parameter value is a string thus make a text input button
                 console.log("text input button");
@@ -204,14 +193,9 @@ function ParamController(gui, params, property, low, high, step) {
                     "width", ParamGui.textInputWidth + px,
                     "font-size", ParamGui.buttonFontSize + px);
                 const textInput = new TextInput(id);
-             //   textInput.setValue(paramValue);
+                textInput.setValue(paramValue);
                 this.uiElement = textInput;
-                textInput.onChange = function() {
-                    const value = textInput.getValue();
-                    controller.params[controller.property] = value;
-                    controller.callback(value);
-                };
-            } else if (isInteger(paramValue) && (!isDefined(this.low) ||isInteger(this.low)) &&
+            } else if (isInteger(paramValue) && (!isDefined(this.low) || isInteger(this.low)) &&
                 (!isDefined(this.high) || isInteger(this.high)) && !isDefined(this.step)) {
                 // the parameter value is integer, and the low limit is integer or undefined 
                 // high is integer or not defined, and step is not defined/ not supplied in call
@@ -228,15 +212,13 @@ function ParamController(gui, params, property, low, high, step) {
                     "font-size", ParamGui.buttonFontSize + px);
                 if (isInteger(this.high)) {
                     button.setRange(this.low, this.high);
-                } else if (isInteger(this.low)){
+                } else if (isInteger(this.low)) {
                     button.setLow(this.low);
-                }
-                else {
-                                 button.setLow(0);       
+                } else {
+                    button.setLow(0);
                 }
                 button.setValue(paramValue);
                 this.uiElement = button;
-                
             } else if (isInteger(paramValue) && isInteger(this.low) && isInteger(this.high) && isNumber(this.step) && (Math.abs(this.step - 1) < 0.01)) {
                 // the parameter value is integer, and the low limit too 
                 // high is integer  and step is integer equal to 1
@@ -246,69 +228,61 @@ function ParamController(gui, params, property, low, high, step) {
                 const id = DOM.createId();
                 DOM.create("span", id, "#" + this.domElementId);
                 const range = Range.createPlusMinus(id);
-                DOM.style("#" + range.idText,
-                    "width", ParamGui.numberInputWidth + px,
-                    "font-size", ParamGui.buttonFontSize + px);
-                DOM.style("#" + range.idRange,
-                    "width", ParamGui.rangeSliderLengthShort + px);
-                DOM.style("#" + range.idText + ",#" + this.labelId,
+                DOM.style("#" + this.labelId,
                     "position", "relative",
                     "top", (-ParamGui.rangeVOffset) + px);
-                if (range.idPlus) {
-                    DOM.style("#" + range.idPlus,
-                        "position", "relative",
-                        "top", (-ParamGui.rangeVOffset) + px);
-                }
-                if (range.idMinus) {
-                    DOM.style("#" + range.idMinus,
-                        "position", "relative",
-                        "top", (-ParamGui.rangeVOffset) + px);
-                }
+                DOM.style("#" + range.idText,
+                    "width", ParamGui.numberInputWidth + px,
+                    "font-size", ParamGui.buttonFontSize + px,
+                    "position", "relative",
+                    "top", (-ParamGui.rangeVOffset) + px);
+                DOM.style("#" + range.idRange,
+                    "width", ParamGui.rangeSliderLengthShort + px);
+                DOM.style("#" + range.idPlus + ",#" + range.idMinus,
+                    "font-size", ParamGui.buttonFontSize + px,
+                    "position", "relative",
+                    "top", (-ParamGui.rangeVOffset) + px);
                 range.setRange(this.low, this.high);
                 range.setStep(1);
                 range.setValue(paramValue);
                 this.uiElement = range;
-                
             } else if (isNumber(paramValue) && isNumber(this.low) && isNumber(this.high)) {
-                // param value and range limits are numbers, at least one is not integer or there is a step size given (different from 1)
+                // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
                 // thus use a range element
                 console.log("range element");
                 this.createLabel(this.property);
                 const id = DOM.createId();
                 DOM.create("span", id, "#" + this.domElementId);
                 const range = Range.create(id);
-                DOM.style("#" + range.idText,
-                    "width", ParamGui.numberInputWidth + px,
-                    "font-size", ParamGui.buttonFontSize + px);
-                DOM.style("#" + range.idRange,
-                    "width", ParamGui.rangeSliderLengthLong + px);
-                DOM.style("#" + range.idText + ",#" + this.labelId,
+                DOM.style("#" + this.labelId,
                     "position", "relative",
                     "top", (-ParamGui.rangeVOffset) + px);
+                DOM.style("#" + range.idText,
+                    "width", ParamGui.numberInputWidth + px,
+                    "font-size", ParamGui.buttonFontSize + px,
+                    "position", "relative",
+                    "top", (-ParamGui.rangeVOffset) + px);
+                DOM.style("#" + range.idRange,
+                    "width", ParamGui.rangeSliderLengthLong + px);
                 range.setRange(this.low, this.high);
                 if (isNumber(this.step)) {
                     range.setStep(this.step);
                 }
                 range.setValue(paramValue);
                 this.uiElement = range;
-            }
-            else {
+            } else {
                 // no idea/error
-                             this.createLabel(this.property+" *** error");   
+                this.createLabel(this.property + " *** error");
             }
             // set up onChange function of ui element (if exists)
- /*           if (isDefined(this.uiElement)&&isFunction(this.uiElement.onChange)){
-                console.log("onchange");
-                const element=this.uiElement;
-            this.uiElement.onChange = function() {
+            if (isDefined(this.uiElement) && isFunction(this.uiElement.onChange)) {
+                const element = this.uiElement;
+                this.uiElement.onChange = function() {
                     const value = element.getValue();
-                    console.log("hoho")
                     controller.params[controller.property] = value;
                     controller.callback(value);
                 };
             }
-            */
-        }
         return this;
     };
 
@@ -368,12 +342,16 @@ function ParamController(gui, params, property, low, high, step) {
     };
 
     /**
-     * updateDisplay If controller is Listening 
+     * updateDisplay If controller is Listening  and parameter value has changed
      * @method ParamController#updateDisplayIfListening
      */
     ParamController.prototype.updateDisplayIfListening = function() {
         if (this.listening) {
-            this.updateDisplay();
+            const paramValue = this.params[this.property];
+            if (paramValue !== this.lastValue) {
+                this.lastValue = paramValue;
+                this.updateDisplay();
+            }
         }
     };
 
