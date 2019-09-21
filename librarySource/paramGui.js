@@ -244,6 +244,18 @@ ParamGui = function(params) {
         });
     };
 
+
+    /**
+     * remember data of an object for all guis
+     * @method ParamGui.remember
+     * @param {Object} params
+     */
+    ParamGui.remember = function(params) {
+        ParamGui.rootGuis.forEach(function(gui) {
+            gui.remember(params);
+        });
+    };
+
     // attach this handler to resize events
     window.addEventListener("resize", ParamGui.resize, false);
 
@@ -611,13 +623,15 @@ ParamGui = function(params) {
     };
 
     /**
-     * this is in the dat.gui API
-     * don't know how to implement whatever
+     * remember values of an object with data
+     * use same object as for adding controllers
      * @method ParamGui#remember
      * @param {Object} params - an object containing parameter values
      */
     ParamGui.prototype.remember = function(params) {
-        console.log("********ParamGui#remember method not implemented");
+        this.elements.forEach(function(element) {
+            element.remember(params);
+        });
     };
 
     /**

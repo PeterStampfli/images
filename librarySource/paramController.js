@@ -13,38 +13,14 @@
  */
 
 function ParamController(gui, params, property, low, high, step) {
-    // console.log("paramcontroller, property " + property + " value " + params[property]);
-    //  console.log(typeof params[property]);
-    // console.log(low + " " + high + " " + step);
     this.gui = gui;
     this.params = params;
     this.property = property;
-    // value of the parameter before some changes, needed to listening for changes
-    this.lastValue = this.params[this.property];
     this.low = low;
     this.high = high;
     this.step = step;
     this.listening = false; // automatically update display
-    const px = "px";
-    // create a div for all elements of the controller
-    this.domElementId = DOM.createId();
-    // it lies in the bodyDiv of the ParamGui
-    this.domElement = DOM.create("div", this.domElementId, "#" + gui.bodyDivId);
-    // make a regular spacing between labels ???
-    DOM.style("#" + this.domElementId, "minHeight", ParamGui.minHeight + px);
-    // the button or whatever the user interacts with
-    this.uiElement = null;
-    // what should be done if value changes or button clicked
-    this.callback = function(value) {
-        console.log("callback value " + value);
-    };
     this.create();
-    // padding at end as extra divs, always visible
-    this.bottomPaddingDivId = DOM.createId();
-    DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
-    DOM.style("#" + this.bottomPaddingDivId,
-        "width", this.width + px,
-        "height", ParamGui.paddingVertical + px);
 }
 
 (function() {
@@ -126,16 +102,6 @@ function ParamController(gui, params, property, low, high, step) {
             "paddingRight", ParamGui.paddingHorizontal + px);
     };
 
-    // freaking grunt
-    ParamController.prototype.makeSelectOptionAction = function(value) {
-        const controller = this;
-        const action = function() {
-            controller.params[controller.property] = value;
-            controller.callback(value);
-        };
-        return action;
-    };
-
     /**
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on eavh line
      * using data stored in this.fields as defined in creator
@@ -145,6 +111,21 @@ function ParamController(gui, params, property, low, high, step) {
         this.uiElement = null;
         const controller = this;
         const paramValue = this.params[this.property];
+        this.lastValue = paramValue;
+        this.rememberedValue = paramValue;
+        // create a div for all elements of the controller
+        this.domElementId = DOM.createId();
+        // it lies in the bodyDiv of the ParamGui
+        this.domElement = DOM.create("div", this.domElementId, "#" + this.gui.bodyDivId);
+        // make a regular spacing between labels ???
+        DOM.style("#" + this.domElementId,
+            "minHeight", ParamGui.minHeight + px);
+        // the button or whatever the user interacts with
+        this.uiElement = null;
+        // what should be done if value changes or button clicked
+        this.callback = function(value) {
+            console.log("callback value " + value);
+        };
         if (isArray(this.low) || isObject(this.low)) {
             // this.low, the first parameter for limits is an array or object, thus make a selection
             this.createLabel(this.property);
@@ -310,11 +291,12 @@ function ParamController(gui, params, property, low, high, step) {
     ParamController.prototype.onFinishChange = ParamController.prototype.onChange;
 
     /**
-     * set the value of the controller
+     * set the value of the controller and last value field
      * @method ParamController#setValue
      * @param {whatever} value
      */
     ParamController.prototype.setValue = function(value) {
+        this.lastValue = value;
         this.uiElement.setValue(value);
     };
 
@@ -333,18 +315,16 @@ function ParamController(gui, params, property, low, high, step) {
      * @method ParamController#updateDisplay
      */
     ParamController.prototype.updateDisplay = function() {
-        this.uiElement.setValue(this.params[this.property]);
+        this.setValue(this.params[this.property]);
     };
 
     /**
-     * updateDisplay If controller is Listening  and parameter value has changed
+     * updateDisplay and lastValue field If controller is Listening  and parameter value has changed
      * @method ParamController#updateDisplayIfListening
      */
     ParamController.prototype.updateDisplayIfListening = function() {
         if (this.listening) {
-            const paramValue = this.params[this.property];
-            if (paramValue !== this.lastValue) {
-                this.lastValue = paramValue;
+            if (this.params[this.property] !== this.lastValue) {
                 this.updateDisplay();
             }
         }
@@ -361,6 +341,23 @@ function ParamController(gui, params, property, low, high, step) {
         ParamGui.startListening();
         return this;
     };
+
+    /**
+     * remember values of an object with data
+     * use same object as for adding the controller
+     * @method ParamController#remember
+     * @param {Object} params - an object containing parameter values
+     */
+    ParamController.prototype.remember = function(params) {
+        console.log("remmber");
+        if (params === this.params) {
+            const value = params[this.property];
+            if (isDefined(value)) {
+                this.rememberedValue = value;
+            }
+        }
+    };
+
 
     /**
      * changes the label text, instead of property name, to show something more interesting
