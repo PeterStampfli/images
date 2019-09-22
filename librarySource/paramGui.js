@@ -424,7 +424,7 @@ ParamGui = function(params) {
             this.bottomPaddingDivId = DOM.createId();
             DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + this.bottomPaddingDivId,
-                "height", this.paddingVertical + px);
+                "marginBottom", this.paddingVertical + px);
         }
         // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {
