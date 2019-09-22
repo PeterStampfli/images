@@ -125,7 +125,7 @@ ParamGui = function(params) {
         buttonFontSize: 12,
         // vertical spacing: minimum height overall=== distance between baselines
         //  if controller not too large/minHeight too low
-        minControllerHeight: 27,
+        minControllerHeight: 23,
         // (minimum) width for labels (horizontal alignement)
         controllerLabelWidth: 80,
         // fontsize for labels
