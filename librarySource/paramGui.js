@@ -248,16 +248,6 @@ ParamGui = function(params) {
     };
 
 
-    /**
-     * remember data of an object for all guis
-     * @method ParamGui.remember
-     * @param {Object} params
-     */
-    ParamGui.remember = function(params) {
-        ParamGui.rootGuis.forEach(function(gui) {
-            gui.remember(params);
-        });
-    };
 
     // attach this handler to resize events
     window.addEventListener("resize", ParamGui.resize, false);
@@ -640,9 +630,7 @@ ParamGui = function(params) {
      * @param {Object} params - an object containing parameter values
      */
     ParamGui.prototype.remember = function(params) {
-        this.elements.forEach(function(element) {
-            element.remember(params);
-        });
+        console.log("********ParamGui#remeber method not implemented");
     };
 
     /**

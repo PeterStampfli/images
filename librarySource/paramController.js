@@ -105,7 +105,6 @@ function ParamController(gui, params, property, low, high, step) {
         const controller = this;
         const paramValue = this.params[this.property];
         this.lastValue = paramValue;
-        this.rememberedValue = paramValue;
         // create a div for all elements of the controller
         this.domElementId = DOM.createId();
         // it lies in the bodyDiv of the ParamGui
@@ -328,22 +327,6 @@ function ParamController(gui, params, property, low, high, step) {
         this.listening = true;
         ParamGui.startListening();
         return this;
-    };
-
-    /**
-     * remember values of an object with data
-     * use same object as for adding the controller
-     * @method ParamController#remember
-     * @param {Object} params - an object containing parameter values
-     */
-    ParamController.prototype.remember = function(params) {
-        console.log("remmber");
-        if (params === this.params) {
-            const value = params[this.property];
-            if (isDefined(value)) {
-                this.rememberedValue = value;
-            }
-        }
     };
 
 
