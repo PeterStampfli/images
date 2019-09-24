@@ -47,6 +47,7 @@
 
 ParamGui = function(params) {
     "use strict";
+    var i;
     // copy default parameters, change later
     Object.assign(this, ParamGui.defaults);
     // default values for parameters
@@ -58,8 +59,24 @@ ParamGui = function(params) {
     this.closed = false;
     this.closeOnTop = true;
     // read/merge params object replacing defaults
-    for (var i = 0; i < arguments.length; i++) {
+    // applies only to the parameters above
+    for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(this, arguments[i]);
+    }
+    // now this.parent is set, if different from null
+    // we now know if we are
+    this.design = {};
+    // now load default design parameters
+    // for a root gui it is the ParamGui.defaultDesign
+    // for a folder it is the parent design
+    if (this.isRoot()) {
+        Object.assign(this.design, ParamGui.defaultDesign);
+    } else {
+        Object.assign(this.design, this.parent.design);
+    }
+    // update design parameters
+    for (i = 0; i < arguments.length; i++) {
+        ParamGui.updateValues(this.design, arguments[i]);
     }
     this.setup();
 };
@@ -70,12 +87,11 @@ ParamGui = function(params) {
     const px = "px";
     const px0 = "0px";
 
-    // add some defaults, especially styles
+    // add some defaults designs, especially styles
     // styles, change the values of these fields if you do not like them
     // do changes in your program
     // position (at corners)
-    ParamGui.defaults = {
-        zIndex: 5, // z-index for ui divs, to keep them above others
+    ParamGui.defaultDesign = {
         // positioning, default top right corner
         verticalPosition: "top",
         horizontalPosition: "right",
@@ -83,8 +99,8 @@ ParamGui = function(params) {
         // then change these fields in a resize function
         // width of the ui panel
         width: 400,
-        //ui element spacing from border
-        paddingHorizontal: 8,
+        //ui element label spacing from border and to controls
+        labelSpacing: 8,
         // vertical spacing
         paddingVertical: 4,
         // width of border around ui panel
@@ -102,22 +118,15 @@ ParamGui = function(params) {
         openCloseButtonWidth: 20,
 
         // default colors
-        // background (of controls ...)
+        // background (of controllers)
         backgroundColor: "#eeeeee",
-        // color for text
+        // color for text of controllers
         textColor: "#444444",
         // color for the border of the ui panel
         borderColor: "#777777",
         // color for top of folder with close/open button
         titleColor: "#000000",
         titleBackgroundColor: "#bbbbbb",
-        // color for the line below top title (root gui)
-        topUnderscoreColor: "#777777",
-
-        //time in milliseconds betweenm listening updates
-        listeningInterval: 400,
-        // keyboard character to hide/show all guis
-        hideCharacter: "h",
 
         // defaults for controller dimensions
 
@@ -143,6 +152,13 @@ ParamGui = function(params) {
         rangeVOffset: 4
     };
 
+    // other parameters
+    ParamGui.zIndex = 5; // z-index for ui divs, to keep them above others
+    //time in milliseconds between listening updates
+    ParamGui.listeningInterval = 400;
+    // keyboard character to hide/show all guis
+    ParamGui.hideCharacter = "h";
+
     /**
      * updating existing fields of first object by fields of second object
      * both have to have the same type, which is not a function
@@ -165,7 +181,7 @@ ParamGui = function(params) {
      * @param {Object} newValues
      */
     ParamGui.updateDefaults = function(newValues) {
-        ParamGui.updateValues(ParamGui.defaults, newValues);
+        ParamGui.updateValues(ParamGui.defaultDesign, newValues);
     };
 
     /**
@@ -268,10 +284,10 @@ ParamGui = function(params) {
             this.outerTitleDiv = DOM.create("div", this.outerTitleDivId, "#" + this.domElementId);
             // full width (background color!), excess will be hidden
             DOM.style("#" + this.outerTitleDivId,
-                "backgroundColor", this.titleBackgroundColor,
-                "color", this.titleColor,
-                "width", this.width + px,
-                "height", this.titleHeight + px,
+                "backgroundColor", this.design.titleBackgroundColor,
+                "color", this.design.titleColor,
+                "width", this.design.width + px,
+                "height", this.design.titleHeight + px,
                 "position", "relative");
             // put elements at center of div with fixed heigth
             const innerTitleDivId = DOM.createId();
@@ -295,10 +311,10 @@ ParamGui = function(params) {
                 // padding left shifts buttons
                 DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
                     "borderRadius", "0px",
-                    "paddingLeft", this.borderWidth + px,
-                    "font-size", this.titleFontSize + px,
+                    "paddingLeft", this.design.borderWidth + px,
+                    "font-size", this.design.titleFontSize + px,
                     "display", "inline-block",
-                    "width", this.openCloseButtonWidth + px);
+                    "width", this.design.openCloseButtonWidth + px);
                 // default:open
                 DOM.displayNone(openButtonElementId);
                 // button function
@@ -319,16 +335,16 @@ ParamGui = function(params) {
                 const spanElement = DOM.create("span", spanId, "#" + titleDivId);
                 DOM.style("#" + spanId,
                     "display", "inline-block",
-                    "paddingLeft", this.borderWidth + px,
-                    "width", this.openCloseButtonWidth + px);
+                    "paddingLeft", this.design.borderWidth + px,
+                    "width", this.design.openCloseButtonWidth + px);
             }
             // write name of folder/gui in the title div
             this.topLabelId = DOM.createId();
             this.topLabel = DOM.create("span", this.topLabelId, "#" + titleDivId, this.name);
             DOM.style("#" + this.topLabelId,
                 "display", "inline-block",
-                "font-size", this.titleFontSize + px,
-                "font-weight", this.titleFontWeight);
+                "font-size", this.design.titleFontSize + px,
+                "font-weight", this.design.titleFontWeight);
         }
     };
 
@@ -337,7 +353,7 @@ ParamGui = function(params) {
     ParamGui.prototype.resize = function() {
         if (this.isRoot() && this.autoPlace) {
             DOM.style("#" + this.bodyDivId,
-                "maxHeight", (window.innerHeight - 2 * this.borderWidth - this.paddingVertical - this.titleHeight) + px);
+                "maxHeight", (window.innerHeight - 3 * this.design.borderWidth - this.design.titleHeight) + px);
         }
     };
 
@@ -353,17 +369,17 @@ ParamGui = function(params) {
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
             // put it on top
-            DOM.style("#" + this.domElementId, "zIndex", "" + this.zIndex);
+            DOM.style("#" + this.domElementId, "zIndex", ParamGui.zIndex + "");
             // the border around everything
             DOM.style("#" + this.domElementId,
-                "borderWidth", this.borderWidth + px,
+                "borderWidth", this.design.borderWidth + px,
                 "borderStyle", "solid",
-                "borderColor", this.borderColor,
-                "color", this.textColor,
-                "backgroundColor", this.backgroundColor);
+                "borderColor", this.design.borderColor,
+                "color", this.design.textColor,
+                "backgroundColor", this.design.backgroundColor);
             // all the same font !?
             DOM.style("#" + this.domElementId,
-                "fontFamily", this.fontFamily);
+                "fontFamily", this.design.fontFamily);
             // add the title
             this.createTitle();
             // padding at top as always visible separating line between root gui title and rest
@@ -371,8 +387,8 @@ ParamGui = function(params) {
             const topPaddingDivId = DOM.createId();
             DOM.create("div", topPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + topPaddingDivId,
-                "height", this.paddingVertical + px,
-                "backgroundColor", this.topUnderscoreColor
+                "height", this.design.borderWidth + px,
+                "backgroundColor", this.design.borderColor
             );
             // the ui elements go into their own div, the this.bodyDiv
             this.bodyDivId = DOM.createId();
@@ -381,9 +397,9 @@ ParamGui = function(params) {
             if (this.autoPlace) {
                 DOM.style("#" + this.domElementId,
                     "position", "fixed",
-                    this.verticalPosition, px0,
-                    this.horizontalPosition, px0,
-                    "width", this.width + px,
+                    this.design.verticalPosition, px0,
+                    this.design.horizontalPosition, px0,
+                    "width", this.design.width + px,
                     "overflowX", "hidden");
                 DOM.style("#" + this.bodyDivId,
                     "overflowY", "auto",
@@ -401,20 +417,20 @@ ParamGui = function(params) {
             this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
             // padding at top makes separating line between folders
             DOM.style("#" + this.bodyDivId,
-                "paddingTop", this.paddingVertical + px);
+                "paddingTop", this.design.paddingVertical + px);
             // indent and left border only if there is a title and/or open/close buttons
             if ((this.closeOnTop) || (this.name !== "")) {
                 DOM.style("#" + this.bodyDivId,
                     "border-left", "solid",
-                    "borderColor", this.titleBackgroundColor,
-                    "border-left-width", this.levelIndent + px);
+                    "borderColor", this.design.titleBackgroundColor,
+                    "border-left-width", this.design.levelIndent + px);
             }
             // padding at end as extra divs, always visible
             // to separate folders
             this.bottomPaddingDivId = DOM.createId();
             DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + this.bottomPaddingDivId,
-                "marginBottom", this.paddingVertical + px);
+                "marginBottom", this.design.paddingVertical + px);
         }
         // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {
