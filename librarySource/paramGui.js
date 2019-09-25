@@ -93,8 +93,12 @@ ParamGui = function(params) {
     // position (at corners)
     ParamGui.defaultDesign = {
         // positioning, default top right corner
+        // other corners are possible, as references
         verticalPosition: "top",
         horizontalPosition: "right",
+        // shifting the position with respect to the corner
+        verticalShift: 0,
+        horizontalShift: 0,
         // dimensions, in terms of pixels, if they should scale with window
         // then change these fields in a resize function
         // width of the ui panel
@@ -153,7 +157,9 @@ ParamGui = function(params) {
     };
 
     // other parameters
-    ParamGui.zIndex = 5; // z-index for ui divs, to keep them above others
+    // base z-index for ui divs, to keep them above others
+    // the guis will have z-indizes of zIndex,zIndex+1, ... zIndex+number of guis -1
+    ParamGui.zIndex = 5;
     //time in milliseconds between listening updates
     ParamGui.listeningInterval = 400;
     // keyboard character to hide/show all guis
@@ -201,6 +207,12 @@ ParamGui = function(params) {
 
     // collection of root GUI (listening, hiding, resize)
     ParamGui.rootGuis = [];
+
+    /**
+     * update the zIndices of the guis
+     * last comes in front, zIndex(i)=zIndex+i
+     * 
+     */
 
     /**
      * adding a root gui to the collection
@@ -353,8 +365,17 @@ ParamGui = function(params) {
     ParamGui.prototype.resize = function() {
         if (this.isRoot() && this.autoPlace) {
             DOM.style("#" + this.bodyDivId,
-                "maxHeight", (window.innerHeight - 3 * this.design.borderWidth - this.design.titleHeight) + px);
+                "maxHeight", (window.innerHeight - 3 * this.design.borderWidth - this.design.titleHeight - this.design.verticalShift) + px);
         }
+    };
+
+    /**
+     * set the z-index of the domElement, that contains all
+     * @method ParamGui#setZIndex
+     * @param {integer} zIndex
+     */
+    ParamGui.prototype.setZIndex = function(zIndex) {
+        DOM.style("#" + this.domElementId, "zIndex", zIndex + "");
     };
 
     ParamGui.prototype.setup = function() {
@@ -363,13 +384,15 @@ ParamGui = function(params) {
         // must have a destroy method, an updateDisplayIfListening method
         this.elements = [];
         if (this.isRoot()) {
-            ParamGui.addRootGui(this);
             // the root element has to generate a div as containing DOMElement
             // everything is in this div
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
-            // put it on top
-            DOM.style("#" + this.domElementId, "zIndex", ParamGui.zIndex + "");
+            // put it onto collection and top of stack
+            ParamGui.addRootGui(this);
+
+            this.setZIndex(ParamGui.zIndex);
+
             // the border around everything
             DOM.style("#" + this.domElementId,
                 "borderWidth", this.design.borderWidth + px,
@@ -397,8 +420,8 @@ ParamGui = function(params) {
             if (this.autoPlace) {
                 DOM.style("#" + this.domElementId,
                     "position", "fixed",
-                    this.design.verticalPosition, px0,
-                    this.design.horizontalPosition, px0,
+                    this.design.verticalPosition, this.design.verticalShift + px,
+                    this.design.horizontalPosition, this.design.horizontalShift + px,
                     "width", this.design.width + px,
                     "overflowX", "hidden");
                 DOM.style("#" + this.bodyDivId,
