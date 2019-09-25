@@ -69,15 +69,21 @@ ParamGui = function(params) {
     // now load default design parameters
     // for a root gui it is the ParamGui.defaultDesign
     // for a folder it is the parent design
+
     if (this.isRoot()) {
         Object.assign(this.design, ParamGui.defaultDesign);
     } else {
         Object.assign(this.design, this.parent.design);
     }
+    console.log("***")
+    console.log(this.design.textColor);
+
     // update design parameters
     for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(this.design, arguments[i]);
     }
+    console.log(this.design.textColor);
+
     this.setup();
 };
 
@@ -138,7 +144,7 @@ ParamGui = function(params) {
         buttonFontSize: 12,
         // vertical spacing: minimum height overall=== distance between baselines
         //  if controller not too large/minHeight too low
-        minControllerHeight: 23,
+        minControllerHeight: 25,
         // (minimum) width for labels (horizontal alignement)
         controllerLabelWidth: 80,
         // fontsize for labels
@@ -155,6 +161,7 @@ ParamGui = function(params) {
         // vertical offset for range slider (alignment)
         rangeVOffset: 4
     };
+
 
     // other parameters
     // base z-index for ui divs, to keep them above others
@@ -209,27 +216,56 @@ ParamGui = function(params) {
     ParamGui.rootGuis = [];
 
     /**
-     * update the zIndices of the guis
-     * last comes in front, zIndex(i)=zIndex+i
-     * 
+     * test if a GUI is last element of list of root guis
+     * and thus in front
+     * @method ParamGui.isInFront
+     * @param {ParamGui} rootGui 
+     * @return boolean, true if rootGui is last of array
      */
+    ParamGui.isInFront = function(rootGui) {
+        return rootGui === ParamGui.rootGuis[ParamGui.rootGuis.length - 1];
+    };
 
     /**
-     * adding a root gui to the collection
+     * update the zIndices of the guis
+     * last comes in front, zIndex(i)=zIndex+i
+     * @method ParamGui.updateZIndices
+     */
+    ParamGui.updateZIndices = function() {
+        for (var i = 0; i < ParamGui.rootGuis.length; i++) {
+            ParamGui.rootGuis[i].setZIndex(ParamGui.zIndex + i);
+        }
+    };
+
+    /**
+     * adding a root gui to the collection, update the zIndices
+     * it will be last and visible in front
      * @method ParamGui.addRootGui
      * @param {Gui} rootGui 
      */
     ParamGui.addRootGui = function(rootGui) {
         ParamGui.rootGuis.push(rootGui);
+        ParamGui.updateZIndices();
     };
 
     /**
-     * remove a root gui from the list
+     * remove a root gui from the list, 
+     * no need to update the z indices
      * @method ParamGui.removeRootGui
      * @param {Gui} rootGui 
      */
     ParamGui.removeRootGui = function(rootGui) {
         ParamGui.removeArrayElement(ParamGui.rootGuis, rootGui);
+    };
+
+    /**
+     * put a rootgui in front, becomes last in list, covers all
+     * @method ParamGui.moveToFront
+     * @param {Gui} rootGui
+     */
+    ParamGui.moveToFront = function(rootGui) {
+        ParamGui.removeRootGui(rootGui);
+        ParamGui.addRootGui(rootGui);
     };
 
     /**
@@ -332,12 +368,12 @@ ParamGui = function(params) {
                 // button function
                 const paramGui = this;
                 this.closeButton = new Button(closeButtonElementId);
-                this.closeButton.colorStyleForTransparentSpan(this.titleColor);
+                this.closeButton.colorStyleForTransparentSpan(this.design.titleColor);
                 this.closeButton.onClick = function() {
                     paramGui.close();
                 };
                 this.openButton = new Button(openButtonElementId);
-                this.openButton.colorStyleForTransparentSpan(this.titleColor);
+                this.openButton.colorStyleForTransparentSpan(this.design.titleColor);
                 this.openButton.onClick = function() {
                     paramGui.open();
                 };
@@ -365,7 +401,7 @@ ParamGui = function(params) {
     ParamGui.prototype.resize = function() {
         if (this.isRoot() && this.autoPlace) {
             DOM.style("#" + this.bodyDivId,
-                "maxHeight", (window.innerHeight - 3 * this.design.borderWidth - this.design.titleHeight - this.design.verticalShift) + px);
+                "maxHeight", (window.innerHeight - 3 * this.design.borderWidth - this.design.titleHeight - this.design.verticalShift - this.design.paddingVertical) + px);
         }
     };
 
@@ -388,21 +424,30 @@ ParamGui = function(params) {
             // everything is in this div
             this.domElementId = DOM.createId();
             this.domElement = DOM.create("div", this.domElementId, "body");
-            // put it onto collection and top of stack
-            ParamGui.addRootGui(this);
 
-            this.setZIndex(ParamGui.zIndex);
 
             // the border around everything
             DOM.style("#" + this.domElementId,
                 "borderWidth", this.design.borderWidth + px,
                 "borderStyle", "solid",
-                "borderColor", this.design.borderColor,
-                "color", this.design.textColor,
-                "backgroundColor", this.design.backgroundColor);
+                "borderColor", this.design.borderColor);
             // all the same font !?
             DOM.style("#" + this.domElementId,
                 "fontFamily", this.design.fontFamily);
+            // add event listener, active if not in front
+            this.domElement.onclick = function(event) {
+                console.log("click " + paramGui.name + " " + ParamGui.isInFront(paramGui));
+                if (!ParamGui.isInFront(paramGui)) {
+
+                    ParamGui.moveToFront(paramGui);
+                }
+
+            };
+
+
+            // put it onto collection and top of stack
+            ParamGui.addRootGui(this);
+
             // add the title
             this.createTitle();
             // padding at top as always visible separating line between root gui title and rest
@@ -425,6 +470,8 @@ ParamGui = function(params) {
                     "width", this.design.width + px,
                     "overflowX", "hidden");
                 DOM.style("#" + this.bodyDivId,
+                    "paddingTop", this.design.paddingVertical + px,
+                    //   "paddingBottom", this.design.paddingVertical + px,
                     "overflowY", "auto",
                     "overflowX", "hidden");
                 this.resize();
@@ -438,9 +485,11 @@ ParamGui = function(params) {
             // the ui elements go into their own div, the this.bodyDiv
             this.bodyDivId = DOM.createId();
             this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
-            // padding at top makes separating line between folders
             DOM.style("#" + this.bodyDivId,
-                "paddingTop", this.design.paddingVertical + px);
+                "paddingTop", this.design.paddingVertical + px
+                //  "paddingBottom", this.design.paddingVertical + px
+
+            );
             // indent and left border only if there is a title and/or open/close buttons
             if ((this.closeOnTop) || (this.name !== "")) {
                 DOM.style("#" + this.bodyDivId,
@@ -448,17 +497,24 @@ ParamGui = function(params) {
                     "borderColor", this.design.titleBackgroundColor,
                     "border-left-width", this.design.levelIndent + px);
             }
-            // padding at end as extra divs, always visible
-            // to separate folders
+            // padding at end as extra divs, always visible, even if closed
+            // as separation between folders
             this.bottomPaddingDivId = DOM.createId();
             DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
             DOM.style("#" + this.bottomPaddingDivId,
-                "marginBottom", this.design.paddingVertical + px);
+                "height", this.design.paddingVertical + px,
+                "backgroundColor", this.design.backgroundColor);
+            //    "backgroundColor", "white");
         }
         // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {
             this.close();
         }
+        // set colors of body
+        DOM.style("#" + this.bodyDivId,
+            "color", this.design.textColor,
+            "backgroundColor", this.design.backgroundColor);
+        //        "backgroundColor", "black");
 
     };
 
@@ -566,16 +622,25 @@ ParamGui = function(params) {
      * add a folder, it is a gui instance
      * @method ParamGui#addFolder
      * @param {String} folderName
+     * @param {...Object} designParameters - modifying the design
      * @return ParamGui instance (that's the folder)
      */
-    ParamGui.prototype.addFolder = function(folderName) {
-        const folder = new ParamGui({
+    ParamGui.prototype.addFolder = function(folderName, designParameters) {
+        const allParameters = {
             name: folderName,
             closeOnTop: true,
             parent: this,
             autoPlace: false,
             hideable: false
-        });
+        }
+        console.log(arguments.length)
+        for (var i = 1; i < arguments.length; i++) {
+            console.log(i)
+            console.log(arguments[i])
+            Object.assign(allParameters, arguments[i]);
+        }
+        console.log(allParameters)
+        const folder = new ParamGui(allParameters);
         this.elements.push(folder);
         return folder;
     };

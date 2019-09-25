@@ -112,8 +112,10 @@ function ParamController(gui, params, property, low, high, step) {
         // make a regular spacing between labels ???
         DOM.style("#" + this.domElementId,
             "minHeight", this.gui.design.minControllerHeight + px,
-            "marginTop", this.gui.design.paddingVertical + px,
-            "marginBottom", this.gui.design.paddingVertical + px
+
+            "paddingBottom", this.gui.design.paddingVertical + px
+            //     "marginTop", this.gui.design.paddingVertical + px,
+            //     "marginBottom", this.gui.design.paddingVertical + px
         );
         // the button or whatever the user interacts with
         this.uiElement = null;
@@ -199,15 +201,17 @@ function ParamController(gui, params, property, low, high, step) {
             const id = DOM.createId();
             DOM.create("span", id, "#" + this.domElementId);
             const range = Range.createPlusMinus(id);
+            DOM.style("#" + this.labelId,
+                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
             DOM.style("#" + range.idText,
                 "width", this.gui.design.numberInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "font-size", this.gui.design.buttonFontSize + px,
+                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
             DOM.style("#" + range.idRange,
-                "width", this.gui.design.rangeSliderLengthShort + px,
-                "position", "relative",
-                "top", this.gui.design.rangeVOffset + px);
+                "width", this.gui.design.rangeSliderLengthShort + px);
             DOM.style("#" + range.idPlus + ",#" + range.idMinus,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "font-size", this.gui.design.buttonFontSize + px,
+                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
             range.setRange(low, high);
             range.setStep(1);
             range.setValue(paramValue);
@@ -219,13 +223,15 @@ function ParamController(gui, params, property, low, high, step) {
             const id = DOM.createId();
             DOM.create("span", id, "#" + this.domElementId);
             const range = Range.create(id);
+            DOM.style("#" + this.labelId,
+                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
             DOM.style("#" + range.idText,
                 "width", this.gui.design.numberInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "font-size", this.gui.design.buttonFontSize + px,
+                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
             DOM.style("#" + range.idRange,
-                "width", this.gui.design.rangeSliderLengthLong + px,
-                "position", "relative",
-                "top", this.gui.design.rangeVOffset + px);
+                "width", this.gui.design.rangeSliderLengthLong + px);
+
             range.setRange(low, high);
             if (isNumber(step)) {
                 range.setStep(step);
