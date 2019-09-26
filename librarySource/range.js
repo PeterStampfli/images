@@ -81,6 +81,27 @@ function Range(idText, idRange, idPlus, idMinus) {
         range.updateRangeStyle();
     };
 
+    this.textElement.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (range.textPressed) {
+            range.changeDigit(event.deltaY);
+        }
+        return false;
+    };
+
+    // using keys for wheel actions
+    KeyboardEvents.addKeydownListener(this);
+    this.keydown = function(key) {
+        if (range.textPressed) {
+            if (key === "ArrowDown") {
+                range.changeDigit(-1);
+            } else if (key === "ArrowUp") {
+                range.changeDigit(1);
+            }
+        }
+    };
+
     // increasing and decreasing    
     this.plusButton = null;
     if (this.idPlus !== false) {
@@ -97,7 +118,6 @@ function Range(idText, idRange, idPlus, idMinus) {
         };
     }
 
-
     /**
      * action upon change, strategy pattern
      * @method Range#onclick
@@ -105,8 +125,6 @@ function Range(idText, idRange, idPlus, idMinus) {
      */
     this.onChange = function(value) {};
 }
-
-
 
 (function() {
     "use strict";
@@ -171,6 +189,33 @@ function Range(idText, idRange, idPlus, idMinus) {
      */
     Range.prototype.quantizeClamp = function(x) {
         return Math.max(this.minValue, Math.min(this.step * Math.floor(0.5 + x / this.step), this.maxValue));
+    };
+
+    /**
+     * set the allowed range of numbers, correct value if out of range
+     * @method Range#setRange
+     * @param {integer} minValue
+     * @param {integer} maxValue
+     */
+    Range.prototype.setRange = function(minValue, maxValue) {
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+        this.rangeElement.min = minValue;
+        this.rangeElement.max = maxValue;
+        // clamp value in range
+        this.setValue(this.quantizeClamp(this.lastValue));
+    };
+
+    /**
+     * set the step of the slider, used too for quantization of text input/output
+     * @method Range#setStep
+     * @param {float} step
+     */
+    Range.prototype.setStep = function(step) {
+        this.step = step;
+        this.rangeElement.step = step;
+        this.setValue(this.quantizeClamp(this.lastValue));
+        this.digits = Math.max(0, -Math.floor(Math.log10(step) + 0.0001));
     };
 
     /**
@@ -243,42 +288,41 @@ function Range(idText, idRange, idPlus, idMinus) {
     };
 
     /**
-     * set the allowed range of numbers, correct value if out of range
-     * @method Range#setRange
-     * @param {integer} minValue
-     * @param {integer} maxValue
+     * change value depending on direction (>0 or <0) and cursor posion on the text element part
+     * adjust cursor position
+     * @method Range#changeDigit
+     * @param {float} direction - makes plus or minus changes
      */
-    Range.prototype.setRange = function(minValue, maxValue) {
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-        this.rangeElement.min = minValue;
-        this.rangeElement.max = maxValue;
-        // clamp value in range
-        this.setValue(this.quantizeClamp(this.lastValue));
-    };
-
-    /**
-     * set the step of the slider, used too for quantization of text input/output
-     * @method Range#setStep
-     * @param {float} step
-     */
-    Range.prototype.setStep = function(step) {
-        this.step = step;
-        this.rangeElement.step = step;
-        this.setValue(this.quantizeClamp(this.lastValue));
-        this.digits = 0;
-        if (step < 1) {
-            this.digits = 1;
+    Range.prototype.changeDigit = function(direction) {
+        const element = this.textElement;
+        let cursorPosition = element.selectionStart;
+        // selectionStart=0: in front, left of first char
+        let pointPosition = element.value.indexOf(".");
+        // beware of pure integers: if there is no decimal point then the index result is -1
+        if (pointPosition < 0) {
+            pointPosition = element.value.length;
         }
-        if (step < 0.1) {
-            this.digits = 2;
+        // going to the right increases index in string, decreases number power       
+        let power = pointPosition - cursorPosition;
+        // compensation for the decimal point
+        if (power < 0) {
+            power++;
         }
-        if (step < 0.01) {
-            this.digits = 3;
+        let change = Math.pow(10, power);
+        if (direction < 0) {
+            change = -change;
         }
-        if (step < 0.001) {
-            this.digits = 4;
+        this.updateValue(this.getValue() + change);
+        pointPosition = element.value.indexOf(".");
+        if (pointPosition < 0) {
+            pointPosition = element.value.length;
         }
+        cursorPosition = Math.max(0, pointPosition - power);
+        // accounting for the decimal point
+        if (power < 0) {
+            cursorPosition++;
+        }
+        element.setSelectionRange(cursorPosition, cursorPosition);
     };
 
     /**
@@ -294,8 +338,10 @@ function Range(idText, idRange, idPlus, idMinus) {
         this.textElement.onblur = null;
         this.textElement.onmouseenter = null;
         this.textElement.onmouseleave = null;
+        this.textElement.onwheel = null;
         this.textElement.remove();
         this.textElement = null;
+        KeyboardEvents.deleteKeydownListener(this);
         this.rangeElement.onmouseenter = null;
         this.rangeElement.onmouseleave = null;
         this.rangeElement.onchange = null;
@@ -339,7 +385,6 @@ function Range(idText, idRange, idPlus, idMinus) {
         DOM.addSpace(idSpan);
         const upId = DOM.createButton(idSpan, ">");
         DOM.style("#" + upId + ",#" + dnId, "borderRadius", "1000px");
-
         let range = new Range(idSpan + "text", idSpan + "range", upId, dnId);
         return range;
     };

@@ -162,7 +162,6 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
      */
     NumberButton.prototype.setStep = function(step) {
         this.step = step;
-        // quantize value
         this.setValue(this.quantizeClamp(this.getValue()));
         this.digits = Math.max(0, -Math.floor(Math.log10(step) + 0.0001));
     };
@@ -242,11 +241,11 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         // selectionStart=0: in front, left of first char
         let pointPosition = this.element.value.indexOf(".");
         // beware of pure integers
-
         if (pointPosition < 0) {
             pointPosition = this.element.value.length;
         }
-        // going to the right increases index in string, decreases number power        let power=pointPosition-cursorPosition;
+        // going to the right increases index in string, decreases number power       
+        let power = pointPosition - cursorPosition;
         if (power < 0) {
             power++;
         }
