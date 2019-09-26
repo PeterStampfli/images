@@ -24,13 +24,12 @@
 <script type="text/javascript">
     
     nb=NumberButton.createInfinity("a");
-    nb.setFloat(0.01);
+    nb.setStep(0.01);
     nb.setRange(-10,10);
     nb.setValue(7.5,"**");
     nb.onChange=function(x){
     console.log("change to "+x);
     }
-    nb.setInfinite();
     console.log(nb.getValue());
  
 </script>

@@ -85,14 +85,15 @@ function ParamController(gui, params, property, low, high, step) {
      * @param {String} text
      */
     ParamController.prototype.createLabel = function(text) {
+        const design = this.gui.design;
         this.labelId = DOM.createId();
         this.label = DOM.create("span", this.labelId, "#" + this.domElementId, text);
         DOM.style("#" + this.labelId,
-            "minWidth", this.gui.design.controllerLabelWidth + px,
+            "minWidth", design.controllerLabelWidth + px,
             "display", "inline-block",
-            "font-size", this.gui.design.controllerLabelFontSize + px,
-            "paddingLeft", this.gui.design.labelSpacing + px,
-            "paddingRight", this.gui.design.labelSpacing + px);
+            "font-size", design.controllerLabelFontSize + px,
+            "paddingLeft", design.labelSpacing + px,
+            "paddingRight", design.labelSpacing + px);
     };
 
     /*
@@ -101,6 +102,7 @@ function ParamController(gui, params, property, low, high, step) {
      * @method ParamController#create
      */
     ParamController.prototype.create = function(low, high, step) {
+        const design = this.gui.design;
         this.uiElement = null;
         const controller = this;
         const paramValue = this.params[this.property];
@@ -111,12 +113,8 @@ function ParamController(gui, params, property, low, high, step) {
         this.domElement = DOM.create("div", this.domElementId, "#" + this.gui.bodyDivId);
         // make a regular spacing between labels ???
         DOM.style("#" + this.domElementId,
-            "minHeight", this.gui.design.minControllerHeight + px,
-
-            "paddingBottom", this.gui.design.paddingVertical + px
-            //     "marginTop", this.gui.design.paddingVertical + px,
-            //     "marginBottom", this.gui.design.paddingVertical + px
-        );
+            "minHeight", design.minControllerHeight + px,
+            "paddingBottom", design.paddingVertical + px);
         // the button or whatever the user interacts with
         this.uiElement = null;
         // what should be done if value changes or button clicked
@@ -128,7 +126,7 @@ function ParamController(gui, params, property, low, high, step) {
             this.createLabel(this.property);
             const id = DOM.createId();
             DOM.create("select", id, "#" + this.domElementId);
-            DOM.style("#" + id, "font-size", this.gui.design.buttonFontSize + px);
+            DOM.style("#" + id, "font-size", design.buttonFontSize + px);
             const select = new SelectValues(id);
             this.uiElement = select;
             select.setLabelsValues(low);
@@ -139,8 +137,8 @@ function ParamController(gui, params, property, low, high, step) {
             const id = DOM.createId();
             DOM.create("button", id, "#" + this.domElementId);
             DOM.style("#" + id,
-                "minWidth", this.gui.design.onOffButtonWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "minWidth", design.onOffButtonWidth + px,
+                "font-size", design.buttonFontSize + px);
             const button = new BooleanButton(id);
             this.uiElement = button;
             button.setValue(paramValue);
@@ -150,7 +148,7 @@ function ParamController(gui, params, property, low, high, step) {
             this.createLabel("");
             const id = DOM.createId();
             DOM.create("button", id, "#" + this.domElementId, this.property);
-            DOM.style("#" + id, "font-size", this.gui.design.buttonFontSize + px);
+            DOM.style("#" + id, "font-size", design.buttonFontSize + px);
             const button = new Button(id);
             this.uiElement = button;
             if (typeof paramValue === "function") {
@@ -165,8 +163,8 @@ function ParamController(gui, params, property, low, high, step) {
             const id = DOM.createId();
             DOM.create("input", id, "#" + this.domElementId);
             DOM.style("#" + id,
-                "width", this.gui.design.textInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "width", design.textInputWidth + px,
+                "font-size", design.buttonFontSize + px);
             const textInput = new TextInput(id);
             textInput.setValue(paramValue);
             this.uiElement = textInput;
@@ -180,10 +178,10 @@ function ParamController(gui, params, property, low, high, step) {
             DOM.create("span", id, "#" + this.domElementId);
             const button = NumberButton.createInfinity(id);
             DOM.style("#" + button.idName,
-                "width", this.gui.design.numberInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "width", design.numberInputWidth + px,
+                "font-size", design.buttonFontSize + px);
             DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idMin + ",#" + button.idMax,
-                "font-size", this.gui.design.buttonFontSize + px);
+                "font-size", design.buttonFontSize + px);
             if (isInteger(high)) {
                 button.setRange(low, high);
             } else if (isInteger(low)) {
@@ -202,16 +200,16 @@ function ParamController(gui, params, property, low, high, step) {
             DOM.create("span", id, "#" + this.domElementId);
             const range = Range.createPlusMinus(id);
             DOM.style("#" + this.labelId,
-                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
+                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
             DOM.style("#" + range.idText,
-                "width", this.gui.design.numberInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px,
-                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
+                "width", design.numberInputWidth + px,
+                "font-size", design.buttonFontSize + px,
+                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
             DOM.style("#" + range.idRange,
-                "width", this.gui.design.rangeSliderLengthShort + px);
+                "width", design.rangeSliderLengthShort + px);
             DOM.style("#" + range.idPlus + ",#" + range.idMinus,
-                "font-size", this.gui.design.buttonFontSize + px,
-                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
+                "font-size", design.buttonFontSize + px,
+                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
             range.setRange(low, high);
             range.setStep(1);
             range.setValue(paramValue);
@@ -224,13 +222,13 @@ function ParamController(gui, params, property, low, high, step) {
             DOM.create("span", id, "#" + this.domElementId);
             const range = Range.create(id);
             DOM.style("#" + this.labelId,
-                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
+                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
             DOM.style("#" + range.idText,
-                "width", this.gui.design.numberInputWidth + px,
-                "font-size", this.gui.design.buttonFontSize + px,
-                "transform", "translateY(" + (-this.gui.design.rangeVOffset) + "px)");
+                "width", design.numberInputWidth + px,
+                "font-size", design.buttonFontSize + px,
+                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
             DOM.style("#" + range.idRange,
-                "width", this.gui.design.rangeSliderLengthLong + px);
+                "width", design.rangeSliderLengthLong + px);
 
             range.setRange(low, high);
             if (isNumber(step)) {
