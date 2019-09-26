@@ -23,6 +23,19 @@ var KeyboardEvents = {};
         KeyboardEvents.keydownListeners.push(listener);
     };
 
+    /**
+     * delete an object from the list of keydown listeners
+     * @method KeyboardEvents.deleteKeydownListener
+     * @param {object} listener
+     */
+    KeyboardEvents.deleteKeydownListener = function(listener) {
+        for (var i = KeyboardEvents.keydownListeners.length - 1; i >= 0; i--) {
+            if (listener === KeyboardEvents.keydownListeners[i]) {
+                KeyboardEvents.keydownListeners.splice(i, 1);
+            }
+        }
+    };
+
     // functions to call and their keys 
     KeyboardEvents.functions = [];
     KeyboardEvents.functionKeys = [];

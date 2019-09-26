@@ -265,6 +265,7 @@ function Range(idText, idRange, idPlus, idMinus) {
     Range.prototype.setStep = function(step) {
         this.step = step;
         this.rangeElement.step = step;
+        this.setValue(this.quantizeClamp(this.lastValue));
         this.digits = 0;
         if (step < 1) {
             this.digits = 1;

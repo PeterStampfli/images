@@ -29,7 +29,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = NumberButton.maxValue;
-    this.step = 1;
+    this.setStep(1);
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
@@ -102,6 +102,27 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         button.hover = false;
         button.updateStyle();
     };
+
+    this.element.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (button.pressed) {
+            button.changeDigit(event.deltaY);
+        }
+        return false;
+    };
+
+    // using keys for wheel actions
+    KeyboardEvents.addKeydownListener(this);
+    this.keydown = function(key) {
+        if (button.pressed) {
+            if (key === "ArrowDown") {
+                button.changeDigit(-1);
+            } else if (key === "ArrowUp") {
+                button.changeDigit(1);
+            }
+        }
+    };
 }
 
 (function() {
@@ -143,6 +164,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         this.step = step;
         // quantize value
         this.setValue(this.quantizeClamp(this.getValue()));
+        this.digits = Math.max(0, -Math.floor(Math.log10(step) + 0.0001));
     };
 
     /**
@@ -188,7 +210,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     NumberButton.prototype.setValue = function(number) {
         number = this.quantizeClamp(number);
         this.lastValue = number;
-        this.element.value = number.toString();
+        this.element.value = number.toFixed(this.digits);
     };
 
     /**
@@ -211,6 +233,41 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     };
 
     /**
+     * change value depending on direction (>0 or <0) and curcor posion
+     * @method NumberButton#changeDigit
+     * @param {float} direction - makes plus or minus changes
+     */
+    NumberButton.prototype.changeDigit = function(direction) {
+        let cursorPosition = this.element.selectionStart;
+        // selectionStart=0: in front, left of first char
+        let pointPosition = this.element.value.indexOf(".");
+        // beware of pure integers
+
+        if (pointPosition < 0) {
+            pointPosition = this.element.value.length;
+        }
+        // going to the right increases index in string, decreases number power        let power=pointPosition-cursorPosition;
+        if (power < 0) {
+            power++;
+        }
+        let change = Math.pow(10, power);
+        if (direction < 0) {
+            change = -change;
+        }
+        this.updateValue(this.getValue() + change);
+        pointPosition = this.element.value.indexOf(".");
+        if (pointPosition < 0) {
+            pointPosition = this.element.value.length;
+        }
+        cursorPosition = Math.max(0, pointPosition - power);
+        // acounting for the space of decimal point
+        if (power < 0) {
+            cursorPosition++;
+        }
+        this.element.setSelectionRange(cursorPosition, cursorPosition);
+    };
+
+    /**
      * destroy the button, taking care of all references, deletes the associated html element
      * may be too careful
      * set reference to the button to null
@@ -223,8 +280,10 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         this.element.onblur = null;
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
+        this.element.onwheel = null;
         this.element.remove();
         this.element = null;
+        KeyboardEvents.deleteKeydownListener(this);
         if (this.plusButton != null) {
             this.plusButton.destroy();
             this.plusButton = null;

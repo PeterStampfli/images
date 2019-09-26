@@ -441,6 +441,7 @@ ParamGui = function(params) {
                 if (!ParamGui.isInFront(paramGui)) {
                     ParamGui.moveToFront(paramGui);
                 }
+                return false;
             };
             // add the title
             this.createTitle();
@@ -495,7 +496,6 @@ ParamGui = function(params) {
             DOM.style("#" + this.bottomPaddingDivId,
                 "height", design.paddingVertical + px,
                 "backgroundColor", design.backgroundColor);
-            //    "backgroundColor", "white");
         }
         // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {

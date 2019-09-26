@@ -13,6 +13,7 @@
 
 
 </body>
+<script src="../librarySource/keyboardEvents.js"></script>
 
 <script src="../librarySource/fastFun.js"></script>
 <script src="../librarySource/button.js"></script>
@@ -24,13 +25,14 @@
 <script type="text/javascript">
     
     nb=NumberButton.createInfinity("a");
-    nb.setStep(0.01);
-    nb.setRange(-10,10);
+    nb.setStep(10);
+    nb.setRange(-100,100);
     nb.setValue(7.5,"**");
     nb.onChange=function(x){
     console.log("change to "+x);
     }
     console.log(nb.getValue());
+    nb.destroy()
  
 </script>
 
