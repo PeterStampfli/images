@@ -114,7 +114,10 @@ function ParamController(gui, params, property, low, high, step) {
         // make a regular spacing between labels ???
         DOM.style("#" + this.domElementId,
             "minHeight", design.minControllerHeight + px,
-            "paddingBottom", design.paddingVertical + px);
+            "marginBottom", design.paddingVertical + px,
+            "marginTop", design.paddingVertical + px
+
+        );
         // the button or whatever the user interacts with
         this.uiElement = null;
         // what should be done if value changes or button clicked

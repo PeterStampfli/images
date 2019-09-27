@@ -316,8 +316,6 @@ ParamGui = function(params) {
         });
     };
 
-
-
     // attach this handler to resize events
     window.addEventListener("resize", ParamGui.resize, false);
 
@@ -337,11 +335,10 @@ ParamGui = function(params) {
             this.outerTitleDivId = DOM.createId();
             this.outerTitleDiv = DOM.create("div", this.outerTitleDivId, "#" + this.domElementId);
             // full width (background color!), excess will be hidden
+            // a div fits into the width of parent div, if no width given 
             DOM.style("#" + this.outerTitleDivId,
                 "backgroundColor", design.titleBackgroundColor,
                 "color", design.titleColor,
-                "width", design.width + px,
-                // "width", 500 + px,
                 "height", design.titleHeight + px,
                 "position", "relative");
             // put elements at center of div with fixed heigth
@@ -409,7 +406,7 @@ ParamGui = function(params) {
         if (this.isRoot() && this.autoPlace) {
             const design = this.design;
             DOM.style("#" + this.bodyDivId,
-                "maxHeight", (window.innerHeight - 3 * design.borderWidth - design.titleHeight - design.verticalShift - design.paddingVertical) + px);
+                "maxHeight", (window.innerHeight - 3 * design.borderWidth - design.titleHeight - design.verticalShift) + px);
         }
     };
 
@@ -475,7 +472,6 @@ ParamGui = function(params) {
                 // be careful: the vertical scroll bar might hide things
                 // take into account design.scrollBarWidth for auto wrapping lines
                 DOM.style("#" + this.bodyDivId,
-                    "paddingTop", design.paddingVertical + px,
                     "overflowY", "auto",
                     "overflowX", "hidden"
                 );
@@ -491,6 +487,8 @@ ParamGui = function(params) {
             // the ui elements go into their own div, the this.bodyDiv
             this.bodyDivId = DOM.createId();
             this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+            // padding to have minimal height, space for controller padding
+            // separating folders
             DOM.style("#" + this.bodyDivId,
                 "paddingTop", design.paddingVertical + px
             );
@@ -504,13 +502,6 @@ ParamGui = function(params) {
             } else {
                 this.childWidth = design.width;
             }
-            // padding at end as extra divs, always visible, even if closed
-            // as separation between folders
-            this.bottomPaddingDivId = DOM.createId();
-            DOM.create("div", this.bottomPaddingDivId, "#" + this.domElementId);
-            DOM.style("#" + this.bottomPaddingDivId,
-                "height", design.paddingVertical + px,
-                "backgroundColor", design.backgroundColor);
         }
         // close it initially? (has to be here, after creation of elements
         if (this.closeOnTop && this.closed) {
@@ -643,6 +634,8 @@ ParamGui = function(params) {
         }
         const folder = new ParamGui(allParameters);
         this.elements.push(folder);
+
+
         return folder;
     };
 
