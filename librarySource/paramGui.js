@@ -84,6 +84,9 @@ ParamGui = function(params) {
     for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(design, arguments[i]);
     }
+    // in particular note that design.width decreases for sub(sub) folders
+    // because of indentation
+    // be careful: the vertical scroll bar might hide things
     this.setup();
 };
 
@@ -108,6 +111,9 @@ ParamGui = function(params) {
         // then change these fields in a resize function
         // width of the ui panel
         width: 400,
+        // be careful: the vertical scroll bar might hide things
+        // important for auto wrapping lines
+        scrollBarWidth: 10,
         //ui element label spacing from border and to controls
         labelSpacing: 8,
         // vertical spacing
@@ -335,6 +341,7 @@ ParamGui = function(params) {
                 "backgroundColor", design.titleBackgroundColor,
                 "color", design.titleColor,
                 "width", design.width + px,
+                // "width", 500 + px,
                 "height", design.titleHeight + px,
                 "position", "relative");
             // put elements at center of div with fixed heigth
@@ -462,12 +469,17 @@ ParamGui = function(params) {
                     "position", "fixed",
                     design.verticalPosition, design.verticalShift + px,
                     design.horizontalPosition, design.horizontalShift + px,
-                    "width", design.width + px,
-                    "overflowX", "hidden");
+                    "width", design.width + px
+                );
+                // scroll in vertical direction: attention! overflowY="auto" makes that overflowX becomes "auto" too if it is "initial" or "visible"
+                // be careful: the vertical scroll bar might hide things
+                // take into account design.scrollBarWidth for auto wrapping lines
                 DOM.style("#" + this.bodyDivId,
                     "paddingTop", design.paddingVertical + px,
                     "overflowY", "auto",
-                    "overflowX", "hidden");
+                    "overflowX", "hidden"
+                );
+                this.childWidth = design.width;
                 this.resize();
             }
         } else {
@@ -488,6 +500,9 @@ ParamGui = function(params) {
                     "border-left", "solid",
                     "borderColor", design.titleBackgroundColor,
                     "border-left-width", design.levelIndent + px);
+                this.childWidth = design.width - design.levelIndent;
+            } else {
+                this.childWidth = design.width;
             }
             // padding at end as extra divs, always visible, even if closed
             // as separation between folders
@@ -505,8 +520,6 @@ ParamGui = function(params) {
         DOM.style("#" + this.bodyDivId,
             "color", design.textColor,
             "backgroundColor", design.backgroundColor);
-        //        "backgroundColor", "black");
-
     };
 
     // hide and show might be used in a program to hide irrelevant parameters
@@ -622,7 +635,8 @@ ParamGui = function(params) {
             closeOnTop: true,
             parent: this,
             autoPlace: false,
-            hideable: false
+            hideable: false,
+            width: this.childWidth
         };
         for (var i = 1; i < arguments.length; i++) {
             Object.assign(allParameters, arguments[i]);
