@@ -288,11 +288,13 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(basicUI.lineWidthRange.getValue());
-        Draw.setColor(basicUI.generatorColor);
-        Draw.setSolidLine();
-        //  rotaScope.drawSector();
-        rotaScope.drawCircles();
+        if (basicUI.generators.getIndex() > 0) {
+            Draw.setLineWidth(basicUI.lineWidthRange.getValue());
+            Draw.setColor(basicUI.generatorColor);
+            Draw.setSolidLine();
+            //  rotaScope.drawSector();
+            rotaScope.drawCircles();
+        }
     };
 }
 

@@ -143,6 +143,10 @@ ParamGui = function(params) {
         titleColor: "#000000",
         titleBackgroundColor: "#bbbbbb",
 
+        // padding for paragraphs: free space at left and right
+        paragraphPadding: 10,
+        paragraphColor: "orange",
+
         // defaults for controller dimensions
 
         // fontsize for buttons
@@ -698,6 +702,50 @@ ParamGui = function(params) {
      */
     ParamGui.prototype.addColor = function(params, property) {
         return this.add({}, "addColor not implemented");
+    };
+
+    /**
+     * add a div to make a vertical space
+     * choose height (default: paddingVertical)
+     * backgroundColor: (default: none )
+     * @method ParamGui#verticalSpace
+     * @param {...float|String} height/backgroundColor - optional
+     * @return DIV element   (if you want to style it)
+     */
+    ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
+        const id = DOM.createId();
+        const result = DOM.create("div", id, "#" + this.bodyDivId);
+        DOM.style("#" + id, "height", this.design.paddingVertical + px);
+        for (var i = 0; i < arguments.length; i++) {
+            const arg = arguments[i];
+            if (typeof(arg) === "number") {
+                DOM.style("#" + id, "height", arg + px);
+            }
+            if (typeof(arg) === "string") {
+                DOM.style("#" + id, "backgroundColor", arg);
+            }
+        }
+        return result;
+    };
+
+    /**
+     * add a paragraph
+     * adjusted width to prevent collision with scroll bar 
+     * or use paddingRight
+     * @method ParamGui#paragraph
+     * @param {String} text - with HTML markup
+     * @return p element    (if you want to style it)
+     */
+    ParamGui.prototype.paragraph = function(text) {
+        const id = DOM.createId();
+        const result = DOM.create("div", id, "#" + this.bodyDivId);
+        DOM.style("#" + id,
+            "paddingLeft", this.design.paragraphPadding + px,
+            "paddingRight", this.design.paragraphPadding + px,
+            "color", this.design.paragraphColor
+        );
+        result.innerHTML = text;
+        return result;
     };
 
     /**
