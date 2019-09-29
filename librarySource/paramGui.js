@@ -145,7 +145,8 @@ ParamGui = function(params) {
 
         // padding for paragraphs: free space at left and right
         paragraphPadding: 10,
-        paragraphColor: "orange",
+        // textcolor for paragraphs
+        paragraphColor: "#000000",
 
         // defaults for controller dimensions
 
@@ -198,7 +199,7 @@ ParamGui = function(params) {
     };
 
     /**
-     * update ParamGui defauts using data of another object with the same key 
+     * update ParamGui design defaults using data of another object with the same key 
      * @method ParamGui.updateDefaults
      * @param {Object} newValues
      */
@@ -245,6 +246,18 @@ ParamGui = function(params) {
             ParamGui.rootGuis[i].setZIndex(ParamGui.zIndex + i);
         }
     };
+
+    /**
+     * hide all popups
+     * @method ParamGui.hidePopup
+     * @param {boolean} always - if true hides all popups, false hides not popups with controller.doNotHidePopup=true
+     */
+    ParamGui.hidePopup = function(always) {
+        for (var i = 0; i < ParamGui.rootGuis.length; i++) {
+            ParamGui.rootGuis[i].hidePopup(always);
+        }
+    };
+
 
     /**
      * adding a root gui to the collection, update the zIndices
@@ -444,10 +457,15 @@ ParamGui = function(params) {
             // all the same font !?
             DOM.style("#" + this.domElementId,
                 "fontFamily", design.fontFamily);
-            // add event listener, moves gui to front if not there
+            // add event listener, 
+            // if gui is not in front moves gui to front and hide all popups
+            // if in front hide popups, except if controller.doNotHidePopup==true
             this.domElement.onclick = function(event) {
-                if (!ParamGui.isInFront(paramGui)) {
+                if (ParamGui.isInFront(paramGui)) {
+                    ParamGui.hidePopup(false);
+                } else {
                     ParamGui.moveToFront(paramGui);
+                    ParamGui.hidePopup(true);
                 }
                 return false;
             };
@@ -638,14 +656,12 @@ ParamGui = function(params) {
         }
         const folder = new ParamGui(allParameters);
         this.elements.push(folder);
-
-
         return folder;
     };
 
     /**
      * remove an element: destroy and remove from array of elements
-     * @method ParamGui.remove
+     * @method ParamGui#remove
      * @param {Object} element - to remove, with a destroy method
      */
     ParamGui.prototype.remove = function(element) {
@@ -654,6 +670,17 @@ ParamGui = function(params) {
             this.elements.splice(index, 1);
         }
         element.destroy();
+    };
+
+    /**
+     * hide all popups
+     * @method ParamGui#hidePopup
+     * @param {boolean} always - if true hides all popups, false hides not popups with this.doNotHidePopup=true
+     */
+    ParamGui.prototype.hidePopup = function(always) {
+        this.elements.forEach(function(element) {
+            element.hidePopup(always);
+        });
     };
 
     /**

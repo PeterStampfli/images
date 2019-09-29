@@ -92,13 +92,11 @@ function creation() {
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.createInfinity("m");
-    setMButton.setFloat(0.01);
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.createInfinity("n");
-    setNButton.setFloat(0.01);
     setNButton.setRange(2, 10000);
     setNButton.setValue(3);
     setNButton.onChange = Make.updateNewMap;

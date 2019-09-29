@@ -116,7 +116,6 @@ function ParamController(gui, params, property, low, high, step) {
             "minHeight", design.minControllerHeight + px,
             "marginBottom", design.paddingVertical + px,
             "marginTop", design.paddingVertical + px
-
         );
         // the button or whatever the user interacts with
         this.uiElement = null;
@@ -256,6 +255,50 @@ function ParamController(gui, params, property, low, high, step) {
         return this;
     };
 
+    // popups for complicated controls
+    // this.popupDiv is a div that contains the popup elements
+    // this.popupDivId is its id
+    // this.hidePopup(always) is a method that hides the popup (visibility hidden)
+    // this.showPopup() is a method that shows the popup (visibility visible)
+    // this.createPopup() creates the this.popup div of height zero
+    // this.doNotHidePopup if true this.hidePopup does not hide popup except always=true
+
+    /**
+     * hide the popup if it exists 
+     * and either always=true or controller.doNotHidePopup=false
+     * @method ParamController#hidePopup
+     * @param {boolean} always
+     */
+    ParamController.prototype.hidePopup = function(always) {
+        if (isObject(this.popupDiv) && (always || !this.doNotHidePopup)) {
+            this.popupDiv.style.display = "none";
+            console.log("hide");
+        }
+    };
+
+    /**
+     * show the popup if it exists 
+     * @method ParamController#showPopup
+     */
+    ParamController.prototype.showPopup = function() {
+        if (isObject(this.popupDiv)) {
+            console.log("show");
+            this.popupDiv.style.display = "block";
+        }
+    };
+
+    /**
+     * create a popup div with height zero
+     * @method ParamController#createPopup
+     * @return {Div} the popup div 
+     */
+    ParamController.prototype.createPopup = function() {
+        this.popupDivId = DOM.createId();
+        this.popupDiv = DOM.create("div", this.popupDivId, "#" + this.domElementId);
+        this.hidePopup(true);
+        return this.popupDiv;
+    };
+
     /**
      * set the callback function for onchange events
      * @method ParamController#onChange
@@ -384,6 +427,11 @@ function ParamController(gui, params, property, low, high, step) {
         this.uiElement = null;
         this.label.remove();
         this.label = null;
+        if (typeof this.popupDiv === "object") {
+            this.popupDiv = null;
+            this.popupDiv.remove();
+            console.log("romove popup");
+        }
         this.domElement.remove();
         this.domElement = null;
         this.params = null;
