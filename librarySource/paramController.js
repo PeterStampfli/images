@@ -274,6 +274,7 @@ function ParamController(gui, params, property, low, high, step) {
             this.popupDiv.style.display = "none";
             console.log("hide");
         }
+        this.doNotHidePopup = false;
     };
 
     /**
@@ -288,14 +289,28 @@ function ParamController(gui, params, property, low, high, step) {
     };
 
     /**
-     * create a popup div with height zero
+     * create a popup div with height zero 
+     * in the div of the controller
+     * call AFTER creating the basic controller
+     * creates an onClick function on the controller div to open/keep visible the popup
+     * the rootGui domElement has an onclick event that hides popups
      * @method ParamController#createPopup
      * @return {Div} the popup div 
      */
     ParamController.prototype.createPopup = function() {
         this.popupDivId = DOM.createId();
         this.popupDiv = DOM.create("div", this.popupDivId, "#" + this.domElementId);
+        DOM.style("#" + this.popupDivId,
+            "color", this.gui.design.popupColor,
+            "backgroundColor", this.gui.design.popupBackgroundColor
+        );
         this.hidePopup(true);
+        const controller = this;
+        this.domElement.onclick = function(event) {
+            controller.showPopup();
+            controller.doNotHidePopup = true;
+            console.log("dom contr click");
+        };
         return this.popupDiv;
     };
 
@@ -423,15 +438,16 @@ function ParamController(gui, params, property, low, high, step) {
      * @method ParamController#destroy
      */
     ParamController.prototype.destroy = function() {
+        if (typeof this.popupDiv === "object") {
+            this.popupDiv = null;
+            this.popupDiv.remove();
+            this.uiElement.onClick = null;
+            console.log("romove popup");
+        }
         this.uiElement.destroy();
         this.uiElement = null;
         this.label.remove();
         this.label = null;
-        if (typeof this.popupDiv === "object") {
-            this.popupDiv = null;
-            this.popupDiv.remove();
-            console.log("romove popup");
-        }
         this.domElement.remove();
         this.domElement = null;
         this.params = null;

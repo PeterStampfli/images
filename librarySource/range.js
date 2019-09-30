@@ -85,7 +85,7 @@ function Range(idText, idRange, idPlus, idMinus) {
         event.preventDefault();
         event.stopPropagation();
         if (range.textPressed) {
-            range.changeDigit(event.deltaY);
+            range.changeDigit(-event.deltaY);
         }
         return false;
     };

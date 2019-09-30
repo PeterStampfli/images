@@ -107,7 +107,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         event.preventDefault();
         event.stopPropagation();
         if (button.pressed) {
-            button.changeDigit(event.deltaY);
+            button.changeDigit(-event.deltaY);
         }
         return false;
     };

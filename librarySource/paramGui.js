@@ -142,6 +142,9 @@ ParamGui = function(params) {
         // color for top of folder with close/open button
         titleColor: "#000000",
         titleBackgroundColor: "#bbbbbb",
+        // colors for popups
+        popupColor: "#444444",
+        popupBackgroundColor: "white",
 
         // padding for paragraphs: free space at left and right
         paragraphPadding: 10,
