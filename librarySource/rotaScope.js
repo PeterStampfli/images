@@ -101,8 +101,9 @@ rotaScope = {};
      * map the position using a collection of inverting circles
      * (actually rotationally symmetric collections)
      * the endpoint of the mapping may lie everythere, is not mapped to first sector
+     * position has valid angle at return
      * @method rotaScope.mapInputImage
-     * @param {Vector2} v - the vector to map
+     * @param {Vector2} position - the vector to map
      * @param {Object} furtherResults - with fields reflections, lyapunov and colorSector
      */
     const zPi = 2 * Math.PI;

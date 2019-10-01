@@ -10,6 +10,8 @@ function creation() {
 
     rotaScope.rotationGroup.setOrder(5);
     rotaScope.rotationGroup.setRadialPower(2);
+    const rotationGroup = rotaScope.rotationGroup;
+
 
     Make.map.drawSector = [true, true];
 
@@ -64,16 +66,27 @@ function creation() {
 
     let setRadius1 = Range.create("radius1");
     setRadius1.setStep(0.001);
-    setRadius1.setRange(0.1, 1);
+    setRadius1.setRange(0.01, 3);
     setRadius1.setValue(0.5);
     setRadius1.onChange = Make.updateNewMap;
 
     let setRadius2 = Range.create("radius2");
     setRadius2.setStep(0.001);
-    setRadius2.setRange(0.0, 1);
+    setRadius2.setRange(0.01, 3);
     setRadius2.setValue(0.5);
     setRadius2.onChange = Make.updateNewMap;
 
+    let solutionSign = -1;
+    let solutionSelect = new Select("solution");
+    solutionSelect.addOption("inner", function() {
+        solutionSign = -1;
+        Make.updateNewMap();
+    });
+
+    solutionSelect.addOption("outer", function() {
+        solutionSign = 1;
+        Make.updateNewMap();
+    });
 
     let concentricCircles = new Select("concentric");
     concentricCircles.addOption("none", function() {
@@ -154,12 +167,7 @@ function creation() {
 
     var a, b, k;
 
-    var circleA = new Circle();
-    var circleB = new Circle();
-    var centerA = new Vector2();
-    var centerB = new Vector2();
-    var intersection1 = new Vector2();
-    var intersection2 = new Vector2();
+
 
 
     Make.initializeMap = function() {
@@ -185,18 +193,19 @@ function creation() {
         a = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n1));
         b = Math.sqrt(r1 * r1 + r2 * r2 + 2 * r1 * r2 * Math.cos(Math.PI / n2));
         let d = 2 * d1 * Math.sin(Math.PI / k);
-        let beta = Fast.triangleGammaOfABC(a, d, b);
-        let gamma = Math.PI * 0.5 - Math.PI / k - beta;
+        let beta = Math.acos(Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d))));
+        let gamma = Math.PI * 0.5 - Math.PI / k + solutionSign * beta;
         x2 = d1 - a * Math.cos(gamma);
         y2 = a * Math.sin(gamma);
-        centerA.setComponents(d1, 0);
-        circleA.setRadiusCenter(a, centerA);
-        centerB.setComponents(d1 * Math.cos(2 * Math.PI / k), d1 * Math.sin(2 * Math.PI / k));
-        circleB.setRadiusCenter(b, centerB);
+
         rotaScope.circleInsideOut(r2, x2, y2);
 
 
         // values for the border
+        // circle centers at (d,0) (x2,y2)
+        // (Math.cos(2 * Math.PI / k) ,Math.sin(2 * Math.PI / k) )
+        // assume 0<y2<sin(2pi/k)*d1
+        // outside if x large
         dx1 = x2 - d1;
         dy1 = y2;
         dx2 = d1 * Math.cos(2 * Math.PI / k) - x2;
@@ -218,6 +227,8 @@ function creation() {
 */
     };
 
+    const testPosition = new Vector2();
+
 
     /**
      * map the position for using an input image
@@ -231,9 +242,32 @@ function creation() {
         furtherResults.iterations = 0;
         rotaScope.map(position, furtherResults);
         // distinction between inside and outside
+        // set color sector
+        // determine sector independent of symmtry at center
+        testPosition.set(position);
+        rotationGroup.rotateToFirstFromValidAngle(testPosition);
+        const dx = testPosition.x - x2;
+        const dy = testPosition.y - y2;
+        if (dy > 0) {
+            if (dx * dy2 - dy * dx2 > 0) {
+                furtherResults.colorSector = 1;
+                position.scale(worldradius2 / position.length2());
+            } else {
+                furtherResults.colorSector = 0;
+            }
+
+        } else {
+            if (dx * dy1 - dy * dx1 > 0) {
+                furtherResults.colorSector = 1;
+                position.scale(worldradius2 / position.length2());
+            } else {
+                furtherResults.colorSector = 0;
+            }
+
+        }
 
 
-        rotaScope.rotationGroup.rosette(position);
+        rotationGroup.rosette(position);
     }
 
     Make.setMapping(map);
@@ -245,12 +279,9 @@ function creation() {
         Draw.setLineWidth(basicUI.lineWidthRange.getValue());
         Draw.setColor(basicUI.generatorColor);
         Draw.setSolidLine();
-        rotaScope.drawSector();
         rotaScope.drawCircles();
 
 
-        circleA.draw();
-        circleB.draw();
     };
 }
 
@@ -259,6 +290,8 @@ window.onload = function() {
     basicUI.squareImage = true;
     creation();
     basicUI.onload();
+    basicUI.showSelectAdd();
+
 };
 
 window.onresize = function() {
