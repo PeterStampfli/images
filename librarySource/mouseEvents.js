@@ -40,13 +40,12 @@ var MouseAndTouch = {};
                 y -= window.pageYOffset;
                 break;
             }
-            element = element.parentNode;
+            element = element.offsetParent; // important: does not double count offsets
         }
         return [x, y];
     };
 
 }());
-
 
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
@@ -70,8 +69,8 @@ function MouseEvents(idName) {
     this.mouseInside = false;
     this.wheelDelta = 0;
     // keys for wheel action, defaults, Z zooms in, z zooms out
-    this.upKey = "Z";
-    this.downKey = "z";
+    this.upKey = "ArrowUp";
+    this.downKey = "ArrowDown";
 
     // event action - strategy pattern
     this.downAction = function(mouseEvents) {}; // mouse down 
@@ -145,10 +144,12 @@ function MouseEvents(idName) {
     };
 
     this.element.onwheel = function(event) {
-        MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
-            mouseEvents.wheelAction(mouseEvents);
+            if (!mouseEvents.wheelAction(mouseEvents)) {
+                MouseAndTouch.preventDefault(event);
+            }
+
         }
         return false;
     };
@@ -156,15 +157,19 @@ function MouseEvents(idName) {
     // using keys for wheel actions
     KeyboardEvents.addKeydownListener(this);
 
-    this.keydown = function(key) {
+    this.keydown = function(key, event) {
         if (mouseEvents.isActive) {
             if (mouseEvents.mouseInside) {
                 if (key == mouseEvents.upKey) {
                     mouseEvents.wheelDelta = 1;
-                    mouseEvents.wheelAction(mouseEvents);
+                    if (!mouseEvents.wheelAction(mouseEvents)) {
+                        MouseAndTouch.preventDefault(event);
+                    }
                 } else if (key == mouseEvents.downKey) {
                     mouseEvents.wheelDelta = -1;
-                    mouseEvents.wheelAction(mouseEvents);
+                    if (!mouseEvents.wheelAction(mouseEvents)) {
+                        MouseAndTouch.preventDefault(event);
+                    }
                 }
             }
         }

@@ -1,7 +1,7 @@
 /** a controller with a rotating arrow to set 
  * an angle (tangential mouse/touch movement and a scale (radial)
  * @constructor AngleScale
- * @param {String} idName - html identifier of a container
+ * @param {String} idName - html identifier of a div as container 
  */
 
 /* jshint esversion:6 */
@@ -11,8 +11,6 @@ function AngleScale(idName) {
     this.size = -1;
     this.canvasId = DOM.createId();
     this.canvas = DOM.create("canvas", this.canvasId, "#" + idName);
-    // do better!!!
-    DOM.style("#" + this.canvasId, "cursor", "pointer");
     this.canvasContext = this.canvas.getContext('2d');
 
 
@@ -24,20 +22,43 @@ function AngleScale(idName) {
     this.angle = 0;
     this.scale = 1;
 
-
     // interacting
-    this.mouseEvents = new MouseEvents(idName);
+    this.mouseEvents = new MouseEvents(this.canvasId);
     this.touchEvents = new TouchEvents(idName);
-
 
     /**
      * what to do if angle/scale changes (redraw image)
      * @method AngleScale#onChange
      */
-    this.onChange = function() {};
+    this.onChange = function() {
+        console.log("change " + this.angle);
+    };
 
     // access to this in callbacks
     const angleScale = this;
+
+    /*
+     * add mouse move action: change pointer
+     */
+    this.mouseEvents.moveAction = function(mouseEvents) {
+        if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+            DOM.style("#" + angleScale.canvasId, "cursor", "pointer");
+        } else {
+            DOM.style("#" + angleScale.canvasId, "cursor", "initial");
+        }
+    };
+
+    /*
+     * add wheel action: change arrow position and call  this.onChange
+     * returns true if has done nothing and default should be done
+     */
+    this.mouseEvents.wheelAction = function(mouseEvents) {
+        if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+            angleScale.changeAngleOnWheel(mouseEvents);
+            return false;
+        }
+        return true;
+    };
 
 
 }
@@ -106,6 +127,21 @@ function AngleScale(idName) {
         return ((x - radius) * (x - radius) + (y - radius) * (y - radius)) < radius * radius;
     };
 
+
+    /**
+     * change angle of input transform depending on wheel data of mouse events
+     * @method AngleScale#changeAngleOnWheel
+     * @param {MouseEvents} mouseEvents
+     */
+    AngleScale.prototype.changeAngleOnWheel = function(mouseEvents) {
+        var deltaAngle = 0.05;
+        if (mouseEvents.wheelDelta > 0) {
+            deltaAngle *= -1;
+        }
+        this.angle += deltaAngle;
+        this.drawOrientation();
+        this.onChange();
+    };
 
 
     /**
