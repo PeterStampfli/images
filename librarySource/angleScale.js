@@ -12,7 +12,8 @@ function AngleScale(idName) {
     this.canvasId = DOM.createId();
     this.canvas = DOM.create("canvas", this.canvasId, "#" + idName);
     this.canvasContext = this.canvas.getContext('2d');
-
+    // units: for set/get angle
+    this.degrees = true;
 
     // custom colors possible
     this.backgroundColor = AngleScale.backgroundColor;
@@ -24,14 +25,14 @@ function AngleScale(idName) {
 
     // interacting
     this.mouseEvents = new MouseEvents(this.canvasId);
-    this.touchEvents = new TouchEvents(idName);
+    this.touchEvents = new TouchEvents(this.canvasId);
 
     /**
      * what to do if angle/scale changes (redraw image)
      * @method AngleScale#onChange
      */
     this.onChange = function() {
-        console.log("change " + this.angle);
+        console.log("change angle " + this.angle + " scale " + this.scale);
     };
 
     // access to this in callbacks
@@ -49,6 +50,28 @@ function AngleScale(idName) {
     };
 
     /*
+     * adding the down action: Sets pressed to true only if mouse is on inner circle.
+     */
+    this.mouseEvents.downAction = function(mouseEvents) {
+        if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+            mouseEvents.pressed = true;
+        } else {
+            mouseEvents.pressed = false;
+        }
+    };
+
+
+    // moving the mouse we can change the scale and rotation of the input mapping
+    // restrict on the circle shape
+    this.mouseEvents.dragAction = function(mouseEvents) {
+        //  if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
+        angleScale.changeScaleAngle(mouseEvents);
+        //    } else {
+        //        mouseEvents.pressed = false;  // switches to move action
+        //   }
+    };
+
+    /*
      * add wheel action: change arrow position and call  this.onChange
      * returns true if has done nothing and default should be done
      */
@@ -60,6 +83,19 @@ function AngleScale(idName) {
         return true;
     };
 
+    // if touch outside the circle
+    this.touchEvents.startAction = function(touchEvents) {
+        if (angleScale.isOnDisc(touchEvents.x, touchEvents.y)) {} else {
+            angleScale.touchEvents.deleteAllTouches();
+        }
+    };
+
+    // touch can rotate and scale, only single touch
+    this.touchEvents.moveAction = function(touchEvents) {
+        if (touchEvents.touches.length === 1) {
+            angleScale.changeScaleAngle(touchEvents);
+        }
+    };
 
 }
 
@@ -115,7 +151,6 @@ function AngleScale(idName) {
         canvasContext.fill();
     };
 
-
     /** 
      * check if a point (x,y) relative to upper left center is on the inner disc
      * @method AngleScale#isOnDisc
@@ -126,7 +161,6 @@ function AngleScale(idName) {
         var radius = this.canvas.width / 2;
         return ((x - radius) * (x - radius) + (y - radius) * (y - radius)) < radius * radius;
     };
-
 
     /**
      * change angle of input transform depending on wheel data of mouse events
@@ -143,6 +177,29 @@ function AngleScale(idName) {
         this.onChange();
     };
 
+    /**
+     * change scale and angle of input transform according to an events object, that has x,y,lastX and lastY fields
+     * @method AngleScale#changeScaleAngle
+     * @param {event} events
+     */
+    AngleScale.prototype.changeScaleAngle = function(events) {
+        let radius = this.canvas.width / 2;
+        // coordinates relative to the center of the image
+        let relX = events.x - radius;
+        let relY = events.y - radius;
+        let lastRelX = events.lastX - radius;
+        let lastRelY = events.lastY - radius;
+        let deltaAngle = Math.atan2(relY, relX) - Math.atan2(lastRelY, lastRelX);
+        // distance to center of arrow controller
+        let distance = Math.hypot(relX, relY);
+        let lastDistance = Math.hypot(lastRelX, lastRelY);
+        let reductionFactor = 1;
+        let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
+        this.angle += deltaAngle;
+        this.scale *= scaleFactor;
+        this.drawOrientation();
+        this.onChange();
+    };
 
     /**
      * set the angle (and redraw)
@@ -151,6 +208,9 @@ function AngleScale(idName) {
      * @return this
      */
     AngleScale.prototype.setAngle = function(angle) {
+        if (this.degrees) {
+            angle *= Math.PI / 180; // degrees to radians
+        }
         this.angle = angle;
         this.drawOrientation();
     };
@@ -161,7 +221,11 @@ function AngleScale(idName) {
      * @return float - the angle
      */
     AngleScale.prototype.getAngle = function() {
-        return this.angle;
+        let angle = this.angle;
+        if (this.degrees) {
+            angle *= 180 / Math.PI; // radians to degrees
+        }
+        return angle;
     };
 
     /**

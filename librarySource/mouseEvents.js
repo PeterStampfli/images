@@ -58,6 +58,7 @@ function MouseEvents(idName) {
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
     // the event data
+    // event.button=0 for left 2 for right button
     this.button = -1;
     this.x = 0;
     this.y = 0;

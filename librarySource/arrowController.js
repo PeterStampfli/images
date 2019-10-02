@@ -94,7 +94,6 @@ function ArrowController(idName, isVisible = true) {
          */
         this.mouseEvents.wheelAction = function(mouseEvents) {
             if (arrowController.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-
                 arrowController.changeAngleOnWheel(mouseEvents);
             }
         };
