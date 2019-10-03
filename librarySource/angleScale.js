@@ -8,7 +8,6 @@
 
 function AngleScale(idName) {
     this.idName = idName;
-    this.size = -1;
     this.canvasId = DOM.createId();
     this.canvas = DOM.create("canvas", this.canvasId, "#" + idName);
     this.canvasContext = this.canvas.getContext('2d');
@@ -113,19 +112,19 @@ function AngleScale(idName) {
      *  and do the drawing
      * only if size really changes
      * @method AngleScale#setSize
-     * @param{float} size
+     * @param{float} width
+     * @param{float} height
      */
-    AngleScale.prototype.setSize = function(size) {
-        size = Math.round(size);
-        if (size != this.size) {
-            this.size = size;
-            this.canvas.width = size;
-            this.canvas.height = size;
-            // drawing context x and y-axis range: -1 ... +1
-            this.canvasContext.scale(size / 2, size / 2);
-            this.canvasContext.translate(1, 1);
-            this.drawOrientation();
-        }
+    AngleScale.prototype.setDimensions = function(width, height) {
+        width = Math.round(width);
+        height = Math.round(height);
+        this.canvas.width = width;
+        this.canvas.height = height;
+        const radius = Math.min(width, height) / 2;
+        // drawing context x and y-axis range: -1 ... +1
+        this.canvasContext.scale(radius, radius);
+        this.canvasContext.translate(0.5 * width / radius, 0.5 * height / radius);
+        this.drawOrientation();
     };
 
     /**
@@ -133,11 +132,14 @@ function AngleScale(idName) {
      * @method AngleScale#drawOrientation
      */
     AngleScale.prototype.drawOrientation = function() {
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        const radius = Math.min(width, height) / 2;
         const arrowWidth = this.arrowWidth;
         const cosAngle = Math.cos(this.angle);
         const sinAngle = Math.sin(this.angle);
         const canvasContext = this.canvasContext;
-        canvasContext.clearRect(-1, -1, 2, 2);
+        canvasContext.clearRect(-0.5 * width / radius, -0.5 * height / radius, width / radius, height / radius);
         canvasContext.fillStyle = this.backgroundColor;
         canvasContext.beginPath();
         canvasContext.arc(0, 0, 1, 0, 2 * Math.PI, 1);
@@ -158,8 +160,10 @@ function AngleScale(idName) {
      * @param {float} y - coordinate of point
      */
     AngleScale.prototype.isOnDisc = function(x, y) {
-        var radius = this.canvas.width / 2;
-        return ((x - radius) * (x - radius) + (y - radius) * (y - radius)) < radius * radius;
+        const width2 = this.canvas.width / 2;
+        const height2 = this.canvas.height / 2;
+        const radius = Math.min(width2, height2);
+        return ((x - width2) * (x - width2) + (y - height2) * (y - height2)) < radius * radius;
     };
 
     /**
@@ -183,12 +187,14 @@ function AngleScale(idName) {
      * @param {event} events
      */
     AngleScale.prototype.changeScaleAngle = function(events) {
-        let radius = this.canvas.width / 2;
+        const width2 = this.canvas.width / 2;
+        const height2 = this.canvas.height / 2;
+        const radius = Math.min(width2, height2);
         // coordinates relative to the center of the image
-        let relX = events.x - radius;
-        let relY = events.y - radius;
-        let lastRelX = events.lastX - radius;
-        let lastRelY = events.lastY - radius;
+        let relX = events.x - width2;
+        let relY = events.y - height2;
+        let lastRelX = events.lastX - width2;
+        let lastRelY = events.lastY - height2;
         let deltaAngle = Math.atan2(relY, relX) - Math.atan2(lastRelY, lastRelX);
         // distance to center of arrow controller
         let distance = Math.hypot(relX, relY);
@@ -246,6 +252,5 @@ function AngleScale(idName) {
     AngleScale.prototype.getScale = function() {
         return this.scale;
     };
-
 
 }());
