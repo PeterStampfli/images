@@ -173,24 +173,32 @@ function creation() {
     setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
+    DOM.displayNone("innerCircleDiv", "outerCircleDiv");
 
     let concentricCircles = new Select("concentric");
     concentricCircles.addOption("none", function() {
+        DOM.displayNone("innerCircleDiv", "outerCircleDiv");
+
         rotaScope.doInner = false;
         rotaScope.doOuter = false;
         Make.updateNewMap();
     });
     concentricCircles.addOption("inner", function() {
+        DOM.displayNone("outerCircleDiv");
+        DOM.display("innerCircleDiv");
         rotaScope.doInner = true;
         rotaScope.doOuter = false;
         Make.updateNewMap();
     });
     concentricCircles.addOption("outer", function() {
+        DOM.display("outerCircleDiv");
+        DOM.displayNone("innerCircleDiv");
         rotaScope.doInner = false;
         rotaScope.doOuter = true;
         Make.updateNewMap();
     });
     concentricCircles.addOption("both", function() {
+        DOM.display("innerCircleDiv", "outerCircleDiv");
         rotaScope.doInner = true;
         rotaScope.doOuter = true;
         Make.updateNewMap();
@@ -309,7 +317,6 @@ function creation() {
             furtherResults.lyapunov = -1;
             return;
         }
-
         rotaScope.map(position, furtherResults);
         // determine sector independent of symmtry at center
         testPosition.set(position);

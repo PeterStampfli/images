@@ -734,17 +734,30 @@ ParamGui = function(params) {
         return this.add({}, "addColor not implemented");
     };
 
+    // adding hide and show methods to an object with a DOMElement
+    function hideAndShow(element) {
+        element.hide = function() {
+            element.DOMElement.style.display = "none";
+        };
+        element.show = function() {
+            element.DOMElement.style.display = "block";
+        };
+    }
+
     /**
      * add a div to make a vertical space
      * choose height (default: paddingVertical)
      * backgroundColor: (default: none )
      * @method ParamGui#verticalSpace
      * @param {...float|String} height/backgroundColor - optional
-     * @return DIV element   (if you want to style it)
+     * @return object with DOMElement,DOMElementId,hide and show methods
      */
     ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
         const id = DOM.createId();
-        const result = DOM.create("div", id, "#" + this.bodyDivId);
+        const result = {};
+        result.DOMElement = DOM.create("div", id, "#" + this.bodyDivId);
+        result.domElementId = id;
+        hideAndShow(result);
         DOM.style("#" + id, "height", this.design.paddingVertical + px);
         for (var i = 0; i < arguments.length; i++) {
             const arg = arguments[i];
@@ -759,22 +772,26 @@ ParamGui = function(params) {
     };
 
     /**
-     * add a paragraph
-     * adjusted width to prevent collision with scroll bar 
-     * or use paddingRight
+     * add a "paragraph" (its actually a div with optional inner html)
+     * text wraps automatically (rewraps if scroll bar appears)
      * @method ParamGui#paragraph
-     * @param {String} text - with HTML markup
-     * @return p element    (if you want to style it)
+     * @param {String} text - with HTML markup (=>innerHTML), optional
+     * @return object with DOMElement,DOMElementId,hide and show methods
      */
-    ParamGui.prototype.paragraph = function(text) {
+    ParamGui.prototype.paragraph = function(innerHTML) {
         const id = DOM.createId();
-        const result = DOM.create("div", id, "#" + this.bodyDivId);
+        const result = {};
+        result.DOMElement = DOM.create("div", id, "#" + this.bodyDivId);
+        result.domElementId = id;
+        hideAndShow(result);
         DOM.style("#" + id,
             "paddingLeft", this.design.paragraphPadding + px,
             "paddingRight", this.design.paragraphPadding + px,
             "color", this.design.paragraphColor
         );
-        result.innerHTML = text;
+        if (typeof innerHTML === "string") {
+            result.DOMElement.innerHTML = innerHTML;
+        }
         return result;
     };
 

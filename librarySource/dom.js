@@ -79,6 +79,7 @@ var DOM = {};
 
     /**
      * make that elements given as a list of ids are shown
+     * attention: "initial deletes height ...
      * @method DOM.displayInitial
      * @param {String ...} ids
      */

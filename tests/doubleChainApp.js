@@ -12,6 +12,7 @@ function creation() {
     rotaScope.rotationGroup.setRadialPower(2);
     const rotationGroup = rotaScope.rotationGroup;
 
+    const dihedral = new Dihedral();
 
     Make.map.drawSector = [true, true];
 
@@ -39,6 +40,41 @@ function creation() {
             Make.map.drawSector = [false, false];
             Make.updateOutputImage();
         });
+
+    let centerSymmetryMap = function(position) {
+        rotationGroup.rosette(position);
+    };
+
+
+    let symmetrySelect = new Select("symmetry");
+    symmetrySelect.addOption("rotational",
+        function() {
+            console.log(" rotational");
+            DOM.display("radialPowerDiv");
+            centerSymmetryMap = function(position) {
+                rotationGroup.rosette(position);
+            };
+            Make.updateNewMap();
+        });
+
+    symmetrySelect.addOption("dihedral",
+        function() {
+            console.log(" dihedral");
+            DOM.displayNone("radialPowerDiv");
+            centerSymmetryMap = function(position) {
+                dihedral.map(position);
+            };
+            Make.updateNewMap();
+        });
+
+    symmetrySelect.addOption("none",
+        function() {
+            console.log(" none");
+            DOM.displayNone("radialPowerDiv");
+            centerSymmetryMap = function(position) {};
+            Make.updateNewMap();
+        });
+
 
 
     let setKButton = NumberButton.create("k");
@@ -144,7 +180,7 @@ function creation() {
         let n2 = setN2Button.getValue();
 
         rotaScope.setRosetteParameters(k, r);
-
+        dihedral.setOrder(k);
         let r1MaxRatio = Math.sin(Math.PI / k);
         r1MaxRatio = Math.min(0.9, r1MaxRatio);
         let ratio = r1MaxRatio * setRadius1.getValue();
@@ -218,8 +254,7 @@ function creation() {
 
         }
 
-
-        rotationGroup.rosette(position);
+        centerSymmetryMap(position);
     }
 
     Make.setMapping(map);
@@ -228,11 +263,12 @@ function creation() {
 
     Make.updateOutputImage = function() {
         Make.updateMapOutput();
-        Draw.setLineWidth(basicUI.lineWidthRange.getValue());
-        Draw.setColor(basicUI.generatorColor);
-        Draw.setSolidLine();
-        rotaScope.drawCircles();
-
+        if (basicUI.generators.getIndex() > 0) {
+            Draw.setLineWidth(basicUI.lineWidthRange.getValue());
+            Draw.setColor(basicUI.generatorColor);
+            Draw.setSolidLine();
+            rotaScope.drawCircles();
+        }
 
     };
 }
