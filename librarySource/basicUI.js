@@ -493,7 +493,7 @@ basicUI = {};
         // width of number input buttons
         const inputWidthToFontsize = 3.5;
         // width of range input elements
-        const rangeWidthToFontSize = 10;
+        const rangeWidthToFontSize = 15;
         // weight of lines in the canvas
         const lineWidthToSize = 0.4;
         // size of null radius in pixels
@@ -504,7 +504,7 @@ basicUI = {};
         DOM.style("p,h1,table", "margin", textMarginToFontsize * fontSize + px);
         DOM.style("button,input", "borderWidth", borderWidthToFontsize * fontSize + px);
         DOM.style("input", "width", inputWidthToFontsize * fontSize + "px");
-        DOM.style("input.range", "width", rangeWidthToFontSize * fontSize + "px");
+        DOM.style(".inputRangeClass", "width", rangeWidthToFontSize * fontSize + "px");
 
         basicUI.lineWidth = lineWidthToSize * fontSize;
         basicUI.nullRadius = nullRadiusToSize * fontSize;

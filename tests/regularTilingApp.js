@@ -173,6 +173,42 @@ function creation() {
     setNButton.setValue(4);
     setNButton.onChange = Make.updateNewMap;
 
+
+    let concentricCircles = new Select("concentric");
+    concentricCircles.addOption("none", function() {
+        rotaScope.doInner = false;
+        rotaScope.doOuter = false;
+        Make.updateNewMap();
+    });
+    concentricCircles.addOption("inner", function() {
+        rotaScope.doInner = true;
+        rotaScope.doOuter = false;
+        Make.updateNewMap();
+    });
+    concentricCircles.addOption("outer", function() {
+        rotaScope.doInner = false;
+        rotaScope.doOuter = true;
+        Make.updateNewMap();
+    });
+    concentricCircles.addOption("both", function() {
+        rotaScope.doInner = true;
+        rotaScope.doOuter = true;
+        Make.updateNewMap();
+    });
+
+
+    let setInnerButton = NumberButton.createInfinity("inner");
+    setInnerButton.setRange(2, 100);
+    setInnerButton.setValue(4);
+    setInnerButton.onChange = Make.updateNewMap;
+
+    let setOuterButton = NumberButton.createInfinity("outer");
+    setOuterButton.setRange(2, 100);
+    setOuterButton.setValue(4);
+    setOuterButton.onChange = Make.updateNewMap;
+
+
+
     //=====================================================================================================================================
     // UI elements depending on actual image and its symmetries
     //==============================================================================================================
@@ -245,6 +281,18 @@ function creation() {
         rotaScope.circleInsideOut(rBase, dBase, 0);
         // for line between color sectors:
         mBase = Math.sin(2 * Math.PI / k) / (1 - Math.cos(2 * Math.PI / k));
+
+        let innerSymmetry = setInnerButton.getValue();
+
+        Fast.quadraticEquation(1, 2 * rBase * Math.cos(Math.PI / innerSymmetry), rBase * rBase - dBase * dBase, data);
+        rotaScope.setInnerRadius(data.y);
+        console.log(data.y);
+
+        let outerSymmetry = setOuterButton.getValue();
+
+        Fast.quadraticEquation(1, -2 * rBase * Math.cos(Math.PI / outerSymmetry), rBase * rBase - dBase * dBase, data);
+        rotaScope.setOuterRadius(data.y);
+        console.log(data.y);
     };
 
     /**

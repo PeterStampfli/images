@@ -359,7 +359,8 @@ function Range(idText, idRange, idPlus, idMinus) {
 
     /**
      * create a range button combination
-     * Attention: set font sizes afterwards
+     * Attention: set font sizes and width afterwards
+     * class: inputRangeClass
      * @method Range.create
      * @param {String} idSpan - id of the span containing the number button
      * @return Range
@@ -367,6 +368,7 @@ function Range(idText, idRange, idPlus, idMinus) {
     Range.create = function(idSpan) {
         DOM.create("input", idSpan + "text", "#" + idSpan);
         DOM.create("input", idSpan + "range", "#" + idSpan);
+        DOM.class("#" + idSpan + "range", "inputRangeClass"); // for setting slider length
         let range = new Range(idSpan + "text", idSpan + "range");
         return range;
     };
