@@ -5,7 +5,7 @@
 
 
 <head>
-    <title>double chain app</title>
+    <title>concentric excentric app</title>
 </head>
 
 <body>
@@ -21,11 +21,7 @@
     </p>
     
     <div id="imageControlDiv">
-        <p>
-            <strong>Visible kaleidoscopic image:</strong>
-            <select id="visible">
-            </select>
-        </p>
+        
         <p>
             <strong>Additional kaleidoscopic image symmetry: </strong>
             <select id="symmetry">
@@ -43,6 +39,13 @@
     <p>    
         <strong>Showing:</strong>
         <select id="show">
+        </select>
+    </p>
+
+       
+    <p>
+        <strong>Projection:</strong>
+        <select id="projection">
         </select>
     </p>
 
@@ -65,33 +68,34 @@
         <strong>Rotational symmetry at center</strong>
         <span id="k"></span>
     </p>
- 
-    <p>
-        <strong> dihedral symmetry at first circle intersection</strong><br>
-        <span id="n1">
-    </p>
-   
-    <p>
-        <strong> dihedral symmetry at second circle intersection</strong><br>
-        <span id="n2">
-    </p>
       
     <p>
         <strong>Radius of first circle: </strong> 
         <span id="radius1"></span>
     </p>
       
-    <p>
-        <strong>Radius of second circle: </strong> 
-        <span id="radius2"></span>
-    </p>
-    
+          
+    <div id="outerCircleDiv">
+        <p>
+            <strong> Rotational symmetry at primary outer circle</strong><br>
+            <span id="outer">
+        </p>
+    </div>
+
     <p>    
-        <strong>Solution:</strong>
-        <select id="solution">
+        <strong>Inner reflecting circle:</strong>
+        <select id="concentric">
         </select>
     </p>
-     
+       
+    <div id="innerCircleDiv">
+        <p>
+            <strong> Rotational symmetry at inner circle</strong><br>
+            <span id="inner">
+        </p>
+    </div>
+
+ 
     <p>
         <strong>Output image:</strong>
         <button id="saveOutputImage">save</button>
@@ -102,6 +106,7 @@
         <input id="size"></input>
     </p>
 
+   
 </div>
 
 </body>
@@ -146,7 +151,7 @@
 <script src="../librarySource/rotationGroup.js"></script>
 <script src="../librarySource/rotaScope.js"></script>
 
-<script src="doubleChainApp.js"></script>
+<script src="concentricExcentricApp.js"></script>
 
 
 </html>

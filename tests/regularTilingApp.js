@@ -76,6 +76,24 @@ function creation() {
             Make.updateNewMap();
         });
 
+
+    const v = new Vector2();
+
+    projectionSelect.addOption("log",
+        function() {
+            console.log(" log");
+            Make.map.discRadius = -1;
+            projectionMap = function(position) {
+                const r = worldradius * Fast.exp(position.x / worldradius);
+                Fast.cosSin(position.y / worldradius, v);
+                position.x = v.x * r;
+                position.y = v.y * r;
+                return 1;
+            };
+            Make.updateNewMap();
+        });
+
+
     projectionSelect.addOption("Poincaré plane",
         function() {
             console.log(" plane");

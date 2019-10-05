@@ -112,17 +112,21 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         return false;
     };
 
-    // using keys for wheel actions
-    KeyboardEvents.addKeydownListener(this);
-    this.keydown = function(key) {
+    this.element.onkeydown = function(event) {
+        let key = event.key;
         if (button.pressed) {
             if (key === "ArrowDown") {
                 button.changeDigit(-1);
+                event.preventDefault();
+                event.stopPropagation();
             } else if (key === "ArrowUp") {
                 button.changeDigit(1);
+                event.preventDefault();
+                event.stopPropagation();
             }
         }
     };
+
 }
 
 (function() {
@@ -280,9 +284,9 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         this.element.onmouseenter = null;
         this.element.onmouseleave = null;
         this.element.onwheel = null;
+        this.element.onkeydown = null;
         this.element.remove();
         this.element = null;
-        KeyboardEvents.deleteKeydownListener(this);
         if (this.plusButton != null) {
             this.plusButton.destroy();
             this.plusButton = null;

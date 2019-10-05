@@ -90,14 +90,18 @@ function Range(idText, idRange, idPlus, idMinus) {
         return false;
     };
 
-    // using keys for wheel actions
-    KeyboardEvents.addKeydownListener(this);
-    this.keydown = function(key) {
+
+    this.textElement.onkeydown = function(event) {
+        let key = event.key;
         if (range.textPressed) {
             if (key === "ArrowDown") {
                 range.changeDigit(-1);
+                event.preventDefault();
+                event.stopPropagation();
             } else if (key === "ArrowUp") {
                 range.changeDigit(1);
+                event.preventDefault();
+                event.stopPropagation();
             }
         }
     };
@@ -339,9 +343,9 @@ function Range(idText, idRange, idPlus, idMinus) {
         this.textElement.onmouseenter = null;
         this.textElement.onmouseleave = null;
         this.textElement.onwheel = null;
+        this.textElement.onkeydown = null;
         this.textElement.remove();
         this.textElement = null;
-        KeyboardEvents.deleteKeydownListener(this);
         this.rangeElement.onmouseenter = null;
         this.rangeElement.onmouseleave = null;
         this.rangeElement.onchange = null;

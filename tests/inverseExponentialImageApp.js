@@ -51,7 +51,6 @@ function creation() {
         furtherResults.lyapunov = 1;
         furtherResults.reflections = 0;
         furtherResults.iterations = 0;
-
         const r = Fast.exp(position.x);
         Fast.cosSin(position.y, v);
         position.x = v.x * r;
