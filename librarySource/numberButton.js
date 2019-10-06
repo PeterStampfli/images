@@ -30,6 +30,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     this.minValue = 0;
     this.maxValue = NumberButton.maxValue;
     this.setStep(1);
+    this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
@@ -126,7 +127,6 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
             }
         }
     };
-
 }
 
 (function() {
@@ -156,7 +156,15 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
      * @return float, quantized x
      */
     NumberButton.prototype.quantizeClamp = function(x) {
-        return Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+        if (this.cyclic) {
+            // wraparound
+            x -= this.minValue;
+            const d = this.maxValue - this.minValue;
+            x = x - d * Math.floor(x / d);
+        }
+        // quantize and clamp
+        x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+        return x;
     };
 
     /**
@@ -190,6 +198,15 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
      */
     NumberButton.prototype.setLow = function(minValue) {
         this.setRange(minValue, NumberButton.maxValue);
+    };
+
+    /**
+     * set that cyclic numbers are used (wraparound number range)
+     * @method NumberButton#setCyclic
+     */
+    NumberButton.prototype.setCyclic = function() {
+        this.cyclic = true;
+        this.setValue(this.quantizeClamp(this.getValue()));
     };
 
     /**
@@ -272,7 +289,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
 
     /**
      * destroy the button, taking care of all references, deletes the associated html element
-     * may be too careful
+     * maybe too careful
      * set reference to the button to null
      * @method NumberButton#destroy
      */

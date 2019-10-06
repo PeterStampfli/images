@@ -90,7 +90,6 @@ function Range(idText, idRange, idPlus, idMinus) {
         return false;
     };
 
-
     this.textElement.onkeydown = function(event) {
         let key = event.key;
         if (range.textPressed) {

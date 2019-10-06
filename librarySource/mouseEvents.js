@@ -55,6 +55,11 @@ var MouseAndTouch = {};
 
 function MouseEvents(idName) {
     this.element = document.getElementById(idName);
+    // element is ususually a div or canvas (initially cannot have focus)
+    // make that it can have focus
+    this.element.setAttribute("tabindex", "1");
+    // no special "focus border"
+    this.element.style.outlineStyle = "none";
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
     // the event data
@@ -82,17 +87,20 @@ function MouseEvents(idName) {
     this.wheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
 
     var mouseEvents = this; // hook to this for callback functions
+    const thisElement = this.element;
 
     // we have only one single mouse event
     // so it is not necessary to use this.element.addEventListener("...",script)
     // event.button=0 for left 2 for right button
 
+
     this.element.onmousedown = function(event) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
-            mouseEvents.button = event.button;
+            mouseEvents.button = event.button; // left or right button
             mouseEvents.update(event);
             mouseEvents.pressed = true;
+            thisElement.focus();
             mouseEvents.downAction(mouseEvents);
         }
         return false;
@@ -114,12 +122,14 @@ function MouseEvents(idName) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.isActive) {
             mouseEvents.mouseInside = true;
+            thisElement.focus();
         }
         return false;
     };
 
     this.element.onmouseleave = function(event) {
         MouseAndTouch.preventDefault(event);
+        thisElement.blur();
         if (mouseEvents.isActive) {
             mouseEvents.update(event);
             mouseEvents.mouseInside = false;
@@ -155,10 +165,15 @@ function MouseEvents(idName) {
         return false;
     };
 
-    // using keys for wheel actions
-    KeyboardEvents.addKeydownListener(this);
+    // keys for wheel actions
+    // requires that element can have focus
+    // to make that canvas can have focus use
+    //    this.canvas.setAttribute("tabindex","1")
+    // to have no border if is in focus use:
+    //      this.canvas.style.outlineStyle="none";
 
-    this.keydown = function(key, event) {
+    this.element.onkeydown = function(event) {
+        let key = event.key;
         if (mouseEvents.isActive) {
             if (mouseEvents.mouseInside) {
                 if (key == mouseEvents.upKey) {
@@ -176,7 +191,6 @@ function MouseEvents(idName) {
         }
     };
 }
-
 
 (function() {
     "use strict";
@@ -205,4 +219,26 @@ function MouseEvents(idName) {
         this.dy = this.y - this.lastY;
         this.wheelDelta = event.deltaY;
     };
+
+    /**
+     * destroy the mouse events, taking care of all references
+     * maybe too careful
+     * @method MouseEvents#destroy
+     */
+    MouseEvents.prototype.destroy = function() {
+        this.element.onmousedown = null;
+        this.element.onmouseup = null;
+        this.element.onmouseenter = null;
+        this.element.onmouseleave = null;
+        this.element.onmousemove = null;
+        this.element.onwheel = null;
+        this.element.onkeydown = null;
+        this.downAction = null;
+        this.dragAction = null;
+        this.moveAction = null;
+        this.upAction = null;
+        this.outAction = null;
+        this.wheelAction = null;
+    };
+
 }());

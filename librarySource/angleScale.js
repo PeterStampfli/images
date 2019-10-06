@@ -10,6 +10,11 @@ function AngleScale(idName) {
     this.idName = idName;
     this.canvasId = DOM.createId();
     this.canvas = DOM.create("canvas", this.canvasId, "#" + idName);
+    /*   // make that it can have focus
+       this.canvas.setAttribute("tabindex","1")
+       // no special "focus border"
+       this.canvas.style.outlineStyle="none";
+    */
     this.canvasContext = this.canvas.getContext('2d');
     // units: for set/get angle
     this.degrees = true;
@@ -59,7 +64,6 @@ function AngleScale(idName) {
         }
     };
 
-
     // moving the mouse we can change the scale and rotation of the input mapping
     // restrict on the circle shape
     this.mouseEvents.dragAction = function(mouseEvents) {
@@ -95,7 +99,6 @@ function AngleScale(idName) {
             angleScale.changeScaleAngle(touchEvents);
         }
     };
-
 }
 
 
@@ -252,5 +255,19 @@ function AngleScale(idName) {
     AngleScale.prototype.getScale = function() {
         return this.scale;
     };
+
+
+    /**
+     * destroy the angleScale element, taking care of all references
+     * maybe too careful
+     * @method AngleScale#destroy
+     */
+    AngleScale.prototype.destroy = function() {
+        this.mouseEvents.destroy();
+        this.touchEvents.destroy();
+        this.canvas.remove();
+        this.canvas = null;
+    };
+
 
 }());

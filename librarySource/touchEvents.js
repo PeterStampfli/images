@@ -180,6 +180,23 @@ function TouchEvents(idName) {
             touchEvents.getDifferences();
         }
     }
+
+    /**
+     * destroy the touch events element, taking care of all references
+     * maybe too careful
+     * @method TouchEvents#destroy
+     */
+    this.destroy = function() {
+        this.element.removeEventListener("touchstart", startHandler, false);
+        this.element.removeEventListener("touchmove", moveHandler, false);
+        this.element.removeEventListener("touchend", endHandler, false);
+        this.element.removeEventListener("touchcancel", cancelHandler, false);
+        this.startAction = null;
+        this.endAction = null;
+        this.cancelAction = null;
+        this.moveAction = null;
+    };
+
 }
 
 (function() {
@@ -285,4 +302,5 @@ function TouchEvents(idName) {
     TouchEvents.prototype.isInside = function(singleTouch) {
         return (singleTouch.x >= 0) && (singleTouch.x < this.element.width) && (singleTouch.y >= 0) && (singleTouch.y <= this.element.height);
     };
+
 }());
