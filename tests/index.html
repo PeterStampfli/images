@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+
+<head>
+    <title>index</title>
+</head>
+<body>
+
+
+
+</body>
+
+
+
+<script type="text/javascript">
+
+let baseUrl="";
+
+// relative URL to base, without .html
+
+function createLink(relUrl){
+    element = document.createElement("p");
+    document.querySelector("body").appendChild(element);
+    element = document.createElement("a");
+    document.querySelector("body").appendChild(element);
+    let textNode = document.createTextNode(relUrl);
+    element.appendChild(textNode);
+    element.setAttribute("href", baseUrl+relUrl+ ".html");
+}
+         
+createLink("angleScaletest");
+         
+baseUrl="../geometricolor/";
+createLink("fiveCircles");
+    
+</script>
+
+</html>

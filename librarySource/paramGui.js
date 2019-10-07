@@ -312,18 +312,23 @@ ParamGui = function(params) {
 
     // keyboard ParamGui.hideCharacter hide/shows all hideable guis
     let hidden = false;
-    KeyboardEvents.addFunction(function() {
-        ParamGui.rootGuis.forEach(function(gui) {
-            if (gui.hideable) {
-                if (hidden) {
-                    gui.show();
-                } else {
-                    gui.hide();
+
+    document.addEventListener("keydown", hideShow, false);
+
+    function hideShow(event) {
+        if (event.key === ParamGui.hideCharacter) {
+            ParamGui.rootGuis.forEach(function(gui) {
+                if (gui.hideable) {
+                    if (hidden) {
+                        gui.show();
+                    } else {
+                        gui.hide();
+                    }
                 }
-            }
-        });
-        hidden = !hidden;
-    }, ParamGui.hideCharacter);
+            });
+            hidden = !hidden;
+        }
+    }
 
     /**
      * handler for window.resize events:
