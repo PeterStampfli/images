@@ -19,20 +19,43 @@ let baseUrl="";
 
 // relative URL to base, without .html
 
-function createLink(relUrl){
+//localhost : for absolute URL : /blabla/tirili….   (library)
+
+//Subdirectory blabla in html directory
+
+
+function createLink(baseUrl,relUrl){
     element = document.createElement("p");
     document.querySelector("body").appendChild(element);
     element = document.createElement("a");
     document.querySelector("body").appendChild(element);
-    let textNode = document.createTextNode(relUrl);
+    let textNode = document.createTextNode(baseUrl+" "+relUrl+ ".html");
     element.appendChild(textNode);
     element.setAttribute("href", baseUrl+relUrl+ ".html");
 }
+
+function folder(baseUrl){
+    result=function(relUrl){
+        createLink(baseUrl,relUrl);
+    };
+    return result;
+}
+
+const geometricolor=folder("/images/geometricolor/");
+const vladimir=folder("/images/vladimir/");
+
+vladimir("group_KLM");
+
+geometricolor("fiveCircles");
+
+  /*       
          
-createLink("angleScaletest");
-         
-baseUrl="../geometricolor/";
-createLink("fiveCircles");
+baseUrl="/orbVladimir/saveOrb/vb_playbox/";
+createLink("group_KLM");
+
+baseUrl=geometricolor;
+createLink("circleInTriangle");
+*/
     
 </script>
 
