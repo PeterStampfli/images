@@ -16,8 +16,9 @@ function AngleScale(idName) {
        this.canvas.style.outlineStyle="none";
     */
     this.canvasContext = this.canvas.getContext('2d');
-    // units: for set/get angle
-    this.degrees = true;
+    // units: set/get angle
+    // value of a full turn
+    this.fullTurn = 360; // using degrees
 
     // custom colors possible
     this.backgroundColor = AngleScale.backgroundColor;
@@ -140,7 +141,8 @@ function AngleScale(idName) {
         const radius = Math.min(width, height) / 2;
         const arrowWidth = this.arrowWidth;
         const cosAngle = Math.cos(this.angle);
-        const sinAngle = Math.sin(this.angle);
+        // compensate for inverted y-axis
+        const sinAngle = -Math.sin(this.angle);
         const canvasContext = this.canvasContext;
         canvasContext.clearRect(-0.5 * width / radius, -0.5 * height / radius, width / radius, height / radius);
         canvasContext.fillStyle = this.backgroundColor;
@@ -204,7 +206,8 @@ function AngleScale(idName) {
         let lastDistance = Math.hypot(lastRelX, lastRelY);
         let reductionFactor = 1;
         let scaleFactor = (distance + reductionFactor * radius) / (lastDistance + reductionFactor * radius);
-        this.angle += deltaAngle;
+        // compensate for inverted y-axis
+        this.angle -= deltaAngle;
         this.scale *= scaleFactor;
         this.drawOrientation();
         this.onChange();
@@ -217,10 +220,7 @@ function AngleScale(idName) {
      * @return this
      */
     AngleScale.prototype.setAngle = function(angle) {
-        if (this.degrees) {
-            angle *= Math.PI / 180; // degrees to radians
-        }
-        this.angle = angle;
+        this.angle = 2 * Math.PI / this.fullTurn * angle;
         this.drawOrientation();
     };
 
@@ -230,11 +230,7 @@ function AngleScale(idName) {
      * @return float - the angle
      */
     AngleScale.prototype.getAngle = function() {
-        let angle = this.angle;
-        if (this.degrees) {
-            angle *= 180 / Math.PI; // radians to degrees
-        }
-        return angle;
+        return 0.5 * this.fullTurn / Math.PI * this.angle;
     };
 
     /**

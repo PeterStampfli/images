@@ -7,7 +7,9 @@
 </head>
 <body>
 
-<p> whatever <br>
+
+<p> number <br>
+<input id="nid"></input>
 </p>
 
 <div id="a"></div>
@@ -19,21 +21,37 @@
 <script src="../librarySource/touchEvents.js"></script>
 
 <script src="../librarySource/dom.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+
 <script src="../librarySource/angleScale.js"></script>
 
 
 <script type="text/javascript">
 
-as=new AngleScale("a");
+arrow=new AngleScale("a");
 
-as.canvas.style.backgroundColor="blue"
+arrow.canvas.style.backgroundColor="blue"
 
-as.setDimensions(500,300);
-as.setAngle(2)
+arrow.setDimensions(500,300);
 
-//as.mouseEvents.destroy();
-as.destroy()
-    
+
+nb=new NumberButton("nid");
+nb.setStep(1);
+nb.setRange(-180,180);
+nb.setValue(0);
+nb.setCyclic();
+
+nb.onChange=function(){
+console.log("numb "+nb.getValue());
+arrow.setAngle(nb.getValue());
+}
+
+  
+arrow.onChange=function(){
+console.log("arrow "+arrow.getAngle());
+nb.setValue(arrow.getAngle());
+}  
 </script>
 
 </html>

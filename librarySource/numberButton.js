@@ -161,6 +161,7 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
             x -= this.minValue;
             const d = this.maxValue - this.minValue;
             x = x - d * Math.floor(x / d);
+            x += this.minValue;
         }
         // quantize and clamp
         x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
