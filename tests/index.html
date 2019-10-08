@@ -6,8 +6,9 @@
     <title>index</title>
 </head>
 <body>
-
-
+<h1>
+Use LOCALHOST !!!!
+</h1>
 
 </body>
 
@@ -25,14 +26,22 @@ let baseUrl="";
 
 
 function createLink(baseUrl,relUrl){
-    element = document.createElement("p");
-    document.querySelector("body").appendChild(element);
+    para = document.createElement("p");
+    document.querySelector("body").appendChild(para);
     element = document.createElement("a");
-    document.querySelector("body").appendChild(element);
+    para.appendChild(element);
     let textNode = document.createTextNode(baseUrl+" "+relUrl+ ".html");
     element.appendChild(textNode);
     element.setAttribute("href", baseUrl+relUrl+ ".html");
 }
+
+function createText(text){
+    element = document.createElement("h3");
+    document.querySelector("body").appendChild(element);
+    let textNode = document.createTextNode(text);
+    element.appendChild(textNode);
+}
+
 
 function folder(baseUrl){
     result=function(relUrl){
@@ -43,10 +52,14 @@ function folder(baseUrl){
 
 const geometricolor=folder("/images/geometricolor/");
 const vladimir=folder("/images/vladimir/");
+const vladimir2=folder("/images/vladimir2/");
 
 vladimir("group_KLM");
+vladimir("niceGui_group_KLM");
 
 geometricolor("fiveCircles");
+createText("new with remembering");
+vladimir2("group_KLM");
 
   /*       
          
