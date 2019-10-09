@@ -654,6 +654,7 @@ ParamGui = function(params) {
         const allParameters = {
             name: folderName,
             closeOnTop: true,
+            closed: true,
             parent: this,
             autoPlace: false,
             hideable: false,
