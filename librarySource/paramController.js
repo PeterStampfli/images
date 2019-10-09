@@ -1,7 +1,7 @@
 /* jshint esversion:6 */
 
 /**
- * a controller for a parameter
+ * a controller for a simple parameter
  * with visuals, in a common div
  * @creator ParamController
  * @param {ParamGui} gui - the controller is in this gui
@@ -96,14 +96,13 @@ function ParamController(gui, params, property, low, high, step) {
             "paddingRight", design.labelSpacing + px);
     };
 
-    /*
+    /**
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * call from creator function
      * @method ParamController#create
      */
     ParamController.prototype.create = function(low, high, step) {
         const design = this.gui.design;
-        this.uiElement = null;
         const controller = this;
         const paramValue = this.params[this.property];
         this.lastValue = paramValue;

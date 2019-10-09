@@ -5,7 +5,7 @@
  */
 
 /*
-I've modified the numbers editor in dat.gui to make it react on mouse scroll wheel.
+I've modified the numbers editor in dat.gui to make it react on mouse scroll wheel and "ArrowUp" and "ArrowDown" keys (keyboard).
   The increment of value for each scroll changes the digit where the caret is.  This allows very precise control of values and I VERY rare uses sliders. 
   */
 /*
@@ -728,15 +728,16 @@ ParamGui = function(params) {
     };
 
     /**
-     * part of dat.gui, not implemented, generates a dummy button controller
-     * a controller for color
+     * make a controller for color
      * @method ParamGui#addColor
      * @param {Object} params - object that has the parameter as a field
      * @param {String} property - key for the field of params to change, params[property]
      * @return {ParamController} object
      */
     ParamGui.prototype.addColor = function(params, property) {
-        return this.add({}, "addColor not implemented");
+        const controller = new ParamColor(this, params, property);
+        this.elements.push(controller);
+        return controller;
     };
 
     // adding hide and show methods to an object with a DOMElement
