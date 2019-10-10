@@ -31,6 +31,19 @@ function ParamColor(gui, params, property) {
      */
     ParamColor.prototype.createLabel = ParamController.prototype.createLabel;
 
+
+    /**
+     * inherit from paramController (load before?)
+     * connect the ui controller with the param object:
+     * sets the onChange function of the ui element
+     * onChange sets the param[property] value, the lastValue field
+     * (synchronizes ui display and data object)
+     * and calls the callback
+     * @method ParamColor#setupOnChange
+     */
+    ParamColor.prototype.setupOnChange = ParamController.prototype.setupOnChange;
+
+
     /**
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * call from creator function
@@ -72,19 +85,7 @@ function ParamColor(gui, params, property) {
             const textInput = new TextInput(id);
             textInput.setValue(paramValue);
             this.uiElement = textInput;
-
-        }
-
-
-        // set up onChange function of ui element (if exists)
-        if ((this.uiElement !== null) && (typeof this.uiElement.onChange === "function")) {
-            const element = this.uiElement;
-            this.uiElement.onChange = function() {
-                const value = element.getValue();
-                controller.params[controller.property] = value;
-                controller.lastValue = value; // avoid unnecessary display update (listening)
-                controller.callback(value);
-            };
+            this.setupOnChange();
         }
         return this;
     };

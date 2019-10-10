@@ -97,6 +97,25 @@ function ParamController(gui, params, property, low, high, step) {
     };
 
     /**
+     * connect the ui controller with the param object:
+     * sets the onChange function of the ui element
+     * onChange sets the param[property] value, the lastValue field
+     * (synchronizes ui display and data object)
+     * and calls the callback
+     * @method ParamController#setupOnChange
+     */
+    ParamController.prototype.setupOnChange = function() {
+        const element = this.uiElement;
+        const controller = this;
+        element.onChange = function() {
+            const value = element.getValue();
+            controller.params[controller.property] = value;
+            controller.lastValue = value; // avoid unnecessary display update (listening)
+            controller.callback(value);
+        };
+    };
+
+    /**
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
      * call from creator function
      * @method ParamController#create
@@ -132,6 +151,7 @@ function ParamController(gui, params, property, low, high, step) {
             this.uiElement = select;
             select.setLabelsValues(low);
             select.setValue(paramValue);
+            this.setupOnChange();
         } else if (isBoolean(paramValue)) {
             // the parameter value is boolean, thus make a BooleanButton
             this.createLabel(this.property);
@@ -143,6 +163,7 @@ function ParamController(gui, params, property, low, high, step) {
             const button = new BooleanButton(id);
             this.uiElement = button;
             button.setValue(paramValue);
+            this.setupOnChange();
         } else if (!isDefined(paramValue) || (typeof paramValue === "function")) {
             // there is no parameter value with the property or it is a function
             // thus make a button with the property as text, no label
@@ -169,6 +190,7 @@ function ParamController(gui, params, property, low, high, step) {
             const textInput = new TextInput(id);
             textInput.setValue(paramValue);
             this.uiElement = textInput;
+            this.setupOnChange();
         } else if (isInteger(paramValue) && (!isDefined(low) || isInteger(low)) &&
             (!isDefined(high) || isInteger(high)) && !isDefined(step)) {
             // the parameter value is integer, and the low limit is integer or undefined 
@@ -192,6 +214,7 @@ function ParamController(gui, params, property, low, high, step) {
             }
             button.setValue(paramValue);
             this.uiElement = button;
+            this.setupOnChange();
         } else if (isInteger(paramValue) && isInteger(low) && isInteger(high) && isNumber(step) && (Math.abs(step - 1) < 0.01)) {
             // the parameter value is integer, and the low limit too 
             // high is integer  and step is integer equal to 1
@@ -215,6 +238,7 @@ function ParamController(gui, params, property, low, high, step) {
             range.setStep(1);
             range.setValue(paramValue);
             this.uiElement = range;
+            this.setupOnChange();
         } else if (isNumber(paramValue) && isNumber(low) && isNumber(high)) {
             // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
             // thus use a range element
@@ -237,19 +261,10 @@ function ParamController(gui, params, property, low, high, step) {
             }
             range.setValue(paramValue);
             this.uiElement = range;
+            this.setupOnChange();
         } else {
             // no idea/error
             this.createLabel(this.property + " *** error");
-        }
-        // set up onChange function of ui element (if exists)
-        if (isDefined(this.uiElement) && isFunction(this.uiElement.onChange)) {
-            const element = this.uiElement;
-            this.uiElement.onChange = function() {
-                const value = element.getValue();
-                controller.params[controller.property] = value;
-                controller.lastValue = value; // avoid unnecessary display update (listening)
-                controller.callback(value);
-            };
         }
         return this;
     };
@@ -341,18 +356,32 @@ function ParamController(gui, params, property, low, high, step) {
      */
     ParamController.prototype.onFinishChange = ParamController.prototype.onChange;
 
+    // setting and getting values:
+    // Be careful. Two different values, of the ui and the object.
+    // they have to be synchronized
+    // different values: use the ui value, change the object value
+    // if the value of the param object changes, then update the object via callback
+
     /**
      * set the value of the controller and last value field
+     * set the value of the param object and call the callback to enforce synchronization
+     * (Note that this.setValue() is not the same as this.uiElement.setValue())
+     * Can we assume that the param object is synchronized with its data? Is this probable? Can we save work?
      * @method ParamController#setValue
      * @param {whatever} value
      */
     ParamController.prototype.setValue = function(value) {
+        console.log("set " + value);
         this.lastValue = value;
+        this.params[this.property] = value;
         this.uiElement.setValue(value);
+        this.callback(value);
     };
 
     /**
      * get the value of the controller
+     * (should be the same as the value for the param object
+     * the param object should be updated to reflect the value
      * @method ParamController#getValue
      * @return {whatever} value
      */
@@ -362,11 +391,14 @@ function ParamController(gui, params, property, low, high, step) {
 
     /**
      * set the value of the controller according to the actual value of the parameter in the params object
+     * do not update the param object
      * updates display automatically
      * @method ParamController#updateDisplay
      */
     ParamController.prototype.updateDisplay = function() {
-        this.setValue(this.params[this.property]);
+        const value = this.params[this.property];
+        this.lastValue = value;
+        this.uiElement.setValue(value);
     };
 
     /**
