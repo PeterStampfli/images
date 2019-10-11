@@ -371,10 +371,8 @@ function ParamController(gui, params, property, low, high, step) {
      * @param {whatever} value
      */
     ParamController.prototype.setValue = function(value) {
-        console.log("set " + value);
-        this.lastValue = value;
         this.params[this.property] = value;
-        this.uiElement.setValue(value);
+        this.updateDisplay();
         this.callback(value);
     };
 
@@ -425,7 +423,6 @@ function ParamController(gui, params, property, low, high, step) {
         return this;
     };
 
-
     /**
      * changes the label text, instead of property name, to show something more interesting
      * for buttons changes the button text
@@ -473,7 +470,6 @@ function ParamController(gui, params, property, low, high, step) {
             this.popupDiv = null;
             this.popupDiv.remove();
             this.uiElement.onClick = null;
-            console.log("romove popup");
         }
         this.uiElement.destroy();
         this.uiElement = null;

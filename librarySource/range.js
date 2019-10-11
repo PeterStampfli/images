@@ -386,9 +386,9 @@ function Range(idText, idRange, idPlus, idMinus) {
     Range.createPlusMinus = function(idSpan) {
         DOM.create("input", idSpan + "text", "#" + idSpan);
         DOM.create("input", idSpan + "range", "#" + idSpan);
-        const dnId = DOM.createButton(idSpan, "<");
+        const dnId = DOM.createButton(idSpan, "-");
         DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, ">");
+        const upId = DOM.createButton(idSpan, "+");
         DOM.style("#" + upId + ",#" + dnId, "borderRadius", "1000px");
         let range = new Range(idSpan + "text", idSpan + "range", upId, dnId);
         return range;

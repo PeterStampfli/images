@@ -21,7 +21,6 @@ function ParamColor(gui, params, property) {
     "use strict";
     const px = "px";
 
-
     /**
      * inherit from paramController (load before?)
      * make a label with given text and space
@@ -30,7 +29,6 @@ function ParamColor(gui, params, property) {
      * @param {String} text
      */
     ParamColor.prototype.createLabel = ParamController.prototype.createLabel;
-
 
     /**
      * inherit from paramController (load before?)
@@ -42,7 +40,6 @@ function ParamColor(gui, params, property) {
      * @method ParamColor#setupOnChange
      */
     ParamColor.prototype.setupOnChange = ParamController.prototype.setupOnChange;
-
 
     /**
      * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
@@ -90,8 +87,6 @@ function ParamColor(gui, params, property) {
         return this;
     };
 
-
-
     // popups for complicated controls
     // this.popupDiv is a div that contains the popup elements
     // this.popupDivId is its id
@@ -125,7 +120,6 @@ function ParamColor(gui, params, property) {
         }
     };
 
-
     /**
      * inherit from ParamController
      * set the callback function for onchange events
@@ -135,14 +129,15 @@ function ParamColor(gui, params, property) {
      */
     ParamColor.prototype.onChange = ParamController.prototype.onChange;
 
-
     /**
+     * inherit from ParamController
      * same as destroy, but is in dat.gui api
      * @method ParamController.remove
      */
     ParamColor.prototype.remove = ParamColor.prototype.destroy;
 
     /**
+     * inherit from ParamController
      * set the callback function for onclick events
      * (same as onChange)
      * @method ParamController#onClick
@@ -152,6 +147,7 @@ function ParamColor(gui, params, property) {
     ParamController.prototype.onClick = ParamController.prototype.onChange;
 
     /**
+     * inherit from ParamController
      * set the callback function for onchange events, because it is the dat.gui api
      * @method ParamController#onFinishChange
      * @param {function} callback - function(value), with value of controller as argument
@@ -164,43 +160,46 @@ function ParamColor(gui, params, property) {
      * @method ParamColor#setValue
      * @param {whatever} value
      */
-    ParamColor.prototype.setValue = function(value) {
+    ParamColor.prototype.setValue = ParamController.prototype.setValue;
+
+    /**
+     * inherit from ParamController
+     * get the value of the controller
+     * Note that depending on this.type we need to do different things
+     * @method ParamColor#getValue
+     * @return {whatever} value
+     */
+    ParamColor.prototype.getValue = ParamController.prototype.getValue;
+
+    /**
+     * Note that depending on this.type we need to do different things
+     * set the value of the controller according to the actual value of the parameter in the params object
+     * updates display automatically
+     * @method ParamColor#updateDisplay
+     */
+    ParamColor.prototype.updateDisplay = function() {
+        const value = this.params[this.property];
         this.lastValue = value;
         this.uiElement.setValue(value);
     };
 
     /**
-     * get the value of the controller
-     * @method ParamColor#getValue
-     * @return {whatever} value
-     */
-    ParamColor.prototype.getValue = function() {
-        return this.uiElement.getValue();
-    };
-
-    /**
-     * set the value of the controller according to the actual value of the parameter in the params object
-     * updates display automatically
-     * @method ParamColor#updateDisplay
-     */
-    ParamColor.prototype.updateDisplay = ParamController.prototype.updateDisplay;
-
-    /**
+     * inherit from ParamController
      * updateDisplay and lastValue field If controller is Listening  and parameter value has changed
      * @method ParamColor#updateDisplayIfListening
      */
     ParamColor.prototype.updateDisplayIfListening = ParamController.prototype.updateDisplayIfListening;
 
     /**
-     * not implemented: periodically call updateDisplay to show changes automatically
-     * because of dat.gui api
+     * inherit from ParamController
+     * periodically call updateDisplay to show changes automatically
      * @method ParamColor#listen
      * @return this, for chaining
      */
     ParamColor.prototype.listen = ParamController.prototype.listen;
 
-
     /**
+     * inherit from ParamController
      * changes the label text, instead of property name, to show something more interesting
      * for buttons changes the button text
      * @method ParamColor#name
@@ -210,6 +209,7 @@ function ParamColor(gui, params, property) {
     ParamColor.prototype.name = ParamController.prototype.name;
 
     /**
+     * inherit from ParamController
      * make the controller disappear including its space (display==none)
      * @method ParamColor#hide
      * @return this
@@ -217,12 +217,11 @@ function ParamColor(gui, params, property) {
     ParamColor.prototype.hide = ParamController.prototype.hide;
 
     /**
+     * inherit from ParamController
      * make the controller visible including its space (display==initial)
      * @method ParamColor#show
      * @return this
      */
     ParamColor.prototype.show = ParamController.prototype.show;
-
-
 
 }());
