@@ -177,12 +177,12 @@ function MouseEvents(idName) {
         if (mouseEvents.isActive) {
             if (mouseEvents.mouseInside) {
                 if (key == mouseEvents.upKey) {
-                    mouseEvents.wheelDelta = 1;
+                    mouseEvents.wheelDelta = -1;
                     if (!mouseEvents.wheelAction(mouseEvents)) {
                         MouseAndTouch.preventDefault(event);
                     }
                 } else if (key == mouseEvents.downKey) {
-                    mouseEvents.wheelDelta = -1;
+                    mouseEvents.wheelDelta = 1;
                     if (!mouseEvents.wheelAction(mouseEvents)) {
                         MouseAndTouch.preventDefault(event);
                     }
