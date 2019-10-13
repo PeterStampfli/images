@@ -31,11 +31,39 @@ paramControllerMethods = {};
     };
 
     /**
+     * initialize creation
+     * create the div, initialize parameter values
+     * set uiElement to null, default callback
+     * @method paramControllerMethods.initCreate
+     */
+    paramControllerMethods.initCreate = function() {
+        const design = this.gui.design;
+        this.lastValue = this.params[this.property];
+        // create a div for all elements of the controller
+        this.domElementId = DOM.createId();
+        // it lies in the bodyDiv of the ParamGui
+        this.domElement = DOM.create("div", this.domElementId, "#" + this.gui.bodyDivId);
+        // make a regular spacing between labels ???
+        DOM.style("#" + this.domElementId,
+            "minHeight", design.minControllerHeight + px,
+            "marginBottom", design.paddingVertical + px,
+            "marginTop", design.paddingVertical + px
+        );
+        // the button or whatever the user interacts with
+        this.uiElement = null;
+        // what should be done if value changes or button clicked
+        this.callback = function(value) {
+            console.log("callback value " + value);
+        };
+    };
+
+    /**
      * connect the ui controller with the param object:
      * sets the onChange function of the ui element
      * onChange sets the param[property] value, the lastValue field
      * (synchronizes ui display and data object)
      * and calls the callback
+     * overwrite for complicated controllers
      * @method paramControllerMethods.setupOnChange
      */
     paramControllerMethods.setupOnChange = function() {
@@ -48,6 +76,27 @@ paramControllerMethods = {};
             controller.callback(value);
         };
     };
+
+    //  creating basic controllers
+
+    /**
+     * create a text uiElement
+     * @method paramControllerMethods.createTextUi
+     * @param {String} containerId - id of the enclosing div 
+     */
+    paramControllerMethods.createTextUi = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("input", id, "#" + containerId);
+        DOM.style("#" + id,
+            "width", design.textInputWidth + px,
+            "font-size", design.buttonFontSize + px);
+        const textInput = new TextInput(id);
+        textInput.setValue(this.params[this.property]);
+        this.uiElement = textInput;
+        this.setupOnChange();
+    };
+
 
     // popups for complicated controls
     // this.popupDiv is a div that contains the popup elements

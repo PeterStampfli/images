@@ -741,6 +741,20 @@ ParamGui = function(params) {
         return controller;
     };
 
+    /**
+     * make a controller for an angle (and scale)
+     * @method ParamGui#addAngle
+     * @param {Object} params - object that has the parameter as a field
+     * @param {String} property - key for the field of params to change, params[property]
+     * @return {ParamController} object
+     */
+    ParamGui.prototype.addAngle = function(params, property) {
+        const controller = new ParamAngle(this, params, property);
+        this.elements.push(controller);
+        return controller;
+    };
+
+
     // adding hide and show methods to an object with a DOMElement
     function hideAndShow(element) {
         element.hide = function() {

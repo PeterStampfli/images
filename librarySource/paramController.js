@@ -106,26 +106,10 @@ Object.assign(ParamController.prototype, paramControllerMethods);
      * @method ParamController#create
      */
     ParamController.prototype.create = function(low, high, step) {
+        this.initCreate();
         const design = this.gui.design;
-        const controller = this;
         const paramValue = this.params[this.property];
-        this.lastValue = paramValue;
-        // create a div for all elements of the controller
-        this.domElementId = DOM.createId();
-        // it lies in the bodyDiv of the ParamGui
-        this.domElement = DOM.create("div", this.domElementId, "#" + this.gui.bodyDivId);
-        // make a regular spacing between labels ???
-        DOM.style("#" + this.domElementId,
-            "minHeight", design.minControllerHeight + px,
-            "marginBottom", design.paddingVertical + px,
-            "marginTop", design.paddingVertical + px
-        );
-        // the button or whatever the user interacts with
-        this.uiElement = null;
-        // what should be done if value changes or button clicked
-        this.callback = function(value) {
-            console.log("callback value " + value);
-        };
+        const controller = this;
         if (isArray(low) || isObject(low)) {
             // low, the first parameter for limits is an array or object, thus make a selection
             this.createLabel(this.property);
@@ -167,15 +151,10 @@ Object.assign(ParamController.prototype, paramControllerMethods);
         } else if (isString(paramValue)) {
             // the parameter value is a string thus make a text input button
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("input", id, "#" + this.domElementId);
-            DOM.style("#" + id,
-                "width", design.textInputWidth + px,
-                "font-size", design.buttonFontSize + px);
-            const textInput = new TextInput(id);
-            textInput.setValue(paramValue);
-            this.uiElement = textInput;
-            this.setupOnChange();
+
+            this.createTextUi(this.domElementId);
+
+
         } else if (isInteger(paramValue) && (!isDefined(low) || isInteger(low)) &&
             (!isDefined(high) || isInteger(high)) && !isDefined(step)) {
             // the parameter value is integer, and the low limit is integer or undefined 
@@ -252,7 +231,6 @@ Object.assign(ParamController.prototype, paramControllerMethods);
         }
         return this;
     };
-
 
     /**
      * destroy the controller
