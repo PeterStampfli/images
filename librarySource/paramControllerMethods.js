@@ -63,7 +63,7 @@ paramControllerMethods = {};
      * onChange sets the param[property] value, the lastValue field
      * (synchronizes ui display and data object)
      * and calls the callback
-     * overwrite for complicated controllers
+     * basic functionality, use other element.onChange for complicated controllers
      * @method paramControllerMethods.setupOnChange
      */
     paramControllerMethods.setupOnChange = function() {
@@ -80,23 +80,131 @@ paramControllerMethods = {};
     //  creating basic controllers
 
     /**
-     * create a text uiElement
-     * @method paramControllerMethods.createTextUi
+     * create a bare styled text input
+     * @method paramControllerMethods.styledTextInput
      * @param {String} containerId - id of the enclosing div 
+     * @return textInput
      */
-    paramControllerMethods.createTextUi = function(containerId) {
+    paramControllerMethods.styledTextInput = function(containerId) {
         const design = this.gui.design;
         const id = DOM.createId();
         DOM.create("input", id, "#" + containerId);
         DOM.style("#" + id,
             "width", design.textInputWidth + px,
             "font-size", design.buttonFontSize + px);
-        const textInput = new TextInput(id);
-        textInput.setValue(this.params[this.property]);
-        this.uiElement = textInput;
-        this.setupOnChange();
+        return new TextInput(id);
     };
 
+    /**
+     * create a bare styled button, width adapts to button text
+     * @method paramControllerMethods.styledButton
+     * @param {String} text - button text 
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledButton = function(text, containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("button", id, "#" + containerId, text);
+        DOM.style("#" + id,
+            "font-size", design.buttonFontSize + px);
+        return new Button(id);
+    };
+
+    /**
+     * create a bare styled boolean button, with minimum button width
+     * @method paramControllerMethods.styledBooleanButton
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledBooleanButton = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("button", id, "#" + containerId);
+        DOM.style("#" + id,
+            "minWidth", design.onOffButtonWidth + px,
+            "font-size", design.buttonFontSize + px);
+        return new BooleanButton(id);
+    };
+
+    /**
+     * create a bare styled select element,  adjusts to options width
+     * @method paramControllerMethods.styledSelect
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledSelect = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("select", id, "#" + containerId);
+        DOM.style("#" + id,
+            "font-size", design.buttonFontSize + px);
+        return new SelectValues(id);
+    };
+
+    /**
+     * create a bare styled numberbutton element, with plus/minus and min/max buttons
+     * @method paramControllerMethods.styledNumberButton
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledNumberButton = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("span", id, "#" + containerId);
+        const button = NumberButton.createInfinity(id);
+        DOM.style("#" + button.idName,
+            "width", design.numberInputWidth + px,
+            "font-size", design.buttonFontSize + px);
+        DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idMin + ",#" + button.idMax,
+            "font-size", design.buttonFontSize + px);
+        return button;
+    };
+
+    /**
+     * create a bare styled range element
+     * @method paramControllerMethods.styledRange
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledRange = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("span", id, "#" + containerId);
+        const range = Range.create(id);
+
+        DOM.style("#" + range.idText,
+            "width", design.numberInputWidth + px,
+            "font-size", design.buttonFontSize + px,
+            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+        DOM.style("#" + range.idRange,
+            "width", design.rangeSliderLengthLong + px);
+        return range;
+    };
+
+    /**
+     * create a bare styled range element for integers with plus/minus buttons
+     * @method paramControllerMethods.styledRangeForIntegers
+     * @param {String} containerId - id of the enclosing div 
+     * @return button
+     */
+    paramControllerMethods.styledRangeForIntegers = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("span", id, "#" + containerId);
+        const range = Range.createPlusMinus(id);
+        DOM.style("#" + range.idText,
+            "width", design.numberInputWidth + px,
+            "font-size", design.buttonFontSize + px,
+            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+        DOM.style("#" + range.idRange,
+            "width", design.rangeSliderLengthShort + px);
+        DOM.style("#" + range.idPlus + ",#" + range.idMinus,
+            "font-size", design.buttonFontSize + px,
+            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+        range.setStep(1);
+        return range;
+    };
 
     // popups for complicated controls
     // this.popupDiv is a div that contains the popup elements

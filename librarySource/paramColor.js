@@ -53,22 +53,14 @@ function ParamColor(gui, params, property) {
         const design = this.gui.design;
         const paramValue = this.params[this.property];
         const controller = this;
-
         const type = (typeof paramValue);
         if (type === "string") {
             this.type = "css";
         }
-
-
         if (this.type === "css") {
             // the parameter value is a string thus make a text input button
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("input", id, "#" + this.domElementId);
-            DOM.style("#" + id,
-                "width", design.textInputWidth + px,
-                "font-size", design.buttonFontSize + px);
-            const textInput = new TextInput(id);
+            const textInput = this.styledTextInput(this.domElementId);
             textInput.setValue(paramValue);
             this.uiElement = textInput;
             this.setupOnChange();

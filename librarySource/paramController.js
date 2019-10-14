@@ -113,10 +113,7 @@ Object.assign(ParamController.prototype, paramControllerMethods);
         if (isArray(low) || isObject(low)) {
             // low, the first parameter for limits is an array or object, thus make a selection
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("select", id, "#" + this.domElementId);
-            DOM.style("#" + id, "font-size", design.buttonFontSize + px);
-            const select = new SelectValues(id);
+            const select = this.styledSelect(this.domElementId);
             this.uiElement = select;
             select.setLabelsValues(low);
             select.setValue(paramValue);
@@ -124,12 +121,7 @@ Object.assign(ParamController.prototype, paramControllerMethods);
         } else if (isBoolean(paramValue)) {
             // the parameter value is boolean, thus make a BooleanButton
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("button", id, "#" + this.domElementId);
-            DOM.style("#" + id,
-                "minWidth", design.onOffButtonWidth + px,
-                "font-size", design.buttonFontSize + px);
-            const button = new BooleanButton(id);
+            const button = this.styledBooleanButton(this.domElementId);
             this.uiElement = button;
             button.setValue(paramValue);
             this.setupOnChange();
@@ -137,10 +129,7 @@ Object.assign(ParamController.prototype, paramControllerMethods);
             // there is no parameter value with the property or it is a function
             // thus make a button with the property as text, no label
             this.createLabel("");
-            const id = DOM.createId();
-            DOM.create("button", id, "#" + this.domElementId, this.property);
-            DOM.style("#" + id, "font-size", design.buttonFontSize + px);
-            const button = new Button(id);
+            const button = this.styledButton(this.property, this.domElementId);
             this.uiElement = button;
             if (typeof paramValue === "function") {
                 this.callback = paramValue;
@@ -151,24 +140,17 @@ Object.assign(ParamController.prototype, paramControllerMethods);
         } else if (isString(paramValue)) {
             // the parameter value is a string thus make a text input button
             this.createLabel(this.property);
-
-            this.createTextUi(this.domElementId);
-
-
+            const textInput = this.styledTextInput(this.domElementId);
+            textInput.setValue(this.params[this.property]);
+            this.uiElement = textInput;
+            this.setupOnChange();
         } else if (isInteger(paramValue) && (!isDefined(low) || isInteger(low)) &&
             (!isDefined(high) || isInteger(high)) && !isDefined(step)) {
             // the parameter value is integer, and the low limit is integer or undefined 
             // high is integer or not defined, and step is not defined/ not supplied in call
             // thus make an (integer) number button 
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("span", id, "#" + this.domElementId);
-            const button = NumberButton.createInfinity(id);
-            DOM.style("#" + button.idName,
-                "width", design.numberInputWidth + px,
-                "font-size", design.buttonFontSize + px);
-            DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idMin + ",#" + button.idMax,
-                "font-size", design.buttonFontSize + px);
+            const button = this.styledNumberButton(this.domElementId);
             if (isInteger(high)) {
                 button.setRange(low, high);
             } else if (isInteger(low)) {
@@ -184,22 +166,10 @@ Object.assign(ParamController.prototype, paramControllerMethods);
             // high is integer  and step is integer equal to 1
             // thus make a range element with plus/minus button 
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("span", id, "#" + this.domElementId);
-            const range = Range.createPlusMinus(id);
             DOM.style("#" + this.labelId,
                 "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-            DOM.style("#" + range.idText,
-                "width", design.numberInputWidth + px,
-                "font-size", design.buttonFontSize + px,
-                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-            DOM.style("#" + range.idRange,
-                "width", design.rangeSliderLengthShort + px);
-            DOM.style("#" + range.idPlus + ",#" + range.idMinus,
-                "font-size", design.buttonFontSize + px,
-                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+            const range = this.styledRangeForIntegers(this.domElementId);
             range.setRange(low, high);
-            range.setStep(1);
             range.setValue(paramValue);
             this.uiElement = range;
             this.setupOnChange();
@@ -207,17 +177,9 @@ Object.assign(ParamController.prototype, paramControllerMethods);
             // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
             // thus use a range element
             this.createLabel(this.property);
-            const id = DOM.createId();
-            DOM.create("span", id, "#" + this.domElementId);
-            const range = Range.create(id);
             DOM.style("#" + this.labelId,
                 "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-            DOM.style("#" + range.idText,
-                "width", design.numberInputWidth + px,
-                "font-size", design.buttonFontSize + px,
-                "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-            DOM.style("#" + range.idRange,
-                "width", design.rangeSliderLengthLong + px);
+            const range = this.styledRange(this.domElementId);
             range.setRange(low, high);
             if (isNumber(step)) {
                 range.setStep(step);
