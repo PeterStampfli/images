@@ -1,11 +1,5 @@
-/* jshint esversion:6 */
-import {
-    ParamColor
-} from "./paramColor.js";
-
-/**
+/*
  * emulator of  https://github.com/dataarts/dat.gui
- * simply use: "dat.GUI=ParamGui;" to switch from old gui to new one
  * 
  */
 
@@ -13,7 +7,6 @@ import {
 I've modified the numbers editor in dat.gui to make it react on mouse 
 scroll wheel and "ArrowUp" and "ArrowDown" keys (keyboard).
 The increment of value for each scroll changes the digit where the caret is.
-This allows very precise control of values and I VERY rare uses sliders. 
 */
 
 /**
@@ -40,6 +33,16 @@ This allows very precise control of values and I VERY rare uses sliders.
  * closed - boolean - start gui in closed state - default: false
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
+
+/* jshint esversion:6 */
+import {
+    ParamColor,
+    ParamAngle,
+    ParamController,
+    DOM,
+    Button
+} from "./modules.js";
+
 
 const ParamGui = function(params) {
     "use strict";

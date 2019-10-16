@@ -1,5 +1,11 @@
 /* jshint esversion:6 */
 
+import {
+    paramControllerMethods,
+    DOM,
+    Range
+} from "./modules.js";
+
 /**
  * a controller for a simple parameter
  * with visuals, in a common div
@@ -12,7 +18,7 @@
  * @param {float/integer} step - determines step size (optional)
  */
 
-function ParamController(gui, params, property, low, high, step) {
+export function ParamController(gui, params, property, low, high, step) {
     this.gui = gui;
     this.params = params;
     this.property = property;

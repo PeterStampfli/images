@@ -5,6 +5,10 @@
  */
 
 /* jshint esversion:6 */
+import {
+    TouchEvents,
+    MouseEvents
+} from "./modules.js";
 
 function AngleScale(idName) {
     this.idName = idName;
@@ -265,5 +269,8 @@ function AngleScale(idName) {
         this.canvas = null;
     };
 
-
 }());
+
+export {
+    AngleScale
+};

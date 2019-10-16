@@ -7,8 +7,11 @@
  */
 
 /* jshint esversion:6 */
+import {
+    Button
+} from "./modules.js";
 
-function Range(idText, idRange, idPlus, idMinus) {
+export function Range(idText, idRange, idPlus, idMinus) {
     this.idText = idText;
     this.idRange = idRange;
     this.idPlus = (arguments.length > 2) ? idPlus : false;

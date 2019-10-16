@@ -6,7 +6,7 @@
 
 /* jshint esversion:6 */
 
-var DOM = {};
+const DOM = {};
 
 
 (function() {
@@ -218,3 +218,8 @@ var DOM = {};
     };
 
 }());
+
+export {
+    DOM
+};
+window.DOM = DOM;

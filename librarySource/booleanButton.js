@@ -7,7 +7,7 @@
 
 /* jshint esversion:6 */
 
-function BooleanButton(idName) {
+export function BooleanButton(idName) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);

@@ -1,14 +1,21 @@
-/* jshint esversion:6 */
-
 /**
  * methods for all kind of (parameter) controllers
  * use Object.assign(.....prototype,paramControllerMethods);
  * @namespace paramControllerMethods
  */
 
-paramControllerMethods = {};
+/* jshint esversion:6 */
+import {
+    DOM,
+    SelectValues,
+    NumberButton,
+    TextInput
+} from "./modules.js";
+
+export const paramControllerMethods = {};
 
 (function() {
+
     "use strict";
     const px = "px";
 

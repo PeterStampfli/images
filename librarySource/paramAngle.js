@@ -1,5 +1,12 @@
 /* jshint esversion:6 */
 
+import {
+    paramControllerMethods,
+    AngleScale,
+    DOM,
+    NumberButton
+} from "./modules.js";
+
 /**
  * a controller for color
  * with visuals, in a common div
@@ -9,7 +16,7 @@
  * @param {String} property - for the field of object to change, params[property]
  */
 
-function ParamAngle(gui, params, property) {
+export function ParamAngle(gui, params, property) {
     this.gui = gui;
     this.params = params;
     this.property = property;

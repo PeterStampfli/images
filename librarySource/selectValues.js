@@ -8,7 +8,7 @@
 
 /* jshint esversion:6 */
 
-function SelectValues(idName) {
+export function SelectValues(idName) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);

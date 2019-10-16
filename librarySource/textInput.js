@@ -7,8 +7,12 @@
  */
 
 /* jshint esversion:6 */
+import {
+    Button
+} from "./modules.js";
 
-function TextInput(idName) {
+
+export function TextInput(idName) {
     this.idName = idName;
     this.element = document.getElementById(idName);
     DOM.attribute("#" + idName, "type", "text");

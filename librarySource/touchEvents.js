@@ -34,7 +34,7 @@ function SingleTouch(touch) {
  * @param {String} idName - of the HTML element
  */
 
-function TouchEvents(idName) {
+export function TouchEvents(idName) {
     "use strict";
     this.element = document.getElementById(idName);
     // switch events off or on, default is on, switching from outside (eg presentation)

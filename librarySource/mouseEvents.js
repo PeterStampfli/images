@@ -5,7 +5,7 @@
 
 /* jshint esversion:6 */
 
-var MouseAndTouch = {};
+export const MouseAndTouch = {};
 
 (function() {
     "use strict";
@@ -53,7 +53,7 @@ var MouseAndTouch = {};
  * @param {String} idName - of the HTML element
  */
 
-function MouseEvents(idName) {
+export function MouseEvents(idName) {
     this.element = document.getElementById(idName);
     // element is ususually a div or canvas (initially cannot have focus)
     // make that it can have focus

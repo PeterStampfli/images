@@ -12,8 +12,12 @@
  */
 
 /* jshint esversion:6 */
+import {
+    Button
+} from "./modules.js";
 
-function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
+
+export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);
