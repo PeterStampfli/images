@@ -5,8 +5,11 @@
  * @param {String} idName name (id) of an html select element
  */
 
-
 /* jshint esversion:6 */
+
+import {
+    Button
+} from "./modules.js";
 
 export function SelectValues(idName) {
     "use strict";

@@ -8,8 +8,11 @@
 import {
     DOM,
     SelectValues,
+    BooleanButton,
     NumberButton,
-    TextInput
+    Range,
+    TextInput,
+    Button
 } from "./modules.js";
 
 export const paramControllerMethods = {};
@@ -179,7 +182,6 @@ export const paramControllerMethods = {};
         const id = DOM.createId();
         DOM.create("span", id, "#" + containerId);
         const range = Range.create(id);
-
         DOM.style("#" + range.idText,
             "width", design.numberInputWidth + px,
             "font-size", design.buttonFontSize + px,

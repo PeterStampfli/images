@@ -199,7 +199,7 @@ const ParamGui = function(params) {
     };
 
     /**
-     * update ParamGui design defaults using data of another object with the same key 
+     * update ParamGui design defaults, using data of another object with the same key 
      * @method ParamGui.updateDefaults
      * @param {Object} newValues
      */
