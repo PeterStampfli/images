@@ -41,7 +41,7 @@ function ParamAngle(gui, params, property) {
     // this.listening
     // this.name
 
-    Object.assign(ParamColor.prototype, paramControllerMethods);
+    Object.assign(ParamAngle.prototype, paramControllerMethods);
 
 
     /**
@@ -50,22 +50,71 @@ function ParamAngle(gui, params, property) {
      * @method ParamAngle#create
      */
     ParamAngle.prototype.create = function() {
+        this.initCreate();
         const design = this.gui.design;
         const controller = this;
         const paramValue = this.params[this.property];
 
+        this.createLabel(this.property);
+
+        const numberButtonId = DOM.createId();
+        DOM.create("input", numberButtonId, "#" + this.domElementId);
+        DOM.style("#" + numberButtonId,
+            "width", design.numberInputWidth + px,
+            "font-size", design.buttonFontSize + px);
+        const numberButton = new NumberButton(numberButtonId);
+        numberButton.setStep(1);
+        numberButton.setRange(-180, 180);
+        numberButton.setCyclic();
+        this.uiElement = numberButton;
+
+
+        this.createPopup();
+
+        const angleScale = new AngleScale(this.popupDivId);
+        this.angleScale = angleScale;
+        this.angleScale.setDimensions(this.gui.design.width, this.gui.design.controllerDiameter);
+
+
+        this.updateDisplay();
+
+        numberButton.onChange = function() {
+            const value = numberButton.getValue();
+            angleScale.setAngle(value);
+            controller.params[controller.property] = value;
+            controller.lastValue = value; // avoid unnecessary display update (listening)
+            controller.callback(value);
+        };
+
+        angleScale.onChange = function() {
+            numberButton.setValue(angleScale.getAngle());
+            numberButton.onChange(); // makes correct wraparound
+        };
 
 
         return this;
     };
 
 
+    /**
+     * set both numberButton and arrow
+     * set the value of the controller according to the actual value of the parameter in the params object
+     * do not update the param object
+     * updates display automatically
+     * @method paramAngle#updateDisplay
+     */
+    ParamAngle.prototype.updateDisplay = function() {
+        const value = this.params[this.property];
+        this.lastValue = value;
+        this.uiElement.setValue(value);
+        this.angleScale.setAngle(value);
+    };
 
 
     /**
      * same as destroy, but is in dat.gui api
      * @method ParamController.remove
      */
-    ParamColor.prototype.remove = ParamColor.prototype.destroy;
+    ParamAngle.prototype.remove = ParamAngle.prototype.destroy;
 
 }());

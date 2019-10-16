@@ -233,7 +233,7 @@ paramControllerMethods = {};
      * @method paramControllerMethods.showPopup
      */
     paramControllerMethods.showPopup = function() {
-        if (isObject(this.popupDiv)) {
+        if (typeof this.popupDiv === "object") {
             console.log("show");
             this.popupDiv.style.display = "block";
         }
@@ -246,7 +246,6 @@ paramControllerMethods = {};
      * creates an onClick function on the controller div to open/keep visible the popup
      * the rootGui domElement has an onclick event that hides popups
      * @method paramControllerMethods.createPopup
-     * @return {Div} the popup div 
      */
     paramControllerMethods.createPopup = function() {
         this.popupDivId = DOM.createId();
@@ -261,7 +260,6 @@ paramControllerMethods = {};
             controller.showPopup();
             controller.doNotHidePopup = true;
         };
-        return this.popupDiv;
     };
 
     /**

@@ -1,3 +1,8 @@
+/* jshint esversion:6 */
+import {
+    ParamColor
+} from "./paramColor.js";
+
 /**
  * emulator of  https://github.com/dataarts/dat.gui
  * simply use: "dat.GUI=ParamGui;" to switch from old gui to new one
@@ -5,24 +10,11 @@
  */
 
 /*
-I've modified the numbers editor in dat.gui to make it react on mouse scroll wheel and "ArrowUp" and "ArrowDown" keys (keyboard).
-  The increment of value for each scroll changes the digit where the caret is.  This allows very precise control of values and I VERY rare uses sliders. 
-  */
-/*
- * dependencies
-<script src="../librarySource/keyboardEvents.js"></script>
-<script src="../librarySource/button.js"></script>
-<script src="../librarySource/booleanButton.js"></script>
-<script src="../librarySource/textInput.js"></script>
-<script src="../librarySource/numberButton.js"></script>
-<script src="../librarySource/selectValues.js"></script>
-<script src="../librarySource/range.js"></script>
-<script src="../librarySource/dom.js"></script>
-<script src="../librarySource/paramController.js"></script>
-<script src="../librarySource/paramGui.js"></script>
+I've modified the numbers editor in dat.gui to make it react on mouse 
+scroll wheel and "ArrowUp" and "ArrowDown" keys (keyboard).
+The increment of value for each scroll changes the digit where the caret is.
+This allows very precise control of values and I VERY rare uses sliders. 
 */
-
-/* jshint esversion:6 */
 
 /**
  * this is the actual Gui for parameters
@@ -49,7 +41,7 @@ I've modified the numbers editor in dat.gui to make it react on mouse scroll whe
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
 
-ParamGui = function(params) {
+const ParamGui = function(params) {
     "use strict";
     var i;
     // copy default parameters, change later
@@ -144,7 +136,7 @@ ParamGui = function(params) {
         titleBackgroundColor: "#bbbbbb",
         // colors for popups
         popupColor: "#444444",
-        popupBackgroundColor: "white",
+        popupBackgroundColor: "#00000000",
 
         // padding for paragraphs: free space at left and right
         paragraphPadding: 10,
@@ -172,7 +164,9 @@ ParamGui = function(params) {
         rangeSliderLengthShort: 80,
         rangeSliderLengthLong: 120,
         // vertical offset for range slider (alignment)
-        rangeVOffset: 4
+        rangeVOffset: 4,
+        // diameter for circular controllers
+        controllerDiameter: 80
     };
 
 
@@ -898,3 +892,8 @@ ParamGui = function(params) {
     };
 
 }());
+
+export {
+    ParamGui
+};
+window.ParamGui = ParamGui;

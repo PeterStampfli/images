@@ -91,3 +91,7 @@ function ParamColor(gui, params, property) {
     ParamColor.prototype.remove = ParamColor.prototype.destroy;
 
 }());
+
+export {
+    ParamColor
+};
