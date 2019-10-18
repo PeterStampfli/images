@@ -12,7 +12,8 @@ import {
     NumberButton,
     Range,
     TextInput,
-    Button
+    Button,
+    ColorInput
 } from "./modules.js";
 
 export const paramControllerMethods = {};
@@ -90,6 +91,22 @@ export const paramControllerMethods = {};
     //  creating basic controllers
 
     /**
+     * create a bare styled color input
+     * @method paramControllerMethods.styledColorInput
+     * @param {String} containerId - id of the enclosing div 
+     * @return textInput
+     */
+    paramControllerMethods.styledColorInput = function(containerId) {
+        const design = this.gui.design;
+        const id = DOM.createId();
+        DOM.create("input", id, "#" + containerId);
+        DOM.style("#" + id,
+            "width", design.textInputWidth + px,
+            "font-size", design.buttonFontSize + px);
+        return new ColorInput(id);
+    };
+
+    /**
      * create a bare styled text input
      * @method paramControllerMethods.styledTextInput
      * @param {String} containerId - id of the enclosing div 
@@ -122,7 +139,7 @@ export const paramControllerMethods = {};
     };
 
     /**
-     * create a bare styled boolean button, with minimum button width
+     * create a bare styled boolean button, width onoff button width
      * @method paramControllerMethods.styledBooleanButton
      * @param {String} containerId - id of the enclosing div 
      * @return button

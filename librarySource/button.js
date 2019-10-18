@@ -290,3 +290,5 @@ export function Button(idName) {
     };
 
 }());
+
+window.Button = Button;

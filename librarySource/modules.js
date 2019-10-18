@@ -39,6 +39,11 @@ export {
 from "./button.js";
 
 export {
+    ColorInput
+}
+from "./colorInput.js";
+
+export {
     BooleanButton
 }
 from "./booleanButton.js";
