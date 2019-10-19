@@ -63,13 +63,22 @@ function ParamColor(gui, params, property) {
         if (type === "string") {
             this.type = "css";
         }
+        // the parameter value is a string thus make a text input button
+        this.createLabel(this.property);
+        const colorInput = this.styledColorInput(this.domElementId);
+        this.uiElement = colorInput;
+        colorInput.onInput = function() {
+            const value = colorInput.getValue();
+            controller.params[controller.property] = value;
+            controller.lastValue = value; // avoid unnecessary display update (listening)
+            controller.callback(value);
+        };
+        colorInput.onChange = function() {
+            const value = colorInput.getValue();
+            controller.finishCallback(value);
+        };
         if (this.type === "css") {
-            // the parameter value is a string thus make a text input button
-            this.createLabel(this.property);
-            const textInput = this.styledTextInput(this.domElementId);
-            textInput.setValue(paramValue);
-            this.uiElement = textInput;
-            this.setupOnChange();
+            colorInput.setValue(paramValue);
         }
         return this;
     };

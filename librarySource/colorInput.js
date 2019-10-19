@@ -17,7 +17,6 @@ export function ColorInput(idName) {
     this.element = document.getElementById(idName);
     DOM.attribute("#" + idName, "type", "color");
     DOM.style("#" + idName, "cursor", "pointer");
-    DOM.style("#" + idName, "backgroundColor", "blue");
     this.element.select(); // magic for old browsers that have no color input, text instead
 
     this.hover = false;
@@ -69,17 +68,27 @@ export function ColorInput(idName) {
     const px = "px";
 
     /**
-     * update the color style of the element depending on whether its pressed or hovered
+     * update the color style of the element depending on whether it is hovered
      * always call if states change, use for other buttons too
-     * @method NumberButton#updateStyle
+     * @method ColorInput#updateStyle
      */
-    ColorInput.prototype.updateStyle = Button.prototype.updateStyle;
+    ColorInput.prototype.updateStyle = function() {
+        if (this.hover) {
+            this.element.style.backgroundColor = this.backgroundColorUpHover;
+        } else {
+            this.element.style.backgroundColor = this.backgroundColorUp;
+        }
+    };
 
     /**
      * setup the color styles defaults, use for other buttons too
      * @method NumberButton#colorStyleDefaults
      */
-    ColorInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
+    ColorInput.prototype.colorStyleDefaults = function() {
+        this.backgroundColorUp = Button.backgroundColorUp;
+        this.backgroundColorUpHover = Button.backgroundColorUpHover;
+    };
+
 
     /**
      * get value of colorInput

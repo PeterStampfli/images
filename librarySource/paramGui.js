@@ -465,7 +465,8 @@ const ParamGui = function(params) {
             // add event listener, 
             // if gui is not in front moves gui to front and hide all popups
             // if in front hide popups, except if controller.doNotHidePopup==true
-            this.domElement.onclick = function(event) {
+
+            this.domElement.addEventListener("click", function(event) {
                 if (ParamGui.isInFront(paramGui)) {
                     ParamGui.hidePopup(false);
                 } else {
@@ -473,7 +474,8 @@ const ParamGui = function(params) {
                     ParamGui.hidePopup(true);
                 }
                 return false;
-            };
+            });
+
             // add the title
             this.createTitle();
             // padding at top as always visible separating line between root gui title and rest
