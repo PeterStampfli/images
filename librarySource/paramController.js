@@ -165,6 +165,10 @@ Object.assign(ParamController.prototype, paramControllerMethods);
                 button.setLow(0);
             }
             button.setValue(paramValue);
+            this.cyclic = function() {
+                button.setCyclic();
+                return this;
+            };
             this.uiElement = button;
             this.setupOnChange();
         } else if (isInteger(paramValue) && isInteger(low) && isInteger(high) && isNumber(step) && (Math.abs(step - 1) < 0.01)) {
@@ -177,6 +181,10 @@ Object.assign(ParamController.prototype, paramControllerMethods);
             const range = this.styledRangeForIntegers(this.domElementId);
             range.setRange(low, high);
             range.setValue(paramValue);
+            this.cyclic = function() {
+                range.setCyclic();
+                return this;
+            };
             this.uiElement = range;
             this.setupOnChange();
         } else if (isNumber(paramValue) && isNumber(low) && isNumber(high)) {
@@ -191,12 +199,27 @@ Object.assign(ParamController.prototype, paramControllerMethods);
                 range.setStep(step);
             }
             range.setValue(paramValue);
+            this.cyclic = function() {
+                range.setCyclic();
+                return this;
+            };
             this.uiElement = range;
             this.setupOnChange();
         } else {
             // no idea/error
             this.createLabel(this.property + " *** error");
         }
+        return this;
+    };
+
+    /**
+     * make that numberbuttons become cyclic
+     * other buttons without effect
+     * @method ParamController#cyclic
+     * @return this for chaining
+     */
+    // here a do nothing stub for non-number controllers
+    ParamController.prototype.cyclic = function() {
         return this;
     };
 

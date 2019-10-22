@@ -23,6 +23,7 @@ export function Range(idText, idRange, idPlus, idMinus) {
     this.rangeElement.setAttribute("type", "range");
     this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
+    this.cyclic = false;
     this.setStep(0.01);
     this.digits = 2;
     this.lastValue = 0.5;
@@ -188,13 +189,32 @@ export function Range(idText, idRange, idPlus, idMinus) {
     };
 
     /**
+     * set that cyclic numbers are used (wraparound number range)
+     * destroy min/max buttons as they make no sense
+     * @method Range#setCyclic
+     */
+    Range.prototype.setCyclic = function() {
+        this.cyclic = true;
+        this.setValue(this.quantizeClamp(this.getValue()));
+    };
+
+    /**
      * quantize a number according to step and clamp to range
      * @method Range#quantizeClamp
      * @param {float} x
      * @return float, quantized and clamped x
      */
     Range.prototype.quantizeClamp = function(x) {
-        return Math.max(this.minValue, Math.min(this.step * Math.floor(0.5 + x / this.step), this.maxValue));
+        if (this.cyclic) {
+            // wraparound
+            x -= this.minValue;
+            const d = this.maxValue - this.minValue;
+            x = x - d * Math.floor(x / d);
+            x += this.minValue;
+        }
+        // quantize and clamp
+        x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+        return x;
     };
 
     /**

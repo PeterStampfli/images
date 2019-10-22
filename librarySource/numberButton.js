@@ -207,11 +207,20 @@ export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
 
     /**
      * set that cyclic numbers are used (wraparound number range)
+     * destroy min/max buttons as they make no sense
      * @method NumberButton#setCyclic
      */
     NumberButton.prototype.setCyclic = function() {
         this.cyclic = true;
         this.setValue(this.quantizeClamp(this.getValue()));
+        if (this.minButton != null) {
+            this.minButton.destroy();
+            this.minButton = null;
+        }
+        if (this.maxButton != null) {
+            this.maxButton.destroy();
+            this.maxButton = null;
+        }
     };
 
     /**
