@@ -366,6 +366,7 @@ const ParamGui = function(params) {
             // put elements at center of div with fixed heigth
             const innerTitleDivId = DOM.createId();
             DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
+            // center the title vertically
             DOM.style("#" + innerTitleDivId,
                 "position", "absolute",
                 "top", "50%",

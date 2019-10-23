@@ -87,7 +87,8 @@ export const paramControllerMethods = {};
      * sets the onChange function of the ui element
      * onChange sets the param[property] value, the lastValue field
      * (synchronizes ui display and data object)
-     * and calls the callback
+     * and calls the callback 
+     * ONLY if the parameter value changes
      * basic functionality, use other element.onChange for complicated controllers
      * @method paramControllerMethods.setupOnChange
      */
@@ -96,9 +97,11 @@ export const paramControllerMethods = {};
         const controller = this;
         element.onChange = function() {
             const value = element.getValue();
-            controller.params[controller.property] = value;
             controller.lastValue = value; // avoid unnecessary display update (listening)
-            controller.callback(value);
+            if (controller.params[controller.property] !== value) {
+                controller.params[controller.property] = value;
+                controller.callback(value);
+            }
         };
     };
 

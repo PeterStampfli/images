@@ -70,6 +70,10 @@ export function Range(idText, idRange, idPlus, idMinus) {
     this.updateRangeStyle();
 
     // doing things
+    this.rangeElement.oninput = function() {
+        range.updateValue(range.getValueRange());
+    };
+
     this.rangeElement.onchange = function() {
         range.updateValue(range.getValueRange());
     };
@@ -195,6 +199,7 @@ export function Range(idText, idRange, idPlus, idMinus) {
      */
     Range.prototype.setCyclic = function() {
         this.cyclic = true;
+        this.rangeElement.max = this.maxValue - this.step; // avoid irritating jump from right to left
         this.setValue(this.quantizeClamp(this.getValue()));
     };
 
@@ -228,6 +233,9 @@ export function Range(idText, idRange, idPlus, idMinus) {
         this.maxValue = maxValue;
         this.rangeElement.min = minValue;
         this.rangeElement.max = maxValue;
+        if (this.cyclic) {
+            this.rangeElement.max = this.maxValue - this.step; // avoid irritating jump from right to left
+        }
         // clamp value in range
         this.setValue(this.quantizeClamp(this.lastValue));
     };
@@ -370,6 +378,7 @@ export function Range(idText, idRange, idPlus, idMinus) {
         this.textElement = null;
         this.rangeElement.onmouseenter = null;
         this.rangeElement.onmouseleave = null;
+        this.rangeElement.oninput = null;
         this.rangeElement.onchange = null;
         this.rangeElement.remove();
         this.rangeElement = null;
