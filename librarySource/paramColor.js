@@ -1,6 +1,5 @@
 /* jshint esversion:6 */
 
-
 import {
     paramControllerMethods,
     DOM
@@ -9,19 +8,83 @@ import {
 /**
  * a controller for color
  * with visuals, in a common div
+ * created with input field for color code, color input element and range for alpha value
+ * with method to delete/switch off alpha chanel (safer than gessing from parameter value)
  * @creator ParamColor
  * @param {ParamGui} gui - the controller is in this gui
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  */
 
-function ParamColor(gui, params, property) {
+export function ParamColor(gui, params, property) {
     this.gui = gui;
     this.params = params;
     this.property = property;
     this.listening = false; // automatically update display
     this.create();
 }
+
+// standard color strings
+// without alpha: #rrggbb
+// with alpha: #rrggbbaa
+// transforms to color without alpha: #rgb -> #rrggbb, #rgba -> #rrggbb, #rrggbb, #rrggbbaa -> #rrggbb
+// transforms to color with alpha: #rgb -> #rrggbbff, #rgba -> #rrggbbaa, #rrggbb -> #rrggbbff
+
+/**
+ * transform a string to a standard rgb string
+ * does not check the input for errors, does the most obvious
+ * @method ParamColor.rgbFrom
+ * @param {String} color
+ * @return String, the transformed color string
+ */
+ParamColor.rgbFrom = function(color) {
+    const length = color.length;
+    var result;
+    if ((length === 4) || (length === 5)) { // #rgb or #rgba
+        const red = color.charAt(1);
+        const green = color.charAt(2);
+        const blue = color.charAt(3);
+        result = "#" + red + red + green + green + blue + blue;
+    } else { // #rrggbb  or #rrggbbaa
+        result = color.substring(0, 7);
+    }
+    return result;
+};
+
+/**
+ * transform a string to a standard rgba string
+ * does not check the input for errors, does the most obvious
+ * @method ParamColor.rgbaFrom
+ * @param {String} color
+ * @return String, the transformed color string
+ */
+ParamColor.rgbaFrom = function(color) {
+    const length = color.length;
+    let result = color;
+    if ((length === 4) || (length === 5)) { // #rgb or #rgba
+        const red = color.charAt(1);
+        const green = color.charAt(2);
+        const blue = color.charAt(3);
+        const alpha = (length === 5) ? color.charAt(4) : "f";
+        result = "#" + red + red + green + green + blue + blue + alpha + alpha;
+    } else if (length === 7) { // #rrggbb 
+        result += "ff";
+    }
+    return result;
+};
+
+/**
+ * transform a color string and an integer alpha to a standard rgba string
+ * does not check the input for errors, does the most obvious
+ * @method ParamColor.rgbaFromRGBAndAlpha
+ * @param {String} color
+ * @param {integer} alpha
+ * @return String, the transformed color string
+ */
+ParamColor.rgbaFromRGBAndAlpha = function(color, alpha) {
+    alpha = Math.max(0, Math.min(255, Math.round(alpha)));
+    return ParamColor.rgbFrom(color) + alpha.toString(16);
+};
 
 (function() {
     "use strict";
@@ -107,6 +170,5 @@ function ParamColor(gui, params, property) {
 
 }());
 
-export {
-    ParamColor
-};
+
+self.ParamColor = ParamColor;
