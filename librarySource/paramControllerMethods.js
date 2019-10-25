@@ -118,7 +118,9 @@ export const paramControllerMethods = {};
         const id = DOM.createId();
         DOM.create("input", id, "#" + containerId);
         DOM.style("#" + id,
-            "width", design.numberInputWidth + px);
+            "width", design.colorInputWidth + px,
+            "font-size", design.buttonFontSize + px,
+            "transform", "translateY(" + (design.colorVOffset) + "px)");
         const colorInput = new ColorInput(id);
         return colorInput;
     };
@@ -218,8 +220,7 @@ export const paramControllerMethods = {};
         const range = Range.create(id);
         DOM.style("#" + range.idText,
             "width", design.numberInputWidth + px,
-            "font-size", design.buttonFontSize + px,
-            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+            "font-size", design.buttonFontSize + px);
         DOM.style("#" + range.idRange,
             "width", design.rangeSliderLengthLong + px);
         return range;
@@ -345,8 +346,8 @@ export const paramControllerMethods = {};
     // if the value of the param object changes, then update the object via callback
 
     /**
-     * set the value of the controller and last value field
      * set the value of the param object
+     * updates display (and last value field)
      * DOES NOT call the callback()
      * (good for multiple parameter changes, use callback only at last change
      * (Note that this.setValue() is not the same as this.uiElement.setValue())
@@ -384,7 +385,8 @@ export const paramControllerMethods = {};
     };
 
     /**
-     * set the value of the controller according to the actual value of the parameter in the params object
+     * set the value of the display (controller) according to the actual value of the parameter in the params object
+     * updates the lastValue field
      * do not update the param object
      * updates display automatically
      * @method paramControllerMethods.updateDisplay

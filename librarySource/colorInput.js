@@ -96,6 +96,7 @@ export function ColorInput(idName) {
      * @return String, the color as hex string "#rrggbb"
      */
     ColorInput.prototype.getValue = function() {
+        console.log("getvaluecolor");
         return this.element.value;
     };
 

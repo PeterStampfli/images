@@ -75,6 +75,7 @@ const ParamGui = function(params) {
     } else {
         Object.assign(design, this.parent.design);
     }
+
     // update design parameters
     for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(design, arguments[i]);
@@ -163,6 +164,14 @@ const ParamGui = function(params) {
         textInputWidth: 200,
         // width for number input
         numberInputWidth: 60,
+        // width for colorInput as string
+        colorStringInputWidth: 70,
+        // width for color input
+        colorInputWidth: 50,
+        // V offset for color input
+        colorVOffset: 5,
+        // length for alpha range element for color
+        colorRangeWidth: 60,
         // length of slider for range element
         rangeSliderLengthShort: 80,
         rangeSliderLengthLong: 120,
