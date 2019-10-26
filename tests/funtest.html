@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<head>
+    <title>funtest</title>
+</head>
+
+<body>
+
+
+
+
+</body>
+
+
+
+<script type="text/javascript">
+
+function logObject(obj){
+    for (var key in obj){
+        console.log(key+": "+obj[key]);
+    }
+}
+
+    
+
+function f(x){
+return x+f.a;
+}
+f.a=9;
+console.log(f(8));
+
+b=10;
+console.log(b=="10");
+
+n=null;
+console.log(!!n==false);
+
+function s(string){
+string="w";
+return string;
+}
+
+string="aa";
+console.log(s(string));
+console.log(string);
+
+logObject(self);
+
+console.log(window.self===window);
+
+console.log(self);
+
+</script>
+
+</html>

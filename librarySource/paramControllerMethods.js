@@ -49,7 +49,6 @@ export const paramControllerMethods = {};
      */
     paramControllerMethods.initCreate = function() {
         const design = this.gui.design;
-        this.lastValue = this.params[this.property];
         // create a div for all elements of the controller
         this.domElementId = DOM.createId();
         // it lies in the bodyDiv of the ParamGui
@@ -72,23 +71,14 @@ export const paramControllerMethods = {};
             console.log("callback value " + value);
         };
 
-        /**
-         * final callback for changes of a large controller with multiple components
-         * @method paramControllerMethods.finishCallback
-         * @param {anything} value
-         */
-        this.finishCallback = function(value) {
-            console.log("finish callback value " + value);
-        };
     };
 
     /**
      * connect the ui controller with the param object:
      * sets the onChange function of the ui element
-     * onChange sets the param[property] value, the lastValue field
+     * onChange sets the param[property] value
      * (synchronizes ui display and data object)
-     * and calls the callback 
-     * ONLY if the parameter value changes
+     * and calls the callback ONLY if the parameter value changes
      * basic functionality, use other element.onChange for complicated controllers
      * @method paramControllerMethods.setupOnChange
      */
@@ -97,7 +87,6 @@ export const paramControllerMethods = {};
         const controller = this;
         element.onChange = function() {
             const value = element.getValue();
-            controller.lastValue = value; // avoid unnecessary display update (listening)
             if (controller.params[controller.property] !== value) {
                 controller.params[controller.property] = value;
                 controller.callback(value);
@@ -328,15 +317,16 @@ export const paramControllerMethods = {};
     paramControllerMethods.onClick = paramControllerMethods.onChange;
 
     /**
-     * set the finish callback function for final onchange events
-     * this is for controllers with many components
-     * typically called after user clicks on "select"
+     * set the callback function for onchange events
+     * will be called for any input changes
+     * same as onChange
+     * this is here for compatibility to datGui
      * @method paramControllerMethods.onFinishChange
      * @param {function} callback - function(value), with value of controller as argument
      * @return this
      */
     paramControllerMethods.onFinishChange = function(callback) {
-        this.finishCallback = callback;
+        this.callback = callback;
         return this;
     };
     // setting and getting values:
@@ -386,26 +376,23 @@ export const paramControllerMethods = {};
 
     /**
      * set the value of the display (controller) according to the actual value of the parameter in the params object
-     * updates the lastValue field
      * do not update the param object
      * updates display automatically
      * @method paramControllerMethods.updateDisplay
      */
     paramControllerMethods.updateDisplay = function() {
         const value = this.params[this.property];
-        this.lastValue = value;
         this.uiElement.setValue(value);
     };
 
     /**
-     * updateDisplay and lastValue field If controller is Listening  and parameter value has changed
+     * updateDisplay If controller is Listening
+     * happens even if parameter value has not changed, as this requires not much work
      * @method paramControllerMethods.updateDisplayIfListening
      */
     paramControllerMethods.updateDisplayIfListening = function() {
         if (this.listening) {
-            if (this.params[this.property] !== this.lastValue) {
-                this.updateDisplay();
-            }
+            this.updateDisplay();
         }
     };
 
