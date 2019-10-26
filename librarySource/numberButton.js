@@ -16,9 +16,7 @@ import {
     Button
 } from "./modules.js";
 
-
 export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
-    "use strict";
     this.idName = idName;
     this.element = document.getElementById(idName);
     this.element.setAttribute("type", "text");
@@ -133,249 +131,245 @@ export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     };
 }
 
-(function() {
-    "use strict";
-    const px = "px";
+const px = "px";
 
-    //effective value for infinity, change if too low
-    NumberButton.maxValue = 1000;
+//effective value for infinity, change if too low
+NumberButton.maxValue = 1000;
 
-    /**
-     * update the color style of the element depending on whether its pressed or hovered
-     * always call if states change, use for other buttons too
-     * @method NumberButton#updateStyle
-     */
-    NumberButton.prototype.updateStyle = Button.prototype.updateStyle;
+/**
+ * update the color style of the element depending on whether its pressed or hovered
+ * always call if states change, use for other buttons too
+ * @method NumberButton#updateStyle
+ */
+NumberButton.prototype.updateStyle = Button.prototype.updateStyle;
 
-    /**
-     * setup the color styles defaults, use for other buttons too
-     * @method NumberButton#colorStyleDefaults
-     */
-    NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
+/**
+ * setup the color styles defaults, use for other buttons too
+ * @method NumberButton#colorStyleDefaults
+ */
+NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
-    /**
-     * quantize a number according to step and clamp to range
-     * @method NumberButton#quantizeClamp
-     * @param {float} x
-     * @return float, quantized x
-     */
-    NumberButton.prototype.quantizeClamp = function(x) {
-        if (this.cyclic) {
-            // wraparound
-            x -= this.minValue;
-            const d = this.maxValue - this.minValue;
-            x = x - d * Math.floor(x / d);
-            x += this.minValue;
-        }
-        // quantize and clamp
-        x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
-        return x;
-    };
+/**
+ * quantize a number according to step and clamp to range
+ * @method NumberButton#quantizeClamp
+ * @param {float} x
+ * @return float, quantized x
+ */
+NumberButton.prototype.quantizeClamp = function(x) {
+    if (this.cyclic) {
+        // wraparound
+        x -= this.minValue;
+        const d = this.maxValue - this.minValue;
+        x = x - d * Math.floor(x / d);
+        x += this.minValue;
+    }
+    // quantize and clamp
+    x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+    return x;
+};
 
-    /**
-     * change step to number smaller than 1 to get float
-     * @method NumberButton#setStep
-     * @param {float} step - the step size (rounding)
-     */
-    NumberButton.prototype.setStep = function(step) {
-        this.step = step;
-        this.setValue(this.quantizeClamp(this.getValue()));
-        this.digits = Math.max(0, -Math.floor(Math.log10(step) + 0.0001));
-    };
+/**
+ * change step to number smaller than 1 to get float
+ * @method NumberButton#setStep
+ * @param {float} step - the step size (rounding)
+ */
+NumberButton.prototype.setStep = function(step) {
+    this.step = step;
+    this.setValue(this.quantizeClamp(this.getValue()));
+    this.digits = Math.max(0, -Math.floor(Math.log10(step) + 0.0001));
+};
 
-    /**
-     * set the allowed range of numbers, correct value if out of range
-     * @method NumberButton#setRange
-     * @param {integer} minValue
-     * @param {integer} maxValue
-     */
-    NumberButton.prototype.setRange = function(minValue, maxValue) {
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-        // clamp value in range
-        this.setValue(this.quantizeClamp(this.getValue()));
-    };
+/**
+ * set the allowed range of numbers, correct value if out of range
+ * @method NumberButton#setRange
+ * @param {integer} minValue
+ * @param {integer} maxValue
+ */
+NumberButton.prototype.setRange = function(minValue, maxValue) {
+    this.minValue = minValue;
+    this.maxValue = maxValue;
+    // clamp value in range
+    this.setValue(this.quantizeClamp(this.getValue()));
+};
 
-    /**
-     * set the lower limit for numbers, correct value if out of range
-     * @method NumberButton#setLow
-     * @param {integer} minValue
-     */
-    NumberButton.prototype.setLow = function(minValue) {
-        this.setRange(minValue, NumberButton.maxValue);
-    };
+/**
+ * set the lower limit for numbers, correct value if out of range
+ * @method NumberButton#setLow
+ * @param {integer} minValue
+ */
+NumberButton.prototype.setLow = function(minValue) {
+    this.setRange(minValue, NumberButton.maxValue);
+};
 
-    /**
-     * set that cyclic numbers are used (wraparound number range)
-     * destroy min/max buttons as they make no sense
-     * @method NumberButton#setCyclic
-     */
-    NumberButton.prototype.setCyclic = function() {
-        this.cyclic = true;
-        this.setValue(this.quantizeClamp(this.getValue()));
-        if (this.minButton != null) {
-            this.minButton.destroy();
-            this.minButton = null;
-        }
-        if (this.maxButton != null) {
-            this.maxButton.destroy();
-            this.maxButton = null;
-        }
-    };
+/**
+ * set that cyclic numbers are used (wraparound number range)
+ * destroy min/max buttons as they make no sense
+ * @method NumberButton#setCyclic
+ */
+NumberButton.prototype.setCyclic = function() {
+    this.cyclic = true;
+    this.setValue(this.quantizeClamp(this.getValue()));
+    if (this.minButton != null) {
+        this.minButton.destroy();
+        this.minButton = null;
+    }
+    if (this.maxButton != null) {
+        this.maxButton.destroy();
+        this.maxButton = null;
+    }
+};
 
-    /**
-     * read the value of the text of a button of type="text"
-     * note that the element.onchange routine makes shure that 
-     * the value will be a number if this is called after onchange event
-     * @method NumberButton#getValue
-     * @returns {integer} value resulting from parsing the button text
-     */
-    NumberButton.prototype.getValue = function() {
-        return this.quantizeClamp(parseFloat(this.element.value));
-    };
+/**
+ * read the value of the text of a button of type="text"
+ * note that the element.onchange routine makes shure that 
+ * the value will be a number if this is called after onchange event
+ * @method NumberButton#getValue
+ * @returns {integer} value resulting from parsing the button text
+ */
+NumberButton.prototype.getValue = function() {
+    return this.quantizeClamp(parseFloat(this.element.value));
+};
 
-    /**
-     * set the text of a button of type="text" according to a given number
-     * sets lastValue to same number
-     * does nothing else, use it for initialization
-     * @method NumberButton#setValue
-     * @param {integer} number - the number value to show in the button, verified number !!
-     */
-    NumberButton.prototype.setValue = function(number) {
+/**
+ * set the text of a button of type="text" according to a given number
+ * sets lastValue to same number
+ * does nothing else, use it for initialization
+ * @method NumberButton#setValue
+ * @param {integer} number - the number value to show in the button, verified number !!
+ */
+NumberButton.prototype.setValue = function(number) {
+    number = this.quantizeClamp(number);
+    this.lastValue = number;
+    this.element.value = number.toFixed(this.digits);
+};
+
+/**
+ * set the text of a button of type="text" according to a given number
+ * check if it is a number and quantize it and clamp it in the range, if number changes do this.onchange
+ * thus we can use it for initialization
+ * @method NumberButton#updateValue
+ * @param {integer} number - the number value to show in the button
+ */
+NumberButton.prototype.updateValue = function(number) {
+    if (isNaN(number)) { // overwrite garbage, do nothing
+        this.setValue(this.lastValue);
+    } else {
         number = this.quantizeClamp(number);
-        this.lastValue = number;
-        this.element.value = number.toFixed(this.digits);
-    };
+        if (this.lastValue != number) { // does it really change??
+            this.setValue(number); // update numbers before action
+            this.onChange(number);
+        }
+    }
+};
 
-    /**
-     * set the text of a button of type="text" according to a given number
-     * check if it is a number and quantize it and clamp it in the range, if number changes do this.onchange
-     * thus we can use it for initialization
-     * @method NumberButton#updateValue
-     * @param {integer} number - the number value to show in the button
-     */
-    NumberButton.prototype.updateValue = function(number) {
-        if (isNaN(number)) { // overwrite garbage, do nothing
-            this.setValue(this.lastValue);
-        } else {
-            number = this.quantizeClamp(number);
-            if (this.lastValue != number) { // does it really change??
-                this.setValue(number); // update numbers before action
-                this.onChange(number);
-            }
-        }
-    };
+/**
+ * change value depending on direction (>0 or <0) and curcor posion
+ * @method NumberButton#changeDigit
+ * @param {float} direction - makes plus or minus changes
+ */
+NumberButton.prototype.changeDigit = function(direction) {
+    let cursorPosition = this.element.selectionStart;
+    // selectionStart=0: in front, left of first char
+    let pointPosition = this.element.value.indexOf(".");
+    // beware of pure integers
+    if (pointPosition < 0) {
+        pointPosition = this.element.value.length;
+    }
+    // going to the right increases index in string, decreases number power       
+    let power = pointPosition - cursorPosition;
+    if (power < 0) {
+        power++;
+    }
+    let change = Math.pow(10, power);
+    if (direction < 0) {
+        change = -change;
+    }
+    this.updateValue(this.getValue() + change);
+    pointPosition = this.element.value.indexOf(".");
+    if (pointPosition < 0) {
+        pointPosition = this.element.value.length;
+    }
+    cursorPosition = Math.max(0, pointPosition - power);
+    // acounting for the space of decimal point
+    if (power < 0) {
+        cursorPosition++;
+    }
+    this.element.setSelectionRange(cursorPosition, cursorPosition);
+};
 
-    /**
-     * change value depending on direction (>0 or <0) and curcor posion
-     * @method NumberButton#changeDigit
-     * @param {float} direction - makes plus or minus changes
-     */
-    NumberButton.prototype.changeDigit = function(direction) {
-        let cursorPosition = this.element.selectionStart;
-        // selectionStart=0: in front, left of first char
-        let pointPosition = this.element.value.indexOf(".");
-        // beware of pure integers
-        if (pointPosition < 0) {
-            pointPosition = this.element.value.length;
-        }
-        // going to the right increases index in string, decreases number power       
-        let power = pointPosition - cursorPosition;
-        if (power < 0) {
-            power++;
-        }
-        let change = Math.pow(10, power);
-        if (direction < 0) {
-            change = -change;
-        }
-        this.updateValue(this.getValue() + change);
-        pointPosition = this.element.value.indexOf(".");
-        if (pointPosition < 0) {
-            pointPosition = this.element.value.length;
-        }
-        cursorPosition = Math.max(0, pointPosition - power);
-        // acounting for the space of decimal point
-        if (power < 0) {
-            cursorPosition++;
-        }
-        this.element.setSelectionRange(cursorPosition, cursorPosition);
-    };
+/**
+ * destroy the button, taking care of all references, deletes the associated html element
+ * maybe too careful
+ * set reference to the button to null
+ * @method NumberButton#destroy
+ */
+NumberButton.prototype.destroy = function() {
+    this.onChange = null;
+    this.element.onChange = null;
+    this.element.onfocus = null;
+    this.element.onblur = null;
+    this.element.onmouseenter = null;
+    this.element.onmouseleave = null;
+    this.element.onwheel = null;
+    this.element.onkeydown = null;
+    this.element.remove();
+    this.element = null;
+    if (this.plusButton != null) {
+        this.plusButton.destroy();
+        this.plusButton = null;
+    }
+    if (this.minusButton != null) {
+        this.minusButton.destroy();
+        this.minusButton = null;
+    }
+    if (this.minButton != null) {
+        this.minButton.destroy();
+        this.minButton = null;
+    }
+    if (this.maxButton != null) {
+        this.maxButton.destroy();
+        this.maxButton = null;
+    }
+};
 
-    /**
-     * destroy the button, taking care of all references, deletes the associated html element
-     * maybe too careful
-     * set reference to the button to null
-     * @method NumberButton#destroy
-     */
-    NumberButton.prototype.destroy = function() {
-        this.onChange = null;
-        this.element.onChange = null;
-        this.element.onfocus = null;
-        this.element.onblur = null;
-        this.element.onmouseenter = null;
-        this.element.onmouseleave = null;
-        this.element.onwheel = null;
-        this.element.onkeydown = null;
-        this.element.remove();
-        this.element = null;
-        if (this.plusButton != null) {
-            this.plusButton.destroy();
-            this.plusButton = null;
-        }
-        if (this.minusButton != null) {
-            this.minusButton.destroy();
-            this.minusButton = null;
-        }
-        if (this.minButton != null) {
-            this.minButton.destroy();
-            this.minButton = null;
-        }
-        if (this.maxButton != null) {
-            this.maxButton.destroy();
-            this.maxButton = null;
-        }
-    };
+/**
+ * create an number button with up and down buttons, maximum 4 digits
+ * Attention: set font sizes afterwards
+ * @method NumberButton.create
+ * @param {String} idSpan - id of the span conatining the number button
+ * @return NumberButton
+ */
+NumberButton.create = function(idSpan) {
+    const inputId = DOM.createId();
+    DOM.create("input", inputId, "#" + idSpan);
+    DOM.addSpace(idSpan);
+    const dnId = DOM.createButton(idSpan, "-");
+    DOM.addSpace(idSpan);
+    const upId = DOM.createButton(idSpan, "+");
+    DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
+    let numberButton = new NumberButton(inputId, upId, dnId);
+    return numberButton;
+};
 
-    /**
-     * create an number button with up and down buttons, maximum 4 digits
-     * Attention: set font sizes afterwards
-     * @method NumberButton.create
-     * @param {String} idSpan - id of the span conatining the number button
-     * @return NumberButton
-     */
-    NumberButton.create = function(idSpan) {
-        const inputId = DOM.createId();
-        DOM.create("input", inputId, "#" + idSpan);
-        DOM.addSpace(idSpan);
-        const dnId = DOM.createButton(idSpan, "-");
-        DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, "+");
-        DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
-        let numberButton = new NumberButton(inputId, upId, dnId);
-        return numberButton;
-    };
-
-    /**
-     * create an number button with up and down buttons and max and min button, maximum 4 digits
-     * Attention: set font sizes afterwards
-     * @method NumberButton.createInfinity
-     * @param {String} idSpan - id of the span conatining the number button
-     * @return NumberButton
-     */
-    NumberButton.createInfinity = function(idSpan) {
-        const inputId = DOM.createId();
-        DOM.create("input", inputId, "#" + idSpan);
-        DOM.addSpace(idSpan);
-        const dnId = DOM.createButton(idSpan, "-");
-        DOM.addSpace(idSpan);
-        const upId = DOM.createButton(idSpan, "+");
-        DOM.addSpace(idSpan);
-        const minId = DOM.createButton(idSpan, "min");
-        DOM.addSpace(idSpan);
-        const maxId = DOM.createButton(idSpan, "max");
-        DOM.style("#" + upId + ",#" + dnId + ",#" + minId + ",#" + maxId, "borderRadius", "1000px");
-        let numberButton = new NumberButton(inputId, upId, dnId, minId, maxId);
-        return numberButton;
-    };
-
-}());
+/**
+ * create an number button with up and down buttons and max and min button, maximum 4 digits
+ * Attention: set font sizes afterwards
+ * @method NumberButton.createInfinity
+ * @param {String} idSpan - id of the span conatining the number button
+ * @return NumberButton
+ */
+NumberButton.createInfinity = function(idSpan) {
+    const inputId = DOM.createId();
+    DOM.create("input", inputId, "#" + idSpan);
+    DOM.addSpace(idSpan);
+    const dnId = DOM.createButton(idSpan, "-");
+    DOM.addSpace(idSpan);
+    const upId = DOM.createButton(idSpan, "+");
+    DOM.addSpace(idSpan);
+    const minId = DOM.createButton(idSpan, "min");
+    DOM.addSpace(idSpan);
+    const maxId = DOM.createButton(idSpan, "max");
+    DOM.style("#" + upId + ",#" + dnId + ",#" + minId + ",#" + maxId, "borderRadius", "1000px");
+    let numberButton = new NumberButton(inputId, upId, dnId, minId, maxId);
+    return numberButton;
+};
