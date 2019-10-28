@@ -4,8 +4,6 @@
  * @namespace DOM
  */
 
-/* jshint esversion:6 */
-
 export const DOM = {};
 
 const px = "px";
@@ -212,5 +210,3 @@ DOM.createButton = function(parentId, text) {
     DOM.create("button", buttonId, "#" + parentId, text);
     return buttonId;
 };
-
-window.DOM = DOM;

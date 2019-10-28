@@ -13,7 +13,8 @@
 
 /* jshint esversion:6 */
 import {
-    Button
+    Button,
+    DOM
 } from "./modules.js";
 
 export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
@@ -209,11 +210,11 @@ NumberButton.prototype.setLow = function(minValue) {
 NumberButton.prototype.setCyclic = function() {
     this.cyclic = true;
     this.setValue(this.quantizeClamp(this.getValue()));
-    if (this.minButton != null) {
+    if (this.minButton !== null) {
         this.minButton.destroy();
         this.minButton = null;
     }
-    if (this.maxButton != null) {
+    if (this.maxButton !== null) {
         this.maxButton.destroy();
         this.maxButton = null;
     }
@@ -314,19 +315,19 @@ NumberButton.prototype.destroy = function() {
     this.element.onkeydown = null;
     this.element.remove();
     this.element = null;
-    if (this.plusButton != null) {
+    if (this.plusButton !== null) {
         this.plusButton.destroy();
         this.plusButton = null;
     }
-    if (this.minusButton != null) {
+    if (this.minusButton !== null) {
         this.minusButton.destroy();
         this.minusButton = null;
     }
-    if (this.minButton != null) {
+    if (this.minButton !== null) {
         this.minButton.destroy();
         this.minButton = null;
     }
-    if (this.maxButton != null) {
+    if (this.maxButton !== null) {
         this.maxButton.destroy();
         this.maxButton = null;
     }

@@ -4,28 +4,25 @@
  * @param {Touch} touch - browser touch object, at touchstart, its target is the element
  */
 
-/* jshint esversion:6 */
+import {
+    MouseAndTouch,
+    Button,
+    DOM
+} from "./modules.js";
 
 function SingleTouch(touch) {
-    "use strict";
     this.identifier = touch.identifier;
     this.update(touch);
 }
 
-(function() {
-    "use strict";
-
-    /**
-     * update the position
-     * @method SingleTouch#update
-     * @param {Touch} touch
-     */
-    SingleTouch.prototype.update = function(touch) {
-        [this.x, this.y] = MouseAndTouch.relativePosition(touch, touch.target);
-    };
-
-}());
-
+/**
+ * update the position
+ * @method SingleTouch#update
+ * @param {Touch} touch
+ */
+SingleTouch.prototype.update = function(touch) {
+    [this.x, this.y] = MouseAndTouch.relativePosition(touch, touch.target);
+};
 
 /**
  * attaches (multi) touch events to a html element
@@ -33,9 +30,7 @@ function SingleTouch(touch) {
  * @constructor TouchEvents
  * @param {String} idName - of the HTML element
  */
-
 export function TouchEvents(idName) {
-    "use strict";
     this.element = document.getElementById(idName);
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
@@ -199,108 +194,101 @@ export function TouchEvents(idName) {
 
 }
 
-(function() {
-    "use strict";
+// debugging double touch with the browser
+// a first touch gives a single touch , 
+//a second touch gives two touches at the same position, 
+//further touch moves move the first touch
+// double touch ends when moving out of the element
+TouchEvents.doubleTouchDebug = false;
 
-    // debugging double touch with the browser
-    // a first touch gives a single touch , 
-    //a second touch gives two touches at the same position, 
-    //further touch moves move the first touch
-    // double touch ends when moving out of the element
-    TouchEvents.doubleTouchDebug = false;
+// logging data
+TouchEvents.log = false;
 
-    // logging data
-    TouchEvents.log = false;
+/**
+ * switch touch events on or off 
+ * @method TouchEvents.setIsActive
+ * @param {boolean} on - if false there will be no mouse events
+ */
+TouchEvents.prototype.setIsActive = function(on) {
+    this.isActive = on;
+};
 
-    /**
-     * switch touch events on or off 
-     * @method TouchEvents.setIsActive
-     * @param {boolean} on - if false there will be no mouse events
-     */
-    TouchEvents.prototype.setIsActive = function(on) {
-        this.isActive = on;
-    };
+/**
+ * delete all touches
+ * @method TouchEvents#deleteAllTouches
+ */
+TouchEvents.prototype.deleteAllTouches = function() {
+    this.touches.length = 0;
+};
 
-    /**
-     * delete all touches
-     * @method TouchEvents#deleteAllTouches
-     */
-    TouchEvents.prototype.deleteAllTouches = function() {
-        this.touches.length = 0;
-    };
-
-    /**
-     * find index of a touch in the touches list using identifier
-     * counting down for tests with same ids
-     * @method TouchEvents#findIndex
-     * @param {Touch} touch - with touch.identifier field
-     * @return integer index >=0 if found, -1 if not found
-     */
-    TouchEvents.prototype.findIndex = function(touch) {
-        for (var i = this.touches.length - 1; i >= 0; i--) {
-            if (touch.identifier == this.touches[i].identifier) {
-                return i;
-            }
+/**
+ * find index of a touch in the touches list using identifier
+ * counting down for tests with same ids
+ * @method TouchEvents#findIndex
+ * @param {Touch} touch - with touch.identifier field
+ * @return integer index >=0 if found, -1 if not found
+ */
+TouchEvents.prototype.findIndex = function(touch) {
+    for (var i = this.touches.length - 1; i >= 0; i--) {
+        if (touch.identifier == this.touches[i].identifier) {
+            return i;
         }
-        return -1;
-    };
+    }
+    return -1;
+};
 
-    /**
-     * setting the last data equal to the new data
-     * @method TouchEvents#setLast
-     */
-    TouchEvents.prototype.setLast = function() {
-        this.lastX = this.x;
-        this.lastY = this.y;
-        this.lastAngle = this.angle;
-        this.lastDistance = this.distance;
-    };
+/**
+ * setting the last data equal to the new data
+ * @method TouchEvents#setLast
+ */
+TouchEvents.prototype.setLast = function() {
+    this.lastX = this.x;
+    this.lastY = this.y;
+    this.lastAngle = this.angle;
+    this.lastDistance = this.distance;
+};
 
-    /**
-     * setup of data for use in move action, for single and double touch
-     * uses the touches array data
-     * @method TouchEvents#update
-     */
-    TouchEvents.prototype.update = function() {
-        var touches = this.touches;
-        if (touches.length === 1) { // only the position changes
-            this.x = this.touches[0].x;
-            this.y = this.touches[0].y;
-            this.angle = 0;
-            this.distance = 1;
-        } else if (touches.length >= 2) {
-            this.x = (this.touches[0].x + this.touches[1].x) * 0.5;
-            this.y = (this.touches[0].y + this.touches[1].y) * 0.5;
-            var deltaX = this.touches[0].x - this.touches[1].x;
-            var deltaY = this.touches[0].y - this.touches[1].y;
-            this.distance = Math.hypot(deltaY, deltaX);
-            this.angle = Fast.atan2(deltaY, deltaX);
-        }
-    };
+/**
+ * setup of data for use in move action, for single and double touch
+ * uses the touches array data
+ * @method TouchEvents#update
+ */
+TouchEvents.prototype.update = function() {
+    var touches = this.touches;
+    if (touches.length === 1) { // only the position changes
+        this.x = this.touches[0].x;
+        this.y = this.touches[0].y;
+        this.angle = 0;
+        this.distance = 1;
+    } else if (touches.length >= 2) {
+        this.x = (this.touches[0].x + this.touches[1].x) * 0.5;
+        this.y = (this.touches[0].y + this.touches[1].y) * 0.5;
+        var deltaX = this.touches[0].x - this.touches[1].x;
+        var deltaY = this.touches[0].y - this.touches[1].y;
+        this.distance = Math.hypot(deltaY, deltaX);
+        this.angle = Math.atan2(deltaY, deltaX);
+    }
+};
 
-    /**
-     * get differences between last and new data
-     * @method TouchEvents#getDifferences
-     */
+/**
+ * get differences between last and new data
+ * @method TouchEvents#getDifferences
+ */
+TouchEvents.prototype.getDifferences = function() {
+    this.dx = this.x - this.lastX;
+    this.dy = this.y - this.lastY;
+    this.centerX = (this.x + this.lastX) * 0.5;
+    this.centerY = (this.y + this.lastY) * 0.5;
+    this.dAngle = this.angle - this.lastAngle;
+    this.dDistance = this.distance - this.lastDistance;
+};
 
-    TouchEvents.prototype.getDifferences = function() {
-        this.dx = this.x - this.lastX;
-        this.dy = this.y - this.lastY;
-        this.centerX = (this.x + this.lastX) * 0.5;
-        this.centerY = (this.y + this.lastY) * 0.5;
-        this.dAngle = this.angle - this.lastAngle;
-        this.dDistance = this.distance - this.lastDistance;
-    };
-
-
-    /**
-     * test if a single touch is inside the element
-     * @method TouchEvents#isInside
-     * @param {SingleTouch} singleTouch
-     * @return boolean, true if touch is inside the element
-     */
-    TouchEvents.prototype.isInside = function(singleTouch) {
-        return (singleTouch.x >= 0) && (singleTouch.x < this.element.width) && (singleTouch.y >= 0) && (singleTouch.y <= this.element.height);
-    };
-
-}());
+/**
+ * test if a single touch is inside the element
+ * @method TouchEvents#isInside
+ * @param {SingleTouch} singleTouch
+ * @return boolean, true if touch is inside the element
+ */
+TouchEvents.prototype.isInside = function(singleTouch) {
+    return (singleTouch.x >= 0) && (singleTouch.x < this.element.width) && (singleTouch.y >= 0) && (singleTouch.y <= this.element.height);
+};

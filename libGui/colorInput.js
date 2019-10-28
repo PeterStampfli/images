@@ -8,7 +8,8 @@
 
 /* jshint esversion:6 */
 import {
-    Button
+    Button,
+    DOM
 } from "./modules.js";
 
 
@@ -63,67 +64,61 @@ export function ColorInput(idName) {
     };
 }
 
-(function() {
-    "use strict";
-    const px = "px";
+const px = "px";
 
-    /**
-     * update the color style of the element depending on whether it is hovered
-     * always call if states change, use for other buttons too
-     * @method ColorInput#updateStyle
-     */
-    ColorInput.prototype.updateStyle = function() {
-        if (this.hover) {
-            this.element.style.backgroundColor = this.backgroundColorUpHover;
-        } else {
-            this.element.style.backgroundColor = this.backgroundColorUp;
-        }
-    };
+/**
+ * update the color style of the element depending on whether it is hovered
+ * always call if states change, use for other buttons too
+ * @method ColorInput#updateStyle
+ */
+ColorInput.prototype.updateStyle = function() {
+    if (this.hover) {
+        this.element.style.backgroundColor = this.backgroundColorUpHover;
+    } else {
+        this.element.style.backgroundColor = this.backgroundColorUp;
+    }
+};
 
-    /**
-     * setup the color styles defaults, use for other buttons too
-     * @method NumberButton#colorStyleDefaults
-     */
-    ColorInput.prototype.colorStyleDefaults = function() {
-        this.backgroundColorUp = Button.backgroundColorUp;
-        this.backgroundColorUpHover = Button.backgroundColorUpHover;
-    };
+/**
+ * setup the color styles defaults, use for other buttons too
+ * @method NumberButton#colorStyleDefaults
+ */
+ColorInput.prototype.colorStyleDefaults = function() {
+    this.backgroundColorUp = Button.backgroundColorUp;
+    this.backgroundColorUpHover = Button.backgroundColorUpHover;
+};
 
 
-    /**
-     * get value of colorInput
-     * @method ColorInput#getValue
-     * @return String, the color as hex string "#rrggbb"
-     */
-    ColorInput.prototype.getValue = function() {
-        console.log("getvaluecolor");
-        return this.element.value;
-    };
+/**
+ * get value of colorInput
+ * @method ColorInput#getValue
+ * @return String, the color as hex string "#rrggbb"
+ */
+ColorInput.prototype.getValue = function() {
+    console.log("getvaluecolor");
+    return this.element.value;
+};
 
-    /**
-     * set value of input
-     * @method ColorInput#setValue
-     * @param {String} text
-     */
-    ColorInput.prototype.setValue = function(text) {
-        this.element.value = text;
-    };
+/**
+ * set value of input
+ * @method ColorInput#setValue
+ * @param {String} text
+ */
+ColorInput.prototype.setValue = function(text) {
+    this.element.value = text;
+};
 
-    /**
-     * destroy the checkbox
-     * @method ColorInput#destroy
-     */
-    ColorInput.prototype.destroy = function() {
-        this.onChange = null;
-        this.onInput = null;
-        this.element.onchange = null;
-        this.element.oninput = null;
-        this.element.onmouseenter = null;
-        this.element.onmouseleave = null;
-        this.element.remove();
-        this.element = null;
-    };
-
-}());
-
-window.ColorInput = ColorInput;
+/**
+ * destroy the checkbox
+ * @method ColorInput#destroy
+ */
+ColorInput.prototype.destroy = function() {
+    this.onChange = null;
+    this.onInput = null;
+    this.element.onchange = null;
+    this.element.oninput = null;
+    this.element.onmouseenter = null;
+    this.element.onmouseleave = null;
+    this.element.remove();
+    this.element = null;
+};

@@ -18,10 +18,6 @@
 // do not create globals without good cause
 
 
-/* jshint esversion:6 */
-
-
-
 export {
     MouseAndTouch,
     MouseEvents

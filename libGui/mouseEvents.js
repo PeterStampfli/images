@@ -3,12 +3,8 @@
  * @namespace MouseAndTouch
  */
 
-/* jshint esversion:6 */
-
 export const MouseAndTouch = {};
 
-(function() {
-    "use strict";
     /**
      * prevent defaults (and bubbling ??)
      * @method MouseAndTouch.preventDefault
@@ -44,8 +40,6 @@ export const MouseAndTouch = {};
         }
         return [x, y];
     };
-
-}());
 
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
@@ -192,9 +186,6 @@ export function MouseEvents(idName) {
     };
 }
 
-(function() {
-    "use strict";
-
     /**
      * switch mouse events on or off 
      * @method MouseEvents.setIsActive
@@ -240,5 +231,3 @@ export function MouseEvents(idName) {
         this.outAction = null;
         this.wheelAction = null;
     };
-
-}());

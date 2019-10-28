@@ -1,4 +1,4 @@
-/* jshint esversion:6 */
+let a=9;
 
 // create the UI elements and their interactions
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>add color gui</title>
+</head>
+
+<body>
+<!--     -->
+ <!--
+ <img src="abendfalter.jpg" id="imageId"/>
+-->
+<p>
+<div id="d">test</div>
+ </p>
+
+</body>
+
+<script type="module" src="../librarySource/paramGui.js"></script>
+
+
+
+<script>
+
+window.onload=function(){
+
+DOM.style("#d",
+"height","300px",
+"width","300px",
+"backgroundColor","red")
+
+ParamGui=window.ParamGui;
+
+ParamGui.updateDefaults();
+const newDat={};
+newDat.GUI=ParamGui;
+const px = "px";
+        
+        
+const gui=new newDat.GUI({},{name:"dummy controls",closed:false,closeOnTop:true});
+
+
+const p={};
+p.number=33;
+p.string="edit text";
+const s=gui.add(p,"string");
+
+p.rgb="#ff0000";
+const co=gui.addColor(p,"rgb");
+p.rgba="#ff0000aa";
+gui.addColor(p,"rgba");
+p.angle=90;
+
+co.onChange(function(value){
+console.log(value);
+DOM.style("#d",
+"backgroundColor",value);
+});
+
+//gui.destroy();
+
+const aa=gui.addAngle(p,"angle");
+
+}
+
+</script>
+
+
+</html>

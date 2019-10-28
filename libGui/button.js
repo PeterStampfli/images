@@ -6,7 +6,9 @@
  * @param {String} idName name (id) of an html element
  */
 
-/* jshint esversion:6 */
+ import {
+    DOM
+} from "./modules.js";
 
 export function Button(idName) {
     this.idName = idName;
@@ -282,5 +284,3 @@ Button.disable = function(buttons) {
         arguments[i].setActive(false);
     }
 };
-
-window.Button = Button;

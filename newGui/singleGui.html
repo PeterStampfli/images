@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>gui emulator</title>
+</head>
+
+<body>
+<!--     -->
+ <!--
+ <img src="abendfalter.jpg" id="imageId"/>
+-->
+<p>
+<img src="abendfalter.jpg" id="imageId"/>
+ </p>
+
+</body>
+
+<script type="module" src="../librarySource/paramGui.js"></script>
+
+
+
+<script>
+window.onload=function(){
+
+ParamGui.updateDefaults();
+newDat={};
+newDat.GUI=ParamGui;
+const px = "px";
+        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,"position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
+        
+gui=new newDat.GUI({},{name:"dummy controls",closed:false,closeOnTop:true});
+
+
+p={};
+p.number=33;
+p.string="edit text";
+s=gui.add(p,"string");
+
+
+
+//s.showPopup();
+s.hide();
+s.show();
+
+
+p.func=function(){console.log("london calling");};
+
+folder=gui.addFolder("subfolder",{titleBackgroundColor:"green",width:500});
+ff=folder.addFolder("subfolder",{titleBackgroundColor:"red"});
+ff=folder.addFolder("subfolder2",{titleBackgroundColor:"red"});
+ff.addFolder("w");
+p.bool=false;
+folder.add(p,"bool");
+ff.add(p,"bool");
+p.float=3.141;
+p.x=2
+p.y=3
+fl=folder.add(p,"float",1,10);
+
+
+
+
+
+gui.add({},"some Button").name("act");
+p.switch=true;
+gui.add(p,"switch").name("whatever");
+gui.add(p,"func").name("wahtever too");
+gui.add(p,"x")
+r=gui.verticalSpace("navy");
+r.DOMElement.style.backgroundColor="orange"
+r.hide()
+r.show()
+par=gui.paragraph("das ist ein text <br> das ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein textdas ist ein text");
+
+par.hide()
+//par.show()
+yco=gui.add(p,"y",1,10,1);
+yco.setValue(8);
+p.z=2;
+zco=gui.add(p,"z",[1,2,3,44,555])
+zco.setValue(44)
+
+console.log(p.z);
+//gui.hidePopup(true);
+
+//gui.destroy()
+}
+
+</script>
+
+
+</html>

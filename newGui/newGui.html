@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>gui emulator</title>
+</head>
+
+<body>
+<!--     -->
+ <!--
+ <img src="abendfalter.jpg" id="imageId"/>
+-->
+<p>
+<img src="abendfalter.jpg" id="imageId"/>
+ </p>
+
+</body>
+
+<script type="module" src="../libGui/paramGui.js"></script>
+
+
+
+<script>
+
+window.onload=function(){
+
+ParamGui.updateDefaults();
+const newDat={};
+newDat.GUI=ParamGui;
+const px = "px";
+//        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,"position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
+        
+gui=new newDat.GUI({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
+
+
+p={};
+p.number=33;
+p.string="edit text";
+gui.add(p,"string").listen();
+p.func=function(){console.log("london calling");};
+
+
+p.string="wasanderes"
+
+folder=gui.addFolder("subfolder",{titleBackgroundColor:"green"});
+
+folder.add(p,"float",1,10);
+
+fo=folder.addFolder("crazy colors",{titleBackgroundColor:"pink", textColor:"blue",backgroundColor:"violet"});
+
+fl=folder.add(p,"float",1,10);
+fl.cyclic();
+
+m=folder.addFolder("more");
+m.add(p,"func").name("wahtever too");
+
+
+p.bool=false;
+folder.add(p,"bool");
+p.float=3.141;
+p.x=2
+p.y=3
+fl=folder.add(p,"float",1,10);
+fo.add(p,"float",1,10);
+
+//gui.addListener(fl);
+
+gui.add({},"some Button").name("act");
+p.switch=true;
+gui.add(p,"switch").name("whatever");
+gui.add(p,"func").name("wahtever too");
+gui.add(p,"x").name ("integer")
+gui.add(p,"y",0,10).cyclic().name("int cyclic");
+
+
+gui.add(p,"float",0,10);
+gui.add(p,"float",0,10).cyclic().name("floatcyclic");;
+
+
+gui.add(p,"x",-180,180,1).name("int");
+gui.add(p,"x",-180,180,1).name("int cyclic").cyclic();
+
+p.z=2;
+gui.add(p,"z",[1,2,3,44,555])
+p.z=3
+
+
+gui3=new newDat.GUI({},{name:"dummy controls3",closed:false,closeOnTop:true}, {horizontalPosition:"left",width:200});
+
+gui3.add(p,"switch").name("whatever");
+gui3.add(p,"switch").name("whatever");
+gui3.add(p,"switch").name("whatever");
+gui3.add(p,"switch").name("whatever");
+
+
+
+console.log(ParamColor.rgbaFromRGBAndAlpha("#345",222));
+
+}
+
+
+</script>
+
+
+</html>

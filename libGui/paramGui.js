@@ -34,7 +34,6 @@ The increment of value for each scroll changes the digit where the caret is.
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
 
-/* jshint esversion:6 */
 import {
     ParamColor,
     ParamAngle,
@@ -42,7 +41,6 @@ import {
     DOM,
     Button
 } from "./modules.js";
-
 
 export function ParamGui(params) {
     var i;

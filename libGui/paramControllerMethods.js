@@ -13,7 +13,8 @@ import {
     Range,
     TextInput,
     Button,
-    ColorInput
+    ColorInput,
+    ParamGui
 } from "./modules.js";
 
 export const paramControllerMethods = {};

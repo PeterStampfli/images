@@ -4,8 +4,9 @@
  * @constructor BooleanButton
  * @param {String} idName name (id) of an html element, best "button"
  */
-
-/* jshint esversion:6 */
+import {
+    DOM
+} from "./modules.js";
 
 export function BooleanButton(idName) {
     this.idName = idName;

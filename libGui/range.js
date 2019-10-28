@@ -137,9 +137,6 @@ export function Range(idText, idRange, idPlus, idMinus) {
     this.onChange = function(value) {};
 }
 
-(function() {
-    "use strict";
-
     /**
      * setup the color styles defaults, use for other buttons too
      * @method NumberButton#colorStyleDefaults
@@ -425,5 +422,3 @@ export function Range(idText, idRange, idPlus, idMinus) {
         let range = new Range(idSpan + "text", idSpan + "range", upId, dnId);
         return range;
     };
-
-}());
