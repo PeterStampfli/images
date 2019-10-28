@@ -35,11 +35,6 @@ export {
 from "./button.js";
 
 export {
-    ColorInput
-}
-from "./colorInput.js";
-
-export {
     BooleanButton
 }
 from "./booleanButton.js";
@@ -79,6 +74,10 @@ export {
 }
 from "./paramControllerMethods.js";
 
+export {
+    ColorInput
+}
+from "./colorInput.js";
 
 export {
     ParamColor
@@ -95,3 +94,8 @@ export {
     ParamController
 }
 from "./paramController.js";
+
+export {
+    ParamGui
+}
+from "./paramGui.js";
