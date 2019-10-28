@@ -6,14 +6,10 @@
  * @param {String} idName name (id) of an html element
  */
 
- import {
-    DOM
-} from "./modules.js";
-
 export function Button(idName) {
     this.idName = idName;
     this.element = document.getElementById(idName);
-    DOM.style("#" + idName, "borderRadius", "1000px"); // semicircle
+    this.element.style.borderRadius = "1000px"; // semicircle
     // states
     this.pressed = false;
     this.hover = false;
@@ -142,6 +138,15 @@ Button.prototype.colorStyleDefaults = function() {
     this.backgroundColorDownHover = Button.backgroundColorDownHover;
     this.backgroundColorDown = Button.backgroundColorDown;
     this.backgroundColorInactive = Button.backgroundColorInactive;
+};
+
+/**
+ * set fontsize of the button, in px
+ * @method Button#setFontSize
+ * @param {integer} size
+ */
+Button.prototype.setFontSize = function(size) {
+    this.element.style.fontSize = size + "px";
 };
 
 /**

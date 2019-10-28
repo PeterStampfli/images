@@ -2,16 +2,14 @@
  * representing an switch button with on/off True/false states and adding actions, can use any html element
  *
  * @constructor BooleanButton
- * @param {String} idName name (id) of an html element, best "button"
+ * @param {DOM element} parent, an html element, best "div"
  */
-import {
-    DOM
-} from "./modules.js";
 
-export function BooleanButton(idName) {
-    this.idName = idName;
-    this.element = document.getElementById(idName);
-    DOM.style("#" + idName, "borderRadius", "1000px");
+export function BooleanButton(parent) {
+    this.element = document.createElement("button");
+    parent.appendChild(this.element);
+
+    this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.cursor = "pointer";
     this.value = false;
     this.mouseDown = false;
@@ -128,6 +126,25 @@ BooleanButton.prototype.updateStyle = function() {
         this.element.style.color = this.colorInactive;
         this.element.style.backgroundColor = this.backgroundColorInactive;
     }
+};
+
+
+/**
+ * set fontsize of the button, in px
+ * @method BooleanButton#setFontSize
+ * @param {integer} size
+ */
+BooleanButton.prototype.setFontSize = function(size) {
+    this.element.style.fontSize = size + "px";
+};
+
+/**
+ * set width of the button, in px
+ * @method BooleanButton#setFontSize
+ * @param {integer} width
+ */
+BooleanButton.prototype.setWidth = function(width) {
+    this.element.style.width = width + "px";
 };
 
 /**

@@ -151,13 +151,14 @@ paramControllerMethods.styledButton = function(text, containerId) {
  * @return button
  */
 paramControllerMethods.styledBooleanButton = function(containerId) {
+    console.log(containerId)
+    const container=document.querySelector("#"+containerId);
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("button", id, "#" + containerId);
-    DOM.style("#" + id,
-        "minWidth", design.onOffButtonWidth + px,
-        "font-size", design.buttonFontSize + px);
-    return new BooleanButton(id);
+    
+    const result=new BooleanButton(container);
+    result.setWidth(design.onOffButtonWidth);
+    result.setFontSize(design.buttonFontSize);
+    return result;
 };
 
 /**
