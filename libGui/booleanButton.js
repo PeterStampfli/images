@@ -1,5 +1,5 @@
 /**
- * representing an switch button with on/off True/false states and adding actions, can use any html element
+ * representing a switch button with on/off True/false states and adding actions, can use any html element
  *
  * @constructor BooleanButton
  * @param {DOM element} parent, an html element, best "div"
@@ -8,7 +8,6 @@
 export function BooleanButton(parent) {
     this.element = document.createElement("button");
     parent.appendChild(this.element);
-
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.cursor = "pointer";
     this.value = false;

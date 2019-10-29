@@ -120,12 +120,14 @@ paramControllerMethods.styledColorInput = function(containerId) {
  */
 paramControllerMethods.styledTextInput = function(containerId) {
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("input", id, "#" + containerId);
-    DOM.style("#" + id,
-        "width", design.textInputWidth + px,
-        "font-size", design.buttonFontSize + px);
-    return new TextInput(id);
+    const container=document.querySelector("#"+containerId);
+      const result=new TextInput(container);
+      result.setWidth(design.textInputWidth);
+    result.setFontSize(design.buttonFontSize);
+
+
+    
+    return result;
 };
 
 /**
@@ -151,7 +153,6 @@ paramControllerMethods.styledButton = function(text, containerId) {
  * @return button
  */
 paramControllerMethods.styledBooleanButton = function(containerId) {
-    console.log(containerId)
     const container=document.querySelector("#"+containerId);
     const design = this.gui.design;
     
