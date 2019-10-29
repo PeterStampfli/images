@@ -4,14 +4,11 @@
  * default is for integer numbers, can be changed to float with given step size (rounding) * 
  * 
  * @constructor NumberButton - better use factory NumberButton.create
- * @param {String} idName name (id) of an html (text) input element, attribute type will be set to text
- * @param {String} idPlus - optional, id of an HTML button element, for plus button, increases by 1
- * @param {String} idMinus - optional, id of an HTML button element, for minus button, decreases by 1
- * @param {String} idMin - optional, id of an HTML button element, set number to minimum value
- * @param {String} idMax - optional, id of an HTML button element,set number to maximum value
- */
+ * @param {DOM element} parent, an html element, best "div"
+ * @param {boolean} hasPlusMinus  (optional)
+ * @param {boolean} hasMinMax  (optional)
+*/
 
-/* jshint esversion:6 */
 import {
     Button,
     DOM

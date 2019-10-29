@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>numberbuttontest</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+<script type="module" src="../libGui/paramGui.js"></script>
+
+
+
+<script type="module">
+
+import {
+    NumberButton
+} from "../libGui/modules.js";
+
+window.onload=function(){
+
+console.log("hello");
+
+const thisDiv=document.getElementById("thisDiv");
+console.log(thisDiv)
+thisDiv.style.backgroundColor="yellow";
+ParamGui.addSpace(thisDiv);
+
+}
+
+</script>
+
+
+</html>

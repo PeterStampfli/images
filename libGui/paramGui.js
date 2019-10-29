@@ -212,6 +212,17 @@ ParamGui.updateDefaults = function(newValues) {
 };
 
 /**
+* add a span with a space to an html element
+* @method ParamGui.addSpace
+* @param {DOMElement} element
+*/
+ParamGui.addSpace=function(element){
+    const theSpan= document.createElement("span");
+    theSpan.innerHTML=" dvvd";
+    element.appendChild(theSpan);
+};
+
+/**
  * remove an element from an array (of listeners)
  * removes dublicates
  * @method ParamGui.removeArrayElement
