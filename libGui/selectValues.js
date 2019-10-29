@@ -2,19 +2,16 @@
  * representing an hTML selection for selecting values
  *
  * @constructor SelectValues
- * @param {String} idName name (id) of an html select element
+ * @param {DOM element} parent, an html element, best "div"
  */
 
-/* jshint esversion:6 */
-
 import {
-    Button,
-    DOM
+    Button
 } from "./modules.js";
 
-export function SelectValues(idName) {
-    this.idName = idName;
-    this.element = document.getElementById(idName);
+export function SelectValues(parent) {
+    this.element = document.createElement("select");
+    parent.appendChild(this.element);
     this.hover = false;
     this.colorStyleDefaults();
     this.updateStyle();
@@ -85,6 +82,15 @@ SelectValues.prototype.colorStyleDefaults = function() {
 };
 
 /**
+ * set fontsize of the button, in px
+ * @method SelectValues#setFontSize
+ * @param {integer} size
+ */
+SelectValues.prototype.setFontSize = function(size) {
+    this.element.style.fontSize = size + "px";
+};
+
+/**
  * set labels and values array
  * @method SelectValues#setLabelsValues
  * @param {Array||Object} selections
@@ -103,7 +109,9 @@ SelectValues.prototype.setLabelsValues = function(selections) {
         }
     }
     for (let i = 0; i < this.labels.length; i++) {
-        DOM.create("option", DOM.createId(), "#" + this.idName, "" + this.labels[i]);
+      const option= document.createElement("option");
+      option.appendChild(document.createTextNode(""+this.labels[i]));
+      this.element.appendChild(option);
     }
 };
 

@@ -138,12 +138,12 @@ paramControllerMethods.styledTextInput = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledButton = function(text, containerId) {
-    const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("button", id, "#" + containerId, text);
-    DOM.style("#" + id,
-        "font-size", design.buttonFontSize + px);
-    return new Button(id);
+     const container=document.querySelector("#"+containerId);
+   const design = this.gui.design;
+    const result=new Button(text,container);
+        result.setFontSize(design.buttonFontSize);
+
+    return result;
 };
 
 /**
@@ -169,12 +169,13 @@ paramControllerMethods.styledBooleanButton = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledSelect = function(containerId) {
+    const container=document.querySelector("#"+containerId);
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("select", id, "#" + containerId);
-    DOM.style("#" + id,
-        "font-size", design.buttonFontSize + px);
-    return new SelectValues(id);
+    const    result=new SelectValues(container);
+
+        result.setFontSize(design.buttonFontSize);
+
+    return result;
 };
 
 /**

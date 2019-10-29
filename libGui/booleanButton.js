@@ -10,6 +10,7 @@ export function BooleanButton(parent) {
     parent.appendChild(this.element);
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.cursor = "pointer";
+    this.element.style.outline = "none";
     this.value = false;
     this.mouseDown = false;
     this.hover = false;
@@ -46,6 +47,7 @@ export function BooleanButton(parent) {
             button.mouseDown = false;
             button.onChange();
         }
+            button.element.blur();
         button.updateStyle();
     };
 
@@ -126,7 +128,6 @@ BooleanButton.prototype.updateStyle = function() {
         this.element.style.backgroundColor = this.backgroundColorInactive;
     }
 };
-
 
 /**
  * set fontsize of the button, in px

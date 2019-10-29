@@ -158,7 +158,7 @@ ParamGui.defaultDesign = {
     // width for text input
     textInputWidth: 200,
     // width for number input
-    numberInputWidth: 60,
+    numberInputWidth: 40,
     // width for colorInput as string
     colorStringInputWidth: 70,
     // width for color input
@@ -369,7 +369,7 @@ ParamGui.prototype.createTitle = function() {
             "position", "relative");
         // put elements at center of div with fixed heigth
         const innerTitleDivId = DOM.createId();
-        DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
+        const innerTitleDiv=DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
         // center the title vertically
         DOM.style("#" + innerTitleDivId,
             "position", "absolute",
@@ -380,31 +380,25 @@ ParamGui.prototype.createTitle = function() {
         // create close and open buttons if wanted
         // small arrows (as for file system), before name
         if (this.closeOnTop) {
-            // button visuals
-            const closeButtonElementId = DOM.createId();
-            const closeButtonElement = DOM.create("span", closeButtonElementId, "#" + titleDivId, "▼");
-            const openButtonElementId = DOM.createId();
-            const openButtonElement = DOM.create("span", openButtonElementId, "#" + titleDivId, "►");
-            // span length determines spacing between handles and gui/folder name
-            // make width large enough that the title label does not move
-            // padding left shifts buttons
-            DOM.style("#" + closeButtonElementId + ",#" + openButtonElementId,
-                "borderRadius", "0px",
-                "paddingLeft", design.borderWidth + px,
-                "font-size", design.titleFontSize + px,
-                "display", "inline-block",
-                "width", design.openCloseButtonWidth + px);
-            // default:open
-            DOM.displayNone(openButtonElementId);
-            // button function
+            
             const paramGui = this;
-            this.closeButton = new Button(closeButtonElementId);
+            this.closeButton = new Button("▼",innerTitleDiv);
             this.closeButton.colorStyleForTransparentSpan(design.titleColor);
+                this.closeButton.element.style.borderRadius = "0px"; 
+                this.closeButton.element.style.borderStyle="none";
+                this.closeButton.element.style.outline="none";
+                this.closeButton.setFontSize(design.titleFontSize );
+
             this.closeButton.onClick = function() {
                 paramGui.close();
             };
-            this.openButton = new Button(openButtonElementId);
+            this.openButton = new Button("►",innerTitleDiv);
             this.openButton.colorStyleForTransparentSpan(design.titleColor);
+            this.openButton.element.style.display="none";
+        this.openButton.element.style.borderRadius = "0px"; 
+                this.openButton.element.style.borderStyle="none";
+                this.openButton.element.style.outline="none";
+                this.openButton.setFontSize(design.titleFontSize );
             this.openButton.onClick = function() {
                 paramGui.open();
             };

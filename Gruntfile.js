@@ -71,14 +71,14 @@ module.exports = function(grunt) {
         },
 
         jshint: {
-          //  files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js', 'linz/**/*.js'],
+            //  files: ['Gruntfile.js', 'librarySource/**/*.js', 'geometricolor/**/*.js', 'extra/**/*.js', 'newKaleidoscopes/**/*.js', 'tests/**/*.js', 'ui/**/*.js', 'linz/**/*.js'],
             files: ['Gruntfile.js', 'libGui/**/*.js'],
 
             options: {
                 "browser": true,
-                "devel" : true,
+                "devel": true,
                 "undef": true,
-               // "unused": true,
+                // "unused": true,
                 "esversion": 6,
                 // options here to override JSHint defaults
                 globals: {

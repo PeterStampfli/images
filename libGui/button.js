@@ -1,15 +1,18 @@
 /**
- * representing an input button and adding actions, can use any html element
+ * representing a text button and adding actions
  * simple push button
  *
  * @constructor Button
- * @param {String} idName name (id) of an html element
+ * @param {String} text
+ * @param {DOM element} parent, an html element, best "div"
  */
 
-export function Button(idName) {
-    this.idName = idName;
-    this.element = document.getElementById(idName);
+export function Button(text,parent) {
+    this.element = document.createElement("button");
+    parent.appendChild(this.element);
+      this.element.innerHTML=text;
     this.element.style.borderRadius = "1000px"; // semicircle
+    this.element.style.outline="none";
     // states
     this.pressed = false;
     this.hover = false;
@@ -57,6 +60,7 @@ export function Button(idName) {
                 button.pressed = false;
                 button.onClick();
             }
+            button.element.blur();
             button.updateStyle();
         }
     };
@@ -150,6 +154,15 @@ Button.prototype.setFontSize = function(size) {
 };
 
 /**
+ * set width of the button, in px
+ * @method BooleanButton#setFontSize
+ * @param {integer} width
+ */
+Button.prototype.setWidth = function(width) {
+    this.element.style.width = width + "px";
+};
+
+/**
  * color style for using transparent span with text as button
  * @method Button#colorStyleForTransparentSpan
  * @param {String} color - for basic text (button state up, no hover)
@@ -238,34 +251,6 @@ Button.prototype.destroy = function() {
     this.element.onmouseleave = null;
     this.element.remove();
     this.element = null;
-};
-
-/**
- * create a button that goes to another html page
- * @method Button.createGoToLocation
- * @param {String} id - of the html element that serves as button
- * @param {String} target - url of the new html page
- * @return Button element, just in case
- */
-Button.createGoToLocation = function(id, target) {
-    const button = new Button(id);
-    button.onClick = function() {
-        window.location = target;
-    };
-    return button;
-};
-
-/**
- * create a button that executes a function
- * @method Button.createFunction
- * @param {String} id - of the html element that serves as button
- * @param {function} action 
- * @return Button element, just in case
- */
-Button.createAction = function(id, action) {
-    const button = new Button(id);
-    button.onClick = action;
-    return button;
 };
 
 /**
