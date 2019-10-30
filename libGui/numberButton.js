@@ -10,65 +10,59 @@
  */
 
 import {
-    Button,
-    DOM
+    Button
 } from "./modules.js";
 
-export function NumberButton(parent,hasPlusMinus,hasMinMax) {
-    this.parent=parent;
+export function NumberButton(parent, hasPlusMinus, hasMinMax) {
+    this.parent = parent;
     this.element = document.createElement("input");
     parent.appendChild(this.element);
     this.element.setAttribute("type", "text");
-    this.element.style.textAlign="right";
-        const button = this;
-    if ((arguments.length>1)&&hasPlusMinus){
+    this.element.style.textAlign = "right";
+    const button = this;
+    if ((arguments.length > 1) && hasPlusMinus) {
         this.addSpace();
-        this.minusButton=new Button("-",parent); 
-         this.minusButton.onClick = function() {
+        this.minusButton = new Button("-", parent);
+        this.minusButton.onClick = function() {
             button.updateValue(button.lastValue - 1);
-        };   
+        };
         this.addSpace();
-        this.plusButton=new Button("+",parent);
- this.plusButton.onClick = function() {
+        this.plusButton = new Button("+", parent);
+        this.plusButton.onClick = function() {
             button.updateValue(button.lastValue + 1);
-        };   }
-    else {
-        this.minusButton=null;
-        this.plusButton=null;
+        };
+    } else {
+        this.minusButton = null;
+        this.plusButton = null;
     }
-    if ((arguments.length>2)&&hasMinMax){
+    if ((arguments.length > 2) && hasMinMax) {
         this.addSpace();
-        this.minButton=new Button("min",parent);
+        this.minButton = new Button("min", parent);
         this.minButton.onClick = function() {
             button.updateValue(button.minValue);
-        };    
+        };
         this.addSpace();
-        this.maxButton=new Button("max",parent);
+        this.maxButton = new Button("max", parent);
         this.maxButton.onClick = function() {
             button.updateValue(button.maxValue);
         };
+    } else {
+        this.minButton = null;
+        this.maxButton = null;
     }
-    else {
-        this.minButton=null;
-        this.maxButton=null;
-    }
-
-
     this.hover = false;
     this.pressed = false;
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = NumberButton.maxValue;
-    this.element.value=0;
+    this.element.value = 0;
     this.setStep(1);
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
-
-
 
     /**
      * action upon change, strategy pattern
@@ -128,8 +122,6 @@ export function NumberButton(parent,hasPlusMinus,hasMinMax) {
     };
 }
 
-const px = "px";
-
 //effective value for infinity, change if too low
 NumberButton.maxValue = 1000;
 
@@ -152,41 +144,15 @@ NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 /**
  * add a span with a space to the parent element
  * use NumberButton.spaceWidth as parameter !!!
- * @method NumberButton.addSpace
+ * @method NumberButton#addSpace
  * @param {HTMLElement} parent
  */
-NumberButton.addSpace = function(parent) {
+NumberButton.prototype.addSpace = function() {
     const theSpan = document.createElement("span");
     theSpan.style.width = NumberButton.spaceWidth + "px";
     theSpan.style.display = "inline-block";
-    theSpan.style.backgroundColor = "red";
-    parent.appendChild(theSpan);
+    this.parent.appendChild(theSpan);
 };
-
-NumberButton.prototype.addSpace = function() {
-    NumberButton.addSpace(this.parent);
-};
-
-/**
- * center an element vertically in its parent element
- * set position to relative if parent position is not set to absolute
- * @method NumberButton.centerVertical
- * @param {hlmlElement} toCenter - an inline element, display set to inline-block
- */
-NumberButton.centerVertical = function(toCenter) {
-    if (toCenter.parentElement.style.position !== "absolute") {
-        toCenter.parentElement.style.position = "relative";
-    }
-    toCenter.style.position = "absolute";
-    toCenter.style.top = "50%";
-    toCenter.style.transform = "translateY(-50%)";
-    toCenter.style.display = "inline-block";
-};
-
-/**
- * for convenience
- */
-NumberButton.prototype.centerVertical = NumberButton.centerVertical;
 
 /**
  * quantize a number according to step and clamp to range

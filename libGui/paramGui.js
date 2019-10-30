@@ -243,8 +243,6 @@ ParamGui.centerVertical = function(toCenter) {
     toCenter.style.display = "inline-block";
 };
 
-
-
 /**
  * remove an element from an array (of listeners)
  * removes dublicates

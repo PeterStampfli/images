@@ -21,7 +21,8 @@
 <script type="module">
 
 import {
-    NumberButton
+    NumberButton,
+    Range
 } from "../libGui/modules.js";
 
 window.onload=function(){
@@ -32,6 +33,7 @@ const thisDiv=document.getElementById("thisDiv");
 console.log(thisDiv)
 thisDiv.style.backgroundColor="yellow";
 const nb=new NumberButton(thisDiv,true,true);
+const rb=new Range(thisDiv,true);
 
 
 }

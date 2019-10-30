@@ -1,41 +1,52 @@
 /**
  * a button to input numbers together with a slider
  * default is value between 0 and 1
- * @constructor Range - better use Range.create
- * @param {String} idText - id of HTML input element, will be set to type text
- * @param {String} idRange - id of HTML input element, will be set to type range
+ * @constructor Range 
+ * @param {DOM element} parent, an html element, best "div"
+ * @param {boolean} hasPlusMinus  (optional), increase/decrease value by 1
  */
 
-/* jshint esversion:6 */
 import {
-    Button,
-    DOM
+    Button
 } from "./modules.js";
 
-export function Range(idText, idRange, idPlus, idMinus) {
-    this.idText = idText;
-    this.idRange = idRange;
-    this.idPlus = (arguments.length > 2) ? idPlus : false;
-    this.idMinus = (arguments.length > 3) ? idMinus : false;
-    this.textElement = document.getElementById(idText);
+export function Range(parent, hasPlusMinus) {
+    this.parent = parent;
+    this.textElement = document.createElement("input");
+    parent.appendChild(this.textElement);
     this.textElement.setAttribute("type", "text");
-    DOM.style("#" + this.idText, "text-align", "right");
-    this.rangeElement = document.getElementById(idRange);
+    this.textElement.style.textAlign = "right";
+    this.textHover = false;
+    this.textPressed = false;
+    this.addSpace();
+    this.rangeElement = document.createElement("input");
+    parent.appendChild(this.rangeElement);
     this.rangeElement.setAttribute("type", "range");
     this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
+    this.rangeElement.style.verticalAlign = "middle"; // range is essentially an image, inline element
+    const range = this;
+    if ((arguments.length > 1) && hasPlusMinus) {
+        this.addSpace();
+        this.minusButton = new Button("-", parent);
+        this.minusButton.onClick = function() {
+            range.updateValue(range.lastValue - 1);
+        };
+        this.addSpace();
+        this.plusButton = new Button("+", parent);
+        this.plusButton.onClick = function() {
+            range.updateValue(range.lastValue + 1);
+        };
+    } else {
+        this.minusButton = null;
+        this.plusButton = null;
+    }
     this.cyclic = false;
     this.setStep(0.01);
     this.digits = 2;
     this.lastValue = 0.5;
     this.setRange(0, 1);
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
-
-    const range = this;
-
-    // the text element alone
-    this.textHover = false;
-    this.textPressed = false;
     this.updateTextStyle();
 
     // hovering
@@ -65,31 +76,6 @@ export function Range(idText, idRange, idPlus, idMinus) {
         range.updateTextStyle();
     };
 
-    // the range element alone
-    this.rangeHover = false;
-    this.rangePressed = false;
-    this.updateRangeStyle();
-
-    // doing things
-    this.rangeElement.oninput = function() {
-        range.updateValue(range.getValueRange());
-    };
-
-    this.rangeElement.onchange = function() {
-        range.updateValue(range.getValueRange());
-    };
-
-    // hovering
-    this.rangeElement.onmouseenter = function() {
-        range.rangeHover = true;
-        range.updateRangeStyle();
-    };
-
-    this.rangeElement.onmouseleave = function() {
-        range.rangeHover = false;
-        range.updateRangeStyle();
-    };
-
     this.textElement.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -114,21 +100,14 @@ export function Range(idText, idRange, idPlus, idMinus) {
         }
     };
 
-    // increasing and decreasing    
-    this.plusButton = null;
-    if (this.idPlus !== false) {
-        this.plusButton = new Button(idPlus);
-        this.plusButton.onClick = function() {
-            range.updateValue(range.getValue() + 1);
-        };
-    }
-    this.minusButton = null;
-    if (this.idMinus !== false) {
-        this.minusButton = new Button(idMinus);
-        this.minusButton.onClick = function() {
-            range.updateValue(range.getValue() - 1);
-        };
-    }
+    // doing things continously
+    this.rangeElement.oninput = function() {
+        range.updateValue(range.getValueRange());
+    };
+
+    this.rangeElement.onchange = function() {
+        range.updateValue(range.getValueRange());
+    };
 
     /**
      * action upon change, strategy pattern
@@ -137,6 +116,9 @@ export function Range(idText, idRange, idPlus, idMinus) {
      */
     this.onChange = function(value) {};
 }
+
+// width for spaces in px
+Range.spaceWidth = 5;
 
 /**
  * setup the color styles defaults, use for other buttons too
@@ -170,24 +152,16 @@ Range.prototype.updateTextStyle = function() {
 };
 
 /**
- * update the color style of the range input element depending on whether its pressed or hovered
- * always call if states change, use for other buttons too
- * @method Range#updateRangeStyle
+ * add a span with a space to the parent element
+ * use NumberButton.spaceWidth as parameter !!!
+ * @method Range#addSpace
  */
-Range.prototype.updateRangeStyle = function() {
-    if (this.rangePressed) {
-        if (this.rangeHover) {
-            this.rangeElement.style.backgroundColor = this.backgroundColorDownHover;
-        } else {
-            this.rangeElement.style.backgroundColor = this.backgroundColorDown;
-        }
-    } else {
-        if (this.rangeHover) {
-            this.rangeElement.style.backgroundColor = this.backgroundColorUpHover;
-        } else {
-            this.rangeElement.style.backgroundColor = this.backgroundColorUp;
-        }
-    }
+
+Range.prototype.addSpace = function() {
+    const theSpan = document.createElement("span");
+    theSpan.style.width = Range.spaceWidth + "px";
+    theSpan.style.display = "inline-block";
+    this.parent.appendChild(theSpan);
 };
 
 /**
@@ -374,8 +348,6 @@ Range.prototype.destroy = function() {
     this.textElement.onkeydown = null;
     this.textElement.remove();
     this.textElement = null;
-    this.rangeElement.onmouseenter = null;
-    this.rangeElement.onmouseleave = null;
     this.rangeElement.oninput = null;
     this.rangeElement.onchange = null;
     this.rangeElement.remove();
@@ -388,38 +360,4 @@ Range.prototype.destroy = function() {
         this.minusButton.destroy();
         this.minusButton = null;
     }
-};
-
-/**
- * create a range button combination
- * Attention: set font sizes and width afterwards
- * class: inputRangeClass
- * @method Range.create
- * @param {String} idSpan - id of the span containing the number button
- * @return Range
- */
-Range.create = function(idSpan) {
-    DOM.create("input", idSpan + "text", "#" + idSpan);
-    DOM.create("input", idSpan + "range", "#" + idSpan);
-    DOM.class("#" + idSpan + "range", "inputRangeClass"); // for setting slider length
-    let range = new Range(idSpan + "text", idSpan + "range");
-    return range;
-};
-
-/**
- * create a range button combination with plus/minus 1 buttons
- * Attention: set font sizes afterwards
- * @method Range.create
- * @param {String} idSpan - id of the span containing the number button
- * @return Range
- */
-Range.createPlusMinus = function(idSpan) {
-    DOM.create("input", idSpan + "text", "#" + idSpan);
-    DOM.create("input", idSpan + "range", "#" + idSpan);
-    const dnId = DOM.createButton(idSpan, "-");
-    DOM.addSpace(idSpan);
-    const upId = DOM.createButton(idSpan, "+");
-    DOM.style("#" + upId + ",#" + dnId, "borderRadius", "1000px");
-    let range = new Range(idSpan + "text", idSpan + "range", upId, dnId);
-    return range;
 };
