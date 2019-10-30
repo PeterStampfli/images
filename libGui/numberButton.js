@@ -7,7 +7,7 @@
  * @param {DOM element} parent, an html element, best "div"
  * @param {boolean} hasPlusMinus  (optional)
  * @param {boolean} hasMinMax  (optional)
-*/
+ */
 
 import {
     Button,
@@ -134,6 +134,9 @@ const px = "px";
 //effective value for infinity, change if too low
 NumberButton.maxValue = 1000;
 
+// width for spaces in px
+NumberButton.spaceWidth=20;
+
 /**
  * update the color style of the element depending on whether its pressed or hovered
  * always call if states change, use for other buttons too
@@ -146,6 +149,45 @@ NumberButton.prototype.updateStyle = Button.prototype.updateStyle;
  * @method NumberButton#colorStyleDefaults
  */
 NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
+
+/**
+ * add a span with a space to the parent element
+ * use NumberButton.spaceWidth as parameter !!!
+ * @method NumberButton.addSpace
+ * @param {HTMLElement} parent
+ */
+NumberButton.addSpace = function(parent) {
+    const theSpan = document.createElement("span");
+    theSpan.style.width=NumberButton.spaceWidth+"px";
+    theSpan.style.display="inline-block";
+    theSpan.style.backgroundColor="red";
+    parent.appendChild(theSpan);
+};
+
+NumberButton.prototype.addSpace=function(){
+    NumberButton.addSpace(this.element);
+};
+
+/**
+ * center an element vertically in its parent element
+ * set position to relative if parent position is not set to absolute
+ * @method NumberButton.centerVertical
+ * @param {hlmlElement} toCenter - an inline element, display set to inline-block
+ */
+NumberButton.centerVertical = function(toCenter) {
+    if (toCenter.parentElement.style.position !== "absolute") {
+        toCenter.parentElement.style.position = "relative";
+    }
+    toCenter.style.position = "absolute";
+    toCenter.style.top = "50%";
+    toCenter.style.transform = "translateY(-50%)";
+    toCenter.style.display="inline-block";
+};
+
+/**
+* for convenience
+*/
+NumberButton.prototype.centerVertical=NumberButton.centerVertical;
 
 /**
  * quantize a number according to step and clamp to range

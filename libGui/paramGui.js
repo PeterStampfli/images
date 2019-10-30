@@ -185,6 +185,8 @@ ParamGui.zIndex = 5;
 ParamGui.listeningInterval = 400;
 // keyboard character to hide/show all guis
 ParamGui.hideCharacter = "Tab";
+// width for spaces in px
+ParamGui.spaceWidth=20;
 
 /**
  * updating existing fields of first object by fields of second object
@@ -211,16 +213,37 @@ ParamGui.updateDefaults = function(newValues) {
     ParamGui.updateValues(ParamGui.defaultDesign, newValues);
 };
 
+
 /**
-* add a span with a space to an html element
-* @method ParamGui.addSpace
-* @param {DOMElement} element
-*/
-ParamGui.addSpace=function(element){
-    const theSpan= document.createElement("span");
-    theSpan.innerHTML=" dvvd";
-    element.appendChild(theSpan);
+ * add a span with a space to the parent element
+ * use NumberButton.spaceWidth as parameter !!!
+ * @method ParamGui.addSpace
+ * @param {HTMLElement} parent
+ */
+ParamGui.addSpace = function(parent) {
+    const theSpan = document.createElement("span");
+    theSpan.style.width=ParamGui.spaceWidth+"px";
+    theSpan.style.display="inline-block";
+    parent.appendChild(theSpan);
 };
+
+/**
+ * center an element vertically in its parent element
+ * set position to relative if parent position is not set to absolute
+ * @method ParamGui.centerVertical
+ * @param {hlmlElement} toCenter - an inline element, display set to inline-block
+ */
+ParamGui.centerVertical = function(toCenter) {
+    if (toCenter.parentElement.style.position !== "absolute") {
+        toCenter.parentElement.style.position = "relative";
+    }
+    toCenter.style.position = "absolute";
+    toCenter.style.top = "50%";
+    toCenter.style.transform = "translateY(-50%)";
+    toCenter.style.display="inline-block";
+};
+
+
 
 /**
  * remove an element from an array (of listeners)
@@ -380,8 +403,9 @@ ParamGui.prototype.createTitle = function() {
             "position", "relative");
         // put elements at center of div with fixed heigth
         const innerTitleDivId = DOM.createId();
-        const innerTitleDiv=DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
+        const innerTitleDiv = DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
         // center the title vertically
+        // var x = document.getElementById("myLI").parentElement.nodeName; 
         DOM.style("#" + innerTitleDivId,
             "position", "absolute",
             "top", "50%",
@@ -391,25 +415,25 @@ ParamGui.prototype.createTitle = function() {
         // create close and open buttons if wanted
         // small arrows (as for file system), before name
         if (this.closeOnTop) {
-            
+
             const paramGui = this;
-            this.closeButton = new Button("▼",innerTitleDiv);
+            this.closeButton = new Button("▼", innerTitleDiv);
             this.closeButton.colorStyleForTransparentSpan(design.titleColor);
-                this.closeButton.element.style.borderRadius = "0px"; 
-                this.closeButton.element.style.borderStyle="none";
-                this.closeButton.element.style.outline="none";
-                this.closeButton.setFontSize(design.titleFontSize );
+            this.closeButton.element.style.borderRadius = "0px";
+            this.closeButton.element.style.borderStyle = "none";
+            this.closeButton.element.style.outline = "none";
+            this.closeButton.setFontSize(design.titleFontSize);
 
             this.closeButton.onClick = function() {
                 paramGui.close();
             };
-            this.openButton = new Button("►",innerTitleDiv);
+            this.openButton = new Button("►", innerTitleDiv);
             this.openButton.colorStyleForTransparentSpan(design.titleColor);
-            this.openButton.element.style.display="none";
-        this.openButton.element.style.borderRadius = "0px"; 
-                this.openButton.element.style.borderStyle="none";
-                this.openButton.element.style.outline="none";
-                this.openButton.setFontSize(design.titleFontSize );
+            this.openButton.element.style.display = "none";
+            this.openButton.element.style.borderRadius = "0px";
+            this.openButton.element.style.borderStyle = "none";
+            this.openButton.element.style.outline = "none";
+            this.openButton.setFontSize(design.titleFontSize);
             this.openButton.onClick = function() {
                 paramGui.open();
             };
