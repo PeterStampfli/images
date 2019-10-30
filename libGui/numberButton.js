@@ -14,21 +14,53 @@ import {
     DOM
 } from "./modules.js";
 
-export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
-    this.idName = idName;
-    this.element = document.getElementById(idName);
+export function NumberButton(parent,hasPlusMinus,hasMinMax) {
+    this.parent=parent;
+    this.element = document.createElement("input");
+    parent.appendChild(this.element);
     this.element.setAttribute("type", "text");
-    DOM.style("#" + this.idName, "text-align", "right");
-    this.idPlus = (arguments.length > 1) ? idPlus : false;
-    this.idMinus = (arguments.length > 2) ? idMinus : false;
-    this.idMin = (arguments.length > 3) ? idMin : false;
-    this.idMax = (arguments.length > 4) ? idMax : false;
+    this.element.style.textAlign="right";
+        const button = this;
+    if ((arguments.length>1)&&hasPlusMinus){
+        this.addSpace();
+        this.minusButton=new Button("-",parent); 
+         this.minusButton.onClick = function() {
+            button.updateValue(button.lastValue - 1);
+        };   
+        this.addSpace();
+        this.plusButton=new Button("+",parent);
+ this.plusButton.onClick = function() {
+            button.updateValue(button.lastValue + 1);
+        };   }
+    else {
+        this.minusButton=null;
+        this.plusButton=null;
+    }
+    if ((arguments.length>2)&&hasMinMax){
+        this.addSpace();
+        this.minButton=new Button("min",parent);
+        this.minButton.onClick = function() {
+            button.updateValue(button.minValue);
+        };    
+        this.addSpace();
+        this.maxButton=new Button("max",parent);
+        this.maxButton.onClick = function() {
+            button.updateValue(button.maxValue);
+        };
+    }
+    else {
+        this.minButton=null;
+        this.maxButton=null;
+    }
+
+
     this.hover = false;
     this.pressed = false;
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
     this.maxValue = NumberButton.maxValue;
+    this.element.value=0;
     this.setStep(1);
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
@@ -36,40 +68,7 @@ export function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
     this.colorStyleDefaults();
     this.updateStyle();
 
-    const button = this;
 
-    // increasing and decreasing    
-    this.plusButton = null;
-    if (this.idPlus !== false) {
-        this.plusButton = new Button(idPlus);
-        this.plusButton.onClick = function() {
-            button.updateValue(button.lastValue + 1);
-        };
-    }
-    this.minusButton = null;
-    if (this.idMinus !== false) {
-        this.minusButton = new Button(idMinus);
-        this.minusButton.onClick = function() {
-            button.updateValue(button.lastValue - 1);
-        };
-    }
-
-    // go to max or min value
-    this.minButton = null;
-    if (this.idMin !== false) {
-        this.minButton = new Button(idMin);
-        this.minButton.onClick = function() {
-            button.updateValue(button.minValue);
-        };
-    }
-
-    this.maxButton = null;
-    if (this.idMax !== false) {
-        this.maxButton = new Button(idMax);
-        this.maxButton.onClick = function() {
-            button.updateValue(button.maxValue);
-        };
-    }
 
     /**
      * action upon change, strategy pattern
@@ -135,7 +134,7 @@ const px = "px";
 NumberButton.maxValue = 1000;
 
 // width for spaces in px
-NumberButton.spaceWidth=20;
+NumberButton.spaceWidth = 5;
 
 /**
  * update the color style of the element depending on whether its pressed or hovered
@@ -158,14 +157,14 @@ NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
  */
 NumberButton.addSpace = function(parent) {
     const theSpan = document.createElement("span");
-    theSpan.style.width=NumberButton.spaceWidth+"px";
-    theSpan.style.display="inline-block";
-    theSpan.style.backgroundColor="red";
+    theSpan.style.width = NumberButton.spaceWidth + "px";
+    theSpan.style.display = "inline-block";
+    theSpan.style.backgroundColor = "red";
     parent.appendChild(theSpan);
 };
 
-NumberButton.prototype.addSpace=function(){
-    NumberButton.addSpace(this.element);
+NumberButton.prototype.addSpace = function() {
+    NumberButton.addSpace(this.parent);
 };
 
 /**
@@ -181,13 +180,13 @@ NumberButton.centerVertical = function(toCenter) {
     toCenter.style.position = "absolute";
     toCenter.style.top = "50%";
     toCenter.style.transform = "translateY(-50%)";
-    toCenter.style.display="inline-block";
+    toCenter.style.display = "inline-block";
 };
 
 /**
-* for convenience
-*/
-NumberButton.prototype.centerVertical=NumberButton.centerVertical;
+ * for convenience
+ */
+NumberButton.prototype.centerVertical = NumberButton.centerVertical;
 
 /**
  * quantize a number according to step and clamp to range
@@ -370,46 +369,4 @@ NumberButton.prototype.destroy = function() {
         this.maxButton.destroy();
         this.maxButton = null;
     }
-};
-
-/**
- * create an number button with up and down buttons, maximum 4 digits
- * Attention: set font sizes afterwards
- * @method NumberButton.create
- * @param {String} idSpan - id of the span conatining the number button
- * @return NumberButton
- */
-NumberButton.create = function(idSpan) {
-    const inputId = DOM.createId();
-    DOM.create("input", inputId, "#" + idSpan);
-    DOM.addSpace(idSpan);
-    const dnId = DOM.createButton(idSpan, "-");
-    DOM.addSpace(idSpan);
-    const upId = DOM.createButton(idSpan, "+");
-    DOM.style("#" + upId + ",#" + dnId, "borderRadius", 1000 + px);
-    let numberButton = new NumberButton(inputId, upId, dnId);
-    return numberButton;
-};
-
-/**
- * create an number button with up and down buttons and max and min button, maximum 4 digits
- * Attention: set font sizes afterwards
- * @method NumberButton.createInfinity
- * @param {String} idSpan - id of the span conatining the number button
- * @return NumberButton
- */
-NumberButton.createInfinity = function(idSpan) {
-    const inputId = DOM.createId();
-    DOM.create("input", inputId, "#" + idSpan);
-    DOM.addSpace(idSpan);
-    const dnId = DOM.createButton(idSpan, "-");
-    DOM.addSpace(idSpan);
-    const upId = DOM.createButton(idSpan, "+");
-    DOM.addSpace(idSpan);
-    const minId = DOM.createButton(idSpan, "min");
-    DOM.addSpace(idSpan);
-    const maxId = DOM.createButton(idSpan, "max");
-    DOM.style("#" + upId + ",#" + dnId + ",#" + minId + ",#" + maxId, "borderRadius", "1000px");
-    let numberButton = new NumberButton(inputId, upId, dnId, minId, maxId);
-    return numberButton;
 };

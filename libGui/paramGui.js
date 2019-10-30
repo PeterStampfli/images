@@ -186,7 +186,7 @@ ParamGui.listeningInterval = 400;
 // keyboard character to hide/show all guis
 ParamGui.hideCharacter = "Tab";
 // width for spaces in px
-ParamGui.spaceWidth=20;
+ParamGui.spaceWidth = 20;
 
 /**
  * updating existing fields of first object by fields of second object
@@ -222,8 +222,8 @@ ParamGui.updateDefaults = function(newValues) {
  */
 ParamGui.addSpace = function(parent) {
     const theSpan = document.createElement("span");
-    theSpan.style.width=ParamGui.spaceWidth+"px";
-    theSpan.style.display="inline-block";
+    theSpan.style.width = ParamGui.spaceWidth + "px";
+    theSpan.style.display = "inline-block";
     parent.appendChild(theSpan);
 };
 
@@ -240,7 +240,7 @@ ParamGui.centerVertical = function(toCenter) {
     toCenter.style.position = "absolute";
     toCenter.style.top = "50%";
     toCenter.style.transform = "translateY(-50%)";
-    toCenter.style.display="inline-block";
+    toCenter.style.display = "inline-block";
 };
 
 
