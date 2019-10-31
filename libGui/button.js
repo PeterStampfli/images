@@ -41,7 +41,6 @@ export function Button(text,parent) {
      */
     this.onFileInput = function(file) {};
 
-
     // a list of actions....
 
     var button = this;

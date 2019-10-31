@@ -122,7 +122,7 @@ Range.spaceWidth = 5;
 
 /**
  * setup the color styles defaults, use for other buttons too
- * @method NumberButton#colorStyleDefaults
+ * @method Range#colorStyleDefaults
  */
 Range.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
@@ -153,10 +153,9 @@ Range.prototype.updateTextStyle = function() {
 
 /**
  * add a span with a space to the parent element
- * use NumberButton.spaceWidth as parameter !!!
+ * use Range.spaceWidth as parameter !!!
  * @method Range#addSpace
  */
-
 Range.prototype.addSpace = function() {
     const theSpan = document.createElement("span");
     theSpan.style.width = Range.spaceWidth + "px";
