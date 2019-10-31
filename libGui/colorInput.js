@@ -192,14 +192,142 @@ ColorInput.prototype.addSpace = function() {
 };
 
 
+// standard color strings
+// without alpha: #rrggbb
+// with alpha: #rrggbbaa
+// transforms to color without alpha: #rgb -> #rrggbb, #rgba -> #rrggbb, #rrggbb, #rrggbbaa -> #rrggbb
+// transforms to color with alpha: #rgb -> #rrggbbff, #rgba -> #rrggbbaa, #rrggbb -> #rrggbbff
+
+
+const hexDigits = "0123456789abcdef";
+
 /**
- * get value of colorInput
+ * test if a string is a correct color string
+ * @method ColorInput.isColorFormat
+ * @param {String} color
+ * @return true isf color is in correct format
+ */
+ColorInput.isColorFormat = function(color) {
+    if (color.charAt(0) !== "#") {
+        return false;
+    }
+    const length = color.length;
+    if ((length != 4) && (length != 5) && (length != 7) && (length != 9)) {
+        return false;
+    }
+    for (var i = 1; i < length; i++) {
+        if (hexDigits.indexOf(color.charAt(i)) < 0) { // indexOf returns zero if char not found
+            return false;
+        }
+    }
+    return true;
+};
+
+/**
+ * test if a color string has alpha
+ * based on its length: 5 or 9
+ * @method ColorInput.hasAlpha
+ * @param {String} color
+ * @return true if lenght=5 or 9
+ */
+ColorInput.hasAlpha = function(color) {
+    return (color.length === 5) || (color.length === 9);
+};
+
+/**
+ * transform a string to a standard rgb string
+ * does not check the input for errors, does the most obvious
+ * @method ColorInput.rgbFrom
+ * @param {String} color
+ * @return String, the transformed color string
+ */
+ColorInput.rgbFrom = function(color) {
+    const length = color.length;
+    var result;
+    if ((length === 4) || (length === 5)) { // #rgb or #rgba
+        const red = color.charAt(1);
+        const green = color.charAt(2);
+        const blue = color.charAt(3);
+        result = "#" + red + red + green + green + blue + blue;
+    } else { // #rrggbb  or #rrggbbaa
+        result = color.substring(0, 7);
+    }
+    return result;
+};
+
+/**
+ * transform a string to a standard rgba string
+ * does not check the input for errors, does the most obvious
+ * @method ColorInput.rgbaFrom
+ * @param {String} color
+ * @return String, the transformed color string
+ */
+ColorInput.rgbaFrom = function(color) {
+    const length = color.length;
+    let result = color;
+    if ((length === 4) || (length === 5)) { // #rgb or #rgba
+        const red = color.charAt(1);
+        const green = color.charAt(2);
+        const blue = color.charAt(3);
+        const alpha = (length === 5) ? color.charAt(4) : "f";
+        result = "#" + red + red + green + green + blue + blue + alpha + alpha;
+    } else if (length === 7) { // #rrggbb 
+        result += "ff";
+    }
+    return result;
+};
+
+/**
+ * transform string to standard color
+ * depending if there is alpha or not
+ * @method ColorInput#colorFrom
+ * @param {String} color
+ * @return String, the transformed color string
+ */
+ColorInput.prototype.colorFrom = function(color) {
+    if (this.hasAlpha) {
+        return ColorInput.rgbaFrom(color);
+    } else {
+        return ColorInput.rgbFrom(color);
+    }
+};
+
+/**
+ * get alpha value from color string
+ * returns 255 if hasAlpha==false
+ * @method ColorInput#alphaFrom
+ * @param {String} color
+ * @return integer alpha value
+ */
+ColorInput.prototype.alphaFrom = function(color) {
+    if (this.hasAlpha) {
+        return parseInt(ColorInput.rgbaFrom(color).substring(7), 16);
+    } else {
+        return 255;
+    }
+};
+
+/**
+ * transform a color string and an integer alpha to a standard rgba string
+ * does not check the input for errors, does the most obvious
+ * @method ColorInput.rgbaFromRGBAndAlpha
+ * @param {String} color - may also be rgba, a is discarded
+ * @param {integer} alpha
+ * @return String, the transformed color string
+ */
+ColorInput.rgbaFromRGBAndAlpha = function(color, alpha) {
+    alpha = Math.max(0, Math.min(255, Math.round(alpha)));
+    return ColorInput.rgbFrom(color) + alpha.toString(16);
+};
+
+/**
+ * get value of colorInput,assumes that the textelement has the correct value
  * @method ColorInput#getValue
  * @return String, the color as hex string "#rrggbb"
  */
 ColorInput.prototype.getValue = function() {
     console.log("getvaluecolor");
-    return this.element.value;
+    return this.textElement.value;
 };
 
 /**

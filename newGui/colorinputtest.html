@@ -31,13 +31,34 @@ window.onload=function(){
 console.log("hello");
 
 const thisDiv=document.getElementById("thisDiv");
-console.log(thisDiv)
+console.log(thisDiv);
 thisDiv.style.backgroundColor="yellow";
 const nb=new ColorInput(thisDiv,true);
 
+//correct format
+const hexDigits="0123456789abcdef";
 
+//#rgb,#rgba,#rrggbb,#rrggbbaa
+
+function isColorFormat(color){
+	if (color.charAt(0)!=="#"){
+		return false;
+	}
+	const length=color.length;
+	if ((length!=4)&&(length!=5)&&(length!=7)&&(length!=9)){
+		return false;
+	}
+	for (var i=1;i<length;i++){
+		if (hexDigits.indexOf(color.charAt(i))<0){
+	return false;
+}
+	}
+	return true;
 }
 
+console.log(ColorInput.hasAlpha("#3fbc"));
+
+};
 </script>
 
 
