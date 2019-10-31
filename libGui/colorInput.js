@@ -16,6 +16,11 @@ import {
 export function ColorInput(parent, hasAlpha) {
     this.parent = parent;
     this.hasAlpha = hasAlpha;
+    if (hasAlpha) {
+        this.lastValue = "#000000ff";
+    } else {
+        this.lastValue = "#000000";
+    }
     this.textElement = document.createElement("input");
     parent.appendChild(this.textElement);
     this.textElement.setAttribute("type", "text");
@@ -87,14 +92,10 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.updateColorStyle();
     };
 
-
-
-
     // doing things
     this.textElement.onchange = function() {
         console.log("text onchange");
     };
-
 
     this.colorElement.oninput = function() {
         console.log("color oninput ");
@@ -120,24 +121,22 @@ export function ColorInput(parent, hasAlpha) {
 
     /**
      * action upon change
-     * @method Button#onClick
+     * @method ColorInput#onChange
+     * @param {String} color
      */
-    this.onChange = function() {
-        console.log("onChange");
+    this.onChange = function(color) {
+        console.log("onChange " + color);
     };
 }
 
-
 // width for spaces in px
 ColorInput.spaceWidth = 5;
-
 
 /**
  * setup the color styles defaults, use for other buttons too
  * @method ColorInput#colorStyleDefaults
  */
 ColorInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
-
 
 /**
  * update the color style of the text input element depending on whether its pressed or hovered
@@ -177,8 +176,6 @@ ColorInput.prototype.updateColorStyle = function() {
     }
 };
 
-
-
 /**
  * add a span with a space to the parent element
  * use ColorInput.spaceWidth as parameter !!!
@@ -191,13 +188,11 @@ ColorInput.prototype.addSpace = function() {
     this.parent.appendChild(theSpan);
 };
 
-
 // standard color strings
 // without alpha: #rrggbb
 // with alpha: #rrggbbaa
 // transforms to color without alpha: #rgb -> #rrggbb, #rgba -> #rrggbb, #rrggbb, #rrggbbaa -> #rrggbb
 // transforms to color with alpha: #rgb -> #rrggbbff, #rgba -> #rrggbbaa, #rrggbb -> #rrggbbff
-
 
 const hexDigits = "0123456789abcdef";
 
@@ -331,12 +326,39 @@ ColorInput.prototype.getValue = function() {
 };
 
 /**
- * set value of input
+ * set value of input, does nothing if wrong, changes to standard format if ok
  * @method ColorInput#setValue
  * @param {String} text
  */
 ColorInput.prototype.setValue = function(text) {
-    this.element.value = text;
+    if (ColorInput.isColorFormat(text)) {
+        const color = this.colorFrom(text);
+        this.lastValue = color;
+        this.textElement.value = color;
+        this.colorElement.value = ColorInput.rgbFrom(color);
+        if (this.hasAlpha) {
+            this.rangeElement.value = this.alphaFrom(color);
+        }
+    }
+};
+
+/**
+ * check if text is a color
+ * if color changes do this.onChange and set element values
+ * thus we can use it for initialization
+ * @method ColorInput#updateValue
+ * @param {String} text - the color
+ */
+ColorInput.prototype.updateValue = function(text) {
+    if (ColorInput.isColorFormat(text)) {
+        const color = this.colorFrom(text);
+        if (this.lastValue !== color) {
+            this.setValue(color);
+            this.onChange(color);
+        }
+    } else {
+        this.setValue(this.lastValue);
+    }
 };
 
 /**
