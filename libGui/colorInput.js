@@ -27,8 +27,6 @@ export function ColorInput(parent, hasAlpha) {
     this.textHover = false;
     this.textPressed = false;
     this.addSpace();
-
-
     this.colorElement = document.createElement("input");
     parent.appendChild(this.colorElement);
     this.colorElement.setAttribute("type", "color");
@@ -36,13 +34,9 @@ export function ColorInput(parent, hasAlpha) {
     this.colorElement.style.outline = "none";
     this.colorElement.style.verticalAlign = "middle";
     this.colorElement.select(); // magic for old browsers that have no color input, text instead
-
     this.colorHover = false;
-
-
     if (hasAlpha) {
         this.addSpace();
-
         this.rangeElement = document.createElement("input");
         parent.appendChild(this.rangeElement);
         this.rangeElement.setAttribute("type", "range");
@@ -51,9 +45,6 @@ export function ColorInput(parent, hasAlpha) {
         this.rangeElement.step = 1;
         this.rangeElement.min = 0;
         this.rangeElement.max = 255;
-
-
-
     }
     const colorInput = this;
 
@@ -68,7 +59,6 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.updateTextStyle();
     };
 
-
     // onfocus /onblur corresponds to pressed
     this.textElement.onfocus = function() {
         colorInput.textPressed = true;
@@ -80,8 +70,6 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.updateTextStyle();
     };
 
-
-    // hovering
     this.colorElement.onmouseenter = function() {
         colorInput.colorHover = true;
         colorInput.updateColorStyle();
@@ -94,25 +82,27 @@ export function ColorInput(parent, hasAlpha) {
 
     // doing things
     this.textElement.onchange = function() {
-        console.log("text onchange");
+        let color = colorInput.textElement.value;
+        if (color.charAt(0) !== "#") { // in case add missing # at beginning
+            color = "#" + color;
+        }
+        colorInput.updateValue(color);
     };
 
-    this.colorElement.oninput = function() {
-        console.log("color oninput ");
+    function colorElementInput() {
+        let color = colorInput.colorElement.value;
+        if (colorInput.hasAlpha) { // combine rgb with alpha from range (all elements are synchro)
+            color = ColorInput.rgbaFromRGBAndAlpha(color, colorInput.rangeElement.value);
+        }
+        colorInput.updateValue(color);
+    }
 
-    };
-
-    this.colorElement.onchange = function() {
-        console.log("color onchange ");
-    };
+    this.colorElement.oninput = colorElementInput;
+    this.colorElement.onchange = colorElementInput;
 
     if (hasAlpha) {
-        this.rangeElement.oninput = function() {
-            console.log("range oninput");
-        };
-        this.rangeElement.onchange = function() {
-            console.log("range onchange");
-        };
+        this.rangeElement.oninput = colorElementInput;
+        this.rangeElement.onchange = colorElementInput;
     }
 
     this.colorStyleDefaults();
@@ -312,7 +302,11 @@ ColorInput.prototype.alphaFrom = function(color) {
  */
 ColorInput.rgbaFromRGBAndAlpha = function(color, alpha) {
     alpha = Math.max(0, Math.min(255, Math.round(alpha)));
-    return ColorInput.rgbFrom(color) + alpha.toString(16);
+    alpha = alpha.toString(16);
+    if (alpha.length === 1) {
+        alpha = "0" + alpha;
+    }
+    return ColorInput.rgbFrom(color) + alpha;
 };
 
 /**
@@ -321,7 +315,6 @@ ColorInput.rgbaFromRGBAndAlpha = function(color, alpha) {
  * @return String, the color as hex string "#rrggbb"
  */
 ColorInput.prototype.getValue = function() {
-    console.log("getvaluecolor");
     return this.textElement.value;
 };
 
@@ -331,6 +324,7 @@ ColorInput.prototype.getValue = function() {
  * @param {String} text
  */
 ColorInput.prototype.setValue = function(text) {
+    text = text.toLowerCase();
     if (ColorInput.isColorFormat(text)) {
         const color = this.colorFrom(text);
         this.lastValue = color;
@@ -350,6 +344,7 @@ ColorInput.prototype.setValue = function(text) {
  * @param {String} text - the color
  */
 ColorInput.prototype.updateValue = function(text) {
+    text = text.toLowerCase();
     if (ColorInput.isColorFormat(text)) {
         const color = this.colorFrom(text);
         if (this.lastValue !== color) {
