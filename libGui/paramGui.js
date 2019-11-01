@@ -163,15 +163,11 @@ ParamGui.defaultDesign = {
     colorStringInputWidth: 70,
     // width for color input
     colorInputWidth: 50,
-    // V offset for color input
-    colorVOffset: 5,
     // length for alpha range element for color
     colorRangeWidth: 60,
     // length of slider for range element
     rangeSliderLengthShort: 80,
     rangeSliderLengthLong: 120,
-    // vertical offset for range slider (alignment)
-    rangeVOffset: 4,
     // diameter for circular controllers
     controllerDiameter: 80
 };

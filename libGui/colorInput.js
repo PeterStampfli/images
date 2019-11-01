@@ -363,10 +363,23 @@ ColorInput.prototype.updateValue = function(text) {
 ColorInput.prototype.destroy = function() {
     this.onChange = null;
     this.onInput = null;
-    this.element.onchange = null;
-    this.element.oninput = null;
-    this.element.onmouseenter = null;
-    this.element.onmouseleave = null;
-    this.element.remove();
-    this.element = null;
+    this.textElement.onchange = null;
+    this.textElement.onmouseenter = null;
+    this.textElement.onmouseleave = null;
+    this.textElement.onfocus = null;
+    this.textElement.onblur = null;
+    this.textElement.remove();
+    this.textElement = null;
+    this.colorElement.onmouseenter = null;
+    this.colorElement.onmouseleave = null;
+    this.colorElement.oninput = null;
+    this.colorElement.onchange = null;
+    this.colorElement.remove();
+    this.colorElement = null;
+    if (this.hasAlpha) {
+        this.rangeElement.oninput = null;
+        this.rangeElement.onchange = null;
+        this.rangeElement.remove();
+        this.rangeElement = null;
+    }
 };

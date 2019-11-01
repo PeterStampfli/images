@@ -124,9 +124,6 @@ paramControllerMethods.styledTextInput = function(containerId) {
     const result = new TextInput(container);
     result.setWidth(design.textInputWidth);
     result.setFontSize(design.buttonFontSize);
-
-
-
     return result;
 };
 
@@ -142,7 +139,6 @@ paramControllerMethods.styledButton = function(text, containerId) {
     const design = this.gui.design;
     const result = new Button(text, container);
     result.setFontSize(design.buttonFontSize);
-
     return result;
 };
 
@@ -155,7 +151,6 @@ paramControllerMethods.styledButton = function(text, containerId) {
 paramControllerMethods.styledBooleanButton = function(containerId) {
     const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-
     const result = new BooleanButton(container);
     result.setWidth(design.onOffButtonWidth);
     result.setFontSize(design.buttonFontSize);
@@ -172,9 +167,7 @@ paramControllerMethods.styledSelect = function(containerId) {
     const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
     const result = new SelectValues(container);
-
     result.setFontSize(design.buttonFontSize);
-
     return result;
 };
 
@@ -203,12 +196,6 @@ paramControllerMethods.styledRange = function(containerId) {
     const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
     const range = new Range(container, false);
-    /*  DOM.style("#" + range.idText,
-          "width", design.numberInputWidth + px,
-          "font-size", design.buttonFontSize + px);
-      DOM.style("#" + range.idRange,
-          "width", design.rangeSliderLengthLong + px);
-          */
     range.setFontSize(design.buttonFontSize);
     range.setWidths(design.numberInputWidth, design.rangeSliderLengthLong);
     return range;
@@ -221,19 +208,11 @@ paramControllerMethods.styledRange = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledRangeForIntegers = function(containerId) {
+    const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("span", id, "#" + containerId);
-    const range = Range.createPlusMinus(id);
-    DOM.style("#" + range.idText,
-        "width", design.numberInputWidth + px,
-        "font-size", design.buttonFontSize + px,
-        "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-    DOM.style("#" + range.idRange,
-        "width", design.rangeSliderLengthShort + px);
-    DOM.style("#" + range.idPlus + ",#" + range.idMinus,
-        "font-size", design.buttonFontSize + px,
-        "transform", "translateY(" + (-design.rangeVOffset) + "px)");
+    const range = new Range(container, true);
+    range.setFontSize(design.buttonFontSize);
+    range.setWidths(design.numberInputWidth, design.rangeSliderLengthShort);
     range.setStep(1);
     return range;
 };

@@ -7,12 +7,12 @@
  * @param {DOM element} parent, an html element, best "div"
  */
 
-export function Button(text,parent) {
+export function Button(text, parent) {
     this.element = document.createElement("button");
     parent.appendChild(this.element);
-      this.element.innerHTML=text;
+    this.element.innerHTML = text;
     this.element.style.borderRadius = "1000px"; // semicircle
-    this.element.style.outline="none";
+    this.element.style.outline = "none";
     // states
     this.pressed = false;
     this.hover = false;
@@ -21,6 +21,7 @@ export function Button(text,parent) {
     this.updateStyle();
     this.element.style.cursor = "pointer";
     this.element.disabled = false;
+    this.isFileInput = false;
 
     /**
      * action upon click, strategy pattern
@@ -198,39 +199,26 @@ Button.prototype.setActive = function(isActive) {
 };
 
 /**
- * create an invisible file input button
- * @method Button.createFileInput
- * @param {function} action - callback function(file), what to do with the new file
+ * make that a button is a file input button. 
+ * creates an invisible file input button
+ * button.onFileInput(file) defines the action
+ * @method Button#asFileInput
  * @param {String} accept - optional attribute, type of files to accept, default is image.jpg
  */
-Button.createFileInput = function(action, accept) {
-    let fileInput = document.createElement("input");
+Button.prototype.asFileInput = function(accept = ".jpg") {
+    this.isFileInput = true;
+    const fileInput = document.createElement("input");
+    this.fileInput = fileInput;
     fileInput.setAttribute("type", "file");
     fileInput.style.display = "none";
     document.querySelector("body").appendChild(fileInput);
-    if (arguments.length > 1) {
-        fileInput.setAttribute("accept", accept);
-    } else {
-        fileInput.setAttribute("accept", ".jpg");
-    }
-    fileInput.onchange = function() {
-        action(fileInput.files[0]);
-    };
-    return fileInput;
-};
-
-/**
- * make that a button is a file input button. 
- * button.onFileInput(file) defines the action
- * @method Button#asFileInput
- */
-Button.prototype.asFileInput = function() {
+    fileInput.setAttribute("accept", accept);
     let button = this;
-    this.fileInput = Button.createFileInput(function(file) {
-        button.onFileInput(file);
-    }, this.accept);
+    fileInput.onchange = function() {
+        button.onFileInput(fileInput.files[0]);
+    };
     this.onClick = function() {
-        this.fileInput.click();
+        button.fileInput.click();
     };
 };
 
@@ -244,6 +232,11 @@ Button.prototype.destroy = function() {
     this.onClick = null;
     this.onMouseDown = null;
     this.onFileInput = null;
+    if (this.isFileInput) {
+        this.fileInput.onchange = null;
+        this.fileInput.remove();
+        this.fileInput = null;
+    }
     this.element.onmousedown = null;
     this.element.onmouseup = null;
     this.element.onmouseenter = null;
