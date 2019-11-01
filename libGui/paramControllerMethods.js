@@ -128,36 +128,6 @@ paramControllerMethods.styledTextInput = function(containerId) {
 };
 
 /**
- * create a bare styled button, width adapts to button text
- * @method paramControllerMethods.styledButton
- * @param {String} text - button text 
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledButton = function(text, containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const result = new Button(text, container);
-    result.setFontSize(design.buttonFontSize);
-    return result;
-};
-
-/**
- * create a bare styled boolean button, width onoff button width
- * @method paramControllerMethods.styledBooleanButton
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledBooleanButton = function(containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const result = new BooleanButton(container);
-    result.setWidth(design.onOffButtonWidth);
-    result.setFontSize(design.buttonFontSize);
-    return result;
-};
-
-/**
  * create a bare styled select element,  adjusts to options width
  * @method paramControllerMethods.styledSelect
  * @param {String} containerId - id of the enclosing div 

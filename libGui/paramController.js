@@ -1,6 +1,7 @@
-
 import {
     paramControllerMethods,
+    BooleanButton,
+    Button,
     DOM,
     Range
 } from "./modules.js";
@@ -124,7 +125,9 @@ ParamController.prototype.create = function(low, high, step) {
     } else if (isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
         this.createLabel(this.property);
-        const button = this.styledBooleanButton(this.domElementId);
+        const button = new BooleanButton(this.domElement);
+        button.setWidth(design.onOffButtonWidth);
+        button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
         button.setValue(paramValue);
         this.setupOnChange();
@@ -132,7 +135,8 @@ ParamController.prototype.create = function(low, high, step) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
         this.createLabel("");
-        const button = this.styledButton(this.property, this.domElementId);
+        const button = new Button(this.property, this.domElement);
+        button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
         if (typeof paramValue === "function") {
             this.callback = paramValue;
