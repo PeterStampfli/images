@@ -133,9 +133,6 @@ ParamGui.defaultDesign = {
     // color for top of folder with close/open button
     titleColor: "#000000",
     titleBackgroundColor: "#bbbbbb",
-    // colors for popups
-    popupColor: "#444444",
-    popupBackgroundColor: "#00000000",
 
     // padding for paragraphs: free space at left and right
     paragraphPadding: 10,
@@ -278,18 +275,6 @@ ParamGui.updateZIndices = function() {
         ParamGui.rootGuis[i].setZIndex(ParamGui.zIndex + i);
     }
 };
-
-/**
- * hide all popups
- * @method ParamGui.hidePopup
- * @param {boolean} always - if true hides all popups, false hides not popups with controller.doNotHidePopup=true
- */
-ParamGui.hidePopup = function(always) {
-    for (var i = 0; i < ParamGui.rootGuis.length; i++) {
-        ParamGui.rootGuis[i].hidePopup(always);
-    }
-};
-
 
 /**
  * adding a root gui to the collection, update the zIndices
@@ -490,19 +475,7 @@ ParamGui.prototype.setup = function() {
         // all the same font !?
         DOM.style("#" + this.domElementId,
             "fontFamily", design.fontFamily);
-        // add event listener, 
-        // if gui is not in front moves gui to front and hide all popups
-        // if in front hide popups, except if controller.doNotHidePopup==true
-
-        this.domElement.addEventListener("click", function(event) {
-            if (ParamGui.isInFront(paramGui)) {
-                ParamGui.hidePopup(false);
-            } else {
-                ParamGui.moveToFront(paramGui);
-                ParamGui.hidePopup(true);
-            }
-            return false;
-        });
+        
 
         // add the title
         this.createTitle();
@@ -706,17 +679,6 @@ ParamGui.prototype.remove = function(element) {
         this.elements.splice(index, 1);
     }
     element.destroy();
-};
-
-/**
- * hide all popups
- * @method ParamGui#hidePopup
- * @param {boolean} always - if true hides all popups, false hides not popups with this.doNotHidePopup=true
- */
-ParamGui.prototype.hidePopup = function(always) {
-    this.elements.forEach(function(element) {
-        element.hidePopup(always);
-    });
 };
 
 /**

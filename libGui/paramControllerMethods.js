@@ -68,7 +68,6 @@ paramControllerMethods.initCreate = function() {
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-
 };
 
 /**
@@ -89,157 +88,6 @@ paramControllerMethods.setupOnChange = function() {
             controller.params[controller.property] = value;
             controller.callback(value);
         }
-    };
-};
-
-//  creating basic controllers
-
-/**
- * create a bare styled color input
- * @method paramControllerMethods.styledColorInput
- * @param {String} containerId - id of the enclosing div 
- * @return textInput
- */
-paramControllerMethods.styledColorInput = function(containerId) {
-    const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("input", id, "#" + containerId);
-    DOM.style("#" + id,
-        "width", design.colorInputWidth + px,
-        "font-size", design.buttonFontSize + px,
-        "transform", "translateY(" + (design.colorVOffset) + "px)");
-    const colorInput = new ColorInput(id);
-    return colorInput;
-};
-
-/**
- * create a bare styled text input
- * @method paramControllerMethods.styledTextInput
- * @param {String} containerId - id of the enclosing div 
- * @return textInput
- */
-paramControllerMethods.styledTextInput = function(containerId) {
-    const design = this.gui.design;
-    const container = document.querySelector("#" + containerId);
-    const result = new TextInput(container);
-    result.setWidth(design.textInputWidth);
-    result.setFontSize(design.buttonFontSize);
-    return result;
-};
-
-/**
- * create a bare styled select element,  adjusts to options width
- * @method paramControllerMethods.styledSelect
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledSelect = function(containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const result = new SelectValues(container);
-    result.setFontSize(design.buttonFontSize);
-    return result;
-};
-
-/**
- * create a bare styled numberbutton element, with plus/minus and min/max buttons
- * @method paramControllerMethods.styledNumberButton
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledNumberButton = function(containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const button = new NumberButton(container, true, true);
-    button.setWidth(design.numberInputWidth);
-    button.setFontSize(design.buttonFontSize);
-    return button;
-};
-
-/**
- * create a bare styled range element
- * @method paramControllerMethods.styledRange
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledRange = function(containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const range = new Range(container, false);
-    range.setFontSize(design.buttonFontSize);
-    range.setWidths(design.numberInputWidth, design.rangeSliderLengthLong);
-    return range;
-};
-
-/**
- * create a bare styled range element for integers with plus/minus buttons
- * @method paramControllerMethods.styledRangeForIntegers
- * @param {String} containerId - id of the enclosing div 
- * @return button
- */
-paramControllerMethods.styledRangeForIntegers = function(containerId) {
-    const container = document.querySelector("#" + containerId);
-    const design = this.gui.design;
-    const range = new Range(container, true);
-    range.setFontSize(design.buttonFontSize);
-    range.setWidths(design.numberInputWidth, design.rangeSliderLengthShort);
-    range.setStep(1);
-    return range;
-};
-
-// popups for complicated controls
-// this.popupDiv is a div that contains the popup elements
-// this.popupDivId is its id
-// this.hidePopup(always) is a method that hides the popup (visibility hidden)
-// this.showPopup() is a method that shows the popup (visibility visible)
-// this.createPopup() creates the this.popup div of height zero
-// this.doNotHidePopup if true this.hidePopup does not hide popup except always=true
-
-/**
- * hide the popup if it exists 
- * and either always=true or controller.doNotHidePopup=false
- * @method paramControllerMethods.hidePopup
- * @param {boolean} always
- */
-paramControllerMethods.hidePopup = function(always) {
-    if ((typeof this.popupDiv === "object") && (always || !this.doNotHidePopup)) {
-        this.popupDiv.style.display = "none";
-        console.log("hide");
-    }
-    this.doNotHidePopup = false;
-};
-
-/**
- * show the popup if it exists 
- * @method paramControllerMethods.showPopup
- */
-paramControllerMethods.showPopup = function() {
-    if (typeof this.popupDiv === "object") {
-        console.log("show");
-        this.popupDiv.style.display = "block";
-    }
-};
-
-/**
- * create a popup div with height zero 
- * in the div of the controller
- * call AFTER creating the basic controller
- * creates an onClick function on the controller div to open/keep visible the popup
- * the rootGui domElement has an onclick event that hides popups
- * @method paramControllerMethods.createPopup
- */
-paramControllerMethods.createPopup = function() {
-    this.popupDivId = DOM.createId();
-    this.popupDiv = DOM.create("div", this.popupDivId, "#" + this.domElementId);
-    DOM.style("#" + this.popupDivId,
-        "color", this.gui.design.popupColor,
-        "backgroundColor", this.gui.design.popupBackgroundColor
-    );
-    this.hidePopup(true);
-    const controller = this;
-    this.domElement.onclick = function(event) {
-        controller.showPopup();
-        controller.doNotHidePopup = true;
     };
 };
 
@@ -273,10 +121,12 @@ paramControllerMethods.onClick = paramControllerMethods.onChange;
  * @param {function} callback - function(value), with value of controller as argument
  * @return this
  */
+
 paramControllerMethods.onFinishChange = function(callback) {
     this.callback = callback;
     return this;
 };
+
 // setting and getting values:
 // Be careful. Two different values, of the ui and the object.
 // they have to be synchronized

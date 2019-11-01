@@ -2,8 +2,11 @@ import {
     paramControllerMethods,
     BooleanButton,
     Button,
+    SelectValues,
+    TextInput,
+    NumberButton,
+    Range,
     DOM,
-    Range
 } from "./modules.js";
 
 /**
@@ -117,7 +120,8 @@ ParamController.prototype.create = function(low, high, step) {
     if (isArray(low) || isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
         this.createLabel(this.property);
-        const select = this.styledSelect(this.domElementId);
+        const select = new SelectValues(this.domElement);
+        select.setFontSize(design.buttonFontSize);
         this.uiElement = select;
         select.setLabelsValues(low);
         select.setValue(paramValue);
@@ -147,7 +151,9 @@ ParamController.prototype.create = function(low, high, step) {
     } else if (isString(paramValue)) {
         // the parameter value is a string thus make a text input button
         this.createLabel(this.property);
-        const textInput = this.styledTextInput(this.domElementId);
+        const textInput = new TextInput(this.domElement);
+        textInput.setWidth(design.textInputWidth);
+        textInput.setFontSize(design.buttonFontSize);
         textInput.setValue(this.params[this.property]);
         this.uiElement = textInput;
         this.setupOnChange();
@@ -157,7 +163,9 @@ ParamController.prototype.create = function(low, high, step) {
         // high is integer or not defined, and step is not defined/ not supplied in call
         // thus make an (integer) number button 
         this.createLabel(this.property);
-        const button = this.styledNumberButton(this.domElementId);
+        const button = new NumberButton(this.domElement, true, true);
+        button.setWidth(design.numberInputWidth);
+        button.setFontSize(design.buttonFontSize);
         if (isInteger(high)) {
             button.setRange(low, high);
         } else if (isInteger(low)) {
@@ -174,12 +182,13 @@ ParamController.prototype.create = function(low, high, step) {
         this.setupOnChange();
     } else if (isInteger(paramValue) && isInteger(low) && isInteger(high) && isNumber(step) && (Math.abs(step - 1) < 0.01)) {
         // the parameter value is integer, and the low limit too 
-        // high is integer  and step is integer equal to 1
+        // high is integer and step is integer equal to 1
         // thus make a range element with plus/minus button 
         this.createLabel(this.property);
-        DOM.style("#" + this.labelId,
-            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-        const range = this.styledRangeForIntegers(this.domElementId);
+        const range = new Range(this.domElement, true);
+        range.setFontSize(design.buttonFontSize);
+        range.setWidths(design.numberInputWidth, design.rangeSliderLengthShort);
+        range.setStep(1);
         range.setRange(low, high);
         range.setValue(paramValue);
         this.cyclic = function() {
@@ -192,9 +201,9 @@ ParamController.prototype.create = function(low, high, step) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
         this.createLabel(this.property);
-        DOM.style("#" + this.labelId,
-            "transform", "translateY(" + (-design.rangeVOffset) + "px)");
-        const range = this.styledRange(this.domElementId);
+        const range = new Range(this.domElement, false);
+        range.setFontSize(design.buttonFontSize);
+        range.setWidths(design.numberInputWidth, design.rangeSliderLengthLong);
         range.setRange(low, high);
         if (isNumber(step)) {
             range.setStep(step);
@@ -214,7 +223,7 @@ ParamController.prototype.create = function(low, high, step) {
 };
 
 /**
- * make that numberbuttons become cyclic
+ * make that numberbuttons and range elements become cyclic
  * other buttons without effect
  * @method ParamController#cyclic
  * @return this for chaining
