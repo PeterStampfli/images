@@ -19,8 +19,6 @@ import {
 
 export const paramControllerMethods = {};
 
-const px = "px";
-
 /**
  * make a label with given text and space
  * make link to label and space elements, to be able to change/delete
@@ -29,14 +27,16 @@ const px = "px";
  */
 paramControllerMethods.createLabel = function(text) {
     const design = this.gui.design;
-    this.labelId = DOM.createId();
-    this.label = DOM.create("span", this.labelId, "#" + this.domElementId, text);
-    DOM.style("#" + this.labelId,
-        "minWidth", design.controllerLabelWidth + px,
-        "display", "inline-block",
-        "font-size", design.controllerLabelFontSize + px,
-        "paddingLeft", design.labelSpacing + px,
-        "paddingRight", design.labelSpacing + px);
+    this.label = document.createElement("span");
+    this.domElement.appendChild(this.label);
+    this.label.innerHTML = text;
+    this.label.style.fontSize = design.controllerLabelFontSize + "px";
+    // minimum width for alignment of inputs
+    this.label.style.display = "inline-block";
+    this.label.style.minWidth = design.controllerLabelWidth + "px";
+    // space at both sides of label
+    this.label.style.paddingLeft = design.labelSpacing + "px";
+    this.label.style.paddingRight = design.labelSpacing + "px";
 };
 
 /**
@@ -48,20 +48,16 @@ paramControllerMethods.createLabel = function(text) {
 paramControllerMethods.initCreate = function() {
     const design = this.gui.design;
     // create a div for all elements of the controller
-    this.domElementId = DOM.createId();
-    // it lies in the bodyDiv of the ParamGui
-    this.domElement = DOM.create("div", this.domElementId, "#" + this.gui.bodyDivId);
-    // make a regular spacing between labels ???
-    DOM.style("#" + this.domElementId,
-        "minHeight", design.minControllerHeight + px,
-        "marginBottom", design.paddingVertical + px,
-        "marginTop", design.paddingVertical + px
-    );
+    this.domElement = document.createElement("div");
+    this.gui.bodyDiv.appendChild(this.domElement);
+    // make a regular spacing between elements
+    this.domElement.style.paddingTop = design.paddingVertical + "px";
+    this.domElement.style.paddingBottom = design.paddingVertical + "px";
     // the button or whatever the user interacts with
     this.uiElement = null;
 
     /**
-     * instant callback for small changes
+     * callback for changes
      * @method paramControllerMethods.callback
      * @param {anything} value
      */
@@ -230,7 +226,7 @@ paramControllerMethods.name = function(label) {
  * @return this
  */
 paramControllerMethods.hide = function() {
-    DOM.displayNone(this.domElementId);
+    this.domElement.style.display = "none";
     return this;
 };
 
@@ -240,6 +236,6 @@ paramControllerMethods.hide = function() {
  * @return this
  */
 paramControllerMethods.show = function() {
-    DOM.style("#" + this.domElementId, "display", "block");
+    this.domElement.style.display = "block";
     return this;
 };
