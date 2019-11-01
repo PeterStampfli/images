@@ -152,6 +152,27 @@ Range.prototype.updateTextStyle = function() {
 };
 
 /**
+ * set fontsize, in px
+ * @method Range#setFontSize
+ * @param {integer} size
+ */
+Range.prototype.setFontSize = function(size) {
+    this.textElement.style.fontSize = size + "px";
+};
+
+
+/**
+ * set widths, in px
+ * @method Rannge#setWidths
+ * @param {integer} widthTextElement
+ * @param {integer} widthRangeElement
+ */
+Range.prototype.setWidths = function(widthTextElement,widthRangeElement) {
+    this.textElement.style.width = widthTextElement + "px";
+    this.rangeElement.style.width = widthRangeElement + "px";
+};
+
+/**
  * add a span with a space to the parent element
  * use Range.spaceWidth as parameter !!!
  * @method Range#addSpace

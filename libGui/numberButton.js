@@ -155,6 +155,32 @@ NumberButton.prototype.addSpace = function() {
 };
 
 /**
+ * set fontsize of the number button, in px
+ * @method NumberButton#setFontSize
+ * @param {integer} size
+ */
+NumberButton.prototype.setFontSize = function(size) {
+    this.element.style.fontSize = size + "px";
+    if (this.plusButton !== null) {
+        this.plusButton.setFontSize(size);
+        this.minusButton.setFontSize(size);
+    }
+    if (this.minButton !== null) {
+        this.minButton.setFontSize(size);
+        this.maxButton.setFontSize(size);
+    }
+};
+
+/**
+ * set width of the button, in px
+ * @method NumberButton#setWidth
+ * @param {integer} width
+ */
+NumberButton.prototype.setWidth = function(width) {
+    this.element.style.width = width + "px";
+};
+
+/**
  * quantize a number according to step and clamp to range
  * @method NumberButton#quantizeClamp
  * @param {float} x
@@ -322,16 +348,12 @@ NumberButton.prototype.destroy = function() {
     if (this.plusButton !== null) {
         this.plusButton.destroy();
         this.plusButton = null;
-    }
-    if (this.minusButton !== null) {
         this.minusButton.destroy();
         this.minusButton = null;
     }
     if (this.minButton !== null) {
         this.minButton.destroy();
         this.minButton = null;
-    }
-    if (this.maxButton !== null) {
         this.maxButton.destroy();
         this.maxButton = null;
     }

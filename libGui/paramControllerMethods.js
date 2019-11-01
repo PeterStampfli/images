@@ -120,13 +120,13 @@ paramControllerMethods.styledColorInput = function(containerId) {
  */
 paramControllerMethods.styledTextInput = function(containerId) {
     const design = this.gui.design;
-    const container=document.querySelector("#"+containerId);
-      const result=new TextInput(container);
-      result.setWidth(design.textInputWidth);
+    const container = document.querySelector("#" + containerId);
+    const result = new TextInput(container);
+    result.setWidth(design.textInputWidth);
     result.setFontSize(design.buttonFontSize);
 
 
-    
+
     return result;
 };
 
@@ -138,10 +138,10 @@ paramControllerMethods.styledTextInput = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledButton = function(text, containerId) {
-     const container=document.querySelector("#"+containerId);
-   const design = this.gui.design;
-    const result=new Button(text,container);
-        result.setFontSize(design.buttonFontSize);
+    const container = document.querySelector("#" + containerId);
+    const design = this.gui.design;
+    const result = new Button(text, container);
+    result.setFontSize(design.buttonFontSize);
 
     return result;
 };
@@ -153,10 +153,10 @@ paramControllerMethods.styledButton = function(text, containerId) {
  * @return button
  */
 paramControllerMethods.styledBooleanButton = function(containerId) {
-    const container=document.querySelector("#"+containerId);
+    const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-    
-    const result=new BooleanButton(container);
+
+    const result = new BooleanButton(container);
     result.setWidth(design.onOffButtonWidth);
     result.setFontSize(design.buttonFontSize);
     return result;
@@ -169,11 +169,11 @@ paramControllerMethods.styledBooleanButton = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledSelect = function(containerId) {
-    const container=document.querySelector("#"+containerId);
+    const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-    const    result=new SelectValues(container);
+    const result = new SelectValues(container);
 
-        result.setFontSize(design.buttonFontSize);
+    result.setFontSize(design.buttonFontSize);
 
     return result;
 };
@@ -185,15 +185,11 @@ paramControllerMethods.styledSelect = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledNumberButton = function(containerId) {
+    const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("span", id, "#" + containerId);
-    const button = NumberButton.createInfinity(id);
-    DOM.style("#" + button.idName,
-        "width", design.numberInputWidth + px,
-        "font-size", design.buttonFontSize + px);
-    DOM.style("#" + button.idPlus + ",#" + button.idMinus + ",#" + button.idMin + ",#" + button.idMax,
-        "font-size", design.buttonFontSize + px);
+    const button = new NumberButton(container, true, true);
+    button.setWidth(design.numberInputWidth);
+    button.setFontSize(design.buttonFontSize);
     return button;
 };
 
@@ -204,15 +200,17 @@ paramControllerMethods.styledNumberButton = function(containerId) {
  * @return button
  */
 paramControllerMethods.styledRange = function(containerId) {
+    const container = document.querySelector("#" + containerId);
     const design = this.gui.design;
-    const id = DOM.createId();
-    DOM.create("span", id, "#" + containerId);
-    const range = Range.create(id);
-    DOM.style("#" + range.idText,
-        "width", design.numberInputWidth + px,
-        "font-size", design.buttonFontSize + px);
-    DOM.style("#" + range.idRange,
-        "width", design.rangeSliderLengthLong + px);
+    const range = new Range(container, false);
+    /*  DOM.style("#" + range.idText,
+          "width", design.numberInputWidth + px,
+          "font-size", design.buttonFontSize + px);
+      DOM.style("#" + range.idRange,
+          "width", design.rangeSliderLengthLong + px);
+          */
+    range.setFontSize(design.buttonFontSize);
+    range.setWidths(design.numberInputWidth, design.rangeSliderLengthLong);
     return range;
 };
 

@@ -154,7 +154,7 @@ Button.prototype.setFontSize = function(size) {
 
 /**
  * set width of the button, in px
- * @method BooleanButton#setFontSize
+ * @method Button#setWidth
  * @param {integer} width
  */
 Button.prototype.setWidth = function(width) {
