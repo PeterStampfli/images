@@ -414,8 +414,16 @@ ParamGui.prototype.createTitle = function() {
 ParamGui.prototype.resize = function() {
     if (this.isRoot() && this.autoPlace) {
         const design = this.design;
+        const titleHeight = this.titleDiv.offsetHeight;
+        console.log("titleheight " + titleHeight);
+        console.log("windowh "+window.innerHeight)
+        console.log(document.documentElement.clientHeight)
+
+        const maxHeight=window.innerHeight - titleHeight - 3*design.borderWidth - design.verticalShift;
+console.log(design.borderWidth);
+console.log(maxHeight)
         DOM.style("#" + this.bodyDivId,
-            "maxHeight", (window.innerHeight - 3 * design.borderWidth - design.titleHeight - design.verticalShift) + px);
+            "height", maxHeight + px);
     }
 };
 
