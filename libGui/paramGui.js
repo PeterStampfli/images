@@ -169,7 +169,6 @@ ParamGui.defaultDesign = {
     controllerDiameter: 80
 };
 
-
 // other parameters
 // base z-index for ui divs, to keep them above others
 // the guis will have z-indizes of zIndex,zIndex+1, ... zIndex+number of guis -1
@@ -205,7 +204,6 @@ ParamGui.updateValues = function(toObject, fromObject) {
 ParamGui.updateDefaults = function(newValues) {
     ParamGui.updateValues(ParamGui.defaultDesign, newValues);
 };
-
 
 /**
  * add a span with a space to the parent element
@@ -389,7 +387,6 @@ ParamGui.prototype.createTitle = function() {
             this.closeOpenButton.setFontSize(design.titleFontSize);
             this.closeOpenButton.setWidth(design.closeOpenButtonWidth);
             const paramGui = this;
-
             this.closeOpenButton.onClick = function() {
                 paramGui.close();
             };
@@ -411,19 +408,16 @@ ParamGui.prototype.createTitle = function() {
 
 // resizing root guis if autoplaced
 // set max height of bodydiv
+// attention: available inner space is document.documentElement.clientHeight 
+// (including effect of scroll bar)
+// window.innerHeight does not take into account the scroll bar
 ParamGui.prototype.resize = function() {
     if (this.isRoot() && this.autoPlace) {
         const design = this.design;
+        // get the height of the title div
         const titleHeight = this.titleDiv.offsetHeight;
-        console.log("titleheight " + titleHeight);
-        console.log("windowh "+window.innerHeight)
-        console.log(document.documentElement.clientHeight)
-
-        const maxHeight=window.innerHeight - titleHeight - 3*design.borderWidth - design.verticalShift;
-console.log(design.borderWidth);
-console.log(maxHeight)
-        DOM.style("#" + this.bodyDivId,
-            "height", maxHeight + px);
+        const maxHeight = document.documentElement.clientHeight - titleHeight - 3 * design.borderWidth - design.verticalShift;
+        this.bodyDiv.style.maxHeight = maxHeight + px;
     }
 };
 
@@ -433,7 +427,7 @@ console.log(maxHeight)
  * @param {integer} zIndex
  */
 ParamGui.prototype.setZIndex = function(zIndex) {
-    DOM.style("#" + this.domElementId, "zIndex", zIndex + "");
+    this.domElement.zIndex=zIndex + "";
 };
 
 ParamGui.prototype.setup = function() {
@@ -443,14 +437,13 @@ ParamGui.prototype.setup = function() {
     // must have a destroy method, an updateDisplayIfListening method
     this.elements = [];
     if (this.isRoot()) {
-        // put the gui onto collection and top of stack
-        ParamGui.addRootGui(this);
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
         this.domElementId = DOM.createId();
         this.domElement = DOM.create("div", this.domElementId, "body");
         // the border around everything
         DOM.style("#" + this.domElementId,
+             "width", design.width + px,
             "borderWidth", design.borderWidth + px,
             "borderStyle", "solid",
             "borderColor", design.borderColor);
@@ -458,27 +451,30 @@ ParamGui.prototype.setup = function() {
         DOM.style("#" + this.domElementId,
             "fontFamily", design.fontFamily);
 
+        // put the gui onto collection and top of stack
+        ParamGui.addRootGui(this);
 
         // add the title
         this.createTitle();
-        // padding at top as always visible separating line between root gui title and rest
-        // root has no "indentation"
-        const topPaddingDivId = DOM.createId();
-        DOM.create("div", topPaddingDivId, "#" + this.domElementId);
-        DOM.style("#" + topPaddingDivId,
-            "height", design.borderWidth + px,
-            "backgroundColor", design.borderColor
-        );
+        // div between title and body of root gui
+        // makes a line similar as border
+        const separation= document.createElement("div");
+        this.domElement.appendChild(separation);
+        separation.style.height=design.borderWidth + px;
+        separation.style.backgroundColor=design.borderColor;
         // the ui elements go into their own div, the this.bodyDiv
         this.bodyDivId = DOM.createId();
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
-        // autoPlacing into a corner, if not style outside
+        // autoPlacing the root gui domElement relative to one of the four corners
+        // and make the bodyDiv scrolling vertical, if needed
         if (this.autoPlace) {
+            this.domElement.style.position="fixed";
+this.domElement.style[design.verticalPosition]=design.verticalShift + px;
+
             DOM.style("#" + this.domElementId,
-                "position", "fixed",
-                design.verticalPosition, design.verticalShift + px,
-                design.horizontalPosition, design.horizontalShift + px,
-                "width", design.width + px
+               
+                design.horizontalPosition, design.horizontalShift + px
+               
             );
             // scroll in vertical direction: attention! overflowY="auto" makes that overflowX becomes "auto" too if it is "initial" or "visible"
             // be careful: the vertical scroll bar might hide things

@@ -6,7 +6,6 @@
 
 /* jshint esversion:6 */
 import {
-    DOM,
     SelectValues,
     BooleanButton,
     NumberButton,

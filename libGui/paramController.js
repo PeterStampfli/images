@@ -5,8 +5,7 @@ import {
     SelectValues,
     TextInput,
     NumberButton,
-    Range,
-    DOM,
+    Range
 } from "./modules.js";
 
 /**
