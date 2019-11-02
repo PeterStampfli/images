@@ -34,7 +34,7 @@ paramControllerMethods.createLabel = function(text) {
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
     this.label.style.minWidth = design.controllerLabelWidth + "px";
-    // space at both sides of label
+    // space between label and controller or right border
     this.label.style.paddingLeft = design.labelSpacing + "px";
     this.label.style.paddingRight = design.labelSpacing + "px";
 };

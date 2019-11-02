@@ -120,8 +120,8 @@ ParamGui.defaultDesign = {
     titleFontWeight: "bold", // lighter, normal , bold, bolder, depending on font
     // marking different folder levels
     levelIndent: 10,
-    // width of the open/close button span
-    openCloseButtonWidth: 20,
+    // width of the open/close button span, if too small collapses?
+    closeOpenButtonWidth: 30,
 
     // default colors
     // background (of controllers)
@@ -370,68 +370,42 @@ window.addEventListener("resize", ParamGui.resize, false);
 ParamGui.prototype.createTitle = function() {
     if ((this.closeOnTop) || (this.name !== "")) {
         const design = this.design;
-        // create title div for name and open/close buttons
-        this.outerTitleDivId = DOM.createId();
-        this.outerTitleDiv = DOM.create("div", this.outerTitleDivId, "#" + this.domElementId);
-        // full width (background color!), excess will be hidden
-        // a div fits into the width of parent div, if no width given 
-        DOM.style("#" + this.outerTitleDivId,
-            "backgroundColor", design.titleBackgroundColor,
-            "color", design.titleColor,
-            "height", design.titleHeight + px,
-            "position", "relative");
-        // put elements at center of div with fixed heigth
-        const innerTitleDivId = DOM.createId();
-        const innerTitleDiv = DOM.create("div", innerTitleDivId, "#" + this.outerTitleDivId);
-        // center the title vertically
-        // var x = document.getElementById("myLI").parentElement.nodeName; 
-        DOM.style("#" + innerTitleDivId,
-            "position", "absolute",
-            "top", "50%",
-            "transform", "translateY(-50%)");
-        // id of the div for writing the title and the open/close buttons
-        const titleDivId = innerTitleDivId;
+        // a div for the title, with vertical padding
+        // no padding at right. is included on close/open button width
+        this.titleDiv = document.createElement("div");
+        this.domElement.appendChild(this.titleDiv);
+        this.titleDiv.style.backgroundColor = design.titleBackgroundColor;
+        this.titleDiv.style.color = design.titleColor;
+        this.titleDiv.style.paddingTop = design.paddingVertical + "px";
+        this.titleDiv.style.paddingBottom = design.paddingVertical + "px";
         // create close and open buttons if wanted
         // small arrows (as for file system), before name
         if (this.closeOnTop) {
-
+            this.closeOpenButton = new Button("▼", this.titleDiv);
+            this.closeOpenButton.colorStyleForTransparentSpan(design.titleColor);
+            this.closeOpenButton.element.style.borderRadius = "0px";
+            this.closeOpenButton.element.style.borderStyle = "none";
+            this.closeOpenButton.element.style.outline = "none";
+            this.closeOpenButton.setFontSize(design.titleFontSize);
+            this.closeOpenButton.setWidth(design.closeOpenButtonWidth);
             const paramGui = this;
-            this.closeButton = new Button("▼", innerTitleDiv);
-            this.closeButton.colorStyleForTransparentSpan(design.titleColor);
-            this.closeButton.element.style.borderRadius = "0px";
-            this.closeButton.element.style.borderStyle = "none";
-            this.closeButton.element.style.outline = "none";
-            this.closeButton.setFontSize(design.titleFontSize);
 
-            this.closeButton.onClick = function() {
+            this.closeOpenButton.onClick = function() {
                 paramGui.close();
-            };
-            this.openButton = new Button("►", innerTitleDiv);
-            this.openButton.colorStyleForTransparentSpan(design.titleColor);
-            this.openButton.element.style.display = "none";
-            this.openButton.element.style.borderRadius = "0px";
-            this.openButton.element.style.borderStyle = "none";
-            this.openButton.element.style.outline = "none";
-            this.openButton.setFontSize(design.titleFontSize);
-            this.openButton.onClick = function() {
-                paramGui.open();
             };
         } else {
             // no close/open buttons - occupy space with empty span for alignement
-            const spanId = DOM.createId();
-            const spanElement = DOM.create("span", spanId, "#" + titleDivId);
-            DOM.style("#" + spanId,
-                "display", "inline-block",
-                "paddingLeft", design.borderWidth + px,
-                "width", design.openCloseButtonWidth + px);
+            const spanElement = document.createElement("span");
+            this.titleDiv.appendChild(spanElement);
+            spanElement.style.display = "inline-block";
+            spanElement.style.width = design.closeOpenButtonWidth + "px";
         }
         // write name of folder/gui in the title div
-        this.topLabelId = DOM.createId();
-        this.topLabel = DOM.create("span", this.topLabelId, "#" + titleDivId, this.name);
-        DOM.style("#" + this.topLabelId,
-            "display", "inline-block",
-            "font-size", design.titleFontSize + px,
-            "font-weight", design.titleFontWeight);
+        this.titleLabel = document.createElement("span");
+        this.titleLabel.innerHTML = this.name;
+        this.titleDiv.appendChild(this.titleLabel);
+        this.titleLabel.style.fontSize = design.titleFontSize + px;
+        this.titleLabel.style.fontWeight = design.titleFontWeight;
     }
 };
 
@@ -475,7 +449,7 @@ ParamGui.prototype.setup = function() {
         // all the same font !?
         DOM.style("#" + this.domElementId,
             "fontFamily", design.fontFamily);
-        
+
 
         // add the title
         this.createTitle();
@@ -600,9 +574,12 @@ ParamGui.prototype.show = function() {
 ParamGui.prototype.open = function() {
     if (this.closeOnTop) {
         this.closed = false;
-        // the buttons are inside the topDiv, which is shown/hidden
-        this.openButton.element.style.display = "none";
-        this.closeButton.element.style.display = "inline-block";
+        this.closeOpenButton.setText("▼");
+        const paramGui = this;
+
+        this.closeOpenButton.onClick = function() {
+            paramGui.close();
+        };
         DOM.style("#" + this.bodyDivId, "display", "block");
     }
 };
@@ -615,8 +592,13 @@ ParamGui.prototype.open = function() {
 ParamGui.prototype.close = function() {
     if (this.closeOnTop) {
         this.closed = true;
-        this.openButton.element.style.display = "inline-block";
-        this.closeButton.element.style.display = "none";
+        this.closeOpenButton.setText("►");
+
+        const paramGui = this;
+
+        this.closeOpenButton.onClick = function() {
+            paramGui.open();
+        };
         DOM.style("#" + this.bodyDivId, "display", "none");
     }
 };
@@ -859,17 +841,15 @@ ParamGui.prototype.destroy = function() {
     this.elements.length = 0;
     // if exist destroy open/close buttons
     if (this.closeOnTop) {
-        this.closeButton.destroy();
-        this.closeButton = null;
-        this.openButton.destroy();
-        this.openButton = null;
+        this.closeOpenButton.destroy();
+        this.closeOpenButton = null;
     }
     // destroy top title element if exists
     if ((this.closeOnTop) || (this.name !== "")) {
-        this.topLabel.remove();
-        this.topLabel = null;
-        this.outerTitleDiv.remove();
-        this.outerTitleDiv = null;
+        this.titleLabel.remove();
+        this.titleLabel = null;
+        this.titleDiv.remove();
+        this.titleDiv = null;
     }
     // destroy body
     this.bodyDiv.remove();

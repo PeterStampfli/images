@@ -163,6 +163,17 @@ Button.prototype.setWidth = function(width) {
 };
 
 /**
+ * set the text of the button
+ * @method Button#setText
+ * @param {String} text
+ */
+
+
+Button.prototype.setText = function(text) {
+    this.element.innerHTML = text;
+};
+
+/**
  * color style for using transparent span with text as button
  * @method Button#colorStyleForTransparentSpan
  * @param {String} color - for basic text (button state up, no hover)
