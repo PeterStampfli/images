@@ -8,8 +8,7 @@
  */
 
 import {
-    Button,
-    DOM
+    Button
 } from "./modules.js";
 
 

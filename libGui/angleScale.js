@@ -7,8 +7,7 @@
 /* jshint esversion:6 */
 import {
     TouchEvents,
-    MouseEvents,
-    DOM
+    MouseEvents
 } from "./modules.js";
 
 export function AngleScale(idName) {

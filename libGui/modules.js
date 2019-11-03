@@ -64,10 +64,6 @@ export {
 }
 from "./angleScale.js";
 
-export {
-    DOM
-}
-from "./dom.js";
 
 export {
     paramControllerMethods

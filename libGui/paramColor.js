@@ -2,7 +2,6 @@
 
 import {
     paramControllerMethods,
-    DOM,
     TextInput,
     ColorInput
 } from "./modules.js";

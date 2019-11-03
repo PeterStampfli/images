@@ -39,7 +39,6 @@ import {
     ParamColor,
     ParamAngle,
     ParamController,
-    DOM,
     Button
 } from "./modules.js";
 
@@ -67,7 +66,6 @@ export function ParamGui(params) {
     // now load default design parameters
     // for a root gui it is the ParamGui.defaultDesign
     // for a folder it is the parent design
-
     if (this.isRoot()) {
         Object.assign(design, ParamGui.defaultDesign);
     } else {
@@ -84,8 +82,6 @@ export function ParamGui(params) {
     // use clientWidth for width inside
     this.setup();
 }
-
-const px = "px";
 
 // add some defaults designs, especially styles
 // styles, change the values of these fields if you do not like them
@@ -401,7 +397,7 @@ ParamGui.prototype.createTitle = function() {
         this.titleLabel = document.createElement("span");
         this.titleLabel.innerHTML = this.name;
         this.titleDiv.appendChild(this.titleLabel);
-        this.titleLabel.style.fontSize = design.titleFontSize + px;
+        this.titleLabel.style.fontSize = design.titleFontSize + "px";
         this.titleLabel.style.fontWeight = design.titleFontWeight;
         // attach to the dom only after all changes have been done
         // might accelerate things (page reflow only once)
@@ -420,7 +416,7 @@ ParamGui.prototype.resize = function() {
         // get the height of the title div
         const titleHeight = this.titleDiv.offsetHeight;
         const maxHeight = document.documentElement.clientHeight - titleHeight - 3 * design.borderWidth - design.verticalShift;
-        this.bodyDiv.style.maxHeight = maxHeight + px;
+        this.bodyDiv.style.maxHeight = maxHeight + "px";
     }
 };
 
@@ -434,7 +430,6 @@ ParamGui.prototype.setZIndex = function(zIndex) {
 };
 
 ParamGui.prototype.setup = function() {
-    const paramGui = this;
     const design = this.design;
     // a list of all folders, controllers and other elements
     // must have a destroy method, an updateDisplayIfListening method
@@ -442,82 +437,58 @@ ParamGui.prototype.setup = function() {
     if (this.isRoot()) {
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
-        this.domElementId = DOM.createId();
         this.domElement = document.createElement("div");
-
-        this.domElement = DOM.create("div", this.domElementId, "body");
-
-        /*
-            this.domElement = document.createElement("div");
-            document.body.appendChild(this.domElement);
-
-        */
+        this.domElement.style.width = design.width + "px";
+        this.domElement.style.fontFamily = design.fontFamily;
         // the border around everything
-        DOM.style("#" + this.domElementId,
-            "width", design.width + px,
-            "borderWidth", design.borderWidth + px,
-            "borderStyle", "solid",
-            "borderColor", design.borderColor);
-        // all the same font !?
-        DOM.style("#" + this.domElementId,
-            "fontFamily", design.fontFamily);
-
+        this.domElement.style.borderWidth = design.borderWidth + "px";
+        this.domElement.style.borderStyle = "solid";
+        this.domElement.style.borderColor = design.borderColor;
         // put the gui onto collection and top of stack
         ParamGui.addRootGui(this);
-
         // add the title
         this.createTitle();
         // div between title and body of root gui
         // makes a line similar as border
         const separation = document.createElement("div");
-        this.domElement.appendChild(separation);
-        separation.style.height = design.borderWidth + px;
+        separation.style.height = design.borderWidth + "px";
         separation.style.backgroundColor = design.borderColor;
+        this.domElement.appendChild(separation);
         // the ui elements go into their own div, the this.bodyDiv
-        this.bodyDivId = DOM.createId();
-        this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+        this.bodyDiv = document.createElement("div");
         // autoPlacing the root gui domElement relative to one of the four corners
         // and make the bodyDiv scrolling vertical, if needed
         if (this.autoPlace) {
             this.domElement.style.position = "fixed";
-            this.domElement.style[design.verticalPosition] = design.verticalShift + px;
-
-            DOM.style("#" + this.domElementId,
-
-                design.horizontalPosition, design.horizontalShift + px
-
-            );
+            this.domElement.style[design.verticalPosition] = design.verticalShift + "px";
+            this.domElement.style[design.horizontalPosition] = design.horizontalShift + "px";
             // scroll in vertical direction: attention! overflowY="auto" makes that overflowX becomes "auto" too if it is "initial" or "visible"
             // be careful: the vertical scroll bar might hide things
             // take into account design.scrollBarWidth for auto wrapping lines
             this.bodyDiv.style.overflowY = "auto";
             this.bodyDiv.style.overflowX = "hidden";
+            this.domElement.appendChild(this.bodyDiv);
+            document.body.appendChild(this.domElement);
             this.resize();
         }
     } else {
         // folders have the parent bodyDiv as container
-        this.domElementId = this.parent.bodyDivId;
         this.domElement = this.parent.bodyDiv;
         // add the title
         this.createTitle();
         // the ui elements go into their own div, the this.bodyDiv
-        // atach to dom after all changes
-        this.bodyDivId = DOM.createId();
-        // this.bodydiv = document.createElement("div");
-        //  this.domElement.appendChild(this.bodyDiv);
-
-        this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
+        // attach to dom after all changes
+        this.bodyDiv = document.createElement("div");
         // padding to have minimal height, space for controller padding
         // separating folders
-        DOM.style("#" + this.bodyDivId,
-            "paddingTop", design.paddingVertical + px
-        );
+        this.bodyDiv.style.paddingTop = design.paddingVertical + "px";
         // indent and left border only if there is a title and/or open/close buttons
         if ((this.closeOnTop) || (this.name !== "")) {
             this.bodyDiv.style.borderLeft = "solid";
             this.bodyDiv.style.borderColor = design.titleBackgroundColor;
-            this.bodyDiv.style.borderLeftWidth = design.levelIndent + px;
+            this.bodyDiv.style.borderLeftWidth = design.levelIndent + "px";
         }
+        this.domElement.appendChild(this.bodyDiv);
     }
     // close it initially? (has to be here, after creation of elements
     if (this.closeOnTop && this.closed) {
@@ -526,7 +497,6 @@ ParamGui.prototype.setup = function() {
     // set colors of body
     this.bodyDiv.style.color = design.textColor;
     this.bodyDiv.style.backgroundColor = design.backgroundColor;
-    // attach bodyDiv to dom
 };
 
 // hide and show might be used in a program to hide irrelevant parameters
@@ -540,14 +510,15 @@ ParamGui.prototype.hide = function() {
     this.hidden = true;
     if (this.isRoot()) {
         // root, hide base container with border
-        DOM.style("#" + this.domElementId, "display", "none");
+        this.domElement.style.display = "none";
+    } else {
+        // folder, hide topDiv if exists
+        if ((this.closeOnTop) || (this.name !== "")) {
+            this.titleDiv.style.display = "none";
+        }
+        // hide body div and the bottom padding div
+        this.bodyDiv.style.display = "none";
     }
-    // folder, hide topDiv if exists
-    if ((this.closeOnTop) || (this.name !== "")) {
-        DOM.style("#" + this.outerTitleDivId, "display", "none");
-    }
-    // hide body div and the bottom padding div
-    DOM.style("#" + this.bodyDivId, "display", "none");
 };
 
 /**
@@ -561,14 +532,12 @@ ParamGui.prototype.show = function() {
     if (this.isRoot()) {
         // root, show base container
         this.domElement.style.display = "block";
-    }
-    // folder, show topDiv if exists, including the buttons
-    if ((this.closeOnTop) || (this.name !== "")) {
-        DOM.style("#" + this.outerTitleDivId, "display", "block");
-    }
-    // show the body div if not closed or no close/open buttons
-    if ((!this.closed) || (!this.closeOnTop)) {
-        DOM.style("#" + this.bodyDivId, "display", "block");
+    } else {
+        // folder, show topDiv if exists, including the buttons
+        if ((this.closeOnTop) || (this.name !== "")) {
+            this.titleDiv.style.display = "block";
+        }
+        this.bodyDiv.style.display = "block";
     }
 };
 
@@ -585,11 +554,10 @@ ParamGui.prototype.open = function() {
         this.closed = false;
         this.closeOpenButton.setText("▼");
         const paramGui = this;
-
         this.closeOpenButton.onClick = function() {
             paramGui.close();
         };
-        DOM.style("#" + this.bodyDivId, "display", "block");
+        this.bodyDiv.style.display = "block";
     }
 };
 
@@ -602,13 +570,11 @@ ParamGui.prototype.close = function() {
     if (this.closeOnTop) {
         this.closed = true;
         this.closeOpenButton.setText("►");
-
         const paramGui = this;
-
         this.closeOpenButton.onClick = function() {
             paramGui.open();
         };
-        DOM.style("#" + this.bodyDivId, "display", "none");
+        this.bodyDiv.style.display = "none";
     }
 };
 
@@ -742,11 +708,11 @@ ParamGui.prototype.addAngle = function(params, property) {
  */
 ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
     const vSpace = document.createElement("div");
-    vSpace.style.height = this.design.paddingVertical + px;
+    vSpace.style.height = this.design.paddingVertical + "px";
     for (var i = 0; i < arguments.length; i++) {
         const arg = arguments[i];
         if (typeof(arg) === "number") {
-            vSpace.style.height = arg + px;
+            vSpace.style.height = arg + "px";
         }
         if (typeof(arg) === "string") {
             vSpace.style.backgroundColor = arg;
@@ -762,9 +728,9 @@ ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
  * @param {String} text - with HTML markup (=>innerHTML)
  */
 ParamGui.prototype.paragraph = function(innerHTML) {
-    const para = document.createElement("div");
-    para.style.paddingLeft = this.design.paragraphPadding + px;
-    para.style.paddingRight = this.design.paragraphPadding + px;
+    const para = document.createElement("p");
+    para.style.paddingLeft = this.design.paragraphPadding + "px";
+    para.style.paddingRight = this.design.paragraphPadding + "px";
     para.style.color = this.design.paragraphColor;
     para.innerHTML = innerHTML;
     this.bodyDiv.appendChild(para);
@@ -815,7 +781,6 @@ ParamGui.prototype.revert = function(params) {
  * @method ParamGui#destroy
  */
 ParamGui.prototype.destroy = function() {
-    console.log("destroy");
     // destroy the ui elements and folders
     for (var i = this.elements.length - 1; i >= 0; i--) {
         // attention: destroying folders remove themselves from this array

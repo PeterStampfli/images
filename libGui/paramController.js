@@ -173,6 +173,7 @@ ParamController.prototype.create = function(low, high, step) {
             button.setLow(0);
         }
         button.setValue(paramValue);
+        // here we can use the cyclic() method, give it some sense
         this.cyclic = function() {
             button.setCyclic();
             return this;
@@ -190,7 +191,8 @@ ParamController.prototype.create = function(low, high, step) {
         range.setStep(1);
         range.setRange(low, high);
         range.setValue(paramValue);
-        this.cyclic = function() {
+         // here we can use the cyclic() method, give it some sense
+       this.cyclic = function() {
             range.setCyclic();
             return this;
         };
@@ -219,7 +221,7 @@ ParamController.prototype.create = function(low, high, step) {
         this.createLabel(this.property + " *** error");
     }
     // change dom after all work has been done
-        this.gui.bodyDiv.appendChild(this.domElement);
+    this.gui.bodyDiv.appendChild(this.domElement);
     return this;
 };
 

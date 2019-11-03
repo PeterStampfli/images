@@ -6,8 +6,7 @@
 
 import {
     MouseAndTouch,
-    Button,
-    DOM
+    Button
 } from "./modules.js";
 
 function SingleTouch(touch) {

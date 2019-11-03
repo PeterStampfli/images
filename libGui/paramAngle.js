@@ -1,7 +1,6 @@
 import {
     paramControllerMethods,
     AngleScale,
-    DOM,
     NumberButton
 } from "./modules.js";
 
