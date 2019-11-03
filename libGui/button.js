@@ -10,7 +10,7 @@
 export function Button(text, parent) {
     this.element = document.createElement("button");
     parent.appendChild(this.element);
-    this.element.innerHTML = text;
+    this.element.textContent = text;
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.outline = "none";
     // states
@@ -170,7 +170,7 @@ Button.prototype.setWidth = function(width) {
 
 
 Button.prototype.setText = function(text) {
-    this.element.innerHTML = text;
+    this.element.textContent = text;
 };
 
 /**

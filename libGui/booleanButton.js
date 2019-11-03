@@ -104,7 +104,7 @@ BooleanButton.prototype.colorStyleDefaults = function() {
 BooleanButton.prototype.updateStyle = function() {
     if (this.active) {
         if (this.value) {
-            this.element.innerHTML = this.textOn;
+            this.element.textContent = this.textOn;
             if (this.hover) {
                 this.element.style.color = this.colorOnHover;
                 this.element.style.backgroundColor = this.backgroundColorOnHover;
@@ -113,7 +113,7 @@ BooleanButton.prototype.updateStyle = function() {
                 this.element.style.backgroundColor = this.backgroundColorOn;
             }
         } else {
-            this.element.innerHTML = this.textOff;
+            this.element.textContent = this.textOff;
             if (this.hover) {
                 this.element.style.color = this.colorOffHover;
                 this.element.style.backgroundColor = this.backgroundColorOffHover;
@@ -123,7 +123,7 @@ BooleanButton.prototype.updateStyle = function() {
             }
         }
     } else {
-        this.element.innerHTML = "-";
+        this.element.textContent = "-";
         this.element.style.color = this.colorInactive;
         this.element.style.backgroundColor = this.backgroundColorInactive;
     }

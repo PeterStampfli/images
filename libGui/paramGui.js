@@ -371,7 +371,6 @@ ParamGui.prototype.createTitle = function() {
         // a div for the title, with vertical padding
         // no padding at right. is included on close/open button width
         this.titleDiv = document.createElement("div");
-        this.domElement.appendChild(this.titleDiv);
         this.titleDiv.style.backgroundColor = design.titleBackgroundColor;
         this.titleDiv.style.color = design.titleColor;
         this.titleDiv.style.paddingTop = design.paddingVertical + "px";
@@ -403,6 +402,9 @@ ParamGui.prototype.createTitle = function() {
         this.titleDiv.appendChild(this.titleLabel);
         this.titleLabel.style.fontSize = design.titleFontSize + px;
         this.titleLabel.style.fontWeight = design.titleFontWeight;
+        // attach to the dom only after all changes have been done
+        // might accelerate things (page reflow only once)
+                this.domElement.appendChild(this.titleDiv);
     }
 };
 
@@ -427,7 +429,7 @@ ParamGui.prototype.resize = function() {
  * @param {integer} zIndex
  */
 ParamGui.prototype.setZIndex = function(zIndex) {
-    this.domElement.zIndex=zIndex + "";
+    this.domElement.zIndex = zIndex + "";
 };
 
 ParamGui.prototype.setup = function() {
@@ -440,10 +442,18 @@ ParamGui.prototype.setup = function() {
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
         this.domElementId = DOM.createId();
+            this.domElement = document.createElement("div");
+
         this.domElement = DOM.create("div", this.domElementId, "body");
+
+        /*
+            this.domElement = document.createElement("div");
+            document.body.appendChild(this.domElement);
+
+        */
         // the border around everything
         DOM.style("#" + this.domElementId,
-             "width", design.width + px,
+            "width", design.width + px,
             "borderWidth", design.borderWidth + px,
             "borderStyle", "solid",
             "borderColor", design.borderColor);
@@ -458,23 +468,23 @@ ParamGui.prototype.setup = function() {
         this.createTitle();
         // div between title and body of root gui
         // makes a line similar as border
-        const separation= document.createElement("div");
+        const separation = document.createElement("div");
         this.domElement.appendChild(separation);
-        separation.style.height=design.borderWidth + px;
-        separation.style.backgroundColor=design.borderColor;
+        separation.style.height = design.borderWidth + px;
+        separation.style.backgroundColor = design.borderColor;
         // the ui elements go into their own div, the this.bodyDiv
         this.bodyDivId = DOM.createId();
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
         // autoPlacing the root gui domElement relative to one of the four corners
         // and make the bodyDiv scrolling vertical, if needed
         if (this.autoPlace) {
-            this.domElement.style.position="fixed";
-this.domElement.style[design.verticalPosition]=design.verticalShift + px;
+            this.domElement.style.position = "fixed";
+            this.domElement.style[design.verticalPosition] = design.verticalShift + px;
 
             DOM.style("#" + this.domElementId,
-               
+
                 design.horizontalPosition, design.horizontalShift + px
-               
+
             );
             // scroll in vertical direction: attention! overflowY="auto" makes that overflowX becomes "auto" too if it is "initial" or "visible"
             // be careful: the vertical scroll bar might hide things
@@ -493,6 +503,7 @@ this.domElement.style[design.verticalPosition]=design.verticalShift + px;
         // add the title
         this.createTitle();
         // the ui elements go into their own div, the this.bodyDiv
+        // atach to dom after all changes
         this.bodyDivId = DOM.createId();
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
         // padding to have minimal height, space for controller padding

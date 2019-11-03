@@ -4,7 +4,6 @@
  * @namespace paramControllerMethods
  */
 
-/* jshint esversion:6 */
 import {
     SelectValues,
     BooleanButton,
@@ -27,8 +26,7 @@ export const paramControllerMethods = {};
 paramControllerMethods.createLabel = function(text) {
     const design = this.gui.design;
     this.label = document.createElement("span");
-    this.domElement.appendChild(this.label);
-    this.label.innerHTML = text;
+    this.label.textContent = text;
     this.label.style.fontSize = design.controllerLabelFontSize + "px";
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
@@ -36,19 +34,21 @@ paramControllerMethods.createLabel = function(text) {
     // space between label and controller or right border
     this.label.style.paddingLeft = design.labelSpacing + "px";
     this.label.style.paddingRight = design.labelSpacing + "px";
+    this.domElement.appendChild(this.label);
 };
 
 /**
  * initialize creation
  * create the div, initialize parameter values
  * set uiElement to null, default callback
+ * attention:  attach to dom later
+ *   this.gui.bodyDiv.appendChild(this.domElement);
  * @method paramControllerMethods.initCreate
  */
 paramControllerMethods.initCreate = function() {
     const design = this.gui.design;
     // create a div for all elements of the controller
     this.domElement = document.createElement("div");
-    this.gui.bodyDiv.appendChild(this.domElement);
     // make a regular spacing between elements
     this.domElement.style.paddingTop = design.paddingVertical + "px";
     this.domElement.style.paddingBottom = design.paddingVertical + "px";
@@ -211,11 +211,11 @@ paramControllerMethods.listen = function() {
 paramControllerMethods.name = function(label) {
     let toChange = this.label;
     if (this.uiElement instanceof Button) {
-        toChange = this.uiElement.element;
+        this.uiElement.setText(label);
     }
-    toChange.removeChild(toChange.firstChild);
-    const textNode = document.createTextNode(label);
-    toChange.appendChild(textNode);
+    else {
+        this.label.textContent=label;
+}
     return this;
 };
 

@@ -218,6 +218,8 @@ ParamController.prototype.create = function(low, high, step) {
         // no idea/error
         this.createLabel(this.property + " *** error");
     }
+    // change dom after all work has been done
+        this.gui.bodyDiv.appendChild(this.domElement);
     return this;
 };
 
