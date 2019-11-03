@@ -1,7 +1,7 @@
 /** a controller with a rotating arrow to set 
  * an angle (tangential mouse/touch movement and a scale (radial)
  * @constructor AngleScale
- * @param {String} idName - html identifier of a div as container 
+ * @param {domElement} parent -  a div as container 
  */
 
 /* jshint esversion:6 */
@@ -10,15 +10,14 @@ import {
     MouseEvents
 } from "./modules.js";
 
-export function AngleScale(idName) {
-    this.idName = idName;
-    this.canvasId = DOM.createId();
-    this.canvas = DOM.create("canvas", this.canvasId, "#" + idName);
+export function AngleScale(parent) {   
+    this.canvas = document.createElement("canvas");
     /*   // make that it can have focus
        this.canvas.setAttribute("tabindex","1")
        // no special "focus border"
        this.canvas.style.outlineStyle="none";
     */
+parent.appendChild(this.canvas);
     this.canvasContext = this.canvas.getContext('2d');
     // units: set/get angle
     // value of a full turn
@@ -33,8 +32,8 @@ export function AngleScale(idName) {
     this.scale = 1;
 
     // interacting
-    this.mouseEvents = new MouseEvents(this.canvasId);
-    this.touchEvents = new TouchEvents(this.canvasId);
+    this.mouseEvents = new MouseEvents(this.canvas);
+    this.touchEvents = new TouchEvents(this.canvas);
 
     /**
      * what to do if angle/scale changes (redraw image)
@@ -52,9 +51,9 @@ export function AngleScale(idName) {
      */
     this.mouseEvents.moveAction = function(mouseEvents) {
         if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-            DOM.style("#" + angleScale.canvasId, "cursor", "pointer");
+            angleScale.canvas.style.cursor="pointer";
         } else {
-            DOM.style("#" + angleScale.canvasId, "cursor", "initial");
+            angleScale.canvas.style.cursor="initial";
         }
     };
 

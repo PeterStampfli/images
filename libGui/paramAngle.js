@@ -59,12 +59,9 @@ ParamAngle.prototype.create = function() {
 
     this.createLabel(this.property);
 
-    const numberButtonId = DOM.createId();
-    DOM.create("input", numberButtonId, "#" + this.domElementId);
-    DOM.style("#" + numberButtonId,
-        "width", design.numberInputWidth + px,
-        "font-size", design.buttonFontSize + px);
-    const numberButton = new NumberButton(numberButtonId);
+    const numberButton = new NumberButton(this.domElement, false, false);
+    numberButton.setWidth(design.numberInputWidth);
+    numberButton.setFontSize(design.buttonFontSize);
     numberButton.setStep(1);
     numberButton.setRange(-180, 180);
     numberButton.setCyclic();

@@ -44,11 +44,11 @@ export const MouseAndTouch = {};
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
  * @constructor MouseEvents
- * @param {String} idName - of the HTML element
+ * @param {domElement} element - an HTML element
  */
 
-export function MouseEvents(idName) {
-    this.element = document.getElementById(idName);
+export function MouseEvents(element) {
+    this.element = element;
     // element is ususually a div or canvas (initially cannot have focus)
     // make that it can have focus
     this.element.setAttribute("tabindex", "1");

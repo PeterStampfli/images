@@ -27,10 +27,10 @@ SingleTouch.prototype.update = function(touch) {
  * attaches (multi) touch events to a html element
  * organizes the data of the touches, calls single touch and double touch event functions
  * @constructor TouchEvents
- * @param {String} idName - of the HTML element
+ * @param {domElement} element - an HTML element
  */
-export function TouchEvents(idName) {
-    this.element = document.getElementById(idName);
+export function TouchEvents(element) {
+    this.element = element;
     // switch events off or on, default is on, switching from outside (eg presentation)
     this.isActive = true;
 
