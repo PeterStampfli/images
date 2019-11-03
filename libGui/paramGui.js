@@ -733,65 +733,41 @@ ParamGui.prototype.addAngle = function(params, property) {
     return controller;
 };
 
-
-// adding hide and show methods to an object with a DOMElement
-function hideAndShow(element) {
-    element.hide = function() {
-        element.DOMElement.style.display = "none";
-    };
-    element.show = function() {
-        element.DOMElement.style.display = "block";
-    };
-}
-
 /**
  * add a div to make a vertical space
  * choose height (default: paddingVertical)
  * backgroundColor: (default: none )
  * @method ParamGui#verticalSpace
  * @param {...float|String} height/backgroundColor - optional
- * @return object with DOMElement, hide and show methods
  */
 ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
-    const result = {};
-    result.DOMElement = document.createElement("div");
-    hideAndShow(result);
-    result.DOMElement.style.height = this.design.paddingVertical + px;
+    const vSpace = document.createElement("div");
+    vSpace.style.height = this.design.paddingVertical + px;
     for (var i = 0; i < arguments.length; i++) {
         const arg = arguments[i];
         if (typeof(arg) === "number") {
-            result.DOMElement.style.height = arg + px;
+            vSpace.style.height = arg + px;
         }
         if (typeof(arg) === "string") {
-            result.DOMElement.style.backgroundColor = arg;
+            vSpace.style.backgroundColor = arg;
         }
     }
-    this.domElement.appendChild(result.domElement);
-    return result;
+    this.bodyDiv.appendChild(vSpace);
 };
 
 /**
  * add a "paragraph" (its actually a div with optional inner html)
  * text wraps automatically (rewraps if scroll bar appears)
  * @method ParamGui#paragraph
- * @param {String} text - with HTML markup (=>innerHTML), optional
- * @return object with DOMElement,DOMElementId,hide and show methods
+ * @param {String} text - with HTML markup (=>innerHTML)
  */
 ParamGui.prototype.paragraph = function(innerHTML) {
-    const id = DOM.createId();
-    const result = {};
-    result.DOMElement = DOM.create("div", id, "#" + this.bodyDivId);
-    result.domElementId = id;
-    hideAndShow(result);
-    DOM.style("#" + id,
-        "paddingLeft", this.design.paragraphPadding + px,
-        "paddingRight", this.design.paragraphPadding + px,
-        "color", this.design.paragraphColor
-    );
-    if (typeof innerHTML === "string") {
-        result.DOMElement.innerHTML = innerHTML;
-    }
-    return result;
+    const para = document.createElement("div");
+    para.style.paddingLeft = this.design.paragraphPadding + px;
+    para.style.paddingRight = this.design.paragraphPadding + px;
+    para.style.color = this.design.paragraphColor;
+    para.innerHTML = innerHTML;
+    this.bodyDiv.appendChild(para);
 };
 
 /**

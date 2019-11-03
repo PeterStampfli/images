@@ -212,10 +212,9 @@ paramControllerMethods.name = function(label) {
     let toChange = this.label;
     if (this.uiElement instanceof Button) {
         this.uiElement.setText(label);
+    } else {
+        this.label.textContent = label;
     }
-    else {
-        this.label.textContent=label;
-}
     return this;
 };
 
