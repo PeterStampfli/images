@@ -78,9 +78,10 @@ export function ParamGui(params) {
     for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(design, arguments[i]);
     }
-    // in particular note that design.width decreases for sub(sub) folders
+    // in particular note that width decreases for sub(sub) folders
     // because of indentation
     // be careful: the vertical scroll bar might hide things
+    // use clientWidth for width inside
     this.setup();
 }
 
@@ -404,7 +405,7 @@ ParamGui.prototype.createTitle = function() {
         this.titleLabel.style.fontWeight = design.titleFontWeight;
         // attach to the dom only after all changes have been done
         // might accelerate things (page reflow only once)
-                this.domElement.appendChild(this.titleDiv);
+        this.domElement.appendChild(this.titleDiv);
     }
 };
 
@@ -442,7 +443,7 @@ ParamGui.prototype.setup = function() {
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
         this.domElementId = DOM.createId();
-            this.domElement = document.createElement("div");
+        this.domElement = document.createElement("div");
 
         this.domElement = DOM.create("div", this.domElementId, "body");
 
@@ -489,11 +490,8 @@ ParamGui.prototype.setup = function() {
             // scroll in vertical direction: attention! overflowY="auto" makes that overflowX becomes "auto" too if it is "initial" or "visible"
             // be careful: the vertical scroll bar might hide things
             // take into account design.scrollBarWidth for auto wrapping lines
-            DOM.style("#" + this.bodyDivId,
-                "overflowY", "auto",
-                "overflowX", "hidden"
-            );
-            this.childWidth = design.width;
+            this.bodyDiv.style.overflowY = "auto";
+            this.bodyDiv.style.overflowX = "hidden";
             this.resize();
         }
     } else {
@@ -505,6 +503,9 @@ ParamGui.prototype.setup = function() {
         // the ui elements go into their own div, the this.bodyDiv
         // atach to dom after all changes
         this.bodyDivId = DOM.createId();
+        // this.bodydiv = document.createElement("div");
+        //  this.domElement.appendChild(this.bodyDiv);
+
         this.bodyDiv = DOM.create("div", this.bodyDivId, "#" + this.domElementId);
         // padding to have minimal height, space for controller padding
         // separating folders
@@ -513,13 +514,9 @@ ParamGui.prototype.setup = function() {
         );
         // indent and left border only if there is a title and/or open/close buttons
         if ((this.closeOnTop) || (this.name !== "")) {
-            DOM.style("#" + this.bodyDivId,
-                "border-left", "solid",
-                "borderColor", design.titleBackgroundColor,
-                "border-left-width", design.levelIndent + px);
-            this.childWidth = design.width - design.levelIndent;
-        } else {
-            this.childWidth = design.width;
+            this.bodyDiv.style.borderLeft = "solid";
+            this.bodyDiv.style.borderColor = design.titleBackgroundColor;
+            this.bodyDiv.style.borderLeftWidth = design.levelIndent + px;
         }
     }
     // close it initially? (has to be here, after creation of elements
@@ -527,9 +524,9 @@ ParamGui.prototype.setup = function() {
         this.close();
     }
     // set colors of body
-    DOM.style("#" + this.bodyDivId,
-        "color", design.textColor,
-        "backgroundColor", design.backgroundColor);
+    this.bodyDiv.style.color = design.textColor;
+    this.bodyDiv.style.backgroundColor = design.backgroundColor;
+    // attach bodyDiv to dom
 };
 
 // hide and show might be used in a program to hide irrelevant parameters
@@ -550,7 +547,6 @@ ParamGui.prototype.hide = function() {
         DOM.style("#" + this.outerTitleDivId, "display", "none");
     }
     // hide body div and the bottom padding div
-    DOM.style("#" + this.bottomPaddingDivId, "display", "none");
     DOM.style("#" + this.bodyDivId, "display", "none");
 };
 
@@ -564,7 +560,7 @@ ParamGui.prototype.show = function() {
     this.hidden = false;
     if (this.isRoot()) {
         // root, show base container
-        DOM.style("#" + this.domElementId, "display", "block");
+        this.domElement.style.display = "block";
     }
     // folder, show topDiv if exists, including the buttons
     if ((this.closeOnTop) || (this.name !== "")) {
@@ -574,8 +570,6 @@ ParamGui.prototype.show = function() {
     if ((!this.closed) || (!this.closeOnTop)) {
         DOM.style("#" + this.bodyDivId, "display", "block");
     }
-    // always show bottom padding
-    DOM.style("#" + this.bottomPaddingDivId, "display", "block");
 };
 
 // open/close should not be used in a program (makes no sense)
@@ -654,8 +648,7 @@ ParamGui.prototype.addFolder = function(folderName, designParameters) {
         closed: true,
         parent: this,
         autoPlace: false,
-        hideable: false,
-        width: this.childWidth
+        hideable: false
     };
     for (var i = 1; i < arguments.length; i++) {
         Object.assign(allParameters, arguments[i]);
@@ -757,24 +750,23 @@ function hideAndShow(element) {
  * backgroundColor: (default: none )
  * @method ParamGui#verticalSpace
  * @param {...float|String} height/backgroundColor - optional
- * @return object with DOMElement,DOMElementId,hide and show methods
+ * @return object with DOMElement, hide and show methods
  */
 ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
-    const id = DOM.createId();
     const result = {};
-    result.DOMElement = DOM.create("div", id, "#" + this.bodyDivId);
-    result.domElementId = id;
+    result.DOMElement = document.createElement("div");
     hideAndShow(result);
-    DOM.style("#" + id, "height", this.design.paddingVertical + px);
+    result.DOMElement.style.height = this.design.paddingVertical + px;
     for (var i = 0; i < arguments.length; i++) {
         const arg = arguments[i];
         if (typeof(arg) === "number") {
-            DOM.style("#" + id, "height", arg + px);
+            result.DOMElement.style.height = arg + px;
         }
         if (typeof(arg) === "string") {
-            DOM.style("#" + id, "backgroundColor", arg);
+            result.DOMElement.style.backgroundColor = arg;
         }
     }
+    this.domElement.appendChild(result.domElement);
     return result;
 };
 
