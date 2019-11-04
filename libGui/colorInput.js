@@ -21,29 +21,30 @@ export function ColorInput(parent, hasAlpha) {
         this.lastValue = "#000000";
     }
     this.textElement = document.createElement("input");
-    parent.appendChild(this.textElement);
     this.textElement.setAttribute("type", "text");
-    this.textHover = false;
+    this.textElement.style.verticalAlign = "middle";
+     parent.appendChild(this.textElement);
+   this.textHover = false;
     this.textPressed = false;
     this.addSpace();
     this.colorElement = document.createElement("input");
-    parent.appendChild(this.colorElement);
     this.colorElement.setAttribute("type", "color");
     this.colorElement.style.cursor = "pointer";
     this.colorElement.style.outline = "none";
     this.colorElement.style.verticalAlign = "middle";
     this.colorElement.select(); // magic for old browsers that have no color input, text instead
+    parent.appendChild(this.colorElement);
     this.colorHover = false;
     if (hasAlpha) {
         this.addSpace();
         this.rangeElement = document.createElement("input");
-        parent.appendChild(this.rangeElement);
         this.rangeElement.setAttribute("type", "range");
         this.rangeElement.style.cursor = "pointer";
         this.rangeElement.style.verticalAlign = "middle"; // range is essentially an image, inline element
         this.rangeElement.step = 1;
         this.rangeElement.min = 0;
         this.rangeElement.max = 255;
+        parent.appendChild(this.rangeElement);
     }
     const colorInput = this;
 
@@ -163,6 +164,17 @@ ColorInput.prototype.updateColorStyle = function() {
     } else {
         this.colorElement.style.backgroundColor = this.backgroundColorUp;
     }
+};
+
+
+/**
+ * set fontsize, in px
+ * @method ColorInput#setFontSize
+ * @param {integer} size
+ */
+ColorInput.prototype.setFontSize = function(size) {
+    this.textElement.style.fontSize = size + "px";
+    this.colorElement.style.height = this.textElement.offsetHeight + "px";
 };
 
 /**

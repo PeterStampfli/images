@@ -13,10 +13,11 @@ import {
 export function Range(parent, hasPlusMinus) {
     this.parent = parent;
     this.textElement = document.createElement("input");
-    parent.appendChild(this.textElement);
     this.textElement.setAttribute("type", "text");
     this.textElement.style.textAlign = "right";
-    this.textHover = false;
+     this.textElement.style.verticalAlign = "middle";
+     parent.appendChild(this.textElement);
+  this.textHover = false;
     this.textPressed = false;
     this.addSpace();
     this.rangeElement = document.createElement("input");
@@ -158,6 +159,10 @@ Range.prototype.updateTextStyle = function() {
  */
 Range.prototype.setFontSize = function(size) {
     this.textElement.style.fontSize = size + "px";
+    if (this.plusButton !== null) {
+        this.plusButton.setFontSize(size);
+        this.minusButton.setFontSize(size);
+    }
 };
 
 
@@ -375,8 +380,6 @@ Range.prototype.destroy = function() {
     if (this.plusButton !== null) {
         this.plusButton.destroy();
         this.plusButton = null;
-    }
-    if (this.minusButton !== null) {
         this.minusButton.destroy();
         this.minusButton = null;
     }

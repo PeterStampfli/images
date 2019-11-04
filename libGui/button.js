@@ -13,6 +13,7 @@ export function Button(text, parent) {
     this.element.textContent = text;
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.outline = "none";
+    this.element.style.verticalAlign = "middle";
     // states
     this.pressed = false;
     this.hover = false;
@@ -167,8 +168,6 @@ Button.prototype.setWidth = function(width) {
  * @method Button#setText
  * @param {String} text
  */
-
-
 Button.prototype.setText = function(text) {
     this.element.textContent = text;
 };
