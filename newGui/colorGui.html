@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>add color gui</title>
+    <title>color gui</title>
 </head>
 
 <body>
@@ -18,52 +18,51 @@
 
 </body>
 
-<script type="module" src="../librarySource/paramGui.js"></script>
+<script type="module" src="../libGui/paramGui.js"></script>
 
 
 
 <script>
 
-window.onload=function(){
+    window.onload = function() {
+        dd = document.getElementById("d");
 
-DOM.style("#d",
-"height","300px",
-"width","300px",
-"backgroundColor","red")
+        d.style.width = "300px";
+        d.style.height = "300px";
+        d.style.backgroundColor = "red";
 
-ParamGui=window.ParamGui;
-
-ParamGui.updateDefaults();
-const newDat={};
-newDat.GUI=ParamGui;
-const px = "px";
-        
-        
-const gui=new newDat.GUI({},{name:"dummy controls",closed:false,closeOnTop:true});
+        const px = "px";
+        ParamGui.updateDefaults();
 
 
-const p={};
-p.number=33;
-p.string="edit text";
-const s=gui.add(p,"string");
 
-p.rgb="#ff0000";
-const co=gui.addColor(p,"rgb");
-p.rgba="#ff0000aa";
-gui.addColor(p,"rgba");
-p.angle=90;
+        const gui = new ParamGui({}, {
+            name: "dummy controls",
+            closed: false,
+            closeOnTop: true
+        });
 
-co.onChange(function(value){
-console.log(value);
-DOM.style("#d",
-"backgroundColor",value);
-});
 
-//gui.destroy();
+        const p = {};
+        p.number = 33;
+        p.string = "edit text";
+        const s = gui.add(p, "string");
 
-const aa=gui.addAngle(p,"angle");
+        p.rgb = "#ff0000";
+        const co = gui.addColor(p, "rgb");
+        p.rgba = "#ff0000aa";
+        gui.addColor(p, "rgba");
+        p.angle = 90;
 
-}
+        co.onChange(function(value) {
+            console.log(value);
+            d.style.backgroundColor = value;
+        });
+
+        //gui.destroy();
+
+
+    }
 
 </script>
 

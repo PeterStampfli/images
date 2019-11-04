@@ -153,12 +153,12 @@ ParamGui.defaultDesign = {
     textInputWidth: 200,
     // width for number input
     numberInputWidth: 40,
-    // width for colorInput as string
-    colorStringInputWidth: 70,
-    // width for color input
-    colorInputWidth: 50,
-    // length for alpha range element for color
-    colorRangeWidth: 60,
+    // width of text element for colorInput
+    colorTextWidth: 70,
+    // width of color element for colorInput
+    colorColorWidth: 70,
+    // width of range element for colorInput
+    colorRangeWidth: 70,
     // length of slider for range element
     rangeSliderLengthShort: 80,
     rangeSliderLengthLong: 120,

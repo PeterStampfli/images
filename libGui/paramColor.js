@@ -2,7 +2,6 @@
 
 import {
     paramControllerMethods,
-    TextInput,
     ColorInput
 } from "./modules.js";
 
@@ -53,17 +52,26 @@ Object.assign(ParamColor.prototype, paramControllerMethods);
 
 /**
  * make a text input , color input and range
+ assume that param value is correct color format
  * @method ParamController#create
  */
 ParamColor.prototype.create = function() {
     this.initCreate();
     const design = this.gui.design;
-    const paramValue = this.params[this.property];
+    let color = this.params[this.property];
+    console.log(color)
     const controller = this;
-    
+
+            this.createLabel(this.property);
+        const hasAlpha=ColorInput.hasAlpha(color);
+
+    const colorInput=new ColorInput(this.domElement,hasAlpha);
     
 
-    this.setValue(paramValue);
+   // this.setValue(color);
+
+       this.gui.bodyDiv.appendChild(this.domElement);
+
     return this;
 };
 

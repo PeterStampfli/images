@@ -11,20 +11,14 @@ import {
     Button
 } from "./modules.js";
 
-
 export function ColorInput(parent, hasAlpha) {
     this.parent = parent;
     this.hasAlpha = hasAlpha;
-    if (hasAlpha) {
-        this.lastValue = "#000000ff";
-    } else {
-        this.lastValue = "#000000";
-    }
     this.textElement = document.createElement("input");
     this.textElement.setAttribute("type", "text");
     this.textElement.style.verticalAlign = "middle";
-     parent.appendChild(this.textElement);
-   this.textHover = false;
+    parent.appendChild(this.textElement);
+    this.textHover = false;
     this.textPressed = false;
     this.addSpace();
     this.colorElement = document.createElement("input");
@@ -46,6 +40,12 @@ export function ColorInput(parent, hasAlpha) {
         this.rangeElement.max = 255;
         parent.appendChild(this.rangeElement);
     }
+    if (hasAlpha) { // give all parts a value, set lastValue
+        this.setValue("#00000000");
+    } else {
+        this.setValue("#000000");
+    }
+
     const colorInput = this;
 
     // hovering, focus -> styling
@@ -166,7 +166,6 @@ ColorInput.prototype.updateColorStyle = function() {
     }
 };
 
-
 /**
  * set fontsize, in px
  * @method ColorInput#setFontSize
@@ -175,6 +174,19 @@ ColorInput.prototype.updateColorStyle = function() {
 ColorInput.prototype.setFontSize = function(size) {
     this.textElement.style.fontSize = size + "px";
     this.colorElement.style.height = this.textElement.offsetHeight + "px";
+};
+
+/**
+ * setting widths
+ * @method ColorInput#setWidths
+ * @param {integer} textWidth
+ * @param {integer} colorWidth
+ * @param {integer} rangeWidth
+ */
+ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
+    this.textElement.style.width = textWidth + "px";
+    this.colorElement.style.width = colorWidth + "px";
+    this.rangeElement.style.width = rangeWidth + "px";
 };
 
 /**
