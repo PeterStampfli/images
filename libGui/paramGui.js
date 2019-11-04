@@ -372,6 +372,12 @@ ParamGui.prototype.createTitle = function() {
         this.titleDiv.style.color = design.titleColor;
         this.titleDiv.style.paddingTop = design.paddingVertical + "px";
         this.titleDiv.style.paddingBottom = design.paddingVertical + "px";
+        // for root gui make a border
+        if (this.isRoot()) {
+            this.titleDiv.style.borderBottomWidth = design.borderWidth + "px";
+            this.titleDiv.style.borderBottomStyle = "solid";
+            this.titleDiv.style.borderBottomColor = design.borderColor;
+        }
         // create close and open buttons if wanted
         // small arrows (as for file system), before name
         if (this.closeOnTop) {
@@ -415,7 +421,7 @@ ParamGui.prototype.resize = function() {
         const design = this.design;
         // get the height of the title div
         const titleHeight = this.titleDiv.offsetHeight;
-        const maxHeight = document.documentElement.clientHeight - titleHeight - 3 * design.borderWidth - design.verticalShift;
+        const maxHeight = document.documentElement.clientHeight - titleHeight - 2 * design.borderWidth - design.verticalShift;
         this.bodyDiv.style.maxHeight = maxHeight + "px";
     }
 };
@@ -448,16 +454,11 @@ ParamGui.prototype.setup = function() {
         ParamGui.addRootGui(this);
         // add the title
         this.createTitle();
-        // div between title and body of root gui
-        // makes a line similar as border
-        const separation = document.createElement("div");
-        separation.style.height = design.borderWidth + "px";
-        separation.style.backgroundColor = design.borderColor;
-        this.domElement.appendChild(separation);
         // the ui elements go into their own div, the this.bodyDiv
         this.bodyDiv = document.createElement("div");
         // autoPlacing the root gui domElement relative to one of the four corners
         // and make the bodyDiv scrolling vertical, if needed
+        this.domElement.appendChild(this.bodyDiv);
         if (this.autoPlace) {
             this.domElement.style.position = "fixed";
             this.domElement.style[design.verticalPosition] = design.verticalShift + "px";
@@ -467,9 +468,10 @@ ParamGui.prototype.setup = function() {
             // take into account design.scrollBarWidth for auto wrapping lines
             this.bodyDiv.style.overflowY = "auto";
             this.bodyDiv.style.overflowX = "hidden";
-            this.domElement.appendChild(this.bodyDiv);
             document.body.appendChild(this.domElement);
             this.resize();
+        } else {
+            document.body.appendChild(this.domElement);
         }
     } else {
         // folders have the parent bodyDiv as container
@@ -479,9 +481,6 @@ ParamGui.prototype.setup = function() {
         // the ui elements go into their own div, the this.bodyDiv
         // attach to dom after all changes
         this.bodyDiv = document.createElement("div");
-        // padding to have minimal height, space for controller padding
-        // separating folders
-        this.bodyDiv.style.paddingTop = design.paddingVertical + "px";
         // indent and left border only if there is a title and/or open/close buttons
         if ((this.closeOnTop) || (this.name !== "")) {
             this.bodyDiv.style.borderLeft = "solid";
