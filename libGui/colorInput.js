@@ -168,13 +168,23 @@ ColorInput.prototype.updateColorStyle = function() {
 
 /**
  * set fontsize, in px
- * ATTENTION: colorInput has to be attached to the document (body) to  be able to get offsetHeight!
+ * ATTENTION: colorInput has to be attached to the DOM to  be able to get offsetHeight!
+ *  a hidden gui folder lies outside the DOM, thus we have to do some acrobatics to get it
  * @method ColorInput#setFontSize
+ * @param {DOMElement} domElement - a html element that is part of the DOM
  * @param {integer} size
  */
-ColorInput.prototype.setFontSize = function(size) {
+ColorInput.prototype.setFontSize = function(domElement, size) {
     this.textElement.style.fontSize = size + "px";
+    // switch textElement to domElement
+    const parent = this.textElement.parentElement;
+    parent.removeChild(this.textElement);
+    domElement.appendChild(this.textElement);
+    // now we can read the offset height
     this.colorElement.style.height = this.textElement.offsetHeight + "px";
+    // switch back
+    domElement.removeChild(this.textElement);
+    parent.insertBefore(this.textElement, this.colorElement);
 };
 
 /**
@@ -186,7 +196,7 @@ ColorInput.prototype.setFontSize = function(size) {
  */
 ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
     this.textElement.style.width = textWidth + "px";
-  //  this.colorElement.style.width = colorWidth + "px";
+    //  this.colorElement.style.width = colorWidth + "px";
     if (this.hasAlpha) {
         this.rangeElement.style.width = rangeWidth + "px";
     }

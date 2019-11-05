@@ -173,7 +173,7 @@ ParamGui.zIndex = 5;
 //time in milliseconds between listening updates
 ParamGui.listeningInterval = 400;
 // keyboard character to hide/show all guis
-ParamGui.hideCharacter = "Tab";
+ParamGui.hideCharacter = "$";
 // width for spaces in px
 ParamGui.spaceWidth = 20;
 
@@ -500,6 +500,7 @@ ParamGui.prototype.setup = function() {
 };
 
 // hide and show might be used in a program to hide irrelevant parameters
+// including title
 
 /**
  * hide the gui/folder. (makes it disappear)
@@ -510,7 +511,7 @@ ParamGui.prototype.hide = function() {
     this.hidden = true;
     if (this.isRoot()) {
         // root, hide base container with border
-        this.domElement.style.display = "none";
+        this.domElement.style.visibility = "hidden";
     } else {
         // folder, hide topDiv if exists
         if ((this.closeOnTop) || (this.name !== "")) {
@@ -531,7 +532,7 @@ ParamGui.prototype.show = function() {
     this.hidden = false;
     if (this.isRoot()) {
         // root, show base container
-        this.domElement.style.display = "block";
+        this.domElement.style.visibility = "visible";
     } else {
         // folder, show topDiv if exists, including the buttons
         if ((this.closeOnTop) || (this.name !== "")) {

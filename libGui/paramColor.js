@@ -66,7 +66,8 @@ ParamColor.prototype.create = function() {
     colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
     colorInput.setValue(color);
     this.gui.bodyDiv.appendChild(this.domElement);
-    colorInput.setFontSize(design.buttonFontSize); // attention: reading offsetHeight !
+    // get root
+    colorInput.setFontSize(this.gui.getRoot().domElement,design.buttonFontSize); // attention: reading offsetHeight !
     this.uiElement = colorInput;
     this.setupOnChange();
     return this;

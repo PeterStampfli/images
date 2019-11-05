@@ -48,7 +48,7 @@
         p.string = "edit text";
         const s = gui.add(p, "string");
 
-        p.rgb = "#ff000088";
+        p.rgb = "#ff0000";
         const co = gui.addColor(p, "rgb");
         p.rgba = "#ff0000aa";
         gui.addColor(p, "rgba");
@@ -60,6 +60,11 @@
         });
 
         //gui.destroy();
+        ff=gui.addFolder("fun",{closed:false});
+        nf=gui.addFolder("nlofun");
+
+        ff.addColor(p,"rgba")
+        nf.addColor(p,"rgba")
 
 
     }
