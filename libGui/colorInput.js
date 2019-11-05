@@ -168,6 +168,7 @@ ColorInput.prototype.updateColorStyle = function() {
 
 /**
  * set fontsize, in px
+ * ATTENTION: colorInput has to be attached to the document (body) to  be able to get offsetHeight!
  * @method ColorInput#setFontSize
  * @param {integer} size
  */
@@ -185,8 +186,10 @@ ColorInput.prototype.setFontSize = function(size) {
  */
 ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
     this.textElement.style.width = textWidth + "px";
-    this.colorElement.style.width = colorWidth + "px";
-    this.rangeElement.style.width = rangeWidth + "px";
+  //  this.colorElement.style.width = colorWidth + "px";
+    if (this.hasAlpha) {
+        this.rangeElement.style.width = rangeWidth + "px";
+    }
 };
 
 /**

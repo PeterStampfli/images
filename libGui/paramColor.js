@@ -59,18 +59,18 @@ ParamColor.prototype.create = function() {
     this.initCreate();
     const design = this.gui.design;
     let color = this.params[this.property];
-    console.log(color)
     const controller = this;
 
-            this.createLabel(this.property);
-        const hasAlpha=ColorInput.hasAlpha(color);
+    this.createLabel(this.property);
+    const hasAlpha = ColorInput.hasAlpha(color);
 
-    const colorInput=new ColorInput(this.domElement,hasAlpha);
-    
+    const colorInput = new ColorInput(this.domElement, hasAlpha);
+    colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
+    colorInput.setValue(color);
 
-   // this.setValue(color);
+    this.gui.bodyDiv.appendChild(this.domElement);
+    colorInput.setFontSize(design.buttonFontSize); // attention: reading offsetHeight !
 
-       this.gui.bodyDiv.appendChild(this.domElement);
 
     return this;
 };
