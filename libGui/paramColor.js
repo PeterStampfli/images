@@ -60,23 +60,17 @@ ParamColor.prototype.create = function() {
     const design = this.gui.design;
     let color = this.params[this.property];
     const controller = this;
-
     this.createLabel(this.property);
     const hasAlpha = ColorInput.hasAlpha(color);
-
     const colorInput = new ColorInput(this.domElement, hasAlpha);
     colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
     colorInput.setValue(color);
-
     this.gui.bodyDiv.appendChild(this.domElement);
     colorInput.setFontSize(design.buttonFontSize); // attention: reading offsetHeight !
-
-
+    this.uiElement = colorInput;
+    this.setupOnChange();
     return this;
 };
-
-
-
 
 /**
  * destroy the controller

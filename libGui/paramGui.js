@@ -440,6 +440,9 @@ ParamGui.prototype.setup = function() {
     // a list of all folders, controllers and other elements
     // must have a destroy method, an updateDisplayIfListening method
     this.elements = [];
+        // the ui elements go into their own div, the this.bodyDiv
+        // append as child to this.domElement
+        this.bodyDiv = document.createElement("div");
     if (this.isRoot()) {
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
@@ -454,8 +457,6 @@ ParamGui.prototype.setup = function() {
         ParamGui.addRootGui(this);
         // add the title
         this.createTitle();
-        // the ui elements go into their own div, the this.bodyDiv
-        this.bodyDiv = document.createElement("div");
         // autoPlacing the root gui domElement relative to one of the four corners
         // and make the bodyDiv scrolling vertical, if needed
         this.domElement.appendChild(this.bodyDiv);
