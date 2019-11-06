@@ -131,8 +131,10 @@ ParamGui.defaultDesign = {
     titleColor: "#000000",
     titleBackgroundColor: "#bbbbbb",
 
-    // padding for paragraphs: free space at left and right
-    paragraphPadding: 10,
+    // padding for paragraphs: free space at right (left: labelspacing)
+    paragraphRightPadding: 10,
+    // padding for paragraphs: free space at top (bottom: paddingVertical)
+    paragraphTopPadding: 10,
     // textcolor for paragraphs
     paragraphColor: "#000000",
     // fontsize for paragraphs
@@ -442,9 +444,9 @@ ParamGui.prototype.setup = function() {
     // a list of all folders, controllers and other elements
     // must have a destroy method, an updateDisplayIfListening method
     this.elements = [];
-        // the ui elements go into their own div, the this.bodyDiv
-        // append as child to this.domElement
-        this.bodyDiv = document.createElement("div");
+    // the ui elements go into their own div, the this.bodyDiv
+    // append as child to this.domElement
+    this.bodyDiv = document.createElement("div");
     if (this.isRoot()) {
         // the root element has to generate a div as containing DOMElement
         // everything is in this div
@@ -729,15 +731,20 @@ ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
  * text wraps automatically (rewraps if scroll bar appears)
  * @method ParamGui#paragraph
  * @param {String} text - with HTML markup (=>innerHTML)
+ * @return the html <p> element, for futher formatting, in case
  */
 ParamGui.prototype.addParagraph = function(innerHTML) {
-    const para = document.createElement("p");
-    para.style.paddingLeft = this.design.paragraphPadding + "px";
-    para.style.paddingRight = this.design.paragraphPadding + "px";
+    const para = document.createElement("div");
+    para.style.margin = "none";
+    para.style.paddingLeft = this.design.labelSpacing + "px";
+    para.style.paddingRight = this.design.paragraphRightPadding + "px";
+    para.style.paddingTop = this.design.paragraphTopPadding + "px";
+    para.style.paddingBottom = this.design.paddingVertical + "px";
     para.style.color = this.design.paragraphColor;
-    para.style.fontSize = this.design.paragraphFontSize+"px";
+    para.style.fontSize = this.design.paragraphFontSize + "px";
     para.innerHTML = innerHTML;
     this.bodyDiv.appendChild(para);
+    return para;
 };
 
 /**

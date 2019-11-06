@@ -15,9 +15,9 @@ export function Range(parent, hasPlusMinus) {
     this.textElement = document.createElement("input");
     this.textElement.setAttribute("type", "text");
     this.textElement.style.textAlign = "right";
-     this.textElement.style.verticalAlign = "middle";
-     parent.appendChild(this.textElement);
-  this.textHover = false;
+    this.textElement.style.verticalAlign = "middle";
+    parent.appendChild(this.textElement);
+    this.textHover = false;
     this.textPressed = false;
     this.addSpace();
     this.rangeElement = document.createElement("input");
@@ -172,7 +172,7 @@ Range.prototype.setFontSize = function(size) {
  * @param {integer} widthTextElement
  * @param {integer} widthRangeElement
  */
-Range.prototype.setWidths = function(widthTextElement,widthRangeElement) {
+Range.prototype.setWidths = function(widthTextElement, widthRangeElement) {
     this.textElement.style.width = widthTextElement + "px";
     this.rangeElement.style.width = widthRangeElement + "px";
 };
@@ -339,7 +339,7 @@ Range.prototype.changeDigit = function(direction) {
     if (power < 0) {
         power++;
     }
-    let change = Math.pow(10, power);
+    let change = Math.max(this.step, Math.pow(10, power));
     if (direction < 0) {
         change = -change;
     }

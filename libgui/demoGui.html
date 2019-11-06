@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>demo gui</title>
+</head>
+
+<body>
+
+<div id="sq">test</div>
+
+</body>
+
+<script type="module">
+
+import {
+    ParamGui
+}
+from "./modules.js"
+
+const square = document.getElementById("sq");
+
+square.style.width = "300px";
+square.style.height = "300px";
+square.style.backgroundColor = "red";
+
+const gui = new ParamGui({}, {
+    name: "demo controls",
+    closed: false,
+    closeOnTop: true
+});
+
+const params = {};
+
+gui.addParagraph("With gui.addParagraph() we can add text to the gui.");
+gui.addParagraph("The $-keyboard key hides/shows the gui. The tab-key cycles through the inputs.")
+
+gui.addParagraph("With gui.addVerticalSpace(...) we can add a spacing");
+gui.addVerticalSpace(8,"blue");
+
+gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency of the square at the left:");
+
+params.square = "#ff0000ff";
+const co = gui.addColor(params, "square");
+co.onChange(function(value) {
+    console.log(value);
+    square.style.backgroundColor = value;
+});
+
+gui.addParagraph("If the color parameter at initialization of the gui has no alpha value, then the controller too has no alpha and no range element:");
+params.rgb = "#44ff00";
+gui.addColor(params, "rgb");
+
+gui.addParagraph("These are the basic controllers for numbers and strings:");
+
+params.string = "some text";
+gui.add(params, "string");
+
+params.integer = 33;
+gui.add(params,"integer",1,300);
+
+params.otherInt =8;
+gui.add(params,"otherInt",1,20,1);
+
+params.real=2.71;
+gui.add(params,"real",0,10,0.01);
+
+gui.addParagraph("With controller.cyclic() numbers cycle through their min-max range:")
+params.angle = 0;
+gui.add(params,"angle",-180,180,0.5).cyclic();
+params.hexa=0;
+gui.add(params,"hexa",0,6).cyclic();
+
+gui.addParagraph("Boolean and function buttons:");
+
+params.boolean=false;
+gui.add(params,"boolean");
+
+params.say_hello=function(){
+    console.log("hello");
+};
+gui.add(params,"say_hello");
+
+
+params.rgba = "#ff00ffbb";
+
+
+//gui.destroy();
+const folder = gui.addFolder("folder", {
+    closed: false
+});
+
+
+folder.addColor(params, "rgba")
+</script>
+
+</html>

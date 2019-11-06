@@ -19,8 +19,8 @@ export function NumberButton(parent, hasPlusMinus, hasMinMax) {
     parent.appendChild(this.element);
     this.element.setAttribute("type", "text");
     this.element.style.textAlign = "right";
-      this.element.style.verticalAlign = "middle";
-   const button = this;
+    this.element.style.verticalAlign = "middle";
+    const button = this;
     if ((arguments.length > 1) && hasPlusMinus) {
         this.addSpace();
         this.minusButton = new Button("-", parent);
@@ -312,7 +312,7 @@ NumberButton.prototype.changeDigit = function(direction) {
     if (power < 0) {
         power++;
     }
-    let change = Math.pow(10, power);
+    let change = Math.max(this.step, Math.pow(10, power));
     if (direction < 0) {
         change = -change;
     }

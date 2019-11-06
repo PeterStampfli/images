@@ -10,14 +10,14 @@ import {
     MouseEvents
 } from "./modules.js";
 
-export function AngleScale(parent) {   
+export function AngleScale(parent) {
     this.canvas = document.createElement("canvas");
     /*   // make that it can have focus
        this.canvas.setAttribute("tabindex","1")
        // no special "focus border"
        this.canvas.style.outlineStyle="none";
     */
-parent.appendChild(this.canvas);
+    parent.appendChild(this.canvas);
     this.canvasContext = this.canvas.getContext('2d');
     // units: set/get angle
     // value of a full turn
@@ -51,9 +51,9 @@ parent.appendChild(this.canvas);
      */
     this.mouseEvents.moveAction = function(mouseEvents) {
         if (angleScale.isOnDisc(mouseEvents.x, mouseEvents.y)) {
-            angleScale.canvas.style.cursor="pointer";
+            angleScale.canvas.style.cursor = "pointer";
         } else {
-            angleScale.canvas.style.cursor="initial";
+            angleScale.canvas.style.cursor = "initial";
         }
     };
 

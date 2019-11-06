@@ -191,8 +191,8 @@ ParamController.prototype.create = function(low, high, step) {
         range.setStep(1);
         range.setRange(low, high);
         range.setValue(paramValue);
-         // here we can use the cyclic() method, give it some sense
-       this.cyclic = function() {
+        // here we can use the cyclic() method, give it some sense
+        this.cyclic = function() {
             range.setCyclic();
             return this;
         };

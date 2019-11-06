@@ -109,9 +109,9 @@ SelectValues.prototype.setLabelsValues = function(selections) {
         }
     }
     for (let i = 0; i < this.labels.length; i++) {
-      const option= document.createElement("option");
-      option.appendChild(document.createTextNode(""+this.labels[i]));
-      this.element.appendChild(option);
+        const option = document.createElement("option");
+        option.appendChild(document.createTextNode("" + this.labels[i]));
+        this.element.appendChild(option);
     }
 };
 

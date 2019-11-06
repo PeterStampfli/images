@@ -47,7 +47,7 @@ export function BooleanButton(parent) {
             button.mouseDown = false;
             button.onChange();
         }
-            button.element.blur();
+        button.element.blur();
         button.updateStyle();
     };
 

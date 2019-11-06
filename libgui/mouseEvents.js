@@ -5,41 +5,41 @@
 
 export const MouseAndTouch = {};
 
-    /**
-     * prevent defaults (and bubbling ??)
-     * @method MouseAndTouch.preventDefault
-     * @param {Event} event
-     */
-    MouseAndTouch.preventDefault = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-    };
+/**
+ * prevent defaults (and bubbling ??)
+ * @method MouseAndTouch.preventDefault
+ * @param {Event} event
+ */
+MouseAndTouch.preventDefault = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+};
 
-    // search for parent nodes until we get at the "body" node
-    var body = document.getElementsByTagName("body")[0];
+// search for parent nodes until we get at the "body" node
+var body = document.getElementsByTagName("body")[0];
 
-    /**
-     * get the position of an event relative to upper left corner of an element
-     * @method MouseAndTouch.relativePosition
-     * @param {Event} event or other objec with pageX and pageY data
-     * @param {Element} element
-     */
-    MouseAndTouch.relativePosition = function(event, element) {
-        let x = event.pageX;
-        let y = event.pageY;
-        // take into account offset of this element and all containing elements as long as position not fixed
-        while (element != body) {
-            x -= element.offsetLeft;
-            y -= element.offsetTop;
-            if (element.style.position == "fixed") {
-                x -= window.pageXOffset;
-                y -= window.pageYOffset;
-                break;
-            }
-            element = element.offsetParent; // important: does not double count offsets
+/**
+ * get the position of an event relative to upper left corner of an element
+ * @method MouseAndTouch.relativePosition
+ * @param {Event} event or other objec with pageX and pageY data
+ * @param {Element} element
+ */
+MouseAndTouch.relativePosition = function(event, element) {
+    let x = event.pageX;
+    let y = event.pageY;
+    // take into account offset of this element and all containing elements as long as position not fixed
+    while (element != body) {
+        x -= element.offsetLeft;
+        y -= element.offsetTop;
+        if (element.style.position == "fixed") {
+            x -= window.pageXOffset;
+            y -= window.pageYOffset;
+            break;
         }
-        return [x, y];
-    };
+        element = element.offsetParent; // important: does not double count offsets
+    }
+    return [x, y];
+};
 
 /**
  * attaches mouse events to a html element and organizes basic mouse data, prevents default
@@ -186,48 +186,48 @@ export function MouseEvents(element) {
     };
 }
 
-    /**
-     * switch mouse events on or off 
-     * @method MouseEvents.setIsActive
-     * @param {boolean} on - if false there will be no mouse events
-     */
-    MouseEvents.prototype.setIsActive = function(on) {
-        this.isActive = on;
-    };
+/**
+ * switch mouse events on or off 
+ * @method MouseEvents.setIsActive
+ * @param {boolean} on - if false there will be no mouse events
+ */
+MouseEvents.prototype.setIsActive = function(on) {
+    this.isActive = on;
+};
 
-    /**
-     * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)
-     * for fixed elements subtract scroll
-     * @method MouseEvents#update
-     * @param {Event} event - object, containing event data
-     */
-    MouseEvents.prototype.update = function(event) {
-        this.button = event.button;
-        this.lastX = this.x;
-        this.lastY = this.y;
-        [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);
-        this.dx = this.x - this.lastX;
-        this.dy = this.y - this.lastY;
-        this.wheelDelta = event.deltaY;
-    };
+/**
+ * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)
+ * for fixed elements subtract scroll
+ * @method MouseEvents#update
+ * @param {Event} event - object, containing event data
+ */
+MouseEvents.prototype.update = function(event) {
+    this.button = event.button;
+    this.lastX = this.x;
+    this.lastY = this.y;
+    [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);
+    this.dx = this.x - this.lastX;
+    this.dy = this.y - this.lastY;
+    this.wheelDelta = event.deltaY;
+};
 
-    /**
-     * destroy the mouse events, taking care of all references
-     * maybe too careful
-     * @method MouseEvents#destroy
-     */
-    MouseEvents.prototype.destroy = function() {
-        this.element.onmousedown = null;
-        this.element.onmouseup = null;
-        this.element.onmouseenter = null;
-        this.element.onmouseleave = null;
-        this.element.onmousemove = null;
-        this.element.onwheel = null;
-        this.element.onkeydown = null;
-        this.downAction = null;
-        this.dragAction = null;
-        this.moveAction = null;
-        this.upAction = null;
-        this.outAction = null;
-        this.wheelAction = null;
-    };
+/**
+ * destroy the mouse events, taking care of all references
+ * maybe too careful
+ * @method MouseEvents#destroy
+ */
+MouseEvents.prototype.destroy = function() {
+    this.element.onmousedown = null;
+    this.element.onmouseup = null;
+    this.element.onmouseenter = null;
+    this.element.onmouseleave = null;
+    this.element.onmousemove = null;
+    this.element.onwheel = null;
+    this.element.onkeydown = null;
+    this.downAction = null;
+    this.dragAction = null;
+    this.moveAction = null;
+    this.upAction = null;
+    this.outAction = null;
+    this.wheelAction = null;
+};
