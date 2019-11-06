@@ -20,7 +20,10 @@ export function ColorInput(parent, hasAlpha) {
     parent.appendChild(this.textElement);
     this.textHover = false;
     this.textPressed = false;
-    this.addSpace();
+    this.firstSpace = document.createElement("span");
+    this.firstSpace.style.width = ColorInput.spaceWidth + "px";
+    this.firstSpace.style.display = "inline-block";
+    this.parent.appendChild(this.firstSpace);
     this.colorElement = document.createElement("input");
     this.colorElement.setAttribute("type", "color");
     this.colorElement.style.cursor = "pointer";
@@ -30,7 +33,10 @@ export function ColorInput(parent, hasAlpha) {
     parent.appendChild(this.colorElement);
     this.colorHover = false;
     if (hasAlpha) {
-        this.addSpace();
+        const secondSpace = document.createElement("span");
+        secondSpace.style.width = ColorInput.spaceWidth + "px";
+        secondSpace.style.display = "inline-block";
+        this.parent.appendChild(secondSpace);
         this.rangeElement = document.createElement("input");
         this.rangeElement.setAttribute("type", "range");
         this.rangeElement.style.cursor = "pointer";
@@ -178,13 +184,13 @@ ColorInput.prototype.setFontSize = function(domElement, size) {
     this.textElement.style.fontSize = size + "px";
     // switch textElement to domElement
     const parent = this.textElement.parentElement;
-    parent.removeChild(this.textElement);
+    //   parent.removeChild(this.textElement);
     domElement.appendChild(this.textElement);
     // now we can read the offset height
     this.colorElement.style.height = this.textElement.offsetHeight + "px";
     // switch back
-    domElement.removeChild(this.textElement);
-    parent.insertBefore(this.textElement, this.colorElement);
+    //    domElement.removeChild(this.textElement);
+    parent.insertBefore(this.textElement, this.firstSpace);
 };
 
 /**
@@ -196,22 +202,10 @@ ColorInput.prototype.setFontSize = function(domElement, size) {
  */
 ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
     this.textElement.style.width = textWidth + "px";
-    //  this.colorElement.style.width = colorWidth + "px";
+    this.colorElement.style.width = colorWidth + "px";
     if (this.hasAlpha) {
         this.rangeElement.style.width = rangeWidth + "px";
     }
-};
-
-/**
- * add a span with a space to the parent element
- * use ColorInput.spaceWidth as parameter !!!
- * @method ColorInput#addSpace
- */
-ColorInput.prototype.addSpace = function() {
-    const theSpan = document.createElement("span");
-    theSpan.style.width = ColorInput.spaceWidth + "px";
-    theSpan.style.display = "inline-block";
-    this.parent.appendChild(theSpan);
 };
 
 // standard color strings

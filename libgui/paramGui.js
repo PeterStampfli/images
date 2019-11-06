@@ -135,6 +135,8 @@ ParamGui.defaultDesign = {
     paragraphPadding: 10,
     // textcolor for paragraphs
     paragraphColor: "#000000",
+    // fontsize for paragraphs
+    paragraphFontSize: 14,
 
     // defaults for controller dimensions
 
@@ -704,10 +706,10 @@ ParamGui.prototype.addAngle = function(params, property) {
  * add a div to make a vertical space
  * choose height (default: paddingVertical)
  * backgroundColor: (default: none )
- * @method ParamGui#verticalSpace
+ * @method ParamGui#addVerticalSpace
  * @param {...float|String} height/backgroundColor - optional
  */
-ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
+ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
     const vSpace = document.createElement("div");
     vSpace.style.height = this.design.paddingVertical + "px";
     for (var i = 0; i < arguments.length; i++) {
@@ -728,11 +730,12 @@ ParamGui.prototype.verticalSpace = function(height, backgroundColor) {
  * @method ParamGui#paragraph
  * @param {String} text - with HTML markup (=>innerHTML)
  */
-ParamGui.prototype.paragraph = function(innerHTML) {
+ParamGui.prototype.addParagraph = function(innerHTML) {
     const para = document.createElement("p");
     para.style.paddingLeft = this.design.paragraphPadding + "px";
     para.style.paddingRight = this.design.paragraphPadding + "px";
     para.style.color = this.design.paragraphColor;
+    para.style.fontSize = this.design.paragraphFontSize+"px";
     para.innerHTML = innerHTML;
     this.bodyDiv.appendChild(para);
 };
