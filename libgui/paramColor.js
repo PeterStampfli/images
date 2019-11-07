@@ -57,8 +57,6 @@ Object.assign(ParamColor.prototype, paramControllerMethods);
  */
 ParamColor.prototype.create = function() {
     this.initCreate();
-    this.gui.bodyDiv.appendChild(this.domElement);
-
     const design = this.gui.design;
     let color = this.params[this.property];
     const controller = this;
@@ -71,6 +69,7 @@ ParamColor.prototype.create = function() {
     colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
     this.uiElement = colorInput;
     this.setupOnChange();
+    this.gui.bodyDiv.appendChild(this.domElement);
     return this;
 };
 
@@ -79,6 +78,9 @@ ParamColor.prototype.create = function() {
  * @method ParamColor#destroy
  */
 ParamColor.prototype.destroy = function() {
+    if (this.helpButton !== null) {
+        this.helpButton.destroy();
+    }
     this.uiElement.destroy();
     this.uiElement = null;
     this.label.remove();

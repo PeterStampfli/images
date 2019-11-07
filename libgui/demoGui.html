@@ -32,6 +32,8 @@ const gui = new ParamGui({}, {
     closeOnTop: true
 });
 
+gui.addHelp("This is a demo.");
+
 const params = {};
 
 gui.addParagraph("With gui.addParagraph() we can add text to the gui.");
@@ -44,6 +46,7 @@ gui.addParagraph("This color controller has an alpha channel. It controls the co
 
 params.square = "#ff0000ff";
 const co = gui.addColor(params, "square");
+co.addHelp("Changes the color of the square at the left");
 co.onChange(function(value) {
     console.log(value);
     square.style.backgroundColor = value;
@@ -69,7 +72,7 @@ gui.add(params,"real",0,10,0.01);
 
 gui.addParagraph("With controller.cyclic() numbers cycle through their min-max range:")
 params.angle = 0;
-gui.add(params,"angle",-180,180,0.5).cyclic();
+gui.add(params,"angle",-180,180,0.5).cyclic().addHelp("If you go below -180 it will jump to +179");
 params.hexa=0;
 gui.add(params,"hexa",0,6).cyclic();
 
@@ -83,17 +86,13 @@ params.say_hello=function(){
 };
 gui.add(params,"say_hello");
 
-
-params.rgba = "#ff00ffbb";
-
-
-//gui.destroy();
 const folder = gui.addFolder("folder", {
     closed: false
 });
 
+params.rgba = "#ff00ffbb";
+folder.addColor(params, "rgba");
 
-folder.addColor(params, "rgba")
 </script>
 
 </html>

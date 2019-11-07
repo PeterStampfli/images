@@ -376,6 +376,7 @@ ParamGui.prototype.createTitle = function() {
         this.titleDiv.style.color = design.titleColor;
         this.titleDiv.style.paddingTop = design.paddingVertical + "px";
         this.titleDiv.style.paddingBottom = design.paddingVertical + "px";
+        this.titleDiv.style.paddingRight = design.labelSpacing + "px";
         // for root gui make a border
         if (this.isRoot()) {
             this.titleDiv.style.borderBottomWidth = design.borderWidth + "px";
@@ -415,7 +416,21 @@ ParamGui.prototype.createTitle = function() {
     }
 };
 
-// resizing root guis if autoplaced
+/**
+ * add a help alert
+ * @method ParamGui#addHelp
+ * @param {String} message
+ */
+ParamGui.prototype.addHelp = function(message) {
+    this.helpButton = new Button("?", this.titleDiv);
+    this.helpButton.setFontSize(this.design.titleFontSize);
+    this.helpButton.element.style.float = "right";
+    this.helpButton.onClick = function() {
+        alert(message);
+    };
+};
+
+// resizing the body of root guis if autoplaced
 // set max height of bodydiv
 // attention: available inner space is document.documentElement.clientHeight 
 // (including effect of scroll bar)
@@ -440,6 +455,7 @@ ParamGui.prototype.setZIndex = function(zIndex) {
 };
 
 ParamGui.prototype.setup = function() {
+    this.helpButton = null;
     const design = this.design;
     // a list of all folders, controllers and other elements
     // must have a destroy method, an updateDisplayIfListening method
@@ -802,6 +818,9 @@ ParamGui.prototype.destroy = function() {
     if (this.closeOnTop) {
         this.closeOpenButton.destroy();
         this.closeOpenButton = null;
+    }
+    if (this.helpButton !== null) {
+        this.helpButton.destroy();
     }
     // destroy top title element if exists
     if ((this.closeOnTop) || (this.name !== "")) {

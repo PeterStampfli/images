@@ -241,10 +241,8 @@ ParamController.prototype.cyclic = function() {
  * @method ParamController#destroy
  */
 ParamController.prototype.destroy = function() {
-    if (typeof this.popupDiv === "object") {
-        this.popupDiv = null;
-        this.popupDiv.remove();
-        this.uiElement.onClick = null;
+    if (this.helpButton !== null) {
+        this.helpButton.destroy();
     }
     this.uiElement.destroy();
     this.uiElement = null;
