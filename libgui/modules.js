@@ -35,6 +35,11 @@ export {
 from "./button.js";
 
 export {
+    myAlert
+}
+from "./myAlert.js";
+
+export {
     BooleanButton
 }
 from "./booleanButton.js";
