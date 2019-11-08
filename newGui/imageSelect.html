@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>image select</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+
+
+import {
+    ParamGui
+}
+from "../libgui/modules.js"
+
+const outerDiv=document.createElement("div");
+
+const leftDiv=document.createElement("div");
+const rightDiv=document.createElement("div");
+rightDiv.style.width="20px";
+const image=document.createElement("img");
+image.src="haeckel/haeckel_01.png";
+image.style.height="100px";
+image.style.width="200px";
+image.style.objectFit="contain";
+
+
+leftDiv.style.backgroundColor="orange";
+leftDiv.style.display="inline-block";
+leftDiv.style.verticalAlign="top";
+
+const labelDiv=document.createElement("div");
+labelDiv.textContent="label label";
+
+leftDiv.appendChild(labelDiv)
+const selectDiv=document.createElement("div");
+selectDiv.style.textAlign="right";
+selectDiv.textContent="select";
+
+leftDiv.appendChild(selectDiv);
+
+const upDiv=document.createElement("div");
+upDiv.textContent="up";
+upDiv.style.textAlign="right";
+
+leftDiv.appendChild(upDiv);
+
+const downDiv=document.createElement("div");
+downDiv.textContent="down";
+downDiv.style.textAlign="right";
+
+leftDiv.appendChild(downDiv);
+
+
+image.style.backgroundColor="yellow";
+rightDiv.style.display="inline-block";
+
+
+outerDiv.appendChild(leftDiv);
+outerDiv.appendChild(rightDiv);
+outerDiv.appendChild(image);
+
+
+document.body.appendChild(outerDiv);
+
+	
+</script>
+
+</html>
