@@ -11,6 +11,7 @@ import {
     Range,
     TextInput,
     Button,
+    InstantHelp,
     ColorInput,
     ParamGui
 } from "./modules.js";
@@ -73,16 +74,12 @@ paramControllerMethods.initCreate = function() {
 /**
  * add a help alert
  * @method paramControllerMethods.addHelp
- * @param {String} message
+ * @param {String} message - with html markup
  * @return this, for chaining
  */
 paramControllerMethods.addHelp = function(message) {
-    this.helpButton = new Button("?", this.domElement);
-    this.helpButton.setFontSize(this.gui.design.titleFontSize);
-    this.helpButton.element.style.float = "right";
-    this.helpButton.onClick = function() {
-        alert(message);
-    };
+    this.helpButton = new InstantHelp(message, this.domElement);
+    this.helpButton.setFontSize(this.gui.design.buttonFontSize);
     return this;
 };
 

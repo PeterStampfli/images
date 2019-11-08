@@ -39,7 +39,8 @@ import {
     ParamColor,
     ParamAngle,
     ParamController,
-    Button
+    Button,
+    InstantHelp
 } from "./modules.js";
 
 export function ParamGui(params) {
@@ -419,15 +420,11 @@ ParamGui.prototype.createTitle = function() {
 /**
  * add a help alert
  * @method ParamGui#addHelp
- * @param {String} message
+ * @param {String} message - can have html
  */
 ParamGui.prototype.addHelp = function(message) {
-    this.helpButton = new Button("?", this.titleDiv);
+    this.helpButton = new InstantHelp(message, this.titleDiv);
     this.helpButton.setFontSize(this.design.titleFontSize);
-    this.helpButton.element.style.float = "right";
-    this.helpButton.onClick = function() {
-        alert(message);
-    };
 };
 
 // resizing the body of root guis if autoplaced

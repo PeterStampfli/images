@@ -35,9 +35,9 @@ export {
 from "./button.js";
 
 export {
-    myAlert
+    InstantHelp
 }
-from "./myAlert.js";
+from "./instantHelp.js";
 
 export {
     BooleanButton

@@ -10,7 +10,7 @@ import {
  * @namespace myAlert
  */
 
-const myAlert = {
+export const myAlert = {
     surroundColor: "#00000044",
     backgroundColor: "#cccccc",
     width: 300,
