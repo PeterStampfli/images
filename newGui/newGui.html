@@ -18,51 +18,55 @@
 
 </body>
 
-<script type="module" src="../libgui/paramGui.js"></script>
 
 
 
-<script>
+<script type="module">
 
-window.onload=function(){
 
-ParamGui.updateDefaults();
-const newDat={};
-newDat.GUI=ParamGui;
+import {
+    ParamGui
+}
+from "../libgui/modules.js"
+
+
+
 const px = "px";
-//        DOM.style("#imageId", "width", window.innerWidth + px, "height", window.innerHeight + px,"position", "fixed", "left", 0 + px, "top", 0 + px, "margin", "none","zIndex","0");
+
         
-gui=new newDat.GUI({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
+const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
 
 
-p={};
+const p={};
 p.number=33;
 p.string="edit text";
 gui.add(p,"string");
 p.func=function(){console.log("london calling");};
 
 
-p.string="wasanderes"
+p.string="wasanderes";
 p.float=1.5;
 
-folder=gui.addFolder("subfolder",{titleBackgroundColor:"green"});
+const folder=gui.addFolder("subfolder",{titleBackgroundColor:"green"});
 
 folder.add(p,"float",1,10);
 
-fo=folder.addFolder("crazy colors",{titleBackgroundColor:"pink", textColor:"blue",backgroundColor:"violet"});
+const fo=folder.addFolder("crazy colors",{titleBackgroundColor:"pink", textColor:"blue",backgroundColor:"violet"});
 
-fl=folder.add(p,"float",1,10);
+let fl=folder.add(p,"float",1,10);
 fl.cyclic();
 
-m=folder.addFolder("more");
+const m=folder.addFolder("more");
 m.add(p,"func").name("wahtever too");
-
 
 p.bool=false;
 folder.add(p,"bool");
 p.float=3.141;
-p.x=2
-p.y=3
+p.x=2;
+p.y=3;
+
+p.z=2;
+gui.add(p,"z",[1,2,3,44,555]);
 fl=folder.add(p,"float",1,10);
 fo.add(p,"float",1,10);
 
@@ -85,10 +89,9 @@ gui.add(p,"x",-180,180,1).name("int cyclic").cyclic();
 
 p.z=2;
 gui.add(p,"z",[1,2,3,44,555])
-p.z=3
 
 
-gui3=new newDat.GUI({},{name:"dummy controls3",closed:false,closeOnTop:true}, {horizontalPosition:"left",width:200});
+const gui3=new ParamGui({},{name:"dummy controls3",closed:false,closeOnTop:true}, {horizontalPosition:"left",width:200});
 
 gui3.add(p,"switch").name("whatever");
 gui3.add(p,"switch").name("whatever");
@@ -98,7 +101,7 @@ gui3.add(p,"switch").name("whatever");
 
 
 
-}
+
 
 
 </script>

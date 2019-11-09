@@ -27,7 +27,7 @@ export function SelectValues(parent) {
      * @method SelectValues#onChange
      */
     this.onChange = function() {
-        console.log("onchnage " + select.value);
+        console.log("onchange " + select.value);
     };
 
     /**
@@ -41,14 +41,40 @@ export function SelectValues(parent) {
     // hovering
     this.element.onmouseenter = function() {
         select.hover = true;
+        select.element.focus();
         select.updateStyle();
     };
 
     this.element.onmouseleave = function() {
         select.hover = false;
+        //select.element.blur();
         select.updateStyle();
     };
+
+    this.element.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.deltaY > 0) {
+            select.changeSelectedIndex(1);
+        } else {
+            select.changeSelectedIndex(-1);
+        }
+        select.onChange();
+        return false;
+    };
 }
+
+/**
+ * change the selected index, restricted to lenght of this.labels
+ * @method SelectValues#changeSelectedIndex
+ * @param {integer} delta
+ */
+SelectValues.prototype.changeSelectedIndex = function(delta) {
+    let index = this.element.selectedIndex + delta;
+    index = Math.max(0, Math.min(this.labels.length - 1, index));
+    this.element.selectedIndex = index;
+    this.value = this.values[this.element.selectedIndex];
+};
 
 /**
  * update the color style of the element depending on whether its pressed or hovered
@@ -151,6 +177,7 @@ SelectValues.prototype.destroy = function() {
     this.element.onchange = null;
     this.element.onmouseenter = null;
     this.element.onmouseleave = null;
+    this.element.onwheel = null;
     this.element.remove();
     this.element = null;
 };
