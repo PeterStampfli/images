@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>image select gui</title>
+</head>
+
+<body>
+<!--     -->
+ <!--
+ <img src="abendfalter.jpg" id="imageId"/>
+-->
+<p>
+<div id="d">test</div>
+ </p>
+
+</body>
+
+<script type="module" src="../libgui/paramGui.js"></script>
+
+
+
+<script>
+
+    window.onload = function() {
+        dd = document.getElementById("d");
+
+        d.style.width = "300px";
+        d.style.height = "300px";
+        d.style.backgroundColor = "red";
+
+        const px = "px";
+        ParamGui.updateDefaults();
+
+
+
+        const gui = new ParamGui({}, {
+            name: "dummy controls",
+            closed: false,
+            closeOnTop: true
+        });
+
+
+        const p = {};
+        p.number = 33;
+        p.string = "edit text";
+        const s = gui.add(p, "string");
+
+        p.rgb = "#ff0000";
+        const co = gui.addColor(p, "rgb");
+        p.rgba = "#ff0000aa";
+        gui.addColor(p, "rgba");
+        p.angle = 90;
+
+        co.onChange(function(value) {
+            console.log(value);
+            d.style.backgroundColor = value;
+        });
+
+        gui.addImageSelection(p,"images");
+
+       
+
+
+    }
+
+</script>
+
+
+</html>

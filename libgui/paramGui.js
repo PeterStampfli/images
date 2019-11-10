@@ -39,6 +39,7 @@ import {
     ParamColor,
     ParamAngle,
     ParamController,
+    ParamImageSelection,
     Button,
     InstantHelp
 } from "./modules.js";
@@ -700,6 +701,19 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
  */
 ParamGui.prototype.addColor = function(params, property) {
     const controller = new ParamColor(this, params, property);
+    this.elements.push(controller);
+    return controller;
+};
+
+/**
+ * make a controller with an image selection
+ * @method ParamGui#addImageSelection
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - key for the field of params to change, params[property]
+ * @return {ParamController} object
+ */
+ParamGui.prototype.addImageSelection = function(params, property) {
+    const controller = new ParamImageSelection(this, params, property);
     this.elements.push(controller);
     return controller;
 };

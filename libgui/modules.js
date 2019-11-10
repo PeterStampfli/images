@@ -86,6 +86,11 @@ export {
 from "./paramColor.js";
 
 export {
+    ParamImageSelection
+}
+from "./paramImageSelection.js";
+
+export {
     ParamAngle
 }
 from "./paramAngle.js";

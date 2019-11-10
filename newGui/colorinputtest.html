@@ -14,7 +14,6 @@
 </body>
 
 
-<script type="module" src="../libgui/paramGui.js"></script>
 
 
 
@@ -24,9 +23,8 @@ import {
     NumberButton,
     Range,
     ColorInput
-} from "../libGui/modules.js";
+} from "../libgui/modules.js";
 
-window.onload=function(){
 
 console.log("hello");
 
@@ -34,13 +32,12 @@ const thisDiv=document.getElementById("thisDiv");
 console.log(thisDiv);
 thisDiv.style.backgroundColor="yellow";
 const nb=new ColorInput(thisDiv,true);
-nb.setFontSize(18)
+nb.setFontSize(thisDiv,18)
 
 nb.setWidths(100,200,300);
 
 
 //nb.setValue("#ff334488")
-};
 //nb.destroy();
 
 </script>
