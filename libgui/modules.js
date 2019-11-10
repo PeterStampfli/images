@@ -69,7 +69,6 @@ export {
 }
 from "./angleScale.js";
 
-
 export {
     paramControllerMethods
 }
@@ -89,6 +88,11 @@ export {
     ParamImageSelection
 }
 from "./paramImageSelection.js";
+
+export {
+    ImageSelect
+}
+from "./imageSelect.js";
 
 export {
     ParamAngle
