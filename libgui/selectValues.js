@@ -59,22 +59,9 @@ export function SelectValues(parent) {
         } else {
             select.changeSelectedIndex(-1);
         }
-        select.onChange();
         return false;
     };
 }
-
-/**
- * change the selected index, restricted to lenght of this.labels
- * @method SelectValues#changeSelectedIndex
- * @param {integer} delta
- */
-SelectValues.prototype.changeSelectedIndex = function(delta) {
-    let index = this.element.selectedIndex + delta;
-    index = Math.max(0, Math.min(this.labels.length - 1, index));
-    this.element.selectedIndex = index;
-    this.value = this.values[this.element.selectedIndex];
-};
 
 /**
  * update the color style of the element depending on whether its pressed or hovered
@@ -141,21 +128,45 @@ SelectValues.prototype.setLabelsValues = function(selections) {
     }
 };
 
+/**
+ * set the index, limited to the actual range
+ * @method SelectValues#setIndex
+ * @param {int} index
+ */
+SelectValues.prototype.setIndex = function(index) {
+    index = Math.max(0, Math.min(this.labels.length - 1, index));
+    this.element.selectedIndex = index;
+    this.value = this.values[index];
+};
+
+/**
+ * change the selected index, restricted to lenght of this.labels
+ * call onChange only if changes
+ * @method SelectValues#changeSelectedIndex
+ * @param {integer} delta
+ */
+SelectValues.prototype.changeSelectedIndex = function(delta) {
+    let index = this.element.selectedIndex + delta;
+    index = Math.max(0, Math.min(this.labels.length - 1, index));
+    if (index !== this.element.selectedIndex) {
+        this.setIndex(index);
+        this.onChange();
+    }
+};
 
 /**
  * set to one of the existing values, if not existing use first value
+ * option to call onChange
  * @method SelectValues#setValue
  * @param {whatever} value
+ * @param {boolean} callOnChange - optional, default false
  */
-SelectValues.prototype.setValue = function(value) {
-    let index = 0;
-    for (let i = 0; i < this.values.length; i++) {
-        if (value === this.values[i]) {
-            index = i;
-        }
+SelectValues.prototype.setValue = function(value, callOnChange = false) {
+    const index = this.values.indexOf(value);
+    this.setIndex(index);
+    if (callOnChange) {
+        this.onChange();
     }
-    this.element.selectedIndex = index;
-    this.value = this.values[this.element.selectedIndex];
 };
 
 /**

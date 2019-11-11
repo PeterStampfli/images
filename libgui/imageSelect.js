@@ -53,15 +53,72 @@ export function ImageSelect(parent) {
 
     this.image = document.createElement("img");
 
-    this.image.src = "abendfalter.jpg";
+    this.image.src = null;
     //this.image.style.display = "inline-block";
     this.image.style.verticalAlign = "top";
     this.image.style.objectFit = "contain";
     this.image.style.objectPosition = "left top";
 
+    this.image.setAttribute("tabindex", "0");
+
     parent.appendChild(this.image);
 
+    const imageSelect = this;
 
+    this.buttonUp.onClick = function() {
+        imageSelect.select.changeSelectedIndex(1);
+    };
+
+    this.buttonDown.onClick = function() {
+        imageSelect.select.changeSelectedIndex(-1);
+    };
+
+
+    this.image.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.deltaY > 0) {
+            imageSelect.select.changeSelectedIndex(1);
+        } else {
+            imageSelect.select.changeSelectedIndex(-1);
+        }
+        return false;
+    };
+
+    // hovering
+    this.image.onmouseover = function() {
+        imageSelect.image.focus();
+        console.log("fo"); // img cannot have focus, only form elms  a-tag too
+    };
+
+
+    this.image.onkeydown = function(event) {
+        console.log("key");
+        let key = event.key;
+        if (key === "ArrowDown") {
+            imageSelect.select.changeSelectedIndex(1);
+            event.preventDefault();
+            event.stopPropagation();
+        } else if (key === "ArrowUp") {
+            imageSelect.select.changeSelectedIndex(-1);
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+    };
+
+    this.select.onChange = function() {
+
+        console.log("value " + imageSelect.select.value);
+        imageSelect.updateImageValue();
+        imageSelect.onChange();
+    };
+
+    // the onChange function that does the action
+    this.onChange = function() {
+        console.log("imageSelect value: ");
+        console.log(this.value.toString());
+    };
 }
 
 
@@ -98,6 +155,22 @@ ImageSelect.prototype.setMinimalWidth = function(size) {
     this.leftDiv.style.minWidth = size + "px";
 };
 
+
+/**
+ * set label and button font sizes
+ * @method ImageSelect#setFontSizes
+ * @param {int} labelSize - in pix
+ * @param {int} buttonSize - in pix
+ */
+
+ImageSelect.prototype.setFontSizes = function(labelSize, buttonSize) {
+    this.label.style.fontSize = labelSize + "px";
+    this.select.setFontSize(buttonSize);
+    const buttonFactor = 1.3;
+    this.buttonUp.setFontSize(buttonFactor * buttonSize);
+    this.buttonDown.setFontSize(buttonFactor * buttonSize);
+};
+
 /**
  * set the image size (limits)
  * @method ImageSelect.setImageSize
@@ -109,12 +182,35 @@ ImageSelect.prototype.setImageSize = function(width, height) {
     this.image.style.height = height + "px";
 };
 
+/**
+ * set image and value depending on selected index
+ * @method ImageSelect#updateImageValue
+ */
+ImageSelect.prototype.updateImageValue = function() {
+    const selectValue = this.select.value;
+    if (typeof selectValue === "string") {
+        this.image.src = selectValue;
+        this.value = this.selectValue;
+    } else {
+        this.image.src = selectValue.image;
+        this.value = selectValue.value;
+    }
+};
+
 
 /**
- * set labels and image url arrays from object ( label: URL, ...), access to other data through selectedIndex
+ * for choosing images
+ * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
+ * for other uses (presets): image is only a label 
+ * and there may be another value that is actually choosen (the preset object), then
+ * choices={"label1": {"image": "URL1", value: someData}, ...}
+ * then use an object made of labels (again as keys) and objects with image and value fields
+ * 
  * @method ImageSelect#setLabelImageURL
- * @param {Array||Object} images
+ * @param {Object} images
  */
-ImageSelect.prototype.setLabelImageURL = function(images) {
-    this.select.setLabelsValues(images);
+ImageSelect.prototype.setLabelImageURL = function(choices) {
+    this.select.setLabelsValues(choices);
+    this.select.setIndex(0);
+    this.select.onChange();
 };
