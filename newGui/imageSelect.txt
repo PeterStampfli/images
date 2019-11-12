@@ -1,7 +1,0 @@
-Searching for "image slider" or image carousel is better. Some results
-https://bashooka.com/coding/javascript-image-slider-gallery-plugins-for-web-mobile/
-in particular
-https://glidejs.com/docs/
-http://ganlanyuan.github.io/tiny-slider/demo/
-
-https://pawelgrzybek.github.io/siema/

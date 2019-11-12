@@ -10,59 +10,44 @@ import {
     SelectValues
 } from "./modules.js";
 
-
 export function ImageSelect(parent) {
     this.parent = parent;
-    this.leftDiv = document.createElement("div"); // div with label and other things, including spacing at left and right
+    // top level: at left a div with label, select and up/down buttons, including some spacing at left and right
+    this.leftDiv = document.createElement("div");
     this.leftDiv.style.display = "inline-block";
-
-    parent.appendChild(this.leftDiv);
-    // controller.label = imageSelect.label in the controller if needed, can also delete
+    // for each item in the left div we make a new div, to be able to adjust spacing
+    // the label is slightly different than for other controllers because we have many items at the left
+    // controller.label = imageSelect.label in the controller to be able to change name, can also be deleted
     this.label = document.createElement("div");
-    this.label.style.backgroundColor = "#ffff88";
     this.label.textContent = "label";
     this.leftDiv.appendChild(this.label);
-
+    //next below the label there is a select
     this.selectDiv = document.createElement("div");
     this.selectDiv.style.textAlign = "right";
-
     this.select = new SelectValues(this.selectDiv);
-    this.selectDiv.style.backgroundColor = "green";
-
     this.leftDiv.appendChild(this.selectDiv);
-
-
-
+    // enough vertical space for up/down buttons
+    // in their divs, for alignment at the right side
     this.buttonUpDiv = document.createElement("div");
     this.buttonUpDiv.style.textAlign = "right";
-
-    this.buttonUpDiv.style.backgroundColor = "orange";
-
     this.buttonUp = new Button("▲", this.buttonUpDiv);
-
     this.leftDiv.appendChild(this.buttonUpDiv);
-
-
     this.buttonDownDiv = document.createElement("div");
     this.buttonDownDiv.style.textAlign = "right";
-
-    this.buttonDownDiv.style.backgroundColor = "orange";
     this.buttonDown = new Button("▼", this.buttonDownDiv);
-
     this.leftDiv.appendChild(this.buttonDownDiv);
-
+    parent.appendChild(this.leftDiv);
+    // at the right of input elements there is the small image (as selection result or alternative label)
     this.image = document.createElement("img");
-
     this.image.src = null;
-    //this.image.style.display = "inline-block";
     this.image.style.verticalAlign = "top";
     this.image.style.objectFit = "contain";
     this.image.style.objectPosition = "left top";
-
+    // makes that it can have focus
     this.image.setAttribute("tabindex", "0");
-
     parent.appendChild(this.image);
 
+    // the actions
     const imageSelect = this;
 
     this.buttonUp.onClick = function() {
@@ -72,7 +57,6 @@ export function ImageSelect(parent) {
     this.buttonDown.onClick = function() {
         imageSelect.select.changeSelectedIndex(-1);
     };
-
 
     this.image.onwheel = function(event) {
         event.preventDefault();
@@ -85,12 +69,10 @@ export function ImageSelect(parent) {
         return false;
     };
 
-    // hovering
+    // hovering, give the image focus, to be able to use keyboard events
     this.image.onmouseover = function() {
         imageSelect.image.focus();
-        console.log("fo"); // img cannot have focus, only form elms  a-tag too
     };
-
 
     this.image.onkeydown = function(event) {
         console.log("key");
@@ -104,12 +86,10 @@ export function ImageSelect(parent) {
             event.preventDefault();
             event.stopPropagation();
         }
-
     };
 
+    // all events change the select element, if its value changes then update the image, the value of this and do some action
     this.select.onChange = function() {
-
-        console.log("value " + imageSelect.select.value);
         imageSelect.updateImageValue();
         imageSelect.onChange();
     };
@@ -120,7 +100,6 @@ export function ImageSelect(parent) {
         console.log(this.value.toString());
     };
 }
-
 
 /**
  * set the spacing between ui elements in verical direction
@@ -133,7 +112,6 @@ ImageSelect.prototype.setVerticalSpacing = function(space) {
     this.buttonUpDiv.style.paddingBottom = space + "px"; // spacing to next
 };
 
-
 /**
  * set the spacing left and right of ui elements
  * @method ImageSelection#setHorizontalSpacing
@@ -143,11 +121,10 @@ ImageSelect.prototype.setHorizontalSpacing = function(space) {
     this.leftDiv.style.paddingLeft = space + "px";
     this.selectDiv.style.paddingLeft = space + "px";
     this.leftDiv.style.paddingRight = space + "px";
-
 };
 
 /**
- * set the minimumn width for the label space, including whitespace
+ * set the minimumn width for the label/controls space, including whitespace
  * @method ImageSelect#setMinimalWidth
  * @param {int} size
  */
@@ -155,14 +132,12 @@ ImageSelect.prototype.setMinimalWidth = function(size) {
     this.leftDiv.style.minWidth = size + "px";
 };
 
-
 /**
- * set label and button font sizes
+ * set label and select/button font sizes, button font sizes are increased
  * @method ImageSelect#setFontSizes
  * @param {int} labelSize - in pix
  * @param {int} buttonSize - in pix
  */
-
 ImageSelect.prototype.setFontSizes = function(labelSize, buttonSize) {
     this.label.style.fontSize = labelSize + "px";
     this.select.setFontSize(buttonSize);
@@ -197,7 +172,6 @@ ImageSelect.prototype.updateImageValue = function() {
     }
 };
 
-
 /**
  * for choosing images
  * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
@@ -205,6 +179,8 @@ ImageSelect.prototype.updateImageValue = function() {
  * and there may be another value that is actually choosen (the preset object), then
  * choices={"label1": {"image": "URL1", value: someData}, ...}
  * then use an object made of labels (again as keys) and objects with image and value fields
+ * the labels go to the this.select.labels array
+ * the values (URL strings or objects) got to the this.select.values array
  * 
  * @method ImageSelect#setLabelImageURL
  * @param {Object} images
