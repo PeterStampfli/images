@@ -97,7 +97,7 @@ export function ImageSelect(parent) {
     // the onChange function that does the action
     this.onChange = function() {
         console.log("imageSelect value: ");
-        console.log(this.value.toString());
+        console.log(this.value);
     };
 }
 
@@ -165,7 +165,7 @@ ImageSelect.prototype.updateImageValue = function() {
     const selectValue = this.select.value;
     if (typeof selectValue === "string") {
         this.image.src = selectValue;
-        this.value = this.selectValue;
+        this.value = selectValue;
     } else {
         this.image.src = selectValue.image;
         this.value = selectValue.value;
@@ -173,6 +173,7 @@ ImageSelect.prototype.updateImageValue = function() {
 };
 
 /**
+ * set the choices, without calling the callback
  * for choosing images
  * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
  * for other uses (presets): image is only a label 
@@ -187,6 +188,42 @@ ImageSelect.prototype.updateImageValue = function() {
  */
 ImageSelect.prototype.setLabelImageURL = function(choices) {
     this.select.setLabelsValues(choices);
-    this.select.setIndex(0);
-    this.select.onChange();
+    this.select.setIndex(0, false);
+    this.updateImageValue();
+};
+
+/**
+ * set the value, without calling the callback
+ * if this.select.values items are (URL) strings 
+ * then the value parameter has to be a string and we can use this.select.setValue
+ * if this.select.values items are objects then we have two possibilities
+ * - the value parameter is an object with an image key that is a string
+ *   then we can use this.select.setValue
+ *   ATTENTION: has to be the SAME object, not another object with same values
+ * - the value parameter is not an object or an object without an image key
+ *   then we have to find the index with this.select.values[i]===value
+ *   and use it in this.select.setIndex
+ * @method ImageSelect#setValue
+ * @param {Object||string||simpleValue} value
+ */
+ImageSelect.prototype.setValue = function(value) {
+    console.log(value);
+    console.log(typeof this.select.values[0]);
+    if (typeof this.select.values[0] === "object") {
+        console.log("object");
+        if ((typeof value === "object") && (typeof value.image === "string")) {
+            this.select.setValue(value);
+        } else {
+            //search for the index with the correct object.value field
+            console.log("searching " + value)
+            var index = this.select.values.length - 1;
+            while ((index >= 0) && (this.select.values[index].value !== value)) {
+                index--;
+            }
+            this.select.setIndex(index, false);
+        }
+    } else { // all values are supposed to be strings
+        this.select.setValue(value);
+    }
+    this.updateImageValue();
 };
