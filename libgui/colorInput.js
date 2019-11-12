@@ -387,7 +387,7 @@ ColorInput.prototype.updateValue = function(text) {
 };
 
 /**
- * destroy the checkbox
+ * destroy this input element
  * @method ColorInput#destroy
  */
 ColorInput.prototype.destroy = function() {

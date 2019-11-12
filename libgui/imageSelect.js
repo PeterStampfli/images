@@ -75,7 +75,6 @@ export function ImageSelect(parent) {
     };
 
     this.image.onkeydown = function(event) {
-        console.log("key");
         let key = event.key;
         if (key === "ArrowDown") {
             imageSelect.select.changeSelectedIndex(1);
@@ -207,15 +206,11 @@ ImageSelect.prototype.setLabelImageURL = function(choices) {
  * @param {Object||string||simpleValue} value
  */
 ImageSelect.prototype.setValue = function(value) {
-    console.log(value);
-    console.log(typeof this.select.values[0]);
     if (typeof this.select.values[0] === "object") {
-        console.log("object");
         if ((typeof value === "object") && (typeof value.image === "string")) {
             this.select.setValue(value);
         } else {
             //search for the index with the correct object.value field
-            console.log("searching " + value)
             var index = this.select.values.length - 1;
             while ((index >= 0) && (this.select.values[index].value !== value)) {
                 index--;
@@ -226,4 +221,20 @@ ImageSelect.prototype.setValue = function(value) {
         this.select.setValue(value);
     }
     this.updateImageValue();
+};
+
+/**
+ * destroy this input element
+ * @method ImageSelect#destroy
+ */
+ImageSelect.prototype.destroy = function() {
+    this.onChange = null;
+    this.image.onwheel = null;
+    this.image.onmouseover = null;
+    this.image.onkeydown = null;
+    this.image.remove();
+    this.select.destroy();
+    this.buttonUp.destroy();
+    this.buttonDown.destroy();
+    this.leftDiv.remove();
 };

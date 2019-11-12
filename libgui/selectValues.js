@@ -131,15 +131,15 @@ SelectValues.prototype.setLabelsValues = function(selections) {
 /**
  * set the index, limited to the actual range
  * set the corresponding value
-  * option to call onChange
-* @method SelectValues#setIndex
+ * option to call onChange
+ * @method SelectValues#setIndex
  * @param {int} index
  */
 SelectValues.prototype.setIndex = function(index, callOnChange = false) {
     index = Math.max(0, Math.min(this.labels.length - 1, index));
     this.element.selectedIndex = index;
     this.value = this.values[index];
-      if (callOnChange) {
+    if (callOnChange) {
         this.onChange();
     }
 };
@@ -154,21 +154,21 @@ SelectValues.prototype.changeSelectedIndex = function(delta) {
     let index = this.element.selectedIndex + delta;
     index = Math.max(0, Math.min(this.labels.length - 1, index));
     if (index !== this.element.selectedIndex) {
-        this.setIndex(index,true);
+        this.setIndex(index, true);
     }
 };
 
 /**
  * set to one of the existing values, if not existing use first value
-  * sets corresponding label
-* option to call onChange (callback)
+ * sets corresponding label
+ * option to call onChange (callback)
  * @method SelectValues#setValue
  * @param {whatever} value
  * @param {boolean} callOnChange - optional, default false
  */
 SelectValues.prototype.setValue = function(value, callOnChange = false) {
     const index = this.values.indexOf(value);
-    this.setIndex(index,callOnChange);
+    this.setIndex(index, callOnChange);
 };
 
 /**
@@ -181,7 +181,7 @@ SelectValues.prototype.setValue = function(value, callOnChange = false) {
  */
 SelectValues.prototype.setLabel = function(label, callOnChange = false) {
     const index = this.labels.indexOf(label);
-    this.setIndex(index,callOnChange);
+    this.setIndex(index, callOnChange);
 };
 
 /**
@@ -206,4 +206,5 @@ SelectValues.prototype.destroy = function() {
     this.element.onwheel = null;
     this.element.remove();
     this.element = null;
+    this.onChange = null;
 };
