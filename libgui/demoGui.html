@@ -56,6 +56,10 @@ gui.addParagraph("If the color parameter at initialization of the gui has no alp
 params.rgb = "#44ff00";
 gui.addColor(params, "rgb");
 
+gui.addParagraph("You can scroll selections with the mouse wheel:");
+params.letters="beta";
+gui.add(params,"letters",["alpha","beta","gamma","delta","epsilon"]);
+
 gui.addParagraph("These are the basic controllers for numbers and strings:");
 
 params.string = "some text";
@@ -92,6 +96,7 @@ const folder = gui.addFolder("folder", {
 
 params.rgba = "#ff00ffbb";
 folder.addColor(params, "rgba");
+
 
 </script>
 

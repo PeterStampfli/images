@@ -8,50 +8,6 @@ import {
     Range
 } from "./modules.js";
 
-/**
- * a controller for a simple parameter
- * with visuals, in a common div
- * @creator ParamController
- * @param {ParamGui} gui - the controller is in this gui
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - for the field of object to change, params[property]
- * @param {float/integer/array} low - determines lower limit/choices (optional)
- * @param {float/integer} high - determines upper limit (optional)
- * @param {float/integer} step - determines step size (optional)
- */
-
-export function ParamController(gui, params, property, low, high, step) {
-    this.gui = gui;
-    this.params = params;
-    this.property = property;
-    this.listening = false; // automatically update display
-    this.create(low, high, step);
-}
-
-// "inherit" paramControllerMethods:
-//======================================
-//
-// this.createLabel
-// this.setupOnChange
-// this.hidePopup
-// this.shoePopup
-// this.hidePopup
-// this.show
-// this.onChange 
-// this.onClick
-// this.onFinishChange
-// this.setValueOnly
-// this.setValue
-// this.getValue
-// this.updateDisplay
-// this.updateDisplayIfListening
-// this.listening
-// this.name
-
-Object.assign(ParamController.prototype, paramControllerMethods);
-
-const px = "px";
-
 // functions that check parameters, for overloading methods
 
 // test if a variable is defined, and not missing in the call, 
@@ -107,11 +63,23 @@ function isObject(p) {
 }
 
 /**
+ * a controller for a simple parameter
+ * with visuals, in a common div
  * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
- * call from creator function
- * @method ParamController#create
+ * @creator ParamController
+ * @param {ParamGui} gui - the controller is in this gui
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - for the field of object to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
  */
-ParamController.prototype.create = function(low, high, step) {
+
+export function ParamController(gui, params, property, low, high, step) {
+    this.gui = gui;
+    this.params = params;
+    this.property = property;
+    this.listening = false; // automatically update display
     this.initCreate();
     const design = this.gui.design;
     const paramValue = this.params[this.property];
@@ -218,12 +186,39 @@ ParamController.prototype.create = function(low, high, step) {
         this.setupOnChange();
     } else {
         // no idea/error
-        this.createLabel(this.property + " *** error");
+        this.createLabel(this.property + " *** error: no controll");
+        console.log("no controll found");
+        console.log(low);
+        console.log(high);
+        console.log(step);
     }
     // change dom after all work has been done
     this.gui.bodyDiv.appendChild(this.domElement);
-    return this;
-};
+}
+
+// "inherit" paramControllerMethods:
+//======================================
+//
+// this.createLabel
+// this.setupOnChange
+// this.hidePopup
+// this.shoePopup
+// this.hidePopup
+// this.show
+// this.onChange 
+// this.onClick
+// this.onFinishChange
+// this.setValueOnly
+// this.setValue
+// this.getValue
+// this.updateDisplay
+// this.updateDisplayIfListening
+// this.listening
+// this.name
+
+Object.assign(ParamController.prototype, paramControllerMethods);
+
+const px = "px";
 
 /**
  * make that numberbuttons and range elements become cyclic

@@ -41,6 +41,25 @@ const p={};
 p.number=33;
 p.string="edit text";
 gui.add(p,"string");
+
+
+const choices={
+	"haeckel01": "haeckel/haeckel_01.png",
+	"haeckel02": "haeckel/haeckel_02.png",
+	"haeckel03": "haeckel/haeckel_03.png",
+	"haeckel04": "haeckel/haeckel_04.png",
+	"haeckel05": "haeckel/haeckel_05.png",	
+};
+
+
+p.image="haeckel03";
+
+gui.addImageSelection(p,"image",choices);
+
+
+
+
+
 p.func=function(){console.log("london calling");};
 
 

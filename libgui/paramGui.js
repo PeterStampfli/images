@@ -707,13 +707,21 @@ ParamGui.prototype.addColor = function(params, property) {
 
 /**
  * make a controller with an image selection
+ * choices as an object with (label: value pairs)
+ * for choosing images:
+ * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
+ * for other uses (presets): image is only a label 
+  * then use an object made of labels (again as keys) and value objects with image and value fields
+* this value field is actually choosen (the preset object), thus
+ * choices={"label1": {"image": "URL1", value: someData}, ...}
  * @method ParamGui#addImageSelection
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - key for the field of params to change, params[property]
+ * @param {object} choices - see above
  * @return {ParamController} object
  */
-ParamGui.prototype.addImageSelection = function(params, property) {
-    const controller = new ParamImageSelection(this, params, property);
+ParamGui.prototype.addImageSelection = function(params, property,choices) {
+    const controller = new ParamImageSelection(this, params, property,choices);
     this.elements.push(controller);
     return controller;
 };

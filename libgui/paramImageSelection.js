@@ -4,24 +4,38 @@ import {
 } from "./modules.js";
 
 /**
- * a controller for color with visuals, in a common div
- * created with input field for color code, color input element and range for alpha value
- * depending on initial parameter value
- * if it is a string of type #rgb or #rrggbb then it has no alpha channel
- * if it is a string of type #rgba or #rrggbbaa then it has an alpha channel
- *  (that should be safe because of different lengths of strings)
+ * make a controller with an image selection
+ * choices as an object with (label: value pairs)
+ * for choosing images:
+ * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
+ * for other uses (presets): image is only a label 
+ * then use an object made of labels (again as keys) and value objects with image and value fields
+ * this value field is actually choosen (the preset object), thus
+ * choices={"label1": {"image": "URL1", value: someData}, ...}
  * @creator ParamImageSelection
  * @param {ParamGui} gui - the controller is in this gui
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
+ * @param {object} choices 
  */
 
-export function ParamImageSelection(gui, params, property) {
+export function ParamImageSelection(gui, params, property, choices) {
     this.gui = gui;
     this.params = params;
     this.property = property;
+    this.choices = choices;
     this.listening = false; // automatically update display
-    this.create();
+    this.initCreate(); // create this.domElement with padding
+    const design = this.gui.design;
+    let imageChoice = this.params[this.property];
+    const controller = this;
+
+    const imageSelect = new ImageSelect(this.domElement);
+    this.label = imageSelect.label;
+    this.label.textContent = this.property;
+
+
+    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 const px = "px";
@@ -47,22 +61,6 @@ const px = "px";
 // this.name
 
 Object.assign(ParamImageSelection.prototype, paramControllerMethods);
-
-/**
- * make a text input , color input and range
- assume that param value is correct color format
- * @method ParamController#create
- */
-ParamImageSelection.prototype.create = function() {
-    this.initCreate(); // create this.domElement with padding
-    const design = this.gui.design;
-    let imageChoice = this.params[this.property];
-    const controller = this;
-
-
-    this.gui.bodyDiv.appendChild(this.domElement);
-    return this;
-};
 
 /**
  * destroy the controller

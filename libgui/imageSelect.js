@@ -182,10 +182,10 @@ ImageSelect.prototype.updateImageValue = function() {
  * the labels go to the this.select.labels array
  * the values (URL strings or objects) got to the this.select.values array
  * 
- * @method ImageSelect#setLabelImageURL
+ * @method ImageSelect#setChoices
  * @param {Object} images
  */
-ImageSelect.prototype.setLabelImageURL = function(choices) {
+ImageSelect.prototype.setChoices = function(choices) {
     this.select.setLabelsValues(choices);
     this.select.setIndex(0, false);
     this.updateImageValue();
@@ -193,6 +193,7 @@ ImageSelect.prototype.setLabelImageURL = function(choices) {
 
 /**
  * set the value, without calling the callback
+ * updating the image too, not only the label
  * if this.select.values items are (URL) strings 
  * then the value parameter has to be a string and we can use this.select.setValue
  * if this.select.values items are objects then we have two possibilities

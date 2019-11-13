@@ -10,6 +10,7 @@ import {
  * if it is a string of type #rgb or #rrggbb then it has no alpha channel
  * if it is a string of type #rgba or #rrggbbaa then it has an alpha channel
  *  (that should be safe because of different lengths of strings)
+ * make a text input , color input and range
  * @creator ParamColor
  * @param {ParamGui} gui - the controller is in this gui
  * @param {Object} params - object that has the parameter as a field
@@ -21,7 +22,20 @@ export function ParamColor(gui, params, property) {
     this.params = params;
     this.property = property;
     this.listening = false; // automatically update display
-    this.create();
+    this.initCreate();
+    const design = this.gui.design;
+    let color = this.params[this.property];
+    const controller = this;
+    this.createLabel(this.property);
+    const hasAlpha = ColorInput.hasAlpha(color);
+    const colorInput = new ColorInput(this.domElement, hasAlpha);
+    colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
+    colorInput.setValue(color);
+    // get root
+    colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
+    this.uiElement = colorInput;
+    this.setupOnChange();
+    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 const px = "px";
@@ -47,29 +61,6 @@ const px = "px";
 // this.name
 
 Object.assign(ParamColor.prototype, paramControllerMethods);
-
-/**
- * make a text input , color input and range
- assume that param value is correct color format
- * @method ParamController#create
- */
-ParamColor.prototype.create = function() {
-    this.initCreate();
-    const design = this.gui.design;
-    let color = this.params[this.property];
-    const controller = this;
-    this.createLabel(this.property);
-    const hasAlpha = ColorInput.hasAlpha(color);
-    const colorInput = new ColorInput(this.domElement, hasAlpha);
-    colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
-    colorInput.setValue(color);
-    // get root
-    colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
-    this.uiElement = colorInput;
-    this.setupOnChange();
-    this.gui.bodyDiv.appendChild(this.domElement);
-    return this;
-};
 
 /**
  * destroy the controller
