@@ -39,6 +39,7 @@ export function ImageSelect(parent) {
     parent.appendChild(this.leftDiv);
     // at the right of input elements there is the small image (as selection result or alternative label)
     this.image = document.createElement("img");
+    this.image.setAttribute("importance", "high");
     this.image.src = null;
     this.image.style.verticalAlign = "top";
     this.image.style.objectFit = "contain";
@@ -49,6 +50,14 @@ export function ImageSelect(parent) {
 
     // the actions
     const imageSelect = this;
+
+    // preloading images for fast first response
+    if (ImageSelect.preload && !ImageSelect.windowLoaded) {
+        window.addEventListener("load", function() {
+            ImageSelect.windowLoaded = false;
+            imageSelect.preload();
+        });
+    }
 
     this.buttonUp.onClick = function() {
         imageSelect.select.changeSelectedIndex(1);
@@ -95,10 +104,36 @@ export function ImageSelect(parent) {
 
     // the onChange function that does the action
     this.onChange = function() {
-        console.log("imageSelect value: ");
-        console.log(this.value);
+        console.log("onChange imageSelect value: " + this.value);
     };
 }
+
+/**
+ * image preloading at window.onload: set to false if it blocks
+ * @variable {boolean} image.preload 
+ */
+ImageSelect.preload = true;
+
+// check if window loaded
+ImageSelect.windowLoaded = false;
+
+/**
+ * preloading all images at window.onload
+ * @method ImageSelect#preload
+ */
+ImageSelect.prototype.preload = function() {
+    if (ImageSelect.preload) {
+        const image = document.createElement("img");
+        image.setAttribute("importance", "low"); // as we are only preloading
+        for (var i = this.select.values.length - 1; i >= 0; i--) {
+            let value = this.select.values[i];
+            if (typeof value === "object") {
+                value = value.image;
+            }
+            image.src = value;
+        }
+    }
+};
 
 /**
  * set the spacing between ui elements in verical direction
