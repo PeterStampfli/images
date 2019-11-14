@@ -18,7 +18,6 @@ export function ImageSelect(parent) {
     this.leftDiv.style.verticalAlign="bottom";
 
     // for each item in the left div we make a new div, to be able to adjust spacing
- 
     this.buttonUpDiv = document.createElement("div");
     this.buttonUpDiv.style.textAlign = "center";
     this.buttonUp = new Button("▲", this.buttonUpDiv);
@@ -31,16 +30,11 @@ export function ImageSelect(parent) {
     this.selectDiv = document.createElement("div");
     this.select = new SelectValues(this.selectDiv);
     this.leftDiv.appendChild(this.selectDiv);
-
     parent.appendChild(this.leftDiv);
-
    this.firstSpace = document.createElement("div");
     this.firstSpace.style.width = ImageSelect.spaceWidth + "px";
     this.firstSpace.style.display = "inline-block";
-
-    this.firstSpace.style.backgroundColor="red";
     this.parent.appendChild(this.firstSpace);
-
 
     // at the right of input elements there is the small image (as selection result or alternative label)
     this.image = document.createElement("img");
@@ -49,8 +43,6 @@ export function ImageSelect(parent) {
     this.image.style.verticalAlign = "top";
     this.image.style.objectFit = "contain";
     this.image.style.objectPosition = "left top";
-    // makes that it can have focus
-    this.image.setAttribute("tabindex", "0");
     parent.appendChild(this.image);
 
     // the actions
@@ -75,24 +67,6 @@ export function ImageSelect(parent) {
         return false;
     };
 
-    // hovering, give the image focus, to be able to use keyboard events
-    this.image.onmouseover = function() {
-        imageSelect.image.focus();
-    };
-
-    this.image.onkeydown = function(event) {
-        let key = event.key;
-        if (key === "ArrowDown") {
-            imageSelect.select.changeSelectedIndex(1);
-            event.preventDefault();
-            event.stopPropagation();
-        } else if (key === "ArrowUp") {
-            imageSelect.select.changeSelectedIndex(-1);
-            event.preventDefault();
-            event.stopPropagation();
-        }
-    };
-
     // all events change the select element, if its value changes then update the image, the value of this and do some action
     this.select.onChange = function() {
         imageSelect.updateImageValue();
@@ -104,7 +78,6 @@ export function ImageSelect(parent) {
         console.log("onChange imageSelect value: " + this.value);
     };
 }
-
 
 // width for spaces in px
 ImageSelect.spaceWidth = 5;
@@ -136,9 +109,9 @@ function prefetchImage(url) {
  */
 ImageSelect.prototype.setVerticalSpacing = function(space) {
     this.buttonDownDiv.style.paddingTop = space + "px"; // spacing to next
-    this.buttonDownDiv.style.paddingBottom = 5*space + "px"; // spacing to next
+    this.buttonDownDiv.style.paddingBottom = 2*space + "px"; // spacing to next
+    this.selectDiv.style.paddingBottom = 2*space + "px"; // spacing to next
 };
-
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -229,6 +202,21 @@ ImageSelect.prototype.setValue = function(value) {
         this.select.setValue(value);
     }
     this.updateImageValue();
+};
+
+/**
+ * get the value
+ * if this.select.value is a (URL) then it is the return value
+ * if this.select.value is an objects then we have to return its value field
+ * @method ImageSelect#setValue
+ * @param {Object||string||simpleValue} value
+ */
+ImageSelect.prototype.getValue = function() {
+    if (typeof this.select.values[0] === "object") {
+        
+    } else { // all values are supposed to be strings
+
+    }
 };
 
 /**

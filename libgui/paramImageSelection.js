@@ -25,22 +25,19 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.property = property;
     this.listening = false; // automatically update display
     this.initCreate(); // create this.domElement with padding
-
+        this.createLabel(this.property);
+        this.label.style.verticalAlign="top";
     const imageSelect = new ImageSelect(this.domElement);
-    this.label = imageSelect.label;
-    this.label.textContent = this.property;
     imageSelect.setChoices(choices);
     imageSelect.setValue(this.params[this.property]);
-     const design = this.gui.design;
-   imageSelect.setFontSizes(design.controllerLabelFontSize,design.buttonFontSize)
-imageSelect.setVerticalSpacing(design.paddingVertical );
-imageSelect.setHorizontalSpacing(design.labelSpacing);
-imageSelect.setMinimalWidth(design.controllerLabelWidth);
-imageSelect.setImageSize(design.imageSelectWidth,design.imageSelectHeight);
+    const design = this.gui.design;
+    imageSelect.setFontSize(design.buttonFontSize);
+    imageSelect.setImageSize(design.imageSelectWidth, design.imageSelectHeight);
+imageSelect.setVerticalSpacing(design.paddingVertical);
 
-this.uiElement=imageSelect;
-     this.setupOnChange();
-   this.gui.bodyDiv.appendChild(this.domElement);
+    this.uiElement = imageSelect;
+    this.setupOnChange();
+    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 const px = "px";

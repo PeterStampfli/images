@@ -171,7 +171,7 @@ ParamGui.defaultDesign = {
     // diameter for circular controllers
     controllerDiameter: 80,
     // sizes for image in selection
-    imageSelectWidth:200,
+    imageSelectWidth:100,
     imageSelectHeight:100
 };
 
