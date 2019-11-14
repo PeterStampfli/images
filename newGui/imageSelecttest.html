@@ -27,14 +27,11 @@ console.log("hello");
 
 const thisDiv=document.getElementById("thisDiv");
 
-thisDiv.style.paddingTop="10px";
 
 const sel=new ImageSelect(thisDiv);
 
-sel. setVerticalSpacing(20);
-sel. setHorizontalSpacing(20);
-sel.setMinimalWidth(200);
-sel.setImageSize(200,200);
+sel. setVerticalSpacing(2);
+sel.setImageSize(200,100);
 const four={"image":"haeckel/haeckel_04.png", "value":4444};
 
 sel.setChoices({
@@ -53,9 +50,8 @@ sel.setChoices({
 	"haeckel05": "haeckel/haeckel_05.png",	
 });
 */
-sel.label.textContent="Häckel";
 
-sel.setFontSizes(14,12);
+sel.setFontSize(12);
 sel.select.setLabel("haeckel03",true)
 
 //sel.setValue(22);

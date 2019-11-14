@@ -25,13 +25,12 @@ export function ParamColor(gui, params, property) {
     this.initCreate();
     const design = this.gui.design;
     let color = this.params[this.property];
-    const controller = this;
     this.createLabel(this.property);
     const hasAlpha = ColorInput.hasAlpha(color);
     const colorInput = new ColorInput(this.domElement, hasAlpha);
     colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
     colorInput.setValue(color);
-    // get root
+    // we need the root gui dom element to be able to see size of the text input element
     colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
     this.uiElement = colorInput;
     this.setupOnChange();

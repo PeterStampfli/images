@@ -169,7 +169,10 @@ ParamGui.defaultDesign = {
     rangeSliderLengthShort: 80,
     rangeSliderLengthLong: 120,
     // diameter for circular controllers
-    controllerDiameter: 80
+    controllerDiameter: 80,
+    // sizes for image in selection
+    imageSelectWidth:200,
+    imageSelectHeight:100
 };
 
 // other parameters

@@ -15,28 +15,33 @@ export function ImageSelect(parent) {
     // top level: at left a div with label, select and up/down buttons, including some spacing at left and right
     this.leftDiv = document.createElement("div");
     this.leftDiv.style.display = "inline-block";
+    this.leftDiv.style.verticalAlign="bottom";
+
     // for each item in the left div we make a new div, to be able to adjust spacing
-    // the label is slightly different than for other controllers because we have many items at the left
-    // controller.label = imageSelect.label in the controller to be able to change name, can also be deleted
-    this.label = document.createElement("div");
-    this.label.textContent = "label";
-    this.leftDiv.appendChild(this.label);
-    //next below the label there is a select
-    this.selectDiv = document.createElement("div");
-    this.selectDiv.style.textAlign = "right";
-    this.select = new SelectValues(this.selectDiv);
-    this.leftDiv.appendChild(this.selectDiv);
-    // enough vertical space for up/down buttons
-    // in their divs, for alignment at the right side
+ 
     this.buttonUpDiv = document.createElement("div");
-    this.buttonUpDiv.style.textAlign = "right";
+    this.buttonUpDiv.style.textAlign = "center";
     this.buttonUp = new Button("▲", this.buttonUpDiv);
     this.leftDiv.appendChild(this.buttonUpDiv);
     this.buttonDownDiv = document.createElement("div");
-    this.buttonDownDiv.style.textAlign = "right";
+    this.buttonDownDiv.style.textAlign = "center";
     this.buttonDown = new Button("▼", this.buttonDownDiv);
     this.leftDiv.appendChild(this.buttonDownDiv);
+    //next below the label there is a select
+    this.selectDiv = document.createElement("div");
+    this.select = new SelectValues(this.selectDiv);
+    this.leftDiv.appendChild(this.selectDiv);
+
     parent.appendChild(this.leftDiv);
+
+   this.firstSpace = document.createElement("div");
+    this.firstSpace.style.width = ImageSelect.spaceWidth + "px";
+    this.firstSpace.style.display = "inline-block";
+
+    this.firstSpace.style.backgroundColor="red";
+    this.parent.appendChild(this.firstSpace);
+
+
     // at the right of input elements there is the small image (as selection result or alternative label)
     this.image = document.createElement("img");
     this.image.setAttribute("importance", "high");
@@ -100,6 +105,10 @@ export function ImageSelect(parent) {
     };
 }
 
+
+// width for spaces in px
+ImageSelect.spaceWidth = 5;
+
 /**
  * using link prefetch to preload images and accelerate response
  * works on google chrome and chromium
@@ -126,43 +135,20 @@ function prefetchImage(url) {
  * @param {int} space - in px
  */
 ImageSelect.prototype.setVerticalSpacing = function(space) {
-    this.label.style.paddingBottom = space + "px"; // spacing to next
-    this.selectDiv.style.paddingBottom = space + "px"; // spacing to next
-    this.buttonUpDiv.style.paddingBottom = space + "px"; // spacing to next
+    this.buttonDownDiv.style.paddingTop = space + "px"; // spacing to next
+    this.buttonDownDiv.style.paddingBottom = 5*space + "px"; // spacing to next
 };
 
-/**
- * set the spacing left and right of ui elements
- * @method ImageSelection#setHorizontalSpacing
- * @param {int} space - in px
- */
-ImageSelect.prototype.setHorizontalSpacing = function(space) {
-    this.leftDiv.style.paddingLeft = space + "px";
-    this.selectDiv.style.paddingLeft = space + "px";
-    this.leftDiv.style.paddingRight = space + "px";
-};
-
-/**
- * set the minimumn width for the label/controls space, including whitespace
- * @method ImageSelect#setMinimalWidth
- * @param {int} size
- */
-ImageSelect.prototype.setMinimalWidth = function(size) {
-    this.leftDiv.style.minWidth = size + "px";
-};
 
 /**
  * set label and select/button font sizes, button font sizes are increased
- * @method ImageSelect#setFontSizes
- * @param {int} labelSize - in pix
+ * @method ImageSelect#setFontSize
  * @param {int} buttonSize - in pix
  */
-ImageSelect.prototype.setFontSizes = function(labelSize, buttonSize) {
-    this.label.style.fontSize = labelSize + "px";
+ImageSelect.prototype.setFontSize = function(buttonSize) {
     this.select.setFontSize(buttonSize);
-    const buttonFactor = 1.3;
-    this.buttonUp.setFontSize(buttonFactor * buttonSize);
-    this.buttonDown.setFontSize(buttonFactor * buttonSize);
+    this.buttonUp.setFontSize(buttonSize);
+    this.buttonDown.setFontSize(buttonSize);
 };
 
 /**
@@ -227,6 +213,7 @@ ImageSelect.prototype.setChoices = function(choices) {
  * @param {Object||string||simpleValue} value
  */
 ImageSelect.prototype.setValue = function(value) {
+    console.log(value);
     if (typeof this.select.values[0] === "object") {
         if ((typeof value === "object") && (typeof value.image === "string")) {
             this.select.setValue(value);

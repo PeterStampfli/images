@@ -19,9 +19,7 @@
 
 
 <script type="module">
-	// https://developer.mozilla.org/en-US/docs/Web/HTML/Preloading_content
-
-//https://www.smashingmagazine.com/2016/02/preload-what-is-it-good-for/
+	
 
 
 	const worker=new Worker("worker.js");
@@ -36,20 +34,6 @@
 	worker.postMessage({"txt": "start"});
 
 //worker.terminate();
-
-function prefetchImage(url){
-console.log("prefetch");
-	const prefetch = document.createElement("link");
-prefetch.href = url;
-prefetch.rel = "prefetch";
-prefetch.as = "image";
-prefetch.onload=function(){
-	console.log("loaded "+url);
-};
-document.body.appendChild(prefetch);
-}
-
-preloadImage("haeckel/haeckel_01.png");
 
 
 </script>
