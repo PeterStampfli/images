@@ -51,14 +51,6 @@ export function ImageSelect(parent) {
     // the actions
     const imageSelect = this;
 
-    // preloading images for fast first response
-    if (ImageSelect.preload && !ImageSelect.windowLoaded) {
-        window.addEventListener("load", function() {
-            ImageSelect.windowLoaded = false;
-            imageSelect.preload();
-        });
-    }
-
     this.buttonUp.onClick = function() {
         imageSelect.select.changeSelectedIndex(1);
     };
@@ -109,31 +101,24 @@ export function ImageSelect(parent) {
 }
 
 /**
- * image preloading at window.onload: set to false if it blocks
- * @variable {boolean} image.preload 
+ * using link prefetch to preload images and accelerate response
+ * works on google chrome and chromium
+ * but not on firefox (see network tab of the debugger)
+ * do not abuse (needs more reflection)
+ * @function prefetchImage
+ * @param {string} url
  */
-ImageSelect.preload = true;
-
-// check if window loaded
-ImageSelect.windowLoaded = false;
-
-/**
- * preloading all images at window.onload
- * @method ImageSelect#preload
- */
-ImageSelect.prototype.preload = function() {
-    if (ImageSelect.preload) {
-        const image = document.createElement("img");
-        image.setAttribute("importance", "low"); // as we are only preloading
-        for (var i = this.select.values.length - 1; i >= 0; i--) {
-            let value = this.select.values[i];
-            if (typeof value === "object") {
-                value = value.image;
-            }
-            image.src = value;
-        }
-    }
-};
+function prefetchImage(url) {
+    console.log("prefetch");
+    const prefetch = document.createElement("link");
+    prefetch.href = url;
+    prefetch.rel = "prefetch";
+    prefetch.as = "image";
+    prefetch.onload = function() {
+        console.log("loaded " + url);
+    };
+    document.head.appendChild(prefetch);
+}
 
 /**
  * set the spacing between ui elements in verical direction
