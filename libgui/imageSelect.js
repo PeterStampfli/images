@@ -1,6 +1,11 @@
 /**
- * select images with a view of the image and alternative methods for changing
- * to have same interface as other ui elements
+ * a select input with images. It has two use cases:
+ * - Select an (input) image: we can directly see the current image 
+ *   and we can rapidly change it (scrolling with the mouse wheel)
+ *   The selected value is the image URL
+ * - Select something (such as a preset) that is better represented by an image 
+ *   than a name. The name and the image are both shown. 
+ *   The selected data is not the image URL, something else instead.
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
  */
@@ -15,7 +20,7 @@ export function ImageSelect(parent) {
     // top level: at left a div with label, select and up/down buttons, including some spacing at left and right
     this.leftDiv = document.createElement("div");
     this.leftDiv.style.display = "inline-block";
-    this.leftDiv.style.verticalAlign="bottom";
+    this.leftDiv.style.verticalAlign = "bottom";
 
     // for each item in the left div we make a new div, to be able to adjust spacing
     this.buttonUpDiv = document.createElement("div");
@@ -31,7 +36,7 @@ export function ImageSelect(parent) {
     this.select = new SelectValues(this.selectDiv);
     this.leftDiv.appendChild(this.selectDiv);
     parent.appendChild(this.leftDiv);
-   this.firstSpace = document.createElement("div");
+    this.firstSpace = document.createElement("div");
     this.firstSpace.style.width = ImageSelect.spaceWidth + "px";
     this.firstSpace.style.display = "inline-block";
     this.parent.appendChild(this.firstSpace);
@@ -109,8 +114,8 @@ function prefetchImage(url) {
  */
 ImageSelect.prototype.setVerticalSpacing = function(space) {
     this.buttonDownDiv.style.paddingTop = space + "px"; // spacing to next
-    this.buttonDownDiv.style.paddingBottom = 2*space + "px"; // spacing to next
-    this.selectDiv.style.paddingBottom = 2*space + "px"; // spacing to next
+    this.buttonDownDiv.style.paddingBottom = 2 * space + "px"; // spacing to next
+    this.selectDiv.style.paddingBottom = 2 * space + "px"; // spacing to next
 };
 
 /**
@@ -146,21 +151,22 @@ ImageSelect.prototype.updateImageValue = function() {
         this.value = selectValue;
     } else {
         this.image.src = selectValue.image;
-        this.value = selectValue.value;
+        this.value = selectValue.data;
     }
 };
 
 /**
- * set the choices, without calling the callback
- * for choosing images
- * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
- * for other uses (presets): image is only a label 
- * and there may be another value that is actually choosen (the preset object), then
- * choices={"label1": {"image": "URL1", value: someData}, ...}
- * then use an object made of labels (again as keys) and objects with image and value fields
+ * set the choices as key/value pairs of an object, 
+ * the key is shown as text in the select input element.
+ * - choosing images: The value is the URL string of the image. 
+ *   We have a choices object with pairs of strings. choices={ label1: "URL1", ...};
+ *   The selected value is the image URL string
+ * - choosing other values (presets), the image is only a label.
+ *   The choices object now has as values objects with an image and a data field.
+ *   choices={label1: {image: "URL1", data: someData}, ...};
+ *   The selected value is the data field.
  * the labels go to the this.select.labels array
- * the values (URL strings or objects) got to the this.select.values array
- * 
+ * the values (image URL strings or image/data objects) got to the this.select.values array
  * @method ImageSelect#setChoices
  * @param {Object} images
  */
@@ -171,52 +177,39 @@ ImageSelect.prototype.setChoices = function(choices) {
 };
 
 /**
- * set the value, without calling the callback
- * updating the image too, not only the label
+ * set the selection to a new value, without calling the callback
+ * updating the shown image too, not only the label
  * if this.select.values items are (URL) strings 
- * then the value parameter has to be a string and we can use this.select.setValue
- * if this.select.values items are objects then we have two possibilities
- * - the value parameter is an object with an image key that is a string
- *   then we can use this.select.setValue
- *   ATTENTION: has to be the SAME object, not another object with same values
- * - the value parameter is not an object or an object without an image key
- *   then we have to find the index with this.select.values[i]===value
- *   and use it in this.select.setIndex
+ * then the newValue parameter has to be a string and we can use this.select.setValue(newValue) (searches for this.select.value===newValue)
+ * if this.select.values items are objects then we have search for the values object with the same data
+ * that means to find the selection index i with this.select.values[i].data===newValue
  * @method ImageSelect#setValue
- * @param {Object||string||simpleValue} value
+ * @param {Object||string||simpleValue} newValue
  */
-ImageSelect.prototype.setValue = function(value) {
-    console.log(value);
+ImageSelect.prototype.setValue = function(newValue) {
+    console.log(newValue);
     if (typeof this.select.values[0] === "object") {
-        if ((typeof value === "object") && (typeof value.image === "string")) {
-            this.select.setValue(value);
-        } else {
-            //search for the index with the correct object.value field
-            var index = this.select.values.length - 1;
-            while ((index >= 0) && (this.select.values[index].value !== value)) {
-                index--;
-            }
-            this.select.setIndex(index, false);
+        //search for the index with the correct object.value field
+        var index = this.select.values.length - 1;
+        while ((index >= 0) && (this.select.values[index].data !== newValue)) {
+            index--;
         }
-    } else { // all values are supposed to be strings
-        this.select.setValue(value);
+        newValue = this.select.values[index]; // replace value by its {image: URL, data: some data} object
     }
+    this.select.setValue(newValue);
     this.updateImageValue();
 };
 
 /**
  * get the value
- * if this.select.value is a (URL) then it is the return value
- * if this.select.value is an objects then we have to return its value field
- * @method ImageSelect#setValue
+ * if this.select.value is a (URL) string  then it is the return value
+ * if this.select.value is an objects then we have to return its data field
+ * done in updateImageValue method
+ * @method ImageSelect#getValue
  * @param {Object||string||simpleValue} value
  */
 ImageSelect.prototype.getValue = function() {
-    if (typeof this.select.values[0] === "object") {
-        
-    } else { // all values are supposed to be strings
-
-    }
+    return this.value;
 };
 
 /**

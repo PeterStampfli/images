@@ -32,30 +32,32 @@ const sel=new ImageSelect(thisDiv);
 
 sel. setVerticalSpacing(2);
 sel.setImageSize(200,100);
-const four={"image":"haeckel/haeckel_04.png", "value":4444};
+const four={image:"haeckel/haeckel_04.png", data:4444};
+
 
 sel.setChoices({
-	"haeckel01": {"image":"haeckel/haeckel_01.png", "value":1},
-	"haeckel02": {"image":"haeckel/haeckel_02.png", "value":22},
-	"haeckel03": {"image":"haeckel/haeckel_03.png", "value":333},
-	"haeckel04": four,
-	"haeckel05": {"image":"haeckel/haeckel_05.png", "value":55555}	
+	haeckel01: {image:"haeckel/haeckel_01.png", data:1},
+	haeckel02: {image:"haeckel/haeckel_02.png", data:22},
+	haeckel03: {image:"haeckel/haeckel_03.png", data:333},
+	haeckel04: four,
+	haeckel05: {image:"haeckel/haeckel_05.png", data:55555}	
 });
+
 /*
 sel.setChoices({
-	"haeckel01": "haeckel/haeckel_01.png",
-	"haeckel02": "haeckel/haeckel_02.png",
-	"haeckel03": "haeckel/haeckel_03.png",
-	"haeckel04": "haeckel/haeckel_04.png",
-	"haeckel05": "haeckel/haeckel_05.png",	
+	haeckel01: "haeckel/haeckel_01.png",
+	haeckel02: "haeckel/haeckel_02.png",
+	haeckel03: "haeckel/haeckel_03.png",
+	haeckel04: "haeckel/haeckel_04.png",
+	haeckel05: "haeckel/haeckel_05.png",	
 });
 */
 
 sel.setFontSize(12);
-sel.select.setLabel("haeckel03",true)
+//sel.select.setLabel("haeckel03",true)
 
-//sel.setValue(22);
 sel.setValue(22);
+//sel.setValue("haeckel/haeckel_04.png");
 //sel.setValue("haeckel/haeckel_04.png");
 //sel.destroy();
 </script>
