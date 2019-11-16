@@ -28,10 +28,10 @@ paramControllerMethods.createLabel = function(text) {
     const design = this.gui.design;
     this.label = document.createElement("span");
     this.label.textContent = text;
-    this.label.style.fontSize = design.controllerLabelFontSize + "px";
+    this.label.style.fontSize = design.labelFontSize + "px";
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.controllerLabelWidth + "px";
+    this.label.style.minWidth = design.labelWidth + "px";
     // space between label and controller or left border
     this.label.style.paddingLeft = design.labelSpacing + "px";
     this.label.style.paddingRight = design.labelSpacing + "px";

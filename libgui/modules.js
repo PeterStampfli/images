@@ -90,6 +90,11 @@ export {
 from "./paramImageSelection.js";
 
 export {
+    ParamTwoNumbers
+}
+from "./paramTwoNumbers.js";
+
+export {
     ImageSelect
 }
 from "./imageSelect.js";

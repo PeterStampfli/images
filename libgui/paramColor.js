@@ -44,9 +44,6 @@ const px = "px";
 //
 // this.createLabel
 // this.setupOnChange
-// this.hidePopup
-// this.showPopup
-// this.hidePopup
 // this.show
 // this.onChange 
 // this.onClick

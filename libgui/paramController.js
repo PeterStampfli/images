@@ -97,7 +97,7 @@ export function ParamController(gui, params, property, low, high, step) {
         // the parameter value is boolean, thus make a BooleanButton
         this.createLabel(this.property);
         const button = new BooleanButton(this.domElement);
-        button.setWidth(design.onOffButtonWidth);
+        button.setWidth(design.booleanButtonWidth);
         button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
         button.setValue(paramValue);
@@ -201,9 +201,6 @@ export function ParamController(gui, params, property, low, high, step) {
 //
 // this.createLabel
 // this.setupOnChange
-// this.hidePopup
-// this.shoePopup
-// this.hidePopup
 // this.show
 // this.onChange 
 // this.onClick

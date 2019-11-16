@@ -42,6 +42,24 @@ gui.addParagraph("The $-keyboard key hides/shows the gui. The tab-key cycles thr
 gui.addParagraph("With gui.addVerticalSpace(...) we can add a spacing");
 gui.addVerticalSpace(8,"blue");
 
+gui.addParagraph("You can scroll through selections with the mouse wheel or up- and down arrows:");
+params.letters="beta";
+gui.add(params,"letters",["alpha","beta","gamma","delta","epsilon"]);
+
+gui.addParagraph("There is a new image selection. It shows the choosen image or an image label:");
+
+const choices={
+	"haeckel01": "haeckel/haeckel_01.png",
+	"haeckel02": "haeckel/haeckel_02.png",
+	"haeckel03": "haeckel/haeckel_03.png",
+	"haeckel04": "haeckel/haeckel_04.png",
+	"haeckel05": "haeckel/haeckel_05.png",	
+};
+
+params.image="haeckel/haeckel_03.png";
+
+gui.addImageSelection(params,"image",choices);
+
 gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency of the square at the left:");
 
 params.square = "#ff0000ff";
@@ -55,10 +73,6 @@ co.onChange(function(value) {
 gui.addParagraph("If the color parameter at initialization of the gui has no alpha value, then the controller too has no alpha and no range element:");
 params.rgb = "#44ff00";
 gui.addColor(params, "rgb");
-
-gui.addParagraph("You can scroll selections with the mouse wheel:");
-params.letters="beta";
-gui.add(params,"letters",["alpha","beta","gamma","delta","epsilon"]);
 
 gui.addParagraph("These are the basic controllers for numbers and strings:");
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>two numbers test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+
+import {
+ParamTwoNumbers
+
+} from "../libgui/modules.js";
+
+
+console.log("hello");
+
+const thisDiv=document.getElementById("thisDiv");
+const gui={}
+gui.bodyDiv=thisDiv;
+
+const p={}
+p.one=123.4;
+p.two=345.6
+
+const sel=new ParamTwoNumbers(thisDiv,p,"one","two","left","nidd","right");
+
+
+</script>
+
+
+</html>
