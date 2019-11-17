@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>try test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+// loading a preview image
+
+//  *.* preview might be *.preview.jpg or *.preview.png
+const loadedPreviews = {};
+
+function loadPreview(URL, loader) {
+    const URLPieces = URL.split(".");
+    const baseURL = URLPieces[0];
+    console.log(baseURL);
+    const extension = URLPieces[1];
+    const baseURLPieces = baseURL.split("/");
+    const fileName = baseURLPieces[baseURLPieces.length - 1];
+    console.log("filename " + fileName);
+    if (typeof loadedPreviews[baseURL] === "object") {
+        console.log("loaded");
+        loader(loadedPreviews[baseURL]);
+    } else {
+        // try baseURLpreview.jpg
+        const image = new Image();
+        let source = baseURL + "preview.jpg";
+        console.log("trying " + source);
+        image.onload = function() {
+            console.log("success " + source);
+            loadedPreviews[baseURL] = image;
+            loader(image);
+        };
+        image.onerror = function() {
+            console.log("fail " + source);
+            // try baseURLpreview.png
+            source = baseURL + "preview.png";
+            console.log("trying " + source);
+            image.onerror = function() {
+                console.log("fail " + source);
+                // previews failed, try full image
+                if ((extension === "jpg") || (extension === "png")) {
+                    console.log("trying " + URL);
+                    source=URL;
+                    image.onerror = function() {
+                        console.log("fail " + URL);
+                        image.remove();
+                        console.log("default for "+baseURL);
+                        // create a div replacing the image
+                        const defDiv = document.createElement("div");
+                        defDiv.style.display = "inline-block";
+                        defDiv.textContent = fileName;
+                        loadedPreviews[baseURL] = defDiv;
+                        loader(defDiv);
+                    };
+                    image.src=source;
+                } else {
+                    image.remove();
+                    console.log(image)
+                    console.log("default for "+baseURL);
+                    // create a div replacing the image
+                    const defDiv = document.createElement("div");
+                    defDiv.style.display = "inline-block";
+                    defDiv.textContent = fileName;
+                    loadedPreviews[baseURL] = defDiv;
+                    loader(defDiv);
+                }
+            };
+            image.src = source;
+        };
+        image.src = source;
+    }
+
+}
+
+	
+
+const image=new Image();
+
+const thisDiv=document.getElementById("thisDiv");
+thisDiv.appendChild(image);
+
+image.onerror=function(){
+	console.log("does not exist");
+}
+
+image.src="haeckel/haeckel_08.png";
+
+
+console.log(image.src);
+
+loadPreview("haeckel/haeckel_08.png",function(preview){console.log(preview)})
+loadPreview("haeckel/haeckel_0888.png",function(preview){console.log(preview)})
+
+loadPreview("haeckel/haeckel_www.xyz",function(preview){console.log(preview)})
+loadPreview("haeckel/haeckel_01.png",function(preview){
+	console.log(preview)
+loadPreview("haeckel/haeckel_01.png",function(preview){console.log(preview)})
+}
+	)
+
+//The split() method turns a String into an array of strings, by separating the string at each instance of a specified separator string.
+
+/*
+
+var link = document.createElement('a');
+    link.innerHTML = 'download image';
+link.addEventListener('click', function(ev) {
+    link.href = canvas.toDataURL();
+    link.download = "mypainting.png";
+}, false);
+document.body.appendChild(link);
+*/
+</script>
+
+
+</html>
