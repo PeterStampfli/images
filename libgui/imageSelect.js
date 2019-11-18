@@ -1,11 +1,11 @@
 /**
- * a select input with images. It has two use cases:
- * - Select an (input) image: we can directly see the current image 
- *   and we can rapidly change it (scrolling with the mouse wheel)
- *   The selected value is the image URL
- * - Select something (such as a preset) that is better represented by an image 
- *   than a name. The name and the image are both shown. 
- *   The selected data is not the image URL, something else instead.
+ * a select input with icons
+ * each choice has a name, an icon and a value
+
+
+
+
+ * In both cases we have in addition to th image a smaller icon
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
  */
@@ -17,57 +17,42 @@ import {
 
 export function ImageSelect(parent) {
     this.parent = parent;
-    // top level: at left a div with label, select and up/down buttons, including some spacing at left and right
-    this.leftDiv = document.createElement("div");
-    this.leftDiv.style.display = "inline-block";
-    this.leftDiv.style.verticalAlign = "bottom";
-
-    // for each item in the left div we make a new div, to be able to adjust spacing
-    this.buttonUpDiv = document.createElement("div");
-    this.buttonUpDiv.style.textAlign = "center";
-    this.buttonUp = new Button("▲", this.buttonUpDiv);
-    this.leftDiv.appendChild(this.buttonUpDiv);
-    this.buttonDownDiv = document.createElement("div");
-    this.buttonDownDiv.style.textAlign = "center";
-    this.buttonDown = new Button("▼", this.buttonDownDiv);
-    this.leftDiv.appendChild(this.buttonDownDiv);
-    //next below the label there is a select
-    this.selectDiv = document.createElement("div");
-    this.select = new SelectValues(this.selectDiv);
-    this.leftDiv.appendChild(this.selectDiv);
-    parent.appendChild(this.leftDiv);
+    // first a select
+    this.select = new SelectValues(parent);
+    this.select.element.style.verticalAlign="middle";
     this.firstSpace = document.createElement("div");
     this.firstSpace.style.width = ImageSelect.spaceWidth + "px";
     this.firstSpace.style.display = "inline-block";
     this.parent.appendChild(this.firstSpace);
 
-    // at the right of input elements there is the small image (as selection result or alternative label)
+    // at the right of input elements there is the small icon
     this.image = document.createElement("img");
     this.image.setAttribute("importance", "high");
     this.image.src = null;
-    this.image.style.verticalAlign = "top";
+    this.image.style.verticalAlign = "middle";
     this.image.style.objectFit = "contain";
-    this.image.style.objectPosition = "left top";
+    this.image.style.objectPosition = "center center";
     parent.appendChild(this.image);
 
     // the actions
     const imageSelect = this;
 
-    this.buttonUp.onClick = function() {
-        imageSelect.select.changeSelectedIndex(1);
-    };
+this.select.element.addEventListener("mousedown",function(){
+    console.log("mousedown")
+});
 
-    this.buttonDown.onClick = function() {
-        imageSelect.select.changeSelectedIndex(-1);
-    };
+this.image.addEventListener("mousedown",function(){
+    console.log("mousedown")
+});
+    
 
     this.image.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
         if (event.deltaY > 0) {
-            imageSelect.select.changeSelectedIndex(1);
+            imageSelect.select.changeIndex(1);
         } else {
-            imageSelect.select.changeSelectedIndex(-1);
+            imageSelect.select.changeIndex(-1);
         }
         return false;
     };
@@ -87,36 +72,6 @@ export function ImageSelect(parent) {
 // width for spaces in px
 ImageSelect.spaceWidth = 5;
 
-/**
- * using link prefetch to preload images and accelerate response
- * works on google chrome and chromium
- * but not on firefox (see network tab of the debugger)
- * do not abuse (needs more reflection)
- * @function prefetchImage
- * @param {string} url
- */
-function prefetchImage(url) {
-    console.log("prefetch");
-    const prefetch = document.createElement("link");
-    prefetch.href = url;
-    prefetch.rel = "prefetch";
-    prefetch.as = "image";
-    prefetch.onload = function() {
-        console.log("loaded " + url);
-    };
-    document.head.appendChild(prefetch);
-}
-
-/**
- * set the spacing between ui elements in verical direction
- * @method ImageSelection#setVerticalSpacing
- * @param {int} space - in px
- */
-ImageSelect.prototype.setVerticalSpacing = function(space) {
-    this.buttonDownDiv.style.paddingTop = space + "px"; // spacing to next
-    this.buttonDownDiv.style.paddingBottom = 2 * space + "px"; // spacing to next
-    this.selectDiv.style.paddingBottom = 2 * space + "px"; // spacing to next
-};
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -125,8 +80,6 @@ ImageSelect.prototype.setVerticalSpacing = function(space) {
  */
 ImageSelect.prototype.setFontSize = function(buttonSize) {
     this.select.setFontSize(buttonSize);
-    this.buttonUp.setFontSize(buttonSize);
-    this.buttonDown.setFontSize(buttonSize);
 };
 
 /**
@@ -171,7 +124,7 @@ ImageSelect.prototype.updateImageValue = function() {
  * @param {Object} images
  */
 ImageSelect.prototype.setChoices = function(choices) {
-    this.select.setLabelsValues(choices);
+    this.select.setNamesValues(choices);
     this.select.setIndex(0, false);
     this.updateImageValue();
 };

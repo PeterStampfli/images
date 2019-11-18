@@ -227,9 +227,8 @@ ParamGui.defaultDesign = {
 
     // style for the image selection
     //-------------------------------------
-    // size of the image
-    imageSelectWidth: 100,
-    imageSelectHeight: 100
+    // size of the icon image
+    smallIconSize: 40
 };
 
 // other parameters

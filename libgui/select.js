@@ -1,8 +1,6 @@
 /**
- * representing an HTML selection for selecting values as selection name/value pairs
- * choices are either a simple array that determines names of selections and their values
- * or an object={name1:value1, name2:value2, ... }
- * @constructor SelectValues
+ * selecting a choice of names, use the corresponding index for further work
+ * @constructor Select
  * @param {DOM element} parent, an html element, best "div"
  */
 
@@ -10,32 +8,29 @@ import {
     Button
 } from "./modules.js";
 
-export function SelectValues(parent) {
+export function Select(parent) {
     this.element = document.createElement("select");
     parent.appendChild(this.element);
     this.hover = false;
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
-    this.names = null;
-    this.values = null;
-    this.value = false;
+    this.maxIndex = 0;
 
     var select = this;
 
     /**
      * action upon change, strategy pattern
-     * @method SelectValues#onChange
+     * @method Select#onChange
      */
     this.onChange = function() {
-        console.log("onchange " + select.value);
+        console.log("onchange " + select.getIndex());
     };
 
     /**
      * action upon change
      */
     this.element.onchange = function() {
-        select.value = select.values[select.element.selectedIndex];
         select.onChange();
     };
 
@@ -48,7 +43,6 @@ export function SelectValues(parent) {
 
     this.element.onmouseleave = function() {
         select.hover = false;
-        //select.element.blur();
         select.updateStyle();
     };
 
@@ -67,9 +61,9 @@ export function SelectValues(parent) {
 /**
  * update the color style of the element depending on whether its pressed or hovered
  * always call if states change, use for other buttons too
- * @method SelectValues#updateStyle
+ * @method Select#updateStyle
  */
-SelectValues.prototype.updateStyle = function() {
+Select.prototype.updateStyle = function() {
     if (this.hover) {
         this.element.style.color = this.colorUpHover;
         this.element.style.backgroundColor = this.backgroundColorUpHover;
@@ -81,9 +75,9 @@ SelectValues.prototype.updateStyle = function() {
 
 /**
  * setup the color styles defaults, use for other buttons too
- * @method SelectValues#colorStyleDefaults
+ * @method Select#colorStyleDefaults
  */
-SelectValues.prototype.colorStyleDefaults = function() {
+Select.prototype.colorStyleDefaults = function() {
     // can customize colors, preset defaults
     this.colorUp = Button.colorUp;
     this.colorUpHover = Button.colorUpHover;
@@ -97,25 +91,25 @@ SelectValues.prototype.colorStyleDefaults = function() {
 
 /**
  * set fontsize of the button, in px
- * @method SelectValues#setFontSize
+ * @method Select#setFontSize
  * @param {integer} size
  */
-SelectValues.prototype.setFontSize = function(size) {
+Select.prototype.setFontSize = function(size) {
     this.element.style.fontSize = size + "px";
 };
 
 /**
-* add a name value pair
-*/
+ * add an option
+ */
 
 /**
  * set names and values array
  * from a simple array with values for bpoth
  * or an object={name1: value1, name2: value2, ...}
- * @method SelectValues#setNamesValues
+ * @method Select#setNamesValues
  * @param {Array||Object} selections
  */
-SelectValues.prototype.setNamesValues = function(selections) {
+Select.prototype.setNamesValues = function(selections) {
     if (Array.isArray(selections)) {
         // an array defines the selection values, key and value are identical
         this.names = selections;
@@ -137,10 +131,10 @@ SelectValues.prototype.setNamesValues = function(selections) {
 
 /**
  * get the index
- * @method SelectValues#getIndex
+ * @method Select#getIndex
  * @return integer, the selected index
  */
-SelectValues.prototype.getIndex = function() {
+Select.prototype.getIndex = function() {
     const result = this.element.selectedIndex;
     return result;
 };
@@ -149,10 +143,10 @@ SelectValues.prototype.getIndex = function() {
  * set the selected index, limited to the actual range
  * nothing happens if index does not change
  * option to call onChange
- * @method SelectValues#setIndex
+ * @method Select#setIndex
  * @param {int} index
  */
-SelectValues.prototype.setIndex = function(index, callOnChange = false) {
+Select.prototype.setIndex = function(index, callOnChange = false) {
     index = Math.max(0, Math.min(this.names.length - 1, index));
     if (index !== this.element.selectedIndex) {
         this.element.selectedIndex = index;
@@ -166,55 +160,11 @@ SelectValues.prototype.setIndex = function(index, callOnChange = false) {
 /**
  * change the (selected) index, restricted to lenght of this.names
  * call onChange only if changes
- * @method SelectValues#changeIndex
+ * @method Select#changeIndex
  * @param {integer} delta
  */
-SelectValues.prototype.changeIndex = function(delta) {
+Select.prototype.changeIndex = function(delta) {
     this.setIndex(this.getIndex() + delta, true);
-};
-
-/**
- * get the value
- * @method SelectValues#getValue
- * @return whatever, the selected value
- */
-SelectValues.prototype.getValue = function() {
-    return this.values[this.getIndex()];
-};
-
-/**
- * set selection to one of the existing values, if not existing use first value
- * sets corresponding name
- * option to call onChange (callback)
- * @method SelectValues#setValue
- * @param {whatever} value
- * @param {boolean} callOnChange - optional, default false
- */
-SelectValues.prototype.setValue = function(value, callOnChange = false) {
-    const index = this.values.indexOf(value);
-    this.setIndex(index, callOnChange);
-};
-
-/**
- * get the name
- * @method SelectValues#getname
- * @return {string}, the selected name
- */
-SelectValues.prototype.getValue = function() {
-    return this.names[this.getIndex()];
-};
-
-/**
- * set to one of the existing names, if not existing use first value
- * sets corresponding value
- * option to call onChange (callback)
- * @method SelectValues#setName
- * @param {string} name
- * @param {boolean} callOnChange - optional, default false
- */
-SelectValues.prototype.setName = function(name, callOnChange = false) {
-    const index = this.names.indexOf(name);
-    this.setIndex(index, callOnChange);
 };
 
 /**
@@ -223,7 +173,7 @@ SelectValues.prototype.setName = function(name, callOnChange = false) {
  * set reference to the select to null
  * @method NumberButton#destroy
  */
-SelectValues.prototype.destroy = function() {
+Select.prototype.destroy = function() {
     this.element.onchange = null;
     this.element.onmouseenter = null;
     this.element.onmouseleave = null;
