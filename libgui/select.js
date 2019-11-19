@@ -100,32 +100,28 @@ Select.prototype.setFontSize = function(size) {
 
 /**
  * add an option
+ * @method Select#addOption
+ * @param {String} name
  */
+Select.prototype.addOption = function(name) {
+    const option = document.createElement("option");
+    option.textContent = "" + name;
+    this.element.appendChild(option);
+};
 
 /**
- * set names and values array
- * from a simple array with values for bpoth
+ * add options
+ * from a simple array with values for both
  * or an object={name1: value1, name2: value2, ...}
- * @method Select#setNamesValues
- * @param {Array||Object} selections
+ * @method Select#addOptions
+ * @param {Array||Object} names
  */
-Select.prototype.setNamesValues = function(selections) {
-    if (Array.isArray(selections)) {
-        // an array defines the selection values, key and value are identical
-        this.names = selections;
-        this.values = selections;
-    } else {
-        // an object defines selection values as value[key] pair, key is shown as name of a selection (option)
-        this.names = Object.keys(selections);
-        this.values = [];
-        for (let i = 0; i < this.names.length; i++) {
-            this.values.push(selections[this.names[i]]);
-        }
+Select.prototype.setOptions = function(names) {
+    if (!Array.isArray(names)) {
+        names = Object.keys(names);
     }
-    for (let i = 0; i < this.names.length; i++) {
-        const option = document.createElement("option");
-        option.appendChild(document.createTextNode("" + this.names[i]));
-        this.element.appendChild(option);
+    for (var i = 0; i < names.length; i++) {
+        this.addOption(names[i]);
     }
 };
 
