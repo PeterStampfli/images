@@ -55,6 +55,11 @@ export {
 from "./numberButton.js";
 
 export {
+    Select
+}
+from "./select.js";
+
+export {
     SelectValues
 }
 from "./selectValues.js";

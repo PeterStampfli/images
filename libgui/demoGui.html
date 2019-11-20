@@ -9,7 +9,7 @@
 
 <body>
 
-<div id="sq">test</div>
+<canvas id="sq">test</canvas>
 
 </body>
 
@@ -110,7 +110,30 @@ const folder = gui.addFolder("folder", {
 
 params.rgba = "#ff00ffbb";
 folder.addColor(params, "rgba");
+square.addEventListener("keydown", keylog, false);
 
+square.setAttribute('tabindex', '-1');
+
+square.addEventListener("keydown", stopTab, false);
+
+square.addEventListener("mouseenter", function(){ square.focus();}, false);
+
+function setFocus(){
+    square.focus();
+}
+
+
+function keylog(event) {
+    console.log("keylog: " + event.key);
+}
+
+function stopTab(event) {
+    if (event.key === "Tab") {
+        console.log("stopTab");
+        event.preventDefault();
+        event.stopPropagation();
+    }
+}
 
 </script>
 

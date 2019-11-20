@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> select values test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+
+import {
+SelectValues
+} from "../libgui/modules.js";
+
+
+console.log("hello");
+
+const thisDiv=document.getElementById("thisDiv");
+
+
+const sel=new SelectValues(thisDiv);
+
+sel.setFontSize(30);
+sel.setOptions([1,22,333,4433,5567]);
+sel.setOptions({eins:1,zwei:22,viel:3456})
+
+
+</script>
+
+
+</html>

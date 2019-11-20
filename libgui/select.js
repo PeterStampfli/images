@@ -15,7 +15,7 @@ export function Select(parent) {
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
-    this.maxIndex = 0;
+    this.maxIndex = -1;
 
     var select = this;
 
@@ -99,29 +99,38 @@ Select.prototype.setFontSize = function(size) {
 };
 
 /**
- * add an option
+ * add options from simple variables, arrays (final elements are simple), objects (takes the keys)
  * @method Select#addOption
- * @param {String} name
+ * @param {... String|number|Array|object} names
  */
-Select.prototype.addOption = function(name) {
-    const option = document.createElement("option");
-    option.textContent = "" + name;
-    this.element.appendChild(option);
+Select.prototype.addOptions = function(names) {
+    const length = arguments.length;
+    if (length === 1) {
+        if (Array.isArray(names)) {
+            names.forEach(name => this.addOptions(name));
+        } else if (typeof names === "object") {
+            this.addOptions(Object.keys(names));
+        } else {
+            const option = document.createElement("option");
+            option.textContent = "" + names;
+            this.element.appendChild(option);
+            this.maxIndex++;
+        }
+    } else {
+        for (var i = 0; i < length; i++) {
+            this.addOptions(arguments[i]);
+        }
+    }
 };
 
 /**
- * add options
- * from a simple array with values for both
- * or an object={name1: value1, name2: value2, ...}
- * @method Select#addOptions
- * @param {Array||Object} names
+ * clear all options, leaving empty select
+ * @method Select#clear
  */
-Select.prototype.setOptions = function(names) {
-    if (!Array.isArray(names)) {
-        names = Object.keys(names);
-    }
-    for (var i = 0; i < names.length; i++) {
-        this.addOption(names[i]);
+Select.prototype.clear = function() {
+    this.maxIndex=-1;
+    while (this.element.firstChild) {
+        this.element.removeChild(this.element.firstChild);
     }
 };
 
@@ -143,10 +152,9 @@ Select.prototype.getIndex = function() {
  * @param {int} index
  */
 Select.prototype.setIndex = function(index, callOnChange = false) {
-    index = Math.max(0, Math.min(this.names.length - 1, index));
+    index = Math.max(0, Math.min(this.maxIndex, index));
     if (index !== this.element.selectedIndex) {
         this.element.selectedIndex = index;
-        this.value = this.values[index];
         if (callOnChange) {
             this.onChange();
         }

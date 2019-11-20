@@ -87,11 +87,11 @@ export function ParamController(gui, params, property, low, high, step) {
     if (isArray(low) || isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
         this.createLabel(this.property);
-        const select = new SelectValues(this.domElement);
-        select.setFontSize(design.buttonFontSize);
-        this.uiElement = select;
-        select.setNamesValues(low);
-        select.setValue(paramValue);
+        const selectValues = new SelectValues(this.domElement);
+        selectValues.setFontSize(design.buttonFontSize);
+        this.uiElement = selectValues;
+        selectValues.setOptions(low);
+        selectValues.setValue(paramValue);
         this.setupOnChange();
     } else if (isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
