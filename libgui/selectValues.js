@@ -12,7 +12,7 @@ import {
 
 export function SelectValues(parent) {
     this.select = new Select(parent);
-    this.values = null;
+    this.values = [];
 
     var selectValues = this;
 
@@ -41,26 +41,41 @@ SelectValues.prototype.setFontSize = function(size) {
 };
 
 /**
- * clears all previous options, set options and values
+ * clear all options, leaving empty select
+ * @method SelectValues#clear
+ */
+SelectValues.prototype.clear = function() {
+    this.values = [];
+    this.select.clear();
+};
+
+/**
+ * add an option with a name and a value
+ * @method SelectValues#addOption
+ * @param {String|number} name
+ * @param {whatever} value
+ */
+SelectValues.prototype.addOption = function(name, value) {
+    this.select.addOptions(name);
+    this.values.push(value);
+};
+
+/**
+ * add options and values
  * from a simple array with values for both
  * or an object={name1: value1, name2: value2, ...}
- * @method SelectValues#setOptions
+ * @method SelectValues#addOptions
  * @param {Array||Object} options
  */
-SelectValues.prototype.setOptions = function(options) {
-    this.select.clear();
+SelectValues.prototype.addOptions = function(options) {
     if (Array.isArray(options)) {
-        this.select.addOptions(options);
-        this.values = options.slice(0); // array copy for simple values (shallow)
+        options.forEach(option => this.addOption(option, option));
     } else {
         // an object defines selection values as value[key] pair, key is shown as name of a selection (option)
         const names = Object.keys(options);
-        this.select.addOptions(names);
-        this.values = [];
-        names.forEach(name => this.values.push(options[name]));
+        names.forEach(name => this.addOption(name, options[name]));
     }
 };
-
 
 /**
  * get the index
@@ -72,6 +87,17 @@ SelectValues.prototype.getIndex = function() {
     return result;
 };
 
+
+/**
+ * set the index
+ * does not call the onChange callback
+ * @method SelectValues#setIndex
+ * @param {integer} index
+ */
+SelectValues.prototype.setIndex = function(index) {
+    this.select.setIndex(index);
+};
+
 /**
  * get the value
  * @method SelectValues#getValue
@@ -80,4 +106,15 @@ SelectValues.prototype.getIndex = function() {
 SelectValues.prototype.getValue = function() {
     const result = this.values[this.select.getIndex()];
     return result;
+};
+
+/**
+ * set the value
+ * does not call the onChange callback
+ * @method SelectValues#setValue
+ * @param {whatever} value
+ */
+SelectValues.prototype.setValue = function(value) {
+    const index = this.values.indexOf(value);
+    this.setIndex(index);
 };

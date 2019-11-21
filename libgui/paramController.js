@@ -90,7 +90,7 @@ export function ParamController(gui, params, property, low, high, step) {
         const selectValues = new SelectValues(this.domElement);
         selectValues.setFontSize(design.buttonFontSize);
         this.uiElement = selectValues;
-        selectValues.setOptions(low);
+        selectValues.addOptions(low);
         selectValues.setValue(paramValue);
         this.setupOnChange();
     } else if (isBoolean(paramValue)) {

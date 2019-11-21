@@ -10,12 +10,14 @@ import {
 
 export function Select(parent) {
     this.element = document.createElement("select");
-    parent.appendChild(this.element);
+    // by default: vertical align middle =" centered"
+     this.element.style.verticalAlign = "middle";
+   parent.appendChild(this.element);
     this.hover = false;
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.style.cursor = "pointer";
-    this.maxIndex = -1;
+    this.nOptions = 0;
 
     var select = this;
 
@@ -114,7 +116,7 @@ Select.prototype.addOptions = function(names) {
             const option = document.createElement("option");
             option.textContent = "" + names;
             this.element.appendChild(option);
-            this.maxIndex++;
+            this.nOptions++;
         }
     } else {
         for (var i = 0; i < length; i++) {
@@ -128,7 +130,7 @@ Select.prototype.addOptions = function(names) {
  * @method Select#clear
  */
 Select.prototype.clear = function() {
-    this.maxIndex=-1;
+    this.nOptions = 0;
     while (this.element.firstChild) {
         this.element.removeChild(this.element.firstChild);
     }
@@ -146,19 +148,13 @@ Select.prototype.getIndex = function() {
 
 /**
  * set the selected index, limited to the actual range
- * nothing happens if index does not change
- * option to call onChange
+ * does NOT call onChange
  * @method Select#setIndex
  * @param {int} index
  */
-Select.prototype.setIndex = function(index, callOnChange = false) {
-    index = Math.max(0, Math.min(this.maxIndex, index));
-    if (index !== this.element.selectedIndex) {
-        this.element.selectedIndex = index;
-        if (callOnChange) {
-            this.onChange();
-        }
-    }
+Select.prototype.setIndex = function(index) {
+    index = Math.max(0, Math.min(this.nOptions - 1, index));
+    this.element.selectedIndex = index;
 };
 
 /**
@@ -168,7 +164,11 @@ Select.prototype.setIndex = function(index, callOnChange = false) {
  * @param {integer} delta
  */
 Select.prototype.changeIndex = function(delta) {
+    const lastIndex=this.getIndex();
     this.setIndex(this.getIndex() + delta, true);
+    if (lastIndex!==this.getIndex()){
+        this.onChange();
+    }
 };
 
 /**

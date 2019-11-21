@@ -1,10 +1,10 @@
 /**
  * a select input with icons
  * each choice has a name, an icon and a value
-
-
-
-
+ 
+ 
+ 
+ 
  * In both cases we have in addition to th image a smaller icon
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
@@ -19,7 +19,6 @@ export function ImageSelect(parent) {
     this.parent = parent;
     // first a select
     this.select = new SelectValues(parent);
-    this.select.element.style.verticalAlign="middle";
     this.firstSpace = document.createElement("div");
     this.firstSpace.style.width = ImageSelect.spaceWidth + "px";
     this.firstSpace.style.display = "inline-block";
@@ -37,22 +36,22 @@ export function ImageSelect(parent) {
     // the actions
     const imageSelect = this;
 
-this.select.element.addEventListener("mousedown",function(){
-    console.log("mousedown")
-});
+    this.select.select.element.addEventListener("mousedown", function() {
+        console.log("mousedown");
+    });
 
-this.image.addEventListener("mousedown",function(){
-    console.log("mousedown")
-});
-    
+    this.image.addEventListener("mousedown", function() {
+        console.log("mousedown");
+    });
+
 
     this.image.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
         if (event.deltaY > 0) {
-            imageSelect.select.changeIndex(1);
+            imageSelect.select.select.changeIndex(1);
         } else {
-            imageSelect.select.changeIndex(-1);
+            imageSelect.select.select.changeIndex(-1);
         }
         return false;
     };
@@ -98,7 +97,7 @@ ImageSelect.prototype.setImageSize = function(width, height) {
  * @method ImageSelect#updateImageValue
  */
 ImageSelect.prototype.updateImageValue = function() {
-    const selectValue = this.select.value;
+    const selectValue = this.select.getValue();
     if (typeof selectValue === "string") {
         this.image.src = selectValue;
         this.value = selectValue;
@@ -124,8 +123,8 @@ ImageSelect.prototype.updateImageValue = function() {
  * @param {Object} images
  */
 ImageSelect.prototype.setChoices = function(choices) {
-    this.select.setNamesValues(choices);
-    this.select.setIndex(0, false);
+    this.select.addOptions(choices);
+    this.select.setIndex(0);
     this.updateImageValue();
 };
 
