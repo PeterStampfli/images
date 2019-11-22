@@ -83,7 +83,6 @@ Popup.prototype.setStyle = function(newStyle) {
             Object.assign(this.design, arguments[i]);
         }
     }
-    console.log(this.design.position)
     switch (this.design.position) {
         case "center":
             this.center();

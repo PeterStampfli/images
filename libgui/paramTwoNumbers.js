@@ -18,10 +18,10 @@ import {
 export function ParamTwoNumbers(gui, params, property1, property2, leftTag = "", middleTag = "", rightTag = "") {
     this.gui = gui;
     this.params = params;
-    this.property = property;
+    this.property = property1;
     this.listening = false; // automatically update display
     this.initCreate(); // create this.domElement with padding
-    this.createLabel(this.property);
+    this.createLabel(this.property1);
 
     this.gui.bodyDiv.appendChild(this.domElement);
 }
