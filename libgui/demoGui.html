@@ -16,7 +16,8 @@
 <script type="module">
 
 import {
-    ParamGui
+    ParamGui,
+    InstantHelp
 }
 from "./modules.js"
 
@@ -31,6 +32,8 @@ const gui = new ParamGui({}, {
     closed: false,
     closeOnTop: true
 });
+
+InstantHelp.setStyle({position:"bottomRight"});
 
 gui.addHelp("This is a <strong>demo</strong>.");
 

@@ -11,8 +11,8 @@ import {
 export function Select(parent) {
     this.element = document.createElement("select");
     // by default: vertical align middle =" centered"
-     this.element.style.verticalAlign = "middle";
-   parent.appendChild(this.element);
+    this.element.style.verticalAlign = "middle";
+    parent.appendChild(this.element);
     this.hover = false;
     this.colorStyleDefaults();
     this.updateStyle();
@@ -164,9 +164,9 @@ Select.prototype.setIndex = function(index) {
  * @param {integer} delta
  */
 Select.prototype.changeIndex = function(delta) {
-    const lastIndex=this.getIndex();
+    const lastIndex = this.getIndex();
     this.setIndex(this.getIndex() + delta, true);
-    if (lastIndex!==this.getIndex()){
+    if (lastIndex !== this.getIndex()) {
         this.onChange();
     }
 };

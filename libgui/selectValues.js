@@ -87,7 +87,6 @@ SelectValues.prototype.getIndex = function() {
     return result;
 };
 
-
 /**
  * set the index
  * does not call the onChange callback

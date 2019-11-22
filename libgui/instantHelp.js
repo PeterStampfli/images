@@ -4,6 +4,11 @@
  * @param {String} content - for the popup, using html markup
  * @param {domElement} parent
  */
+
+import {
+    Popup
+} from "../libgui/modules.js";
+
 export function InstantHelp(content, parent) {
     this.element = document.createElement("button");
     this.element.innerHTML = "&nbsp;?&nbsp;";
@@ -18,20 +23,27 @@ export function InstantHelp(content, parent) {
 
     function start(event) {
         event.preventDefault();
-        help.element.style.backgroundColor = InstantHelp.style.handleActiveColor;
-        InstantHelp.open(content);
+        help.element.style.backgroundColor = InstantHelp.handleActiveColor;
+        InstantHelp.popup.setContent(content);
+        InstantHelp.popup.open();
     }
 
     function end(event) {
         event.preventDefault();
         help.element.style.backgroundColor = "white";
-        InstantHelp.close();
+        InstantHelp.popup.close();
     }
+
     this.element.onmouseenter = start;
     this.element.onmouseleave = end;
     this.element.addEventListener("touchstart", start);
     this.element.addEventListener("touchend", end);
 
+    /**
+     * destroy the handle
+     * we put it here because the start and end functions are only in this scope
+     * @method InstantHelp.destroy
+     */
     this.destroy = function() {
         this.element.removeEventListener("touchstart", start);
         this.element.removeEventListener("touchend", end);
@@ -50,80 +62,34 @@ InstantHelp.prototype.setFontSize = function(size) {
     this.element.style.fontSize = size + "px";
 };
 
-// the styling of the popup, and of the handles
-InstantHelp.style = {
-    // the popup
+
+// creating the popup, one for all
+
+InstantHelp.popup = new Popup();
+InstantHelp.popup.close();
+InstantHelp.handleActiveColor = "#ffff88";
+
+/**
+ * set the styles, use if you change the style parameters
+ * @method InstantHelp.setStyle
+ * @param {...Object} newStyle - with parameter values that have to change, optional
+ */
+InstantHelp.setStyle = function(newStyle) {
+    InstantHelp.popup.setStyle(newStyle.position);
+};
+
+InstantHelp.defaultDesign = {
     width: 300,
     fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
     backgroundColor: "#ffffaa",
-    borderColor: "#777777",
-    borderWidth: 4,
+    shadowWidth: 5,
+    shadowBlur: 10,
+    shadowAlpha: 0.7,
     padding: 10,
     zIndex: 20,
-    handleActiveColor: "#ffff88"
+    position: "center"
 };
 
-// make the popup and set/change its style
-InstantHelp.popup = document.createElement("div");
-
-/**
- * set the styles, use if you change the style parameters
- * @method InstantHelp.setPopupStyle
- * @param {...Object} newStyle - with parameter values that have to change, optional
- */
-InstantHelp.setStyle = function(newStyle) {
-    for (var i = 0; i < arguments.length; i++) {
-        Object.assign(InstantHelp.style, arguments[i]);
-    }
-    InstantHelp.popup.style.position = "absolute";
-    InstantHelp.popup.style.top = "50%";
-    InstantHelp.popup.style.left = "50%";
-    InstantHelp.popup.style.transform = "translate(-50%,-50%)";
-    InstantHelp.popup.style.zIndex = InstantHelp.style.zIndex;
-    InstantHelp.popup.style.backgroundColor = InstantHelp.style.backgroundColor;
-    InstantHelp.popup.style.color = InstantHelp.style.textColor;
-    InstantHelp.popup.style.fontSize = InstantHelp.style.fontSize + "px";
-    InstantHelp.popup.style.fontFamily = InstantHelp.style.fontFamily;
-    InstantHelp.popup.style.width = InstantHelp.style.width + "px";
-    InstantHelp.popup.style.padding = InstantHelp.style.padding + "px";
-    InstantHelp.popup.style.border = "solid";
-    InstantHelp.popup.style.borderColor = InstantHelp.style.borderColor;
-    InstantHelp.popup.style.borderWidth = InstantHelp.style.borderWidth;
-};
-
-/**
- * open the popup, optionally set its content
- * @method InstantHelp.open
- * @param {String} content - optional html
- */
-InstantHelp.open = function(content) {
-    if (arguments.length > 0) {
-        InstantHelp.setContent(content);
-    }
-    InstantHelp.popup.style.display = "block";
-};
-
-/**
- * close the popup
- * @method InstantHelp.close
- */
-InstantHelp.close = function() {
-    InstantHelp.popup.style.display = "none";
-};
-
-/**
- * set the content (HTML markup)
- * @method InstantHelp.setContent
- * @param {String} content - html
- */
-InstantHelp.setContent = function(content) {
-    InstantHelp.popup.innerHTML = content;
-};
-
-// initialize style, and append to the dom
-InstantHelp.setStyle();
-document.body.appendChild(InstantHelp.popup);
-// close the popup
-InstantHelp.close();
+InstantHelp.setStyle(InstantHelp.defaultDesign);

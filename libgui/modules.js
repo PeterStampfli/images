@@ -35,6 +35,11 @@ export {
 from "./button.js";
 
 export {
+    Popup
+}
+from "./popup.js";
+
+export {
     InstantHelp
 }
 from "./instantHelp.js";
@@ -108,7 +113,6 @@ export {
     ParamAngle
 }
 from "./paramAngle.js";
-
 
 export {
     ParamController
