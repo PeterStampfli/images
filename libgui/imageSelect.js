@@ -6,6 +6,9 @@
  * @param {DOM element} parent, an html element, best "div"
  */
 
+// note: close popup when using another ui input element
+//  simplify color picker
+
 import {
     Button,
     Select
@@ -13,6 +16,7 @@ import {
 
 export function ImageSelect(parent) {
     this.parent = parent;
+    // the elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
     // then a space (as a span ?)
@@ -21,7 +25,6 @@ export function ImageSelect(parent) {
     this.space.style.width = ImageSelect.spaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
-
     // at the right of input elements there is the small icon image
     this.iconImage = document.createElement("img");
     this.iconImage.setAttribute("importance", "high");
@@ -30,6 +33,12 @@ export function ImageSelect(parent) {
     this.iconImage.style.objectFit = "contain";
     this.iconImage.style.objectPosition = "center center";
     parent.appendChild(this.iconImage);
+    // the data
+    this.iconURLs = [];
+    this.values = [];
+
+
+
 
     // the actions
     const imageSelect = this;
@@ -76,6 +85,9 @@ export function ImageSelect(parent) {
 // width for spaces in px
 ImageSelect.spaceWidth = 5;
 
+// default icon
+ImageSelect.defaultIconURL = "./defaultIcon.jpg";
+
 /**
  * set label and select/button font sizes, button font sizes are increased
  * @method ImageSelect#setFontSize
@@ -94,4 +106,46 @@ ImageSelect.prototype.setFontSize = function(buttonSize) {
 ImageSelect.prototype.setIconImageSize = function(width, height) {
     this.iconImage.style.width = width + "px";
     this.iconImage.style.height = height + "px";
+};
+
+
+/**
+ * clear (delete) all choices
+ * @method ImageSelect#clear
+ */
+ImageSelect.prototype.clear = function() {
+    this.select.clear();
+    this.iconURLs.length = 0;
+    this.values.length = 0;
+};
+
+
+/**
+ * add choices
+ * each choice is an object with a name, icon and value field
+ * choice={name: "name as string", icon: "URL for icon image", value: whatever}
+ * the value can be an image URL, a preset (URL of json file)
+ * multiple choices are put together in an array, or repeated arguments
+ * @method ImageSelect#addChoices
+ * @param {... object|array} choice
+ */
+ImageSelect.prototype.addChoices = function(choices) {
+    const length = arguments.length;
+    if (length === 1) {
+        if (Array.isArray(choices)) {
+            choices.forEach(choice => this.addChoices(choice));
+        } else {
+            this.select.addOptions(choices.name);
+            this.values.push(choices.value);
+            if (typeof choices.icon === "string") {
+                this.iconURLs.push(choices.icon);
+            } else {
+                this.iconURLs.push(ImageSelect.defaultIconURL);
+            }
+        }
+    } else {
+        for (var i = 0; i < length; i++) {
+            this.addChoices(arguments[i]);
+        }
+    }
 };
