@@ -30,35 +30,20 @@ const thisDiv=document.getElementById("thisDiv");
 
 const sel=new ImageSelect(thisDiv);
 
-sel.setImageSize(40,40);
-const four={image:"haeckel/haeckel_04.png", data:4444};
+sel.setFontSize(18);
 
+sel.setPanelIconSize(40,40);
+const haeckel="/images/libgui/haeckel/haeckel_";
 
-sel.setChoices({
-	haeckel01: {image:"haeckel/haeckel_01.png", data:1},
-	haeckel02: {image:"haeckel/haeckel_02.png", data:22},
-	haeckel03: {image:"haeckel/haeckel_03.png", data:333},
-	haeckel04: four,
-	haeckel05: {image:"haeckel/haeckel_05.png", data:55555}	
-});
+sel.addChoices([
+	{name: "rins",value:1,icon:haeckel+"01.png"},
+	{name: "zweiHaeck",value:22,icon:haeckel+"02.png"},
+	{name: "no icon",value:999999},
+	{name: "mehr",value:1,icon:"haeckel/haeckel_03.png"}
+	]);
 
-/*
-sel.setChoices({
-	haeckel01: "haeckel/haeckel_01.png",
-	haeckel02: "haeckel/haeckel_02.png",
-	haeckel03: "haeckel/haeckel_03.png",
-	haeckel04: "haeckel/haeckel_04.png",
-	haeckel05: "haeckel/haeckel_05.png",	
-});
-*/
+sel.setValue(1);
 
-sel.setFontSize(12);
-//sel.select.setLabel("haeckel03",true)
-
-sel.setValue(22);
-//sel.setValue("haeckel/haeckel_04.png");
-//sel.setValue("haeckel/haeckel_04.png");
-//sel.destroy();
 </script>
 
 

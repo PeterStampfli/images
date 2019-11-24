@@ -61,9 +61,9 @@ export function ImageSelect(parent) {
         event.preventDefault();
         event.stopPropagation();
         if (event.deltaY > 0) {
-            imageSelect.select.select.changeIndex(1);
+            imageSelect.select.changeIndex(1);
         } else {
-            imageSelect.select.select.changeIndex(-1);
+            imageSelect.select.changeIndex(-1);
         }
         return false;
     };
@@ -71,14 +71,14 @@ export function ImageSelect(parent) {
     // all events change the select element, if its value changes then update the image, the value of this and do some action
     this.select.onChange = function() {
         //??????????????????????????????
-        imageSelect.updateImageValue();
+        imageSelect.update();
         imageSelect.onChange();
     };
 
     // the onChange function that does the action
     this.onChange = function() {
         //???????????????????????????????????????
-        console.log("onChange imageSelect value: " + this.value);
+        console.log("onChange imageSelect value: " + this.getValue());
     };
 }
 
@@ -86,7 +86,16 @@ export function ImageSelect(parent) {
 ImageSelect.spaceWidth = 5;
 
 // default icon
-ImageSelect.defaultIconURL = "./defaultIcon.jpg";
+ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
+
+/**
+ * set url of default icon
+ * @method ImageSelect.setDefaultIconURL
+ * @param {string} url
+ */
+ImageSelect.setDefaultIconURL = function(url) {
+    ImageSelect.defaultIconURL = url;
+}
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -98,12 +107,12 @@ ImageSelect.prototype.setFontSize = function(buttonSize) {
 };
 
 /**
- * set the image size (limits)
- * @method ImageSelect.setIconImageSize
+ * set the size of the icon image in the panel
+ * @method ImageSelect.setPanelIconSize
  * @param {int} width - in px
  * @param {int} height - in px
  */
-ImageSelect.prototype.setIconImageSize = function(width, height) {
+ImageSelect.prototype.setPanelIconSize = function(width, height) {
     this.iconImage.style.width = width + "px";
     this.iconImage.style.height = height + "px";
 };
@@ -148,4 +157,56 @@ ImageSelect.prototype.addChoices = function(choices) {
             this.addChoices(arguments[i]);
         }
     }
+};
+
+/**
+ *  update the icon image, 
+ * @method ImageSelect#update
+ */
+ImageSelect.prototype.update = function() {
+    const index = this.getIndex(); // in case that parameter is out of range
+    this.iconImage.src = this.iconURLs[index];
+};
+
+
+/**
+ * get the index
+ * @method ImageSelect#getIndex
+ * @return integer, the selected index
+ */
+ImageSelect.prototype.getIndex = function() {
+    const result = this.select.getIndex();
+    return result;
+};
+
+/**
+ * set the index
+ * does not call the onChange callback
+ * @method ImageSelect#setIndex
+ * @param {integer} index
+ */
+ImageSelect.prototype.setIndex = function(index) {
+    this.select.setIndex(index);
+    this.update();
+};
+
+/**
+ * get the value
+ * @method ImageSelect#getValue
+ * @return integer, the selected index
+ */
+ImageSelect.prototype.getValue = function() {
+    const result = this.values[this.select.getIndex()];
+    return result;
+};
+
+/**
+ * set the value and update display
+ * does not call the onChange callback
+ * @method ImageSelect#setValue
+ * @param {whatever} value
+ */
+ImageSelect.prototype.setValue = function(value) {
+    const index = this.values.indexOf(value);
+    this.setIndex(index);
 };

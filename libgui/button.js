@@ -1,5 +1,5 @@
 /**
- * representing a text button and adding actions
+ * a text button 
  * simple push button
  *
  * @constructor Button
@@ -10,7 +10,7 @@
 export function Button(text, parent) {
     this.element = document.createElement("button");
     parent.appendChild(this.element);
-    this.element.textContent = text;
+    this.setText(text);
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.outline = "none";
     this.element.style.verticalAlign = "middle";
