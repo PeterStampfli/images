@@ -1,5 +1,6 @@
 /**
  * a button with an image
+ * the image is an inline element, margins add up, the border goes into the margin
  * simple push button
  *
  * @constructor ImageButton
@@ -14,8 +15,10 @@ import {
 export function ImageButton(imageURL, parent) {
     this.element = document.createElement("img");
     this.element.style.cursor = "pointer";
-    this.setSize(ImageButton.dimensions.width, ImageButton.dimensions.height);
-    this.setMarginWidth(ImageButton.dimensions.marginWidth);
+
+
+    
+    this.setImageSize(ImageButton.dimensions.imageWidth, ImageButton.dimensions.imageHeight);
     parent.appendChild(this.element);
     this.setImageURL(imageURL);
     this.element.style.outline = "none";
@@ -72,17 +75,19 @@ export function ImageButton(imageURL, parent) {
 
 // initial (default) dimensions, overwrite values
 ImageButton.dimensions = {
-    width: 100,
-    height: 100,
+    imageWidth: 100,
+    imageHeight: 100,
     marginWidth: 10
 };
+// background color for png images with a white motiv?
+ImageButton.backgroundColorUp="#eeeeee";
 
 /**
  * setup the color styles defaults, use for other buttons too
  * @method ImageButton#colorStyleDefaults
  */
 ImageButton.prototype.colorStyleDefaults = function() {
-    this.backgroundColorUp = Button.backgroundColorUp;
+    this.backgroundColorUp = ImageButton.backgroundColorUp;
     this.backgroundColorUpHover = Button.backgroundColorUpHover;
     this.backgroundColorDownHover = Button.backgroundColorDownHover;
     this.backgroundColorDown = Button.backgroundColorDown;
@@ -125,13 +130,13 @@ ImageButton.prototype.setImageURL = function(url) {
 };
 
 /**
- * set width and height of the button, in px
+ * set width and height of the image of the button, in px
  * NOTE: Length ratio has to fit the image
  * @method ImageButton#setSize
  * @param {integer} width
  * @param {integer} height
  */
-ImageButton.prototype.setSize = function(width, height) {
+ImageButton.prototype.setImageSize = function(width, height) {
     this.element.style.width = width + "px";
     this.element.style.height = height + "px";
 };
@@ -152,6 +157,7 @@ ImageButton.prototype.setBorderWidth = function(width) {
  */
 ImageButton.prototype.setMarginWidth = function(width) {
     this.element.style.margin = width + "px";
+    console.log(this.element.style.width)
 };
 
 /**

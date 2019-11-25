@@ -82,20 +82,21 @@ export function ImageSelect(parent) {
     };
 }
 
-// width for spaces in px
+// style defaults
+
+// width in px for space between select input and icon in the panel
 ImageSelect.spaceWidth = 5;
 
 // default icon
+// ATTENTION: set new URL for different file structure
 ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
 
-/**
- * set url of default icon
- * @method ImageSelect.setDefaultIconURL
- * @param {string} url
- */
-ImageSelect.setDefaultIconURL = function(url) {
-    ImageSelect.defaultIconURL = url;
-};
+// defaults for the popup
+// number of icons per row 
+ImageSelect.iconsPerPopupRow=5;
+// padding of the popup
+ImageSelect.popupPadding=10;
+// margins for the icons, they do not overlap?
 
 /**
  * set label and select/button font sizes, button font sizes are increased

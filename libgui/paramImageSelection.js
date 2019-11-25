@@ -5,18 +5,15 @@ import {
 
 /**
  * make a controller with an image selection
- * choices as an object with (label: value pairs)
- * for choosing images:
- * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
- * for other uses (presets): image is only a label 
- * then use an object made of labels (again as keys) and value objects with image and value fields
- * this value field is actually choosen (the preset object), thus
- * choices={"label1": {"image": "URL1", value: someData}, ...}
+* each choice is an object with a name, icon and value field
+ * choice={name: "name as string", icon: "URL for icon image", value: whatever}
+ * the value can be an image URL, a preset (URL of json file)
+ * multiple choices are put together in an array
  * @creator ParamImageSelection
  * @param {ParamGui} gui - the controller is in this gui
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
- * @param {object} choices 
+ * @param {array} choices - an array of choice objects
  */
 
 export function ParamImageSelection(gui, params, property, choices) {
@@ -28,11 +25,11 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.createLabel(this.property);
     this.label.style.verticalAlign = "middle";
     const imageSelect = new ImageSelect(this.domElement);
-    imageSelect.setChoices(choices);
+    imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
     const design = this.gui.design;
     imageSelect.setFontSize(design.buttonFontSize);
-    imageSelect.setImageSize(design.smallIconSize, design.smallIconSize);
+    imageSelect.setPanelIconSize(design.smallIconSize, design.smallIconSize);
     this.uiElement = imageSelect;
     this.setupOnChange();
     this.gui.bodyDiv.appendChild(this.domElement);

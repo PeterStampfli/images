@@ -25,6 +25,8 @@ ImageButton
 console.log("hello");
 
 const thisDiv=document.getElementById("thisDiv");
+ thisDiv.style.width="400px"
+thisDiv.style.backgroundColor="orange"
 
 const haeckel="/images/libgui/haeckel/haeckel_";
 
@@ -35,6 +37,10 @@ const ib=new ImageButton(haeckel1,thisDiv);
 const ib2=new ImageButton("abendfalter.jpg",thisDiv);
 
 ib2.setBorderWidth(8)
+new ImageButton(haeckel+"02.png",thisDiv);
+new ImageButton(haeckel+"03.png",thisDiv);
+new ImageButton(haeckel+"04.png",thisDiv);
+new ImageButton(haeckel+"02.png",thisDiv);
 </script>
 
 
