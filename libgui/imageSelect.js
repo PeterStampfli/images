@@ -95,7 +95,7 @@ ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
  */
 ImageSelect.setDefaultIconURL = function(url) {
     ImageSelect.defaultIconURL = url;
-}
+};
 
 /**
  * set label and select/button font sizes, button font sizes are increased

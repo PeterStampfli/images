@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> image button test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+
+import {
+ImageButton
+} from "../libgui/modules.js";
+
+
+console.log("hello");
+
+const thisDiv=document.getElementById("thisDiv");
+
+const haeckel="/images/libgui/haeckel/haeckel_";
+
+const haeckel1=haeckel+"01.png";
+
+const ib=new ImageButton(haeckel1,thisDiv);
+
+const ib2=new ImageButton("abendfalter.jpg",thisDiv);
+
+ib2.setBorderWidth(8)
+</script>
+
+
+</html>

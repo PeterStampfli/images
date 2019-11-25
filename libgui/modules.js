@@ -35,6 +35,11 @@ export {
 from "./button.js";
 
 export {
+    ImageButton
+}
+from "./imageButton.js";
+
+export {
     Popup
 }
 from "./popup.js";
