@@ -29,6 +29,15 @@ export function Select(parent) {
         console.log("onchange " + select.getIndex());
     };
 
+
+    /**
+     * action upon start of user interaction
+     * @method Select#uponInteraction (open popup, close others)
+     */
+    this.onInteraction = function() {
+        console.log("*sel interaction");
+    };
+
     /**
      * action upon change
      */
@@ -36,10 +45,11 @@ export function Select(parent) {
         select.onChange();
     };
 
+
     // hovering
     this.element.onmouseenter = function() {
         select.hover = true;
-        select.element.focus();
+        select.element.focus(); // to be able to use mousewheel
         select.updateStyle();
     };
 
@@ -48,9 +58,15 @@ export function Select(parent) {
         select.updateStyle();
     };
 
+    this.element.addEventListener("mousedown", function() {
+        console.log("select mousedown");
+        select.onInteraction();
+    });
+
     this.element.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
+        select.onInteraction();
         if (event.deltaY > 0) {
             select.changeIndex(1);
         } else {

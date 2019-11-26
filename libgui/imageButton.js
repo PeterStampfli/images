@@ -15,10 +15,15 @@ import {
 export function ImageButton(imageURL, parent) {
     this.element = document.createElement("img");
     this.element.style.cursor = "pointer";
+    this.element.style.objectFit = "contain";
+    this.element.style.objectPosition = "center center";
+    this.imageWidth = ImageButton.imageWidth;
+    this.imageHeight = ImageButton.imageHeight;
+    this.borderWidth = ImageButton.borderWidth;
+    this.totalWidth = ImageButton.totalWidth;
+    this.totalHeight = ImageButton.totalHeight;
 
-
-    
-    this.setImageSize(ImageButton.dimensions.imageWidth, ImageButton.dimensions.imageHeight);
+    this.setDimensions();
     parent.appendChild(this.element);
     this.setImageURL(imageURL);
     this.element.style.outline = "none";
@@ -74,13 +79,14 @@ export function ImageButton(imageURL, parent) {
 }
 
 // initial (default) dimensions, overwrite values
-ImageButton.dimensions = {
-    imageWidth: 100,
-    imageHeight: 100,
-    marginWidth: 10
-};
+ImageButton.imageWidth = 100;
+ImageButton.imageHeight = 100;
+ImageButton.borderWidth = 3;
+ImageButton.totalWidth = 120;
+ImageButton.totalHeight = 120;
+
 // background color for png images with a white motiv?
-ImageButton.backgroundColorUp="#eeeeee";
+ImageButton.backgroundColorUp = "#eeeeee";
 
 /**
  * setup the color styles defaults, use for other buttons too
@@ -129,6 +135,20 @@ ImageButton.prototype.setImageURL = function(url) {
     this.element.src = url;
 };
 
+// set style dimensions from known image sizes, border width and total sizes
+// adjusting the margins
+ImageButton.prototype.setDimensions = function() {
+    this.element.style.width = this.imageWidth + "px";
+    this.element.style.height = this.imageHeight + "px";
+    this.element.style.borderWidth = this.borderWidth + "px";
+    this.element.style.marginTop = 0.5 * (this.totalHeight - this.imageHeight) - this.borderWidth + "px";
+    this.element.style.marginBottom = 0.5 * (this.totalHeight - this.imageHeight) - this.borderWidth + "px";
+    this.element.style.marginLeft = 0.5 * (this.totalWidth - this.imageWidth) - this.borderWidth + "px";
+    this.element.style.marginRight = 0.5 * (this.totalWidth - this.imageWidth) - this.borderWidth + "px";
+
+
+};
+
 /**
  * set width and height of the image of the button, in px
  * NOTE: Length ratio has to fit the image
@@ -137,8 +157,9 @@ ImageButton.prototype.setImageURL = function(url) {
  * @param {integer} height
  */
 ImageButton.prototype.setImageSize = function(width, height) {
-    this.element.style.width = width + "px";
-    this.element.style.height = height + "px";
+    this.imageWidth = width;
+    this.imageHeight = height;
+    this.setDimensions();
 };
 
 /**
@@ -147,17 +168,20 @@ ImageButton.prototype.setImageSize = function(width, height) {
  * @param {integer} width
  */
 ImageButton.prototype.setBorderWidth = function(width) {
-    this.element.style.borderWidth = width + "px";
+    this.borderWidth = width;
+    this.setDimensions();
 };
 
 /**
- * set width of the margin, in px
- * @method ImageButton#setMarginWidth
+ * set total width and height of the button, inluding margin, in px
+ * @method ImageButton#setTotalSize
  * @param {integer} width
+ * @param {integer} height
  */
-ImageButton.prototype.setMarginWidth = function(width) {
-    this.element.style.margin = width + "px";
-    console.log(this.element.style.width)
+ImageButton.prototype.setTotalSize = function(width, height) {
+    this.totalWidth = width;
+    this.totalHeight = height;
+    this.setDimensions();
 };
 
 /**

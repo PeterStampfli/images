@@ -11,7 +11,8 @@
 
 import {
     Button,
-    Select
+    Select,
+    Popup
 } from "./modules.js";
 
 export function ImageSelect(parent) {
@@ -36,30 +37,46 @@ export function ImageSelect(parent) {
     // the data
     this.iconURLs = [];
     this.values = [];
+    this.popup = new Popup(ImageSelect.popupStyle);
+    // popup with two divs: one for image buttons, one for close button
+    this.popupImageButtonDiv = document.createElement("div");
+    this.popup.addElement(this.popupImageButtonDiv);
+
+    this.popupCloseButtonDiv = document.createElement("div");
+    this.popup.addElement(this.popupCloseButtonDiv);
 
 
+    this.popupCloseButtonDiv.style.textAlign = "center";
+    this.popupCloseButtonDiv.style.paddingTop = ImageSelect.popupStyle.padding + "px";
 
+    this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
+    this.closePopupButton.setFontSize(ImageSelect.popupCloseButtonFontSize);
+
+    this.popupImageButtonDiv.innerText = "ddfdf";
 
     // the actions
     const imageSelect = this;
 
     // events to make appear the image chooser popup:
     // mousedown on select or icon image
-    // onCcange on select or mouse wheel on icon image 
+    // onChange on select or mouse wheel on icon image 
     // (as all of them change choice)
 
-    this.select.element.addEventListener("mousedown", function() {
-        console.log("select mousedown");
-    });
+    this.select.onInteraction = function() {
+        console.log("select inter");
+        imageSelect.popup.open();
+    };
 
     this.iconImage.addEventListener("mousedown", function() {
         console.log("icon mousedown");
+        imageSelect.popup.open();
     });
 
     // mousewheel
     this.iconImage.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
+        imageSelect.popup.open();
         if (event.deltaY > 0) {
             imageSelect.select.changeIndex(1);
         } else {
@@ -68,9 +85,13 @@ export function ImageSelect(parent) {
         return false;
     };
 
+    // close the popup (other than automatically)
+    this.closePopupButton.onClick = function() {
+        imageSelect.popup.close();
+    };
+
     // all events change the select element, if its value changes then update the image, the value of this and do some action
     this.select.onChange = function() {
-        //??????????????????????????????
         imageSelect.update();
         imageSelect.onChange();
     };
@@ -92,11 +113,32 @@ ImageSelect.spaceWidth = 5;
 ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
 
 // defaults for the popup
-// number of icons per row 
-ImageSelect.iconsPerPopupRow=5;
-// padding of the popup
-ImageSelect.popupPadding=10;
-// margins for the icons, they do not overlap?
+
+// image buttons in the popup 
+// numbers of buttons per row
+ImageSelect.buttonsPerPopupRow = 5;
+// button dimensions
+ImageSelect.popupButtonImageSize = 100;
+ImageSelect.popupTotalButtonSize = 120;
+ImageSelect.popupButtonBorderWidth = 3;
+ImageSelect.popupButtonBorderWidthSelected = 6;
+// popup style
+ImageSelect.popupStyle = {
+    padding: 10,
+    backgroundColor: "#bbbbbb",
+    position: "bottomLeft"
+};
+ImageSelect.popupStyle.width = 2 * ImageSelect.popupStyle.padding;
+ImageSelect.popupStyle.width += ImageSelect.buttonsPerPopupRow * ImageSelect.popupTotalButtonSize;
+
+ImageSelect.popupStyle.width = "";
+
+// break lines with the "br" tag?  better use maxWidth, popup: limit height, scrolling???
+// maxwidth large enough for scroll bar
+
+// for the close button
+ImageSelect.popupCloseButtonFontSize = 18;
+
 
 /**
  * set label and select/button font sizes, button font sizes are increased

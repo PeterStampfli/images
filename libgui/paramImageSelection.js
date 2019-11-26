@@ -5,7 +5,7 @@ import {
 
 /**
  * make a controller with an image selection
-* each choice is an object with a name, icon and value field
+ * each choice is an object with a name, icon and value field
  * choice={name: "name as string", icon: "URL for icon image", value: whatever}
  * the value can be an image URL, a preset (URL of json file)
  * multiple choices are put together in an array

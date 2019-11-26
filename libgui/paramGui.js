@@ -852,6 +852,7 @@ ParamGui.prototype.destroy = function() {
         this.domElement.remove();
         this.domElement = null;
         ParamGui.removeRootGui(this);
+        window.removeEventListener("resize", ParamGui.resize, false);
     }
     // folder: remove from parent GUI 
     else {

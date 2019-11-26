@@ -6,28 +6,40 @@
  */
 
 export function Popup(newDesign) {
-
     this.div = document.createElement("div");
-
+    this.div.style.position = "absolute";
+    this.div.style.overflowY = "auto";
+    this.div.style.overflowX = "hidden";
     this.design = {};
-
     Object.assign(this.design, Popup.defaultDesign);
-
     for (var i = 0; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
             Object.assign(this.design, arguments[i]);
         }
     }
-
     this.setStyle();
-
     document.body.appendChild(this.div);
 
+    // resizing maxheight
 
+    const popup = this;
+
+    function resize() {
+        popup.resize();
+    }
+
+    window.addEventListener("resize", resize, false);
+
+    // destroying the event listener
+    this.destroyResizeEvent = function() {
+        window.removeEventListener("resize", resize, false);
+    };
 }
 
 Popup.defaultDesign = {
+    // either use width or maxWidth, set other to zero
     width: 300,
+    maxWidth: 0,
     fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
@@ -48,7 +60,6 @@ Popup.defaultDesign = {
  * @method Popup#center
  */
 Popup.prototype.center = function() {
-    this.div.style.position = "absolute";
     this.div.style.top = "50%";
     this.div.style.left = "50%";
     this.div.style.transform = "translate(-50%,-50%)";
@@ -61,7 +72,6 @@ Popup.prototype.center = function() {
  * @param {"top"|"bottom"} vertical
  */
 Popup.prototype.corner = function(horizontal, vertical) {
-    this.div.style.position = "absolute";
     this.div.style.top = "";
     this.div.style.bottom = "";
     this.div.style.right = "";
@@ -70,6 +80,15 @@ Popup.prototype.corner = function(horizontal, vertical) {
     this.div.style[horizontal] = offset + "px";
     this.div.style[vertical] = offset + "px";
     this.div.style.transform = "";
+};
+
+/**
+ * set max height to fit popup+shadow into window
+ * @method Popup#resize
+ */
+Popup.prototype.resize = function() {
+    const spaces = this.design.shadowBlur + this.design.shadowWidth + this.design.padding;
+    this.div.style.maxHeight = (document.documentElement.clientHeight - 2 * spaces) + "px";
 };
 
 /**
@@ -100,12 +119,14 @@ Popup.prototype.setStyle = function(newStyle) {
             this.corner("right", "bottom");
             break;
     }
+    this.resize();
     this.div.style.zIndex = this.design.zIndex;
     this.div.style.backgroundColor = this.design.backgroundColor;
     this.div.style.color = this.design.textColor;
     this.div.style.fontSize = this.design.fontSize + "px";
     this.div.style.fontFamily = this.design.fontFamily;
-    this.div.style.width = this.design.width + "px";
+    this.div.style.width = (this.design.width > 0) ? this.design.width + "px" : "";
+    this.div.style.maxWidth = (this.design.maxWidth > 0) ? this.design.maxWidth + "px" : "";
     this.div.style.padding = this.design.padding + "px";
     let shadow = "0px 0px " + this.design.shadowBlur + "px ";
     shadow += this.design.shadowWidth + "px ";
