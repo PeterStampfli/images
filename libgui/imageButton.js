@@ -84,6 +84,8 @@ ImageButton.imageHeight = 100;
 ImageButton.borderWidth = 3;
 ImageButton.totalWidth = 120;
 ImageButton.totalHeight = 120;
+ImageButton.opacityDown = 0.6;
+ImageButton.opacityHover = 0.8;
 
 // background color for png images with a white motiv?
 ImageButton.backgroundColorUp = "#eeeeee";
@@ -97,8 +99,8 @@ ImageButton.prototype.colorStyleDefaults = function() {
     this.backgroundColorUpHover = Button.backgroundColorUpHover;
     this.backgroundColorDownHover = Button.backgroundColorDownHover;
     this.backgroundColorDown = Button.backgroundColorDown;
-    this.opacityHover = 0.8;
-    this.opacityDown = 0.6;
+    this.opacityHover = ImageButton.opacityHover;
+    this.opacityDown = ImageButton.opacityDown;
 };
 
 /**

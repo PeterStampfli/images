@@ -17,13 +17,13 @@ import {
 
 export function ImageSelect(parent) {
     this.parent = parent;
-    // the elements in the main UI (not the popup)
+    // the html elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
     // then a space (as a span ?)
     // accessible from outside top be able to change style
     this.space = document.createElement("span");
-    this.space.style.width = ImageSelect.spaceWidth + "px";
+    this.space.style.width = ImageSelect.panelStyle.spaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
     // at the right of input elements there is the small icon image
@@ -31,28 +31,29 @@ export function ImageSelect(parent) {
     this.iconImage.setAttribute("importance", "high");
     this.iconImage.src = null;
     this.iconImage.style.verticalAlign = "middle";
+    this.iconImage.style.cursor = "pointer";
     this.iconImage.style.objectFit = "contain";
     this.iconImage.style.objectPosition = "center center";
     parent.appendChild(this.iconImage);
+    // here comes the popup
+    // change ImageSelect.popupStyle if necessary
+    this.popup = new Popup(ImageSelect.popupStyle);
+    this.popup.close();
+    // popup with two divs: one for image buttons, one for close button
+    this.popupImageButtonDiv = document.createElement("div");
+    this.popupImageButtonDiv.style.textAlign = "center";
+    this.popupImageButtonDiv.style.paddingTop = ImageSelect.popupStyle.verticalPadding + "px";
+    this.popup.addElement(this.popupImageButtonDiv);
+    this.popupCloseButtonDiv = document.createElement("div");
+    this.popupCloseButtonDiv.style.textAlign = "center";
+    this.popupCloseButtonDiv.style.paddingTop = ImageSelect.popupStyle.verticalPadding + "px";
+    this.popupCloseButtonDiv.style.paddingBottom = ImageSelect.popupStyle.verticalPadding + "px";
+    this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
+    this.closePopupButton.setFontSize(ImageSelect.popupCloseButtonFontSize);
+    this.popup.addElement(this.popupCloseButtonDiv);
     // the data
     this.iconURLs = [];
     this.values = [];
-    this.popup = new Popup(ImageSelect.popupStyle);
-    // popup with two divs: one for image buttons, one for close button
-    this.popupImageButtonDiv = document.createElement("div");
-    this.popup.addElement(this.popupImageButtonDiv);
-
-    this.popupCloseButtonDiv = document.createElement("div");
-    this.popup.addElement(this.popupCloseButtonDiv);
-
-
-    this.popupCloseButtonDiv.style.textAlign = "center";
-    this.popupCloseButtonDiv.style.paddingTop = ImageSelect.popupStyle.padding + "px";
-
-    this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
-    this.closePopupButton.setFontSize(ImageSelect.popupCloseButtonFontSize);
-
-    this.popupImageButtonDiv.innerText = "ddfdf";
 
     // the actions
     const imageSelect = this;
@@ -103,42 +104,17 @@ export function ImageSelect(parent) {
     };
 }
 
+// style for the ui panel (not the popup)
 // style defaults
 
 // width in px for space between select input and icon in the panel
-ImageSelect.spaceWidth = 5;
+ImageSelect.panelStyle = {
+    spaceWidth: 5
+};
 
 // default icon
 // ATTENTION: set new URL for different file structure
 ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
-
-// defaults for the popup
-
-// image buttons in the popup 
-// numbers of buttons per row
-ImageSelect.buttonsPerPopupRow = 5;
-// button dimensions
-ImageSelect.popupButtonImageSize = 100;
-ImageSelect.popupTotalButtonSize = 120;
-ImageSelect.popupButtonBorderWidth = 3;
-ImageSelect.popupButtonBorderWidthSelected = 6;
-// popup style
-ImageSelect.popupStyle = {
-    padding: 10,
-    backgroundColor: "#bbbbbb",
-    position: "bottomLeft"
-};
-ImageSelect.popupStyle.width = 2 * ImageSelect.popupStyle.padding;
-ImageSelect.popupStyle.width += ImageSelect.buttonsPerPopupRow * ImageSelect.popupTotalButtonSize;
-
-ImageSelect.popupStyle.width = "";
-
-// break lines with the "br" tag?  better use maxWidth, popup: limit height, scrolling???
-// maxwidth large enough for scroll bar
-
-// for the close button
-ImageSelect.popupCloseButtonFontSize = 18;
-
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -150,7 +126,7 @@ ImageSelect.prototype.setFontSize = function(buttonSize) {
 };
 
 /**
- * set the size of the icon image in the panel
+ * set the size of the icon image in the UI panel
  * @method ImageSelect.setPanelIconSize
  * @param {int} width - in px
  * @param {int} height - in px
@@ -160,6 +136,37 @@ ImageSelect.prototype.setPanelIconSize = function(width, height) {
     this.iconImage.style.height = height + "px";
 };
 
+// style of the pupop
+// defaults for the popup
+
+// image buttons in the popup 
+// numbers of buttons per row
+ImageSelect.PopupButtonsPerRow = 3;
+// button dimensions
+ImageSelect.popupButtonImageSize = 100;
+ImageSelect.popupTotalButtonSize = 110;
+ImageSelect.popupButtonBorderWidth = 3;
+ImageSelect.popupButtonBorderWidthSelected = 6;
+
+// popup style is in ImageSelect.popupStyle
+
+ImageSelect.popupStyle = {
+    padding: 0,
+    verticalPadding: 10, // padding at top and bottom of the parts of popup
+    backgroundColor: "#bbbbbb",
+    position: "bottomLeft"
+};
+
+// maximum width, including scroll bar
+//  generous estimate for scroll bar
+const scrollbarWidth = 15;
+ImageSelect.popupStyle.width = 2 * ImageSelect.popupStyle.padding + scrollbarWidth;
+ImageSelect.popupStyle.width += ImageSelect.popupTotalButtonSize * ImageSelect.PopupButtonsPerRow;
+
+// for the close button
+ImageSelect.popupCloseButtonFontSize = 18;
+
+// actions on both the ui-panel and the popup
 
 /**
  * clear (delete) all choices
@@ -170,7 +177,6 @@ ImageSelect.prototype.clear = function() {
     this.iconURLs.length = 0;
     this.values.length = 0;
 };
-
 
 /**
  * add choices
@@ -203,14 +209,13 @@ ImageSelect.prototype.addChoices = function(choices) {
 };
 
 /**
- *  update the icon image, 
+ *  update the icon image, and more
  * @method ImageSelect#update
  */
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
     this.iconImage.src = this.iconURLs[index];
 };
-
 
 /**
  * get the index

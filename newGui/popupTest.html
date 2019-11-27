@@ -26,11 +26,13 @@ const pop=new Popup();
 pop.close();
 
 pop.open();
-pop.setStyle({backgroundColor: "red",position: "bottomLeft",maxWidth:100, width:0})
+pop.setStyle({backgroundColor: "red",position: "bottomLeft", width:70})
 
 pop.clear();
+pop.theDiv.style.display="inline-block";
 
-pop.setContent("sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>sdsd fsf <strong> xvxvx</strong>")
+
+pop.setContent("abcdef abcdef abcdef abcdef abcdef abcdef abcdef abcdef abcdef  ")
 
 const ad=document.createElement("div");
 pop.addElement(ad)
@@ -39,6 +41,7 @@ ad.innerText="2344"
 new InstantHelp("blablab",document.getElementById("d"))
 
 //pop.destroyResizeEvent();
+//pop.destroy();
 
 </script>
 
