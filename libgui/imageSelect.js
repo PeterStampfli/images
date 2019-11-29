@@ -37,6 +37,8 @@ export function ImageSelect(parent) {
     parent.appendChild(this.iconImage);
     // here comes the popup
     // change ImageSelect.popupStyle if necessary
+    // the popup width that should be available for image buttons
+    ImageSelect.popupStyle.innerWidth = ImageSelect.imageButtonDimensions.totalWidth * ImageSelect.imageButtonsPerRow;
     this.popup = new Popup(ImageSelect.popupStyle);
     this.popup.close();
     // popup with two divs: one for image buttons, one for close button
@@ -54,6 +56,7 @@ export function ImageSelect(parent) {
     // the data
     this.iconURLs = [];
     this.values = [];
+    this.imageButtons = [];
 
     // the actions
     const imageSelect = this;
@@ -65,19 +68,19 @@ export function ImageSelect(parent) {
 
     this.select.onInteraction = function() {
         console.log("select inter");
-        imageSelect.popup.open();
+        imageSelect.onInteraction();
     };
 
     this.iconImage.addEventListener("mousedown", function() {
         console.log("icon mousedown");
-        imageSelect.popup.open();
+        imageSelect.onInteraction();
     });
 
     // mousewheel
     this.iconImage.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        imageSelect.popup.open();
+        imageSelect.onInteraction();
         if (event.deltaY > 0) {
             imageSelect.select.changeIndex(1);
         } else {
@@ -95,6 +98,13 @@ export function ImageSelect(parent) {
     this.select.onChange = function() {
         imageSelect.update();
         imageSelect.onChange();
+    };
+
+    // the start of interaction function that changes the ui, in particular popups
+    this.onInteraction = function() {
+        console.log("interaction");
+        imageSelect.popup.open();
+
     };
 
     // the onChange function that does the action
@@ -141,12 +151,16 @@ ImageSelect.prototype.setPanelIconSize = function(width, height) {
 
 // image buttons in the popup 
 // numbers of buttons per row
-ImageSelect.PopupButtonsPerRow = 3;
-// button dimensions
-ImageSelect.popupButtonImageSize = 100;
-ImageSelect.popupTotalButtonSize = 110;
-ImageSelect.popupButtonBorderWidth = 3;
-ImageSelect.popupButtonBorderWidthSelected = 6;
+ImageSelect.imageButtonsPerRow = 3;
+// initial (default) dimensions for image buttons, overwrite values
+ImageSelect.imageButtonDimensions = {
+    imageWidth: 100,
+    imageHeight: 100,
+    borderWidth: 3,
+    totalWidth: 120,
+    totalHeight: 120,
+    borderWidthSelected: 6
+};
 
 // popup style is in ImageSelect.popupStyle
 
@@ -156,12 +170,6 @@ ImageSelect.popupStyle = {
     backgroundColor: "#bbbbbb",
     position: "bottomLeft"
 };
-
-// maximum width, including scroll bar
-//  generous estimate for scroll bar
-const scrollbarWidth = 15;
-ImageSelect.popupStyle.width = 2 * ImageSelect.popupStyle.padding + scrollbarWidth;
-ImageSelect.popupStyle.width += ImageSelect.popupTotalButtonSize * ImageSelect.PopupButtonsPerRow;
 
 // for the close button
 ImageSelect.popupCloseButtonFontSize = 18;
@@ -176,7 +184,22 @@ ImageSelect.prototype.clear = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
+    this.imageButtons.forEach(button => button.destroy());
+    this.imageButtons.length = 0;
 };
+
+/**
+ * add the image buttons to the popup
+ * can be delayed to improve speed of initial page loading
+ * @method ImageSelect#addImageButtons
+ */
+ImageSelect.prototype.addImageButtons = function() {
+
+};
+
+
+
+
 
 /**
  * add choices

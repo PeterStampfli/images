@@ -17,11 +17,8 @@ export function ImageButton(imageURL, parent) {
     this.element.style.cursor = "pointer";
     this.element.style.objectFit = "contain";
     this.element.style.objectPosition = "center center";
-    this.imageWidth = ImageButton.imageWidth;
-    this.imageHeight = ImageButton.imageHeight;
-    this.borderWidth = ImageButton.borderWidth;
-    this.totalWidth = ImageButton.totalWidth;
-    this.totalHeight = ImageButton.totalHeight;
+    Object.assign(this, ImageButton.dimensions);
+
 
     this.setDimensions();
     parent.appendChild(this.element);
@@ -79,16 +76,28 @@ export function ImageButton(imageURL, parent) {
 }
 
 // initial (default) dimensions, overwrite values
-ImageButton.imageWidth = 100;
-ImageButton.imageHeight = 100;
-ImageButton.borderWidth = 3;
-ImageButton.totalWidth = 120;
-ImageButton.totalHeight = 120;
-ImageButton.opacityDown = 0.6;
-ImageButton.opacityHover = 0.8;
+ImageButton.dimensions = {
+    imageWidth: 100,
+    imageHeight: 100,
+    borderWidth: 3,
+    totalWidth: 120,
+    totalHeight: 120,
+};
+
+/**
+ * update using new dimensions
+ * @method ImageButton.newDimensions
+ * @param {object} dimensions
+ */
+ImageButton.newDimensions = function(dimensions) {
+    Object.assign(ImageButton.dimensions, dimensions);
+};
 
 // background color for png images with a white motiv?
 ImageButton.backgroundColorUp = "#eeeeee";
+// transparencies for mouse interaction
+ImageButton.opacityDown = 0.6;
+ImageButton.opacityHover = 0.8;
 
 /**
  * setup the color styles defaults, use for other buttons too
@@ -193,6 +202,7 @@ ImageButton.prototype.setTotalSize = function(width, height) {
  * @method ImageButton#destroy
  */
 ImageButton.prototype.destroy = function() {
+    console.log("imageb destroy");
     this.onClick = null;
     this.onMouseDown = null;
     this.element.onmousedown = null;

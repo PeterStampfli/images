@@ -178,6 +178,7 @@ Popup.prototype.clear = function() {
     while (this.theDiv.firstChild) {
         this.theDiv.removeChild(this.theDiv.firstChild);
     }
+    this.resize();
 };
 
 /**
@@ -191,12 +192,13 @@ Popup.prototype.setContent = function(content) {
 };
 
 /**
- * add an HTML element
+ * add an HTML element, and resize
  * @method Popup#addElement
  * @param {String} element - html element
  */
 Popup.prototype.addElement = function(element) {
     this.theDiv.appendChild(element);
+    this.resize();
 };
 
 /**
