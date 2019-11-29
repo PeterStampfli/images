@@ -10,6 +10,7 @@
 //  simplify color picker
 
 import {
+    ImageButton,
     Button,
     Select,
     Popup
@@ -40,18 +41,18 @@ export function ImageSelect(parent) {
     // the popup width that should be available for image buttons
     ImageSelect.popupStyle.innerWidth = ImageSelect.imageButtonDimensions.totalWidth * ImageSelect.imageButtonsPerRow;
     this.popup = new Popup(ImageSelect.popupStyle);
+    // make that the popup can get keyboard events
+    this.popup.theDiv.setAttribute("tabindex", "-1");
     this.popup.close();
     // popup with two divs: one for image buttons, one for close button
     this.popupImageButtonDiv = document.createElement("div");
-    this.popupImageButtonDiv.style.textAlign = "center";
-    this.popupImageButtonDiv.style.paddingTop = ImageSelect.popupStyle.verticalPadding + "px";
     this.popup.addElement(this.popupImageButtonDiv);
     this.popupCloseButtonDiv = document.createElement("div");
     this.popupCloseButtonDiv.style.textAlign = "center";
-    this.popupCloseButtonDiv.style.paddingTop = ImageSelect.popupStyle.verticalPadding + "px";
-    this.popupCloseButtonDiv.style.paddingBottom = ImageSelect.popupStyle.verticalPadding + "px";
+    //   this.popupCloseButtonDiv.style.padding = ImageSelect.popupStyle.padding + "px";
     this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
     this.closePopupButton.setFontSize(ImageSelect.popupCloseButtonFontSize);
+    this.closePopupButton.element.style.margin = ImageSelect.popupStyle.padding + "px";
     this.popup.addElement(this.popupCloseButtonDiv);
     // the data
     this.iconURLs = [];
@@ -76,8 +77,9 @@ export function ImageSelect(parent) {
         imageSelect.onInteraction();
     });
 
-    // mousewheel
-    this.iconImage.onwheel = function(event) {
+    // mousewheel action
+
+    function wheelAction(event) {
         event.preventDefault();
         event.stopPropagation();
         imageSelect.onInteraction();
@@ -87,6 +89,48 @@ export function ImageSelect(parent) {
             imageSelect.select.changeIndex(-1);
         }
         return false;
+    }
+
+    // mousewheel on icon
+    this.iconImage.onwheel = wheelAction;
+
+    // mousewheel on popup
+    this.popup.theDiv.onwheel = wheelAction;
+
+    this.popup.theDiv.onmouseenter = function() {
+        imageSelect.popup.theDiv.focus(); // to be able to use mousewheel
+    };
+
+    // arrowkeys on popup
+    this.popup.theDiv.onkeydown = function(event) {
+        let key = event.key;
+        let index = imageSelect.getIndex();
+        const buttonsPerRow = ImageSelect.imageButtonsPerRow;
+        if (key === "ArrowDown") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (index + buttonsPerRow < imageSelect.imageButtons.length) {
+                imageSelect.select.changeIndex(buttonsPerRow);
+            }
+        } else if (key === "ArrowUp") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (index >= buttonsPerRow) {
+                imageSelect.select.changeIndex(-buttonsPerRow);
+            }
+        } else if (key === "ArrowRight") {
+            event.preventDefault();
+            event.stopPropagation();
+            if ((index % buttonsPerRow < buttonsPerRow - 1) && (index < imageSelect.imageButtons.length - 1)) {
+                imageSelect.select.changeIndex(1);
+            }
+        } else if (key === "ArrowLeft") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (index % buttonsPerRow > 0) {
+                imageSelect.select.changeIndex(-1);
+            }
+        }
     };
 
     // close the popup (other than automatically)
@@ -104,7 +148,6 @@ export function ImageSelect(parent) {
     this.onInteraction = function() {
         console.log("interaction");
         imageSelect.popup.open();
-
     };
 
     // the onChange function that does the action
@@ -156,19 +199,20 @@ ImageSelect.imageButtonsPerRow = 3;
 ImageSelect.imageButtonDimensions = {
     imageWidth: 100,
     imageHeight: 100,
-    borderWidth: 3,
     totalWidth: 120,
     totalHeight: 120,
+    borderWidth: 3,
     borderWidthSelected: 6
 };
 
 // popup style is in ImageSelect.popupStyle
+const imagePadding = 0.5 * (ImageSelect.imageButtonDimensions.totalHeight - ImageSelect.imageButtonDimensions.imageHeight);
 
 ImageSelect.popupStyle = {
-    padding: 0,
-    verticalPadding: 10, // padding at top and bottom of the parts of popup
+    padding: imagePadding,
     backgroundColor: "#bbbbbb",
-    position: "bottomLeft"
+    position: "bottomLeft",
+    horizontalShift: 0
 };
 
 // for the close button
@@ -189,20 +233,41 @@ ImageSelect.prototype.clear = function() {
 };
 
 /**
- * add the image buttons to the popup
- * can be delayed to improve speed of initial page loading
- * @method ImageSelect#addImageButtons
+ * adds choices, not varargs
  */
-ImageSelect.prototype.addImageButtons = function() {
-
+ImageSelect.prototype.add = function(choices) {
+    if (Array.isArray(choices)) { // an array
+        choices.forEach(choice => this.addChoices(choice));
+    } else {
+        // adding a single option
+        this.select.addOptions(choices.name);
+        this.values.push(choices.value);
+        let iconURL = ImageSelect.defaultIconURL;
+        if (typeof choices.icon === "string") {
+            iconURL = choices.icon;
+        }
+        this.iconURLs.push(iconURL);
+        // make the image button
+        const index = this.imageButtons.length;
+        // this might delay loading
+        // alternative: load only default image, change image of image button later
+        const button = new ImageButton(iconURL, this.popupImageButtonDiv);
+        this.imageButtons.push(button);
+        const imageSelect = this;
+        button.onClick = function() {
+            console.log("image no " + index);
+            if (imageSelect.getIndex() !== index) {
+                imageSelect.setIndex(index);
+                imageSelect.onChange();
+            }
+        };
+    }
 };
-
-
-
-
 
 /**
  * add choices
+ * Attention: creates the image buttons for the popup, may take a lot of time
+ *  do this separately to save loading time
  * each choice is an object with a name, icon and value field
  * choice={name: "name as string", icon: "URL for icon image", value: whatever}
  * the value can be an image URL, a preset (URL of json file)
@@ -212,23 +277,10 @@ ImageSelect.prototype.addImageButtons = function() {
  */
 ImageSelect.prototype.addChoices = function(choices) {
     const length = arguments.length;
-    if (length === 1) {
-        if (Array.isArray(choices)) {
-            choices.forEach(choice => this.addChoices(choice));
-        } else {
-            this.select.addOptions(choices.name);
-            this.values.push(choices.value);
-            if (typeof choices.icon === "string") {
-                this.iconURLs.push(choices.icon);
-            } else {
-                this.iconURLs.push(ImageSelect.defaultIconURL);
-            }
-        }
-    } else {
-        for (var i = 0; i < length; i++) {
-            this.addChoices(arguments[i]);
-        }
+    for (var i = 0; i < length; i++) {
+        this.add(arguments[i]);
     }
+    this.popup.resize();
 };
 
 /**
@@ -237,7 +289,11 @@ ImageSelect.prototype.addChoices = function(choices) {
  */
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
+    console.log(index);
+
     this.iconImage.src = this.iconURLs[index];
+    this.imageButtons.forEach(button => button.setBorderWidth(ImageSelect.imageButtonDimensions.borderWidth));
+    this.imageButtons[index].setBorderWidth(ImageSelect.imageButtonDimensions.borderWidthSelected);
 };
 
 /**

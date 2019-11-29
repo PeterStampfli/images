@@ -26,7 +26,9 @@ ImageSelect
 console.log("hello");
 
 const thisDiv=document.getElementById("thisDiv");
+thisDiv.style.textAlign="right";
 
+ImageSelect.popupStyle.horizontalShift=200;
 
 const sel=new ImageSelect(thisDiv);
 
@@ -38,13 +40,16 @@ const haeckel="/images/libgui/haeckel/haeckel_";
 sel.addChoices([
 	{name: "rins",value:1,icon:haeckel+"01.png"},
 	{name: "zweiHaeck",value:22,icon:haeckel+"02.png"},
-	{name: "no icon",value:999999},
-	{name: "mehr",value:1,icon:"haeckel/haeckel_03.png"}
+	{name: "no icon",value:333},
+	{name: "mehr",value:4444,icon:"haeckel/haeckel_03.png"},
+	{name: "vielmehr",value:55555,icon:"haeckel/haeckel_11.png"}
 	]);
 
-sel.addImageButtons();
 
+    // you can add the image buttons later to save window loading time
 sel.setValue(1);
+
+sel.theDiv
 
 </script>
 

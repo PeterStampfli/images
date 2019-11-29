@@ -10,7 +10,6 @@ import {
 
 export function Select(parent) {
     this.element = document.createElement("select");
-    // by default: vertical align middle =" centered"
     this.element.style.verticalAlign = "middle";
     parent.appendChild(this.element);
     this.hover = false;

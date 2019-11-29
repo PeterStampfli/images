@@ -45,7 +45,8 @@ Popup.defaultDesign = {
     shadowAlpha: 0.7,
     padding: 10,
     zIndex: 20,
-    position: "center"
+    position: "center",
+    horizontalShift: 0
 };
 
 // positioning
@@ -72,7 +73,7 @@ Popup.prototype.corner = function(horizontal, vertical) {
     this.theDiv.style.right = "";
     this.theDiv.style.left = "";
     let shadowWidth = this.design.shadowBlur + this.design.shadowWidth;
-    this.theDiv.style[horizontal] = shadowWidth + "px";
+    this.theDiv.style[horizontal] = shadowWidth + this.design.horizontalShift + "px";
     this.theDiv.style[vertical] = shadowWidth + "px";
     this.theDiv.style.transform = "";
 };
@@ -80,9 +81,15 @@ Popup.prototype.corner = function(horizontal, vertical) {
 /**
  * set max height to fit popup+shadow into window
  * extend total width if there is a scroll bar
+ * attention: can read dimensions only if display="block"
  * @method Popup#resize
  */
-Popup.prototype.resize = function res() {
+Popup.prototype.resize = function() {
+    console.log("resize " + this.theDiv.style.display)
+    const noShow = (this.theDiv.style.display === "none");
+    if (noShow) {
+        this.open();
+    }
     const shadowWidth = this.design.shadowBlur + this.design.shadowWidth;
     this.theDiv.style.overflowY = "hidden";
     // this gives the correct result if there is no scroll bar
@@ -108,6 +115,9 @@ Popup.prototype.resize = function res() {
             const newWidth = this.design.innerWidth + (this.design.innerWidth - remainingWidth);
             this.theDiv.style.width = newWidth + "px";
         }
+    }
+    if (noShow) {
+        this.close();
     }
 };
 
@@ -154,7 +164,7 @@ Popup.prototype.setStyle = function(newStyle) {
 };
 
 /**
- * open the popup
+ * show the popup
  * @method Popup#open
  */
 Popup.prototype.open = function(content) {
@@ -162,7 +172,7 @@ Popup.prototype.open = function(content) {
 };
 
 /**
- * close the popup
+ * hide the popup
  * @method Popup#close
  */
 Popup.prototype.close = function() {

@@ -156,8 +156,6 @@ ImageButton.prototype.setDimensions = function() {
     this.element.style.marginBottom = 0.5 * (this.totalHeight - this.imageHeight) - this.borderWidth + "px";
     this.element.style.marginLeft = 0.5 * (this.totalWidth - this.imageWidth) - this.borderWidth + "px";
     this.element.style.marginRight = 0.5 * (this.totalWidth - this.imageWidth) - this.borderWidth + "px";
-
-
 };
 
 /**
@@ -175,12 +173,15 @@ ImageButton.prototype.setImageSize = function(width, height) {
 
 /**
  * set width of the border, in px
+ * does only something if borderwidth really changes
  * @method ImageButton#setBorderWidth
  * @param {integer} width
  */
 ImageButton.prototype.setBorderWidth = function(width) {
-    this.borderWidth = width;
-    this.setDimensions();
+    if (this.borderWidth !== width) {
+        this.borderWidth = width;
+        this.setDimensions();
+    }
 };
 
 /**
