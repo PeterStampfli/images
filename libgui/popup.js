@@ -85,7 +85,6 @@ Popup.prototype.corner = function(horizontal, vertical) {
  * @method Popup#resize
  */
 Popup.prototype.resize = function() {
-    console.log("resize " + this.theDiv.style.display)
     const noShow = (this.theDiv.style.display === "none");
     if (noShow) {
         this.open();
