@@ -138,12 +138,14 @@ ImageButton.prototype.updateStyle = function() {
 };
 
 /**
- * set image (url) of the button
+ * set image (url) of the button (only if changes ??)
  * @method ImageButton#setImageURL
  * @param {string} url
  */
 ImageButton.prototype.setImageURL = function(url) {
-    this.element.src = url;
+    if (this.element.src !== url) {
+        this.element.src = url;
+    }
 };
 
 // set style dimensions from known image sizes, border width and total sizes

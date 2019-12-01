@@ -36,7 +36,7 @@ sel.setFontSize(18);
 
 sel.setPanelIconSize(40,40);
 const haeckel="/images/libgui/haeckel/haeckel_";
-
+/*
 sel.addChoices([
 	{name: "rins",value:1,icon:haeckel+"01.png"},
 	{name: "zweiHaeck",value:22,icon:haeckel+"02.png"},
@@ -45,16 +45,17 @@ sel.addChoices([
 	{name: "vielmehr",value:55555,icon:"haeckel/haeckel_11.png"}
 	]);
 
-
-/*
- let choices={
-    "haeckel01": "haeckel/haeckel_01.png",
-    "haeckel02": "haeckel/haeckel_02.png",
-    "haeckel03": "haeckel/haeckel_03.png",
-    "haeckel04": "haeckel/haeckel_04.png",
-    "haeckel05": "haeckel/haeckel_05.png",  
-};
 */
+
+ let choices={
+    "haeckel01": haeckel+"01.png",
+    "haeckel02": haeckel+"02.png",
+    "haeckel03": haeckel+"03.png",
+    "haeckel04": haeckel+"04.png",
+    "haeckel05": haeckel+"05.png",  
+};
+
+sel.addChoices(choices);
 
     // you can add the image buttons later to save window loading time
 sel.setValue(1);

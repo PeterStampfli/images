@@ -152,7 +152,7 @@ Select.prototype.clear = function() {
 };
 
 /**
- * get the index
+ * get the index, returns -1 if empty
  * @method Select#getIndex
  * @return integer, the selected index
  */

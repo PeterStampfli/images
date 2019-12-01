@@ -69,12 +69,12 @@ export function ImageSelect(parent) {
 
     this.select.onInteraction = function() {
         console.log("select inter");
-        imageSelect.onInteraction();
+        imageSelect.interaction();
     };
 
     this.iconImage.addEventListener("mousedown", function() {
         console.log("icon mousedown");
-        imageSelect.onInteraction();
+        imageSelect.interaction();
     });
 
     // mousewheel action
@@ -82,7 +82,7 @@ export function ImageSelect(parent) {
     function wheelAction(event) {
         event.preventDefault();
         event.stopPropagation();
-        imageSelect.onInteraction();
+        imageSelect.interaction();
         if (event.deltaY > 0) {
             imageSelect.select.changeIndex(1);
         } else {
@@ -157,6 +157,55 @@ export function ImageSelect(parent) {
     };
 }
 
+// loading images: only if visible
+
+// check if an html element is visible
+// NOTE: if the image or its parents are display==="none", then this does not work.
+function isVisible(image) {
+    console.log(image);
+    if (image.style.display === "none") {
+        console.log("**** warning: isVisible - image/parents display none");
+        console.log(image);
+    }
+    let offset = image.offsetTop;
+    let element = image.offsetParent;
+
+    console.log(element);
+    while (element !== null) {
+        if (element.style.display === "none") {
+            console.log("**** warning: isVisible - element display none");
+            console.log(element);
+        }
+        offset += element.offsetTop;
+        element = element.offsetParent;
+    }
+
+    console.log("offtop " + offset);
+
+}
+
+/**
+ * start of interaction: load images instead of placeholders, 
+ * open popup, call the onInteraction function
+ * @method ImageSelect#interaction
+ */
+ImageSelect.prototype.interaction = function() {
+
+
+    // improve this- load only visible images, alos do upon onscroll (popup)
+    const length = this.imageButtons.length;
+    for (var i = 0; i < length; i++) {
+        console.log(this.imageButtons[i].element.src);
+        this.imageButtons[i].setImageURL(this.iconURLs[i]);
+        console.log(i);
+        console.log(isVisible(this.imageButtons[i].element));
+    }
+    this.popup.open();
+
+
+    this.onInteraction();
+};
+
 // style for the ui panel (not the popup)
 // style defaults
 
@@ -165,9 +214,10 @@ ImageSelect.panelStyle = {
     spaceWidth: 5
 };
 
-// default icon
-// ATTENTION: set new URL for different file structure
-ImageSelect.defaultIconURL = "/images/libgui/defaultIcon.jpg";
+// missing icon is a red image (data URL for red pixel)
+ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
+// delayed loading (data url for green pixel)
+ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -233,34 +283,50 @@ ImageSelect.prototype.clear = function() {
 };
 
 /**
- * adds choices, not varargs
+ * adds choices, no varargs
  */
 ImageSelect.prototype.add = function(choices) {
     if (Array.isArray(choices)) { // an array
         choices.forEach(choice => this.addChoices(choice));
     } else {
-        // adding a single option
-        this.select.addOptions(choices.name);
-        this.values.push(choices.value);
-        let iconURL = ImageSelect.defaultIconURL;
-        if (typeof choices.icon === "string") {
-            iconURL = choices.icon;
-        }
-        this.iconURLs.push(iconURL);
-        // make the image button
-        const index = this.imageButtons.length;
-        // this might delay loading
-        // alternative: load only default image, change image of image button later
-        const button = new ImageButton(iconURL, this.popupImageButtonDiv);
-        this.imageButtons.push(button);
-        const imageSelect = this;
-        button.onClick = function() {
-            console.log("image no " + index);
-            if (imageSelect.getIndex() !== index) {
-                imageSelect.setIndex(index);
-                imageSelect.onChange();
+        const keys = Object.keys(choices);
+        // an object with many choices (key as name/ value as image url)
+        if ((keys.length > 3) || (typeof choices.name) === "undefined" || (typeof choices.value) === "undefined") {
+            // backwards compatibility, simpler setup
+            console.log("compa");
+            const choice = {};
+            const imageSelect = this;
+            keys.forEach(function(key) {
+                choice.name = key;
+                choice.icon = choices[key];
+                choice.value = choice.icon;
+                imageSelect.add(choice);
+            });
+        } else {
+            // adding a single option
+            this.select.addOptions(choices.name);
+            this.values.push(choices.value);
+            let iconURL = ImageSelect.missingIconURL;
+            let imageButtonURL = ImageSelect.missingIconURL;
+            if (typeof choices.icon === "string") {
+                // delayed loading
+                iconURL = choices.icon;
+                imageButtonURL = ImageSelect.notLoadedURL;
             }
-        };
+            this.iconURLs.push(iconURL);
+            // make the image button
+            const index = this.imageButtons.length;
+            const button = new ImageButton(imageButtonURL, this.popupImageButtonDiv);
+            this.imageButtons.push(button);
+            const imageSelect = this;
+            button.onClick = function() {
+                console.log("image no " + index);
+                if (imageSelect.getIndex() !== index) {
+                    imageSelect.setIndex(index);
+                    imageSelect.onChange();
+                }
+            };
+        }
     }
 };
 
@@ -272,6 +338,10 @@ ImageSelect.prototype.add = function(choices) {
  * choice={name: "name as string", icon: "URL for icon image", value: whatever}
  * the value can be an image URL, a preset (URL of json file)
  * multiple choices are put together in an array, or repeated arguments
+ * for backwards compatibility:
+ * object { key: "imageURL string", ...}, where number of keys larger than 3, 
+ * or object.name===undefined, or object.value=undefined
+ * makes choices with {name: key, icon: imageURL, value: imageURL}
  * @method ImageSelect#addChoices
  * @param {... object|array} choice
  */
@@ -293,7 +363,9 @@ ImageSelect.prototype.update = function() {
 
     this.iconImage.src = this.iconURLs[index];
     this.imageButtons.forEach(button => button.setBorderWidth(ImageSelect.imageButtonDimensions.borderWidth));
-    this.imageButtons[index].setBorderWidth(ImageSelect.imageButtonDimensions.borderWidthSelected);
+    if (index >= 0) {
+        this.imageButtons[index].setBorderWidth(ImageSelect.imageButtonDimensions.borderWidthSelected);
+    }
 };
 
 /**

@@ -41,8 +41,8 @@ Popup.defaultDesign = {
     backgroundColor: "#ffffaa",
     padding: 10,
     border: "solid",
-    borderWidth: 10,
-    borderColor: "yellow",
+    borderWidth: 3,
+    borderColor: "#444444",
     borderRadius: 10,
     shadowWidth: 5,
     shadowBlur: 10,
@@ -173,7 +173,7 @@ Popup.prototype.setStyle = function(newStyle) {
 };
 
 /**
- * show the popup
+ * open the popup
  * @method Popup#open
  */
 Popup.prototype.open = function(content) {
@@ -181,7 +181,7 @@ Popup.prototype.open = function(content) {
 };
 
 /**
- * hide the popup
+ * close the popup
  * @method Popup#close
  */
 Popup.prototype.close = function() {
