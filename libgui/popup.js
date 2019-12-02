@@ -87,11 +87,11 @@ Popup.prototype.corner = function(horizontal, vertical) {
 /**
  * set max height to fit popup+shadow into window
  * extend total width if there is a scroll bar
- * attention: can read dimensions only if display="block"
+ * attention: can read dimensions only if display!=="block" (can be "")
  * @method Popup#resize
  */
 Popup.prototype.resize = function() {
-    const noShow = (this.theDiv.style.display === "none");
+   const noShow = !this.isOpen();
     if (noShow) {
         this.open();
     }
@@ -186,6 +186,15 @@ Popup.prototype.open = function(content) {
  */
 Popup.prototype.close = function() {
     this.theDiv.style.display = "none";
+};
+
+/**
+* test if the popup is open (display="block" or "")
+* #method Popup#isOpen
+* @return boolean - true if popup is open
+*/
+Popup.prototype.isOpen=function(){
+    return this.theDiv.style.display !== "none"
 };
 
 /**

@@ -262,10 +262,10 @@ ParamGui.updateValues = function(toObject, fromObject) {
 
 /**
  * update ParamGui design defaults, using data of another object with the same key 
- * @method ParamGui.updateDefaults
+ * @method ParamGui.updateDefaultDesign
  * @param {Object} newValues
  */
-ParamGui.updateDefaults = function(newValues) {
+ParamGui.updateDefaultDesign = function(newValues) {
     ParamGui.updateValues(ParamGui.defaultDesign, newValues);
 };
 

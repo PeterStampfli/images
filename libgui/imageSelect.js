@@ -16,6 +16,8 @@ import {
     Popup
 } from "./modules.js";
 
+// add style parameter !!! -> design
+
 export function ImageSelect(parent) {
     this.parent = parent;
     // the html elements in the main UI (not the popup)
@@ -157,7 +159,12 @@ export function ImageSelect(parent) {
     };
 }
 
+// styles
+
+
+
 // loading images: only if visible
+// do then popup opens (after), at popup scroll events (is open) at window resize (only if popup is open)
 
 // check if an html element is visible
 // NOTE: if the image or its parents are display==="none", then this does not work.
@@ -209,15 +216,12 @@ ImageSelect.prototype.interaction = function() {
 // style for the ui panel (not the popup)
 // style defaults
 
+//make a default style- simplify things, like paramGui
+
 // width in px for space between select input and icon in the panel
 ImageSelect.panelStyle = {
     spaceWidth: 5
 };
-
-// missing icon is a red image (data URL for red pixel)
-ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
-// delayed loading (data url for green pixel)
-ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
 /**
  * set label and select/button font sizes, button font sizes are increased
@@ -281,6 +285,12 @@ ImageSelect.prototype.clear = function() {
     this.imageButtons.forEach(button => button.destroy());
     this.imageButtons.length = 0;
 };
+
+// default icons:
+// missing icon is a red image (data URL for red pixel)
+ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
+// delayed loading (data url for green pixel)
+ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
 /**
  * adds choices, no varargs
