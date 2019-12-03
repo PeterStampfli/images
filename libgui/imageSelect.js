@@ -19,10 +19,10 @@ import {
 
 // add style parameter !!! -> design
 
-export function ImageSelect(parent,newDesign) {
+export function ImageSelect(parent, newDesign) {
     this.parent = parent;
-    this.design={};
-    Object.assign(this.design,ImageSelect.defaultDesign);
+    this.design = {};
+    Object.assign(this.design, ImageSelect.defaultDesign);
     for (var i = 1; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
             updateValues(this.design, arguments[i]);
@@ -31,26 +31,29 @@ export function ImageSelect(parent,newDesign) {
     // the html elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
+    this.select.setFontSize(this.design.panelFontSize);
     // then a space (as a span ?)
     // accessible from outside top be able to change style
     this.space = document.createElement("span");
-    this.space.style.width = ImageSelect.panelStyle.spaceWidth + "px";
+    this.space.style.width = this.design.panelSpaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
     // at the right of input elements there is the small (icon) image of the selection
     this.panelImage = document.createElement("img");
     this.panelImage.setAttribute("importance", "high");
-    this.panelImage.src = null;
+    this.panelImage.src = ImageSelect.missingIconURL;
     this.panelImage.style.verticalAlign = "middle";
     this.panelImage.style.cursor = "pointer";
+    this.panelImage.style.height = this.design.panelImageHeight + "px";
+    this.panelImage.style.width = this.design.panelImageWidth + "px";
     this.panelImage.style.objectFit = "contain";
     this.panelImage.style.objectPosition = "center center";
     parent.appendChild(this.panelImage);
     // here comes the popup
-    // change ImageSelect.popupStyle if necessary
     // the popup width that should be available for image buttons
-    ImageSelect.popupStyle.innerWidth = ImageSelect.imageButtonDimensions.totalWidth * ImageSelect.imageButtonsPerRow;
-    this.popup = new Popup(ImageSelect.popupStyle);
+    this.design.innerWidth = this.design.imageButtonTotalWidth * this.design.imageButtonsPerRow;
+    this.design.padding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
+    this.popup = new Popup(this.design);
     // make that the popup can get keyboard events
     this.popup.theDiv.setAttribute("tabindex", "-1");
     this.popup.close();
@@ -59,10 +62,9 @@ export function ImageSelect(parent,newDesign) {
     this.popup.addElement(this.popupImageButtonDiv);
     this.popupCloseButtonDiv = document.createElement("div");
     this.popupCloseButtonDiv.style.textAlign = "center";
-    //   this.popupCloseButtonDiv.style.padding = ImageSelect.popupStyle.padding + "px";
     this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
-    this.closePopupButton.setFontSize(ImageSelect.popupCloseButtonFontSize);
-    this.closePopupButton.element.style.margin = ImageSelect.popupStyle.padding + "px";
+    this.closePopupButton.setFontSize(this.design.fontSize);
+    this.closePopupButton.element.style.margin = this.design.padding + "px";
     this.popup.addElement(this.popupCloseButtonDiv);
     // the data
     this.iconURLs = [];
@@ -104,8 +106,10 @@ export function ImageSelect(parent,newDesign) {
     // mousewheel on icon
     this.panelImage.onwheel = wheelAction;
 
-    // mousewheel on popup
-    this.popup.theDiv.onwheel = wheelAction;
+    // scroll on popup
+    this.popup.theDiv.onscroll = function(event) {
+        console.log("scroll");
+    };
 
     this.popup.theDiv.onmouseenter = function() {
         imageSelect.popup.theDiv.focus(); // to be able to use mousewheel
@@ -115,7 +119,7 @@ export function ImageSelect(parent,newDesign) {
     this.popup.theDiv.onkeydown = function(event) {
         let key = event.key;
         let index = imageSelect.getIndex();
-        const buttonsPerRow = ImageSelect.imageButtonsPerRow;
+        const buttonsPerRow = imageSelect.design.imageButtonsPerRow;
         if (key === "ArrowDown") {
             event.preventDefault();
             event.stopPropagation();
@@ -171,18 +175,25 @@ export function ImageSelect(parent,newDesign) {
 
 ImageSelect.defaultDesign = {
     // for the ui panel
+    // dimensions without "panel" are for the popup
     panelSpaceWidth: 5,
     panelFontSize: 14,
-    panelImageWidth:50,
-    panelImageHeight:50,
+    panelImageWidth: 40,
+    panelImageHeight: 40,
     // for the popup, specific
-
+    imageButtonsPerRow: 3,
+    imageButtonWidth: 100,
+    imageButtonHeight: 100,
+    imageButtonTotalWidth: 120,
+    imageButtonTotalHeight: 120,
+    imageButtonBorderWidth: 3,
+    imageButtonBorderWidthSelected: 6,
     // for the popup, general
     innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
-fontFamily: "FontAwesome, FreeSans, sans-serif",
+    fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
-    backgroundColor: "#ffffaa",
+    backgroundColor: "#aaaaaa",
     padding: 10,
     border: "solid",
     borderWidth: 3,
@@ -198,7 +209,6 @@ fontFamily: "FontAwesome, FreeSans, sans-serif",
     position: "center",
     horizontalShift: 0
 };
-
 
 // changing design parameters
 
@@ -219,98 +229,45 @@ ImageSelect.updateDefaultDesign = function(newValues) {
     updateValues(ImageSelect.defaultDesign, newValues);
 };
 
+// default icons:
+// missing icon is a red image (data URL for red pixel)
+ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
+// delayed loading (data url for green pixel)
+ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
-
-
-// styles
-
-// style for the ui panel (not the popup)
-// style defaults
-
-//make a default style- simplify things, like paramGui
-
-// width in px for space between select input and icon in the panel
-ImageSelect.panelStyle = {
-    spaceWidth: 5
-};
-
-
-/**
- * set label and select/button font sizes, button font sizes are increased
- * @method ImageSelect#setFontSize
- * @param {int} buttonSize - in pix
- */
-ImageSelect.prototype.setFontSize = function(buttonSize) {
-    this.select.setFontSize(buttonSize);
-};
-
-/**
- * set the size of the icon image in the UI panel
- * @method ImageSelect.setPanelIconSize
- * @param {int} width - in px
- * @param {int} height - in px
- */
-ImageSelect.prototype.setPanelIconSize = function(width, height) {
-    this.panelImage.style.width = width + "px";
-    this.panelImage.style.height = height + "px";
-};
-
-// style of the pupop
-// defaults for the popup
-
-// image buttons in the popup 
-// numbers of buttons per row
-ImageSelect.imageButtonsPerRow = 3;
-// initial (default) dimensions for image buttons, overwrite values
-ImageSelect.imageButtonDimensions = {
-    imageWidth: 100,
-    imageHeight: 100,
-    totalWidth: 120,
-    totalHeight: 120,
-    borderWidth: 3,
-    borderWidthSelected: 6
-};
-
-// popup style is in ImageSelect.popupStyle
-const imagePadding = 0.5 * (ImageSelect.imageButtonDimensions.totalHeight - ImageSelect.imageButtonDimensions.imageHeight);
-
-ImageSelect.popupStyle = {
-    padding: imagePadding,
-    backgroundColor: "#bbbbbb",
-    position: "bottomLeft",
-    horizontalShift: 0
-};
-
-// for the close button
-ImageSelect.popupCloseButtonFontSize = 18;
 
 // loading images: only if visible
-// do then popup opens (after), at popup scroll events (is open) at window resize (only if popup is open)
+// do when popup opens (after opening), at popup scroll events (is open) at window resize (only if popup is open)
 
-// check if an html element is visible
-// NOTE: if the image or its parents are display==="none", then this does not work.
-function isVisible(image) {
-    console.log(image);
-    if (image.style.display === "none") {
-        console.log("**** warning: isVisible - image/parents display none");
-        console.log(image);
-    }
-    let offset = image.offsetTop;
-    let element = image.offsetParent;
+/**
+ * check if an image in the popup is visible
+ * the popup has to be open
+ * #method ImageSelect#isVisible
+ * @param {HTMLelement} image
+ * @return boolean true if element (image) is visible, false if not or popup closed
+ */
 
-    console.log(element);
-    while (element !== null) {
-        if (element.style.display === "none") {
-            console.log("**** warning: isVisible - element display none");
-            console.log(element);
+ImageSelect.prototype.isVisible = function(image) {
+    let result = false;
+    if (this.popup.isOpen()) {
+        let offset = image.offsetTop;
+        let element = image.offsetParent;
+        while (element !== null) {
+            offset += element.offsetTop;
+            element = element.offsetParent;
         }
-        offset += element.offsetTop;
-        element = element.offsetParent;
+
+        console.log("offtop " + offset);
+
+        // visible if higher border above lower limit of window and lower border below upper limnit of window
+        result = (offset + image.offsetHeight > 0) && (offset < document.documentElement.clientHeight);
+    } else {
+        console.log("**** warning: isVisible - popop is not open");
     }
+    return result;
+};
 
-    console.log("offtop " + offset);
 
-}
 
 /**
  * start of interaction: load images instead of placeholders, 
@@ -319,22 +276,19 @@ function isVisible(image) {
  */
 ImageSelect.prototype.interaction = function() {
 
+    this.popup.open();
 
     // improve this- load only visible images, alos do upon onscroll (popup)
     const length = this.imageButtons.length;
     for (var i = 0; i < length; i++) {
-        console.log(this.imageButtons[i].element.src);
         this.imageButtons[i].setImageURL(this.iconURLs[i]);
         console.log(i);
-        console.log(isVisible(this.imageButtons[i].element));
+        console.log(this.isVisible(this.imageButtons[i].element));
     }
-    this.popup.open();
 
 
     this.onInteraction();
 };
-
-
 
 // actions on both the ui-panel and the popup
 
@@ -349,12 +303,6 @@ ImageSelect.prototype.clear = function() {
     this.imageButtons.forEach(button => button.destroy());
     this.imageButtons.length = 0;
 };
-
-// default icons:
-// missing icon is a red image (data URL for red pixel)
-ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
-// delayed loading (data url for green pixel)
-ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
 /**
  * adds choices, no varargs
@@ -436,9 +384,9 @@ ImageSelect.prototype.update = function() {
     console.log(index);
 
     this.panelImage.src = this.iconURLs[index];
-    this.imageButtons.forEach(button => button.setBorderWidth(ImageSelect.imageButtonDimensions.borderWidth));
+    this.imageButtons.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
     if (index >= 0) {
-        this.imageButtons[index].setBorderWidth(ImageSelect.imageButtonDimensions.borderWidthSelected);
+        this.imageButtons[index].setBorderWidth(this.design.imageButtonBorderWidthSelected);
     }
 };
 

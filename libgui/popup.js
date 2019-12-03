@@ -74,7 +74,6 @@ Popup.updateDefaultDesign = function(newValues) {
     updateValues(Popup.defaultDesign, newValues);
 };
 
-
 // positioning
 
 /**
