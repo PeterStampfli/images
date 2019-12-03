@@ -4,6 +4,7 @@
  * the value may be an URL for an image, a preset, ...
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
+ * @param {...object} newDesign - modifying the default design
  */
 
 // note: close popup when using another ui input element
@@ -18,8 +19,15 @@ import {
 
 // add style parameter !!! -> design
 
-export function ImageSelect(parent) {
+export function ImageSelect(parent,newDesign) {
     this.parent = parent;
+    this.design={};
+    Object.assign(this.design,ImageSelect.defaultDesign);
+    for (var i = 1; i < arguments.length; i++) {
+        if (typeof arguments[i] === "object") {
+            updateValues(this.design, arguments[i]);
+        }
+    }
     // the html elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
@@ -29,15 +37,15 @@ export function ImageSelect(parent) {
     this.space.style.width = ImageSelect.panelStyle.spaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
-    // at the right of input elements there is the small icon image
-    this.iconImage = document.createElement("img");
-    this.iconImage.setAttribute("importance", "high");
-    this.iconImage.src = null;
-    this.iconImage.style.verticalAlign = "middle";
-    this.iconImage.style.cursor = "pointer";
-    this.iconImage.style.objectFit = "contain";
-    this.iconImage.style.objectPosition = "center center";
-    parent.appendChild(this.iconImage);
+    // at the right of input elements there is the small (icon) image of the selection
+    this.panelImage = document.createElement("img");
+    this.panelImage.setAttribute("importance", "high");
+    this.panelImage.src = null;
+    this.panelImage.style.verticalAlign = "middle";
+    this.panelImage.style.cursor = "pointer";
+    this.panelImage.style.objectFit = "contain";
+    this.panelImage.style.objectPosition = "center center";
+    parent.appendChild(this.panelImage);
     // here comes the popup
     // change ImageSelect.popupStyle if necessary
     // the popup width that should be available for image buttons
@@ -74,7 +82,7 @@ export function ImageSelect(parent) {
         imageSelect.interaction();
     };
 
-    this.iconImage.addEventListener("mousedown", function() {
+    this.panelImage.addEventListener("mousedown", function() {
         console.log("icon mousedown");
         imageSelect.interaction();
     });
@@ -94,7 +102,7 @@ export function ImageSelect(parent) {
     }
 
     // mousewheel on icon
-    this.iconImage.onwheel = wheelAction;
+    this.panelImage.onwheel = wheelAction;
 
     // mousewheel on popup
     this.popup.theDiv.onwheel = wheelAction;
@@ -159,9 +167,122 @@ export function ImageSelect(parent) {
     };
 }
 
+// default design
+
+ImageSelect.defaultDesign = {
+    // for the ui panel
+    panelSpaceWidth: 5,
+    panelFontSize: 14,
+    panelImageWidth:50,
+    panelImageHeight:50,
+    // for the popup, specific
+
+    // for the popup, general
+    innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
+fontFamily: "FontAwesome, FreeSans, sans-serif",
+    fontSize: 18,
+    textColor: "#444444",
+    backgroundColor: "#ffffaa",
+    padding: 10,
+    border: "solid",
+    borderWidth: 3,
+    borderColor: "#444444",
+    borderRadius: 0,
+    shadowWidth: 0,
+    shadowBlur: 0,
+    shadowRed: 0,
+    shadowGreen: 0,
+    shadowBlue: 0,
+    shadowAlpha: 0.7,
+    zIndex: 20,
+    position: "center",
+    horizontalShift: 0
+};
+
+
+// changing design parameters
+
+function updateValues(toObject, fromObject) {
+    for (var key in fromObject) {
+        if ((typeof toObject[key] === typeof fromObject[key]) && (typeof fromObject[key] !== "function")) {
+            toObject[key] = fromObject[key];
+        }
+    }
+}
+
+/**
+ * update Poipup design defaults, using data of another object with the same key 
+ * @method ImageSelect.updateDefaultDesign
+ * @param {Object} newValues
+ */
+ImageSelect.updateDefaultDesign = function(newValues) {
+    updateValues(ImageSelect.defaultDesign, newValues);
+};
+
+
+
+
 // styles
 
+// style for the ui panel (not the popup)
+// style defaults
 
+//make a default style- simplify things, like paramGui
+
+// width in px for space between select input and icon in the panel
+ImageSelect.panelStyle = {
+    spaceWidth: 5
+};
+
+
+/**
+ * set label and select/button font sizes, button font sizes are increased
+ * @method ImageSelect#setFontSize
+ * @param {int} buttonSize - in pix
+ */
+ImageSelect.prototype.setFontSize = function(buttonSize) {
+    this.select.setFontSize(buttonSize);
+};
+
+/**
+ * set the size of the icon image in the UI panel
+ * @method ImageSelect.setPanelIconSize
+ * @param {int} width - in px
+ * @param {int} height - in px
+ */
+ImageSelect.prototype.setPanelIconSize = function(width, height) {
+    this.panelImage.style.width = width + "px";
+    this.panelImage.style.height = height + "px";
+};
+
+// style of the pupop
+// defaults for the popup
+
+// image buttons in the popup 
+// numbers of buttons per row
+ImageSelect.imageButtonsPerRow = 3;
+// initial (default) dimensions for image buttons, overwrite values
+ImageSelect.imageButtonDimensions = {
+    imageWidth: 100,
+    imageHeight: 100,
+    totalWidth: 120,
+    totalHeight: 120,
+    borderWidth: 3,
+    borderWidthSelected: 6
+};
+
+// popup style is in ImageSelect.popupStyle
+const imagePadding = 0.5 * (ImageSelect.imageButtonDimensions.totalHeight - ImageSelect.imageButtonDimensions.imageHeight);
+
+ImageSelect.popupStyle = {
+    padding: imagePadding,
+    backgroundColor: "#bbbbbb",
+    position: "bottomLeft",
+    horizontalShift: 0
+};
+
+// for the close button
+ImageSelect.popupCloseButtonFontSize = 18;
 
 // loading images: only if visible
 // do then popup opens (after), at popup scroll events (is open) at window resize (only if popup is open)
@@ -213,64 +334,7 @@ ImageSelect.prototype.interaction = function() {
     this.onInteraction();
 };
 
-// style for the ui panel (not the popup)
-// style defaults
 
-//make a default style- simplify things, like paramGui
-
-// width in px for space between select input and icon in the panel
-ImageSelect.panelStyle = {
-    spaceWidth: 5
-};
-
-/**
- * set label and select/button font sizes, button font sizes are increased
- * @method ImageSelect#setFontSize
- * @param {int} buttonSize - in pix
- */
-ImageSelect.prototype.setFontSize = function(buttonSize) {
-    this.select.setFontSize(buttonSize);
-};
-
-/**
- * set the size of the icon image in the UI panel
- * @method ImageSelect.setPanelIconSize
- * @param {int} width - in px
- * @param {int} height - in px
- */
-ImageSelect.prototype.setPanelIconSize = function(width, height) {
-    this.iconImage.style.width = width + "px";
-    this.iconImage.style.height = height + "px";
-};
-
-// style of the pupop
-// defaults for the popup
-
-// image buttons in the popup 
-// numbers of buttons per row
-ImageSelect.imageButtonsPerRow = 3;
-// initial (default) dimensions for image buttons, overwrite values
-ImageSelect.imageButtonDimensions = {
-    imageWidth: 100,
-    imageHeight: 100,
-    totalWidth: 120,
-    totalHeight: 120,
-    borderWidth: 3,
-    borderWidthSelected: 6
-};
-
-// popup style is in ImageSelect.popupStyle
-const imagePadding = 0.5 * (ImageSelect.imageButtonDimensions.totalHeight - ImageSelect.imageButtonDimensions.imageHeight);
-
-ImageSelect.popupStyle = {
-    padding: imagePadding,
-    backgroundColor: "#bbbbbb",
-    position: "bottomLeft",
-    horizontalShift: 0
-};
-
-// for the close button
-ImageSelect.popupCloseButtonFontSize = 18;
 
 // actions on both the ui-panel and the popup
 
@@ -371,7 +435,7 @@ ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
     console.log(index);
 
-    this.iconImage.src = this.iconURLs[index];
+    this.panelImage.src = this.iconURLs[index];
     this.imageButtons.forEach(button => button.setBorderWidth(ImageSelect.imageButtonDimensions.borderWidth));
     if (index >= 0) {
         this.imageButtons[index].setBorderWidth(ImageSelect.imageButtonDimensions.borderWidthSelected);

@@ -13,7 +13,7 @@ export function Popup(newDesign) {
     Object.assign(this.design, Popup.defaultDesign);
     for (var i = 0; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
-            Object.assign(this.design, arguments[i]);
+            updateValues(this.design, arguments[i]);
         }
     }
     this.setStyle();
@@ -55,6 +55,26 @@ Popup.defaultDesign = {
     horizontalShift: 0
 };
 
+// changing design parameters
+
+function updateValues(toObject, fromObject) {
+    for (var key in fromObject) {
+        if ((typeof toObject[key] === typeof fromObject[key]) && (typeof fromObject[key] !== "function")) {
+            toObject[key] = fromObject[key];
+        }
+    }
+}
+
+/**
+ * update Poipup design defaults, using data of another object with the same key 
+ * @method Popup.updateDefaultDesign
+ * @param {Object} newValues
+ */
+Popup.updateDefaultDesign = function(newValues) {
+    updateValues(Popup.defaultDesign, newValues);
+};
+
+
 // positioning
 
 /**
@@ -91,7 +111,7 @@ Popup.prototype.corner = function(horizontal, vertical) {
  * @method Popup#resize
  */
 Popup.prototype.resize = function() {
-   const noShow = !this.isOpen();
+    const noShow = !this.isOpen();
     if (noShow) {
         this.open();
     }
@@ -189,12 +209,12 @@ Popup.prototype.close = function() {
 };
 
 /**
-* test if the popup is open (display="block" or "")
-* #method Popup#isOpen
-* @return boolean - true if popup is open
-*/
-Popup.prototype.isOpen=function(){
-    return this.theDiv.style.display !== "none"
+ * test if the popup is open (display="block" or "")
+ * #method Popup#isOpen
+ * @return boolean - true if popup is open
+ */
+Popup.prototype.isOpen = function() {
+    return this.theDiv.style.display !== "none";
 };
 
 /**
