@@ -187,6 +187,16 @@ ImageButton.prototype.setBorderWidth = function(width) {
 };
 
 /**
+ * set color of the border
+ * does only something if borderwidth really changes
+ * @method ImageButton#setBorderWidth
+ * @param {string} color
+ */
+ImageButton.prototype.setBorderColor = function(color) {
+    this.element.style.borderColor=color;
+};
+
+/**
  * set total width and height of the button, inluding margin, in px
  * @method ImageButton#setTotalSize
  * @param {integer} width

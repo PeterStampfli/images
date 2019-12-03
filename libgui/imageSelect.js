@@ -109,6 +109,10 @@ export function ImageSelect(parent, newDesign) {
     // scroll on popup
     this.popup.theDiv.onscroll = function(event) {
         console.log("scroll");
+        console.log(imageSelect.popup.theDiv.scrollTop)
+        if (imageSelect.popup.isOpen()){
+      //  imageSelect.loadImages();
+    }
     };
 
     this.popup.theDiv.onmouseenter = function() {
@@ -174,6 +178,9 @@ export function ImageSelect(parent, newDesign) {
 // default design
 
 ImageSelect.defaultDesign = {
+    // choosing images: the value is an image that can serve as icon, if there is no icon value
+    // ok, this is not really a design parameter, make an exception
+    choosingImages: true,
     // for the ui panel
     // dimensions without "panel" are for the popup
     panelSpaceWidth: 5,
@@ -188,6 +195,8 @@ ImageSelect.defaultDesign = {
     imageButtonTotalHeight: 120,
     imageButtonBorderWidth: 3,
     imageButtonBorderWidthSelected: 6,
+    imageButtonBorderColor: "#444444",
+    imageButtonBorderColorNoIcon: "#ff4444",
     // for the popup, general
     innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
     fontFamily: "FontAwesome, FreeSans, sans-serif",
@@ -246,7 +255,6 @@ ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C0
  * @param {HTMLelement} image
  * @return boolean true if element (image) is visible, false if not or popup closed
  */
-
 ImageSelect.prototype.isVisible = function(image) {
     let result = false;
     if (this.popup.isOpen()) {
@@ -256,15 +264,32 @@ ImageSelect.prototype.isVisible = function(image) {
             offset += element.offsetTop;
             element = element.offsetParent;
         }
-
-        console.log("offtop " + offset);
+//        console.log("offset " + offset);
+ //       console.log("imheight "+image.offsetHeight)
+  //      console.log("windowheigh "+document.documentElement.clientHeight)
 
         // visible if higher border above lower limit of window and lower border below upper limnit of window
         result = (offset + image.offsetHeight > 0) && (offset < document.documentElement.clientHeight);
     } else {
-        console.log("**** warning: isVisible - popop is not open");
+        console.log("**** warning: popop is not open, its images are not visible");
     }
     return result;
+};
+
+/**
+ * load true images , only if visible
+ * @method ImageSelect#loadImages
+ */
+ImageSelect.prototype.loadImages = function() {
+    const length = this.imageButtons.length;
+    for (var i = 0; i < length; i++) {
+        console.log(i);
+        console.log(this.isVisible(this.imageButtons[i].element));
+        if (this.isVisible(this.imageButtons[i].element)) {
+            this.imageButtons[i].setImageURL(this.iconURLs[i]);
+         console.log("loading");
+       }
+    }
 };
 
 
@@ -278,13 +303,7 @@ ImageSelect.prototype.interaction = function() {
 
     this.popup.open();
 
-    // improve this- load only visible images, alos do upon onscroll (popup)
-    const length = this.imageButtons.length;
-    for (var i = 0; i < length; i++) {
-        this.imageButtons[i].setImageURL(this.iconURLs[i]);
-        console.log(i);
-        console.log(this.isVisible(this.imageButtons[i].element));
-    }
+    this.loadImages();
 
 
     this.onInteraction();
@@ -325,20 +344,14 @@ ImageSelect.prototype.add = function(choices) {
                 imageSelect.add(choice);
             });
         } else {
-            // adding a single option
+            // adding a single option, we do not know if we have a valid icon
             this.select.addOptions(choices.name);
-            this.values.push(choices.value);
-            let iconURL = ImageSelect.missingIconURL;
-            let imageButtonURL = ImageSelect.missingIconURL;
-            if (typeof choices.icon === "string") {
-                // delayed loading
-                iconURL = choices.icon;
-                imageButtonURL = ImageSelect.notLoadedURL;
-            }
-            this.iconURLs.push(iconURL);
-            // make the image button
             const index = this.imageButtons.length;
-            const button = new ImageButton(imageButtonURL, this.popupImageButtonDiv);
+
+            this.values.push(choices.value);
+            // assume worst case: no icon, no image
+            const button = new ImageButton(ImageSelect.missingIconURL, this.popupImageButtonDiv);
+            button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             this.imageButtons.push(button);
             const imageSelect = this;
             button.onClick = function() {
@@ -348,6 +361,20 @@ ImageSelect.prototype.add = function(choices) {
                     imageSelect.onChange();
                 }
             };
+            // do we have an icon?
+            if (typeof choices.icon === "string") {
+                // all is well, we have an icon
+                this.iconURLs.push(choices.icon);
+                // delayed loading
+                button.setImageURL(ImageSelect.notLoadedURL);
+                button.setBorderColor(this.design.imageButtonBorderColor);
+            } else if (this.design.choosingImages) {
+                // instead of the icon can use the image
+                this.iconURLs.push(choices.value);
+                button.setImageURL(ImageSelect.notLoadedURL);
+            }
+
+
         }
     }
 };
