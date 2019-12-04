@@ -193,7 +193,7 @@ ImageSelect.defaultDesign = {
     panelImageBorderWidth: 2,
     panelImageBorderColor: "#bbbbbb",
     // for the popup, specific
-    imageButtonsPerRow: 1,
+    imageButtonsPerRow: 2,
     imageButtonWidth: 100,
     imageButtonHeight: 100,
     imageButtonTotalWidth: 120,
@@ -363,15 +363,28 @@ ImageSelect.prototype.add = function(choices) {
             };
             // do we have an icon?
             if (typeof choices.icon === "string") {
-                // all is well, we have an icon
+                // all is well, we have an icon (assuming this is a picture url)
                 this.iconURLs.push(choices.icon);
+                console.log(choices.icon);
                 // delayed loading
                 button.setImageURL(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColor);
-            } else if (this.design.choosingImages) {
-                // instead of the icon can use the image
-                this.iconURLs.push(choices.value);
-                button.setImageURL(ImageSelect.notLoadedURL);
+            } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
+                // instead of the icon can use the image ( if the value is a jpg or png)
+                const valuePieces = choices.value.split(".");
+                console.log(valuePieces);
+                const valueEnd = valuePieces[valuePieces.length - 1].toLowerCase();
+                console.log(valueEnd);
+                if ((valueEnd === "jpg") || (valueEnd === "png")) {
+                    this.iconURLs.push(choices.value);
+                    button.setImageURL(ImageSelect.notLoadedURL);
+                } else {
+                    // no icon
+                    this.iconURLs.push(ImageSelect.missingIconURL);
+                }
+            } else {
+                // no icon
+                this.iconURLs.push(ImageSelect.missingIconURL);
             }
         }
     }
