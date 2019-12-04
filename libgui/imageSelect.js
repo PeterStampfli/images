@@ -46,6 +46,10 @@ export function ImageSelect(parent, newDesign) {
     this.panelImage.style.cursor = "pointer";
     this.panelImage.style.height = this.design.panelImageHeight + "px";
     this.panelImage.style.width = this.design.panelImageWidth + "px";
+    this.panelImage.style.border = "solid";
+    this.panelImage.style.borderStyle = "inset";
+    this.panelImage.style.borderColor = this.design.panelImageBorderColor;
+    this.panelImage.style.borderWidth = this.design.panelImageBorderWidth + "px";
     this.panelImage.style.objectFit = "contain";
     this.panelImage.style.objectPosition = "center center";
     parent.appendChild(this.panelImage);
@@ -85,7 +89,6 @@ export function ImageSelect(parent, newDesign) {
     };
 
     this.panelImage.addEventListener("mousedown", function() {
-        console.log("icon mousedown");
         imageSelect.interaction();
     });
 
@@ -106,14 +109,16 @@ export function ImageSelect(parent, newDesign) {
     // mousewheel on icon
     this.panelImage.onwheel = wheelAction;
 
-    // scroll on popup
-    this.popup.theDiv.onscroll = function(event) {
-        console.log("scroll");
-        console.log(imageSelect.popup.theDiv.scrollTop)
-        if (imageSelect.popup.isOpen()){
-      //  imageSelect.loadImages();
+
+    function loadImagesForOpenPopup() {
+        if (imageSelect.popup.isOpen()) {
+            imageSelect.loadImages();
+        }
     }
-    };
+    // scroll on popup
+    this.popup.theDiv.onscroll = loadImagesForOpenPopup;
+
+    window.addEventListener("resize", loadImagesForOpenPopup, false);
 
     this.popup.theDiv.onmouseenter = function() {
         imageSelect.popup.theDiv.focus(); // to be able to use mousewheel
@@ -165,12 +170,10 @@ export function ImageSelect(parent, newDesign) {
     // the start of interaction function that changes the ui, in particular popups
     this.onInteraction = function() {
         console.log("interaction");
-        imageSelect.popup.open();
     };
 
     // the onChange function that does the action
     this.onChange = function() {
-        //???????????????????????????????????????
         console.log("onChange imageSelect value: " + this.getValue());
     };
 }
@@ -187,16 +190,18 @@ ImageSelect.defaultDesign = {
     panelFontSize: 14,
     panelImageWidth: 40,
     panelImageHeight: 40,
+    panelImageBorderWidth: 2,
+    panelImageBorderColor: "#bbbbbb",
     // for the popup, specific
-    imageButtonsPerRow: 3,
+    imageButtonsPerRow: 1,
     imageButtonWidth: 100,
     imageButtonHeight: 100,
     imageButtonTotalWidth: 120,
     imageButtonTotalHeight: 120,
     imageButtonBorderWidth: 3,
     imageButtonBorderWidthSelected: 6,
-    imageButtonBorderColor: "#444444",
-    imageButtonBorderColorNoIcon: "#ff4444",
+    imageButtonBorderColor: "#888888",
+    imageButtonBorderColorNoIcon: "#ff6666",
     // for the popup, general
     innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
     fontFamily: "FontAwesome, FreeSans, sans-serif",
@@ -244,68 +249,65 @@ ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/
 // delayed loading (data url for green pixel)
 ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
 
-
-// loading images: only if visible
-// do when popup opens (after opening), at popup scroll events (is open) at window resize (only if popup is open)
-
 /**
- * check if an image in the popup is visible
- * the popup has to be open
- * #method ImageSelect#isVisible
- * @param {HTMLelement} image
- * @return boolean true if element (image) is visible, false if not or popup closed
- */
-ImageSelect.prototype.isVisible = function(image) {
-    let result = false;
-    if (this.popup.isOpen()) {
-        let offset = image.offsetTop;
-        let element = image.offsetParent;
-        while (element !== null) {
-            offset += element.offsetTop;
-            element = element.offsetParent;
-        }
-//        console.log("offset " + offset);
- //       console.log("imheight "+image.offsetHeight)
-  //      console.log("windowheigh "+document.documentElement.clientHeight)
-
-        // visible if higher border above lower limit of window and lower border below upper limnit of window
-        result = (offset + image.offsetHeight > 0) && (offset < document.documentElement.clientHeight);
-    } else {
-        console.log("**** warning: popop is not open, its images are not visible");
-    }
-    return result;
-};
-
-/**
- * load true images , only if visible
+ * load true (icon) images , only if visible
  * @method ImageSelect#loadImages
  */
 ImageSelect.prototype.loadImages = function() {
     const length = this.imageButtons.length;
+    const popupHeight = this.popup.theDiv.offsetHeight;
+    const popupScroll = this.popup.theDiv.scrollTop;
+    const imageDivOffset = this.popupImageButtonDiv.offsetTop;
+    const imageHeight = this.imageButtons[0].element.offsetHeight;
     for (var i = 0; i < length; i++) {
-        console.log(i);
-        console.log(this.isVisible(this.imageButtons[i].element));
-        if (this.isVisible(this.imageButtons[i].element)) {
+        const totalOffset = this.imageButtons[i].element.offsetTop + imageDivOffset - popupScroll;
+        // partially visible: "upper" border of image above zero (lower border of popup)
+        //                    AND "lower" border of image below "upper" border of popup
+        if ((totalOffset + imageHeight > 0) && (totalOffset < popupHeight)) {
             this.imageButtons[i].setImageURL(this.iconURLs[i]);
-         console.log("loading");
-       }
+        }
     }
 };
 
-
+/**
+ * make the choosen image in the popup visible, adjusts the scrollTop
+ * #method ImageSelect#makeImageButtonVisible
+ * @param {ImageButton} imageButton
+ */
+ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
+    const popupHeight = this.popup.theDiv.offsetHeight;
+    const popupScroll = this.popup.theDiv.scrollTop;
+    const imageDivOffset = this.popupImageButtonDiv.offsetTop;
+    const imageHeight = imageButton.element.offsetHeight;
+    const totalOffset = imageButton.element.offsetTop + imageDivOffset - popupScroll;
+    console.log(totalOffset);
+    console.log(imageHeight);
+    console.log(popupHeight);
+    // check if not entirely visible
+    //"lower" border is below lower border of popup  
+    if (totalOffset < 0) {
+        console.log("too low");
+        this.popup.theDiv.scrollTop = imageButton.element.offsetTop + imageDivOffset - 2 * this.design.padding;
+    }
+    // higher border is above upper border of popup
+    else if (totalOffset + imageHeight > popupHeight) {
+        console.log("too high");
+        this.popup.theDiv.scrollTop = imageButton.element.offsetTop + imageDivOffset + imageHeight - popupHeight + this.design.padding;
+    }
+};
 
 /**
  * start of interaction: load images instead of placeholders, 
- * open popup, call the onInteraction function
+ * open popup, make choosen visible, call the onInteraction function
  * @method ImageSelect#interaction
  */
 ImageSelect.prototype.interaction = function() {
-
     this.popup.open();
-
     this.loadImages();
-
-
+    const index = this.getIndex(); // in case that parameter is out of range
+    if (index >= 0) {
+        this.makeImageButtonVisible(this.imageButtons[index]);
+    }
     this.onInteraction();
 };
 
@@ -334,7 +336,6 @@ ImageSelect.prototype.add = function(choices) {
         // an object with many choices (key as name/ value as image url)
         if ((keys.length > 3) || (typeof choices.name) === "undefined" || (typeof choices.value) === "undefined") {
             // backwards compatibility, simpler setup
-            console.log("compa");
             const choice = {};
             const imageSelect = this;
             keys.forEach(function(key) {
@@ -347,7 +348,6 @@ ImageSelect.prototype.add = function(choices) {
             // adding a single option, we do not know if we have a valid icon
             this.select.addOptions(choices.name);
             const index = this.imageButtons.length;
-
             this.values.push(choices.value);
             // assume worst case: no icon, no image
             const button = new ImageButton(ImageSelect.missingIconURL, this.popupImageButtonDiv);
@@ -373,8 +373,6 @@ ImageSelect.prototype.add = function(choices) {
                 this.iconURLs.push(choices.value);
                 button.setImageURL(ImageSelect.notLoadedURL);
             }
-
-
         }
     }
 };
@@ -408,12 +406,12 @@ ImageSelect.prototype.addChoices = function(choices) {
  */
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
-    console.log(index);
-
     this.panelImage.src = this.iconURLs[index];
     this.imageButtons.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
     if (index >= 0) {
-        this.imageButtons[index].setBorderWidth(this.design.imageButtonBorderWidthSelected);
+        const choosenButton = this.imageButtons[index];
+        choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
+        this.makeImageButtonVisible(choosenButton);
     }
 };
 
@@ -428,7 +426,7 @@ ImageSelect.prototype.getIndex = function() {
 };
 
 /**
- * set the index
+ * set the index and update all displays
  * does not call the onChange callback
  * @method ImageSelect#setIndex
  * @param {integer} index
