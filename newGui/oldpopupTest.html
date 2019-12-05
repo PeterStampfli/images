@@ -33,15 +33,13 @@ pop.close();
 
 pop.open();
 */
-pop.setStyle({position: "topRight", innerWidth:80, horizontalShift:300,shadowBlue:255,borderWidth:9,borderColor: "orange"})
+pop.setStyle({backgroundColor: "red",position: "topRight", innerWidth:70, horizontalShift:300, border: "solid",borderWidth:20,shadowBlue:255})
 
 
 
 pop.setContent("abcdef abcdef abcdef abcdef abcdef abcdef abcdef abcdef abcdef  ")
 
 pop.open();
-
-pop.controlDiv.textContent="control"
 /*
 const ad=document.createElement("div");
 pop.addElement(ad)
@@ -51,8 +49,6 @@ ad.innerText="2344"
 
 //pop.destroyResizeEvent();
 //pop.destroy();
-pop.resize()
-pop.centerContent();
 
 </script>
 

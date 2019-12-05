@@ -6,6 +6,9 @@
  */
 
 export function Popup(newDesign) {
+    this.theDiv = document.createElement("div");
+    this.theDiv.style.position = "absolute";
+    this.theDiv.style.overflowX = "hidden";
     this.design = {};
     Object.assign(this.design, Popup.defaultDesign);
     for (var i = 0; i < arguments.length; i++) {
@@ -13,32 +16,8 @@ export function Popup(newDesign) {
             updateValues(this.design, arguments[i]);
         }
     }
-    // creating the main div that contains all, placing done in setStyle
-    this.mainDiv = document.createElement("div");
-    this.mainDiv.style.position = "absolute";
-    // creating the content div
-    this.contentDiv = document.createElement("div");
-
-    this.contentDiv.style.overflowY = "auto";
-    this.contentDiv.style.overflowX = "hidden";
-
-
-    this.mainDiv.appendChild(this.contentDiv);
-
-
-
-    // creating the control div, if there is one
-    if (this.design.hasControl) {
-        console.log("control");
-        this.controlDiv = document.createElement("div");
-        this.mainDiv.appendChild(this.controlDiv);
-        this.controlDiv.style.textAlign = "center";
-
-    }
-
-
     this.setStyle();
-    document.body.appendChild(this.mainDiv);
+    document.body.appendChild(this.theDiv);
 
     // resizing maxheight to fit window
     const popup = this;
@@ -55,9 +34,7 @@ export function Popup(newDesign) {
 }
 
 Popup.defaultDesign = {
-    hasControl: true, // if it has a control div
-    innerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
-    scrollBarWidth: 12, // estimate for scroll bar width
+    innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
     fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
@@ -104,11 +81,9 @@ Popup.updateDefaultDesign = function(newValues) {
  * @method Popup#center
  */
 Popup.prototype.center = function() {
-    this.mainDiv.style.top = "50%";
-    this.mainDiv.style.bottom = "";
-    this.mainDiv.style.left = "50%";
-    this.mainDiv.style.right = "";
-    this.mainDiv.style.transform = "translate(-50%,-50%)";
+    this.theDiv.style.top = "50%";
+    this.theDiv.style.left = "50%";
+    this.theDiv.style.transform = "translate(-50%,-50%)";
 };
 
 /**
@@ -118,14 +93,14 @@ Popup.prototype.center = function() {
  * @param {"top"|"bottom"} vertical
  */
 Popup.prototype.corner = function(horizontal, vertical) {
-    this.mainDiv.style.top = "";
-    this.mainDiv.style.bottom = "";
-    this.mainDiv.style.right = "";
-    this.mainDiv.style.left = "";
+    this.theDiv.style.top = "";
+    this.theDiv.style.bottom = "";
+    this.theDiv.style.right = "";
+    this.theDiv.style.left = "";
     let totalShadowWidth = this.design.shadowBlur + this.design.shadowWidth;
-    this.mainDiv.style[horizontal] = totalShadowWidth + this.design.horizontalShift + "px";
-    this.mainDiv.style[vertical] = totalShadowWidth + "px";
-    this.mainDiv.style.transform = "";
+    this.theDiv.style[horizontal] = totalShadowWidth + this.design.horizontalShift + "px";
+    this.theDiv.style[vertical] = totalShadowWidth + "px";
+    this.theDiv.style.transform = "";
 };
 
 /**
@@ -139,14 +114,32 @@ Popup.prototype.resize = function() {
     if (noShow) {
         this.open();
     }
-    let maxHeight = document.documentElement.clientHeight - 2 * (this.design.shadowBlur + this.design.shadowWidth);
-    // content div as seen in the main div extends from 0 to controlDiv.offsetTop
-    // it includes the height, paddings and border
-    maxHeight -= 2 * (this.design.borderWidth + this.design.padding);
-    if (this.design.hasControl) {
-        maxHeight -= this.controlDiv.offsetHeight;
+    let totalShadowWidth = this.design.shadowBlur + this.design.shadowWidth;
+    this.theDiv.style.overflowY = "hidden";
+    // this gives the correct result if there is no scroll bar
+    // the width does not include the padding
+    this.theDiv.style.width = this.design.innerWidth + "px";
+    this.theDiv.style.height = ""; // makes that height style property vanishes
+    // maximum available height for the div, without shadow, but including its padding
+    // clientHeight includes padding of the parent, here it is zero
+    const maxheight = document.documentElement.clientHeight - 2 * totalShadowWidth;
+    // get the total height relevant for layout, including padding and border (without shadow!)
+    const divHeight = this.theDiv.offsetHeight;
+    if (divHeight > maxheight) {
+        // attention - height is inner, does not include padding or border
+        // limit the height, such that together with shadows the popup fills the entire available height
+        this.theDiv.style.height = maxheight - 2 * this.design.padding - 2 * this.design.borderWidth + "px";
+        // a real scrolling appears only if the bottom padding has vanished
+        if (divHeight - this.design.padding > maxheight) {
+            this.theDiv.style.overflowY = "scroll";
+            // the clientWidth includes the padding!
+            // get the effective available inner width
+            const remainingWidth = this.theDiv.clientWidth - 2 * this.design.padding;
+            // increase the total width to restore the inner usable width
+            const newWidth = this.design.innerWidth + (this.design.innerWidth - remainingWidth);
+            this.theDiv.style.width = newWidth + "px";
+        }
     }
-    this.contentDiv.style.maxHeight = maxHeight + "px";
     if (noShow) {
         this.close();
     }
@@ -181,31 +174,20 @@ Popup.prototype.setStyle = function(newStyle) {
             this.corner("right", "bottom");
             break;
     }
-    this.mainDiv.style.zIndex = design.zIndex;
-    this.mainDiv.style.backgroundColor = design.backgroundColor;
-    this.mainDiv.style.color = design.textColor;
-    this.mainDiv.style.fontSize = design.fontSize + "px";
-    this.mainDiv.style.fontFamily = design.fontFamily;
-    this.mainDiv.style.border = design.border;
-    this.mainDiv.style.borderWidth = design.borderWidth + "px";
-    this.mainDiv.style.borderColor = design.borderColor;
-    // the content div
-    this.contentDiv.style.padding = design.padding + "px";
-    this.contentDiv.style.width = this.design.innerWidth + this.design.scrollBarWidth + "px";
-    // the control div
-    if (this.design.hasControl) {
-        this.controlDiv.style.padding = design.padding + "px";
-        this.controlDiv.style.borderTop = "solid";
-        this.controlDiv.style.borderTopWidth = design.borderWidth + "px";
-        this.controlDiv.style.borderTopColor = design.borderColor;
-
-    }
-
+    this.theDiv.style.zIndex = design.zIndex;
+    this.theDiv.style.backgroundColor = design.backgroundColor;
+    this.theDiv.style.color = design.textColor;
+    this.theDiv.style.fontSize = design.fontSize + "px";
+    this.theDiv.style.fontFamily = design.fontFamily;
+    this.theDiv.style.border = design.border;
+    this.theDiv.style.borderWidth = design.borderWidth + "px";
+    this.theDiv.style.borderColor = design.borderColor;
+    this.theDiv.style.padding = design.padding + "px";
     let shadow = "0px 0px " + design.shadowBlur + "px ";
     shadow += design.shadowWidth + "px ";
     shadow += "rgba(" + design.shadowRed + "," + design.shadowGreen + "," + design.shadowBlue + "," + design.shadowAlpha + ")";
-    this.mainDiv.style.boxShadow = shadow;
-    this.mainDiv.style.borderRadius = design.borderRadius + "px";
+    this.theDiv.style.boxShadow = shadow;
+    this.theDiv.style.borderRadius = design.borderRadius + "px";
     this.resize();
 };
 
@@ -214,7 +196,7 @@ Popup.prototype.setStyle = function(newStyle) {
  * @method Popup#open
  */
 Popup.prototype.open = function(content) {
-    this.mainDiv.style.display = "block";
+    this.theDiv.style.display = "block";
 };
 
 /**
@@ -222,7 +204,7 @@ Popup.prototype.open = function(content) {
  * @method Popup#close
  */
 Popup.prototype.close = function() {
-    this.mainDiv.style.display = "none";
+    this.theDiv.style.display = "none";
 };
 
 /**
@@ -231,17 +213,17 @@ Popup.prototype.close = function() {
  * @return boolean - true if popup is open
  */
 Popup.prototype.isOpen = function() {
-    return this.mainDiv.style.display !== "none";
+    return this.theDiv.style.display !== "none";
 };
 
 /**
- * clear the popup (content)
+ * clear the popup
  * (remove all children of the div)
  * @method Popup#close
  */
 Popup.prototype.clear = function() {
-    while (this.contentDiv.firstChild) {
-        this.contentDiv.removeChild(this.mainDiv.firstChild);
+    while (this.theDiv.firstChild) {
+        this.theDiv.removeChild(this.theDiv.firstChild);
     }
     this.resize();
 };
@@ -252,29 +234,19 @@ Popup.prototype.clear = function() {
  * @param {String} content - html
  */
 Popup.prototype.setContent = function(content) {
-    this.contentDiv.innerHTML = content;
+    this.theDiv.innerHTML = content;
     this.resize();
 };
 
 /**
- * add an HTML element to the content div, and resize
- * @method Popup#addContent
+ * add an HTML element, and resize
+ * @method Popup#addElement
  * @param {String} element - html element
  */
-Popup.prototype.addContent = function(element) {
-    this.contentDiv.appendChild(element);
+Popup.prototype.addElement = function(element) {
+    this.theDiv.appendChild(element);
     this.resize();
 };
-
-/**
- * center the content div
- * @method Popup#centerContent
- */
-Popup.prototype.centerContent = function() {
-    this.contentDiv.style.textAlign = "center";
-};
-
-//********************
 
 /**
  * destroy the popup
@@ -282,5 +254,5 @@ Popup.prototype.centerContent = function() {
  */
 Popup.prototype.destroy = function() {
     this.destroyResizeEvent();
-    this.mainDiv.remove();
+    this.theDiv.remove();
 };
