@@ -65,7 +65,9 @@ InstantHelp.prototype.setFontSize = function(size) {
 
 // creating the popup, one for all
 
-InstantHelp.popup = new Popup({hasControl:false});
+InstantHelp.popup = new Popup({
+    hasControl: false
+});
 InstantHelp.popup.close();
 InstantHelp.handleActiveColor = "#ffff88";
 

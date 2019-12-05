@@ -193,7 +193,7 @@ ImageButton.prototype.setBorderWidth = function(width) {
  * @param {string} color
  */
 ImageButton.prototype.setBorderColor = function(color) {
-    this.element.style.borderColor=color;
+    this.element.style.borderColor = color;
 };
 
 /**

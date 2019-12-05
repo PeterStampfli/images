@@ -4,6 +4,9 @@
  * @constructor Popup
  * @param {...object} newDesign - modifying the default design
  */
+import {
+    Button
+} from "./modules.js";
 
 export function Popup(newDesign) {
     this.design = {};
@@ -274,7 +277,16 @@ Popup.prototype.centerContent = function() {
     this.contentDiv.style.textAlign = "center";
 };
 
-//********************
+
+/**
+ * add an HTML element to the control div, and resize
+ * @method Popup#addControl
+ * @param {String} element - html element
+ */
+Popup.prototype.addControl = function(element) {
+    this.controlDiv.appendChild(element);
+    this.resize();
+};
 
 /**
  * destroy the popup

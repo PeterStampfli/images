@@ -25,16 +25,16 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.createLabel(this.property);
     this.label.style.verticalAlign = "middle";
 
-   const design = this.gui.design;
-  //  imageSelect.setFontSize(design.buttonFontSize);
-   // imageSelect.setPanelIconSize(design.smallIconSize, design.smallIconSize);
+    const design = this.gui.design;
+    //  imageSelect.setFontSize(design.buttonFontSize);
+    // imageSelect.setPanelIconSize(design.smallIconSize, design.smallIconSize);
 
 
 
     const imageSelect = new ImageSelect(this.domElement);
     imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
-     this.uiElement = imageSelect;
+    this.uiElement = imageSelect;
     this.setupOnChange();
     this.gui.bodyDiv.appendChild(this.domElement);
 }
