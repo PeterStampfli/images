@@ -277,7 +277,6 @@ Popup.prototype.centerContent = function() {
     this.contentDiv.style.textAlign = "center";
 };
 
-
 /**
  * add an HTML element to the control div, and resize
  * @method Popup#addControl
@@ -289,10 +288,27 @@ Popup.prototype.addControl = function(element) {
 };
 
 /**
+ * add a close button to the control div
+ * @method ImageSelect#addCloseButton
+ */
+Popup.prototype.addCloseButton = function() {
+    this.closeButton = new Button("close", this.controlDiv);
+    this.closeButton.setFontSize(this.design.fontSize);
+    const popup = this;
+    this.closeButton.onClick = function() {
+        popup.close();
+    };
+
+};
+
+/**
  * destroy the popup
  * @method Popup#destroy
  */
 Popup.prototype.destroy = function() {
+    if (typeof this.closeButton !== "undefined") {
+        this.closeButton.destroy();
+    }
     this.destroyResizeEvent();
     this.mainDiv.remove();
 };
