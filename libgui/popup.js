@@ -21,24 +21,17 @@ export function Popup(newDesign) {
     this.mainDiv.style.position = "absolute";
     // creating the content div
     this.contentDiv = document.createElement("div");
-
     this.contentDiv.style.overflowY = "auto";
     this.contentDiv.style.overflowX = "hidden";
-
-
     this.mainDiv.appendChild(this.contentDiv);
-
-
 
     // creating the control div, if there is one
     if (this.design.hasControl) {
-        console.log("control");
         this.controlDiv = document.createElement("div");
         this.mainDiv.appendChild(this.controlDiv);
         this.controlDiv.style.textAlign = "center";
 
     }
-
 
     this.setStyle();
     document.body.appendChild(this.mainDiv);
@@ -60,7 +53,7 @@ export function Popup(newDesign) {
 Popup.defaultDesign = {
     hasControl: true, // if it has a control div
     innerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
-    scrollBarWidth: 12, // estimate for scroll bar width
+    scrollBarWidth: 20, // estimate for scroll bar width
     fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
@@ -294,11 +287,11 @@ Popup.prototype.addControl = function(element) {
 Popup.prototype.addCloseButton = function() {
     this.closeButton = new Button("close", this.controlDiv);
     this.closeButton.setFontSize(this.design.fontSize);
+    this.resize();
     const popup = this;
     this.closeButton.onClick = function() {
         popup.close();
     };
-
 };
 
 /**

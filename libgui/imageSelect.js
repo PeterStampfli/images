@@ -41,7 +41,6 @@ export function ImageSelect(parent, newDesign) {
     // at the right of input elements there is the small (icon) image of the selection
     this.panelImage = document.createElement("img");
     this.panelImage.setAttribute("importance", "high");
-    this.panelImage.src = ImageSelect.missingIconURL;
     this.panelImage.style.verticalAlign = "middle";
     this.panelImage.style.cursor = "pointer";
     this.panelImage.style.height = this.design.panelImageHeight + "px";
@@ -59,17 +58,9 @@ export function ImageSelect(parent, newDesign) {
     this.design.padding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
     this.popup = new Popup(this.design);
     // make that the popup can get keyboard events
-    this.popup.theDiv.setAttribute("tabindex", "-1");
+    this.popup.mainDiv.setAttribute("tabindex", "-1");
+    this.popup.addCloseButton();
     this.popup.close();
-    // popup with two divs: one for image buttons, one for close button
-    this.popupImageButtonDiv = document.createElement("div");
-    this.popup.addElement(this.popupImageButtonDiv);
-    this.popupCloseButtonDiv = document.createElement("div");
-    this.popupCloseButtonDiv.style.textAlign = "center";
-    this.closePopupButton = new Button("close", this.popupCloseButtonDiv);
-    this.closePopupButton.setFontSize(this.design.fontSize);
-    this.closePopupButton.element.style.margin = this.design.padding + "px";
-    this.popup.addElement(this.popupCloseButtonDiv);
     // the data
     this.iconURLs = [];
     this.values = [];
@@ -84,7 +75,6 @@ export function ImageSelect(parent, newDesign) {
     // (as all of them change choice)
 
     this.select.onInteraction = function() {
-        console.log("select inter");
         imageSelect.interaction();
     };
 
@@ -116,16 +106,16 @@ export function ImageSelect(parent, newDesign) {
         }
     }
     // scroll on popup
-    this.popup.theDiv.onscroll = loadImagesForOpenPopup;
+    this.popup.contentDiv.onscroll = loadImagesForOpenPopup;
 
     window.addEventListener("resize", loadImagesForOpenPopup, false);
 
-    this.popup.theDiv.onmouseenter = function() {
-        imageSelect.popup.theDiv.focus(); // to be able to use mousewheel
+    this.popup.mainDiv.onmouseenter = function() {
+        imageSelect.popup.mainDiv.focus(); // to be able to use mousewheel
     };
 
     // arrowkeys on popup
-    this.popup.theDiv.onkeydown = function(event) {
+    this.popup.mainDiv.onkeydown = function(event) {
         let key = event.key;
         let index = imageSelect.getIndex();
         const buttonsPerRow = imageSelect.design.imageButtonsPerRow;
@@ -154,11 +144,6 @@ export function ImageSelect(parent, newDesign) {
                 imageSelect.select.changeIndex(-1);
             }
         }
-    };
-
-    // close the popup (other than automatically)
-    this.closePopupButton.onClick = function() {
-        imageSelect.popup.close();
     };
 
     // all events change the select element, if its value changes then update the image, the value of this and do some action
@@ -245,54 +230,47 @@ ImageSelect.updateDefaultDesign = function(newValues) {
 
 // default icons:
 // missing icon is a red image (data URL for red pixel)
-ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPAAAP8SAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
-// delayed loading (data url for green pixel)
-ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPAAABj/AAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/hFDcmVhdGVkIHdpdGggR0lNUAAh+QQAFAD/ACwAAAAAAQABAAACAkQBADs=";
+ImageSelect.missingIconURL = "data:image/gif;base64,R0lGODlhAQABAPABAP8SAAAAACH5BAAAAAAAIf4RQ3JlYXRlZCB3aXRoIEdJTVAALAAAAAABAAEAAAICRAEAOw==";
+// delayed loading (data url for grey pixel)
+ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPABAJSUlAAAACH5BAAAAAAAIf4RQ3JlYXRlZCB3aXRoIEdJTVAALAAAAAABAAEAAAICRAEAOw==";
 
 /**
- * load true (icon) images , only if visible
+ * load true (icon) images, only if visible in the popup
  * @method ImageSelect#loadImages
  */
 ImageSelect.prototype.loadImages = function() {
     const length = this.imageButtons.length;
-    const popupHeight = this.popup.theDiv.offsetHeight;
-    const popupScroll = this.popup.theDiv.scrollTop;
-    const imageDivOffset = this.popupImageButtonDiv.offsetTop;
+    const contentHeight = this.popup.contentDiv.offsetHeight;
+    const contentScroll = this.popup.contentDiv.scrollTop;
     const imageHeight = this.imageButtons[0].element.offsetHeight;
     for (var i = 0; i < length; i++) {
-        const totalOffset = this.imageButtons[i].element.offsetTop + imageDivOffset - popupScroll;
-        // partially visible: "upper" border of image above zero (lower border of popup)
-        //                    AND "lower" border of image below "upper" border of popup
-        if ((totalOffset + imageHeight > 0) && (totalOffset < popupHeight)) {
+        const totalOffset = this.imageButtons[i].element.offsetTop - contentScroll;
+        // partially visible: "upper" border of image above zero (lower border of content)
+        //                    AND "lower" border of image below "upper" border of content
+        if ((totalOffset + imageHeight > 0) && (totalOffset < contentHeight)) {
             this.imageButtons[i].setImageURL(this.iconURLs[i]);
         }
     }
 };
 
 /**
- * make the choosen image in the popup visible, adjusts the scrollTop
+ * make the choosen image in the popup visible, adjusts the scrollTop opf the popup.contentDiv
  * #method ImageSelect#makeImageButtonVisible
  * @param {ImageButton} imageButton
  */
 ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
-    const popupHeight = this.popup.theDiv.offsetHeight;
-    const popupScroll = this.popup.theDiv.scrollTop;
-    const imageDivOffset = this.popupImageButtonDiv.offsetTop;
+    const contentHeight = this.popup.contentDiv.offsetHeight;
+    const contentScroll = this.popup.contentDiv.scrollTop;
     const imageHeight = imageButton.element.offsetHeight;
-    const totalOffset = imageButton.element.offsetTop + imageDivOffset - popupScroll;
-    console.log(totalOffset);
-    console.log(imageHeight);
-    console.log(popupHeight);
+    const totalOffset = imageButton.element.offsetTop - contentScroll;
     // check if not entirely visible
     //"lower" border is below lower border of popup  
     if (totalOffset < 0) {
-        console.log("too low");
-        this.popup.theDiv.scrollTop = imageButton.element.offsetTop + imageDivOffset - 2 * this.design.padding;
+        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.padding;
     }
     // higher border is above upper border of popup
-    else if (totalOffset + imageHeight > popupHeight) {
-        console.log("too high");
-        this.popup.theDiv.scrollTop = imageButton.element.offsetTop + imageDivOffset + imageHeight - popupHeight + this.design.padding;
+    else if (totalOffset + imageHeight > contentHeight) {
+        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.padding;
     }
 };
 
@@ -350,12 +328,11 @@ ImageSelect.prototype.add = function(choices) {
             const index = this.imageButtons.length;
             this.values.push(choices.value);
             // assume worst case: no icon, no image
-            const button = new ImageButton(ImageSelect.missingIconURL, this.popupImageButtonDiv);
+            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv);
             button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             this.imageButtons.push(button);
             const imageSelect = this;
             button.onClick = function() {
-                console.log("image no " + index);
                 if (imageSelect.getIndex() !== index) {
                     imageSelect.setIndex(index);
                     imageSelect.onChange();
@@ -365,16 +342,13 @@ ImageSelect.prototype.add = function(choices) {
             if (typeof choices.icon === "string") {
                 // all is well, we have an icon (assuming this is a picture url)
                 this.iconURLs.push(choices.icon);
-                console.log(choices.icon);
                 // delayed loading
                 button.setImageURL(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColor);
             } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
                 // instead of the icon can use the image ( if the value is a jpg or png)
                 const valuePieces = choices.value.split(".");
-                console.log(valuePieces);
                 const valueEnd = valuePieces[valuePieces.length - 1].toLowerCase();
-                console.log(valueEnd);
                 if ((valueEnd === "jpg") || (valueEnd === "png")) {
                     this.iconURLs.push(choices.value);
                     button.setImageURL(ImageSelect.notLoadedURL);
