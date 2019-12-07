@@ -203,9 +203,9 @@ ImageSelect.defaultDesign = {
     shadowRed: 0,
     shadowGreen: 0,
     shadowBlue: 0,
-    shadowAlpha: 0.7,
+    shadowAlpha: 0.5,
     zIndex: 20,
-    position: "center",
+    position: "bottomRight",
     horizontalShift: 0
 };
 

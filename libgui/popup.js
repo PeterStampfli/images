@@ -50,10 +50,19 @@ export function Popup(newDesign) {
     };
 }
 
+// determine the scroll bar width
+const testDiv = document.createElement("div");
+testDiv.style.width = "100px";
+document.body.appendChild(testDiv);
+let scrollBarWidth = testDiv.clientWidth;
+testDiv.style.overflowY = "scroll";
+scrollBarWidth -= testDiv.clientWidth;
+testDiv.remove();
+
 Popup.defaultDesign = {
     hasControl: true, // if it has a control div
     innerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
-    scrollBarWidth: 20, // estimate for scroll bar width
+    scrollBarWidth: scrollBarWidth, // estimate for scroll bar width
     fontFamily: "FontAwesome, FreeSans, sans-serif",
     fontSize: 18,
     textColor: "#444444",
@@ -186,7 +195,10 @@ Popup.prototype.setStyle = function(newStyle) {
     this.mainDiv.style.borderWidth = design.borderWidth + "px";
     this.mainDiv.style.borderColor = design.borderColor;
     // the content div
-    this.contentDiv.style.padding = design.padding + "px";
+    // no padding at the right, leaving flexibility/space for scroll bar
+    this.contentDiv.style.paddingTop = design.padding + "px";
+    this.contentDiv.style.paddingLeft = design.padding + "px";
+    this.contentDiv.style.paddingBottom = design.padding + "px";
     this.contentDiv.style.width = this.design.innerWidth + this.design.scrollBarWidth + "px";
     // the control div
     if (this.design.hasControl) {
@@ -194,9 +206,7 @@ Popup.prototype.setStyle = function(newStyle) {
         this.controlDiv.style.borderTop = "solid";
         this.controlDiv.style.borderTopWidth = design.borderWidth + "px";
         this.controlDiv.style.borderTopColor = design.borderColor;
-
     }
-
     let shadow = "0px 0px " + design.shadowBlur + "px ";
     shadow += design.shadowWidth + "px ";
     shadow += "rgba(" + design.shadowRed + "," + design.shadowGreen + "," + design.shadowBlue + "," + design.shadowAlpha + ")";
