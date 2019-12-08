@@ -53,25 +53,14 @@ gui.addParagraph("There is a new image selection. It shows the choosen image or 
 
 const haeckel="/images/libgui/haeckel/haeckel_";
 
-let choices=[
-    {name: "rins",value:1,icon:haeckel+"01.png"},
-    {name: "zweiHaeck",value:22,icon:haeckel+"02.png"},
-    {name: "no icon",value:999999},
-    {name: "mehr",value:1,icon:"haeckel/haeckel_03.png"},
-    {name: "13",value:13,icon:"haeckel/haeckel_04.png"},
-    {name: "five",value:1456,icon:"haeckel/haeckel_05.png"},
-    {name: "eight",value:897,icon:"haeckel/haeckel_06.png"}
-    ];
 
-/*
- choices={
-    "haeckel01": "haeckel/haeckel_01.png",
-    "haeckel02": "haeckel/haeckel_02.png",
-    "haeckel03": "haeckel/haeckel_03.png",
-    "haeckel04": "haeckel/haeckel_04.png",
-    "haeckel05": "haeckel/haeckel_05.png",  
-};
-*/
+ const choices={};
+ for (var i=1;i<10;i++){
+    choices["haeckel0"+i]=haeckel+"0"+i+".png";
+ }
+ for (var i=10;i<20;i++){
+    choices["haeckel"+i]=haeckel+i+".png";
+ }
 
 params.image=22;
 

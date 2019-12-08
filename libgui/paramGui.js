@@ -230,12 +230,23 @@ ParamGui.defaultDesign = {
 
     // style for the image selection/preset selection
     //-------------------------------------
-    // size of the icon image
-    imageWidth: 40,
-    imageHeight: 40,
+    // the icon image
+    guiImageWidth: 40,
+    guiImageHeight: 40,
+    guiImageBorderWidth: 2,
+    guiImageBorderColor: "#bbbbbb",
     // popup
-
-    // general popup style
+    popupImagesPerRow: 1,
+    popupImageWidth: 100,
+    popupImageHeight: 100,
+    popupImageTotalWidth: 120,
+    popupImageTotalHeight: 120,
+    popupImageBorderWidth: 3,
+    popupImageBorderWidthSelected: 6,
+    popupImageBorderColor: "#888888",
+    popupImageBorderColorNoIcon: "#ff6666",
+    // general popup style, other values than the gui
+    popupBackgroundColor: "#bbbbbb"
 };
 
 // other parameters

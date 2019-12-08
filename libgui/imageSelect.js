@@ -189,10 +189,8 @@ ImageSelect.defaultDesign = {
     // for the popup, general
     // innerwidth and padding result from other data
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
-    popupFontSize: 18,
-    popupTextColor: "#444444",
+    popupFontSize: 14,
     popupBackgroundColor: "#aaaaaa",
-    popupBorder: "solid",
     popupBorderWidth: 3,
     popupBorderColor: "#444444",
     popupBorderRadius: 0,
@@ -260,11 +258,11 @@ ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
     // check if not entirely visible
     //"lower" border is below lower border of popup  
     if (totalOffset < 0) {
-        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.padding;
+        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.popupPadding;
     }
     // higher border is above upper border of popup
     else if (totalOffset + imageHeight > contentHeight) {
-        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.padding;
+        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.popupPadding;
     }
 };
 
@@ -374,6 +372,17 @@ ImageSelect.prototype.add = function(choices) {
  * @param {... object|array} choice
  */
 ImageSelect.prototype.addChoices = function(choices) {
+    // update the image button dimension according to the imageSelect design
+    const design = this.design;
+    const dimensions = {
+        imageWidth: design.popupImageWidth,
+        imageHeight: design.popupImageWidth,
+        borderWidth: design.popupImageBorderWidth,
+        totalWidth: design.popupImageTotalWidth,
+        totalHeight: design.popupImageTotalHeight,
+    };
+    ImageButton.newDimensions(dimensions);
+
     const length = arguments.length;
     for (var i = 0; i < length; i++) {
         this.add(arguments[i]);
