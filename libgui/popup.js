@@ -220,7 +220,9 @@ Popup.prototype.setStyle = function(newStyle) {
  * @method Popup#open
  */
 Popup.prototype.open = function(content) {
-    this.mainDiv.style.display = "block";
+    if (this.mainDiv.style.display !== "block") {
+        this.mainDiv.style.display = "block";
+    }
 };
 
 /**
@@ -228,7 +230,9 @@ Popup.prototype.open = function(content) {
  * @method Popup#close
  */
 Popup.prototype.close = function() {
-    this.mainDiv.style.display = "none";
+    if (this.mainDiv.style.display !== "none") {
+        this.mainDiv.style.display = "none";
+    }
 };
 
 /**

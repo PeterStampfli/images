@@ -12,7 +12,6 @@
 
 import {
     ImageButton,
-    Button,
     Select,
     Popup
 } from "./modules.js";
@@ -78,13 +77,13 @@ export function ImageSelect(parent, newDesign) {
         imageSelect.interaction();
     };
 
-    this.panelImage.addEventListener("mousedown", function() {
+    this.panelImage.onmousedown = function() {
         imageSelect.interaction();
-    });
+        return false;
+    };
 
-    // mousewheel action
-
-    function wheelAction(event) {
+    // mousewheel on icon
+    this.panelImage.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
         imageSelect.interaction();
@@ -94,21 +93,21 @@ export function ImageSelect(parent, newDesign) {
             imageSelect.select.changeIndex(-1);
         }
         return false;
-    }
-
-    // mousewheel on icon
-    this.panelImage.onwheel = wheelAction;
-
+    };
 
     function loadImagesForOpenPopup() {
         if (imageSelect.popup.isOpen()) {
             imageSelect.loadImages();
         }
     }
-    // scroll on popup
+    // scroll on popup may have to load images
     this.popup.contentDiv.onscroll = loadImagesForOpenPopup;
 
     window.addEventListener("resize", loadImagesForOpenPopup, false);
+
+    this.removeWindowEventListener = function() {
+        window.removeEventListener("resize", loadImagesForOpenPopup, false);
+    };
 
     this.popup.mainDiv.onmouseenter = function() {
         imageSelect.popup.mainDiv.focus(); // to be able to use mousewheel
@@ -144,6 +143,7 @@ export function ImageSelect(parent, newDesign) {
                 imageSelect.select.changeIndex(-1);
             }
         }
+        return false;
     };
 
     // all events change the select element, if its value changes then update the image, the value of this and do some action
@@ -289,13 +289,13 @@ ImageSelect.prototype.interaction = function() {
     this.onInteraction();
 };
 
-// actions on both the ui-panel and the popup
+// loading icons/choices
 
 /**
  * clear (delete) all choices
- * @method ImageSelect#clear
+ * @method ImageSelect#clearChoices
  */
-ImageSelect.prototype.clear = function() {
+ImageSelect.prototype.clearChoices = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
@@ -402,6 +402,8 @@ ImageSelect.prototype.update = function() {
     }
 };
 
+// reading and setting choices
+
 /**
  * get the index
  * @method ImageSelect#getIndex
@@ -442,4 +444,29 @@ ImageSelect.prototype.getValue = function() {
 ImageSelect.prototype.setValue = function(value) {
     const index = this.values.indexOf(value);
     this.setIndex(index);
+};
+
+
+
+/*
+ * destroy the image select (including popup and choices)
+ * @method ImageSelect#destroy
+ */
+ImageSelect.prototype.destroy = function() {
+    this.clearChoices();
+    this.popup.mainDiv.onkeydown = null;
+    this.popup.contentDiv.onscroll = null;
+    this.popup.destroy();
+    this.select.destroy();
+    this.space.remove();
+
+    this.panelImage.onmousedown = null;
+
+    this.panelImage.onwheel = null;
+
+
+    this.panelImage.remove();
+    this.removeWindowEventListener();
+    this.onChange = null;
+    this.onInteraction = null;
 };

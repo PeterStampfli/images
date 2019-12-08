@@ -18,8 +18,6 @@ export function ImageButton(imageURL, parent) {
     this.element.style.objectFit = "contain";
     this.element.style.objectPosition = "center center";
     Object.assign(this, ImageButton.dimensions);
-
-
     this.setDimensions();
     parent.appendChild(this.element);
     this.setImageURL(imageURL);
@@ -215,7 +213,6 @@ ImageButton.prototype.setTotalSize = function(width, height) {
  * @method ImageButton#destroy
  */
 ImageButton.prototype.destroy = function() {
-    console.log("imageb destroy");
     this.onClick = null;
     this.onMouseDown = null;
     this.element.onmousedown = null;

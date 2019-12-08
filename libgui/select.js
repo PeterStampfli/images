@@ -200,4 +200,5 @@ Select.prototype.destroy = function() {
     this.element.remove();
     this.element = null;
     this.onChange = null;
+    this.onInteraction = null;
 };
