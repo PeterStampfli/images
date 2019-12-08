@@ -225,12 +225,15 @@ ParamGui.defaultDesign = {
     // width of range element
     colorRangeWidth: 70,
 
+    // style for the popup
+    //----------------------------
+
     // style for the image selection/preset selection
     //-------------------------------------
     // size of the icon image
-       imageWidth: 40,
-        imageHeight: 40,
-            // popup
+    imageWidth: 40,
+    imageHeight: 40,
+    // popup
 
     // general popup style
 };

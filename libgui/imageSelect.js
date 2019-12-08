@@ -30,31 +30,31 @@ export function ImageSelect(parent, newDesign) {
     // the html elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
-    this.select.setFontSize(this.design.panelFontSize);
+    this.select.setFontSize(this.design.guiFontSize);
     // then a space (as a span ?)
     // accessible from outside top be able to change style
     this.space = document.createElement("span");
-    this.space.style.width = this.design.panelSpaceWidth + "px";
+    this.space.style.width = this.design.guiSpaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
     // at the right of input elements there is the small (icon) image of the selection
-    this.panelImage = document.createElement("img");
-    this.panelImage.setAttribute("importance", "high");
-    this.panelImage.style.verticalAlign = "middle";
-    this.panelImage.style.cursor = "pointer";
-    this.panelImage.style.height = this.design.panelImageHeight + "px";
-    this.panelImage.style.width = this.design.panelImageWidth + "px";
-    this.panelImage.style.border = "solid";
-    this.panelImage.style.borderStyle = "inset";
-    this.panelImage.style.borderColor = this.design.panelImageBorderColor;
-    this.panelImage.style.borderWidth = this.design.panelImageBorderWidth + "px";
-    this.panelImage.style.objectFit = "contain";
-    this.panelImage.style.objectPosition = "center center";
-    parent.appendChild(this.panelImage);
+    this.guiImage = document.createElement("img");
+    this.guiImage.setAttribute("importance", "high");
+    this.guiImage.style.verticalAlign = "middle";
+    this.guiImage.style.cursor = "pointer";
+    this.guiImage.style.height = this.design.guiImageHeight + "px";
+    this.guiImage.style.width = this.design.guiImageWidth + "px";
+    this.guiImage.style.border = "solid";
+    this.guiImage.style.borderStyle = "inset";
+    this.guiImage.style.borderColor = this.design.guiImageBorderColor;
+    this.guiImage.style.borderWidth = this.design.guiImageBorderWidth + "px";
+    this.guiImage.style.objectFit = "contain";
+    this.guiImage.style.objectPosition = "center center";
+    parent.appendChild(this.guiImage);
     // here comes the popup
     // the popup width that should be available for image buttons
-    this.design.innerWidth = this.design.imageButtonTotalWidth * this.design.imageButtonsPerRow;
-    this.design.padding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
+    this.design.popupInnerWidth = this.design.popupImageTotalWidth * this.design.popupImagesPerRow;
+    this.design.popupPadding = 0.5 * (this.design.popupImageTotalWidth - this.design.popupImageWidth);
     this.popup = new Popup(this.design);
     // make that the popup can get keyboard events
     this.popup.mainDiv.setAttribute("tabindex", "-1");
@@ -63,7 +63,7 @@ export function ImageSelect(parent, newDesign) {
     // the data
     this.iconURLs = [];
     this.values = [];
-    this.imageButtons = [];
+    this.popupImages = [];
 
     // the actions
     const imageSelect = this;
@@ -77,13 +77,13 @@ export function ImageSelect(parent, newDesign) {
         imageSelect.interaction();
     };
 
-    this.panelImage.onmousedown = function() {
+    this.guiImage.onmousedown = function() {
         imageSelect.interaction();
         return false;
     };
 
     // mousewheel on icon
-    this.panelImage.onwheel = function(event) {
+    this.guiImage.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
         imageSelect.interaction();
@@ -117,11 +117,11 @@ export function ImageSelect(parent, newDesign) {
     this.popup.mainDiv.onkeydown = function(event) {
         let key = event.key;
         let index = imageSelect.getIndex();
-        const buttonsPerRow = imageSelect.design.imageButtonsPerRow;
+        const buttonsPerRow = imageSelect.design.popupImagesPerRow;
         if (key === "ArrowDown") {
             event.preventDefault();
             event.stopPropagation();
-            if (index + buttonsPerRow < imageSelect.imageButtons.length) {
+            if (index + buttonsPerRow < imageSelect.popupImages.length) {
                 imageSelect.select.changeIndex(buttonsPerRow);
             }
         } else if (key === "ArrowUp") {
@@ -133,7 +133,7 @@ export function ImageSelect(parent, newDesign) {
         } else if (key === "ArrowRight") {
             event.preventDefault();
             event.stopPropagation();
-            if ((index % buttonsPerRow < buttonsPerRow - 1) && (index < imageSelect.imageButtons.length - 1)) {
+            if ((index % buttonsPerRow < buttonsPerRow - 1) && (index < imageSelect.popupImages.length - 1)) {
                 imageSelect.select.changeIndex(1);
             }
         } else if (key === "ArrowLeft") {
@@ -169,44 +169,38 @@ ImageSelect.defaultDesign = {
     // choosing images: the value is an image that can serve as icon, if there is no icon value
     // ok, this is not really a design parameter, make an exception
     choosingImages: true,
-    // for the ui panel
-    // dimensions without "panel" are for the popup
-    panelSpaceWidth: 5,
-    panelFontSize: 14,
-    panelImageWidth: 40,
-    panelImageHeight: 40,
-    panelImageBorderWidth: 2,
-    panelImageBorderColor: "#bbbbbb",
+    // for the static gui, not the popup
+    guiSpaceWidth: 5,
+    guiFontSize: 14,
+    guiImageWidth: 40,
+    guiImageHeight: 40,
+    guiImageBorderWidth: 2,
+    guiImageBorderColor: "#bbbbbb",
     // for the popup, specific
-    imageButtonsPerRow: 2,
-    imageButtonWidth: 100,
-    imageButtonHeight: 100,
-    imageButtonTotalWidth: 120,
-    imageButtonTotalHeight: 120,
-    imageButtonBorderWidth: 3,
-    imageButtonBorderWidthSelected: 6,
-    imageButtonBorderColor: "#888888",
-    imageButtonBorderColorNoIcon: "#ff6666",
+    popupImagesPerRow: 2,
+    popupImageWidth: 100,
+    popupImageHeight: 100,
+    popupImageTotalWidth: 120,
+    popupImageTotalHeight: 120,
+    popupImageBorderWidth: 3,
+    popupImageBorderWidthSelected: 6,
+    popupImageBorderColor: "#888888",
+    popupImageBorderColorNoIcon: "#ff6666",
     // for the popup, general
-    innerWidth: 300, // the usable client width inside, equal to the div-width except if there is a scroll bar
-    fontFamily: "FontAwesome, FreeSans, sans-serif",
-    fontSize: 18,
-    textColor: "#444444",
-    backgroundColor: "#aaaaaa",
-    padding: 10,
-    border: "solid",
-    borderWidth: 3,
-    borderColor: "#444444",
-    borderRadius: 0,
-    shadowWidth: 0,
-    shadowBlur: 0,
-    shadowRed: 0,
-    shadowGreen: 0,
-    shadowBlue: 0,
-    shadowAlpha: 0.5,
-    zIndex: 20,
-    position: "bottomRight",
-    horizontalShift: 0
+    // innerwidth and padding result from other data
+    popupFontFamily: "FontAwesome, FreeSans, sans-serif",
+    popupFontSize: 18,
+    popupTextColor: "#444444",
+    popupBackgroundColor: "#aaaaaa",
+    popupBorder: "solid",
+    popupBorderWidth: 3,
+    popupBorderColor: "#444444",
+    popupBorderRadius: 0,
+    popupShadowWidth: 0,
+    popupShadowBlur: 0,
+    popupZIndex: 20,
+    popupPosition: "bottomRight",
+    popupHorizontalShift: 0
 };
 
 // changing design parameters
@@ -239,16 +233,16 @@ ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPABAJSUlAAAACH5BA
  * @method ImageSelect#loadImages
  */
 ImageSelect.prototype.loadImages = function() {
-    const length = this.imageButtons.length;
+    const length = this.popupImages.length;
     const contentHeight = this.popup.contentDiv.offsetHeight;
     const contentScroll = this.popup.contentDiv.scrollTop;
-    const imageHeight = this.imageButtons[0].element.offsetHeight;
+    const imageHeight = this.popupImages[0].element.offsetHeight;
     for (var i = 0; i < length; i++) {
-        const totalOffset = this.imageButtons[i].element.offsetTop - contentScroll;
+        const totalOffset = this.popupImages[i].element.offsetTop - contentScroll;
         // partially visible: "upper" border of image above zero (lower border of content)
         //                    AND "lower" border of image below "upper" border of content
         if ((totalOffset + imageHeight > 0) && (totalOffset < contentHeight)) {
-            this.imageButtons[i].setImageURL(this.iconURLs[i]);
+            this.popupImages[i].setImageURL(this.iconURLs[i]);
         }
     }
 };
@@ -284,7 +278,7 @@ ImageSelect.prototype.interaction = function() {
     this.loadImages();
     const index = this.getIndex(); // in case that parameter is out of range
     if (index >= 0) {
-        this.makeImageButtonVisible(this.imageButtons[index]);
+        this.makeImageButtonVisible(this.popupImages[index]);
     }
     this.onInteraction();
 };
@@ -299,8 +293,8 @@ ImageSelect.prototype.clearChoices = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
-    this.imageButtons.forEach(button => button.destroy());
-    this.imageButtons.length = 0;
+    this.popupImages.forEach(button => button.destroy());
+    this.popupImages.length = 0;
 };
 
 /**
@@ -325,12 +319,12 @@ ImageSelect.prototype.add = function(choices) {
         } else {
             // adding a single option, we do not know if we have a valid icon
             this.select.addOptions(choices.name);
-            const index = this.imageButtons.length;
+            const index = this.popupImages.length;
             this.values.push(choices.value);
             // assume worst case: no icon, no image
             const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv);
-            button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
-            this.imageButtons.push(button);
+            button.setBorderColor(this.design.popupImageBorderColorNoIcon);
+            this.popupImages.push(button);
             const imageSelect = this;
             button.onClick = function() {
                 if (imageSelect.getIndex() !== index) {
@@ -344,7 +338,7 @@ ImageSelect.prototype.add = function(choices) {
                 this.iconURLs.push(choices.icon);
                 // delayed loading
                 button.setImageURL(ImageSelect.notLoadedURL);
-                button.setBorderColor(this.design.imageButtonBorderColor);
+                button.setBorderColor(this.design.popupImageBorderColor);
             } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
                 // instead of the icon can use the image ( if the value is a jpg or png)
                 const valuePieces = choices.value.split(".");
@@ -393,11 +387,11 @@ ImageSelect.prototype.addChoices = function(choices) {
  */
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
-    this.panelImage.src = this.iconURLs[index];
-    this.imageButtons.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
+    this.guiImage.src = this.iconURLs[index];
+    this.popupImages.forEach(button => button.setBorderWidth(this.design.popupImageBorderWidth));
     if (index >= 0) {
-        const choosenButton = this.imageButtons[index];
-        choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
+        const choosenButton = this.popupImages[index];
+        choosenButton.setBorderWidth(this.design.popupImageBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
     }
 };
@@ -459,13 +453,9 @@ ImageSelect.prototype.destroy = function() {
     this.popup.destroy();
     this.select.destroy();
     this.space.remove();
-
-    this.panelImage.onmousedown = null;
-
-    this.panelImage.onwheel = null;
-
-
-    this.panelImage.remove();
+    this.guiImage.onmousedown = null;
+    this.guiImage.onwheel = null;
+    this.guiImage.remove();
     this.removeWindowEventListener();
     this.onChange = null;
     this.onInteraction = null;

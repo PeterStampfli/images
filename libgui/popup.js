@@ -26,11 +26,10 @@ export function Popup(newDesign) {
     this.mainDiv.appendChild(this.contentDiv);
 
     // creating the control div, if there is one
-    if (this.design.hasControl) {
+    if (this.design.popupHasControl) {
         this.controlDiv = document.createElement("div");
         this.mainDiv.appendChild(this.controlDiv);
         this.controlDiv.style.textAlign = "center";
-
     }
 
     this.setStyle();
@@ -60,27 +59,27 @@ scrollBarWidth -= testDiv.clientWidth;
 testDiv.remove();
 
 Popup.defaultDesign = {
-    hasControl: true, // if it has a control div
-    innerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
-    scrollBarWidth: scrollBarWidth, // estimate for scroll bar width
-    fontFamily: "FontAwesome, FreeSans, sans-serif",
-    fontSize: 18,
-    textColor: "#444444",
-    backgroundColor: "#ffffaa",
-    padding: 10,
-    border: "solid",
-    borderWidth: 3,
-    borderColor: "#444444",
-    borderRadius: 10,
-    shadowWidth: 5,
-    shadowBlur: 10,
-    shadowRed: 0,
-    shadowGreen: 0,
-    shadowBlue: 0,
-    shadowAlpha: 0.7,
-    zIndex: 20,
-    position: "center",
-    horizontalShift: 0
+    popupHasControl: true, // if it has a control div
+    popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
+    popupScrollBarWidth: scrollBarWidth, // estimate for scroll bar width, valid for all?
+    popupFontFamily: "FontAwesome, FreeSans, sans-serif",
+    popupFontSize: 14,
+    popupTextColor: "#444444",
+    popupBackgroundColor: "#ffffaa",
+    popupPadding: 10,
+    popupBorder: "solid",
+    popupBorderWidth: 3,
+    popupBorderColor: "#444444",
+    popupBorderRadius: 20,
+    popupShadowWidth: 10,
+    popupShadowBlur: 10,
+    popupShadowRed: 0,
+    popupShadowGreen: 0,
+    popupShadowBlue: 0,
+    popupShadowAlpha: 0.7,
+    popupZIndex: 20,
+    popupPosition: "center",
+    popupHorizontalShift: 0
 };
 
 // changing design parameters
@@ -94,7 +93,7 @@ function updateValues(toObject, fromObject) {
 }
 
 /**
- * update Poipup design defaults, using data of another object with the same key 
+ * update Popup design defaults, using data of another object with the same key 
  * @method Popup.updateDefaultDesign
  * @param {Object} newValues
  */
@@ -127,8 +126,8 @@ Popup.prototype.corner = function(horizontal, vertical) {
     this.mainDiv.style.bottom = "";
     this.mainDiv.style.right = "";
     this.mainDiv.style.left = "";
-    let totalShadowWidth = this.design.shadowBlur + this.design.shadowWidth;
-    this.mainDiv.style[horizontal] = totalShadowWidth + this.design.horizontalShift + "px";
+    let totalShadowWidth = this.design.popupShadowBlur + this.design.popupShadowWidth;
+    this.mainDiv.style[horizontal] = totalShadowWidth + this.design.popupHorizontalShift + "px";
     this.mainDiv.style[vertical] = totalShadowWidth + "px";
     this.mainDiv.style.transform = "";
 };
@@ -144,11 +143,11 @@ Popup.prototype.resize = function() {
     if (noShow) {
         this.open();
     }
-    let maxHeight = document.documentElement.clientHeight - 2 * (this.design.shadowBlur + this.design.shadowWidth);
+    let maxHeight = document.documentElement.clientHeight - 2 * (this.design.popupShadowBlur + this.design.popupShadowWidth);
     // content div as seen in the main div extends from 0 to controlDiv.offsetTop
     // it includes the height, paddings and border
-    maxHeight -= 2 * (this.design.borderWidth + this.design.padding);
-    if (this.design.hasControl) {
+    maxHeight -= 2 * (this.design.popupBorderWidth + this.design.popupPadding);
+    if (this.design.popupHasControl) {
         maxHeight -= this.controlDiv.offsetHeight;
     }
     this.contentDiv.style.maxHeight = maxHeight + "px";
@@ -169,7 +168,7 @@ Popup.prototype.setStyle = function(newStyle) {
             Object.assign(design, arguments[i]);
         }
     }
-    switch (design.position) {
+    switch (design.popupPosition) {
         case "center":
             this.center();
             break;
@@ -186,32 +185,32 @@ Popup.prototype.setStyle = function(newStyle) {
             this.corner("right", "bottom");
             break;
     }
-    this.mainDiv.style.zIndex = design.zIndex;
-    this.mainDiv.style.backgroundColor = design.backgroundColor;
-    this.mainDiv.style.color = design.textColor;
-    this.mainDiv.style.fontSize = design.fontSize + "px";
-    this.mainDiv.style.fontFamily = design.fontFamily;
-    this.mainDiv.style.border = design.border;
-    this.mainDiv.style.borderWidth = design.borderWidth + "px";
-    this.mainDiv.style.borderColor = design.borderColor;
+    this.mainDiv.style.zIndex = design.popupZIndex;
+    this.mainDiv.style.backgroundColor = design.popupBackgroundColor;
+    this.mainDiv.style.color = design.popupTextColor;
+    this.mainDiv.style.fontSize = design.popupFontSize + "px";
+    this.mainDiv.style.fontFamily = design.popupFontFamily;
+    this.mainDiv.style.border = design.popupBorder;
+    this.mainDiv.style.borderWidth = design.popupBorderWidth + "px";
+    this.mainDiv.style.borderColor = design.popupBorderColor;
     // the content div
     // no padding at the right, leaving flexibility/space for scroll bar
-    this.contentDiv.style.paddingTop = design.padding + "px";
-    this.contentDiv.style.paddingLeft = design.padding + "px";
-    this.contentDiv.style.paddingBottom = design.padding + "px";
-    this.contentDiv.style.width = this.design.innerWidth + this.design.scrollBarWidth + "px";
+    this.contentDiv.style.paddingTop = design.popupPadding + "px";
+    this.contentDiv.style.paddingLeft = design.popupPadding + "px";
+    this.contentDiv.style.paddingBottom = design.popupPadding + "px";
+    this.contentDiv.style.width = this.design.popupInnerWidth + this.design.popupScrollBarWidth + "px";
     // the control div
-    if (this.design.hasControl) {
-        this.controlDiv.style.padding = design.padding + "px";
-        this.controlDiv.style.borderTop = "solid";
-        this.controlDiv.style.borderTopWidth = design.borderWidth + "px";
-        this.controlDiv.style.borderTopColor = design.borderColor;
+    if (this.design.popupHasControl) {
+        this.controlDiv.style.padding = design.popupPadding + "px";
+        this.controlDiv.style.borderTop = design.popupBorder;
+        this.controlDiv.style.borderTopWidth = design.popupBorderWidth + "px";
+        this.controlDiv.style.borderTopColor = design.popupBorderColor;
     }
-    let shadow = "0px 0px " + design.shadowBlur + "px ";
-    shadow += design.shadowWidth + "px ";
-    shadow += "rgba(" + design.shadowRed + "," + design.shadowGreen + "," + design.shadowBlue + "," + design.shadowAlpha + ")";
+    let shadow = "0px 0px " + design.popupShadowBlur + "px ";
+    shadow += design.popupShadowWidth + "px ";
+    shadow += "rgba(" + design.popupShadowRed + "," + design.popupShadowGreen + "," + design.popupShadowBlue + "," + design.popupShadowAlpha + ")";
     this.mainDiv.style.boxShadow = shadow;
-    this.mainDiv.style.borderRadius = design.borderRadius + "px";
+    this.mainDiv.style.borderRadius = design.popupBorderRadius + "px";
     this.resize();
 };
 
@@ -300,7 +299,7 @@ Popup.prototype.addControl = function(element) {
  */
 Popup.prototype.addCloseButton = function() {
     this.closeButton = new Button("close", this.controlDiv);
-    this.closeButton.setFontSize(this.design.fontSize);
+    this.closeButton.setFontSize(this.design.popupFontSize);
     this.resize();
     const popup = this;
     this.closeButton.onClick = function() {

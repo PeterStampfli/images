@@ -31,6 +31,8 @@ export function ParamImageSelection(gui, params, property, choices) {
         panelSpaceWidth: design.labelSpacing,
         panelFontSize: design.buttonFontSize,
 
+
+
     };
 
 
