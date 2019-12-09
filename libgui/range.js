@@ -10,7 +10,7 @@ import {
     Button
 } from "./modules.js";
 
-export function Range(parent, hasPlusMinus) {
+export function Range(parent, hasPlusMinus = false) {
     this.parent = parent;
     this.textElement = document.createElement("input");
     this.textElement.setAttribute("type", "text");
@@ -33,10 +33,16 @@ export function Range(parent, hasPlusMinus) {
         this.minusButton.onClick = function() {
             range.updateValue(range.lastValue - 1);
         };
+        this.minusButton.onInteraction = function() {
+            range.onInteraction();
+        };
         this.addSpace();
         this.plusButton = new Button("+", parent);
         this.plusButton.onClick = function() {
             range.updateValue(range.lastValue + 1);
+        };
+        this.plusButton.onInteraction = function() {
+            range.onInteraction();
         };
     } else {
         this.minusButton = null;
@@ -50,6 +56,10 @@ export function Range(parent, hasPlusMinus) {
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
     this.updateTextStyle();
 
+    function interaction() {
+        range.onInteraction();
+    }
+
     // hovering
     this.textElement.onmouseenter = function() {
         range.textHover = true;
@@ -62,6 +72,9 @@ export function Range(parent, hasPlusMinus) {
     };
 
     // doing things
+    this.textElement.onmousedown = interaction;
+
+
     this.textElement.onchange = function() {
         range.updateValue(range.getValueText());
     };
@@ -80,6 +93,7 @@ export function Range(parent, hasPlusMinus) {
     this.textElement.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
+        interaction();
         if (range.textPressed) {
             range.changeDigit(-event.deltaY);
         }
@@ -87,8 +101,8 @@ export function Range(parent, hasPlusMinus) {
     };
 
     this.textElement.onkeydown = function(event) {
-        let key = event.key;
         if (range.textPressed) {
+            let key = event.key;
             if (key === "ArrowDown") {
                 range.changeDigit(-1);
                 event.preventDefault();
@@ -110,12 +124,28 @@ export function Range(parent, hasPlusMinus) {
         range.updateValue(range.getValueRange());
     };
 
+    this.rangeElement.onkeydown = interaction;
+    this.rangeElement.onmousedown = interaction;
+    this.rangeElement.onwheel = interaction;
+
+    this.rangeElement.onmouseenter = function() {
+        range.rangeElement.focus();
+    };
+
     /**
      * action upon change, strategy pattern
      * @method Range#onclick
      * @param {integer} value
      */
     this.onChange = function(value) {};
+
+    /**
+     * action upon mouse down, doing an interaction
+     * @method Range#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("range Interaction");
+    };
 }
 
 // width for spaces in px
@@ -369,12 +399,17 @@ Range.prototype.destroy = function() {
     this.textElement.onblur = null;
     this.textElement.onmouseenter = null;
     this.textElement.onmouseleave = null;
+    this.textElement.onmousedown = null;
     this.textElement.onwheel = null;
     this.textElement.onkeydown = null;
     this.textElement.remove();
     this.textElement = null;
     this.rangeElement.oninput = null;
     this.rangeElement.onchange = null;
+    this.rangeElement.onkeydown = null;
+    this.rangeElement.onmouseenter = null;
+    this.rangeElement.onmousedown = null;
+    this.rangeElement.onwheel = null;
     this.rangeElement.remove();
     this.rangeElement = null;
     if (this.plusButton !== null) {

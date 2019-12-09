@@ -28,13 +28,17 @@ export function Button(text, parent) {
      * action upon click, strategy pattern
      * @method Button#onClick
      */
-    this.onClick = function() {};
+    this.onClick = function() {
+        console.log("click");
+    };
 
     /**
-     * action upon mouse down, strategy pattern
-     * @method Button#onMouseDown
+     * action upon mouse down, doing an interaction
+     * @method Button#onInteraction
      */
-    this.onMouseDown = function() {};
+    this.onInteraction = function() {
+        console.log("Interaction");
+    };
 
     /**
      * action after loading a new input file for file input buttons
@@ -51,7 +55,7 @@ export function Button(text, parent) {
         if (button.active) {
             button.pressed = true;
             button.updateStyle();
-            button.onMouseDown();
+            button.onInteraction();
         }
     };
 
@@ -61,7 +65,7 @@ export function Button(text, parent) {
                 button.pressed = false;
                 button.onClick();
             }
-            button.element.blur();
+            button.element.blur(); // get rid of outline
             button.updateStyle();
         }
     };

@@ -38,10 +38,12 @@ export function ImageButton(imageURL, parent) {
     };
 
     /**
-     * action upon mouse down, strategy pattern
-     * @method Button#onMouseDown
+     * action upon mouse down, doing an interaction
+     * @method ImageButton#onInteraction
      */
-    this.onMouseDown = function() {};
+    this.onInteraction = function() {
+        console.log("Interaction");
+    };
 
     // a list of actions....
 
@@ -50,7 +52,7 @@ export function ImageButton(imageURL, parent) {
     this.element.onmousedown = function() {
         button.pressed = true;
         button.updateStyle();
-        button.onMouseDown();
+        button.onInteraction();
     };
 
     this.element.onmouseup = function() {

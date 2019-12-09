@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>button test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+
+import {
+Button, Range, BooleanButton,NumberButton
+} from "../libgui/modules.js";
+
+
+console.log("hello");
+
+const thisDiv=document.getElementById("thisDiv");
+ const b=new Button("blalab",thisDiv)
+const r=new Range(thisDiv,true)
+const boo=new BooleanButton(thisDiv)
+const nn=new NumberButton(thisDiv,true,true)
+
+
+</script>
+
+
+</html>

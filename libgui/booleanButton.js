@@ -22,10 +22,17 @@ export function BooleanButton(parent) {
 
     /**
      * action upon value change
-     * @method Button#onChange
+     * @method BooleanButton#onChange
      */
     this.onChange = function() {
         console.log("change");
+    };
+    /**
+     * action upon mouse down, doing an interaction
+     * @method BooleanButton#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("range Interaction");
     };
 
     // a list of actions....
@@ -39,6 +46,7 @@ export function BooleanButton(parent) {
     this.element.onmousedown = function() {
         button.value = !button.value;
         button.mouseDown = true;
+        button.onInteraction();
         button.updateStyle();
     };
 

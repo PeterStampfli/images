@@ -7,7 +7,7 @@
 
 import {
     Popup
-} from "../libgui/modules.js";
+} from "./modules.js";
 
 export function InstantHelp(content, parent) {
     this.element = document.createElement("button");

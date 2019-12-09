@@ -13,7 +13,7 @@ import {
     Button
 } from "./modules.js";
 
-export function NumberButton(parent, hasPlusMinus, hasMinMax) {
+export function NumberButton(parent, hasPlusMinus = false, hasMinMax = false) {
     this.parent = parent;
     this.element = document.createElement("input");
     parent.appendChild(this.element);
@@ -27,10 +27,16 @@ export function NumberButton(parent, hasPlusMinus, hasMinMax) {
         this.minusButton.onClick = function() {
             button.updateValue(button.lastValue - 1);
         };
+        this.minusButton.onInteraction = function() {
+            button.onInteraction();
+        };
         this.addSpace();
         this.plusButton = new Button("+", parent);
         this.plusButton.onClick = function() {
             button.updateValue(button.lastValue + 1);
+        };
+        this.plusButton.onInteraction = function() {
+            button.onInteraction();
         };
     } else {
         this.minusButton = null;
@@ -42,10 +48,16 @@ export function NumberButton(parent, hasPlusMinus, hasMinMax) {
         this.minButton.onClick = function() {
             button.updateValue(button.minValue);
         };
+        this.minButton.onInteraction = function() {
+            button.onInteraction();
+        };
         this.addSpace();
         this.maxButton = new Button("max", parent);
         this.maxButton.onClick = function() {
             button.updateValue(button.maxValue);
+        };
+        this.maxButton.onInteraction = function() {
+            button.onInteraction();
         };
     } else {
         this.minButton = null;
@@ -72,8 +84,20 @@ export function NumberButton(parent, hasPlusMinus, hasMinMax) {
      */
     this.onChange = function(value) {};
 
+    /**
+     * action upon mouse down, doing an interaction
+     * @method NumberButton#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("numberInteraction");
+    };
+
     this.element.onchange = function() {
         button.updateValue(button.getValue());
+    };
+
+    this.element.onmousedown = function() {
+        button.onInteraction();
     };
 
     // onfocus /onblur corresponds to pressed
