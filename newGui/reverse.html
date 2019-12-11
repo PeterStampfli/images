@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>reverse test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script>
+console.log("reverse"); 
+//numObj.toString([radix])
+
+function reverse(n){
+    r=0;
+    while (n>0){
+        r=r*b+n%b;
+        n=Math.floor(n/b);
+    }
+    return r;
+}
+
+var b=10;
+console.log(reverse(12783))
+var nums=30;
+var last2=1;
+var last=1;
+var result="1, 1"
+var rev="1, 1"
+var i
+
+for (i=3;i<nums;i++){
+    next=reverse(last)+reverse(last2);
+    console.log(next+" "+reverse(next));
+    console.log(next.toString(b)+" "+reverse(next).toString(b));
+    result+=", "+next.toString(b);
+    rev+=", "+reverse(next).toString(b);
+    last2=last;
+    last=next;
+}
+console.log("base "+b)
+console.log(result)
+console.log(rev)
+
+nums=100
+
+last=1
+last2=1
+
+for ( i=3;i<nums;i++){
+    next=last+last2;
+    console.log(i+" "+next+" "+Math.log(next)/i/Math.log(1.618))
+    last2=last;
+    last=(next);
+   // last=reverse(next);
+    if (next>Number.MAX_SAFE_INTEGER){
+        break;
+    }
+}
+console.log("base "+b)
+
+console.log("maxtestreverse "+i+": "+" "+Math.log(next)/i/Math.log(1.618))
+console.log(next)
+
+
+
+</script>
+
+
+</html>

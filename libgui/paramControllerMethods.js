@@ -70,7 +70,6 @@ paramControllerMethods.initCreate = function() {
     };
 };
 
-
 /**
  * add a help alert
  * @method paramControllerMethods.addHelp
@@ -82,7 +81,6 @@ paramControllerMethods.addHelp = function(message) {
     this.helpButton.setFontSize(this.gui.design.buttonFontSize);
     return this;
 };
-
 
 /**
  * connect the ui controller with the param object:
@@ -102,6 +100,18 @@ paramControllerMethods.setupOnChange = function() {
             controller.params[controller.property] = value;
             controller.callback(value);
         }
+    };
+};
+
+/**
+ * setup the onInteraction function of the ui element:
+ * calling the ParamGui.closePopup method
+ * @method paramControllerMethods.setupOnInteraction
+ */
+paramControllerMethods.setupOnInteraction = function() {
+    const element = this.uiElement;
+    element.onInteraction = function() {
+        console.log("interaction");
     };
 };
 
@@ -255,4 +265,14 @@ paramControllerMethods.hide = function() {
 paramControllerMethods.show = function() {
     this.domElement.style.display = "block";
     return this;
+};
+
+/**
+ * for controllers with popup: close the popup
+ * most controllers don't have a popup, thus this method stub does nothing
+ * overwrite for controllers with a popup
+ * @method paramControllerMethods.closePopup
+ */
+paramControllerMethods.closePopup = function() {
+    console.log("controller closes popup");
 };

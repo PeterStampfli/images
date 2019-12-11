@@ -33,6 +33,14 @@ export function TextInput(parent) {
         console.log("nada");
     };
 
+    /**
+     * action upon mouse down, doing an interaction
+     * @method TestInput#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("textinput select Interaction");
+    };
+
     var textInput = this;
     this.element.onchange = function() {
         textInput.onChange();
@@ -58,6 +66,10 @@ export function TextInput(parent) {
     this.element.onmouseleave = function() {
         textInput.hover = false;
         textInput.updateStyle();
+    };
+
+    this.element.onmousedown = function() {
+        textInput.onInteraction();
     };
 }
 
@@ -113,7 +125,7 @@ TextInput.prototype.setValue = function(text) {
 };
 
 /**
- * destroy the checkbox
+ * destroy the textinput
  * @method TextInput#destroy
  */
 TextInput.prototype.destroy = function() {

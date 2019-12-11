@@ -93,6 +93,7 @@ export function ParamController(gui, params, property, low, high, step) {
         selectValues.addOptions(low);
         selectValues.setValue(paramValue);
         this.setupOnChange();
+        this.setupOnInteraction();
     } else if (isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
         this.createLabel(this.property);
@@ -102,6 +103,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = button;
         button.setValue(paramValue);
         this.setupOnChange();
+        this.setupOnInteraction();
     } else if (!isDefined(paramValue) || (typeof paramValue === "function")) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
@@ -115,6 +117,7 @@ export function ParamController(gui, params, property, low, high, step) {
         button.onClick = function() {
             controller.callback();
         };
+        this.setupOnInteraction();
     } else if (isString(paramValue)) {
         // the parameter value is a string thus make a text input button
         this.createLabel(this.property);
@@ -124,6 +127,7 @@ export function ParamController(gui, params, property, low, high, step) {
         textInput.setValue(this.params[this.property]);
         this.uiElement = textInput;
         this.setupOnChange();
+        this.setupOnInteraction();
     } else if (isInteger(paramValue) && (!isDefined(low) || isInteger(low)) &&
         (!isDefined(high) || isInteger(high)) && !isDefined(step)) {
         // the parameter value is integer, and the low limit is integer or undefined 
@@ -148,6 +152,7 @@ export function ParamController(gui, params, property, low, high, step) {
         };
         this.uiElement = button;
         this.setupOnChange();
+        this.setupOnInteraction();
     } else if (isInteger(paramValue) && isInteger(low) && isInteger(high) && isNumber(step) && (Math.abs(step - 1) < 0.01)) {
         // the parameter value is integer, and the low limit too 
         // high is integer and step is integer equal to 1
@@ -166,6 +171,7 @@ export function ParamController(gui, params, property, low, high, step) {
         };
         this.uiElement = range;
         this.setupOnChange();
+        this.setupOnInteraction();
     } else if (isNumber(paramValue) && isNumber(low) && isNumber(high)) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
@@ -184,6 +190,7 @@ export function ParamController(gui, params, property, low, high, step) {
         };
         this.uiElement = range;
         this.setupOnChange();
+        this.setupOnInteraction();
     } else {
         // no idea/error
         this.createLabel(this.property + " *** error: no controll");

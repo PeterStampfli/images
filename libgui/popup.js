@@ -71,7 +71,7 @@ Popup.defaultDesign = {
     popupBorderWidth: 3,
     popupBorderColor: "#444444",
     popupBorderRadius: 20,
-    popupShadowWidth: 10,
+    popupShadowWidth: 5,
     popupShadowBlur: 10,
     popupShadowRed: 0,
     popupShadowGreen: 0,

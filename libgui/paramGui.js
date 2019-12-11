@@ -357,6 +357,16 @@ ParamGui.updateZIndices = function() {
 };
 
 /**
+ * close all popups of all guis
+ * @method ParamGui.closePopup
+ */
+ParamGui.closePopup = function() {
+    for (var i = 0; i < ParamGui.rootGuis.length; i++) {
+        ParamGui.rootGuis[i].closePopup();
+    }
+};
+
+/**
  * adding a root gui to the collection, update the zIndices
  * it will be last and visible in front
  * @method ParamGui.addRootGui
@@ -878,4 +888,11 @@ ParamGui.prototype.destroy = function() {
     }
 };
 
-self.ParamGui = ParamGui;
+/**
+ * close popups
+ * @method ParamGui#closePopup
+ */
+ParamGui.prototype.closePopup = function() {
+    console.log("folder popup close");
+    this.elements.forEach(element => element.closePopup());
+};

@@ -25,9 +25,21 @@ export function SelectValues(parent) {
         console.log(selectValues.getIndex());
     };
 
+    /**
+     * action upon mouse down, doing an interaction
+     * @method SelectValues#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("value select Interaction");
+    };
+
     this.select.onChange = function() {
         selectValues.value = selectValues.values[selectValues.select.getIndex()];
         selectValues.onChange();
+    };
+
+    this.select.onInteraction = function() {
+        selectValues.onInteraction();
     };
 }
 
@@ -116,4 +128,14 @@ SelectValues.prototype.getValue = function() {
 SelectValues.prototype.setValue = function(value) {
     const index = this.values.indexOf(value);
     this.setIndex(index);
+};
+
+/**
+ * destroy the SelectValue
+ * @method SelectValue#destroy
+ */
+SelectValues.prototype.destroy = function() {
+    this.onChange = null;
+    this.onInteraction = null;
+    this.select.destroy();
 };

@@ -27,6 +27,7 @@ export function BooleanButton(parent) {
     this.onChange = function() {
         console.log("change");
     };
+
     /**
      * action upon mouse down, doing an interaction
      * @method BooleanButton#onInteraction
