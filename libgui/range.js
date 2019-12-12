@@ -56,6 +56,7 @@ export function Range(parent, hasPlusMinus = false) {
     this.colorStyleDefaults(); // the colors/backgroundcolors for different states
     this.updateTextStyle();
 
+    // calling the onInteraction method
     function interaction() {
         range.onInteraction();
     }

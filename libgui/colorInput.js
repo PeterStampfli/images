@@ -14,6 +14,7 @@ import {
 export function ColorInput(parent, hasAlpha) {
     this.parent = parent;
     this.hasAlpha = hasAlpha;
+    // a textelement for showing/enetering hex color codes
     this.textElement = document.createElement("input");
     this.textElement.setAttribute("type", "text");
     this.textElement.style.verticalAlign = "middle";
@@ -24,6 +25,7 @@ export function ColorInput(parent, hasAlpha) {
     this.firstSpace.style.width = ColorInput.spaceWidth + "px";
     this.firstSpace.style.display = "inline-block";
     this.parent.appendChild(this.firstSpace);
+    // a color input element, for selecting color with the point and click interface of the browser
     this.colorElement = document.createElement("input");
     this.colorElement.setAttribute("type", "color");
     this.colorElement.style.cursor = "pointer";
@@ -32,6 +34,7 @@ export function ColorInput(parent, hasAlpha) {
     this.colorElement.select(); // magic for old browsers that have no color input, text instead
     parent.appendChild(this.colorElement);
     this.colorHover = false;
+    // a range element for the alpha component, to go with the browsers color picker
     if (hasAlpha) {
         const secondSpace = document.createElement("span");
         secondSpace.style.width = ColorInput.spaceWidth + "px";
@@ -54,6 +57,11 @@ export function ColorInput(parent, hasAlpha) {
 
     const colorInput = this;
 
+    // calling the onInteraction method
+    function interaction() {
+        colorInput.onInteraction();
+    }
+
     // hovering, focus -> styling
     this.textElement.onmouseenter = function() {
         colorInput.textHover = true;
@@ -64,6 +72,8 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.textHover = false;
         colorInput.updateTextStyle();
     };
+
+    this.textElement.onmousedown = interaction;
 
     // onfocus /onblur corresponds to pressed
     this.textElement.onfocus = function() {
@@ -95,6 +105,7 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.updateValue(color);
     };
 
+    // get color value from the browsers color input
     function colorElementInput() {
         let color = colorInput.colorElement.value;
         if (colorInput.hasAlpha) { // combine rgb with alpha from range (all elements are synchro)
@@ -105,10 +116,12 @@ export function ColorInput(parent, hasAlpha) {
 
     this.colorElement.oninput = colorElementInput;
     this.colorElement.onchange = colorElementInput;
+    this.colorElement.onmousedown = interaction;
 
     if (hasAlpha) {
         this.rangeElement.oninput = colorElementInput;
         this.rangeElement.onchange = colorElementInput;
+        this.rangeElement.onmousedown = interaction;
     }
 
     this.colorStyleDefaults();
@@ -122,6 +135,14 @@ export function ColorInput(parent, hasAlpha) {
      */
     this.onChange = function(color) {
         console.log("onChange " + color);
+    };
+
+    /**
+     * action upon mouse down, doing an interaction
+     * @method ColorInput#onInteraction
+     */
+    this.onInteraction = function() {
+        console.log("color input Interaction");
     };
 }
 
@@ -396,12 +417,14 @@ ColorInput.prototype.destroy = function() {
     this.textElement.onchange = null;
     this.textElement.onmouseenter = null;
     this.textElement.onmouseleave = null;
+    this.textElement.onmousedown = null;
     this.textElement.onfocus = null;
     this.textElement.onblur = null;
     this.textElement.remove();
     this.textElement = null;
     this.colorElement.onmouseenter = null;
     this.colorElement.onmouseleave = null;
+    this.textElement.onmousedown = null;
     this.colorElement.oninput = null;
     this.colorElement.onchange = null;
     this.colorElement.remove();
@@ -409,6 +432,7 @@ ColorInput.prototype.destroy = function() {
     if (this.hasAlpha) {
         this.rangeElement.oninput = null;
         this.rangeElement.onchange = null;
+        this.rangeElement.onmousedown = null;
         this.rangeElement.remove();
         this.rangeElement = null;
     }
