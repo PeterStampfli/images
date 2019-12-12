@@ -34,6 +34,7 @@ export function ParamColor(gui, params, property) {
     colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
     this.uiElement = colorInput;
     this.setupOnChange();
+    this.setupOnInteraction();
     this.gui.bodyDiv.appendChild(this.domElement);
 }
 

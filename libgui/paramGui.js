@@ -834,7 +834,7 @@ ParamGui.prototype.getSaveObject = function() {
  * @param {Object} params - an object containing parameter values
  */
 ParamGui.prototype.remember = function(params) {
-    console.log("********ParamGui#remeber method not implemented");
+    console.log("********ParamGui#remember method not implemented");
 };
 
 /**
@@ -893,6 +893,5 @@ ParamGui.prototype.destroy = function() {
  * @method ParamGui#closePopup
  */
 ParamGui.prototype.closePopup = function() {
-    console.log("folder popup close");
     this.elements.forEach(element => element.closePopup());
 };

@@ -1,6 +1,7 @@
 import {
     paramControllerMethods,
-    ImageSelect
+    ImageSelect,
+    ParamGui
 } from "./modules.js";
 
 /**
@@ -38,7 +39,6 @@ export function ParamImageSelection(gui, params, property, choices) {
         // design
         popupFontFamily: design.fontFamily,
         popupFontSize: design.labelFontSize,
-
         popupBackgroundColor: design.popupBackgroundColor,
         popupBorderWidth: design.borderWidth,
         popupBorderColor: design.borderColor,
@@ -62,10 +62,25 @@ export function ParamImageSelection(gui, params, property, choices) {
     imageSelect.setValue(this.params[this.property]);
     this.uiElement = imageSelect;
     this.setupOnChange();
+
+
+    // on interaction: call close popups, 
+    // mark that this image selection interacts, do not close its own popup
+
+    this.callsClosePopup = false;
+    const paramImageSelection = this;
+    imageSelect.onInteraction = function() {
+        paramImageSelection.onInteraction();
+    };
+
+    this.onInteraction = function() {
+        paramImageSelection.callsClosePopup = true;
+        ParamGui.closePopup();
+        paramImageSelection.callsClosePopup = false;
+    };
+
     this.gui.bodyDiv.appendChild(this.domElement);
 }
-
-const px = "px";
 
 // "inherit" paramControllerMethods:
 //======================================
@@ -85,6 +100,19 @@ const px = "px";
 // this.name
 
 Object.assign(ParamImageSelection.prototype, paramControllerMethods);
+
+/**
+ * close the popup
+ * most controllers don't have a popup, thus this method stub does nothing
+ * overwrite for controllers with a popup
+ * @method ImageSelect.closePopup
+ */
+
+ParamImageSelection.prototype.closePopup = function() {
+    if (!this.callsClosePopup) {
+        this.uiElement.closePopup();
+    }
+};
 
 /**
  * destroy the controller

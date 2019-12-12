@@ -281,6 +281,14 @@ ImageSelect.prototype.interaction = function() {
     this.onInteraction();
 };
 
+/**
+ * close the popup
+ * @method ImageSelect#closePopup
+ */
+ImageSelect.prototype.closePopup = function() {
+    this.popup.close();
+};
+
 // loading icons/choices
 
 /**

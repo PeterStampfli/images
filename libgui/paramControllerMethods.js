@@ -111,13 +111,13 @@ paramControllerMethods.setupOnChange = function() {
 paramControllerMethods.setupOnInteraction = function() {
     const element = this.uiElement;
     element.onInteraction = function() {
-        console.log("interaction");
+        ParamGui.closePopup();
     };
 };
 
 /**
  * set the callback function for onchange events
- * will be called for any input changes
+ * this is DIFFERENT to my usual definition to be compatible with dat.gui
  * @method paramControllerMethods.onChange
  * @param {function} callback - function(value), with value of controller as argument
  * @return this
@@ -273,6 +273,4 @@ paramControllerMethods.show = function() {
  * overwrite for controllers with a popup
  * @method paramControllerMethods.closePopup
  */
-paramControllerMethods.closePopup = function() {
-    console.log("controller closes popup");
-};
+paramControllerMethods.closePopup = function() {};
