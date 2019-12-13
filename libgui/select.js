@@ -28,7 +28,6 @@ export function Select(parent) {
         console.log("onchange " + select.getIndex());
     };
 
-
     /**
      * action upon start of user interaction
      * @method Select#uponInteraction (open popup, close others)
@@ -43,7 +42,6 @@ export function Select(parent) {
     this.element.onchange = function() {
         select.onChange();
     };
-
 
     // hovering
     this.element.onmouseenter = function() {

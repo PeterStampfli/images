@@ -12,6 +12,7 @@
 
 import {
     ImageButton,
+    Button,
     Select,
     Popup
 } from "./modules.js";
@@ -246,7 +247,7 @@ ImageSelect.prototype.loadImages = function() {
 };
 
 /**
- * make the choosen image in the popup visible, adjusts the scrollTop opf the popup.contentDiv
+ * make that the choosen image lies in the popup, adjusts the scrollTop of the popup.contentDiv
  * #method ImageSelect#makeImageButtonVisible
  * @param {ImageButton} imageButton
  */
@@ -308,7 +309,7 @@ ImageSelect.prototype.clearChoices = function() {
  */
 ImageSelect.prototype.add = function(choices) {
     if (Array.isArray(choices)) { // an array
-        choices.forEach(choice => this.addChoices(choice));
+        choices.forEach(choice => this.addChoices(choice)); // arrays of arrays ??
     } else {
         const keys = Object.keys(choices);
         // an object with many choices (key as name/ value as image url)
@@ -322,8 +323,9 @@ ImageSelect.prototype.add = function(choices) {
                 choice.value = choice.icon;
                 imageSelect.add(choice);
             });
-        } else {
-            // adding a single option, we do not know if we have a valid icon
+        } else if (this.findIndex(choices.value) < 0) {
+            // adding a single option, no multiple values
+            // we do not know if we have a valid icon
             this.select.addOptions(choices.name);
             const index = this.popupImages.length;
             this.values.push(choices.value);
@@ -346,7 +348,7 @@ ImageSelect.prototype.add = function(choices) {
                 button.setImageURL(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.popupImageBorderColor);
             } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
-                // instead of the icon can use the image ( if the value is a jpg or png)
+                // instead of the icon can use the image ( if the value is a jpg,svg or png)
                 const valuePieces = choices.value.split(".");
                 const valueEnd = valuePieces[valuePieces.length - 1].toLowerCase();
                 if ((valueEnd === "jpg") || (valueEnd === "png")) {
@@ -390,12 +392,41 @@ ImageSelect.prototype.addChoices = function(choices) {
         totalHeight: design.popupImageTotalHeight,
     };
     ImageButton.newDimensions(dimensions);
-
     const length = arguments.length;
     for (var i = 0; i < length; i++) {
         this.add(arguments[i]);
     }
     this.popup.resize();
+};
+
+/**
+ * set up the possibility to add user side image files
+ * as choice object {name: file name, icon: dataURL of file, image: dataURL of file}
+ * @method ImageSelect#acceptUserImages
+ */
+ImageSelect.prototype.acceptUserImages = function() {
+
+    // a space between button and icon
+    // accessible from outside top be able to change style
+    this.secondSpace = document.createElement("span");
+    this.secondSpace.style.width = this.design.guiSpaceWidth + "px";
+    this.secondSpace.style.display = "inline-block";
+    this.parent.insertBefore(this.secondSpace, this.guiImage);
+    // the user input button
+    this.userInput = new Button("add images", document.body);
+    this.userInput.setFontSize(this.design.guiFontSize);
+    this.parent.insertBefore(this.userInput.element, this.secondSpace);
+
+    this.userInput.asFileInput("image/*");
+    this.userInput.fileInput.setAttribute("multiple", "true");
+
+    this.userInput.onFileInput = function(files) {
+        console.log(files.length);
+        for (let i = 0; i < files.length; i++) {
+            console.log(files[i].name);
+            // readImage(files[i]);
+        }
+    };
 };
 
 /**
@@ -447,17 +478,27 @@ ImageSelect.prototype.getValue = function() {
 };
 
 /**
+ * find the index to a given value
+ * @method ImageSelect#findIndex
+ * @param {whatever} value
+ * @return index to first occurence of the value, -1 if not found
+ */
+ImageSelect.prototype.findIndex = function(value) {
+    return this.values.indexOf(value);
+};
+
+/**
  * set the value and update display
  * does not call the onChange callback
  * @method ImageSelect#setValue
  * @param {whatever} value
  */
 ImageSelect.prototype.setValue = function(value) {
-    const index = this.values.indexOf(value);
-    this.setIndex(index);
+    const index = this.findIndex(value);
+    if (index >= 0) {
+        this.setIndex(index);
+    }
 };
-
-
 
 /*
  * destroy the image select (including popup and choices)
@@ -470,6 +511,12 @@ ImageSelect.prototype.destroy = function() {
     this.popup.destroy();
     this.select.destroy();
     this.space.remove();
+    if (typeof this.userInput !== "undefined") {
+        console.log("destroy user inputz");
+        this.userInput.destroy();
+        this.secondSpace.remove();
+
+    }
     this.guiImage.onmousedown = null;
     this.guiImage.onwheel = null;
     this.guiImage.remove();

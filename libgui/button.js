@@ -43,9 +43,9 @@ export function Button(text, parent) {
     /**
      * action after loading a new input file for file input buttons
      * @method Button#onFileInput
-     * @param {File} file - input file object
+     * @param {File} files - array of (input) file objects
      */
-    this.onFileInput = function(file) {};
+    this.onFileInput = function(files) {};
 
     // a list of actions....
 
@@ -229,7 +229,7 @@ Button.prototype.asFileInput = function(accept = ".jpg") {
     fileInput.setAttribute("accept", accept);
     let button = this;
     fileInput.onchange = function() {
-        button.onFileInput(fileInput.files[0]);
+        button.onFileInput(fileInput.files);
     };
     this.onClick = function() {
         button.fileInput.click();

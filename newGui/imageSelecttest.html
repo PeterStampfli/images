@@ -31,7 +31,7 @@ thisDiv.innerText="sdfdfdf"
 thisDiv.style.width="300px"
 thisDiv.style.height="300px"
 
-thisDiv.style.backgroundColor="yellow"
+thisDiv.style.backgroundColor="#bbbbbb"
 
 console.log(thisDiv.clientWidth)
 
@@ -47,6 +47,7 @@ testDiv.remove();
 
 
 const sel=new ImageSelect(thisDiv,{});
+sel.acceptUserImages();
 
 
 const haeckel="/images/libgui/haeckel/haeckel_";
@@ -73,7 +74,7 @@ sel.addChoices(choices);
 sel.addChoices({name:"missing",value:haeckel+"22.png"})
 
     // you can add the image buttons later to save window loading time
-sel.setValue(1);
+sel.setValue(haeckel+"02.png");
 
 //sel.removeWindowEventListener()
 //sel.destroy();
