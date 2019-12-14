@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>image select test</title>
+</head>
+
+<body>
+
+<div id="thisDiv"></div>
+
+</body>
+
+
+
+<script type="module">
+
+import {
+ImageSelect
+
+} from "../libgui/modules.js";
+
+
+
+const thisDiv=document.getElementById("thisDiv");
+thisDiv.innerText="sdfdfdf"
+
+thisDiv.style.width="300px"
+thisDiv.style.height="300px"
+
+thisDiv.style.backgroundColor="#bbbbbb"
+
+thisDiv.ondrop=function(event){
+
+      event.preventDefault();
+console.log("drop")
+}
+
+thisDiv.ondragover=function(event){
+
+      event.preventDefault();
+console.log("dragover")
+}
+
+
+</script>
+
+
+</html>

@@ -311,9 +311,13 @@ const goodExtensions = ["jpg", "jpeg", "png", "svg", "bmp", "gif"];
 
 function isGoodImageFile(fileName) {
     const namePieces = fileName.split(".");
-    const extension = namePieces[namePieces.length - 1].toLowerCase();
-    const index = goodExtensions.indexOf(extension);
-    return (index >= 0);
+    if (namePieces.length > 1) {
+        const extension = namePieces[namePieces.length - 1].toLowerCase();
+        const index = goodExtensions.indexOf(extension);
+        return (index >= 0);
+    } else {
+        return false;
+    }
 }
 
 /**
@@ -413,9 +417,9 @@ ImageSelect.prototype.addChoices = function(choices) {
 };
 
 /* 
- * doing the image: load as a dataURL
+ * doing the image: load file as a dataURL
  * test if it is really an image
- * add as choice object {name: file name, icon: dataURL of file, image: dataURL of file}
+ * add as choice object {name: file name without extension, icon: dataURL of file, image: dataURL of file}
  * do this with overhead and threadsafe (?), loading multiple images results in concurrent threads
  */
 ImageSelect.prototype.addUserImage = function(file) {
@@ -429,6 +433,9 @@ ImageSelect.prototype.addUserImage = function(file) {
 
         const fileReader = new FileReader();
         fileReader.onload = function() {
+
+
+
             choice.icon = fileReader.result;
             choice.value = fileReader.result;
             console.log("success with " + file.name);
@@ -479,6 +486,28 @@ ImageSelect.prototype.acceptUserImages = function() {
         }
         imageSelect.interaction();
     };
+
+    this.popup.mainDiv.ondragover = function(event) {
+
+        event.preventDefault();
+        console.log("dragover");
+    };
+
+    this.popup.mainDiv.ondrop = function(event) {
+
+        event.preventDefault();
+        console.log("dropp");
+        // Use DataTransfer interface to access the file(s)
+        /*          const length = event.dataTransfer.files.length;
+                while (!imageFileFound && (i < length)) {
+                    file = event.dataTransfer.files[i];
+                    imageFileFound = isImageFile(file);
+                    i++;
+                }
+*/
+    };
+
+
 };
 
 /**
@@ -558,17 +587,19 @@ ImageSelect.prototype.setValue = function(value) {
  */
 ImageSelect.prototype.destroy = function() {
     this.clearChoices();
+    if (typeof this.userInput !== "undefined") {
+        console.log("destroy user inputz");
+        this.userInput.destroy();
+        this.secondSpace.remove();
+        this.popup.mainDiv.ondragover = null;
+        this.popup.mainDiv.ondrop = null;
+    }
     this.popup.mainDiv.onkeydown = null;
     this.popup.contentDiv.onscroll = null;
     this.popup.destroy();
     this.select.destroy();
     this.space.remove();
-    if (typeof this.userInput !== "undefined") {
-        console.log("destroy user inputz");
-        this.userInput.destroy();
-        this.secondSpace.remove();
 
-    }
     this.guiImage.onmousedown = null;
     this.guiImage.onwheel = null;
     this.guiImage.remove();
