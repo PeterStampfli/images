@@ -304,35 +304,50 @@ ImageSelect.prototype.clearChoices = function() {
     this.popupImages.length = 0;
 };
 
+/*
+ * function checks if a file name has a good image file extension
+ */
+const goodExtensions = ["jpg", "jpeg", "png", "svg", "bmp", "gif"];
+
+function isGoodImageFile(fileName) {
+    const namePieces = fileName.split(".");
+    const extension = namePieces[namePieces.length - 1].toLowerCase();
+    const index = goodExtensions.indexOf(extension);
+    return (index >= 0);
+}
+
 /**
  * adds choices, no varargs
  */
 ImageSelect.prototype.add = function(choices) {
-    if (Array.isArray(choices)) { // an array
-        choices.forEach(choice => this.addChoices(choice)); // arrays of arrays ??
+    // an array: add its components, arrays of arrays possible, for whatever reason
+    if (Array.isArray(choices)) {
+        choices.forEach(choice => this.add(choice));
     } else {
+        // an object with many choices (key as name of option/ value for the key as image url)
+        // it does not have both "name" and "value" as keys
         const keys = Object.keys(choices);
-        // an object with many choices (key as name/ value as image url)
-        if ((keys.length > 3) || (typeof choices.name) === "undefined" || (typeof choices.value) === "undefined") {
+        if ((typeof choices.name === "undefined") || (typeof choices.value === "undefined")) {
             // backwards compatibility, simpler setup
             const choice = {};
             const imageSelect = this;
             keys.forEach(function(key) {
                 choice.name = key;
                 choice.icon = choices[key];
-                choice.value = choice.icon;
+                choice.value = choices[key];
                 imageSelect.add(choice);
             });
         } else if (this.findIndex(choices.value) < 0) {
             // adding a single option, no multiple values
             // we do not know if we have a valid icon
             this.select.addOptions(choices.name);
-            const index = this.popupImages.length;
-            this.values.push(choices.value);
+            // trying to make it as threadsafe as possible
+            const index = this.values.length;
+            this.values[index] = choices.value;
             // assume worst case: no icon, no image
             const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv);
             button.setBorderColor(this.design.popupImageBorderColorNoIcon);
-            this.popupImages.push(button);
+            this.popupImages[index] = button;
             const imageSelect = this;
             button.onClick = function() {
                 if (imageSelect.getIndex() !== index) {
@@ -342,32 +357,30 @@ ImageSelect.prototype.add = function(choices) {
             };
             // do we have an icon?
             if (typeof choices.icon === "string") {
-                // all is well, we have an icon (assuming this is a picture url)
-                this.iconURLs.push(choices.icon);
+                // all is well, we have an icon (assuming this is a picture url or dataURL)
+                this.iconURLs[index] = choices.icon;
                 // delayed loading
                 button.setImageURL(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.popupImageBorderColor);
             } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
-                // instead of the icon can use the image ( if the value is a jpg,svg or png)
-                const valuePieces = choices.value.split(".");
-                const valueEnd = valuePieces[valuePieces.length - 1].toLowerCase();
-                if ((valueEnd === "jpg") || (valueEnd === "png")) {
-                    this.iconURLs.push(choices.value);
+                // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
+                if (isGoodImageFile(choices.value)) {
+                    this.iconURLs[index] = choices.value;
                     button.setImageURL(ImageSelect.notLoadedURL);
                 } else {
                     // no icon
-                    this.iconURLs.push(ImageSelect.missingIconURL);
+                    this.iconURLs[index] = ImageSelect.missingIconURL;
                 }
             } else {
                 // no icon
-                this.iconURLs.push(ImageSelect.missingIconURL);
+                this.iconURLs[index] = ImageSelect.missingIconURL;
             }
         }
     }
 };
 
 /**
- * add choices
+ * add choices, this one does multiple arguments
  * Attention: creates the image buttons for the popup, may take a lot of time
  *  do this separately to save loading time
  * each choice is an object with a name, icon and value field
@@ -399,6 +412,40 @@ ImageSelect.prototype.addChoices = function(choices) {
     this.popup.resize();
 };
 
+/* 
+ * doing the image: load as a dataURL
+ * test if it is really an image
+ * add as choice object {name: file name, icon: dataURL of file, image: dataURL of file}
+ * do this with overhead and threadsafe (?), loading multiple images results in concurrent threads
+ */
+ImageSelect.prototype.addUserImage = function(file) {
+    if (isGoodImageFile(file.name)) {
+        const choice = {};
+        // for selection: file name without extension
+        console.log("add choice-name " + file.name);
+        choice.name = file.name.split(".")[0];
+        console.log("add choice-name " + choice.name);
+
+
+        const fileReader = new FileReader();
+        fileReader.onload = function() {
+            choice.icon = fileReader.result;
+            choice.value = fileReader.result;
+            console.log("success with " + file.name);
+            console.log(choice.icon.substring(0, 20));
+        };
+        fileReader.onerror = function() {
+            console.log("*** readImageFromFileBlob - fileReader fails " + file.name);
+        };
+        fileReader.readAsDataURL(file);
+
+
+    }
+
+};
+
+
+
 /**
  * set up the possibility to add user side image files
  * as choice object {name: file name, icon: dataURL of file, image: dataURL of file}
@@ -414,18 +461,23 @@ ImageSelect.prototype.acceptUserImages = function() {
     this.parent.insertBefore(this.secondSpace, this.guiImage);
     // the user input button
     this.userInput = new Button("add images", document.body);
+    this.userInput.asFileInput("image/*");
+    this.userInput.fileInput.setAttribute("multiple", "true");
     this.userInput.setFontSize(this.design.guiFontSize);
     this.parent.insertBefore(this.userInput.element, this.secondSpace);
 
-    this.userInput.asFileInput("image/*");
-    this.userInput.fileInput.setAttribute("multiple", "true");
+    const imageSelect = this;
+
+    this.userInput.onInteraction = function() {
+        imageSelect.interaction();
+    };
 
     this.userInput.onFileInput = function(files) {
         console.log(files.length);
         for (let i = 0; i < files.length; i++) {
-            console.log(files[i].name);
-            // readImage(files[i]);
+            imageSelect.addUserImage(files[i]);
         }
+        imageSelect.interaction();
     };
 };
 
