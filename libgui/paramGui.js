@@ -200,7 +200,7 @@ ParamGui.defaultDesign = {
     // (minimum) width for labels (horizontal alignement)
     labelWidth: 80,
     // fontsize for labels
-    labelFontSize: 16,
+    labelFontSize: 14,
 
     // style for simple controllers (defined in paramController.js)
     //--------------------------------------

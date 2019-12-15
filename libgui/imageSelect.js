@@ -14,7 +14,8 @@ import {
     ImageButton,
     Button,
     Select,
-    Popup
+    Popup,
+    ParamGui
 } from "./modules.js";
 
 // add style parameter !!! -> design
@@ -164,10 +165,8 @@ export function ImageSelect(parent, newDesign) {
     };
 }
 
-// default design
-
 ImageSelect.defaultDesign = {
-    // choosing images: the value is an image that can serve as icon, if there is no icon value
+    // choosing images: the value is an image that can serve as icon if there is no icon value
     // ok, this is not really a design parameter, make an exception
     choosingImages: true,
     // for the static gui, not the popup
@@ -247,7 +246,7 @@ ImageSelect.prototype.loadImages = function() {
 };
 
 /**
- * make that the choosen image lies in the popup, adjusts the scrollTop of the popup.contentDiv
+ * make that a given image in the popup becomes visible, adjusts the scrollTop of the popup.contentDiv
  * #method ImageSelect#makeImageButtonVisible
  * @param {ImageButton} imageButton
  */
@@ -268,17 +267,17 @@ ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
 };
 
 /**
- * start of interaction: load images instead of placeholders, 
- * open popup, make choosen visible, call the onInteraction function
+ * start of interaction:  
+ * open popup, make choosen image visible, load images instead of placeholders, call the onInteraction function
  * @method ImageSelect#interaction
  */
 ImageSelect.prototype.interaction = function() {
     this.popup.open();
-    this.loadImages();
     const index = this.getIndex(); // in case that parameter is out of range
     if (index >= 0) {
         this.makeImageButtonVisible(this.popupImages[index]);
     }
+    this.loadImages();
     this.onInteraction();
 };
 
@@ -424,34 +423,35 @@ ImageSelect.prototype.addChoices = function(choices) {
  */
 ImageSelect.prototype.addUserImage = function(file) {
     if (isGoodImageFile(file.name)) {
-        const choice = {};
-        // for selection: file name without extension
-        console.log("add choice-name " + file.name);
-        choice.name = file.name.split(".")[0];
-        console.log("add choice-name " + choice.name);
-
-
         const fileReader = new FileReader();
+        const imageSelect = this;
         fileReader.onload = function() {
-
-
-
+            // for selection: file name without extension
+            const choice = {};
+            choice.name = file.name.split(".")[0];
             choice.icon = fileReader.result;
             choice.value = fileReader.result;
-            console.log("success with " + file.name);
-            console.log(choice.icon.substring(0, 20));
+            imageSelect.add(choice);
+
+
+            // we have an interaction event
+            imageSelect.interaction();
+            // make the loaded image visible, do not change selection
+            // we do not make an onChange event, as multiple images may have been loaded
+            const index = imageSelect.findIndex(fileReader.result);
+            if (index >= 0) {
+                imageSelect.makeImageButtonVisible(imageSelect.popupImages[index]);
+
+                imageSelect.loadImages();
+            }
         };
+
         fileReader.onerror = function() {
             console.log("*** readImageFromFileBlob - fileReader fails " + file.name);
         };
         fileReader.readAsDataURL(file);
-
-
     }
-
 };
-
-
 
 /**
  * set up the possibility to add user side image files
@@ -459,7 +459,6 @@ ImageSelect.prototype.addUserImage = function(file) {
  * @method ImageSelect#acceptUserImages
  */
 ImageSelect.prototype.acceptUserImages = function() {
-
     // a space between button and icon
     // accessible from outside top be able to change style
     this.secondSpace = document.createElement("span");
@@ -472,7 +471,14 @@ ImageSelect.prototype.acceptUserImages = function() {
     this.userInput.fileInput.setAttribute("multiple", "true");
     this.userInput.setFontSize(this.design.guiFontSize);
     this.parent.insertBefore(this.userInput.element, this.secondSpace);
+    // write that we can drop images into the popup
+    const messageDiv = document.createElement("div");
+    messageDiv.innerText = "Drop images here!";
+    messageDiv.style.fontSize = ParamGui.buttonFontSize;
+    messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
+    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
 
+    // adding events
     const imageSelect = this;
 
     this.userInput.onInteraction = function() {
@@ -481,33 +487,25 @@ ImageSelect.prototype.acceptUserImages = function() {
 
     this.userInput.onFileInput = function(files) {
         console.log(files.length);
+        // files is NOT an array
         for (let i = 0; i < files.length; i++) {
             imageSelect.addUserImage(files[i]);
         }
-        imageSelect.interaction();
     };
 
+    // we need dragover to prevent default loading of image, even if dragover does nothing else
     this.popup.mainDiv.ondragover = function(event) {
-
         event.preventDefault();
-        console.log("dragover");
     };
 
     this.popup.mainDiv.ondrop = function(event) {
-
         event.preventDefault();
-        console.log("dropp");
-        // Use DataTransfer interface to access the file(s)
-        /*          const length = event.dataTransfer.files.length;
-                while (!imageFileFound && (i < length)) {
-                    file = event.dataTransfer.files[i];
-                    imageFileFound = isImageFile(file);
-                    i++;
-                }
-*/
+        const files = event.dataTransfer.files;
+        // event.dataTransfer.files is NOT an array
+        for (let i = 0; i < files.length; i++) {
+            imageSelect.addUserImage(files[i]);
+        }
     };
-
-
 };
 
 /**
