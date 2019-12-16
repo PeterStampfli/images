@@ -6,7 +6,7 @@
  * @constructor ImageButton
  * @param {String} imageURL
  * @param {DOM element} parent, an html element, best "div"
- * @param {...Object} params - setup parameters as fields (key,value pairs) of objects, multiple objects possible
+ * @param {...object} newDesign - modifying the default design
  */
 
 import {
@@ -14,18 +14,17 @@ import {
     ParamGui
 } from "./modules.js";
 
-export function ImageButton(imageURL, parent, params) {
-    this.element = document.createElement("img");
-    this.element.style.cursor = "pointer";
-    this.element.style.objectFit = "contain";
-    this.element.style.objectPosition = "center center";
-
+export function ImageButton(imageURL, parent, newDesign) {
     this.design = {};
     Object.assign(this.design, ImageButton.defaultDesign);
     for (var i = 2; i < arguments.length; i++) {
         ParamGui.updateValues(this.design, arguments[i]);
     }
-
+    // basic element is an image
+    this.element = document.createElement("img");
+    this.element.style.cursor = "pointer";
+    this.element.style.objectFit = "contain";
+    this.element.style.objectPosition = "center center";
     this.setDimensions();
     parent.appendChild(this.element);
     this.setImageURL(imageURL);
@@ -87,9 +86,9 @@ export function ImageButton(imageURL, parent, params) {
 ImageButton.defaultDesign = {
     imageButtonWidth: 100,
     imageButtonHeight: 100,
-    imageButtonBorderWidth: 3,
     imageButtonTotalWidth: 120,
     imageButtonTotalHeight: 120,
+    imageButtonBorderWidth: 3
 };
 
 // background color for png images with a white motiv?
@@ -150,7 +149,7 @@ ImageButton.prototype.setImageURL = function(url) {
 // set style dimensions from known image sizes, border width and total sizes
 // adjusting the margins
 ImageButton.prototype.setDimensions = function() {
-    const design=this.design;
+    const design = this.design;
     this.element.style.width = design.imageButtonWidth + "px";
     this.element.style.height = design.imageButtonHeight + "px";
     this.element.style.borderWidth = design.imageButtonBorderWidth + "px";
@@ -205,7 +204,7 @@ ImageButton.prototype.setBorderColor = function(color) {
  * @param {integer} height
  */
 ImageButton.prototype.setTotalSize = function(width, height) {
-     if ((this.design.imageButtonTotalWidth !== width) || (this.design.imageButtonTotalHeight !== height)) {
+    if ((this.design.imageButtonTotalWidth !== width) || (this.design.imageButtonTotalHeight !== height)) {
         this.design.imageButtonTotalWidth = width;
         this.design.imageButtonTotalHeight = height;
         this.setDimensions();

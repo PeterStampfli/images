@@ -176,17 +176,17 @@ ImageSelect.defaultDesign = {
     guiImageHeight: 40,
     guiImageBorderWidth: 2,
     guiImageBorderColor: "#bbbbbb",
+    // for the image buttons
+    imageButtonWidth: 100,
+    imageButtonHeight: 100,
+    imageButtonTotalWidth: 120,
+    imageButtonTotalHeight: 120,
+    imageButtonBorderWidth: 3,
+    imageButtonBorderWidthSelected: 6,
+    imageBorderColor: "#888888",
+    imageButtonBorderColorNoIcon: "#ff6666",
     // for the popup, specific
     popupImagesPerRow: 2,
-    popupImageWidth: 100,
-    popupImageHeight: 100,
-    popupImageTotalWidth: 120,
-    popupImageTotalHeight: 120,
-    popupImageBorderWidth: 3,
-    popupImageBorderWidthSelected: 6,
-    popupImageBorderColor: "#888888",
-    popupImageBorderColorNoIcon: "#ff6666",
-    // for the popup, general
     // innerwidth and padding result from other data
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
