@@ -26,7 +26,7 @@ export function ImageSelect(parent, newDesign) {
     Object.assign(this.design, ImageSelect.defaultDesign);
     for (var i = 1; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
-            updateValues(this.design, arguments[i]);
+            ParamGui.updateValues(this.design, arguments[i]);
         }
     }
     // the html elements in the main UI (not the popup)
@@ -201,23 +201,13 @@ ImageSelect.defaultDesign = {
     popupHorizontalShift: 0
 };
 
-// changing design parameters
-
-function updateValues(toObject, fromObject) {
-    for (var key in fromObject) {
-        if ((typeof toObject[key] === typeof fromObject[key]) && (typeof fromObject[key] !== "function")) {
-            toObject[key] = fromObject[key];
-        }
-    }
-}
-
 /**
  * update Poipup design defaults, using data of another object with the same key 
  * @method ImageSelect.updateDefaultDesign
  * @param {Object} newValues
  */
 ImageSelect.updateDefaultDesign = function(newValues) {
-    updateValues(ImageSelect.defaultDesign, newValues);
+    ParamGui.updateValues(ImageSelect.defaultDesign, newValues);
 };
 
 // default icons:

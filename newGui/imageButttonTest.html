@@ -42,27 +42,12 @@ ib2.setBorderWidth(8)
 
 new ImageButton(haeckel+"02.png",thisDiv);
 new ImageButton(haeckel+"03.png",thisDiv);
-ImageButton.newDimensions({totalWidth:200,imageWidth:160});
-new ImageButton(haeckel+"04.png",thisDiv);
+new ImageButton(haeckel+"04.png",thisDiv,{imageButtonTotalWidth:200,imageButtonWidth:160,imageButtonBorderWidth:10});
 new ImageButton(haeckel+"02.png",thisDiv);
 new ImageButton(haeckel+"14.png",thisDiv);
 new ImageButton(haeckel+"12.png",thisDiv);
 new ImageButton(haeckel+"07.png",thisDiv);
 new ImageButton(haeckel+"09.png",thisDiv);
-
-thisDiv.onwheel = function(event) {
-        console.log("key")
-        let key = event.key;
-            if (key === "ArrowDown") {
-console.log("down")     
-           event.preventDefault();
-                event.stopPropagation();
-            } else if (key === "ArrowUp") {
-console.log("up")     
-                event.preventDefault();
-                event.stopPropagation();
-            }
-    };
 
 
 
