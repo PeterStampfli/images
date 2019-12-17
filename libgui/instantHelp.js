@@ -53,15 +53,6 @@ export function InstantHelp(content, parent) {
     };
 }
 
-/**
- * set fontsize of the handle, in px
- * @method InstantHelp#setFontSize
- * @param {integer} size
- */
-InstantHelp.prototype.setFontSize = function(size) {
-    this.element.style.fontSize = size + "px";
-};
-
 // creating the popup, one for all
 
 InstantHelp.popup = new Popup({
@@ -70,8 +61,18 @@ InstantHelp.popup = new Popup({
     popupFontSize: 18,
     popupBorder: "none"
 });
+
 InstantHelp.popup.close();
 InstantHelp.handleActiveColor = "#ffff88";
+
+/**
+ * set fontsize of the handle, in px
+ * @method InstantHelp#setFontSize
+ * @param {integer} size
+ */
+InstantHelp.prototype.setFontSize = function(size) {
+    this.element.style.fontSize = size + "px";
+};
 
 /**
  * set the styles, use if you change the style parameters

@@ -55,8 +55,8 @@ export function ImageSelect(parent, newDesign) {
     parent.appendChild(this.guiImage);
     // here comes the popup
     // the popup width that should be available for image buttons
-    this.design.popupInnerWidth = this.design.popupImageTotalWidth * this.design.popupImagesPerRow;
-    this.design.popupPadding = 0.5 * (this.design.popupImageTotalWidth - this.design.popupImageWidth);
+    this.design.popupInnerWidth = this.design.imageButtonTotalWidth * this.design.popupImagesPerRow;
+    this.design.popupPadding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
     this.popup = new Popup(this.design);
     // make that the popup can get keyboard events
     this.popup.mainDiv.setAttribute("tabindex", "-1");
@@ -183,11 +183,11 @@ ImageSelect.defaultDesign = {
     imageButtonTotalHeight: 120,
     imageButtonBorderWidth: 3,
     imageButtonBorderWidthSelected: 6,
-    imageBorderColor: "#888888",
+    imageButtonBorderColor: "#888888",
     imageButtonBorderColorNoIcon: "#ff6666",
     // for the popup, specific
     popupImagesPerRow: 2,
-    // innerwidth and padding result from other data
+    // innerwidth and padding are calculated from other data
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
     popupBackgroundColor: "#aaaaaa",
@@ -338,8 +338,8 @@ ImageSelect.prototype.add = function(choices) {
             const index = this.values.length;
             this.values[index] = choices.value;
             // assume worst case: no icon, no image
-            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv);
-            button.setBorderColor(this.design.popupImageBorderColorNoIcon);
+            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv,this.design);
+            button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             this.popupImages[index] = button;
             const imageSelect = this;
             button.onClick = function() {
@@ -354,7 +354,7 @@ ImageSelect.prototype.add = function(choices) {
                 this.iconURLs[index] = choices.icon;
                 // delayed loading
                 button.setImageURL(ImageSelect.notLoadedURL);
-                button.setBorderColor(this.design.popupImageBorderColor);
+                button.setBorderColor(this.design.imageButtonBorderColor);
             } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
                 if (isGoodImageFile(choices.value)) {
@@ -388,16 +388,6 @@ ImageSelect.prototype.add = function(choices) {
  * @param {... object|array} choice
  */
 ImageSelect.prototype.addChoices = function(choices) {
-    // update the image button dimension according to the imageSelect design
-    const design = this.design;
-    const dimensions = {
-        imageWidth: design.popupImageWidth,
-        imageHeight: design.popupImageWidth,
-        borderWidth: design.popupImageBorderWidth,
-        totalWidth: design.popupImageTotalWidth,
-        totalHeight: design.popupImageTotalHeight,
-    };
-    ImageButton.newDimensions(dimensions);
     const length = arguments.length;
     for (var i = 0; i < length; i++) {
         this.add(arguments[i]);
@@ -422,16 +412,11 @@ ImageSelect.prototype.addUserImage = function(file) {
             choice.icon = fileReader.result;
             choice.value = fileReader.result;
             imageSelect.add(choice);
-
-
-            // we have an interaction event
-            imageSelect.interaction();
             // make the loaded image visible, do not change selection
             // we do not make an onChange event, as multiple images may have been loaded
             const index = imageSelect.findIndex(fileReader.result);
             if (index >= 0) {
                 imageSelect.makeImageButtonVisible(imageSelect.popupImages[index]);
-
                 imageSelect.loadImages();
             }
         };
@@ -505,10 +490,10 @@ ImageSelect.prototype.acceptUserImages = function() {
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
     this.guiImage.src = this.iconURLs[index];
-    this.popupImages.forEach(button => button.setBorderWidth(this.design.popupImageBorderWidth));
+    this.popupImages.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
     if (index >= 0) {
         const choosenButton = this.popupImages[index];
-        choosenButton.setBorderWidth(this.design.popupImageBorderWidthSelected);
+        choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
     }
 };
@@ -587,7 +572,6 @@ ImageSelect.prototype.destroy = function() {
     this.popup.destroy();
     this.select.destroy();
     this.space.remove();
-
     this.guiImage.onmousedown = null;
     this.guiImage.onwheel = null;
     this.guiImage.remove();

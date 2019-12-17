@@ -235,18 +235,23 @@ ParamGui.defaultDesign = {
     guiImageHeight: 40,
     guiImageBorderWidth: 2,
     guiImageBorderColor: "#bbbbbb",
+    // for the image buttons
+    imageButtonWidth: 100,
+    imageButtonHeight: 100,
+    imageButtonTotalWidth: 120,
+    imageButtonTotalHeight: 120,
+    imageButtonBorderWidth: 3,
+    imageButtonBorderWidthSelected: 6,
+    imageButtonBorderColor: "#888888",
+    imageButtonBorderColorNoIcon: "#ff6666",
     // popup
-    popupImagesPerRow: 1,
-    popupImageWidth: 100,
-    popupImageHeight: 100,
-    popupImageTotalWidth: 120,
-    popupImageTotalHeight: 120,
-    popupImageBorderWidth: 3,
-    popupImageBorderWidthSelected: 6,
-    popupImageBorderColor: "#888888",
-    popupImageBorderColorNoIcon: "#ff6666",
-    // general popup style, other values than the gui
-    popupBackgroundColor: "#bbbbbb"
+    popupImagesPerRow: 1,    // for choosing images, maybe larger for choosing presets
+    popupFontFamily: "FontAwesome, FreeSans, sans-serif",
+    popupFontSize: 14,
+    popupBackgroundColor: "#bbbbbb",
+    popupBorderWidth: 3,
+    popupBorderColor: "#444444",
+    popupZIndex: 20
 };
 
 // other parameters
