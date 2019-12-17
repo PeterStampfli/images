@@ -25,44 +25,11 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.initCreate(); // create this.domElement with padding
     this.createLabel(this.property);
     this.label.style.verticalAlign = "middle";
-
-    const design = this.gui.design;
-    const newDesign = {
-        // image select gui part
-        guiSpaceWidth: design.labelSpacing,
-        guiFontSize: design.buttonFontSize,
-        guiImageWidth: design.guiImageWidth,
-        guiImageHeight: design.guiImageHeight,
-        guiImageBorderWidth: design.guiImageBorderWidth,
-        guiImageBorderColor: design.guiImageBorderColor,
-        // image select popup part
-        // design
-        popupFontFamily: design.fontFamily,
-        popupFontSize: design.labelFontSize,
-        popupBackgroundColor: design.popupBackgroundColor,
-        popupBorderWidth: design.borderWidth,
-        popupBorderColor: design.borderColor,
-        // popup buttons
-        popupImagesPerRow: design.popupImagesPerRow,
-        popupImageWidth: design.popupImageWidth,
-        popupImageHeight: design.popupImageHeight,
-        popupImageTotalWidth: design.popupImageTotalWidth,
-        popupImageTotalHeight: design.popupImageTotalHeight,
-        popupImageBorderWidth: design.popupImageBorderWidth,
-        popupImageBorderWidthSelected: design.popupImageBorderWidthSelected,
-    };
-    if (design.horizontalPosition === "right") {
-        newDesign.position = "bottomRight";
-    } else {
-        newDesign.position = "bottomLeft";
-    }
-    newDesign.popupHorizontalShift = design.width + design.horizontalShift;
-    const imageSelect = new ImageSelect(this.domElement, newDesign);
+    const imageSelect = new ImageSelect(this.domElement, this.gui.design);
     imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
     this.uiElement = imageSelect;
     this.setupOnChange();
-
 
     // on interaction: call close popups, 
     // mark that this image selection interacts, do not close its own popup

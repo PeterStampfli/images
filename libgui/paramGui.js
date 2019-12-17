@@ -45,6 +45,10 @@ import {
 } from "./modules.js";
 
 export function ParamGui(params) {
+    // a list of all folders, controllers and other elements
+    // must have a destroy method, an updateDisplayIfListening method
+    this.elements = [];
+    // styling
     var i;
     // copy default parameters, change later
     Object.assign(this, ParamGui.defaults);
@@ -74,14 +78,17 @@ export function ParamGui(params) {
     } else {
         Object.assign(design, this.parent.design);
     }
-
     // update design parameters
     for (i = 0; i < arguments.length; i++) {
         ParamGui.updateValues(design, arguments[i]);
     }
-    // a list of all folders, controllers and other elements
-    // must have a destroy method, an updateDisplayIfListening method
-    this.elements = [];
+    // update the popup parameters depending on the gui position
+    if (design.horizontalPosition === "right") {
+        design.popupPosition = "bottomRight";
+    } else {
+        design.popupPosition = "bottomLeft";
+    }
+    design.popupHorizontalShift = design.width + design.horizontalShift;
     // the ui elements go into their own div, the this.bodyDiv
     // append as child to this.domElement
     this.bodyDiv = document.createElement("div");
@@ -225,12 +232,11 @@ ParamGui.defaultDesign = {
     // width of range element
     colorRangeWidth: 70,
 
-    // style for the popup
-    //----------------------------
-
     // style for the image selection/preset selection
     //-------------------------------------
     // the icon image
+    guiSpaceWidth: 8, // design.labelSpacing  
+    guiFontSize: 12, // design.buttonFontSize
     guiImageWidth: 40,
     guiImageHeight: 40,
     guiImageBorderWidth: 2,
@@ -245,13 +251,15 @@ ParamGui.defaultDesign = {
     imageButtonBorderColor: "#888888",
     imageButtonBorderColorNoIcon: "#ff6666",
     // popup
-    popupImagesPerRow: 1,    // for choosing images, maybe larger for choosing presets
-    popupFontFamily: "FontAwesome, FreeSans, sans-serif",
-    popupFontSize: 14,
+    popupImagesPerRow: 1, // for choosing images, maybe larger for choosing presets
+    popupFontFamily: "FontAwesome, FreeSans, sans-serif", // fontFamily
+    popupFontSize: 14, // design.labelFontSize
     popupBackgroundColor: "#bbbbbb",
     popupBorderWidth: 3,
     popupBorderColor: "#444444",
-    popupZIndex: 20
+    popupZIndex: 20,
+    // popupPosition: calculated from other data (depending on gui position)
+    //  popupHorizontalShift: calculated from other data
 };
 
 // other parameters

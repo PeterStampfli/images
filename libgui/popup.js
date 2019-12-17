@@ -200,7 +200,7 @@ Popup.prototype.setStyle = function(newStyle) {
     this.contentDiv.style.paddingLeft = design.popupPadding + "px";
     this.contentDiv.style.paddingBottom = design.popupPadding + "px";
     // the control div
-    if (this.design.popupHasControl) {
+    if (design.popupHasControl) {
         this.controlDiv.style.padding = design.popupPadding + "px";
         this.controlDiv.style.borderTop = design.popupBorder;
         this.controlDiv.style.borderTopWidth = design.popupBorderWidth + "px";

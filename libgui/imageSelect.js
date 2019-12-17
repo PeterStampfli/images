@@ -166,8 +166,8 @@ export function ImageSelect(parent, newDesign) {
 }
 
 ImageSelect.defaultDesign = {
-    // choosing images: the value is an image that can serve as icon if there is no icon value
-    // ok, this is not really a design parameter, make an exception
+    // choosingImages===true means that the selection chooses images and not presets
+    // if the choice.value is an image URL then it can serve as icon if there is no choice.icon value
     choosingImages: true,
     // for the static gui, not the popup
     guiSpaceWidth: 5,
@@ -187,7 +187,8 @@ ImageSelect.defaultDesign = {
     imageButtonBorderColorNoIcon: "#ff6666",
     // for the popup, specific
     popupImagesPerRow: 2,
-    // innerwidth and padding are calculated from other data
+    // popupInnerwidth: calculated from other data
+    // popupPadding: calculated from other data
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
     popupBackgroundColor: "#aaaaaa",
@@ -338,7 +339,7 @@ ImageSelect.prototype.add = function(choices) {
             const index = this.values.length;
             this.values[index] = choices.value;
             // assume worst case: no icon, no image
-            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv,this.design);
+            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv, this.design);
             button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             this.popupImages[index] = button;
             const imageSelect = this;
@@ -422,7 +423,7 @@ ImageSelect.prototype.addUserImage = function(file) {
         };
 
         fileReader.onerror = function() {
-            console.log("*** readImageFromFileBlob - fileReader fails " + file.name);
+            console.log("*** readImage dataURL - fileReader fails " + file.name);
         };
         fileReader.readAsDataURL(file);
     }
