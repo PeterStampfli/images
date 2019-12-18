@@ -29,16 +29,77 @@ export function ImageSelect(parent, newDesign) {
             ParamGui.updateValues(this.design, arguments[i]);
         }
     }
+    // the data
+    this.iconURLs = [];
+    this.values = [];
+    this.popupImageButtons = [];
+    // here comes the popup
+    // the popup width that should be available for image buttons
+    this.design.popupInnerWidth = this.design.imageButtonTotalWidth * this.design.popupImagesPerRow;
+    this.design.popupPadding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
+    this.popup = new Popup(this.design);
+    // make that the popup can get keyboard events
+    this.popup.mainDiv.setAttribute("tabindex", "-1");
+    this.popup.addCloseButton();
+    this.popup.close();
     // the html elements in the main UI (not the popup)
     // first a select 
     this.select = new Select(parent);
-    this.select.setFontSize(this.design.guiFontSize);
+    this.select.setFontSize(this.design.buttonFontSize);
     // then a space (as a span ?)
     // accessible from outside top be able to change style
     this.space = document.createElement("span");
-    this.space.style.width = this.design.guiSpaceWidth + "px";
+    this.space.style.width = this.design.spaceWidth + "px";
     this.space.style.display = "inline-block";
     this.parent.appendChild(this.space);
+    // if user images can be loaded, then a button and a span follow
+    if (this.design.acceptUserImages) {
+        // the user input button
+        this.userInput = new Button(this.design.addImageButtonText, this.parent);
+        this.userInput.asFileInput("image/*");
+        this.userInput.fileInput.setAttribute("multiple", "true");
+        this.userInput.setFontSize(this.design.buttonFontSize);
+        // write that we can drop images into the popup
+        const messageDiv = document.createElement("div");
+        messageDiv.innerText = this.design.dropToPopupText;
+        messageDiv.style.fontSize = this.design.buttonFontSize;
+        messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
+        this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
+        // a space between button and icon
+        // accessible from outside top be able to change style
+        this.secondSpace = document.createElement("span");
+        this.secondSpace.style.width = this.design.spaceWidth + "px";
+        this.secondSpace.style.display = "inline-block";
+        this.parent.appendChild(this.secondSpace);
+
+        // adding events
+        const imageSelect = this;
+
+        this.userInput.onInteraction = function() {
+            imageSelect.interaction();
+        };
+
+        this.userInput.onFileInput = function(files) {
+            // files is NOT an array
+            for (let i = 0; i < files.length; i++) {
+                imageSelect.addUserImage(files[i]);
+            }
+        };
+
+        // we need dragover to prevent default loading of image, even if dragover does nothing else
+        this.popup.mainDiv.ondragover = function(event) {
+            event.preventDefault();
+        };
+
+        this.popup.mainDiv.ondrop = function(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            // event.dataTransfer.files is NOT an array
+            for (let i = 0; i < files.length; i++) {
+                imageSelect.addUserImage(files[i]);
+            }
+        };
+    }
     // at the right of input elements there is the small (icon) image of the selection
     this.guiImage = document.createElement("img");
     this.guiImage.setAttribute("importance", "high");
@@ -53,19 +114,6 @@ export function ImageSelect(parent, newDesign) {
     this.guiImage.style.objectFit = "contain";
     this.guiImage.style.objectPosition = "center center";
     parent.appendChild(this.guiImage);
-    // here comes the popup
-    // the popup width that should be available for image buttons
-    this.design.popupInnerWidth = this.design.imageButtonTotalWidth * this.design.popupImagesPerRow;
-    this.design.popupPadding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
-    this.popup = new Popup(this.design);
-    // make that the popup can get keyboard events
-    this.popup.mainDiv.setAttribute("tabindex", "-1");
-    this.popup.addCloseButton();
-    this.popup.close();
-    // the data
-    this.iconURLs = [];
-    this.values = [];
-    this.popupImageButtons = [];
 
     // the actions
     const imageSelect = this;
@@ -167,12 +215,13 @@ export function ImageSelect(parent, newDesign) {
 
 ImageSelect.defaultDesign = {
     // loading user images
-    addingUserImages: true,
+    acceptUserImages: true,
     addImageButtonText: "add images",
     dropToPopupText: "Drop images here!",
-    // for the static gui, not the popup
-    guiSpaceWidth: 5,
-    guiFontSize: 14,
+    // dimensions for the gui and popup
+    spaceWidth: 5,
+    buttonFontSize: 14,
+    // dimensions for the image icon in the gui
     guiImageWidth: 40,
     guiImageHeight: 40,
     guiImageBorderWidth: 2,
@@ -436,61 +485,6 @@ ImageSelect.prototype.addUserImage = function(file) {
 };
 
 /**
- * set up the possibility to add user side image files
- * as choice object {name: file name, icon: dataURL of file, image: dataURL of file}
- * @method ImageSelect#acceptUserImages
- */
-ImageSelect.prototype.acceptUserImages = function() {
-    // a space between button and icon
-    // accessible from outside top be able to change style
-    this.secondSpace = document.createElement("span");
-    this.secondSpace.style.width = this.design.guiSpaceWidth + "px";
-    this.secondSpace.style.display = "inline-block";
-    this.parent.insertBefore(this.secondSpace, this.guiImage);
-    // the user input button
-    this.userInput = new Button(this.design.addImageButtonText, document.body);
-    this.userInput.asFileInput("image/*");
-    this.userInput.fileInput.setAttribute("multiple", "true");
-    this.userInput.setFontSize(this.design.guiFontSize);
-    this.parent.insertBefore(this.userInput.element, this.secondSpace);
-    // write that we can drop images into the popup
-    const messageDiv = document.createElement("div");
-    messageDiv.innerText = this.design.dropToPopupText;
-    messageDiv.style.fontSize = ParamGui.buttonFontSize;
-    messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
-    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
-
-    // adding events
-    const imageSelect = this;
-
-    this.userInput.onInteraction = function() {
-        imageSelect.interaction();
-    };
-
-    this.userInput.onFileInput = function(files) {
-        console.log(files.length);
-        // files is NOT an array
-        for (let i = 0; i < files.length; i++) {
-            imageSelect.addUserImage(files[i]);
-        }
-    };
-
-    // we need dragover to prevent default loading of image, even if dragover does nothing else
-    this.popup.mainDiv.ondragover = function(event) {
-        event.preventDefault();
-    };
-
-    this.popup.mainDiv.ondrop = function(event) {
-        event.preventDefault();
-        const files = event.dataTransfer.files;
-        // event.dataTransfer.files is NOT an array
-        for (let i = 0; i < files.length; i++) {
-            imageSelect.addUserImage(files[i]);
-        }
-    };
-};
-
-/**
  *  update the icon image, and more
  * @method ImageSelect#update
  */
@@ -567,8 +561,7 @@ ImageSelect.prototype.setValue = function(value) {
  */
 ImageSelect.prototype.destroy = function() {
     this.clearChoices();
-    if (typeof this.userInput !== "undefined") {
-        console.log("destroy user inputz");
+    if (this.design.acceptUserImages) {
         this.userInput.destroy();
         this.secondSpace.remove();
         this.popup.mainDiv.ondragover = null;

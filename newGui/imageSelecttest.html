@@ -27,25 +27,15 @@ ImageSelect
 const thisDiv=document.getElementById("thisDiv");
 thisDiv.innerText="sdfdfdf"
 
-thisDiv.style.width="300px"
+thisDiv.style.width="400px"
 thisDiv.style.height="300px"
 
 thisDiv.style.backgroundColor="#bbbbbb"
 
 
 
-const testDiv=document.createElement("div");
-testDiv.style.width="100px";
-document.body.appendChild(testDiv);
-let scrollBarWidth=testDiv.clientWidth;
-testDiv.style.overflowY="scroll"
-scrollBarWidth-=testDiv.clientWidth;
-testDiv.remove();
 
-
-
-const sel=new ImageSelect(thisDiv,{popupImagesPerRow: 1,imageBorderColor: "green"});
-sel.acceptUserImages();
+const sel=new ImageSelect(thisDiv,{popupImagesPerRow: 1});
 
 
 const haeckel="/images/libgui/haeckel/haeckel_";

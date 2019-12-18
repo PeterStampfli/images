@@ -277,7 +277,7 @@ ParamGui.spaceWidth = 20;
 
 /**
  * updating existing fields of first object by fields of second object
- * both have to have the same type, which is not a function
+ * both have to have the same type, they are not functions (it does not matter if both are "undefined")
  * use instead of Object.assign(to,from) to avoid copying ALL (unwanted) fields
  * @method ParamGui.updateValues
  * @param {Object} toObject (or Generator function)

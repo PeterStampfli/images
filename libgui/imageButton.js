@@ -48,9 +48,7 @@ export function ImageButton(imageURL, parent, newDesign) {
      * action upon mouse down, doing an interaction
      * @method ImageButton#onInteraction
      */
-    this.onInteraction = function() {
-        console.log("Interaction");
-    };
+    this.onInteraction = function() {};
 
     // a list of actions....
 
