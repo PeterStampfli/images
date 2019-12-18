@@ -65,7 +65,7 @@ export function ImageSelect(parent, newDesign) {
     // the data
     this.iconURLs = [];
     this.values = [];
-    this.popupImages = [];
+    this.popupImageButtons = [];
 
     // the actions
     const imageSelect = this;
@@ -123,7 +123,7 @@ export function ImageSelect(parent, newDesign) {
         if (key === "ArrowDown") {
             event.preventDefault();
             event.stopPropagation();
-            if (index + buttonsPerRow < imageSelect.popupImages.length) {
+            if (index + buttonsPerRow < imageSelect.popupImageButtons.length) {
                 imageSelect.select.changeIndex(buttonsPerRow);
             }
         } else if (key === "ArrowUp") {
@@ -135,7 +135,7 @@ export function ImageSelect(parent, newDesign) {
         } else if (key === "ArrowRight") {
             event.preventDefault();
             event.stopPropagation();
-            if ((index % buttonsPerRow < buttonsPerRow - 1) && (index < imageSelect.popupImages.length - 1)) {
+            if ((index % buttonsPerRow < buttonsPerRow - 1) && (index < imageSelect.popupImageButtons.length - 1)) {
                 imageSelect.select.changeIndex(1);
             }
         } else if (key === "ArrowLeft") {
@@ -166,9 +166,10 @@ export function ImageSelect(parent, newDesign) {
 }
 
 ImageSelect.defaultDesign = {
-    // choosingImages===true means that the selection chooses images and not presets
-    // if the choice.value is an image URL then it can serve as icon if there is no choice.icon value
-    choosingImages: true,
+    // loading user images
+    addingUserImages: true,
+    addImageButtonText: "add images",
+    dropToPopupText: "Drop images here!",
     // for the static gui, not the popup
     guiSpaceWidth: 5,
     guiFontSize: 14,
@@ -222,16 +223,16 @@ ImageSelect.notLoadedURL = "data:image/gif;base64,R0lGODlhAQABAPABAJSUlAAAACH5BA
  * @method ImageSelect#loadImages
  */
 ImageSelect.prototype.loadImages = function() {
-    const length = this.popupImages.length;
+    const length = this.popupImageButtons.length;
     const contentHeight = this.popup.contentDiv.offsetHeight;
     const contentScroll = this.popup.contentDiv.scrollTop;
-    const imageHeight = this.popupImages[0].element.offsetHeight;
+    const imageHeight = this.popupImageButtons[0].element.offsetHeight;
     for (var i = 0; i < length; i++) {
-        const totalOffset = this.popupImages[i].element.offsetTop - contentScroll;
+        const totalOffset = this.popupImageButtons[i].element.offsetTop - contentScroll;
         // partially visible: "upper" border of image above zero (lower border of content)
         //                    AND "lower" border of image below "upper" border of content
         if ((totalOffset + imageHeight > 0) && (totalOffset < contentHeight)) {
-            this.popupImages[i].setImageURL(this.iconURLs[i]);
+            this.popupImageButtons[i].setImageURL(this.iconURLs[i]);
         }
     }
 };
@@ -266,7 +267,7 @@ ImageSelect.prototype.interaction = function() {
     this.popup.open();
     const index = this.getIndex(); // in case that parameter is out of range
     if (index >= 0) {
-        this.makeImageButtonVisible(this.popupImages[index]);
+        this.makeImageButtonVisible(this.popupImageButtons[index]);
     }
     this.loadImages();
     this.onInteraction();
@@ -290,24 +291,29 @@ ImageSelect.prototype.clearChoices = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
-    this.popupImages.forEach(button => button.destroy());
-    this.popupImages.length = 0;
+    this.popupImageButtons.forEach(button => button.destroy());
+    this.popupImageButtons.length = 0;
 };
 
 /*
- * function checks if a file name has a good image file extension
+ * function checks if a file name is a string and has a good image file extension or is a dataURL of an image
  */
 const goodExtensions = ["jpg", "jpeg", "png", "svg", "bmp", "gif"];
 
 function isGoodImageFile(fileName) {
-    const namePieces = fileName.split(".");
-    if (namePieces.length > 1) {
-        const extension = namePieces[namePieces.length - 1].toLowerCase();
-        const index = goodExtensions.indexOf(extension);
-        return (index >= 0);
-    } else {
-        return false;
+    if (typeof fileName === "string") {
+        if (fileName.substring(0, 10) === "data:image") {
+            return true;
+        } else {
+            const namePieces = fileName.split(".");
+            if (namePieces.length > 1) {
+                const extension = namePieces[namePieces.length - 1].toLowerCase();
+                const index = goodExtensions.indexOf(extension);
+                return (index >= 0);
+            }
+        }
     }
+    return false;
 }
 
 /**
@@ -332,7 +338,7 @@ ImageSelect.prototype.add = function(choices) {
                 imageSelect.add(choice);
             });
         } else if (this.findIndex(choices.value) < 0) {
-            // adding a single option, no multiple values
+            // adding a single option, its value does not yet exist as an option
             // we do not know if we have a valid icon
             this.select.addOptions(choices.name);
             // trying to make it as threadsafe as possible
@@ -340,8 +346,7 @@ ImageSelect.prototype.add = function(choices) {
             this.values[index] = choices.value;
             // assume worst case: no icon, no image
             const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv, this.design);
-            button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
-            this.popupImages[index] = button;
+            this.popupImageButtons[index] = button;
             const imageSelect = this;
             button.onClick = function() {
                 if (imageSelect.getIndex() !== index) {
@@ -350,24 +355,21 @@ ImageSelect.prototype.add = function(choices) {
                 }
             };
             // do we have an icon?
-            if (typeof choices.icon === "string") {
+            if (isGoodImageFile(choices.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
                 this.iconURLs[index] = choices.icon;
-                // delayed loading
-                button.setImageURL(ImageSelect.notLoadedURL);
+                button.setImageURL(ImageSelect.notLoadedURL); // delayed loading
                 button.setBorderColor(this.design.imageButtonBorderColor);
-            } else if ((this.design.choosingImages) && (typeof choices.value === "string")) {
+            } else if (isGoodImageFile(choices.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
-                if (isGoodImageFile(choices.value)) {
-                    this.iconURLs[index] = choices.value;
-                    button.setImageURL(ImageSelect.notLoadedURL);
-                } else {
-                    // no icon
-                    this.iconURLs[index] = ImageSelect.missingIconURL;
-                }
+                this.iconURLs[index] = choices.value;
+                button.setImageURL(ImageSelect.notLoadedURL);
+                button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             } else {
                 // no icon
                 this.iconURLs[index] = ImageSelect.missingIconURL;
+                button.setImageURL(ImageSelect.missingIconURL);
+                button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             }
         }
     }
@@ -407,6 +409,9 @@ ImageSelect.prototype.addUserImage = function(file) {
         const fileReader = new FileReader();
         const imageSelect = this;
         fileReader.onload = function() {
+            // fileReader.result is the dataURL
+            // loading images  is trivial
+            // loading presets???
             // for selection: file name without extension
             const choice = {};
             choice.name = file.name.split(".")[0];
@@ -417,7 +422,7 @@ ImageSelect.prototype.addUserImage = function(file) {
             // we do not make an onChange event, as multiple images may have been loaded
             const index = imageSelect.findIndex(fileReader.result);
             if (index >= 0) {
-                imageSelect.makeImageButtonVisible(imageSelect.popupImages[index]);
+                imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
                 imageSelect.loadImages();
             }
         };
@@ -425,6 +430,7 @@ ImageSelect.prototype.addUserImage = function(file) {
         fileReader.onerror = function() {
             console.log("*** readImage dataURL - fileReader fails " + file.name);
         };
+
         fileReader.readAsDataURL(file);
     }
 };
@@ -442,14 +448,14 @@ ImageSelect.prototype.acceptUserImages = function() {
     this.secondSpace.style.display = "inline-block";
     this.parent.insertBefore(this.secondSpace, this.guiImage);
     // the user input button
-    this.userInput = new Button("add images", document.body);
+    this.userInput = new Button(this.design.addImageButtonText, document.body);
     this.userInput.asFileInput("image/*");
     this.userInput.fileInput.setAttribute("multiple", "true");
     this.userInput.setFontSize(this.design.guiFontSize);
     this.parent.insertBefore(this.userInput.element, this.secondSpace);
     // write that we can drop images into the popup
     const messageDiv = document.createElement("div");
-    messageDiv.innerText = "Drop images here!";
+    messageDiv.innerText = this.design.dropToPopupText;
     messageDiv.style.fontSize = ParamGui.buttonFontSize;
     messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
     this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
@@ -491,9 +497,9 @@ ImageSelect.prototype.acceptUserImages = function() {
 ImageSelect.prototype.update = function() {
     const index = this.getIndex(); // in case that parameter is out of range
     this.guiImage.src = this.iconURLs[index];
-    this.popupImages.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
+    this.popupImageButtons.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
     if (index >= 0) {
-        const choosenButton = this.popupImages[index];
+        const choosenButton = this.popupImageButtons[index];
         choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
     }
