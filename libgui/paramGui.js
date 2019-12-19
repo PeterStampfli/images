@@ -203,7 +203,7 @@ ParamGui.defaultDesign = {
     // style for controller labels
     //----------------------------------------------------
     //spacing from left border and to controls
-    labelSpacing: 8,
+    spaceWidth: 8,
     // (minimum) width for labels (horizontal alignement)
     labelWidth: 80,
     // fontsize for labels
@@ -235,8 +235,6 @@ ParamGui.defaultDesign = {
     // style for the image selection/preset selection
     //-------------------------------------
     // the icon image
-    guiSpaceWidth: 8, // design.labelSpacing  
-    guiFontSize: 12, // design.buttonFontSize
     guiImageWidth: 40,
     guiImageHeight: 40,
     guiImageBorderWidth: 2,
@@ -480,7 +478,7 @@ ParamGui.prototype.createTitle = function() {
         this.titleDiv.style.color = design.titleColor;
         this.titleDiv.style.paddingTop = design.paddingVertical + "px";
         this.titleDiv.style.paddingBottom = design.paddingVertical + "px";
-        this.titleDiv.style.paddingRight = design.labelSpacing + "px";
+        this.titleDiv.style.paddingRight = design.spaceWidth + "px";
         // for root gui make a border
         if (this.isRoot()) {
             this.titleDiv.style.borderBottomWidth = design.borderWidth + "px";
@@ -808,7 +806,7 @@ ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
 ParamGui.prototype.addParagraph = function(innerHTML) {
     const para = document.createElement("div");
     para.style.margin = "none";
-    para.style.paddingLeft = this.design.labelSpacing + "px";
+    para.style.paddingLeft = this.design.spaceWidth + "px";
     para.style.paddingRight = this.design.paragraphRightPadding + "px";
     para.style.paddingTop = this.design.paragraphTopPadding + "px";
     para.style.paddingBottom = this.design.paddingVertical + "px";
