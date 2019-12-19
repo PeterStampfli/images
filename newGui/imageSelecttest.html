@@ -18,7 +18,8 @@
 <script type="module">
 
 import {
-ImageSelect
+ImageSelect,
+guiUtils
 
 } from "../libgui/modules.js";
 
@@ -29,9 +30,11 @@ thisDiv.innerText="sdfdfdf"
 
 thisDiv.style.width="400px"
 thisDiv.style.height="300px"
+guiUtils.style(thisDiv,{backgroundColor: "red",width:"400px",color:"yellow"})
 
-thisDiv.style.backgroundColor="#bbbbbb"
+//thisDiv.style.backgroundColor="#bbbbbb"
 
+console.log(thisDiv.style)
 
 
 
@@ -62,7 +65,9 @@ sel.addChoices(choices);
 sel.addChoices({name:"missing",value:haeckel+"22.png"})
 
     // you can add the image buttons later to save window loading time
-sel.setValue(haeckel+"02.png");
+sel.setValue(haeckel+"08.png");
+
+sel.setValue( "data:image/gif;base64,R0lGODlhAQABAPABAP8SAAAAACH5BAAAAAAAIf4RQ3JlYXRlZCB3aXRoIEdJTVAALAAAAAABAAEAAAICRAEAOw==")
 
 //sel.removeWindowEventListener()
 //sel.destroy();

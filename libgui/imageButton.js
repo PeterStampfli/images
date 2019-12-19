@@ -10,15 +10,15 @@
  */
 
 import {
-    Button,
-    ParamGui
+    guiUtils,
+    Button
 } from "./modules.js";
 
 export function ImageButton(imageURL, parent, newDesign) {
     this.design = {};
     Object.assign(this.design, ImageButton.defaultDesign);
     for (var i = 2; i < arguments.length; i++) {
-        ParamGui.updateValues(this.design, arguments[i]);
+        guiUtils.updateValues(this.design, arguments[i]);
     }
     // basic element is an image
     this.element = document.createElement("img");

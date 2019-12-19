@@ -33,8 +33,8 @@ paramControllerMethods.createLabel = function(text) {
     this.label.style.display = "inline-block";
     this.label.style.minWidth = design.labelWidth + "px";
     // space between label and controller or left border
-    this.label.style.paddingLeft = design.labelSpacing + "px";
-    this.label.style.paddingRight = design.labelSpacing + "px";
+    this.label.style.paddingLeft = design.spaceWidth + "px";
+    this.label.style.paddingRight = design.spaceWidth + "px";
     this.domElement.appendChild(this.label);
 };
 
@@ -55,7 +55,7 @@ paramControllerMethods.initCreate = function() {
     this.domElement.style.paddingTop = design.paddingVertical + "px";
     this.domElement.style.paddingBottom = design.paddingVertical + "px";
     // space at right between help button and border
-    this.domElement.style.paddingRight = design.labelSpacing + "px";
+    this.domElement.style.paddingRight = design.spaceWidth + "px";
 
     // the button or whatever the user interacts with
     this.uiElement = null;

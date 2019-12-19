@@ -74,7 +74,6 @@ Object.assign(ParamImageSelection.prototype, paramControllerMethods);
  * overwrite for controllers with a popup
  * @method ImageSelect.closePopup
  */
-
 ParamImageSelection.prototype.closePopup = function() {
     if (!this.callsClosePopup) {
         this.uiElement.closePopup();
@@ -91,7 +90,6 @@ ParamImageSelection.prototype.destroy = function() {
     }
     this.uiElement.destroy();
     this.uiElement = null;
-
     this.domElement.remove();
     this.domElement = null;
     this.params = null;

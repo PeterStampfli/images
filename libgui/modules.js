@@ -35,6 +35,11 @@ export {
 from "./button.js";
 
 export {
+    guiUtils
+}
+from "./guiUtils.js";
+
+export {
     ImageButton
 }
 from "./imageButton.js";

@@ -11,11 +11,11 @@
 //  simplify color picker
 
 import {
+    guiUtils,
     ImageButton,
     Button,
     Select,
-    Popup,
-    ParamGui
+    Popup
 } from "./modules.js";
 
 // add style parameter !!! -> design
@@ -26,7 +26,7 @@ export function ImageSelect(parent, newDesign) {
     Object.assign(this.design, ImageSelect.defaultDesign);
     for (var i = 1; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
-            ParamGui.updateValues(this.design, arguments[i]);
+            guiUtils.updateValues(this.design, arguments[i]);
         }
     }
     // the data
@@ -258,7 +258,7 @@ ImageSelect.defaultDesign = {
  * @param {Object} newValues
  */
 ImageSelect.updateDefaultDesign = function(newValues) {
-    ParamGui.updateValues(ImageSelect.defaultDesign, newValues);
+    guiUtils.updateValues(ImageSelect.defaultDesign, newValues);
 };
 
 // default icons:
@@ -288,22 +288,25 @@ ImageSelect.prototype.loadImages = function() {
 
 /**
  * make that a given image in the popup becomes visible, adjusts the scrollTop of the popup.contentDiv
+ * only if the popup is open
  * #method ImageSelect#makeImageButtonVisible
  * @param {ImageButton} imageButton
  */
 ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
-    const contentHeight = this.popup.contentDiv.offsetHeight;
-    const contentScroll = this.popup.contentDiv.scrollTop;
-    const imageHeight = imageButton.element.offsetHeight;
-    const totalOffset = imageButton.element.offsetTop - contentScroll;
-    // check if not entirely visible
-    //"lower" border is below lower border of popup  
-    if (totalOffset < 0) {
-        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.popupPadding;
-    }
-    // higher border is above upper border of popup
-    else if (totalOffset + imageHeight > contentHeight) {
-        this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.popupPadding;
+    if (this.popup.isOpen()) {
+        const contentHeight = this.popup.contentDiv.offsetHeight;
+        const contentScroll = this.popup.contentDiv.scrollTop;
+        const imageHeight = imageButton.element.offsetHeight;
+        const totalOffset = imageButton.element.offsetTop - contentScroll;
+        // check if not entirely visible
+        //"lower" border is below lower border of popup  
+        if (totalOffset < 0) {
+            this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.popupPadding;
+        }
+        // higher border is above upper border of popup
+        else if (totalOffset + imageHeight > contentHeight) {
+            this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.popupPadding;
+        }
     }
 };
 
@@ -344,27 +347,6 @@ ImageSelect.prototype.clearChoices = function() {
     this.popupImageButtons.length = 0;
 };
 
-/*
- * function checks if a file name is a string and has a good image file extension or is a dataURL of an image
- */
-const goodExtensions = ["jpg", "jpeg", "png", "svg", "bmp", "gif"];
-
-function isGoodImageFile(fileName) {
-    if (typeof fileName === "string") {
-        if (fileName.substring(0, 10) === "data:image") {
-            return true;
-        } else {
-            const namePieces = fileName.split(".");
-            if (namePieces.length > 1) {
-                const extension = namePieces[namePieces.length - 1].toLowerCase();
-                const index = goodExtensions.indexOf(extension);
-                return (index >= 0);
-            }
-        }
-    }
-    return false;
-}
-
 /**
  * adds choices, no varargs
  */
@@ -404,12 +386,12 @@ ImageSelect.prototype.add = function(choices) {
                 }
             };
             // do we have an icon?
-            if (isGoodImageFile(choices.icon)) {
+            if (guiUtils.isGoodImageFile(choices.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
                 this.iconURLs[index] = choices.icon;
                 button.setImageURL(ImageSelect.notLoadedURL); // delayed loading
                 button.setBorderColor(this.design.imageButtonBorderColor);
-            } else if (isGoodImageFile(choices.value)) {
+            } else if (guiUtils.isGoodImageFile(choices.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
                 this.iconURLs[index] = choices.value;
                 button.setImageURL(ImageSelect.notLoadedURL);
@@ -454,7 +436,7 @@ ImageSelect.prototype.addChoices = function(choices) {
  * do this with overhead and threadsafe (?), loading multiple images results in concurrent threads
  */
 ImageSelect.prototype.addUserImage = function(file) {
-    if (isGoodImageFile(file.name)) {
+    if (guiUtils.isGoodImageFile(file.name)) {
         const fileReader = new FileReader();
         const imageSelect = this;
         fileReader.onload = function() {
@@ -545,6 +527,7 @@ ImageSelect.prototype.findIndex = function(value) {
 /**
  * set the value and update display
  * does not call the onChange callback
+ * if value not found: adds value to select if it is a good image
  * @method ImageSelect#setValue
  * @param {whatever} value
  */
@@ -552,6 +535,14 @@ ImageSelect.prototype.setValue = function(value) {
     const index = this.findIndex(value);
     if (index >= 0) {
         this.setIndex(index);
+        this.makeImageButtonVisible();
+    } else if (guiUtils.isGoodImageFile(value)) {
+        const choice = {};
+        choice.name = "user image";
+        choice.icon = value;
+        choice.value = value;
+        this.add(choice);
+        this.setValue(value);
     }
 };
 

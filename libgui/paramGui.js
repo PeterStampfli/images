@@ -36,6 +36,7 @@ The increment of value for each scroll changes the digit where the caret is.
  */
 
 import {
+    guiUtils,
     ParamColor,
     ParamAngle,
     ParamController,
@@ -64,7 +65,7 @@ export function ParamGui(params) {
     // read/merge params object replacing defaults
     // applies only to the parameters above
     for (i = 0; i < arguments.length; i++) {
-        ParamGui.updateValues(this, arguments[i]);
+        guiUtils.updateValues(this, arguments[i]);
     }
     // now this.parent is set, if different from null
     // we now know if we are
@@ -80,7 +81,7 @@ export function ParamGui(params) {
     }
     // update design parameters
     for (i = 0; i < arguments.length; i++) {
-        ParamGui.updateValues(design, arguments[i]);
+        guiUtils.updateValues(design, arguments[i]);
     }
     // update the popup parameters depending on the gui position
     if (design.horizontalPosition === "right") {
@@ -274,28 +275,12 @@ ParamGui.hideCharacter = "$";
 ParamGui.spaceWidth = 20;
 
 /**
- * updating existing fields of first object by fields of second object
- * both have to have the same type, they are not functions (it does not matter if both are "undefined")
- * use instead of Object.assign(to,from) to avoid copying ALL (unwanted) fields
- * @method ParamGui.updateValues
- * @param {Object} toObject (or Generator function)
- * @param {Object} fromObject (or generator function)
- */
-ParamGui.updateValues = function(toObject, fromObject) {
-    for (var key in fromObject) {
-        if ((typeof toObject[key] === typeof fromObject[key]) && (typeof fromObject[key] !== "function")) {
-            toObject[key] = fromObject[key];
-        }
-    }
-};
-
-/**
  * update ParamGui design defaults, using data of another object with the same key 
  * @method ParamGui.updateDefaultDesign
  * @param {Object} newValues
  */
 ParamGui.updateDefaultDesign = function(newValues) {
-    ParamGui.updateValues(ParamGui.defaultDesign, newValues);
+    guiUtils.updateValues(ParamGui.defaultDesign, newValues);
 };
 
 /**
