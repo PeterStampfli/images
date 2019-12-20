@@ -153,6 +153,12 @@ export function ParamGui(params) {
 // do changes in your program
 // position (at corners)
 ParamGui.defaultDesign = {
+    // image select, loading user images
+    preferNewImageselect: true,
+    acceptUserImages: true,
+    addImageButtonText: "add images",
+    dropToPopupText: "Drop images here!",
+
     // overall appearance
     //------------------------------------------------------------
     // positioning, default top right corner
@@ -164,6 +170,8 @@ ParamGui.defaultDesign = {
     horizontalShift: 0,
     // width of the ui panel
     width: 400,
+    //spacing from left border and between controls
+    spaceWidth: 5,
     // vertical spacing
     paddingVertical: 4,
     // indentation witdh per folder level
@@ -203,8 +211,6 @@ ParamGui.defaultDesign = {
 
     // style for controller labels
     //----------------------------------------------------
-    //spacing from left border and to controls
-    spaceWidth: 8,
     // (minimum) width for labels (horizontal alignement)
     labelWidth: 80,
     // fontsize for labels
@@ -695,7 +701,7 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * @return {ParamController} object, the controller
  */
 /*
- * if low is an object or array then make a selection
+ * if low is an object or array then make a selection or a new image select
  * if params[property] is undefined make a button (action defined by onClick method of the controller object
  * if params[property] is boolean make a booleanButton
  * if params[property] is a string make a text textInput  
@@ -706,8 +712,25 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * (else) if params[property],low and high are numbers make a range element
  */
 
+
+// test if a variable is an object, not an array
+// excluding array and null
+function isObject(p) {
+    return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
+}
+
 ParamGui.prototype.add = function(params, property, low, high, step) {
-    const controller = new ParamController(this, params, property, low, high, step);
+    var controller;
+    // maybe prefer new image select
+    // if design option is true and low is an object (that defines choices)
+    // and first low.value is a good image file
+    let useNewSelect = (this.design.preferNewImageselect) && (isObject(low));
+    useNewSelect = useNewSelect && (guiUtils.isGoodImageFile(low[Object.keys(low)[0]]));
+    if (useNewSelect) {
+        controller = new ParamImageSelection(this, params, property, low);
+    } else {
+        controller = new ParamController(this, params, property, low, high, step);
+    }
     this.elements.push(controller);
     return controller;
 };

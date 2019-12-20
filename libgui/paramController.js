@@ -1,5 +1,7 @@
 import {
+    guiUtils,
     paramControllerMethods,
+    ParamImageSelection,
     BooleanButton,
     Button,
     SelectValues,

@@ -48,6 +48,8 @@ gui.addVerticalSpace(8,"blue");
 gui.addParagraph("You can scroll through selections with the mouse wheel or up- and down arrows:");
 params.letters="beta";
 gui.add(params,"letters",["alpha","beta","gamma","delta","epsilon"]);
+params.numbers=1;
+gui.add(params,"numbers",{zero:0,"one":1,"much": 333});
 
 gui.addParagraph("There is a new image selection. It shows the choosen image or an image label:");
 
@@ -64,7 +66,9 @@ const haeckel="/images/libgui/haeckel/haeckel_";
 
 params.image=haeckel+"0"+5+".png";
 
-gui.addImageSelection(params,"image",choices);
+gui.add(params,"image",choices);
+
+
 
 
 gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency of the square at the left:");

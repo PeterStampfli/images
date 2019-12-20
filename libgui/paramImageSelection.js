@@ -29,6 +29,7 @@ export function ParamImageSelection(gui, params, property, choices) {
     imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
     this.uiElement = imageSelect;
+    this.gui.bodyDiv.appendChild(this.domElement);
     this.setupOnChange();
 
     // on interaction: call close popups, 
@@ -45,8 +46,6 @@ export function ParamImageSelection(gui, params, property, choices) {
         ParamGui.closePopup();
         paramImageSelection.callsClosePopup = false;
     };
-
-    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 // "inherit" paramControllerMethods:
