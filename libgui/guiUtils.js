@@ -62,3 +62,52 @@ guiUtils.style = function(element, styles) {
         }
     }
 };
+
+/**
+ * create an element, set its styles and append it to a parent
+ * @method guiUtils.create
+ * @param {string} tag - says what kind of element we want
+ * @param {htmlElement} parent
+ * @param {... object} styles - style object, can be repeated, key is style property
+ * @return the styled html element
+ */
+guiUtils.create = function(tag, parent, styles) {
+    const element = document.createElement(tag);
+    for (var i = 2; i < arguments.length; i++) {
+        const newStyle = arguments[i];
+        if (typeof newStyle === "object") {
+            for (var key in newStyle) {
+                element.style[key] = newStyle[key];
+            }
+        }
+    }
+    parent.appendChild(element);
+    return element;
+};
+
+/**
+ * create a horizontal space
+ * @method guiUtils.hSpace
+ * @param {htmlElement} parent
+ * @param {integer} width - in px
+ * @return the span element that makes the space
+ */
+guiUtils.hSpace = function(parent, width) {
+    return guiUtils.create("span", parent, {
+        width: width + "px",
+        display: "inline-block"
+    });
+};
+
+/**
+ * create a vertical space
+ * @method guiUtils.vSpace
+ * @param {htmlElement} parent
+ * @param {integer} height - in px
+ * @return the span element that makes the space
+ */
+guiUtils.vSpace = function(parent, height) {
+    return guiUtils.create("div", parent, {
+        height: height + "px",
+    });
+};
