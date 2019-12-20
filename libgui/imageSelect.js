@@ -42,20 +42,21 @@ export function ImageSelect(parent, newDesign) {
     this.popup.mainDiv.setAttribute("tabindex", "-1");
     this.popup.addCloseButton();
     this.popup.close();
-    // the html elements in the main UI (not the popup)
-    // first a select 
-    this.select = new Select(parent);
+    // the input elements in the main UI (not the popup)
+    // stacking vertically
+    this.selectDiv = document.createElement("div");
+    this.selectDiv.style.display = "inline-block";
+    this.selectDiv.style.verticalAlign = "middle";
+    this.selectDiv.style.textAlign = "center";
+    this.select = new Select(this.selectDiv);
     this.select.setFontSize(this.design.buttonFontSize);
-    // then a space (as a span ?)
-    // accessible from outside top be able to change style
-    this.space = document.createElement("span");
-    this.space.style.width = this.design.spaceWidth + "px";
-    this.space.style.display = "inline-block";
-    this.parent.appendChild(this.space);
-    // if user images can be loaded, then a button and a span follow
+    // if user images can be loaded, then add a vertical space and a button
     if (this.design.acceptUserImages) {
-        // the user input button
-        this.userInput = new Button(this.design.addImageButtonText, this.parent);
+        // the user image input button
+        const vSpace = document.createElement("div");
+        vSpace.style.height = this.design.spaceWidth + "px";
+        this.selectDiv.appendChild(vSpace);
+        this.userInput = new Button(this.design.addImageButtonText, this.selectDiv);
         this.userInput.asFileInput("image/*");
         this.userInput.fileInput.setAttribute("multiple", "true");
         this.userInput.setFontSize(this.design.buttonFontSize);
@@ -65,12 +66,6 @@ export function ImageSelect(parent, newDesign) {
         messageDiv.style.fontSize = this.design.buttonFontSize;
         messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
         this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
-        // a space between button and icon
-        // accessible from outside top be able to change style
-        this.secondSpace = document.createElement("span");
-        this.secondSpace.style.width = this.design.spaceWidth + "px";
-        this.secondSpace.style.display = "inline-block";
-        this.parent.appendChild(this.secondSpace);
 
         // adding events
         const imageSelect = this;
@@ -100,6 +95,13 @@ export function ImageSelect(parent, newDesign) {
             }
         };
     }
+    parent.appendChild(this.selectDiv);
+    // then a space between input elements and icon image
+    // accessible from outside to be able to change style
+    this.space = document.createElement("span");
+    this.space.style.width = this.design.spaceWidth + "px";
+    this.space.style.display = "inline-block";
+    this.parent.appendChild(this.space);
     // at the right of input elements there is the small (icon) image of the selection
     this.guiImage = document.createElement("img");
     this.guiImage.setAttribute("importance", "high");
@@ -222,8 +224,8 @@ ImageSelect.defaultDesign = {
     spaceWidth: 5,
     buttonFontSize: 14,
     // dimensions for the image icon in the gui
-    guiImageWidth: 40,
-    guiImageHeight: 40,
+    guiImageWidth: 60,
+    guiImageHeight: 60,
     guiImageBorderWidth: 2,
     guiImageBorderColor: "#bbbbbb",
     // for the image buttons
@@ -554,7 +556,6 @@ ImageSelect.prototype.destroy = function() {
     this.clearChoices();
     if (this.design.acceptUserImages) {
         this.userInput.destroy();
-        this.secondSpace.remove();
         this.popup.mainDiv.ondragover = null;
         this.popup.mainDiv.ondrop = null;
     }

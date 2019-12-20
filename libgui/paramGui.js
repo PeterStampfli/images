@@ -236,8 +236,8 @@ ParamGui.defaultDesign = {
     // style for the image selection/preset selection
     //-------------------------------------
     // the icon image
-    guiImageWidth: 40,
-    guiImageHeight: 40,
+    guiImageWidth: 50,
+    guiImageHeight: 50,
     guiImageBorderWidth: 2,
     guiImageBorderColor: "#bbbbbb",
     // for the image buttons
