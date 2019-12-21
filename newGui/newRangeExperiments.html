@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>newRange experimental</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type="module">
+
+import {
+ guiUtils
+} from "../libgui/modules.js";
+
+
+console.log("hello");
+
+/*element {
+  position: relative;
+  top: 50%;
+  transform: perspective(1px) translateY(-50%);
+}*/
+
+const  rangeHeight=200;
+const rangeWidth=50;
+const rangeMarkWidth=30;
+const rangeSlitWidth=4;
+const rangeLineWidth=8;
+const rangeLineColor="green";
+const rangeSlitColor="#bbbbbb";
+const rangeSliderHeight = 20;
+const rangeSliderWidth = 40;
+const rangeSliderLineWidth=2;
+const rangeSliderColor="red";
+const rangeSliderLineColor="blue";
+const rangeSliderBorderRadius=1000;
+
+const rangeDiv = guiUtils.create("div", document.body, {
+    width: rangeWidth + "px",
+    height: rangeHeight + "px",
+    backgroundColor: "yellow",
+    position: "relative",
+});
+
+const markDiv = guiUtils.create("div", rangeDiv, {
+    position: "absolute",
+    top: (rangeSliderHeight-rangeLineWidth) / 2 + "px",
+    left: (rangeWidth - rangeMarkWidth) / 2 + "px",
+    height: rangeHeight - rangeSliderHeight-rangeLineWidth + "px",
+    width: rangeMarkWidth + "px",
+    backgroundColor: "red",
+    borderTop: "solid",
+    borderBottom: "solid",
+    borderColor: rangeLineColor,
+    borderWidth: rangeLineWidth + "px",
+
+});
+
+const slitDiv=guiUtils.create("div",markDiv,{
+    position: "absolute",
+    left: (rangeMarkWidth-rangeSlitWidth) / 2 -rangeLineWidth+ "px",
+    height: rangeHeight - rangeSliderHeight-rangeLineWidth + "px",
+width:rangeSlitWidth+"px",
+    backgroundColor: rangeSlitColor,
+   borderLeft: "solid",
+    borderRight: "solid",
+    borderColor: rangeLineColor,
+    borderWidth: rangeLineWidth + "px",
+});
+
+</script>
+
+
+</html>
