@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>domElement</title>
+</head>
+
+<body>
+
+
+
+</body>
+
+
+
+<script type="module">
+
+
+
+
+import {
+ guiUtils
+} from "../libgui/modules.js";
+
+
+
+const x = document.createElement("div");
+
+guiUtils.style(x)
+    .parent(document.body)
+    .width(300)
+    .height(100)
+    .backgroundColor("yellow");
+
+</script>
+
+
+</html>

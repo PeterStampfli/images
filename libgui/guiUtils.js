@@ -46,44 +46,51 @@ guiUtils.updateValues = function(toObject, fromObject) {
     }
 };
 
-/**
- * set the style of an element using an object with style.key and value pairs
- * @method guiUtils.style
- * @param {html element} element
- * @param {... object} styles - style object, can be repeated, key is style property
- */
-guiUtils.style = function(element, styles) {
-    for (var i = 1; i < arguments.length; i++) {
-        const newStyle = arguments[i];
-        if (typeof newStyle === "object") {
-            for (var key in newStyle) {
-                element.style[key] = newStyle[key];
-            }
-        }
-    }
+//   styles, DOM elements
+//============================================================================
+
+// take a HTML element and style it
+
+var element;
+
+guiUtils.style = function(elmnt) {
+    element = elmnt;
+    return guiUtils;
 };
 
-/**
- * create an element, set its styles and append it to a parent
- * @method guiUtils.create
- * @param {string} tag - says what kind of element we want
- * @param {htmlElement} parent
- * @param {... object} styles - style object, can be repeated, key is style property
- * @return the styled html element
- */
-guiUtils.create = function(tag, parent, styles) {
-    const element = document.createElement(tag);
-    for (var i = 2; i < arguments.length; i++) {
-        const newStyle = arguments[i];
-        if (typeof newStyle === "object") {
-            for (var key in newStyle) {
-                element.style[key] = newStyle[key];
-            }
-        }
-    }
-    parent.appendChild(element);
-    return element;
+
+guiUtils.parent = function(elmnt) {
+    elmnt.appendChild(element);
+    return guiUtils;
 };
+
+guiUtils.attribute = function(name, value) {
+    element.setAttribute(name, value);
+    return guiUtils;
+};
+
+function addStyle(key, addString) {
+    guiUtils[key] = function(value) {
+        element.style[key] = value + addString;
+        return guiUtils;
+    };
+}
+
+
+function addStyles(styles) {
+    for (var key in styles) {
+        addStyle(key, styles[key]);
+    }
+    return guiUtils;
+}
+
+
+addStyles({
+    width: "px",
+    height: "px",
+    backgroundColor: ""
+});
+
 
 /**
  * create a horizontal space
@@ -93,10 +100,7 @@ guiUtils.create = function(tag, parent, styles) {
  * @return the span element that makes the space
  */
 guiUtils.hSpace = function(parent, width) {
-    return guiUtils.create("span", parent, {
-        width: width + "px",
-        display: "inline-block"
-    });
+
 };
 
 /**
@@ -107,7 +111,6 @@ guiUtils.hSpace = function(parent, width) {
  * @return the span element that makes the space
  */
 guiUtils.vSpace = function(parent, height) {
-    return guiUtils.create("div", parent, {
-        height: height + "px",
-    });
+
+
 };
