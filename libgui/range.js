@@ -7,25 +7,37 @@
  */
 
 import {
-    Button
+    Button,
+    guiUtils
 } from "./modules.js";
 
 export function Range(parent, hasPlusMinus = false) {
     this.parent = parent;
     this.textElement = document.createElement("input");
-    this.textElement.setAttribute("type", "text");
-    this.textElement.style.textAlign = "right";
-    this.textElement.style.verticalAlign = "middle";
-    parent.appendChild(this.textElement);
+
+    guiUtils.style(this.textElement)
+        .attribute("type", "text")
+        .textAlign("right")
+        .verticalAlign("middle")
+        .parent(parent);
+
+
+
+
     this.textHover = false;
     this.textPressed = false;
     this.addSpace();
+
     this.rangeElement = document.createElement("input");
-    parent.appendChild(this.rangeElement);
-    this.rangeElement.setAttribute("type", "range");
-    this.rangeElement.style.cursor = "pointer";
     this.rangeElement.step = "any";
-    this.rangeElement.style.verticalAlign = "middle"; // range is essentially an image, inline element
+
+    guiUtils.style(this.rangeElement)
+        .attribute("type", "range")
+        .cursor("ponter")
+        .verticalAlign("middle")
+        .parent(parent);
+
+
     const range = this;
     if ((arguments.length > 1) && hasPlusMinus) {
         this.addSpace();
@@ -166,19 +178,23 @@ Range.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 Range.prototype.updateTextStyle = function() {
     if (this.textPressed) {
         if (this.textHover) {
-            this.textElement.style.color = this.colorDownHover;
-            this.textElement.style.backgroundColor = this.backgroundColorDownHover;
+            guiUtils.style(this.textElement)
+                .color(this.colorDownHover)
+                .backgroundColor(this.backgroundColorDownHover);
         } else {
-            this.textElement.style.color = this.colorDown;
-            this.textElement.style.backgroundColor = this.backgroundColorDown;
+            guiUtils.style(this.textElement)
+                .color(this.colorDown)
+                .backgroundColor(this.backgroundColorDown);
         }
     } else {
         if (this.textHover) {
-            this.textElement.style.color = this.colorUpHover;
-            this.textElement.style.backgroundColor = this.backgroundColorUpHover;
+            guiUtils.style(this.textElement)
+                .color(this.colorUpHover)
+                .backgroundColor(this.backgroundColorUpHover);
         } else {
-            this.textElement.style.color = this.colorUp;
-            this.textElement.style.backgroundColor = this.backgroundColorUp;
+            guiUtils.style(this.textElement)
+                .color(this.colorUp)
+                .backgroundColor(this.backgroundColorUp);
         }
     }
 };
@@ -214,10 +230,7 @@ Range.prototype.setWidths = function(widthTextElement, widthRangeElement) {
  * @method Range#addSpace
  */
 Range.prototype.addSpace = function() {
-    const theSpan = document.createElement("span");
-    theSpan.style.width = Range.spaceWidth + "px";
-    theSpan.style.display = "inline-block";
-    this.parent.appendChild(theSpan);
+    guiUtils.hSpace(this.parent, Range.spaceWidth);
 };
 
 /**

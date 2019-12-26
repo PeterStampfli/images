@@ -5,17 +5,19 @@
  */
 
 import {
-    Button
+    Button,
+    guiUtils
 } from "./modules.js";
 
 export function Select(parent) {
     this.element = document.createElement("select");
-    this.element.style.verticalAlign = "middle";
-    parent.appendChild(this.element);
+    guiUtils.style(this.element)
+        .verticalAlign("middle")
+        .cursor("pointer")
+        .parent(parent);
     this.hover = false;
     this.colorStyleDefaults();
     this.updateStyle();
-    this.element.style.cursor = "pointer";
     this.nOptions = 0;
 
     var select = this;
@@ -88,11 +90,13 @@ export function Select(parent) {
  */
 Select.prototype.updateStyle = function() {
     if (this.hover) {
-        this.element.style.color = this.colorUpHover;
-        this.element.style.backgroundColor = this.backgroundColorUpHover;
+        guiUtils.style(this.element)
+            .color(this.colorUpHover)
+            .backgroundColor(this.backgroundColorUpHover);
     } else {
-        this.element.style.color = this.colorUp;
-        this.element.style.backgroundColor = this.backgroundColorUp;
+        guiUtils.style(this.element)
+            .color(this.colorUp)
+            .backgroundColor(this.backgroundColorUp);
     }
 };
 

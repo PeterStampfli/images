@@ -5,18 +5,23 @@
  * @param {DOM element} parent, an html element, best "div"
  */
 
+import {
+    guiUtils
+} from "./modules.js";
+
 export function BooleanButton(parent) {
     this.element = document.createElement("button");
-    parent.appendChild(this.element);
-    this.element.style.borderRadius = "1000px"; // semicircle
-    this.element.style.cursor = "pointer";
-    this.element.style.outline = "none";
+    guiUtils.style(this.element)
+        .borderRadius(1000)
+        .outline("none")
+        .cursor("pointer")
+        .verticalAlign("middle")
+        .parent(parent);
     this.value = false;
     this.mouseDown = false;
     this.hover = false;
     this.active = true;
-    this.textOn = "ON";
-    this.textOff = "OFF";
+    this.setTexts("ON", "OFF");
     this.colorStyleDefaults();
     this.updateStyle();
 
@@ -115,26 +120,31 @@ BooleanButton.prototype.updateStyle = function() {
         if (this.value) {
             this.element.textContent = this.textOn;
             if (this.hover) {
-                this.element.style.color = this.colorOnHover;
-                this.element.style.backgroundColor = this.backgroundColorOnHover;
+                guiUtils.style(this.element)
+                    .color(this.colorOnHover)
+                    .backgroundColor(this.backgroundColorOnHover);
             } else {
-                this.element.style.color = this.colorOn;
-                this.element.style.backgroundColor = this.backgroundColorOn;
+                guiUtils.style(this.element)
+                    .color(this.colorOn)
+                    .backgroundColor(this.backgroundColorOn);
             }
         } else {
             this.element.textContent = this.textOff;
             if (this.hover) {
-                this.element.style.color = this.colorOffHover;
-                this.element.style.backgroundColor = this.backgroundColorOffHover;
+                guiUtils.style(this.element)
+                    .color(this.colorOffHover)
+                    .backgroundColor(this.backgroundColorOffHover);
             } else {
-                this.element.style.color = this.colorOff;
-                this.element.style.backgroundColor = this.backgroundColorOff;
+                guiUtils.style(this.element)
+                    .color(this.colorOff)
+                    .backgroundColor(this.backgroundColorOff);
             }
         }
     } else {
         this.element.textContent = "-";
-        this.element.style.color = this.colorInactive;
-        this.element.style.backgroundColor = this.backgroundColorInactive;
+        guiUtils.style(this.element)
+            .color(this.colorInactive)
+            .backgroundColor(this.backgroundColorInactive);
     }
 };
 

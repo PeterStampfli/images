@@ -5,7 +5,8 @@
  * @param {...object} newDesign - modifying the default design
  */
 import {
-    Button
+    Button,
+    guiUtils
 } from "./modules.js";
 
 export function Popup(newDesign) {

@@ -10,16 +10,18 @@
  */
 
 import {
-    Button
+    Button,
+    guiUtils
 } from "./modules.js";
 
 export function NumberButton(parent, hasPlusMinus = false, hasMinMax = false) {
     this.parent = parent;
     this.element = document.createElement("input");
-    parent.appendChild(this.element);
-    this.element.setAttribute("type", "text");
-    this.element.style.textAlign = "right";
-    this.element.style.verticalAlign = "middle";
+    guiUtils.style(this.element)
+        .attribute("type", "text")
+        .textAlign("right")
+        .verticalAlign("middle")
+        .parent(parent);
     const button = this;
     if ((arguments.length > 1) && hasPlusMinus) {
         this.addSpace();
@@ -173,10 +175,7 @@ NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
  * @param {HTMLElement} parent
  */
 NumberButton.prototype.addSpace = function() {
-    const theSpan = document.createElement("span");
-    theSpan.style.width = NumberButton.spaceWidth + "px";
-    theSpan.style.display = "inline-block";
-    this.parent.appendChild(theSpan);
+    guiUtils.hSpace(this.parent, NumberButton.spaceWidth);
 };
 
 /**

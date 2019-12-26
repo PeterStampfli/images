@@ -98,9 +98,9 @@ guiUtils.attribute = function(name, value) {
     return guiUtils;
 };
 
-function addStyle(key, addString) {
+function addStyle(key) {
     guiUtils[key] = function(value) {
-        elements.forEach(element => element.style[key] = value + addString);
+        elements.forEach(element => element.style[key] = value);
         return guiUtils;
     };
 }
@@ -108,30 +108,31 @@ function addStyle(key, addString) {
 /*
 create methods for styling the registered elements
 @method addStyles
-@param {object} styles - key is name of style, value is "" or "px"
+@param {array of strings} keys 
 */
 
-function addStyles(styles) {
-    for (var key in styles) {
-        addStyle(key, styles[key]);
-    }
+function addStyles(keys) {
+    keys.forEach(key => addStyle(key));
 }
 
 /**
  * resulting methods from the styles object:
- * setting the element.style.key property to value+styles.key
+ * setting the element.style.key property to value
  * @method guiUtils.key
  * @param {integer|string} value
  * @return guiUtils, for chaining
  */
 
-addStyles({
-    width: "px",
-    height: "px",
-    backgroundColor: "",
-    display: "",
-    border: ""
-});
+addStyles([
+    "width", "height",
+    "position", "top",
+    "backgroundColor", "color",
+    "display",
+    "border", "borderRadius",
+    "cursor",
+    "outline",
+    "verticalAlign", "textAlign"
+]);
 
 /**
  * create a horizontal space
