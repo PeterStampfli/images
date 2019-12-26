@@ -27,12 +27,23 @@ import {
 
 
 const x = document.createElement("div");
+guiUtils.vSpace(document.body,20).style.backgroundColor="red";
+const y = document.createElement("div");
 
-guiUtils.style(x)
+guiUtils.style([x,y])
     .parent(document.body)
     .width(300)
     .height(100)
-    .backgroundColor("yellow");
+    .backgroundColor("yellow")
+    .border("solid");
+
+
+const    s=guiUtils.hSpace(y,50);
+
+    guiUtils.style(s)
+    .backgroundColor("blue")
+
+    s.innerText="xas"
 
 </script>
 

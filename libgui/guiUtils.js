@@ -51,46 +51,87 @@ guiUtils.updateValues = function(toObject, fromObject) {
 
 // take a HTML element and style it
 
-var element;
+var elements;
 
-guiUtils.style = function(elmnt) {
-    element = elmnt;
+/**
+ * register HTML elements for styling
+ * @method guiUtils.style
+ * @param {... HTLElement|array of  HTMLElements} elmnts
+ * @return guiUtils, for chaining
+ */
+guiUtils.style = function(elmnts) {
+    elements = [];
+    for (var i = 0; i < arguments.length; i++) {
+        const elmnt = arguments[i];
+        if (Array.isArray(elmnt)) {
+            for (var j = 0; j < elmnt.length; j++) {
+                elements.push(elmnt[j]);
+            }
+        } else {
+            elements.push(elmnt);
+        }
+    }
+    return guiUtils;
+};
+
+/**
+ * set parent for registered HTML elements
+ * @method guiUtils.parent
+ * @param {HTLElement} p - parent element
+ * @return guiUtils, for chaining
+ */
+guiUtils.parent = function(p) {
+    elements.forEach(element => p.appendChild(element));
     return guiUtils;
 };
 
 
-guiUtils.parent = function(elmnt) {
-    elmnt.appendChild(element);
-    return guiUtils;
-};
-
+/**
+ * set attribute for registered HTML elements
+ * @method guiUtils.attribute
+ * @param {string} name
+ * @param {string} value
+ * @return guiUtils, for chaining
+ */
 guiUtils.attribute = function(name, value) {
-    element.setAttribute(name, value);
+    elements.forEach(element => element.setAttribute(name, value));
     return guiUtils;
 };
 
 function addStyle(key, addString) {
     guiUtils[key] = function(value) {
-        element.style[key] = value + addString;
+        elements.forEach(element => element.style[key] = value + addString);
         return guiUtils;
     };
 }
 
+/*
+create methods for styling the registered elements
+@method addStyles
+@param {object} styles - key is name of style, value is "" or "px"
+*/
 
 function addStyles(styles) {
     for (var key in styles) {
         addStyle(key, styles[key]);
     }
-    return guiUtils;
 }
 
+/**
+ * resulting methods from the styles object:
+ * setting the element.style.key property to value+styles.key
+ * @method guiUtils.key
+ * @param {integer|string} value
+ * @return guiUtils, for chaining
+ */
 
 addStyles({
     width: "px",
     height: "px",
-    backgroundColor: ""
+    backgroundColor: "",
+    display: "",
+    border: ""
 });
-
 
 /**
  * create a horizontal space
@@ -100,7 +141,11 @@ addStyles({
  * @return the span element that makes the space
  */
 guiUtils.hSpace = function(parent, width) {
-
+    const space = document.createElement("span");
+    space.style.display = "inline-block";
+    space.style.width = width + "px";
+    parent.appendChild(space);
+    return space;
 };
 
 /**
@@ -108,9 +153,11 @@ guiUtils.hSpace = function(parent, width) {
  * @method guiUtils.vSpace
  * @param {htmlElement} parent
  * @param {integer} height - in px
- * @return the span element that makes the space
+ * @return the div element that makes the space
  */
 guiUtils.vSpace = function(parent, height) {
-
-
+    const space = document.createElement("div");
+    space.style.height = height + "px";
+    parent.appendChild(space);
+    return space;
 };
