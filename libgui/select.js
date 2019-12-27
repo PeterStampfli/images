@@ -197,6 +197,26 @@ Select.prototype.changeIndex = function(delta) {
 };
 
 /**
+ * open the select
+ * @method Select#open
+ */
+Select.prototype.open = function() {
+    if (this.element.style.display !== "inline-block") {
+        this.element.style.display = "inline-block";
+    }
+};
+
+/**
+ * close the select
+ * @method Select#close
+ */
+Select.prototype.close = function() {
+    if (this.element.style.display !== "none") {
+        this.element.style.display = "none";
+    }
+};
+
+/**
  * destroy the select thing, taking care of all references, deletes the associated html element
  * may be too careful
  * set reference to the select to null

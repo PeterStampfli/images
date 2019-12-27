@@ -1,14 +1,12 @@
 /**
- * a select input with icons
+ * a select input with icons (only the select thing, make more complicated layout outside)
  * each choice has a name, an icon and a value
  * the value may be an URL for an image, a preset, ...
+ * if enabled, the user can add his own images
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
  * @param {...object} newDesign - modifying the default design
  */
-
-// note: close popup when using another ui input element
-//  simplify color picker
 
 import {
     guiUtils,
@@ -18,12 +16,10 @@ import {
     Popup
 } from "./modules.js";
 
-// add style parameter !!! -> design
-
 export function ImageSelect(parent, newDesign) {
-    this.parent = parent;
-    this.design = {};
-    Object.assign(this.design, ImageSelect.defaultDesign);
+    const design = {};
+    this.design = design;
+    Object.assign(design, ImageSelect.defaultDesign);
     for (var i = 1; i < arguments.length; i++) {
         if (typeof arguments[i] === "object") {
             guiUtils.updateValues(this.design, arguments[i]);
@@ -34,88 +30,17 @@ export function ImageSelect(parent, newDesign) {
     this.values = [];
     this.popupImageButtons = [];
     // here comes the popup
-    // the popup width that should be available for image buttons
-    this.design.popupInnerWidth = this.design.imageButtonTotalWidth * this.design.popupImagesPerRow;
-    this.design.popupPadding = 0.5 * (this.design.imageButtonTotalWidth - this.design.imageButtonWidth);
-    this.popup = new Popup(this.design);
+    // the popup width should be large enough for image buttons
+    design.popupInnerWidth = design.imageButtonTotalWidth * design.popupImagesPerRow;
+    design.popupPadding = 0.5 * (design.imageButtonTotalWidth - design.imageButtonWidth);
+    this.popup = new Popup(design);
     // make that the popup can get keyboard events
     this.popup.mainDiv.setAttribute("tabindex", "-1");
     this.popup.addCloseButton();
     this.popup.close();
-    // the input elements in the main UI (not the popup)
-    // stacking vertically
-    this.selectDiv = document.createElement("div");
-    this.selectDiv.style.display = "inline-block";
-    this.selectDiv.style.verticalAlign = "middle";
-    this.selectDiv.style.textAlign = "center";
-    this.select = new Select(this.selectDiv);
-    this.select.setFontSize(this.design.buttonFontSize);
-    // if user images can be loaded, then add a vertical space and a button
-    if (this.design.acceptUserImages) {
-        // the user image input button
-        const vSpace = document.createElement("div");
-        vSpace.style.height = this.design.spaceWidth + "px";
-        this.selectDiv.appendChild(vSpace);
-        this.userInput = new Button(this.design.addImageButtonText, this.selectDiv);
-        this.userInput.asFileInput("image/*");
-        this.userInput.fileInput.setAttribute("multiple", "true");
-        this.userInput.setFontSize(this.design.buttonFontSize);
-        // write that we can drop images into the popup
-        const messageDiv = document.createElement("div");
-        messageDiv.innerText = this.design.dropToPopupText;
-        messageDiv.style.fontSize = this.design.buttonFontSize;
-        messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
-        this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
-
-        // adding events
-        const imageSelect = this;
-
-        this.userInput.onInteraction = function() {
-            imageSelect.interaction();
-        };
-
-        this.userInput.onFileInput = function(files) {
-            // files is NOT an array
-            for (let i = 0; i < files.length; i++) {
-                imageSelect.addUserImage(files[i]);
-            }
-        };
-
-        // we need dragover to prevent default loading of image, even if dragover does nothing else
-        this.popup.mainDiv.ondragover = function(event) {
-            event.preventDefault();
-        };
-
-        this.popup.mainDiv.ondrop = function(event) {
-            event.preventDefault();
-            const files = event.dataTransfer.files;
-            // event.dataTransfer.files is NOT an array
-            for (let i = 0; i < files.length; i++) {
-                imageSelect.addUserImage(files[i]);
-            }
-        };
-    }
-    parent.appendChild(this.selectDiv);
-    // then a space between input elements and icon image
-    // accessible from outside to be able to change style
-    this.space = document.createElement("span");
-    this.space.style.width = this.design.spaceWidth + "px";
-    this.space.style.display = "inline-block";
-    this.parent.appendChild(this.space);
-    // at the right of input elements there is the small (icon) image of the selection
-    this.guiImage = document.createElement("img");
-    this.guiImage.setAttribute("importance", "high");
-    this.guiImage.style.verticalAlign = "middle";
-    this.guiImage.style.cursor = "pointer";
-    this.guiImage.style.height = this.design.guiImageHeight + "px";
-    this.guiImage.style.width = this.design.guiImageWidth + "px";
-    this.guiImage.style.border = "solid";
-    this.guiImage.style.borderStyle = "inset";
-    this.guiImage.style.borderColor = this.design.guiImageBorderColor;
-    this.guiImage.style.borderWidth = this.design.guiImageBorderWidth + "px";
-    this.guiImage.style.objectFit = "contain";
-    this.guiImage.style.objectPosition = "center center";
-    parent.appendChild(this.guiImage);
+    // the select thing
+    this.select = new Select(parent);
+    this.select.setFontSize(design.buttonFontSize);
 
     // the actions
     const imageSelect = this;
@@ -127,24 +52,6 @@ export function ImageSelect(parent, newDesign) {
 
     this.select.onInteraction = function() {
         imageSelect.interaction();
-    };
-
-    this.guiImage.onmousedown = function() {
-        imageSelect.interaction();
-        return false;
-    };
-
-    // mousewheel on icon
-    this.guiImage.onwheel = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        imageSelect.interaction();
-        if (event.deltaY > 0) {
-            imageSelect.select.changeIndex(1);
-        } else {
-            imageSelect.select.changeIndex(-1);
-        }
-        return false;
     };
 
     function loadImagesForOpenPopup() {
@@ -215,11 +122,59 @@ export function ImageSelect(parent, newDesign) {
     };
 }
 
+/**
+ * create an image for the gui that shows the current selection
+ * shows the currently selected image (if there is a selection)
+ * @method ImageSelect#createGuiImage
+ * @param {HTML element} parent
+ */
+ImageSelect.prototype.createGuiImage = function(parent) {
+    const design = this.design;
+    this.guiImage = document.createElement("img");
+    guiUtils.style(this.guiImage)
+        .attribute("importance", "high")
+        .verticalAlign("middle")
+        .cursor("pointer")
+        .height(design.guiImageHeight + "px")
+        .width(design.guiImageWidth + "px")
+        .border("solid")
+        .borderStyle("inset")
+        .borderColor(design.guiImageBorderColor)
+        .borderWidth(design.guiImageBorderWidth + "px")
+        .objectFit("contain")
+        .objectPosition("center center")
+        .parent(parent);
+    const index = this.getIndex(); // in case that parameter is out of range
+    if (index >= 0) {
+        this.guiImage.src = this.iconURLs[index];
+    }
+
+    const imageSelect = this;
+
+    this.guiImage.onmousedown = function() {
+        imageSelect.select.element.focus(); // makes that keyboard events (arrows) go to the select ui element, not elsewhere
+        imageSelect.interaction();
+        return false;
+    };
+
+    // mousewheel on icon
+    this.guiImage.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.deltaY > 0) {
+            imageSelect.select.changeIndex(1);
+        } else {
+            imageSelect.select.changeIndex(-1);
+        }
+        imageSelect.select.element.focus();
+        imageSelect.interaction();
+        return false;
+    };
+};
+
+
+
 ImageSelect.defaultDesign = {
-    // loading user images
-    acceptUserImages: true,
-    addImageButtonText: "add images",
-    dropToPopupText: "Drop images here!",
     // dimensions for the gui and popup
     spaceWidth: 5,
     buttonFontSize: 14,
@@ -345,6 +300,9 @@ ImageSelect.prototype.clearChoices = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
+    if (this.guiImage) {
+        this.guiImage.src = null;
+    }
     this.popupImageButtons.forEach(button => button.destroy());
     this.popupImageButtons.length = 0;
 };
@@ -473,13 +431,15 @@ ImageSelect.prototype.addUserImage = function(file) {
  * @method ImageSelect#update
  */
 ImageSelect.prototype.update = function() {
-    const index = this.getIndex(); // in case that parameter is out of range
-    this.guiImage.src = this.iconURLs[index];
     this.popupImageButtons.forEach(button => button.setBorderWidth(this.design.imageButtonBorderWidth));
+    const index = this.getIndex(); // in case that parameter is out of range
     if (index >= 0) {
         const choosenButton = this.popupImageButtons[index];
         choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
+        if (this.guiImage) {
+            this.guiImage.src = this.iconURLs[index];
+        }
     }
 };
 
@@ -529,22 +489,93 @@ ImageSelect.prototype.findIndex = function(value) {
 /**
  * set the value and update display
  * does not call the onChange callback
- * if value not found: adds value to select if it is a good image
+ * sets only to already existing values
  * @method ImageSelect#setValue
  * @param {whatever} value
+ * @return integer index, -1 if value not found
  */
 ImageSelect.prototype.setValue = function(value) {
+
     const index = this.findIndex(value);
     if (index >= 0) {
         this.setIndex(index);
-        this.makeImageButtonVisible();
-    } else if (guiUtils.isGoodImageFile(value)) {
-        const choice = {};
-        choice.name = "user image";
-        choice.icon = value;
-        choice.value = value;
-        this.add(choice);
-        this.setValue(value);
+        this.update();
+    }
+    return index;
+};
+
+
+// make that user images are accepted
+
+
+ImageSelect.prototype.acceptUserImages = function() {
+    // if user images can be loaded, then add a vertical space and a button
+    if (this.design.acceptUserImages) {
+        // the user image input button
+        const vSpace = document.createElement("div");
+        vSpace.style.height = this.design.spaceWidth + "px";
+        this.selectDiv.appendChild(vSpace);
+        this.userInput = new Button(this.design.addImageButtonText, this.selectDiv);
+        this.userInput.asFileInput("image/*");
+        this.userInput.fileInput.setAttribute("multiple", "true");
+        this.userInput.setFontSize(this.design.buttonFontSize);
+        // write that we can drop images into the popup
+        const messageDiv = document.createElement("div");
+        messageDiv.innerText = this.design.dropToPopupText;
+        messageDiv.style.fontSize = this.design.buttonFontSize;
+        messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
+        this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
+
+        // adding events
+        const imageSelect = this;
+
+        this.userInput.onInteraction = function() {
+            imageSelect.interaction();
+        };
+
+        this.userInput.onFileInput = function(files) {
+            // files is NOT an array
+            for (let i = 0; i < files.length; i++) {
+                imageSelect.addUserImage(files[i]);
+            }
+        };
+
+        // we need dragover to prevent default loading of image, even if dragover does nothing else
+        this.popup.mainDiv.ondragover = function(event) {
+            event.preventDefault();
+        };
+
+        this.popup.mainDiv.ondrop = function(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            // event.dataTransfer.files is NOT an array
+            for (let i = 0; i < files.length; i++) {
+                imageSelect.addUserImage(files[i]);
+            }
+        };
+    }
+};
+
+
+/**
+ * open the image select
+ * @method ImageSelect#open
+ */
+ImageSelect.prototype.open = function() {
+    this.select.open();
+    if ((this.guiImage) && (this.guiImage.style.display !== "inline-block")) {
+        this.guiImage.style.display = "inline-block";
+    }
+};
+
+/**
+ * close the image select
+ * @method ImageSelect#close
+ */
+ImageSelect.prototype.close = function() {
+    this.select.close();
+    if ((this.guiImage) && (this.guiImage.style.display !== "none")) {
+        this.guiImage.style.display = "none";
     }
 };
 
@@ -564,9 +595,11 @@ ImageSelect.prototype.destroy = function() {
     this.popup.destroy();
     this.select.destroy();
     this.space.remove();
-    this.guiImage.onmousedown = null;
-    this.guiImage.onwheel = null;
-    this.guiImage.remove();
+    if (this.guiImage) {
+        this.guiImage.onmousedown = null;
+        this.guiImage.onwheel = null;
+        this.guiImage.remove();
+    }
     this.removeWindowEventListener();
     this.onChange = null;
     this.onInteraction = null;

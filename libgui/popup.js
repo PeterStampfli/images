@@ -219,7 +219,7 @@ Popup.prototype.setStyle = function(newStyle) {
  * open the popup
  * @method Popup#open
  */
-Popup.prototype.open = function(content) {
+Popup.prototype.open = function() {
     if (this.mainDiv.style.display !== "block") {
         this.mainDiv.style.display = "block";
     }

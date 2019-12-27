@@ -12,7 +12,7 @@ import {
 export function BooleanButton(parent) {
     this.element = document.createElement("button");
     guiUtils.style(this.element)
-        .borderRadius(1000)
+        .borderRadius("1000px")
         .outline("none")
         .cursor("pointer")
         .verticalAlign("middle")

@@ -20,7 +20,6 @@
 import {
 ImageSelect,
 guiUtils
-
 } from "../libgui/modules.js";
 
 
@@ -31,13 +30,39 @@ thisDiv.innerText="sdfdfdf"
 thisDiv.style.width="600px"
 thisDiv.style.height="300px"
 
+guiUtils.hSpace(thisDiv,20);
+
 //thisDiv.style.backgroundColor="#bbbbbb"
 
-console.log(thisDiv.style)
+/*
 
+    this.guiImage.onmousedown = function() {
+        imageSelect.interaction();
+        return false;
+    };
+
+
+
+    // mousewheel on icon
+    this.guiImage.onwheel = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        imageSelect.interaction();
+        if (event.deltaY > 0) {
+            imageSelect.select.changeIndex(1);
+        } else {
+            imageSelect.select.changeIndex(-1);
+        }
+        return false;
+    };
+    */
 
 
 const sel=new ImageSelect(thisDiv,{popupImagesPerRow: 1,acceptUserImages:true});
+
+guiUtils.hSpace(thisDiv,20);
+
+sel.createGuiImage(thisDiv);
 
 
 const haeckel="/images/libgui/haeckel/haeckel_";
@@ -63,14 +88,33 @@ sel.addChoices([
 sel.addChoices(choices);
 sel.addChoices({name:"missing",value:haeckel+"22.png"})
 
-    // you can add the image buttons later to save window loading time
-sel.setValue(haeckel+"08.png");
+sel.setValue(haeckel+"04.png");
 
 sel.setValue( "data:image/gif;base64,R0lGODlhAQABAPABAP8SAAAAACH5BAAAAAAAIf4RQ3JlYXRlZCB3aXRoIEdJTVAALAAAAAABAAEAAAICRAEAOw==")
 
 //sel.removeWindowEventListener()
 //sel.destroy();
 
+/*
+ImageSelect.prototype.setValue = function(value) {
+    const index = this.findIndex(value);
+    if (index >= 0) {
+        this.setIndex(index);
+        this.makeImageButtonVisible();
+    } else if (guiUtils.isGoodImageFile(value)) {
+        const choice = {};
+        choice.name = "user image";
+        choice.icon = value;
+        choice.value = value;
+        this.add(choice);
+        this.setValue(value);
+    }
+};
+*/
+
+//sel.close()
+
+//sel.open()
 
 </script>
 

@@ -53,6 +53,19 @@ guiUtils.updateValues = function(toObject, fromObject) {
 
 var elements;
 
+/*
+ *  add element or array of elements to the list of elements for styling
+ */
+function addElement(elmnt) {
+    if (Array.isArray(elmnt)) {
+        for (var j = 0; j < elmnt.length; j++) {
+            elements.push(elmnt[j]);
+        }
+    } else {
+        elements.push(elmnt);
+    }
+}
+
 /**
  * register HTML elements for styling
  * @method guiUtils.style
@@ -62,14 +75,8 @@ var elements;
 guiUtils.style = function(elmnts) {
     elements = [];
     for (var i = 0; i < arguments.length; i++) {
-        const elmnt = arguments[i];
-        if (Array.isArray(elmnt)) {
-            for (var j = 0; j < elmnt.length; j++) {
-                elements.push(elmnt[j]);
-            }
-        } else {
-            elements.push(elmnt);
-        }
+        addElement(arguments[i]);
+
     }
     return guiUtils;
 };
@@ -99,7 +106,13 @@ guiUtils.attribute = function(name, value) {
 };
 
 function addStyle(key) {
-    guiUtils[key] = function(value) {
+    guiUtils[key] = function(value, elmnt) {
+        if (arguments.length > 1) {
+            elements = [];
+            for (var i = 1; i < arguments.length; i++) {
+                addElement(arguments[i]);
+            }
+        }
         elements.forEach(element => element.style[key] = value);
         return guiUtils;
     };
@@ -120,6 +133,7 @@ function addStyles(keys) {
  * setting the element.style.key property to value
  * @method guiUtils.key
  * @param {integer|string} value
+ * @param {...htmlelement|array of HTMLelements} elmnt - optional, element to use for this styling and the following
  * @return guiUtils, for chaining
  */
 
@@ -128,7 +142,8 @@ addStyles([
     "position", "top",
     "backgroundColor", "color",
     "display",
-    "border", "borderRadius",
+    "border", "borderRadius", "borderStyle", "borderWidth", "borderColor",
+    "objectFit", "objectPosition",
     "cursor",
     "outline",
     "verticalAlign", "textAlign"
