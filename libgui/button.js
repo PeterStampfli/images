@@ -291,3 +291,19 @@ Button.disable = function(buttons) {
         arguments[i].setActive(false);
     }
 };
+
+/**
+ * open the button
+ * @method Button#open
+ */
+Button.prototype.open = function() {
+    guiUtils.displayInlineBlock(this.element);
+};
+
+/**
+ * close the button
+ * @method Button#close
+ */
+Button.prototype.close = function() {
+        guiUtils.displayNone(this.element);
+};

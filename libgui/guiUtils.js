@@ -138,7 +138,7 @@ function addStyles(keys) {
  */
 
 addStyles([
-    "width", "height",
+    "width", "height", "fontSize", "paddingBottom",
     "position", "top",
     "backgroundColor", "color",
     "display",
@@ -176,4 +176,43 @@ guiUtils.vSpace = function(parent, height) {
     space.style.height = height + "px";
     parent.appendChild(space);
     return space;
+};
+
+/**
+ * make that the element display style has given value
+ * @method guiUtils.setDisplayStyle
+ * @param {htmlElement} element
+ * @param {string} value
+ */
+guiUtils.setDisplayStyle = function(element, value) {
+    if ((element) && (element.style.display !== value)) {
+        element.style.display = value;
+    }
+};
+
+/**
+ * make that the element display style is "none", ok for undefined
+ * @method guiUtils.setDisplayStyle
+ * @param {htmlElement} element
+ */
+guiUtils.displayNone = function(element) {
+    guiUtils.setDisplayStyle(element, "none");
+};
+
+/**
+ * make that the element display style is "block"
+ * @method guiUtils.setDisplayStyle
+ * @param {htmlElement} element
+ */
+guiUtils.displayBlock = function(element) {
+    guiUtils.setDisplayStyle(element, "block");
+};
+
+/**
+ * make that the element display style is "inline-block"
+ * @method guiUtils.setDisplayStyle
+ * @param {htmlElement} element
+ */
+guiUtils.displayInlineBlock = function(element) {
+    guiUtils.setDisplayStyle(element, "inline-block");
 };

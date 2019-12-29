@@ -63,6 +63,7 @@ const sel=new ImageSelect(thisDiv,{popupImagesPerRow: 1,acceptUserImages:true});
 guiUtils.hSpace(thisDiv,20);
 
 sel.createGuiImage(thisDiv);
+sel.acceptUserImages(thisDiv);
 
 
 const haeckel="/images/libgui/haeckel/haeckel_";
@@ -112,9 +113,9 @@ ImageSelect.prototype.setValue = function(value) {
 };
 */
 
-//sel.close()
+sel.close()
 
-//sel.open()
+sel.open()
 
 </script>
 

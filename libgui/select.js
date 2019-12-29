@@ -201,9 +201,7 @@ Select.prototype.changeIndex = function(delta) {
  * @method Select#open
  */
 Select.prototype.open = function() {
-    if (this.element.style.display !== "inline-block") {
-        this.element.style.display = "inline-block";
-    }
+    guiUtils.displayInlineBlock(this.element);
 };
 
 /**
@@ -211,9 +209,7 @@ Select.prototype.open = function() {
  * @method Select#close
  */
 Select.prototype.close = function() {
-    if (this.element.style.display !== "none") {
-        this.element.style.display = "none";
-    }
+        guiUtils.displayNone(this.element);
 };
 
 /**

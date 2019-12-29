@@ -427,6 +427,60 @@ ImageSelect.prototype.addUserImage = function(file) {
 };
 
 /**
+ * make that user images are accepted
+ * creates a button to add user images and drag and drop to the popup
+ * @method ImageSelect#acceptUserImages
+ * @param {htmlElement} parent
+ */
+
+// texts for the button and the popup
+ImageSelect.addImageButtonText = "add images";
+ImageSelect.addImagePopupText = "drop images here!";
+
+
+ImageSelect.prototype.acceptUserImages = function(parent) {
+    // the user image input button
+    this.userInput = new Button(ImageSelect.addImageButtonText, parent);
+    this.userInput.asFileInput("image/*");
+    this.userInput.fileInput.setAttribute("multiple", "true");
+    this.userInput.setFontSize(this.design.buttonFontSize);
+    // write that we can drop images into the popup
+    const messageDiv = document.createElement("div");
+    messageDiv.innerText = ImageSelect.addImagePopupText;
+    guiUtils.fontSize(this.design.buttonFontSize + "px", messageDiv)
+        .paddingBottom(this.popup.design.popupPadding + "px");
+    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
+
+    // adding events
+    const imageSelect = this;
+
+    this.userInput.onInteraction = function() {
+        imageSelect.interaction();
+    };
+
+    this.userInput.onFileInput = function(files) {
+        // files is NOT an array
+        for (let i = 0; i < files.length; i++) {
+            imageSelect.addUserImage(files[i]);
+        }
+    };
+
+    // we need dragover to prevent default loading of image, even if dragover does nothing else
+    this.popup.mainDiv.ondragover = function(event) {
+        event.preventDefault();
+    };
+
+    this.popup.mainDiv.ondrop = function(event) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        // event.dataTransfer.files is NOT an array
+        for (let i = 0; i < files.length; i++) {
+            imageSelect.addUserImage(files[i]);
+        }
+    };
+};
+
+/**
  *  update the icon image, and more
  * @method ImageSelect#update
  */
@@ -495,7 +549,6 @@ ImageSelect.prototype.findIndex = function(value) {
  * @return integer index, -1 if value not found
  */
 ImageSelect.prototype.setValue = function(value) {
-
     const index = this.findIndex(value);
     if (index >= 0) {
         this.setIndex(index);
@@ -505,57 +558,6 @@ ImageSelect.prototype.setValue = function(value) {
 };
 
 
-// make that user images are accepted
-
-
-ImageSelect.prototype.acceptUserImages = function() {
-    // if user images can be loaded, then add a vertical space and a button
-    if (this.design.acceptUserImages) {
-        // the user image input button
-        const vSpace = document.createElement("div");
-        vSpace.style.height = this.design.spaceWidth + "px";
-        this.selectDiv.appendChild(vSpace);
-        this.userInput = new Button(this.design.addImageButtonText, this.selectDiv);
-        this.userInput.asFileInput("image/*");
-        this.userInput.fileInput.setAttribute("multiple", "true");
-        this.userInput.setFontSize(this.design.buttonFontSize);
-        // write that we can drop images into the popup
-        const messageDiv = document.createElement("div");
-        messageDiv.innerText = this.design.dropToPopupText;
-        messageDiv.style.fontSize = this.design.buttonFontSize;
-        messageDiv.style.paddingBottom = this.popup.design.popupPadding + "px";
-        this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
-
-        // adding events
-        const imageSelect = this;
-
-        this.userInput.onInteraction = function() {
-            imageSelect.interaction();
-        };
-
-        this.userInput.onFileInput = function(files) {
-            // files is NOT an array
-            for (let i = 0; i < files.length; i++) {
-                imageSelect.addUserImage(files[i]);
-            }
-        };
-
-        // we need dragover to prevent default loading of image, even if dragover does nothing else
-        this.popup.mainDiv.ondragover = function(event) {
-            event.preventDefault();
-        };
-
-        this.popup.mainDiv.ondrop = function(event) {
-            event.preventDefault();
-            const files = event.dataTransfer.files;
-            // event.dataTransfer.files is NOT an array
-            for (let i = 0; i < files.length; i++) {
-                imageSelect.addUserImage(files[i]);
-            }
-        };
-    }
-};
-
 
 /**
  * open the image select
@@ -563,9 +565,10 @@ ImageSelect.prototype.acceptUserImages = function() {
  */
 ImageSelect.prototype.open = function() {
     this.select.open();
-    if ((this.guiImage) && (this.guiImage.style.display !== "inline-block")) {
-        this.guiImage.style.display = "inline-block";
+    if (this.userInput) {
+        this.userInput.open();
     }
+        guiUtils.displayInlineBlock(this.guiImage);
 };
 
 /**
@@ -574,9 +577,10 @@ ImageSelect.prototype.open = function() {
  */
 ImageSelect.prototype.close = function() {
     this.select.close();
-    if ((this.guiImage) && (this.guiImage.style.display !== "none")) {
-        this.guiImage.style.display = "none";
+     if (this.userInput) {
+        this.userInput.close();
     }
+    guiUtils.displayNone(this.guiImage);
 };
 
 /*
@@ -585,7 +589,7 @@ ImageSelect.prototype.close = function() {
  */
 ImageSelect.prototype.destroy = function() {
     this.clearChoices();
-    if (this.design.acceptUserImages) {
+    if (this.userInput) {
         this.userInput.destroy();
         this.popup.mainDiv.ondragover = null;
         this.popup.mainDiv.ondrop = null;
@@ -594,7 +598,6 @@ ImageSelect.prototype.destroy = function() {
     this.popup.contentDiv.onscroll = null;
     this.popup.destroy();
     this.select.destroy();
-    this.space.remove();
     if (this.guiImage) {
         this.guiImage.onmousedown = null;
         this.guiImage.onwheel = null;
