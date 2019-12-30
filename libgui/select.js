@@ -209,7 +209,7 @@ Select.prototype.open = function() {
  * @method Select#close
  */
 Select.prototype.close = function() {
-        guiUtils.displayNone(this.element);
+    guiUtils.displayNone(this.element);
 };
 
 /**

@@ -247,7 +247,7 @@ Popup.prototype.isOpen = function() {
 /**
  * clear the popup (content)
  * (remove all children of the div)
- * @method Popup#close
+ * @method Popup#clear
  */
 Popup.prototype.clear = function() {
     while (this.contentDiv.firstChild) {

@@ -305,5 +305,5 @@ Button.prototype.open = function() {
  * @method Button#close
  */
 Button.prototype.close = function() {
-        guiUtils.displayNone(this.element);
+    guiUtils.displayNone(this.element);
 };

@@ -1,7 +1,8 @@
 import {
     paramControllerMethods,
     ImageSelect,
-    ParamGui
+    ParamGui,
+    guiUtils
 } from "./modules.js";
 
 /**
@@ -25,18 +26,36 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.initCreate(); // create this.domElement with padding
     this.createLabel(this.property);
     this.label.style.verticalAlign = "middle";
-    const imageSelect = new ImageSelect(this.domElement, this.gui.design);
+    // the input elements in the main UI (not the popup)
+    // stacking vertically
+    this.selectDiv = document.createElement("div");
+    this.selectDiv.style.display = "inline-block";
+    this.selectDiv.style.verticalAlign = "middle";
+    this.selectDiv.style.textAlign = "center";
+    this.domElement.appendChild(this.selectDiv);
+    const imageSelect = new ImageSelect(this.selectDiv, this.gui.design);
+    // if user images can be loaded, then add a vertical space and a button
+    if (this.gui.design.acceptUserImages) {
+        // the user image input button
+        const vSpace = document.createElement("div");
+        vSpace.style.height = this.gui.design.spaceWidth + "px";
+        this.selectDiv.appendChild(vSpace);
+        imageSelect.acceptUserImages(this.selectDiv);
+    }
+    // add the gui image
+    guiUtils.hSpace(this.domElement, this.gui.design.spaceWidth);
+    imageSelect.createGuiImage(this.domElement);
     imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
     this.uiElement = imageSelect;
     this.gui.bodyDiv.appendChild(this.domElement);
     this.setupOnChange();
-
     // on interaction: call close popups, 
     // mark that this image selection interacts, do not close its own popup
-
     this.callsClosePopup = false;
+
     const paramImageSelection = this;
+
     imageSelect.onInteraction = function() {
         paramImageSelection.onInteraction();
     };

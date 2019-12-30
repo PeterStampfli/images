@@ -441,6 +441,7 @@ ImageSelect.addImagePopupText = "drop images here!";
  * make an add image button for opening user images
  * its standard methods may have to be changed for structured image select
  * it is related to the ImageSelect, where the user images go to
+ * does not add the button to this, it may belong to some higher ui element group (?)
  * @method ImageSelect#makeAddImageButton
  * @param {htmlElement} parent
  * @return Button

@@ -9,6 +9,8 @@
  * @param {boolean} hasMinMax  (optional)
  */
 
+// separate creation of elements and layout (spacing, inserting element as childnode)
+
 import {
     Button,
     guiUtils

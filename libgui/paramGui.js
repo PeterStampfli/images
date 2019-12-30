@@ -89,7 +89,7 @@ export function ParamGui(params) {
     } else {
         design.popupPosition = "bottomLeft";
     }
-    design.popupHorizontalShift = design.width + design.horizontalShift;
+    design.popupHorizontalShift = design.width + design.horizontalShift + design.borderWidth;
     // the ui elements go into their own div, the this.bodyDiv
     // append as child to this.domElement
     this.bodyDiv = document.createElement("div");
