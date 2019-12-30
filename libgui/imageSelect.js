@@ -437,13 +437,45 @@ ImageSelect.prototype.addUserImage = function(file) {
 ImageSelect.addImageButtonText = "add images";
 ImageSelect.addImagePopupText = "drop images here!";
 
+/**
+ * make an add image button for opening user images
+ * its standard methods may have to be changed for structured image select
+ * it is related to the ImageSelect, where the user images go to
+ * @method ImageSelect#makeAddImageButton
+ * @param {htmlElement} parent
+ * @return Button
+ */
+ImageSelect.prototype.makeAddImageButton = function(parent) {
+    const button = new Button(ImageSelect.addImageButtonText, parent);
+    button.asFileInput("image/*");
+    button.fileInput.setAttribute("multiple", "true");
+    button.setFontSize(this.design.buttonFontSize);
 
-ImageSelect.prototype.acceptUserImages = function(parent) {
-    // the user image input button
-    this.userInput = new Button(ImageSelect.addImageButtonText, parent);
-    this.userInput.asFileInput("image/*");
-    this.userInput.fileInput.setAttribute("multiple", "true");
-    this.userInput.setFontSize(this.design.buttonFontSize);
+    // adding events
+    // maybe needs to be overwritten
+    const imageSelect = this;
+
+    button.onInteraction = function() {
+        imageSelect.interaction();
+    };
+
+    button.onFileInput = function(files) {
+        // files is NOT an array
+        for (let i = 0; i < files.length; i++) {
+            imageSelect.addUserImage(files[i]);
+        }
+    };
+
+    return button;
+};
+
+/**
+ * add message and drag and drop to the popup
+ * good for simple image select
+ * eventually rewrite methods (ondrop)
+ * @method ImageSelect#addDragAndDrop
+ */
+ImageSelect.prototype.addDragAndDrop = function() {
     // write that we can drop images into the popup
     const messageDiv = document.createElement("div");
     messageDiv.innerText = ImageSelect.addImagePopupText;
@@ -452,18 +484,8 @@ ImageSelect.prototype.acceptUserImages = function(parent) {
     this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
 
     // adding events
+    // maybe needs to be overwritten
     const imageSelect = this;
-
-    this.userInput.onInteraction = function() {
-        imageSelect.interaction();
-    };
-
-    this.userInput.onFileInput = function(files) {
-        // files is NOT an array
-        for (let i = 0; i < files.length; i++) {
-            imageSelect.addUserImage(files[i]);
-        }
-    };
 
     // we need dragover to prevent default loading of image, even if dragover does nothing else
     this.popup.mainDiv.ondragover = function(event) {
@@ -478,6 +500,18 @@ ImageSelect.prototype.acceptUserImages = function(parent) {
             imageSelect.addUserImage(files[i]);
         }
     };
+};
+
+/**
+ * make that the user can open his own images
+ * mainly for simple image select
+ * ImageSelect#acceptUserImages
+ * @param {html element} parent
+ */
+ImageSelect.prototype.acceptUserImages = function(parent) {
+    // the user image input button
+    this.userInput = this.makeAddImageButton(parent);
+    this.addDragAndDrop();
 };
 
 /**
@@ -568,7 +602,7 @@ ImageSelect.prototype.open = function() {
     if (this.userInput) {
         this.userInput.open();
     }
-        guiUtils.displayInlineBlock(this.guiImage);
+    guiUtils.displayInlineBlock(this.guiImage);
 };
 
 /**
@@ -577,7 +611,7 @@ ImageSelect.prototype.open = function() {
  */
 ImageSelect.prototype.close = function() {
     this.select.close();
-     if (this.userInput) {
+    if (this.userInput) {
         this.userInput.close();
     }
     guiUtils.displayNone(this.guiImage);
