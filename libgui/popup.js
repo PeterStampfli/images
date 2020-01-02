@@ -195,6 +195,7 @@ Popup.prototype.setStyle = function(newStyle) {
     this.mainDiv.style.borderWidth = design.popupBorderWidth + "px";
     this.mainDiv.style.borderColor = design.popupBorderColor;
     this.mainDiv.style.width = this.design.popupInnerWidth + this.design.popupScrollBarWidth + 2 * this.design.popupBorderWidth + "px";
+    this.mainDiv.style.outline = "none";
     // the content div
     // no padding at the right, leaving flexibility/space for scroll bar
     this.contentDiv.style.paddingTop = design.popupPadding + "px";

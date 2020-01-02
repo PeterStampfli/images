@@ -139,9 +139,9 @@ function addStyles(keys) {
 
 addStyles([
     "width", "height", "fontSize", "paddingBottom",
-    "position", "top",
+    "position", "top", "bottom", "left", "right",
     "backgroundColor", "color",
-    "display",
+    "display", "zIndex",
     "border", "borderRadius", "borderStyle", "borderWidth", "borderColor",
     "objectFit", "objectPosition",
     "cursor",

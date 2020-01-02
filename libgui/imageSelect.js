@@ -232,13 +232,13 @@ ImageSelect.prototype.loadImages = function() {
     const length = this.popupImageButtons.length;
     const contentHeight = this.popup.contentDiv.offsetHeight;
     const contentScroll = this.popup.contentDiv.scrollTop;
-    const imageHeight = this.popupImageButtons[0].element.offsetHeight;
+    const imageHeight = this.popupImageButtons[0].image.offsetHeight;
     for (var i = 0; i < length; i++) {
-        const totalOffset = this.popupImageButtons[i].element.offsetTop - contentScroll;
+        const totalOffset = this.popupImageButtons[i].image.offsetTop - contentScroll;
         // partially visible: "upper" border of image above zero (lower border of content)
         //                    AND "lower" border of image below "upper" border of content
         if ((totalOffset + imageHeight > 0) && (totalOffset < contentHeight)) {
-            this.popupImageButtons[i].setImageURL(this.iconURLs[i]);
+            this.popupImageButtons[i].setImage(this.iconURLs[i]);
         }
     }
 };
@@ -253,16 +253,16 @@ ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
     if (this.popup.isOpen()) {
         const contentHeight = this.popup.contentDiv.offsetHeight;
         const contentScroll = this.popup.contentDiv.scrollTop;
-        const imageHeight = imageButton.element.offsetHeight;
-        const totalOffset = imageButton.element.offsetTop - contentScroll;
+        const imageHeight = imageButton.image.offsetHeight;
+        const totalOffset = imageButton.image.offsetTop - contentScroll;
         // check if not entirely visible
         //"lower" border is below lower border of popup  
         if (totalOffset < 0) {
-            this.popup.contentDiv.scrollTop = imageButton.element.offsetTop - 2 * this.design.popupPadding;
+            this.popup.contentDiv.scrollTop = imageButton.image.offsetTop - 2 * this.design.popupPadding;
         }
         // higher border is above upper border of popup
         else if (totalOffset + imageHeight > contentHeight) {
-            this.popup.contentDiv.scrollTop = imageButton.element.offsetTop + imageHeight - contentHeight + this.design.popupPadding;
+            this.popup.contentDiv.scrollTop = imageButton.image.offsetTop + imageHeight - contentHeight + this.design.popupPadding;
         }
     }
 };
@@ -301,7 +301,7 @@ ImageSelect.prototype.clearChoices = function() {
     this.iconURLs.length = 0;
     this.values.length = 0;
     if (this.guiImage) {
-        this.guiImage.src = null;
+        this.guiImage.src = "";
     }
     this.popupImageButtons.forEach(button => button.destroy());
     this.popupImageButtons.length = 0;
@@ -349,17 +349,17 @@ ImageSelect.prototype.add = function(choices) {
             if (guiUtils.isGoodImageFile(choices.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
                 this.iconURLs[index] = choices.icon;
-                button.setImageURL(ImageSelect.notLoadedURL); // delayed loading
+                button.setImage(ImageSelect.notLoadedURL); // delayed loading
                 button.setBorderColor(this.design.imageButtonBorderColor);
             } else if (guiUtils.isGoodImageFile(choices.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
                 this.iconURLs[index] = choices.value;
-                button.setImageURL(ImageSelect.notLoadedURL);
+                button.setImage(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             } else {
                 // no icon
                 this.iconURLs[index] = ImageSelect.missingIconURL;
-                button.setImageURL(ImageSelect.missingIconURL);
+                button.setImage(ImageSelect.missingIconURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             }
         }
@@ -482,7 +482,7 @@ ImageSelect.prototype.addDragAndDrop = function() {
     messageDiv.innerText = ImageSelect.addImagePopupText;
     guiUtils.fontSize(this.design.buttonFontSize + "px", messageDiv)
         .paddingBottom(this.popup.design.popupPadding + "px");
-    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
+    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.image);
 
     // adding events
     // maybe needs to be overwritten

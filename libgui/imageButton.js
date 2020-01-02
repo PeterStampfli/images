@@ -21,15 +21,15 @@ export function ImageButton(imageURL, parent, newDesign) {
         guiUtils.updateValues(this.design, arguments[i]);
     }
     // basic element is an image
-    this.element = document.createElement("img");
-    this.element.style.cursor = "pointer";
-    this.element.style.objectFit = "contain";
-    this.element.style.objectPosition = "center center";
+    this.image = document.createElement("img");
+    this.image.style.cursor = "pointer";
+    this.image.style.objectFit = "contain";
+    this.image.style.objectPosition = "center center";
     this.setDimensions();
-    parent.appendChild(this.element);
-    this.setImageURL(imageURL);
-    this.element.style.outline = "none";
-    this.element.style.verticalAlign = "middle";
+    parent.appendChild(this.image);
+    this.setImage(imageURL);
+    this.image.style.outline = "none";
+    this.image.style.verticalAlign = "middle";
     // states
     this.pressed = false;
     this.hover = false;
@@ -54,29 +54,29 @@ export function ImageButton(imageURL, parent, newDesign) {
 
     var button = this;
 
-    this.element.onmousedown = function() {
+    this.image.onmousedown = function() {
         button.pressed = true;
         button.updateStyle();
         button.onInteraction();
     };
 
-    this.element.onmouseup = function() {
+    this.image.onmouseup = function() {
         if (button.pressed) {
             button.pressed = false;
             button.onClick();
         }
-        button.element.blur();
+        button.image.blur();
         button.updateStyle();
     };
 
-    this.element.onmouseenter = function() {
+    this.image.onmouseenter = function() {
         button.hover = true;
         button.updateStyle();
     };
 
-    this.element.onmouseleave = function() {
+    this.image.onmouseleave = function() {
         button.hover = false;
-        button.element.onmouseup();
+        button.image.onmouseup();
     };
 }
 
@@ -114,33 +114,115 @@ ImageButton.prototype.colorStyleDefaults = function() {
  */
 ImageButton.prototype.updateStyle = function() {
     if (this.pressed) {
-        this.element.style.borderStyle = "inset";
-        this.element.style.opacity = this.opacityDown;
+        this.image.style.borderStyle = "inset";
+        this.image.style.opacity = this.opacityDown;
         if (this.hover) {
-            this.element.style.backgroundColor = this.backgroundColorDownHover;
+            this.image.style.backgroundColor = this.backgroundColorDownHover;
         } else {
-            this.element.style.backgroundColor = this.backgroundColorDown;
+            this.image.style.backgroundColor = this.backgroundColorDown;
         }
     } else {
-        this.element.style.borderStyle = "outset";
+        this.image.style.borderStyle = "outset";
         if (this.hover) {
-            this.element.style.backgroundColor = this.backgroundColorUpHover;
-            this.element.style.opacity = this.opacityHover;
+            this.image.style.backgroundColor = this.backgroundColorUpHover;
+            this.image.style.opacity = this.opacityHover;
         } else {
-            this.element.style.backgroundColor = this.backgroundColorUp;
-            this.element.style.opacity = 1;
+            this.image.style.backgroundColor = this.backgroundColorUp;
+            this.image.style.opacity = 1;
         }
     }
 };
 
+
+// move to image button
+
+// a single pixel off-screen canvas
+const onePixelCanvas = document.createElement("canvas");
+//onePixelCanvas.style.display = "none";
+onePixelCanvas.width = 200;
+onePixelCanvas.height = 200;
+guiUtils.style(onePixelCanvas)
+    .width("200px")
+    .height("200px")
+    .zIndex(30)
+    .position("absolute")
+    .top("0px")
+    .left("0px")
+    .backgroundColor("yellow");
+document.body.appendChild(onePixelCanvas);
+
+
+
+const onePixelContext = onePixelCanvas.getContext('2d');
+
+onePixelContext.fillStyle = "blue";
+onePixelContext.fillRect(0, 0, 2, 2);
+const onePixelImageData = onePixelContext.getImageData(0, 0, 1, 1);
+console.log(onePixelCanvas)
+console.log(onePixelImageData)
+
+//     ImageData { width: 1, height: 1, data: Uint8ClampedArray(4) }
+
+const onePixelColor = onePixelImageData.data; // Uint8ClampedArray[r,g,b,a]
+
+/*
+ * find filename, if data url return the entire data url
+ */
+function filename(url) {
+    if (url.substring(0, 5) === "data:") {
+        return url;
+    } else {
+        const urlParts = url.split("/");
+        return urlParts[urlParts.length - 1];
+    }
+}
+
+/*
+ * return if filename is png
+ * for data url too
+ */
+const dataPng = "data:image/png";
+console.log(dataPng.length)
+
+function isPng(url) {
+    console.log(url.substring(0, 14))
+    if (url.substring(0, 14) === dataPng) {
+        return true;
+    } else {
+        const urlPieces = url.split(".");
+        console.log(urlPieces)
+        return urlPieces[urlPieces.length - 1].toLowerCase() === "png";
+    }
+
+}
+
 /**
  * set image (url) of the button (only if changes ??)
- * @method ImageButton#setImageURL
+ * and background
+ * @method ImageButton#setImage
  * @param {string} url
  */
-ImageButton.prototype.setImageURL = function(url) {
-    if (this.element.src !== url) {
-        this.element.src = url;
+ImageButton.prototype.setImage = function(url) {
+    console.log("spource " + this.image.src);
+    console.log(filename(url))
+    console.log(isPng(url))
+
+    if (filename(this.image.src) !== filename(url)) {
+        this.image.src = url;
+        // determine if it is a png (needs different background)
+
+        // asynchronous image.onload !!!  
+        // use thrpoughaway canvas
+
+        // determine average color
+        console.log(url);
+        onePixelContext.clearRect(0, 0, 200, 200);
+        onePixelContext.drawImage(this.image, 0, 0, 200, 200);
+        const onePixelImageData = onePixelContext.getImageData(0, 0, 2, 2);
+        console.log(onePixelImageData)
+        console.log(onePixelImageData.data)
+    } else {
+        console.log("equal")
     }
 };
 
@@ -148,13 +230,13 @@ ImageButton.prototype.setImageURL = function(url) {
 // adjusting the margins
 ImageButton.prototype.setDimensions = function() {
     const design = this.design;
-    this.element.style.width = design.imageButtonWidth + "px";
-    this.element.style.height = design.imageButtonHeight + "px";
-    this.element.style.borderWidth = design.imageButtonBorderWidth + "px";
-    this.element.style.marginTop = 0.5 * (design.imageButtonTotalHeight - design.imageButtonHeight) - design.imageButtonBorderWidth + "px";
-    this.element.style.marginBottom = 0.5 * (design.imageButtonTotalHeight - design.imageButtonHeight) - design.imageButtonBorderWidth + "px";
-    this.element.style.marginLeft = 0.5 * (design.imageButtonTotalWidth - design.imageButtonWidth) - design.imageButtonBorderWidth + "px";
-    this.element.style.marginRight = 0.5 * (design.imageButtonTotalWidth - design.imageButtonWidth) - design.imageButtonBorderWidth + "px";
+    this.image.style.width = design.imageButtonWidth + "px";
+    this.image.style.height = design.imageButtonHeight + "px";
+    this.image.style.borderWidth = design.imageButtonBorderWidth + "px";
+    this.image.style.marginTop = 0.5 * (design.imageButtonTotalHeight - design.imageButtonHeight) - design.imageButtonBorderWidth + "px";
+    this.image.style.marginBottom = 0.5 * (design.imageButtonTotalHeight - design.imageButtonHeight) - design.imageButtonBorderWidth + "px";
+    this.image.style.marginLeft = 0.5 * (design.imageButtonTotalWidth - design.imageButtonWidth) - design.imageButtonBorderWidth + "px";
+    this.image.style.marginRight = 0.5 * (design.imageButtonTotalWidth - design.imageButtonWidth) - design.imageButtonBorderWidth + "px";
 };
 
 /**
@@ -192,7 +274,7 @@ ImageButton.prototype.setBorderWidth = function(width) {
  * @param {string} color
  */
 ImageButton.prototype.setBorderColor = function(color) {
-    this.element.style.borderColor = color;
+    this.image.style.borderColor = color;
 };
 
 /**
@@ -218,10 +300,10 @@ ImageButton.prototype.setTotalSize = function(width, height) {
 ImageButton.prototype.destroy = function() {
     this.onClick = null;
     this.onMouseDown = null;
-    this.element.onmousedown = null;
-    this.element.onmouseup = null;
-    this.element.onmouseenter = null;
-    this.element.onmouseleave = null;
-    this.element.remove();
-    this.element = null;
+    this.image.onmousedown = null;
+    this.image.onmouseup = null;
+    this.image.onmouseenter = null;
+    this.image.onmouseleave = null;
+    this.image.remove();
+    this.image = null;
 };
