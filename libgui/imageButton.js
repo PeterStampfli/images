@@ -133,7 +133,7 @@ ImageButton.prototype.updateStyle = function() {
     }
 };
 
-
+/*
 // move to image button
 
 // a single pixel off-screen canvas
@@ -150,8 +150,8 @@ guiUtils.style(onePixelCanvas)
     .left("0px")
     .backgroundColor("yellow");
 document.body.appendChild(onePixelCanvas);
-
-
+*/
+/*
 
 const onePixelContext = onePixelCanvas.getContext('2d');
 
@@ -164,7 +164,7 @@ console.log(onePixelImageData)
 //     ImageData { width: 1, height: 1, data: Uint8ClampedArray(4) }
 
 const onePixelColor = onePixelImageData.data; // Uint8ClampedArray[r,g,b,a]
-
+*/
 /*
  * find filename, if data url return the entire data url
  */
@@ -208,6 +208,8 @@ ImageButton.prototype.setImage = function(url) {
     console.log(isPng(url))
 
     if (filename(this.image.src) !== filename(url)) {
+        this.image.onload = function() {};
+
         this.image.src = url;
         // determine if it is a png (needs different background)
 
@@ -215,12 +217,13 @@ ImageButton.prototype.setImage = function(url) {
         // use thrpoughaway canvas
 
         // determine average color
-        console.log(url);
-        onePixelContext.clearRect(0, 0, 200, 200);
-        onePixelContext.drawImage(this.image, 0, 0, 200, 200);
-        const onePixelImageData = onePixelContext.getImageData(0, 0, 2, 2);
-        console.log(onePixelImageData)
-        console.log(onePixelImageData.data)
+        /*   console.log(url);
+           onePixelContext.clearRect(0, 0, 200, 200);
+           onePixelContext.drawImage(this.image, 0, 0, 200, 200);
+           const onePixelImageData = onePixelContext.getImageData(0, 0, 2, 2);
+           console.log(onePixelImageData)
+           console.log(onePixelImageData.data)
+           */
     } else {
         console.log("equal")
     }

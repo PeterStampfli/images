@@ -70,6 +70,11 @@ export {
 from "./numberButton.js";
 
 export {
+    NewNumberButton
+}
+from "./newNumberButton.js";
+
+export {
     Select
 }
 from "./select.js";

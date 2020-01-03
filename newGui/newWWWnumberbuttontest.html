@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>numberbuttontest</title>
+    <title>neWWWumberbuttontest</title>
 </head>
 
 <body>
@@ -19,9 +19,8 @@
 
 <script type="module">
 
-
 import {
-Button, Range, BooleanButton,NumberButton, guiUtils
+Button, Range, NewNumberButton, guiUtils
 } from "../libgui/modules.js";
 
 
@@ -30,11 +29,17 @@ console.log("hello");
 const thisDiv=document.getElementById("thisDiv");
 
 
- const b=new Button("blalab",thisDiv)
-const r=new Range(thisDiv,true)
-const boo=new BooleanButton(thisDiv)
-const nn=new NumberButton(thisDiv,true,true)
+const nb=new NewNumberButton(thisDiv);
 
+
+nb.setFontSize(18);
+nb.setWidth(200);
+
+nb.setStep(0.55)
+nb.setStep(0.15)
+nb.setStep(0.0010)
+nb.setStep(0.004)
+nb.setStep(0.10)
 
 </script>
 
