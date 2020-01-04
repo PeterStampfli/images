@@ -20,7 +20,7 @@
 <script type="module">
 
 import {
-Button, Range, NewNumberButton, guiUtils
+NumberButton
 } from "../libgui/modules.js";
 
 
@@ -29,17 +29,26 @@ console.log("hello");
 const thisDiv=document.getElementById("thisDiv");
 
 
-const nb=new NewNumberButton(thisDiv);
+const nb=new NumberButton(thisDiv);
 
+nb.createRange(thisDiv)
 
 nb.setFontSize(18);
-nb.setWidth(200);
+nb.setInputWidth(200);
 
 nb.setStep(0.55)
 nb.setStep(0.15)
 nb.setStep(0.0010)
 nb.setStep(0.004)
 nb.setStep(0.10)
+
+nb.createAddButton("- 1",thisDiv,-1)
+
+nb.createMulButton("* 2",thisDiv,2)
+nb.createMulButton("/ 2",thisDiv,0.5)
+nb.createMiniButton(thisDiv)
+nb.createMaxiButton(thisDiv)
+//nb.destroy();
 
 </script>
 

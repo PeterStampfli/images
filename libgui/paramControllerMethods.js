@@ -8,7 +8,6 @@ import {
     SelectValues,
     BooleanButton,
     NumberButton,
-    Range,
     TextInput,
     Button,
     InstantHelp,

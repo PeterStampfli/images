@@ -6,8 +6,7 @@ import {
     Button,
     SelectValues,
     TextInput,
-    NumberButton,
-    Range
+    NumberButton
 } from "./modules.js";
 
 // functions that check parameters, for overloading methods

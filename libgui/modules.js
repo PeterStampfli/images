@@ -70,11 +70,6 @@ export {
 from "./numberButton.js";
 
 export {
-    NewNumberButton
-}
-from "./newNumberButton.js";
-
-export {
     Select
 }
 from "./select.js";
@@ -83,11 +78,6 @@ export {
     SelectValues
 }
 from "./selectValues.js";
-
-export {
-    Range
-}
-from "./range.js";
 
 export {
     AngleScale
