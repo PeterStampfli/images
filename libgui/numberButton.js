@@ -307,22 +307,29 @@ NumberButton.prototype.setCyclic = function() {
 };
 
 /**
- * change value depending on direction (>0 or <0) and curcor posion
+ * change value depending on direction (>0 or <0) and cursor posion
  * @method NumberButton#changeDigit
  * @param {float} direction - makes plus or minus changes
  */
 NumberButton.prototype.changeDigit = function(direction) {
     let cursorPosition = this.input.selectionStart;
+
+    console.log(cursorPosition);
+    if ((cursorPosition === 0) && (this.input.value.charAt(0) === "-")) { // negative nubers: put cursor at right of minus sign
+        cursorPosition = 1;
+        console.log("at minus, correct cursor");
+    }
     // selectionStart=0: in front, left of first char
     let pointPosition = this.input.value.indexOf(".");
-    // beware of pure integers
+    // beware of pure integers, decimal point is at the right beyond all digits
     if (pointPosition < 0) {
         pointPosition = this.input.value.length;
     }
     // going to the right increases index in string, decreases number power       
     let power = pointPosition - cursorPosition;
+    // power < 0 means that we are at the right of the decimal point.
     if (power < 0) {
-        power++;
+        power++; // correction of power: "skipping" the decimal point
     }
     let change = Math.max(this.step, Math.pow(10, power));
     if (direction < 0) {
@@ -373,6 +380,7 @@ NumberButton.prototype.createAddButton = function(text, parent, amount) {
     const button = this;
     return this.createButton(text, parent, function() {
         button.updateValue(button.lastValue + amount);
+        button.input.focus();
     });
 };
 
@@ -388,11 +396,12 @@ NumberButton.prototype.createMulButton = function(text, parent, factor) {
     const button = this;
     return this.createButton(text, parent, function() {
         button.updateValue(button.lastValue * factor);
+        button.input.focus();
     });
 };
 
 /**
- * create a button that sets the minimum valöue
+ * create a button that sets the minimum value
  * @method NumberButton#createMiniButton
  * @param {String} text
  * @param {htmlelement} parent
@@ -402,11 +411,12 @@ NumberButton.prototype.createMiniButton = function(parent) {
     const button = this;
     return this.createButton("min", parent, function() {
         button.updateValue(button.minValue);
+        button.input.focus();
     });
 };
 
 /**
- * create a button that sets the maximum valöue
+ * create a button that sets the maximum value
  * @method NumberButton#createMaxiButton
  * @param {String} text
  * @param {htmlelement} parent
@@ -416,6 +426,74 @@ NumberButton.prototype.createMaxiButton = function(parent) {
     const button = this;
     return this.createButton("max", parent, function() {
         button.updateValue(button.maxValue);
+        button.input.focus();
+    });
+};
+
+// ←↑→↓
+
+NumberButton.incText = "inc";
+/**
+ * create a button that increases the number at cursor position (like wheel)
+ * @method NumberButton#createIncButton
+ * @param {String} text
+ * @param {htmlelement} parent
+ * @return the button
+ */
+NumberButton.prototype.createIncButton = function(parent) {
+    const button = this;
+    return this.createButton(NumberButton.incText, parent, function() {
+        button.changeDigit(1);
+        button.input.focus();
+    });
+};
+
+NumberButton.decText = "dec";
+/**
+ * create a button that decreases the number at cursor position (like wheel)
+ * @method NumberButton#createDecButton
+ * @param {String} text
+ * @param {htmlelement} parent
+ * @return the button
+ */
+NumberButton.prototype.createDecButton = function(parent) {
+    const button = this;
+    return this.createButton(NumberButton.decText, parent, function() {
+        button.changeDigit(-1);
+        button.input.focus();
+    });
+};
+
+NumberButton.leftText = "left";
+/**
+ * create a button that moves the cursor to the left
+ * @method NumberButton#createLeftButton
+ * @param {String} text
+ * @param {htmlelement} parent
+ * @return the button
+ */
+NumberButton.prototype.createLeftButton = function(parent) {
+    const button = this;
+    return this.createButton(NumberButton.leftText, parent, function() {
+        let cursorPosition = button.input.selectionStart;
+        cursorPosition = Math.max(0, cursorPosition - 1);
+   if ((cursorPosition === 0) && (button.input.value.charAt(0) === "-")) { // negative nubers: put cursor at right of minus sign
+        cursorPosition = 1;
+        console.log("at minus, correct cursor");
+    }
+
+
+        const charAtCursor = button.input.value.charAt(cursorPosition);
+        console.log(cursorPosition);
+        console.log(charAtCursor);
+        if (charAtCursor==="."){
+cursorPosition--;
+        }
+
+        button.input.setSelectionRange(cursorPosition, cursorPosition);
+
+        button.input.focus();
+
     });
 };
 
@@ -458,9 +536,6 @@ NumberButton.prototype.createRange = function(parent) {
         button.onInteraction();
     };
 
-    this.range.onmouseenter = function() {
-        button.range.focus();
-    };
     return this.range;
 };
 
