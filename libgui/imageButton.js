@@ -133,7 +133,7 @@ ImageButton.prototype.updateStyle = function() {
     }
 };
 
-/*
+
 // move to image button
 
 // a single pixel off-screen canvas
@@ -146,14 +146,15 @@ guiUtils.style(onePixelCanvas)
     .height("200px")
     .zIndex(30)
     .position("absolute")
-    .top("0px")
+    .bottom("0px")
     .left("0px")
     .backgroundColor("yellow");
 document.body.appendChild(onePixelCanvas);
-*/
-/*
 
 const onePixelContext = onePixelCanvas.getContext('2d');
+
+/*
+
 
 onePixelContext.fillStyle = "blue";
 onePixelContext.fillRect(0, 0, 2, 2);
@@ -165,6 +166,7 @@ console.log(onePixelImageData)
 
 const onePixelColor = onePixelImageData.data; // Uint8ClampedArray[r,g,b,a]
 */
+
 /*
  * find filename, if data url return the entire data url
  */
@@ -177,38 +179,45 @@ function filename(url) {
     }
 }
 
+
 /*
- * return if filename is png
+ * return if filename is jpg (no transparency)
  * for data url too
  */
-const dataPng = "data:image/png";
-console.log(dataPng.length)
+const dataJpeg = "data:image/jpeg";
 
-function isPng(url) {
-    console.log(url.substring(0, 14))
-    if (url.substring(0, 14) === dataPng) {
+function isJpeg(url) {
+    if (url.substring(0, 15) === dataJpeg) {
         return true;
     } else {
         const urlPieces = url.split(".");
-        console.log(urlPieces)
-        return urlPieces[urlPieces.length - 1].toLowerCase() === "png";
+        const type = urlPieces[urlPieces.length - 1].toLowerCase();
+        return (type === "jpg") || (type === "jpeg");
     }
-
 }
 
 /**
  * set image (url) of the button (only if changes ??)
- * and background
+ * and background depending on average image color (images with transparency: png and svg and ?)
  * @method ImageButton#setImage
  * @param {string} url
  */
 ImageButton.prototype.setImage = function(url) {
-    console.log("spource " + this.image.src);
-    console.log(filename(url))
-    console.log(isPng(url))
+
 
     if (filename(this.image.src) !== filename(url)) {
-        this.image.onload = function() {};
+        console.log("loading " + url);
+        const imageButton = this;
+        this.image.onload = function() {
+            if (!isJpeg(url)) {
+                console.log("transparency");
+
+                onePixelContext.clearRect(0, 0, 200, 200);
+                onePixelContext.drawImage(imageButton.image, 0, 0, 200, 200);
+
+            }
+        };
+
 
         this.image.src = url;
         // determine if it is a png (needs different background)
@@ -224,8 +233,6 @@ ImageButton.prototype.setImage = function(url) {
            console.log(onePixelImageData)
            console.log(onePixelImageData.data)
            */
-    } else {
-        console.log("equal")
     }
 };
 

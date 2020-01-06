@@ -335,8 +335,8 @@ ImageSelect.prototype.add = function(choices) {
             // trying to make it as threadsafe as possible
             const index = this.values.length;
             this.values[index] = choices.value;
-            // assume worst case: no icon, no image
-            const button = new ImageButton(ImageSelect.missingIconURL, this.popup.contentDiv, this.design);
+            // assume that there is an image, delayed loading -> placeholder gif
+            const button = new ImageButton(ImageSelect.notLoadedURL, this.popup.contentDiv, this.design);
             this.popupImageButtons[index] = button;
             const imageSelect = this;
             button.onClick = function() {
@@ -349,12 +349,10 @@ ImageSelect.prototype.add = function(choices) {
             if (guiUtils.isGoodImageFile(choices.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
                 this.iconURLs[index] = choices.icon;
-                button.setImage(ImageSelect.notLoadedURL); // delayed loading
                 button.setBorderColor(this.design.imageButtonBorderColor);
             } else if (guiUtils.isGoodImageFile(choices.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
                 this.iconURLs[index] = choices.value;
-                button.setImage(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             } else {
                 // no icon
@@ -448,6 +446,7 @@ ImageSelect.addImagePopupText = "drop images here!";
  */
 ImageSelect.prototype.makeAddImageButton = function(parent) {
     const button = new Button(ImageSelect.addImageButtonText, parent);
+    // this creates an invisible button.fileInput input element, clicking on this button here makes a click on the input
     button.asFileInput("image/*");
     button.fileInput.setAttribute("multiple", "true");
     button.setFontSize(this.design.buttonFontSize);
@@ -460,6 +459,7 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
         imageSelect.interaction();
     };
 
+    // this is the callback to be called via the file input element after all files have been choosen by the user
     button.onFileInput = function(files) {
         // files is NOT an array
         for (let i = 0; i < files.length; i++) {
@@ -591,8 +591,6 @@ ImageSelect.prototype.setValue = function(value) {
     }
     return index;
 };
-
-
 
 /**
  * open the image select
