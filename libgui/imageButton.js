@@ -90,22 +90,18 @@ ImageButton.defaultDesign = {
 };
 
 // background color for png images with a white motiv?
-ImageButton.backgroundColorUp = "#eeeeee";
-// transparencies for mouse interaction
-ImageButton.opacityDown = 0.6;
-ImageButton.opacityHover = 0.8;
+ImageButton.borderColorUp = "#444444";
+ImageButton.borderColorHover = "#bbbb44";
+ImageButton.borderColorDown = "#eeee44";
 
 /**
  * setup the color styles defaults, use for other buttons too
  * @method ImageButton#colorStyleDefaults
  */
 ImageButton.prototype.colorStyleDefaults = function() {
-    this.backgroundColorUp = ImageButton.backgroundColorUp;
-    this.backgroundColorUpHover = Button.backgroundColorUpHover;
-    this.backgroundColorDownHover = Button.backgroundColorDownHover;
-    this.backgroundColorDown = Button.backgroundColorDown;
-    this.opacityHover = ImageButton.opacityHover;
-    this.opacityDown = ImageButton.opacityDown;
+    this.borderColorDown = ImageButton.borderColorDown;
+    this.borderColorHover = ImageButton.borderColorHover;
+    this.borderColorUp = ImageButton.borderColorUp;
 };
 
 /**
@@ -115,57 +111,16 @@ ImageButton.prototype.colorStyleDefaults = function() {
 ImageButton.prototype.updateStyle = function() {
     if (this.pressed) {
         this.image.style.borderStyle = "inset";
-        this.image.style.opacity = this.opacityDown;
-        if (this.hover) {
-            this.image.style.backgroundColor = this.backgroundColorDownHover;
-        } else {
-            this.image.style.backgroundColor = this.backgroundColorDown;
-        }
+        this.image.style.borderColor = this.borderColorDown;
     } else {
         this.image.style.borderStyle = "outset";
         if (this.hover) {
-            this.image.style.backgroundColor = this.backgroundColorUpHover;
-            this.image.style.opacity = this.opacityHover;
+            this.image.style.borderColor = this.borderColorHover;
         } else {
-            this.image.style.backgroundColor = this.backgroundColorUp;
-            this.image.style.opacity = 1;
+            this.image.style.borderColor = this.borderColorUp;
         }
     }
 };
-
-
-// move to image button
-
-// a single pixel off-screen canvas
-const onePixelCanvas = document.createElement("canvas");
-//onePixelCanvas.style.display = "none";
-onePixelCanvas.width = 200;
-onePixelCanvas.height = 200;
-guiUtils.style(onePixelCanvas)
-    .width("200px")
-    .height("200px")
-    .zIndex(30)
-    .position("absolute")
-    .bottom("0px")
-    .left("0px")
-    .backgroundColor("yellow");
-document.body.appendChild(onePixelCanvas);
-
-const onePixelContext = onePixelCanvas.getContext('2d');
-
-/*
-
-
-onePixelContext.fillStyle = "blue";
-onePixelContext.fillRect(0, 0, 2, 2);
-const onePixelImageData = onePixelContext.getImageData(0, 0, 1, 1);
-console.log(onePixelCanvas)
-console.log(onePixelImageData)
-
-//     ImageData { width: 1, height: 1, data: Uint8ClampedArray(4) }
-
-const onePixelColor = onePixelImageData.data; // Uint8ClampedArray[r,g,b,a]
-*/
 
 /*
  * find filename, if data url return the entire data url
@@ -178,7 +133,6 @@ function filename(url) {
         return urlParts[urlParts.length - 1];
     }
 }
-
 
 /*
  * return if filename is jpg (no transparency)
@@ -196,6 +150,8 @@ function isJpeg(url) {
     }
 }
 
+ImageButton.backgroundColorHigh = "#eeeeee";
+ImageButton.backgroundColorLow = "#444444";
 /**
  * set image (url) of the button (only if changes ??)
  * and background depending on average image color (images with transparency: png and svg and ?)
@@ -203,36 +159,54 @@ function isJpeg(url) {
  * @param {string} url
  */
 ImageButton.prototype.setImage = function(url) {
-
-
     if (filename(this.image.src) !== filename(url)) {
-        console.log("loading " + url);
+        // define callback for image loading (asynchronous)
         const imageButton = this;
         this.image.onload = function() {
+            // refactor: background color as function of image
+            imageButton.image.style.backgroundColor = "#888888";
             if (!isJpeg(url)) {
-                console.log("transparency");
-
-                onePixelContext.clearRect(0, 0, 200, 200);
-                onePixelContext.drawImage(imageButton.image, 0, 0, 200, 200);
-
+                // a single pixel off-screen canvas
+                const theCanvas = document.createElement("canvas");
+                const size = 50;
+                theCanvas.width = size;
+                theCanvas.height = size;
+                theCanvas.style.display = "none";
+                document.body.appendChild(theCanvas);
+                const theCanvasContext = theCanvas.getContext('2d');
+                theCanvasContext.drawImage(imageButton.image, 0, 0, size, size);
+                const theImageData = theCanvasContext.getImageData(0, 0, size, size).data;
+                theCanvas.remove();
+                // sum and average
+                let sumRed = 0;
+                let sumGreen = 0;
+                let sumBlue = 0;
+                let sumAlpha = 0;
+                const length = theImageData.length;
+                for (var i = 0; i < length; i += 4) {
+                    const alpha = theImageData[i + 3];
+                    sumRed += theImageData[i] * alpha;
+                    sumGreen += theImageData[i + 1] * alpha;
+                    sumBlue += theImageData[i + 2] * alpha;
+                    sumAlpha += alpha;
+                }
+                if (sumAlpha > 0) {
+                    sumAlpha = 1 / sumAlpha;
+                    sumRed *= sumAlpha;
+                    sumGreen *= sumAlpha;
+                    sumBlue *= sumAlpha;
+                    const luma = 0.299 * sumRed + 0.587 * sumGreen + 0.114 * sumBlue;
+                    if (luma > 127) {
+                        imageButton.image.style.backgroundColor = ImageButton.backgroundColorLow;
+                    } else {
+                        imageButton.image.style.backgroundColor = ImageButton.backgroundColorHigh;
+                    }
+                }
             }
         };
 
-
+        // now load the image
         this.image.src = url;
-        // determine if it is a png (needs different background)
-
-        // asynchronous image.onload !!!  
-        // use thrpoughaway canvas
-
-        // determine average color
-        /*   console.log(url);
-           onePixelContext.clearRect(0, 0, 200, 200);
-           onePixelContext.drawImage(this.image, 0, 0, 200, 200);
-           const onePixelImageData = onePixelContext.getImageData(0, 0, 2, 2);
-           console.log(onePixelImageData)
-           console.log(onePixelImageData.data)
-           */
     }
 };
 
@@ -278,13 +252,13 @@ ImageButton.prototype.setBorderWidth = function(width) {
 };
 
 /**
- * set color of the border
- * does only something if borderwidth really changes
+ * set color of the border (for up)
  * @method ImageButton#setBorderWidth
  * @param {string} color
  */
 ImageButton.prototype.setBorderColor = function(color) {
-    this.image.style.borderColor = color;
+    this.borderColorUp = color;
+    this.updateStyle();
 };
 
 /**

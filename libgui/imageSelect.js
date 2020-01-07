@@ -145,8 +145,12 @@ ImageSelect.prototype.createGuiImage = function(parent) {
         .objectPosition("center center")
         .parent(parent);
     const index = this.getIndex(); // in case that parameter is out of range
+    // setting the image if it is created late ???
     if (index >= 0) {
         this.guiImage.src = this.iconURLs[index];
+        // background color ??????????????????
+        console.log(this.popupImageButtons[index].image.style.backgroundColor);
+
     }
 
     const imageSelect = this;
@@ -171,8 +175,6 @@ ImageSelect.prototype.createGuiImage = function(parent) {
         return false;
     };
 };
-
-
 
 ImageSelect.defaultDesign = {
     // dimensions for the gui and popup
@@ -210,7 +212,7 @@ ImageSelect.defaultDesign = {
 };
 
 /**
- * update Poipup design defaults, using data of another object with the same key 
+ * update design defaults, using data of another object with the same key 
  * @method ImageSelect.updateDefaultDesign
  * @param {Object} newValues
  */
@@ -528,6 +530,10 @@ ImageSelect.prototype.update = function() {
         this.makeImageButtonVisible(choosenButton);
         if (this.guiImage) {
             this.guiImage.src = this.iconURLs[index];
+
+            // backgroundcolor ???
+            console.log(this.popupImageButtons[index].image.style.backgroundColor);
+            console.log(this.popupImageButtons[index].image.style.backgroundColor === "");
         }
     }
 };
