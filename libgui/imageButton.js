@@ -153,6 +153,55 @@ function isJpeg(url) {
 ImageButton.backgroundColorHigh = "#eeeeee";
 ImageButton.backgroundColorLow = "#444444";
 /**
+ * determine the background color suitable for a transparent image
+ * calculates the average rgb components and luminosity
+ * background depends on lumo
+ * @method ImageButton.determineBackgroundColor
+ * @param {html image element} image
+ * @return String, the suitable background color
+ */
+ImageButton.determineBackgroundColor = function(image) {
+    // a single pixel off-screen canvas
+    let backgroundColor = "#888888";
+    const theCanvas = document.createElement("canvas");
+    const size = 50;
+    theCanvas.width = size;
+    theCanvas.height = size;
+   // theCanvas.style.display = "none";
+    document.body.appendChild(theCanvas);
+    const theCanvasContext = theCanvas.getContext('2d');
+    theCanvasContext.drawImage(image, 0, 0, size, size);
+    const theImageData = theCanvasContext.getImageData(0, 0, size, size).data;
+  //  theCanvas.remove();
+    // sum and average
+    let sumRed = 0;
+    let sumGreen = 0;
+    let sumBlue = 0;
+    let sumAlpha = 0;
+    const length = theImageData.length;
+    for (var i = 0; i < length; i += 4) {
+        const alpha = theImageData[i + 3];
+        sumRed += theImageData[i] * alpha;
+        sumGreen += theImageData[i + 1] * alpha;
+        sumBlue += theImageData[i + 2] * alpha;
+        sumAlpha += alpha;
+    }
+    if (sumAlpha > 0) {
+        sumAlpha = 1 / sumAlpha;
+        sumRed *= sumAlpha;
+        sumGreen *= sumAlpha;
+        sumBlue *= sumAlpha;
+        const luma = 0.299 * sumRed + 0.587 * sumGreen + 0.114 * sumBlue;
+        if (luma > 127) {
+            backgroundColor = ImageButton.backgroundColorLow;
+        } else {
+            backgroundColor = ImageButton.backgroundColorHigh;
+        }
+    }
+    return backgroundColor;
+};
+
+/**
  * set image (url) of the button (only if changes ??)
  * and background depending on average image color (images with transparency: png and svg and ?)
  * @method ImageButton#setImage
@@ -163,48 +212,11 @@ ImageButton.prototype.setImage = function(url) {
         // define callback for image loading (asynchronous)
         const imageButton = this;
         this.image.onload = function() {
-            // refactor: background color as function of image
             imageButton.image.style.backgroundColor = "#888888";
             if (!isJpeg(url)) {
-                // a single pixel off-screen canvas
-                const theCanvas = document.createElement("canvas");
-                const size = 50;
-                theCanvas.width = size;
-                theCanvas.height = size;
-                theCanvas.style.display = "none";
-                document.body.appendChild(theCanvas);
-                const theCanvasContext = theCanvas.getContext('2d');
-                theCanvasContext.drawImage(imageButton.image, 0, 0, size, size);
-                const theImageData = theCanvasContext.getImageData(0, 0, size, size).data;
-                theCanvas.remove();
-                // sum and average
-                let sumRed = 0;
-                let sumGreen = 0;
-                let sumBlue = 0;
-                let sumAlpha = 0;
-                const length = theImageData.length;
-                for (var i = 0; i < length; i += 4) {
-                    const alpha = theImageData[i + 3];
-                    sumRed += theImageData[i] * alpha;
-                    sumGreen += theImageData[i + 1] * alpha;
-                    sumBlue += theImageData[i + 2] * alpha;
-                    sumAlpha += alpha;
-                }
-                if (sumAlpha > 0) {
-                    sumAlpha = 1 / sumAlpha;
-                    sumRed *= sumAlpha;
-                    sumGreen *= sumAlpha;
-                    sumBlue *= sumAlpha;
-                    const luma = 0.299 * sumRed + 0.587 * sumGreen + 0.114 * sumBlue;
-                    if (luma > 127) {
-                        imageButton.image.style.backgroundColor = ImageButton.backgroundColorLow;
-                    } else {
-                        imageButton.image.style.backgroundColor = ImageButton.backgroundColorHigh;
-                    }
-                }
+                imageButton.image.style.backgroundColor=ImageButton.determineBackgroundColor(imageButton.image);
             }
         };
-
         // now load the image
         this.image.src = url;
     }
