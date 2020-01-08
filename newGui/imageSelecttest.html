@@ -30,29 +30,6 @@ guiUtils.hSpace(thisDiv,20);
 
 //thisDiv.style.backgroundColor="#bbbbbb"
 
-/*
-
-    this.guiImage.onmousedown = function() {
-        imageSelect.interaction();
-        return false;
-    };
-
-
-
-    // mousewheel on icon
-    this.guiImage.onwheel = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        imageSelect.interaction();
-        if (event.deltaY > 0) {
-            imageSelect.select.changeIndex(1);
-        } else {
-            imageSelect.select.changeIndex(-1);
-        }
-        return false;
-    };
-    */
-
 
 const sel=new ImageSelect(thisDiv,{popupImagesPerRow: 1,acceptUserImages:true});
 
@@ -60,7 +37,6 @@ guiUtils.hSpace(thisDiv,20);
 
 sel.createGuiImage(thisDiv);
 sel.acceptUserImages(thisDiv);
-
 
 const haeckel="/images/libgui/haeckel/haeckel_";
 /*

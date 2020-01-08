@@ -147,10 +147,17 @@ ImageSelect.prototype.createGuiImage = function(parent) {
     const index = this.getIndex(); // in case that parameter is out of range
     // setting the image if it is created late ???
     if (index >= 0) {
+        const popupBackgroundColor = this.popupImageButtons[index].image.style.backgroundColor;
+        if (popupBackgroundColor !== "") {
+            this.guiImage.style.backgroundColor = popupBackgroundColor;
+            this.guiImage.onload = function() {};
+        } else {
+            const guiImage = this.guiImage;
+            this.guiImage.onload = function() {
+                guiImage.style.backgroundColor = ImageButton.determineBackgroundColor(guiImage);
+            };
+        }
         this.guiImage.src = this.iconURLs[index];
-        // background color ??????????????????
-        console.log(this.popupImageButtons[index].image.style.backgroundColor);
-
     }
 
     const imageSelect = this;
@@ -338,7 +345,7 @@ ImageSelect.prototype.add = function(choices) {
             const index = this.values.length;
             this.values[index] = choices.value;
             // assume that there is an image, delayed loading -> placeholder gif
-            const button = new ImageButton(ImageSelect.notLoadedURL, this.popup.contentDiv, this.design);
+            const button = new ImageButton(this.popup.contentDiv, this.design);
             this.popupImageButtons[index] = button;
             const imageSelect = this;
             button.onClick = function() {
@@ -351,15 +358,17 @@ ImageSelect.prototype.add = function(choices) {
             if (guiUtils.isGoodImageFile(choices.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
                 this.iconURLs[index] = choices.icon;
+                button.setPlaceholder(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColor);
             } else if (guiUtils.isGoodImageFile(choices.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
                 this.iconURLs[index] = choices.value;
+                button.setPlaceholder(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             } else {
                 // no icon
                 this.iconURLs[index] = ImageSelect.missingIconURL;
-                button.setImage(ImageSelect.missingIconURL);
+                button.setPlaceholder(ImageSelect.missingIconURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             }
         }
@@ -529,11 +538,21 @@ ImageSelect.prototype.update = function() {
         choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
         if (this.guiImage) {
-            this.guiImage.src = this.iconURLs[index];
 
             // backgroundcolor ???
             console.log(this.popupImageButtons[index].image.style.backgroundColor);
             console.log(this.popupImageButtons[index].image.style.backgroundColor === "");
+            const popupBackgroundColor = this.popupImageButtons[index].image.style.backgroundColor;
+            if (popupBackgroundColor !== "") {
+                this.guiImage.style.backgroundColor = popupBackgroundColor;
+                this.guiImage.onload = function() {};
+            } else {
+                const guiImage = this.guiImage;
+                this.guiImage.onload = function() {
+                    guiImage.style.backgroundColor = ImageButton.determineBackgroundColor(guiImage);
+                };
+            }
+            this.guiImage.src = this.iconURLs[index];
         }
     }
 };

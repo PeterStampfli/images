@@ -1,10 +1,9 @@
 /**
- * a button with an image
+ * a button with an image, set image later
  * the image is an inline element, margins add up, the border goes into the margin
  * simple push button
  *
  * @constructor ImageButton
- * @param {String} imageURL
  * @param {DOM element} parent, an html element, best "div"
  * @param {...object} newDesign - modifying the default design
  */
@@ -14,7 +13,7 @@ import {
     Button
 } from "./modules.js";
 
-export function ImageButton(imageURL, parent, newDesign) {
+export function ImageButton(parent, newDesign) {
     this.design = {};
     Object.assign(this.design, ImageButton.defaultDesign);
     for (var i = 2; i < arguments.length; i++) {
@@ -27,7 +26,6 @@ export function ImageButton(imageURL, parent, newDesign) {
     this.image.style.objectPosition = "center center";
     this.setDimensions();
     parent.appendChild(this.image);
-    this.setImage(imageURL);
     this.image.style.outline = "none";
     this.image.style.verticalAlign = "middle";
     // states
@@ -150,8 +148,8 @@ function isJpeg(url) {
     }
 }
 
-ImageButton.backgroundColorHigh = "#eeeeee";
-ImageButton.backgroundColorLow = "#444444";
+ImageButton.backgroundColorHigh = "#e8e8e8";
+ImageButton.backgroundColorLow = "#666666";
 /**
  * determine the background color suitable for a transparent image
  * calculates the average rgb components and luminosity
@@ -163,42 +161,55 @@ ImageButton.backgroundColorLow = "#444444";
 ImageButton.determineBackgroundColor = function(image) {
     // a single pixel off-screen canvas
     let backgroundColor = "#888888";
-    const theCanvas = document.createElement("canvas");
-    const size = 50;
-    theCanvas.width = size;
-    theCanvas.height = size;
-   // theCanvas.style.display = "none";
-    document.body.appendChild(theCanvas);
-    const theCanvasContext = theCanvas.getContext('2d');
-    theCanvasContext.drawImage(image, 0, 0, size, size);
-    const theImageData = theCanvasContext.getImageData(0, 0, size, size).data;
-  //  theCanvas.remove();
-    // sum and average
-    let sumRed = 0;
-    let sumGreen = 0;
-    let sumBlue = 0;
-    let sumAlpha = 0;
-    const length = theImageData.length;
-    for (var i = 0; i < length; i += 4) {
-        const alpha = theImageData[i + 3];
-        sumRed += theImageData[i] * alpha;
-        sumGreen += theImageData[i + 1] * alpha;
-        sumBlue += theImageData[i + 2] * alpha;
-        sumAlpha += alpha;
-    }
-    if (sumAlpha > 0) {
-        sumAlpha = 1 / sumAlpha;
-        sumRed *= sumAlpha;
-        sumGreen *= sumAlpha;
-        sumBlue *= sumAlpha;
-        const luma = 0.299 * sumRed + 0.587 * sumGreen + 0.114 * sumBlue;
-        if (luma > 127) {
-            backgroundColor = ImageButton.backgroundColorLow;
-        } else {
-            backgroundColor = ImageButton.backgroundColorHigh;
+    if (!isJpeg(image.src)) {
+        const theCanvas = document.createElement("canvas");
+        const size = 50;
+        theCanvas.width = size; // the size, not the style
+        theCanvas.height = size;
+        theCanvas.style.display = "none";
+        document.body.appendChild(theCanvas);
+        const theCanvasContext = theCanvas.getContext('2d');
+        theCanvasContext.drawImage(image, 0, 0, size, size);
+        const theImageData = theCanvasContext.getImageData(0, 0, size, size).data;
+        theCanvas.remove();
+        // sum and average
+        let sumRed = 0;
+        let sumGreen = 0;
+        let sumBlue = 0;
+        let sumAlpha = 0;
+        const length = theImageData.length;
+        for (var i = 0; i < length; i += 4) {
+            const alpha = theImageData[i + 3];
+            sumRed += theImageData[i] * alpha;
+            sumGreen += theImageData[i + 1] * alpha;
+            sumBlue += theImageData[i + 2] * alpha;
+            sumAlpha += alpha;
+        }
+        if (sumAlpha > 0) {
+            sumAlpha = 1 / sumAlpha;
+            sumRed *= sumAlpha;
+            sumGreen *= sumAlpha;
+            sumBlue *= sumAlpha;
+            const luma = 0.299 * sumRed + 0.587 * sumGreen + 0.114 * sumBlue;
+            if (luma > 127) {
+                backgroundColor = ImageButton.backgroundColorLow;
+            } else {
+                backgroundColor = ImageButton.backgroundColorHigh;
+            }
         }
     }
     return backgroundColor;
+};
+
+/**
+ * set image url for a placeholder, no image background
+ * @method ImageButton#setPlaceholder
+ * @param {string} url
+ */
+ImageButton.prototype.setPlaceholder = function(url) {
+    this.image.onload = function() {};
+    this.image.src = url;
+    this.image.style.backgroundColor = "";
 };
 
 /**
@@ -209,13 +220,13 @@ ImageButton.determineBackgroundColor = function(image) {
  */
 ImageButton.prototype.setImage = function(url) {
     if (filename(this.image.src) !== filename(url)) {
+        console.log("image " + filename(url));
+        console.log(this.image.style.backgroundColor);
         // define callback for image loading (asynchronous)
         const imageButton = this;
         this.image.onload = function() {
-            imageButton.image.style.backgroundColor = "#888888";
-            if (!isJpeg(url)) {
-                imageButton.image.style.backgroundColor=ImageButton.determineBackgroundColor(imageButton.image);
-            }
+            imageButton.image.style.backgroundColor = ImageButton.determineBackgroundColor(imageButton.image);
+            console.log(imageButton.image.style.backgroundColor);
         };
         // now load the image
         this.image.src = url;
