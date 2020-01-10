@@ -264,7 +264,7 @@ NumberButton.prototype.setStep = function(step) {
         }
     }
     if (this.range) {
-     //   this.range.step = this.step;
+        //   this.range.step = this.step;
     }
     this.setValue(this.getValue());
 };
@@ -536,7 +536,7 @@ NumberButton.prototype.createRightButton = function(parent) {
  */
 NumberButton.prototype.createRange = function(parent) {
     this.range = document.createElement("input");
-    this.range.step = "any";    // quantization via update
+    this.range.step = "any"; // quantization via update
     guiUtils.style(this.range)
         .attribute("type", "range")
         .cursor("pointer")

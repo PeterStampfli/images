@@ -691,7 +691,8 @@ ParamGui.prototype.remove = function(element) {
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
 /**
- * add a controller for a parameter, depending on its value and limits
+ * add a controller for a parameter, one controller on a line, in its div
+ * depending on its value and limits
  * @method ParamGui#add
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - key for the field of params to change, params[property]

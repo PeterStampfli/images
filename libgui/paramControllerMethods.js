@@ -18,8 +18,8 @@ import {
 export const paramControllerMethods = {};
 
 /**
- * make a label with given text and space
- * make link to label and space elements, to be able to change/delete
+ * make a label with given text and space 
+ * it is a span, padding at right and left
  * @method paramControllerMethods.createLabel
  * @param {String} text
  */
@@ -53,9 +53,6 @@ paramControllerMethods.initCreate = function() {
     // make a regular spacing between elements
     this.domElement.style.paddingTop = design.paddingVertical + "px";
     this.domElement.style.paddingBottom = design.paddingVertical + "px";
-    // space at right between help button and border
-    this.domElement.style.paddingRight = design.spaceWidth + "px";
-
     // the button or whatever the user interacts with
     this.uiElement = null;
 
@@ -232,17 +229,82 @@ paramControllerMethods.listen = function() {
 /**
  * changes the label text, instead of property name, to show something more interesting
  * for buttons changes the button text
+ * same as datGui
  * @method paramControllerMethods.name
  * @param {String} label
  * @return this, for chaining
  */
 paramControllerMethods.name = function(label) {
-    let toChange = this.label;
     if (this.uiElement instanceof Button) {
         this.uiElement.setText(label);
-    } else {
+    } else if (this.label) {
         this.label.textContent = label;
     }
+    return this;
+};
+
+/**
+ * for buttons only, changes the button text
+ * same as datGui
+ * @method paramControllerMethods.setButtonText
+ * @param {String} label
+ * @return this, for chaining
+ */
+paramControllerMethods.setButtonText = function(label) {
+    if (this.uiElement instanceof Button) {
+        this.uiElement.setText(label);
+    }
+    return this;
+};
+
+/**
+ * changes the label text, instead of property name, to show something more interesting
+ * for buttons changes label too (starts as empty string)
+ * @method paramControllerMethods.setLabel
+ * @param {String} label
+ * @return this, for chaining
+ */
+paramControllerMethods.setLabel = function(label) {
+    if (this.label) {
+        this.label.textContent = label;
+    }
+    return this;
+};
+
+/**
+ * delete the label, including its space
+ * @method paramControllerMethods.deleteLabel
+ * @return this, for chaining
+ */
+paramControllerMethods.deleteLabel = function() {
+    if (this.label) {
+        this.label.remove();
+        this.label = false;
+    }
+    return this;
+};
+
+/**
+ * set a minimum width for label
+ * @method paramControllerMethods.setMinLabelWidth
+ * @param {int} width
+ * @return this, for chaining
+ */
+paramControllerMethods.setMinLabelWidth = function(width) {
+    if (this.label) {
+        this.label.style.minWidth = width + "px";
+    }
+    return this;
+};
+
+/**
+ * set a minimum width for the main ui element
+ * @method paramControllerMethods.setMinElementWidth
+ * @param {int} width
+ * @return this, for chaining
+ */
+paramControllerMethods.setMinElementWidth = function(width) {
+    this.uiElement.setMinWidth(width);
     return this;
 };
 

@@ -214,6 +214,25 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = range;
         this.setupOnChange();
         this.setupOnInteraction();
+    } else if (isNumber(paramValue)) {
+        // simply a number, not an integer, maybe a lower limit
+        this.createLabel(this.property);
+        const button = new NumberButton(this.domElement);
+        button.setStep(0.01); // reasonable default step (not integer)
+        button.setInputWidth(design.numberInputWidth);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createMiniButton(this.domElement);
+        button.setFontSize(design.buttonFontSize);
+        if (isNumber(low)) {
+            button.setLow(low);
+        } else {
+            button.setLow(0);
+        }
+        button.setValue(paramValue);
+        button.setValue(paramValue);
+        this.uiElement = button;
+        this.setupOnChange();
+        this.setupOnInteraction();
     } else {
         // no idea/error
         this.createLabel(this.property + " *** error: no controll");
@@ -259,7 +278,7 @@ ParamController.prototype.cyclic = function() {
 };
 
 /**
- * destroy the controller
+ * destroy the controller, and the containing dom element
  * @method ParamController#destroy
  */
 ParamController.prototype.destroy = function() {
@@ -268,8 +287,10 @@ ParamController.prototype.destroy = function() {
     }
     this.uiElement.destroy();
     this.uiElement = null;
-    this.label.remove();
-    this.label = null;
+    if (this.label) {
+        this.label.remove();
+        this.label = null;
+    }
     this.domElement.remove();
     this.domElement = null;
     this.params = null;

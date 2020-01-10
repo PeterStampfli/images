@@ -113,7 +113,7 @@ gui.add(params,"boolean");
 params.say_hello=function(){
     console.log("hello");
 };
-gui.add(params,"say_hello");
+gui.add(params,"say_hello").setButtonText("avenches").setLabel("hallo").setMinElementWidth(200);
 
 const folder = gui.addFolder("folder", {
     closed: false
@@ -121,6 +121,9 @@ const folder = gui.addFolder("folder", {
 
 params.rgba = "#ff00ffbb";
 folder.addColor(params, "rgba");
+
+params.simple=3.33;
+folder.add(params,"simple").name("whatever").setLabel("...").setMinLabelWidth(100);
 
 //ParamGui.closePopup();
 

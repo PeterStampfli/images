@@ -178,6 +178,15 @@ Button.prototype.setWidth = function(width) {
 };
 
 /**
+ * set minimumwidth of the button, in px
+ * @method Button#setMinWidth
+ * @param {integer} width
+ */
+Button.prototype.setMinWidth = function(width) {
+    this.element.style.minWidth = width + "px";
+};
+
+/**
  * set the text of the button
  * @method Button#setText
  * @param {String} text

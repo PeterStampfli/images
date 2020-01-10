@@ -1,21 +1,25 @@
 /**
  * create instantaneously appearing help popups
+ * the button lies at the right of the enclosing html dom element ("div"), with a space
  * @creator InstantHelp
  * @param {String} content - for the popup, using html markup
  * @param {domElement} parent
+ * @param {int} spaceWidth - optional, default is InstantHelp.spaceWidth
  */
 
 import {
-    Popup
+    Popup,
+    guiUtils
 } from "./modules.js";
 
-export function InstantHelp(content, parent) {
+export function InstantHelp(content, parent, spaceWidth = InstantHelp.spaceWidth) {
     this.element = document.createElement("button");
     this.element.innerHTML = "&nbsp;?&nbsp;";
     this.element.style.borderRadius = "1000px"; // semicircle
     this.element.style.float = "right";
     this.element.style.cursor = "pointer";
     this.element.style.backgroundColor = "white";
+    this.element.style.marginRight = InstantHelp.spaceWidth + "px";
     parent.appendChild(this.element);
 
     // the actions
@@ -52,6 +56,8 @@ export function InstantHelp(content, parent) {
         this.element.remove();
     };
 }
+
+InstantHelp.spaceWidth = 5;
 
 // creating the popup, one for all
 
