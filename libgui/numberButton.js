@@ -112,6 +112,9 @@ export function NumberButton(parent) {
 //effective value for infinity, change if too low
 NumberButton.maxValue = 1000;
 
+// width for spaces in px
+NumberButton.spaceWidth = 5;
+
 /**
  * update the color style of the input depending on whether its pressed or hovered
  * always call if states change, use for other buttons too
@@ -261,7 +264,7 @@ NumberButton.prototype.setStep = function(step) {
         }
     }
     if (this.range) {
-        this.range.step = this.step;
+     //   this.range.step = this.step;
     }
     this.setValue(this.getValue());
 };
@@ -533,7 +536,7 @@ NumberButton.prototype.createRightButton = function(parent) {
  */
 NumberButton.prototype.createRange = function(parent) {
     this.range = document.createElement("input");
-    this.range.step = this.step;
+    this.range.step = "any";    // quantization via update
     guiUtils.style(this.range)
         .attribute("type", "range")
         .cursor("pointer")
@@ -541,7 +544,6 @@ NumberButton.prototype.createRange = function(parent) {
         .parent(parent);
     // set the min,max and current value
     this.setRange(this.minValue, this.maxValue);
-    this.range.step = this.step;
 
     const button = this;
 
@@ -563,8 +565,16 @@ NumberButton.prototype.createRange = function(parent) {
     this.range.onwheel = function() {
         button.onInteraction();
     };
-
     return this.range;
+};
+
+/**
+ * set width of the range, in px
+ * @method NumberButton#setRangeWidth
+ * @param {integer} width
+ */
+NumberButton.prototype.setRangeWidth = function(width) {
+    this.range.style.width = width + "px";
 };
 
 /**

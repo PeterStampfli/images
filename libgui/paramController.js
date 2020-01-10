@@ -135,8 +135,17 @@ export function ParamController(gui, params, property, low, high, step) {
         // high is integer or not defined, and step is not defined/ not supplied in call
         // thus make an (integer) number button 
         this.createLabel(this.property);
-        const button = new NumberButton(this.domElement, true, true);
-        button.setWidth(design.numberInputWidth);
+        const button = new NumberButton(this.domElement);
+        button.setInputWidth(design.numberInputWidth);
+        // add the usual buttons
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createAddButton("+1", this.domElement, 1);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createAddButton("-1", this.domElement, -1);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createMiniButton(this.domElement);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createMaxiButton(this.domElement);
         button.setFontSize(design.buttonFontSize);
         if (isInteger(high)) {
             button.setRange(low, high);
@@ -159,9 +168,18 @@ export function ParamController(gui, params, property, low, high, step) {
         // high is integer and step is integer equal to 1
         // thus make a range element with plus/minus button 
         this.createLabel(this.property);
-        const range = new Range(this.domElement, true);
+        const range = new NumberButton(this.domElement);
+        range.setInputWidth(design.numberInputWidth);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        // add range
+        range.createRange(this.domElement);
+        range.setRangeWidth(design.rangeSliderLengthShort);
+        // add the usual buttons
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        range.createAddButton("+1", this.domElement, 1);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        range.createAddButton("-1", this.domElement, -1);
         range.setFontSize(design.buttonFontSize);
-        range.setWidths(design.numberInputWidth, design.rangeSliderLengthShort);
         range.setStep(1);
         range.setRange(low, high);
         range.setValue(paramValue);
@@ -177,9 +195,13 @@ export function ParamController(gui, params, property, low, high, step) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
         this.createLabel(this.property);
-        const range = new Range(this.domElement, false);
+        const range = new NumberButton(this.domElement);
+        range.setInputWidth(design.numberInputWidth);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        // add range
+        range.createRange(this.domElement);
+        range.setRangeWidth(design.rangeSliderLengthLong);
         range.setFontSize(design.buttonFontSize);
-        range.setWidths(design.numberInputWidth, design.rangeSliderLengthLong);
         range.setRange(low, high);
         if (isNumber(step)) {
             range.setStep(step);
