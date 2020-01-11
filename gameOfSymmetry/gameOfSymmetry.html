@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>game of symmetry</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type="module">
+import {
+    Life, gosUtils
+}
+from "./gosModules.js"
+
+console.log("hello");
+
+const l=new Life();
+console.log(l);
+
+l.setSize(8);
+l.setSize(30);
+
+console.log(l.cells)
+
+console.log("*"+gosUtils.toString(8));
+console.log("*"+gosUtils.toString(0));
+console.log("*"+gosUtils.toString(82));
+console.log("*"+gosUtils.toString(811));
+
+gosUtils.fillArray(l.cells,function(i,j){
+return i+j;
+});
+gosUtils.logArray(l.cells)
+
+
+</script>
+
+
+</html>
