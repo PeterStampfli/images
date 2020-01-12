@@ -26,7 +26,7 @@ const l=new Life();
 console.log(l);
 
 l.setSize(8);
-l.setSize(30);
+//l.setSize(12);
 
 console.log(l.cells)
 
@@ -35,9 +35,12 @@ console.log("*"+gosUtils.toString(0));
 console.log("*"+gosUtils.toString(82));
 console.log("*"+gosUtils.toString(811));
 
-gosUtils.fillArray(l.cells,function(i,j){
+l.fill(function(i,j){
 return i+j;
 });
+gosUtils.logArray(l.cells)
+
+l.fillBorderPeriodic();
 gosUtils.logArray(l.cells)
 
 
