@@ -1,14 +1,12 @@
 export const gosUtils = {};
 
 
-// convert integer to string, make that string has at least 3 chars
+// convert integer 0..255 to hex string
 
 gosUtils.toString = function(i) {
-    let result = i + "";
+    let result = i.toString(16);
     if (result.length === 1) {
-        result = "  " + result;
-    } else if (result.length === 2) {
-        result = " " + result;
+        result = "0" + result;
     }
     return result;
 };
