@@ -6,7 +6,7 @@
 /*
  generalization of game of life:
 
-- each cell has nStates <= 256 different states, 0,1,2, ... nStates-1
+- each cell has nStates <= 256 different states, 0,1,2, ... nStates-1 (typically a power of 2)
 - the cells are on a periodic, quasiperiodic, hyperbolic, fractal or whatever grid
 - periodic boundary condition for periodic lattices, other bc. : some given value on border cells
 - initial state: one cell in center, more cells, asymmetric initial conditions (no mirror symmetry)
@@ -14,8 +14,12 @@
 -- calculate weighted sum = weightCenter * centerCell 
                            + weightNearest * sum of nearest neigbors 
                            + weightSecondNearest * sum of secondNearest neighbors
--- max sum = (nStates-1)*(weightCenetr+4*weightNearest+4*weightSecondNearest) for square lattice
+-- max sum = (nStates-1)*(weightCenter+4*weightNearest+4*weightSecondNearest) for square lattice
 -- new state of cell = transitionTable[sum] (looking up the transition table, length maxSum+1)
+- image (data) is composed of several generations of the cellular automaton
+-- restricted to 0...255 (8 bits)
+-- shifting (multiplication) and adding: image = imageFactor * image + newCell
+-- typically, imageFactor=nStates
 
 */
 
@@ -47,7 +51,7 @@ function toHex(i) {
         result = "0" + result;
     }
     return result;
-};
+}
 
 const logItemLimit = 20;
 
@@ -90,11 +94,13 @@ Life.prototype.setSize = function(size) {
     this.arraySide = size + 2;
     this.cells = new Uint8Array(this.arraySide * this.arraySide);
     this.newCells = new Uint8Array(this.arraySide * this.arraySide);
+    // image: no boundary cells
+    this.image = new Uint8Array(size * size);
     // period, accounting for finite pixels
     // goes from a pixel to a pixel with the same color
     this.periodX = size;
     this.periodY = this.arraySide * size;
-    // offset for position of sides, corner positions
+    // offset for corner positions
     // this.bottomLeft=0;  
     this.bottomRight = this.arraySide - 1;
     this.topLeft = this.arraySide * (this.arraySide - 1);
@@ -115,9 +121,6 @@ Life.prototype.setSize = function(size) {
     this.stepDownRight = 1 + this.arraySide;
     this.stepUpLeft = -1 - this.arraySide;
     this.stepDownLeft = -1 + this.arraySide;
-
-
-
 };
 
 /**
@@ -125,6 +128,7 @@ Life.prototype.setSize = function(size) {
  * @method Life#resetTransitionTable
  */
 Life.prototype.resetTransitionTable = function() {
+    // cells have value 0, ..., nStates-1 !!!
     const maxSum = (this.nStates - 1) * (this.weightCenter + 4 * this.weightNearest + 4 * this.weightSecondNearest);
     this.transitionTable.length = maxSum + 1;
     this.transitionTable.fill(0);
@@ -135,7 +139,9 @@ Life.prototype.resetTransitionTable = function() {
  * @method Life#logTransitionTable
  */
 Life.prototype.logTransitionTable = function() {
+    console.log();
     const length = this.transitionTable.length;
+    console.log("number of states " + this.nStates);
     console.log("transitionTable: length " + length);
     for (var i = 0; i < length; i++) {
         console.log(toHex(i) + ": " + toHex(this.transitionTable[i]));
@@ -143,11 +149,41 @@ Life.prototype.logTransitionTable = function() {
 };
 
 /**
- * create the transition table
- * @method Life#makeTransitionTable
+ * @method Life#logCells
+ */
+Life.prototype.logCells = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("cells");
+    Life.logArray(this.cells);
+};
+
+/**
+ * @method Life#logNewCells
+ */
+Life.prototype.logNewCells = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("newCells");
+    Life.logArray(this.newCells);
+};
+
+/**
+ * @method Life#logImage
+ */
+Life.prototype.logImage = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("Image: Factor " + this.imageFactor);
+    Life.logArray(this.image);
+};
+
+/**
+ * create the transition table using a function
+ * @method Life#makeTransitionTableWith
  * @param {function} fun - return value for index
  */
-Life.prototype.makeTransitionTable = function(fun) {
+Life.prototype.makeTransitionTableWith = function(fun) {
     const length = this.transitionTable.length;
     for (var i = 0; i < length; i++) {
         this.transitionTable[i] = fun(i);
@@ -155,13 +191,34 @@ Life.prototype.makeTransitionTable = function(fun) {
 };
 
 /**
+ * make a saw tooth transition table, depending on number of states
+ * @method Life#makeSawToothTransitionTable
+ */
+Life.prototype.makeSawToothTransitionTable = function() {
+    const nStates = this.nStates;
+    this.makeTransitionTableWith(function(i) {
+        return i % nStates;
+    });
+};
+
+/**
  * for tests. set number of states of a cell
- * @method Life#setNumberOfStates
+ * @method Life#setNStates
  * @param {int} nStates
  */
-Life.prototype.setNumberOfStates = function(nStates) {
+Life.prototype.setNStates = function(nStates) {
     this.nStates = nStates;
     this.resetTransitionTable();
+};
+
+/**
+ * for tests. set image (shift) factor
+ * @method Life#setImageFactor
+ * @param {int} factor
+ */
+Life.prototype.setImageFactor = function(factor) {
+    this.imageFactor = factor;
+    this.clearImage();
 };
 
 /**
@@ -178,10 +235,38 @@ Life.prototype.setWeights = function(weightCenter, weightNearest, weightSecondNe
     this.resetTransitionTable();
 };
 
+/**
+ * set the starting configuration parameters
+ * @method Life#setStartParameters
+ * @param {int} startCenter
+ * @param {int} startNearest
+ * @param {int} startSecondNearest
+ */
+Life.prototype.setStartParameters = function(startCenter, startNearest, startSecondNearest) {
+    this.startCenter = startCenter;
+    this.startNearest = startNearest;
+    this.startSecondNearest = startSecondNearest;
+};
 
-// array routines for initialization, boundary conditions and waht not
+/**
+ * set the start cells
+ * @method Life#setStartCells
+ */
+Life.prototype.setStartCells = function() {
+    const center = this.center;
+    const cells = this.cells;
+    cells[center] = this.startCenter;
+    cells[center + this.stepUp] = this.startNearest;
+    cells[center + this.stepDown] = this.startNearest;
+    cells[center + this.stepRight] = this.startNearest;
+    cells[center + this.stepLeft] = this.startNearest;
+    cells[center + this.stepUpLeft] = this.startSecondNearest;
+    cells[center + this.stepDownLeft] = this.startSecondNearest;
+    cells[center + this.stepUpRight] = this.startSecondNearest;
+    cells[center + this.stepDownRight] = this.startSecondNearest;
+};
 
-
+// array routines for initialization, boundary conditions and what not
 /**
  * fill the cells with numbers that are functions of the indices, module 256
  * @method Life#fill
@@ -196,6 +281,14 @@ Life.prototype.fill = function(fun) {
             index += 1;
         }
     }
+};
+
+/**
+ * clear the image
+ * @method Life#clearImage
+ */
+Life.prototype.clearImage = function() {
+    this.image.fill(0);
 };
 
 /**
@@ -263,18 +356,25 @@ Life.prototype.fillBorderPeriodic = function() {
  */
 Life.prototype.makeNewGeneration = function() {
     const arraySide = this.arraySide;
+    const size = this.size;
     const maxIndex = this.arraySide - 2;
     const stepUpRight = this.stepUpRight;
     const stepDownRight = this.stepDownRight;
     const stepUp = this.stepUp;
     const stepDown = this.stepDown;
     const cells = this.cells;
+    const newCells = this.newCells;
+    const image = this.image;
+    const transitionTable = this.transitionTable;
     const weightCenter = this.weightCenter;
     const weightNearest = this.weightNearest;
     const weightSecondNearest = this.weightSecondNearest;
+    const imageFactor = this.imageFactor;
 
-    var index, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
+    var index, imageIndex, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
 
+    // going through all cells that belpong to the image, omit border cells
+    imageIndex = -1;
     for (var j = 1; j <= maxIndex; j++) {
         index = j * arraySide;
         center = cells[index];
@@ -286,17 +386,26 @@ Life.prototype.makeNewGeneration = function() {
 
 
             index += 1;
+            imageIndex += 1;
             left = center;
             center = right;
             right = cells[index + 1];
             sumExCenterLeft = sumExCenter;
             sumExCenter = sumExCenterRight;
             sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
-
-
-
-
-
+            const totalSum = weightCenter * center + weightNearest * (left + right + sumExCenter) + weightSecondNearest * (sumExCenterLeft + sumExCenterRight);
+            const newState = transitionTable[totalSum];
+            newCells[index] = newState;
+            image[imageIndex] = imageFactor * image[imageIndex] + newState;
         }
     }
+};
+
+
+/**
+ * copy new generation to old 
+ * @method Life#copyNewCells
+ */
+Life.prototype.copyNewCells = function() {
+    this.cells.set(this.newCells);
 };

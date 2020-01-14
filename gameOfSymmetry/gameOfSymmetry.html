@@ -23,33 +23,26 @@ from "./gosModules.js"
 console.log("hello");
 
 const l=new Life();
-console.log(l);
 
-l.setSize(8);
-//l.setSize(12);
+l.setSize(5);
+l.setImageFactor(16);
 
-console.log(l.cells)
+l.fillValue(0);
+l.setStartParameters(1,2,3)
+l.setStartCells();
 
-
-l.fill(function(i,j){
-return i+j;
-});
-Life.logArray(l.cells)
-
-l.fillBorderPeriodic();
-l.fillValue(6);
-console.log(l.center)
-console.log(l.cells.length)
-l.cells[l.center]=222
-l.cells[l.center+l.stepRight]=1
-l.cells[l.center+l.stepLeft]=2
-l.cells[l.center+l.stepUp]=3
-l.cells[l.center+l.stepDown]=4
-Life.logArray(l.cells)
+l.logCells();
+l.setNStates(4);
+l.makeSawToothTransitionTable();
 l.makeNewGeneration()
-l.makeTransitionTable(function(i){return i+1;})
-l.logTransitionTable();
 
+l.logNewCells();
+l.logImage("firstgen");
+l.copyNewCells();
+l.makeNewGeneration()
+
+l.logNewCells();
+l.logImage();
 </script>
 
 
