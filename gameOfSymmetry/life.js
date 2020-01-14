@@ -26,10 +26,6 @@ other methods for testing
 
 
 
-import {
-    gosUtils
-}
-from "./gosModules.js";
 
 export function Life() {
     // defaults, for tests
@@ -41,6 +37,41 @@ export function Life() {
     this.resetTransitionTable();
 
 }
+
+
+// convert integer 0..255 to hex string
+
+function toHex(i) {
+    let result = i.toString(16);
+    if (result.length === 1) {
+        result = "0" + result;
+    }
+    return result;
+};
+
+const logItemLimit = 20;
+
+/**
+ * log a square array, limited
+ * @method Life.logArray
+ * @param {array} array
+ */
+Life.logArray = function(array) {
+    const size = Math.floor(Math.sqrt(array.length + 0.1));
+    console.log("array, size: " + size);
+    const limit = Math.min(logItemLimit, size);
+    for (var j = 0; j < limit; j++) {
+        const base = size * j;
+        let line = toHex(j) + ": ";
+        for (var i = 0; i < limit; i++) {
+            if ((i % 5 === 0) && (i > 0)) {
+                line += " |";
+            }
+            line += " " + toHex(array[i + base]);
+        }
+        console.log(line);
+    }
+};
 
 /**
  * set the size of the problem, is the periodicity
@@ -107,7 +138,7 @@ Life.prototype.logTransitionTable = function() {
     const length = this.transitionTable.length;
     console.log("transitionTable: length " + length);
     for (var i = 0; i < length; i++) {
-        console.log(gosUtils.toString(i) + ": " + gosUtils.toString(this.transitionTable[i]));
+        console.log(toHex(i) + ": " + toHex(this.transitionTable[i]));
     }
 };
 

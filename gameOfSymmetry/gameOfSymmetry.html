@@ -16,7 +16,7 @@
 
 <script type="module">
 import {
-    Life, gosUtils
+    Life
 }
 from "./gosModules.js"
 
@@ -30,15 +30,11 @@ l.setSize(8);
 
 console.log(l.cells)
 
-console.log("*"+gosUtils.toString(8));
-console.log("*"+gosUtils.toString(0));
-console.log("*"+gosUtils.toString(82));
-console.log("*"+gosUtils.toString(811));
 
 l.fill(function(i,j){
 return i+j;
 });
-gosUtils.logArray(l.cells)
+Life.logArray(l.cells)
 
 l.fillBorderPeriodic();
 l.fillValue(6);
@@ -49,7 +45,7 @@ l.cells[l.center+l.stepRight]=1
 l.cells[l.center+l.stepLeft]=2
 l.cells[l.center+l.stepUp]=3
 l.cells[l.center+l.stepDown]=4
-gosUtils.logArray(l.cells)
+Life.logArray(l.cells)
 l.makeNewGeneration()
 l.makeTransitionTable(function(i){return i+1;})
 l.logTransitionTable();
