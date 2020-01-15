@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>circleInversion</title>
+</head>
+
+<body>
+<noscript>Please enable javascript!!!</noscript>
+
+
+<div id="text">  
+
+    <h1> Inversion at a circle as a mirror image </h1>
+
+    <p>
+    <strong>Inversion at unit circle</strong> in the complex plane:<br>
+    f(z)=1/z, where z=x+iy.
+    </p>
+    
+    <p>
+    Add complex conjugation to get a true mirror image.<br>
+    Put the center of inversion at w=u+iv.<br>
+    Use a radius R for the circle.<br>
+    </p>
+    <p>
+    f(z) = w + (R<sup>2</sup> / |z - w |<sup>2</sup>) (z - w).
+    </p>
+    
+    <p>
+    <strong>Very close to the circle:</strong><br>
+    same as a mirror image at the tangent line.
+    </p>
+    
+    <p>
+    <strong>Similarities far away:</strong> <br>
+    - The images of circles and lines are circles and lines.<br>
+    - A circle that intersects at a right angle is mapped onto itself.<br>
+    - The inside of such a circle is mapped onto itself.<br>
+    </p>
+    
+    <p>
+    The image of small region is a linear transform: <br>
+    Mirroring, translation, rotation and isotropic scaling.<br>
+    </p>
+    <p>
+    <strong>Scaling factor (Lyapunov coefficient):</strong>
+    <p>
+    R<sup>2</sup> / |z - w |<sup>2</sup>.
+    </p>
+    
+    <p>
+    Multiple circle inversions can strongly expand or shrink pixels.
+    </p>
+   
+
+    
+</div>
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/linearTransform.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/color.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+<script src="../librarySource/log.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/point.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/switchButton.js"></script>
+<script src="../librarySource/selection.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvas.js"></script>
+<script src="../librarySource/outputImage.js"></script>
+<script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/draw.js"></script>
+<script src="../librarySource/bigDiv.js"></script>
+
+<script src="layout.js"></script>
+
+<script src="circleInversion.js"></script>
+
+
+</html>

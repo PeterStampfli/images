@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+
+<head>
+    <title>five circles</title>
+</head>
+
+<body>
+<noscript><h1>Please enable javascript!!!</h1></noscript>
+
+
+<div id="text">  
+    <p>
+        <button id=home>home</button>
+    </p>
+    
+        <p>
+        <strong>Input image:</strong>
+        <button id="openInputImage">open</button>
+        <span id="inputImageName"></span>
+    </p>
+
+    <p>    
+        <strong>Showing:</strong>
+        <select id="show">
+        </select>
+    </p>
+    
+    <div id="convergenceStyle">
+        <p>
+            <strong>Drawing convergence:</strong> <br>
+            Gamma <span id="gammaRange"></span><br>
+            Threshold <span id="threshold"></span><br>
+            Saturation <span id="saturation"></span><br>
+            
+        </p>
+    </div>
+
+    
+    <div id="projectionHyperbolicDiv">
+        <p>    
+            <strong>Projection:</strong>
+            <select id="projectionHyperbolic">
+            </select>
+        </p>
+    </div>
+  
+   
+    <div id="projectionEuklidicDiv">
+        <p>    
+            <strong>Projection:</strong>
+            <select id="projectionEuklidic">
+            </select>
+        </p>
+    </div>
+
+       
+    <div id="projectionEllipticDiv">
+        <p>    
+            <strong>Projection:</strong>
+            <select id="projectionElliptic">
+            </select>
+        </p>
+    </div>
+
+    <div id="generatorsDiv">
+        <p>    
+            <strong>Generating Elements:</strong>
+            <select id="generators">
+            </select>
+        </p>
+        <div id="lineWidthDiv">
+        <p>
+            <strong>Line width: </strong> 
+            <span id="lineWidth"></span>
+        </p>
+        </div>
+    </div>
+   
+    <p>
+        <strong>Number of elements:</strong>
+        <select id="view">
+        </select>
+    </p>
+
+    <p>
+        <strong>Basic triangle:</strong> <br>
+        Rotational symmetries at intersection between: <br>
+        <table>
+            <tr>
+            <td>straight lines</td> <td><span id="k"></span>
+            </tr>
+            <tr>
+            <td>circle and upper line</td> <td><span id="m"></span>
+            </tr>
+            <tr>
+            <td>circle and lower line</td><td><span id="n"></span>
+            </tr>
+        </table>
+    </p>
+             
+    <p>
+    <span id="sum"></span> 
+    </p>  
+          
+    <div id="centerCircle">
+    <p>
+        <strong>Center circle:</strong> <br>
+        Rotational symmetries at intersection with
+        <table>
+            <tr>
+            <td>basic circle</td> <td><span id="k2"></span>
+            </tr>
+            <tr>
+            <td>upper line</td> <td><span id="m2"></span>
+            </tr>
+            <tr>
+            <td>lower line</td>
+            <td><span id="n2"></span>
+            </tr>
+        </table> 
+    </p>
+    
+    <p>
+    <strong>Resulting secondary triangles:</strong><br>
+   both lines and center circle: <span id="numbers1"></span>
+    <span id="sum1"></span>
+    </p>
+    <p>
+   upper line, center and basic circles: <span id="numbers2"></span>
+    <span id="sum2"></span>
+    </p>
+    <p>
+    lower line, center and basic circles: <span id="numbers3"></span>
+    <span id="sum3"></span>
+    </p>
+    </div>
+    
+     <div id="innerCircle">
+    <p>
+        <strong>Inner circle:</strong> (light line)<br>
+        Rotational symmetries at intersection with
+        <table>
+            <tr>
+            <td>center circle</td> <td><span id="k3"></span>
+            </tr>
+            <tr>
+            <td>upper line</td> <td><span id="m3"></span>
+            </tr>
+            <tr>
+            <td>lower line</td>
+            <td><span id="n3"></span>
+            </tr>
+        </table> 
+    </p>
+     <p>
+    <strong>Resulting secondary triangles:</strong><br>
+   both lines and inner circle: <span id="numbers13"></span>
+    <span id="sum13"></span>
+    </p>
+    <p>
+   upper line, center and inner circles: <span id="numbers23"></span>
+    <span id="sum23"></span>
+    </p>
+    <p>
+    lower line, center and inner circles: <span id="numbers33"></span>
+    <span id="sum33"></span>
+    </p>
+    </div>
+    
+        
+    
+    <p>
+    <strong>Symmetry operations:</strong> <br>
+    <button id="mirror">mirror</button>
+    <button id="inversion">invert</button>
+    </p>
+    
+    <p>
+        <strong>Output image:</strong>
+        <button id="saveOutputImage">save</button>
+    </p>
+
+    <p>
+        <strong>Output image size:</strong>
+        <input id="size"></input>
+    </p>
+    
+</div>
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/rotation.js"></script>
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/linearTransform.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/color.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/range.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvas.js"></script>
+<script src="../librarySource/outputImage.js"></script>
+<script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/dihedral.js"></script>
+
+
+<script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/draw.js"></script>
+<script src="../librarySource/bigDiv.js"></script>
+
+
+<script src="../librarySource/circleScope.js"></script>
+<script src="../librarySource/multiCircles.js"></script>
+<script src="../librarySource/basicUI.js"></script>
+
+<script src="../librarySource/hyperbolics.js"></script>
+<script src="../librarySource/euklidics.js"></script>
+<script src="../librarySource/elliptics.js"></script>
+<script src="fiveCircles.js"></script>
+
+
+</html>

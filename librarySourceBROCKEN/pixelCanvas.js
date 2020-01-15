@@ -147,6 +147,8 @@ function PixelCanvas(idName) {
      */
     PixelCanvas.prototype.createPixel = function() {
         this.imageData = this.canvasContext.getImageData(0, 0, this.width, this.height);
+        //A Uint8ClampedArray representing a one-dimensional array containing the data 
+        // in the RGBA order, with integer values between 0 and 255 (included):
         this.pixelComponents = this.imageData.data;
         this.pixel = new Uint32Array(this.pixelComponents.buffer);
     };

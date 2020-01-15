@@ -34,6 +34,7 @@ l.setStartCells();
 l.logCells();
 l.setNStates(4);
 l.makeSawToothTransitionTable();
+l.logTransitionTable();
 l.makeNewGeneration()
 
 l.logNewCells();
@@ -43,6 +44,16 @@ l.makeNewGeneration()
 
 l.logNewCells();
 l.logImage();
+
+l.makeImageHistogram()
+l.logImageHistogram();
+
+console.log(l.imageHistogram)
+console.log(l.imageHistogramMax)
+console.log("max "+l.maxImageValue())
+console.log(document.body.clientWidth)
+console.log(document.documentElement.clientHeight)
+l.createCanvas();
 </script>
 
 

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>kaleidoscope</title>
+</head>
+
+<body>
+
+<div id="text">  
+
+    <h1> Kaleidoscope</h1>
+    
+    <p>
+    We have a triangle of two reflecting straight lines and a reflecting circle arc. 
+    </p>
+    <p>
+    <strong>How do we map a point into this triangle ?</strong>
+    </p>
+    
+    <p> 
+    The straight lines generate a dihedral group.<br>
+    This group generates images of the circle arc. <br>
+    They make a polygon around the center of the image.<br>
+    Inside the polygon the dihedral symmetry maps any point into the triangle.
+    </p>
+    
+    <p>
+    <strong>How do we map a point into this polygon  ?</strong>
+    </p>
+    <p>
+    Use inversions at the circles.
+    </p>
+    <p>
+    <strong>
+    At which circle ?
+    </strong>
+    </p>
+    <p>
+    Use "ray tracing": Draw a straight line from the center to the point and
+    take the circle that intersects first with this line.
+    </p>
+    <p>
+    <strong>
+    Repeat until the point is inside the polygon.
+    </strong>
+    </p>
+    
+    <p>
+    <strong>Choose the rotational symmetries:</strong>
+    </p>
+
+    <p>
+        <table>
+            <tr>
+            <td>center &nbsp</td> <td><span id=k></span></td>
+            </tr>
+            <tr>
+            <td>left</td> <td><span id=m></span></td>
+            </tr>
+            <tr>
+            <td>right</td><td><span id=n></span></td>
+            </tr>
+        </table>
+   </p>
+   
+       <p>    
+        showing:
+        <select id="show">
+        </select>
+    </p>
+    
+    <p>
+    sum of angles = <span id="sum"></span> <sup>o</sup>
+    </p>     
+  
+    <p><strong>Results:</strong></p>
+    
+    <p>
+        Periodic image for a sum of exactly 180<sup>o</sup>.
+    </p>
+
+    <p>
+        Decoration of <em>elliptic space</em> for more than 180<sup>o</sup>.<br>
+        (Stereographic projections of repeating patterns on a sphere.)
+    </p>
+    <p>
+        Periodic pattern in <em>hyperbolic space</em> for less than 180<sup>o</sup>.<br>
+        (Zoom in at the border of the Poincaré disc representation.)
+    </p>
+    
+    <p> <strong>Rapid convergence of the iterated mapping:</strong>
+    </p>
+    
+    <p>
+    The distance between points and the boundary of the Poincaré disc increases nearly exponentially with the number of circle inversions.
+    </p>
+    
+          
+    
+  
+</div>
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/rotation.js"></script>
+
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/linearTransform.js"></script>
+<script src="../librarySource/color.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/point.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/switchButton.js"></script>
+<script src="../librarySource/selection.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvas.js"></script>
+<script src="../librarySource/outputImage.js"></script>
+<script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/dihedral.js"></script>
+<script src="../librarySource/basicKaleidoscope.js"></script>
+<script src="../librarySource/threeMirrorsKaleidoscope.js"></script>
+<script src="../librarySource/projection.js"></script>
+<script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/draw.js"></script>
+<script src="../librarySource/bigDiv.js"></script>
+<script src="../librarySource/select.js"></script>
+
+<script src="presentationExtras.js"></script>
+
+<script src="layout.js"></script>
+
+
+<script src="kaleidoscope.js"></script>
+
+
+
+</html>

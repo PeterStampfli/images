@@ -39,6 +39,9 @@ export function Life() {
     this.weightSecondNearest = 1;
     this.transitionTable = [];
     this.resetTransitionTable();
+    this.imageHistogram = []; // of image values, for quality control
+    this.imageHistogram.length = 256;
+    this.imageHistogramMax = 0;
 
 }
 
@@ -76,6 +79,48 @@ Life.logArray = function(array) {
         console.log(line);
     }
 };
+
+/**
+ * find maximum value of image
+ * @method Life#maxImageValue
+ * @return number - maximum
+ */
+Life.prototype.maxImageValue = function(a) {
+    return this.image.reduce((result, element) => Math.max(result, element), -100000);
+};
+
+/**
+ * calculate the image histogram, normalized by size
+ * and calculate max
+ * @method Life#makeImageHistogram
+ */
+Life.prototype.makeImageHistogram = function() {
+    const imageHistogram = this.imageHistogram;
+    imageHistogram.fill(0);
+    this.image.forEach(value => imageHistogram[value] += 1);
+    const factor = 1 / this.image.length;
+    imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
+    this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
+};
+
+/**
+ * log the histogram
+ * @method Life#logImageHistogram
+ */
+Life.prototype.logImageHistogram = function() {
+    console.log("image histogram: max value " + this.imageHistogramMax);
+    for (var chunk = 0; chunk < 256; chunk += 16) {
+        let text = chunk + ": ";
+        for (var i = 0; i < 16; i++) {
+        	if (i%4===0){
+        		text+="  ";
+        	}
+            text += " " + this.imageHistogram[i + chunk].toFixed(2);
+        }
+        console.log(text);
+    }
+};
+
 
 /**
  * set the size of the problem, is the periodicity
@@ -409,3 +454,42 @@ Life.prototype.makeNewGeneration = function() {
 Life.prototype.copyNewCells = function() {
     this.cells.set(this.newCells);
 };
+
+/**
+* create a canvas to show the image (tests)
+* attach to document.body
+* resize to document.documentElement.clientHeight
+* @method Life.createCanvas
+*/
+Life.prototype.createCanvas=function(){
+this.theCanvas = document.createElement("canvas");
+       document.body.appendChild(this.theCanvas);
+this. theCanvasContext=this.theCanvas.getContext('2d');
+this.theCanvas.style.backgroundColor="blue";
+this.theCanvas.style.position="absolute";
+this.theCanvas.style.top="0px";
+this.theCanvas.style.left="0px";
+
+};
+
+/* drawing
+imageData = theCanvasContext.getImageData(0, 0, size, size)
+theCanvasContext.putImageData(imageData,0, 0)
+pixels=imageData.data     as Uint8Array
+
+
+    // resizing maxheight to fit window
+    const popup = this;
+
+    function autoResize() {
+        popup.resize();
+    }
+
+    window.addEventListener("resize", autoResize, false);
+    // destroying the event listener
+    this.destroyResizeEvent = function() {
+        window.removeEventListener("resize", autoResize, false);
+    };
+
+    resize: canvasSize _> theCanvas.width/height=size   (not style)
+*/

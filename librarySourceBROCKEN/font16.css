@@ -1,0 +1,52 @@
+/* general background and font, sans serif, based on 16px*/
+
+body {
+    background-color: #bbbbbb;
+    font-family: "Open Sans", Arial, sans-serif;
+}
+
+
+
+h1 {
+    font-size: 48px;
+    font-weight: bold;
+    padding:0px;
+    margin:0px;
+}
+
+h2 {
+    font-size: 48px;
+    font-weight: normal;
+        padding:0px;
+    margin:0px;
+}
+
+h3 {
+    font-size: 32px;
+    font-weight: bold;
+       padding:0px;
+    margin:0px;
+}
+
+h4 {
+    font-size: 32px;
+    font-weight: normal;
+}
+
+h5 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h6 {
+    font-size: 24px;
+    font-weight: normal;
+}
+
+
+p {
+    font-size: 16px;
+    font-weight: normal;
+    line-height:16px;
+}
+*/

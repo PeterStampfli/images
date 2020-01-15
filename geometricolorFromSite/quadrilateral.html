@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+
+<head>
+    <title>quadrilateralKaleidoscope</title>
+</head>
+
+<body>
+<noscript><h1>Please enable javascript!!!</h1></noscript>
+
+
+<div id="text">  
+    <p>
+        <button id=help>help</button>
+        <button id=home>home</button>
+    </p>
+    
+    <p>
+        <strong>Input image:</strong>
+        <button id="openInputImage">open</button>
+        <span id="inputImageName"></span>
+    </p>
+
+    <p>    
+        <strong>Showing:</strong>
+        <select id="show">
+        </select>
+    </p>
+    
+    <p>
+        <strong>Visible:</strong>
+        <select id="visible">
+        </select>
+    </p>
+  
+    <div id="convergenceStyle">
+        <p>
+            <strong>Drawing convergence:</strong> <br>
+            Gamma <span id="gammaRange"></span><br>
+            Threshold <span id="threshold"></span><br>
+            Saturation <span id="saturation"></span><br>
+        </p>
+    </div>
+       
+    <div id="generatorsDiv">
+        <p>    
+            <strong>Generating Elements:</strong>
+            <select id="generators">
+            </select>
+        </p>
+        <div id="lineWidthDiv">
+        <p>
+            <strong>Line width: </strong> 
+            <span id="lineWidth"></span>
+        </p>
+        </div>
+    </div>
+
+    <p>
+        <strong>
+            Rotational symmetries between: </strong><br>
+        <table>
+            <tr>
+            <td>straight lines</td> <td><span id="k"></span>
+            </tr>
+            <tr>
+            <td>upper line and circle</td> <td><span id="m"></span>
+            </tr>
+            <tr>
+            <td>circles</td>
+            <td><span id="n"></span>
+            </tr>
+            <tr>
+            <td>lower line and circle</td>
+            <td><span id="p"></span>
+            </tr>
+        </table>
+    </p>
+           
+    <p>
+    sum of angles = <span id="sum"></span> 
+    </p>    
+    
+    <p>
+        <strong>Size of upper circle: </strong> 
+        <span id="circleSize"></span>
+    </p>
+  
+    <p>
+        <strong>Fractal character: </strong> 
+        <span id="circlePosition"></span>
+    </p>
+   
+    <p>
+        <strong>Output image:</strong>
+        <button id="saveOutputImage">save</button>
+    </p>
+
+    <p>
+        <strong>Output image size:</strong>
+        <input id="size"></input>
+    </p>
+    
+</div>
+
+</body>
+<body oncontextmenu="return false;">
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/rotation.js"></script>
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/linearTransform.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/color.js"></script>
+<script src="../librarySource/vectorMap.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/switchButton.js"></script>
+<script src="../librarySource/range.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvas.js"></script>
+<script src="../librarySource/outputImage.js"></script>
+<script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/dihedral.js"></script>
+
+<script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/draw.js"></script>
+<script src="../librarySource/bigDiv.js"></script>
+<script src="../librarySource/circleScope.js"></script>
+<script src="../librarySource/basicUI.js"></script>
+
+<script src="quadrilateral.js"></script>
+
+</html>

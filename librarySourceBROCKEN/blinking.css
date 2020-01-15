@@ -1,0 +1,9 @@
+.blinking{
+    animation:blinkingText 0.8s infinite;
+}
+@keyframes blinkingText{
+    0%{     color: #000;    }
+    40%{     color: #000;    }
+    70%{    color: transparent; }
+    100%{   color: #000;    }
+}
