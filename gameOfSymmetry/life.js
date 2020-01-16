@@ -510,6 +510,7 @@ Life.addButton = function(text) {
  */
 Life.prototype.imageOnCanvas = function() {
     // scaling from canvas to image
+    const image = this.image;
     const imageSize = this.size;
     const canvasSize = Life.canvasSize;
     const scale = imageSize / canvasSize;
@@ -522,11 +523,19 @@ Life.prototype.imageOnCanvas = function() {
     const pixels = imageData.data;
     console.log(pixels);
     console.log(pixels.length);
-    pixels.fill(200);
-
-
-
-
+    let pixelIndex = 0;
+    for (var jCanvas = 0; jCanvas < canvasSize; jCanvas++) {
+        const jImage = Math.floor(jCanvas * scale);
+        const jImageSize = jImage * imageSize;
+        for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
+            const iImage = Math.floor(iCanvas * scale);
+            const imageValue = Math.floor(pixelFactor * image[iImage + jImageSize]);
+            pixels[pixelIndex] = imageValue;
+            pixels[pixelIndex + 1] = imageValue;
+            pixels[pixelIndex + 2] = imageValue;
+            pixels[pixelIndex + 3] = 255;
+            pixelIndex += 4;
+        }
+    }
     Life.theCanvasContext.putImageData(imageData, 0, 0);
-
 };
