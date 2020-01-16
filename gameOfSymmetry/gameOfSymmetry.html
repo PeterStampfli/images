@@ -50,10 +50,15 @@ l.logImageHistogram();
 
 console.log(l.imageHistogram)
 console.log(l.imageHistogramMax)
-console.log("max "+l.maxImageValue())
+console.log("max "+l.calculateMaxImageValue())
 console.log(document.body.clientWidth)
 console.log(document.documentElement.clientHeight)
-l.createCanvas();
+Life.createCanvasDiv();
+Life.addButton("bbb").onclick=function(){
+	console.log("bbbbbbb");
+	};
+
+	l.imageOnCanvas();
 </script>
 
 

@@ -82,10 +82,10 @@ Life.logArray = function(array) {
 
 /**
  * find maximum value of image
- * @method Life#maxImageValue
+ * @method Life#calculateMaxImageValue
  * @return number - maximum
  */
-Life.prototype.maxImageValue = function(a) {
+Life.prototype.calculateMaxImageValue = function(a) {
     return this.image.reduce((result, element) => Math.max(result, element), -100000);
 };
 
@@ -112,9 +112,9 @@ Life.prototype.logImageHistogram = function() {
     for (var chunk = 0; chunk < 256; chunk += 16) {
         let text = chunk + ": ";
         for (var i = 0; i < 16; i++) {
-        	if (i%4===0){
-        		text+="  ";
-        	}
+            if (i % 4 === 0) {
+                text += "  ";
+            }
             text += " " + this.imageHistogram[i + chunk].toFixed(2);
         }
         console.log(text);
@@ -456,40 +456,77 @@ Life.prototype.copyNewCells = function() {
 };
 
 /**
-* create a canvas to show the image (tests)
-* attach to document.body
-* resize to document.documentElement.clientHeight
-* @method Life.createCanvas
-*/
-Life.prototype.createCanvas=function(){
-this.theCanvas = document.createElement("canvas");
-       document.body.appendChild(this.theCanvas);
-this. theCanvasContext=this.theCanvas.getContext('2d');
-this.theCanvas.style.backgroundColor="blue";
-this.theCanvas.style.position="absolute";
-this.theCanvas.style.top="0px";
-this.theCanvas.style.left="0px";
+ * create a canvas to show the image (tests)
+ * and a fitting div for controls
+ * attach to document.body
+ * resize to document.documentElement.clientHeight
+ * @method Life.createCanvas
+ */
+Life.createCanvasDiv = function() {
+    Life.theCanvas = document.createElement("canvas");
+    document.body.appendChild(Life.theCanvas);
+    this.theCanvasContext = Life.theCanvas.getContext('2d');
+    Life.theCanvas.style.backgroundColor = "blue";
+    Life.theCanvas.style.position = "absolute";
+    Life.theCanvas.style.top = "0px";
+    Life.theCanvas.style.left = "0px";
+    Life.theDiv = document.createElement("div");
+    document.body.appendChild(Life.theDiv);
+    Life.theDiv.style.position = "absolute";
+    Life.theDiv.style.top = "0px";
+    Life.theDiv.style.top = "0px";
+    Life.theDiv.style.backgroundColor = "yellow";
+    Life.theDiv.style.padding = "10px";
 
-};
-
-/* drawing
-imageData = theCanvasContext.getImageData(0, 0, size, size)
-theCanvasContext.putImageData(imageData,0, 0)
-pixels=imageData.data     as Uint8Array
-
-
-    // resizing maxheight to fit window
-    const popup = this;
-
-    function autoResize() {
-        popup.resize();
+    function resize() {
+        Life.canvasSize = document.documentElement.clientHeight;
+        Life.theCanvas.width = Life.canvasSize;
+        Life.theCanvas.height = Life.canvasSize;
+        Life.theDiv.style.left = Life.canvasSize + "px";
+        Life.theDiv.style.height = Life.canvasSize + "px";
+        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize + "px";
     }
 
-    window.addEventListener("resize", autoResize, false);
-    // destroying the event listener
-    this.destroyResizeEvent = function() {
-        window.removeEventListener("resize", autoResize, false);
-    };
+    window.addEventListener("resize", resize, false);
+    resize();
+};
 
-    resize: canvasSize _> theCanvas.width/height=size   (not style)
-*/
+/**
+ * add a button to the Life.theDiv
+ * @method Life.addButton
+ * @param {string} text
+ * @return the button
+ */
+Life.addButton = function(text) {
+    const button = document.createElement("button");
+    Life.theDiv.appendChild(button);
+    button.textContent = text;
+    return button;
+};
+
+/**
+ * show this image on the canvas, block-pixels
+ * @method Life#imageOnCanvas
+ */
+Life.prototype.imageOnCanvas = function() {
+    // scaling from canvas to image
+    const imageSize = this.size;
+    const canvasSize = Life.canvasSize;
+    const scale = imageSize / canvasSize;
+    // scaling the image value, & floor
+    const maxImageValue = this.calculateMaxImageValue();
+    console.log(maxImageValue);
+    const pixelFactor = 255.9 / maxImageValue;
+    // the pixels
+    const imageData = Life.theCanvasContext.getImageData(0, 0, canvasSize, canvasSize);
+    const pixels = imageData.data;
+    console.log(pixels);
+    console.log(pixels.length);
+    pixels.fill(200);
+
+
+
+
+    Life.theCanvasContext.putImageData(imageData, 0, 0);
+
+};
