@@ -262,7 +262,7 @@ ParamGui.defaultDesign = {
     popupBackgroundColor: "#bbbbbb",
     popupBorderWidth: 3,
     popupBorderColor: "#444444",
-    popupZIndex: 20,
+    popupZIndex: 18,
     // popupPosition: calculated from other data (depending on gui position)
     //  popupHorizontalShift: calculated from other data
 };

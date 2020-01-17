@@ -247,6 +247,22 @@ Life.prototype.makeSawToothTransitionTable = function() {
 };
 
 /**
+ * make a tent transition table, depending on number of states
+ * @method Life#makeTentTransitionTable
+ */
+Life.prototype.makeTentTransitionTable = function() {
+    const nStates = this.nStates;
+    const period=2*(nStates-1);
+    this.makeTransitionTableWith(function(i) {
+    	let result=i%period;
+    	if (result>=nStates){
+    		result=period-result;
+    	}
+        return result;
+    });
+};
+
+/**
  * for tests. set number of states of a cell
  * @method Life#setNStates
  * @param {int} nStates
@@ -415,7 +431,6 @@ Life.prototype.makeNewGeneration = function() {
     const weightNearest = this.weightNearest;
     const weightSecondNearest = this.weightSecondNearest;
     const imageFactor = this.imageFactor;
-
     var index, imageIndex, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
 
     // going through all cells that belpong to the image, omit border cells
@@ -426,10 +441,7 @@ Life.prototype.makeNewGeneration = function() {
         right = cells[index + 1];
         sumExCenter = cells[index + stepUp] + cells[index + stepDown];
         sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
-
         for (var i = 1; i <= maxIndex; i++) {
-
-
             index += 1;
             imageIndex += 1;
             left = center;
@@ -483,8 +495,8 @@ Life.createCanvasDiv = function() {
         Life.theCanvas.width = Life.canvasSize;
         Life.theCanvas.height = Life.canvasSize;
         Life.theDiv.style.left = Life.canvasSize + "px";
-        Life.theDiv.style.height = Life.canvasSize + "px";
-        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize + "px";
+        Life.theDiv.style.height = Life.canvasSize-20 + "px";
+        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize-20 + "px";
     }
 
     window.addEventListener("resize", resize, false);

@@ -220,13 +220,10 @@ ImageButton.prototype.setPlaceholder = function(url) {
  */
 ImageButton.prototype.setImage = function(url) {
     if (filename(this.image.src) !== filename(url)) {
-        console.log("image " + filename(url));
-        console.log(this.image.style.backgroundColor);
         // define callback for image loading (asynchronous)
         const imageButton = this;
         this.image.onload = function() {
             imageButton.image.style.backgroundColor = ImageButton.determineBackgroundColor(imageButton.image);
-            console.log(imageButton.image.style.backgroundColor);
         };
         // now load the image
         this.image.src = url;

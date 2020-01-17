@@ -26,7 +26,14 @@ import {
 } from "../libgui/modules.js";
 
 
-const pop=new Popup();
+const pop=new Popup({
+	popupPosition: "bottomRight",
+	popupBorderRadius:0,
+	popupShadowWidth:0,
+	popupShadowBlur:0,
+	popupHorizontalShift:100,
+	popupInnerWidth:0
+});
 
 /*
 pop.close();

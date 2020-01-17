@@ -213,7 +213,7 @@ ImageSelect.defaultDesign = {
     popupBorderRadius: 0,
     popupShadowWidth: 0,
     popupShadowBlur: 0,
-    popupZIndex: 20,
+    popupZIndex: 18, // smaller (between) than hint popup
     popupPosition: "bottomRight",
     popupHorizontalShift: 0
 };
@@ -493,7 +493,7 @@ ImageSelect.prototype.addDragAndDrop = function() {
     messageDiv.innerText = ImageSelect.addImagePopupText;
     guiUtils.fontSize(this.design.buttonFontSize + "px", messageDiv)
         .paddingBottom(this.popup.design.popupPadding + "px");
-    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.image);
+    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
 
     // adding events
     // maybe needs to be overwritten
@@ -538,10 +538,6 @@ ImageSelect.prototype.update = function() {
         choosenButton.setBorderWidth(this.design.imageButtonBorderWidthSelected);
         this.makeImageButtonVisible(choosenButton);
         if (this.guiImage) {
-
-            // backgroundcolor ???
-            console.log(this.popupImageButtons[index].image.style.backgroundColor);
-            console.log(this.popupImageButtons[index].image.style.backgroundColor === "");
             const popupBackgroundColor = this.popupImageButtons[index].image.style.backgroundColor;
             if (popupBackgroundColor !== "") {
                 this.guiImage.style.backgroundColor = popupBackgroundColor;

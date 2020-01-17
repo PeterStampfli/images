@@ -1,6 +1,7 @@
 /**
  * a popup for dialogues and messages
  * similar to the color chooser
+ * it has a contentdiv (scrolling, with variable content) and an optional controldiv (mainly close button)
  * @constructor Popup
  * @param {...object} newDesign - modifying the default design
  */
@@ -61,7 +62,7 @@ testDiv.remove();
 
 Popup.defaultDesign = {
     popupHasControl: true, // if it has a control div
-    popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar
+    popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar, put to zero if no fixed width
     popupScrollBarWidth: scrollBarWidth, // estimate for scroll bar width, valid for all?
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
@@ -79,8 +80,8 @@ Popup.defaultDesign = {
     popupShadowBlue: 0,
     popupShadowAlpha: 0.7,
     popupZIndex: 20,
-    popupPosition: "center",
-    popupHorizontalShift: 0
+    popupPosition: "center", // topLeft, topRight, bottomLeft, bottomRight
+    popupHorizontalShift: 0 // shift from left/right side
 };
 
 // changing design parameters
@@ -152,6 +153,15 @@ Popup.prototype.resize = function() {
         maxHeight -= this.controlDiv.offsetHeight;
     }
     this.contentDiv.style.maxHeight = maxHeight + "px";
+
+
+    if (this.design.popupInnerWidth <= 0) {
+
+        // set maxwidth (test with width)
+        //
+
+    }
+
     if (noShow) {
         this.close();
     }
@@ -194,13 +204,14 @@ Popup.prototype.setStyle = function(newStyle) {
     this.mainDiv.style.border = design.popupBorder;
     this.mainDiv.style.borderWidth = design.popupBorderWidth + "px";
     this.mainDiv.style.borderColor = design.popupBorderColor;
-    this.mainDiv.style.width = this.design.popupInnerWidth + this.design.popupScrollBarWidth + 2 * this.design.popupBorderWidth + "px";
+    if (this.design.popupInnerWidth > 0) {
+        this.mainDiv.style.width = this.design.popupInnerWidth + this.design.popupScrollBarWidth + 2 * this.design.popupBorderWidth + "px";
+    } else {
+        this.contentDiv.style.overflowX = "auto";
+    }
     this.mainDiv.style.outline = "none";
     // the content div
-    // no padding at the right, leaving flexibility/space for scroll bar
-    this.contentDiv.style.paddingTop = design.popupPadding + "px";
-    this.contentDiv.style.paddingLeft = design.popupPadding + "px";
-    this.contentDiv.style.paddingBottom = design.popupPadding + "px";
+    this.contentDiv.style.padding = design.popupPadding + "px";
     // the control div
     if (design.popupHasControl) {
         this.controlDiv.style.padding = design.popupPadding + "px";
