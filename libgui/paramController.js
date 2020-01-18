@@ -9,60 +9,6 @@ import {
     NumberButton
 } from "./modules.js";
 
-// functions that check parameters, for overloading methods
-
-// test if a variable is defined, and not missing in the call, 
-// returns true if defined and not null
-// a missing parameter is "undefined"
-function isDefined(p) {
-    return ((typeof p) !== "undefined") && (p !== null);
-}
-
-// test if a variable is a boolean
-function isBoolean(p) {
-    return ((typeof p) === "boolean");
-}
-
-// test if a variable is a string
-function isString(p) {
-    return ((typeof p) === "string");
-}
-
-// test if a variable is a function
-function isFunction(p) {
-    return ((typeof p) === "function");
-}
-
-// test if a variable is an integer number
-// excluding float, NaN and infinite numbers (because of Number.isInteger)
-// returns true for 5.0 and other integers written as floating point
-function isInteger(p) {
-    return ((typeof p) === "number") && (Number.isInteger(p));
-}
-
-// test if a variable is an floating point number
-// excluding integer, NaN and infinite numbers
-function isFloat(p) {
-    return ((typeof p) === "number") && (!Number.isNaN(p)) && (!Number.isInteger(p)) && (Number.isFinite(p));
-}
-
-// test if a variable is a number
-// excluding NaN and infinite numbers
-function isNumber(p) {
-    return ((typeof p) === "number") && (!Number.isNaN(p)) && (Number.isFinite(p));
-}
-
-// test if avariable is an array
-function isArray(p) {
-    return ((typeof p) === "object") && (Array.isArray(p));
-}
-
-// test if a variable is an object, not an array
-// excluding array and null
-function isObject(p) {
-    return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
-}
-
 /**
  * a controller for a simple parameter
  * with visuals, in a common div
@@ -85,7 +31,7 @@ export function ParamController(gui, params, property, low, high, step) {
     const design = this.gui.design;
     const paramValue = this.params[this.property];
     const controller = this;
-    if (isArray(low) || isObject(low)) {
+    if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
         this.createLabel(this.property);
         const selectValues = new SelectValues(this.domElement);
@@ -95,7 +41,7 @@ export function ParamController(gui, params, property, low, high, step) {
         selectValues.setValue(paramValue);
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (isBoolean(paramValue)) {
+    } else if (guiUtils.isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
         this.createLabel(this.property);
         const button = new BooleanButton(this.domElement);
@@ -105,21 +51,21 @@ export function ParamController(gui, params, property, low, high, step) {
         button.setValue(paramValue);
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (!isDefined(paramValue) || (typeof paramValue === "function")) {
+    } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
         this.createLabel("");
         const button = new Button(this.property, this.domElement);
         button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
-        if (typeof paramValue === "function") {
+        if (guiUtils.isFunction(paramValue)) {
             this.callback = paramValue;
         }
         button.onClick = function() {
             controller.callback();
         };
         this.setupOnInteraction();
-    } else if (isString(paramValue)) {
+    } else if (guiUtils.isString(paramValue)) {
         // the parameter value is a string thus make a text input button
         this.createLabel(this.property);
         const textInput = new TextInput(this.domElement);
@@ -129,8 +75,8 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = textInput;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (isInteger(paramValue) && (!isDefined(low) || isInteger(low)) &&
-        (!isDefined(high) || isInteger(high)) && !isDefined(step)) {
+    } else if (guiUtils.isInteger(paramValue) && (!guiUtils.isDefined(low) || guiUtils.isInteger(low)) &&
+        (!guiUtils.isDefined(high) || guiUtils.isInteger(high)) && !guiUtils.isDefined(step)) {
         // the parameter value is integer, and the low limit is integer or undefined 
         // high is integer or not defined, and step is not defined/ not supplied in call
         // thus make an (integer) number button 
@@ -147,9 +93,9 @@ export function ParamController(gui, params, property, low, high, step) {
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
         button.createMaxiButton(this.domElement);
         button.setFontSize(design.buttonFontSize);
-        if (isInteger(high)) {
+        if (guiUtils.isInteger(high)) {
             button.setRange(low, high);
-        } else if (isInteger(low)) {
+        } else if (guiUtils.isInteger(low)) {
             button.setLow(low);
         } else {
             button.setLow(0);
@@ -163,7 +109,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = button;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (isInteger(paramValue) && isInteger(low) && isInteger(high) && isNumber(step) && (Math.abs(step - 1) < 0.01)) {
+    } else if (guiUtils.isInteger(paramValue) && guiUtils.isInteger(low) && guiUtils.isInteger(high) && guiUtils.isNumber(step) && (Math.abs(step - 1) < 0.01)) {
         // the parameter value is integer, and the low limit too 
         // high is integer and step is integer equal to 1
         // thus make a range element with plus/minus button 
@@ -191,7 +137,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = range;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (isNumber(paramValue) && isNumber(low) && isNumber(high)) {
+    } else if (guiUtils.isNumber(paramValue) && guiUtils.isNumber(low) && guiUtils.isNumber(high)) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
         this.createLabel(this.property);
@@ -203,7 +149,7 @@ export function ParamController(gui, params, property, low, high, step) {
         range.setRangeWidth(design.rangeSliderLengthLong);
         range.setFontSize(design.buttonFontSize);
         range.setRange(low, high);
-        if (isNumber(step)) {
+        if (guiUtils.isNumber(step)) {
             range.setStep(step);
         }
         range.setValue(paramValue);
@@ -214,7 +160,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.uiElement = range;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (isNumber(paramValue)) {
+    } else if (guiUtils.isNumber(paramValue)) {
         // simply a number, not an integer, maybe a lower limit
         this.createLabel(this.property);
         const button = new NumberButton(this.domElement);
@@ -223,7 +169,7 @@ export function ParamController(gui, params, property, low, high, step) {
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
         button.createMiniButton(this.domElement);
         button.setFontSize(design.buttonFontSize);
-        if (isNumber(low)) {
+        if (guiUtils.isNumber(low)) {
             button.setLow(low);
         } else {
             button.setLow(0);

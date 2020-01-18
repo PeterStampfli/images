@@ -5,6 +5,101 @@
 
 export const guiUtils = {};
 
+// functions that check parameters, for overloading methods
+
+/**
+ * test if a variable is defined, and not missing in the call, 
+ * a missing parameter is "undefined"
+ * @method guiUtils.isDefined
+ * @param {anything} p
+ * @return true if p is defined
+ */
+guiUtils.isDefined = function(p) {
+    return ((typeof p) !== "undefined") && (p !== null);
+};
+
+/**
+ * test if a variable is boolean
+ * @method guiUtils.isBoolean
+ * @param {anything} p
+ * @return true if p is boolean
+ */
+guiUtils.isBoolean = function(p) {
+    return ((typeof p) === "boolean");
+};
+
+/**
+ * test if a variable is a string
+ * @method guiUtils.isString
+ * @param {anything} p
+ * @return true if p is string
+ */
+guiUtils.isString = function(p) {
+    return ((typeof p) === "string");
+};
+
+/**
+ * test if a variable is a function
+ * @method guiUtils.isFunction
+ * @param {anything} p
+ * @return true if p is a function
+ */
+guiUtils.isFunction = function(p) {
+    return ((typeof p) === "function");
+};
+
+/**
+ * test if a variable is an integer
+ * excluding float, NaN and infinite numbers (because of Number.isInteger)
+ * @method guiUtils.isInteger
+ * @param {anything} p
+ * @return true if p is integer
+ */
+guiUtils.isInteger = function(p) {
+    return ((typeof p) === "number") && (Number.isInteger(p));
+};
+
+/**
+ * test if a variable is a floating point number
+ * excluding integer, NaN and infinite numbers
+ * @method guiUtils.isFloat
+ * @param {anything} p
+ * @return true if p is float
+ */
+guiUtils.isFloat = function(p) {
+    return ((typeof p) === "number") && (!Number.isNaN(p)) && (!Number.isInteger(p)) && (Number.isFinite(p));
+};
+
+/**
+ * test if a variable is a number (integer or float)
+ * excluding NaN and infinite numbers
+ * @method guiUtils.isNumber
+ * @param {anything} p
+ * @return true if p is a number
+ */
+guiUtils.isNumber = function(p) {
+    return ((typeof p) === "number") && (!Number.isNaN(p)) && (Number.isFinite(p));
+};
+
+/**
+ * test if a variable is an array
+ * @method guiUtils.isArray
+ * @param {anything} p
+ * @return true if p is an array
+ */
+guiUtils.isArray = function(p) {
+    return ((typeof p) === "object") && (Array.isArray(p));
+};
+
+/**
+ * test if a variable is an object, not an array and not null
+ * @method guiUtils.isNumber
+ * @param {anything} p
+ * @return true if p is an object
+ */
+guiUtils.isObject = function(p) {
+    return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
+};
 
 /**
  * check if a file name is a string and has a good image file extension or is a dataURL of an image
