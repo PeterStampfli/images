@@ -713,24 +713,37 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * (else) if params[property],low and high are numbers make a range element
  */
 
-
-// test if a variable is an object, not an array
-// excluding array and null
-function isObject(p) {
-    return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
-}
-
+/**
+ * adding a controller for a simple parameter
+ * with visuals, in a common div
+ * making a ui control element, same as in "lib/dat.gui.min2.js", one on a line
+ * uses new image select with popup instead of simple select if:
+ *     if design.preferNewImageselect is true and low is an object (that defines choices)
+ *     and first low.value is a good image file
+ * @method ParamGui#add
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - for the field of object to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
+ */
 ParamGui.prototype.add = function(params, property, low, high, step) {
     var controller;
     // maybe prefer new image select
     // if design option is true and low is an object (that defines choices)
     // and first low.value is a good image file
-    let useNewSelect = (this.design.preferNewImageselect) && (isObject(low));
+    let useNewSelect = (this.design.preferNewImageselect) && (guiUtils.isObject(low));
     useNewSelect = useNewSelect && (guiUtils.isGoodImageFile(low[Object.keys(low)[0]]));
     if (useNewSelect) {
         controller = new ParamImageSelection(this, params, property, low);
     } else {
-        controller = new ParamController(this, params, property, low, high, step);
+        const controllerDomElement = document.createElement("div");
+        // make a regular spacing between elements
+        controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+        controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+        controller = new ParamController(this.design, controllerDomElement, params, property, low, high, step);
+        // change dom after all work has been done
+        this.bodyDiv.appendChild(controllerDomElement);
     }
     this.elements.push(controller);
     return controller;

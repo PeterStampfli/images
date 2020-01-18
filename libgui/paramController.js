@@ -11,29 +11,52 @@ import {
 
 /**
  * a controller for a simple parameter
- * with visuals, in a common div
- * making a ui control element, same as in "lib/dat.gui.min2.js", one on each line
+ * inside a given container, using given design
+ * making a ui control element, same as in "lib/dat.gui.min2.js", 
  * @creator ParamController
- * @param {ParamGui} gui - the controller is in this gui
+ * @param {ParamGui} design - object that defines the design
+ * @param {htmlElement} domElement - container for the controller, div or span
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
  */
-
-export function ParamController(gui, params, property, low, high, step) {
-    this.gui = gui;
+export function ParamController(design, domElement, params, property, low, high, step) {
+    this.design = design;
+    this.domElement = domElement;
     this.params = params;
     this.property = property;
     this.listening = false; // automatically update display
-    this.initCreate();
-    const design = this.gui.design;
+    this.helpButton = null;
+    // the button or whatever the user interacts with
+    this.uiElement = null;
+
+    /**
+     * callback for changes
+     * @method paramControllerMethods.callback
+     * @param {anything} value
+     */
+    this.callback = function(value) {
+        console.log("callback value " + value);
+    };
+
+    this.label = document.createElement("span");
+    this.label.textContent = this.property;
+    this.label.style.fontSize = design.labelFontSize + "px";
+    // minimum width for alignment of inputs
+    this.label.style.display = "inline-block";
+    this.label.style.minWidth = design.labelWidth + "px";
+    // space between label and controller or left border
+    this.label.style.paddingLeft = design.spaceWidth + "px";
+    this.label.style.paddingRight = design.spaceWidth + "px";
+    this.domElement.appendChild(this.label);
+
     const paramValue = this.params[this.property];
     const controller = this;
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
-        this.createLabel(this.property);
+
         const selectValues = new SelectValues(this.domElement);
         selectValues.setFontSize(design.buttonFontSize);
         this.uiElement = selectValues;
@@ -43,7 +66,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.setupOnInteraction();
     } else if (guiUtils.isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
-        this.createLabel(this.property);
+
         const button = new BooleanButton(this.domElement);
         button.setWidth(design.booleanButtonWidth);
         button.setFontSize(design.buttonFontSize);
@@ -54,7 +77,8 @@ export function ParamController(gui, params, property, low, high, step) {
     } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
-        this.createLabel("");
+        this.label.textContent = "";
+
         const button = new Button(this.property, this.domElement);
         button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
@@ -67,7 +91,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.setupOnInteraction();
     } else if (guiUtils.isString(paramValue)) {
         // the parameter value is a string thus make a text input button
-        this.createLabel(this.property);
+
         const textInput = new TextInput(this.domElement);
         textInput.setWidth(design.textInputWidth);
         textInput.setFontSize(design.buttonFontSize);
@@ -80,7 +104,7 @@ export function ParamController(gui, params, property, low, high, step) {
         // the parameter value is integer, and the low limit is integer or undefined 
         // high is integer or not defined, and step is not defined/ not supplied in call
         // thus make an (integer) number button 
-        this.createLabel(this.property);
+
         const button = new NumberButton(this.domElement);
         button.setInputWidth(design.numberInputWidth);
         // add the usual buttons
@@ -113,7 +137,7 @@ export function ParamController(gui, params, property, low, high, step) {
         // the parameter value is integer, and the low limit too 
         // high is integer and step is integer equal to 1
         // thus make a range element with plus/minus button 
-        this.createLabel(this.property);
+
         const range = new NumberButton(this.domElement);
         range.setInputWidth(design.numberInputWidth);
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
@@ -140,7 +164,7 @@ export function ParamController(gui, params, property, low, high, step) {
     } else if (guiUtils.isNumber(paramValue) && guiUtils.isNumber(low) && guiUtils.isNumber(high)) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
-        this.createLabel(this.property);
+
         const range = new NumberButton(this.domElement);
         range.setInputWidth(design.numberInputWidth);
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
@@ -162,7 +186,7 @@ export function ParamController(gui, params, property, low, high, step) {
         this.setupOnInteraction();
     } else if (guiUtils.isNumber(paramValue)) {
         // simply a number, not an integer, maybe a lower limit
-        this.createLabel(this.property);
+
         const button = new NumberButton(this.domElement);
         button.setStep(0.01); // reasonable default step (not integer)
         button.setInputWidth(design.numberInputWidth);
@@ -182,13 +206,11 @@ export function ParamController(gui, params, property, low, high, step) {
     } else {
         // no idea/error
         this.createLabel(this.property + " *** error: no controll");
-        console.log("no controll found");
+        console.log("no fitting controller found");
         console.log(low);
         console.log(high);
         console.log(step);
     }
-    // change dom after all work has been done
-    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 // "inherit" paramControllerMethods:
@@ -241,7 +263,6 @@ ParamController.prototype.destroy = function() {
     this.domElement = null;
     this.params = null;
     this.callback = null;
-    this.gui = null;
 };
 
 /**

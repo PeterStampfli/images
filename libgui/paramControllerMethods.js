@@ -74,7 +74,7 @@ paramControllerMethods.initCreate = function() {
  */
 paramControllerMethods.addHelp = function(message) {
     this.helpButton = new InstantHelp(message, this.domElement);
-    this.helpButton.setFontSize(this.gui.design.buttonFontSize);
+    this.helpButton.setFontSize(this.design.buttonFontSize);
     return this;
 };
 
