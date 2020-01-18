@@ -38,6 +38,8 @@ export function Popup(newDesign) {
     document.body.appendChild(this.mainDiv);
 
     // resizing maxheight to fit window
+    // resizing maxWidth to fit window if there is no fixed with (design.popupInnerWidth=0)
+    // this maxWidth=0;                       ( in case that we need the resulting maxWidth)
     const popup = this;
 
     function autoResize() {
@@ -145,7 +147,8 @@ Popup.prototype.resize = function() {
     if (noShow) {
         this.open();
     }
-    let maxHeight = document.documentElement.clientHeight - 2 * (this.design.popupShadowBlur + this.design.popupShadowWidth);
+    const totalShadowWidth = this.design.popupShadowBlur + this.design.popupShadowWidth;
+    let maxHeight = document.documentElement.clientHeight - 2 * totalShadowWidth;
     // content div as seen in the main div extends from 0 to controlDiv.offsetTop
     // it includes the height, paddings and border
     maxHeight -= 2 * (this.design.popupBorderWidth + this.design.popupPadding);
@@ -153,13 +156,10 @@ Popup.prototype.resize = function() {
         maxHeight -= this.controlDiv.offsetHeight;
     }
     this.contentDiv.style.maxHeight = maxHeight + "px";
-
-
     if (this.design.popupInnerWidth <= 0) {
-
-        // set maxwidth (test with width)
-        //
-
+        this.maxWidth = document.documentElement.clientWidth - this.design.popupHorizontalShift;
+        this.maxWidth -= 2 * this.design.popupBorderWidth + 2 * totalShadowWidth;
+        this.mainDiv.style.width = this.maxWidth + "px";
     }
 
     if (noShow) {
