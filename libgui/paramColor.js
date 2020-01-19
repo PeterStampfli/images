@@ -12,30 +12,53 @@ import {
  *  (that should be safe because of different lengths of strings)
  * make a text input , color input and range
  * @creator ParamColor
- * @param {ParamGui} gui - the controller is in this gui
+ * @param {ParamGui} design - object that defines the design
+ * @param {htmlElement} domElement - container for the controller, div or span
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  */
 
-export function ParamColor(gui, params, property) {
-    this.gui = gui;
+export function ParamColor(design, domElement, params, property) {
+    this.design = design;
+    this.domElement = domElement;
     this.params = params;
     this.property = property;
     this.listening = false; // automatically update display
-    this.initCreate();
-    const design = this.gui.design;
+    this.helpButton = null;
+    // the button or whatever the user interacts with
+    this.uiElement = null;
+
+    /**
+     * callback for changes
+     * @method paramControllerMethods.callback
+     * @param {anything} value
+     */
+    this.callback = function(value) {
+        console.log("callback value " + value);
+    };
+
+
+    this.label = document.createElement("span");
+    this.label.textContent = this.property;
+    this.label.style.fontSize = design.labelFontSize + "px";
+    // minimum width for alignment of inputs
+    this.label.style.display = "inline-block";
+    this.label.style.minWidth = design.labelWidth + "px";
+    // space between label and controller or left border
+    this.label.style.paddingLeft = design.spaceWidth + "px";
+    this.label.style.paddingRight = design.spaceWidth + "px";
+    this.domElement.appendChild(this.label);
+
     let color = this.params[this.property];
-    this.createLabel(this.property);
     const hasAlpha = ColorInput.hasAlpha(color);
     const colorInput = new ColorInput(this.domElement, hasAlpha);
     colorInput.setWidths(design.colorTextWidth, design.colorColorWidth, design.colorRangeWidth);
     colorInput.setValue(color);
     // we need the root gui dom element to be able to see size of the text input element
-    colorInput.setFontSize(this.gui.getRoot().domElement, design.buttonFontSize); // attention: reading offsetHeight !
+    colorInput.setFontSize(design.buttonFontSize); // attention: reading offsetHeight !
     this.uiElement = colorInput;
     this.setupOnChange();
     this.setupOnInteraction();
-    this.gui.bodyDiv.appendChild(this.domElement);
 }
 
 const px = "px";

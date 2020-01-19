@@ -12,19 +12,45 @@ import {
  * the value can be an image URL, a preset (URL of json file)
  * multiple choices are put together in an array
  * @creator ParamImageSelection
- * @param {ParamGui} gui - the controller is in this gui
+ * @param {htmlElement} domElement - container for the controller, div or span
+ * @param {Object} params - object that has the parameter as a field
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  * @param {array} choices - an array of choice objects
  */
 
-export function ParamImageSelection(gui, params, property, choices) {
-    this.gui = gui;
+export function ParamImageSelection(design, domElement, params, property, choices) {
+    this.design = design;
+    this.domElement = domElement;
     this.params = params;
     this.property = property;
     this.listening = false; // automatically update display
-    this.initCreate(); // create this.domElement with padding
-    this.createLabel(this.property);
+    this.helpButton = null;
+    // the user interacts with
+    this.uiElement = null;
+
+    /**
+     * callback for changes
+     * @method paramControllerMethods.callback
+     * @param {anything} value
+     */
+    this.callback = function(value) {
+        console.log("callback value " + value);
+    };
+
+
+    this.label = document.createElement("span");
+    this.label.textContent = this.property;
+    this.label.style.fontSize = design.labelFontSize + "px";
+    // minimum width for alignment of inputs
+    this.label.style.display = "inline-block";
+    this.label.style.minWidth = design.labelWidth + "px";
+    // space between label and controller or left border
+    this.label.style.paddingLeft = design.spaceWidth + "px";
+    this.label.style.paddingRight = design.spaceWidth + "px";
+    this.domElement.appendChild(this.label);
+
+
     this.label.style.verticalAlign = "middle";
     // the input elements in the main UI (not the popup)
     // stacking vertically
@@ -33,22 +59,21 @@ export function ParamImageSelection(gui, params, property, choices) {
     this.selectDiv.style.verticalAlign = "middle";
     this.selectDiv.style.textAlign = "center";
     this.domElement.appendChild(this.selectDiv);
-    const imageSelect = new ImageSelect(this.selectDiv, this.gui.design);
+    const imageSelect = new ImageSelect(this.selectDiv, this.design);
     // if user images can be loaded, then add a vertical space and a button
-    if (this.gui.design.acceptUserImages) {
+    if (this.design.acceptUserImages) {
         // the user image input button
         const vSpace = document.createElement("div");
-        vSpace.style.height = this.gui.design.spaceWidth + "px";
+        vSpace.style.height = this.design.spaceWidth + "px";
         this.selectDiv.appendChild(vSpace);
         imageSelect.acceptUserImages(this.selectDiv);
     }
     // add the gui image
-    guiUtils.hSpace(this.domElement, this.gui.design.spaceWidth);
+    guiUtils.hSpace(this.domElement, this.design.spaceWidth);
     imageSelect.createGuiImage(this.domElement);
     imageSelect.addChoices(choices);
     imageSelect.setValue(this.params[this.property]);
     this.uiElement = imageSelect;
-    this.gui.bodyDiv.appendChild(this.domElement);
     this.setupOnChange();
     // on interaction: call close popups, 
     // mark that this image selection interacts, do not close its own popup

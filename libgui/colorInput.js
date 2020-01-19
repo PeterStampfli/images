@@ -195,18 +195,18 @@ ColorInput.prototype.updateColorStyle = function() {
 
 /**
  * set fontsize, in px
+ * make that the color element has the same height.
  * ATTENTION: colorInput has to be attached to the DOM to  be able to get offsetHeight!
  *  a hidden gui folder lies outside the DOM, thus we have to do some acrobatics to get it
  * @method ColorInput#setFontSize
- * @param {DOMElement} domElement - a html element that is part of the DOM
  * @param {integer} size
  */
-ColorInput.prototype.setFontSize = function(domElement, size) {
+ColorInput.prototype.setFontSize = function(size) {
     this.textElement.style.fontSize = size + "px";
     // switch textElement to domElement
     const parent = this.textElement.parentElement;
     //   parent.removeChild(this.textElement);
-    domElement.appendChild(this.textElement);
+    document.body.appendChild(this.textElement);
     // now we can read the offset height
     this.colorElement.style.height = this.textElement.offsetHeight + "px";
     // switch back

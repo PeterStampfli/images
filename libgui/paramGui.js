@@ -729,13 +729,14 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  */
 ParamGui.prototype.add = function(params, property, low, high, step) {
     var controller;
-    // maybe prefer new image select
+    // see if we use the new image select:
     // if design option is true and low is an object (that defines choices)
     // and first low.value is a good image file
     let useNewSelect = (this.design.preferNewImageselect) && (guiUtils.isObject(low));
     useNewSelect = useNewSelect && (guiUtils.isGoodImageFile(low[Object.keys(low)[0]]));
     if (useNewSelect) {
-        controller = new ParamImageSelection(this, params, property, low);
+        // use the new image select
+        controller = this.addImageSelection(params, property, low);
     } else {
         const controllerDomElement = document.createElement("div");
         // make a regular spacing between elements
@@ -757,7 +758,15 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(params, property) {
-    const controller = new ParamColor(this, params, property);
+
+    const controllerDomElement = document.createElement("div");
+    // make a regular spacing between elements
+    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+
+
+    const controller = new ParamColor(this.design, controllerDomElement, params, property);
+    this.bodyDiv.appendChild(controllerDomElement);
     this.elements.push(controller);
     return controller;
 };
@@ -778,7 +787,13 @@ ParamGui.prototype.addColor = function(params, property) {
  * @return {ParamController} object
  */
 ParamGui.prototype.addImageSelection = function(params, property, choices) {
-    const controller = new ParamImageSelection(this, params, property, choices);
+
+    const controllerDomElement = document.createElement("div");
+    // make a regular spacing between elements
+    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+    const controller = new ParamImageSelection(this.design, controllerDomElement, params, property, choices);
+    this.bodyDiv.appendChild(controllerDomElement);
     this.elements.push(controller);
     return controller;
 };
