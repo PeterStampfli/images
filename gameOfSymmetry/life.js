@@ -42,7 +42,7 @@ export function Life() {
     this.imageHistogram = []; // of image values, for quality control
     this.imageHistogram.length = 256;
     this.imageHistogramMax = 0;
-
+this.isPeriodic=false;
 }
 
 
@@ -345,14 +345,6 @@ Life.prototype.fill = function(fun) {
 };
 
 /**
- * clear the image
- * @method Life#clearImage
- */
-Life.prototype.clearImage = function() {
-    this.image.fill(0);
-};
-
-/**
  * fill cells with some number
  * not very usefull, rather a note to self
  * @method Life#fillValue
@@ -363,7 +355,7 @@ Life.prototype.fillValue = function(value) {
 };
 
 /**
- * fill border cells, leave rest unchanged
+ * fill border cells, leave rest unchanged, need to do only initially
  * @method Life#fillBorder
  * @param {number} value
  */
@@ -384,7 +376,7 @@ Life.prototype.fillBorderValue = function(value) {
 };
 
 /**
- * fill border cells, periodic boundary condition
+ * fill border cells, periodic boundary condition, need to do each cycle
  * @method Life#fillBorderPeriodic
  */
 Life.prototype.fillBorderPeriodic = function() {
@@ -411,8 +403,18 @@ Life.prototype.fillBorderPeriodic = function() {
 };
 
 /**
+* set if boundary condition is periodic and we have to call this.fillBorderPeriodic at each cycle
+* default is not periodic
+* @method Life.setPeriodic
+* @param {boolean} periodic
+*/
+Life.prototype.setPeriodic=function(periodic){
+    this.isPeriodic=periodic;
+}
+
+/**
  * make the new generation in this.newCells
- * this.cells has correct boundary condition
+ * supposing that this.cells has correct boundary condition
  * @method Life#makeNewGeneration
  */
 Life.prototype.makeNewGeneration = function() {
@@ -433,7 +435,7 @@ Life.prototype.makeNewGeneration = function() {
     const imageFactor = this.imageFactor;
     var index, imageIndex, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
 
-    // going through all cells that belpong to the image, omit border cells
+    // going through all cells that belong to the image, omit border cells
     imageIndex = -1;
     for (var j = 1; j <= maxIndex; j++) {
         index = j * arraySide;
@@ -458,9 +460,24 @@ Life.prototype.makeNewGeneration = function() {
     }
 };
 
+/**
+ * clear the image
+ * @method Life#clearImage
+ */
+Life.prototype.clearImage = function() {
+    this.image.fill(0);
+};
 
 /**
- * copy new generation to old 
+* update image with info from state of cells (without border)
+* compose with earlier data
+* @method Life#updateImage
+*/
+
+
+/**
+ * copy new generation to old, copy only border cells, to be safe ...
+ * thus set
  * @method Life#copyNewCells
  */
 Life.prototype.copyNewCells = function() {
