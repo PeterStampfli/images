@@ -12,7 +12,10 @@ import {
 /**
  * a controller for a simple parameter
  * inside a given container, using given design
- * making a ui control element, same as in "lib/dat.gui.min2.js", 
+ * if the container is a "div":
+ *   same as in "lib/dat.gui.min2.js", 
+ * if the container is a "span"
+ *   minimized version for multiple controls on a line
  * @creator ParamController
  * @param {ParamGui} design - object that defines the design
  * @param {htmlElement} domElement - container for the controller, div or span
@@ -40,18 +43,7 @@ export function ParamController(design, domElement, params, property, low, high,
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-
-    this.label = document.createElement("span");
-    this.label.textContent = this.property;
-    this.label.style.fontSize = design.labelFontSize + "px";
-    // minimum width for alignment of inputs
-    this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.labelWidth + "px";
-    // space between label and controller or left border
-    this.label.style.paddingLeft = design.spaceWidth + "px";
-    this.label.style.paddingRight = design.spaceWidth + "px";
-    this.domElement.appendChild(this.label);
-
+    this.createLabel(this.property);
     const paramValue = this.params[this.property];
     const controller = this;
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
@@ -185,18 +177,18 @@ export function ParamController(design, domElement, params, property, low, high,
         this.setupOnChange();
         this.setupOnInteraction();
     } else if (guiUtils.isNumber(paramValue)) {
-        // simply a number, not an integer, maybe a lower limit
+        // simply a number, not an integer, maybe a lower limit, no upper limit, no step
 
         const button = new NumberButton(this.domElement);
         button.setStep(0.01); // reasonable default step (not integer)
         button.setInputWidth(design.numberInputWidth);
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createMiniButton(this.domElement);
         button.setFontSize(design.buttonFontSize);
         if (guiUtils.isNumber(low)) {
             button.setLow(low);
-        } else {
-            button.setLow(0);
+            button.createMiniButton(this.domElement);
+        } else { // no lower limit
+            button.setLow(-NumberButton.maxValue);
         }
         button.setValue(paramValue);
         button.setValue(paramValue);

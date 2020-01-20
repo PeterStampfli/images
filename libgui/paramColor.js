@@ -27,28 +27,7 @@ export function ParamColor(design, domElement, params, property) {
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
-
-    /**
-     * callback for changes
-     * @method paramControllerMethods.callback
-     * @param {anything} value
-     */
-    this.callback = function(value) {
-        console.log("callback value " + value);
-    };
-
-
-    this.label = document.createElement("span");
-    this.label.textContent = this.property;
-    this.label.style.fontSize = design.labelFontSize + "px";
-    // minimum width for alignment of inputs
-    this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.labelWidth + "px";
-    // space between label and controller or left border
-    this.label.style.paddingLeft = design.spaceWidth + "px";
-    this.label.style.paddingRight = design.spaceWidth + "px";
-    this.domElement.appendChild(this.label);
-
+    this.createLabel(this.property);
     let color = this.params[this.property];
     const hasAlpha = ColorInput.hasAlpha(color);
     const colorInput = new ColorInput(this.domElement, hasAlpha);
@@ -59,6 +38,15 @@ export function ParamColor(design, domElement, params, property) {
     this.uiElement = colorInput;
     this.setupOnChange();
     this.setupOnInteraction();
+
+    /**
+     * callback for changes
+     * @method paramControllerMethods.callback
+     * @param {anything} value
+     */
+    this.callback = function(value) {
+        console.log("callback value " + value);
+    };
 }
 
 const px = "px";

@@ -37,20 +37,7 @@ export function ParamImageSelection(design, domElement, params, property, choice
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-
-
-    this.label = document.createElement("span");
-    this.label.textContent = this.property;
-    this.label.style.fontSize = design.labelFontSize + "px";
-    // minimum width for alignment of inputs
-    this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.labelWidth + "px";
-    // space between label and controller or left border
-    this.label.style.paddingLeft = design.spaceWidth + "px";
-    this.label.style.paddingRight = design.spaceWidth + "px";
-    this.domElement.appendChild(this.label);
-
-
+    this.createLabel(this.property);
     this.label.style.verticalAlign = "middle";
     // the input elements in the main UI (not the popup)
     // stacking vertically

@@ -290,7 +290,7 @@ NumberButton.prototype.setRange = function(minValue, maxValue) {
 };
 
 /**
- * set the lower limit for numbers, upper value is default max valuecorrect value if out of range
+ * set the lower limit for numbers, upper value is default max value
  * @method NumberButton#setLow
  * @param {integer} minValue
  */

@@ -18,52 +18,36 @@ import {
 export const paramControllerMethods = {};
 
 /**
+ * check if the container domElement is a div
+ * @method paramControllerMethods.isInDiv
+ * @return true if inside a div
+ */
+paramControllerMethods.isInDiv = function() {
+    return this.domElement.tagName.toLowerCase() === "div";
+};
+
+/**
+ * only if the container is a div:
  * make a label with given text and space 
  * it is a span, padding at right and left
  * @method paramControllerMethods.createLabel
  * @param {String} text
  */
 paramControllerMethods.createLabel = function(text) {
-    const design = this.gui.design;
-    this.label = document.createElement("span");
-    this.label.textContent = text;
-    this.label.style.fontSize = design.labelFontSize + "px";
-    // minimum width for alignment of inputs
-    this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.labelWidth + "px";
-    // space between label and controller or left border
-    this.label.style.paddingLeft = design.spaceWidth + "px";
-    this.label.style.paddingRight = design.spaceWidth + "px";
-    this.domElement.appendChild(this.label);
-};
-
-/**
- * initialize creation
- * create the div, initialize parameter values
- * set uiElement to null, default callback
- * attention:  attach to dom later
- *   this.gui.bodyDiv.appendChild(this.domElement);
- * @method paramControllerMethods.initCreate
- */
-paramControllerMethods.initCreate = function() {
-    this.helpButton = null;
-    const design = this.gui.design;
-    // create a div for all elements of the controller
-    this.domElement = document.createElement("div");
-    // make a regular spacing between elements
-    this.domElement.style.paddingTop = design.paddingVertical + "px";
-    this.domElement.style.paddingBottom = design.paddingVertical + "px";
-    // the button or whatever the user interacts with
-    this.uiElement = null;
-
-    /**
-     * callback for changes
-     * @method paramControllerMethods.callback
-     * @param {anything} value
-     */
-    this.callback = function(value) {
-        console.log("callback value " + value);
-    };
+    //  console.log(this.isInDiv())
+    if (this.isInDiv()) {
+        const design = this.design;
+        this.label = document.createElement("span");
+        this.label.textContent = text;
+        this.label.style.fontSize = design.labelFontSize + "px";
+        // minimum width for alignment of inputs
+        this.label.style.display = "inline-block";
+        this.label.style.minWidth = design.labelWidth + "px";
+        // space between label and controller or left border
+        this.label.style.paddingLeft = design.spaceWidth + "px";
+        this.label.style.paddingRight = design.spaceWidth + "px";
+        this.domElement.appendChild(this.label);
+    }
 };
 
 /**
@@ -227,8 +211,9 @@ paramControllerMethods.listen = function() {
 };
 
 /**
- * changes the label text, instead of property name, to show something more interesting
+ * changes the label text, instead of the property string, to show something more interesting
  * for buttons changes the button text
+ * does nothing if there is no label
  * same as datGui
  * @method paramControllerMethods.name
  * @param {String} label
