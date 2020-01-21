@@ -42,10 +42,11 @@ export function Life() {
     this.imageHistogram = []; // of image values, for quality control
     this.imageHistogram.length = 256;
     this.imageHistogramMax = 0;
-this.isPeriodic=false;
+    this.isPeriodic = false;
 }
 
-
+// logging for debugging
+//=============================================================
 // convert integer 0..255 to hex string
 
 function toHex(i) {
@@ -81,6 +82,68 @@ Life.logArray = function(array) {
 };
 
 /**
+ * logging the transition table
+ * @method Life#logTransitionTable
+ */
+Life.prototype.logTransitionTable = function() {
+    console.log();
+    const length = this.transitionTable.length;
+    console.log("number of states " + this.nStates);
+    console.log("transitionTable: length " + length);
+    for (var i = 0; i < length; i++) {
+        console.log(toHex(i) + ": " + toHex(this.transitionTable[i]));
+    }
+};
+
+/**
+ * @method Life#logCells
+ */
+Life.prototype.logCells = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("cells");
+    Life.logArray(this.cells);
+};
+
+/**
+ * @method Life#logNewCells
+ */
+Life.prototype.logNewCells = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("newCells");
+    Life.logArray(this.newCells);
+};
+
+/**
+ * @method Life#logImage
+ */
+Life.prototype.logImage = function(message = " ") {
+    console.log();
+    console.log(message);
+    console.log("Image: Factor " + this.imageFactor);
+    Life.logArray(this.image);
+};
+
+/**
+ * log the histogram
+ * @method Life#logImageHistogram
+ */
+Life.prototype.logImageHistogram = function() {
+    console.log("image histogram: max value " + this.imageHistogramMax);
+    for (var chunk = 0; chunk < 256; chunk += 16) {
+        let text = chunk + ": ";
+        for (var i = 0; i < 16; i++) {
+            if (i % 4 === 0) {
+                text += "  ";
+            }
+            text += " " + this.imageHistogram[i + chunk].toFixed(2);
+        }
+        console.log(text);
+    }
+};
+
+/**
  * find maximum value of image
  * @method Life#calculateMaxImageValue
  * @return number - maximum
@@ -102,25 +165,6 @@ Life.prototype.makeImageHistogram = function() {
     imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
     this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
 };
-
-/**
- * log the histogram
- * @method Life#logImageHistogram
- */
-Life.prototype.logImageHistogram = function() {
-    console.log("image histogram: max value " + this.imageHistogramMax);
-    for (var chunk = 0; chunk < 256; chunk += 16) {
-        let text = chunk + ": ";
-        for (var i = 0; i < 16; i++) {
-            if (i % 4 === 0) {
-                text += "  ";
-            }
-            text += " " + this.imageHistogram[i + chunk].toFixed(2);
-        }
-        console.log(text);
-    }
-};
-
 
 /**
  * set the size of the problem, is the periodicity
@@ -180,50 +224,6 @@ Life.prototype.resetTransitionTable = function() {
 };
 
 /**
- * logging the transition table
- * @method Life#logTransitionTable
- */
-Life.prototype.logTransitionTable = function() {
-    console.log();
-    const length = this.transitionTable.length;
-    console.log("number of states " + this.nStates);
-    console.log("transitionTable: length " + length);
-    for (var i = 0; i < length; i++) {
-        console.log(toHex(i) + ": " + toHex(this.transitionTable[i]));
-    }
-};
-
-/**
- * @method Life#logCells
- */
-Life.prototype.logCells = function(message = " ") {
-    console.log();
-    console.log(message);
-    console.log("cells");
-    Life.logArray(this.cells);
-};
-
-/**
- * @method Life#logNewCells
- */
-Life.prototype.logNewCells = function(message = " ") {
-    console.log();
-    console.log(message);
-    console.log("newCells");
-    Life.logArray(this.newCells);
-};
-
-/**
- * @method Life#logImage
- */
-Life.prototype.logImage = function(message = " ") {
-    console.log();
-    console.log(message);
-    console.log("Image: Factor " + this.imageFactor);
-    Life.logArray(this.image);
-};
-
-/**
  * create the transition table using a function
  * @method Life#makeTransitionTableWith
  * @param {function} fun - return value for index
@@ -252,12 +252,12 @@ Life.prototype.makeSawToothTransitionTable = function() {
  */
 Life.prototype.makeTentTransitionTable = function() {
     const nStates = this.nStates;
-    const period=2*(nStates-1);
+    const period = 2 * (nStates - 1);
     this.makeTransitionTableWith(function(i) {
-    	let result=i%period;
-    	if (result>=nStates){
-    		result=period-result;
-    	}
+        let result = i % period;
+        if (result >= nStates) {
+            result = period - result;
+        }
         return result;
     });
 };
@@ -403,14 +403,14 @@ Life.prototype.fillBorderPeriodic = function() {
 };
 
 /**
-* set if boundary condition is periodic and we have to call this.fillBorderPeriodic at each cycle
-* default is not periodic
-* @method Life.setPeriodic
-* @param {boolean} periodic
-*/
-Life.prototype.setPeriodic=function(periodic){
-    this.isPeriodic=periodic;
-}
+ * set if boundary condition is periodic and we have to call this.fillBorderPeriodic at each cycle
+ * default is not periodic
+ * @method Life.setPeriodic
+ * @param {boolean} periodic
+ */
+Life.prototype.setPeriodic = function(periodic) {
+    this.isPeriodic = periodic;
+};
 
 /**
  * make the new generation in this.newCells
@@ -469,19 +469,83 @@ Life.prototype.clearImage = function() {
 };
 
 /**
-* update image with info from state of cells (without border)
-* compose with earlier data
-* @method Life#updateImage
-*/
+ * clear the new cells
+ * @method Life#clearNewCells
+ */
+Life.prototype.clearNewCells = function() {
+    this.newCells.fill(0);
+};
 
+/**
+ * update image with info from state of cells (without border)
+ * compose with earlier data
+ * @method Life#updateImage
+ */
+Life.prototype.updateImage = function() {
+    const arraySide = this.arraySide;
+    const size = this.size;
+    const maxIndex = this.arraySide - 2;
+    const cells = this.cells;
+    const image = this.image;
+    const imageFactor = this.imageFactor;
+    var index, imageIndex;
+    // going through all cells that belong to the image, omit border cells
+    imageIndex = -1;
+    for (var j = 1; j <= maxIndex; j++) {
+        index = j * arraySide;
+        for (var i = 1; i <= maxIndex; i++) {
+            index += 1;
+            imageIndex += 1;
+            image[imageIndex] = imageFactor * image[imageIndex] + cells[index];
+        }
+    }
+};
+
+/**
+ * test if all cells have the same value (excluding boundary cells)
+ * @method Life#equalCells
+ * @return true if some cells are not zero
+ */
+Life.prototype.equalCells = function() {
+    const arraySide = this.arraySide;
+    const maxIndex = this.arraySide - 2;
+    const cells = this.cells;
+    const newCells = this.newCells;
+    const value = cells[arraySide + 1];
+    var index;
+    // going through all cells that belong to the image, omit border cells
+    for (var j = 1; j <= maxIndex; j++) {
+        index = j * arraySide;
+        for (var i = 1; i <= maxIndex; i++) {
+            index += 1;
+            if (cells[index] !== value) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
 
 /**
  * copy new generation to old, copy only border cells, to be safe ...
  * thus set
- * @method Life#copyNewCells
+ * @method Life#cellsFromNewCells
  */
-Life.prototype.copyNewCells = function() {
-    this.cells.set(this.newCells);
+Life.prototype.cellsFromNewCells = function() {
+    const arraySide = this.arraySide;
+    const size = this.size;
+    const maxIndex = this.arraySide - 2;
+    const cells = this.cells;
+    const newCells = this.newCells;
+    var index;
+    // going through all cells that belong to the image, omit border cells
+    for (var j = 1; j <= maxIndex; j++) {
+        index = j * arraySide;
+        for (var i = 1; i <= maxIndex; i++) {
+            index += 1;
+            cells[index] = newCells[index];
+        }
+    }
 };
 
 /**
@@ -512,8 +576,8 @@ Life.createCanvasDiv = function() {
         Life.theCanvas.width = Life.canvasSize;
         Life.theCanvas.height = Life.canvasSize;
         Life.theDiv.style.left = Life.canvasSize + "px";
-        Life.theDiv.style.height = Life.canvasSize-20 + "px";
-        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize-20 + "px";
+        Life.theDiv.style.height = Life.canvasSize - 20 + "px";
+        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize - 20 + "px";
     }
 
     window.addEventListener("resize", resize, false);

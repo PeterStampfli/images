@@ -41,27 +41,22 @@ l.logTransitionTable();
 l.makeNewGeneration()
 
 l.logNewCells();
-l.logImage("firstgen");
-l.copyNewCells();
-l.makeNewGeneration()
-
-l.logNewCells();
+//l.logImage("firstgen");
+l.fillValue(8)
+l.logCells();
+l.cellsFromNewCells();
+l.logCells();
+l.clearImage();
+l.updateImage();
 l.logImage();
+l.fillValue(9);
+l.fillBorderValue(77);
+l.setStartCells();
+l.logCells();
 
-l.makeImageHistogram()
-l.logImageHistogram();
+console.log(l.equalCells())
 
-console.log(l.imageHistogram)
-console.log(l.imageHistogramMax)
-console.log("max "+l.calculateMaxImageValue())
-console.log(document.body.clientWidth)
-console.log(document.documentElement.clientHeight)
-Life.createCanvasDiv();
-Life.addButton("bbb").onclick=function(){
-	console.log("bbbbbbb");
-	};
 
-	l.imageOnCanvas();
 </script>
 
 
