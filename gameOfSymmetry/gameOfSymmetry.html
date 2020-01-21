@@ -20,11 +20,10 @@ import {
 }
 from "./gosModules.js"
 
-console.log("hello");
 
 const l=new Life();
 
-l.setSize(5);
+l.setSize(6);
 l.setImageFactor(16);
 
 l.fillValue(0);
@@ -56,7 +55,9 @@ l.logCells();
 
 console.log(l.equalCells())
 
-
+l.decodeTransitionTable("ff09");
+l.logTransitionTable();
+console.log(l.encodeTransitionTable());
 </script>
 
 

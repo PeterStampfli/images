@@ -28,11 +28,8 @@ set parameters directly using paramGui
 other methods for testing
 */
 
-
-
-
 export function Life() {
-    // defaults, for tests
+    // default parameter values
     this.nStates = 2;
     this.weightCenter = 1;
     this.weightNearest = 1;
@@ -44,6 +41,55 @@ export function Life() {
     this.imageHistogramMax = 0;
     this.isPeriodic = false;
 }
+
+// setting parameters
+//=============================================================
+
+/**
+ * set the size of the problem, 
+ * has to be an odd number, (even numbers will be made odd)
+ * the arrays include the added border cells of the boundary condition
+ * @method Life#setSize
+ * @param {int} size - has to be an odd number
+ * @return this - for chaining, just in case
+ */
+Life.prototype.setSize = function(size) {
+    // size of world (period length or width without boundary cells)
+    size = size | 1; // force size to be odd
+    this.size = size;
+    // size plus boundary cells
+    this.arraySide = size + 2;
+    this.cells = new Uint8Array(this.arraySide * this.arraySide);
+    this.newCells = new Uint8Array(this.arraySide * this.arraySide);
+    // image: no boundary cells
+    this.image = new Uint8Array(size * size);
+    // period, accounting for finite pixels
+    // goes from a pixel to a pixel with the same color
+    this.periodX = size;
+    this.periodY = this.arraySide * size;
+    // offset for corner positions
+    // this.bottomLeft=0;  
+    this.bottomRight = this.arraySide - 1;
+    this.topLeft = this.arraySide * (this.arraySide - 1);
+    this.topRight = this.cells.length - 1;
+    // position of the center
+    this.centerX = Math.floor(this.arraySide / 2);
+    this.centerY = this.centerX * this.arraySide;
+    this.center = this.centerX + this.centerY;
+    // steps
+    // nearest neighbors
+    this.stepRight = 1;
+    this.stepLeft = -1;
+    // accounting for inversion of y-axis
+    this.stepUp = -this.arraySide;
+    this.stepDown = this.arraySide;
+    // second nearest
+    this.stepUpRight = 1 - this.arraySide;
+    this.stepDownRight = 1 + this.arraySide;
+    this.stepUpLeft = -1 - this.arraySide;
+    this.stepDownLeft = -1 + this.arraySide;
+};
+
 
 // logging for debugging
 //=============================================================
@@ -143,77 +189,12 @@ Life.prototype.logImageHistogram = function() {
     }
 };
 
-/**
- * find maximum value of image
- * @method Life#calculateMaxImageValue
- * @return number - maximum
- */
-Life.prototype.calculateMaxImageValue = function(a) {
-    return this.image.reduce((result, element) => Math.max(result, element), -100000);
-};
-
-/**
- * calculate the image histogram, normalized by size
- * and calculate max
- * @method Life#makeImageHistogram
- */
-Life.prototype.makeImageHistogram = function() {
-    const imageHistogram = this.imageHistogram;
-    imageHistogram.fill(0);
-    this.image.forEach(value => imageHistogram[value] += 1);
-    const factor = 1 / this.image.length;
-    imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
-    this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
-};
-
-/**
- * set the size of the problem, is the periodicity
- * has to be an odd number, will be odded
- * the arrays include the added border cells of the boundary condition
- * @method Life#setSize
- * @param {int} size - has to be an odd number
- * @return this - for chaining, just in case
- */
-Life.prototype.setSize = function(size) {
-    // size of world (period length or width without boundary cells)
-    size = (size >> 1) << 1 | 1; // force size to be odd
-    console.log(size);
-    this.size = size;
-    // size plus boundary cells
-    this.arraySide = size + 2;
-    this.cells = new Uint8Array(this.arraySide * this.arraySide);
-    this.newCells = new Uint8Array(this.arraySide * this.arraySide);
-    // image: no boundary cells
-    this.image = new Uint8Array(size * size);
-    // period, accounting for finite pixels
-    // goes from a pixel to a pixel with the same color
-    this.periodX = size;
-    this.periodY = this.arraySide * size;
-    // offset for corner positions
-    // this.bottomLeft=0;  
-    this.bottomRight = this.arraySide - 1;
-    this.topLeft = this.arraySide * (this.arraySide - 1);
-    this.topRight = this.cells.length - 1;
-    // position of the center
-    this.centerX = Math.floor(this.arraySide / 2);
-    this.centerY = this.centerX * this.arraySide;
-    this.center = this.centerX + this.centerY;
-    // steps
-    // nearest neighbors
-    this.stepRight = 1;
-    this.stepLeft = -1;
-    // accounting for inversion of y-axis
-    this.stepUp = -this.arraySide;
-    this.stepDown = this.arraySide;
-    // second nearest
-    this.stepUpRight = 1 - this.arraySide;
-    this.stepDownRight = 1 + this.arraySide;
-    this.stepUpLeft = -1 - this.arraySide;
-    this.stepDownLeft = -1 + this.arraySide;
-};
+// working with the transition table
+//====================================================================================
 
 /**
  * update length of the transition table, clear the transition table
+ * is called when changing number of states or the weights
  * @method Life#resetTransitionTable
  */
 Life.prototype.resetTransitionTable = function() {
@@ -221,6 +202,41 @@ Life.prototype.resetTransitionTable = function() {
     const maxSum = (this.nStates - 1) * (this.weightCenter + 4 * this.weightNearest + 4 * this.weightSecondNearest);
     this.transitionTable.length = maxSum + 1;
     this.transitionTable.fill(0);
+};
+
+/**
+ * set the transition table from a hexadecimal number string
+ * decoding to numbers of base nStates with transitionTable.length number of digits
+ * @method Life#decodeTransitionTable
+ * @param {string} code - a hexadecimal number string
+ */
+Life.prototype.decodeTransitionTable = function(code) {
+    let numberCode = parseInt(code, 16);
+    // lowest digit gets into first number ... as one would expect
+    const transitionTable = this.transitionTable;
+    const nStates = this.nStates;
+    const length = transitionTable.length;
+    for (var i = 0; i < length; i++) {
+        transitionTable[i] = numberCode % nStates;
+        numberCode = Math.floor(numberCode / nStates);
+    }
+};
+
+/**
+* encode the transition table as a hexadecimal number string
+* @method Life.encodeTransitionTable
+* @return hexadecimal number string
+*/
+Life.prototype.encodeTransitionTable = function() {
+    let numberCode = 0;
+    // lowest digit gets into first number ... as one would expect
+    const transitionTable = this.transitionTable;
+    const nStates = this.nStates;
+    const length = transitionTable.length;
+    for (var i = length-1; i >=0; i--) {
+        numberCode = numberCode*nStates+transitionTable[i];
+    }
+    return numberCode.toString(16);
 };
 
 /**
@@ -546,6 +562,31 @@ Life.prototype.cellsFromNewCells = function() {
             cells[index] = newCells[index];
         }
     }
+};
+
+
+/**
+ * find maximum value of image
+ * needed for drawing a normalized image on canvas with max contrast
+ * @method Life#calculateMaxImageValue
+ * @return number - maximum
+ */
+Life.prototype.calculateMaxImageValue = function(a) {
+    return this.image.reduce((result, element) => Math.max(result, element), -100000);
+};
+
+/**
+ * calculate the image histogram, normalized by size
+ * and calculate max
+ * @method Life#makeImageHistogram
+ */
+Life.prototype.makeImageHistogram = function() {
+    const imageHistogram = this.imageHistogram;
+    imageHistogram.fill(0);
+    this.image.forEach(value => imageHistogram[value] += 1);
+    const factor = 1 / this.image.length;
+    imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
+    this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
 };
 
 /**
