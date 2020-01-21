@@ -55,9 +55,12 @@ l.logCells();
 
 console.log(l.equalCells())
 
-l.decodeTransitionTable("ff09");
+l.decodeTransitionTable(256);
 l.logTransitionTable();
 console.log(l.encodeTransitionTable());
+l.fillValue(0);
+l.fillBorderSymmetricallyRandomNoMirror()
+l.logCells();
 </script>
 
 

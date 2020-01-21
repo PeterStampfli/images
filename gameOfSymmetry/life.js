@@ -30,16 +30,27 @@ other methods for testing
 
 export function Life() {
     // default parameter values
+    // the number of states a cell can have
     this.nStates = 2;
+    // weights for combining sum of center, nearest,2nd nearest neighbor cells
     this.weightCenter = 1;
     this.weightNearest = 1;
     this.weightSecondNearest = 1;
+    // starting configuration at center of image
+    this.startCenter = 1;
+    this.startNearest = 0;
+    this.startSecondNearest = 0;
+    // multiplication factor for combining cell states into 8bit image values
+    this.imageFactor = 1;
+    // working arrays
     this.transitionTable = [];
     this.resetTransitionTable();
-    this.imageHistogram = []; // of image values, for quality control
-    this.imageHistogram.length = 256;
-    this.imageHistogramMax = 0;
-    this.isPeriodic = false;
+    // histogram of combined image values, for quality control
+    this.imageHistogram = [];
+    this.imageHistogram.length = 256; // 8 bit image
+    this.imageHistogramMax = 1;
+    // what boundary condition to use, default: periodic
+    this.boundaryCondition = -1;
 }
 
 // setting parameters
@@ -90,6 +101,74 @@ Life.prototype.setSize = function(size) {
     this.stepDownLeft = -1 + this.arraySide;
 };
 
+/**
+ * for tests. set number of states of a cell
+ * @method Life#setNStates
+ * @param {int} nStates
+ */
+Life.prototype.setNStates = function(nStates) {
+    this.nStates = nStates;
+    this.resetTransitionTable();
+};
+
+/**
+ * for tests. set image (shift) factor
+ * multiplies the cell values for the final image before adding new automaton cell values
+ * @method Life#setImageFactor
+ * @param {int} factor
+ */
+Life.prototype.setImageFactor = function(factor) {
+    this.imageFactor = factor;
+    this.clearImage();
+};
+
+/**
+ * set the weights for summation before looking up the transition table
+ * @method Life#setWeights
+ * @param {int} weightCenter
+ * @param {int} weightNearest
+ * @param {int} weightSecondNearest
+ */
+Life.prototype.setWeights = function(weightCenter, weightNearest, weightSecondNearest) {
+    this.weightCenter = weightCenter;
+    this.weightNearest = weightNearest;
+    this.weightSecondNearest = weightSecondNearest;
+    this.resetTransitionTable();
+};
+
+/**
+ * set the starting configuration parameters
+ * @method Life#setStartParameters
+ * @param {int} startCenter - value for cell at center of image
+ * @param {int} startNearest - value for cells nearest to center cell
+ * @param {int} startSecondNearest - value for second nearest cells
+ */
+Life.prototype.setStartParameters = function(startCenter, startNearest, startSecondNearest) {
+    this.startCenter = startCenter;
+    this.startNearest = startNearest;
+    this.startSecondNearest = startSecondNearest;
+};
+
+/**
+ * set if boundary condition is periodic (calls this.fillBorderPeriodic at each cycle)
+ * default is not periodic
+ * @method Life.setPeriodic
+ * @param {boolean} periodic
+ */
+Life.prototype.setPeriodic = function() {
+    this.boundaryCondition = -1;
+};
+
+/**
+ * set boundary condition - border value (periodic if negative)
+ * default is not periodic
+ * @method Life.setBoundaryValue
+ * @param {integer} value
+ */
+Life.prototype.setBoundaryValue = function(value) {
+    this.boundaryCondition = value;
+};
+
 
 // logging for debugging
 //=============================================================
@@ -102,6 +181,14 @@ function toHex(i) {
     }
     return result;
 }
+
+// make a random number between 0 and max-1
+
+function randomInt(max) {
+    return Math.floor(Math.random() * max);
+}
+
+const thirtyTwoPower = 4294967296;
 
 const logItemLimit = 20;
 
@@ -208,35 +295,37 @@ Life.prototype.resetTransitionTable = function() {
  * set the transition table from a hexadecimal number string
  * decoding to numbers of base nStates with transitionTable.length number of digits
  * @method Life#decodeTransitionTable
- * @param {string} code - a hexadecimal number string
+ * @param {int|string} code - integer or a hexadecimal number string
  */
 Life.prototype.decodeTransitionTable = function(code) {
-    let numberCode = parseInt(code, 16);
+    if (typeof code === "string") {
+        code = parseInt(code, 16);
+    }
     // lowest digit gets into first number ... as one would expect
     const transitionTable = this.transitionTable;
     const nStates = this.nStates;
     const length = transitionTable.length;
     for (var i = 0; i < length; i++) {
-        transitionTable[i] = numberCode % nStates;
-        numberCode = Math.floor(numberCode / nStates);
+        transitionTable[i] = code % nStates;
+        code = Math.floor(code / nStates);
     }
 };
 
 /**
-* encode the transition table as a hexadecimal number string
-* @method Life.encodeTransitionTable
-* @return hexadecimal number string
-*/
+ * encode the transition table as a hexadecimal number string
+ * @method Life.encodeTransitionTable
+ * @return hexadecimal number string
+ */
 Life.prototype.encodeTransitionTable = function() {
-    let numberCode = 0;
+    let code = 0;
     // lowest digit gets into first number ... as one would expect
     const transitionTable = this.transitionTable;
     const nStates = this.nStates;
     const length = transitionTable.length;
-    for (var i = length-1; i >=0; i--) {
-        numberCode = numberCode*nStates+transitionTable[i];
+    for (var i = length - 1; i >= 0; i--) {
+        code = code * nStates + transitionTable[i];
     }
-    return numberCode.toString(16);
+    return code.toString(16);
 };
 
 /**
@@ -278,55 +367,75 @@ Life.prototype.makeTentTransitionTable = function() {
     });
 };
 
+//  initialization of cells
+//=====================================================
+
 /**
- * for tests. set number of states of a cell
- * @method Life#setNStates
- * @param {int} nStates
+ * fill all cells with the some number, modulo nStates
+ * @method Life#fillValue
+ * @param {number} value
  */
-Life.prototype.setNStates = function(nStates) {
-    this.nStates = nStates;
-    this.resetTransitionTable();
+Life.prototype.fillValue = function(value) {
+    this.cells.fill(value % this.nStates);
 };
 
 /**
- * for tests. set image (shift) factor
- * @method Life#setImageFactor
- * @param {int} factor
+ * fill the cells with numbers that are functions of the indices, modulo the number of cell states
+ * SYMMETRY ???
+ * @method Life#fill
+ * @param {function} fun - of indices i,j
  */
-Life.prototype.setImageFactor = function(factor) {
-    this.imageFactor = factor;
-    this.clearImage();
+Life.prototype.fill = function(fun) {
+    const arraySide = this.arraySide;
+    const nStates = this.nStates;
+    let index = 0;
+    for (var j = 0; j < arraySide; j++) {
+        for (var i = 0; i < arraySide; i++) {
+            this.cells[index] = fun(i, j, arraySide) % nStates;
+            index += 1;
+        }
+    }
 };
 
 /**
- * set the weights
- * @method Life#setWeights
- * @param {int} weightCenter
- * @param {int} weightNearest
- * @param {int} weightSecondNearest
+ * fill the cells symmetrically with numbers that are functions of the indices, modulo nStates
+ * @method Life#fillSymmetrically
+ * @param {function} fun - of indices i,j
  */
-Life.prototype.setWeights = function(weightCenter, weightNearest, weightSecondNearest) {
-    this.weightCenter = weightCenter;
-    this.weightNearest = weightNearest;
-    this.weightSecondNearest = weightSecondNearest;
-    this.resetTransitionTable();
+Life.prototype.fillSymmetrically = function(fun) {
+    const arraySide = this.arraySide;
+    const center = this.centerX;
+    const center2 = 2 * this.centerX;
+    const cells = this.cells;
+    const nStates = this.nStates;
+    for (var j = 0; j <= center; j++) {
+        for (var i = j; i <= center; i++) {
+            const value = fun(i, j, arraySide) % nStates;
+            cells[i + j * arraySide] = value;
+            cells[j + i * arraySide] = value;
+            cells[center2 - i + j * arraySide] = value;
+            cells[center2 - j + i * arraySide] = value;
+            cells[i + (center2 - j) * arraySide] = value;
+            cells[j + (center2 - i) * arraySide] = value;
+            cells[center2 - j + (center2 - i) * arraySide] = value;
+            cells[center2 - i + (center2 - j) * arraySide] = value;
+        }
+    }
 };
 
 /**
- * set the starting configuration parameters
- * @method Life#setStartParameters
- * @param {int} startCenter
- * @param {int} startNearest
- * @param {int} startSecondNearest
+ * fill the cells symmetrically with random numbers, modulo 256
+ * @method Life#fillSymmetricallyRandom
  */
-Life.prototype.setStartParameters = function(startCenter, startNearest, startSecondNearest) {
-    this.startCenter = startCenter;
-    this.startNearest = startNearest;
-    this.startSecondNearest = startSecondNearest;
+Life.prototype.fillSymmetricallyRandom = function() {
+    const nStates = this.nStates;
+    this.fillSymmetrically(function(i, j) {
+        return randomInt(nStates);
+    });
 };
 
 /**
- * set the start cells
+ * set the start cells (initialization)
  * @method Life#setStartCells
  */
 Life.prototype.setStartCells = function() {
@@ -343,36 +452,17 @@ Life.prototype.setStartCells = function() {
     cells[center + this.stepDownRight] = this.startSecondNearest;
 };
 
-// array routines for initialization, boundary conditions and what not
-/**
- * fill the cells with numbers that are functions of the indices, module 256
- * @method Life#fill
- * @param {function} fun - of indices i,j
- */
-Life.prototype.fill = function(fun) {
-    const arraySide = this.arraySide;
-    let index = 0;
-    for (var j = 0; j < arraySide; j++) {
-        for (var i = 0; i < arraySide; i++) {
-            this.cells[index] = fun(i, j, arraySide) & 255;
-            index += 1;
-        }
-    }
-};
 
-/**
- * fill cells with some number
- * not very usefull, rather a note to self
- * @method Life#fillValue
- * @param {number} value
- */
-Life.prototype.fillValue = function(value) {
-    this.cells.fill(value);
-};
+// boundary condition (border)
+//=================================================
+
+// initially fill border with a constant value, or symmetrically (with or without mirror symmetry) with random numbers
+
+// at each iteration use periodic boundary condition, or constant value or zero  (no random values)
 
 /**
  * fill border cells, leave rest unchanged, need to do only initially
- * @method Life#fillBorder
+ * @method Life#fillBorderValue
  * @param {number} value
  */
 Life.prototype.fillBorderValue = function(value) {
@@ -388,6 +478,50 @@ Life.prototype.fillBorderValue = function(value) {
         left += arraySide;
         this.cells[right] = value; // right border
         right += arraySide;
+    }
+};
+
+/**
+ * fill border cells with random values symmetrically
+ * @method Life#fillBorderSymmetricallyRandom
+ */
+Life.prototype.fillBorderSymmetricallyRandom = function() {
+    const arraySide = this.arraySide;
+    const center = this.centerX;
+    const center2 = 2 * this.centerX;
+    const cells = this.cells;
+    const nStates = this.nStates;
+    const arraySize = this.cells.length;
+    for (var i = 0; i <= center; i++) {
+        let value = randomInt(nStates);
+        this.cells[i] = value; // bottom border
+        this.cells[center2 - i] = value; // bottom border
+        this.cells[i * arraySide] = value;
+        this.cells[(center2 - i) * arraySide] = value;
+        this.cells[i * arraySide + arraySide - 1] = value;
+        this.cells[(center2 - i) * arraySide + arraySide - 1] = value;
+        this.cells[arraySize - 1 - i] = value;
+        this.cells[arraySize - 1 - center2 + i] = value;
+    }
+};
+
+/**
+ * fill border cells with random values symmetrically, without mirror symmetry
+ * @method Life#fillBorderSymmetricallyRandomNoMirror
+ */
+Life.prototype.fillBorderSymmetricallyRandomNoMirror = function() {
+    const arraySide = this.arraySide;
+    const center = this.centerX;
+    const center2 = 2 * this.centerX;
+    const cells = this.cells;
+    const nStates = this.nStates;
+    const arraySize = this.cells.length;
+    for (var i = 0; i < arraySide; i++) {
+        let value = randomInt(nStates);
+        this.cells[i] = value;
+        this.cells[(arraySide - i - 1) * arraySide] = value;
+        this.cells[i * arraySide + arraySide - 1] = value;
+        this.cells[arraySize - 1 - i] = value;
     }
 };
 
@@ -416,16 +550,6 @@ Life.prototype.fillBorderPeriodic = function() {
     this.cells[this.bottomRight] = this.cells[this.bottomRight - this.periodX + this.periodY];
     this.cells[this.topLeft] = this.cells[this.topLeft + this.periodX - this.periodY];
     this.cells[this.topRight] = this.cells[this.topRight - this.periodX - this.periodY];
-};
-
-/**
- * set if boundary condition is periodic and we have to call this.fillBorderPeriodic at each cycle
- * default is not periodic
- * @method Life.setPeriodic
- * @param {boolean} periodic
- */
-Life.prototype.setPeriodic = function(periodic) {
-    this.isPeriodic = periodic;
 };
 
 /**
