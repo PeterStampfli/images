@@ -49,8 +49,14 @@ export function Life() {
     this.imageHistogram = [];
     this.imageHistogram.length = 256; // 8 bit image
     this.imageHistogramMax = 1;
-    // what boundary condition to use, default: periodic
-    this.boundaryCondition = -1;
+    // this.initialCells: a function that sets the cells initially. Including the boundary cells
+    // default: all cells zero except at center as defined by parameters
+    this.initialCellsAtCenter();
+    // this.iteratedBoundaryCells: a function for setting the boundary cells at each iteration.
+    // default: does nothing, value of boundary cells will be zero
+    this.setIterationBoundaryZero();
+    // set the method for reading the image
+    this.setReadImageMethod(this.readImageNearestNeighbor);
 }
 
 // setting parameters
@@ -72,6 +78,8 @@ Life.prototype.setSize = function(size) {
     this.arraySide = size + 2;
     this.cells = new Uint8Array(this.arraySide * this.arraySide);
     this.newCells = new Uint8Array(this.arraySide * this.arraySide);
+    // sets in particular the boundary cells to zero
+    this.newCells.fill(0);
     // image: no boundary cells
     this.image = new Uint8Array(size * size);
     // period, accounting for finite pixels
@@ -150,25 +158,45 @@ Life.prototype.setStartParameters = function(startCenter, startNearest, startSec
 };
 
 /**
- * set if boundary condition is periodic (calls this.fillBorderPeriodic at each cycle)
- * default is not periodic
- * @method Life.setPeriodic
- * @param {boolean} periodic
- */
-Life.prototype.setPeriodic = function() {
-    this.boundaryCondition = -1;
+* set initial cells all to zero except at center (there depending on parameters)
+* @method Life#initialCellsAtCenter
+*/
+Life.prototype.initialCellsAtCenter=function(){
+ this.initialCells = function() {
+        this.fill(0);
+        this.setCenterCells();
+    };
 };
 
 /**
- * set boundary condition - border value (periodic if negative)
+ * set boundary condition for iteration - periodic
  * default is not periodic
- * @method Life.setBoundaryValue
+ * @method Life.setIterationBoundaryPeriodic
  * @param {integer} value
  */
-Life.prototype.setBoundaryValue = function(value) {
-    this.boundaryCondition = value;
+Life.prototype.setIterationBoundaryPeriodic = function(value) {
+    this.iteratedBoundaryCells = function() {
+        this.fillBorderPeriodic();
+    };
 };
 
+/**
+ * set boundary condition for iteration - zero value
+ * @method Life.setIterationBoundaryZero
+ */
+Life.prototype.setIterationBoundaryZero = function() {
+    this.iteratedBoundaryCells = function() {};
+};
+
+/**
+* set the read image method to one of the three above
+* readImageNearestNeighbor, readImageLinearInterpolation or readImageCubicInterpolation
+* @method Life#setReadImageMethod
+* @param {function} reader - a read image method
+*/
+Life.prototype.setReadImageMethod=function(reader){
+ this.readImage=reader;
+};
 
 // logging for debugging
 //=============================================================
@@ -335,8 +363,9 @@ Life.prototype.encodeTransitionTable = function() {
  */
 Life.prototype.makeTransitionTableWith = function(fun) {
     const length = this.transitionTable.length;
+    const nStates = this.nStates;
     for (var i = 0; i < length; i++) {
-        this.transitionTable[i] = fun(i);
+        this.transitionTable[i] = Math.floor(fun(i)) % nStates;
     }
 };
 
@@ -369,6 +398,7 @@ Life.prototype.makeTentTransitionTable = function() {
 
 //  initialization of cells
 //=====================================================
+// fill all cells, then change center cells and border cells
 
 /**
  * fill all cells with the some number, modulo nStates
@@ -376,11 +406,13 @@ Life.prototype.makeTentTransitionTable = function() {
  * @param {number} value
  */
 Life.prototype.fillValue = function(value) {
-    this.cells.fill(value % this.nStates);
+    value=value % this.nStates;
+    this.cells.fill(value);
 };
 
 /**
- * fill the cells with numbers that are functions of the indices, modulo the number of cell states
+ * fill the cells with numbers that are functions of the indices, 
+ * rounded down, modulo the number of cell states
  * SYMMETRY ???
  * @method Life#fill
  * @param {function} fun - of indices i,j
@@ -391,14 +423,15 @@ Life.prototype.fill = function(fun) {
     let index = 0;
     for (var j = 0; j < arraySide; j++) {
         for (var i = 0; i < arraySide; i++) {
-            this.cells[index] = fun(i, j, arraySide) % nStates;
+            this.cells[index] = Math.floor(fun(i, j, arraySide)) % nStates;
             index += 1;
         }
     }
 };
 
 /**
- * fill the cells symmetrically with numbers that are functions of the indices, modulo nStates
+ * fill the cells symmetrically with numbers that are functions of the indices
+ * rounded down, modulo the number of cell states
  * @method Life#fillSymmetrically
  * @param {function} fun - of indices i,j
  */
@@ -410,7 +443,7 @@ Life.prototype.fillSymmetrically = function(fun) {
     const nStates = this.nStates;
     for (var j = 0; j <= center; j++) {
         for (var i = j; i <= center; i++) {
-            const value = fun(i, j, arraySide) % nStates;
+            const value = Math.floor(fun(i, j, arraySide)) % nStates;
             cells[i + j * arraySide] = value;
             cells[j + i * arraySide] = value;
             cells[center2 - i + j * arraySide] = value;
@@ -436,9 +469,9 @@ Life.prototype.fillSymmetricallyRandom = function() {
 
 /**
  * set the start cells (initialization)
- * @method Life#setStartCells
+ * @method Life#setCenterCells
  */
-Life.prototype.setStartCells = function() {
+Life.prototype.setCenterCells = function() {
     const center = this.center;
     const cells = this.cells;
     cells[center] = this.startCenter;
@@ -453,7 +486,7 @@ Life.prototype.setStartCells = function() {
 };
 
 
-// boundary condition (border)
+// border for boundary condition and initialization
 //=================================================
 
 // initially fill border with a constant value, or symmetrically (with or without mirror symmetry) with random numbers
@@ -482,10 +515,11 @@ Life.prototype.fillBorderValue = function(value) {
 };
 
 /**
- * fill border cells with random values symmetrically
+ * fill border cells with random values symmetrically with a function depending on distance from corner
  * @method Life#fillBorderSymmetricallyRandom
+ * @param {function} fun - f(i, arraySide)
  */
-Life.prototype.fillBorderSymmetricallyRandom = function() {
+Life.prototype.fillBorderSymmetrically = function(fun) {
     const arraySide = this.arraySide;
     const center = this.centerX;
     const center2 = 2 * this.centerX;
@@ -493,7 +527,7 @@ Life.prototype.fillBorderSymmetricallyRandom = function() {
     const nStates = this.nStates;
     const arraySize = this.cells.length;
     for (var i = 0; i <= center; i++) {
-        let value = randomInt(nStates);
+            const value = Math.floor(fun(i, arraySide)) % nStates;
         this.cells[i] = value; // bottom border
         this.cells[center2 - i] = value; // bottom border
         this.cells[i * arraySide] = value;
@@ -503,6 +537,17 @@ Life.prototype.fillBorderSymmetricallyRandom = function() {
         this.cells[arraySize - 1 - i] = value;
         this.cells[arraySize - 1 - center2 + i] = value;
     }
+};
+
+/**
+ * fill border cells with random values symmetrically
+ * @method Life#fillBorderSymmetricallyRandom
+ */
+Life.prototype.fillBorderSymmetricallyRandom = function() {
+    const nStates = this.nStates;
+    this.fillBorderSymmetrically(function(){
+        return randomInt(nStates);
+    });
 };
 
 /**
@@ -667,25 +712,14 @@ Life.prototype.equalCells = function() {
 };
 
 /**
- * copy new generation to old, copy only border cells, to be safe ...
- * thus set
+ * copy new generation to old, including border cell
+ * note that making the newCell array it is initiatlized to zero
+ * making a new generation does not change the border elements of newCells
+ * thus the value of the border elements is always zero
  * @method Life#cellsFromNewCells
  */
 Life.prototype.cellsFromNewCells = function() {
-    const arraySide = this.arraySide;
-    const size = this.size;
-    const maxIndex = this.arraySide - 2;
-    const cells = this.cells;
-    const newCells = this.newCells;
-    var index;
-    // going through all cells that belong to the image, omit border cells
-    for (var j = 1; j <= maxIndex; j++) {
-        index = j * arraySide;
-        for (var i = 1; i <= maxIndex; i++) {
-            index += 1;
-            cells[index] = newCells[index];
-        }
-    }
+    this.cells.set(this.newCells);
 };
 
 
@@ -712,6 +746,119 @@ Life.prototype.makeImageHistogram = function() {
     imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
     this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
 };
+
+// reading out the image
+//=====================================
+
+/**
+ * reading the image using nearest neighbor interpolation
+ * in reduced coordinates, going from 0 to 1
+ * each image cell takes the same space
+ * coordinates clamped to image
+ * @method Life.readImageNearestNeighbor
+ * @param {float} x
+ * @param {float} y
+ * @return integer, between 0 and 255, image value
+ */
+Life.prototype.readImageNearestNeighbor = function(x, y) {
+    const size = this.size;
+    x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
+    y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
+    return this.image[x + y * size];
+};
+
+/**
+ * reading the image using linear interpolation
+ * in reduced coordinates, going from 0 to 1
+ * each image cell takes the same space (1/size)
+ * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
+ * @method Life.readImageLinearInterpolation
+ * @param {float} x
+ * @param {float} y
+ * @return integer, between 0 and 255, image value
+ */
+Life.prototype.readImageLinearInterpolation = function(x, y) {
+    const size = this.size;
+    const image = this.image;
+    // interpolation between low and high
+    x *= size;
+    const xHigh = Math.max(0, Math.min(size - 1, Math.round(x))); // x between 0.5/size and 1.5/size interpolates between cells 0 and 1
+    const xLow = Math.max(xHigh - 1);
+    const dx = x - xLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+    y *= size;
+    let yHigh = Math.max(0, Math.min(size - 1, Math.round(y)));
+    let yLow = Math.max(0, yHigh - 1);
+    const dy = y - yLow - 0.5;
+    yHigh *= size;
+    yLow *= size;
+    let result = (1 - dx) * ((1 - dy) * image[xLow + yLow] + dy * image[xLow + yHigh]);
+    result += dx * ((1 - dy) * image[xHigh + yLow] + dy * image[xHigh + yHigh]);
+    return result;
+};
+
+/*
+the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
+it is normalized to 1 within an error of about 1.00001 ! (good enough)
+*/
+function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
+    if (x < 1) {
+        return (1.16666 * x - 2) * x * x + 0.888888;
+    }
+    return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
+}
+
+/**
+ * reading the image using cubic interpolation
+ * in reduced coordinates, going from 0 to 1
+ * each image cell takes the same space
+ * a point between 1.5/size and 2.5/size interpolates using image[0] to image[3]
+ * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * @method Life.readImageCubicInterpolation
+ * @param {float} x
+ * @param {float} y
+ * @return integer, between 0 and 255, image value
+ */
+Life.prototype.readImageCubicInterpolation = function(x, y) {
+    const size = this.size;
+    const image = this.image;
+    // interpolation between low and high
+    x *= size;
+    const xHigh = Math.max(0, Math.min(size - 1, Math.round(x))); // x between 0.5/size and 1.5/size interpolates between cells 0 and 1
+    const xLow = Math.max(0, xHigh - 1);
+    const xLower = Math.max(0, xLow - 1);
+    const xHigher = Math.min(size - 1, xHigh + 1);
+    const dx = x - xLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+    y *= size;
+    let yHigh = Math.max(0, Math.min(size - 1, Math.round(y)));
+    let yLow = Math.max(0, yHigh - 1);
+    let yLower = Math.max(0, yLow - 1);
+    let yHigher = Math.min(size - 1, yHigh + 1);
+    const dy = y - yLow - 0.5;
+    yHigh *= size;
+    yLow *= size;
+    yLower *= size;
+    yHigher *= size;
+    // dx, dy relate to the cell at (xLow+yLow)
+    const weightXLow = kernel(dx);
+    const weightXHigh = kernel(1 - dx);
+    const weightXLower = kernel(1 + dx);
+    const weightXHigher = kernel(2 - dx);
+
+    const weightYLow = kernel(dy);
+    const weightYHigh = kernel(1 - dy);
+    const weightYLower = kernel(1 + dy);
+    const weightYHigher = kernel(2 - dy);
+
+    let result = weightXLower * (weightYLower * image[xLower + yLower] + weightYLow * image[xLower + yLow] + weightYHigh * image[xLower + yHigh] + weightYHigher * image[xLower + yHigher]);
+    result += weightXLow * (weightYLower * image[xLow + yLower] + weightYLow * image[xLow + yLow] + weightYHigh * image[xLow + yHigh] + weightYHigher * image[xLow + yHigher]);
+    result += weightXHigh * (weightYLower * image[xHigh + yLower] + weightYLow * image[xHigh + yLow] + weightYHigh * image[xHigh + yHigh] + weightYHigher * image[xHigh + yHigher]);
+    result += weightXHigher * (weightYLower * image[xHigher + yLower] + weightYLow * image[xHigher + yLow] + weightYHigh * image[xHigher + yHigh] + weightYHigher * image[xHigher + yHigher]);
+      return result;
+};
+
+// interaction elements
+//=====================================
 
 /**
  * create a canvas to show the image (tests)

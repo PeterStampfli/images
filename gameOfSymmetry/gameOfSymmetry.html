@@ -25,42 +25,13 @@ const l=new Life();
 
 l.setSize(6);
 l.setImageFactor(16);
+l.setNStates(4)
 
 l.fillValue(0);
-l.setStartParameters(1,2,3)
-l.setStartCells();
+l.fillBorderSymmetricallyRandom(function(i){return i;})
 
 l.logCells();
-l.setNStates(4);
-l.makeSawToothTransitionTable();
-l.logTransitionTable();
-l.makeTentTransitionTable();
-console.log("tent")
-l.logTransitionTable();
-l.makeNewGeneration()
 
-l.logNewCells();
-//l.logImage("firstgen");
-l.fillValue(8)
-l.logCells();
-l.cellsFromNewCells();
-l.logCells();
-l.clearImage();
-l.updateImage();
-l.logImage();
-l.fillValue(9);
-l.fillBorderValue(77);
-l.setStartCells();
-l.logCells();
-
-console.log(l.equalCells())
-
-l.decodeTransitionTable(256);
-l.logTransitionTable();
-console.log(l.encodeTransitionTable());
-l.fillValue(0);
-l.fillBorderSymmetricallyRandomNoMirror()
-l.logCells();
 </script>
 
 
