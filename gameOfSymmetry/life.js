@@ -158,11 +158,11 @@ Life.prototype.setStartParameters = function(startCenter, startNearest, startSec
 };
 
 /**
-* set initial cells all to zero except at center (there depending on parameters)
-* @method Life#initialCellsAtCenter
-*/
-Life.prototype.initialCellsAtCenter=function(){
- this.initialCells = function() {
+ * set initial cells all to zero except at center (there depending on parameters)
+ * @method Life#initialCellsAtCenter
+ */
+Life.prototype.initialCellsAtCenter = function() {
+    this.initialCells = function() {
         this.fill(0);
         this.setCenterCells();
     };
@@ -189,13 +189,13 @@ Life.prototype.setIterationBoundaryZero = function() {
 };
 
 /**
-* set the read image method to one of the three above
-* readImageNearestNeighbor, readImageLinearInterpolation or readImageCubicInterpolation
-* @method Life#setReadImageMethod
-* @param {function} reader - a read image method
-*/
-Life.prototype.setReadImageMethod=function(reader){
- this.readImage=reader;
+ * set the read image method to one of the three above
+ * readImageNearestNeighbor, readImageLinearInterpolation or readImageCubicInterpolation
+ * @method Life#setReadImageMethod
+ * @param {function} reader - a read image method
+ */
+Life.prototype.setReadImageMethod = function(reader) {
+    this.readImage = reader;
 };
 
 // logging for debugging
@@ -406,7 +406,7 @@ Life.prototype.makeTentTransitionTable = function() {
  * @param {number} value
  */
 Life.prototype.fillValue = function(value) {
-    value=value % this.nStates;
+    value = value % this.nStates;
     this.cells.fill(value);
 };
 
@@ -515,7 +515,8 @@ Life.prototype.fillBorderValue = function(value) {
 };
 
 /**
- * fill border cells with random values symmetrically with a function depending on distance from corner
+ * fill border cells with random values symmetrically 
+ * with a function depending on distance from corner
  * @method Life#fillBorderSymmetricallyRandom
  * @param {function} fun - f(i, arraySide)
  */
@@ -527,7 +528,7 @@ Life.prototype.fillBorderSymmetrically = function(fun) {
     const nStates = this.nStates;
     const arraySize = this.cells.length;
     for (var i = 0; i <= center; i++) {
-            const value = Math.floor(fun(i, arraySide)) % nStates;
+        const value = Math.floor(fun(i, arraySide)) % nStates;
         this.cells[i] = value; // bottom border
         this.cells[center2 - i] = value; // bottom border
         this.cells[i * arraySide] = value;
@@ -545,16 +546,18 @@ Life.prototype.fillBorderSymmetrically = function(fun) {
  */
 Life.prototype.fillBorderSymmetricallyRandom = function() {
     const nStates = this.nStates;
-    this.fillBorderSymmetrically(function(){
+    this.fillBorderSymmetrically(function() {
         return randomInt(nStates);
     });
 };
 
 /**
- * fill border cells with random values symmetrically, without mirror symmetry
- * @method Life#fillBorderSymmetricallyRandomNoMirror
+ * fill border cells symmetrically, without mirror symmetry
+ * with a function depending on distance from corner
+ * @method Life#fillBorderSymmetricallyNoMirror
+ * @param {function} fun - f(i, arraySide)
  */
-Life.prototype.fillBorderSymmetricallyRandomNoMirror = function() {
+Life.prototype.fillBorderSymmetricallyNoMirror = function(fun) {
     const arraySide = this.arraySide;
     const center = this.centerX;
     const center2 = 2 * this.centerX;
@@ -562,12 +565,23 @@ Life.prototype.fillBorderSymmetricallyRandomNoMirror = function() {
     const nStates = this.nStates;
     const arraySize = this.cells.length;
     for (var i = 0; i < arraySide; i++) {
-        let value = randomInt(nStates);
+        const value = Math.floor(fun(i, arraySide)) % nStates;
         this.cells[i] = value;
         this.cells[(arraySide - i - 1) * arraySide] = value;
         this.cells[i * arraySide + arraySide - 1] = value;
         this.cells[arraySize - 1 - i] = value;
     }
+};
+
+/**
+ * fill border cells with random values symmetrically, without mirror symmetry
+ * @method Life#fillBorderSymmetricallyNoMirrorRandom
+ */
+Life.prototype.fillBorderSymmetricallyNoMirrorRandom = function() {
+    const nStates = this.nStates;
+    this.fillBorderSymmetricallyNoMirror(function() {
+        return randomInt(nStates);
+    });
 };
 
 /**
@@ -854,7 +868,7 @@ Life.prototype.readImageCubicInterpolation = function(x, y) {
     result += weightXLow * (weightYLower * image[xLow + yLower] + weightYLow * image[xLow + yLow] + weightYHigh * image[xLow + yHigh] + weightYHigher * image[xLow + yHigher]);
     result += weightXHigh * (weightYLower * image[xHigh + yLower] + weightYLow * image[xHigh + yLow] + weightYHigh * image[xHigh + yHigh] + weightYHigher * image[xHigh + yHigher]);
     result += weightXHigher * (weightYLower * image[xHigher + yLower] + weightYLow * image[xHigher + yLow] + weightYHigh * image[xHigher + yHigh] + weightYHigher * image[xHigher + yHigher]);
-      return result;
+    return result;
 };
 
 // interaction elements

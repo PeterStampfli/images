@@ -21,6 +21,7 @@ export function NumberButton(parent) {
         .verticalAlign("middle")
         .parent(parent);
     this.addButtons = [];
+    this.range = false;
     this.hover = false;
     this.pressed = false;
     this.active = true;
@@ -107,6 +108,24 @@ export function NumberButton(parent) {
             }
         }
     };
+}
+
+// check if a thing is a numberButton
+NumberButton.isNumberButton=function(thing){
+ return thing instanceof NumberButton;
+};
+
+// find step suitable to given value, with some margin, will be rounded down
+NumberButton.findStep=function(value){
+    const s=value+"";
+    console.log(s);
+    const point=s.indexOf(".");
+    if (point<0){
+        return 1;
+    }
+    else {
+        return 1.01*Math.pow(0.1,s.length-point-1);
+    }
 }
 
 //effective value for infinity, change if too low
@@ -241,6 +260,24 @@ NumberButton.prototype.updateValue = function(number) {
 };
 
 /**
+ * apply all necessary changes after changing the minValue, maxValue, or step
+ * after setting cyclic, adding a range
+ * affects the range limits and the current value
+ * @method NumberButton#applyChanges
+ */
+NumberButton.prototype.applyChanges = function() {
+    if (this.range) {
+        this.range.min = this.minValue;
+        this.range.max = this.maxValue;
+        if (this.cyclic) {
+            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
+        }
+    }
+    // clamp value in range
+    this.setValue(this.getValue());
+};
+
+/**
  * change step to number smaller than 1 to get float
  * will be a power of ten
  * @method NumberButton#setStep
@@ -263,10 +300,7 @@ NumberButton.prototype.setStep = function(step) {
             this.digits++;
         }
     }
-    if (this.range) {
-        //   this.range.step = this.step;
-    }
-    this.setValue(this.getValue());
+    this.applyChanges();
 };
 
 /**
@@ -278,24 +312,27 @@ NumberButton.prototype.setStep = function(step) {
 NumberButton.prototype.setRange = function(minValue, maxValue) {
     this.minValue = minValue;
     this.maxValue = maxValue;
-    if (this.range) {
-        this.range.min = minValue;
-        this.range.max = maxValue;
-        if (this.cyclic) {
-            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
-        }
-    }
-    // clamp value in range
-    this.setValue(this.getValue());
+    this.applyChanges();
 };
 
 /**
- * set the lower limit for numbers, upper value is default max value
+ * set the lower limit for numbers, maxValue is unchanged
  * @method NumberButton#setLow
  * @param {integer} minValue
  */
 NumberButton.prototype.setLow = function(minValue) {
-    this.setRange(minValue, NumberButton.maxValue);
+    this.minValue = minValue;
+    this.applyChanges();
+};
+
+/**
+ * set the upper limit for numbers, minValue is unchanged
+ * @method NumberButton#setHigh
+ * @param {integer} maxValue
+ */
+NumberButton.prototype.setHigh = function(maxValue) {
+    this.maxValue = maxValue;
+    this.applyChanges();
 };
 
 /**
@@ -305,7 +342,7 @@ NumberButton.prototype.setLow = function(minValue) {
  */
 NumberButton.prototype.setCyclic = function() {
     this.cyclic = true;
-    this.setValue(this.quantizeClamp(this.getValue()));
+    this.applyChanges();
 };
 
 // correct position at left, particularly for negative numbers
@@ -450,7 +487,11 @@ NumberButton.prototype.createMaxiButton = function(parent) {
     const button = this;
     return this.createButton("max", parent, function() {
         button.input.focus();
-        button.updateValue(button.maxValue);
+        if (button.cyclic) {
+            button.updateValue(button.maxValue - button.step); // avoid irritating jump from right to left
+        } else {
+            button.updateValue(button.maxValue);
+        }
         const cursorPosition = button.input.value.length;
         button.input.setSelectionRange(cursorPosition, cursorPosition);
     });
@@ -543,7 +584,7 @@ NumberButton.prototype.createRange = function(parent) {
         .verticalAlign("middle")
         .parent(parent);
     // set the min,max and current value
-    this.setRange(this.minValue, this.maxValue);
+    this.applyChanges();
 
     const button = this;
 
@@ -584,10 +625,11 @@ NumberButton.prototype.setRangeWidth = function(width) {
  */
 NumberButton.prototype.destroy = function() {
     this.onChange = null;
-    this.input.onChange = null;
+    this.input.onchange = null;
     this.input.onfocus = null;
     this.input.onblur = null;
     this.input.onmouseenter = null;
+    this.input.onmousedown = null;
     this.input.onmouseleave = null;
     this.input.onwheel = null;
     this.input.onkeydown = null;
@@ -595,4 +637,11 @@ NumberButton.prototype.destroy = function() {
     this.input = null;
     this.addButtons.forEach(button => button.destroy());
     this.addButtons.lenght = 0;
+    if (this.range) {
+        this.range.onchange = null;
+        this.range.oninput = null;
+        this.range.onkeydown = null;
+        this.range.onmousedown = null;
+        this.range.onwheel = null;
+    }
 };

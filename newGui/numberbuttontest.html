@@ -21,19 +21,28 @@
 
 
 import {
-Button, Range, BooleanButton,NumberButton, guiUtils
+Button, BooleanButton,NumberButton, guiUtils
 } from "../libgui/modules.js";
 
 
-console.log("hello");
 
 const thisDiv=document.getElementById("thisDiv");
 
 
  const b=new Button("blalab",thisDiv)
-const r=new Range(thisDiv,true)
 const boo=new BooleanButton(thisDiv)
-const nn=new NumberButton(thisDiv,true,true)
+const nn=new NumberButton(thisDiv)
+
+nn.createRange(thisDiv)
+nn.setCyclic();
+nn.setHigh(8)
+nn.setStep(0.1)
+console.log(NumberButton.isNumberButton(nn))
+console.log(NumberButton.isNumberButton(b))
+
+console.log(NumberButton.findStep(8.8))
+console.log(NumberButton.findStep(8.81))
+console.log(NumberButton.findStep(800))
 
 
 </script>

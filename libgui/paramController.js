@@ -91,6 +91,33 @@ export function ParamController(design, domElement, params, property, low, high,
         this.uiElement = textInput;
         this.setupOnChange();
         this.setupOnInteraction();
+    } else if (guiUtils.isInteger(paramValue) && guiUtils.isInteger(low) && guiUtils.isInteger(high) && (!guiUtils.isDefined(step)||(guiUtils.isInteger(step) )&& (step===1))) {
+        // the parameter value is integer, and the low limit too 
+        // high is integer and step is undefined or is integer equal to 1
+        // thus make a range element with plus/minus button 
+
+        const button = new NumberButton(this.domElement);
+        button.setInputWidth(design.numberInputWidth);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createRange(this.domElement);
+        button.setRangeWidth(design.rangeSliderLengthShort);
+        // add the usual buttons
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createAddButton("+1", this.domElement, 1);
+        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+        button.createAddButton("-1", this.domElement, -1);
+        button.setFontSize(design.buttonFontSize);
+        button.setStep(1);
+        button.setRange(low, high);
+        button.setValue(paramValue);
+        // here we can use the cyclic() method, give it some sense
+        this.cyclic = function() {
+            button.setCyclic();
+            return this;
+        };
+        this.uiElement = button;
+        this.setupOnChange();
+        this.setupOnInteraction();
     } else if (guiUtils.isInteger(paramValue) && (!guiUtils.isDefined(low) || guiUtils.isInteger(low)) &&
         (!guiUtils.isDefined(high) || guiUtils.isInteger(high)) && !guiUtils.isDefined(step)) {
         // the parameter value is integer, and the low limit is integer or undefined 
@@ -125,55 +152,26 @@ export function ParamController(design, domElement, params, property, low, high,
         this.uiElement = button;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (guiUtils.isInteger(paramValue) && guiUtils.isInteger(low) && guiUtils.isInteger(high) && guiUtils.isNumber(step) && (Math.abs(step - 1) < 0.01)) {
-        // the parameter value is integer, and the low limit too 
-        // high is integer and step is integer equal to 1
-        // thus make a range element with plus/minus button 
-
-        const range = new NumberButton(this.domElement);
-        range.setInputWidth(design.numberInputWidth);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        // add range
-        range.createRange(this.domElement);
-        range.setRangeWidth(design.rangeSliderLengthShort);
-        // add the usual buttons
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        range.createAddButton("+1", this.domElement, 1);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        range.createAddButton("-1", this.domElement, -1);
-        range.setFontSize(design.buttonFontSize);
-        range.setStep(1);
-        range.setRange(low, high);
-        range.setValue(paramValue);
-        // here we can use the cyclic() method, give it some sense
-        this.cyclic = function() {
-            range.setCyclic();
-            return this;
-        };
-        this.uiElement = range;
-        this.setupOnChange();
-        this.setupOnInteraction();
     } else if (guiUtils.isNumber(paramValue) && guiUtils.isNumber(low) && guiUtils.isNumber(high)) {
         // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
         // thus use a range element
 
-        const range = new NumberButton(this.domElement);
-        range.setInputWidth(design.numberInputWidth);
+        const button = new NumberButton(this.domElement);
+        button.setInputWidth(design.numberInputWidth);
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        // add range
-        range.createRange(this.domElement);
-        range.setRangeWidth(design.rangeSliderLengthLong);
-        range.setFontSize(design.buttonFontSize);
-        range.setRange(low, high);
+        button.createRange(this.domElement);
+        button.setRangeWidth(design.buttonSliderLengthLong);
+        button.setFontSize(design.buttonFontSize);
+        button.setRange(low, high);
         if (guiUtils.isNumber(step)) {
-            range.setStep(step);
+            button.setStep(step);
         }
-        range.setValue(paramValue);
+        button.setValue(paramValue);
         this.cyclic = function() {
-            range.setCyclic();
+            button.setCyclic();
             return this;
         };
-        this.uiElement = range;
+        this.uiElement = button;
         this.setupOnChange();
         this.setupOnInteraction();
     } else if (guiUtils.isNumber(paramValue)) {
@@ -228,7 +226,7 @@ const px = "px";
 
 /**
  * make that numberbuttons and range elements become cyclic
- * other buttons without effect
+ * deafult: other buttons without effect
  * @method ParamController#cyclic
  * @return this for chaining
  */
@@ -245,7 +243,7 @@ ParamController.prototype.destroy = function() {
     if (this.helpButton !== null) {
         this.helpButton.destroy();
     }
-    this.uiElement.destroy();
+    this.uiElement.destroy(); // destroyes the additional secondary buttons and the range too
     this.uiElement = null;
     if (this.label) {
         this.label.remove();
