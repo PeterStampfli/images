@@ -18,7 +18,7 @@ import {
  *   minimized version for multiple controls on a line
  * @creator ParamController
  * @param {ParamGui} design - object that defines the design
- * @param {htmlElement} domElement - container for the controller, div or span
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style) or span (always use popup)
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
@@ -34,6 +34,10 @@ export function ParamController(design, domElement, params, property, low, high,
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
+    // a popup for additional buttons
+    this.popup = false;
+    // the container for additional buttons
+    this.addButtonContainer = this.domElement;
 
     /**
      * callback for changes
@@ -48,7 +52,6 @@ export function ParamController(design, domElement, params, property, low, high,
     const controller = this;
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
-
         const selectValues = new SelectValues(this.domElement);
         selectValues.setFontSize(design.buttonFontSize);
         this.uiElement = selectValues;
@@ -58,7 +61,6 @@ export function ParamController(design, domElement, params, property, low, high,
         this.setupOnInteraction();
     } else if (guiUtils.isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
-
         const button = new BooleanButton(this.domElement);
         button.setWidth(design.booleanButtonWidth);
         button.setFontSize(design.buttonFontSize);
@@ -70,7 +72,6 @@ export function ParamController(design, domElement, params, property, low, high,
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
         this.label.textContent = "";
-
         const button = new Button(this.property, this.domElement);
         button.setFontSize(design.buttonFontSize);
         this.uiElement = button;
@@ -83,7 +84,6 @@ export function ParamController(design, domElement, params, property, low, high,
         this.setupOnInteraction();
     } else if (guiUtils.isString(paramValue)) {
         // the parameter value is a string thus make a text input button
-
         const textInput = new TextInput(this.domElement);
         textInput.setWidth(design.textInputWidth);
         textInput.setFontSize(design.buttonFontSize);
@@ -91,106 +91,36 @@ export function ParamController(design, domElement, params, property, low, high,
         this.uiElement = textInput;
         this.setupOnChange();
         this.setupOnInteraction();
-    } else if (guiUtils.isInteger(paramValue) && guiUtils.isInteger(low) && guiUtils.isInteger(high) && (!guiUtils.isDefined(step)||(guiUtils.isInteger(step) )&& (step===1))) {
-        // the parameter value is integer, and the low limit too 
-        // high is integer and step is undefined or is integer equal to 1
-        // thus make a range element with plus/minus button 
-
-        const button = new NumberButton(this.domElement);
-        button.setInputWidth(design.numberInputWidth);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createRange(this.domElement);
-        button.setRangeWidth(design.rangeSliderLengthShort);
-        // add the usual buttons
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createAddButton("+1", this.domElement, 1);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createAddButton("-1", this.domElement, -1);
-        button.setFontSize(design.buttonFontSize);
-        button.setStep(1);
-        button.setRange(low, high);
-        button.setValue(paramValue);
-        // here we can use the cyclic() method, give it some sense
-        this.cyclic = function() {
-            button.setCyclic();
-            return this;
-        };
-        this.uiElement = button;
-        this.setupOnChange();
-        this.setupOnInteraction();
-    } else if (guiUtils.isInteger(paramValue) && (!guiUtils.isDefined(low) || guiUtils.isInteger(low)) &&
-        (!guiUtils.isDefined(high) || guiUtils.isInteger(high)) && !guiUtils.isDefined(step)) {
-        // the parameter value is integer, and the low limit is integer or undefined 
-        // high is integer or not defined, and step is not defined/ not supplied in call
-        // thus make an (integer) number button 
-
-        const button = new NumberButton(this.domElement);
-        button.setInputWidth(design.numberInputWidth);
-        // add the usual buttons
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createAddButton("+1", this.domElement, 1);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createAddButton("-1", this.domElement, -1);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createMiniButton(this.domElement);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createMaxiButton(this.domElement);
-        button.setFontSize(design.buttonFontSize);
-        if (guiUtils.isInteger(high)) {
-            button.setRange(low, high);
-        } else if (guiUtils.isInteger(low)) {
-            button.setLow(low);
-        } else {
-            button.setLow(0);
-        }
-        button.setValue(paramValue);
-        // here we can use the cyclic() method, give it some sense
-        this.cyclic = function() {
-            button.setCyclic();
-            return this;
-        };
-        this.uiElement = button;
-        this.setupOnChange();
-        this.setupOnInteraction();
-    } else if (guiUtils.isNumber(paramValue) && guiUtils.isNumber(low) && guiUtils.isNumber(high)) {
-        // param value and range limits are numbers, at least one of them is not integer or there is a non-integer step value 
-        // thus use a range element
-
-        const button = new NumberButton(this.domElement);
-        button.setInputWidth(design.numberInputWidth);
-        guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.createRange(this.domElement);
-        button.setRangeWidth(design.buttonSliderLengthLong);
-        button.setFontSize(design.buttonFontSize);
-        button.setRange(low, high);
-        if (guiUtils.isNumber(step)) {
-            button.setStep(step);
-        }
-        button.setValue(paramValue);
-        this.cyclic = function() {
-            button.setCyclic();
-            return this;
-        };
-        this.uiElement = button;
-        this.setupOnChange();
-        this.setupOnInteraction();
     } else if (guiUtils.isNumber(paramValue)) {
-        // simply a number, not an integer, maybe a lower limit, no upper limit, no step
-
+        // it is a number
         const button = new NumberButton(this.domElement);
-        button.setStep(0.01); // reasonable default step (not integer)
         button.setInputWidth(design.numberInputWidth);
+        // separating space to additional elements
         guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
-        button.setFontSize(design.buttonFontSize);
+        // set limits and step
         if (guiUtils.isNumber(low)) {
             button.setLow(low);
-            button.createMiniButton(this.domElement);
-        } else { // no lower limit
-            button.setLow(-NumberButton.maxValue);
+        }
+        if (guiUtils.isNumber(high)) {
+            button.setHigh(high);
+        }
+        if (guiUtils.isNumber(step)) {
+            button.setStep(step);
+        } else {
+            button.setStep(NumberButton.findStep(paramValue));
         }
         button.setValue(paramValue);
-        button.setValue(paramValue);
         this.uiElement = button;
+        // special methods
+        /**
+         * make that the number input is cyclic
+         * @method ParamController#cyclic
+         * @return this - for chaining
+         */
+        this.cyclic = function() {
+            button.setCyclic();
+            return this;
+        };
         this.setupOnChange();
         this.setupOnInteraction();
     } else {
@@ -221,8 +151,6 @@ export function ParamController(design, domElement, params, property, low, high,
 // this.name
 
 Object.assign(ParamController.prototype, paramControllerMethods);
-
-const px = "px";
 
 /**
  * make that numberbuttons and range elements become cyclic

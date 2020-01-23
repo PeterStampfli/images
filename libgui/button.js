@@ -196,6 +196,16 @@ Button.prototype.setText = function(text) {
 };
 
 /**
+ * set margin in px
+ * @method Button.setMargin
+ * @param {int} margin
+ */
+Button.prototype.setMargin = function(margin) {
+    this.element.style.marginRight = margin + "px";
+    this.element.style.marginLeft = margin + "px";
+};
+
+/**
  * color style for using transparent span with text as button
  * @method Button#colorStyleForTransparentSpan
  * @param {String} color - for basic text (button state up, no hover)

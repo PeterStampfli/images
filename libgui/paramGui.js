@@ -707,10 +707,9 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * if params[property] is boolean make a booleanButton
  * if params[property] is a string make a text textInput  
  * if params[property] is a function make a button with this function as onClick method 
- * if params[property] and low are integer and high is undefined (thus step undefined too) make a numberbutton
- * if params[property],low and high are integer and step is undefined make a numberbutton
- * if params[property],low, and high are integer and step equals 1, make a range with plus and minus buttons 
- * (else) if params[property],low and high are numbers make a range element
+ * if params[property] is a number make a number button with lower and upper limits if defined, 
+ *                                 if step is not defined, then a step size is deduced from the parameter value
+ *                                 function buttons and range can be added to the domElement or the popup (if exists)
  */
 
 /**

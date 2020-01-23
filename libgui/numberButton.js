@@ -111,22 +111,21 @@ export function NumberButton(parent) {
 }
 
 // check if a thing is a numberButton
-NumberButton.isNumberButton=function(thing){
- return thing instanceof NumberButton;
+NumberButton.isNumberButton = function(thing) {
+    return thing instanceof NumberButton;
 };
 
 // find step suitable to given value, with some margin, will be rounded down
-NumberButton.findStep=function(value){
-    const s=value+"";
+NumberButton.findStep = function(value) {
+    const s = value + "";
     console.log(s);
-    const point=s.indexOf(".");
-    if (point<0){
+    const point = s.indexOf(".");
+    if (point < 0) {
         return 1;
+    } else {
+        return 1.01 * Math.pow(0.1, s.length - point - 1);
     }
-    else {
-        return 1.01*Math.pow(0.1,s.length-point-1);
-    }
-}
+};
 
 //effective value for infinity, change if too low
 NumberButton.maxValue = 1000;
