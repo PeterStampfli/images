@@ -6,6 +6,7 @@ import {
     Button,
     SelectValues,
     TextInput,
+    Popup,
     NumberButton
 } from "./modules.js";
 
@@ -30,14 +31,24 @@ export function ParamController(design, domElement, params, property, low, high,
     this.domElement = domElement;
     this.params = params;
     this.property = property;
+    const controller = this;
     this.listening = false; // automatically update display
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
-    // a popup for additional buttons
-    this.popup = false;
-    // the container for additional buttons
-    this.buttonContainer = this.domElement;
+        this.popup = false;
+        this.buttonContainer = this.domElement;
+
+        // only for numbers
+    if (design.popupForNumberController) {
+        // a popup for additional buttons
+        this.popup = new Popup(design);
+        this.popup.addCloseButton();
+        this.popup.close();
+
+        // the container for additional buttons
+        this.buttonContainer = this.popup.contentDiv;
+    } 
 
     /**
      * callback for changes
@@ -49,7 +60,6 @@ export function ParamController(design, domElement, params, property, low, high,
     };
     this.createLabel(this.property);
     const paramValue = this.params[this.property];
-    const controller = this;
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
         const selectValues = new SelectValues(this.domElement);
