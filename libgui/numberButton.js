@@ -118,7 +118,6 @@ NumberButton.isNumberButton = function(thing) {
 // find step suitable to given value, with some margin, will be rounded down
 NumberButton.findStep = function(value) {
     const s = value + "";
-    console.log(s);
     const point = s.indexOf(".");
     if (point < 0) {
         return 1;
