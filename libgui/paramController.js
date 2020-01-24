@@ -37,7 +37,7 @@ export function ParamController(design, domElement, params, property, low, high,
     // a popup for additional buttons
     this.popup = false;
     // the container for additional buttons
-    this.addButtonContainer = this.domElement;
+    this.buttonContainer = this.domElement;
 
     /**
      * callback for changes
@@ -111,7 +111,9 @@ export function ParamController(design, domElement, params, property, low, high,
         }
         button.setValue(paramValue);
         this.uiElement = button;
+
         // special methods
+
         /**
          * make that the number input is cyclic
          * @method ParamController#cyclic
@@ -121,6 +123,163 @@ export function ParamController(design, domElement, params, property, low, high,
             button.setCyclic();
             return this;
         };
+
+        /**
+         * make an add button
+         * @method ParamController#createAddButton
+         * @param {string} text
+         * @param {number} amount
+         * @return this controller
+         */
+        this.createAddButton = function(text, amount) {
+            button.createAddButton(text, this.buttonContainer, amount);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * make plus and minus 1 buttons
+         * @method ParamController#createPlusMinusButtons
+         * @return this controller
+         */
+        ParamController.prototype.createPlusMinusButtons = function() {
+            this.createAddButton("-1", -1);
+            this.createAddButton("+1", 1);
+            return this;
+        };
+
+        /**
+         * make an multiplication button
+         * @method ParamController#createMulButton
+         * @param {string} text
+         * @param {number} amount
+         * @return this controller
+         */
+        this.createMulButton = function(text, amount) {
+            button.createMulButton(text, this.buttonContainer, amount);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * make multiply and divide by 2 buttons
+         * @method ParamController#createMulDivButtons
+         * @return this controller
+         */
+        ParamController.prototype.createMulDivButtons = function() {
+            this.createMulButton("/ 2", 0.5);
+            this.createMulButton("* 2", 2);
+            return this;
+        };
+
+        /**
+         * create a button that sets the minimum value
+         * @method ParamController#createMiniButton
+         * @return this - the controller
+         */
+        this.createMiniButton = function() {
+            button.createMiniButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * create a button that sets the maximum value
+         * @method ParamController#createMaxiButton
+         * @return this - the controller
+         */
+        this.createMaxiButton = function() {
+            button.createMaxiButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * make min and max buttons
+         * @method ParamController#createMaxMinButtons
+         * @return this controller
+         */
+        ParamController.prototype.createMaxMinButtons = function() {
+            this.createMiniButton();
+            this.createMaxiButton();
+            return this;
+        };
+
+        /**
+         * create a button that moves cursor to the left
+         * @method ParamController#createLeftButton
+         * @return this - the controller
+         */
+        this.createLeftButton = function() {
+            button.createLeftButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * create a button that moves cursor to the right
+         * @method ParamController#createRightButton
+         * @return this - the controller
+         */
+        this.createRightButton = function() {
+            button.createRightButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * create a button that decreases value at cursor
+         * @method ParamController#createDecButton
+         * @return this - the controller
+         */
+        this.createDecButton = function() {
+            button.createDecButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * create a button that increases value at cursor
+         * @method ParamController#createIncButton
+         * @return this - the controller
+         */
+        this.createIncButton = function() {
+            button.createIncButton(this.buttonContainer);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+            return this;
+        };
+
+        /**
+         * create the leftDownUpRight buttons
+         * @method ParamController#createLeftDownUpRightButtons
+         */
+        this.createLeftDownUpRightButtons = function() {
+            this.createLeftButton();
+            this.createDecButton();
+            this.createIncButton();
+            this.createRightButton();
+        };
+
+        /**
+         * create a range element of short length
+         * @method ParamController#createSmallRange
+         */
+        this.createSmallRange = function() {
+            button.createRange(this.buttonContainer);
+            button.setRangeWidth(this.design.rangeSliderLengthShort);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+        };
+
+        /**
+         * create a range element of long length
+         * @method ParamController#createLongRange
+         */
+        this.createLongRange = function() {
+            button.createRange(this.buttonContainer);
+            button.setRangeWidth(this.design.rangeSliderLengthLong);
+            guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+        };
+
         this.setupOnChange();
         this.setupOnInteraction();
     } else {
@@ -179,6 +338,7 @@ ParamController.prototype.destroy = function() {
     }
     this.domElement.remove();
     this.domElement = null;
+    this.buttonContainer = null;
     this.params = null;
     this.callback = null;
 };

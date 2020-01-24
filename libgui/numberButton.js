@@ -461,7 +461,6 @@ NumberButton.prototype.createMulButton = function(text, parent, factor) {
 /**
  * create a button that sets the minimum value
  * @method NumberButton#createMiniButton
- * @param {String} text
  * @param {htmlelement} parent
  * @return the button
  */
@@ -478,7 +477,6 @@ NumberButton.prototype.createMiniButton = function(parent) {
 /**
  * create a button that sets the maximum value
  * @method NumberButton#createMaxiButton
- * @param {String} text
  * @param {htmlelement} parent
  * @return the button
  */
@@ -496,9 +494,9 @@ NumberButton.prototype.createMaxiButton = function(parent) {
     });
 };
 
-// ←↑→↓
+// ←↑→↓ ▲►▼◄
 
-NumberButton.incText = "inc";
+NumberButton.incText = "▲";
 /**
  * create a button that increases the number at cursor position (like wheel)
  * @method NumberButton#createIncButton
@@ -514,7 +512,7 @@ NumberButton.prototype.createIncButton = function(parent) {
     });
 };
 
-NumberButton.decText = "dec";
+NumberButton.decText = "▼";
 /**
  * create a button that decreases the number at cursor position (like wheel)
  * @method NumberButton#createDecButton
@@ -530,7 +528,7 @@ NumberButton.prototype.createDecButton = function(parent) {
     });
 };
 
-NumberButton.leftText = "left";
+NumberButton.leftText = "◄";
 /**
  * create a button that moves the cursor to the left
  * @method NumberButton#createLeftButton
@@ -549,7 +547,7 @@ NumberButton.prototype.createLeftButton = function(parent) {
     });
 };
 
-NumberButton.rightText = "right";
+NumberButton.rightText = "►";
 /**
  * create a button that moves the cursor to the right
  * @method NumberButton#createRightButton
@@ -575,36 +573,40 @@ NumberButton.prototype.createRightButton = function(parent) {
  * @return the range element
  */
 NumberButton.prototype.createRange = function(parent) {
-    this.range = document.createElement("input");
-    this.range.step = "any"; // quantization via update
-    guiUtils.style(this.range)
-        .attribute("type", "range")
-        .cursor("pointer")
-        .verticalAlign("middle")
-        .parent(parent);
-    // set the min,max and current value
-    this.applyChanges();
+    if (this.range) {
+        console.log("**** NumberButton#createRange: range already exists");
+    } else {
+        this.range = document.createElement("input");
+        this.range.step = "any"; // quantization via update
+        guiUtils.style(this.range)
+            .attribute("type", "range")
+            .cursor("pointer")
+            .verticalAlign("middle")
+            .parent(parent);
+        // set the min,max and current value
+        this.applyChanges();
 
-    const button = this;
+        const button = this;
 
-    // doing things continously
-    this.range.oninput = function() {
-        button.updateValue(parseFloat(button.range.value));
-    };
+        // doing things continously
+        this.range.oninput = function() {
+            button.updateValue(parseFloat(button.range.value));
+        };
 
-    this.range.onchange = function() {
-        button.updateValue(parseFloat(button.range.value));
-    };
+        this.range.onchange = function() {
+            button.updateValue(parseFloat(button.range.value));
+        };
 
-    this.range.onkeydown = function() {
-        button.onInteraction();
-    };
-    this.range.onmousedown = function() {
-        button.onInteraction();
-    };
-    this.range.onwheel = function() {
-        button.onInteraction();
-    };
+        this.range.onkeydown = function() {
+            button.onInteraction();
+        };
+        this.range.onmousedown = function() {
+            button.onInteraction();
+        };
+        this.range.onwheel = function() {
+            button.onInteraction();
+        };
+    }
     return this.range;
 };
 
