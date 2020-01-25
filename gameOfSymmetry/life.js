@@ -1,8 +1,3 @@
-/**
- * the automaton that makes the generations (life)
- * we might need several of them
- */
-
 /*
  generalization of game of life:
 
@@ -28,6 +23,12 @@ set parameters directly using paramGui
 other methods for testing
 */
 
+/**
+ * the automaton that makes the generations (life)
+ * we might need several of them
+ * @constructor Life
+ */
+
 export function Life() {
     // default parameter values
     // the number of states a cell can have
@@ -52,7 +53,7 @@ export function Life() {
     // this.initialCells: a function that sets the cells initially. Including the boundary cells
     // default: all cells zero except at center as defined by parameters
     this.initialCellsAtCenter();
-    // this.iteratedBoundaryCells: a function for setting the boundary cells at each iteration.
+    // this.iterateBoundaryCells: a function for iterating the boundary cells
     // default: does nothing, value of boundary cells will be zero
     this.setIterationBoundaryZero();
     // set the method for reading the image
@@ -61,6 +62,44 @@ export function Life() {
 
 // setting parameters
 //=============================================================
+//
+// for the cellular automaton: setup
+//----------------------------------------------------
+// setSize(size)
+// setNStates(nStates)
+// setWeights(weightCenter, weightNearest, weightSecondNearest)
+// setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
+// setIterationBoundaryZero() - the boundary cells have value zero, simply copying from newCells
+// setImageFactor() - factor for shifting up the info in image before adding value of cells
+// initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
+// setStartParameters(startCenter, startNearest, startSecondNearest)
+//
+// other methods for setting initial state of cells (defining the initialCells() method)
+//
+// setting up the transition table
+//........................................
+// resetTransitionTable() - called automatically upon changes to nStates, weights. Sets lenght of table. Clears the table.
+// javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
+// setTransitionTableWithCode() - set the transition table using a hex number string or an integer
+// getCodeOfTransitionTable() - get transition table as a hex number string
+//
+// for the cellular automation: initialization
+//-------------------------------------------
+// clearNewCells() - make all newCells=0
+// clearImage() - all image cells=0
+// initialCells() - (abstract) method for setting cells initially
+//
+// for the cellular automaton: iteration
+//-----------------------------------------------
+
+
+// makeNewGeneration() - updates the cells, new state goes to newCells
+// cellsFromNewCells() - copy data of the new cells buffer to the cells
+
+// iterateBoundaryCells() - updates the boundary
+// updateImage() - update the image information (shift in info from cells)
+// equalCells() - returns tru if all cells have the same value (FAIL)
+
 
 /**
  * set the size of the problem, 
@@ -107,6 +146,7 @@ Life.prototype.setSize = function(size) {
     this.stepDownRight = 1 + this.arraySide;
     this.stepUpLeft = -1 - this.arraySide;
     this.stepDownLeft = -1 + this.arraySide;
+    return this;
 };
 
 /**
@@ -117,17 +157,6 @@ Life.prototype.setSize = function(size) {
 Life.prototype.setNStates = function(nStates) {
     this.nStates = nStates;
     this.resetTransitionTable();
-};
-
-/**
- * for tests. set image (shift) factor
- * multiplies the cell values for the final image before adding new automaton cell values
- * @method Life#setImageFactor
- * @param {int} factor
- */
-Life.prototype.setImageFactor = function(factor) {
-    this.imageFactor = factor;
-    this.clearImage();
 };
 
 /**
@@ -163,7 +192,7 @@ Life.prototype.setStartParameters = function(startCenter, startNearest, startSec
  */
 Life.prototype.initialCellsAtCenter = function() {
     this.initialCells = function() {
-        this.fill(0);
+        this.fillValue(0);
         this.setCenterCells();
     };
 };
@@ -172,10 +201,9 @@ Life.prototype.initialCellsAtCenter = function() {
  * set boundary condition for iteration - periodic
  * default is not periodic
  * @method Life.setIterationBoundaryPeriodic
- * @param {integer} value
  */
-Life.prototype.setIterationBoundaryPeriodic = function(value) {
-    this.iteratedBoundaryCells = function() {
+Life.prototype.setIterationBoundaryPeriodic = function() {
+    this.iterateBoundaryCells = function() {
         this.fillBorderPeriodic();
     };
 };
@@ -185,7 +213,18 @@ Life.prototype.setIterationBoundaryPeriodic = function(value) {
  * @method Life.setIterationBoundaryZero
  */
 Life.prototype.setIterationBoundaryZero = function() {
-    this.iteratedBoundaryCells = function() {};
+    this.iterateBoundaryCells = function() {};
+};
+
+/**
+ * for tests. set image (shift) factor
+ * multiplies the cell values for the final image before adding new automaton cell values
+ * @method Life#setImageFactor
+ * @param {int} factor
+ */
+Life.prototype.setImageFactor = function(factor) {
+    this.imageFactor = factor;
+    this.clearImage();
 };
 
 /**
@@ -259,9 +298,11 @@ Life.prototype.logTransitionTable = function() {
 /**
  * @method Life#logCells
  */
-Life.prototype.logCells = function(message = " ") {
+Life.prototype.logCells = function(message = "") {
     console.log();
-    console.log(message);
+    if (message !== "") {
+        console.log(message);
+    }
     console.log("cells");
     Life.logArray(this.cells);
 };
@@ -271,7 +312,9 @@ Life.prototype.logCells = function(message = " ") {
  */
 Life.prototype.logNewCells = function(message = " ") {
     console.log();
-    console.log(message);
+    if (message !== "") {
+        console.log(message);
+    }
     console.log("newCells");
     Life.logArray(this.newCells);
 };
@@ -281,7 +324,9 @@ Life.prototype.logNewCells = function(message = " ") {
  */
 Life.prototype.logImage = function(message = " ") {
     console.log();
-    console.log(message);
+    if (message !== "") {
+        console.log(message);
+    }
     console.log("Image: Factor " + this.imageFactor);
     Life.logArray(this.image);
 };
@@ -320,12 +365,12 @@ Life.prototype.resetTransitionTable = function() {
 };
 
 /**
- * set the transition table from a hexadecimal number string
+ * set the transition table from a hexadecimal number string or an integer number
  * decoding to numbers of base nStates with transitionTable.length number of digits
- * @method Life#decodeTransitionTable
+ * @method Life#setTransitionTableWithCode
  * @param {int|string} code - integer or a hexadecimal number string
  */
-Life.prototype.decodeTransitionTable = function(code) {
+Life.prototype.setTransitionTableWithCode = function(code) {
     if (typeof code === "string") {
         code = parseInt(code, 16);
     }
@@ -341,10 +386,10 @@ Life.prototype.decodeTransitionTable = function(code) {
 
 /**
  * encode the transition table as a hexadecimal number string
- * @method Life.encodeTransitionTable
+ * @method Life.getCodeOfTransitionTable
  * @return hexadecimal number string
  */
-Life.prototype.encodeTransitionTable = function() {
+Life.prototype.getCodeOfTransitionTable = function() {
     let code = 0;
     // lowest digit gets into first number ... as one would expect
     const transitionTable = this.transitionTable;
@@ -611,6 +656,9 @@ Life.prototype.fillBorderPeriodic = function() {
     this.cells[this.topRight] = this.cells[this.topRight - this.periodX - this.periodY];
 };
 
+// iteration
+//=====================================================
+
 /**
  * make the new generation in this.newCells
  * supposing that this.cells has correct boundary condition
@@ -703,7 +751,7 @@ Life.prototype.updateImage = function() {
 /**
  * test if all cells have the same value (excluding boundary cells)
  * @method Life#equalCells
- * @return true if some cells are not zero
+ * @return true if all cells not on the border have the same value
  */
 Life.prototype.equalCells = function() {
     const arraySide = this.arraySide;
@@ -736,6 +784,8 @@ Life.prototype.cellsFromNewCells = function() {
     this.cells.set(this.newCells);
 };
 
+// reading out the image
+//=====================================
 
 /**
  * find maximum value of image
@@ -748,8 +798,8 @@ Life.prototype.calculateMaxImageValue = function(a) {
 };
 
 /**
- * calculate the image histogram, normalized by size
- * and calculate max
+ * calculate the image histogram, normalized by total number of image cells
+ * and calculate maximum histogram value (fail if this is too large)
  * @method Life#makeImageHistogram
  */
 Life.prototype.makeImageHistogram = function() {
@@ -760,9 +810,6 @@ Life.prototype.makeImageHistogram = function() {
     imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
     this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
 };
-
-// reading out the image
-//=====================================
 
 /**
  * reading the image using nearest neighbor interpolation
