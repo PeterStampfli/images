@@ -69,12 +69,23 @@ export function Life() {
 // setNStates(nStates)
 // setWeights(weightCenter, weightNearest, weightSecondNearest)
 // setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
-// setIterationBoundaryZero() - the boundary cells have value zero, simply copying from newCells
-// setImageFactor() - factor for shifting up the info in image before adding value of cells
+// setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
 // initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
 // setStartParameters(startCenter, startNearest, startSecondNearest)
 //
 // other methods for setting initial state of cells (defining the initialCells() method)
+//...........................................................................
+// all cells
+// fillValue(value) - fills all cells with the same value
+// fill(fun) - fill cells using a function(i,j), no symmetry
+// fillSymmetrically(func) - fill with mirror and rotational symmetry using a function(i,j)
+// fillSymmetricallyRandom - fill with mirror and rotational symmetry, random values
+// border cells
+// fillBorderValue(value) - fill the border cells with given value
+// fillBorderSymmetrically(fun) - fill the border with mirror and rotational symmetry, values of a function(distance from corner)
+// fillBorderSymmetricallyRandom() - fill border with mirror and rotational symmetry, random values
+// fillBorderSymmetricallyNoMirror(fun) - fill the border with rotational symmetry only, values of a function(distance from corner)
+// fillBorderSymmetricallyNoMirrorRandom() - fill the border with rotational symmetry only, random values
 //
 // setting up the transition table
 //........................................
@@ -82,6 +93,24 @@ export function Life() {
 // javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
 // setTransitionTableWithCode() - set the transition table using a hex number string or an integer
 // getCodeOfTransitionTable() - get transition table as a hex number string
+// makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
+// makeRandomTransitionTable() - random values
+//
+// for the image (8 bit image)
+//..............................
+// setImageFactor() - factor for shifting up the info in image before adding value of cells
+// calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
+// setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
+//                 readImageNearestNeighbor  reads nearest neighbor
+//                 readImageLinearInterpolation  interpolation, result is float
+//                 readImageCubicInterpolation  interpolation, result is float
+// makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
+//  imageHistogramMax - the maximum value of the histogram, should not be too large
+
+
+
+// running life
+//==========================================
 //
 // for the cellular automation: initialization
 //-------------------------------------------
@@ -91,14 +120,26 @@ export function Life() {
 //
 // for the cellular automaton: iteration
 //-----------------------------------------------
-
-
 // makeNewGeneration() - updates the cells, new state goes to newCells
 // cellsFromNewCells() - copy data of the new cells buffer to the cells
-
 // iterateBoundaryCells() - updates the boundary
 // updateImage() - update the image information (shift in info from cells)
-// equalCells() - returns tru if all cells have the same value (FAIL)
+// equalCells() - returns true if all cells have the same value (FAIL)
+
+// bug hunting
+//======================
+//
+// logTransitionTable()
+// logImageHistogram()
+// logImage()
+// logCells()
+// logNewCells()
+//
+// simple interaction elements
+//----------------------------------
+// Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
+// Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
+// imageOnCanvas() - draw this image on the canvas
 
 
 /**
@@ -415,6 +456,17 @@ Life.prototype.makeTransitionTableWith = function(fun) {
 };
 
 /**
+ * make a random transition table
+ * @method Life#makeRandomTransitionTable
+ */
+Life.prototype.makeRandomTransitionTable = function() {
+    const nStates = this.nStates;
+    this.makeTransitionTableWith(function() {
+        return randomInt(nStates);
+    });
+};
+
+/**
  * make a saw tooth transition table, depending on number of states
  * @method Life#makeSawToothTransitionTable
  */
@@ -539,7 +591,7 @@ Life.prototype.setCenterCells = function() {
 // at each iteration use periodic boundary condition, or constant value or zero  (no random values)
 
 /**
- * fill border cells, leave rest unchanged, need to do only initially
+ * fill border cells, leave rest unchanged, do only initially (???)
  * @method Life#fillBorderValue
  * @param {number} value
  */
@@ -628,6 +680,8 @@ Life.prototype.fillBorderSymmetricallyNoMirrorRandom = function() {
         return randomInt(nStates);
     });
 };
+
+// for iteration
 
 /**
  * fill border cells, periodic boundary condition, need to do each cycle
@@ -799,6 +853,7 @@ Life.prototype.calculateMaxImageValue = function(a) {
 
 /**
  * calculate the image histogram, normalized by total number of image cells
+ * so we get the fraction of cells that has a given value
  * and calculate maximum histogram value (fail if this is too large)
  * @method Life#makeImageHistogram
  */
@@ -971,15 +1026,14 @@ Life.addButton = function(text) {
 };
 
 /**
- * show this image on the canvas, block-pixels
+ * show this image on the canvas, block pixels or interpolation, grey scale
  * @method Life#imageOnCanvas
  */
 Life.prototype.imageOnCanvas = function() {
     // scaling from canvas to image
-    const image = this.image;
-    const imageSize = this.size;
+    const readImage = this.readImage;
     const canvasSize = Life.canvasSize;
-    const scale = imageSize / canvasSize;
+    const scale = 1 / canvasSize; // coordinates from 0 to 1
     // scaling the image value, & floor
     const maxImageValue = this.calculateMaxImageValue();
     console.log(maxImageValue);
@@ -991,11 +1045,10 @@ Life.prototype.imageOnCanvas = function() {
     console.log(pixels.length);
     let pixelIndex = 0;
     for (var jCanvas = 0; jCanvas < canvasSize; jCanvas++) {
-        const jImage = Math.floor(jCanvas * scale);
-        const jImageSize = jImage * imageSize;
+        const y = jCanvas * scale;
         for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
-            const iImage = Math.floor(iCanvas * scale);
-            const imageValue = Math.floor(pixelFactor * image[iImage + jImageSize]);
+            const x = iCanvas * scale;
+            const imageValue = Math.floor(pixelFactor * readImage(x, y));
             pixels[pixelIndex] = imageValue;
             pixels[pixelIndex + 1] = imageValue;
             pixels[pixelIndex + 2] = imageValue;
