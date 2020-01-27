@@ -12,7 +12,7 @@
 -- max sum = (nStates-1)*(weightCenter+4*weightNearest+4*weightSecondNearest) for square lattice
 -- new state of cell = transitionTable[sum] (looking up the transition table, length maxSum+1)
 - image (data) is composed of several generations of the cellular automaton
--- restricted to 0...255 (8 bits)
+-- restricted to 32 bits, first 8 bits as grey scale image, first 24 bits as rgb image
 -- shifting (multiplication) and adding: image = imageFactor * image + newCell
 -- typically, imageFactor=nStates
 
@@ -58,6 +58,7 @@ export function Life() {
     this.setIterationBoundaryZero();
     // set the method for reading the image
     this.setReadImageMethod(this.readImageNearestNeighbor);
+    this.transitionTableScale = 1;
 }
 
 // setting parameters
@@ -94,15 +95,22 @@ export function Life() {
 // setTransitionTableWithCode() - set the transition table using a hex number string or an integer
 // getCodeOfTransitionTable() - get transition table as a hex number string
 // makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
-// makeRandomTransitionTable() - random values
+// randomTransitionTable() - random values
+// setTransitionTableScale(scale) - stretching the saw tooth and tent transition table
+// sawtoothTransitionTable() - make a transition table with saw tooth shape
+// tentTransitionTable() - make a transition table with tent (triangle) shape
 //
 // for the image (8 bit image)
 //..............................
 // setImageFactor() - factor for shifting up the info in image before adding value of cells
 // calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
 // setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
-//                 readImageNearestNeighbor  reads nearest neighbor
-//                 readImageLinearInterpolation  interpolation, result is float
+//                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
+//                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
+//                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
+//                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
+
+
 //                 readImageCubicInterpolation  interpolation, result is float
 // makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
 //  imageHistogramMax - the maximum value of the histogram, should not be too large
@@ -161,7 +169,7 @@ Life.prototype.setSize = function(size) {
     // sets in particular the boundary cells to zero
     this.newCells.fill(0);
     // image: no boundary cells
-    this.image = new Uint8Array(size * size);
+    this.image = new Uint32Array(size * size);
     // period, accounting for finite pixels
     // goes from a pixel to a pixel with the same color
     this.periodX = size;
@@ -457,9 +465,9 @@ Life.prototype.makeTransitionTableWith = function(fun) {
 
 /**
  * make a random transition table
- * @method Life#makeRandomTransitionTable
+ * @method Life#randomTransitionTable
  */
-Life.prototype.makeRandomTransitionTable = function() {
+Life.prototype.randomTransitionTable = function() {
     const nStates = this.nStates;
     this.makeTransitionTableWith(function() {
         return randomInt(nStates);
@@ -467,25 +475,36 @@ Life.prototype.makeRandomTransitionTable = function() {
 };
 
 /**
- * make a saw tooth transition table, depending on number of states
- * @method Life#makeSawToothTransitionTable
+ * set the transition table scale factor
+ * @method Life.setTransitionTableScale
+ * param {float} scale
  */
-Life.prototype.makeSawToothTransitionTable = function() {
+Life.prototype.setTransitionTableScale = function(scale) {
+    this.transitionTableScale = scale;
+};
+
+/**
+ * make a saw tooth transition table, depending on number of states
+ * @method Life#sawToothTransitionTable
+ */
+Life.prototype.sawToothTransitionTable = function() {
     const nStates = this.nStates;
+    const transitionTableScale = this.transitionTableScale;
     this.makeTransitionTableWith(function(i) {
-        return i % nStates;
+        return i * transitionTableScale % nStates;
     });
 };
 
 /**
  * make a tent transition table, depending on number of states
- * @method Life#makeTentTransitionTable
+ * @method Life#tentTransitionTable
  */
-Life.prototype.makeTentTransitionTable = function() {
+Life.prototype.tentTransitionTable = function() {
     const nStates = this.nStates;
+    const transitionTableScale = this.transitionTableScale;
     const period = 2 * (nStates - 1);
     this.makeTransitionTableWith(function(i) {
-        let result = i % period;
+        let result = i * transitionTableScale % period;
         if (result >= nStates) {
             result = period - result;
         }
@@ -756,7 +775,6 @@ Life.prototype.makeNewGeneration = function() {
             const totalSum = weightCenter * center + weightNearest * (left + right + sumExCenter) + weightSecondNearest * (sumExCenterLeft + sumExCenterRight);
             const newState = transitionTable[totalSum];
             newCells[index] = newState;
-            image[imageIndex] = imageFactor * image[imageIndex] + newState;
         }
     }
 };
@@ -841,18 +859,21 @@ Life.prototype.cellsFromNewCells = function() {
 // reading out the image
 //=====================================
 
+// quality control of the first 8 bits
+
 /**
- * find maximum value of image
- * needed for drawing a normalized image on canvas with max contrast
+ * find maximum value of image, first 8 bits
+ * for quality control  ???
  * @method Life#calculateMaxImageValue
  * @return number - maximum
  */
 Life.prototype.calculateMaxImageValue = function(a) {
-    return this.image.reduce((result, element) => Math.max(result, element), -100000);
+    return this.image.reduce((result, element) => Math.max(result, element & 255), -100000);
 };
 
 /**
  * calculate the image histogram, normalized by total number of image cells
+ * only the first 8 bits
  * so we get the fraction of cells that has a given value
  * and calculate maximum histogram value (fail if this is too large)
  * @method Life#makeImageHistogram
@@ -860,41 +881,67 @@ Life.prototype.calculateMaxImageValue = function(a) {
 Life.prototype.makeImageHistogram = function() {
     const imageHistogram = this.imageHistogram;
     imageHistogram.fill(0);
-    this.image.forEach(value => imageHistogram[value] += 1);
+    this.image.forEach(value => imageHistogram[value & 255] += 1);
     const factor = 1 / this.image.length;
     imageHistogram.forEach((element, i) => imageHistogram[i] = factor * element);
     this.imageHistogramMax = imageHistogram.reduce((result, element) => Math.max(result, element));
 };
 
 /**
- * reading the image using nearest neighbor interpolation
+ * reading the grey scale image using nearest neighbor interpolation
+ * only the first 8 bits
+ * colors got to this.red, this.green and this.blue
  * in reduced coordinates, going from 0 to 1
  * each image cell takes the same space
  * coordinates clamped to image
- * @method Life.readImageNearestNeighbor
+ * @method Life.readGreyscaleImageNearestNeighbor
  * @param {float} x
  * @param {float} y
- * @return integer, between 0 and 255, image value
  */
-Life.prototype.readImageNearestNeighbor = function(x, y) {
+Life.prototype.readGreyscaleImageNearestNeighbor = function(x, y) {
     const size = this.size;
     x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
     y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
-    return this.image[x + y * size];
+    const result = this.image[x + y * size];
+    this.red = result;
+    this.green = result;
+    this.blue = result;
+};
+
+/**
+ * reading an rgb image using nearest neighbor interpolation
+ * from the first 24 bits
+ * colors got to this.red, this.green and this.blue
+ * in reduced coordinates, going from 0 to 1
+ * each image cell takes the same space
+ * coordinates clamped to image
+ * @method Life.readGreyscaleImageNearestNeighbor
+ * @param {float} x
+ * @param {float} y
+ */
+Life.prototype.readRGBImageNearestNeighbor = function(x, y) {
+    const size = this.size;
+    x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
+    y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
+    const result = this.image[x + y * size];
+    this.red = result & 255;
+    this.green = (result >>> 8) & 255; // shift right for unsigned int
+    this.blue = (result >>> 16) & 255;
 };
 
 /**
  * reading the image using linear interpolation
  * in reduced coordinates, going from 0 to 1
+ * only the first 8 bits
+ * colors got to this.red, this.green and this.blue
  * each image cell takes the same space (1/size)
  * coordinates clamped to image (approximating image cells outside by the next one inside)
  * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
- * @method Life.readImageLinearInterpolation
+ * @method Life.readGreyscaleImageLinearInterpolation
  * @param {float} x
  * @param {float} y
- * @return integer, between 0 and 255, image value
  */
-Life.prototype.readImageLinearInterpolation = function(x, y) {
+Life.prototype.readGreyscaleImageLinearInterpolation = function(x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -910,11 +957,54 @@ Life.prototype.readImageLinearInterpolation = function(x, y) {
     yLow *= size;
     let result = (1 - dx) * ((1 - dy) * image[xLow + yLow] + dy * image[xLow + yHigh]);
     result += dx * ((1 - dy) * image[xHigh + yLow] + dy * image[xHigh + yHigh]);
-    return result;
+    result = Math.round(result) & 255;
+    this.red = result;
+    this.green = result;
+    this.blue = result;
+};
+
+/**
+ * reading the image using linear interpolation
+ * in reduced coordinates, going from 0 to 1
+ * the first 24 bits, for an rgb image
+ * colors got to this.red, this.green and this.blue
+ * each image cell takes the same space (1/size)
+ * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
+ * @method Life.readGreyscaleImageLinearInterpolation
+ * @param {float} x
+ * @param {float} y
+ */
+Life.prototype.readRGBImageLinearInterpolation = function(x, y) {
+    const size = this.size;
+    const image = this.image;
+    // interpolation between low and high
+    x *= size;
+    const xHigh = Math.max(0, Math.min(size - 1, Math.round(x))); // x between 0.5/size and 1.5/size interpolates between cells 0 and 1
+    const xLow = Math.max(xHigh - 1);
+    const dx = x - xLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+    y *= size;
+    let yHigh = Math.max(0, Math.min(size - 1, Math.round(y)));
+    let yLow = Math.max(0, yHigh - 1);
+    const dy = y - yLow - 0.5;
+    yHigh *= size;
+    yLow *= size;
+    const pix00 = image[xLow + yLow];
+    const pix10 = image[xHigh + yLow];
+    const pix01 = image[xLow + yHigh];
+    const pix11 = image[xHigh + yHigh];
+    //  the weights
+    const f00 = (1 - dx) * (1 - dy);
+    const f01 = (1 - dx) * dy;
+    const f10 = dx * (1 - dy);
+    const f11 = dy * dx;
+    this.red = 0 | (0.5 + f00 * (pix00 & 0xff) + f10 * (pix10 & 0xff) + f01 * (pix01 & 0xff) + f11 * (pix11 & 0xff));
+    this.green = 0 | (0.5 + f00 * (pix00 >>> 8 & 0xff) + f10 * (pix10 >>> 8 & 0xff) + f01 * (pix01 >>> 8 & 0xff) + f11 * (pix11 >>> 8 & 0xff));
+    this.blue = 0 | (0.5 + f00 * (pix00 >>> 16 & 0xff) + f10 * (pix10 >>> 16 & 0xff) + f01 * (pix01 >>> 16 & 0xff) + f11 * (pix11 >>> 16 & 0xff));
 };
 
 /*
-the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
+the interpolation kernel: linear interpolation of the kernel is much slower, the arrow function form is slightly slower
 it is normalized to 1 within an error of about 1.00001 ! (good enough)
 */
 function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
@@ -1034,10 +1124,6 @@ Life.prototype.imageOnCanvas = function() {
     const readImage = this.readImage;
     const canvasSize = Life.canvasSize;
     const scale = 1 / canvasSize; // coordinates from 0 to 1
-    // scaling the image value, & floor
-    const maxImageValue = this.calculateMaxImageValue();
-    console.log(maxImageValue);
-    const pixelFactor = 255.9 / maxImageValue;
     // the pixels
     const imageData = Life.theCanvasContext.getImageData(0, 0, canvasSize, canvasSize);
     const pixels = imageData.data;
@@ -1048,10 +1134,10 @@ Life.prototype.imageOnCanvas = function() {
         const y = jCanvas * scale;
         for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
             const x = iCanvas * scale;
-            const imageValue = Math.floor(pixelFactor * readImage(x, y));
-            pixels[pixelIndex] = imageValue;
-            pixels[pixelIndex + 1] = imageValue;
-            pixels[pixelIndex + 2] = imageValue;
+            readImage(x, y);
+            pixels[pixelIndex] = this.red;
+            pixels[pixelIndex + 1] = this.green;
+            pixels[pixelIndex + 2] = this.blue;
             pixels[pixelIndex + 3] = 255;
             pixelIndex += 4;
         }
