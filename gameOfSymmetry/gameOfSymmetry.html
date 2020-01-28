@@ -24,15 +24,15 @@ from "./gosModules.js"
 const l=new Life();
 
 l.setSize(6);
-l.setImageFactor(16);
-l.setNStates(4)
 
-l.fillValue(0);
-l.fillBorderSymmetricallyNoMirrorRandom(function(i){return i;})
 
+
+l.setup2States();
+l.initialCells();
 l.logCells();
-l.randomTransitionTable()
+l.setTransitionTableWithCode("fffffffffffffffffff")
 l.logTransitionTable()
+console.log(l.getCodeOfTransitionTable())
 
 </script>
 

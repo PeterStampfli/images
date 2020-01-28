@@ -1,3 +1,5 @@
+/* globals BigInt */
+
 /*
  generalization of game of life:
 
@@ -262,6 +264,10 @@ Life.prototype.logTransitionTable = function() {
         }
         line += " " + toHex(this.transitionTable[i]);
     }
+            if (i % lineLength !== 0) {
+            console.log(line);
+        }
+
 };
 
 /**
@@ -324,6 +330,7 @@ Life.prototype.logImageHistogram = function() {
 /**
  * update length of the transition table, clear the transition table
  * is called when changing number of states or the weights
+ * be careful choosing the number of weights!
  * @method Life#resetTransitionTable
  */
 Life.prototype.resetTransitionTable = function() {
@@ -333,23 +340,30 @@ Life.prototype.resetTransitionTable = function() {
     this.transitionTable.fill(0);
 };
 
+// BigInt number type:
+// const hugeHex = BigInt("0x1fffffffffffff")
+// const theBiggestInt = 9007199254740991n
+
 /**
  * set the transition table from a hexadecimal number string or an integer number
  * decoding to numbers of base nStates with transitionTable.length number of digits
  * @method Life#setTransitionTableWithCode
- * @param {int|string} code - integer or a hexadecimal number string
+ * @param {int|string} theCode - integer or a hexadecimal number string (only number part)
  */
-Life.prototype.setTransitionTableWithCode = function(code) {
-    if (typeof code === "string") {
-        code = parseInt(code, 16);
+Life.prototype.setTransitionTableWithCode = function(theCode) {
+    if (typeof theCode === "string") {
+        theCode = "0x" + theCode;                       // add preamble to make it recognized as a hex number
     }
+    let code = BigInt(theCode);
+    console.log(code.toString(16));
     // lowest digit gets into first number ... as one would expect
     const transitionTable = this.transitionTable;
-    const nStates = this.nStates;
+    const nStates = BigInt(this.nStates);
     const length = transitionTable.length;
     for (var i = 0; i < length; i++) {
-        transitionTable[i] = code % nStates;
-        code = Math.floor(code / nStates);
+        let digit = code % nStates;
+        transitionTable[i] = digit;
+        code = (code - digit) / nStates;
     }
 };
 
@@ -359,13 +373,13 @@ Life.prototype.setTransitionTableWithCode = function(code) {
  * @return hexadecimal number string
  */
 Life.prototype.getCodeOfTransitionTable = function() {
-    let code = 0;
+    let code = BigInt(0);
     // lowest digit gets into first number ... as one would expect
     const transitionTable = this.transitionTable;
-    const nStates = this.nStates;
+    const nStates = BigInt(this.nStates);
     const length = transitionTable.length;
     for (var i = length - 1; i >= 0; i--) {
-        code = code * nStates + transitionTable[i];
+        code = code * nStates + BigInt(transitionTable[i]);
     }
     return code.toString(16);
 };
@@ -1143,21 +1157,20 @@ Life.prototype.imageOnCanvas = function() {
 };
 
 //===========================================================================================
-//
-
 // setting parameters
 //=============================================================
-//
-// for the cellular automaton: setup
-//----------------------------------------------------
-// setSize(size)
-// setNStates(nStates)
-// setWeights(weightCenter, weightNearest, weightSecondNearest)
-// setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
-// setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
-// initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
-// setStartParameters(startCenter, startNearest, startSecondNearest)
-//
+
+/* for the cellular automaton: setup
+ *----------------------------------------------------
+ * setSize(size)
+ * setNStates(nStates)
+ * setWeights(weightCenter, weightNearest, weightSecondNearest)
+ * setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
+ * setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
+ * initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
+ * setStartParameters(startCenter, startNearest, startSecondNearest)
+ */
+
 // other methods for setting initial state of cells (defining the initialCells() method)
 //...........................................................................
 // all cells
@@ -1233,3 +1246,38 @@ Life.prototype.imageOnCanvas = function() {
 //========================================================================================
 // doing it
 //==============================================================
+
+/**
+ * simple iteration:
+ * iterate the boundary cells, calculate the new generation, set cells from the new generation, 
+ * update image, check if all cells are equal
+ * @method Life#simpleIteration
+ * @return true for fail (all cells are equal)
+ */
+Life.prototype.simpleIteration = function() {
+    this.iterateBoundaryCells();
+    this.makeNewGeneration();
+    this.cellsFromNewCells();
+    this.updateImage();
+    return this.equalCells();
+};
+
+/**
+ * setup for a 2-states automaton:
+ * nStates=2
+ * weights: 1 for the center - 2 different occupations (0,1)
+ *          2 for the nearest neighbors - 5 diff occupations (0,1,2,3,4) -> total 10
+ *         10 for the 2nd nearest -> total different sums= 2*5*5=50 
+ *         ( similar to number system, now with varying base) close to unsafe integer
+ * only a single pixel at center
+ * image shift =2
+ * @method Life#setup2States
+ */
+Life.prototype.setup2States = function() {
+    this.setNStates(2);
+    this.setImageFactor(2);
+    this.setWeights(1, 2, 10);
+    this.setIterationBoundaryZero();
+    this.setStartParameters(1, 0, 0);
+    this.initialCellsAtCenter();
+};
