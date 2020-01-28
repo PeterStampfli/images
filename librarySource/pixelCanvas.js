@@ -711,7 +711,7 @@ function PixelCanvas(idName) {
                 red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
                 green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
                 blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-                // beware of negative values, with accelerated rounding
+                // beware of negative values
                 color.red = Math.max(0, Math.min(255, Math.round(red)));
                 color.green = Math.max(0, Math.min(255, Math.round(green)));
                 color.blue = Math.max(0, Math.min(255, Math.round(blue)));

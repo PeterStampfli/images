@@ -57,98 +57,9 @@ export function Life() {
     // default: does nothing, value of boundary cells will be zero
     this.setIterationBoundaryZero();
     // set the method for reading the image
-    this.setReadImageMethod(this.readImageNearestNeighbor);
+    this.setReadImageMethod(this.readImageGreyscaleNearestNeighbor);
     this.transitionTableScale = 1;
 }
-
-// setting parameters
-//=============================================================
-//
-// for the cellular automaton: setup
-//----------------------------------------------------
-// setSize(size)
-// setNStates(nStates)
-// setWeights(weightCenter, weightNearest, weightSecondNearest)
-// setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
-// setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
-// initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
-// setStartParameters(startCenter, startNearest, startSecondNearest)
-//
-// other methods for setting initial state of cells (defining the initialCells() method)
-//...........................................................................
-// all cells
-// fillValue(value) - fills all cells with the same value
-// fill(fun) - fill cells using a function(i,j), no symmetry
-// fillSymmetrically(func) - fill with mirror and rotational symmetry using a function(i,j)
-// fillSymmetricallyRandom - fill with mirror and rotational symmetry, random values
-// border cells
-// fillBorderValue(value) - fill the border cells with given value
-// fillBorderSymmetrically(fun) - fill the border with mirror and rotational symmetry, values of a function(distance from corner)
-// fillBorderSymmetricallyRandom() - fill border with mirror and rotational symmetry, random values
-// fillBorderSymmetricallyNoMirror(fun) - fill the border with rotational symmetry only, values of a function(distance from corner)
-// fillBorderSymmetricallyNoMirrorRandom() - fill the border with rotational symmetry only, random values
-//
-// setting up the transition table
-//........................................
-// resetTransitionTable() - called automatically upon changes to nStates, weights. Sets lenght of table. Clears the table.
-// javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
-// setTransitionTableWithCode() - set the transition table using a hex number string or an integer
-// getCodeOfTransitionTable() - get transition table as a hex number string
-// makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
-// randomTransitionTable() - random values
-// setTransitionTableScale(scale) - stretching the saw tooth and tent transition table
-// sawtoothTransitionTable() - make a transition table with saw tooth shape
-// tentTransitionTable() - make a transition table with tent (triangle) shape
-//
-// for the image (8 bit image)
-//..............................
-// setImageFactor() - factor for shifting up the info in image before adding value of cells
-// calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
-// setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
-//                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
-//                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
-//                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
-//                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
-
-
-//                 readImageCubicInterpolation  interpolation, result is float
-// makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
-//  imageHistogramMax - the maximum value of the histogram, should not be too large
-
-
-
-// running life
-//==========================================
-//
-// for the cellular automation: initialization
-//-------------------------------------------
-// clearNewCells() - make all newCells=0
-// clearImage() - all image cells=0
-// initialCells() - (abstract) method for setting cells initially
-//
-// for the cellular automaton: iteration
-//-----------------------------------------------
-// makeNewGeneration() - updates the cells, new state goes to newCells
-// cellsFromNewCells() - copy data of the new cells buffer to the cells
-// iterateBoundaryCells() - updates the boundary
-// updateImage() - update the image information (shift in info from cells)
-// equalCells() - returns true if all cells have the same value (FAIL)
-
-// bug hunting
-//======================
-//
-// logTransitionTable()
-// logImageHistogram()
-// logImage()
-// logCells()
-// logNewCells()
-//
-// simple interaction elements
-//----------------------------------
-// Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
-// Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
-// imageOnCanvas() - draw this image on the canvas
-
 
 /**
  * set the size of the problem, 
@@ -319,10 +230,10 @@ Life.logArray = function(array) {
     const limit = Math.min(logItemLimit, size);
     for (var j = 0; j < limit; j++) {
         const base = size * j;
-        let line = toHex(j) + ": ";
+        let line = toHex(j) + ":";
         for (var i = 0; i < limit; i++) {
-            if ((i % 5 === 0) && (i > 0)) {
-                line += " |";
+            if (i % 4 === 0) {
+                line += " ";
             }
             line += " " + toHex(array[i + base]);
         }
@@ -336,11 +247,20 @@ Life.logArray = function(array) {
  */
 Life.prototype.logTransitionTable = function() {
     console.log();
+    const lineLength = 8;
+    let line = " ";
     const length = this.transitionTable.length;
     console.log("number of states " + this.nStates);
     console.log("transitionTable: length " + length);
     for (var i = 0; i < length; i++) {
-        console.log(toHex(i) + ": " + toHex(this.transitionTable[i]));
+        if (i % lineLength === 0) {
+            console.log(line);
+            line = toHex(i) + ":";
+        }
+        if (i % 4 === 0) {
+            line += " ";
+        }
+        line += " " + toHex(this.transitionTable[i]);
     }
 };
 
@@ -1015,17 +935,17 @@ function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
 }
 
 /**
- * reading the image using cubic interpolation
+ * reading the greyscale image using cubic interpolation
  * in reduced coordinates, going from 0 to 1
  * each image cell takes the same space
  * a point between 1.5/size and 2.5/size interpolates using image[0] to image[3]
  * coordinates clamped to image (approximating image cells outside by the next one inside)
- * @method Life.readImageCubicInterpolation
+ * @method Life.readGreyscaleImageCubicInterpolation
  * @param {float} x
  * @param {float} y
  * @return integer, between 0 and 255, image value
  */
-Life.prototype.readImageCubicInterpolation = function(x, y) {
+Life.prototype.readGreyscaleImageCubicInterpolation = function(x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1060,7 +980,84 @@ Life.prototype.readImageCubicInterpolation = function(x, y) {
     result += weightXLow * (weightYLower * image[xLow + yLower] + weightYLow * image[xLow + yLow] + weightYHigh * image[xLow + yHigh] + weightYHigher * image[xLow + yHigher]);
     result += weightXHigh * (weightYLower * image[xHigh + yLower] + weightYLow * image[xHigh + yLow] + weightYHigh * image[xHigh + yHigh] + weightYHigher * image[xHigh + yHigher]);
     result += weightXHigher * (weightYLower * image[xHigher + yLower] + weightYLow * image[xHigher + yLow] + weightYHigh * image[xHigher + yHigh] + weightYHigher * image[xHigher + yHigher]);
-    return result;
+    result = Math.max(0, Math.min(255, Math.round(result))); // beware of negative values
+    this.red = result;
+    this.green = result;
+    this.blue = result;
+};
+
+/**
+ * reading the rgb color image using cubic interpolation
+ * in reduced coordinates, going from 0 to 1
+ * each image cell takes the same space
+ * a point between 1.5/size and 2.5/size interpolates using image[0] to image[3]
+ * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * @method Life.readRGBImageCubicInterpolation
+ * @param {float} x
+ * @param {float} y
+ * @return integer, between 0 and 255, image value
+ */
+Life.prototype.readRGBImageCubicInterpolation = function(x, y) {
+    const size = this.size;
+    const image = this.image;
+    // interpolation between low and high
+    x *= size;
+    const xHigh = Math.max(0, Math.min(size - 1, Math.round(x))); // x between 0.5/size and 1.5/size interpolates between cells 0 and 1
+    const xLow = Math.max(0, xHigh - 1);
+    const xLower = Math.max(0, xLow - 1);
+    const xHigher = Math.min(size - 1, xHigh + 1);
+    const dx = x - xLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+    y *= size;
+    let yHigh = Math.max(0, Math.min(size - 1, Math.round(y)));
+    let yLow = Math.max(0, yHigh - 1);
+    let yLower = Math.max(0, yLow - 1);
+    let yHigher = Math.min(size - 1, yHigh + 1);
+    const dy = y - yLow - 0.5;
+    // multiplying with row width
+    yHigh *= size;
+    yLow *= size;
+    yLower *= size;
+    yHigher *= size;
+    // dx, dy relate to the cell at (xLow+yLow)
+    const kym = kernel(1 + dy);
+    const ky0 = kernel(dy);
+    const ky1 = kernel(1 - dy);
+    const ky2 = kernel(2 - dy);
+    let pixM = image[xLower + yLower];
+    let pix0 = image[xLow + yLower];
+    let pix1 = image[xHigh + yLower];
+    let pix2 = image[xHigher + yLower];
+    let kx = kernel(1 + dx);
+    let red = kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+    let green = kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+    let blue = kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+    pixM = image[xLower + yLow];
+    pix0 = image[xLow + yLow];
+    pix1 = image[xHigh + yLow];
+    pix2 = image[xHigher + yLow];
+    kx = kernel(dx);
+    red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+    green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+    blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+    pixM = image[xLower + yHigh];
+    pix0 = image[xLow + yHigh];
+    pix1 = image[xHigh + yHigh];
+    pix2 = image[xHigher + yHigh];
+    kx = kernel(1 - dx);
+    red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+    green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+    blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+    pixM = image[xLower + yHigher];
+    pix0 = image[xLow + yHigher];
+    pix1 = image[xHigh + yHigher];
+    pix2 = image[xHigher + yHigher];
+    kx = kernel(2 - dx);
+    red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
+    green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
+    blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
+    this.red = Math.max(0, Math.min(255, Math.round(red)));
+    this.green = Math.max(0, Math.min(255, Math.round(green)));
+    this.blue = Math.max(0, Math.min(255, Math.round(blue)));
 };
 
 // interaction elements
@@ -1144,3 +1141,95 @@ Life.prototype.imageOnCanvas = function() {
     }
     Life.theCanvasContext.putImageData(imageData, 0, 0);
 };
+
+//===========================================================================================
+//
+
+// setting parameters
+//=============================================================
+//
+// for the cellular automaton: setup
+//----------------------------------------------------
+// setSize(size)
+// setNStates(nStates)
+// setWeights(weightCenter, weightNearest, weightSecondNearest)
+// setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
+// setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
+// initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
+// setStartParameters(startCenter, startNearest, startSecondNearest)
+//
+// other methods for setting initial state of cells (defining the initialCells() method)
+//...........................................................................
+// all cells
+// fillValue(value) - fills all cells with the same value
+// fill(fun) - fill cells using a function(i,j), no symmetry
+// fillSymmetrically(func) - fill with mirror and rotational symmetry using a function(i,j)
+// fillSymmetricallyRandom - fill with mirror and rotational symmetry, random values
+// border cells
+// fillBorderValue(value) - fill the border cells with given value
+// fillBorderSymmetrically(fun) - fill the border with mirror and rotational symmetry, values of a function(distance from corner)
+// fillBorderSymmetricallyRandom() - fill border with mirror and rotational symmetry, random values
+// fillBorderSymmetricallyNoMirror(fun) - fill the border with rotational symmetry only, values of a function(distance from corner)
+// fillBorderSymmetricallyNoMirrorRandom() - fill the border with rotational symmetry only, random values
+//
+// setting up the transition table
+//........................................
+// resetTransitionTable() - called automatically upon changes to nStates, weights. Sets lenght of table. Clears the table.
+// javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
+// setTransitionTableWithCode() - set the transition table using a hex number string or an integer
+// getCodeOfTransitionTable() - get transition table as a hex number string
+// makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
+// randomTransitionTable() - random values
+// setTransitionTableScale(scale) - stretching the saw tooth and tent transition table
+// sawtoothTransitionTable() - make a transition table with saw tooth shape
+// tentTransitionTable() - make a transition table with tent (triangle) shape
+//
+// for the image (8 bit image)
+//..............................
+// setImageFactor() - factor for shifting up the info in image before adding value of cells
+// calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
+// setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
+//                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
+//                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
+//                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
+//                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
+//                 readImageGreyscaleCubicInterpolation  cubic interpolation, 8 bits greyscale
+//                 readImageRGBCubicInterpolation  cubic interpolation, 8 bits greyscale
+// makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
+//  imageHistogramMax - the maximum value of the histogram, should not be too large
+
+// running life
+//==========================================
+//
+// for the cellular automation: initialization
+//-------------------------------------------
+// clearNewCells() - make all newCells=0
+// clearImage() - all image cells=0
+// initialCells() - (abstract) method for setting cells initially
+//
+// for the cellular automaton: iteration
+//-----------------------------------------------
+// makeNewGeneration() - updates the cells, new state goes to newCells
+// cellsFromNewCells() - copy data of the new cells buffer to the cells
+// iterateBoundaryCells() - updates the boundary
+// updateImage() - update the image information (shift in info from cells)
+// equalCells() - returns true if all cells have the same value (FAIL)
+
+// bug hunting
+//======================
+//
+// logTransitionTable()
+// logImageHistogram()
+// logImage()
+// logCells()
+// logNewCells()
+//
+// simple interaction elements
+//----------------------------------
+// Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
+// Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
+// imageOnCanvas() - draw this image on the canvas
+
+//========================================================================================
+// doing it
+//==============================================================
