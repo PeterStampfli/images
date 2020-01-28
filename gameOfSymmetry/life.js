@@ -264,9 +264,9 @@ Life.prototype.logTransitionTable = function() {
         }
         line += " " + toHex(this.transitionTable[i]);
     }
-            if (i % lineLength !== 0) {
-            console.log(line);
-        }
+    if (i % lineLength !== 0) {
+        console.log(line);
+    }
 
 };
 
@@ -352,7 +352,7 @@ Life.prototype.resetTransitionTable = function() {
  */
 Life.prototype.setTransitionTableWithCode = function(theCode) {
     if (typeof theCode === "string") {
-        theCode = "0x" + theCode;                       // add preamble to make it recognized as a hex number
+        theCode = "0x" + theCode; // add preamble to make it recognized as a hex number
     }
     let code = BigInt(theCode);
     console.log(code.toString(16));
@@ -1079,34 +1079,49 @@ Life.prototype.readRGBImageCubicInterpolation = function(x, y) {
 
 /**
  * create a canvas to show the image (tests)
- * and a fitting div for controls
+ * and a fitting div for controls (including a div for buttons and one for logging)
  * attach to document.body
  * resize to document.documentElement.clientHeight
  * @method Life.createCanvas
  */
 Life.createCanvasDiv = function() {
+    // creating a square canvas at the left
     Life.theCanvas = document.createElement("canvas");
     document.body.appendChild(Life.theCanvas);
     this.theCanvasContext = Life.theCanvas.getContext('2d');
-    Life.theCanvas.style.backgroundColor = "blue";
+ //   Life.theCanvas.style.backgroundColor = "blue";
     Life.theCanvas.style.position = "absolute";
     Life.theCanvas.style.top = "0px";
     Life.theCanvas.style.left = "0px";
+    // creating a div at the right, takes up the rest
     Life.theDiv = document.createElement("div");
     document.body.appendChild(Life.theDiv);
     Life.theDiv.style.position = "absolute";
     Life.theDiv.style.top = "0px";
     Life.theDiv.style.top = "0px";
-    Life.theDiv.style.backgroundColor = "yellow";
-    Life.theDiv.style.padding = "10px";
+    Life.theDiv.style.backgroundColor = "#bbbbbb";
+    // a div for buttons
+    Life.theButtonDiv = document.createElement("div");
+    Life.theButtonDiv.style.backgroundColor = "#999999";
+    const buttonHeight = 50;
+    Life.theButtonDiv.style.height = buttonHeight + "px";
+    Life.theDiv.appendChild(Life.theButtonDiv);
+    // a div for logs
+    Life.theLogDiv = document.createElement("div");
+    Life.theDiv.appendChild(Life.theLogDiv);
+    Life.theLogDiv.style.paddingLeft = "10px";
+    Life.theLogDiv.style.paddingRight = "10px";
+    Life.theLogDiv.style.overflow = "auto";
+
 
     function resize() {
         Life.canvasSize = document.documentElement.clientHeight;
         Life.theCanvas.width = Life.canvasSize;
         Life.theCanvas.height = Life.canvasSize;
         Life.theDiv.style.left = Life.canvasSize + "px";
-        Life.theDiv.style.height = Life.canvasSize - 20 + "px";
-        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize - 20 + "px";
+        Life.theDiv.style.height = Life.canvasSize + "px";
+        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize + "px";
+        Life.theLogDiv.style.height = Life.canvasSize - buttonHeight + "px";
     }
 
     window.addEventListener("resize", resize, false);
@@ -1121,10 +1136,25 @@ Life.createCanvasDiv = function() {
  */
 Life.addButton = function(text) {
     const button = document.createElement("button");
-    Life.theDiv.appendChild(button);
+    button.style.margin = "10px";
+    Life.theButtonDiv.appendChild(button);
     button.textContent = text;
     return button;
 };
+
+/**
+ * add a logging message in a paragraph
+ * @method Life.log
+ * @param {string} message - may include html
+ */
+Life.log = function(message) {
+    const mp = document.createElement("p");
+    mp.innerHTML = message;
+    mp.style.marginBottom = "5px";
+    mp.style.marginTop = "5px";
+    Life.theLogDiv.appendChild(mp);
+};
+
 
 /**
  * show this image on the canvas, block pixels or interpolation, grey scale
@@ -1171,77 +1201,86 @@ Life.prototype.imageOnCanvas = function() {
  * setStartParameters(startCenter, startNearest, startSecondNearest)
  */
 
-// other methods for setting initial state of cells (defining the initialCells() method)
-//...........................................................................
-// all cells
-// fillValue(value) - fills all cells with the same value
-// fill(fun) - fill cells using a function(i,j), no symmetry
-// fillSymmetrically(func) - fill with mirror and rotational symmetry using a function(i,j)
-// fillSymmetricallyRandom - fill with mirror and rotational symmetry, random values
-// border cells
-// fillBorderValue(value) - fill the border cells with given value
-// fillBorderSymmetrically(fun) - fill the border with mirror and rotational symmetry, values of a function(distance from corner)
-// fillBorderSymmetricallyRandom() - fill border with mirror and rotational symmetry, random values
-// fillBorderSymmetricallyNoMirror(fun) - fill the border with rotational symmetry only, values of a function(distance from corner)
-// fillBorderSymmetricallyNoMirrorRandom() - fill the border with rotational symmetry only, random values
-//
-// setting up the transition table
-//........................................
-// resetTransitionTable() - called automatically upon changes to nStates, weights. Sets lenght of table. Clears the table.
-// javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
-// setTransitionTableWithCode() - set the transition table using a hex number string or an integer
-// getCodeOfTransitionTable() - get transition table as a hex number string
-// makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
-// randomTransitionTable() - random values
-// setTransitionTableScale(scale) - stretching the saw tooth and tent transition table
-// sawtoothTransitionTable() - make a transition table with saw tooth shape
-// tentTransitionTable() - make a transition table with tent (triangle) shape
-//
-// for the image (8 bit image)
-//..............................
-// setImageFactor() - factor for shifting up the info in image before adding value of cells
-// calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
-// setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
-//                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
-//                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
-//                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
-//                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
-//                 readImageGreyscaleCubicInterpolation  cubic interpolation, 8 bits greyscale
-//                 readImageRGBCubicInterpolation  cubic interpolation, 8 bits greyscale
-// makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
-//  imageHistogramMax - the maximum value of the histogram, should not be too large
+/*  methods for setting initial state of cells (defining the initialCells() method)
+ *...........................................................................
+ * all cells
+ * fillValue(value) - fills all cells with the same value
+ * fill(fun) - fill cells using a function(i,j), no symmetry
+ * fillSymmetrically(func) - fill with mirror and rotational symmetry using a function(i,j)
+ * fillSymmetricallyRandom - fill with mirror and rotational symmetry, random values
+ * border cells
+ * fillBorderValue(value) - fill the border cells with given value
+ * fillBorderSymmetrically(fun) - fill the border with mirror and rotational symmetry, values of a function(distance from corner)
+ * fillBorderSymmetricallyRandom() - fill border with mirror and rotational symmetry, random values
+ * fillBorderSymmetricallyNoMirror(fun) - fill the border with rotational symmetry only, values of a function(distance from corner)
+ * fillBorderSymmetricallyNoMirrorRandom() - fill the border with rotational symmetry only, random values
+ */
+
+/* setting up the transition table
+ *........................................
+ * resetTransitionTable() - called automatically upon changes to nStates, weights. Sets lenght of table. Clears the table.
+ * javascript: maximum safe integer is 2**53 - 1, an integer can encode 52 bits
+ * setTransitionTableWithCode() - set the transition table using a hex number string or an integer
+ * getCodeOfTransitionTable() - get transition table as a hex number string
+ * makeTransitionTableWith(fun) - make the ntable using values of a function of the index i
+ * randomTransitionTable() - random values
+ * setTransitionTableScale(scale) - stretching the saw tooth and tent transition table
+ * sawtoothTransitionTable() - make a transition table with saw tooth shape
+ * tentTransitionTable() - make a transition table with tent (triangle) shape
+ */
+
+/* for the image (8 bit greyscale and 24 bit rgb image)
+ *..............................
+ * setImageFactor() - factor for shifting up the info in image before adding value of cells
+ * calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
+ * setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
+ *                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
+ *                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
+ *                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
+ *                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
+ *                 readImageGreyscaleCubicInterpolation  cubic interpolation, 8 bits greyscale
+ *                 readImageRGBCubicInterpolation  cubic interpolation, 8 bits greyscale
+ * makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
+ *  imageHistogramMax - the maximum value of the histogram, should not be too large
+ */
 
 // running life
 //==========================================
-//
-// for the cellular automation: initialization
-//-------------------------------------------
-// clearNewCells() - make all newCells=0
-// clearImage() - all image cells=0
-// initialCells() - (abstract) method for setting cells initially
-//
-// for the cellular automaton: iteration
-//-----------------------------------------------
-// makeNewGeneration() - updates the cells, new state goes to newCells
-// cellsFromNewCells() - copy data of the new cells buffer to the cells
-// iterateBoundaryCells() - updates the boundary
-// updateImage() - update the image information (shift in info from cells)
-// equalCells() - returns true if all cells have the same value (FAIL)
+
+/* for the cellular automation: initialization
+ *-------------------------------------------
+ * clearNewCells() - make all newCells=0
+ * clearImage() - all image cells=0
+ * initialCells() - (abstract) method for setting cells initially
+ */
+
+/* for the cellular automaton: iteration
+ *-----------------------------------------------
+ * makeNewGeneration() - updates the cells, new state goes to newCells
+ * cellsFromNewCells() - copy data of the new cells buffer to the cells
+ * iterateBoundaryCells() - updates the boundary
+ * updateImage() - update the image information (shift in info from cells)
+ * equalCells() - returns true if all cells have the same value (FAIL)
+ */
 
 // bug hunting
 //======================
-//
-// logTransitionTable()
-// logImageHistogram()
-// logImage()
-// logCells()
-// logNewCells()
-//
-// simple interaction elements
-//----------------------------------
-// Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
-// Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
-// imageOnCanvas() - draw this image on the canvas
+
+/* log things
+ *-------------------------------
+ * logTransitionTable()
+ * logImageHistogram()
+ * logImage()
+ * logCells()
+ * logNewCells()
+ */
+
+/* simple interaction elements
+ *----------------------------------
+ * Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
+ * Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
+ * imageOnCanvas() - draw this image on the canvas
+ */
 
 //========================================================================================
 // doing it
@@ -1251,10 +1290,10 @@ Life.prototype.imageOnCanvas = function() {
  * simple iteration:
  * iterate the boundary cells, calculate the new generation, set cells from the new generation, 
  * update image, check if all cells are equal
- * @method Life#simpleIteration
+ * @method Life#basicIteration
  * @return true for fail (all cells are equal)
  */
-Life.prototype.simpleIteration = function() {
+Life.prototype.basicIteration = function() {
     this.iterateBoundaryCells();
     this.makeNewGeneration();
     this.cellsFromNewCells();
@@ -1281,3 +1320,21 @@ Life.prototype.setup2States = function() {
     this.setStartParameters(1, 0, 0);
     this.initialCellsAtCenter();
 };
+
+/**
+ * basic initialization:
+ * clear image, clear new cells, initialize cells
+ * the transition table has to be set before
+ * @method Life#basicInitialization
+ */
+Life.prototype.basicInitialization = function() {
+    this.clearNewCells();
+    this.clearImage();
+    this.initialCells();
+};
+
+/*
+ * find/explore a reasonable transition table:
+ * given a number of iterations, initialize life, make a random transition table,
+ * iterate until fail (in that case repeat this, log the number) or number of iterations done (show result,&number)
+ */
