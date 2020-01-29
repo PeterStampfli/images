@@ -114,6 +114,19 @@ Life.prototype.setSize = function(size) {
 };
 
 /**
+ * update length of the transition table, clear the transition table
+ * is called when changing number of states or the weights
+ * be careful choosing the number of weights!
+ * @method Life#resetTransitionTable
+ */
+Life.prototype.resetTransitionTable = function() {
+    // cells have value 0, ..., nStates-1 !!!
+    const maxSum = (this.nStates - 1) * (this.weightCenter + 4 * this.weightNearest + 4 * this.weightSecondNearest);
+    this.transitionTable.length = maxSum + 1;
+    this.transitionTable.fill(0);
+};
+
+/**
  * for tests. set number of states of a cell
  * @method Life#setNStates
  * @param {int} nStates
@@ -125,6 +138,10 @@ Life.prototype.setNStates = function(nStates) {
 
 /**
  * set the weights for summation before looking up the transition table
+ * changes the size of the table
+ * NOTE:
+ * the center has values between 0 and nStates-1
+ * the 4 neighbors have values between 0 and 4*(nStates-1)
  * @method Life#setWeights
  * @param {int} weightCenter
  * @param {int} weightNearest
@@ -135,6 +152,40 @@ Life.prototype.setWeights = function(weightCenter, weightNearest, weightSecondNe
     this.weightNearest = weightNearest;
     this.weightSecondNearest = weightSecondNearest;
     this.resetTransitionTable();
+};
+
+/**
+ * weights for a minimal transition table: all equal
+ * length of table is 9*(nStates-1)+1
+ * @method Life#minimalTransitionTable
+ */
+Life.prototype.minimalTransitionTable = function() {
+    this.setWeights(1, 1, 1);
+};
+
+/**
+ * weights for an intermediate transition table: all neighbors equal, center different
+ * corresponds to game of life
+ * weight for neighbors is nStates
+ * length of table is 1+(nStates-1)*(1+8*nStates)=nStates+8*(nStates-1)*nStates=n*(8*n-7)
+ * @method Life#intermediateTransitionTable
+ */
+Life.prototype.intermediateTransitionTable = function() {
+    const n = this.nStates;
+    this.setWeights(1, n, n);
+};
+
+/**
+ * weights for a maximal transition table: all are different
+ * weight for nearest neighbors is nStates
+ * maximum sum of center plus nearest neighbors is (nStates-1)*(1+4*nStates)
+ * weight for second nearest neighbors is thus 1+(nStates-1)*(1+4*nStates)=n*(4*n-3)
+ * length of table is 1+(nStates-1)*(1+4*nStates+4*(1+(nStates-1)*(1+4*nStates))*nStates)
+ * @method Life#intermediateTransitionTable
+ */
+Life.prototype.intermediateTransitionTable = function() {
+    const n = this.nStates;
+    this.setWeights(1, n, n * (4 * n - 3));
 };
 
 /**
@@ -345,19 +396,6 @@ Life.prototype.logImageHistogram = function() {
 
 // working with the transition table
 //====================================================================================
-
-/**
- * update length of the transition table, clear the transition table
- * is called when changing number of states or the weights
- * be careful choosing the number of weights!
- * @method Life#resetTransitionTable
- */
-Life.prototype.resetTransitionTable = function() {
-    // cells have value 0, ..., nStates-1 !!!
-    const maxSum = (this.nStates - 1) * (this.weightCenter + 4 * this.weightNearest + 4 * this.weightSecondNearest);
-    this.transitionTable.length = maxSum + 1;
-    this.transitionTable.fill(0);
-};
 
 // BigInt number type:
 // const hugeHex = BigInt("0x1fffffffffffff")
@@ -1216,7 +1254,10 @@ Life.prototype.imageOnCanvas = function() {
  *----------------------------------------------------
  * setSize(size)
  * setNStates(nStates)
- * setWeights(weightCenter, weightNearest, weightSecondNearest)
+ * setWeights(weightCenter, weightNearest, weightSecondNearest) with presets
+ *     minimalTransitionTable() - all weights=1
+ *     intermediateTransitionTable - center different, all neighbors equal
+ *     maximalTransitionTable - all are different
  * setIterationBoundaryPeriodic() - make that the boundary cells repeat cells periodically
  * setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
  * initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
@@ -1311,35 +1352,17 @@ Life.prototype.imageOnCanvas = function() {
 //==============================================================
 
 /**
- * simple iteration:
- * iterate the boundary cells, calculate the new generation, set cells from the new generation, 
- * update image, check if all cells are equal
- * @method Life#basicIteration
- * @return true for fail (all cells are equal)
- */
-Life.prototype.basicIteration = function() {
-    this.iterateBoundaryCells();
-    this.makeNewGeneration();
-    this.cellsFromNewCells();
-    this.updateImage();
-    return this.equalCells();
-};
-
-/**
- * setup for a 2-states automaton:
- * nStates=2
- * weights: 1 for the center - 2 different occupations (0,1)
- *          2 for the nearest neighbors - 5 diff occupations (0,1,2,3,4) -> total 10
- *         10 for the 2nd nearest -> total different sums= 2*5*5=50 
- *         ( similar to number system, now with varying base) close to unsafe integer
+ * basic setup for a n-states automaton:
+ * maximum transition table (as default can change later using minimal/intermediate transition table)
  * only a single pixel at center
- * image shift =2, imageAddFactor for max. info
- * @method Life#setup2States
+ * image shift =nStates, imageAddFactor for max info in image
+ * @method Life#setupMaximalTransitionTable
+ * @param {integer} nStates
  */
-Life.prototype.setup2States = function() {
-    this.setNStates(2);
+Life.prototype.basicSetup = function(nStates) {
+    this.setNStates(nStates);
     this.imageMaxInfo();
-    this.setWeights(1, 2, 10);
+    this.maximalTransitionTable();
     this.setIterationBoundaryZero();
     this.setStartParameters(1, 0, 0);
     this.initialCellsAtCenter();
@@ -1358,16 +1381,30 @@ Life.prototype.basicInitialization = function() {
 };
 
 /**
+ * simple iteration:
+ * iterate the boundary cells, calculate the new generation, set cells from the new generation, 
+ * update image, check if all cells are equal
+ * @method Life#basicIterationWithFailTest
+ * @return true for fail (all cells are equal)
+ */
+Life.prototype.basicIterationWithFailTest = function() {
+    this.iterateBoundaryCells();
+    this.makeNewGeneration();
+    this.cellsFromNewCells();
+    this.updateImage();
+    return this.equalCells();
+};
+
+/**
  * find/explore a reasonable transition table:
  * given a number of iterations, initialize life, make a random transition table,
  * iterate until fail (in that case repeat this, log the number) or number of iterations done (show result,&number)
- * @method Life#explore2States
+ * @method Life#exploreRandomTransitionTable
  */
-Life.prototype.explore2States = function() {
+Life.prototype.exploreRandomTransitionTable = function() {
     const maxTrials = 20;
     const nIter = 100;
     let trial = maxTrials;
-    this.setup2States();
     var fail;
     // do until success or maximum number of trials exceeded
     do {
@@ -1378,7 +1415,7 @@ Life.prototype.explore2States = function() {
         // repeat until fail or desired number of iterations done
         do {
             i -= 1;
-            fail = this.basicIteration();
+            fail = this.basicIterationWithFailTest();
         }
         while ((i >= 0) && (!fail));
         if (fail) {
