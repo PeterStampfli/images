@@ -15,8 +15,9 @@
 -- new state of cell = transitionTable[sum] (looking up the transition table, length maxSum+1)
 - image (data) is composed of several generations of the cellular automaton
 -- restricted to 32 bits, first 8 bits as grey scale image, first 24 bits as rgb image
--- shifting (multiplication) and adding: image = imageFactor * image + newCell
--- typically, imageFactor=nStates
+-- shifting (multiplication) and adding: image = imageShift * image + imageAddFactor * newCell
+-- typically, imageShift=nStates and imageAddFactor=1, (maxinfo, scrambles generations)
+-- or imageShift=256 and imageAddFactor=256/nStates, max contrast, one generation per color component
 
 */
 
@@ -43,8 +44,9 @@ export function Life() {
     this.startCenter = 1;
     this.startNearest = 0;
     this.startSecondNearest = 0;
-    // multiplication factor for combining cell states into 8bit image values
-    this.imageFactor = 1;
+    // multiplication factor for combining cell states into 8bit/24 bit image values
+    this.imageShift = 1;
+    this.imageAddFactor = 1;
     // working arrays
     this.transitionTable = [];
     this.resetTransitionTable();
@@ -179,14 +181,31 @@ Life.prototype.setIterationBoundaryZero = function() {
 };
 
 /**
- * for tests. set image (shift) factor
+ * for tests. set image (shift) factor and add factor
  * multiplies the cell values for the final image before adding new automaton cell values
- * @method Life#setImageFactor
- * @param {int} factor
+ * @method Life#setImageFactors
+ * @param {int} imageShift
  */
-Life.prototype.setImageFactor = function(factor) {
-    this.imageFactor = factor;
+Life.prototype.setImageFactors = function(imageShift, imageAddFactor) {
+    this.imageShift = imageShift;
+    this.imageAddFactor = imageAddFactor;
     this.clearImage();
+};
+
+/**
+ * basic image factors for given number of states, for using max info
+ * @method Life#imageMaxInfo
+ */
+Life.prototype.imageMaxInfo = function() {
+    this.setImageFactors(this.nStates, 1);
+};
+
+/**
+ * one generation per color component, max contrast, for automatons with a large number of states
+ * @method Life#imageRGBGenerations
+ */
+Life.prototype.imageRGBGenerations = function() {
+    this.setImageFactors(256, 255 / (this.nStates - 1));
 };
 
 /**
@@ -732,6 +751,8 @@ Life.prototype.clearNewCells = function() {
 /**
  * update image with info from state of cells (without border)
  * compose with earlier data
+ * shift earlier data with image shift 
+ * multiply new data with image add factor
  * @method Life#updateImage
  */
 Life.prototype.updateImage = function() {
@@ -740,7 +761,8 @@ Life.prototype.updateImage = function() {
     const maxIndex = this.arraySide - 2;
     const cells = this.cells;
     const image = this.image;
-    const imageFactor = this.imageFactor;
+    const imageAddFactor = this.imageAddFactor;
+    const imageShift = this.imageShift;
     var index, imageIndex;
     // going through all cells that belong to the image, omit border cells
     imageIndex = -1;
@@ -749,7 +771,7 @@ Life.prototype.updateImage = function() {
         for (var i = 1; i <= maxIndex; i++) {
             index += 1;
             imageIndex += 1;
-            image[imageIndex] = imageFactor * image[imageIndex] + cells[index];
+            image[imageIndex] = imageShift * image[imageIndex] + imageAddFactor * cells[index];
         }
     }
 };
@@ -1089,7 +1111,7 @@ Life.createCanvasDiv = function() {
     Life.theCanvas = document.createElement("canvas");
     document.body.appendChild(Life.theCanvas);
     this.theCanvasContext = Life.theCanvas.getContext('2d');
- //   Life.theCanvas.style.backgroundColor = "blue";
+    //   Life.theCanvas.style.backgroundColor = "blue";
     Life.theCanvas.style.position = "absolute";
     Life.theCanvas.style.top = "0px";
     Life.theCanvas.style.left = "0px";
@@ -1231,7 +1253,9 @@ Life.prototype.imageOnCanvas = function() {
 
 /* for the image (8 bit greyscale and 24 bit rgb image)
  *..............................
- * setImageFactor() - factor for shifting up the info in image before adding value of cells
+ * setImageFactors() - factor for shifting up the info in image, multiplying value of cells before adding
+ *      imageMaxInfo() - using nStates to put maximum info into image
+ *      imageRGBGenerations() - one generation per color component, max contrast
  * calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
  * setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
  *                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
@@ -1309,12 +1333,12 @@ Life.prototype.basicIteration = function() {
  *         10 for the 2nd nearest -> total different sums= 2*5*5=50 
  *         ( similar to number system, now with varying base) close to unsafe integer
  * only a single pixel at center
- * image shift =2
+ * image shift =2, imageAddFactor for max. info
  * @method Life#setup2States
  */
 Life.prototype.setup2States = function() {
     this.setNStates(2);
-    this.setImageFactor(2);
+    this.imageMaxInfo();
     this.setWeights(1, 2, 10);
     this.setIterationBoundaryZero();
     this.setStartParameters(1, 0, 0);
@@ -1333,8 +1357,52 @@ Life.prototype.basicInitialization = function() {
     this.initialCells();
 };
 
-/*
+/**
  * find/explore a reasonable transition table:
  * given a number of iterations, initialize life, make a random transition table,
  * iterate until fail (in that case repeat this, log the number) or number of iterations done (show result,&number)
+ * @method Life#explore2States
  */
+Life.prototype.explore2States = function() {
+    const maxTrials = 20;
+    const nIter = 100;
+    let trial = maxTrials;
+    this.setup2States();
+    var fail;
+    // do until success or maximum number of trials exceeded
+    do {
+        trial -= 1;
+        this.randomTransitionTable();
+        this.basicInitialization();
+        let i = Life.nIter;
+        // repeat until fail or desired number of iterations done
+        do {
+            i -= 1;
+            fail = this.basicIteration();
+        }
+        while ((i >= 0) && (!fail));
+        if (fail) {
+            Life.log(trial + " failing with code " + this.getCodeOfTransitionTable());
+        }
+    }
+    while ((fail) && (trial >= 0));
+    if (!fail) {
+        Life.log("success with code " + this.getCodeOfTransitionTable());
+        this.imageOnCanvas();
+    } else {
+        Life.log("Total fail !");
+    }
+};
+
+/**
+ * iterate once more and show result
+ * @method Life#showNext
+ */
+Life.prototype.showNext = function() {
+    const fail = this.basicIteration();
+    if (!fail) {
+        this.imageOnCanvas();
+    } else {
+        Life.log("Now we fail !");
+    }
+};

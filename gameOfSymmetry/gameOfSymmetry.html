@@ -25,7 +25,7 @@ const l=new Life();
 
 l.setSize(6);
 
-
+Life.createCanvasDiv();
 
 l.setup2States();
 l.initialCells();
@@ -33,7 +33,6 @@ l.logCells();
 l.setTransitionTableWithCode("fffffffffffffffffff")
 l.logTransitionTable()
 console.log(l.getCodeOfTransitionTable())
-Life.createCanvasDiv();
 Life.addButton("test");
 Life.addButton("test");
 Life.addButton("test");
