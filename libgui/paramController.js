@@ -10,6 +10,9 @@ import {
     NumberButton
 } from "./modules.js";
 
+// note: a line with several ui elements is similar to a folder
+// it has its own design style with design.popupForNumberController=true
+
 /**
  * a controller for a simple parameter
  * inside a given container, using given design
@@ -168,10 +171,36 @@ ParamController.prototype.createTextInput = function() {
 };
 
 /**
- * create methods for creating the additional buttons for number input
- * @method ParamController#createAdditionalNumberButtons
+ * setup the buttonContainer if it does not exist
+ * either the dpomElement or create a popup and use the contentdiv
+ * if popup is created, then modify the element.onInteraction method to open/close popup 
+ * (this method is called after the standard setupOnInteraction method)
+ * @method ParamController#setupButtonContainer
  */
-ParamController.prototype.createAdditionalNumberButtons = function() {
+ParamController.prototype.setupButtonContainer = function() {
+    if (!this.buttonContainer) {
+        if (this.design.popupForNumberController) {
+            // a popup for additional buttons
+            this.popup = new Popup(this.design);
+            this.popup.addCloseButton();
+            this.popup.close();
+            // change onInteraction callback to close/open popup
+
+
+
+            // the container for additional buttons
+            this.buttonContainer = this.popup.contentDiv;
+        } else {
+            this.buttonContainer = this.domElement;
+        }
+    }
+};
+
+/**
+ * create methods for creating the additional buttons for number input
+ * @method ParamController#setupCreationOfAdditionalButtons
+ */
+ParamController.prototype.setupCreationOfAdditionalButtons = function() {
     const button = this.uiElement;
 
     /**
@@ -182,6 +211,7 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this controller
      */
     this.createAddButton = function(text, amount) {
+        this.setupButtonContainer();
         button.createAddButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
@@ -206,6 +236,7 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this controller
      */
     this.createMulButton = function(text, amount) {
+        this.setupButtonContainer();
         button.createMulButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
@@ -228,7 +259,8 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createMiniButton = function() {
-        button.createMiniButton(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createMiniButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
     };
@@ -239,7 +271,8 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createMaxiButton = function() {
-        button.createMaxiButton(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createMaxiButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
     };
@@ -261,7 +294,8 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createLeftButton = function() {
-        button.createLeftButton(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createLeftButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
     };
@@ -272,6 +306,7 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createRightButton = function() {
+        this.setupButtonContainer();
         button.createRightButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
@@ -283,7 +318,8 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createDecButton = function() {
-        button.createDecButton(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createDecButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
     };
@@ -294,7 +330,8 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @return this - the controller
      */
     this.createIncButton = function() {
-        button.createIncButton(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createIncButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
         return this;
     };
@@ -315,6 +352,7 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @method ParamController#createSmallRange
      */
     this.createSmallRange = function() {
+        this.setupButtonContainer();
         button.createRange(this.buttonContainer);
         button.setRangeWidth(this.design.rangeSliderLengthShort);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -325,30 +363,21 @@ ParamController.prototype.createAdditionalNumberButtons = function() {
      * @method ParamController#createLongRange
      */
     this.createLongRange = function() {
-        button.createRange(this.buttonContainer);
+         this.setupButtonContainer();
+       button.createRange(this.buttonContainer);
         button.setRangeWidth(this.design.rangeSliderLengthLong);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
     };
 };
 
 /**
- *  create all to input numbers
+ *  create all things required to input numbers
  * @method ParamController#createNumberButton
  */
 ParamController.prototype.createNumberButton = function() {
-    // to popup or not to popup
-    if (this.design.popupForNumberController) {
-        // a popup for additional buttons
-        this.popup = new Popup(this.design);
-        this.popup.addCloseButton();
-        this.popup.close();
-        // the container for additional buttons
-        this.buttonContainer = this.popup.contentDiv;
-    } else {
-        this.popup = false;
-        this.buttonContainer = this.domElement;
-    }
     const button = new NumberButton(this.domElement);
+    this.popup = false;
+    this.buttonContainer = false;
     button.setInputWidth(this.design.numberInputWidth);
     // separating space to additional elements
     guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
@@ -377,7 +406,7 @@ ParamController.prototype.createNumberButton = function() {
         button.setCyclic();
         return this;
     };
-    this.createAdditionalNumberButtons();
+    this.setupCreationOfAdditionalButtons();    // handles the popup if required
     this.setupOnChange();
     this.setupOnInteraction();
 };
