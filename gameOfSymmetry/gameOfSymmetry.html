@@ -20,39 +20,15 @@ import {
 }
 from "./gosModules.js"
 
+Life.createCanvasDiv();
 
 const l=new Life();
 
-l.setSize(6);
+l.setSize(20);
+l.setNStates(2);
 
-Life.createCanvasDiv();
 
-l.setup2States();
-l.initialCells();
-l.logCells();
-l.setTransitionTableWithCode("fffffffffffffffffff")
-l.logTransitionTable()
-console.log(l.getCodeOfTransitionTable())
-Life.addButton("test");
-Life.addButton("test");
-Life.addButton("test");
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
-Life.log("something happened")
+
 
 </script>
 

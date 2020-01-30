@@ -33,36 +33,20 @@ other methods for testing
  */
 
 export function Life() {
-    // default parameter values
-    // the number of states a cell can have
-    this.nStates = 2;
-    // weights for combining sum of center, nearest,2nd nearest neighbor cells
-    this.weightCenter = 1;
-    this.weightNearest = 1;
-    this.weightSecondNearest = 1;
-    // starting configuration at center of image
-    this.startCenter = 1;
-    this.startNearest = 0;
-    this.startSecondNearest = 0;
-    // multiplication factor for combining cell states into 8bit/24 bit image values
-    this.imageShift = 1;
-    this.imageAddFactor = 1;
-    // working arrays
     this.transitionTable = [];
-    this.resetTransitionTable();
+    this.transitionTableScale = 1;
     // histogram of combined image values, for quality control
     this.imageHistogram = [];
     this.imageHistogram.length = 256; // 8 bit image
-    this.imageHistogramMax = 1;
     // this.initialCells: a function that sets the cells initially. Including the boundary cells
     // default: all cells zero except at center as defined by parameters
+    this.setStartParameters(1, 0, 0);
     this.initialCellsAtCenter();
     // this.iterateBoundaryCells: a function for iterating the boundary cells
     // default: does nothing, value of boundary cells will be zero
     this.setIterationBoundaryZero();
     // set the method for reading the image
     this.setReadImageMethod(this.readImageGreyscaleNearestNeighbor);
-    this.transitionTableScale = 1;
 }
 
 /**
@@ -127,12 +111,14 @@ Life.prototype.resetTransitionTable = function() {
 };
 
 /**
- * for tests. set number of states of a cell
+ * for tests. set number of states of a cell. transition table for max info
  * @method Life#setNStates
  * @param {int} nStates
  */
 Life.prototype.setNStates = function(nStates) {
     this.nStates = nStates;
+    this.imageMaxInfo();
+    this.maximalTransitionTable();
     this.resetTransitionTable();
 };
 
@@ -181,15 +167,15 @@ Life.prototype.intermediateTransitionTable = function() {
  * maximum sum of center plus nearest neighbors is (nStates-1)*(1+4*nStates)
  * weight for second nearest neighbors is thus 1+(nStates-1)*(1+4*nStates)=n*(4*n-3)
  * length of table is 1+(nStates-1)*(1+4*nStates+4*(1+(nStates-1)*(1+4*nStates))*nStates)
- * @method Life#intermediateTransitionTable
+ * @method Life#maximalTransitionTable
  */
-Life.prototype.intermediateTransitionTable = function() {
+Life.prototype.maximalTransitionTable = function() {
     const n = this.nStates;
     this.setWeights(1, n, n * (4 * n - 3));
 };
 
 /**
- * set the starting configuration parameters
+ * set the starting configuration parameters, default:(1,0,0), single start cell
  * @method Life#setStartParameters
  * @param {int} startCenter - value for cell at center of image
  * @param {int} startNearest - value for cells nearest to center cell
@@ -202,7 +188,7 @@ Life.prototype.setStartParameters = function(startCenter, startNearest, startSec
 };
 
 /**
- * set initial cells all to zero except at center (there depending on parameters)
+ * set initial cells all to zero except at center (there depending on parameters), default
  * @method Life#initialCellsAtCenter
  */
 Life.prototype.initialCellsAtCenter = function() {
@@ -244,7 +230,7 @@ Life.prototype.setImageFactors = function(imageShift, imageAddFactor) {
 };
 
 /**
- * basic image factors for given number of states, for using max info
+ * basic image factors for given number of states, for using max info (default)
  * @method Life#imageMaxInfo
  */
 Life.prototype.imageMaxInfo = function() {
@@ -1351,22 +1337,16 @@ Life.prototype.imageOnCanvas = function() {
 // doing it
 //==============================================================
 
-/**
- * basic setup for a n-states automaton:
+/*
+ * default setup for a n-states automaton:
+ * image shift =nStates, imageAddFactor=1, for max info in image
+ * iteration boundary zero
  * maximum transition table (as default can change later using minimal/intermediate transition table)
- * only a single pixel at center
- * image shift =nStates, imageAddFactor for max info in image
- * @method Life#setupMaximalTransitionTable
- * @param {integer} nStates
+ * start with only a single pixel at center
+ * required:
+ * l.setSize(20);
+ * l.setNStates(2);
  */
-Life.prototype.basicSetup = function(nStates) {
-    this.setNStates(nStates);
-    this.imageMaxInfo();
-    this.maximalTransitionTable();
-    this.setIterationBoundaryZero();
-    this.setStartParameters(1, 0, 0);
-    this.initialCellsAtCenter();
-};
 
 /**
  * basic initialization:
