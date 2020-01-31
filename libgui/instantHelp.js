@@ -59,7 +59,7 @@ export function InstantHelp(content, parent, spaceWidth = InstantHelp.spaceWidth
 
 InstantHelp.spaceWidth = 5;
 
-// creating the popup, one for all
+// creating the popup, one for all, overwriting default parameters
 
 InstantHelp.popup = new Popup({
     popupHasControl: false,

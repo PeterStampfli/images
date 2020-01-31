@@ -155,7 +155,7 @@ export function ParamGui(params) {
 ParamGui.defaultDesign = {
     // controller for numbers
     //==========================================
-    popupForNumberController: false,
+    popupForNumberController: true,
 
     // image select, loading user images
     //===============================================
@@ -260,7 +260,7 @@ ParamGui.defaultDesign = {
     imageButtonBorderWidthSelected: 6,
     imageButtonBorderColor: "#888888",
     imageButtonBorderColorNoIcon: "#ff6666",
-    // popup
+    // popup, those design parameters that have to be overwritten for message popup
     popupImagesPerRow: 1, // for choosing images, maybe larger for choosing presets
     popupFontFamily: "FontAwesome, FreeSans, sans-serif", // fontFamily
     popupFontSize: 14, // design.labelFontSize

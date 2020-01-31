@@ -89,8 +89,7 @@ paramControllerMethods.setupOnChange = function() {
  * @method paramControllerMethods.setupOnInteraction
  */
 paramControllerMethods.setupOnInteraction = function() {
-    const element = this.uiElement;
-    element.onInteraction = function() {
+    this.uiElement.onInteraction = function() {
         ParamGui.closePopup();
     };
 };

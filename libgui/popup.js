@@ -3,7 +3,7 @@
  * similar to the color chooser
  * it has a contentdiv (scrolling, with variable content) and an optional controldiv (mainly close button)
  * @constructor Popup
- * @param {...object} newDesign - modifying the default design
+ * @param {...object} newDesign - modifying the default design, multiple designs possible
  */
 import {
     Button,
@@ -64,7 +64,8 @@ testDiv.remove();
 
 Popup.defaultDesign = {
     popupHasControl: true, // if it has a control div
-    popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar, put to zero if no fixed width
+    popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar, 
+    // put to zero if no fixed width
     popupScrollBarWidth: scrollBarWidth, // estimate for scroll bar width, valid for all?
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
@@ -159,7 +160,7 @@ Popup.prototype.resize = function() {
     if (this.design.popupInnerWidth <= 0) {
         this.maxWidth = document.documentElement.clientWidth - this.design.popupHorizontalShift;
         this.maxWidth -= 2 * this.design.popupBorderWidth + 2 * totalShadowWidth;
-        this.mainDiv.style.width = this.maxWidth + "px";
+        this.mainDiv.style.maxWidth = this.maxWidth + "px";
     }
 
     if (noShow) {
@@ -206,7 +207,7 @@ Popup.prototype.setStyle = function(newStyle) {
     this.mainDiv.style.borderColor = design.popupBorderColor;
     if (this.design.popupInnerWidth > 0) {
         this.mainDiv.style.width = this.design.popupInnerWidth + this.design.popupScrollBarWidth + 2 * this.design.popupBorderWidth + "px";
-    } else {
+    } else if (this.design.popupInnerWidth <= 0) {
         this.contentDiv.style.overflowX = "auto";
     }
     this.mainDiv.style.outline = "none";
