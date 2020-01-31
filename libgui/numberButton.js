@@ -14,6 +14,7 @@ import {
 } from "../libgui/modules.js";
 
 export function NumberButton(parent) {
+    this.parent = parent;
     this.input = document.createElement("input");
     guiUtils.style(this.input)
         .attribute("type", "text")
@@ -35,6 +36,9 @@ export function NumberButton(parent) {
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
+    // do we want to show the indicator in the background
+    this.showIndicator = false;
+    this.setIndicatorColors("#aaaa99", "#ddddff");
 
     const button = this;
 
@@ -174,6 +178,26 @@ NumberButton.prototype.updateStyle = function() {
 NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
 /**
+ * switch on the indicator, adjust to current value
+ * @method NumberButton#switchIndicatorOn
+ */
+NumberButton.prototype.switchIndicatorOn = function() {
+    this.showIndicator = true;
+    this.setValue(this.getValue());
+};
+
+/**
+ * set the indicator colors
+ * @method NumberButton#setIndicatorColors
+ * @param {string} colorLeft
+ * @param {string} colorRight
+ */
+NumberButton.prototype.setIndicatorColors = function(colorLeft, colorRight) {
+    this.indicatorColorLeft = colorLeft;
+    this.indicatorColorRight = colorRight;
+};
+
+/**
  * set fontsize of the number button, in px
  * @method NumberButton#setFontSize
  * @param {integer} size
@@ -225,6 +249,7 @@ NumberButton.prototype.getValue = function() {
 /**
  * set the text of a button of type="text" according to a given number
  * sets lastValue to same number
+ * update range and indicator when present
  * does nothing else, use it for initialization
  * @method NumberButton#setValue
  * @param {integer} number - the number value to show in the button, verified number !!
@@ -235,6 +260,18 @@ NumberButton.prototype.setValue = function(number) {
     this.input.value = number.toFixed(this.digits);
     if (this.range) {
         this.range.value = number.toString();
+    }
+    if (this.showIndicator) {
+        let pos = 100 * (number - this.minValue);
+        if (this.cyclic) {
+            pos /= (this.maxValue - this.minValue - this.step);
+        } else {
+            pos /= (this.maxValue - this.minValue);
+        }
+        pos = Math.round(pos);
+        let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
+        backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
+        this.parent.style.background = backgroundStyle;
     }
 };
 
@@ -250,11 +287,12 @@ NumberButton.prototype.updateValue = function(number) {
         this.setValue(this.lastValue);
     } else {
         number = this.quantizeClamp(number);
-        if (this.lastValue != number) { // does it really change??
+        if (this.lastValue !== number) { // does it really change??
             this.setValue(number); // update numbers before action
             this.onChange(number);
         }
     }
+
 };
 
 /**
@@ -271,7 +309,7 @@ NumberButton.prototype.applyChanges = function() {
             this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
         }
     }
-    // clamp value in range
+    // clamp value in range, update range position
     this.setValue(this.getValue());
 };
 
@@ -562,6 +600,22 @@ NumberButton.prototype.createRightButton = function(parent) {
         let power = button.getPower(cursorPosition);
         power -= 1;
         button.setCursorPosition(power);
+    });
+};
+
+/**
+ * create a button with a suggested value
+ * @method NumberButton#createSuggestion
+ * @param {htmlelement} parent
+ * @param {float} value
+ */
+NumberButton.prototype.createSuggestion = function(parent, value) {
+    const button = this;
+    return this.createButton(value + "", parent, function() {
+        button.input.focus();
+        button.updateValue(value);
+        const cursorPosition = button.input.value.length;
+        button.input.setSelectionRange(cursorPosition, cursorPosition);
     });
 };
 

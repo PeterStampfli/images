@@ -7,7 +7,8 @@ import {
     SelectValues,
     TextInput,
     Popup,
-    NumberButton
+    NumberButton,
+    ParamGui
 } from "./modules.js";
 
 // note: a line with several ui elements is similar to a folder
@@ -188,7 +189,6 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.design.popupForNumberController) {
-            // set up the style
 
 
 
@@ -197,12 +197,24 @@ ParamController.prototype.setupButtonContainer = function() {
             this.popup = new Popup(this.design, ParamController.popupDesign);
             this.popup.addCloseButton();
             this.popup.close();
+            // on interaction: call close popups, 
+            // mark that this controller interacts, do not close its own popup
+            this.callsClosePopup = false;
+
             // change onInteraction callback to close/open popup
             const controller = this;
             this.uiElement.onInteraction = function() {
-
                 controller.popup.open();
+                controller.callsClosePopup = true;
+                ParamGui.closePopup();
+                controller.callsClosePopup = false;
+            };
 
+            // change close popup function to leave popup open if this called it
+            this.closePopup = function() {
+                if (!this.callsClosePopup) {
+                    this.popup.close();
+                }
             };
 
             // the container for additional buttons
