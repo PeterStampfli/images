@@ -36,8 +36,8 @@ export function NumberButton(parent) {
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
-    // do we want to show the indicator in the background
-    this.showIndicator = false;
+    // do we want to show the indicator in the background, and where
+    this.indicatorElement = false;
     this.setIndicatorColors("#aaaa99", "#ddddff");
 
     const button = this;
@@ -178,11 +178,12 @@ NumberButton.prototype.updateStyle = function() {
 NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 
 /**
- * switch on the indicator, adjust to current value
- * @method NumberButton#switchIndicatorOn
+ * switch on the indicator, set its element (it's the background) , adjust to current value
+ * @method NumberButton#setIndicatorElement
+ * @param {html element} element
  */
-NumberButton.prototype.switchIndicatorOn = function() {
-    this.showIndicator = true;
+NumberButton.prototype.setIndicatorElement = function(element) {
+    this.indicatorElement = element;
     this.setValue(this.getValue());
 };
 
@@ -261,7 +262,7 @@ NumberButton.prototype.setValue = function(number) {
     if (this.range) {
         this.range.value = number.toString();
     }
-    if (this.showIndicator) {
+    if (this.indicatorElement) {
         let pos = 100 * (number - this.minValue);
         if (this.cyclic) {
             pos /= (this.maxValue - this.minValue - this.step);
@@ -271,7 +272,7 @@ NumberButton.prototype.setValue = function(number) {
         pos = Math.round(pos);
         let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
         backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
-        this.parent.style.background = backgroundStyle;
+        this.indicatorElement.style.background = backgroundStyle;
     }
 };
 
@@ -292,7 +293,6 @@ NumberButton.prototype.updateValue = function(number) {
             this.onChange(number);
         }
     }
-
 };
 
 /**
