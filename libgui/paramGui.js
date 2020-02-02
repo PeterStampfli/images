@@ -38,6 +38,7 @@ The increment of value for each scroll changes the digit where the caret is.
 import {
     guiUtils,
     ParamColor,
+    ParamLine,
     ParamAngle,
     ParamController,
     ParamImageSelection,
@@ -150,7 +151,7 @@ export function ParamGui(params) {
 
 /**
  * we might want to change design parameters for parts of a gui/folder
- * @method changeDesign
+ * @method ParamGui#changeDesign
  * @param {...Object} design - design parameters as fields (key,value pairs) of objects, multiple objects possible
  * @return this
  */
@@ -169,7 +170,7 @@ ParamGui.defaultDesign = {
     // controller for numbers
     //==========================================
     popupForNumberController: true,
-    popupMinWidth:0,
+    popupMinWidth: 0,
     indicatorColorLeft: "#dddddd",
     indicatorColorRight: "#f8f8f8",
 
@@ -313,7 +314,7 @@ ParamGui.updateDefaultDesign = function(newValues) {
 
 /**
  * add a span with a space to the parent element
- * use NumberButton.spaceWidth as parameter !!!
+ * use ParamGui.spaceWidth as parameter !!!
  * @method ParamGui.addSpace
  * @param {HTMLElement} parent
  */
@@ -917,7 +918,8 @@ ParamGui.prototype.revert = function(params) {
 ParamGui.prototype.destroy = function() {
     // destroy the ui elements and folders
     for (var i = this.elements.length - 1; i >= 0; i--) {
-        // attention: destroying folders remove themselves from this array
+        // attention: destroying folders remove themselves from this array, makes array smaller
+        // this is safe (no danger of not destroying an element, or out of array boundary error)
         this.elements[i].destroy();
     }
     this.elements.length = 0;

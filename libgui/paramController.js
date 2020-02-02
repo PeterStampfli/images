@@ -18,8 +18,8 @@ import {
  * a controller for a simple parameter
  * inside a given container, using given design
  * @creator ParamController
- * @param {ParamGui} design - object that defines the design
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style) or span (always use popup)
+ * @param {object} design - object that defines the design
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
@@ -111,6 +111,7 @@ ParamController.prototype.cyclic = function() {
 ParamController.prototype.createSelect = function() {
     const selectValues = new SelectValues(this.domElement);
     selectValues.setFontSize(this.design.buttonFontSize);
+    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = selectValues;
     selectValues.addOptions(this.low);
     selectValues.setValue(this.params[this.property]);
@@ -126,6 +127,7 @@ ParamController.prototype.createBooleanButton = function() {
     const button = new BooleanButton(this.domElement);
     button.setWidth(this.design.booleanButtonWidth);
     button.setFontSize(this.design.buttonFontSize);
+    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = button;
     button.setValue(this.params[this.property]);
     this.setupOnChange();
@@ -141,6 +143,7 @@ ParamController.prototype.createClickButton = function() {
     this.label.textContent = "";
     const button = new Button(this.property, this.domElement);
     button.setFontSize(this.design.buttonFontSize);
+    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = button;
     const paramValue = this.params[this.property];
     if (guiUtils.isFunction(paramValue)) {
@@ -161,6 +164,7 @@ ParamController.prototype.createTextInput = function() {
     const textInput = new TextInput(this.domElement);
     textInput.setWidth(this.design.textInputWidth);
     textInput.setFontSize(this.design.buttonFontSize);
+    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     textInput.setValue(this.params[this.property]);
     this.uiElement = textInput;
     this.setupOnChange();
@@ -439,7 +443,7 @@ ParamController.prototype.createNumberButton = function() {
     this.buttonContainer = false;
     button.setInputWidth(this.design.numberInputWidth);
     // separating space to additional elements
-    guiUtils.hSpace(this.domElement, NumberButton.spaceWidth);
+    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     const paramValue = this.params[this.property];
     // set limits and step
     if (guiUtils.isNumber(this.low)) {
@@ -511,8 +515,10 @@ ParamController.prototype.destroy = function() {
         this.label.remove();
         this.label = null;
     }
-    this.domElement.remove();
-    this.domElement = null;
+    if (this.domElement) {
+        this.domElement.remove();
+        this.domElement = null;
+    }
     this.buttonContainer = null;
     this.params = null;
     this.callback = null;

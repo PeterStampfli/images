@@ -27,24 +27,23 @@ paramControllerMethods.isInDiv = function() {
 };
 
 /**
- * only if the container is a div:
  * make a label with given text and space 
  * it is a span, padding at right and left
  * @method paramControllerMethods.createLabel
  * @param {String} text
  */
 paramControllerMethods.createLabel = function(text) {
-        const design = this.design;
-        this.label = document.createElement("span");
-        this.label.textContent = text;
-        this.label.style.fontSize = design.labelFontSize + "px";
-        // minimum width for alignment of inputs
-        this.label.style.display = "inline-block";
-        this.label.style.minWidth = design.labelWidth + "px";
-        // space between label and controller or left border
-        this.label.style.paddingLeft = design.spaceWidth + "px";
-        this.label.style.paddingRight = design.spaceWidth + "px";
-        this.domElement.appendChild(this.label);
+    const design = this.design;
+    this.label = document.createElement("span");
+    this.label.textContent = text;
+    this.label.style.fontSize = design.labelFontSize + "px";
+    // minimum width for alignment of inputs
+    this.label.style.display = "inline-block";
+    this.label.style.minWidth = design.labelWidth + "px";
+    // space between label and controller or left border
+    this.label.style.paddingLeft = design.spaceWidth + "px";
+    this.label.style.paddingRight = design.spaceWidth + "px";
+    this.domElement.appendChild(this.label);
 };
 
 /**

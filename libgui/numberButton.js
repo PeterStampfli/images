@@ -194,7 +194,6 @@ NumberButton.prototype.setIndicatorElement = function(element) {
  * @param {string} colorRight
  */
 NumberButton.prototype.setIndicatorColors = function(colorLeft, colorRight) {
-    console.log(colorLeft)
     this.indicatorColorLeft = colorLeft;
     this.indicatorColorRight = colorRight;
 };

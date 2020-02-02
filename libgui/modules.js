@@ -100,6 +100,11 @@ export {
 from "./paramColor.js";
 
 export {
+    ParamLine
+}
+from "./paramLine.js";
+
+export {
     ParamImageSelection
 }
 from "./paramImageSelection.js";
