@@ -17,10 +17,6 @@ import {
 /**
  * a controller for a simple parameter
  * inside a given container, using given design
- * if the container is a "div":
- *   same as in "lib/dat.gui.min2.js", 
- * if the container is a "span"
- *   minimized version for multiple controls on a line
  * @creator ParamController
  * @param {ParamGui} design - object that defines the design
  * @param {htmlElement} domElement - container for the controller, div (popup depends on style) or span (always use popup)
@@ -180,8 +176,43 @@ ParamController.popupDesign = {
 };
 
 /**
+ * create popup for number button
+ * @method ParamController#createPopup
+ * @return this
+ */
+
+ParamController.prototype.createPopup = function() {
+    // a popup for additional buttons
+    this.popup = new Popup(this.design, ParamController.popupDesign);
+    this.popup.addCloseButton();
+    this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
+    this.popup.close();
+    // on interaction: call close popups, 
+    // mark that this controller interacts, do not close its own popup
+    this.callsClosePopup = false;
+
+    // change onInteraction callback to close/open popup
+    const controller = this;
+    this.uiElement.onInteraction = function() {
+        controller.popup.open();
+        controller.callsClosePopup = true;
+        ParamGui.closePopup();
+        controller.callsClosePopup = false;
+    };
+    // change close popup function to leave popup open if this called it
+    this.closePopup = function() {
+        if (!this.callsClosePopup) {
+            this.popup.close();
+        }
+    };
+
+    // the container for additional buttons
+    this.buttonContainer = this.popup.contentDiv;
+};
+
+/**
  * setup the buttonContainer if it does not exist
- * either the dpomElement or create a popup and use the contentdiv
+ * either the domElement or create a popup and use the contentdiv
  * if popup is created, then modify the element.onInteraction method to open/close popup 
  * (this method is called after the standard setupOnInteraction method)
  * @method ParamController#setupButtonContainer
@@ -189,36 +220,7 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.design.popupForNumberController) {
-
-
-
-
-            // a popup for additional buttons
-            this.popup = new Popup(this.design, ParamController.popupDesign);
-            this.popup.addCloseButton();
-            this.popup.close();
-            // on interaction: call close popups, 
-            // mark that this controller interacts, do not close its own popup
-            this.callsClosePopup = false;
-
-            // change onInteraction callback to close/open popup
-            const controller = this;
-            this.uiElement.onInteraction = function() {
-                controller.popup.open();
-                controller.callsClosePopup = true;
-                ParamGui.closePopup();
-                controller.callsClosePopup = false;
-            };
-
-            // change close popup function to leave popup open if this called it
-            this.closePopup = function() {
-                if (!this.callsClosePopup) {
-                    this.popup.close();
-                }
-            };
-
-            // the container for additional buttons
-            this.buttonContainer = this.popup.contentDiv;
+            this.createPopup();
         } else {
             this.buttonContainer = this.domElement;
         }
@@ -368,34 +370,62 @@ ParamController.prototype.setupCreationOfAdditionalButtons = function() {
     /**
      * create the leftDownUpRight buttons
      * @method ParamController#createLeftDownUpRightButtons
+     * @return this - the controller
      */
     this.createLeftDownUpRightButtons = function() {
         this.createLeftButton();
         this.createDecButton();
         this.createIncButton();
         this.createRightButton();
+        return this;
+    };
+
+    /**
+     * create a button with a suggested value
+     * @method ParamController#createSuggestButton
+     * @param {number} value
+     * @return this - the controller
+     */
+    this.createSuggestButton = function(value) {
+        this.setupButtonContainer();
+        button.createSuggestButton(this.buttonContainer, value);
+        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+        return this;
     };
 
     /**
      * create a range element of short length
      * @method ParamController#createSmallRange
+     * @return this - the controller
      */
     this.createSmallRange = function() {
         this.setupButtonContainer();
         button.createRange(this.buttonContainer);
         button.setRangeWidth(this.design.rangeSliderLengthShort);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+        return this;
     };
 
     /**
      * create a range element of long length
      * @method ParamController#createLongRange
+     * @return this - the controller
      */
     this.createLongRange = function() {
-        this.setupButtonContainer();
-        button.createRange(this.buttonContainer);
+        this.createSmallRange();
         button.setRangeWidth(this.design.rangeSliderLengthLong);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+        return this;
+    };
+
+    /**
+     * create a range element of very long length
+     * @method ParamController#createVeryLongRange
+     * @return this - the controller
+     */
+    this.createVeryLongRange = function() {
+        this.createSmallRange();
+        button.setRangeWidth(this.design.rangeSliderLengthVeryLong);
+        return this;
     };
 };
 
@@ -435,6 +465,33 @@ ParamController.prototype.createNumberButton = function() {
         button.setCyclic();
         return this;
     };
+
+    /**
+     * activate indicator in the main element
+     * @method ParamController#createIndicatorMain
+     */
+    this.createIndicatorMain = function() {
+        const button = this.uiElement;
+        button.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+        button.setIndicatorElement(this.domElement);
+        return this;
+    };
+
+    /**
+     * activate indicator in the popup element (if exists, else in main element)
+     * @method ParamController#createIndicatorPopup
+     */
+    this.createIndicatorPopup = function() {
+        const button = this.uiElement;
+        button.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+        if (this.popup) {
+            button.setIndicatorElement(this.popup.contentDiv);
+        } else {
+            button.setIndicatorElement(this.domElement);
+        }
+        return this;
+    };
+
     this.setupCreationOfAdditionalButtons(); // handles the popup if required
     this.setupOnChange();
     this.setupOnInteraction();

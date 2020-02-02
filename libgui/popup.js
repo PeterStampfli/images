@@ -25,6 +25,7 @@ export function Popup(newDesign) {
     this.contentDiv = document.createElement("div");
     this.contentDiv.style.overflowY = "auto";
     this.contentDiv.style.overflowX = "hidden";
+    this.contentDiv.style.textAlign = "center";
     this.mainDiv.appendChild(this.contentDiv);
 
     // creating the control div, if there is one
@@ -66,6 +67,7 @@ Popup.defaultDesign = {
     popupHasControl: true, // if it has a control div
     popupInnerWidth: 300, // the minimal usable client width inside, even if there is a scroll bar, 
     // put to zero if no fixed width
+    popupMinWidth: 200, // minimum width if no fixed inner width
     popupScrollBarWidth: scrollBarWidth, // estimate for scroll bar width, valid for all?
     popupFontFamily: "FontAwesome, FreeSans, sans-serif",
     popupFontSize: 14,
@@ -161,6 +163,7 @@ Popup.prototype.resize = function() {
         this.maxWidth = document.documentElement.clientWidth - this.design.popupHorizontalShift;
         this.maxWidth -= 2 * this.design.popupBorderWidth + 2 * totalShadowWidth;
         this.mainDiv.style.maxWidth = this.maxWidth + "px";
+        this.mainDiv.style.minWidth = this.design.popupMinWidth + "px";
     }
 
     if (noShow) {

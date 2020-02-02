@@ -71,8 +71,8 @@ export function ParamGui(params) {
     // we now know if we are
     this.design = {};
     const design = this.design;
-    // now load default design parameters
-    // for a root gui it is the ParamGui.defaultDesign
+    // now load default design parameters into this design
+    // for a root gui it is the ParamGui.defaultDesign (there is no parent)
     // for a folder it is the parent design
     if (this.isRoot()) {
         Object.assign(design, ParamGui.defaultDesign);
@@ -148,6 +148,19 @@ export function ParamGui(params) {
     }
 }
 
+/**
+ * we might want to change design parameters for parts of a gui/folder
+ * @method changeDesign
+ * @param {...Object} design - design parameters as fields (key,value pairs) of objects, multiple objects possible
+ * @return this
+ */
+ParamGui.prototype.changeDesign = function(design) {
+    // update design parameters
+    for (var i = 0; i < arguments.length; i++) {
+        guiUtils.updateValues(this.design, arguments[i]);
+    }
+};
+
 // add some defaults designs, especially styles
 // styles, change the values of these fields if you do not like them
 // do changes in your program
@@ -156,6 +169,9 @@ ParamGui.defaultDesign = {
     // controller for numbers
     //==========================================
     popupForNumberController: true,
+    popupMinWidth:0,
+    indicatorColorLeft: "#dddddd",
+    indicatorColorRight: "#f8f8f8",
 
     // image select, loading user images
     //===============================================
@@ -234,6 +250,7 @@ ParamGui.defaultDesign = {
     // length of slider for range element
     rangeSliderLengthShort: 80,
     rangeSliderLengthLong: 120,
+    rangeSliderLengthVeryLong: 180,
 
     // style for the colorInput
     //----------------------------
@@ -264,9 +281,9 @@ ParamGui.defaultDesign = {
     popupImagesPerRow: 1, // for choosing images, maybe larger for choosing presets
     popupFontFamily: "FontAwesome, FreeSans, sans-serif", // fontFamily
     popupFontSize: 14, // design.labelFontSize
-    popupBackgroundColor: "#bbbbbb",
+    popupBackgroundColor: "#cccccc",
     popupBorderWidth: 3,
-    popupBorderColor: "#444444",
+    popupBorderColor: "#777777",
     popupZIndex: 18,
     // popupPosition: calculated from other data (depending on gui position)
     //  popupHorizontalShift: calculated from other data

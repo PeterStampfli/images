@@ -100,7 +100,7 @@ params.infInt =8;
 gui.add(params,"infInt",1).createLeftButton().createDecButton().createIncButton().createRightButton();
 
 params.real=2.71;
-gui.add(params,"real",0.1,3).createLongRange();
+gui.add(params,"real",0.1,3).createLongRange().createSuggestButton(2.2).createIndicatorPopup();
 
 gui.addParagraph("With controller.cyclic() numbers cycle through their min-max range:")
 params.angle = 0;

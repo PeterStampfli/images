@@ -34,8 +34,6 @@ paramControllerMethods.isInDiv = function() {
  * @param {String} text
  */
 paramControllerMethods.createLabel = function(text) {
-    //  console.log(this.isInDiv())
-    if (this.isInDiv()) {
         const design = this.design;
         this.label = document.createElement("span");
         this.label.textContent = text;
@@ -47,7 +45,6 @@ paramControllerMethods.createLabel = function(text) {
         this.label.style.paddingLeft = design.spaceWidth + "px";
         this.label.style.paddingRight = design.spaceWidth + "px";
         this.domElement.appendChild(this.label);
-    }
 };
 
 /**

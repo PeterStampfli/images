@@ -194,6 +194,7 @@ NumberButton.prototype.setIndicatorElement = function(element) {
  * @param {string} colorRight
  */
 NumberButton.prototype.setIndicatorColors = function(colorLeft, colorRight) {
+    console.log(colorLeft)
     this.indicatorColorLeft = colorLeft;
     this.indicatorColorRight = colorRight;
 };
@@ -605,11 +606,11 @@ NumberButton.prototype.createRightButton = function(parent) {
 
 /**
  * create a button with a suggested value
- * @method NumberButton#createSuggestion
+ * @method NumberButton#createSuggestButton
  * @param {htmlelement} parent
  * @param {float} value
  */
-NumberButton.prototype.createSuggestion = function(parent, value) {
+NumberButton.prototype.createSuggestButton = function(parent, value) {
     const button = this;
     return this.createButton(value + "", parent, function() {
         button.input.focus();
