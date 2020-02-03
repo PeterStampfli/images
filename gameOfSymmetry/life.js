@@ -18,7 +18,6 @@
 -- shifting (multiplication) and adding: image = imageShift * image + imageAddFactor * newCell
 -- typically, imageShift=nStates and imageAddFactor=1, (maxinfo, scrambles generations)
 -- or imageShift=256 and imageAddFactor=256/nStates, max contrast, one generation per color component
-
 */
 
 /*
@@ -491,7 +490,7 @@ Life.prototype.tentTransitionTable = function() {
 
 //  initialization of cells
 //=====================================================
-// fill all cells, then change center cells and border cells
+// fill all cells, then do center cells and border cells
 
 /**
  * fill all cells with the some number, modulo nStates
@@ -523,7 +522,19 @@ Life.prototype.fill = function(fun) {
 };
 
 /**
+ * fill the cells with random numbers, modulo nStates
+ * @method Life#fillSymmetricallyRandom
+ */
+Life.prototype.fillRandom = function() {
+    const nStates = this.nStates;
+    this.fill(function(i, j) {
+        return randomInt(nStates);
+    });
+};
+
+/**
  * fill the cells symmetrically with numbers that are functions of the indices
+ * including the boundary
  * rounded down, modulo the number of cell states
  * @method Life#fillSymmetrically
  * @param {function} fun - of indices i,j
@@ -537,11 +548,11 @@ Life.prototype.fillSymmetrically = function(fun) {
     for (var j = 0; j <= center; j++) {
         for (var i = j; i <= center; i++) {
             const value = Math.floor(fun(i, j, arraySide)) % nStates;
-            cells[i + j * arraySide] = value;
-            cells[j + i * arraySide] = value;
-            cells[center2 - i + j * arraySide] = value;
-            cells[center2 - j + i * arraySide] = value;
-            cells[i + (center2 - j) * arraySide] = value;
+            cells[i + j * arraySide] = value; // direct
+            cells[j + i * arraySide] = value; // mirror x <-> y
+            cells[center2 - i + j * arraySide] = value; // mirror x -> c-x
+            cells[center2 - j + i * arraySide] = value; // mirrors x <-> y and x -> c-x, thus rotation
+            cells[i + (center2 - j) * arraySide] = value; // mirror y -> c-y
             cells[j + (center2 - i) * arraySide] = value;
             cells[center2 - j + (center2 - i) * arraySide] = value;
             cells[center2 - i + (center2 - j) * arraySide] = value;
@@ -550,12 +561,47 @@ Life.prototype.fillSymmetrically = function(fun) {
 };
 
 /**
- * fill the cells symmetrically with random numbers, modulo 256
+ * fill the cells symmetrically with random numbers, modulo nStates
  * @method Life#fillSymmetricallyRandom
  */
 Life.prototype.fillSymmetricallyRandom = function() {
     const nStates = this.nStates;
     this.fillSymmetrically(function(i, j) {
+        return randomInt(nStates);
+    });
+};
+
+/**
+ * fill the cells symmetrically, without mirror symmetry with numbers that are functions of the indices
+ * including the boundary
+ * rounded down, modulo the number of cell states
+ * @method Life#fillSymmetricallyNoMirror
+ * @param {function} fun - of indices i,j
+ */
+Life.prototype.fillSymmetricallyNoMirror = function(fun) {
+    const arraySide = this.arraySide;
+    const center = this.centerX;
+    const center2 = 2 * this.centerX;
+    const cells = this.cells;
+    const nStates = this.nStates;
+    for (var j = 0; j <= center; j++) {
+        for (var i = 0; i <= center; i++) {
+            const value = Math.floor(fun(i, j, arraySide)) % nStates;
+            cells[i + j * arraySide] = value; // direct
+            cells[center2 - j + i * arraySide] = value; // mirrors x <-> y and x -> c-x, thus rotation
+            cells[j + (center2 - i) * arraySide] = value;
+            cells[center2 - i + (center2 - j) * arraySide] = value;
+        }
+    }
+};
+
+/**
+ * fill the cells symmetrically, no mirrorsymmetry, with random numbers, modulo nStates
+ * @method Life#fillSymmetricallyNoMirrorRandom
+ */
+Life.prototype.fillSymmetricallyNoMirrorRandom = function() {
+    const nStates = this.nStates;
+    this.fillSymmetricallyNoMirror(function(i, j) {
         return randomInt(nStates);
     });
 };
@@ -714,7 +760,7 @@ Life.prototype.fillBorderPeriodic = function() {
  * supposing that this.cells has correct boundary condition
  * @method Life#makeNewGeneration
  */
-Life.prototype.makeNewGeneration = function() {
+Life.prototype.makeNewGenerationNoSymmetry = function() {
     const arraySide = this.arraySide;
     const size = this.size;
     const maxIndex = this.arraySide - 2;
@@ -730,10 +776,9 @@ Life.prototype.makeNewGeneration = function() {
     const weightNearest = this.weightNearest;
     const weightSecondNearest = this.weightSecondNearest;
     const imageFactor = this.imageFactor;
-    var index, imageIndex, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
+    var index, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
 
     // going through all cells that belong to the image, omit border cells
-    imageIndex = -1;
     for (var j = 1; j <= maxIndex; j++) {
         index = j * arraySide;
         center = cells[index];
@@ -742,7 +787,6 @@ Life.prototype.makeNewGeneration = function() {
         sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
         for (var i = 1; i <= maxIndex; i++) {
             index += 1;
-            imageIndex += 1;
             left = center;
             center = right;
             right = cells[index + 1];
@@ -754,6 +798,126 @@ Life.prototype.makeNewGeneration = function() {
             newCells[index] = newState;
         }
     }
+};
+
+/**
+ * make the new generation in this.newCells
+ * using all symmetries to accellerate the calculation
+ * supposing that this.cells has correct boundary condition
+ * @method Life#makeNewGenerationSymmetrically
+ */
+Life.prototype.makeNewGenerationSymmetrically = function() {
+    const arraySide = this.arraySide;
+    const size = this.size;
+    const centerX = this.centerX;
+    const centerX2 = 2 * this.centerX;
+    const stepUpRight = this.stepUpRight;
+    const stepDownRight = this.stepDownRight;
+    const stepUp = this.stepUp;
+    const stepDown = this.stepDown;
+    const cells = this.cells;
+    const newCells = this.newCells;
+    const image = this.image;
+    const transitionTable = this.transitionTable;
+    const weightCenter = this.weightCenter;
+    const weightNearest = this.weightNearest;
+    const weightSecondNearest = this.weightSecondNearest;
+    const imageFactor = this.imageFactor;
+    var index, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
+
+    // going through all cells that belong to the image, omit border cells
+    // improving speed using symmetry
+    // taking only i>=j, 1<=j<=center
+    for (var j = 1; j <= centerX; j++) {
+        // data for i = j-1
+        index = j * arraySide + j - 1;
+        center = cells[index];
+        right = cells[index + 1];
+        sumExCenter = cells[index + stepUp] + cells[index + stepDown];
+        sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
+        for (var i = j; i <= centerX; i++) {
+            index += 1;
+            left = center;
+            center = right;
+            right = cells[index + 1];
+            sumExCenterLeft = sumExCenter;
+            sumExCenter = sumExCenterRight;
+            sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
+            const totalSum = weightCenter * center + weightNearest * (left + right + sumExCenter) + weightSecondNearest * (sumExCenterLeft + sumExCenterRight);
+            const newState = transitionTable[totalSum];
+            newCells[index] = newState;
+            newCells[j + i * arraySide] = newState;
+            newCells[centerX2 - i + j * arraySide] = newState;
+            newCells[centerX2 - j + i * arraySide] = newState;
+            newCells[i + (centerX2 - j) * arraySide] = newState;
+            newCells[j + (centerX2 - i) * arraySide] = newState;
+            newCells[centerX2 - j + (centerX2 - i) * arraySide] = newState;
+            newCells[centerX2 - i + (centerX2 - j) * arraySide] = newState;
+        }
+    }
+};
+
+/**
+ * make the new generation in this.newCells
+ * using rotational symmetries, but no mirror symmetry to accellerate the calculation
+ * supposing that this.cells has correct boundary condition
+ * @method Life#makeNewGenerationSymmetricallyNoMirror
+ */
+Life.prototype.makeNewGenerationSymmetricallyNoMirror = function() {
+    const arraySide = this.arraySide;
+    const size = this.size;
+    const centerX = this.centerX;
+    const centerX2 = 2 * this.centerX;
+    const stepUpRight = this.stepUpRight;
+    const stepDownRight = this.stepDownRight;
+    const stepUp = this.stepUp;
+    const stepDown = this.stepDown;
+    const cells = this.cells;
+    const newCells = this.newCells;
+    const image = this.image;
+    const transitionTable = this.transitionTable;
+    const weightCenter = this.weightCenter;
+    const weightNearest = this.weightNearest;
+    const weightSecondNearest = this.weightSecondNearest;
+    const imageFactor = this.imageFactor;
+    var index, sumExCenterLeft, sumExCenter, sumExCenterRight, left, center, right;
+
+    // going through all cells that belong to the image, omit border cells
+    // improving speed using symmetry
+    // taking only 1<=i,j<=center
+    for (var j = 1; j <= centerX; j++) {
+        // data for i = j-1
+        index = j * arraySide;
+        center = cells[index];
+        right = cells[index + 1];
+        sumExCenter = cells[index + stepUp] + cells[index + stepDown];
+        sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
+        for (var i = 1; i <= centerX; i++) {
+            index += 1;
+            left = center;
+            center = right;
+            right = cells[index + 1];
+            sumExCenterLeft = sumExCenter;
+            sumExCenter = sumExCenterRight;
+            sumExCenterRight = cells[index + stepUpRight] + cells[index + stepDownRight];
+            const totalSum = weightCenter * center + weightNearest * (left + right + sumExCenter) + weightSecondNearest * (sumExCenterLeft + sumExCenterRight);
+            const newState = transitionTable[totalSum];
+            newCells[index] = newState;
+            newCells[j + i * arraySide] = newState;
+            newCells[centerX2 - j + i * arraySide] = newState;
+            newCells[j + (centerX2 - i) * arraySide] = newState;
+            newCells[centerX2 - i + (centerX2 - j) * arraySide] = newState;
+        }
+    }
+};
+
+/**
+ * set the new generation routine
+ * @method Life#setNewGeneration
+ * @param {method} maker - that sets new cells
+ */
+Life.prototype.setNewGeneration = function(maker) {
+    this.newGeneration = maker;
 };
 
 /**
@@ -1248,6 +1412,10 @@ Life.prototype.imageOnCanvas = function() {
  * setIterationBoundaryZero() - the boundary cells have value zero, as those in newCells
  * initialCellsAtCenter() - sets initialCells(), fills with zeros, except near the center, with values given by:
  * setStartParameters(startCenter, startNearest, startSecondNearest)
+ * setNewGeneration(maker) - choose the method for making the new generationm
+ * makeNewGenerationNoSymmetry - without any symmetry
+ * makeNewGenerationSymmetrically - using mirror and rotation symmetry (8-times faster)
+ * makeNewGenerationSymmetricallyNoMirror - using only rotation symmetry (4-times faster)
  */
 
 /*  methods for setting initial state of cells (defining the initialCells() method)
@@ -1307,7 +1475,7 @@ Life.prototype.imageOnCanvas = function() {
 
 /* for the cellular automaton: iteration
  *-----------------------------------------------
- * makeNewGeneration() - updates the cells, new state goes to newCells
+ * newGeneration() - updates the cells, new state goes to newCells
  * cellsFromNewCells() - copy data of the new cells buffer to the cells
  * iterateBoundaryCells() - updates the boundary
  * updateImage() - update the image information (shift in info from cells)
@@ -1358,6 +1526,7 @@ Life.prototype.basicInitialization = function() {
     this.clearNewCells();
     this.clearImage();
     this.initialCells();
+    this.setNewGeneration(this.makeNewGenerationSymmetrically);
 };
 
 /**
@@ -1369,7 +1538,7 @@ Life.prototype.basicInitialization = function() {
  */
 Life.prototype.basicIterationWithFailTest = function() {
     this.iterateBoundaryCells();
-    this.makeNewGeneration();
+    this.newGeneration();
     this.cellsFromNewCells();
     this.updateImage();
     return this.equalCells();

@@ -24,10 +24,13 @@ Life.createCanvasDiv();
 
 const l=new Life();
 
-l.setSize(20);
-l.setNStates(2);
-
-
+l.setSize(9);
+l.setNStates(8);
+l.basicInitialization()
+l.fillSymmetricallyNoMirrorRandom(function(i,j){
+	return i+10*j
+});
+l.logCells()
 
 
 </script>
