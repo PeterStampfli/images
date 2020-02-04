@@ -18,7 +18,7 @@ import {
  * a controller for a simple parameter
  * inside a given container, using given design
  * @creator ParamController
- * @param {object} design - object that defines the design
+ * @param {ParamGui} gui - the gui it is in
  * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
@@ -26,8 +26,8 @@ import {
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
  */
-export function ParamController(design, domElement, params, property, low, high, step) {
-    this.design = design;
+export function ParamController(gui, domElement, params, property, low, high, step) {
+    this.design = gui.design;
     this.domElement = domElement;
     this.params = params;
     this.property = property;

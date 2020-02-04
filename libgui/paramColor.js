@@ -12,13 +12,14 @@ import {
  *  (that should be safe because of different lengths of strings)
  * make a text input , color input and range
  * @creator ParamColor
- * @param {ParamGui} design - object that defines the design
+ * @param {ParamGui} gui - the gui it is in
  * @param {htmlElement} domElement - container for the controller, div or span
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
  */
 
-export function ParamColor(design, domElement, params, property) {
+export function ParamColor(gui, domElement, params, property) {
+    const design=gui.design;
     this.design = design;
     this.domElement = domElement;
     this.params = params;

@@ -38,7 +38,6 @@ The increment of value for each scroll changes the digit where the caret is.
 import {
     guiUtils,
     ParamColor,
-    ParamLine,
     ParamAngle,
     ParamController,
     ParamImageSelection,
@@ -733,7 +732,7 @@ ParamGui.prototype.addImageSelection = function(params, property, choices) {
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    const controller = new ParamImageSelection(this.design, controllerDomElement, params, property, choices);
+    const controller = new ParamImageSelection(this, controllerDomElement, params, property, choices);
     this.bodyDiv.appendChild(controllerDomElement);
     this.elements.push(controller);
     return controller;
@@ -789,7 +788,7 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
         // make a regular spacing between elements
         controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
         controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-        const controller = new ParamController(this.design, controllerDomElement, params, property, low, high, step);
+        const controller = new ParamController(this, controllerDomElement, params, property, low, high, step);
         // change dom after all work has been done
         this.bodyDiv.appendChild(controllerDomElement);
         this.elements.push(controller);
@@ -809,7 +808,7 @@ ParamGui.prototype.addColor = function(params, property) {
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    const controller = new ParamColor(this.design, controllerDomElement, params, property);
+    const controller = new ParamColor(this, controllerDomElement, params, property);
     this.bodyDiv.appendChild(controllerDomElement);
     this.elements.push(controller);
     return controller;
