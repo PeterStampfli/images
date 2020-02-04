@@ -14,12 +14,11 @@
 </body>
 
 <script type="module">
-
 import {
     ParamGui,
     InstantHelp
 }
-from "./modules.js"
+from "./modules.js";
 
 const square = document.getElementById("sq");
 
@@ -33,42 +32,73 @@ const gui = new ParamGui({}, {
     closeOnTop: true
 });
 
-InstantHelp.setStyle({position:"bottomRight"});
-
 gui.addHelp("This is a <strong>demo</strong>.");
 
 const params = {};
 
 gui.addParagraph("With gui.addParagraph() we can add text to the gui.");
-gui.addParagraph("The $-keyboard key hides/shows the gui. The tab-key cycles through the inputs.")
+gui.addParagraph("The $-keyboard key hides/shows the gui. The tab-key cycles through the inputs.");
 
-gui.addParagraph("With gui.addVerticalSpace(...) we can add a spacing");
-gui.addVerticalSpace(8,"blue");
+gui.addParagraph("With gui.addVerticalSpace(...) we can add a spacing:");
+gui.addVerticalSpace(8, "blue");
 
-gui.addParagraph("You can scroll through selections with the mouse wheel or up- and down arrows:");
-params.letters="beta";
-gui.add(params,"letters",["alpha","beta","gamma","delta","epsilon"]);
-params.numbers=1;
-gui.add(params,"numbers",{zero:0,"one":1,"much": 333});
+gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too)");
 
-gui.addParagraph("There is a new image selection. It shows the choosen image or an image label:");
+params.number = 3.4;
+gui.add(params, "number", 0, 8); // no stepsize is given, it comes from the initial value
 
-const haeckel="/images/libgui/haeckel/haeckel_";
+gui.addParagraph("You can add an indicator in the background. Min and max values required.");
+params.indi = 1;
+gui.add(params, "indi", 0, 10, 0.01).createIndicatorMain();
+
+gui.changeDesign({
+    popupForNumberController: false
+});
+gui.addParagraph("Add buttons if usefull:");
+params.plusMin = 2;
+gui.add(params, "plusMin", -2, 12).createPlusMinusButtons().createIndicatorMain().createMaxMinButtons();
+
+gui.addParagraph("The additional buttons can go to a popup, appears when changing the number.");
+gui.changeDesign({
+    popupForNumberController: true
+});
+params.pop = 1;
+gui.add(params, "pop", 1).createPlusMinusButtons().createIndicatorMain().createMulDivButtons().createSuggestButton(500);
+gui.addParagraph("the indicator can go to the popup:");
+params.popIn = 100;
+gui.add(params, "popIn", 0, 20).createPlusMinusButtons().createIndicatorPopup().createMaxMinButtons();
+
+gui.addVerticalSpace(5);
+gui.addVerticalSpace(8, "green");
+gui.addParagraph("We can have several controls on a line:");
 
 
- const choices={};
- for (var i=1;i<10;i++){
-    choices["haeckel0"+i]=haeckel+"0"+i+".png";
- }
- for (var i=10;i<20;i++){
-    choices["haeckel"+i]=haeckel+i+".png";
- }
+params.width = 0.3;
+params.height = 0.1;
+gui.add(params, "width").setMinLabelWidth(30).add(params, "height").setMinLabelWidth(30);
 
-params.image=haeckel+"0"+5+".png";
+params.heat = false;
+params.sound = true;
+params.light = true;
+gui.add(params, "heat").setMinLabelWidth(30).add(params, "sound").setMinLabelWidth(30).add(params, "light").setMinLabelWidth(30);
 
-gui.add(params,"image",choices);
+gui.addParagraph("The image selection shows the choosen image or an image label:");
 
+const haeckel = "/images/libgui/haeckel/haeckel_";
 
+const choices = {};
+for (var i = 1; i < 10; i++) {
+    choices["haeckel0" + i] = haeckel + "0" + i + ".png";
+}
+for (var i = 10; i < 20; i++) {
+    choices["haeckel" + i] = haeckel + i + ".png";
+}
+
+params.image = haeckel + "0" + 5 + ".png";
+
+gui.add(params, "image", choices);
+
+gui.addParagraph("Images with transparency are shown on a <strong>dark</strong> background if they have a light color.");
 
 
 gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency of the square at the left:");
@@ -85,50 +115,40 @@ gui.addParagraph("If the color parameter at initialization of the gui has no alp
 params.rgb = "#44ff00";
 gui.addColor(params, "rgb");
 
-gui.addParagraph("These are the basic controllers for numbers and strings:");
+gui.addParagraph("This is the basic controller for texts:");
 
 params.string = "some text";
 gui.add(params, "string");
 
-params.integer = 33;
-gui.add(params,"integer",1,300).createMulButton("* 2",2).createPlusMinusButtons();
+gui.addParagraph("You can scroll through selections with the mouse wheel or up- and down arrows:");
 
-params.otherInt =8;
-gui.add(params,"otherInt",1,20,1).createLeftDownUpRightButtons();
+params.letters = "beta";
+gui.add(params, "letters", ["alpha", "beta", "gamma", "delta", "epsilon"]);
+params.numbers = 1;
+gui.add(params, "numbers", {
+    zero: 0,
+    "one": 1,
+    "much": 333
+});
 
-params.infInt =8;
-gui.add(params,"infInt",1).createLeftButton().createDecButton().createIncButton().createRightButton();
-
-params.real=2.71;
-gui.add(params,"real",0.1,3).createLongRange().createSuggestButton(2.2).createIndicatorPopup();
-
-gui.addParagraph("With controller.cyclic() numbers cycle through their min-max range:")
-params.angle = 0;
-gui.add(params,"angle",-180,180,0.5).cyclic().addHelp("If you go below -180 it will jump to +179");
-params.hexa=0;
-gui.add(params,"hexa",0,6).cyclic();
 
 gui.addParagraph("Boolean and function buttons:");
 
-params.boolean=true;
-const boo=gui.add(params,"boolean");
+params.boolean = true;
+const boo = gui.add(params, "boolean");
 
-params.say_hello=function(){
+params.say_hello = function() {
     console.log("hello");
 };
-gui.add(params,"say_hello").setButtonText("avenches").setLabel("hallo").setMinElementWidth(200);
+gui.add(params, "say_hello");
 
-const folder = gui.addFolder("folder", {
-    closed: false
-});
+const folder = gui.addFolder("this is a folder");
 
 params.rgba = "#ff00ffbb";
 folder.addColor(params, "rgba");
 
-params.simple=3.33;
-folder.add(params,"simple").name("whatever").setLabel("...").setMinLabelWidth(100).createSmallRange();;
-
-//ParamGui.closePopup();
+params.simple = 3.33;
+folder.add(params, "simple");
 
 </script>
 

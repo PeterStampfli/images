@@ -96,11 +96,11 @@ fo.add(p,"float",1,10);
 
 //gui.addListener(fl);
 
-gui.add({},"some Button").name("act");
+gui.add({},"some Button").name("act").add({},"another Button").deleteLabel();
 p.switch=true;
 gui.add(p,"switch").name("whatever");
 gui.add(p,"func").name("wahtever too");
-gui.add(p,"x").name ("integer");
+gui.add(p,"x").name ("integer").add(p,"x").setMinLabelWidth(0);
 gui.add(p,"y",0,10).cyclic().name("int cyclic");
 
 

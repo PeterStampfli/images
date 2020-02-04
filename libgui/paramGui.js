@@ -300,7 +300,7 @@ ParamGui.listeningInterval = 400;
 // should not be "tab" (switches between input elements)
 ParamGui.hideCharacter = "$";
 // width for spaces in px
-ParamGui.spaceWidth = 20;
+ParamGui.spaceWidth = 7;
 
 /**
  * update ParamGui design defaults, using data of another object with the same key 
@@ -671,7 +671,7 @@ ParamGui.prototype.getRoot = function() {
  * add a folder, it is a gui instance
  * @method ParamGui#addFolder
  * @param {String} folderName
- * @param {...Object} designParameters - modifying the design
+ * @param {...Object} designParameters - modifying the design and other parameters
  * @return ParamGui instance (that's the folder)
  */
 ParamGui.prototype.addFolder = function(folderName, designParameters) {

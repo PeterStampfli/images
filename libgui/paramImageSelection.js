@@ -12,8 +12,8 @@ import {
  * the value can be an image URL, a preset (URL of json file)
  * multiple choices are put together in an array
  * @creator ParamImageSelection
-  * @param {ParamGui} gui - the gui it is in
-* @param {htmlElement} domElement - container for the controller, div or span
+ * @param {ParamGui} gui - the gui it is in
+ * @param {htmlElement} domElement - container for the controller, div or span
  * @param {Object} params - object that has the parameter as a field
  * @param {Object} params - object that has the parameter as a field
  * @param {String} property - for the field of object to change, params[property]
@@ -21,8 +21,8 @@ import {
  */
 
 export function ParamImageSelection(gui, domElement, params, property, choices) {
-     const design=gui.design;
-   this.design = design;
+    const design = gui.design;
+    this.design = design;
     this.domElement = domElement;
     this.params = params;
     this.property = property;

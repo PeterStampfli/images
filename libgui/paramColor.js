@@ -19,7 +19,7 @@ import {
  */
 
 export function ParamColor(gui, domElement, params, property) {
-    const design=gui.design;
+    const design = gui.design;
     this.design = design;
     this.domElement = domElement;
     this.params = params;

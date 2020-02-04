@@ -27,6 +27,7 @@ import {
  * @param {float/integer} step - determines step size (optional)
  */
 export function ParamController(gui, domElement, params, property, low, high, step) {
+    this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
     this.params = params;
@@ -529,3 +530,20 @@ ParamController.prototype.destroy = function() {
  * @method ParamController.remove
  */
 ParamController.prototype.remove = ParamController.prototype.destroy;
+
+
+/**
+ * add another controller to the domElement of this controller
+ * @method ParamController#add
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - for the field of object to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
+ */
+ParamController.prototype.add = function(params, property, low, high, step) {
+    const controller = new ParamController(this.gui, this.domElement, params, property);
+    this.gui.elements.push(controller);
+    return controller;
+
+};
