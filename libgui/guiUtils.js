@@ -171,7 +171,6 @@ guiUtils.style = function(elmnts) {
     elements = [];
     for (var i = 0; i < arguments.length; i++) {
         addElement(arguments[i]);
-
     }
     return guiUtils;
 };

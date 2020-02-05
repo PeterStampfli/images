@@ -1034,58 +1034,61 @@ Life.prototype.makeImageHistogram = function() {
 /**
  * reading the grey scale image using nearest neighbor interpolation
  * only the first 8 bits
- * colors got to this.red, this.green and this.blue
+ * goes to the color parameter object
  * in reduced coordinates, going from 0 to 1
  * each image cell takes the same space
  * coordinates clamped to image
  * @method Life.readGreyscaleImageNearestNeighbor
+ * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readGreyscaleImageNearestNeighbor = function(x, y) {
+Life.prototype.readGreyscaleImageNearestNeighbor = function(color, x, y) {
     const size = this.size;
     x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
     y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
     const result = this.image[x + y * size];
-    this.red = result;
-    this.green = result;
-    this.blue = result;
+    color.red = result;
+    color.green = result;
+    color.blue = result;
 };
 
 /**
  * reading an rgb image using nearest neighbor interpolation
  * from the first 24 bits
- * colors got to this.red, this.green and this.blue
+ * goes to the color parameter object
  * in reduced coordinates, going from 0 to 1
  * each image cell takes the same space
  * coordinates clamped to image
  * @method Life.readGreyscaleImageNearestNeighbor
+ * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readRGBImageNearestNeighbor = function(x, y) {
+Life.prototype.readRGBImageNearestNeighbor = function(color, x, y) {
     const size = this.size;
     x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
     y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
     const result = this.image[x + y * size];
-    this.red = result & 255;
-    this.green = (result >>> 8) & 255; // shift right for unsigned int
-    this.blue = (result >>> 16) & 255;
+    color.red = result & 255;
+    color.green = (result >>> 8) & 255; // shift right for unsigned int
+    color.blue = (result >>> 16) & 255;
 };
 
 /**
  * reading the image using linear interpolation
  * in reduced coordinates, going from 0 to 1
  * only the first 8 bits
- * colors got to this.red, this.green and this.blue
+ * goes to the color parameter object
  * each image cell takes the same space (1/size)
  * coordinates clamped to image (approximating image cells outside by the next one inside)
  * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
  * @method Life.readGreyscaleImageLinearInterpolation
- * @param {float} x
+  * @param {object} color - with red, green and blue fields
+* @param {float} x
  * @param {float} y
  */
-Life.prototype.readGreyscaleImageLinearInterpolation = function(x, y) {
+Life.prototype.readGreyscaleImageLinearInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1102,24 +1105,25 @@ Life.prototype.readGreyscaleImageLinearInterpolation = function(x, y) {
     let result = (1 - dx) * ((1 - dy) * image[xLow + yLow] + dy * image[xLow + yHigh]);
     result += dx * ((1 - dy) * image[xHigh + yLow] + dy * image[xHigh + yHigh]);
     result = Math.round(result) & 255;
-    this.red = result;
-    this.green = result;
-    this.blue = result;
+    color.red = result;
+    color.green = result;
+    color.blue = result;
 };
 
 /**
  * reading the image using linear interpolation
  * in reduced coordinates, going from 0 to 1
  * the first 24 bits, for an rgb image
- * colors got to this.red, this.green and this.blue
+ * goes to the color parameter object
  * each image cell takes the same space (1/size)
  * coordinates clamped to image (approximating image cells outside by the next one inside)
  * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
  * @method Life.readGreyscaleImageLinearInterpolation
+ * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readRGBImageLinearInterpolation = function(x, y) {
+Life.prototype.readRGBImageLinearInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1142,9 +1146,9 @@ Life.prototype.readRGBImageLinearInterpolation = function(x, y) {
     const f01 = (1 - dx) * dy;
     const f10 = dx * (1 - dy);
     const f11 = dy * dx;
-    this.red = 0 | (0.5 + f00 * (pix00 & 0xff) + f10 * (pix10 & 0xff) + f01 * (pix01 & 0xff) + f11 * (pix11 & 0xff));
-    this.green = 0 | (0.5 + f00 * (pix00 >>> 8 & 0xff) + f10 * (pix10 >>> 8 & 0xff) + f01 * (pix01 >>> 8 & 0xff) + f11 * (pix11 >>> 8 & 0xff));
-    this.blue = 0 | (0.5 + f00 * (pix00 >>> 16 & 0xff) + f10 * (pix10 >>> 16 & 0xff) + f01 * (pix01 >>> 16 & 0xff) + f11 * (pix11 >>> 16 & 0xff));
+    color.red = 0 | (0.5 + f00 * (pix00 & 0xff) + f10 * (pix10 & 0xff) + f01 * (pix01 & 0xff) + f11 * (pix11 & 0xff));
+    color.green = 0 | (0.5 + f00 * (pix00 >>> 8 & 0xff) + f10 * (pix10 >>> 8 & 0xff) + f01 * (pix01 >>> 8 & 0xff) + f11 * (pix11 >>> 8 & 0xff));
+    color.blue = 0 | (0.5 + f00 * (pix00 >>> 16 & 0xff) + f10 * (pix10 >>> 16 & 0xff) + f01 * (pix01 >>> 16 & 0xff) + f11 * (pix11 >>> 16 & 0xff));
 };
 
 /*
@@ -1164,12 +1168,14 @@ function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
  * each image cell takes the same space
  * a point between 1.5/size and 2.5/size interpolates using image[0] to image[3]
  * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * goes to the color parameter object
  * @method Life.readGreyscaleImageCubicInterpolation
+ * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  * @return integer, between 0 and 255, image value
  */
-Life.prototype.readGreyscaleImageCubicInterpolation = function(x, y) {
+Life.prototype.readGreyscaleImageCubicInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1205,9 +1211,9 @@ Life.prototype.readGreyscaleImageCubicInterpolation = function(x, y) {
     result += weightXHigh * (weightYLower * image[xHigh + yLower] + weightYLow * image[xHigh + yLow] + weightYHigh * image[xHigh + yHigh] + weightYHigher * image[xHigh + yHigher]);
     result += weightXHigher * (weightYLower * image[xHigher + yLower] + weightYLow * image[xHigher + yLow] + weightYHigh * image[xHigher + yHigh] + weightYHigher * image[xHigher + yHigher]);
     result = Math.max(0, Math.min(255, Math.round(result))); // beware of negative values
-    this.red = result;
-    this.green = result;
-    this.blue = result;
+    color.red = result;
+    color.green = result;
+    color.blue = result;
 };
 
 /**
@@ -1216,12 +1222,14 @@ Life.prototype.readGreyscaleImageCubicInterpolation = function(x, y) {
  * each image cell takes the same space
  * a point between 1.5/size and 2.5/size interpolates using image[0] to image[3]
  * coordinates clamped to image (approximating image cells outside by the next one inside)
+ * goes to the color parameter object
  * @method Life.readRGBImageCubicInterpolation
+ * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  * @return integer, between 0 and 255, image value
  */
-Life.prototype.readRGBImageCubicInterpolation = function(x, y) {
+Life.prototype.readRGBImageCubicInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1279,9 +1287,9 @@ Life.prototype.readRGBImageCubicInterpolation = function(x, y) {
     red += kx * (kym * (pixM & 0xFF) + ky0 * (pix0 & 0xFF) + ky1 * (pix1 & 0xFF) + ky2 * (pix2 & 0xFF));
     green += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
     blue += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
-    this.red = Math.max(0, Math.min(255, Math.round(red)));
-    this.green = Math.max(0, Math.min(255, Math.round(green)));
-    this.blue = Math.max(0, Math.min(255, Math.round(blue)));
+    color.red = Math.max(0, Math.min(255, Math.round(red)));
+    color.green = Math.max(0, Math.min(255, Math.round(green)));
+    color.blue = Math.max(0, Math.min(255, Math.round(blue)));
 };
 
 // interaction elements
@@ -1367,11 +1375,12 @@ Life.log = function(message) {
 
 
 /**
- * show this image on the canvas, block pixels or interpolation, grey scale
+ * show this image on the canvas, block pixels or interpolation, grey scale or rgb
  * @method Life#imageOnCanvas
  */
 Life.prototype.imageOnCanvas = function() {
     // scaling from canvas to image
+    const color={};
     const readImage = this.readImage;
     const canvasSize = Life.canvasSize;
     const scale = 1 / canvasSize; // coordinates from 0 to 1
@@ -1385,10 +1394,10 @@ Life.prototype.imageOnCanvas = function() {
         const y = jCanvas * scale;
         for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
             const x = iCanvas * scale;
-            readImage(x, y);
-            pixels[pixelIndex] = this.red;
-            pixels[pixelIndex + 1] = this.green;
-            pixels[pixelIndex + 2] = this.blue;
+            readImage(color,x, y);
+            pixels[pixelIndex] = color.red;
+            pixels[pixelIndex + 1] = color.green;
+            pixels[pixelIndex + 2] = color.blue;
             pixels[pixelIndex + 3] = 255;
             pixelIndex += 4;
         }

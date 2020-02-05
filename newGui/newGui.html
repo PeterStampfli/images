@@ -25,7 +25,7 @@
 
 
 import {
-    ParamGui
+    ParamGui,guiUtils
 }
 from "../libgui/modules.js";
 
@@ -35,8 +35,28 @@ const px = "px";
 
         
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
+gui.addParagraph("logging things:")
 
+const logger=gui.addLogger(200);
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
+logger.log("was ist das")
 
+logger.style().color("blue");
 const p={};
 p.number=33;
 p.string="edit text";

@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>button test</title>
+    <title>logger test</title>
 </head>
 
 <body>
@@ -18,7 +18,7 @@
 <script type="module">
 
 import {
-Button, Range, BooleanButton,NumberButton, guiUtils,Logger
+Button, BooleanButton,NumberButton, guiUtils,Logger
 } from "../libgui/modules.js";
 
 
@@ -27,9 +27,14 @@ console.log("hello");
 const thisDiv=document.getElementById("thisDiv");
 
 
- 
+const l=new Logger(thisDiv)
 
+l.log("first message")
+l.log("second message")
+l.log("whatever")
 
+l.style().backgroundColor="red";
+l.destroy()
 
 </script>
 

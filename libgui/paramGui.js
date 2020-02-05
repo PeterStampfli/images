@@ -42,7 +42,8 @@ import {
     ParamController,
     ParamImageSelection,
     Button,
-    InstantHelp
+    InstantHelp,
+    Logger
 } from "./modules.js";
 
 export function ParamGui(params) {
@@ -815,14 +816,27 @@ ParamGui.prototype.addColor = function(params, property) {
 };
 
 /**
- * make a controller for an angle (and scale)
- * @method ParamGui#addAngle
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - key for the field of params to change, params[property]
- * @return {ParamController} object
+ * add a logger
+ * @method ParamGui#addLogger
+ * @param {number} height - maxHeight, in px, optional, default=100px
+ * @return {Logger} object
  */
-ParamGui.prototype.addAngle = function(params, property) {
-    const controller = new ParamAngle(this, params, property);
+ParamGui.prototype.addLogger = function(height = 100) {
+    const domElement = document.createElement("div");
+    // make a regular spacing between elements
+    domElement.style.paddingTop = this.design.paddingVertical + "px";
+    domElement.style.paddingBottom = this.design.paddingVertical + "px";
+    domElement.style.paddingLeft = this.design.spaceWidth + "px";
+    domElement.style.paddingRight = this.design.paddingVertical + "px";
+    domElement.style.fontSize = this.design.labelFontSize + "px";
+    domElement.style.maxHeight = height + "px";
+    domElement.style.overflowY = "auto";
+    domElement.style.borderWidth = this.design.borderWidth + "px";
+    domElement.style.borderBottomStyle = "solid";
+    domElement.style.borderColor = this.design.borderColor;
+    domElement.style.borderTopStyle = "solid";
+    const controller = new Logger(domElement);
+    this.bodyDiv.appendChild(domElement);
     this.elements.push(controller);
     return controller;
 };

@@ -11,7 +11,7 @@
 import {
     Button,
     guiUtils
-} from "../libgui/modules.js";
+} from "./modules.js";
 
 export function NumberButton(parent) {
     this.parent = parent;

@@ -5,14 +5,10 @@
  */
 
 import {
-    SelectValues,
-    BooleanButton,
-    NumberButton,
-    TextInput,
     Button,
     InstantHelp,
-    ColorInput,
-    ParamGui
+    ParamGui,
+    guiUtils
 } from "./modules.js";
 
 export const paramControllerMethods = {};
@@ -262,6 +258,18 @@ paramControllerMethods.deleteLabel = function() {
         this.label = false;
     }
     return this;
+};
+
+
+/**
+ * register parent domElement in guiUtils for styling
+ * see docu of guiUtils.style
+ * use: controller.style().backgroundColor("red")
+ * @method paramControllerMethods.style
+ * @return guiUtils
+ */
+paramControllerMethods.style = function() {
+    return guiUtils.style(this.parent);
 };
 
 /**

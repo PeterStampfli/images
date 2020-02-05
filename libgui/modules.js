@@ -30,6 +30,11 @@ export {
 from "./touchEvents.js";
 
 export {
+    Logger
+}
+from "./logger.js";
+
+export {
     Button
 }
 from "./button.js";
