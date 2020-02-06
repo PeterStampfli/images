@@ -141,8 +141,6 @@ Popup.prototype.corner = function(horizontal, vertical) {
 
 /**
  * set max height to fit popup+shadow into window
- * extend total width if there is a scroll bar
- * attention: can read dimensions only if display!=="block" (can be "")
  * @method Popup#resize
  */
 Popup.prototype.resize = function() {
@@ -165,10 +163,41 @@ Popup.prototype.resize = function() {
         this.mainDiv.style.maxWidth = this.maxWidth + "px";
         this.mainDiv.style.minWidth = this.design.popupMinWidth + "px";
     }
-
     if (noShow) {
         this.close();
     }
+};
+
+/**
+ * determine the height
+ * @method Popup#getHeight
+ * @return number, integer height
+ */
+Popup.prototype.getHeight = function() {
+    const noShow = !this.isOpen();
+    if (noShow) {
+        this.open();
+    }
+    const height = this.mainDiv.offsetHeight;
+    if (noShow) {
+        this.close();
+    }
+    return height;
+};
+
+/**
+ * set top of popup, limited that it is not cut off
+ * top of popup does not move upon window resize, it is relative to window top
+ * @method Popup#setTopPosition
+ * @param {number} positionY
+ */
+Popup.prototype.setTopPosition = function(positionY) {
+    // top not above window
+    positionY = Math.max(0, positionY);
+    // top plus height not below window
+    positionY = Math.min(document.documentElement.clientHeight - this.getHeight(), positionY);
+    this.mainDiv.style.top = positionY + "px";
+    this.mainDiv.style.bottom = "";
 };
 
 /**

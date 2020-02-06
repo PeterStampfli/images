@@ -310,3 +310,36 @@ guiUtils.displayBlock = function(element) {
 guiUtils.displayInlineBlock = function(element) {
     guiUtils.setDisplayStyle(element, "inline-block");
 };
+
+
+/**
+ * determine top position of an element, including scroll of the parents
+ * @method guiUtils.topPosition
+ * @param {domElement} theElement
+ * @return number, (inverted) y-coordinate of top 
+ */
+guiUtils.topPosition = function(theElement) {
+    const body = document.body;
+    // sum of offsets, going only through offsetParents
+    let offsetY = 0;
+    let element = theElement;
+    while (element !== body) {
+        offsetY += element.offsetTop;
+        if (element.style.position == "fixed") {
+            offsetY += window.pageYOffset;
+            break;
+        }
+        element = element.offsetParent; // important: does not double count offsetTop
+    }
+    // sum of scrolls, going through all parents
+    let scrollY = 0;
+    element = theElement;
+    while (element !== body) {
+        scrollY += element.scrollTop;
+        if (element.style.position == "fixed") {
+            break;
+        }
+        element = element.parentElement; // important: does not double count offsetTop
+    }
+    return offsetY - scrollY;
+};

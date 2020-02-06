@@ -196,11 +196,11 @@ ParamController.popupDesign = {
 };
 
 /**
- * create popup for number button
+ * create popup for number button, make that onInteraction opens the popup
+ * open the popup close to the ui element
  * @method ParamController#createPopup
  * @return this
  */
-
 ParamController.prototype.createPopup = function() {
     // a popup for additional buttons
     this.popup = new Popup(this.design, ParamController.popupDesign);
@@ -218,6 +218,8 @@ ParamController.prototype.createPopup = function() {
         controller.callsClosePopup = true;
         ParamGui.closePopup();
         controller.callsClosePopup = false;
+        const topPosition = guiUtils.topPosition(controller.domElement);
+        controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
     };
     // change close popup function to leave popup open if this called it
     this.closePopup = function() {
