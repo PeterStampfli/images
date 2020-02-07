@@ -76,7 +76,7 @@ export function ParamImageSelection(gui, domElement, params, property, choices) 
 
     this.onInteraction = function() {
         paramImageSelection.callsClosePopup = true;
-        ParamGui.closePopup();
+        ParamGui.closePopups();
         paramImageSelection.callsClosePopup = false;
     };
 }

@@ -262,6 +262,11 @@ ParamGui.defaultDesign = {
     // width of range element
     colorRangeWidth: 70,
 
+    // style for the logger
+    loggerHeight: 100,
+    loggerBackgroundColor: "#ffffff",
+    loggerColor: "#000088",
+
     // style for the image selection/preset selection
     //-------------------------------------
     // the icon image
@@ -383,11 +388,11 @@ ParamGui.updateZIndices = function() {
 
 /**
  * close all popups of all guis
- * @method ParamGui.closePopup
+ * @method ParamGui.closePopups
  */
-ParamGui.closePopup = function() {
+ParamGui.closePopups = function() {
     for (var i = 0; i < ParamGui.rootGuis.length; i++) {
-        ParamGui.rootGuis[i].closePopup();
+        ParamGui.rootGuis[i].closePopups();
     }
 };
 
@@ -798,6 +803,20 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
 };
 
 /**
+ * add a button controller with simple interface
+ * @method ParamGui#addButton
+ * @param {string} text - for the button
+ * @param {function} action - what the button does
+ * @return {controller} with the button
+ */
+ParamGui.prototype.addButton = function(text, action) {
+    const buttonController = this.add({}, "nothing");
+    buttonController.name(text);
+    buttonController.onClick(action);
+    return buttonController;
+};
+
+/**
  * make a controller for color
  * @method ParamGui#addColor
  * @param {Object} params - object that has the parameter as a field
@@ -816,12 +835,13 @@ ParamGui.prototype.addColor = function(params, property) {
 };
 
 /**
- * add a logger
+ * add a logger with an optional clear button
+ * (the clear button is in the controller object: logger.clearButton)
+ * @param {boolean} addClearButton, default: true
  * @method ParamGui#addLogger
- * @param {number} height - maxHeight, in px, optional, default=100px
  * @return {Logger} object
  */
-ParamGui.prototype.addLogger = function(height = 100) {
+ParamGui.prototype.addLogger = function(addClearButton = true) {
     const domElement = document.createElement("div");
     // make a regular spacing between elements
     domElement.style.paddingTop = this.design.paddingVertical + "px";
@@ -829,16 +849,25 @@ ParamGui.prototype.addLogger = function(height = 100) {
     domElement.style.paddingLeft = this.design.spaceWidth + "px";
     domElement.style.paddingRight = this.design.paddingVertical + "px";
     domElement.style.fontSize = this.design.labelFontSize + "px";
-    domElement.style.maxHeight = height + "px";
+    domElement.style.maxHeight = this.design.loggerHeight + "px";
+    domElement.style.backgroundColor = this.design.loggerBackgroundColor;
+    domElement.style.color = this.design.loggerColor;
     domElement.style.overflowY = "auto";
     domElement.style.borderWidth = this.design.borderWidth + "px";
     domElement.style.borderBottomStyle = "solid";
     domElement.style.borderColor = this.design.borderColor;
     domElement.style.borderTopStyle = "solid";
-    const controller = new Logger(domElement);
+    const logger = new Logger(domElement);
     this.bodyDiv.appendChild(domElement);
-    this.elements.push(controller);
-    return controller;
+    this.elements.push(logger);
+    if (addClearButton) {
+        logger.buttonController = this.addButton("clear the log", function() {
+            logger.clear();
+        });
+        logger.buttonController.domElement.style.textAlign = "center";
+        logger.buttonController.deleteLabel();
+    }
+    return logger;
 };
 
 /**
@@ -890,7 +919,9 @@ ParamGui.prototype.addParagraph = function(innerHTML) {
  */
 ParamGui.prototype.updateDisplayIfListening = function() {
     this.elements.forEach(function(element) {
-        element.updateDisplayIfListening();
+        if (element.updateDisplayIfListening) {
+            element.updateDisplayIfListening();
+        }
     });
 };
 
@@ -969,8 +1000,12 @@ ParamGui.prototype.destroy = function() {
 
 /**
  * close popups
- * @method ParamGui#closePopup
+ * @method ParamGui#closePopups
  */
-ParamGui.prototype.closePopup = function() {
-    this.elements.forEach(element => element.closePopup());
+ParamGui.prototype.closePopups = function() {
+    this.elements.forEach(element => {
+        if (typeof element.closePopup === "function") {
+            element.closePopup();
+        }
+    });
 };

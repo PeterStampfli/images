@@ -169,6 +169,10 @@ ParamController.prototype.createClickButton = function() {
     button.onClick = function() {
         controller.callback();
     };
+    controller.setValue = function() {};
+    controller.setValueOnly = function() {};
+    controller.getValue = function() {};
+    controller.updateDisplay = function() {};
     this.setupOnInteraction();
 };
 
@@ -216,7 +220,7 @@ ParamController.prototype.createPopup = function() {
     this.uiElement.onInteraction = function() {
         controller.popup.open();
         controller.callsClosePopup = true;
-        ParamGui.closePopup();
+        ParamGui.closePopups();
         controller.callsClosePopup = false;
         const topPosition = guiUtils.topPosition(controller.domElement);
         controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);

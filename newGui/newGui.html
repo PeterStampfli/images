@@ -37,7 +37,7 @@ const px = "px";
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
 gui.addParagraph("logging things:")
 
-const logger=gui.addLogger(200);
+const logger=gui.addLogger();
 logger.log("was ist das")
 logger.log("was ist das")
 logger.log("was ist das")
@@ -57,6 +57,8 @@ logger.log("was ist das")
 logger.log("was ist das")
 
 logger.style().color("blue");
+
+gui.addButton("something",function(){console.log("action")})
 const p={};
 p.number=33;
 p.string="edit text";

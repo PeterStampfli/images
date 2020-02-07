@@ -82,7 +82,7 @@ paramControllerMethods.setupOnChange = function() {
  */
 paramControllerMethods.setupOnInteraction = function() {
     this.uiElement.onInteraction = function() {
-        ParamGui.closePopup();
+        ParamGui.closePopups();
     };
 };
 
@@ -190,7 +190,7 @@ paramControllerMethods.updateDisplayIfListening = function() {
 };
 
 /**
- * not implemented: periodically call updateDisplay to show changes automatically
+ * periodically call updateDisplay to show changes automatically
  * because of dat.gui api
  * @method paramControllerMethods.listen
  * @return this, for chaining
@@ -203,7 +203,7 @@ paramControllerMethods.listen = function() {
 
 /**
  * changes the label text, instead of the property string, to show something more interesting
- * for buttons changes the button text
+ * for buttons: changes the button text
  * does nothing if there is no label
  * same as datGui
  * @method paramControllerMethods.name
@@ -235,7 +235,7 @@ paramControllerMethods.setButtonText = function(label) {
 
 /**
  * changes the label text, instead of property name, to show something more interesting
- * for buttons changes label too (starts as empty string)
+ * for buttons: changes label (starts as empty string)
  * @method paramControllerMethods.setLabel
  * @param {String} label
  * @return this, for chaining
@@ -315,11 +315,3 @@ paramControllerMethods.show = function() {
     this.domElement.style.display = "block";
     return this;
 };
-
-/**
- * for controllers with popup: close the popup
- * most controllers don't have a popup, thus this method stub does nothing
- * overwrite for controllers with a popup
- * @method paramControllerMethods.closePopup
- */
-paramControllerMethods.closePopup = function() {};

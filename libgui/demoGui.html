@@ -42,6 +42,21 @@ gui.addParagraph("The $-keyboard key hides/shows the gui. The tab-key cycles thr
 gui.addParagraph("With gui.addVerticalSpace(...) we can add a spacing:");
 gui.addVerticalSpace(8, "blue");
 
+gui.addParagraph("You can log messages, in different loggers like this one:")
+
+const logger=gui.addLogger();
+logger.log("a first message.");
+logger.log("a second message.");
+logger.log("more messages ....");
+logger.log("more messages ....");
+logger.log("more messages ....");
+logger.log("more messages ....");
+logger.log("more messages ....");
+logger.log("more messages ....");
+logger.log("and more messages ....");
+logger.log("and more messages ....");
+logger.log("and more messages ....");
+
 gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too)");
 
 params.number = 3.4;
