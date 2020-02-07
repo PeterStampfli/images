@@ -794,7 +794,7 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
         // make a regular spacing between elements
         controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
         controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-        const controller = new ParamController(this, controllerDomElement, params, property, low, high, step);
+        const controller = ParamController.create(this, controllerDomElement, params, property, low, high, step);
         // change dom after all work has been done
         this.bodyDiv.appendChild(controllerDomElement);
         this.elements.push(controller);

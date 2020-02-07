@@ -30,6 +30,8 @@ export function ParamController(gui, domElement, params, property, low, high, st
     this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
+    this.params = params; // required for transmitting data
+    this.property = property;
     this.listening = false; // automatically update display, only if explicitely activated
     this.helpButton = null;
     // the button or whatever the user interacts with
@@ -99,7 +101,7 @@ Object.assign(ParamController.prototype, paramControllerMethods);
  * @param {float/integer} step - determines step size (optional)
  */
 ParamController.prototype.add = function(params, property, low, high, step) {
-    const controller = new ParamController(this.gui, this.domElement, params, property);
+    const controller = ParamController.create(this.gui, this.domElement, params, property);
     this.gui.elements.push(controller);
     return controller;
 };
@@ -554,3 +556,24 @@ ParamController.prototype.destroy = function() {
  * @method ParamController.remove
  */
 ParamController.prototype.remove = ParamController.prototype.destroy;
+
+// ParamController factories
+//===============================================================
+
+/**
+ * create a controller for a simple parameter
+ * inside a given container, using given design
+ * @method ParamController.create
+ * @param {ParamGui} gui - the gui it is in
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
+ * @param {Object} params - object that has the parameter as a field
+ * @param {String} property - for the field of object to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
+ *  @return the controller
+ */
+
+ParamController.create = function(gui, domElement, params, property, low, high, step) {
+    return new ParamController(gui, domElement, params, property, low, high, step);
+};
