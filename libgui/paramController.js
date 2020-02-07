@@ -30,12 +30,7 @@ export function ParamController(gui, domElement, params, property, low, high, st
     this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
-    this.params = params;
-    this.property = property;
-    this.low = low;
-    this.high = high;
-    this.step = step;
-    this.listening = false; // automatically update display
+    this.listening = false; // automatically update display, only if explicitely activated
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
@@ -48,26 +43,26 @@ export function ParamController(gui, domElement, params, property, low, high, st
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-    this.createLabel(this.property);
-    const paramValue = this.params[this.property];
+    this.createLabel(property);
+    const paramValue = params[property];
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
-        this.createSelect();
+        this.createSelect(low, paramValue);
     } else if (guiUtils.isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
-        this.createBooleanButton();
+        this.createBooleanButton(paramValue);
     } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
-        this.createClickButton();
+        this.createClickButton(property, paramValue);
     } else if (guiUtils.isString(paramValue)) {
         // the parameter value is a string thus make a text input button
-        this.createTextInput();
+        this.createTextInput(paramValue);
     } else if (guiUtils.isNumber(paramValue)) {
-        this.createNumberButton();
+        this.createNumberButton(paramValue, low, high, step);
     } else {
         // no idea/error
-        this.createLabel(this.property + " *** error: no controll");
+        this.createLabel(property + " *** error: no controll");
         console.log("no fitting controller found");
         console.log(low);
         console.log(high);
@@ -123,14 +118,16 @@ ParamController.prototype.cyclic = function() {
 /**
  * create a select ui, this.low has the options (array or object)
  * @method Paramcontroller#createSelect
+ * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
+ * @param {value} value
  */
-ParamController.prototype.createSelect = function() {
+ParamController.prototype.createSelect = function(options, value) {
     const selectValues = new SelectValues(this.domElement);
     selectValues.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = selectValues;
-    selectValues.addOptions(this.low);
-    selectValues.setValue(this.params[this.property]);
+    selectValues.addOptions(options);
+    selectValues.setValue(value);
     this.setupOnChange();
     this.setupOnInteraction();
 };
@@ -138,14 +135,15 @@ ParamController.prototype.createSelect = function() {
 /**
  * create a boolean button
  * @method Paramcontroller#createBooleanButton
+ * @param {boolean} value
  */
-ParamController.prototype.createBooleanButton = function() {
+ParamController.prototype.createBooleanButton = function(value) {
     const button = new BooleanButton(this.domElement);
     button.setWidth(this.design.booleanButtonWidth);
     button.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = button;
-    button.setValue(this.params[this.property]);
+    button.setValue(value);
     this.setupOnChange();
     this.setupOnInteraction();
 };
@@ -154,16 +152,17 @@ ParamController.prototype.createBooleanButton = function() {
  * create a button to click
  * button has some text, executes a function (if given)
  * @method ParamController#createClickButton
+ * @param {string} text
+ * @param {function} action - optional, does it upon click
  */
-ParamController.prototype.createClickButton = function() {
+ParamController.prototype.createClickButton = function(text, action) {
     this.label.textContent = "";
-    const button = new Button(this.property, this.domElement);
+    const button = new Button(text, this.domElement);
     button.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
     this.uiElement = button;
-    const paramValue = this.params[this.property];
-    if (guiUtils.isFunction(paramValue)) {
-        this.callback = paramValue;
+    if (guiUtils.isFunction(action)) {
+        this.callback = action;
     }
     const controller = this;
     button.onClick = function() {
@@ -179,13 +178,14 @@ ParamController.prototype.createClickButton = function() {
 /**
  * create an ui element to input text
  * @method ParamController#createTextInput
+ * @param {string} text
  */
-ParamController.prototype.createTextInput = function() {
+ParamController.prototype.createTextInput = function(text) {
     const textInput = new TextInput(this.domElement);
     textInput.setWidth(this.design.textInputWidth);
     textInput.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-    textInput.setValue(this.params[this.property]);
+    textInput.setValue(text);
     this.uiElement = textInput;
     this.setupOnChange();
     this.setupOnInteraction();
@@ -458,28 +458,31 @@ ParamController.prototype.setupCreationOfAdditionalButtons = function() {
 /**
  *  create all things required to input numbers
  * @method ParamController#createNumberButton
+ * @param {number} value
+ * @param {number} low
+ * @param {number} high
+ * @param {number} step
  */
-ParamController.prototype.createNumberButton = function() {
+ParamController.prototype.createNumberButton = function(value, low, high, step) {
     const button = new NumberButton(this.domElement);
     this.popup = false;
     this.buttonContainer = false;
     button.setInputWidth(this.design.numberInputWidth);
     // separating space to additional elements
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-    const paramValue = this.params[this.property];
     // set limits and step
-    if (guiUtils.isNumber(this.low)) {
-        button.setLow(this.low);
+    if (guiUtils.isNumber(low)) {
+        button.setLow(low);
     }
-    if (guiUtils.isNumber(this.high)) {
-        button.setHigh(this.high);
+    if (guiUtils.isNumber(high)) {
+        button.setHigh(high);
     }
-    if (guiUtils.isNumber(this.step)) {
-        button.setStep(this.step);
+    if (guiUtils.isNumber(step)) {
+        button.setStep(step);
     } else {
-        button.setStep(NumberButton.findStep(paramValue));
+        button.setStep(NumberButton.findStep(value));
     }
-    button.setValue(paramValue);
+    button.setValue(value);
     this.uiElement = button;
 
     /**
