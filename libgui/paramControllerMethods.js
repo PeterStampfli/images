@@ -62,8 +62,7 @@ paramControllerMethods.addHelp = function(message) {
  * @param {whatever} value
  */
 paramControllerMethods.setParamsProperty = function(value) {
-    if (this.params && this.property &&
-        (typeof this.params[this.property] !== "undefined")) {
+    if (this.params && this.property && guiUtils.isDefined(this.params[this.property])) {
         this.params[this.property] = value;
     }
 };
@@ -184,8 +183,7 @@ paramControllerMethods.getValue = function() {
  * @method paramControllerMethods.updateDisplay
  */
 paramControllerMethods.updateDisplay = function() {
-    if (this.params && this.property &&
-        (typeof this.params[this.property] !== "undefined")) {
+    if (this.params && this.property && guiUtils.isDefined(this.params[this.property])) {
         const value = this.params[this.property];
         this.uiElement.setValue(value);
     }

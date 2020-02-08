@@ -719,6 +719,19 @@ ParamGui.prototype.remove = function(element) {
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
 /**
+ * create a div for a controller
+ * @method ParamGui#createControllerDomElement
+ * @return a formatted div
+ */
+ParamGui.prototype.createControllerDomElement = function() {
+    const controllerDomElement = document.createElement("div");
+    // make a regular spacing between elements
+    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+    return controllerDomElement;
+};
+
+/**
  * make a controller with an image selection
  * choices as an object with (label: value pairs)
  * for choosing images:
@@ -790,10 +803,7 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
         // use the new image select
         return this.addImageSelection(params, property, low);
     } else {
-        const controllerDomElement = document.createElement("div");
-        // make a regular spacing between elements
-        controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
-        controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+        const controllerDomElement = this.createControllerDomElement();
         const controller = ParamController.create(this, controllerDomElement, params, property, low, high, step);
         // change dom after all work has been done
         this.bodyDiv.appendChild(controllerDomElement);
