@@ -60,7 +60,9 @@ logger.log("and more messages ....");
 gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too)");
 
 params.number = 3.4;
-gui.add(params, "number", 0, 8); // no stepsize is given, it comes from the initial value
+const nc=gui.add(params, "number", 0, 8); // no stepsize is given, it comes from the initial value
+nc.hide();
+nc.show();
 
 gui.addParagraph("You can add an indicator in the background. Min and max values required.");
 params.indi = 1;

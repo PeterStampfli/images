@@ -94,7 +94,7 @@ ParamController.prototype.cyclic = function() {
  * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
  * @param {value} value
  */
-ParamController.prototype.createSelect = function(labelText,options, value) {
+ParamController.prototype.createSelect = function(labelText, options, value) {
     this.createLabel(labelText);
     const selectValues = new SelectValues(this.domElement);
     selectValues.setFontSize(this.design.buttonFontSize);
@@ -110,11 +110,11 @@ ParamController.prototype.createSelect = function(labelText,options, value) {
  * create a boolean button
  * @method Paramcontroller#createBooleanButton
  * @param {string} labelText - for the label
-* @param {boolean} value
+ * @param {boolean} value
  */
-ParamController.prototype.createBooleanButton = function(labelText,value) {
-     this.createLabel(labelText);
-   const button = new BooleanButton(this.domElement);
+ParamController.prototype.createBooleanButton = function(labelText, value) {
+    this.createLabel(labelText);
+    const button = new BooleanButton(this.domElement);
     button.setWidth(this.design.booleanButtonWidth);
     button.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
@@ -157,9 +157,9 @@ ParamController.prototype.createClickButton = function(buttonText, action) {
  * @param {string} labelText - for the label
  * @param {string} text
  */
-ParamController.prototype.createTextInput = function(labelText,text) {
-     this.createLabel(labelText);
-   const textInput = new TextInput(this.domElement);
+ParamController.prototype.createTextInput = function(labelText, text) {
+    this.createLabel(labelText);
+    const textInput = new TextInput(this.domElement);
     textInput.setWidth(this.design.textInputWidth);
     textInput.setFontSize(this.design.buttonFontSize);
     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
@@ -442,8 +442,8 @@ ParamController.prototype.setupCreationOfAdditionalButtons = function() {
  * @param {number} high - optional
  * @param {number} step - optional
  */
-ParamController.prototype.createNumberButton = function(labelText,value, low, high, step) {
-     this.createLabel(labelText);
+ParamController.prototype.createNumberButton = function(labelText, value, low, high, step) {
+    this.createLabel(labelText);
     const button = new NumberButton(this.domElement);
     this.popup = false;
     this.buttonContainer = false;
@@ -551,35 +551,34 @@ ParamController.prototype.remove = ParamController.prototype.destroy;
  * @param {float/integer} step - determines step size (optional)
  *  @return the controller
  */
-
 ParamController.create = function(gui, domElement, params, property, low, high, step) {
-    const controller = new ParamController(gui, domElement);
-    controller.params = params; // required for transmitting data
-    controller.property = property;
+    var controller;
     const paramValue = params[property];
     if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
         // low, the first parameter for limits is an array or object, thus make a selection
-        controller.createSelect(property,low, paramValue);
+        controller = ParamController.createSelect(gui, domElement, property, low, paramValue);
     } else if (guiUtils.isBoolean(paramValue)) {
         // the parameter value is boolean, thus make a BooleanButton
-        controller.createBooleanButton(property,paramValue);
+        controller = ParamController.createBooleanButton(gui, domElement, property, paramValue);
     } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
         // there is no parameter value with the property or it is a function
         // thus make a button with the property as text, no label
-        controller.createClickButton(property, paramValue);
+        controller = ParamController.createClickButton(gui, domElement, property, paramValue);
     } else if (guiUtils.isString(paramValue)) {
         // the parameter value is a string thus make a text input button
-        controller.createTextInput(property,paramValue);
+        controller = ParamController.createTextInput(gui, domElement, property, paramValue);
     } else if (guiUtils.isNumber(paramValue)) {
-        controller.createNumberButton(property,paramValue, low, high, step);
+        controller = ParamController.createNumberButton(gui, domElement, property, paramValue, low, high, step);
     } else {
         // no idea/error
-        controller.createLabel(property + " *** error: no controll");
-        console.log("no fitting controller found");
-        console.log(low);
-        console.log(high);
-        console.log(step);
+        controller = new ParamController(gui, domElement);
+        controller.createLabel("*** " + property + " - error: no fitting controll found");
+        console.log("no fitting controller found:");
+        console.log("property " + property);
+        console.log("low " + low + ", high " + high + ", step " + step);
     }
+    controller.params = params; // required for transmitting data
+    controller.property = property;
     return controller;
 };
 
@@ -593,4 +592,69 @@ ParamController.create = function(gui, domElement, params, property, low, high, 
  * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
  * @param {string} buttonText - the label is empty
  * @param {function} action - optional, does it upon click
-*/
+ */
+ParamController.createClickButton = function(gui, domElement, buttonText, action) {
+    const controller = new ParamController(gui, domElement);
+    controller.createClickButton(buttonText, action);
+    return controller;
+};
+
+/**
+ * create a select ui, the options (array or object)
+ * @method Paramcontroller.createSelect
+ * @param {ParamGui} gui - the gui it is in
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
+ * @param {string} labelText
+ * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
+ * @param {value} value
+ */
+ParamController.createSelect = function(gui, domElement, labelText, options, value) {
+    const controller = new ParamController(gui, domElement);
+    controller.createSelect(labelText, options, value);
+    return controller;
+};
+
+/**
+ * create a boolean button
+ * @method Paramcontroller.createBooleanButton
+ * @param {ParamGui} gui - the gui it is in
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
+ * @param {string} labelText - for the label
+ * @param {boolean} value
+ */
+ParamController.createBooleanButton = function(gui, domElement, labelText, value) {
+    const controller = new ParamController(gui, domElement);
+    controller.createBooleanButton(labelText, value);
+    return controller;
+};
+
+/**
+ * create an ui element to input text
+ * @method ParamController.createTextInput
+ * @param {ParamGui} gui - the gui it is in
+ * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
+ * @param {string} labelText - for the label
+ * @param {string} text
+ */
+ParamController.createTextInput = function(gui, domElement, labelText, text) {
+    const controller = new ParamController(gui, domElement);
+    controller.createTextInput(labelText, text);
+    return controller;
+};
+
+/**
+ *  create ui element to input numbers
+ * @method ParamController.createNumberButton
+ * @param {string} labelText - for the label
+ * @method ParamController.createTextInput
+ * @param {ParamGui} gui - the gui it is in
+ * @param {number} value
+ * @param {number} low - optional
+ * @param {number} high - optional
+ * @param {number} step - optional
+ */
+ParamController.createNumberButton = function(gui, domElement, labelText, value, low, high, step) {
+    const controller = new ParamController(gui, domElement);
+    controller.createNumberButton(labelText, value, low, high, step);
+    return controller;
+};
