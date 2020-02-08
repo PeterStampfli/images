@@ -19,19 +19,14 @@ import {
  * inside a given container, using given design
  * @creator ParamController
  * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - for the field of object to change, params[property]
- * @param {float/integer/array} low - determines lower limit/choices (optional)
- * @param {float/integer} high - determines upper limit (optional)
- * @param {float/integer} step - determines step size (optional)
+ * @param {htmlElement} domElement - container for the controller, div
  */
-export function ParamController(gui, domElement, params, property, low, high, step) {
+export function ParamController(gui, domElement) {
     this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
-    this.params = params; // required for transmitting data
-    this.property = property;
+    this.params = false; // a priori no params object and no property
+    this.property = false;
     this.listening = false; // automatically update display, only if explicitely activated
     this.helpButton = null;
     // the button or whatever the user interacts with
@@ -45,31 +40,6 @@ export function ParamController(gui, domElement, params, property, low, high, st
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-    this.createLabel(property);
-    const paramValue = params[property];
-    if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
-        // low, the first parameter for limits is an array or object, thus make a selection
-        this.createSelect(low, paramValue);
-    } else if (guiUtils.isBoolean(paramValue)) {
-        // the parameter value is boolean, thus make a BooleanButton
-        this.createBooleanButton(paramValue);
-    } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
-        // there is no parameter value with the property or it is a function
-        // thus make a button with the property as text, no label
-        this.createClickButton(property, paramValue);
-    } else if (guiUtils.isString(paramValue)) {
-        // the parameter value is a string thus make a text input button
-        this.createTextInput(paramValue);
-    } else if (guiUtils.isNumber(paramValue)) {
-        this.createNumberButton(paramValue, low, high, step);
-    } else {
-        // no idea/error
-        this.createLabel(property + " *** error: no controll");
-        console.log("no fitting controller found");
-        console.log(low);
-        console.log(high);
-        console.log(step);
-    }
 }
 
 // "inherit" paramControllerMethods:
@@ -575,5 +545,33 @@ ParamController.prototype.remove = ParamController.prototype.destroy;
  */
 
 ParamController.create = function(gui, domElement, params, property, low, high, step) {
-    return new ParamController(gui, domElement, params, property, low, high, step);
+    const controller = new ParamController(gui, domElement, params, property, low, high, step);
+    controller.params = params; // required for transmitting data
+    controller.property = property;
+    controller.createLabel(property);
+    const paramValue = params[property];
+    if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
+        // low, the first parameter for limits is an array or object, thus make a selection
+        controller.createSelect(low, paramValue);
+    } else if (guiUtils.isBoolean(paramValue)) {
+        // the parameter value is boolean, thus make a BooleanButton
+        controller.createBooleanButton(paramValue);
+    } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
+        // there is no parameter value with the property or it is a function
+        // thus make a button with the property as text, no label
+        controller.createClickButton(property, paramValue);
+    } else if (guiUtils.isString(paramValue)) {
+        // the parameter value is a string thus make a text input button
+        controller.createTextInput(paramValue);
+    } else if (guiUtils.isNumber(paramValue)) {
+        controller.createNumberButton(paramValue, low, high, step);
+    } else {
+        // no idea/error
+        controller.createLabel(property + " *** error: no controll");
+        console.log("no fitting controller found");
+        console.log(low);
+        console.log(high);
+        console.log(step);
+    }
+    return controller;
 };
