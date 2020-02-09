@@ -781,8 +781,6 @@ ParamGui.prototype.addImageSelection = function(params, property, choices) {
 
 /**
  * adding a controller for a simple parameter
- * with visuals, in a common div
- * making a ui control element, same as in "lib/dat.gui.min2.js", one on a line
  * uses new image select with popup instead of simple select if:
  *     if design.preferNewImageselect is true and low is an object (that defines choices)
  *     and first low.value is a good image file
@@ -807,7 +805,6 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
         const controller = ParamController.create(this, controllerDomElement, params, property, low, high, step);
         // change dom after all work has been done
         this.bodyDiv.appendChild(controllerDomElement);
-        this.elements.push(controller);
         return controller;
     }
 };
@@ -820,10 +817,72 @@ ParamGui.prototype.add = function(params, property, low, high, step) {
  * @return {controller} with the button
  */
 ParamGui.prototype.addButton = function(text, action) {
-    const buttonController = this.add({}, "nothing");
-    buttonController.name(text);
-    buttonController.onClick(action);
-    return buttonController;
+    const controllerDomElement = this.createControllerDomElement();
+    const controller = ParamController.createButton(this, controllerDomElement, text, action);
+    this.bodyDiv.appendChild(controllerDomElement);
+    return controller;
+};
+
+/**
+ * create a select ui, the options are an array or object
+ * @method ParamGui.addSelect
+ * @param {string} labelText
+ * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
+ * @param {value} value
+ * @param {function} action - optional, does it upon onChange
+ */
+ParamGui.prototype.addSelect = function(labelText, options, value, action = false) {
+    const controllerDomElement = this.createControllerDomElement();
+    const controller = ParamController.createSelect(this, controllerDomElement, labelText, options, value, action);
+    this.bodyDiv.appendChild(controllerDomElement);
+    return controller;
+};
+
+/**
+ * add a boolean button
+ * @method ParamGui.addBooleanButton
+ * @param {string} labelText - for the label
+ * @param {boolean} value
+ * @param {function} action - optional, does it upon onChange
+ */
+ParamGui.prototype.addBooleanButton = function(labelText, value, action = false) {
+    const controllerDomElement = this.createControllerDomElement();
+    const controller = ParamController.createBooleanButton(this, controllerDomElement, labelText, value, action);
+    this.bodyDiv.appendChild(controllerDomElement);
+    return controller;
+};
+
+/**
+ * add an ui element to input text
+ * @method ParamGui.addTextInput
+ * @param {string} labelText - for the label
+ * @param {string} text
+ * @param {function} action - optional, does it upon onChange
+ */
+ParamGui.prototype.addTextInput = function(labelText, text, action = false) {
+    const controllerDomElement = this.createControllerDomElement();
+    const controller = ParamController.createTextInput(this, controllerDomElement, labelText, text, action);
+    this.bodyDiv.appendChild(controllerDomElement);
+    return controller;
+};
+
+
+/**
+ *  add ui element to input numbers, with action
+ * .addNumberButton("label",3.1,function action(){...}) is possible
+ * @method ParamGui.addNumberButton
+ * @param {string} labelText - for the label
+ * @param {number} value
+ * @param {number} low - optional
+ * @param {number} high - optional, requires low
+ * @param {number} step - optional, requires low and high
+ * @param {function} action - optional, does it upon onChange, independent of low, high and step
+ */
+ParamGui.prototype.addNumberButton = function(labelText, value, low, high, step, action = false) {
+    const controllerDomElement = this.createControllerDomElement();
+    const controller = ParamController.createNumberButton(this, controllerDomElement, labelText, value, low, high, step, action);
+    this.bodyDiv.appendChild(controllerDomElement);
+    return controller;
 };
 
 /**
@@ -859,7 +918,7 @@ ParamGui.prototype.addLogger = function(addClearButton = true) {
     domElement.style.paddingLeft = this.design.spaceWidth + "px";
     domElement.style.paddingRight = this.design.paddingVertical + "px";
     domElement.style.fontSize = this.design.labelFontSize + "px";
-    domElement.style.maxHeight = this.design.loggerHeight + "px";
+    domElement.style.height = this.design.loggerHeight + "px";
     domElement.style.backgroundColor = this.design.loggerBackgroundColor;
     domElement.style.color = this.design.loggerColor;
     domElement.style.overflowY = "auto";

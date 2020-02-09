@@ -307,7 +307,6 @@ paramControllerMethods.setMinElementWidth = function(width) {
     return this;
 };
 
-
 /**
  * make that numberbuttons and range elements become cyclic
  * default: other buttons without effect
@@ -318,7 +317,6 @@ paramControllerMethods.setMinElementWidth = function(width) {
 paramControllerMethods.cyclic = function() {
     return this;
 };
-
 
 /**
  * make the controller disappear including its space (display==none)

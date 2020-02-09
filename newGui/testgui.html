@@ -4,20 +4,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>gui emulator</title>
+    <title>gui emulators</title>
 </head>
 
 <body>
-<!--     -->
- <!--
- <img src="abendfalter.jpg" id="imageId"/>
--->
-<p>
-<img src="abendfalter.jpg" id="imageId"/>
- </p>
+
 
 </body>
-
 
 
 
@@ -36,6 +29,14 @@ const px = "px";
         
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
 gui.addParagraph("logging things:")
+
+gui.addButton("333",function dasda(){console.log("***")}).addButton("****",function(){console.log("w")})
+gui.addSelect("234",[1,34,67],1,function(){console.log("changing")}).addSelect("234",[1,34,67],1,function(){console.log("changing")})
+const bbb=gui.addBooleanButton("boo",false,function dasda(){console.log(bbb.getValue())}).addBooleanButton("gg",false,function dasda(){console.log(bbb.getValue())})
+gui.addTextInput("text","was ist das",function(){console.log("bla")}).addTextInput("zz","was ist das",function(){console.log("bla")})
+
+
+const nn=gui.addNumberButton("nu",4.1,22,33,0.01,function(){console.log(nn.getValue())}).addNumberButton("nu",4.1,22,33,0.01,function(){console.log(nn.getValue())})
 
 const logger=gui.addLogger();
 logger.log("was ist das")
@@ -151,6 +152,7 @@ gui3.add(p,"switch").name("whatever");
 
 
 </script>
+
 
 
 </html>
