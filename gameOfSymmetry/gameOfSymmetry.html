@@ -26,16 +26,23 @@ Life.createCanvasDiv();
 
 const runTestButton=Life.addButton("runTest");
 
-/*
-l.setSize(9);
-l.setNStates(8);
-l.basicInitialization()
-l.fillSymmetricallyNoMirrorRandom(function(i,j){
-	return i+10*j
-});
-l.logCells()
+life.makeColorTable(Life.blackBlueGreenWhite)
+console.log(life.colorTable)
 
-*/
+
+life.setSize(9);
+life.setNStates(4);
+life.basicInitialization()
+life.fillSymmetricallyNoMirrorRandom();
+life.logCells()
+life.setImageFactors(0,1)
+life.clearImage()
+life.updateImage()
+life.logImage()
+life.imageOnCanvas()
+life.imageBlockPixelsOnCanvas();
+
+
 </script>
 
 

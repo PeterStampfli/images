@@ -37,6 +37,9 @@ export function Life() {
     // histogram of combined image values, for quality control
     this.imageHistogram = [];
     this.imageHistogram.length = 256; // 8 bit image
+    // color table for block pixels
+    this.colorTable = [];
+    this.colorTable.length = 256;
     // this.initialCells: a function that sets the cells initially. Including the boundary cells
     // default: all cells zero except at center as defined by parameters
     this.setStartParameters(1, 0, 0);
@@ -45,7 +48,7 @@ export function Life() {
     // default: does nothing, value of boundary cells will be zero
     this.setIterationBoundaryZero();
     // set the method for reading the image
-    this.setReadImageMethod(this.readImageGreyscaleNearestNeighbor);
+    this.setReadImageMethod(Life.readGreyscaleImageNearestNeighbor);
 }
 
 /**
@@ -357,7 +360,7 @@ Life.prototype.logImage = function(message = " ") {
     if (message !== "") {
         console.log(message);
     }
-    console.log("Image: Factor " + this.imageFactor);
+    console.log("Image: ");
     Life.logArray(this.image);
 };
 
@@ -1043,7 +1046,7 @@ Life.prototype.makeImageHistogram = function() {
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readGreyscaleImageNearestNeighbor = function(color, x, y) {
+Life.readGreyscaleImageNearestNeighbor = function(color, x, y) {
     const size = this.size;
     x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
     y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
@@ -1060,12 +1063,12 @@ Life.prototype.readGreyscaleImageNearestNeighbor = function(color, x, y) {
  * in reduced coordinates, going from 0 to 1
  * each image cell takes the same space
  * coordinates clamped to image
- * @method Life.readGreyscaleImageNearestNeighbor
+ * @method Life.readRGBImageNearestNeighbor
  * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readRGBImageNearestNeighbor = function(color, x, y) {
+Life.readRGBImageNearestNeighbor = function(color, x, y) {
     const size = this.size;
     x = Math.max(0, Math.min(size - 1, Math.floor(size * x))); // x=0...1/size goes to first column with index 0
     y = Math.max(0, Math.min(size - 1, Math.floor(size * y))); // similarly for y
@@ -1084,11 +1087,11 @@ Life.prototype.readRGBImageNearestNeighbor = function(color, x, y) {
  * coordinates clamped to image (approximating image cells outside by the next one inside)
  * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
  * @method Life.readGreyscaleImageLinearInterpolation
-  * @param {object} color - with red, green and blue fields
-* @param {float} x
+ * @param {object} color - with red, green and blue fields
+ * @param {float} x
  * @param {float} y
  */
-Life.prototype.readGreyscaleImageLinearInterpolation = function(color, x, y) {
+Life.readGreyscaleImageLinearInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1118,12 +1121,12 @@ Life.prototype.readGreyscaleImageLinearInterpolation = function(color, x, y) {
  * each image cell takes the same space (1/size)
  * coordinates clamped to image (approximating image cells outside by the next one inside)
  * a point between 0.5/size and 1.5/size interpolates between image[0] and image[1]
- * @method Life.readGreyscaleImageLinearInterpolation
+ * @method Life.readRGBImageLinearInterpolation
  * @param {object} color - with red, green and blue fields
  * @param {float} x
  * @param {float} y
  */
-Life.prototype.readRGBImageLinearInterpolation = function(color, x, y) {
+Life.readRGBImageLinearInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1175,7 +1178,7 @@ function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
  * @param {float} y
  * @return integer, between 0 and 255, image value
  */
-Life.prototype.readGreyscaleImageCubicInterpolation = function(color, x, y) {
+Life.readGreyscaleImageCubicInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1229,7 +1232,7 @@ Life.prototype.readGreyscaleImageCubicInterpolation = function(color, x, y) {
  * @param {float} y
  * @return integer, between 0 and 255, image value
  */
-Life.prototype.readRGBImageCubicInterpolation = function(color, x, y) {
+Life.readRGBImageCubicInterpolation = function(color, x, y) {
     const size = this.size;
     const image = this.image;
     // interpolation between low and high
@@ -1295,6 +1298,8 @@ Life.prototype.readRGBImageCubicInterpolation = function(color, x, y) {
 // interaction elements
 //=====================================
 
+
+// redo this
 /**
  * create a canvas to show the image (tests)
  * and a fitting div for controls (including a div for buttons and one for logging)
@@ -1373,15 +1378,13 @@ Life.log = function(message) {
     Life.theLogDiv.appendChild(mp);
 };
 
-
 /**
  * show this image on the canvas, block pixels or interpolation, grey scale or rgb
  * @method Life#imageOnCanvas
  */
 Life.prototype.imageOnCanvas = function() {
     // scaling from canvas to image
-    const color={};
-    const readImage = this.readImage;
+    const color = {};
     const canvasSize = Life.canvasSize;
     const scale = 1 / canvasSize; // coordinates from 0 to 1
     // the pixels
@@ -1394,7 +1397,7 @@ Life.prototype.imageOnCanvas = function() {
         const y = jCanvas * scale;
         for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
             const x = iCanvas * scale;
-            readImage(color,x, y);
+            this.readImage(color, x, y);
             pixels[pixelIndex] = color.red;
             pixels[pixelIndex + 1] = color.green;
             pixels[pixelIndex + 2] = color.blue;
@@ -1404,6 +1407,57 @@ Life.prototype.imageOnCanvas = function() {
     }
     Life.theCanvasContext.putImageData(imageData, 0, 0);
 };
+
+// model basic color tables
+Life.blackAndWhite = ["black", "white"];
+Life.blackBlueGreenWhite = ["black", "blue", "green", "white"];
+
+/**
+ * make the color table with 256 elements, periodically repeating a basic element
+ * @method Life#makeColorTable
+ * @param {Array of strings} colors - strings defining the color, repeated
+ */
+Life.prototype.makeColorTable = function(colors) {
+    const colorsLength = colors.length;
+    for (var i = 0; i < 256; i++) {
+        this.colorTable[i] = colors[i % colorsLength];
+    }
+};
+
+
+/**
+ * show this image on the canvas, block pixels using the colorTable
+ * @method Life#imageBlockPixelsOnCanvas
+ */
+Life.prototype.imageBlockPixelsOnCanvas = function() {
+    // maybe change this
+    const theCanvas = Life.theCanvas;
+    const canvasContext = theCanvas.getContext("2d");
+    const canvasSize = Math.min(theCanvas.height, theCanvas.width);
+    canvasContext.clearRect(0, 0, theCanvas.width, theCanvas.height);
+    const lifeSize = this.size;
+    const pixelSize = Math.floor(canvasSize / lifeSize);
+    var i, j;
+    let y = 0;
+    let index = 0;
+    for (j = 0; j < lifeSize; j++) {
+        let x = 0;
+        for (i = 0; i < lifeSize; i++) {
+            console.log(this.colorTable[this.image[index] & 255])
+            canvasContext.fillStyle = this.colorTable[this.image[index] & 255];
+            canvasContext.fillRect(x, y, pixelSize, pixelSize);
+            x += pixelSize;
+            index += 1;
+        }
+        y += pixelSize;
+    }
+
+    // this.image
+    //ctx.fillRect(x, y, width, height);
+    //ctx.fillStyle = 'green';
+
+};
+
 
 //===========================================================================================
 // setting parameters
@@ -1457,17 +1511,17 @@ Life.prototype.imageOnCanvas = function() {
 
 /* for the image (8 bit greyscale and 24 bit rgb image)
  *..............................
- * setImageFactors() - factor for shifting up the info in image, multiplying value of cells before adding
+ * setImageFactors(imageShift, imageAddFactor) - factor for shifting up the info in image, multiplying value of cells before adding
  *      imageMaxInfo() - using nStates to put maximum info into image
  *      imageRGBGenerations() - one generation per color component, max contrast
  * calculateMaxImageValue() - calculates maximum value in image, for scaling/adjusting contrast
  * setReadImageMethod() - set the method for reading the image (transfer to canvas), image goes from 0...1, interpolation
- *                 readImageGreyscaleNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
- *                 readImageRGBNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
- *                 readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
- *                 readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
- *                 readImageGreyscaleCubicInterpolation  cubic interpolation, 8 bits greyscale
- *                 readImageRGBCubicInterpolation  cubic interpolation, 8 bits greyscale
+ *                 Life.readGreyscaleImageNearestNeighbor  reads nearest neighbor 8 bits, giving a greyscale image
+ *                 Life.readRGBImageNearestNeighbor  reads nearest neighbor 24 bits, giving an rgbimage
+ *                 Life.readGreyscaleImageLinearInterpolation  interpolation,  8 bits, giving a greyscale image
+ *                 Life.readRGBImageLinearInterpolation  interpolation, 24 bits, RGB image
+ *                 Life.readImageGreyscaleCubicInterpolation  cubic interpolation, 8 bits greyscale
+ *                 Life.readImageRGBCubicInterpolation  cubic interpolation, 8 bits greyscale
  * makeImageHistogram() - calculates the histogram of image values, as a fraction of all image cells, for quality control
  *  imageHistogramMax - the maximum value of the histogram, should not be too large
  */
