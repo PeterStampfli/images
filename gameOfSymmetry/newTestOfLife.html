@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>new test of life</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type="module">
+import {
+    Life
+}
+from "./gosModules.js"
+
+import {
+    ParamGui,guiUtils
+}
+from "../libgui/modules.js";
+
+
+const life=new Life();
+const gui = new ParamGui({}, {name: "life - controls"});
+
+Life.setLogger(gui.addLogger());
+Life.log("hello")
+
+gui.createOutputDiv();
+
+// now create the canvas
+
+// background for debugging
+
+// resizing
+
+</script>
+
+
+</html>

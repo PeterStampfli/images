@@ -18,7 +18,7 @@
 
 
 import {
-    ParamGui,guiUtils
+    ParamGui
 }
 from "../libgui/modules.js";
 
@@ -28,6 +28,10 @@ const px = "px";
 
         
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
+
+
+gui.createOutputDiv();
+
 gui.addParagraph("logging things:")
 
 gui.addButton("333",function dasda(){console.log("***")}).addButton("****",function(){console.log("w")})
@@ -137,13 +141,6 @@ gui.add(p,"x",-180,180,1).name("int cyclic").cyclic();
 p.z=2;
 gui.add(p,"z",[1,2,3,44,555]);
 
-
-const gui3=new ParamGui({},{name:"dummy controls3",closed:false,closeOnTop:true}, {horizontalPosition:"left",width:200});
-
-gui3.add(p,"switch").name("whatever");
-gui3.add(p,"switch").name("whatever");
-gui3.add(p,"switch").name("whatever");
-gui3.add(p,"switch").name("whatever");
 
 
 

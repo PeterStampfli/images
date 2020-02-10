@@ -1298,72 +1298,25 @@ Life.readRGBImageCubicInterpolation = function(color, x, y) {
 // interaction elements
 //=====================================
 
-
-// redo this
 /**
- * create a canvas to show the image (tests)
- * and a fitting div for controls (including a div for buttons and one for logging)
- * attach to document.body
- * resize to document.documentElement.clientHeight
- * @method Life.createCanvas
- */
-Life.createCanvasDiv = function() {
-    // creating a square canvas at the left
-    Life.theCanvas = document.createElement("canvas");
-    document.body.appendChild(Life.theCanvas);
-    this.theCanvasContext = Life.theCanvas.getContext('2d');
-    //   Life.theCanvas.style.backgroundColor = "blue";
-    Life.theCanvas.style.position = "absolute";
-    Life.theCanvas.style.top = "0px";
-    Life.theCanvas.style.left = "0px";
-    // creating a div at the right, takes up the rest
-    Life.theDiv = document.createElement("div");
-    document.body.appendChild(Life.theDiv);
-    Life.theDiv.style.position = "absolute";
-    Life.theDiv.style.top = "0px";
-    Life.theDiv.style.top = "0px";
-    Life.theDiv.style.backgroundColor = "#bbbbbb";
-    // a div for buttons
-    Life.theButtonDiv = document.createElement("div");
-    Life.theButtonDiv.style.backgroundColor = "#999999";
-    const buttonHeight = 50;
-    Life.theButtonDiv.style.height = buttonHeight + "px";
-    Life.theDiv.appendChild(Life.theButtonDiv);
-    // a div for logs
-    Life.theLogDiv = document.createElement("div");
-    Life.theDiv.appendChild(Life.theLogDiv);
-    Life.theLogDiv.style.paddingLeft = "10px";
-    Life.theLogDiv.style.paddingRight = "10px";
-    Life.theLogDiv.style.overflow = "auto";
-
-
-    function resize() {
-        Life.canvasSize = document.documentElement.clientHeight;
-        Life.theCanvas.width = Life.canvasSize;
-        Life.theCanvas.height = Life.canvasSize;
-        Life.theDiv.style.left = Life.canvasSize + "px";
-        Life.theDiv.style.height = Life.canvasSize + "px";
-        Life.theDiv.style.width = document.documentElement.clientWidth - Life.canvasSize + "px";
-        Life.theLogDiv.style.height = Life.canvasSize - buttonHeight + "px";
-    }
-
-    window.addEventListener("resize", resize, false);
-    resize();
+* set the canvas for life, with canvas context
+* @method Life.setCanvas
+* @param {canvas} canvas
+*/
+Life.setCanvas=function(canvas){
+Life.theCanvas=canvas;
+Life.theCanvasContext=canvas.getContext("2d")
 };
 
 /**
- * add a button to the Life.theDiv
- * @method Life.addButton
- * @param {string} text
- * @return the button
- */
-Life.addButton = function(text) {
-    const button = document.createElement("button");
-    button.style.margin = "10px";
-    Life.theButtonDiv.appendChild(button);
-    button.textContent = text;
-    return button;
-};
+* set the logger for life, connection to the gui
+* simply to separate things
+* @method Life.setLogger
+* @param {object} logger - with a log(text) method
+*/
+Life.setLogger=function(logger){
+    Life.logger=logger;
+}
 
 /**
  * add a logging message in a paragraph
@@ -1371,11 +1324,7 @@ Life.addButton = function(text) {
  * @param {string} message - may include html
  */
 Life.log = function(message) {
-    const mp = document.createElement("p");
-    mp.innerHTML = message;
-    mp.style.marginBottom = "5px";
-    mp.style.marginTop = "5px";
-    Life.theLogDiv.appendChild(mp);
+    Life.logger.log(message);
 };
 
 /**
@@ -1385,13 +1334,13 @@ Life.log = function(message) {
 Life.prototype.imageOnCanvas = function() {
     // scaling from canvas to image
     const color = {};
-    const canvasSize = Life.canvasSize;
+    const theCanvas = Life.theCanvas;
+    const canvasContext = Life.theCanvasContext;
+    const canvasSize = Math.min(theCanvas.height, theCanvas.width);
     const scale = 1 / canvasSize; // coordinates from 0 to 1
     // the pixels
-    const imageData = Life.theCanvasContext.getImageData(0, 0, canvasSize, canvasSize);
+    const imageData = canvasContext.getImageData(0, 0, canvasSize, canvasSize);
     const pixels = imageData.data;
-    console.log(pixels);
-    console.log(pixels.length);
     let pixelIndex = 0;
     for (var jCanvas = 0; jCanvas < canvasSize; jCanvas++) {
         const y = jCanvas * scale;
@@ -1430,11 +1379,10 @@ Life.prototype.makeColorTable = function(colors) {
  * @method Life#imageBlockPixelsOnCanvas
  */
 Life.prototype.imageBlockPixelsOnCanvas = function() {
-    // maybe change this
     const theCanvas = Life.theCanvas;
-    const canvasContext = theCanvas.getContext("2d");
+    const canvasContext = Life.theCanvasContext;
     const canvasSize = Math.min(theCanvas.height, theCanvas.width);
-    canvasContext.clearRect(0, 0, theCanvas.width, theCanvas.height);
+    canvasContext.clearRect(0, 0, theCanvas.width, theCanvas.height);  //????
     const lifeSize = this.size;
     const pixelSize = Math.floor(canvasSize / lifeSize);
     var i, j;
@@ -1443,7 +1391,6 @@ Life.prototype.imageBlockPixelsOnCanvas = function() {
     for (j = 0; j < lifeSize; j++) {
         let x = 0;
         for (i = 0; i < lifeSize; i++) {
-            console.log(this.colorTable[this.image[index] & 255])
             canvasContext.fillStyle = this.colorTable[this.image[index] & 255];
             canvasContext.fillRect(x, y, pixelSize, pixelSize);
             x += pixelSize;
@@ -1451,11 +1398,6 @@ Life.prototype.imageBlockPixelsOnCanvas = function() {
         }
         y += pixelSize;
     }
-
-    // this.image
-    //ctx.fillRect(x, y, width, height);
-    //ctx.fillStyle = 'green';
-
 };
 
 
@@ -1545,6 +1487,13 @@ Life.prototype.imageBlockPixelsOnCanvas = function() {
  * equalCells() - returns true if all cells have the same value (FAIL)
  */
 
+ /* drawing
+ *-------------------------
+  * imageOnCanvas() - draw this image on the canvas
+* imageBlockPixelsOnCanvas() - draw this image (first 8 bits) on canvas with block pixels and color table:
+  * makeColorTable(colors) - an array of 256 colors by repeating the colors array
+
+
 // bug hunting
 //======================
 
@@ -1561,7 +1510,6 @@ Life.prototype.imageBlockPixelsOnCanvas = function() {
  *----------------------------------
  * Life.createCanvasDiv() - create a div with a canvas, (re)sizes to fill the height of the window
  * Life.addButton(text) - create a button with given text, returns the button, set its onClick - method to do something
- * imageOnCanvas() - draw this image on the canvas
  */
 
 //========================================================================================

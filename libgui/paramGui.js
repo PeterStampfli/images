@@ -317,6 +317,44 @@ ParamGui.updateDefaultDesign = function(newValues) {
     guiUtils.updateValues(ParamGui.defaultDesign, newValues);
 };
 
+ParamGui.outputDiv = false;
+
+/**
+ * create an output div fitting this gui
+ * it will be in ParamGui.outputDiv
+ * ASSUMING that this.autoPlace=true, 
+ *  this.design.horizontalPosition= "right",
+ *  this.design.horizontalShift= 0,
+ * @method ParamGui#createOutputDiv
+ */
+ParamGui.prototype.createOutputDiv = function() {
+    // check assumptions
+    if (ParamGui.outputDiv) {
+        console.log("*** ParamGui.outputDiv already exists");
+    } else if (this.autoPlace && (this.design.horizontalPosition === "right") && (this.design.horizontalShift === 0)) {
+        ParamGui.outputDiv = document.createElement("div");
+        guiUtils.style(ParamGui.outputDiv)
+            .position("absolute")
+            .top("0px")
+            .left("0px")
+            .overflow("auto");
+        // resize the output div such that it fills the screen at the left of the gui
+        const guiTotalWidth = this.design.width + 2 * this.design.borderWidth;
+        const resizeOutputDiv = function() {
+            ParamGui.outputDiv.style.height = document.documentElement.clientHeight + "px";
+            ParamGui.outputDiv.style.width = (document.documentElement.clientWidth - guiTotalWidth) + "px";
+        };
+        resizeOutputDiv();
+        window.addEventListener("resize", resizeOutputDiv, false);
+        document.body.appendChild(ParamGui.outputDiv);
+    } else {
+        console.log("*** problem in ParamGui#createOutputDiv:");
+        console.log("autoPlace " + this.autoPlace);
+        console.log("design.horizontalPosition " + this.design.horizontalPosition);
+        console.log("design.horizontalShift " + this.design.horizontalShift);
+    }
+};
+
 /**
  * add a span with a space to the parent element
  * use ParamGui.spaceWidth as parameter !!!

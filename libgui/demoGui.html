@@ -9,7 +9,6 @@
 
 <body>
 
-<canvas id="sq">test</canvas>
 
 </body>
 
@@ -20,17 +19,14 @@ import {
 }
 from "./modules.js";
 
-const square = document.getElementById("sq");
-
-square.style.width = "300px";
-square.style.height = "300px";
-square.style.backgroundColor = "red";
 
 const gui = new ParamGui({}, {
     name: "demo controls",
     closed: false,
     closeOnTop: true
 });
+
+gui.createOutputDiv();
 
 gui.addHelp("This is a <strong>demo</strong>.");
 
@@ -118,15 +114,16 @@ gui.add(params, "image", choices);
 gui.addParagraph("Images with transparency are shown on a <strong>dark</strong> background if they have a light color.");
 
 
-gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency of the square at the left:");
+gui.addParagraph("This color controller has an alpha channel. It controls the color and transparency at the left:");
 
 params.square = "#ff0000ff";
 const co = gui.addColor(params, "square");
 co.addHelp("Changes the color of the square at the left");
 co.onChange(function(value) {
     console.log(value);
-    square.style.backgroundColor = value;
+    ParamGui.outputDiv.style.backgroundColor = value;
 });
+co.setValue("#ff9900")
 
 gui.addParagraph("If the color parameter at initialization of the gui has no alpha value, then the controller too has no alpha and no range element:");
 params.rgb = "#44ff00";

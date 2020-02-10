@@ -240,7 +240,8 @@ addStyles([
     "objectFit", "objectPosition",
     "cursor",
     "outline",
-    "verticalAlign", "textAlign"
+    "verticalAlign", "textAlign",
+    "overflow"
 ]);
 
 /**
