@@ -351,6 +351,7 @@ Popup.prototype.addCloseButton = function() {
     this.closeButton.onClick = function() {
         popup.close();
     };
+    this.closeButton.onInteraction = function() {};
 };
 
 /**

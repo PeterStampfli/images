@@ -43,7 +43,8 @@ import {
     ParamImageSelection,
     Button,
     InstantHelp,
-    Logger
+    Logger,
+    ParamCanvas
 } from "./modules.js";
 
 export function ParamGui(params) {
@@ -197,7 +198,7 @@ ParamGui.defaultDesign = {
     // vertical spacing
     paddingVertical: 4,
     // indentation witdh per folder level
-    levelIndent: 10,
+    levelIndent: 7,
     // width of border around ui panel
     borderWidth: 3, // set to zero to make border disappear
     // color for the border of the ui panel
@@ -237,6 +238,8 @@ ParamGui.defaultDesign = {
     labelWidth: 80,
     // fontsize for labels
     labelFontSize: 14,
+    // text alignment in the label (of minimum width)
+    labelTextAlign: "left",
 
     // style for simple controllers (defined in paramController.js)
     //--------------------------------------
@@ -263,7 +266,7 @@ ParamGui.defaultDesign = {
     colorRangeWidth: 70,
 
     // style for the logger
-    loggerHeight: 100,
+    loggerHeight: 200,
     loggerBackgroundColor: "#ffffff",
     loggerColor: "#000088",
 
@@ -326,18 +329,18 @@ ParamGui.outputDiv = false;
  *  this.design.horizontalPosition= "right",
  *  this.design.horizontalShift= 0,
  * @method ParamGui#createOutputDiv
+ * @return the output div
  */
 ParamGui.prototype.createOutputDiv = function() {
     // check assumptions
     if (ParamGui.outputDiv) {
-        console.log("*** ParamGui.outputDiv already exists");
+        return ParamGui.outputDiv;
     } else if (this.autoPlace && (this.design.horizontalPosition === "right") && (this.design.horizontalShift === 0)) {
         ParamGui.outputDiv = document.createElement("div");
         guiUtils.style(ParamGui.outputDiv)
             .position("absolute")
             .top("0px")
-            .left("0px")
-            .overflow("auto");
+            .left("0px");
         // resize the output div such that it fills the screen at the left of the gui
         const guiTotalWidth = this.design.width + 2 * this.design.borderWidth;
         const resizeOutputDiv = function() {
@@ -347,6 +350,7 @@ ParamGui.prototype.createOutputDiv = function() {
         resizeOutputDiv();
         window.addEventListener("resize", resizeOutputDiv, false);
         document.body.appendChild(ParamGui.outputDiv);
+        return ParamGui.outputDiv;
     } else {
         console.log("*** problem in ParamGui#createOutputDiv:");
         console.log("autoPlace " + this.autoPlace);
@@ -430,7 +434,7 @@ ParamGui.updateZIndices = function() {
  */
 ParamGui.closePopups = function() {
     for (var i = 0; i < ParamGui.rootGuis.length; i++) {
-        ParamGui.rootGuis[i].closePopups();
+        ParamGui.rootGuis[i].closePopup();
     }
 };
 
@@ -630,6 +634,7 @@ ParamGui.prototype.hide = function() {
         // hide body div and the bottom padding div
         this.bodyDiv.style.display = "none";
     }
+    this.closePopup();
 };
 
 /**
@@ -686,6 +691,7 @@ ParamGui.prototype.close = function() {
             paramGui.open();
         };
         this.bodyDiv.style.display = "none";
+        this.closePopup();
     }
 };
 
@@ -942,39 +948,54 @@ ParamGui.prototype.addColor = function(params, property) {
 };
 
 /**
- * add a logger with an optional clear button
+ * add a logger with an  clear button
  * (the clear button is in the controller object: logger.clearButton)
- * @param {boolean} addClearButton, default: true
+ * @param {string} name - optional
  * @method ParamGui#addLogger
  * @return {Logger} object
  */
-ParamGui.prototype.addLogger = function(addClearButton = true) {
+ParamGui.prototype.addLogger = function(name = "") {
+    const folder = this.addFolder("logging " + name, {
+        closed: false
+    });
     const domElement = document.createElement("div");
     // make a regular spacing between elements
-    domElement.style.paddingTop = this.design.paddingVertical + "px";
-    domElement.style.paddingBottom = this.design.paddingVertical + "px";
-    domElement.style.paddingLeft = this.design.spaceWidth + "px";
-    domElement.style.paddingRight = this.design.paddingVertical + "px";
+    domElement.style.padding = this.design.paddingVertical + "px";
     domElement.style.fontSize = this.design.labelFontSize + "px";
     domElement.style.height = this.design.loggerHeight + "px";
     domElement.style.backgroundColor = this.design.loggerBackgroundColor;
     domElement.style.color = this.design.loggerColor;
     domElement.style.overflowY = "auto";
-    domElement.style.borderWidth = this.design.borderWidth + "px";
-    domElement.style.borderBottomStyle = "solid";
-    domElement.style.borderColor = this.design.borderColor;
-    domElement.style.borderTopStyle = "solid";
+
     const logger = new Logger(domElement);
-    this.bodyDiv.appendChild(domElement);
-    this.elements.push(logger);
-    if (addClearButton) {
-        logger.buttonController = this.addButton("clear the log", function() {
-            logger.clear();
-        });
-        logger.buttonController.domElement.style.textAlign = "center";
-        logger.buttonController.deleteLabel();
-    }
+    folder.bodyDiv.appendChild(domElement);
+    folder.elements.push(logger);
+    logger.buttonController = folder.addButton("clear the log", function() {
+        logger.clear();
+    });
+    logger.buttonController.domElement.style.textAlign = "center";
+    logger.buttonController.deleteLabel();
     return logger;
+};
+
+/**
+ * add a folder with controls for a canvas object
+ * can set the dimensions (square/rectangle), with update
+ * automatic resize/manual
+ * download the image (custom name)
+ * @method ParamGui#addCanvas
+ * @param {String} name
+ * @param {html div element} container - where the canvas goes
+ * @param {boolean} isRectangular - optional, default: true
+ * @param {boolean} canResize - does it resize with the container, optional, default: true
+ * @return ParamCanvas
+ */
+ParamGui.prototype.addCanvas = function(name, container, isRectangular = true, canResize = true) {
+    const folder = this.addFolder(name, {
+        closed: false
+    });
+    const paramCanvas = new ParamCanvas(folder, name, container, isRectangular, canResize);
+    return ParamCanvas;
 };
 
 /**
@@ -1107,9 +1128,9 @@ ParamGui.prototype.destroy = function() {
 
 /**
  * close popups
- * @method ParamGui#closePopups
+ * @method ParamGui#closePopup
  */
-ParamGui.prototype.closePopups = function() {
+ParamGui.prototype.closePopup = function() {
     this.elements.forEach(element => {
         if (typeof element.closePopup === "function") {
             element.closePopup();

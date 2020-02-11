@@ -36,6 +36,7 @@ paramControllerMethods.createLabel = function(text) {
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
     this.label.style.minWidth = design.labelWidth + "px";
+    this.label.style.textAlign = design.labelTextAlign;
     // space between label and controller or left border
     this.label.style.paddingLeft = design.spaceWidth + "px";
     this.label.style.paddingRight = design.spaceWidth + "px";
@@ -271,6 +272,16 @@ paramControllerMethods.deleteLabel = function() {
     return this;
 };
 
+/**
+ * layout: add a space
+ * @method paramControllerMethods.hSpace
+ * @param {number} width
+ * @return this
+ */
+paramControllerMethods.hSpace = function(width) {
+    guiUtils.hSpace(this.domElement, width);
+    return this;
+};
 
 /**
  * register parent domElement in guiUtils for styling

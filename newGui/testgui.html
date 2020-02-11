@@ -23,7 +23,6 @@ import {
 from "../libgui/modules.js";
 
 
-
 const px = "px";
 
         
@@ -31,6 +30,8 @@ const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, 
 
 
 gui.createOutputDiv();
+
+gui.addCanvas("image",ParamGui.outputDiv,true,true);
 
 gui.addParagraph("logging things:")
 

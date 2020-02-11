@@ -105,6 +105,11 @@ export {
 from "./paramColor.js";
 
 export {
+    ParamCanvas
+}
+from "./paramCanvas.js";
+
+export {
     ParamImageSelection
 }
 from "./paramImageSelection.js";

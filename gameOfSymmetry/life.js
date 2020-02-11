@@ -1305,7 +1305,7 @@ Life.readRGBImageCubicInterpolation = function(color, x, y) {
 */
 Life.setCanvas=function(canvas){
 Life.theCanvas=canvas;
-Life.theCanvasContext=canvas.getContext("2d")
+Life.theCanvasContext=canvas.getContext("2d");
 };
 
 /**

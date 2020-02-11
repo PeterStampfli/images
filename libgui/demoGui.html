@@ -26,7 +26,7 @@ const gui = new ParamGui({}, {
     closeOnTop: true
 });
 
-gui.createOutputDiv();
+gui.createOutputDiv();     //  -> ParamGui.outputDiv
 
 gui.addHelp("This is a <strong>demo</strong>.");
 
@@ -40,7 +40,7 @@ gui.addVerticalSpace(8, "blue");
 
 gui.addParagraph("You can log messages, in different loggers like this one:")
 
-const logger=gui.addLogger();
+const logger=gui.addLogger("test messages");
 logger.log("a first message.");
 logger.log("a second message.");
 logger.log("more messages ....");
@@ -120,7 +120,6 @@ params.square = "#ff0000ff";
 const co = gui.addColor(params, "square");
 co.addHelp("Changes the color of the square at the left");
 co.onChange(function(value) {
-    console.log(value);
     ParamGui.outputDiv.style.backgroundColor = value;
 });
 co.setValue("#ff9900")
