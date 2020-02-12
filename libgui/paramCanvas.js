@@ -13,7 +13,8 @@
 
 
 import {
-    ParamGui
+    ParamGui,
+    saveAs
 }
 from "./modules.js";
 
@@ -37,14 +38,18 @@ export function ParamCanvas(gui, name, container, isRectangular = true, canAutoR
     this.updateImage = function() {
         console.log("update image " + this.canvas.width + " " + this.canvas.height);
     };
-    let saveAs = name;
+    let saveAsName = name;
     // the save button and text field for changing the name
-    gui.addButton("save", function() {
-            console.log("saving as " + saveAs);
+    const saveButton=gui.addButton("save", function() {
+             paramCanvas.canvas.toBlob(function(blob) {
+            saveAs(blob, saveAsName + '.png');
+        }, 'image/png');
+        
         })
-        .setMinLabelWidth(0)
-        .addTextInput("as", name, function(newName) {
-            saveAs = newName;
+        .setMinLabelWidth(0);
+
+      const saveNameInput=saveButton.addTextInput("as", name, function(newName) {
+            saveAsName = newName;
         })
         .setMinLabelWidth(20);
 
@@ -91,7 +96,6 @@ export function ParamCanvas(gui, name, container, isRectangular = true, canAutoR
                 paramCanvas.canvas.width = size;
                 paramCanvas.updateImage();
             });
-
     }
     this.resize();
 

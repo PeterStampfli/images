@@ -995,7 +995,7 @@ ParamGui.prototype.addCanvas = function(name, container, isRectangular = true, c
         closed: false
     });
     const paramCanvas = new ParamCanvas(folder, name, container, isRectangular, canResize);
-    return ParamCanvas;
+    return paramCanvas;
 };
 
 /**

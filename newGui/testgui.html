@@ -13,7 +13,6 @@
 </body>
 
 
-
 <script type="module">
 
 
@@ -31,7 +30,9 @@ const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, 
 
 gui.createOutputDiv();
 
-gui.addCanvas("image",ParamGui.outputDiv,true,true);
+const canvasObject=gui.addCanvas("image",ParamGui.outputDiv,true,true);
+canvasObject.canvasContext.fillStyle="red";
+canvasObject.canvasContext.fillRect(10,20,100,140);
 
 gui.addParagraph("logging things:")
 
