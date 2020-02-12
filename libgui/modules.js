@@ -139,6 +139,7 @@ export {
 from "./paramController.js";
 
 export {
-    ParamGui
+    ParamGui,
+    log
 }
 from "./paramGui.js";

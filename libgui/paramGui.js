@@ -113,6 +113,11 @@ export function ParamGui(params) {
         // autoPlacing the root gui domElement relative to one of the four corners
         // and make the bodyDiv scrolling vertical, if needed
         this.domElement.appendChild(this.bodyDiv);
+
+        this.domElement.onclick = function() {
+            console.log("clickkkk");
+        };
+
         if (this.autoPlace) {
             this.domElement.style.position = "fixed";
             this.domElement.style[design.verticalPosition] = design.verticalShift + "px";
@@ -123,7 +128,7 @@ export function ParamGui(params) {
             this.bodyDiv.style.overflowY = "auto";
             this.bodyDiv.style.overflowX = "hidden";
             document.body.appendChild(this.domElement);
-            this.resize();
+            this.resize(); // can only resize after attaching element to the document body
         } else {
             document.body.appendChild(this.domElement);
         }
@@ -429,16 +434,6 @@ ParamGui.updateZIndices = function() {
 };
 
 /**
- * close all popups of all guis
- * @method ParamGui.closePopups
- */
-ParamGui.closePopups = function() {
-    for (var i = 0; i < ParamGui.rootGuis.length; i++) {
-        ParamGui.rootGuis[i].closePopup();
-    }
-};
-
-/**
  * adding a root gui to the collection, update the zIndices
  * it will be last and visible in front
  * @method ParamGui.addRootGui
@@ -460,13 +455,25 @@ ParamGui.removeRootGui = function(rootGui) {
 };
 
 /**
- * put a rootgui in front, becomes last in list, covers all
+ * put a rootgui in front (if not already there), becomes last in list, appears in front
  * @method ParamGui.moveToFront
  * @param {Gui} rootGui
  */
 ParamGui.moveToFront = function(rootGui) {
-    ParamGui.removeRootGui(rootGui);
-    ParamGui.addRootGui(rootGui);
+    if (!ParamGui.isInFront(rootGui)) {
+        ParamGui.removeRootGui(rootGui);
+        ParamGui.addRootGui(rootGui);
+    }
+};
+
+/**
+ * close all popups of all guis
+ * @method ParamGui.closePopups
+ */
+ParamGui.closePopups = function() {
+    for (var i = 0; i < ParamGui.rootGuis.length; i++) {
+        ParamGui.rootGuis[i].closePopup();
+    }
 };
 
 /**
@@ -974,6 +981,33 @@ ParamGui.prototype.addLogger = function() {
     logger.buttonController.deleteLabel();
     return logger;
 };
+
+/*
+ * a prefab logger that replaces part of the console
+ * in its own gui
+ */
+
+let logger = false;
+
+/**
+ * log something
+ * first message creates the logger
+ * @function log
+ * @param {string} message
+ */
+export function log(message) {
+    if (!logger) {
+        logger = new ParamGui({
+            name: "log",
+            width: "600",
+            horizontalShift: 80
+        }).addLogger();
+        logger.container.style.height = "";
+
+    }
+    logger.log(message);
+}
+
 
 /**
  * add controls for a canvas object

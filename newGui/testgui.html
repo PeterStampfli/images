@@ -17,16 +17,18 @@
 
 
 import {
-    ParamGui
+    ParamGui,
+    log
 }
 from "../libgui/modules.js";
 
 
 const px = "px";
 
+log("ding")
         
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
-ParamGui.log("a replacement for the console")
+//ParamGui.log("a replacement for the console")
 /*
 const gui=new ParamGui({
             name: "log",
