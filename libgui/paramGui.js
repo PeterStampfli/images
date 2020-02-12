@@ -605,12 +605,12 @@ ParamGui.prototype.resize = function() {
 };
 
 /**
- * set the z-index of the domElement, that contains all
+ * set the z-index of the domElement, that contains all other elements
  * @method ParamGui#setZIndex
  * @param {integer} zIndex
  */
 ParamGui.prototype.setZIndex = function(zIndex) {
-    this.domElement.zIndex = zIndex + "";
+    this.domElement.style.zIndex = zIndex;
 };
 
 // hide and show might be used in a program to hide irrelevant parameters
@@ -948,16 +948,13 @@ ParamGui.prototype.addColor = function(params, property) {
 };
 
 /**
- * add a logger with an  clear button
+ * add a logger with a clear button
  * (the clear button is in the controller object: logger.clearButton)
- * @param {string} name - optional
+ * best wrap it onto a folder logger=gui.addFolder(someName,{closed:false}).addLogger();
  * @method ParamGui#addLogger
  * @return {Logger} object
  */
-ParamGui.prototype.addLogger = function(name = "") {
-    const folder = this.addFolder("logging " + name, {
-        closed: false
-    });
+ParamGui.prototype.addLogger = function() {
     const domElement = document.createElement("div");
     // make a regular spacing between elements
     domElement.style.padding = this.design.paddingVertical + "px";
@@ -968,9 +965,9 @@ ParamGui.prototype.addLogger = function(name = "") {
     domElement.style.overflowY = "auto";
 
     const logger = new Logger(domElement);
-    folder.bodyDiv.appendChild(domElement);
-    folder.elements.push(logger);
-    logger.buttonController = folder.addButton("clear the log", function() {
+    this.bodyDiv.appendChild(domElement);
+    this.elements.push(logger);
+    logger.buttonController = this.addButton("clear the log", function() {
         logger.clear();
     });
     logger.buttonController.domElement.style.textAlign = "center";
@@ -979,22 +976,16 @@ ParamGui.prototype.addLogger = function(name = "") {
 };
 
 /**
- * add a folder with controls for a canvas object
- * can set the dimensions (square/rectangle), with update
- * automatic resize/manual
- * download the image (custom name)
+ * add controls for a canvas object
+ * you can wrap it into a folder: specialCanvas=gui.addFolder("image",{closed:false}).addCanvas(...);
  * @method ParamGui#addCanvas
- * @param {String} name
- * @param {html div element} container - where the canvas goes
- * @param {boolean} isRectangular - optional, default: true
- * @param {boolean} canResize - does it resize with the container, optional, default: true
+ * @param {html div element} container - where the canvas lives
+ * @param {boolean} isRectangular - is it square or rectangular? optional, default: true
+ * @param {boolean} canResize - does it resize with the container? optional, default: true
  * @return ParamCanvas
  */
-ParamGui.prototype.addCanvas = function(name, container, isRectangular = true, canResize = true) {
-    const folder = this.addFolder(name, {
-        closed: false
-    });
-    const paramCanvas = new ParamCanvas(folder, name, container, isRectangular, canResize);
+ParamGui.prototype.addCanvas = function(container, isRectangular = true, canResize = true) {
+    const paramCanvas = new ParamCanvas(this, container, isRectangular, canResize);
     return paramCanvas;
 };
 

@@ -63,3 +63,35 @@ Logger.prototype.destroy = function() {
     this.clear();
     this.parent.remove();
 };
+
+
+/*
+ * a prefab logger that replaces part of the console
+ * in its own gui at the bottom left
+ */
+//let logger = false;
+
+
+
+/**
+ * log something
+ * first message creates the logger
+ * @method ParamGui.log
+ * @param {string} message
+ */
+ /*
+ParamGui.log = function(message) {
+    console.log(message)
+    if (!logger) {
+        logger = new ParamGui({
+            name: "log",
+            width: "600",
+            horizontalPosition: "left",
+            loggerHeight: 300
+        }).addLogger();
+    }
+
+    console.log(logger)
+    logger.log(message);
+};
+*/

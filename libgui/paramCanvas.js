@@ -1,12 +1,11 @@
 /**
- * an object that controls a convas
- * can set the dimensions (square/rectangle), with update
- * automatic resize/manual
- * download the image (custom name)
+ * an object that controls a canvas
+ * you can set its dimensions (it is square orrectangle)
+ * it can resize automatically
+ * you can download the image (custom name)
  * @constructor ParamCanvas
- * @param {ParamGui} gui - a folder inside a gui
- * @param {String} name
- * @param {html div element} container - where the canvas goes
+ * @param {ParamGui} gui 
+ * @param {html div element} container - where the canvas lives
  * @param {boolean} isRectangular - optional, default: true
  * @param {boolean} canAutoResize - does it resize with the container, optional, default: true
  */
@@ -19,7 +18,7 @@ import {
 from "./modules.js";
 
 
-export function ParamCanvas(gui, name, container, isRectangular = true, canAutoResize = true) {
+export function ParamCanvas(gui, container, isRectangular = true, canAutoResize = true) {
     this.gui = gui;
     this.container = container;
     this.canvas = document.createElement("canvas");
@@ -38,9 +37,10 @@ export function ParamCanvas(gui, name, container, isRectangular = true, canAutoR
     this.updateImage = function() {
         console.log("update image " + this.canvas.width + " " + this.canvas.height);
     };
-    let saveAsName = name;
+    let saveAsName = "picture";
     // the save button and text field for changing the name
     const saveButton=gui.addButton("save", function() {
+    	// for some crazy reason, this clears the console
              paramCanvas.canvas.toBlob(function(blob) {
             saveAs(blob, saveAsName + '.png');
         }, 'image/png');
