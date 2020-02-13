@@ -26,7 +26,17 @@ from "../libgui/modules.js";
 const px = "px";
 
 log("ding")
-        
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+log("more and more")
+
 const gui=new ParamGui({},{name:"dummy controls",closed:false,closeOnTop:true}, {textColor:"red"});
 //ParamGui.log("a replacement for the console")
 /*
@@ -39,7 +49,7 @@ const gui=new ParamGui({
 */
 gui.createOutputDiv();
 
-const canvasObject=gui.addFolder("nice image",{closed: false}).addCanvas(ParamGui.outputDiv,true,true);
+const canvasObject=gui.addFolder("nice image",{closed: false}).addCanvas(ParamGui.outputDiv,false,true);
 canvasObject.canvasContext.fillStyle="red";
 canvasObject.canvasContext.fillRect(10,20,100,140);
 

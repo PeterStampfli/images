@@ -39,16 +39,16 @@ export function ParamCanvas(gui, container, isRectangular = true, canAutoResize 
     };
     let saveAsName = "picture";
     // the save button and text field for changing the name
-    const saveButton=gui.addButton("save", function() {
-    	// for some crazy reason, this clears the console
-             paramCanvas.canvas.toBlob(function(blob) {
-            saveAs(blob, saveAsName + '.png');
-        }, 'image/png');
-        
+    const saveButton = gui.addButton("save", function() {
+            // for some crazy reason, this clears the console
+            paramCanvas.canvas.toBlob(function(blob) {
+                saveAs(blob, saveAsName + '.png');
+            }, 'image/png');
+
         })
         .setMinLabelWidth(0);
 
-      const saveNameInput=saveButton.addTextInput("as", name, function(newName) {
+    const saveNameInput = saveButton.addTextInput("as", name, function(newName) {
             saveAsName = newName;
         })
         .setMinLabelWidth(20);
@@ -75,7 +75,7 @@ export function ParamCanvas(gui, container, isRectangular = true, canAutoResize 
                 paramCanvas.updateScrollbars();
                 paramCanvas.updateImage();
             });
-        // resize to the container dimensions
+        // resize to the container dimensions, for rectangular canvas
         this.resize = function() {
             this.container.style.overflow = "hidden";
             const height = this.container.clientHeight;
@@ -94,15 +94,32 @@ export function ParamCanvas(gui, container, isRectangular = true, canAutoResize 
                 paramCanvas.autoResizeController.setValueOnly(false);
                 paramCanvas.canvas.height = size;
                 paramCanvas.canvas.width = size;
+                paramCanvas.updateScrollbars();
                 paramCanvas.updateImage();
             });
+
+        // resize to the smaller container dimension, for square canvas
+        this.resize = function() {
+            this.container.style.overflow = "hidden";
+            const size = Math.min(this.container.clientHeight, this.container.clientWidth);
+            this.canvas.height = size;
+            this.canvas.width = size;
+            this.sizeController.setValueOnly(size);
+            this.updateImage();
+        };
     }
     this.resize();
 
-    if (canAutoResize) { // resizing later
-        this.autoResizeController = gui.addBooleanButton("auto resize:", true);
+    function autoResize() {
+        if (paramCanvas.autoResizeController.getValue()) {
+            paramCanvas.resize();
+        }
     }
 
+    if (canAutoResize) { // resizing later
+        this.autoResizeController = gui.addBooleanButton("auto resize:", true, autoResize);
+        window.addEventListener("resize", autoResize, false);
+    }
 }
 
 /**

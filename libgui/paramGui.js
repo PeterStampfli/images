@@ -114,8 +114,10 @@ export function ParamGui(params) {
         // and make the bodyDiv scrolling vertical, if needed
         this.domElement.appendChild(this.bodyDiv);
 
+        const gui = this;
         this.domElement.onclick = function() {
-            console.log("clickkkk");
+            ParamGui.moveToFront(gui);
+            ParamGui.closePopups(gui);
         };
 
         if (this.autoPlace) {
@@ -412,7 +414,7 @@ ParamGui.removeArrayElement = function(array, element) {
 ParamGui.rootGuis = [];
 
 /**
- * test if a GUI is last element of list of root guis
+ * test if a root GUI is last element of list of root guis
  * and thus in front
  * @method ParamGui.isInFront
  * @param {ParamGui} rootGui 
@@ -457,9 +459,10 @@ ParamGui.removeRootGui = function(rootGui) {
 /**
  * put a rootgui in front (if not already there), becomes last in list, appears in front
  * @method ParamGui.moveToFront
- * @param {Gui} rootGui
+ * @param {Gui} gui
  */
-ParamGui.moveToFront = function(rootGui) {
+ParamGui.moveToFront = function(gui) {
+    const rootGui = gui.getRoot();
     if (!ParamGui.isInFront(rootGui)) {
         ParamGui.removeRootGui(rootGui);
         ParamGui.addRootGui(rootGui);
@@ -467,12 +470,15 @@ ParamGui.moveToFront = function(rootGui) {
 };
 
 /**
- * close all popups of all guis
+ * close all popups of all guis, with optional exception
  * @method ParamGui.closePopups
+ * @param {ParamGui} exception
  */
-ParamGui.closePopups = function() {
+ParamGui.closePopups = function(exception = null) {
     for (var i = 0; i < ParamGui.rootGuis.length; i++) {
-        ParamGui.rootGuis[i].closePopup();
+        if (ParamGui.rootGuis[i] !== exception) {
+            ParamGui.rootGuis[i].closePopup();
+        }
     }
 };
 
@@ -1000,14 +1006,15 @@ export function log(message) {
         logger = new ParamGui({
             name: "log",
             width: "600",
-            horizontalShift: 80
+            horizontalShift: 80,
+            verticalPosition: "top",
+            verticalShift: 40
         }).addLogger();
         logger.container.style.height = "";
 
     }
     logger.log(message);
 }
-
 
 /**
  * add controls for a canvas object
