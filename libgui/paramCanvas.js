@@ -1,22 +1,22 @@
 /**
  * an object that controls a canvas
- * you can set its dimensions (it is square orrectangle)
+ * you can set its dimensions (it is square or rectangle)
  * it can resize automatically
  * you can download the image (custom name)
+ * you can wrap its controls in a folder specialCanvas=new ParamCanvas(gui.addFolder("image",{closed:false}), container,true,true);
  * @constructor ParamCanvas
- * @param {ParamGui} gui 
+ * @param {ParamGui} gui - the gui that controls the canvas
  * @param {html div element} container - where the canvas lives
  * @param {boolean} isRectangular - optional, default: true
  * @param {boolean} canAutoResize - does it resize with the container, optional, default: true
  */
 
-
 import {
+	guiUtils,
     ParamGui,
     saveAs
 }
 from "./modules.js";
-
 
 export function ParamCanvas(gui, container, isRectangular = true, canAutoResize = true) {
     this.gui = gui;
@@ -140,5 +140,45 @@ ParamCanvas.prototype.updateScrollbars = function() {
         if (this.canvas.width > this.container.clientWidth) {
             this.container.style.overflowX = "scroll";
         }
+    }
+};
+
+
+ParamGui.outputDiv = false;
+
+/**
+ * create an output div fitting this gui
+ * it will be in ParamGui.outputDiv
+ * ASSUMING that this.autoPlace=true, 
+ *  this.design.horizontalPosition= "right",
+ *  this.design.horizontalShift= 0,
+ * @method ParamGui#createOutputDiv
+ * @return the output div
+ */
+ParamGui.prototype.createOutputDiv = function() {
+    // check assumptions
+    if (ParamGui.outputDiv) {
+        return ParamGui.outputDiv;
+    } else if (this.autoPlace && (this.design.horizontalPosition === "right") && (this.design.horizontalShift === 0)) {
+        ParamGui.outputDiv = document.createElement("div");
+        guiUtils.style(ParamGui.outputDiv)
+            .position("absolute")
+            .top("0px")
+            .left("0px");
+        // resize the output div such that it fills the screen at the left of the gui
+        const guiTotalWidth = this.design.width + 2 * this.design.borderWidth;
+        const resizeOutputDiv = function() {
+            ParamGui.outputDiv.style.height = document.documentElement.clientHeight + "px";
+            ParamGui.outputDiv.style.width = (document.documentElement.clientWidth - guiTotalWidth) + "px";
+        };
+        resizeOutputDiv();
+        window.addEventListener("resize", resizeOutputDiv, false);
+        document.body.appendChild(ParamGui.outputDiv);
+        return ParamGui.outputDiv;
+    } else {
+        console.log("*** problem in ParamGui#createOutputDiv:");
+        console.log("autoPlace " + this.autoPlace);
+        console.log("design.horizontalPosition " + this.design.horizontalPosition);
+        console.log("design.horizontalShift " + this.design.horizontalShift);
     }
 };

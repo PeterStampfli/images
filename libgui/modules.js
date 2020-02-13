@@ -34,7 +34,8 @@ export {
 from "./touchEvents.js";
 
 export {
-    Logger
+    Logger,
+    log
 }
 from "./logger.js";
 
@@ -139,7 +140,6 @@ export {
 from "./paramController.js";
 
 export {
-    ParamGui,
-    log
+    ParamGui
 }
 from "./paramGui.js";

@@ -43,8 +43,7 @@ import {
     ParamImageSelection,
     Button,
     InstantHelp,
-    Logger,
-    ParamCanvas
+    Logger
 } from "./modules.js";
 
 export function ParamGui(params) {
@@ -325,45 +324,6 @@ ParamGui.spaceWidth = 7;
  */
 ParamGui.updateDefaultDesign = function(newValues) {
     guiUtils.updateValues(ParamGui.defaultDesign, newValues);
-};
-
-ParamGui.outputDiv = false;
-
-/**
- * create an output div fitting this gui
- * it will be in ParamGui.outputDiv
- * ASSUMING that this.autoPlace=true, 
- *  this.design.horizontalPosition= "right",
- *  this.design.horizontalShift= 0,
- * @method ParamGui#createOutputDiv
- * @return the output div
- */
-ParamGui.prototype.createOutputDiv = function() {
-    // check assumptions
-    if (ParamGui.outputDiv) {
-        return ParamGui.outputDiv;
-    } else if (this.autoPlace && (this.design.horizontalPosition === "right") && (this.design.horizontalShift === 0)) {
-        ParamGui.outputDiv = document.createElement("div");
-        guiUtils.style(ParamGui.outputDiv)
-            .position("absolute")
-            .top("0px")
-            .left("0px");
-        // resize the output div such that it fills the screen at the left of the gui
-        const guiTotalWidth = this.design.width + 2 * this.design.borderWidth;
-        const resizeOutputDiv = function() {
-            ParamGui.outputDiv.style.height = document.documentElement.clientHeight + "px";
-            ParamGui.outputDiv.style.width = (document.documentElement.clientWidth - guiTotalWidth) + "px";
-        };
-        resizeOutputDiv();
-        window.addEventListener("resize", resizeOutputDiv, false);
-        document.body.appendChild(ParamGui.outputDiv);
-        return ParamGui.outputDiv;
-    } else {
-        console.log("*** problem in ParamGui#createOutputDiv:");
-        console.log("autoPlace " + this.autoPlace);
-        console.log("design.horizontalPosition " + this.design.horizontalPosition);
-        console.log("design.horizontalShift " + this.design.horizontalShift);
-    }
 };
 
 /**
@@ -958,76 +918,6 @@ ParamGui.prototype.addColor = function(params, property) {
     this.bodyDiv.appendChild(controllerDomElement);
     this.elements.push(controller);
     return controller;
-};
-
-/**
- * add a logger with a clear button
- * (the clear button is in the controller object: logger.clearButton)
- * best wrap it onto a folder logger=gui.addFolder(someName,{closed:false}).addLogger();
- * @method ParamGui#addLogger
- * @return {Logger} object
- */
-ParamGui.prototype.addLogger = function() {
-    const domElement = document.createElement("div");
-    // make a regular spacing between elements
-    domElement.style.padding = this.design.paddingVertical + "px";
-    domElement.style.fontSize = this.design.labelFontSize + "px";
-    domElement.style.height = this.design.loggerHeight + "px";
-    domElement.style.backgroundColor = this.design.loggerBackgroundColor;
-    domElement.style.color = this.design.loggerColor;
-    domElement.style.overflowY = "auto";
-
-    const logger = new Logger(domElement);
-    this.bodyDiv.appendChild(domElement);
-    this.elements.push(logger);
-    logger.buttonController = this.addButton("clear the log", function() {
-        logger.clear();
-    });
-    logger.buttonController.domElement.style.textAlign = "center";
-    logger.buttonController.deleteLabel();
-    return logger;
-};
-
-/*
- * a prefab logger that replaces part of the console
- * in its own gui
- */
-
-let logger = false;
-
-/**
- * log something
- * first message creates the logger
- * @function log
- * @param {string} message
- */
-export function log(message) {
-    if (!logger) {
-        logger = new ParamGui({
-            name: "log",
-            width: "600",
-            horizontalShift: 80,
-            verticalPosition: "top",
-            verticalShift: 40
-        }).addLogger();
-        logger.container.style.height = "";
-
-    }
-    logger.log(message);
-}
-
-/**
- * add controls for a canvas object
- * you can wrap it into a folder: specialCanvas=gui.addFolder("image",{closed:false}).addCanvas(...);
- * @method ParamGui#addCanvas
- * @param {html div element} container - where the canvas lives
- * @param {boolean} isRectangular - is it square or rectangular? optional, default: true
- * @param {boolean} canResize - does it resize with the container? optional, default: true
- * @return ParamCanvas
- */
-ParamGui.prototype.addCanvas = function(container, isRectangular = true, canResize = true) {
-    const paramCanvas = new ParamCanvas(this, container, isRectangular, canResize);
-    return paramCanvas;
 };
 
 /**

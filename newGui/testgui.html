@@ -18,6 +18,7 @@
 
 import {
     ParamGui,
+    ParamCanvas,
     log
 }
 from "../libgui/modules.js";
@@ -49,7 +50,7 @@ const gui=new ParamGui({
 */
 gui.createOutputDiv();
 
-const canvasObject=gui.addFolder("nice image",{closed: false}).addCanvas(ParamGui.outputDiv,false,true);
+const canvasObject=new ParamCanvas(gui.addFolder("nice image",{closed: false}),ParamGui.outputDiv,false,true);
 canvasObject.canvasContext.fillStyle="red";
 canvasObject.canvasContext.fillRect(10,20,100,140);
 
