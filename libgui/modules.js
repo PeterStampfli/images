@@ -110,9 +110,9 @@ export {
 from "./paramColor.js";
 
 export {
-    ParamCanvas
+    output
 }
-from "./paramCanvas.js";
+from "./output.js";
 
 export {
     ParamImageSelection

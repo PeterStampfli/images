@@ -20,19 +20,26 @@ import {
  * @creator ParamController
  * @param {ParamGui} gui - the gui it is in
  * @param {htmlElement} domElement - container for the controller, div
+ * @param {object} args - collection of arguments defining the controller
  */
-export function ParamController(gui, domElement) {
+export function ParamController(gui, domElement, args) {
     this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
-    // put controller in list of elements (for destruction, popup controll,...)
-    gui.elements.push(this);
-    this.params = false; // a priori no params object and no property
-    this.property = false;
-    this.listening = false; // automatically update display, only if explicitely activated
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
+    // put controller in list of elements (for destruction, popup controll,...)
+    gui.elements.push(this);
+    // extract params and property from the args object
+    this.args = args;
+    this.params = guiUtils.check(args.params);
+    this.property = guiUtils.check(args.property);
+    this.listening = guiUtils.isDefined(args.params) && guiUtils.isDefined(args.property) && guiUtils.check(args.listen);
+    if (this.listening) {
+        ParamGui.startListening(); // automatically update display
+    }
+
 
     /**
      * callback for changes
@@ -42,7 +49,29 @@ export function ParamController(gui, domElement) {
     this.callback = function(value) {
         console.log("callback value " + value);
     };
+    if (guiUtils.isFunction(args.onChange)) {
+        this.callBack = args.onChange;
+    } else if (guiUtils.isFunction(args.onClick)) {
+        this.callBack = args.onClick;
+    }
+
+
 }
+
+/**
+ * get an initial value from the args object
+ * it's the value field if exists, else it is the value from the params object
+ * @method ParamController#getInitialValue
+ * @return the value
+ */
+ParamController.prototype.getInitialValue = function() {
+    let result = 0;
+    if ((guiUtils.isObject(this.params)) && (guiUtils.isDefined(this.property))) {
+        result = this.params[this.property];
+    }
+    result = guiUtils.check(this.args.value, result); // if args.value is defined, then take this one
+    return result;
+};
 
 // "inherit" paramControllerMethods:
 //======================================

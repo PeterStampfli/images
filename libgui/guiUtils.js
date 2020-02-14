@@ -102,6 +102,23 @@ guiUtils.isObject = function(p) {
 };
 
 /**
+ * check if argument is defined
+ * if yes return argument
+ * else return dflt 
+ * @method guiUtils.check
+ * @param {anything} data
+ * @param {anything} dflt - optional, false if not present 
+ * @return data if defined, else default
+ */
+guiUtils.check = function(data, dflt = false) {
+    if (guiUtils.isDefined(data)) {
+        return data;
+    } else {
+        return dflt;
+    }
+};
+
+/**
  * check if a file name is a string and has a good image file extension or is a dataURL of an image
  * @method guiUtils.isGoodImageFile
  * @param {string} filename

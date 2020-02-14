@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>gui emulators</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+<script type="module">
+
+
+import {
+    ParamGui,
+    output,
+    guiUtils,
+    log,
+    ParamController
+}
+from "../libgui/modules.js";
+
+const px = "px";
+
+
+const gui=new ParamGui({},{name:"dummy controls"});
+const s={cc:99}
+
+console.log(guiUtils.check(s.cc));
+
+new ParamController(gui,s,{})
+
+
+
+
+</script>
+
+
+
+</html>

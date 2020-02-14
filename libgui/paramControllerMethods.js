@@ -25,22 +25,30 @@ paramControllerMethods.isInDiv = function() {
 /**
  * make a label with given text and space 
  * it is a span, padding at right and left
+ * minWidth is default design value or args.minLabelWidth
+ * text is the argument text or args.labelText
  * @method paramControllerMethods.createLabel
- * @param {String} text
+ * @param {string} text
  */
 paramControllerMethods.createLabel = function(text) {
     const design = this.design;
     this.label = document.createElement("span");
-    this.label.textContent = text;
     this.label.style.fontSize = design.labelFontSize + "px";
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
-    this.label.style.minWidth = design.labelWidth + "px";
+
+
+    this.label.style.minWidth = guiUtils.check(this.args.minLabelWidth, design.labelWidth) + "px";
     this.label.style.textAlign = design.labelTextAlign;
     // space between label and controller or left border
     this.label.style.paddingLeft = design.spaceWidth + "px";
     this.label.style.paddingRight = design.spaceWidth + "px";
     this.domElement.appendChild(this.label);
+
+    //   let text = guiUtils.check(this.property, "");
+    text = guiUtils.check(this.args.labelText, text);
+    this.label.textContent = text;
+
 };
 
 /**
@@ -296,11 +304,11 @@ paramControllerMethods.style = function() {
 
 /**
  * set a minimum width for label
- * @method paramControllerMethods.setMinLabelWidth
+ * @method paramControllerMethods.setLabelMinWidth
  * @param {int} width
  * @return this, for chaining
  */
-paramControllerMethods.setMinLabelWidth = function(width) {
+paramControllerMethods.setLabelMinWidth = function(width) {
     if (this.label) {
         this.label.style.minWidth = width + "px";
     }
@@ -309,11 +317,11 @@ paramControllerMethods.setMinLabelWidth = function(width) {
 
 /**
  * set a minimum width for the main ui element
- * @method paramControllerMethods.setMinElementWidth
+ * @method paramControllerMethods.setElementMinWidth
  * @param {int} width
  * @return this, for chaining
  */
-paramControllerMethods.setMinElementWidth = function(width) {
+paramControllerMethods.setElementMinWidth = function(width) {
     this.uiElement.setMinWidth(width);
     return this;
 };

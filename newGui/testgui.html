@@ -18,11 +18,10 @@
 
 import {
     ParamGui,
-    ParamCanvas,
+    output,
     log
 }
 from "../libgui/modules.js";
-
 
 const px = "px";
 
@@ -48,12 +47,15 @@ const gui=new ParamGui({
             loggerHeight: 300
         })
 */
+/*
 gui.createOutputDiv();
 
 const canvasObject=new ParamCanvas(gui.addFolder("nice image",{closed: false}),ParamGui.outputDiv,false,true);
 canvasObject.canvasContext.fillStyle="red";
 canvasObject.canvasContext.fillRect(10,20,100,140);
+*/
 
+output.createCanvas(gui,true);
 
 gui.addButton("333",function dasda(){console.log("***")}).addButton("****",function(){console.log("w")})
 gui.addSelect("234",[1,34,67],1,function(){console.log("changing")}).addSelect("234",[1,34,67],1,function(){console.log("changing")})

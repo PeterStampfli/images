@@ -459,6 +459,15 @@ ParamGui.startListening = function() {
     }
 };
 
+
+/**
+ * display update for all controllers with a params object and a property parameter
+ * @method ParamGui.updateDisplay
+ */
+ParamGui.updateDisplay = function() {
+    ParamGui.rootGuis.forEach(gui => gui.updateDisplay());
+};
+
 // keyboard ParamGui.hideCharacter hide/shows all hideable guis
 let hidden = false;
 
@@ -973,6 +982,14 @@ ParamGui.prototype.updateDisplayIfListening = function() {
             element.updateDisplayIfListening();
         }
     });
+};
+
+/**
+ * propagate updateDisplay events 
+ * @method ParamGui#updateDisplay
+ */
+ParamGui.prototype.updateDisplay = function() {
+    this.elements.forEach(element => element.updateDisplay());
 };
 
 /**
