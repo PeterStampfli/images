@@ -32,6 +32,7 @@ export function ParamController(gui, domElement, args) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     // extract params and property from the args object
+    // replace undefined objects (params) by empty object
     this.args = args;
     this.params = guiUtils.check(args.params);
     this.property = guiUtils.check(args.property);

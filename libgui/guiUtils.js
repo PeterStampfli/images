@@ -102,20 +102,23 @@ guiUtils.isObject = function(p) {
 };
 
 /**
- * check if argument is defined
- * if yes return argument
- * else return dflt 
+ * check if some argument is defined
+ * return first defined argument else return false 
+ * Note: a not existing field of an object gives "undefined" (no type error)
+ * a field of something "undefined" gives a type error and the program breaks
+ * To be safe put as last argument a defined default value
  * @method guiUtils.check
- * @param {anything} data
- * @param {anything} dflt - optional, false if not present 
- * @return data if defined, else default
+ * @param {...anything} data
+ * @return first defined argument, from left to right, default false
  */
-guiUtils.check = function(data, dflt = false) {
-    if (guiUtils.isDefined(data)) {
-        return data;
-    } else {
-        return dflt;
+guiUtils.check = function(data) {
+    const length = arguments.length;
+    for (var i = 0; i < length; i++) {
+        if (guiUtils.isDefined(arguments[i])) {
+            return arguments[i];
+        }
     }
+    return false;
 };
 
 /**

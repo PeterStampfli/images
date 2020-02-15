@@ -31,7 +31,10 @@ const px = "px";
 const gui=new ParamGui({},{name:"dummy controls"});
 const s={cc:99}
 
-console.log(guiUtils.check(s.cc));
+console.log(guiUtils.check(s.a,s.cc,8));
+console.log(guiUtils.check(s.a,8));
+console.log(guiUtils.check({}.a,s.cc,8));
+
 
 new ParamController(gui,s,{})
 
