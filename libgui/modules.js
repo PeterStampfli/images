@@ -140,6 +140,7 @@ export {
 from "./paramController.js";
 
 export {
-    ParamGui
+    ParamGui,
+    is
 }
 from "./paramGui.js";

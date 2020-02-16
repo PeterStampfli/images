@@ -8,7 +8,8 @@ import {
     TextInput,
     Popup,
     NumberButton,
-    ParamGui
+    ParamGui,
+    is
 } from "./modules.js";
 
 // note: a line with several ui elements is similar to a folder
@@ -96,83 +97,12 @@ Object.assign(ParamController.prototype, paramControllerMethods);
 /**
  * add another controller to the domElement of this controller
  * @method ParamController#add
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - for the field of object to change, params[property]
- * @param {float/integer/array} low - determines lower limit/choices (optional)
- * @param {float/integer} high - determines upper limit (optional)
- * @param {float/integer} step - determines step size (optional)
+ * @param {Object} args - object that defines the controller
  */
-ParamController.prototype.add = function(params, property, low, high, step) {
-    const controller = ParamController.create(this.gui, this.domElement, params, property);
+ParamController.prototype.add = function(args) {
+    const controller = ParamController.create(this.gui, this.domElement, args);
     return controller;
 };
-
-
-/**
- * add a button controller with simple interface
- * @method ParamController#addButton
- * @param {string} text - for the button
- * @param {function} action - what the button does
- * @return {controller} with the button
- */
-ParamController.prototype.addButton = function(text, action) {
-    const controller = ParamController.createButton(this.gui, this.domElement, text, action);
-    return controller;
-};
-
-/**
- * create a select ui, the options are an array or object
- * @method ParamController.addSelect
- * @param {string} labelText
- * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
- * @param {value} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.prototype.addSelect = function(labelText, options, value, action = false) {
-    const controller = ParamController.createSelect(this.gui, this.domElement, labelText, options, value, action);
-    return controller;
-};
-
-/**
- * add a boolean button
- * @method ParamController.addBooleanButton
- * @param {string} labelText - for the label
- * @param {boolean} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.prototype.addBooleanButton = function(labelText, value, action = false) {
-    const controller = ParamController.createBooleanButton(this.gui, this.domElement, labelText, value, action);
-    return controller;
-};
-
-/**
- * add an ui element to input text
- * @method ParamController.addTextInput
- * @param {string} labelText - for the label
- * @param {string} text
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.prototype.addTextInput = function(labelText, text, action = false) {
-    const controller = ParamController.createTextInput(this.gui, this.domElement, labelText, text, action);
-    return controller;
-};
-
-/**
- *  add ui element to input numbers, with action
- * .addNumberButton("label",3.1,function action(){...}) is possible
- * @method ParamController.addNumberButton
- * @param {string} labelText - for the label
- * @param {number} value
- * @param {number} low - optional
- * @param {number} high - optional, requires low
- * @param {number} step - optional, requires low and high
- * @param {function} action - optional, does it upon onChange, independent of low, high and step
- */
-ParamController.prototype.addNumberButton = function(labelText, value, low, high, step, action = false) {
-    const controller = ParamController.createNumberButton(this.gui, this.domElement, labelText, value, low, high, step, action);
-    return controller;
-};
-
 
 
 // special parameters for these popups, not specified in paramGui
@@ -454,7 +384,7 @@ ParamController.prototype.destroy = function() {
         this.label.remove();
         this.label = null;
     }
-    if (this.domElement) {
+    if (this.domElement) { // domElement might have been removed by another secondary element
         this.domElement.remove();
         this.domElement = null;
     }
@@ -478,41 +408,37 @@ ParamController.prototype.remove = ParamController.prototype.destroy;
  * @method ParamController.create
  * @param {ParamGui} gui - the gui it is in
  * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - for the field of object to change, params[property]
- * @param {float/integer/array} low - determines lower limit/choices (optional)
- * @param {float/integer} high - determines upper limit (optional)
- * @param {float/integer} step - determines step size (optional)
+ * @param {Object} args - object that defines the controller
  *  @return the controller
  */
-ParamController.create = function(gui, domElement, params, property, low, high, step) {
+ParamController.create = function(gui, domElement, args) {
     var controller;
-    const paramValue = params[property];
-    if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
-        // low, the first parameter for limits is an array or object, thus make a selection
-        controller = ParamController.createSelect(gui, domElement, property, low, paramValue);
-    } else if (guiUtils.isBoolean(paramValue)) {
-        // the parameter value is boolean, thus make a BooleanButton
-        controller = ParamController.createBooleanButton(gui, domElement, property, paramValue);
-    } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
-        // there is no parameter value with the property or it is a function
-        // thus make a button with the property as text, no label
-        controller = ParamController.createButton(gui, domElement, property, paramValue);
-    } else if (guiUtils.isString(paramValue)) {
-        // the parameter value is a string thus make a text input button
-        controller = ParamController.createTextInput(gui, domElement, property, paramValue);
-    } else if (guiUtils.isNumber(paramValue)) {
-        controller = ParamController.createNumberButton(gui, domElement, property, paramValue, low, high, step);
-    } else {
-        // no idea/error
-        controller = new ParamController(gui, domElement);
-        controller.createLabel("*** " + property + " - error: no fitting controll found");
-        console.log("no fitting controller found:");
-        console.log("property " + property);
-        console.log("low " + low + ", high " + high + ", step " + step);
+    switch (args.type) {
+        case is.SELECT:
+            controller = ParamController.createSelect(gui, domElement, args);
+            break;
+        case is.BOOLEAN:
+            controller = ParamController.createBooleanButton(gui, domElement, args);
+            break;
+        case is.BUTTON:
+            controller = ParamController.createButton(gui, domElement, args);
+            break;
+        case is.TEXT:
+            controller = ParamController.createTextInput(gui, domElement, args);
+            break;
+        case is.NUMBER:
+            controller = ParamController.createNumberButton(gui, domElement, args);
+            break;
+        case is.COLOR:
+            controller = ParamController.createColor(gui, domElement, args);
+            break;
+        case is.IMAGE:
+            controller = ParamController.createImage(gui, domElement, args);
+            break;
+        default:
+            controller = ParamController.createError(gui, domElement, args);
+            break;
     }
-    controller.params = params; // required for transmitting data
-    controller.property = property;
     return controller;
 };
 

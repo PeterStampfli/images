@@ -183,7 +183,6 @@ ParamGui.defaultDesign = {
 
     // image select, loading user images
     //===============================================
-    preferNewImageselect: true,
     acceptUserImages: true,
     addImageButtonText: "add images",
     dropToPopupText: "Drop images here!",
@@ -744,190 +743,141 @@ ParamGui.prototype.remove = function(element) {
  */
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
-/**
- * create a div for a controller
- * @method ParamGui#createControllerDomElement
- * @return a formatted div
+/*
+ * define the kind of controller
  */
-ParamGui.prototype.createControllerDomElement = function() {
-    const controllerDomElement = document.createElement("div");
-    // make a regular spacing between elements
-    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
-    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    return controllerDomElement;
-};
-
-/**
- * make a controller with an image selection
- * choices as an object with (label: value pairs)
- * for choosing images:
- * set labels and image urls as two strings, key value pairs of an object choices={ "label1": "URL1", ...},
- * for other uses (presets): image is only a label 
- * then use an object made of labels (again as keys) and value objects with image and value fields
- * this value field is actually choosen (the preset object), thus
- * choices={"label1": {"image": "URL1", value: someData}, ...}
- * @method ParamGui#addImageSelection
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - key for the field of params to change, params[property]
- * @param {object} choices - see above
- * @return {ParamController} object
- */
-ParamGui.prototype.addImageSelection = function(params, property, choices) {
-    const controllerDomElement = document.createElement("div");
-    // make a regular spacing between elements
-    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
-    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    const controller = new ParamImageSelection(this, controllerDomElement, params, property, choices);
-    this.bodyDiv.appendChild(controllerDomElement);
-    this.elements.push(controller);
-    return controller;
+export const is = {
+    NUMBER: "number",
+    TEXT: "text",
+    BUTTON: "button",
+    SELECTION: "number",
+    BOOLEAN: "boolean",
+    IMAGE: "image",
+    COLOR: "color",
+    ERROR: "error"
 };
 
 /**
  * add a controller for a parameter, one controller on a line, in its div
  * depending on its value and limits
+ * parameters as in datGui.js for compatibility
+ * or a single argument objects that has all information and gives more flexibility
  * @method ParamGui#add
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - key for the field of params to change, params[property]
+ * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller
+ * @param {String} theProperty - key for the field of params to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
  * @return {ParamController} object, the controller
  */
-/*
+
+/* Old datGui style parameters (backwards compatible with datGui.js)
+ *-------------------------------------------------------------------
  * if low is an object or array then make a selection or a new image select
- * if params[property] is undefined make a button (action defined by onClick method of the controller object
- * if params[property] is boolean make a booleanButton
- * if params[property] is a string make a text textInput  
- * if params[property] is a function make a button with this function as onClick method 
- * if params[property] is a number make a number button with lower and upper limits if defined, 
+ * if theParams[theProperty] is undefined make a button (action defined by onClick method of the controller object
+ * if theParams[theProperty] is boolean make a booleanButton
+ * if theParams[theProperty] is a string make a text textInput  
+ * if theParams[theProperty] is a function make a button with this function as onClick method 
+ * if theParams[theProperty] is a number make a number button with lower and upper limits if defined, 
  *                                 if step is not defined, then a step size is deduced from the parameter value
  *                                 function buttons and range can be added to the domElement or the popup (if exists)
  */
 
-/**
- * adding a controller for a simple parameter
- * uses new image select with popup instead of simple select if:
- *     if design.preferNewImageselect is true and low is an object (that defines choices)
- *     and first low.value is a good image file
- * @method ParamGui#add
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - for the field of object to change, params[property]
- * @param {float/integer/array} low - determines lower limit/choices (optional)
- * @param {float/integer} high - determines upper limit (optional)
- * @param {float/integer} step - determines step size (optional)
- */
-ParamGui.prototype.add = function(params, property, low, high, step) {
-    // see if we use the new image select:
-    // if design option is true and low is an object (that defines choices)
-    // and first low.value is a good image file
-    let useNewSelect = (this.design.preferNewImageselect) && (guiUtils.isObject(low));
-    useNewSelect = useNewSelect && (guiUtils.isGoodImageFile(low[Object.keys(low)[0]])); //first property of low is an image file
-    if (useNewSelect) {
-        // use the new image select
-        return this.addImageSelection(params, property, low);
+/* new arguments object
+*------------------------------------------------------------
+* args.params
+
+
+*/
+
+ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
+    var args;
+    if (arguments.length === 1) {
+        args = theParams; // the new version
+        console.log(args);
     } else {
-        const controllerDomElement = this.createControllerDomElement();
-        const controller = ParamController.create(this, controllerDomElement, params, property, low, high, step);
-        // change dom after all work has been done
-        this.bodyDiv.appendChild(controllerDomElement);
-        return controller;
+        console.log("generating an args object from old-style parameters");
+        args = {
+            params: theParams,
+            property: theProperty
+        };
+        const paramValue = theParams[theProperty];
+        // determine type of controller from paramValue and low
+        // add other fields to args depending on the type
+        if (guiUtils.isObject(low) &&
+            guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
+            // if design option is true and low is an object (that defines choices)
+            // and first low.value is a good image file:  we use the new image selection
+            args.type = is.IMAGE;
+            args.options = low;
+        } else if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
+            // low, the first parameter for limits is an array or object, thus make a selection
+            // we have to test this first as the paramValue might be anything    
+            args.type = is.SELECTION;
+            args.choices = low;
+        } else if (guiUtils.isBoolean(paramValue)) {
+            // the parameter value is boolean, thus make a BooleanButton
+            args.type = is.BOOLEAN;
+        } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
+            // there is no parameter value with the property or it is a function
+            // thus make a button with the property as text, no label
+            args.type = is.BUTTON;
+            if (guiUtils.isFunction(paramValue)) {
+                args.onClick = paramValue;
+            }
+        } else if (guiUtils.isString(paramValue)) {
+            // the parameter value is a string thus make a text input button
+            args.type = is.TEXT;
+        } else if (guiUtils.isNumber(paramValue)) {
+            args.type = is.NUMBER;
+            if (guiUtils.isNumber(low)) {
+                args.min = low;
+            }
+            if (guiUtils.isNumber(high)) {
+                args.max = high;
+            }
+            if (guiUtils.isNumber(step)) {
+                args.stepSize = step;
+            }
+        } else {
+            // no idea/error
+            args.type = is.ERROR;
+            console.log("no fitting controller type found:");
+            console.log("property " + theProperty + " with value " + paramValue);
+            console.log("low " + low + ", high " + high + ", step " + step);
+        }
+        console.log(args);
     }
-};
-
-/**
- * add a button controller with simple interface
- * @method ParamGui#addButton
- * @param {string} text - for the button
- * @param {function} action - what the button does
- * @return {controller} with the button
- */
-ParamGui.prototype.addButton = function(text, action) {
-    const controllerDomElement = this.createControllerDomElement();
-    const controller = ParamController.createButton(this, controllerDomElement, text, action);
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
-};
-
-/**
- * create a select ui, the options are an array or object
- * @method ParamGui.addSelect
- * @param {string} labelText
- * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
- * @param {value} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamGui.prototype.addSelect = function(labelText, options, value, action = false) {
-    const controllerDomElement = this.createControllerDomElement();
-    const controller = ParamController.createSelect(this, controllerDomElement, labelText, options, value, action);
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
-};
-
-/**
- * add a boolean button
- * @method ParamGui.addBooleanButton
- * @param {string} labelText - for the label
- * @param {boolean} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamGui.prototype.addBooleanButton = function(labelText, value, action = false) {
-    const controllerDomElement = this.createControllerDomElement();
-    const controller = ParamController.createBooleanButton(this, controllerDomElement, labelText, value, action);
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
-};
-
-/**
- * add an ui element to input text
- * @method ParamGui.addTextInput
- * @param {string} labelText - for the label
- * @param {string} text
- * @param {function} action - optional, does it upon onChange
- */
-ParamGui.prototype.addTextInput = function(labelText, text, action = false) {
-    const controllerDomElement = this.createControllerDomElement();
-    const controller = ParamController.createTextInput(this, controllerDomElement, labelText, text, action);
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
-};
-
-
-/**
- *  add ui element to input numbers, with action
- * .addNumberButton("label",3.1,function action(){...}) is possible
- * @method ParamGui.addNumberButton
- * @param {string} labelText - for the label
- * @param {number} value
- * @param {number} low - optional
- * @param {number} high - optional, requires low
- * @param {number} step - optional, requires low and high
- * @param {function} action - optional, does it upon onChange, independent of low, high and step
- */
-ParamGui.prototype.addNumberButton = function(labelText, value, low, high, step, action = false) {
-    const controllerDomElement = this.createControllerDomElement();
-    const controller = ParamController.createNumberButton(this, controllerDomElement, labelText, value, low, high, step, action);
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
-};
-
-/**
- * make a controller for color
- * @method ParamGui#addColor
- * @param {Object} params - object that has the parameter as a field
- * @param {String} property - key for the field of params to change, params[property]
- * @return {ParamController} object
- */
-ParamGui.prototype.addColor = function(params, property) {
     const controllerDomElement = document.createElement("div");
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    const controller = new ParamColor(this, controllerDomElement, params, property);
+    //   const controller = ParamController.create(this, controllerDomElement, args);
+    //=====================================================================================
+    // change dom after all work has been done
     this.bodyDiv.appendChild(controllerDomElement);
-    this.elements.push(controller);
-    return controller;
+    //  return controller;
 };
+
+
+
+/**
+ * make a controller for color, datGui.js style parameters
+ * @method ParamGui#addColor
+ * @param {Object} theParams - object that has the parameter as a field
+ * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
+ * @return {ParamController} object
+ */
+ParamGui.prototype.addColor = function(theParams, theProperty) {
+    const args = {
+        params: theParams,
+        property: theProperty,
+        type: is.COLOR
+    };
+    return this.add(args);
+};
+
+
 
 /**
  * add a div to make a vertical space
