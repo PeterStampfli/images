@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>conversion of params</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+<script type="module">
+
+
+import {
+    guiUtils,
+    ParamGui
+}
+from "../libgui/modules.js";
+
+// for backwards compatibility convert old style params to new args object
+// required for ParamGui#add
+// ParamGui#addColor
+
+// types of controllers
+
+
+ParamGui.NUMBER="number";
+ParamGui.TEXT="text";
+ParamGui.BUTTON="button";
+ParamGui.SELECTION="number";
+ParamGui.BOOLEAN="boolean";
+ParamGui.IMAGE="image";
+ParamGui.COLOR="number";
+ParamGui.ERROR="error";
+
+ParamGui.addImageSelection=function(params, property, low){
+	console.log("image selection");
+};
+ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
+    var args;
+    if (arguments.length === 1) {
+        args = theParams; // the new version
+    } else if (this.design.preferNewImageselect &&
+        guiUtils.isObject(low) &&
+        guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
+        //  oh no, old style, look if we have an image selection
+        // we use the new image select:
+        // if design option is true and low is an object (that defines choices)
+        // and first low.value is a good image file
+        return this.addImageSelection(theParams, theProperty, low);
+    } else {
+        // we generate an args object from the old-style parameters
+        // the controller type is determined here
+        console.log("generating an args object from old-style parameters");
+        args = {
+            params: theParams,
+            property: theProperty
+        };
+        const paramValue = theParams[theProperty];
+        if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
+            // low, the first parameter for limits is an array or object, thus make a selection
+            // we have to test this first as the paramValue might be anything    
+            args.type = ParamGui.SELECTION;
+            args.options = low;
+        } else if (guiUtils.isBoolean(paramValue)) {
+            // the parameter value is boolean, thus make a BooleanButton
+            args.type = ParamGui.BOOLEAN;
+        } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
+            // there is no parameter value with the property or it is a function
+            // thus make a button with the property as text, no label
+            args.type = ParamGui.BUTTON;
+            if (guiUtils.isFunction(paramValue)) {
+                args.onClick = paramValue;
+            }
+        } else if (guiUtils.isString(paramValue)) {
+            // the parameter value is a string thus make a text input button
+            args.type = ParamGui.TEXT;
+        } else if (guiUtils.isNumber(paramValue)) {
+            args.type = ParamGui.NUMBER;
+            if (guiUtils.isNumber(low)) {
+                args.min = low;
+            }
+            if (guiUtils.isNumber(high)) {
+                args.max = high;
+            }
+            if (guiUtils.isNumber(step)) {
+                args.stepSize = step;
+            }
+        } else {
+            // no idea/error
+            args.type = ParamGui.ERROR;
+            console.log("no fitting controller type found:");
+            console.log("property " + theProperty + " with value " + paramValue);
+            console.log("low " + low + ", high " + high + ", step " + step);
+        }
+        console.log(args);
+    }
+};
+const p = {
+    name: "anna",
+    weight: 66,
+    whatever:true,
+};
+
+const gui = new ParamGui();
+
+gui.add(p, "weight", 0, 100,0.1);
+gui.add(p, "name", 0, 100);
+gui.add(p, "nix", 0, 100);
+gui.add(p, "whatever", 0, 100);
+
+
+</script>
+
+
+
+</html>
