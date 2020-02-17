@@ -141,6 +141,6 @@ from "./paramController.js";
 
 export {
     ParamGui,
-    is
+    NUMBER,TEXT,SELECTION,BUTTON,IMAGE,COLOR,ERROR,BOOLEAN
 }
 from "./paramGui.js";

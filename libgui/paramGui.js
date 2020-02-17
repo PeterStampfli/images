@@ -746,16 +746,15 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 /*
  * define the kind of controller
  */
-export const is = {
-    NUMBER: "number",
-    TEXT: "text",
-    BUTTON: "button",
-    SELECTION: "number",
-    BOOLEAN: "boolean",
-    IMAGE: "image",
-    COLOR: "color",
-    ERROR: "error"
-};
+export const NUMBER = "number";
+export const TEXT = "text";
+export const BUTTON = "button";
+export const SELECTION = "selection";
+export const BOOLEAN = "boolean";
+export const IMAGE = "image";
+export const COLOR = "color";
+export const ERROR = "error";
+
 
 /**
  * add a controller for a parameter, one controller on a line, in its div
@@ -784,11 +783,11 @@ export const is = {
  */
 
 /* new arguments object
-*------------------------------------------------------------
-* args.params
-
-
-*/
+ *------------------------------------------------------------
+ * args.params
+ 
+ 
+ */
 
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     var args;
@@ -808,28 +807,28 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
             guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
             // if design option is true and low is an object (that defines choices)
             // and first low.value is a good image file:  we use the new image selection
-            args.type = is.IMAGE;
+            args.type = IMAGE;
             args.options = low;
         } else if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
             // low, the first parameter for limits is an array or object, thus make a selection
             // we have to test this first as the paramValue might be anything    
-            args.type = is.SELECTION;
+            args.type = SELECTION;
             args.choices = low;
         } else if (guiUtils.isBoolean(paramValue)) {
             // the parameter value is boolean, thus make a BooleanButton
-            args.type = is.BOOLEAN;
+            args.type = BOOLEAN;
         } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
             // there is no parameter value with the property or it is a function
             // thus make a button with the property as text, no label
-            args.type = is.BUTTON;
+            args.type = BUTTON;
             if (guiUtils.isFunction(paramValue)) {
                 args.onClick = paramValue;
             }
         } else if (guiUtils.isString(paramValue)) {
             // the parameter value is a string thus make a text input button
-            args.type = is.TEXT;
+            args.type = TEXT;
         } else if (guiUtils.isNumber(paramValue)) {
-            args.type = is.NUMBER;
+            args.type = NUMBER;
             if (guiUtils.isNumber(low)) {
                 args.min = low;
             }
@@ -841,7 +840,7 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
             }
         } else {
             // no idea/error
-            args.type = is.ERROR;
+            args.type = ERROR;
             console.log("no fitting controller type found:");
             console.log("property " + theProperty + " with value " + paramValue);
             console.log("low " + low + ", high " + high + ", step " + step);
@@ -852,11 +851,10 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    //   const controller = ParamController.create(this, controllerDomElement, args);
-    //=====================================================================================
+       const controller = new ParamController(this, controllerDomElement, args);
     // change dom after all work has been done
     this.bodyDiv.appendChild(controllerDomElement);
-    //  return controller;
+     return controller;
 };
 
 
@@ -869,15 +867,16 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(theParams, theProperty) {
+    if (!guiUtils.isDefined(theProperty)) {
+        console.log("*** addColor: undefined property !!");
+    }
     const args = {
         params: theParams,
         property: theProperty,
-        type: is.COLOR
+        type: COLOR
     };
     return this.add(args);
 };
-
-
 
 /**
  * add a div to make a vertical space

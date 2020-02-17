@@ -9,7 +9,14 @@ import {
     Popup,
     NumberButton,
     ParamGui,
-    is
+    NUMBER,
+    TEXT,
+    SELECTION,
+    BUTTON,
+    IMAGE,
+    COLOR,
+    ERROR,
+    BOOLEAN
 } from "./modules.js";
 
 // note: a line with several ui elements is similar to a folder
@@ -27,21 +34,33 @@ export function ParamController(gui, domElement, args) {
     this.gui = gui;
     this.design = gui.design;
     this.domElement = domElement;
+    const controller = this;
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
-    // extract params and property from the args object
-    // replace undefined objects (params) by empty object
     this.args = args;
-    this.params = guiUtils.check(args.params);
-    this.property = guiUtils.check(args.property);
-    this.listening = guiUtils.isDefined(args.params) && guiUtils.isDefined(args.property) && guiUtils.check(args.listen);
+    // see if we have a params object with parameters to control
+    if (guiUtils.isObject(args.params)) {
+        this.params = args.params;
+        // now args.property should be a string as key to the params object
+        if (guiUtils.isString(args.property)) {
+            this.property = args.property;
+            // for buttons, the parameter value might be undefined, else it might be everything
+            if (guiUtils.isDefined(this.params[this.property])) {
+                this.paramValue = this.params[this.property];
+                console.log(this.paramValue);
+            }
+        } else {
+            console.log("*** ParamController: args.property is not a string. It is " + args.property);
+        }
+    }
+    // activate listening if we have a parameter object, key and args.listening is true
+    this.listening = guiUtils.isDefined(args.params) && guiUtils.isDefined(args.property) && guiUtils.check(args.listening);
     if (this.listening) {
         ParamGui.startListening(); // automatically update display
     }
-
 
     /**
      * callback for changes
@@ -51,29 +70,63 @@ export function ParamController(gui, domElement, args) {
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-    if (guiUtils.isFunction(args.onChange)) {
-        this.callBack = args.onChange;
-    } else if (guiUtils.isFunction(args.onClick)) {
-        this.callBack = args.onClick;
+
+    // get callback from different arguments. For a button it might be the parameter value
+    if (args.type === BUTTON) {
+        this.callback = guiUtils.check(args.onChange, args.onClick, this.paramValue, this.callback);
+    } else {
+        this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
+        this.initialValue = guiUtils.check(args.initialValue, this.paramValue);
     }
+    // get initial value from different arguments. Not for button
+    if (args.type !== BUTTON) {
+        this.initialValue = guiUtils.check(args.initialValue, this.paramValue);
+    }
+    var labelText, buttonText;
+    // get label text, again button is special: the property might be the button text but not the label text
+    if (args.type === BUTTON) {
+        labelText = guiUtils.check(args.labelText, "");
+        buttonText = guiUtils.check(args.buttonText, this.property, "missing text");
+    } else {
+        labelText = guiUtils.check(args.labelText, this.property, "");
+    }
+    this.createLabel(labelText);
 
-
+    switch (args.type) {
+        case SELECTION:
+            break;
+        case BOOLEAN:
+            break;
+        case BUTTON:
+            const button = new Button(buttonText, this.domElement);
+            button.setFontSize(this.design.buttonFontSize);
+            guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+            this.uiElement = button;
+            button.onClick = function() {
+                controller.callback();
+            };
+            this.setValue = function() {};
+            this.setValueOnly = function() {};
+            this.getValue = function() {};
+            this.updateDisplay = function() {};
+            this.setupOnInteraction();
+            break;
+        case TEXT:
+            break;
+        case NUMBER:
+            break;
+        case COLOR:
+            break;
+        case IMAGE:
+            break;
+        default:
+            const mess = document.createElement("span");
+            mess.innerText = 'problem with type: "' + args.type + '"';
+            mess.style.fontSize = this.design.titleFontSize + "px";
+            this.domElement.appendChild(mess);
+            break;
+    }
 }
-
-/**
- * get an initial value from the args object
- * it's the value field if exists, else it is the value from the params object
- * @method ParamController#getInitialValue
- * @return the value
- */
-ParamController.prototype.getInitialValue = function() {
-    let result = 0;
-    if ((guiUtils.isObject(this.params)) && (guiUtils.isDefined(this.property))) {
-        result = this.params[this.property];
-    }
-    result = guiUtils.check(this.args.value, result); // if args.value is defined, then take this one
-    return result;
-};
 
 // "inherit" paramControllerMethods:
 //======================================
@@ -100,7 +153,7 @@ Object.assign(ParamController.prototype, paramControllerMethods);
  * @param {Object} args - object that defines the controller
  */
 ParamController.prototype.add = function(args) {
-    const controller = ParamController.create(this.gui, this.domElement, args);
+    const controller = new ParamController(this.gui, this.domElement, args);
     return controller;
 };
 
@@ -399,80 +452,8 @@ ParamController.prototype.destroy = function() {
  */
 ParamController.prototype.remove = ParamController.prototype.destroy;
 
-// ParamController factories
-//===============================================================
 
-/**
- * create a controller for a simple parameter
- * inside a given container, using given design
- * @method ParamController.create
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {Object} args - object that defines the controller
- *  @return the controller
- */
-ParamController.create = function(gui, domElement, args) {
-    var controller;
-    switch (args.type) {
-        case is.SELECT:
-            controller = ParamController.createSelect(gui, domElement, args);
-            break;
-        case is.BOOLEAN:
-            controller = ParamController.createBooleanButton(gui, domElement, args);
-            break;
-        case is.BUTTON:
-            controller = ParamController.createButton(gui, domElement, args);
-            break;
-        case is.TEXT:
-            controller = ParamController.createTextInput(gui, domElement, args);
-            break;
-        case is.NUMBER:
-            controller = ParamController.createNumberButton(gui, domElement, args);
-            break;
-        case is.COLOR:
-            controller = ParamController.createColor(gui, domElement, args);
-            break;
-        case is.IMAGE:
-            controller = ParamController.createImage(gui, domElement, args);
-            break;
-        default:
-            controller = ParamController.createError(gui, domElement, args);
-            break;
-    }
-    return controller;
-};
 
-/**
- * create a button to click
- * button has some text, executes a function (if given)
- * inside a given container, using given design
- * does not depend on aparameter object
- * @method ParamController.createButton
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {string} buttonText - the label is empty
- * @param {function} action - optional, does it upon click
- */
-ParamController.createButton = function(gui, domElement, buttonText, action = false) {
-    const controller = new ParamController(gui, domElement);
-    controller.createLabel("");
-    const button = new Button(buttonText, controller.domElement);
-    button.setFontSize(controller.design.buttonFontSize);
-    guiUtils.hSpace(controller.domElement, ParamGui.spaceWidth);
-    controller.uiElement = button;
-    if (action) {
-        controller.callback = action;
-    }
-    button.onClick = function() {
-        controller.callback();
-    };
-    controller.setValue = function() {};
-    controller.setValueOnly = function() {};
-    controller.getValue = function() {};
-    controller.updateDisplay = function() {};
-    controller.setupOnInteraction();
-    return controller;
-};
 
 /**
  * create a select ui, the options are an array or object

@@ -18,7 +18,8 @@
 
 import {
     guiUtils,
-    ParamGui
+    ParamGui,   
+     NUMBER,TEXT,SELECTION,BUTTON,IMAGE,COLOR,ERROR,BOOLEAN
 }
 from "../libgui/modules.js";
 
@@ -33,12 +34,21 @@ const p = {
 
 const gui = new ParamGui();
 
-gui.add(p, "weight", 0, 100,0.1);
-gui.add(p, "name", 0, 100);
-gui.add(p, "nix", 0, 100);
-gui.add(p, "whatever", 0, 100);
 
-gui.addColor(p,"imge",5678);
+//gui.add(p, "weight", 0, 100,0.1);
+gui.add(p, "name", 0, 100);
+//gui.add(p, "nix", 0, 100);
+//gui.add(p, "whatever", 0, 100);
+
+//gui.addColor(p,"imge",5678);
+
+
+gui.add({type: BUTTON,
+	onClick: function some(){console.log("click")},
+	labelText:"einbutton",
+//	buttonText: "button"
+})
+gui.add({type:"blax"})
 </script>
 
 
