@@ -55,6 +55,8 @@ gui.add({type:BOOLEAN,labelText:"bobo",initialValue:true})
 gui.add({type:TEXT,labelText:"lala",initialValue:"loremipsum", onChange: function(value) {console.log(value)}})
 gui.add({type:SELECTION,labelText:"sel",initialValue:"ann", 
 	options: ["berta","ann","carla"]})
+
+	gui.add({type:NUMBER,min:10,max:30,stepSize:0.1,initialValue:1.5,labelText:"nn"}).createIndicator().createMaxMinButtons()
 </script>
 
 

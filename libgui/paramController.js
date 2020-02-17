@@ -148,16 +148,39 @@ export function ParamController(gui, domElement, args) {
                 break;
             }
         case NUMBER:
-            break;
+            {
+                const button = new NumberButton(this.domElement);
+                this.buttonContainer = false;
+                button.setInputWidth(this.design.numberInputWidth);
+                // separating space to additional elements
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                // set limits and step
+                if (guiUtils.isNumber(args.min)) {
+                    button.setLow(args.min);
+                }
+                if (guiUtils.isNumber(args.max)) {
+                    button.setHigh(args.max);
+                }
+                if (guiUtils.isNumber(args.stepSize)) {
+                    button.setStep(args.stepSize);
+                } else {
+                    button.setStep(NumberButton.findStep(this.initialValue));
+                }
+                button.setValue(this.initialValue);
+                this.uiElement = button;
+                this.setupOnChange();
+                this.setupOnInteraction();
+                break;
+            }
         case COLOR:
             break;
         case IMAGE:
             break;
         default:
-            const mess = document.createElement("span");
-            mess.innerText = 'problem with type: "' + args.type + '"';
-            mess.style.fontSize = this.design.titleFontSize + "px";
-            this.domElement.appendChild(mess);
+            const message = document.createElement("span");
+            message.innerText = 'problem with type: "' + args.type + '"';
+            message.style.fontSize = this.design.titleFontSize + "px";
+            this.domElement.appendChild(message);
             break;
     }
 
@@ -196,51 +219,12 @@ ParamController.prototype.add = function(args) {
     return controller;
 };
 
-
 // special parameters for these popups, not specified in paramGui
 ParamController.popupDesign = {
     popupBorderRadius: 0,
     popupShadowWidth: 0,
     popupShadowBlur: 0,
     popupInnerWidth: 0
-};
-
-/**
- * create popup for number button, make that onInteraction opens the popup
- * open the popup close to the ui element
- * @method ParamController#createPopup
- * @return this
- */
-ParamController.prototype.createPopup = function() {
-    // a popup for additional buttons
-    this.popup = new Popup(this.design, ParamController.popupDesign);
-    this.popup.addCloseButton();
-    this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
-    this.popup.close();
-    // on interaction: call close popups, 
-    // mark that this controller interacts, do not close its own popup
-    this.callsClosePopup = false;
-
-    // change onInteraction callback to close/open popup
-    const controller = this;
-    this.uiElement.onInteraction = function() {
-        controller.popup.open();
-        controller.callsClosePopup = true;
-        ParamGui.closePopups();
-        controller.callsClosePopup = false;
-        const topPosition = guiUtils.topPosition(controller.domElement);
-        controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
-    };
-
-    // change close popup function to leave popup open if this called it
-    this.closePopup = function() {
-        if (!this.callsClosePopup) {
-            this.popup.close();
-        }
-    };
-
-    // the container for additional buttons
-    this.buttonContainer = this.popup.contentDiv;
 };
 
 /**
@@ -252,8 +236,36 @@ ParamController.prototype.createPopup = function() {
  */
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
-        if (this.design.popupForNumberController) {
-            this.createPopup();
+        if (this.usePopup) {
+   this.popup = new Popup(this.design, ParamController.popupDesign);
+    this.popup.addCloseButton();
+    this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
+    this.popup.close();
+    // on interaction: call close popups, 
+    // mark that this controller interacts, do not close its own popup
+    this.callsClosePopup = false;
+
+    // change onInteraction callback to close/open popup
+    // open popup at height of controller
+    const controller = this;
+    this.uiElement.onInteraction = function() {
+        controller.popup.open();
+        controller.callsClosePopup = true;
+        ParamGui.closePopups();
+        controller.callsClosePopup = false;
+        const topPosition = guiUtils.topPosition(controller.domElement);
+        controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
+    };
+
+    // change close popup function to leave popup open if this controller called it
+    this.closePopup = function() {
+        if (!this.callsClosePopup) {
+            this.popup.close();
+        }
+    };
+
+    // the container for additional buttons
+    this.buttonContainer = this.popup.contentDiv;
         } else {
             this.buttonContainer = this.domElement;
         }
@@ -261,205 +273,228 @@ ParamController.prototype.setupButtonContainer = function() {
 };
 
 /**
- * create methods for creating the additional buttons for number input
- * @method ParamController#setupCreationOfAdditionalButtons
+ * make an add button
+ * @method ParamController#createAddButton
+ * @param {string} text
+ * @param {number} amount
+ * @return this controller
  */
-ParamController.prototype.setupCreationOfAdditionalButtons = function() {
-    const button = this.uiElement;
+ParamController.prototype.createAddButton = function(text, amount) {
+    this.setupButtonContainer();
+    this.uiElement.createAddButton(text, this.buttonContainer, amount);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * make an add button
-     * @method ParamController#createAddButton
-     * @param {string} text
-     * @param {number} amount
-     * @return this controller
-     */
-    this.createAddButton = function(text, amount) {
-        this.setupButtonContainer();
-        button.createAddButton(text, this.buttonContainer, amount);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * make plus and minus 1 buttons
+ * @method ParamController#createPlusMinusButtons
+ * @return this controller
+ */
+ParamController.prototype.createPlusMinusButtons = function() {
+    this.createAddButton("-1", -1);
+    this.createAddButton("+1", 1);
+    return this;
+};
 
-    /**
-     * make plus and minus 1 buttons
-     * @method ParamController#createPlusMinusButtons
-     * @return this controller
-     */
-    ParamController.prototype.createPlusMinusButtons = function() {
-        this.createAddButton("-1", -1);
-        this.createAddButton("+1", 1);
-        return this;
-    };
+/**
+ * make an multiplication button
+ * @method ParamController#createMulButton
+ * @param {string} text
+ * @param {number} amount
+ * @return this controller
+ */
+ParamController.prototype.createMulButton = function(text, amount) {
+    this.setupButtonContainer();
+    this.uiElement.createMulButton(text, this.buttonContainer, amount);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * make an multiplication button
-     * @method ParamController#createMulButton
-     * @param {string} text
-     * @param {number} amount
-     * @return this controller
-     */
-    this.createMulButton = function(text, amount) {
-        this.setupButtonContainer();
-        button.createMulButton(text, this.buttonContainer, amount);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * make multiply and divide by 2 buttons
+ * @method ParamController#createMulDivButtons
+ * @return this controller
+ */
+ParamController.prototype.createMulDivButtons = function() {
+    this.createMulButton("/ 2", 0.5);
+    this.createMulButton("* 2", 2);
+    return this;
+};
 
-    /**
-     * make multiply and divide by 2 buttons
-     * @method ParamController#createMulDivButtons
-     * @return this controller
-     */
-    ParamController.prototype.createMulDivButtons = function() {
-        this.createMulButton("/ 2", 0.5);
-        this.createMulButton("* 2", 2);
-        return this;
-    };
+/**
+ * create a button that sets the minimum value
+ * @method ParamController#createMiniButton
+ * @return this - the controller
+ */
+ParamController.prototype.createMiniButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createMiniButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that sets the minimum value
-     * @method ParamController#createMiniButton
-     * @return this - the controller
-     */
-    this.createMiniButton = function() {
-        this.setupButtonContainer();
-        button.createMiniButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a button that sets the maximum value
+ * @method ParamController#createMaxiButton
+ * @return this - the controller
+ */
+ParamController.prototype.createMaxiButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createMaxiButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that sets the maximum value
-     * @method ParamController#createMaxiButton
-     * @return this - the controller
-     */
-    this.createMaxiButton = function() {
-        this.setupButtonContainer();
-        button.createMaxiButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * make min and max buttons
+ * @method ParamController#createMaxMinButtons
+ * @return this controller
+ */
+ParamController.prototype.createMaxMinButtons = function() {
+    this.createMiniButton();
+    this.createMaxiButton();
+    return this;
+};
 
-    /**
-     * make min and max buttons
-     * @method ParamController#createMaxMinButtons
-     * @return this controller
-     */
-    ParamController.prototype.createMaxMinButtons = function() {
-        this.createMiniButton();
-        this.createMaxiButton();
-        return this;
-    };
+/**
+ * create a button that moves cursor to the left
+ * @method ParamController#createLeftButton
+ * @return this - the controller
+ */
+ParamController.prototype.createLeftButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createLeftButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that moves cursor to the left
-     * @method ParamController#createLeftButton
-     * @return this - the controller
-     */
-    this.createLeftButton = function() {
-        this.setupButtonContainer();
-        button.createLeftButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a button that moves cursor to the right
+ * @method ParamController#createRightButton
+ * @return this - the controller
+ */
+ParamController.prototype.createRightButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createRightButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that moves cursor to the right
-     * @method ParamController#createRightButton
-     * @return this - the controller
-     */
-    this.createRightButton = function() {
-        this.setupButtonContainer();
-        button.createRightButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a button that decreases value at cursor
+ * @method ParamController#createDecButton
+ * @return this - the controller
+ */
+ParamController.prototype.createDecButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createDecButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that decreases value at cursor
-     * @method ParamController#createDecButton
-     * @return this - the controller
-     */
-    this.createDecButton = function() {
-        this.setupButtonContainer();
-        button.createDecButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a button that increases value at cursor
+ * @method ParamController#createIncButton
+ * @return this - the controller
+ */
+ParamController.prototype.createIncButton = function() {
+    this.setupButtonContainer();
+    this.uiElement.createIncButton(this.buttonContainer);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button that increases value at cursor
-     * @method ParamController#createIncButton
-     * @return this - the controller
-     */
-    this.createIncButton = function() {
-        this.setupButtonContainer();
-        button.createIncButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create the leftDownUpRight buttons
+ * @method ParamController#createLeftDownUpRightButtons
+ * @return this - the controller
+ */
+ParamController.prototype.createLeftDownUpRightButtons = function() {
+    this.createLeftButton();
+    this.createDecButton();
+    this.createIncButton();
+    this.createRightButton();
+    return this;
+};
 
-    /**
-     * create the leftDownUpRight buttons
-     * @method ParamController#createLeftDownUpRightButtons
-     * @return this - the controller
-     */
-    this.createLeftDownUpRightButtons = function() {
-        this.createLeftButton();
-        this.createDecButton();
-        this.createIncButton();
-        this.createRightButton();
-        return this;
-    };
+/**
+ * create a button with a suggested value
+ * @method ParamController#createSuggestButton
+ * @param {number} value
+ * @return this - the controller
+ */
+ParamController.prototype.createSuggestButton = function(value) {
+    this.setupButtonContainer();
+    this.uiElement.createSuggestButton(this.buttonContainer, value);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a button with a suggested value
-     * @method ParamController#createSuggestButton
-     * @param {number} value
-     * @return this - the controller
-     */
-    this.createSuggestButton = function(value) {
-        this.setupButtonContainer();
-        button.createSuggestButton(this.buttonContainer, value);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a range element of short length
+ * @method ParamController#createSmallRange
+ * @return this - the controller
+ */
+ParamController.prototype.createSmallRange = function() {
+    this.setupButtonContainer();
+    this.uiElement.createRange(this.buttonContainer);
+    this.uiElement.setRangeWidth(this.design.rangeSliderLengthShort);
+    guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
+    return this;
+};
 
-    /**
-     * create a range element of short length
-     * @method ParamController#createSmallRange
-     * @return this - the controller
-     */
-    this.createSmallRange = function() {
-        this.setupButtonContainer();
-        button.createRange(this.buttonContainer);
-        button.setRangeWidth(this.design.rangeSliderLengthShort);
-        guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
-    };
+/**
+ * create a range element of long length
+ * @method ParamController#createLongRange
+ * @return this - the controller
+ */
+ParamController.prototype.createLongRange = function() {
+    this.createSmallRange();
+    this.uiElement.setRangeWidth(this.design.rangeSliderLengthLong);
+    return this;
+};
 
-    /**
-     * create a range element of long length
-     * @method ParamController#createLongRange
-     * @return this - the controller
-     */
-    this.createLongRange = function() {
-        this.createSmallRange();
-        button.setRangeWidth(this.design.rangeSliderLengthLong);
-        return this;
-    };
+/**
+ * create a range element of very long length
+ * @method ParamController#createVeryLongRange
+ * @return this - the controller
+ */
+ParamController.prototype.createVeryLongRange = function() {
+    this.createSmallRange();
+    this.uiElement.setRangeWidth(this.design.rangeSliderLengthVeryLong);
+    return this;
+};
 
-    /**
-     * create a range element of very long length
-     * @method ParamController#createVeryLongRange
-     * @return this - the controller
-     */
-    this.createVeryLongRange = function() {
-        this.createSmallRange();
-        button.setRangeWidth(this.design.rangeSliderLengthVeryLong);
-        return this;
-    };
+/**
+ * make that the number input is cyclic (redefine do nothing stub)
+ * @method ParamController#cyclic
+ * @return this - for chaining
+ */
+ParamController.prototype.cyclic = function() {
+    this.uiElement.setCyclic();
+    return this;
+};
+
+/**
+ * activate indicator in the main element (this.domElement)
+ * @method ParamController#createIndicatorMain
+ */
+ParamController.prototype.createIndicatorMain = function() {
+    this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+    this.uiElement.setIndicatorElement(this.domElement);
+    return this;
+};
+
+/**
+ * activate indicator in the popup element (if exists, else in main element)
+ * @method ParamController#createIndicatorPopup
+ */
+ParamController.prototype.createIndicator= function() {
+    this.setupButtonContainer();
+    this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+    this.uiElement.setIndicatorElement(this.buttonContainer);
+    return this;
 };
 
 /**
@@ -494,94 +529,3 @@ ParamController.prototype.destroy = function() {
  * @method ParamController.remove
  */
 ParamController.prototype.remove = ParamController.prototype.destroy;
-
-
-
-
-/**
- *  create ui element to input numbers
- * @method ParamController.createNumberButton
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {string} labelText - for the label
- * @param {number} value
- * @param {number} low - optional
- * @param {number} high - optional, requires low
- * @param {number} step - optional, requires low and high
- * @param {function} action - optional, does it upon onChange, independent of low, high and step
- */
-ParamController.createNumberButton = function(gui, domElement, labelText, value, low, high, step, action = false) {
-    const controller = new ParamController(gui, domElement);
-    controller.createLabel(labelText);
-    const button = new NumberButton(controller.domElement);
-    controller.popup = false;
-    controller.buttonContainer = false;
-    button.setInputWidth(controller.design.numberInputWidth);
-    // separating space to additional elements
-    guiUtils.hSpace(controller.domElement, ParamGui.spaceWidth);
-    // set limits and step
-    if (guiUtils.isNumber(low)) {
-        button.setLow(low);
-    } else if (guiUtils.isFunction(low)) {
-        action = low;
-    }
-    if (guiUtils.isNumber(high)) {
-        button.setHigh(high);
-    } else if (guiUtils.isFunction(high)) {
-        action = high;
-    }
-    if (guiUtils.isNumber(step)) {
-        button.setStep(step);
-    } else {
-        button.setStep(NumberButton.findStep(value));
-        if (guiUtils.isFunction(step)) {
-            action = step;
-        }
-    }
-    button.setValue(value);
-    controller.uiElement = button;
-
-    /**
-     * make that the number input is cyclic (redefine do nothing stub)
-     * @method ParamController#cyclic
-     * @return this - for chaining
-     */
-    controller.cyclic = function() {
-        button.setCyclic();
-        return this;
-    };
-
-    /**
-     * activate indicator in the main element
-     * @method ParamController#createIndicatorMain
-     */
-    controller.createIndicatorMain = function() {
-        const button = controller.uiElement;
-        button.setIndicatorColors(controller.design.indicatorColorLeft, controller.design.indicatorColorRight);
-        button.setIndicatorElement(controller.domElement);
-        return this;
-    };
-
-    /**
-     * activate indicator in the popup element (if exists, else in main element)
-     * @method ParamController#createIndicatorPopup
-     */
-    controller.createIndicatorPopup = function() {
-        const button = controller.uiElement;
-        button.setIndicatorColors(controller.design.indicatorColorLeft, controller.design.indicatorColorRight);
-        if (controller.popup) {
-            button.setIndicatorElement(controller.popup.contentDiv);
-        } else {
-            button.setIndicatorElement(controller.domElement);
-        }
-        return this;
-    };
-
-    controller.setupCreationOfAdditionalButtons(); // handles the popup if required
-    controller.setupOnChange();
-    if (action) {
-        controller.callback = action;
-    }
-    controller.setupOnInteraction();
-    return controller;
-};
