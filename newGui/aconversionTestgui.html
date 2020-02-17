@@ -47,8 +47,14 @@ gui.add({type: BUTTON,
 	onClick: function some(){console.log("click")},
 	labelText:"einbutton",
 //	buttonText: "button"
+minLabelWidth:200,
+minElementWidth:150
 })
 gui.add({type:"blax"})
+gui.add({type:BOOLEAN,labelText:"bobo",initialValue:true})
+gui.add({type:TEXT,labelText:"lala",initialValue:"loremipsum", onChange: function(value) {console.log(value)}})
+gui.add({type:SELECTION,labelText:"sel",initialValue:"ann", 
+	options: ["berta","ann","carla"]})
 </script>
 
 

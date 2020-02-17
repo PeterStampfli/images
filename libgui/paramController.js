@@ -61,6 +61,8 @@ export function ParamController(gui, domElement, args) {
     if (this.listening) {
         ParamGui.startListening(); // automatically update display
     }
+    // use popup depending on args.usePopup and design.usePopup
+    this.usePopup = guiUtils.check(args.usePopup, this.design.usePopup);
 
     /**
      * callback for changes
@@ -94,25 +96,57 @@ export function ParamController(gui, domElement, args) {
 
     switch (args.type) {
         case SELECTION:
-            break;
+            {
+                const selectValues = new SelectValues(this.domElement);
+                selectValues.setFontSize(this.design.buttonFontSize);
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                this.uiElement = selectValues;
+                selectValues.addOptions(args.options);
+                selectValues.setValue(this.initialValue);
+                this.setupOnChange();
+                this.setupOnInteraction();
+                break;
+            }
         case BOOLEAN:
-            break;
+            {
+                const button = new BooleanButton(this.domElement);
+                button.setWidth(this.design.booleanButtonWidth);
+                button.setFontSize(this.design.buttonFontSize);
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                this.uiElement = button;
+                button.setValue(this.initialValue);
+                this.setupOnChange();
+                this.setupOnInteraction();
+                break;
+            }
         case BUTTON:
-            const button = new Button(buttonText, this.domElement);
-            button.setFontSize(this.design.buttonFontSize);
-            guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-            this.uiElement = button;
-            button.onClick = function() {
-                controller.callback();
-            };
-            this.setValue = function() {};
-            this.setValueOnly = function() {};
-            this.getValue = function() {};
-            this.updateDisplay = function() {};
-            this.setupOnInteraction();
-            break;
+            {
+                const button = new Button(buttonText, this.domElement);
+                button.setFontSize(this.design.buttonFontSize);
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                this.uiElement = button;
+                button.onClick = function() {
+                    controller.callback();
+                };
+                this.setValue = function() {};
+                this.setValueOnly = function() {};
+                this.getValue = function() {};
+                this.updateDisplay = function() {};
+                this.setupOnInteraction();
+                break;
+            }
         case TEXT:
-            break;
+            {
+                const textInput = new TextInput(this.domElement);
+                textInput.setWidth(this.design.textInputWidth);
+                textInput.setFontSize(this.design.buttonFontSize);
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                textInput.setValue(this.initialValue);
+                this.uiElement = textInput;
+                this.setupOnChange();
+                this.setupOnInteraction();
+                break;
+            }
         case NUMBER:
             break;
         case COLOR:
@@ -125,6 +159,11 @@ export function ParamController(gui, domElement, args) {
             mess.style.fontSize = this.design.titleFontSize + "px";
             this.domElement.appendChild(mess);
             break;
+    }
+
+    // maybe change the minimum element width
+    if (guiUtils.isNumber(args.minElementWidth)) {
+        this.uiElement.setMinWidth(args.minElementWidth);
     }
 }
 
@@ -437,6 +476,10 @@ ParamController.prototype.destroy = function() {
         this.label.remove();
         this.label = null;
     }
+    if (this.popup) {
+        this.popup.destroy();
+        this.popup = null;
+    }
     if (this.domElement) { // domElement might have been removed by another secondary element
         this.domElement.remove();
         this.domElement = null;
@@ -454,85 +497,6 @@ ParamController.prototype.remove = ParamController.prototype.destroy;
 
 
 
-
-/**
- * create a select ui, the options are an array or object
- * @method Paramcontroller.createSelect
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {string} labelText
- * @param {array||object} options - array with values for both name/value or an object={name1: value1, name2: value2, ...}
- * @param {value} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.createSelect = function(gui, domElement, labelText, options, value, action = false) {
-    const controller = new ParamController(gui, domElement);
-    controller.createLabel(labelText);
-    const selectValues = new SelectValues(controller.domElement);
-    selectValues.setFontSize(controller.design.buttonFontSize);
-    guiUtils.hSpace(controller.domElement, ParamGui.spaceWidth);
-    controller.uiElement = selectValues;
-    selectValues.addOptions(options);
-    selectValues.setValue(value);
-    controller.setupOnChange();
-    if (action) {
-        controller.callback = action;
-    }
-    controller.setupOnInteraction();
-    return controller;
-};
-
-/**
- * create a boolean button
- * @method Paramcontroller.createBooleanButton
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {string} labelText - for the label
- * @param {boolean} value
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.createBooleanButton = function(gui, domElement, labelText, value, action = false) {
-    const controller = new ParamController(gui, domElement);
-    controller.createLabel(labelText);
-    const button = new BooleanButton(controller.domElement);
-    button.setWidth(controller.design.booleanButtonWidth);
-    button.setFontSize(controller.design.buttonFontSize);
-    guiUtils.hSpace(controller.domElement, ParamGui.spaceWidth);
-    controller.uiElement = button;
-    button.setValue(value);
-    controller.setupOnChange();
-    if (action) {
-        controller.callback = action;
-    }
-    controller.setupOnInteraction();
-    return controller;
-};
-
-/**
- * create an ui element to input text
- * @method ParamController.createTextInput
- * @param {ParamGui} gui - the gui it is in
- * @param {htmlElement} domElement - container for the controller, div (popup depends on style)
- * @param {string} labelText - for the label
- * @param {string} text
- * @param {function} action - optional, does it upon onChange
- */
-ParamController.createTextInput = function(gui, domElement, labelText, text, action = false) {
-    const controller = new ParamController(gui, domElement);
-    controller.createLabel(labelText);
-    const textInput = new TextInput(controller.domElement);
-    textInput.setWidth(controller.design.textInputWidth);
-    textInput.setFontSize(controller.design.buttonFontSize);
-    guiUtils.hSpace(controller.domElement, ParamGui.spaceWidth);
-    textInput.setValue(text);
-    controller.uiElement = textInput;
-    controller.setupOnChange();
-    if (action) {
-        controller.callback = action;
-    }
-    controller.setupOnInteraction();
-    return controller;
-};
 
 /**
  *  create ui element to input numbers

@@ -176,7 +176,7 @@ ParamGui.prototype.changeDesign = function(design) {
 ParamGui.defaultDesign = {
     // controller for numbers
     //==========================================
-    popupForNumberController: true,
+    usePopup: true,
     popupMinWidth: 0,
     indicatorColorLeft: "#dddddd",
     indicatorColorRight: "#f8f8f8",
