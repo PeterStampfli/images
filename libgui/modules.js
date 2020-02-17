@@ -105,11 +105,6 @@ export {
 from "./colorInput.js";
 
 export {
-    ParamColor
-}
-from "./paramColor.js";
-
-export {
     output
 }
 from "./output.js";
@@ -118,11 +113,6 @@ export {
     ParamImageSelection
 }
 from "./paramImageSelection.js";
-
-export {
-    ParamTwoNumbers
-}
-from "./paramTwoNumbers.js";
 
 export {
     ImageSelect
@@ -141,6 +131,13 @@ from "./paramController.js";
 
 export {
     ParamGui,
-    NUMBER,TEXT,SELECTION,BUTTON,IMAGE,COLOR,ERROR,BOOLEAN
+    NUMBER,
+    TEXT,
+    SELECTION,
+    BUTTON,
+    IMAGE,
+    COLOR,
+    ERROR,
+    BOOLEAN
 }
 from "./paramGui.js";

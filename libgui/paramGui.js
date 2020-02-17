@@ -37,7 +37,6 @@ The increment of value for each scroll changes the digit where the caret is.
 
 import {
     guiUtils,
-    ParamColor,
     ParamAngle,
     ParamController,
     ParamImageSelection,
@@ -851,13 +850,11 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-       const controller = new ParamController(this, controllerDomElement, args);
+    const controller = new ParamController(this, controllerDomElement, args);
     // change dom after all work has been done
     this.bodyDiv.appendChild(controllerDomElement);
-     return controller;
+    return controller;
 };
-
-
 
 /**
  * make a controller for color, datGui.js style parameters

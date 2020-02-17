@@ -6,6 +6,7 @@ import {
     Button,
     SelectValues,
     TextInput,
+    ColorInput,
     Popup,
     NumberButton,
     ParamGui,
@@ -173,7 +174,17 @@ export function ParamController(gui, domElement, args) {
                 break;
             }
         case COLOR:
-            break;
+            {
+                const hasAlpha = ColorInput.hasAlpha(this.initialValue);
+                const colorInput = new ColorInput(this.domElement, hasAlpha);
+                colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
+                colorInput.setValue(this.initialValue);
+                colorInput.setFontSize(this.design.buttonFontSize);
+                this.uiElement = colorInput;
+                this.setupOnChange();
+                this.setupOnInteraction();
+                break;
+            }
         case IMAGE:
             break;
         default:
@@ -237,35 +248,35 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.usePopup) {
-   this.popup = new Popup(this.design, ParamController.popupDesign);
-    this.popup.addCloseButton();
-    this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
-    this.popup.close();
-    // on interaction: call close popups, 
-    // mark that this controller interacts, do not close its own popup
-    this.callsClosePopup = false;
-
-    // change onInteraction callback to close/open popup
-    // open popup at height of controller
-    const controller = this;
-    this.uiElement.onInteraction = function() {
-        controller.popup.open();
-        controller.callsClosePopup = true;
-        ParamGui.closePopups();
-        controller.callsClosePopup = false;
-        const topPosition = guiUtils.topPosition(controller.domElement);
-        controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
-    };
-
-    // change close popup function to leave popup open if this controller called it
-    this.closePopup = function() {
-        if (!this.callsClosePopup) {
+            this.popup = new Popup(this.design, ParamController.popupDesign);
+            this.popup.addCloseButton();
+            this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
             this.popup.close();
-        }
-    };
+            // on interaction: call close popups, 
+            // mark that this controller interacts, do not close its own popup
+            this.callsClosePopup = false;
 
-    // the container for additional buttons
-    this.buttonContainer = this.popup.contentDiv;
+            // change onInteraction callback to close/open popup
+            // open popup at height of controller
+            const controller = this;
+            this.uiElement.onInteraction = function() {
+                controller.popup.open();
+                controller.callsClosePopup = true;
+                ParamGui.closePopups();
+                controller.callsClosePopup = false;
+                const topPosition = guiUtils.topPosition(controller.domElement);
+                controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
+            };
+
+            // change close popup function to leave popup open if this controller called it
+            this.closePopup = function() {
+                if (!this.callsClosePopup) {
+                    this.popup.close();
+                }
+            };
+
+            // the container for additional buttons
+            this.buttonContainer = this.popup.contentDiv;
         } else {
             this.buttonContainer = this.domElement;
         }
@@ -490,7 +501,7 @@ ParamController.prototype.createIndicatorMain = function() {
  * activate indicator in the popup element (if exists, else in main element)
  * @method ParamController#createIndicatorPopup
  */
-ParamController.prototype.createIndicator= function() {
+ParamController.prototype.createIndicator = function() {
     this.setupButtonContainer();
     this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
     this.uiElement.setIndicatorElement(this.buttonContainer);
