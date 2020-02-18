@@ -752,6 +752,78 @@ export const IMAGE = "image";
 export const COLOR = "color";
 export const ERROR = "error";
 
+/** 
+ * transform from datGui style arguments to the new args object
+ * @method ParamGui.createArgs
+ * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller
+ * @param {String} theProperty - key for the field of params to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
+ * @return object args, for the new style
+ */
+
+ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
+    console.log("generating an args object from old-style parameters");
+    if (!guiUtils.isObject(theParams)) {
+        console.log("**** There is a problem with the parameter object: " + theParams);
+    }
+    if (!guiUtils.isString(theProperty)) {
+        console.log("**** There is a problem with the property string: " + theProperty);
+    }
+    const args = {
+        params: theParams,
+        property: theProperty
+    };
+    const paramValue = theParams[theProperty];
+    // determine type of controller from paramValue and low
+    // add other fields to args depending on the type
+    if (guiUtils.isObject(low) &&
+        guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
+        // if design option is true and low is an object (that defines choices)
+        // and first low.value is a good image file:  we use the new image selection
+        args.type = IMAGE;
+        args.options = low;
+    } else if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
+        // low, the first parameter for limits is an array or object, thus make a selection
+        // we have to test this first as the paramValue might be anything    
+        args.type = SELECTION;
+        args.options = low;
+    } else if (guiUtils.isBoolean(paramValue)) {
+        // the parameter value is boolean, thus make a BooleanButton
+        args.type = BOOLEAN;
+    } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
+        // there is no parameter value with the property or it is a function
+        // thus make a button with the property as text, no label
+        args.type = BUTTON;
+        if (guiUtils.isFunction(paramValue)) {
+            args.onClick = paramValue;
+        }
+    } else if (guiUtils.isString(paramValue)) {
+        // the parameter value is a string thus make a text input button
+        args.type = TEXT;
+    } else if (guiUtils.isNumber(paramValue)) {
+        args.type = NUMBER;
+        if (guiUtils.isNumber(low)) {
+            args.min = low;
+        }
+        if (guiUtils.isNumber(high)) {
+            args.max = high;
+        }
+        if (guiUtils.isNumber(step)) {
+            args.stepSize = step;
+        }
+    } else {
+        // no idea/error
+        args.type = ERROR;
+        console.log("no fitting controller type found:");
+        console.log("property " + theProperty + " with value " + paramValue);
+        console.log("low " + low + ", high " + high + ", step " + step);
+    }
+    console.log(args);
+    return args;
+};
+
 
 /**
  * add a controller for a parameter, one controller on a line, in its div
@@ -805,57 +877,7 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
         args = theParams; // the new version
         console.log(args);
     } else {
-        console.log("generating an args object from old-style parameters");
-        args = {
-            params: theParams,
-            property: theProperty
-        };
-        const paramValue = theParams[theProperty];
-        // determine type of controller from paramValue and low
-        // add other fields to args depending on the type
-        if (guiUtils.isObject(low) &&
-            guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
-            // if design option is true and low is an object (that defines choices)
-            // and first low.value is a good image file:  we use the new image selection
-            args.type = IMAGE;
-            args.options = low;
-        } else if (guiUtils.isArray(low) || guiUtils.isObject(low)) {
-            // low, the first parameter for limits is an array or object, thus make a selection
-            // we have to test this first as the paramValue might be anything    
-            args.type = SELECTION;
-            args.choices = low;
-        } else if (guiUtils.isBoolean(paramValue)) {
-            // the parameter value is boolean, thus make a BooleanButton
-            args.type = BOOLEAN;
-        } else if (!guiUtils.isDefined(paramValue) || guiUtils.isFunction(paramValue)) {
-            // there is no parameter value with the property or it is a function
-            // thus make a button with the property as text, no label
-            args.type = BUTTON;
-            if (guiUtils.isFunction(paramValue)) {
-                args.onClick = paramValue;
-            }
-        } else if (guiUtils.isString(paramValue)) {
-            // the parameter value is a string thus make a text input button
-            args.type = TEXT;
-        } else if (guiUtils.isNumber(paramValue)) {
-            args.type = NUMBER;
-            if (guiUtils.isNumber(low)) {
-                args.min = low;
-            }
-            if (guiUtils.isNumber(high)) {
-                args.max = high;
-            }
-            if (guiUtils.isNumber(step)) {
-                args.stepSize = step;
-            }
-        } else {
-            // no idea/error
-            args.type = ERROR;
-            console.log("no fitting controller type found:");
-            console.log("property " + theProperty + " with value " + paramValue);
-            console.log("low " + low + ", high " + high + ", step " + step);
-        }
-        console.log(args);
+        args = ParamGui.createArgs(theParams, theProperty, low, high, step);
     }
     const controllerDomElement = document.createElement("div");
     // make a regular spacing between elements
@@ -870,19 +892,24 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
 /**
  * make a controller for color, datGui.js style parameters
  * @method ParamGui#addColor
- * @param {Object} theParams - object that has the parameter as a field
+ * @param {Object} theParams - object that has the parameter as a field, or args object that has all data
  * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(theParams, theProperty) {
-    if (!guiUtils.isDefined(theProperty)) {
-        console.log("*** addColor: undefined property !!");
+    var args;
+    if (arguments.length === 1) {
+        args = theParams; // the new version
+    } else {
+        console.log("generating an args object from old-style parameters");
+        args = {
+            params: theParams,
+            property: theProperty,
+            type: COLOR
+        };
+        args.type = COLOR;
+        console.log(args);
     }
-    const args = {
-        params: theParams,
-        property: theProperty,
-        type: COLOR
-    };
     return this.add(args);
 };
 

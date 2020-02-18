@@ -315,11 +315,46 @@ ParamController.prototype.setupOnChange = function() {
 /**
  * add another controller to the domElement of this controller
  * @method ParamController#add
- * @param {Object} args - object that defines the controller
+ * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller
+ * @param {String} theProperty - key for the field of params to change, params[property]
+ * @param {float/integer/array} low - determines lower limit/choices (optional)
+ * @param {float/integer} high - determines upper limit (optional)
+ * @param {float/integer} step - determines step size (optional)
  */
-ParamController.prototype.add = function(args) {
+ParamController.prototype.add = function(theParams, theProperty, low, high, step) {
+    var args;
+    if (arguments.length === 1) {
+        args = theParams; // the new version
+        console.log(args);
+    } else {
+        args = ParamGui.createArgs(theParams, theProperty, low, high, step);
+    }
     const controller = new ParamController(this.gui, this.domElement, args);
     return controller;
+};
+
+/**
+ * add a controller for color, datGui.js style parameters
+ * @method ParamGui#addColor
+ * @param {Object} theParams - object that has the parameter as a field, or args object that has all data
+ * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
+ * @return {ParamController} object
+ */
+ParamController.prototype.addColor = function(theParams, theProperty) {
+    var args;
+    if (arguments.length === 1) {
+        args = theParams; // the new version
+    } else {
+        console.log("generating an args object from old-style parameters");
+        args = {
+            params: theParams,
+            property: theProperty,
+            type: COLOR
+        };
+        args.type = COLOR;
+        console.log(args);
+    }
+    return this.add(args);
 };
 
 /**
@@ -561,11 +596,11 @@ ParamController.prototype.deleteLabel = function() {
 
 /**
  * set a minimum width for label
- * @method ParamController#setLabelMinWidth
+ * @method ParamController#setMinLabelWidth
  * @param {int} width
  * @return this, for chaining
  */
-ParamController.prototype.setLabelMinWidth = function(width) {
+ParamController.prototype.setMinLabelWidth = function(width) {
     if (this.label) {
         this.label.style.minWidth = width + "px";
     }
@@ -574,11 +609,11 @@ ParamController.prototype.setLabelMinWidth = function(width) {
 
 /**
  * set a minimum width for the main ui element
- * @method ParamController#setElementMinWidth
+ * @method ParamController#setMinElementWidth
  * @param {int} width
  * @return this, for chaining
  */
-ParamController.prototype.setElementMinWidth = function(width) {
+ParamController.prototype.setMinElementWidth = function(width) {
     this.uiElement.setMinWidth(width);
     return this;
 };
