@@ -110,11 +110,6 @@ export {
 from "./output.js";
 
 export {
-    ParamImageSelection
-}
-from "./paramImageSelection.js";
-
-export {
     ImageSelect
 }
 from "./imageSelect.js";

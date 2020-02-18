@@ -148,7 +148,7 @@ function isJpeg(url) {
     }
 }
 
-ImageButton.backgroundColorHigh = "#e8e8e8";
+ImageButton.backgroundColorHigh = "#f8f8f8";
 ImageButton.backgroundColorLow = "#666666";
 /**
  * determine the background color suitable for a transparent image

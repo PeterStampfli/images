@@ -13,43 +13,6 @@ import {
 
 export const paramControllerMethods = {};
 
-/**
- * check if the container domElement is a div
- * @method paramControllerMethods.isInDiv
- * @return true if inside a div
- */
-paramControllerMethods.isInDiv = function() {
-    return this.domElement.tagName.toLowerCase() === "div";
-};
-
-/**
- * make a label with given text and space 
- * it is a span, padding at right and left
- * minWidth is default design value or args.minLabelWidth
- * text is the argument text or args.labelText
- * @method paramControllerMethods.createLabel
- * @param {string} text
- */
-paramControllerMethods.createLabel = function(text) {
-    const design = this.design;
-    this.label = document.createElement("span");
-    this.label.style.fontSize = design.labelFontSize + "px";
-    // minimum width for alignment of inputs
-    this.label.style.display = "inline-block";
-
-
-    this.label.style.minWidth = guiUtils.check(this.args.minLabelWidth, design.labelWidth) + "px";
-    this.label.style.textAlign = design.labelTextAlign;
-    // space between label and controller or left border
-    this.label.style.paddingLeft = design.spaceWidth + "px";
-    this.label.style.paddingRight = design.spaceWidth + "px";
-    this.domElement.appendChild(this.label);
-
-    //   let text = guiUtils.check(this.property, "");
-    text = guiUtils.check(this.args.labelText, text);
-    this.label.textContent = text;
-
-};
 
 /**
  * add a help alert
@@ -245,11 +208,11 @@ paramControllerMethods.setButtonText = function(label) {
 /**
  * changes the label text, instead of property name, to show something more interesting
  * for buttons: changes label (starts as empty string)
- * @method paramControllerMethods.setLabel
+ * @method paramControllerMethods.setLabelText
  * @param {String} label
  * @return this, for chaining
  */
-paramControllerMethods.setLabel = function(label) {
+paramControllerMethods.setLabelZText = function(label) {
     if (this.label) {
         this.label.textContent = label;
     }

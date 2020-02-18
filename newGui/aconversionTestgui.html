@@ -48,7 +48,8 @@ gui.add({type: BUTTON,
 	labelText:"einbutton",
 //	buttonText: "button"
 minLabelWidth:200,
-minElementWidth:150
+minElementWidth:150,
+hasLabel:false
 })
 gui.add({type:"blax"})
 gui.add({type:BOOLEAN,labelText:"bobo",initialValue:true})
@@ -56,9 +57,25 @@ gui.add({type:TEXT,labelText:"lala",initialValue:"loremipsum", onChange: functio
 gui.add({type:SELECTION,labelText:"sel",initialValue:"ann", 
 	options: ["berta","ann","carla"]})
 
-	gui.add({type:NUMBER,min:10,max:30,stepSize:0.1,initialValue:1.5,labelText:"nn"}).createIndicator().createMaxMinButtons()
+	gui.add({type:NUMBER,min:10,max:30,stepSize:0.1,initialValue:1.5,labelText:"nn"}).createIndicator().createMaxMinButtons().createPlusMinusButtons();
 
-	gui.add({type:COLOR,initialValue:"#345678ff",labelText:"bunt"})
+	gui.add({type:COLOR,initialValue:"#345678ff",labelText:"bunt"}).addHelp("wahte")
+
+//const haeckel="/images/libgui/haeckel/haeckel_";
+const haeckel="haeckel/haeckel_";
+
+const choices=[
+	{name: "rins",value:1,icon:haeckel+"01.png"},
+	{name: "zweiHaeck",value:22,icon:haeckel+"02.png"},
+	{name: "no icon",value:999999},
+	{name: "mehr",value:1,icon:"haeckel/haeckel_03.png"},
+	{name: "13",value:13,icon:"haeckel/haeckel_04.png"},
+	{name: "five",value:1456,icon:"haeckel/haeckel_05.png"},
+	{name: "eight",value:897,icon:"haeckel/haeckel_06.png"}
+	];
+
+
+	gui.add({type:IMAGE,options: choices,initialValue:22,labelText:"image"})
 </script>
 
 

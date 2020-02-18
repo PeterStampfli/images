@@ -39,7 +39,6 @@ import {
     guiUtils,
     ParamAngle,
     ParamController,
-    ParamImageSelection,
     Button,
     InstantHelp,
     Logger
