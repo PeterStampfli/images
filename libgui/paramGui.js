@@ -781,9 +781,22 @@ export const ERROR = "error";
 
 /* new arguments object
  *------------------------------------------------------------
- * args.params
- 
- 
+ * args.type - values are NUMBER, BUTTON, BOOLEAN, SELECTION, COLOR or IMAGE (mandatory), defines type of controller
+ * args.params - an object, the controller controls its args.property field (optional)
+ * args.property - string, identifier of the parameter (mandatory if there is a args.params object)
+ * args.initialValue - initial value for the parameter (optional, else args.params[args.property] or 0)
+ * args.listening - boolean, (default false), if true, then the ui updates its value to the current value of args.params[args.property] 
+ * args.usePopup - boolean, determines if a number controller uses popup for additional button, (optional, default is gui.design.usePopup)
+ * args.labelText -string, for the label in the ui, (optional else args.property is used, except for type BUTTON)
+ * args.buttonText - string, for the text of the button of BUTTON controllers (optional, else args.property is used)
+ * args.onChange - callback function for changes or clicks (type BUTTON), (optional, for BUTTON args.params[args.property] is default)
+ * args.onClick - same as args.onChange
+ * args.minLabelWidth - number, minimum width for label (optional, default is gui.design.minLabelWidth)
+ * args.minElementWidth - number, minimum width for the ui element (optional, else it will fit its contents)
+ * args.options - array or object, only for SELECTION or IMAGE type controllers
+ * args.min - minimum value for NUMBER controllers (optional, default is 0)
+ * args.max - maximum value for NUMBER controllers (optional, default is a large number)
+ * args.stepSize - value for step of NUMBER controllers (optional, default is obtained from the initial value)
  */
 
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
