@@ -42,28 +42,33 @@ export function ParamController(gui, domElement, args) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.args = args;
-    // see if we have a params object with parameters to control
+    // see if we have a params object, then we might have a parameter to control and an initial value
+    this.hasParameter = false;
+    this.initialValue = 0;
     if (guiUtils.isObject(args.params)) {
         this.params = args.params;
         // now args.property should be a string as key to the params object
         if (guiUtils.isString(args.property)) {
             this.property = args.property;
-            // for buttons, the parameter value might be undefined, else it might be everything
+            // for buttons, the parameter value might be undefined or a function, else it might be everything
             if (guiUtils.isDefined(this.params[this.property])) {
-                this.paramValue = this.params[this.property];
-                console.log(this.paramValue);
+                this.hasParameter = true;
+                this.initialValue = this.params[this.property];
             }
         } else {
             console.log("*** ParamController: args.property is not a string. It is " + args.property);
         }
     }
-    // activate listening if we have a parameter object, key and args.listening is true
-    this.listening = guiUtils.isDefined(args.params) && guiUtils.isDefined(args.property) && guiUtils.check(args.listening);
+    // activate listening if we have a parameter and args.listening is true
+    this.listening = this.hasParameter && guiUtils.check(args.listening);
     if (this.listening) {
         ParamGui.startListening(); // automatically update display
     }
     // use popup depending on args.usePopup and design.usePopup
     this.usePopup = guiUtils.check(args.usePopup, this.design.usePopup);
+    // but we have not yet a popup. thus in any case
+    this.hasPopup = false;
+    this.callsClosePopup = false;
 
     /**
      * callback for changes
@@ -73,26 +78,21 @@ export function ParamController(gui, domElement, args) {
     this.callback = function(value) {
         console.log("callback value " + value);
     };
-
-    // get callback from different arguments. For a button it might be the parameter value
-    if (args.type === BUTTON) {
-        this.callback = guiUtils.check(args.onChange, args.onClick, this.paramValue, this.callback);
-    } else {
-        this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
-        this.initialValue = guiUtils.check(args.initialValue, this.paramValue);
-    }
-    // get initial value from different arguments. Not for button
-    if (args.type !== BUTTON) {
-        this.initialValue = guiUtils.check(args.initialValue, this.paramValue);
-    }
+    // get callback from different arguments. For a button it might be the (initial) parameter value
+    // get label text, button is special: the property might be the button text but not the label text
     var labelText, buttonText;
-    // get label text, again button is special: the property might be the button text but not the label text
     if (args.type === BUTTON) {
+        this.callback = guiUtils.check(args.onChange, args.onClick, this.initialValue, this.callback);
+        this.hasParameter = false;
         labelText = guiUtils.check(args.labelText, "");
         buttonText = guiUtils.check(args.buttonText, this.property, "missing text");
     } else {
+        this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
+        // get initial value from args or from parameter value
+        this.initialValue = guiUtils.check(args.initialValue, this.initialValue);
         labelText = guiUtils.check(args.labelText, this.property, "");
     }
+
     this.createLabel(labelText);
 
     switch (args.type) {
@@ -220,6 +220,43 @@ export function ParamController(gui, domElement, args) {
 
 Object.assign(ParamController.prototype, paramControllerMethods);
 
+
+/**
+ * close popup function: does nothing if there is no popup
+ * leave popup open if this controller called it
+ * @method ParamController#closePopup
+ */
+ParamController.prototype.closePopup = function() {
+    if (this.hasPopup && !this.callsClosePopup) {
+        this.popup.close();
+    }
+};
+
+
+/**
+ * setup the onInteraction function of the ui element:
+ * calling the ParamGui#closePopup method
+ * @method ParamController#setupOnInteraction
+ */
+ParamController.prototype.setupOnInteraction = function() {
+    const controller = this;
+    this.uiElement.onInteraction = function() {
+        if (controller.hasPopup) {
+            if (!controller.popup.isOpen()) {
+                controller.popup.open();
+                const topPosition = guiUtils.topPosition(controller.domElement);
+                controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
+            }
+            controller.callsClosePopup = true;
+            ParamGui.closePopups();
+            controller.callsClosePopup = false;
+        } else {
+            ParamGui.closePopups();
+        }
+    };
+};
+
+
 /**
  * add another controller to the domElement of this controller
  * @method ParamController#add
@@ -239,7 +276,7 @@ ParamController.popupDesign = {
 };
 
 /**
- * setup the buttonContainer if it does not exist
+ * setup the buttonContainer for additional buttons if it does not exist
  * either the domElement or create a popup and use the contentdiv
  * if popup is created, then modify the element.onInteraction method to open/close popup 
  * (this method is called after the standard setupOnInteraction method)
@@ -252,30 +289,7 @@ ParamController.prototype.setupButtonContainer = function() {
             this.popup.addCloseButton();
             this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;
             this.popup.close();
-            // on interaction: call close popups, 
-            // mark that this controller interacts, do not close its own popup
-            this.callsClosePopup = false;
-
-            // change onInteraction callback to close/open popup
-            // open popup at height of controller
-            const controller = this;
-            this.uiElement.onInteraction = function() {
-                controller.popup.open();
-                controller.callsClosePopup = true;
-                ParamGui.closePopups();
-                controller.callsClosePopup = false;
-                const topPosition = guiUtils.topPosition(controller.domElement);
-                controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
-            };
-
-            // change close popup function to leave popup open if this controller called it
-            this.closePopup = function() {
-                if (!this.callsClosePopup) {
-                    this.popup.close();
-                }
-            };
-
-            // the container for additional buttons
+            this.hasPopup = true;
             this.buttonContainer = this.popup.contentDiv;
         } else {
             this.buttonContainer = this.domElement;

@@ -96,17 +96,6 @@ paramControllerMethods.setupOnChange = function() {
 };
 
 /**
- * setup the onInteraction function of the ui element:
- * calling the ParamGui.closePopup method
- * @method paramControllerMethods.setupOnInteraction
- */
-paramControllerMethods.setupOnInteraction = function() {
-    this.uiElement.onInteraction = function() {
-        ParamGui.closePopups();
-    };
-};
-
-/**
  * set the callback function for onchange events
  * this is DIFFERENT to my usual definition to be compatible with dat.gui
  * @method paramControllerMethods.onChange
