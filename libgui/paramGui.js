@@ -37,7 +37,6 @@ The increment of value for each scroll changes the digit where the caret is.
 
 import {
     guiUtils,
-    ParamAngle,
     ParamController,
     Button,
     InstantHelp,

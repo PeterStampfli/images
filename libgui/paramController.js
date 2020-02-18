@@ -1,6 +1,5 @@
 import {
     guiUtils,
-    paramControllerMethods,
     BooleanButton,
     Button,
     SelectValues,
@@ -74,7 +73,7 @@ export function ParamController(gui, domElement, args) {
 
     /**
      * callback for changes
-     * @method paramControllerMethods.callback
+     * @method ParamController#callback
      * @param {anything} value
      */
     this.callback = function(value) {
@@ -110,7 +109,6 @@ export function ParamController(gui, domElement, args) {
     this.label.style.paddingRight = design.spaceWidth + "px";
     this.domElement.appendChild(this.label);
     this.label.textContent = labelText;
-
 
     switch (args.type) {
         case SELECTION:
@@ -204,7 +202,6 @@ export function ParamController(gui, domElement, args) {
             }
         case IMAGE:
             {
-
                 this.label.style.verticalAlign = "middle";
                 // the input elements in the main UI (not the popup)
                 // stacking vertically
@@ -238,8 +235,6 @@ export function ParamController(gui, domElement, args) {
                 this.uiElement = imageSelect;
                 this.setupOnChange();
                 this.setupOnInteraction();
-
-
                 break;
             }
         default:
@@ -256,25 +251,6 @@ export function ParamController(gui, domElement, args) {
     }
 }
 
-// "inherit" paramControllerMethods:
-//======================================
-//
-// this.createLabel
-// this.setupOnChange
-// this.show
-// this.onChange 
-// this.onClick
-// this.onFinishChange
-// this.setValueOnly
-// this.setValue
-// this.getValue
-// this.updateDisplay
-// this.updateDisplayIfListening
-// this.listening
-// this.name
-
-Object.assign(ParamController.prototype, paramControllerMethods);
-
 /**
  * close popup function: does nothing if there is no popup
  * leave popup open if this controller called it
@@ -289,7 +265,6 @@ ParamController.prototype.closePopup = function() {
         }
     }
 };
-
 
 /**
  * setup the onInteraction function of the ui element:
@@ -317,6 +292,27 @@ ParamController.prototype.setupOnInteraction = function() {
 };
 
 /**
+ * connect the ui controller with the param object:
+ * sets the onChange function of the ui element
+ * onChange sets the param[property] value if param and property are defined
+ * (synchronizes ui display and data object)
+ * basic functionality, redefine element.onChange for complicated controllers
+ * @method ParamController#setupOnChange
+ */
+ParamController.prototype.setupOnChange = function() {
+    const element = this.uiElement;
+    const controller = this;
+    // element.onChange gets called only if the value changes
+    element.onChange = function() {
+        const value = element.getValue();
+        if (this.hasParameter) {
+            this.params[this.property] = value;
+        }
+        controller.callback(value);
+    };
+};
+
+/**
  * add another controller to the domElement of this controller
  * @method ParamController#add
  * @param {Object} args - object that defines the controller
@@ -325,6 +321,270 @@ ParamController.prototype.add = function(args) {
     const controller = new ParamController(this.gui, this.domElement, args);
     return controller;
 };
+
+/**
+ * add a help alert
+ * @method ParamController#addHelp
+ * @param {String} message - with html markup
+ * @return this, for chaining
+ */
+ParamController.prototype.addHelp = function(message) {
+    this.helpButton = new InstantHelp(message, this.domElement);
+    this.helpButton.setFontSize(this.design.buttonFontSize);
+    return this;
+};
+
+// setting and getting values. Be careful if a params object exists
+//===========================================
+// Two different values, of the ui and the object.
+// they have to be synchronized
+// different values: use the ui value, change the object value
+// if the value of the param object changes, then update the object via callback
+
+/**
+ * updates display and set the value of the param object if it exists
+ * DOES NOT call the callback()
+ * (good for multiple parameter changes, use callback only at last change
+ * (Note that this.setValue() is not the same as this.uiElement.setValue())
+ * Can we assume that the param object is synchronized with its data? Is this probable? Can we save work?
+ * @method ParamController#setValue
+ * @param {whatever} value
+ */
+ParamController.prototype.setValueOnly = function(value) {
+    if (this.hasParameter) {
+        this.params[this.property] = value;
+    }
+    this.uiElement.setValue(value);
+};
+
+/**
+ * set the value of the controller
+ * set the value of the param object (if exists) and call the callback to enforce synchronization
+ * (Note that this.setValue() is not the same as this.uiElement.setValue())
+ * @method ParamController#setValue
+ * @param {whatever} value
+ */
+ParamController.prototype.setValue = function(value) {
+    this.setValueOnly();
+    this.callback(value);
+};
+
+/**
+ * get the value of the controller
+ * (should be the same as the value for the param object
+ * the param object should be updated to reflect the value
+ * @method ParamController#getValue
+ * @return {whatever} value
+ */
+ParamController.prototype.getValue = function() {
+    return this.uiElement.getValue();
+};
+
+/**
+ * set the value of the display (controller) according to the actual value of the parameter in the params object
+ * if params exist, else do nothing
+ * @method ParamController#updateDisplay
+ */
+ParamController.prototype.updateDisplay = function() {
+    if (this.hasParameter) {
+        const value = this.params[this.property];
+        this.uiElement.setValue(value);
+    }
+};
+
+/**
+ * updateDisplay If controller is Listening
+ * happens even if parameter value has not changed, as this requires not much work
+ * @method ParamController#updateDisplayIfListening
+ */
+ParamController.prototype.updateDisplayIfListening = function() {
+    if (this.listening) {
+        this.updateDisplay();
+    }
+};
+
+/**
+ * periodically call updateDisplay to show changes automatically
+ * because of dat.gui api
+ * @method ParamController#listen
+ * @return this, for chaining
+ */
+ParamController.prototype.listen = function() {
+    this.listening = true;
+    ParamGui.startListening();
+    return this;
+};
+
+/**
+ * make the controller disappear including its space (display==none)
+ * @method ParamController#hide
+ * @return this
+ */
+ParamController.prototype.hide = function() {
+    this.domElement.style.display = "none";
+    return this;
+};
+
+/**
+ * make the controller visible including its space (display==initial)
+ * @method ParamController#show
+ * @return this
+ */
+ParamController.prototype.show = function() {
+    this.domElement.style.display = "block";
+    return this;
+};
+
+// for compatibility with datGui
+// dublicates things you can do with the args object
+//========================================================
+
+/**
+ * changes the label text, instead of the property string, to show something more interesting
+ * for buttons: changes the button text
+ * does nothing if there is no label
+ * same as datGui
+ * @method ParamController#name
+ * @param {String} label
+ * @return this, for chaining
+ */
+ParamController.prototype.name = function(label) {
+    if (this.type === BUTTON) {
+        this.uiElement.setText(label);
+    } else if (this.label) {
+        this.label.textContent = label;
+    }
+    return this;
+};
+
+/**
+ * set the callback function for onchange events
+ * this is DIFFERENT to my usual definition to be compatible with dat.gui
+ * @method ParamController#onChange
+ * @param {function} callback - function(value), with value of controller as argument
+ * @return this
+ */
+ParamController.prototype.onChange = function(callback) {
+    this.callback = callback;
+    return this;
+};
+
+/**
+ * set the callback function for onclick events
+ * (same as onChange)
+ * @method ParamController#onClick
+ * @param {function} callback - function()
+ * @return this
+ */
+ParamController.prototype.onClick = ParamController.prototype.onChange;
+
+/**
+ * set the callback function for onchange events
+ * will be called for any input changes
+ * same as onChange
+ * this is here for compatibility to datGui
+ * @method ParamController#onFinishChange
+ * @param {function} callback - function(value), with value of controller as argument
+ * @return this
+ */
+
+ParamController.prototype.onFinishChange = function(callback) {
+    this.callback = callback;
+    return this;
+};
+
+// to control the appearance 
+//===============================================0
+
+/**
+ * layout: add a space
+ * @method ParamController#hSpace
+ * @param {number} width
+ * @return this
+ */
+ParamController.prototype.hSpace = function(width) {
+    guiUtils.hSpace(this.domElement, width);
+    return this;
+};
+
+/**
+ * register parent domElement in guiUtils for styling
+ * see docu of guiUtils.style
+ * use: controller.style().backgroundColor("red")
+ * @method ParamController#style
+ * @return guiUtils
+ */
+ParamController.prototype.style = function() {
+    return guiUtils.style(this.parent);
+};
+
+/**
+ * for buttons only, changes the button text
+ * same as datGui
+ * @method ParamController#setButtonText
+ * @param {String} label
+ * @return this, for chaining
+ */
+ParamController.prototype.setButtonText = function(label) {
+    if (this.type === BUTTON) {
+        this.uiElement.setText(label);
+    }
+    return this;
+};
+
+/**
+ * changes the label text, instead of property name, to show something more interesting
+ * for buttons: changes label (starts as empty string)
+ * @method ParamController#setLabelText
+ * @param {String} label
+ * @return this, for chaining
+ */
+ParamController.prototype.setLabelText = function(label) {
+    if (this.label) {
+        this.label.textContent = label;
+    }
+    return this;
+};
+
+/**
+ * delete the label, including its space
+ * @method ParamController#deleteLabel
+ * @return this, for chaining
+ */
+ParamController.prototype.deleteLabel = function() {
+    if (this.label) {
+        this.label.remove();
+        this.label = false;
+    }
+    return this;
+};
+
+/**
+ * set a minimum width for label
+ * @method ParamController#setLabelMinWidth
+ * @param {int} width
+ * @return this, for chaining
+ */
+ParamController.prototype.setLabelMinWidth = function(width) {
+    if (this.label) {
+        this.label.style.minWidth = width + "px";
+    }
+    return this;
+};
+
+/**
+ * set a minimum width for the main ui element
+ * @method ParamController#setElementMinWidth
+ * @param {int} width
+ * @return this, for chaining
+ */
+ParamController.prototype.setElementMinWidth = function(width) {
+    this.uiElement.setMinWidth(width);
+    return this;
+};
+
+// for the number controller
+//===================================================
 
 // special parameters for these popups, not specified in paramGui
 ParamController.popupDesign = {
