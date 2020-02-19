@@ -325,7 +325,6 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
     var args;
     if (arguments.length === 1) {
         args = theParams; // the new version
-        console.log(args);
     } else {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
     }
