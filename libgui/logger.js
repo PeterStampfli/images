@@ -1,18 +1,30 @@
 /**
  * showing messages in a container div
  * @constructor Logger
+ * @param {ParamGui} gui - there the logger is
  * @param {dom element} container - a div
  */
 
 import {
     ParamGui,
     guiUtils,
+    BUTTON
 }
 from "./modules.js";
 
-export function Logger(container) {
+export function Logger(gui, container) {
     this.container = container;
-    this.paragraphs = []; // each message as a <p>
+    gui.elements.push(this);
+    const logger = this;
+    this.clearButton = gui.add({
+        type: BUTTON,
+        buttonText: "clear the log",
+        onClick: function() {
+            logger.clear();
+        }
+    });
+    this.clearButton.domElement.style.textAlign = "center";
+    this.clearButton.deleteLabel();
 }
 
 // spacing between messages in px
@@ -26,14 +38,13 @@ Logger.spacing = 5;
 Logger.prototype.log = function(message) {
     const paragraph = document.createElement("p");
     paragraph.innerHTML = message;
-    if (this.paragraphs.length > 0) {
+    if (this.container.firstChild) {
         paragraph.style.marginTop = Logger.spacing + "px";
     } else {
         paragraph.style.marginTop = "0px";
     }
     paragraph.style.marginBottom = "0px";
     this.container.appendChild(paragraph);
-    this.paragraphs.push(paragraph);
 };
 
 /**
@@ -52,8 +63,10 @@ Logger.prototype.style = function() {
  * @method Logger#clear
  */
 Logger.prototype.clear = function() {
-    this.paragraphs.forEach(p => p.remove());
-    this.paragraphs.length = 0;
+    const container = this.container;
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
 };
 
 /**
@@ -62,51 +75,18 @@ Logger.prototype.clear = function() {
  */
 Logger.prototype.destroy = function() {
     this.clear();
+    this.clearButton.destroy();
     this.container.remove();
 };
 
-
-
 /**
- * add a logger with a clear button
- * (the clear button is in the controller object: logger.clearButton)
- * best wrap it onto a folder logger=gui.addFolder(someName,{closed:false}).addLogger();
- * @method ParamGui#addLogger
- * @return {Logger} object
- */
-ParamGui.prototype.addLogger = function() {
-    const domElement = document.createElement("div");
-    // make a regular spacing between elements
-    domElement.style.padding = this.design.paddingVertical + "px";
-    domElement.style.fontSize = this.design.labelFontSize + "px";
-    domElement.style.height = this.design.loggerHeight + "px";
-    domElement.style.backgroundColor = this.design.loggerBackgroundColor;
-    domElement.style.color = this.design.loggerColor;
-    domElement.style.overflowY = "auto";
-    const logger = new Logger(domElement);
-    this.bodyDiv.appendChild(domElement);
-    this.elements.push(logger);
-    logger.buttonController = this.addButton("clear the log", function() {
-        logger.clear();
-    });
-    logger.buttonController.domElement.style.textAlign = "center";
-    logger.buttonController.deleteLabel();
-    return logger;
-};
-
-/*
- * a prefab logger that replaces part of the console
- * in its own gui
- */
-
-let logger = false;
-
-/**
- * log something
- * first message creates the logger
+ * log messages
+ * first message creates the logger in its own gui
  * @function log
  * @param {string} message
  */
+let logger = false;
+
 export function log(message) {
     if (!logger) {
         logger = new ParamGui({
@@ -121,19 +101,3 @@ export function log(message) {
     }
     logger.log(message);
 }
-
-
-
-// attach this handler to resize events
-//window.addEventListener("resize", ParamGui.resize, false);
-/*
-ParamGui.prototype.resize = function() {
-    if (this.isRoot() && this.autoPlace) {
-        const design = this.design;
-        // get the height of the title div
-        const titleHeight = this.titleDiv.offsetHeight;
-        const maxHeight = document.documentElement.clientHeight - titleHeight - 2 * design.borderWidth - design.verticalShift;
-        this.bodyDiv.style.maxHeight = maxHeight + "px";
-    }
-};
-*/

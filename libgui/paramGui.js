@@ -696,7 +696,7 @@ ParamGui.prototype.getRoot = function() {
 };
 
 /**
- * add a folder, it is a gui instance
+ * add a folder, it is a gui instance, open by default
  * @method ParamGui#addFolder
  * @param {String} folderName
  * @param {...Object} designParameters - modifying the design and other parameters
@@ -706,7 +706,7 @@ ParamGui.prototype.addFolder = function(folderName, designParameters) {
     const allParameters = {
         name: folderName,
         closeOnTop: true,
-        closed: true,
+        closed: false,
         parent: this,
         autoPlace: false,
         hideable: false
@@ -910,6 +910,27 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
         console.log(args);
     }
     return this.add(args);
+};
+
+/**
+ * add a logger
+ * best put it in an extra gui
+ * or wrap it onto a folder logger=gui.addFolder(someNameString).addLogger();
+ * @method ParamGui#addLogger
+ * @return {Logger} object
+ */
+ParamGui.prototype.addLogger = function() {
+    const container = document.createElement("div");
+    // make a regular spacing between elements
+    container.style.padding = this.design.paddingVertical + "px";
+    container.style.fontSize = this.design.labelFontSize + "px";
+    container.style.height = this.design.loggerHeight + "px";
+    container.style.backgroundColor = this.design.loggerBackgroundColor;
+    container.style.color = this.design.loggerColor;
+    container.style.overflowY = "auto";
+    this.bodyDiv.appendChild(container);
+    const logger = new Logger(this, container);
+    return logger;
 };
 
 /**
