@@ -9,15 +9,7 @@ import {
     Popup,
     NumberButton,
     ParamGui,
-    InstantHelp,
-    NUMBER,
-    TEXT,
-    SELECTION,
-    BUTTON,
-    IMAGE,
-    COLOR,
-    ERROR,
-    BOOLEAN
+    InstantHelp
 } from "./modules.js";
 
 // note: a line with several ui elements is similar to a folder
@@ -82,7 +74,7 @@ export function ParamController(gui, domElement, args) {
     // get callback from different arguments. For a button it might be the (initial) parameter value
     // get label text, button is special: the property might be the button text but not the label text
     var labelText, buttonText;
-    if (args.type === BUTTON) {
+    if (args.type === "button") {
         this.callback = guiUtils.check(args.onChange, args.onClick, this.initialValue, this.callback);
         this.hasParameter = false;
         labelText = guiUtils.check(args.labelText, "");
@@ -111,7 +103,7 @@ export function ParamController(gui, domElement, args) {
     this.label.textContent = labelText;
 
     switch (args.type) {
-        case SELECTION:
+        case "selection":
             {
                 const selectValues = new SelectValues(this.domElement);
                 selectValues.setFontSize(this.design.buttonFontSize);
@@ -123,7 +115,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case BOOLEAN:
+        case "boolean":
             {
                 const button = new BooleanButton(this.domElement);
                 button.setWidth(this.design.booleanButtonWidth);
@@ -135,7 +127,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case BUTTON:
+        case "button":
             {
                 const button = new Button(buttonText, this.domElement);
                 button.setFontSize(this.design.buttonFontSize);
@@ -151,7 +143,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case TEXT:
+        case "text":
             {
                 const textInput = new TextInput(this.domElement);
                 textInput.setWidth(this.design.textInputWidth);
@@ -163,7 +155,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case NUMBER:
+        case "number":
             {
                 const button = new NumberButton(this.domElement);
                 this.buttonContainer = false;
@@ -188,7 +180,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case COLOR:
+        case "color":
             {
                 const hasAlpha = ColorInput.hasAlpha(this.initialValue);
                 const colorInput = new ColorInput(this.domElement, hasAlpha);
@@ -200,7 +192,7 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 break;
             }
-        case IMAGE:
+        case "image":
             {
                 this.label.style.verticalAlign = "middle";
                 // the input elements in the main UI (not the popup)
@@ -258,7 +250,7 @@ export function ParamController(gui, domElement, args) {
  */
 ParamController.prototype.closePopup = function() {
     if (this.hasPopup && !this.callsClosePopup) {
-        if (this.type === IMAGE) {
+        if (this.type === "image") {
             this.uiElement.closePopup();
         } else {
             this.popup.close();
@@ -348,9 +340,9 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
         args = {
             params: theParams,
             property: theProperty,
-            type: COLOR
+            type: "color"
         };
-        args.type = COLOR;
+        args.type = "color";
         console.log(args);
     }
     return this.add(args);
@@ -483,7 +475,7 @@ ParamController.prototype.show = function() {
  * @return this, for chaining
  */
 ParamController.prototype.name = function(label) {
-    if (this.type === BUTTON) {
+    if (this.type === "button") {
         this.uiElement.setText(label);
     } else if (this.label) {
         this.label.textContent = label;
@@ -560,7 +552,7 @@ ParamController.prototype.style = function() {
  * @return this, for chaining
  */
 ParamController.prototype.setButtonText = function(label) {
-    if (this.type === BUTTON) {
+    if (this.type === "button") {
         this.uiElement.setText(label);
     }
     return this;
@@ -658,7 +650,7 @@ ParamController.prototype.setupButtonContainer = function() {
  * @return this controller
  */
 ParamController.prototype.createAddButton = function(text, amount) {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createAddButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -686,7 +678,7 @@ ParamController.prototype.createPlusMinusButtons = function(amount = 1) {
  * @return this controller
  */
 ParamController.prototype.createMulButton = function(text, amount) {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMulButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -712,7 +704,7 @@ ParamController.prototype.createMulDivButtons = function(factor = 2) {
  * @return this - the controller
  */
 ParamController.prototype.createMiniButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMiniButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -726,7 +718,7 @@ ParamController.prototype.createMiniButton = function() {
  * @return this - the controller
  */
 ParamController.prototype.createMaxiButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMaxiButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -751,7 +743,7 @@ ParamController.prototype.createMaxMinButtons = function() {
  * @return this - the controller
  */
 ParamController.prototype.createLeftButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createLeftButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -765,7 +757,7 @@ ParamController.prototype.createLeftButton = function() {
  * @return this - the controller
  */
 ParamController.prototype.createRightButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createRightButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -779,7 +771,7 @@ ParamController.prototype.createRightButton = function() {
  * @return this - the controller
  */
 ParamController.prototype.createDecButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createDecButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -793,7 +785,7 @@ ParamController.prototype.createDecButton = function() {
  * @return this - the controller
  */
 ParamController.prototype.createIncButton = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createIncButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -821,7 +813,7 @@ ParamController.prototype.createLeftDownUpRightButtons = function() {
  * @return this - the controller
  */
 ParamController.prototype.createSuggestButton = function(value) {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createSuggestButton(this.buttonContainer, value);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
@@ -835,7 +827,7 @@ ParamController.prototype.createSuggestButton = function(value) {
  * @return this - the controller
  */
 ParamController.prototype.createSmallRange = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createRange(this.buttonContainer);
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthShort);
@@ -850,7 +842,7 @@ ParamController.prototype.createSmallRange = function() {
  * @return this - the controller
  */
 ParamController.prototype.createLongRange = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.createSmallRange();
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthLong);
         return this;
@@ -863,7 +855,7 @@ ParamController.prototype.createLongRange = function() {
  * @return this - the controller
  */
 ParamController.prototype.createVeryLongRange = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.createSmallRange();
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthVeryLong);
         return this;
@@ -876,7 +868,7 @@ ParamController.prototype.createVeryLongRange = function() {
  * @return this - for chaining
  */
 ParamController.prototype.cyclic = function() {
-    if (this.type === NUMBER) {
+    if (this.type === "number") {
         this.uiElement.setCyclic();
         return this;
     }

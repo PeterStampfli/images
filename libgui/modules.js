@@ -115,14 +115,6 @@ export {
 from "./paramController.js";
 
 export {
-    ParamGui,
-    NUMBER,
-    TEXT,
-    SELECTION,
-    BUTTON,
-    IMAGE,
-    COLOR,
-    ERROR,
-    BOOLEAN
+    ParamGui
 }
 from "./paramGui.js";

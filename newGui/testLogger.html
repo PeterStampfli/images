@@ -18,8 +18,7 @@
 import {
     ParamGui,
     output,
-    log,
-    NUMBER
+    log
 }
 from "../libgui/modules.js";
 
@@ -31,7 +30,7 @@ const gui = new ParamGui({
 
 const logger = gui.addFolder("logging things").addLogger();
 gui.add({
-    type: NUMBER,
+    type: "number",
     labelText: "a number",
     initialValue: 1,
     min: 0,

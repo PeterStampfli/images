@@ -7,8 +7,7 @@
 
 import {
     ParamGui,
-    guiUtils,
-    BUTTON
+    guiUtils
 }
 from "./modules.js";
 
@@ -17,7 +16,7 @@ export function Logger(gui, container) {
     gui.elements.push(this);
     const logger = this;
     this.clearButton = gui.add({
-        type: BUTTON,
+        type: "button",
         buttonText: "clear the log",
         onClick: function() {
             logger.clear();

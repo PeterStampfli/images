@@ -16,13 +16,6 @@
 import {
     ParamGui,
     InstantHelp,
-    NUMBER,
-    TEXT,
-    SELECTION,
-    BUTTON,
-    IMAGE,
-    COLOR,
-    BOOLEAN
 }
 from "./modules.js";
 
@@ -42,7 +35,7 @@ gui.addParagraph("The ui for numbers is basically only a text input field intera
 parameters.nn = 3.4;
 
 const nc = gui.add({
-    type: NUMBER,
+    type: "number",
     params: parameters,
     property: "nn",
     min: 0,
@@ -51,7 +44,7 @@ const nc = gui.add({
 gui.addParagraph("You can add an indicator in the background.");
 parameters.indi = 1;
 gui.add({
-        type: NUMBER,
+        type: "number",
         params: parameters,
         property: "indi",
         min: 0,
@@ -61,7 +54,7 @@ gui.add({
     .createIndicatorMain();
 parameters.plusMin = 2;
 gui.add({
-        type: NUMBER,
+        type: "number",
         params: parameters,
         property: "plusMin",
         min: -2,
@@ -76,7 +69,7 @@ gui.changeDesign({
 });
 gui.addParagraph("No parameter object together with property string required. A callback can be added directly.");
 const popController = gui.add({
-        type: NUMBER,
+        type: "number",
         labelText: "pop",
         min: 1,
         onChange: function(value) {
@@ -97,7 +90,7 @@ gui.addParagraph("We can use both API styles. We can have several controls on a 
 parameters.width = 300;
 parameters.height = 200;
 gui.add({
-        type: NUMBER,
+        type: "number",
         params: parameters,
         property: "width",
         min: 100,
@@ -107,25 +100,25 @@ gui.add({
     .add(parameters, "height", 100, 10000)
     .setMinLabelWidth(30);
 
-    gui.addParagraph("The new API is more verbose, but easier to use and debug.");
+gui.addParagraph("The new API is more verbose, but easier to use and debug.");
 
 parameters.heat = false;
 parameters.sound = true;
 parameters.light = true;
 gui.add({
-        type: BOOLEAN,
+        type: "boolean",
         params: parameters,
         property: "heat"
     })
     .setMinLabelWidth(30)
     .add({
-        type: BOOLEAN,
+        type: "boolean",
         params: parameters,
         property: "light"
     })
     .setMinLabelWidth(30)
     .add({
-        type: BOOLEAN,
+        type: "boolean",
         params: parameters,
         property: "sound"
     })
@@ -143,7 +136,7 @@ for (var i = 10; i < 20; i++) {
 parameters.image = haeckel + "0" + 5 + ".png";
 
 gui.add({
-    type: IMAGE,
+    type: "image",
     params: parameters,
     property: "image",
     options: choices
@@ -151,19 +144,19 @@ gui.add({
 parameters.rgba = "#ff0000ff";
 gui.addParagraph("addColor(...) not needed anymore as with type:COLOR there is no confusion with type: TEXT controllers:");
 const co = gui.add({
-    type: COLOR,
+    type: "color",
     params: parameters,
     property: "rgba"
 });
 parameters.text = "edit some text";
 gui.add({
-    type: TEXT,
+    type: "text",
     params: parameters,
     property: "text"
 });
 
 gui.add({
-    type: BUTTON,
+    type: "button",
     labelText: "button",
     buttonText: "say hello",
     onClick: function() {
@@ -173,7 +166,7 @@ gui.add({
 
 parameters.selection = "beta";
 gui.add({
-    type: SELECTION,
+    type: "selection",
     params: parameters,
     property: "selection",
     options: ["alpha", "beta", "gamma", "delta", "epsilon"]
