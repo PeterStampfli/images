@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>test type typo</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+<script type="module">
+
+import {
+    ParamGui,
+    output,
+    log
+}
+from "./modules.js";
+
+const gui = new ParamGui({
+    name: "dummy controls"
+});
+
+
+
+gui.add({
+    type: "number",
+    labelText: "a number",
+    initialValue: 1,
+    min: 0,
+    max: 33
+}).createPlusMinusButtons(2);
+
+
+gui.add({
+    type: "mumber",
+    labelText: "a typo",
+    initialValue: 1,
+    min: 0,
+    max: 33
+}).createPlusMinusButtons(2);
+
+
+</script>
+
+
+
+</html>

@@ -754,10 +754,12 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
     console.log("generating an args object from old-style parameters");
     if (!guiUtils.isObject(theParams)) {
-        console.log("**** There is a problem with the parameter object: " + theParams);
+        console.warn("**** There is a problem with the parameter object: ");
+        console.log(theParams);
     }
     if (!guiUtils.isString(theProperty)) {
-        console.log("**** There is a problem with the property string: " + theProperty);
+        console.warn("**** There is a problem with the property string: ");
+        console.log(theProperty);
     }
     const args = {
         params: theParams,
@@ -803,8 +805,8 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         }
     } else {
         // no idea/error
-        args.type = "error";
-        console.log("no fitting controller type found:");
+        args.type = "no fitting type found";
+        console.error("no fitting controller type found for:");
         console.log("property " + theProperty + " with value " + paramValue);
         console.log("low " + low + ", high " + high + ", step " + step);
     }

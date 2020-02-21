@@ -4,38 +4,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>logger test</title>
+    <title>test logger</title>
 </head>
 
 <body>
 
-
 </body>
 
-
 <script type="module">
-
 import {
     ParamGui,
     output,
     log
 }
-from "../libgui/modules.js";
+from "./modules.js";
 
 const gui = new ParamGui({
     name: "dummy controls"
 });
 
+gui.add({
+        type: "number",
+        labelText: "a number",
+        initialValue: 1,
+        min: 0,
+        max: 33
+    })
+    .createPlusMinusButtons()
+    .createMulDivButtons();
 
+// CREATING A LOGGER IN A FOLDER INSIDE THE MAIN UI
 
 const logger = gui.addFolder("logging things").addLogger();
-gui.add({
-    type: "number",
-    labelText: "a number",
-    initialValue: 1,
-    min: 0,
-    max: 33
-}).createPlusMinusButtons(2);
+
 logger.log("a message");
 logger.log("another message");
 logger.log("I hate double scrollbars");
@@ -48,9 +49,16 @@ logger.log("a message");
 logger.log("a message");
 logger.log("a message");
 
+gui.add({
+        type: "number",
+        labelText: "another number",
+        initialValue: 1,
+        min: 0,
+        max: 33
+    })
+    .createPlusMinusButtons(2);
 
-
-
+//LOGGING IN AN EXTRA UI, AUTOMATICALLY GENERATED UPON CALLKING THE LOG() METHOD
 
 log("what happens now");
 log("what happens now");
@@ -64,10 +72,5 @@ log("what happens now");
 log("what happens now");
 log("what happens now");
 
-
-
 </script>
-
-
-
 </html>
