@@ -81,15 +81,6 @@ export function ParamGui(params) {
     for (i = 0; i < arguments.length; i++) {
         guiUtils.updateValues(design, arguments[i]);
     }
-    // update the popup parameters depending on the gui position
-    if (design.horizontalPosition === "right") {
-        design.popupPosition = "bottomRight";
-    } else {
-        design.popupPosition = "bottomLeft";
-    }
-    design.popupHorizontalShift = design.width + design.horizontalShift + design.borderWidth;
-    // the ui elements go into their own div, the this.bodyDiv
-    // append as child to this.domElement
     this.bodyDiv = document.createElement("div");
     this.bodyDiv.style.backgroundColor = design.backgroundColor;
     if (this.isRoot()) {

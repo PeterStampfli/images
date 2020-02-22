@@ -233,7 +233,7 @@ export function ParamController(gui, domElement, args) {
             const message = document.createElement("span");
             message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
             message.style.fontSize = this.design.titleFontSize + "px";
-            console.error('unknown controller type "' + args.type + '", the arguments object is:' );
+            console.error('unknown controller type "' + args.type + '", the arguments object is:');
             console.log(args);
             this.domElement.appendChild(message);
             break;
@@ -632,6 +632,15 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.usePopup) {
+            // update the popup parameters depending on the gui position
+            if (this.design.horizontalPosition === "right") {
+                this.design.popupPosition = "bottomRight";
+            } else {
+                this.design.popupPosition = "bottomLeft";
+            }
+            this.design.popupHorizontalShift = this.design.width + this.design.horizontalShift + this.design.borderWidth;
+            // the ui elements go into their own div, the this.bodyDiv
+            // append as child to this.domElement
             this.popup = new Popup(this.design, ParamController.popupDesign);
             this.popup.addCloseButton();
             this.popup.contentDiv.style.backgroundColor = this.design.backgroundColor;

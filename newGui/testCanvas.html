@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>test canvas</title>
+</head>
+
+<body>
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    output,
+    log,
+    guiUtils
+}
+from "../libgui/modules.js";
+
+const gui = new ParamGui({
+    name: "dummy controls",
+  //  horizontalPosition: "left"
+});
+
+gui.add({
+        type: "number",
+        labelText: "a number",
+        initialValue: 1,
+        min: 0,
+        max: 33
+    })
+    .createPlusMinusButtons()
+    .createMulDivButtons();
+
+// CREATING A LOGGER IN A FOLDER INSIDE THE MAIN UI
+
+const logger = gui.addFolder("logging things").addLogger();
+
+logger.log("a message");
+logger.log("another message");
+logger.log("I hate double scrollbars");
+logger.log("more messages");
+logger.log("more messages");
+logger.log("more messages");
+logger.log("a message");
+logger.log("a message");
+logger.log("a message");
+logger.log("a message");
+logger.log("a message");
+
+gui.add({
+        type: "number",
+        labelText: "another number",
+        initialValue: 1,
+        min: 0,
+        max: 33
+    })
+    .createPlusMinusButtons(2);
+
+//LOGGING IN AN EXTRA UI, AUTOMATICALLY GENERATED UPON CALLKING THE LOG() METHOD
+
+log("what happens now");
+log("what happens now");
+log("what happens now");
+log("I don't know");
+log("what happens now");
+log("In an extra gui: only a single scrollbar, at most.");
+log("what happens now");
+log("what happens now");
+log("what happens now");
+log("what happens now");
+log("what happens now");
+
+/**
+ * get the limit for free space at the left
+ * taking into account all guis at the left side
+ * @method ParamGui#leftSpaceLimit
+ * @return number, for the left offset of a fitting container
+ */
+ParamGui.leftSpaceLimit = function() {
+    let spaceLimit = 0;
+    ParamGui.rootGuis.forEach(gui => {
+        if (gui.design.horizontalPosition === "left") {
+            spaceLimit = Math.max(gui.design.horizontalShift + gui.design.width + 2 * gui.design.borderWidth, spaceLimit);
+        }
+    });
+    return spaceLimit;
+};
+
+
+/**
+ * get the limit for free space at the right
+ * taking into account all guis at the right hand side
+ * @method ParamGui#rightSpaceLimit
+ * @return number, the width of fitting container is difference between right and left limit
+ */
+ParamGui.rightSpaceLimit = function() {
+    let space = 0;
+    ParamGui.rootGuis.forEach(gui => {
+        if (gui.design.horizontalPosition === "right") {
+            space = Math.max(gui.design.horizontalShift + gui.design.width + 2 * gui.design.borderWidth, space);
+        }
+    });
+    const spaceLimit = document.documentElement.clientWidth - space;
+    return spaceLimit;
+};
+
+console.log(ParamGui.leftSpaceLimit());
+console.log(ParamGui.rightSpaceLimit());
+
+</script>
+</html>

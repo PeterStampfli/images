@@ -12,7 +12,7 @@
  */
 
 import {
-	guiUtils,
+    guiUtils,
     ParamGui,
     saveAs
 }
@@ -182,3 +182,13 @@ ParamGui.prototype.createOutputDiv = function() {
         console.log("design.horizontalShift " + this.design.horizontalShift);
     }
 };
+
+/*
+   // update the popup parameters depending on the gui position
+    if (design.horizontalPosition === "right") {
+        design.popupPosition = "bottomRight";
+    } else {
+        design.popupPosition = "bottomLeft";
+    }
+    design.popupHorizontalShift = design.width + design.horizontalShift + design.borderWidth;
+*/
