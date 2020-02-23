@@ -104,53 +104,117 @@ ParamGui.rightSpaceLimit = function() {
             space = Math.max(gui.design.horizontalShift + gui.design.width + 2 * gui.design.borderWidth, space);
         }
     });
-    const spaceLimit = document.documentElement.clientWidth - space;
+    // with window.innerWidth we do not get some ghosts of scroll bars
+    // document.documentElement.clientWidth upon reducing screen height gives a smaller width because of spurious vertical scroll bar
+    const spaceLimit = window.innerWidth - space;
     return spaceLimit;
 };
 
 
+ParamGui.outputDiv = false;
 
+/**
+* resizing the content of the output div
+* does nothing here, overwrite depending on content
+* output div will have its final dimension when calling this
+* so you can use its clientWidth/Height
+* @method ParamGui.resizeOutputContent
+*/
+ParamGui.resizeOutputContent=function(){};
+
+/**
+ * resizing the output div and setting its scrolling
+ * sets width and height of the output div
+ * calls resize function for contents
+ * determines size of content
+ * then activates scroll bars
+ * @method ParamGui.resizeOutputDiv
+ */
+ParamGui.resizeOutputDiv = function() {
+    const leftOfSpace = ParamGui.leftSpaceLimit();
+    const widthOfSpace = ParamGui.rightSpaceLimit() - leftOfSpace;
+    console.log("leftspace "+leftOfSpace);
+    console.log("rightspace "+ParamGui.rightSpaceLimit() );
+    ParamGui.outputDiv.style.left = leftOfSpace + "px";
+    // resize content: set up dimensions of the div
+    ParamGui.outputDiv.style.width = widthOfSpace + "px";
+    ParamGui.outputDiv.style.height = window.innerHeight + "px";
+    ParamGui.outputDiv.style.overflowX = "hidden";
+    ParamGui.outputDiv.style.overflowY = "hidden";
+    ParamGui.resizeOutputContent();
+    // get size of contents
+    // no height and width given => shrink wrap
+    ParamGui.outputDiv.style.height = "";
+    ParamGui.outputDiv.style.width = "";
+    // clientWidth/Height give dimensions of content
+    const widthOfContent = ParamGui.outputDiv.clientWidth;
+    const heightOfContent = ParamGui.outputDiv.clientHeight;
+    console.log("widthOfContent " + widthOfContent);
+    console.log("heightOfContent " + heightOfContent);
+    // set final dimensions
+    ParamGui.outputDiv.style.width = widthOfSpace + "px";
+    console.log("widthOfSpace "+widthOfSpace);
+    console.log("style width "+ParamGui.outputDiv.style.width);
+        ParamGui.outputDiv.style.height = window.innerHeight + "px";
+    console.log("clientWidth " + ParamGui.outputDiv.clientWidth);
+    console.log("offsetWidth "+ParamGui.outputDiv.offsetWidth);
+    // see if content is too wide and horizontal scroll bars are required
+    if (widthOfContent > ParamGui.outputDiv.clientWidth) {
+        ParamGui.outputDiv.style.overflowX = "scroll";
+        console.log("first time hor scroll bars");
+    }
+    // see if content is too high (including a possible scroll bar)
+    console.log("clientHeight " + ParamGui.outputDiv.clientHeight);
+    if (heightOfContent > ParamGui.outputDiv.clientHeight) {
+        ParamGui.outputDiv.style.overflowY = "scroll";
+        console.log("vertical scroll bars");
+        console.log("clientWidth " + ParamGui.outputDiv.clientWidth);
+        // the clientwidth has been reduced, and we may need a herizontal scroll bar now
+        if (widthOfContent > ParamGui.outputDiv.clientWidth) {
+            ParamGui.outputDiv.style.overflowX = "scroll";
+            console.log("second time hor scroll bars");
+        }
+    }
+};
 
 /**
  * create an output div fitting the guis
  * it will be in ParamGui.outputDiv
  * it will fit between the guis at the left and those at the right
+ * you can have more than one canvas in the output div ...
  * @method ParamGui.createOutputDiv
  * @return the output div
  */
- ParamGui.outputDiv = false;
-
-function resizeOutputDiv(){
- ParamGui.outputDiv.style.height = document.documentElement.clientHeight + "px";
-        const leftSpace=ParamGui.leftSpaceLimit();
-        const rightSpace=ParamGui.rightSpaceLimit();
-ParamGui.outputDiv.style.left=leftSpace+"px";
-ParamGui.outputDiv.style.width=rightSpace-leftSpace+"px";
-}
-
 ParamGui.createOutputDiv = function() {
-if (ParamGui.outputDiv) {
-    console.error("ParamGui.outputDiv exists already!");
-    }
-    else {
+    if (ParamGui.outputDiv) {
+        console.error("ParamGui.outputDiv exists already!");
+    } else {
         ParamGui.outputDiv = document.createElement("div");
- ParamGui.outputDiv.style.position="absolute";
- ParamGui.outputDiv.style.top="0px";
+        ParamGui.outputDiv.style.position = "absolute";
+        ParamGui.outputDiv.style.top = "0px";
 
-ParamGui.outputDiv.style.backgroundColor="blue";
+        ParamGui.outputDiv.style.backgroundColor = "blue";
 
-            resizeOutputDiv();
+        ParamGui.resizeOutputDiv();
         document.body.appendChild(ParamGui.outputDiv);
-        window.addEventListener("resize", resizeOutputDiv, false);
+        window.addEventListener("resize", ParamGui.resizeOutputDiv, false);
     }
-            return ParamGui.outputDiv;
+    return ParamGui.outputDiv;
 
 };
-
 ParamGui.createOutputDiv();
+
+const theDiv=document.createElement("div");
+ParamGui.outputDiv.appendChild(theDiv);
+theDiv.style.borderStyle="solid";
+theDiv.style.width="700px";
+theDiv.style.height="400px";
+theDiv.style.backgroundColor="yellow";
+
+ParamGui.resizeOutputDiv();
+
 
 console.log(ParamGui.leftSpaceLimit());
 console.log(ParamGui.rightSpaceLimit());
-
 </script>
 </html>
