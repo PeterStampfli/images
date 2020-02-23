@@ -102,7 +102,7 @@ export function ParamController(gui, domElement, args) {
     this.domElement.appendChild(this.label);
     this.label.textContent = labelText;
 
-    switch (args.type) {
+    switch (args.type.toLowerCase()) {
         case "selection":
             {
                 const selectValues = new SelectValues(this.domElement);

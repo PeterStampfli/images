@@ -22,7 +22,7 @@ from "../libgui/modules.js";
 
 const gui = new ParamGui({
     name: "dummy controls",
-  //  horizontalPosition: "left"
+ //   horizontalPosition: "left"
 });
 
 gui.add({
@@ -107,6 +107,47 @@ ParamGui.rightSpaceLimit = function() {
     const spaceLimit = document.documentElement.clientWidth - space;
     return spaceLimit;
 };
+
+
+
+
+/**
+ * create an output div fitting the guis
+ * it will be in ParamGui.outputDiv
+ * it will fit between the guis at the left and those at the right
+ * @method ParamGui.createOutputDiv
+ * @return the output div
+ */
+ ParamGui.outputDiv = false;
+
+function resizeOutputDiv(){
+ ParamGui.outputDiv.style.height = document.documentElement.clientHeight + "px";
+        const leftSpace=ParamGui.leftSpaceLimit();
+        const rightSpace=ParamGui.rightSpaceLimit();
+ParamGui.outputDiv.style.left=leftSpace+"px";
+ParamGui.outputDiv.style.width=rightSpace-leftSpace+"px";
+}
+
+ParamGui.createOutputDiv = function() {
+if (ParamGui.outputDiv) {
+    console.error("ParamGui.outputDiv exists already!");
+    }
+    else {
+        ParamGui.outputDiv = document.createElement("div");
+ ParamGui.outputDiv.style.position="absolute";
+ ParamGui.outputDiv.style.top="0px";
+
+ParamGui.outputDiv.style.backgroundColor="blue";
+
+            resizeOutputDiv();
+        document.body.appendChild(ParamGui.outputDiv);
+        window.addEventListener("resize", resizeOutputDiv, false);
+    }
+            return ParamGui.outputDiv;
+
+};
+
+ParamGui.createOutputDiv();
 
 console.log(ParamGui.leftSpaceLimit());
 console.log(ParamGui.rightSpaceLimit());
