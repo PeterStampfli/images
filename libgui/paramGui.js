@@ -687,6 +687,14 @@ ParamGui.prototype.getRoot = function() {
 };
 
 /**
+ * make that the gui becomes visible above all others
+ * @method ParamGui#toFront
+ */
+ParamGui.prototype.toFront = function() {
+    ParamGui.moveToFront(this);
+};
+
+/**
  * add a folder, it is a gui instance, open by default
  * @method ParamGui#addFolder
  * @param {String} folderName
@@ -1096,7 +1104,7 @@ ParamGui.rightSpaceLimit = function() {
     });
     // with window.innerWidth we do not get some ghosts of scroll bars
     // document.documentElement.clientWidth upon reducing screen height gives a smaller width because of spurious vertical scroll bar
-  //  const spaceLimit = window.innerWidth - space;
+    //  const spaceLimit = window.innerWidth - space;
     const spaceLimit = document.documentElement.clientWidth - space;
     return spaceLimit;
 };
@@ -1104,13 +1112,13 @@ ParamGui.rightSpaceLimit = function() {
 ParamGui.outputDiv = false;
 
 /**
-* resizing the content of the output div
-* does nothing here, overwrite depending on content
-* output div will have its final dimension when calling this
-* so you can use its clientWidth/Height
-* @method ParamGui.resizeOutputContent
-*/
-ParamGui.resizeOutputContent=function(){};
+ * resizing the content of the output div
+ * does nothing here, overwrite depending on content
+ * output div will have its final dimension when calling this
+ * so you can use its clientWidth/Height
+ * @method ParamGui.resizeOutputContent
+ */
+ParamGui.resizeOutputContent = function() {};
 
 /**
  * resizing the output div and setting its scrolling
@@ -1141,7 +1149,7 @@ ParamGui.resizeOutputDiv = function() {
     const heightOfContent = ParamGui.outputDiv.clientHeight;
     // set final dimensions
     ParamGui.outputDiv.style.width = widthOfSpace + "px";
-        ParamGui.outputDiv.style.height = window.innerHeight + "px";
+    ParamGui.outputDiv.style.height = window.innerHeight + "px";
     // see if content is too wide and horizontal scroll bars are required
     if (widthOfContent > ParamGui.outputDiv.clientWidth) {
         ParamGui.outputDiv.style.overflowX = "scroll";

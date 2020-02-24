@@ -76,7 +76,7 @@ log("what happens now");
 
 
 
-
+/*
 ParamGui.createOutputDiv();
 
 const theDiv=document.createElement("div");
@@ -87,6 +87,20 @@ theDiv.style.height="400px";
 theDiv.style.backgroundColor="yellow";
 
 ParamGui.resizeOutputDiv();
+*/
+ParamGui.prototype.addCanvas = function(isRectangular = true) {
+    ParamGui.canvas = document.createElement("canvas");
+
+    ParamGui.canvas.style.backgroundColor = "red";
+    ParamGui.createOutputDiv();
+
+    ParamGui.outputDiv.appendChild(ParamGui.canvas);
+
+};
+
+gui.addCanvas();
+
+gui.toFront();
 
 </script>
 </html>
