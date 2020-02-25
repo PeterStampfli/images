@@ -747,20 +747,23 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
- * @return object args, for the new style
+ * @return object args, for the new style, or false for errors
  */
 
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
-    console.log("generating an args object from old-style parameters");
+    console.log("add: generating an argument object from old-style parameters");
+    let args = false;
     if (!guiUtils.isObject(theParams)) {
-        console.warn("**** There is a problem with the parameter object: ");
-        console.log(theParams);
+        console.error("the parameter argument is undefined or not an object: ");
+        console.log("its value is " + theParams + " of type " + (typeof theParams));
+        return false;
     }
     if (!guiUtils.isString(theProperty)) {
-        console.warn("**** There is a problem with the property string: ");
-        console.log(theProperty);
+        console.error("the property argument is not a string: ");
+        console.log("its value is " + theProperty + " of type " + (typeof theProperty));
+        return false;
     }
-    const args = {
+    args = {
         params: theParams,
         property: theProperty
     };
@@ -870,16 +873,22 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     // make a regular spacing between elements
     controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
     controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-    const controller = new ParamController(this, controllerDomElement, args);
-    // change dom after all work has been done
-    this.bodyDiv.appendChild(controllerDomElement);
-    return controller;
+    if (args) {
+        const controller = new ParamController(this, controllerDomElement, args);
+        // change dom after all work has been done
+        this.bodyDiv.appendChild(controllerDomElement);
+        return controller;
+    } else {
+        controllerDomElement.innerHTML = "&nbsp error with argument object";
+        this.bodyDiv.appendChild(controllerDomElement);
+    }
+
 };
 
 /**
  * make a controller for color, datGui.js style parameters
  * @method ParamGui#addColor
- * @param {Object} theParams - object that has the parameter as a field, or args object that has all data
+ * @param {Object} theParams - object that has the parameter as a field, or argument object that has all data
  * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
  * @return {ParamController} object
  */
@@ -888,13 +897,12 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
     if (arguments.length === 1) {
         args = theParams; // the new version
     } else {
-        console.log("generating an args object from old-style parameters");
+        console.log("addColor: generating an argument object from old-style parameters");
         args = {
             params: theParams,
             property: theProperty,
             type: "color"
         };
-        args.type = "color";
         console.log(args);
     }
     return this.add(args);

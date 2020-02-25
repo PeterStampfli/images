@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>error demo gui</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    InstantHelp
+}
+from "./modules.js";
+
+
+const gui = new ParamGui({}, {
+    name: "datGui API compatible"
+});
+
+const p={};
+p.color="#4567";
+p.err=9;
+
+gui.addColor(p,"color")
+gui.addColor(p,"err")
+gui.add(66,8);
+
+</script>
+
+</html>

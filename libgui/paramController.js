@@ -29,39 +29,36 @@ export function ParamController(gui, domElement, args) {
     const design = gui.design;
     this.domElement = domElement;
     const controller = this;
+    args.type=args.type.toLowerCase();
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.type = args.type;
-    // see if we have a params object, then we might have a parameter to control and an initial value
+    // see if the args object has a parameter value
     this.hasParameter = false;
-    this.initialValue = 0;
-    if (guiUtils.isObject(args.params)) {
-        this.params = args.params;
-        // now args.property should be a string as key to the params object
+    var parameterValue;
+    // test if the args.property is ok, then we can have a parameter value
+    if (guiUtils.isDefined(args.property)) {
         if (guiUtils.isString(args.property)) {
             this.property = args.property;
-            // for buttons, the parameter value might be undefined or a function, else it might be everything
-            if (guiUtils.isDefined(this.params[this.property])) {
-                this.hasParameter = true;
-                this.initialValue = this.params[this.property];
+            if (guiUtils.isObject(args.params)) {
+                this.params = args.params;
+                if (guiUtils.isDefined(args.params[args.property])) {
+                    parameterValue=args.params[args.property];
+                     this.hasParameter = true;
+               }
+               else {
+                console.error("ParamController: argument.params[argument.property] is not defined. The argument object:");
+                console.log(args);
+               }
             }
         } else {
-            console.log("*** ParamController: args.property is not a string. It is " + args.property);
+            console.error("ParamController: argument.property is not a string.");
+            console.log("its value is "+args.property+" of type "+(typeof args.property));
         }
     }
-    // activate listening if we have a parameter and args.listening is true
-    this.listening = this.hasParameter && guiUtils.check(args.listening);
-    if (this.listening) {
-        ParamGui.startListening(); // automatically update display
-    }
-    // use popup depending on args.usePopup and design.usePopup
-    this.usePopup = guiUtils.check(args.usePopup, this.design.usePopup);
-    // but we have not yet a popup. thus in any case
-    this.hasPopup = false;
-    this.callsClosePopup = false;
 
     /**
      * callback for changes
@@ -75,25 +72,32 @@ export function ParamController(gui, domElement, args) {
     // get label text, button is special: the property might be the button text but not the label text
     var labelText, buttonText;
     if (args.type === "button") {
-        this.callback = guiUtils.check(args.onChange, args.onClick, this.initialValue, this.callback);
+        this.callback = guiUtils.check(args.onChange, args.onClick, parameterValue, this.callback);
         this.hasParameter = false;
         labelText = guiUtils.check(args.labelText, "");
         buttonText = guiUtils.check(args.buttonText, this.property, "missing text");
     } else {
         this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
         // get initial value from args or from parameter value
-        this.initialValue = guiUtils.check(args.initialValue, this.initialValue);
+        this.initialValue = guiUtils.check(args.initialValue, parameterValue);
         labelText = guiUtils.check(args.labelText, this.property, "");
     }
-
+    // activate listening if we have a parameter and args.listening is true
+    this.listening = this.hasParameter && guiUtils.check(args.listening);
+    if (this.listening) {
+        ParamGui.startListening(); // automatically update display
+    }
+    // use popup depending on args.usePopup and design.usePopup
+    this.usePopup = guiUtils.check(args.usePopup, this.design.usePopup);
+    // but we have not yet a popup. thus in any case
+    this.hasPopup = false;
+    this.callsClosePopup = false;
     // create a label. If you want a space instead
     // the set labelText="" and adjust minLabelWidth, or change style
     this.label = document.createElement("span");
     this.label.style.fontSize = design.labelFontSize + "px";
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
-
-
     this.label.style.minWidth = guiUtils.check(args.minLabelWidth, design.labelWidth) + "px";
     this.label.style.textAlign = design.labelTextAlign;
     // space between label and controller or left border
@@ -322,8 +326,14 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
     } else {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
     }
+    if (args){
     const controller = new ParamController(this.gui, this.domElement, args);
     return controller;
+}else {
+    const message=document.createElement("span");
+        message.innerHTML = "&nbsp error with argument object";
+        this.domElement.appendChild(message);
+    }
 };
 
 /**
@@ -338,13 +348,12 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
     if (arguments.length === 1) {
         args = theParams; // the new version
     } else {
-        console.log("generating an args object from old-style parameters");
+        console.log("addColor: generating an argument object from old-style parameters");
         args = {
             params: theParams,
             property: theProperty,
             type: "color"
         };
-        args.type = "color";
         console.log(args);
     }
     return this.add(args);

@@ -145,6 +145,38 @@ guiUtils.isGoodImageFile = function(fileName) {
     return false;
 };
 
+// standard color strings
+// without alpha: #rrggbb
+// with alpha: #rrggbbaa
+// transforms to color without alpha: #rgb -> #rrggbb, #rgba -> #rrggbb, #rrggbb, #rrggbbaa -> #rrggbb
+// transforms to color with alpha: #rgb -> #rrggbbff, #rgba -> #rrggbbaa, #rrggbb -> #rrggbbff
+const hexDigits = "0123456789abcdef";
+
+/**
+ * test if the rgument is a correct color string
+ * @method guiUtils.isColorString
+ * @param {String} text
+ * @return true color is in correct format
+ */
+guiUtils.isColorString = function(text) {
+    if (guiUtils.isString(text) && (text.charAt(0) === "#")) {
+        text.toLowerCase();
+        const length = text.length;
+        if ((length != 4) && (length != 5) && (length != 7) && (length != 9)) {
+            return false;
+        }
+        for (var i = 1; i < length; i++) {
+            if (hexDigits.indexOf(text.charAt(i)) < 0) { // indexOf returns zero if char not found
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+};
+
+
 /**
  * updating existing fields of first object by fields of second object
  * both have to have the same type, they are not functions (it does not matter if both are "undefined")

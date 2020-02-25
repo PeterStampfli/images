@@ -100,7 +100,7 @@ const co = gui.addColor(parameters, "rgba");
 parameters.text = "edit some text";
 gui.add(parameters, "text");
 
-parameters.say_hello = function() {
+parameters["say hello"] = function() {
     console.log("hello");
 };
 gui.add(parameters, "say hello").setLabelText("button");
