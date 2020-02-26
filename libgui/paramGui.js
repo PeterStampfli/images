@@ -739,6 +739,30 @@ ParamGui.prototype.remove = function(element) {
  */
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
+/**
+ * test if datGui style parameters are ok:
+ * theParams is object
+ * theProperty is string
+ * @method ParamGui.checkParamsProperty
+ * @param {object} theParams
+ * @param {string} theProperty
+ * @return boolean, true if ok, false else
+ */
+ParamGui.checkParamsProperty = function(theParams, theProperty) {
+    let result = true;
+    if (!guiUtils.isObject(theParams)) {
+        console.error("datGui-style: the parameter argument is not an object: ");
+        console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
+        result = false;
+    }
+    if (!guiUtils.isString(theProperty)) {
+        console.error("datGui-style: the property argument is not a string: ");
+        console.log('its value is ' + theProperty + ' of type "' + (typeof theProperty) + '"');
+        result = false;
+    }
+    return result;
+};
+
 /** 
  * transform from datGui style arguments to the new args object
  * @method ParamGui.createArgs
@@ -747,23 +771,11 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
- * @return object args, for the new style, or false for errors
+ * @return object
  */
-
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
-    console.log("add: generating an argument object from old-style parameters");
-    let args = false;
-    if (!guiUtils.isObject(theParams)) {
-        console.error("the parameter argument is undefined or not an object: ");
-        console.log("its value is " + theParams + " of type " + (typeof theParams));
-        return false;
-    }
-    if (!guiUtils.isString(theProperty)) {
-        console.error("the property argument is not a string: ");
-        console.log("its value is " + theProperty + " of type " + (typeof theProperty));
-        return false;
-    }
-    args = {
+    console.log("Add: Generating an argument object from datGui-style parameters");
+    const args = {
         params: theParams,
         property: theProperty
     };
@@ -822,7 +834,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * parameters as in datGui.js for compatibility
  * or a single argument objects that has all information and gives more flexibility
  * @method ParamGui#add
- * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller
+ * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller, or false for error
  * @param {String} theProperty - key for the field of params to change, params[property]
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
@@ -861,28 +873,28 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
  * args.stepSize - value for step of NUMBER controllers (optional, default is obtained from the initial value)
  */
-
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
-    var args;
+    let args = false;
     if (arguments.length === 1) {
-        args = theParams; // the new version
-    } else {
+        args = theParams;
+    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
     }
-    const controllerDomElement = document.createElement("div");
-    // make a regular spacing between elements
-    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
-    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+    let controller = false;
     if (args) {
-        const controller = new ParamController(this, controllerDomElement, args);
-        // change dom after all work has been done
+        const controllerDomElement = document.createElement("div");
+        // make a regular spacing between elements
+        controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+        controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+        controller = new ParamController(this, controllerDomElement, args);
         this.bodyDiv.appendChild(controllerDomElement);
-        return controller;
     } else {
-        controllerDomElement.innerHTML = "&nbsp error with argument object";
-        this.bodyDiv.appendChild(controllerDomElement);
+        const message = document.createElement("div");
+        message.innerHTML = "&nbsp DatGui-style parameters are not ok";
+        console.error("no controller generated because DatGui-style parameters are not ok");
+        this.bodyDiv.appendChild(message);
     }
-
+    return controller;
 };
 
 /**
@@ -893,11 +905,11 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(theParams, theProperty) {
-    var args;
+    let args = false;
     if (arguments.length === 1) {
         args = theParams; // the new version
-    } else {
-        console.log("addColor: generating an argument object from old-style parameters");
+    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
+        console.log("addColor: generating an argument object from datGui-style parameters");
         args = {
             params: theParams,
             property: theProperty,
@@ -905,7 +917,8 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
         };
         console.log(args);
     }
-    return this.add(args);
+    let controller = this.add(args);
+    return controller;
 };
 
 /**

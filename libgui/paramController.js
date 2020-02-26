@@ -29,7 +29,7 @@ export function ParamController(gui, domElement, args) {
     const design = gui.design;
     this.domElement = domElement;
     const controller = this;
-    args.type=args.type.toLowerCase();
+    //  args.type = args.type.toLowerCase();
     this.helpButton = null;
     // the button or whatever the user interacts with
     this.uiElement = null;
@@ -46,17 +46,20 @@ export function ParamController(gui, domElement, args) {
             if (guiUtils.isObject(args.params)) {
                 this.params = args.params;
                 if (guiUtils.isDefined(args.params[args.property])) {
-                    parameterValue=args.params[args.property];
-                     this.hasParameter = true;
-               }
-               else {
-                console.error("ParamController: argument.params[argument.property] is not defined. The argument object:");
+                    parameterValue = args.params[args.property];
+                    this.hasParameter = true;
+                }
+            } else {
+                console.error("ParamController: argument.params is not an object although there is an argument.property.");
+                console.log("its value is " + args.params + " of type " + (typeof args.params));
+                console.log("the arguments object:");
                 console.log(args);
-               }
             }
         } else {
             console.error("ParamController: argument.property is not a string.");
-            console.log("its value is "+args.property+" of type "+(typeof args.property));
+            console.log("its value is " + args.property + " of type " + (typeof args.property));
+            console.log("the arguments object:");
+            console.log(args);
         }
     }
 
@@ -320,20 +323,22 @@ ParamController.prototype.setupOnChange = function() {
  * @param {float/integer} step - determines step size (optional)
  */
 ParamController.prototype.add = function(theParams, theProperty, low, high, step) {
-    var args;
+    let args = false;
     if (arguments.length === 1) {
-        args = theParams; // the new version
-    } else {
+        args = theParams;
+    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
     }
-    if (args){
-    const controller = new ParamController(this.gui, this.domElement, args);
-    return controller;
-}else {
-    const message=document.createElement("span");
-        message.innerHTML = "&nbsp error with argument object";
+    let controller = false;
+    if (args) {
+        controller = new ParamController(this.gui, this.domElement, args);
+    } else {
+        const message = document.createElement("span");
+        message.innerHTML = "&nbsp DatGui-style parameters are not ok";
+        console.error("no controller generated because DatGui-style parameters are not ok");
         this.domElement.appendChild(message);
     }
+    return controller;
 };
 
 /**
@@ -344,11 +349,11 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
  * @return {ParamController} object
  */
 ParamController.prototype.addColor = function(theParams, theProperty) {
-    var args;
+    let args = false;
     if (arguments.length === 1) {
         args = theParams; // the new version
-    } else {
-        console.log("addColor: generating an argument object from old-style parameters");
+    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
+        console.log("addColor: generating an argument object from datGui-style parameters");
         args = {
             params: theParams,
             property: theProperty,
@@ -356,7 +361,8 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
         };
         console.log(args);
     }
-    return this.add(args);
+     let controller = this.add(args);
+    return controller;
 };
 
 /**
