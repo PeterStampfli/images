@@ -7,7 +7,8 @@
  */
 
 import {
-    Select
+    Select,
+    guiUtils
 } from "./modules.js";
 
 export function SelectValues(parent) {
@@ -80,17 +81,20 @@ SelectValues.prototype.addOption = function(name, value) {
  * @param {Array||Object} options
  */
 SelectValues.prototype.addOptions = function(options) {
-    if (Array.isArray(options)) {
+    if (guiUtils.isArray(options)) {
         options.forEach(option => this.addOption(option, option));
-    } else {
+    } else if (guiUtils.isObject(options)) {
         // an object defines selection values as value[key] pair, key is shown as name of a selection (option)
         const names = Object.keys(options);
         names.forEach(name => this.addOption(name, options[name]));
+    } else {
+        console.error("SelectValues#addOptions: argument is not an array and not an object");
+        console.log('its value is ' + options + ' of type "' + (typeof options) + '"');
     }
 };
 
 /**
- * get the index
+ * get the selected index
  * @method SelectValues#getIndex
  * @return integer, the selected index
  */
@@ -127,6 +131,10 @@ SelectValues.prototype.getValue = function() {
  */
 SelectValues.prototype.setValue = function(value) {
     const index = this.values.indexOf(value);
+    if (index < 0) {
+        console.error("SelectValues#setValue: argument not found in option values");
+        console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
+    }
     this.setIndex(index);
 };
 

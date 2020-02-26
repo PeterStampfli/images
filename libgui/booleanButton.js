@@ -181,6 +181,10 @@ BooleanButton.prototype.getValue = function() {
  * @param {boolean} onOff
  */
 BooleanButton.prototype.setValue = function(onOff) {
+    if (!guiUtils.isBoolean(onOff)) {
+        console.error("BooleanButton#setValue: argument is not boolean:");
+        console.log('its value is ' + onOff + ' of type "' + (typeof onOff) + '"');
+    }
     this.value = onOff;
     this.updateStyle();
 };

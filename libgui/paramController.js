@@ -78,12 +78,12 @@ export function ParamController(gui, domElement, args) {
         this.callback = guiUtils.check(args.onChange, args.onClick, parameterValue, this.callback);
         this.hasParameter = false;
         labelText = guiUtils.check(args.labelText, "");
-        buttonText = guiUtils.check(args.buttonText, this.property, "missing text");
+        buttonText = guiUtils.check(args.buttonText, args.property, "missing text");
     } else {
         this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
         // get initial value from args or from parameter value
         this.initialValue = guiUtils.check(args.initialValue, parameterValue);
-        labelText = guiUtils.check(args.labelText, this.property, "");
+        labelText = guiUtils.check(args.labelText, args.property, "");
     }
     // activate listening if we have a parameter and args.listening is true
     this.listening = this.hasParameter && guiUtils.check(args.listening);
@@ -108,7 +108,15 @@ export function ParamController(gui, domElement, args) {
     this.label.style.paddingRight = design.spaceWidth + "px";
     this.domElement.appendChild(this.label);
     this.label.textContent = labelText;
-
+    // catch error that type is not a string
+    if (!guiUtils.isString(args.type)) {
+        const message = document.createElement("span");
+        message.innerHTML = 'controller type is not a string';
+        console.error('controller type is not a string');
+        console.log('its value is ' + args.type + ' of type "' + (typeof args.type) + '"');
+        this.domElement.appendChild(message);
+        return;
+    }
     switch (args.type.toLowerCase()) {
         case "selection":
             {
@@ -129,7 +137,15 @@ export function ParamController(gui, domElement, args) {
                 button.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = button;
-                button.setValue(this.initialValue);
+                if (guiUtils.isBoolean(this.initialValue)) {
+                    button.setValue(this.initialValue);
+                } else {
+                    const message = document.createElement("span");
+                    message.innerHTML = "&nbsp initial value is not boolean";
+                    this.domElement.appendChild(message);
+                    console.error("add booleanButton: initial Value is not boolean:");
+                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                }
                 this.setupOnChange();
                 this.setupOnInteraction();
                 break;
@@ -140,9 +156,17 @@ export function ParamController(gui, domElement, args) {
                 button.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = button;
-                button.onClick = function() {
-                    controller.callback();
-                };
+                if (guiUtils.isFunction(this.callback)) {
+                    button.onClick = function() {
+                        controller.callback();
+                    };
+                } else {
+                    const message = document.createElement("span");
+                    message.innerHTML = "&nbsp callback is not a function";
+                    this.domElement.appendChild(message);
+                    console.error("add button: onClick or onChange is not a function:");
+                    console.log('its value is ' + this.callback + ' of type "' + (typeof this.callback) + '"');
+                }
                 this.setValue = function() {};
                 this.setValueOnly = function() {};
                 this.getValue = function() {};
@@ -239,9 +263,9 @@ export function ParamController(gui, domElement, args) {
         default:
             const message = document.createElement("span");
             message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
-            message.style.fontSize = this.design.titleFontSize + "px";
             console.error('unknown controller type "' + args.type + '", the arguments object is:');
             console.log(args);
+            console.log("type has to be: button, booleanButton, image, selection, color, text");
             this.domElement.appendChild(message);
             break;
     }
@@ -361,7 +385,7 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
         };
         console.log(args);
     }
-     let controller = this.add(args);
+    let controller = this.add(args);
     return controller;
 };
 

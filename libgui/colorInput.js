@@ -8,7 +8,8 @@
  */
 
 import {
-    Button,guiUtils
+    Button,
+    guiUtils
 } from "./modules.js";
 
 export function ColorInput(parent, hasAlpha) {
@@ -347,18 +348,17 @@ ColorInput.prototype.getValue = function() {
  */
 ColorInput.prototype.setValue = function(text) {
     if (guiUtils.isColorString(text)) {
-     text = text.toLowerCase();
-       const color = this.colorFrom(text);
+        text = text.toLowerCase();
+        const color = this.colorFrom(text);
         this.lastValue = color;
         this.textElement.value = color;
         this.colorElement.value = ColorInput.rgbFrom(color);
         if (this.hasAlpha) {
             this.rangeElement.value = this.alphaFrom(color);
         }
-    }
-    else {
+    } else {
         console.error("ColorInput#setValue: argument is not a good color string");
-        console.log("argument has value "+text, "of type "+(typeof text));
+        console.log("argument has value " + text, "of type " + (typeof text));
         console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
     }
 };
@@ -373,7 +373,7 @@ ColorInput.prototype.setValue = function(text) {
 ColorInput.prototype.updateValue = function(text) {
     if (guiUtils.isColorString(text)) {
         const color = this.colorFrom(text);
-    text = text.toLowerCase();
+        text = text.toLowerCase();
         if (this.lastValue !== color) {
             this.setValue(color);
             this.onChange(color);
@@ -381,7 +381,7 @@ ColorInput.prototype.updateValue = function(text) {
     } else {
         this.setValue(this.lastValue);
         console.error("ColorInput#updateValue: argument is not a good color string");
-        console.log("argument has value "+text, "of type "+(typeof text));
+        console.log("argument has value " + text, "of type " + (typeof text));
         console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
     }
 };
