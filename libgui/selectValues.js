@@ -124,18 +124,20 @@ SelectValues.prototype.getValue = function() {
 };
 
 /**
- * set the value
+ * set the value, if not found makes error message
  * does not call the onChange callback
  * @method SelectValues#setValue
  * @param {whatever} value
  */
 SelectValues.prototype.setValue = function(value) {
     const index = this.values.indexOf(value);
-    if (index < 0) {
+    if (index >= 0) {
+            this.setIndex(index);
+    }
+        else {
         console.error("SelectValues#setValue: argument not found in option values");
         console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
     }
-    this.setIndex(index);
 };
 
 /**

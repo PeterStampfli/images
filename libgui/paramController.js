@@ -112,7 +112,7 @@ export function ParamController(gui, domElement, args) {
     if (!guiUtils.isString(args.type)) {
         const message = document.createElement("span");
         message.innerHTML = 'controller type is not a string';
-        console.error('controller type is not a string');
+        console.error('add controller: type is not a string');
         console.log('its value is ' + args.type + ' of type "' + (typeof args.type) + '"');
         this.domElement.appendChild(message);
         return;
@@ -124,8 +124,16 @@ export function ParamController(gui, domElement, args) {
                 selectValues.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = selectValues;
-                selectValues.addOptions(args.options);
-                selectValues.setValue(this.initialValue);
+                if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
+                    selectValues.addOptions(args.options);
+                    selectValues.setValue(this.initialValue);
+                } else {
+                    const message = document.createElement("span");
+                    message.innerHTML = "&nbsp options is not an array or object";
+                    this.domElement.appendChild(message);
+                    console.error("add selection: options is not an array or object:");
+                    console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                }
                 this.setupOnChange();
                 this.setupOnInteraction();
                 break;
