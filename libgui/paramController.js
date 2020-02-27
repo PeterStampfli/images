@@ -188,7 +188,12 @@ export function ParamController(gui, domElement, args) {
                 textInput.setWidth(this.design.textInputWidth);
                 textInput.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                textInput.setValue(this.initialValue);
+                if (guiUtils.isString(this.initialValue)) {
+                    textInput.setValue(this.initialValue);
+                } else {
+                    console.error("add text: initial value is not a string:");
+                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                }
                 this.uiElement = textInput;
                 this.setupOnChange();
                 this.setupOnInteraction();
@@ -213,7 +218,12 @@ export function ParamController(gui, domElement, args) {
                 } else {
                     button.setStep(NumberButton.findStep(this.initialValue));
                 }
-                button.setValue(this.initialValue);
+                if (guiUtils.isNumber(this.initialValue)) {
+                    button.setValue(this.initialValue);
+                } else {
+                    console.error("add number: initial value is not a number:");
+                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                }
                 this.uiElement = button;
                 this.setupOnChange();
                 this.setupOnInteraction();
@@ -224,10 +234,16 @@ export function ParamController(gui, domElement, args) {
                 const hasAlpha = ColorInput.hasAlpha(this.initialValue);
                 const colorInput = new ColorInput(this.domElement, hasAlpha);
                 colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
-                colorInput.setValue(this.initialValue);
                 colorInput.setFontSize(this.design.buttonFontSize);
                 this.uiElement = colorInput;
                 this.setupOnChange();
+                if (guiUtils.isColorString(this.initialValue)) {
+                    colorInput.setValue(this.initialValue);
+                } else {
+                    console.error("add color: initial value is not a good color string");
+                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                    console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
+                }
                 this.setupOnInteraction();
                 break;
             }
@@ -242,14 +258,7 @@ export function ParamController(gui, domElement, args) {
                 selectDiv.style.textAlign = "center";
                 this.domElement.appendChild(selectDiv);
                 const imageSelect = new ImageSelect(selectDiv, this.design);
-                // manage the popup: attention, it is a field of the uiElement object
                 this.hasPopup = true;
-
-                this.closePopup = function() {
-                    if (!this.callsClosePopup) {
-                        this.uiElement.closePopup();
-                    }
-                };
                 // if user images can be loaded, then add a vertical space and a button
                 if (this.design.acceptUserImages) {
                     // the user image input button

@@ -256,23 +256,25 @@ NumberButton.prototype.getValue = function() {
  * @param {integer} number - the number value to show in the button, verified number !!
  */
 NumberButton.prototype.setValue = function(number) {
-    number = this.quantizeClamp(number);
-    this.lastValue = number;
-    this.input.value = number.toFixed(this.digits);
-    if (this.range) {
-        this.range.value = number.toString();
-    }
-    if (this.indicatorElement) {
-        let pos = 100 * (number - this.minValue);
-        if (this.cyclic) {
-            pos /= (this.maxValue - this.minValue - this.step);
-        } else {
-            pos /= (this.maxValue - this.minValue);
+    if (guiUtils.isNumber(number)) {
+        number = this.quantizeClamp(number);
+        this.lastValue = number;
+        this.input.value = number.toFixed(this.digits);
+        if (this.range) {
+            this.range.value = number.toString();
         }
-        pos = Math.round(pos);
-        let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
-        backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
-        this.indicatorElement.style.background = backgroundStyle;
+        if (this.indicatorElement) {
+            let pos = 100 * (number - this.minValue);
+            if (this.cyclic) {
+                pos /= (this.maxValue - this.minValue - this.step);
+            } else {
+                pos /= (this.maxValue - this.minValue);
+            }
+            pos = Math.round(pos);
+            let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
+            backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
+            this.indicatorElement.style.background = backgroundStyle;
+        }
     }
 };
 
@@ -284,14 +286,14 @@ NumberButton.prototype.setValue = function(number) {
  * @param {integer} number - the number value to show in the button
  */
 NumberButton.prototype.updateValue = function(number) {
-    if (isNaN(number)) { // overwrite garbage, do nothing
-        this.setValue(this.lastValue);
-    } else {
+    if (guiUtils.isNumber(number)) {
         number = this.quantizeClamp(number);
         if (this.lastValue !== number) { // does it really change??
             this.setValue(number); // update numbers before action
             this.onChange(number);
         }
+    } else {
+        this.setValue(this.lastValue); // overwrite garbage, do nothing
     }
 };
 

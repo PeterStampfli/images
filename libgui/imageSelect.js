@@ -318,6 +318,7 @@ ImageSelect.prototype.clearChoices = function() {
 
 /**
  * adds choices, no varargs
+ * choices has to be array or object
  */
 ImageSelect.prototype.add = function(choices) {
     // an array: add its components, arrays of arrays possible, for whatever reason

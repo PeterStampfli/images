@@ -132,9 +132,8 @@ SelectValues.prototype.getValue = function() {
 SelectValues.prototype.setValue = function(value) {
     const index = this.values.indexOf(value);
     if (index >= 0) {
-            this.setIndex(index);
-    }
-        else {
+        this.setIndex(index);
+    } else {
         console.error("SelectValues#setValue: argument not found in option values");
         console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
     }

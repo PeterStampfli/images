@@ -358,7 +358,7 @@ ColorInput.prototype.setValue = function(text) {
         }
     } else {
         console.error("ColorInput#setValue: argument is not a good color string");
-        console.log("argument has value " + text, "of type " + (typeof text));
+        console.log('its value is ' + text + ' of type "' + (typeof text) + '"');
         console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
     }
 };
@@ -381,7 +381,7 @@ ColorInput.prototype.updateValue = function(text) {
     } else {
         this.setValue(this.lastValue);
         console.error("ColorInput#updateValue: argument is not a good color string");
-        console.log("argument has value " + text, "of type " + (typeof text));
+        console.log('its value is ' + text + ' of type "' + (typeof text) + '"');
         console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
     }
 };

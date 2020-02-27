@@ -784,7 +784,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
     // add other fields to args depending on the type
     if (guiUtils.isObject(low) &&
         guiUtils.isGoodImageFile(low[Object.keys(low)[0]])) {
-        // if design option is true and low is an object (that defines choices)
+        // if low is an object (that defines choices)
         // and first low.value is a good image file:  we use the new image selection
         args.type = "image";
         args.options = low;
@@ -821,7 +821,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         // no idea/error
         args.type = "no fitting type found";
         console.error("no fitting controller type found for:");
-        console.log("property " + theProperty + " with value " + paramValue);
+        console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
         console.log("low " + low + ", high " + high + ", step " + step);
     }
     console.log(args);
