@@ -824,6 +824,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
         console.log("low " + low + ", high " + high + ", step " + step);
     }
+    console.log("parameter value " + paramValue + ' of type "' + (typeof paramValue) + '"' + ", generated parameter object:");
     console.log(args);
     return args;
 };
@@ -833,6 +834,10 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * depending on its value and limits
  * parameters as in datGui.js for compatibility
  * or a single argument objects that has all information and gives more flexibility
+ * ATTENTION: Creates only the controller and sets its value. Does NOT call any callback.
+ * Checks compatibility of initial values and controller type.
+ * If not compatible makes an error message and might modify the parameter value.
+ * YOU should update any objects that uses the data of controllers after setting up the gui.
  * @method ParamGui#add
  * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller, or false for error
  * @param {String} theProperty - key for the field of params to change, params[property]
@@ -844,19 +849,21 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
 
 /* Old datGui style parameters (backwards compatible with datGui.js)
  *-------------------------------------------------------------------
- * if low is an object or array then make a selection or a new image select
- * if theParams[theProperty] is undefined make a button (action defined by onClick method of the controller object
+ * if low is an object or array then make a selection or a new image select (if the first selectable value is a string, which is an image file path)
+ * if theParams[theProperty] is undefined or a function then make a button (action defined by onClick method of the controller object
  * if theParams[theProperty] is boolean make a booleanButton
  * if theParams[theProperty] is a string make a text textInput  
  * if theParams[theProperty] is a function make a button with this function as onClick method 
  * if theParams[theProperty] is a number make a number button with lower and upper limits if defined, 
  *                                 if step is not defined, then a step size is deduced from the parameter value
  *                                 function buttons and range can be added to the domElement or the popup (if exists)
+ *
+ * to make a controller for colors you have to use ParamGui#addColor
  */
 
 /* new arguments object
  *------------------------------------------------------------
- * args.type - values are strings: "number", "button", "boolean", "selection", "color" or "image", (mandatory), defines type of controller
+ * args.type - values are strings: "number", "text", "button", "boolean", "selection", "color" or "image", (mandatory), defines type of controller
  * args.params - an object, the controller controls its args.property field (optional)
  * args.property - string, identifier of the parameter (mandatory if there is a args.params object)
  * args.initialValue - initial value for the parameter (optional, else args.params[args.property] or 0)
@@ -872,6 +879,27 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * args.min - minimum value for NUMBER controllers (optional, default is 0)
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
  * args.stepSize - value for step of NUMBER controllers (optional, default is obtained from the initial value)
+ */
+
+/* find details about controllers depending on controller type
+ *---------------------------------------------------
+ * type="number" - see numberButton.js
+ * type="button" - see button.js
+ * type="boolean" - see booleanButton.js
+ * type="selection" - see selectValues.js, args.options (or low) has to be an array of values or an object with key:value pairs,
+ *                    the initial value has to be one of the selectable values
+ * type="image" - see imageSelect.js, you can use this to select input images or presets (represented as images)
+ *                 compatibility with datGui (only selecting images):
+ *                    args.options (or low) is an object with key: value pairs, where the values are image file path strings
+ *                    Note that there should be no key=="name"  or key=="value"
+ *                 advanced:
+ *                    args.options is an array of objects
+ *                    each object has "name", "icon" and "value" keys
+ *                    object.name is a string that names the choice
+ *                    object.icon is an image file path string (URL) or an image data url. Illustrates the choice
+ *                    object.value is what gets selected, an image file path string for an input image file, or a file path to *.json file
+ * type="text" - see textInput.js
+ * type="color" - see colorInput.js, values is a string of type "#rrggbb" (opaque) or "#rrggbbaa" (with transparency)
  */
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     let args = false;
@@ -915,6 +943,7 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
             property: theProperty,
             type: "color"
         };
+        console.log("parameter value " + theParams[theProperty] + ", generated parameter object:");
         console.log(args);
     }
     let controller = this.add(args);

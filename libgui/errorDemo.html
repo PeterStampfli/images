@@ -21,20 +21,18 @@ from "./modules.js";
 
 
 const gui = new ParamGui({}, {
-    name: "datGui API compatible"
+    name: "error test"
 });
 
 const p={};
 p.color="#4567";
-p.err=9;
-p.n=9
-
+p.err="";
+p.n=""
+console.log(p);
 gui.addColor(p,"color")
-gui.add({type:"teXt",labelText: "test"})
-gui.add({type:"number"})
-gui.add({type:"color",initialValue:"#8800ff"})
-gui.add({type:"color",initialValue:99})
+gui.add({params:p,property:"err",type:"number",min:22})
 
+console.log(p);
 </script>
 
 </html>

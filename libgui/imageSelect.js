@@ -378,15 +378,13 @@ ImageSelect.prototype.add = function(choices) {
 
 /**
  * add choices, this one does multiple arguments
- * Attention: creates the image buttons for the popup, may take a lot of time
- *  do this separately to save loading time
  * each choice is an object with a name, icon and value field
  * choice={name: "name as string", icon: "URL for icon image", value: whatever}
  * the value can be an image URL, a preset (URL of json file)
- * multiple choices are put together in an array, or repeated arguments
- * for backwards compatibility:
+ * You can put choices together in an array, or use as repeated arguments
+ * Second possibility compatible with datGui:
  * object { key: "imageURL string", ...}, where number of keys larger than 3, 
- * or object.name===undefined, or object.value=undefined
+ * or there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
  * makes choices with {name: key, icon: imageURL, value: imageURL}
  * @method ImageSelect#addChoices
  * @param {... object|array} choice

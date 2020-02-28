@@ -201,32 +201,40 @@ export function ParamController(gui, domElement, args) {
             }
         case "number":
             {
-                const button = new NumberButton(this.domElement);
+                const numberButton = new NumberButton(this.domElement);
+                this.uiElement = numberButton;
+                this.setupOnChange();
+                this.setupOnInteraction();
                 this.buttonContainer = false;
-                button.setInputWidth(this.design.numberInputWidth);
+                numberButton.setInputWidth(this.design.numberInputWidth);
                 // separating space to additional elements
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 // set limits and step
                 if (guiUtils.isNumber(args.min)) {
-                    button.setLow(args.min);
+                    numberButton.setLow(args.min);
                 }
                 if (guiUtils.isNumber(args.max)) {
-                    button.setHigh(args.max);
+                    numberButton.setHigh(args.max);
                 }
                 if (guiUtils.isNumber(args.stepSize)) {
-                    button.setStep(args.stepSize);
+                    numberButton.setStep(args.stepSize);
                 } else {
-                    button.setStep(NumberButton.findStep(this.initialValue));
+                    numberButton.setStep(NumberButton.findStep(this.initialValue));
                 }
+                // error checking and correction of initial value
                 if (guiUtils.isNumber(this.initialValue)) {
-                    button.setValue(this.initialValue);
+                    this.setValueOnly(this.initialValue);
                 } else {
                     console.error("add number: initial value is not a number:");
                     console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                    this.setValueOnly(0);
                 }
-                this.uiElement = button;
-                this.setupOnChange();
-                this.setupOnInteraction();
+                // error messages for changed initial value
+                if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
+                    console.error("add number: the value is " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.log("the arguments object is:");
+                    console.log(args);
+                }
                 break;
             }
         case "color":
@@ -356,6 +364,7 @@ ParamController.prototype.setupOnChange = function() {
 
 /**
  * add another controller to the domElement of this controller
+ * details: see ParamGui#add
  * @method ParamController#add
  * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller
  * @param {String} theProperty - key for the field of params to change, params[property]
@@ -426,31 +435,32 @@ ParamController.prototype.addHelp = function(message) {
 // if the value of the param object changes, then update the object via callback
 
 /**
- * updates display and set the value of the param object if it exists
- * DOES NOT call the callback()
- * (good for multiple parameter changes, use callback only at last change
+ * updates display and set the value of the param object field if it exists
+ * the ui element checks the value and may change it if it is not consistent with the controller type
+ * DOES NOT call the callback(), which might result in wasted work
+ * (for multiple parameter changes, use callback only at last change)
  * (Note that this.setValue() is not the same as this.uiElement.setValue())
- * Can we assume that the param object is synchronized with its data? Is this probable? Can we save work?
  * @method ParamController#setValue
  * @param {whatever} value
  */
 ParamController.prototype.setValueOnly = function(value) {
-    if (this.hasParameter) {
-        this.params[this.property] = value;
-    }
     this.uiElement.setValue(value);
+    if (this.hasParameter) {
+        this.params[this.property] = this.uiElement.getValue();
+    }
 };
 
 /**
  * set the value of the controller
  * set the value of the param object (if exists) and call the callback to enforce synchronization
+ * the ui element checks the value and may change it if it is not consistent with the controller type
  * (Note that this.setValue() is not the same as this.uiElement.setValue())
  * @method ParamController#setValue
  * @param {whatever} value
  */
 ParamController.prototype.setValue = function(value) {
     this.setValueOnly();
-    this.callback(value);
+    this.callback(this.getValue());
 };
 
 /**
