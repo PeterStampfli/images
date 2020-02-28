@@ -241,18 +241,25 @@ export function ParamController(gui, domElement, args) {
             {
                 const hasAlpha = ColorInput.hasAlpha(this.initialValue);
                 const colorInput = new ColorInput(this.domElement, hasAlpha);
-                colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
-                colorInput.setFontSize(this.design.buttonFontSize);
                 this.uiElement = colorInput;
                 this.setupOnChange();
+                this.setupOnInteraction();
+                colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
+                colorInput.setFontSize(this.design.buttonFontSize);
                 if (guiUtils.isColorString(this.initialValue)) {
-                    colorInput.setValue(this.initialValue);
+                    this.setValueOnly(this.initialValue);
                 } else {
                     console.error("add color: initial value is not a good color string");
                     console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                    console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
+                    console.log("should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
+                    this.setValueOnly("#000000");
                 }
-                this.setupOnInteraction();
+                // error messages for changed initial value
+                if (this.initialValue !== this.uiElement.getValue()) {
+                    console.error('add color: the value is "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.log("the arguments object is:");
+                    console.log(args);
+                }
                 break;
             }
         case "image":
@@ -409,7 +416,7 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
             property: theProperty,
             type: "color"
         };
-        console.log("parameter value " + theParams[theProperty] + ", generated parameter object:");
+        console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
         console.log(args);
     }
     let controller = this.add(args);

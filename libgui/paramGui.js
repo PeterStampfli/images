@@ -740,7 +740,7 @@ ParamGui.prototype.remove = function(element) {
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
 /**
- * test if datGui style parameters are ok:
+ * test datGui style parameters:
  * theParams is object
  * theProperty is string
  * @method ParamGui.checkParamsProperty
@@ -822,10 +822,10 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         // no idea/error
         args.type = "no fitting type found";
         console.error("no fitting controller type found for:");
-        console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
         console.log("low " + low + ", high " + high + ", step " + step);
     }
-    console.log("parameter value " + paramValue + ' of type "' + (typeof paramValue) + '"' + ", generated parameter object:");
+    console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
+    console.log("generated parameter object:");
     console.log(args);
     return args;
 };
@@ -908,7 +908,7 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
         args = theParams;
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    } 
+    }
     let controller = false;
     if (args) {
         const controllerDomElement = document.createElement("div");
@@ -944,9 +944,9 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
             property: theProperty,
             type: "color"
         };
-        console.log("parameter value " + theParams[theProperty] + ", generated parameter object:");
+        console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
         console.log(args);
-    } 
+    }
     let controller = this.add(args);
     return controller;
 };
