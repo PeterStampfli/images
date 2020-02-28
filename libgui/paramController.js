@@ -124,6 +124,8 @@ export function ParamController(gui, domElement, args) {
                 selectValues.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = selectValues;
+                this.setupOnChange();
+                this.setupOnInteraction();
                 if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                     selectValues.addOptions(args.options);
                     selectValues.setValue(this.initialValue);
@@ -134,19 +136,19 @@ export function ParamController(gui, domElement, args) {
                     console.error("add selection: options is not an array or object:");
                     console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
                 }
-                this.setupOnChange();
-                this.setupOnInteraction();
                 break;
             }
         case "boolean":
             {
-                const button = new BooleanButton(this.domElement);
-                button.setWidth(this.design.booleanButtonWidth);
-                button.setFontSize(this.design.buttonFontSize);
+                const booleanButton = new BooleanButton(this.domElement);
+                booleanButton.setWidth(this.design.booleanButtonWidth);
+                booleanButton.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                this.uiElement = button;
+                this.uiElement = booleanButton;
+                this.setupOnChange();
+                this.setupOnInteraction();
                 if (guiUtils.isBoolean(this.initialValue)) {
-                    button.setValue(this.initialValue);
+                    booleanButton.setValue(this.initialValue);
                 } else {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsp initial value is not boolean";
@@ -154,8 +156,6 @@ export function ParamController(gui, domElement, args) {
                     console.error("add booleanButton: initial Value is not boolean:");
                     console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
                 }
-                this.setupOnChange();
-                this.setupOnInteraction();
                 break;
             }
         case "button":
@@ -164,6 +164,11 @@ export function ParamController(gui, domElement, args) {
                 button.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = button;
+                this.setValue = function() {};
+                this.setValueOnly = function() {};
+                this.getValue = function() {};
+                this.updateDisplay = function() {};
+                this.setupOnInteraction();
                 if (guiUtils.isFunction(this.callback)) {
                     button.onClick = function() {
                         controller.callback();
@@ -175,28 +180,30 @@ export function ParamController(gui, domElement, args) {
                     console.error("add button: onClick or onChange is not a function:");
                     console.log('its value is ' + this.callback + ' of type "' + (typeof this.callback) + '"');
                 }
-                this.setValue = function() {};
-                this.setValueOnly = function() {};
-                this.getValue = function() {};
-                this.updateDisplay = function() {};
-                this.setupOnInteraction();
                 break;
             }
         case "text":
             {
                 const textInput = new TextInput(this.domElement);
+                this.uiElement = textInput;
+                this.setupOnChange();
+                this.setupOnInteraction();
                 textInput.setWidth(this.design.textInputWidth);
                 textInput.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 if (guiUtils.isString(this.initialValue)) {
-                    textInput.setValue(this.initialValue);
+                    this.setValueOnly(this.initialValue);
                 } else {
                     console.error("add text: initial value is not a string:");
                     console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                    this.setValueOnly(this.initialValue.toString());
                 }
-                this.uiElement = textInput;
-                this.setupOnChange();
-                this.setupOnInteraction();
+                // error messages for changed initial value
+                if (this.initialValue !== this.uiElement.getValue()) {
+                    console.error('add text: the value is the string "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.log("the arguments object is:");
+                    console.log(args);
+                }
                 break;
             }
         case "number":
@@ -273,6 +280,9 @@ export function ParamController(gui, domElement, args) {
                 selectDiv.style.textAlign = "center";
                 this.domElement.appendChild(selectDiv);
                 const imageSelect = new ImageSelect(selectDiv, this.design);
+                this.uiElement = imageSelect;
+                this.setupOnChange();
+                this.setupOnInteraction();
                 this.hasPopup = true;
                 // if user images can be loaded, then add a vertical space and a button
                 if (this.design.acceptUserImages) {
@@ -287,9 +297,6 @@ export function ParamController(gui, domElement, args) {
                 imageSelect.createGuiImage(this.domElement);
                 imageSelect.addChoices(args.options);
                 imageSelect.setValue(this.initialValue);
-                this.uiElement = imageSelect;
-                this.setupOnChange();
-                this.setupOnInteraction();
                 break;
             }
         default:
@@ -297,7 +304,7 @@ export function ParamController(gui, domElement, args) {
             message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
             console.error('unknown controller type "' + args.type + '", the arguments object is:');
             console.log(args);
-            console.log("type has to be: button, booleanButton, image, selection, color, text");
+            console.log("type has to be: button, booleanButton, image, selection, color, text or number");
             this.domElement.appendChild(message);
             break;
     }
