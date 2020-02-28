@@ -753,6 +753,7 @@ ParamGui.checkParamsProperty = function(theParams, theProperty) {
     if (!guiUtils.isObject(theParams)) {
         console.error("datGui-style: the parameter argument is not an object: ");
         console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
+        console.log("the property argument is: " + theProperty);
         result = false;
     }
     if (!guiUtils.isString(theProperty)) {
@@ -907,7 +908,7 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
         args = theParams;
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    }
+    } 
     let controller = false;
     if (args) {
         const controllerDomElement = document.createElement("div");
@@ -937,7 +938,7 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
     if (arguments.length === 1) {
         args = theParams; // the new version
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        console.log("addColor: generating an argument object from datGui-style parameters");
+        console.log("Paramgui#addColor: generating an argument object from datGui-style parameters");
         args = {
             params: theParams,
             property: theProperty,
@@ -945,7 +946,7 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
         };
         console.log("parameter value " + theParams[theProperty] + ", generated parameter object:");
         console.log(args);
-    }
+    } 
     let controller = this.add(args);
     return controller;
 };

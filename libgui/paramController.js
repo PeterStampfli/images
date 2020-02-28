@@ -403,12 +403,13 @@ ParamController.prototype.addColor = function(theParams, theProperty) {
     if (arguments.length === 1) {
         args = theParams; // the new version
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        console.log("addColor: generating an argument object from datGui-style parameters");
+        console.log("ParamController#addColor: generating an argument object from datGui-style parameters");
         args = {
             params: theParams,
             property: theProperty,
             type: "color"
         };
+        console.log("parameter value " + theParams[theProperty] + ", generated parameter object:");
         console.log(args);
     }
     let controller = this.add(args);
