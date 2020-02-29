@@ -129,6 +129,11 @@ export function ParamController(gui, domElement, args) {
                 if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                     selectValues.addOptions(args.options);
                     selectValues.setValue(this.initialValue);
+
+
+
+
+                    
                 } else {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsp options is not an array or object";
@@ -148,13 +153,21 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnChange();
                 this.setupOnInteraction();
                 if (guiUtils.isBoolean(this.initialValue)) {
-                    booleanButton.setValue(this.initialValue);
+                    this.setValueOnly(this.initialValue);
                 } else {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsp initial value is not boolean";
                     this.domElement.appendChild(message);
                     console.error("add booleanButton: initial Value is not boolean:");
                     console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                    this.setValueOnly(false);
+                }
+                // error messages for changed initial value
+                if (this.initialValue !== this.uiElement.getValue()) {
+                    console.error('add boolean: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.log("the arguments object is:");
+                    console.log(args);
+                    this.initialValue = this.uiElement.getValue();
                 }
                 break;
             }
@@ -200,9 +213,10 @@ export function ParamController(gui, domElement, args) {
                 }
                 // error messages for changed initial value
                 if (this.initialValue !== this.uiElement.getValue()) {
-                    console.error('add text: the value is the string "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.error('add text: changed value to the string "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                     console.log("the arguments object is:");
                     console.log(args);
+                    this.initialValue = this.uiElement.getValue();
                 }
                 break;
             }
@@ -238,10 +252,11 @@ export function ParamController(gui, domElement, args) {
                 }
                 // error messages for changed initial value
                 if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
-                    console.error("add number: the value is " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.error("add number: chaged value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                     console.log("the arguments object is:");
                     console.log(args);
-                }
+                     this.initialValue = this.uiElement.getValue();
+               }
                 break;
             }
         case "color":
@@ -263,9 +278,10 @@ export function ParamController(gui, domElement, args) {
                 }
                 // error messages for changed initial value
                 if (this.initialValue !== this.uiElement.getValue()) {
-                    console.error('add color: the value is "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                    console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                     console.log("the arguments object is:");
                     console.log(args);
+                    this.initialValue = this.uiElement.getValue();
                 }
                 break;
             }

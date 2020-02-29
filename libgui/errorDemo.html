@@ -29,9 +29,11 @@ p.color="#445656";
 p.err="";
 p.n=""
 p.t="halle"
+p.b=true
 console.log(p);
 gui.addColor(p,"color")
-gui.add({params: p,type:"text",property:"t",initialValue:{}})
+gui.add({params: p,type:"boolean",property:"t"})
+gui.add({params: p,type:"boolean",property:"b"})
 console.log(p)
 
 </script>
