@@ -43,12 +43,11 @@ export function ParamController(gui, domElement, args) {
     if (guiUtils.isDefined(args.property)) {
         if (guiUtils.isString(args.property)) {
             this.property = args.property;
+            // we have a property, so we should have a parameter object
             if (guiUtils.isObject(args.params)) {
                 this.params = args.params;
-                if (guiUtils.isDefined(args.params[args.property])) {
-                    parameterValue = args.params[args.property];
-                    this.hasParameter = true;
-                }
+                parameterValue = args.params[args.property]; // this may be undefined, no problem, gets value later
+                this.hasParameter = true;
             } else {
                 console.error("ParamController: argument.params is not an object although there is an argument.property.");
                 console.log("its value is " + args.params + " of type " + (typeof args.params));
@@ -128,12 +127,20 @@ export function ParamController(gui, domElement, args) {
                 this.setupOnInteraction();
                 if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                     selectValues.addOptions(args.options);
-                    selectValues.setValue(this.initialValue);
-
-
-
-
-                    
+                    if (selectValues.getIndexOf(this.initialValue) >= 0) {
+                        this.setValueOnly(this.initialValue);
+                    } else {
+                        // use first value of the options, set this value for the parameter too
+                        selectValues.setIndex(0);
+                        this.setValueOnly(selectValues.getValue());
+                    }
+                    // error messages for changed initial value
+                    if (this.initialValue !== this.uiElement.getValue()) {
+                        console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
+                        this.initialValue = this.uiElement.getValue();
+                    }
                 } else {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsp options is not an array or object";
@@ -255,8 +262,8 @@ export function ParamController(gui, domElement, args) {
                     console.error("add number: chaged value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                     console.log("the arguments object is:");
                     console.log(args);
-                     this.initialValue = this.uiElement.getValue();
-               }
+                    this.initialValue = this.uiElement.getValue();
+                }
                 break;
             }
         case "color":

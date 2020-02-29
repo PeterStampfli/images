@@ -14,6 +14,7 @@ import {
 export function SelectValues(parent) {
     this.select = new Select(parent);
     this.values = [];
+    this.names = [];
 
     var selectValues = this;
 
@@ -70,6 +71,7 @@ SelectValues.prototype.clear = function() {
  */
 SelectValues.prototype.addOption = function(name, value) {
     this.select.addOptions(name);
+    this.names.push(name);
     this.values.push(value);
 };
 
@@ -124,17 +126,33 @@ SelectValues.prototype.getValue = function() {
 };
 
 /**
- * set the value, if not found makes error message
+ * find the index for a given value
+ * searches first the selection values, then the labels
+ * @method SelectValues#getIndexOf
+ * @param {whatever} value
+ * @return number, the fitting index >=0, -1 if not found
+ */
+SelectValues.prototype.getIndexOf = function(value) {
+    let index = this.values.indexOf(value);
+    if (index < 0) {
+        index = this.names.indexOf(value);
+    }
+    return index;
+};
+
+/**
+ * set the choice, 
+ * searches the values and then the labels, if not found makes error message
  * does not call the onChange callback
  * @method SelectValues#setValue
  * @param {whatever} value
  */
 SelectValues.prototype.setValue = function(value) {
-    const index = this.values.indexOf(value);
+    const index = this.getIndexOf(value);
     if (index >= 0) {
         this.setIndex(index);
     } else {
-        console.error("SelectValues#setValue: argument not found in option values");
+        console.error("SelectValues#setValue: argument not found in options");
         console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
     }
 };

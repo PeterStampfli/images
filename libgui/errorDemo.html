@@ -31,9 +31,8 @@ p.n=""
 p.t="halle"
 p.b=true
 console.log(p);
-gui.addColor(p,"color")
-gui.add({params: p,type:"boolean",property:"t"})
-gui.add({params: p,type:"boolean",property:"b"})
+
+gui.add({type:"selection",options:{a:1,b:2,c:3}, initialValue:"cc",params:p,property:"sel"})
 console.log(p)
 
 </script>
