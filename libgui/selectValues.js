@@ -59,7 +59,8 @@ SelectValues.prototype.setFontSize = function(size) {
  * @method SelectValues#clear
  */
 SelectValues.prototype.clear = function() {
-    this.values = [];
+    this.values.length = 0;
+    this.names.length = 0;
     this.select.clear();
 };
 

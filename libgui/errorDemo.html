@@ -32,8 +32,6 @@ p.t="halle"
 p.b=true
 console.log(p);
 
-gui.add({type:"selection",options:{a:1,b:2,c:3}, initialValue:"c",params:p,property:"sel"})
-
 
 const haeckel = "/images/libgui/haeckel/haeckel_";
 
@@ -46,7 +44,8 @@ for (var i = 10; i < 20; i++) {
 }
 
 const parameters={}
-parameters.image = haeckel + "0" + 5 + ".png";
+parameters.image = haeckel + "0" + 55555 + ".png";
+parameters.image = "haeckel04345";
 console.log(parameters)
 
 gui.add({
@@ -55,23 +54,7 @@ gui.add({
     property: "image",
     options: choices
 });
-gui.add({
-        type: "number",
-        params: parameters,
-        property: "plusMin",
-        min: -2,
-        max: 12
-    })
-    .createPlusMinusButtons()
-    .createIndicatorMain()
-    .createMaxMinButtons();
-    
-gui.add({
-    type: "image",
-    params: parameters,
-    property: "image",
-    options: choices
-});
+
 console.log(parameters)
 
 </script>

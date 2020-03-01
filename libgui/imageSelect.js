@@ -306,7 +306,7 @@ ImageSelect.prototype.closePopup = function() {
  * clear (delete) all options
  * @method ImageSelect#clearOptions
  */
-ImageSelect.prototype.clearOptions= function() {
+ImageSelect.prototype.clearOptions = function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
@@ -330,8 +330,8 @@ ImageSelect.prototype.clearOptions= function() {
  * @param {object|array} options
  */
 ImageSelect.prototype.addOptions = function(options) {
-        // an array: its components are options, arrays of arrays possible, for whatever reason
-        // do each option
+    // an array: its components are options, arrays of arrays possible, for whatever reason
+    // do each option
     if (Array.isArray(options)) {
         options.forEach(option => this.addOptions(option));
     } else {
@@ -344,8 +344,8 @@ ImageSelect.prototype.addOptions = function(options) {
             const option = {};
             const imageSelect = this;
             // modify the option object for each option in the object and add its data to the selection
-         const keys = Object.keys(options);
-           keys.forEach(function(key) {
+            const keys = Object.keys(options);
+            keys.forEach(function(key) {
                 option.name = key;
                 option.icon = options[key];
                 option.value = options[key];
@@ -356,13 +356,13 @@ ImageSelect.prototype.addOptions = function(options) {
             // we do not know if we have a valid icon
             this.select.addOptions(options.name);
             // trying to make it as threadsafe as possible
-            this.names.push(options.names);
+            this.names.push(options.name);
             this.values.push(options.value);
             // assume that there is an image, delayed loading -> placeholder gif
             const button = new ImageButton(this.popup.contentDiv, this.design);
-            this.popupImageButtons.push( button);
+            this.popupImageButtons.push(button);
             // make that the image buttons change the selected image if it is different
-            const index = this.values.length-1;
+            const index = this.values.length - 1;
             const imageSelect = this;
             button.onClick = function() {
                 if (imageSelect.getIndex() !== index) {
@@ -405,15 +405,13 @@ ImageSelect.prototype.addUserImage = function(file) {
         fileReader.onload = function() {
             // fileReader.result is the dataURL
             // loading images  is trivial
-            // loading presets???
-            // for selection: file name without extension
+            // for selection: show file name without extension
             const option = {};
             option.name = file.name.split(".")[0];
             option.icon = fileReader.result;
             option.value = fileReader.result;
             imageSelect.addOptions(option);
-            // make the loaded image visible, do not change selection
-            // we do not make an onChange event, as multiple images may have been loaded
+            // make the loaded image poptentially visible, do not change selection
             const index = imageSelect.findIndex(fileReader.result);
             if (index >= 0) {
                 imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
@@ -588,7 +586,11 @@ ImageSelect.prototype.getValue = function() {
  * @return number, index to first occurence of the value, -1 if not found
  */
 ImageSelect.prototype.findIndex = function(value) {
-    return this.values.indexOf(value);
+    let index = this.values.indexOf(value);
+    if (index < 0) {
+        index = this.names.indexOf(value);
+    }
+    return index;
 };
 
 /**

@@ -85,17 +85,17 @@ export function ParamGui(params) {
 
 
 
-            // update the popup parameters depending on the gui position
-            if (this.design.horizontalPosition === "right") {
-                this.design.popupPosition = "bottomRight";
-            } else {
-                this.design.popupPosition = "bottomLeft";
-            }
-            this.design.popupHorizontalShift = this.design.width + this.design.horizontalShift + this.design.borderWidth;
+    // update the popup parameters depending on the gui position
+    if (this.design.horizontalPosition === "right") {
+        this.design.popupPosition = "bottomRight";
+    } else {
+        this.design.popupPosition = "bottomLeft";
+    }
+    this.design.popupHorizontalShift = this.design.width + this.design.horizontalShift + this.design.borderWidth;
 
 
 
-    
+
     this.bodyDiv = document.createElement("div");
     this.bodyDiv.style.backgroundColor = design.backgroundColor;
     if (this.isRoot()) {

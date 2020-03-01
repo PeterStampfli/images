@@ -120,7 +120,7 @@ export function ParamController(gui, domElement, args) {
                     this.setupOnInteraction();
                     if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                         selectValues.addOptions(args.options);
-                        // check if the initial selection is in the options, accepts option names and values
+                        // check if the initial value is in the options, accepts option names and values
                         // sets value to one of the option values
                         if (selectValues.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue);
@@ -128,6 +128,7 @@ export function ParamController(gui, domElement, args) {
                             // fallback: use first value of the options, set this value for the parameter too
                             selectValues.setIndex(0);
                             this.setValueOnly(selectValues.getValue());
+                            console.error("add selection: value not found in options");
                         }
                         // error messages for changed initial value
                         if (this.initialValue !== this.uiElement.getValue()) {
@@ -254,7 +255,7 @@ export function ParamController(gui, domElement, args) {
                     }
                     // error messages for changed initial value, it might be not a number or out of bounds, or disagrees with step size
                     if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
-                        console.error("add number: chaged value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.error("add number: changed value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                         console.log("the arguments object is:");
                         console.log(args);
                         this.initialValue = this.uiElement.getValue();
@@ -315,7 +316,27 @@ export function ParamController(gui, domElement, args) {
                     imageSelect.createGuiImage(this.domElement);
                     if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                         imageSelect.addOptions(args.options);
-                        imageSelect.setValue(this.initialValue);
+
+
+
+
+                        // check if the initial value is in the options, accepts option names and values
+                        // sets value to one of the option values
+                        if (imageSelect.findIndex(this.initialValue) >= 0) {
+                            this.setValueOnly(this.initialValue);
+                        } else {
+                            // fallback: use first value of the options, set this value for the parameter too
+                            imageSelect.setIndex(0);
+                            this.setValueOnly(imageSelect.getValue());
+                            console.error("add selection: value not found in options");
+                        }
+                        // error messages for changed initial value
+                        if (this.initialValue !== this.uiElement.getValue()) {
+                            console.error('add image: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                            console.log("the arguments object is:");
+                            console.log(args);
+                            this.initialValue = this.uiElement.getValue();
+                        }
                     } else {
                         const message = document.createElement("span");
                         message.innerHTML = "&nbsps image: options is not an array or object";
@@ -336,7 +357,7 @@ export function ParamController(gui, domElement, args) {
                 break;
         }
         // maybe change the minimum element width
-        if (guiUtils.isNumber(args.minElementWidth)) {
+        if (guiUtils.isNumber(args.minElementWidth) && guiUtils.isObject(this.uiElement)) {
             this.uiElement.setMinWidth(args.minElementWidth);
         }
     } else {
