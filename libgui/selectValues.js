@@ -128,11 +128,11 @@ SelectValues.prototype.getValue = function() {
 /**
  * find the index for a given value
  * searches first the selection values, then the labels
- * @method SelectValues#getIndexOf
+ * @method SelectValues#findIndex
  * @param {whatever} value
  * @return number, the fitting index >=0, -1 if not found
  */
-SelectValues.prototype.getIndexOf = function(value) {
+SelectValues.prototype.findIndex = function(value) {
     let index = this.values.indexOf(value);
     if (index < 0) {
         index = this.names.indexOf(value);
@@ -148,7 +148,7 @@ SelectValues.prototype.getIndexOf = function(value) {
  * @param {whatever} value
  */
 SelectValues.prototype.setValue = function(value) {
-    const index = this.getIndexOf(value);
+    const index = this.findIndex(value);
     if (index >= 0) {
         this.setIndex(index);
     } else {

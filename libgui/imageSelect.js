@@ -1,6 +1,6 @@
 /**
  * a select input with icons (only the select thing, make more complicated layout outside)
- * each choice has a name, an icon and a value
+ * each option has a name, an icon and a value
  * the value may be an URL for an image, a preset, ...
  * if enabled, the user can add his own images
  * @constructor ImageSelect
@@ -28,6 +28,7 @@ export function ImageSelect(parent, newDesign) {
     // the data
     this.iconURLs = [];
     this.values = [];
+    this.names = [];
     this.popupImageButtons = [];
     // here comes the popup
     // the popup width should be large enough for image buttons
@@ -48,7 +49,7 @@ export function ImageSelect(parent, newDesign) {
     // events to make appear the image chooser popup:
     // mousedown on select or icon image
     // onChange on select or mouse wheel on icon image 
-    // (as all of them change choice)
+    // (as all of them change the choosen image)
 
     this.select.onInteraction = function() {
         imageSelect.interaction();
@@ -299,16 +300,17 @@ ImageSelect.prototype.closePopup = function() {
     this.popup.close();
 };
 
-// loading icons/choices
+// loading icons/options
 
 /**
- * clear (delete) all choices
- * @method ImageSelect#clearChoices
+ * clear (delete) all options
+ * @method ImageSelect#clearOptions
  */
-ImageSelect.prototype.clearChoices = function() {
+ImageSelect.prototype.clearOptions= function() {
     this.select.clear();
     this.iconURLs.length = 0;
     this.values.length = 0;
+    this.names.length = 0;
     if (this.guiImage) {
         this.guiImage.src = "";
     }
@@ -317,43 +319,46 @@ ImageSelect.prototype.clearChoices = function() {
 };
 
 /**
- * add choices, this one does multiple arguments
- * each choice is an object with a name, icon and value field
- * choice={name: "name as string", icon: "URL for icon image", value: whatever}
+ * add options, each option is an object with a name, icon and value field
+ * option={name: "name as string", icon: "URL for icon image", value: whatever}
  * the value can be an image URL, a preset (URL of json file)
- * You can put choices together in an array
+ * You can put options together in an array
  * Second possibility compatible with datGui:
  * object { key: "imageURL string", ...}, where number of keys larger than 3, 
  * or there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
- * makes choices with {name: key, icon: imageURL, value: imageURL}
- * @method ImageSelect#addChoices
- * @param {object|array} choice
+ * makes options with {name: key, icon: imageURL, value: imageURL}
+ * @method ImageSelect#addOptions
+ * @param {object|array} options
  */
-ImageSelect.prototype.addChoices = function(choices) {
+ImageSelect.prototype.addOptions = function(options) {
         // an array: its components are options, arrays of arrays possible, for whatever reason
-    if (Array.isArray(choices)) {
-        choices.forEach(choice => this.addChoices(choice));
+        // do each option
+    if (Array.isArray(options)) {
+        options.forEach(option => this.addOptions(option));
     } else {
-        // an object with many choices (key as name of option/ value for the key as image url)
+        // an object with many options (key as name of option/ value for the key as image url)
         // it does not have both "name" and "value" as keys
-        const keys = Object.keys(choices);
-        if ((typeof choices.name === "undefined") || (typeof choices.value === "undefined")) {
+        const keys = Object.keys(options);
+        // for backwards compatibility: Look if we have a datGui-style of image selection
+        // it is an object with key/value pairs. Key is the name of the option and the value a image file path string
+        // it has many different image choices
+        if ((typeof options.name === "undefined") || (typeof options.value === "undefined")) {
             // backwards compatibility, simpler setup
-            const choice = {};
+            const option = {};
             const imageSelect = this;
             keys.forEach(function(key) {
-                choice.name = key;
-                choice.icon = choices[key];
-                choice.value = choices[key];
-                imageSelect.addChoices(choice);
+                option.name = key;
+                option.icon = options[key];
+                option.value = options[key];
+                imageSelect.addOptions(option);
             });
-        } else if (this.findIndex(choices.value) < 0) {
+        } else if (this.findIndex(options.value) < 0) {
             // adding a single option, its value does not yet exist as an option
             // we do not know if we have a valid icon
-            this.select.addOptions(choices.name);
+            this.select.addOptions(options.name);
             // trying to make it as threadsafe as possible
             const index = this.values.length;
-            this.values[index] = choices.value;
+            this.values[index] = options.value;
             // assume that there is an image, delayed loading -> placeholder gif
             const button = new ImageButton(this.popup.contentDiv, this.design);
             this.popupImageButtons[index] = button;
@@ -365,14 +370,14 @@ ImageSelect.prototype.addChoices = function(choices) {
                 }
             };
             // do we have an icon?
-            if (guiUtils.isGoodImageFile(choices.icon)) {
+            if (guiUtils.isGoodImageFile(options.icon)) {
                 // all is well, we have an icon (assuming this is a picture url or dataURL)
-                this.iconURLs[index] = choices.icon;
+                this.iconURLs[index] = options.icon;
                 button.setPlaceholder(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColor);
-            } else if (guiUtils.isGoodImageFile(choices.value)) {
+            } else if (guiUtils.isGoodImageFile(options.value)) {
                 // instead of the icon can use the value image ( if the value is an URL of a jpg,svg or png file)
-                this.iconURLs[index] = choices.value;
+                this.iconURLs[index] = options.value;
                 button.setPlaceholder(ImageSelect.notLoadedURL);
                 button.setBorderColor(this.design.imageButtonBorderColorNoIcon);
             } else {
@@ -389,7 +394,7 @@ ImageSelect.prototype.addChoices = function(choices) {
 /* 
  * doing the image: load file as a dataURL
  * test if it is really an image
- * add as choice object {name: file name without extension, icon: dataURL of file, image: dataURL of file}
+ * add as option object {name: file name without extension, icon: dataURL of file, image: dataURL of file}
  * do this with overhead and threadsafe (?), loading multiple images results in concurrent threads
  */
 ImageSelect.prototype.addUserImage = function(file) {
@@ -401,11 +406,11 @@ ImageSelect.prototype.addUserImage = function(file) {
             // loading images  is trivial
             // loading presets???
             // for selection: file name without extension
-            const choice = {};
-            choice.name = file.name.split(".")[0];
-            choice.icon = fileReader.result;
-            choice.value = fileReader.result;
-            imageSelect.addChoices(choice);
+            const option = {};
+            option.name = file.name.split(".")[0];
+            option.icon = fileReader.result;
+            option.value = fileReader.result;
+            imageSelect.addOptions(option);
             // make the loaded image visible, do not change selection
             // we do not make an onChange event, as multiple images may have been loaded
             const index = imageSelect.findIndex(fileReader.result);
@@ -541,7 +546,7 @@ ImageSelect.prototype.update = function() {
     }
 };
 
-// reading and setting choices
+// reading and setting options
 
 /**
  * get the index
@@ -576,9 +581,10 @@ ImageSelect.prototype.getValue = function() {
 
 /**
  * find the index to a given value
+ * searches first the selection values, then the labels
  * @method ImageSelect#findIndex
  * @param {whatever} value
- * @return index to first occurence of the value, -1 if not found
+ * @return number, index to first occurence of the value, -1 if not found
  */
 ImageSelect.prototype.findIndex = function(value) {
     return this.values.indexOf(value);
@@ -626,7 +632,7 @@ ImageSelect.prototype.close = function() {
 };
 
 /*
- * destroy the image select (including popup and choices)
+ * destroy the image select (including popup and options)
  * @method ImageSelect#destroy
  */
 ImageSelect.prototype.destroy = function() {

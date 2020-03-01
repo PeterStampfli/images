@@ -122,7 +122,7 @@ export function ParamController(gui, domElement, args) {
                         selectValues.addOptions(args.options);
                         // check if the initial selection is in the options, accepts option names and values
                         // sets value to one of the option values
-                        if (selectValues.getIndexOf(this.initialValue) >= 0) {
+                        if (selectValues.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue);
                         } else {
                             // fallback: use first value of the options, set this value for the parameter too
@@ -138,7 +138,7 @@ export function ParamController(gui, domElement, args) {
                         }
                     } else {
                         const message = document.createElement("span");
-                        message.innerHTML = "&nbsp options is not an array or object";
+                        message.innerHTML = "&nbsp selection: options is not an array or object";
                         this.domElement.appendChild(message);
                         console.error("add selection: options is not an array or object:");
                         console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
@@ -313,8 +313,17 @@ export function ParamController(gui, domElement, args) {
                     // add the gui image
                     guiUtils.hSpace(this.domElement, this.design.spaceWidth);
                     imageSelect.createGuiImage(this.domElement);
-                    imageSelect.addChoices(args.options);
-                    imageSelect.setValue(this.initialValue);
+                    if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
+                        imageSelect.addOptions(args.options);
+                        imageSelect.setValue(this.initialValue);
+                    } else {
+                        const message = document.createElement("span");
+                        message.innerHTML = "&nbsps image: options is not an array or object";
+                        this.domElement.appendChild(message);
+                        console.error("add image: options is not an array or object:");
+                        console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                    }
+
                     break;
                 }
             default:
