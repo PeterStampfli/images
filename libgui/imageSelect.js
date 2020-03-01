@@ -324,8 +324,7 @@ ImageSelect.prototype.clearOptions= function() {
  * the value can be an image URL, a preset (URL of json file)
  * You can put options together in an array
  * Second possibility compatible with datGui:
- * object { key: "imageURL string", ...}, where number of keys larger than 3, 
- * or there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
+ * object { key: "imageURL string", ...}, where there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
  * makes options with {name: key, icon: imageURL, value: imageURL}
  * @method ImageSelect#addOptions
  * @param {object|array} options
@@ -338,30 +337,32 @@ ImageSelect.prototype.addOptions = function(options) {
     } else {
         // an object with many options (key as name of option/ value for the key as image url)
         // it does not have both "name" and "value" as keys
-        const keys = Object.keys(options);
         // for backwards compatibility: Look if we have a datGui-style of image selection
         // it is an object with key/value pairs. Key is the name of the option and the value a image file path string
         // it has many different image choices
         if ((typeof options.name === "undefined") || (typeof options.value === "undefined")) {
-            // backwards compatibility, simpler setup
             const option = {};
             const imageSelect = this;
-            keys.forEach(function(key) {
+            // modify the option object for each option in the object and add its data to the selection
+         const keys = Object.keys(options);
+           keys.forEach(function(key) {
                 option.name = key;
                 option.icon = options[key];
                 option.value = options[key];
                 imageSelect.addOptions(option);
             });
-        } else if (this.findIndex(options.value) < 0) {
+        } else {
             // adding a single option, its value does not yet exist as an option
             // we do not know if we have a valid icon
             this.select.addOptions(options.name);
             // trying to make it as threadsafe as possible
-            const index = this.values.length;
-            this.values[index] = options.value;
+            this.names.push(options.names);
+            this.values.push(options.value);
             // assume that there is an image, delayed loading -> placeholder gif
             const button = new ImageButton(this.popup.contentDiv, this.design);
-            this.popupImageButtons[index] = button;
+            this.popupImageButtons.push( button);
+            // make that the image buttons change the selected image if it is different
+            const index = this.values.length-1;
             const imageSelect = this;
             button.onClick = function() {
                 if (imageSelect.getIndex() !== index) {
