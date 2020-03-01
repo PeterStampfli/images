@@ -108,233 +108,236 @@ export function ParamController(gui, domElement, args) {
     this.domElement.appendChild(this.label);
     this.label.textContent = labelText;
     // catch error that type is not a string
-    if (!guiUtils.isString(args.type)) {
-        const message = document.createElement("span");
-        message.innerHTML = 'controller type is not a string';
-        console.error('add controller: type is not a string');
-        console.log('its value is ' + args.type + ' of type "' + (typeof args.type) + '"');
-        this.domElement.appendChild(message);
-        return;
-    }
-    switch (args.type.toLowerCase()) {
-        case "selection":
-            {
-                const selectValues = new SelectValues(this.domElement);
-                selectValues.setFontSize(this.design.buttonFontSize);
-                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                this.uiElement = selectValues;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
-                    selectValues.addOptions(args.options);
-                    if (selectValues.getIndexOf(this.initialValue) >= 0) {
+    if (guiUtils.isString(args.type)) {
+        switch (args.type.toLowerCase()) {
+            case "selection":
+                {
+                    const selectValues = new SelectValues(this.domElement);
+                    selectValues.setFontSize(this.design.buttonFontSize);
+                    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                    this.uiElement = selectValues;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
+                        selectValues.addOptions(args.options);
+                        // check if the initial selection is in the options, accepts option names and values
+                        // sets value to one of the option values
+                        if (selectValues.getIndexOf(this.initialValue) >= 0) {
+                            this.setValueOnly(this.initialValue);
+                        } else {
+                            // fallback: use first value of the options, set this value for the parameter too
+                            selectValues.setIndex(0);
+                            this.setValueOnly(selectValues.getValue());
+                        }
+                        // error messages for changed initial value
+                        if (this.initialValue !== this.uiElement.getValue()) {
+                            console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                            console.log("the arguments object is:");
+                            console.log(args);
+                            this.initialValue = this.uiElement.getValue();
+                        }
+                    } else {
+                        const message = document.createElement("span");
+                        message.innerHTML = "&nbsp options is not an array or object";
+                        this.domElement.appendChild(message);
+                        console.error("add selection: options is not an array or object:");
+                        console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                    }
+                    break;
+                }
+            case "boolean":
+                {
+                    const booleanButton = new BooleanButton(this.domElement);
+                    booleanButton.setWidth(this.design.booleanButtonWidth);
+                    booleanButton.setFontSize(this.design.buttonFontSize);
+                    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                    this.uiElement = booleanButton;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    if (guiUtils.isBoolean(this.initialValue)) {
                         this.setValueOnly(this.initialValue);
                     } else {
-                        // use first value of the options, set this value for the parameter too
-                        selectValues.setIndex(0);
-                        this.setValueOnly(selectValues.getValue());
+                        const message = document.createElement("span");
+                        message.innerHTML = "&nbsp initial value is not boolean";
+                        this.domElement.appendChild(message);
+                        console.error("add booleanButton: initial Value is not boolean:");
+                        console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                        this.setValueOnly(false);
                     }
                     // error messages for changed initial value
                     if (this.initialValue !== this.uiElement.getValue()) {
-                        console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.error('add boolean: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                         console.log("the arguments object is:");
                         console.log(args);
                         this.initialValue = this.uiElement.getValue();
                     }
-                } else {
-                    const message = document.createElement("span");
-                    message.innerHTML = "&nbsp options is not an array or object";
-                    this.domElement.appendChild(message);
-                    console.error("add selection: options is not an array or object:");
-                    console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                    break;
                 }
+            case "button":
+                {
+                    const button = new Button(buttonText, this.domElement);
+                    button.setFontSize(this.design.buttonFontSize);
+                    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                    this.uiElement = button;
+                    this.setValue = function() {};
+                    this.setValueOnly = function() {};
+                    this.getValue = function() {};
+                    this.updateDisplay = function() {};
+                    this.setupOnInteraction();
+                    if (guiUtils.isFunction(this.callback)) {
+                        button.onClick = function() {
+                            controller.callback();
+                        };
+                    } else {
+                        const message = document.createElement("span");
+                        message.innerHTML = "&nbsp callback is not a function";
+                        this.domElement.appendChild(message);
+                        console.error("add button: onClick, onChange or parameter object value is not a function:");
+                        console.log('its value is ' + this.callback + ' of type "' + (typeof this.callback) + '"');
+                    }
+                    break;
+                }
+            case "text":
+                {
+                    const textInput = new TextInput(this.domElement);
+                    this.uiElement = textInput;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    textInput.setWidth(this.design.textInputWidth);
+                    textInput.setFontSize(this.design.buttonFontSize);
+                    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                    if (guiUtils.isString(this.initialValue)) {
+                        this.setValueOnly(this.initialValue);
+                    } else {
+                        console.error("add text: initial value is not a string:");
+                        console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                        this.setValueOnly(this.initialValue.toString());
+                    }
+                    // error messages for changed initial value
+                    if (this.initialValue !== this.uiElement.getValue()) {
+                        console.error('add text: changed value to the string "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
+                        this.initialValue = this.uiElement.getValue();
+                    }
+                    break;
+                }
+            case "number":
+                {
+                    const numberButton = new NumberButton(this.domElement);
+                    this.uiElement = numberButton;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    this.buttonContainer = false;
+                    numberButton.setInputWidth(this.design.numberInputWidth);
+                    // separating space to additional elements
+                    guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                    // set limits and step
+                    if (guiUtils.isNumber(args.min)) {
+                        numberButton.setLow(args.min);
+                    }
+                    if (guiUtils.isNumber(args.max)) {
+                        numberButton.setHigh(args.max);
+                    }
+                    if (guiUtils.isNumber(args.stepSize)) {
+                        numberButton.setStep(args.stepSize);
+                    } else {
+                        numberButton.setStep(NumberButton.findStep(this.initialValue));
+                    }
+                    // error checking and correction of initial value
+                    if (guiUtils.isNumber(this.initialValue)) {
+                        this.setValueOnly(this.initialValue);
+                    } else {
+                        console.error("add number: initial value is not a number:");
+                        console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                        this.setValueOnly(0);
+                    }
+                    // error messages for changed initial value, it might be not a number or out of bounds, or disagrees with step size
+                    if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
+                        console.error("add number: chaged value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
+                        this.initialValue = this.uiElement.getValue();
+                    }
+                    break;
+                }
+            case "color":
+                {
+                    const hasAlpha = ColorInput.hasAlpha(this.initialValue);
+                    const colorInput = new ColorInput(this.domElement, hasAlpha);
+                    this.uiElement = colorInput;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
+                    colorInput.setFontSize(this.design.buttonFontSize);
+                    if (guiUtils.isColorString(this.initialValue)) {
+                        this.setValueOnly(this.initialValue);
+                    } else {
+                        console.error("add color: initial value is not a good color string");
+                        console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                        console.log("should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
+                        this.setValueOnly("#000000");
+                    }
+                    // error messages for changed initial value
+                    if (this.initialValue !== this.uiElement.getValue()) {
+                        console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
+                        this.initialValue = this.uiElement.getValue();
+                    }
+                    break;
+                }
+            case "image":
+                {
+                    this.label.style.verticalAlign = "middle";
+                    // the input elements in the main UI (not the popup)
+                    // stacking vertically
+                    const selectDiv = document.createElement("div");
+                    selectDiv.style.display = "inline-block";
+                    selectDiv.style.verticalAlign = "middle";
+                    selectDiv.style.textAlign = "center";
+                    this.domElement.appendChild(selectDiv);
+                    const imageSelect = new ImageSelect(selectDiv, this.design);
+                    this.uiElement = imageSelect;
+                    this.setupOnChange();
+                    this.setupOnInteraction();
+                    this.hasPopup = true;
+                    // if user images can be loaded, then add a vertical space and a button
+                    if (this.design.acceptUserImages) {
+                        // the user image input button
+                        const vSpace = document.createElement("div");
+                        vSpace.style.height = this.design.spaceWidth + "px";
+                        selectDiv.appendChild(vSpace);
+                        imageSelect.acceptUserImages(selectDiv);
+                    }
+                    // add the gui image
+                    guiUtils.hSpace(this.domElement, this.design.spaceWidth);
+                    imageSelect.createGuiImage(this.domElement);
+                    imageSelect.addChoices(args.options);
+                    imageSelect.setValue(this.initialValue);
+                    break;
+                }
+            default:
+                const message = document.createElement("span");
+                message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
+                console.error('unknown controller type "' + args.type + '", the arguments object is:');
+                console.log(args);
+                console.log("type has to be: button, booleanButton, image, selection, color, text, or number");
+                this.domElement.appendChild(message);
                 break;
-            }
-        case "boolean":
-            {
-                const booleanButton = new BooleanButton(this.domElement);
-                booleanButton.setWidth(this.design.booleanButtonWidth);
-                booleanButton.setFontSize(this.design.buttonFontSize);
-                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                this.uiElement = booleanButton;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                if (guiUtils.isBoolean(this.initialValue)) {
-                    this.setValueOnly(this.initialValue);
-                } else {
-                    const message = document.createElement("span");
-                    message.innerHTML = "&nbsp initial value is not boolean";
-                    this.domElement.appendChild(message);
-                    console.error("add booleanButton: initial Value is not boolean:");
-                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                    this.setValueOnly(false);
-                }
-                // error messages for changed initial value
-                if (this.initialValue !== this.uiElement.getValue()) {
-                    console.error('add boolean: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                    console.log("the arguments object is:");
-                    console.log(args);
-                    this.initialValue = this.uiElement.getValue();
-                }
-                break;
-            }
-        case "button":
-            {
-                const button = new Button(buttonText, this.domElement);
-                button.setFontSize(this.design.buttonFontSize);
-                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                this.uiElement = button;
-                this.setValue = function() {};
-                this.setValueOnly = function() {};
-                this.getValue = function() {};
-                this.updateDisplay = function() {};
-                this.setupOnInteraction();
-                if (guiUtils.isFunction(this.callback)) {
-                    button.onClick = function() {
-                        controller.callback();
-                    };
-                } else {
-                    const message = document.createElement("span");
-                    message.innerHTML = "&nbsp callback is not a function";
-                    this.domElement.appendChild(message);
-                    console.error("add button: onClick or onChange is not a function:");
-                    console.log('its value is ' + this.callback + ' of type "' + (typeof this.callback) + '"');
-                }
-                break;
-            }
-        case "text":
-            {
-                const textInput = new TextInput(this.domElement);
-                this.uiElement = textInput;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                textInput.setWidth(this.design.textInputWidth);
-                textInput.setFontSize(this.design.buttonFontSize);
-                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                if (guiUtils.isString(this.initialValue)) {
-                    this.setValueOnly(this.initialValue);
-                } else {
-                    console.error("add text: initial value is not a string:");
-                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                    this.setValueOnly(this.initialValue.toString());
-                }
-                // error messages for changed initial value
-                if (this.initialValue !== this.uiElement.getValue()) {
-                    console.error('add text: changed value to the string "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                    console.log("the arguments object is:");
-                    console.log(args);
-                    this.initialValue = this.uiElement.getValue();
-                }
-                break;
-            }
-        case "number":
-            {
-                const numberButton = new NumberButton(this.domElement);
-                this.uiElement = numberButton;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                this.buttonContainer = false;
-                numberButton.setInputWidth(this.design.numberInputWidth);
-                // separating space to additional elements
-                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
-                // set limits and step
-                if (guiUtils.isNumber(args.min)) {
-                    numberButton.setLow(args.min);
-                }
-                if (guiUtils.isNumber(args.max)) {
-                    numberButton.setHigh(args.max);
-                }
-                if (guiUtils.isNumber(args.stepSize)) {
-                    numberButton.setStep(args.stepSize);
-                } else {
-                    numberButton.setStep(NumberButton.findStep(this.initialValue));
-                }
-                // error checking and correction of initial value
-                if (guiUtils.isNumber(this.initialValue)) {
-                    this.setValueOnly(this.initialValue);
-                } else {
-                    console.error("add number: initial value is not a number:");
-                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                    this.setValueOnly(0);
-                }
-                // error messages for changed initial value
-                if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
-                    console.error("add number: chaged value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                    console.log("the arguments object is:");
-                    console.log(args);
-                    this.initialValue = this.uiElement.getValue();
-                }
-                break;
-            }
-        case "color":
-            {
-                const hasAlpha = ColorInput.hasAlpha(this.initialValue);
-                const colorInput = new ColorInput(this.domElement, hasAlpha);
-                this.uiElement = colorInput;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                colorInput.setWidths(this.design.colorTextWidth, this.design.colorColorWidth, this.design.colorRangeWidth);
-                colorInput.setFontSize(this.design.buttonFontSize);
-                if (guiUtils.isColorString(this.initialValue)) {
-                    this.setValueOnly(this.initialValue);
-                } else {
-                    console.error("add color: initial value is not a good color string");
-                    console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                    console.log("should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
-                    this.setValueOnly("#000000");
-                }
-                // error messages for changed initial value
-                if (this.initialValue !== this.uiElement.getValue()) {
-                    console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                    console.log("the arguments object is:");
-                    console.log(args);
-                    this.initialValue = this.uiElement.getValue();
-                }
-                break;
-            }
-        case "image":
-            {
-                this.label.style.verticalAlign = "middle";
-                // the input elements in the main UI (not the popup)
-                // stacking vertically
-                const selectDiv = document.createElement("div");
-                selectDiv.style.display = "inline-block";
-                selectDiv.style.verticalAlign = "middle";
-                selectDiv.style.textAlign = "center";
-                this.domElement.appendChild(selectDiv);
-                const imageSelect = new ImageSelect(selectDiv, this.design);
-                this.uiElement = imageSelect;
-                this.setupOnChange();
-                this.setupOnInteraction();
-                this.hasPopup = true;
-                // if user images can be loaded, then add a vertical space and a button
-                if (this.design.acceptUserImages) {
-                    // the user image input button
-                    const vSpace = document.createElement("div");
-                    vSpace.style.height = this.design.spaceWidth + "px";
-                    selectDiv.appendChild(vSpace);
-                    imageSelect.acceptUserImages(selectDiv);
-                }
-                // add the gui image
-                guiUtils.hSpace(this.domElement, this.design.spaceWidth);
-                imageSelect.createGuiImage(this.domElement);
-                imageSelect.addChoices(args.options);
-                imageSelect.setValue(this.initialValue);
-                break;
-            }
-        default:
-            const message = document.createElement("span");
-            message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
-            console.error('unknown controller type "' + args.type + '", the arguments object is:');
-            console.log(args);
-            console.log("type has to be: button, booleanButton, image, selection, color, text or number");
-            this.domElement.appendChild(message);
-            break;
-    }
-
-    // maybe change the minimum element width
-    if (guiUtils.isNumber(args.minElementWidth)) {
-        this.uiElement.setMinWidth(args.minElementWidth);
+        }
+        // maybe change the minimum element width
+        if (guiUtils.isNumber(args.minElementWidth)) {
+            this.uiElement.setMinWidth(args.minElementWidth);
+        }
+    } else {
+        const message = document.createElement("span");
+        message.innerHTML = 'controller type is not a string';
+        console.error('add controller: type is not a string');
+        console.log('its value is ' + args.type + ' of type "' + (typeof args.type) + '"');
+        console.log("the arguments object is:");
+        console.log(args);
+        this.domElement.appendChild(message);
     }
 }
 
@@ -736,13 +739,9 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.usePopup) {
-            // update the popup parameters depending on the gui position
-            if (this.design.horizontalPosition === "right") {
-                this.design.popupPosition = "bottomRight";
-            } else {
-                this.design.popupPosition = "bottomLeft";
-            }
-            this.design.popupHorizontalShift = this.design.width + this.design.horizontalShift + this.design.borderWidth;
+
+
+
             // the ui elements go into their own div, the this.bodyDiv
             // append as child to this.domElement
             this.popup = new Popup(this.design, ParamController.popupDesign);

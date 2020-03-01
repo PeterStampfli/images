@@ -219,6 +219,7 @@ NumberButton.prototype.setInputWidth = function(width) {
 
 /**
  * quantize a number according to step and clamp to range
+ * wraparound if cyclic, and quantize
  * @method NumberButton#quantizeClamp
  * @param {float} x
  * @return float, quantized x

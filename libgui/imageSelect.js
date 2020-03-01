@@ -317,13 +317,22 @@ ImageSelect.prototype.clearChoices = function() {
 };
 
 /**
- * adds choices, no varargs
- * choices has to be array or object
+ * add choices, this one does multiple arguments
+ * each choice is an object with a name, icon and value field
+ * choice={name: "name as string", icon: "URL for icon image", value: whatever}
+ * the value can be an image URL, a preset (URL of json file)
+ * You can put choices together in an array
+ * Second possibility compatible with datGui:
+ * object { key: "imageURL string", ...}, where number of keys larger than 3, 
+ * or there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
+ * makes choices with {name: key, icon: imageURL, value: imageURL}
+ * @method ImageSelect#addChoices
+ * @param {object|array} choice
  */
-ImageSelect.prototype.add = function(choices) {
-    // an array: add its components, arrays of arrays possible, for whatever reason
+ImageSelect.prototype.addChoices = function(choices) {
+        // an array: its components are options, arrays of arrays possible, for whatever reason
     if (Array.isArray(choices)) {
-        choices.forEach(choice => this.add(choice));
+        choices.forEach(choice => this.addChoices(choice));
     } else {
         // an object with many choices (key as name of option/ value for the key as image url)
         // it does not have both "name" and "value" as keys
@@ -336,7 +345,7 @@ ImageSelect.prototype.add = function(choices) {
                 choice.name = key;
                 choice.icon = choices[key];
                 choice.value = choices[key];
-                imageSelect.add(choice);
+                imageSelect.addChoices(choice);
             });
         } else if (this.findIndex(choices.value) < 0) {
             // adding a single option, its value does not yet exist as an option
@@ -374,26 +383,6 @@ ImageSelect.prototype.add = function(choices) {
             }
         }
     }
-};
-
-/**
- * add choices, this one does multiple arguments
- * each choice is an object with a name, icon and value field
- * choice={name: "name as string", icon: "URL for icon image", value: whatever}
- * the value can be an image URL, a preset (URL of json file)
- * You can put choices together in an array, or use as repeated arguments
- * Second possibility compatible with datGui:
- * object { key: "imageURL string", ...}, where number of keys larger than 3, 
- * or there is no key=="name" or key=="value" (means that object.name=="undefined", object.value==undefined)
- * makes choices with {name: key, icon: imageURL, value: imageURL}
- * @method ImageSelect#addChoices
- * @param {... object|array} choice
- */
-ImageSelect.prototype.addChoices = function(choices) {
-    const length = arguments.length;
-    for (var i = 0; i < length; i++) {
-        this.add(arguments[i]);
-    }
     this.popup.resize();
 };
 
@@ -416,7 +405,7 @@ ImageSelect.prototype.addUserImage = function(file) {
             choice.name = file.name.split(".")[0];
             choice.icon = fileReader.result;
             choice.value = fileReader.result;
-            imageSelect.add(choice);
+            imageSelect.addChoices(choice);
             // make the loaded image visible, do not change selection
             // we do not make an onChange event, as multiple images may have been loaded
             const index = imageSelect.findIndex(fileReader.result);
