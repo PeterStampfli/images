@@ -50,7 +50,8 @@ export function ColorInput(parent, hasAlpha) {
         this.rangeElement.max = 255;
         parent.appendChild(this.rangeElement);
     }
-    if (hasAlpha) { // give all parts a value, set lastValue
+    // initial value is (transparent) black
+    if (hasAlpha) {
         this.setValue("#00000000");
     } else {
         this.setValue("#000000");
@@ -277,10 +278,10 @@ ColorInput.rgbaFrom = function(color) {
         const red = color.charAt(1);
         const green = color.charAt(2);
         const blue = color.charAt(3);
-        const alpha = (length === 5) ? color.charAt(4) : "f";
+        const alpha = (length === 5) ? color.charAt(4) : "F";
         result = "#" + red + red + green + green + blue + blue + alpha + alpha;
     } else if (length === 7) { // #rrggbb 
-        result += "ff";
+        result += "FF";
     }
     return result;
 };
@@ -348,7 +349,6 @@ ColorInput.prototype.getValue = function() {
  */
 ColorInput.prototype.setValue = function(text) {
     if (guiUtils.isColorString(text)) {
-        text = text.toLowerCase();
         const color = this.colorFrom(text);
         this.lastValue = color;
         this.textElement.value = color;
@@ -373,7 +373,6 @@ ColorInput.prototype.setValue = function(text) {
 ColorInput.prototype.updateValue = function(text) {
     if (guiUtils.isColorString(text)) {
         const color = this.colorFrom(text);
-        text = text.toLowerCase();
         if (this.lastValue !== color) {
             this.setValue(color);
             this.onChange(color);

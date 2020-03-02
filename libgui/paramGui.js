@@ -81,10 +81,6 @@ export function ParamGui(params) {
     for (i = 0; i < arguments.length; i++) {
         guiUtils.updateValues(design, arguments[i]);
     }
-
-
-
-
     // update the popup parameters depending on the gui position
     if (this.design.horizontalPosition === "right") {
         this.design.popupPosition = "bottomRight";
@@ -92,10 +88,6 @@ export function ParamGui(params) {
         this.design.popupPosition = "bottomLeft";
     }
     this.design.popupHorizontalShift = this.design.width + this.design.horizontalShift + this.design.borderWidth;
-
-
-
-
     this.bodyDiv = document.createElement("div");
     this.bodyDiv.style.backgroundColor = design.backgroundColor;
     if (this.isRoot()) {
@@ -307,6 +299,8 @@ ParamGui.defaultDesign = {
 };
 
 // other parameters
+// switch on log for conversion from datGui-style to new style
+ParamGui.logConversion = true;
 // base z-index for ui divs, to keep them above others
 // the guis will have z-indizes of zIndex,zIndex+1, ... zIndex+number of guis -1
 ParamGui.zIndex = 5;
@@ -765,14 +759,14 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
  */
 ParamGui.checkParamsProperty = function(theParams, theProperty) {
     let result = true;
-    if (!guiUtils.isObject(theParams)) {
-        console.error("datGui-style: the parameter argument is not an object: ");
+    if (!(guiUtils.isObject(theParams) || (guiUtils.isArray(theParams)))) {
+        console.error("datGui-style: the parameter argument is not an object or an array: ");
         console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
         console.log("the property argument is: " + theProperty);
         result = false;
     }
-    if (!guiUtils.isString(theProperty)) {
-        console.error("datGui-style: the property argument is not a string: ");
+    if (!(guiUtils.isString(theProperty) || (guiUtils.isNumber(theProperty)))) {
+        console.error("datGui-style: the property argument is not a string or a number: ");
         console.log('its value is ' + theProperty + ' of type "' + (typeof theProperty) + '"');
         result = false;
     }
@@ -790,7 +784,9 @@ ParamGui.checkParamsProperty = function(theParams, theProperty) {
  * @return object
  */
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
-    console.log("Add: Generating an argument object from datGui-style parameters");
+    if (ParamGui.logConversion) {
+        console.log("Add: Generating an argument object from datGui-style parameters");
+    }
     const args = {
         params: theParams,
         property: theProperty
@@ -837,11 +833,13 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         // no idea/error
         args.type = "no fitting type found";
         console.error("no fitting controller type found for:");
-        console.log("low " + low + ", high " + high + ", step " + step);
+        console.log("parameter value " + paramValue + " and low " + low);
     }
-    console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
-    console.log("generated parameter object:");
-    console.log(args);
+    if (ParamGui.logConversion) {
+        console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
+        console.log("generated parameter object:");
+        console.log(args);
+    }
     return args;
 };
 

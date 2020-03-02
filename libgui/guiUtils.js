@@ -148,17 +148,16 @@ guiUtils.isGoodImageFile = function(fileName) {
 // with alpha: #rrggbbaa
 // transforms to color without alpha: #rgb -> #rrggbb, #rgba -> #rrggbb, #rrggbb, #rrggbbaa -> #rrggbb
 // transforms to color with alpha: #rgb -> #rrggbbff, #rgba -> #rrggbbaa, #rrggbb -> #rrggbbff
-const hexDigits = "0123456789abcdef";
+const hexDigits = "0123456789abcdefABCDEF";
 
 /**
- * test if the rgument is a correct color string
+ * test if the argument is a correct color string, upper and lower case letters possible
  * @method guiUtils.isColorString
  * @param {String} text
  * @return true color is in correct format
  */
 guiUtils.isColorString = function(text) {
     if (guiUtils.isString(text) && (text.charAt(0) === "#")) {
-        text.toLowerCase();
         const length = text.length;
         if ((length != 4) && (length != 5) && (length != 7) && (length != 9)) {
             return false;
@@ -173,7 +172,6 @@ guiUtils.isColorString = function(text) {
         return false;
     }
 };
-
 
 /**
  * updating existing fields of first object by fields of second object

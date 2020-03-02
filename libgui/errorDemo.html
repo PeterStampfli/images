@@ -24,14 +24,6 @@ const gui = new ParamGui({}, {
     name: "error test"
 });
 
-const p={};
-p.color="#445656";
-p.err="";
-p.n=""
-p.t="halle"
-p.b=true
-console.log(p);
-
 
 const haeckel = "/images/libgui/haeckel/haeckel_";
 
@@ -46,16 +38,15 @@ for (var i = 10; i < 20; i++) {
 const parameters={}
 parameters.image = haeckel + "0" + 55555 + ".png";
 parameters.image = "haeckel04345";
-console.log(parameters)
 
-gui.add({
-    type: "image",
-    params: parameters,
-    property: "image",
-    options: choices
-});
+const p={};
+p.c="#012F"
+gui.addColor(p,44)
 
-console.log(parameters)
+console.log(p)
+const ar=[1,2,3]
+
+gui.add(ar,2)
 
 </script>
 

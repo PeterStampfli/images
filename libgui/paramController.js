@@ -41,10 +41,10 @@ export function ParamController(gui, domElement, args) {
     var parameterValue;
     // test if the args.property is ok, then we can have a parameter value
     if (guiUtils.isDefined(args.property)) {
-        if (guiUtils.isString(args.property)) {
+        if (guiUtils.isString(args.property) || guiUtils.isNumber(args.property)) {
             this.property = args.property;
             // we have a property, so we should have a parameter object
-            if (guiUtils.isObject(args.params)) {
+            if (guiUtils.isObject(args.params) || guiUtils.isArray(args.params)) {
                 this.params = args.params;
                 parameterValue = args.params[args.property]; // this may be undefined, no problem, gets value later
                 this.hasParameter = true;
@@ -264,7 +264,10 @@ export function ParamController(gui, domElement, args) {
                 }
             case "color":
                 {
-                    const hasAlpha = ColorInput.hasAlpha(this.initialValue);
+                    let hasAlpha = false;
+                    if (guiUtils.isColorString(this.initialValue)) {
+                        hasAlpha = ColorInput.hasAlpha(this.initialValue);
+                    }
                     const colorInput = new ColorInput(this.domElement, hasAlpha);
                     this.uiElement = colorInput;
                     this.setupOnChange();
