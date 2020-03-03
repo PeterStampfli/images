@@ -46,7 +46,8 @@ gui.addColor(p,44)
 console.log(p)
 const ar=[1,2,3]
 
-gui.add(ar,2)
+gui.add({params:p,property:"select",type: "selection",options:ar,initialValue:22})
+console.log(p)
 
 </script>
 

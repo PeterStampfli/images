@@ -121,20 +121,17 @@ export function ParamController(gui, domElement, args) {
                     if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                         selectValues.addOptions(args.options);
                         // check if the initial value is in the options, accepts option names and values
-                        // sets value to one of the option values
+                        // sets value to one of the option values, so parameter value will be equal to initial value
                         if (selectValues.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue);
                         } else {
+                            console.error("add selection: initial value not found in options");
+                            console.log('changed to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                            console.log("the arguments object is:");
+                            console.log(args);
                             // fallback: use first value of the options, set this value for the parameter too
                             selectValues.setIndex(0);
                             this.setValueOnly(selectValues.getValue());
-                            console.error("add selection: value not found in options");
-                        }
-                        // error messages for changed initial value
-                        if (this.initialValue !== this.uiElement.getValue()) {
-                            console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                            console.log("the arguments object is:");
-                            console.log(args);
                             this.initialValue = this.uiElement.getValue();
                         }
                     } else {
@@ -276,19 +273,24 @@ export function ParamController(gui, domElement, args) {
                     colorInput.setFontSize(this.design.buttonFontSize);
                     if (guiUtils.isColorString(this.initialValue)) {
                         this.setValueOnly(this.initialValue);
+                        // error messages for changed initial value
+                        if (this.initialValue !== this.uiElement.getValue()) {
+                            console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                            console.log("the arguments object is:");
+                            console.log(args);
+                            this.initialValue = this.uiElement.getValue();
+                        }
                     } else {
                         console.error("add color: initial value is not a good color string");
+                        console.log("It should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
                         console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                        console.log("should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
-                        this.setValueOnly("#000000");
-                    }
-                    // error messages for changed initial value
-                    if (this.initialValue !== this.uiElement.getValue()) {
-                        console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log('Using instead: "#000000"');
                         console.log("the arguments object is:");
                         console.log(args);
+                        this.setValueOnly("#000000");
                         this.initialValue = this.uiElement.getValue();
                     }
+
                     break;
                 }
             case "image":
