@@ -151,6 +151,8 @@ export function ParamController(gui, domElement, args) {
                         this.domElement.appendChild(message);
                         console.error("add selection: options is not an array or object:");
                         console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
                     }
                     break;
                 }
@@ -245,9 +247,16 @@ export function ParamController(gui, domElement, args) {
                     if (guiUtils.isNumber(this.initialValue)) {
                         this.setValueOnly(this.initialValue); // changes value if out of bounds or does not agree with step size
                     } else {
-                        console.error("add number: initial value is not a number:");
-                        console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
+                        const message = document.createElement("span");
+                        message.innerHTML = "&nbsp initial value is not a number";
+                        this.domElement.appendChild(message);
+                        // fallback: use zero as number
                         this.setValueOnly(0);
+                        console.error("add number: initial value is not a number:");
+                        console.log('using ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
+                        this.initialValue = this.uiElement.getValue();
                     }
                     // error messages for changed initial value, it might be not a number or out of bounds, or disagrees with step size
                     if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
@@ -292,7 +301,6 @@ export function ParamController(gui, domElement, args) {
                         console.log(args);
                         this.initialValue = this.uiElement.getValue();
                     }
-
                     break;
                 }
             case "image":
@@ -323,23 +331,28 @@ export function ParamController(gui, domElement, args) {
                     imageSelect.createGuiImage(this.domElement);
                     if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                         imageSelect.addOptions(args.options);
-
-
-
-
                         // check if the initial value is in the options, accepts option names and values
                         // sets value to one of the option values
                         if (imageSelect.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue);
+                            // error messages for changed initial value
+                            if (this.initialValue !== this.uiElement.getValue()) {
+                                console.error('add image: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                                console.log("the arguments object is:");
+                                console.log(args);
+                                this.initialValue = this.uiElement.getValue();
+                            }
                         } else {
+                            imageSelect.setIndex(0);
+                            this.setValueOnly(imageSelect.getValue());
+                            const message = document.createElement("span");
+                            message.innerHTML = "&nbsp initial value is not in options";
+                            this.domElement.appendChild(message);
                             // fallback: use first value of the options, set this value for the parameter too
                             imageSelect.setIndex(0);
                             this.setValueOnly(imageSelect.getValue());
-                            console.error("add selection: value not found in options");
-                        }
-                        // error messages for changed initial value
-                        if (this.initialValue !== this.uiElement.getValue()) {
-                            console.error('add image: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                            console.error("add image: initial value not found in options");
+                            console.log('using ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                             console.log("the arguments object is:");
                             console.log(args);
                             this.initialValue = this.uiElement.getValue();
@@ -350,19 +363,22 @@ export function ParamController(gui, domElement, args) {
                         this.domElement.appendChild(message);
                         console.error("add image: options is not an array or object:");
                         console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
+                        console.log("the arguments object is:");
+                        console.log(args);
                     }
                     break;
                 }
             default:
                 const message = document.createElement("span");
                 message.innerHTML = 'unknown controller type: "<strong>' + args.type + '</strong>"';
-                console.error('unknown controller type "' + args.type + '", the arguments object is:');
+                console.error('add controller: unknown type: "' + args.type + '"');
+                console.log('type has to be: "button", "boolean", "image", "selection", "color", "text", or "number"');
+                console.log("the arguments object is:");
                 console.log(args);
-                console.log("type has to be: button, booleanButton, image, selection, color, text, or number");
                 this.domElement.appendChild(message);
                 break;
         }
-        // check that there is a good callback function
+        // error message if there is not a good callback function
         if (!guiUtils.isFunction(this.callback)) {
             const message = document.createElement("span");
             message.innerHTML = "&nbsp callback is not a function";
