@@ -149,7 +149,7 @@ SelectValues.prototype.findIndex = function(value) {
  * @param {whatever} value
  */
 SelectValues.prototype.setValue = function(value) {
-    const index = this.findIndex(value);
+    const index = this.findIndex(value);     // searches both
     if (index >= 0) {
         this.setIndex(index);
     } else {

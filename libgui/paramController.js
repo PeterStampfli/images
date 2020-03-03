@@ -123,8 +123,18 @@ export function ParamController(gui, domElement, args) {
                         // check if the initial value is in the options, accepts option names and values
                         // sets value to one of the option values, so parameter value will be equal to initial value
                         if (selectValues.findIndex(this.initialValue) >= 0) {
-                            this.setValueOnly(this.initialValue);
+                            this.setValueOnly(this.initialValue); // index found, initial value might be its name or value
+                            // error messages for changed initial value (happens if it is the name of an option)
+                            if (this.initialValue !== this.uiElement.getValue()) {
+                                console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+                                console.log("the arguments object is:");
+                                console.log(args);
+                                this.initialValue = this.uiElement.getValue();
+                            }
                         } else {
+                            const message = document.createElement("span");
+                            message.innerHTML = "&nbsp initial value is not in options";
+                            this.domElement.appendChild(message);
                             console.error("add selection: initial value not found in options");
                             console.log('changed to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                             console.log("the arguments object is:");
@@ -153,20 +163,16 @@ export function ParamController(gui, domElement, args) {
                     this.setupOnChange();
                     this.setupOnInteraction();
                     if (guiUtils.isBoolean(this.initialValue)) {
-                        this.setValueOnly(this.initialValue);
+                        this.setValueOnly(this.initialValue); // that is safe, does not change value
                     } else {
                         const message = document.createElement("span");
                         message.innerHTML = "&nbsp initial value is not boolean";
                         this.domElement.appendChild(message);
                         console.error("add booleanButton: initial Value is not boolean:");
                         console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                        this.setValueOnly(false);
-                    }
-                    // error messages for changed initial value
-                    if (this.initialValue !== this.uiElement.getValue()) {
-                        console.error('add boolean: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
                         console.log("the arguments object is:");
                         console.log(args);
+                        this.setValueOnly(!!this.initialValue);
                         this.initialValue = this.uiElement.getValue();
                     }
                     break;
@@ -205,7 +211,7 @@ export function ParamController(gui, domElement, args) {
                     textInput.setFontSize(this.design.buttonFontSize);
                     guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                     if (guiUtils.isString(this.initialValue)) {
-                        this.setValueOnly(this.initialValue);
+                        this.setValueOnly(this.initialValue);    // safe, does not change value
                     } else {
                         console.error("add text: initial value is not a string:");
                         console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
@@ -244,7 +250,7 @@ export function ParamController(gui, domElement, args) {
                     }
                     // error checking and correction of initial value
                     if (guiUtils.isNumber(this.initialValue)) {
-                        this.setValueOnly(this.initialValue);
+                        this.setValueOnly(this.initialValue);        // changes value if out of bounds or does not agree with step size
                     } else {
                         console.error("add number: initial value is not a number:");
                         console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
@@ -282,9 +288,9 @@ export function ParamController(gui, domElement, args) {
                         }
                     } else {
                         console.error("add color: initial value is not a good color string");
-                        console.log("It should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
+                        console.log("it should be a hex number string of form '#rrggbb' or '#rrggbbaa'");
                         console.log('its value is ' + this.initialValue + ' of type "' + (typeof this.initialValue) + '"');
-                        console.log('Using instead: "#000000"');
+                        console.log('using instead: "#000000"');
                         console.log("the arguments object is:");
                         console.log(args);
                         this.setValueOnly("#000000");

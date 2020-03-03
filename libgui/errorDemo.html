@@ -44,11 +44,13 @@ p.c="#012F"
 gui.addColor(p,44)
 
 console.log(p)
-const ar=[1,2,3]
+const ar={eins:1,zwei:2,drei:3}
 
-gui.add({params:p,property:"select",type: "selection",options:ar,initialValue:22})
+gui.add({params:p,property:"select",type: "selection",options:ar,initialValue:"zweie"})
 console.log(p)
+var u={falsch:false,ude:7}
 
+gui.add({type:"boolean",params:u,property:"falfsch"})
 </script>
 
 </html>
