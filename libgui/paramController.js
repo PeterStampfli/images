@@ -565,7 +565,7 @@ ParamController.prototype.setValueOnly = function(value) {
  * @param {whatever} value
  */
 ParamController.prototype.setValue = function(value) {
-    this.setValueOnly();
+    this.setValueOnly(value);
     this.callback(this.getValue());
 };
 
