@@ -58,7 +58,7 @@ export function ParamGui(params) {
     this.helpButton = null;
     this.autoPlace = true;
     this.hideable = true;
-    this.closed = false;
+    this.closed = true;
     this.closeOnTop = true;
     // read/merge params object replacing defaults
     // applies only to the parameters above
@@ -300,7 +300,7 @@ ParamGui.defaultDesign = {
 
 // other parameters
 // switch on log for conversion from datGui-style to new style
-ParamGui.logConversion = true;
+ParamGui.logConversion = false;
 // base z-index for ui divs, to keep them above others
 // the guis will have z-indizes of zIndex,zIndex+1, ... zIndex+number of guis -1
 ParamGui.zIndex = 5;

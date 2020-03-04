@@ -153,7 +153,7 @@ SelectValues.prototype.setValue = function(value) {
     if (index >= 0) {
         this.setIndex(index);
     } else {
-        console.error("SelectValues#setValue: argument not found in options");
+        console.error("Selection controller, setValue: argument not found in options");
         console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
     }
 };

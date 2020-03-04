@@ -8,7 +8,8 @@
 
 /* jshint esversion:6 */
 import {
-    Button
+    Button,
+    guiUtils
 } from "./modules.js";
 
 
@@ -121,7 +122,12 @@ TextInput.prototype.getValue = function() {
  * @param {String} text
  */
 TextInput.prototype.setValue = function(text) {
-    this.element.value = text;
+    if (guiUtils.isString(text)) {
+        this.element.value = text;
+    } else {
+        console.error("Text controller, setValue: argument is not a string:");
+        console.log('its value is ' + text + ' of type "' + (typeof text) + '"');
+    }
 };
 
 /**

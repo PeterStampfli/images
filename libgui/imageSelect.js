@@ -594,20 +594,20 @@ ImageSelect.prototype.findIndex = function(value) {
 };
 
 /**
- * set the value and update display
+ * set the choice
+ * searches the values and then the labels, if not found makes error message
  * does not call the onChange callback
- * sets only to already existing values
  * @method ImageSelect#setValue
  * @param {whatever} value
- * @return integer index, -1 if value not found
  */
 ImageSelect.prototype.setValue = function(value) {
     const index = this.findIndex(value);
     if (index >= 0) {
         this.setIndex(index);
-        this.update();
+    } else {
+        console.error("Image controller, setValue: argument not found in options");
+        console.log('argument value is ' + value + ' of type "' + (typeof value) + '"');
     }
-    return index;
 };
 
 /**

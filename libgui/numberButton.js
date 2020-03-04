@@ -276,6 +276,9 @@ NumberButton.prototype.setValue = function(number) {
             backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
             this.indicatorElement.style.background = backgroundStyle;
         }
+    } else {
+        console.error("Number controller, setValue: argument is not a number:");
+        console.log('its value is ' + number + ' of type "' + (typeof number) + '"');
     }
 };
 

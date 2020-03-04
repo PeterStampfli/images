@@ -125,13 +125,6 @@ export function ParamController(gui, domElement, args) {
                         // sets value to one of the option values, so parameter value will be equal to initial value
                         if (selectValues.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue); // index found, initial value might be its name or value
-                            // error messages for changed initial value (happens if it is the name of an option)
-                            if (this.initialValue !== this.uiElement.getValue()) {
-                                console.error('add selection: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                                console.log("the arguments object is:");
-                                console.log(args);
-                                this.initialValue = this.uiElement.getValue();
-                            }
                         } else {
                             const message = document.createElement("span");
                             message.innerHTML = "&nbsp initial value is not in options";
@@ -258,13 +251,6 @@ export function ParamController(gui, domElement, args) {
                         console.log(args);
                         this.initialValue = this.uiElement.getValue();
                     }
-                    // error messages for changed initial value, it might be not a number or out of bounds, or disagrees with step size
-                    if (!guiUtils.isNumber(this.initialValue) || (Math.abs(this.uiElement.getValue() - this.initialValue) > 0.01)) {
-                        console.error("add number: changed value to " + this.uiElement.getValue() + " instead of " + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                        console.log("the arguments object is:");
-                        console.log(args);
-                        this.initialValue = this.uiElement.getValue();
-                    }
                     break;
                 }
             case "color":
@@ -281,13 +267,6 @@ export function ParamController(gui, domElement, args) {
                     colorInput.setFontSize(this.design.buttonFontSize);
                     if (guiUtils.isColorString(this.initialValue)) {
                         this.setValueOnly(this.initialValue);
-                        // error messages for changed initial value
-                        if (this.initialValue !== this.uiElement.getValue()) {
-                            console.error('add color: changed value to "' + this.uiElement.getValue() + '" instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                            console.log("the arguments object is:");
-                            console.log(args);
-                            this.initialValue = this.uiElement.getValue();
-                        }
                     } else {
                         const message = document.createElement("span");
                         message.innerHTML = "&nbsp initial value is not a good color string";
@@ -335,13 +314,6 @@ export function ParamController(gui, domElement, args) {
                         // sets value to one of the option values
                         if (imageSelect.findIndex(this.initialValue) >= 0) {
                             this.setValueOnly(this.initialValue);
-                            // error messages for changed initial value
-                            if (this.initialValue !== this.uiElement.getValue()) {
-                                console.error('add image: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
-                                console.log("the arguments object is:");
-                                console.log(args);
-                                this.initialValue = this.uiElement.getValue();
-                            }
                         } else {
                             imageSelect.setIndex(0);
                             this.setValueOnly(imageSelect.getValue());
@@ -391,8 +363,17 @@ export function ParamController(gui, domElement, args) {
                 console.log("no good callback function(" + value + ")");
             };
         }
+        // error messages for changed initial value, numbers might be slightly different due to floating point representation
+        if (guiUtils.isObject(this.uiElement) &&(args.type.toLowerCase()!=="button")&&
+            (!guiUtils.isNumber(this.initialValue) && (this.initialValue !== this.uiElement.getValue())) ||
+            (guiUtils.isNumber(this.initialValue) && (Math.abs(this.uiElement.getValue() - this.initialValue)) > 0.01)) {
+            console.error('add controller: changed value to ' + this.uiElement.getValue() + ' instead of ' + this.initialValue + ' with type "' + (typeof this.initialValue) + '"');
+            console.log("the arguments object is:");
+            console.log(args);
+            this.initialValue = this.uiElement.getValue();
+        }
         // change the minimum element width if we have a controller
-        if (guiUtils.isNumber(args.minElementWidth) && guiUtils.isObject(this.uiElement)) {
+        if (guiUtils.isObject(this.uiElement) && guiUtils.isNumber(args.minElementWidth)) {
             this.uiElement.setMinWidth(args.minElementWidth);
         }
     } else {

@@ -178,15 +178,16 @@ BooleanButton.prototype.getValue = function() {
 /**
  * set value of booleanButton
  * @method BooleanButton#setValue
- * @param {boolean} onOff
+ * @param {boolean} value
  */
-BooleanButton.prototype.setValue = function(onOff) {
-    if (!guiUtils.isBoolean(onOff)) {
-        console.error("BooleanButton#setValue: argument is not boolean:");
-        console.log('its value is ' + onOff + ' of type "' + (typeof onOff) + '"');
+BooleanButton.prototype.setValue = function(value) {
+    if (guiUtils.isBoolean(value)) {
+        this.value = value;
+        this.updateStyle();
+    } else {
+        console.error("Boolean controller, setValue: argument is not boolean:");
+        console.log('its value is ' + value + ' of type "' + (typeof value) + '"');
     }
-    this.value = onOff;
-    this.updateStyle();
 };
 
 /**

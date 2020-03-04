@@ -19,9 +19,12 @@ import {
 }
 from "./modules.js";
 
+ParamGui.logConversion = true;
 
-const gui = new ParamGui({}, {
-    name: "datGui API compatible"
+
+const gui = new ParamGui({
+    name: "datGui API compatible",
+    closed:false
 });
 
 gui.addHelp("This is a <strong>demo</strong> for the datGui API with some extensions.");

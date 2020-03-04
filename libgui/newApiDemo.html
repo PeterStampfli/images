@@ -19,9 +19,12 @@ import {
 }
 from "./modules.js";
 
+ParamGui.logConversion = true;
 
-const gui = new ParamGui({}, {
-    name: "gui with new api"
+
+const gui = new ParamGui({
+    name: "gui with new api",
+    closed:false
 });
 
 gui.addParagraph("This is a <strong>demo</strong> for the new gui API. See the source code");
