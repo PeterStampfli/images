@@ -500,9 +500,13 @@ ParamController.prototype.addHelp = function(message) {
  * @param {whatever} value
  */
 ParamController.prototype.setValueOnly = function(value) {
-    this.uiElement.setValue(value);
-    if (this.hasParameter) {
-        this.params[this.property] = this.uiElement.getValue();
+    if (this.uiElement) {
+        this.uiElement.setValue(value);
+        if (this.hasParameter) {
+            this.params[this.property] = this.uiElement.getValue();
+        }
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
     }
 };
 
@@ -510,6 +514,7 @@ ParamController.prototype.setValueOnly = function(value) {
  * set the value of the controller
  * set the value of the param object (if exists) and call the callback to enforce synchronization
  * the ui element checks the value and may change it if it is not consistent with the controller type
+ * it can also only make an error message
  * (Note that this.setValue() is not the same as this.uiElement.setValue())
  * @method ParamController#setValue
  * @param {whatever} value
@@ -527,7 +532,11 @@ ParamController.prototype.setValue = function(value) {
  * @return {whatever} value
  */
 ParamController.prototype.getValue = function() {
-    return this.uiElement.getValue();
+    if (this.uiElement) {
+        return this.uiElement.getValue();
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+    }
 };
 
 /**
@@ -536,9 +545,13 @@ ParamController.prototype.getValue = function() {
  * @method ParamController#updateDisplay
  */
 ParamController.prototype.updateDisplay = function() {
-    if (this.hasParameter) {
-        const value = this.params[this.property];
-        this.uiElement.setValue(value);
+    if (this.uiElement) {
+        if (this.hasParameter) {
+            const value = this.params[this.property];
+            this.uiElement.setValue(value);
+        }
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
     }
 };
 
@@ -560,8 +573,12 @@ ParamController.prototype.updateDisplayIfListening = function() {
  * @return this, for chaining
  */
 ParamController.prototype.listen = function() {
-    this.listening = true;
-    ParamGui.startListening();
+    if (this.uiElement) {
+        this.listening = true;
+        ParamGui.startListening();
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+    }
     return this;
 };
 
@@ -599,10 +616,14 @@ ParamController.prototype.show = function() {
  * @return this, for chaining
  */
 ParamController.prototype.name = function(label) {
-    if (this.type === "button") {
-        this.uiElement.setText(label);
-    } else if (this.label) {
-        this.label.textContent = label;
+    if (this.uiElement) {
+        if (this.type === "button") {
+            this.uiElement.setText(label);
+        } else if (this.label) {
+            this.label.textContent = label;
+        }
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };
@@ -637,11 +658,7 @@ ParamController.prototype.onClick = ParamController.prototype.onChange;
  * @param {function} callback - function(value), with value of controller as argument
  * @return this
  */
-
-ParamController.prototype.onFinishChange = function(callback) {
-    this.callback = callback;
-    return this;
-};
+ParamController.prototype.onFinishChange = ParamController.prototype.onChange;
 
 // to control the appearance 
 //===============================================0
@@ -676,8 +693,12 @@ ParamController.prototype.style = function() {
  * @return this, for chaining
  */
 ParamController.prototype.setButtonText = function(label) {
-    if (this.type === "button") {
-        this.uiElement.setText(label);
+    if (this.uiElement) {
+        if (this.type === "button") {
+            this.uiElement.setText(label);
+        }
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };
@@ -729,7 +750,11 @@ ParamController.prototype.setMinLabelWidth = function(width) {
  * @return this, for chaining
  */
 ParamController.prototype.setMinElementWidth = function(width) {
-    this.uiElement.setMinWidth(width);
+    if (this.uiElement) {
+        this.uiElement.setMinWidth(width);
+    } else {
+        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+    }
     return this;
 };
 
@@ -754,9 +779,6 @@ ParamController.popupDesign = {
 ParamController.prototype.setupButtonContainer = function() {
     if (!this.buttonContainer) {
         if (this.usePopup) {
-
-
-
             // the ui elements go into their own div, the this.bodyDiv
             // append as child to this.domElement
             this.popup = new Popup(this.design, ParamController.popupDesign);
@@ -783,8 +805,8 @@ ParamController.prototype.createAddButton = function(text, amount) {
         this.setupButtonContainer();
         this.uiElement.createAddButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -811,8 +833,8 @@ ParamController.prototype.createMulButton = function(text, amount) {
         this.setupButtonContainer();
         this.uiElement.createMulButton(text, this.buttonContainer, amount);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -837,8 +859,8 @@ ParamController.prototype.createMiniButton = function() {
         this.setupButtonContainer();
         this.uiElement.createMiniButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -851,8 +873,8 @@ ParamController.prototype.createMaxiButton = function() {
         this.setupButtonContainer();
         this.uiElement.createMaxiButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -876,8 +898,8 @@ ParamController.prototype.createLeftButton = function() {
         this.setupButtonContainer();
         this.uiElement.createLeftButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -890,8 +912,8 @@ ParamController.prototype.createRightButton = function() {
         this.setupButtonContainer();
         this.uiElement.createRightButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -904,8 +926,8 @@ ParamController.prototype.createDecButton = function() {
         this.setupButtonContainer();
         this.uiElement.createDecButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -918,8 +940,8 @@ ParamController.prototype.createIncButton = function() {
         this.setupButtonContainer();
         this.uiElement.createIncButton(this.buttonContainer);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -946,8 +968,8 @@ ParamController.prototype.createSuggestButton = function(value) {
         this.setupButtonContainer();
         this.uiElement.createSuggestButton(this.buttonContainer, value);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -961,8 +983,8 @@ ParamController.prototype.createSmallRange = function() {
         this.uiElement.createRange(this.buttonContainer);
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthShort);
         guiUtils.hSpace(this.buttonContainer, NumberButton.spaceWidth);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -974,8 +996,8 @@ ParamController.prototype.createLongRange = function() {
     if (this.type === "number") {
         this.createSmallRange();
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthLong);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -987,8 +1009,8 @@ ParamController.prototype.createVeryLongRange = function() {
     if (this.type === "number") {
         this.createSmallRange();
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthVeryLong);
-        return this;
     }
+    return this;
 };
 
 /**
@@ -999,8 +1021,8 @@ ParamController.prototype.createVeryLongRange = function() {
 ParamController.prototype.cyclic = function() {
     if (this.type === "number") {
         this.uiElement.setCyclic();
-        return this;
     }
+    return this;
 };
 
 /**
@@ -1008,8 +1030,10 @@ ParamController.prototype.cyclic = function() {
  * @method ParamController#createIndicatorMain
  */
 ParamController.prototype.createIndicatorMain = function() {
-    this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
-    this.uiElement.setIndicatorElement(this.domElement);
+    if (this.type === "number") {
+        this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+        this.uiElement.setIndicatorElement(this.domElement);
+    }
     return this;
 };
 
@@ -1018,9 +1042,11 @@ ParamController.prototype.createIndicatorMain = function() {
  * @method ParamController#createIndicatorPopup
  */
 ParamController.prototype.createIndicator = function() {
-    this.setupButtonContainer();
-    this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
-    this.uiElement.setIndicatorElement(this.buttonContainer);
+    if (this.type === "number") {
+        this.setupButtonContainer();
+        this.uiElement.setIndicatorColors(this.design.indicatorColorLeft, this.design.indicatorColorRight);
+        this.uiElement.setIndicatorElement(this.buttonContainer);
+    }
     return this;
 };
 
