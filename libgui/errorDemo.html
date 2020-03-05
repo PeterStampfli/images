@@ -39,7 +39,9 @@ const parameters={}
 parameters.image = haeckel + "0" + 55555 + ".png";
 
 gui.add({type:"button",buttonText:"oha",onClick: function(){console.log("ohhh")}})
-gui.add({type:"buttton",buttonText:"fail",onClick:0})
+gui.add({type:"button",buttonText:"fail",onClick:0})
+gui.add({type:"selection",options:[11,2,3,4], initialValue:33})
+gui.add({type:"boolean",initialValue:8})
 console.log(!null)
 if (null){
     console.log("nogood")
