@@ -1193,25 +1193,25 @@ ParamGui.resizeOutputContent = function() {};
  * @method ParamGui.resizeOutputDiv
  */
 ParamGui.resizeOutputDiv = function() {
-    // fit height to window, avoid spurious vertical scroll bar in calculation of horizontal space
-    ParamGui.outputDiv.style.height = window.innerHeight + "px";
     const leftOfSpace = ParamGui.leftSpaceLimit();
     const widthOfSpace = ParamGui.rightSpaceLimit() - leftOfSpace;
     ParamGui.outputDiv.style.left = leftOfSpace + "px";
-    // resize content: set up dimensions of the div
+    // resize content: set up final dimensions of the div
     // you can use them to resize content
-    // overflow hidden makes that scroll bars do not appear
+    // overflow hidden makes that scroll bars do not reduce client width or height
     ParamGui.outputDiv.style.width = widthOfSpace + "px";
+    ParamGui.outputDiv.style.height = window.innerHeight + "px"; // no scroll bars !
     ParamGui.outputDiv.style.overflow = "hidden";
+    // now resize content
     ParamGui.resizeOutputContent();
     // get size of contents
     // no height and width given => shrink wrap
     ParamGui.outputDiv.style.height = "";
     ParamGui.outputDiv.style.width = "";
-    // clientWidth/Height give dimensions of content
+    // now we can get size of content with clientWidth/Height
     const widthOfContent = ParamGui.outputDiv.clientWidth;
     const heightOfContent = ParamGui.outputDiv.clientHeight;
-    // set final dimensions
+    // again set final dimensions
     ParamGui.outputDiv.style.width = widthOfSpace + "px";
     ParamGui.outputDiv.style.height = window.innerHeight + "px";
     // see if content is too wide and horizontal scroll bars are required

@@ -90,19 +90,9 @@ export {
 from "./selectValues.js";
 
 export {
-    AngleScale
-}
-from "./angleScale.js";
-
-export {
     ColorInput
 }
 from "./colorInput.js";
-
-export {
-    output
-}
-from "./output.js";
 
 export {
     ImageSelect

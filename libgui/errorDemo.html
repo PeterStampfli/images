@@ -41,8 +41,17 @@ parameters.image = haeckel + "0" + 55555 + ".png";
 gui.add({type:"button",buttonText:"oha",onClick: function(){console.log("ohhh")}})
 gui.add({type:"button",buttonText:"fail",onClick:0})
 gui.add({type:"selection",options:[11,2,3,4], initialValue:33})
-gui.add({type:"ccc",initialValue:false}).setValueOnly(true)
-
+const p={
+b:false
+}
+const b=gui.add({params:p,property:"b",type:"boolean",initialValue:false})
+//b.setValue(true)
+p.b=true
+//b.updateDisplay()
+//console.log(b.getValue())
+b.name("blal")
+b.onChange(function(value){console.log(value)});
+b.setButtonText("*")
 
 </script>
 

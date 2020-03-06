@@ -506,7 +506,7 @@ ParamController.prototype.setValueOnly = function(value) {
             this.params[this.property] = this.uiElement.getValue();
         }
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.setValueOnly: There is no ui element because of unknown controller type "' + this.type + '".');
     }
 };
 
@@ -520,28 +520,41 @@ ParamController.prototype.setValueOnly = function(value) {
  * @param {whatever} value
  */
 ParamController.prototype.setValue = function(value) {
-    this.setValueOnly(value);
-    this.callback(this.getValue());
+    if (this.uiElement) {
+        this.setValueOnly(value);
+        this.callback(this.getValue());
+    } else {
+        console.error('Controller.setValue: There is no ui element because of unknown controller type "' + this.type + '".');
+    }
 };
 
 /**
  * get the value of the controller
- * (should be the same as the value for the param object
- * the param object should be updated to reflect the value
+ * (should be the same as the value for the param object)
+ * if there is a parameter, then its value is relevant, controller value will be updated if it is different
  * @method ParamController#getValue
  * @return {whatever} value
  */
 ParamController.prototype.getValue = function() {
     if (this.uiElement) {
-        return this.uiElement.getValue();
+        let value = this.uiElement.getValue();
+        if (this.hasParameter) {
+            const parameterValue = this.params[this.property];
+            if (value !== parameterValue) {
+                value = parameterValue;
+                this.uiElement.setValue(parameterValue);
+            }
+            return value;
+        }
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.getValue: There is no ui element because of unknown controller type "' + this.type + '".');
     }
 };
 
 /**
  * set the value of the display (controller) according to the actual value of the parameter in the params object
  * if params exist, else do nothing
+ * does not call the callback
  * @method ParamController#updateDisplay
  */
 ParamController.prototype.updateDisplay = function() {
@@ -551,7 +564,7 @@ ParamController.prototype.updateDisplay = function() {
             this.uiElement.setValue(value);
         }
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.updateDisplay: There is no ui element because of unknown controller type "' + this.type + '".');
     }
 };
 
@@ -577,7 +590,7 @@ ParamController.prototype.listen = function() {
         this.listening = true;
         ParamGui.startListening();
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.listen: There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };
@@ -623,7 +636,7 @@ ParamController.prototype.name = function(label) {
             this.label.textContent = label;
         }
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.name: There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };
@@ -636,7 +649,11 @@ ParamController.prototype.name = function(label) {
  * @return this
  */
 ParamController.prototype.onChange = function(callback) {
-    this.callback = callback;
+    if (guiUtils.isFunction(callback)) {
+        this.callback = callback;
+    } else {
+        console.error('Controller.onChange: Argument is not a function, it is ' + callback + ' of type "' + (typeof callback) + '"');
+    }
     return this;
 };
 
@@ -693,12 +710,10 @@ ParamController.prototype.style = function() {
  * @return this, for chaining
  */
 ParamController.prototype.setButtonText = function(label) {
-    if (this.uiElement) {
-        if (this.type === "button") {
-            this.uiElement.setText(label);
-        }
+    if (this.type === "button") {
+        this.uiElement.setText(label);
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.setButtonText: The controller is not a "button", it' + "'" + 's type is "' + this.type + '".');
     }
     return this;
 };
@@ -753,7 +768,7 @@ ParamController.prototype.setMinElementWidth = function(width) {
     if (this.uiElement) {
         this.uiElement.setMinWidth(width);
     } else {
-        console.error('There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.setMinWidth: There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };
