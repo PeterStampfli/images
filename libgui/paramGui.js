@@ -831,9 +831,13 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         }
     } else {
         // no idea/error
-        args.type = "no fitting type found";
-        console.error("no fitting controller type found for:");
-        console.log("parameter value " + paramValue + " and low " + low);
+        args.type = "noType";
+        console.error("Add controller: no fitting controller type found for datGui API parameters");
+        if (guiUtils.isDefined(low)) {
+            console.log('property "' + theProperty + '" with parameter value ' + paramValue + " and low " + low);
+        } else {
+            console.log('property "' + theProperty + '" with parameter value ' + paramValue);
+        }
     }
     if (ParamGui.logConversion) {
         console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
@@ -951,14 +955,16 @@ ParamGui.prototype.addColor = function(theParams, theProperty) {
     if (arguments.length === 1) {
         args = theParams; // the new version
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        console.log("Paramgui#addColor: generating an argument object from datGui-style parameters");
         args = {
             params: theParams,
             property: theProperty,
             type: "color"
         };
-        console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
-        console.log(args);
+        if (ParamGui.logConversion) {
+            console.log("Paramgui#addColor: generating an argument object from datGui-style parameters");
+            console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
+            console.log(args);
+        }
     }
     let controller = this.add(args);
     return controller;

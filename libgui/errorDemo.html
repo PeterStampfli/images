@@ -18,41 +18,20 @@ import {
     InstantHelp
 }
 from "./modules.js";
-
+//ParamGui.logConversion=true;
 
 const gui = new ParamGui({closed: false}, {
     name: "error test"
 });
 
+const p={}
+p.n=3
+const nn=gui.add(p,"n")
+nn.onChange(function(){console.log(p)})
+console.log(nn)
 
-const haeckel = "/images/libgui/haeckel/haeckel_";
-
-const choices = {};
-for (var i = 1; i < 10; i++) {
-    choices["haeckel0" + i] = haeckel + "0" + i + ".png";
-}
-for (var i = 10; i < 20; i++) {
-    choices["haeckel" + i] = haeckel + i + ".png";
-}
-
-const parameters={}
-parameters.image = haeckel + "0" + 55555 + ".png";
-
-gui.add({type:"button",buttonText:"oha",onClick: function(){console.log("ohhh")}})
-gui.add({type:"button",buttonText:"fail",onClick:0})
-gui.add({type:"selection",options:[11,2,3,4], initialValue:33})
-const p={
-b:false
-}
-const b=gui.add({params:p,property:"b",type:"boolean",initialValue:false})
-//b.setValue(true)
-p.b=true
-//b.updateDisplay()
-//console.log(b.getValue())
-b.name("blal")
-b.onChange(function(value){console.log(value)});
-b.setButtonText("*")
-
+p.ob= {}
+gui.add(p,"ob")
 </script>
 
 </html>
