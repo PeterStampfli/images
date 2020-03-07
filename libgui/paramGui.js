@@ -714,7 +714,7 @@ ParamGui.prototype.addFolder = function(folderName, designParameters) {
     const allParameters = {
         name: folderName,
         closeOnTop: true,
-        closed: false,
+        closed: true,
         parent: this,
         autoPlace: false,
         hideable: false
