@@ -22,6 +22,7 @@ from "../libgui/modules.js";
 
 const gui = new ParamGui({
     name: "dummy controls",
+    closed:false
  //   horizontalPosition: "left"
 });
 
@@ -35,72 +36,8 @@ gui.add({
     .createPlusMinusButtons()
     .createMulDivButtons();
 
-// CREATING A LOGGER IN A FOLDER INSIDE THE MAIN UI
 
-const logger = gui.addFolder("logging things").addLogger();
-
-logger.log("a message");
-logger.log("another message");
-logger.log("I hate double scrollbars");
-logger.log("more messages");
-logger.log("more messages");
-logger.log("more messages");
-logger.log("a message");
-logger.log("a message");
-logger.log("a message");
-logger.log("a message");
-logger.log("a message");
-
-gui.add({
-        type: "number",
-        labelText: "another number",
-        initialValue: 1,
-        min: 0,
-        max: 33
-    })
-    .createPlusMinusButtons(2);
-
-//LOGGING IN AN EXTRA UI, AUTOMATICALLY GENERATED UPON CALLKING THE LOG() METHOD
-
-log("what happens now");
-log("what happens now");
-log("what happens now");
-log("I don't know");
-log("what happens now");
-log("In an extra gui: only a single scrollbar, at most.");
-log("what happens now");
-log("what happens now");
-log("what happens now");
-log("what happens now");
-log("what happens now");
-
-
-
-/*
-ParamGui.createOutputDiv();
-
-const theDiv=document.createElement("div");
-ParamGui.outputDiv.appendChild(theDiv);
-theDiv.style.borderStyle="solid";
-theDiv.style.width="700px";
-theDiv.style.height="400px";
-theDiv.style.backgroundColor="yellow";
-
-ParamGui.resizeOutputDiv();
-*/
-ParamGui.prototype.addCanvas = function(isRectangular = true) {
-    ParamGui.canvas = document.createElement("canvas");
-
-    ParamGui.canvas.style.backgroundColor = "red";
-    ParamGui.createOutputDiv();
-
-    ParamGui.outputDiv.appendChild(ParamGui.canvas);
-
-};
-
-gui.addCanvas();
-
-gui.toFront();
+//gui.toFront();
 
 </script>
 </html>

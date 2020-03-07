@@ -1174,12 +1174,14 @@ ParamGui.rightSpaceLimit = function() {
     });
     // with window.innerWidth we do not get some ghosts of scroll bars
     // document.documentElement.clientWidth upon reducing screen height gives a smaller width because of spurious vertical scroll bar
-    //  const spaceLimit = window.innerWidth - space;
-    const spaceLimit = document.documentElement.clientWidth - space;
+    const spaceLimit = window.innerWidth - space;
     return spaceLimit;
 };
 
 ParamGui.outputDiv = false;
+// dimension of the div for (re)sizing the content
+ParamGui.outputDivHeight=200;
+ParamGui.outputDivWidth=300;
 
 /**
  * resizing the content of the output div
@@ -1205,21 +1207,21 @@ ParamGui.resizeOutputDiv = function() {
     // resize content: set up final dimensions of the div
     // you can use them to resize content
     // overflow hidden makes that scroll bars do not reduce client width or height
-    ParamGui.outputDiv.style.width = widthOfSpace + "px";
-    ParamGui.outputDiv.style.height = window.innerHeight + "px"; // no scroll bars !
-    ParamGui.outputDiv.style.overflow = "hidden";
+    ParamGui.outputDivWidth = widthOfSpace ;
+    ParamGui.outputDivHeight = window.innerHeight; 
     // now resize content
     ParamGui.resizeOutputContent();
     // get size of contents
     // no height and width given => shrink wrap
     ParamGui.outputDiv.style.height = "";
     ParamGui.outputDiv.style.width = "";
+    ParamGui.outputDiv.style.overflow = "hidden";
     // now we can get size of content with clientWidth/Height
     const widthOfContent = ParamGui.outputDiv.clientWidth;
     const heightOfContent = ParamGui.outputDiv.clientHeight;
     // again set final dimensions
-    ParamGui.outputDiv.style.width = widthOfSpace + "px";
-    ParamGui.outputDiv.style.height = window.innerHeight + "px";
+    ParamGui.outputDiv.style.width = ParamGui.outputDivWidth + "px";
+    ParamGui.outputDiv.style.height = ParamGui.outputDivHeight + "px";
     // see if content is too wide and horizontal scroll bars are required
     if (widthOfContent > ParamGui.outputDiv.clientWidth) {
         ParamGui.outputDiv.style.overflowX = "scroll";
@@ -1249,9 +1251,6 @@ ParamGui.createOutputDiv = function() {
         ParamGui.outputDiv = document.createElement("div");
         ParamGui.outputDiv.style.position = "absolute";
         ParamGui.outputDiv.style.top = "0px";
-
-        ParamGui.outputDiv.style.backgroundColor = "blue";
-
         ParamGui.resizeOutputDiv();
         document.body.appendChild(ParamGui.outputDiv);
         window.addEventListener("resize", ParamGui.resizeOutputDiv, false);
