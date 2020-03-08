@@ -49,17 +49,21 @@ export function ParamController(gui, domElement, args) {
                 parameterValue = args.params[args.property]; // this may be undefined, no problem, gets value later
                 this.hasParameter = true;
             } else {
-                console.error("ParamController: argument.params is not an object although there is an argument.property.");
+                console.error("add controller: params is not an object or array although there is a property.");
                 console.log("its value is " + args.params + " of type " + (typeof args.params));
                 console.log("the arguments object:");
                 console.log(args);
             }
         } else {
-            console.error("ParamController: argument.property is not a string.");
+            console.error("add Controller: property is not a string.");
             console.log("its value is " + args.property + " of type " + (typeof args.property));
             console.log("the arguments object:");
             console.log(args);
         }
+    } else if (guiUtils.isDefined(args.params)) {
+        console.error("add Controller: property is not defined although there is a params object or array.");
+        console.log("the arguments object:");
+        console.log(args);
     }
 
     /**
