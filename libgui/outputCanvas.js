@@ -55,8 +55,8 @@ ParamGui.rightSpaceLimit = function() {
 
 ParamGui.outputDiv = false;
 // dimension of the div for (re)sizing the content
-ParamGui.outputDivHeight=200;
-ParamGui.outputDivWidth=300;
+ParamGui.outputDivHeight = 200;
+ParamGui.outputDivWidth = 300;
 
 /**
  * resizing the content of the output div
@@ -82,8 +82,8 @@ ParamGui.resizeOutputDiv = function() {
     // resize content: set up final dimensions of the div
     // you can use them to resize content
     // overflow hidden makes that scroll bars do not reduce client width or height
-    ParamGui.outputDivWidth = widthOfSpace ;
-    ParamGui.outputDivHeight = window.innerHeight; 
+    ParamGui.outputDivWidth = widthOfSpace;
+    ParamGui.outputDivHeight = window.innerHeight;
     // now resize content
     ParamGui.resizeOutputContent();
     // get size of contents
@@ -137,9 +137,9 @@ outputCanvas.canvas = false;
 outputCanvas.saveName = "picture";
 outputCanvas.autoResize = true;
 // after a size change we have to draw the image again
-outputCanvas.draw=function(){
-	console.log("draw "+outputCanvas.canvas.width+" "+outputCanvas.canvas.height);
-}
+outputCanvas.draw = function() {
+    console.log("draw " + outputCanvas.canvas.width + " " + outputCanvas.canvas.height);
+};
 
 /**
  * a canvas in the ParamGui.outputDiv with controllers in a gui
@@ -191,10 +191,11 @@ outputCanvas.init = function(gui, isRectangular = true, canAutoResize = true) {
                 max: 10000,
                 params: outputCanvas.canvas,
                 property: "width",
-                onChange: function(){
-                	outputCanvas.draw();
+                onChange: function() {
+                    outputCanvas.draw();
+                }
             });
-               heightController = gui.add({
+            heightController = gui.add({
                 type: "number",
                 min: 100,
                 max: 10000,

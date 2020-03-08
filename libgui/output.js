@@ -16,13 +16,16 @@ export const output = {};
 // doing both canvas and div together simplifies things
 
 output.canvas = false;
+output.div = false;
+output.divHeight = 0;
+output.divWidth = 0;
+
 // a method to redraw the canvas upon resize
 output.redraw = function() {
     console.log("redraw canvas " + output.canvas.width + " " + output.canvas.Height);
 };
 
-// private parts
-let outputDiv = false;
+// extra canvas parameters
 let params = {
     saveName: "image",
     canvasAutoResize: true
@@ -89,24 +92,59 @@ function rightSpaceLimit() {
  * @method updateScrollbars
  */
 function updateScrollbars() {
-    outputDiv.style.overflow = "hidden";
+    output.div.style.overflow = "hidden";
     // test if width overflows and we have to use overflowX="scroll"
-    if (output.canvas.width > outputDiv.clientWidth) {
-        outputDiv.style.overflowX = "scroll";
+    if (output.canvas.width > output.div.clientWidth) {
+        output.div.style.overflowX = "scroll";
     }
     // test if height overflows and we have to use overflowY="scroll"
-    if (output.canvas.height > outputDiv.clientHeight) {
-        outputDiv.style.overflowY = "scroll";
+    if (output.canvas.height > output.div.clientHeight) {
+        output.div.style.overflowY = "scroll";
         // now the width might overflow into the scroll bar. Thus test again
         // test if width overflows and we have to use overflowX="scroll"
-        if (output.canvas.width > outputDiv.clientWidth) {
-            outputDiv.style.overflowX = "scroll";
+        if (output.canvas.width > output.div.clientWidth) {
+            output.div.style.overflowX = "scroll";
         }
     }
 }
 
+
 /**
- * create a canvas in the outputDiv with controllers in a gui
+ * resizing the output div
+ * @method resizeOutputDiv
+ */
+function resizeOutputDiv() {
+    const leftOfSpace = leftSpaceLimit();
+    const widthOfSpace = rightSpaceLimit() - leftOfSpace;
+    output.div.style.left = leftOfSpace + "px";
+    // resize content: set up final dimensions of the div
+    // you can use them to resize content
+    output.divWidth = widthOfSpace;
+    output.divHeight = window.innerHeight;
+    output.div.style.width = output.divWidth + "px";
+    output.div.style.height = output.divHeight + "px";
+}
+
+/**
+ * create an output div fitting the guis
+ * it will fit between the guis at the left and those at the right
+ * @method output.createDiv
+ */
+output.createDiv = function() {
+    if (output.div) {
+        console.error("div exists already!");
+    } else {
+        output.div = document.createElement("div");
+        output.div.style.position = "absolute";
+        output.div.style.top = "0px";
+        resizeOutputDiv();
+        document.body.appendChild(output.div);
+        window.addEventListener("resize", resizeOutputDiv, false);
+    }
+};
+
+/**
+ * create a canvas in the output.div with controllers in a gui
  * maybe wrap its controlters in a folder
  * you can set if it is a sqaure or flexible rectangle
  * @method output.init

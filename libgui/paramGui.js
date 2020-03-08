@@ -833,7 +833,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         // no idea/error
         args.type = "noType";
         console.error("Add controller: no fitting controller type found for datGui API parameters");
-            console.log('property "' + theProperty + '" with parameter value ' + paramValue + " and low " + low);
+        console.log('property "' + theProperty + '" with parameter value ' + paramValue + " and low " + low);
     }
     if (ParamGui.logConversion) {
         console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
