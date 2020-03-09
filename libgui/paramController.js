@@ -72,7 +72,7 @@ export function ParamController(gui, domElement, args) {
      * @param {anything} value
      */
     this.callback = function(value) {
-        console.log("callback value " + value);
+        // console.log("callback value " + value);
     };
 
     // get callback from different arguments. For a button it might be the (initial) parameter value
@@ -198,7 +198,10 @@ export function ParamController(gui, domElement, args) {
                     this.setValueOnly(this.initialValue); // safe, does not change value
                 } else {
                     // fallback: convert initial value to string
-                    this.setValueOnly(this.initialValue.toString());
+                    if (guiUtils.isDefined(this.initialValue)) {
+                        this.setValueOnly(this.initialValue.toString());
+                    }
+                    this.setValueOnly("undefined");
                     noGoodInitialValue("initial value is not a string");
                 }
                 break;

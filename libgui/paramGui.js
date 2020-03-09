@@ -324,13 +324,13 @@ ParamGui.updateDefaultDesign = function(newValues) {
 
 /**
  * add a span with a space to the parent element
- * use ParamGui.spaceWidth as parameter !!!
  * @method ParamGui.addSpace
  * @param {HTMLElement} parent
+ * @param {int} width - default is ParamGui.spaceWidth
  */
-ParamGui.addSpace = function(parent) {
+ParamGui.addSpace = function(parent, width = ParamGui.spaceWidth) {
     const theSpan = document.createElement("span");
-    theSpan.style.width = ParamGui.spaceWidth + "px";
+    theSpan.style.width = width + "px";
     theSpan.style.display = "inline-block";
     parent.appendChild(theSpan);
 };
