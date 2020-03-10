@@ -38,8 +38,28 @@ gui.add({
 
 
 //gui.toFront();
-output.createCanvas(gui,true)
-output.div.style.backgroundColor="blue"
+
+
+// model basic color tables
+const blackAndWhite = ["black", "white"];
+const blackBlueGreenWhite = ["black", "blue", "green", "white"];
+console.log(output.makeColorTable(blackBlueGreenWhite))
+
+/*
+output.draw=function(){output.drawImageUnitSquareCanvas(function(color,x,y){
+color.red=Math.floor(255*x);
+color.green=Math.floor(255*y);
+color.blue=Math.floor(255*x*y);
+})
+
+
+};
+*/
+const ct=output.makeColorTable(blackBlueGreenWhite);
+const image=[1,2,3,41,2,3,41,2,3,41,2,3,41,2,3,4]
+output.draw=function(){output.imageBlockPixelsOnCanvas(ct,image)}
+
+output.createCanvas(gui,false);
 output.canvas.style.backgroundColor="red"
 
 </script>

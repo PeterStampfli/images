@@ -240,6 +240,8 @@ output.createCanvas = function(gui, isRectangular = true) {
                 } else {
                     const size = Math.min(output.divWidth, output.divHeight);
                     sizeController.setValueOnly(size);
+                    output.canvas.width = size;
+                    output.canvas.height = size;
                 }
                 output.div.style.overflow = "hidden";
                 output.draw();
@@ -258,5 +260,92 @@ output.createCanvas = function(gui, isRectangular = true) {
         });
         autoResize();
         window.addEventListener("resize", autoResize, false);
+    }
+};
+
+/**
+ * draw a (smooth) pixel image on the canvas,
+ * for a square canvas coordinates go from (0,0) to (1,1)
+ * use output.draw=function(){output.drawImageUnitSquareCanvas(makeColor)}
+ * makeColor(color,x,y), determines somehow color.red, color.green and color.blue from x,y coordinates
+ * color components should be integer between 0 and 255
+ * @method output.drawImageUnitSquare
+ * @param {function} 
+ */
+output.drawImageUnitSquareCanvas = function(makeColor) {
+    const canvas = output.canvas;
+    const canvasContext = canvas.getContext("2d");
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    // scaling from canvas to image
+    const ds = 1 / Math.sqrt(canvasWidth * canvasHeight);
+    // the pixels
+    const color = {};
+    const imageData = canvasContext.getImageData(0, 0, canvasWidth, canvasHeight);
+    const pixels = imageData.data;
+    let pixelIndex = 0;
+    let y = 0;
+    for (var j = 0; j < canvasHeight; j++) {
+        let x = 0;
+        for (var i = 0; i < canvasWidth; i++) {
+            makeColor(color, x, y);
+            pixels[pixelIndex] = color.red;
+            pixels[pixelIndex + 1] = color.green;
+            pixels[pixelIndex + 2] = color.blue;
+            pixels[pixelIndex + 3] = 255;
+            pixelIndex += 4;
+            x += ds;
+        }
+        y += ds;
+    }
+    canvasContext.putImageData(imageData, 0, 0);
+};
+
+/**
+ * make a color table with 256 elements, periodically repeating a basic element
+ * @method output#makeColorTable
+ * @param {Array of strings} colors - strings defining the color
+ * @return {Array of strings} the table, lenngth=256, colors, repeated
+ */
+output.makeColorTable = function(colors) {
+    const colorsLength = colors.length;
+    const colorTable = [];
+    colorTable.length = 256;
+    for (var i = 0; i < 256; i++) {
+        colorTable[i] = colors[i % colorsLength];
+    }
+    return colorTable;
+};
+
+/**
+ * put a block pixel image on the square canvas, using the colorTable
+ * @method Life#imageBlockPixelsOnCanvas
+ * @param {array} colorTable - an array of colors, length 256
+ * @param {array} image - an array of integers 0...255, representing the image
+ */
+output.imageBlockPixelsOnCanvas = function(colorTable, image) {
+    const canvas = output.canvas;
+    const canvasContext = canvas.getContext("2d");
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    if (canvasWidth !== canvasHeight) {
+        console.error("output.imageBlockPixelsOnCanvas: Not a square canvas, width " + canvasWidth + ", height" + canvasHeight);
+    }
+    const imageSize = Math.sqrt(image.length);
+    if (imageSize * imageSize !== image.length) {
+        console.error("output.imageBlockPixelsOnCanvas: Image pixels not a square number, image length " + image.length);
+    }
+    const pixelSize = Math.min(canvasWidth, canvasHeight) / imageSize;
+    let y = 0;
+    let index = 0;
+    for (var j = 0; j < imageSize; j++) {
+        let x = 0;
+        for (var i = 0; i < imageSize; i++) {
+            canvasContext.fillStyle = colorTable[image[index] & 255];
+            canvasContext.fillRect(x, y, pixelSize, pixelSize);
+            x += pixelSize;
+            index += 1;
+        }
+        y += pixelSize;
     }
 };
