@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>new (basic) life</title>
+</head>
+
+<body>
+
+</body>
+
+<script type="module">
+
+import {
+    ParamGui,guiUtils,output
+}
+from "../libgui/modules.js";
+
+import {
+	Life
+}
+from "./life.js"
+
+const gui = new ParamGui({name: "life - controls",closed: false});
+
+const paramsFolder=gui.addFolder("parameters",{closed:false});
+const canvasFolder=gui.addFolder("image",{closed:false});
+output.createCanvas(canvasFolder,false);
+
+// reset everything and start a new life
+function restart(){
+	console.log("restart");
+}
+
+const params={
+	nStates:2,
+};
+
+
+paramsFolder.add({
+	type: "number",
+	params:params,
+	property:"nStates",
+	min:2,
+	max:256,
+	onChange: restart
+})
+
+
+</script>
+
+
+</html>

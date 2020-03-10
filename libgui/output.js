@@ -12,7 +12,6 @@ from "./modules.js";
 
 export const output = {};
 
-
 // doing both canvas and div together simplifies things
 
 output.canvas = false;
@@ -85,7 +84,6 @@ function rightSpaceLimit() {
  * NOTE: changing the canvas size sets canvasAutoResize to false, requires redraw and checking of scroll bars
  */
 
-
 /**
  * set the x- and y-scrollbars of the container div depending on the dimensions of the canvas
  * we need to do this upon resizing the div, or changing the canvas dimensions
@@ -107,7 +105,6 @@ function updateScrollbars() {
         }
     }
 }
-
 
 /**
  * resizing the output div
@@ -233,7 +230,6 @@ output.createCanvas = function(gui, isRectangular = true) {
             if (params.canvasAutoResize) {
                 // autoresize: fit canvas into the output.div
                 // thus no scroll bars
-                console.log("resize canvas");
                 if (isRectangular) {
                     widthController.setValueOnly(output.divWidth);
                     heightController.setValueOnly(output.divHeight);
