@@ -18,7 +18,7 @@ import {
     InstantHelp
 }
 from "./modules.js";
-//ParamGui.logConversion=true;
+ParamGui.logConversion=true;
 
 const gui = new ParamGui({closed: false}, {
     name: "error test"
@@ -26,12 +26,10 @@ const gui = new ParamGui({closed: false}, {
 
 const p={}
 p.n=3
-const nn=gui.add(p,"n")
+const nn=gui.add(p,"n",1,10,2)
 nn.onChange(function(){console.log(p)})
 console.log(nn)
 
-p.ob= {}
-gui.add(p,"ob")
 </script>
 
 </html>

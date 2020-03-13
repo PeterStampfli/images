@@ -232,6 +232,7 @@ NumberButton.prototype.quantizeClamp = function(x) {
         x = x - d * Math.floor(x / d);
         x += this.minValue;
     }
+    console.log(this.step)
     // quantize and clamp
     x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
     return x;
