@@ -232,7 +232,6 @@ NumberButton.prototype.quantizeClamp = function(x) {
         x = x - d * Math.floor(x / d);
         x += this.minValue;
     }
-    console.log(this.step)
     // quantize and clamp
     x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
     return x;
@@ -261,7 +260,7 @@ NumberButton.prototype.setValue = function(number) {
     if (guiUtils.isNumber(number)) {
         number = this.quantizeClamp(number);
         this.lastValue = number;
-        this.input.value = number.toFixed(this.digits);
+        this.input.value = number.toFixed(this.digitsAfterPoint);
         if (this.range) {
             this.range.value = number.toString();
         }
@@ -321,28 +320,38 @@ NumberButton.prototype.applyChanges = function() {
 };
 
 /**
- * change step to number smaller than 1 to get float
- * will be a power of ten
+ * set minimum step size for numbers ("quantization")
+ * note problem for step sizes smaller than one: not exactly represented with floating point numbers
+ * thus, this.step is not accurate, instead use "decimal" representation
+ * this.stepInt is an integer and this.stepInvPow10 is a power of ten, 
+ * then this.step==this.stepInt/this.stepInvPow10 without error due to finite precision
+ * if this.step>=1, then this.stepInvPow=1
+ * this.digitsAfterPoint is number of digits after decimal point, used for converting number to string
  * @method NumberButton#setStep
  * @param {float} step - the step size (rounding)
  */
 NumberButton.prototype.setStep = function(step) {
-    if (step >= 1) {
-        this.digits = 0;
-        this.step = 1;
-        step = (step + 1) / 10;
-        while (this.step <= step) {
-            this.step *= 10;
-        }
+    // beware of negative numbers and too small numbers
+    const eps=0.0001;                                           // precision, minimum step size
+    step=Math.max(eps,Math.abs(step));
+    if (step >= 0.9) {
+        // step is larger than 1, has to be integer
+        this.digitsAfterPoint = 0;
+        step=Math.round(step);
+        this.step = step;
+        this.stepInt=step;
+        this.stepInvPow10=1;
     } else {
-        this.step = 1;
-        this.digits = 0;
-        step *= 1.1;
-        while (this.step >= step) {
-            this.step *= 0.1;
-            this.digits++;
+        // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
+        this.digitsAfterPoint = 0;
+        this.stepInvPow10=1;
+        while (step*this.stepInvPow10<0.9 ) {
+            this.stepInvPow10*=10;
+            this.digitsAfterPoint++;
         }
-    }
+         this.step = 1;
+        this.stepInt=Math.round(step*this.stepInvPow10);
+  }
     this.applyChanges();
 };
 
