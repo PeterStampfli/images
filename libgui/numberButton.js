@@ -43,7 +43,7 @@ export function NumberButton(parent) {
     const button = this;
 
     /**
-     * action upon change, strategy pattern
+     * action upon change of the number
      * @method NumberButton#onchange
      * @param {integer} value
      */
@@ -59,8 +59,9 @@ export function NumberButton(parent) {
         console.log("numberInteraction");
     };
 
+    // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
-        button.updateValue(button.getValue());
+        button.updateValue(parseFloat(button.input.value));
     };
 
     this.input.onmousedown = function() {
@@ -119,14 +120,31 @@ NumberButton.isNumberButton = function(thing) {
     return thing instanceof NumberButton;
 };
 
-// find step suitable to given value, with some margin, will be rounded down
+/**
+ * find step suitable to given value
+ * it is always a negative power of ten, or 1 for integers
+ * multiplying the value with the inverse step makes that it is nearly an integer
+ * @method NumberButton.findStep
+ * @param {number} value
+ * @return a suitable step size, return undefined if value is undefined
+ */
 NumberButton.findStep = function(value) {
-    const s = value + "";
-    const point = s.indexOf(".");
-    if (point < 0) {
-        return 1;
+    if (guiUtils.isDefined(value)) {
+        if (guiUtils.isInteger(value)) {
+            return 1;
+        } else {
+            const eps = 0.00001; // precision,max number of digits
+            value = Math.max(Math.abs(value), 2 * eps);
+            let step = 0.1;
+            let valueDivStep = value / step;
+            while (Math.abs(Math.round(valueDivStep) - valueDivStep) > eps) {
+                step *= 0.1;
+                valueDivStep = value / step;
+            }
+            return step;
+        }
     } else {
-        return 1.01 * Math.pow(0.1, s.length - point - 1);
+        return value;
     }
 };
 
@@ -218,22 +236,40 @@ NumberButton.prototype.setInputWidth = function(width) {
 };
 
 /**
- * quantize a number according to step and clamp to range
- * wraparound if cyclic, and quantize
+ * wraparound if cyclic
+ * quantize a number according to step, with minValue as basis 
+ * clamp to range
  * @method NumberButton#quantizeClamp
  * @param {float} x
  * @return float, quantized x
  */
 NumberButton.prototype.quantizeClamp = function(x) {
     if (this.cyclic) {
-        // wraparound
+        // wraparound, minValue as basis
         x -= this.minValue;
         const d = this.maxValue - this.minValue;
         x = x - d * Math.floor(x / d);
         x += this.minValue;
     }
-    // quantize and clamp
-    x = Math.max(this.minValue, Math.min(this.step * Math.round(x / this.step), this.maxValue));
+    // quantize difference to minValue, make that value is larger than min value
+    x = Math.max(x - this.minValue, 0);
+    // multiply with step size and quantize as integer
+    x = Math.round(x * this.stepInvPow10 / this.stepInt);
+    // devide by step size and add to minimum value
+    x = this.minValue + x * this.stepInt / this.stepInvPow10;
+    // make that value is less than max value
+    if (x > this.maxValue) {
+        x = this.maxValue;
+        // attention: the intervall may not be a multiple of the step size
+        // quantize again
+        x = Math.round((x - this.minValue) * this.stepInvPow10 / this.stepInt);
+        // devide by step size and add to minimum value
+        x = this.minValue + x * this.stepInt / this.stepInvPow10;
+        // the result might now be larger than the maxValue, thus
+        if (x > this.maxValue) {
+            x -= this.step;
+        }
+    }
     return x;
 };
 
@@ -291,10 +327,15 @@ NumberButton.prototype.setValue = function(number) {
  */
 NumberButton.prototype.updateValue = function(number) {
     if (guiUtils.isNumber(number)) {
-        number = this.quantizeClamp(number);
         if (this.lastValue !== number) { // does it really change??
-            this.setValue(number); // update numbers before action
-            this.onChange(number);
+            number = this.quantizeClamp(number);
+            // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+            if (this.lastValue !== number) {
+                this.setValue(number); // update numbers before action
+                this.onChange(number);
+            } else {
+                this.setValue(number); // no action   
+            }
         }
     } else {
         this.setValue(this.lastValue); // overwrite garbage, do nothing
@@ -332,26 +373,17 @@ NumberButton.prototype.applyChanges = function() {
  */
 NumberButton.prototype.setStep = function(step) {
     // beware of negative numbers and too small numbers
-    const eps=0.0001;                                           // precision, minimum step size
-    step=Math.max(eps,Math.abs(step));
-    if (step >= 0.9) {
-        // step is larger than 1, has to be integer
-        this.digitsAfterPoint = 0;
-        step=Math.round(step);
-        this.step = step;
-        this.stepInt=step;
-        this.stepInvPow10=1;
-    } else {
-        // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
-        this.digitsAfterPoint = 0;
-        this.stepInvPow10=1;
-        while (step*this.stepInvPow10<0.9 ) {
-            this.stepInvPow10*=10;
-            this.digitsAfterPoint++;
-        }
-         this.step = 1;
-        this.stepInt=Math.round(step*this.stepInvPow10);
-  }
+    const eps = 0.0001; // precision, minimum step size
+    step = Math.max(eps, Math.abs(step));
+    // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
+    this.digitsAfterPoint = 0;
+    this.stepInvPow10 = 1;
+    while (step * this.stepInvPow10 < 0.9) {
+        this.stepInvPow10 *= 10;
+        this.digitsAfterPoint++;
+    }
+    this.stepInt = Math.round(step * this.stepInvPow10);
+    this.step = this.stepInt / this.stepInvPow10;
     this.applyChanges();
 };
 

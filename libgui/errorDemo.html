@@ -25,8 +25,8 @@ const gui = new ParamGui({closed: false}, {
 });
 
 const p={}
-p.n=3
-const nn=gui.add(p,"n",1,10,2)
+p.n=4.011
+const nn=gui.add(p,"n",1,10,2).createMulDivButtons()
 nn.onChange(function(){console.log(p)})
 console.log(nn)
 
