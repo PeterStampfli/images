@@ -121,9 +121,36 @@ NumberButton.isNumberButton = function(thing) {
 };
 
 /**
+ * change/set precision of numbers
+ * we are using fixed point numbers
+ * NumberButton.eps(ilon)<1 defines the base precision, it is the smallest step size you can use, and the smallest number
+ * if you change eps, you might have to increase the width of the text field
+ * use NumberButton#setInputWidth
+ * NumberButton.inverseEps the integer power of 10 that is close to 1/eps
+ * all numbers multiplied with this power are essentially integers (still rounding required)
+ * for more details see NumberButton#setStep
+ * @method numberButton.setPrecision
+ * @param {float} eps
+ */
+NumberButton.setPrecision = function(eps) {
+    NumberButton.eps = Math.min(1, Math.abs(eps));
+    if (NumberButton.eps < 0.0000000001) {
+        console.error("NumberButton.setPrecision: eps is too small, it is " + eps);
+    }
+    // get the integer power of ten matching 1/eps
+    // any number multiplied with this power should be an integer 
+    // (except for errors due to binary representation, thus do rounding)
+    NumberButton.inverseEps = Math.pow(10, Math.round(-Math.log10(NumberButton.eps)));
+};
+
+// default value
+NumberButton.setPrecision(0.0001);
+
+/**
  * find step suitable to given value
  * it is always a negative power of ten, or 1 for integers
- * multiplying the value with the inverse step makes that it is nearly an integer
+ * it corresponds to the fixed point position of the last nonzero digit greater than 1
+ * multiplying the value with the inverse of the step makes that it is nearly an integer
  * @method NumberButton.findStep
  * @param {number} value
  * @return a suitable step size, return undefined if value is undefined
@@ -133,11 +160,11 @@ NumberButton.findStep = function(value) {
         if (guiUtils.isInteger(value)) {
             return 1;
         } else {
-            const eps = 0.00001; // precision,max number of digits
+            const eps = NumberButton.eps; // precision,max number of digits
             value = Math.max(Math.abs(value), 2 * eps);
             let step = 0.1;
             let valueDivStep = value / step;
-            while (Math.abs(Math.round(valueDivStep) - valueDivStep) > eps) {
+            while (Math.abs(Math.round(valueDivStep) - valueDivStep) > 0.9 * eps) {
                 step *= 0.1;
                 valueDivStep = value / step;
             }
@@ -238,6 +265,7 @@ NumberButton.prototype.setInputWidth = function(width) {
 /**
  * wraparound if cyclic
  * quantize a number according to step, with minValue as basis 
+ * see NumberButton#setStep and note that step = this.stepInt / NumberButton.inverseEps;
  * clamp to range
  * @method NumberButton#quantizeClamp
  * @param {float} x
@@ -254,17 +282,17 @@ NumberButton.prototype.quantizeClamp = function(x) {
     // quantize difference to minValue, make that value is larger than min value
     x = Math.max(x - this.minValue, 0);
     // multiply with step size and quantize as integer
-    x = Math.round(x * this.stepInvPow10 / this.stepInt);
+    x = Math.round(x * NumberButton.inverseEps / this.stepInt);
     // devide by step size and add to minimum value
-    x = this.minValue + x * this.stepInt / this.stepInvPow10;
+    x = this.minValue + x * this.stepInt / NumberButton.inverseEps;
     // make that value is less than max value
     if (x > this.maxValue) {
         x = this.maxValue;
         // attention: the intervall may not be a multiple of the step size
         // quantize again
-        x = Math.round((x - this.minValue) * this.stepInvPow10 / this.stepInt);
+        x = Math.round((x - this.minValue) * NumberButton.inverseEps / this.stepInt);
         // devide by step size and add to minimum value
-        x = this.minValue + x * this.stepInt / this.stepInvPow10;
+        x = this.minValue + x * this.stepInt / NumberButton.inverseEps;
         // the result might now be larger than the maxValue, thus
         if (x > this.maxValue) {
             x -= this.step;
@@ -364,8 +392,8 @@ NumberButton.prototype.applyChanges = function() {
  * set minimum step size for numbers ("quantization")
  * note problem for step sizes smaller than one: not exactly represented with floating point numbers
  * thus, this.step is not accurate, instead use "decimal" representation
- * this.stepInt is an integer and this.stepInvPow10 is a power of ten, 
- * then this.step==this.stepInt/this.stepInvPow10 without error due to finite precision
+ * this.stepInt is an integer and NumberButton.inverseEps is a power of ten, 
+ * then this.step==this.stepInt/NumberButton.inverseEps without error due to finite precision
  * if this.step>=1, then this.stepInvPow=1
  * this.digitsAfterPoint is number of digits after decimal point, used for converting number to string
  * @method NumberButton#setStep
@@ -373,17 +401,19 @@ NumberButton.prototype.applyChanges = function() {
  */
 NumberButton.prototype.setStep = function(step) {
     // beware of negative numbers and too small numbers
-    const eps = 0.0001; // precision, minimum step size
+    const eps = NumberButton.eps; // precision, minimum step size
     step = Math.max(eps, Math.abs(step));
     // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
     this.digitsAfterPoint = 0;
-    this.stepInvPow10 = 1;
-    while (step * this.stepInvPow10 < 0.9) {
-        this.stepInvPow10 *= 10;
-        this.digitsAfterPoint++;
+    this.stepInt = Math.round(step * NumberButton.inverseEps);
+    this.step = this.stepInt / NumberButton.inverseEps;
+    this.digitsAfterPoint = 0;
+    // number of digits results from the power of ten times the step giving nearly an integer
+    let stepPower10 = this.step;
+    while (Math.abs(Math.round(stepPower10) - stepPower10) > eps * stepPower10) {
+        this.digitsAfterPoint += 1;
+        stepPower10 *= 10;
     }
-    this.stepInt = Math.round(step * this.stepInvPow10);
-    this.step = this.stepInt / this.stepInvPow10;
     this.applyChanges();
 };
 
