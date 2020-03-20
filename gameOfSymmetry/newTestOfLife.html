@@ -16,29 +16,36 @@
 
 <script type="module">
 import {
-    Life
+    lifeShowSquareRGB
 }
-from "./gosModules.js"
+from "./lifeShowSquareRGB.js"
 
 import {
-    ParamGui,guiUtils
+    ParamGui,guiUtils,output
 }
 from "../libgui/modules.js";
 
 
-const life=new Life();
-const gui = new ParamGui({}, {name: "life - controls"});
+const gui = new ParamGui({}, {name: "life - controls",closed: false});
 
-Life.setLogger(gui.addLogger());
-Life.log("hello")
 
-gui.createOutputDiv();
+output.createCanvas(gui,false);     // square canvas
 
-// now create the canvas
+output.canvas.style.backgroundColor="lightBlue";
 
-// background for debugging
+lifeShowSquareRGB.init(gui,output.canvas);
 
-// resizing
+lifeShowSquareRGB.hideUI();
+lifeShowSquareRGB.showUI();
+
+lifeShowSquareRGB.setNumberOfStates(3)
+
+const world=[];
+world.length=25;
+for (var i=0;i<25;i++){
+	world[i]=i;
+}
+console.log(world)
 
 </script>
 
