@@ -43,9 +43,15 @@ lifeShowSquareRGB.setNumberOfStates(3)
 const world=[];
 world.length=25;
 for (var i=0;i<25;i++){
-	world[i]=i;
+	world[i]=i%3;
 }
 console.log(world)
+lifeShowSquareRGB.inputGeneration(world)
+for (var i=0;i<25;i++){
+	world[i]=2*i%3;
+}
+console.log(world)
+lifeShowSquareRGB.inputGeneration(world)
 
 </script>
 
