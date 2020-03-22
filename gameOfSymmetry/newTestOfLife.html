@@ -34,6 +34,7 @@ output.createCanvas(gui,false);     // square canvas
 output.canvas.style.backgroundColor="lightBlue";
 
 lifeShowSquareRGB.init(gui,output.canvas);
+output.draw=lifeShowSquareRGB.draw;
 
 lifeShowSquareRGB.hideUI();
 lifeShowSquareRGB.showUI();
