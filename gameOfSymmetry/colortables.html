@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>colortables</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type="module">
+import {
+    ParamGui,
+    guiUtils,
+    output
+}
+from "../libgui/modules.js";
+
+
+const gui = new ParamGui({}, {
+    name: "life - controls",
+    closed: false
+});
+
+
+output.createCanvas(gui, true);
+
+output.canvas.style.backgroundColor = "lightBlue";
+
+// making color tables
+// defined by function (x) x=0...1
+// sets color.green .red .blue 
+
+output.draw = function() {
+    const canvas = output.canvas;
+    const canvasContext = canvas.getContext("2d");
+    const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+    const pixels = imageData.data;
+    let pixelIndex = 0;
+    const height = canvas.height;
+    const width = canvas.width;
+    console.log(canvas.width)
+    console.log(canvas.height)
+    const color = {};
+    for (var jCanvas = 0; jCanvas < height; jCanvas++) {
+        for (var iCanvas = 0; iCanvas < width; iCanvas++) {
+            const x = iCanvas / width;
+            generate(color, x);
+            pixels[pixelIndex] =Math.min(255,Math.max(0, Math.floor(255.9*color.red)));
+            pixels[pixelIndex + 1] = Math.min(255,Math.max(0,Math.floor(255.9*color.green)));
+            pixels[pixelIndex + 2] = Math.min(255,Math.max(0,Math.floor(255.9*color.blue)));
+            pixels[pixelIndex + 3] = 255;
+            pixelIndex += 4;
+        }
+    }
+    canvasContext.putImageData(imageData, 0, 0);
+}
+
+
+function greys(color,x){
+	color.red=x;
+	color.green=x;
+	color.blue=x;
+}
+
+function what(color,x){
+	color.red=Math.sqrt(x);
+	color.green=x*x;
+	const xs=x*x*x*x*x*x
+	color.blue=3*x*(1-x)+xs*xs;
+}
+
+function up(x,xa,xb){
+	return (x-xa)/(xb-xa);
+}
+
+function down(x,xa,xb){
+	return (xb-x)/(xb-xa);
+}
+
+function blackBlueRedYellow(color,x){
+	const xBlue=0.2;
+	const xRed=0.6;
+
+if (x<xBlue){
+	color.red=0;
+	color.green=0;
+	color.blue=up(x,0,xBlue);
+} else if (x<xRed){
+
+	color.red=up(x,xBlue,xRed);
+	color.green=0;
+	color.blue=down(x,xBlue,xRed);
+
+
+} else {
+	color.red=1;
+	color.green=up(x,xRed,1);
+	color.blue=0;
+}
+}
+
+
+let generate=greys;
+ generate=blackBlueRedYellow;
+ generate=what;
+
+output.draw();
+</script>
+
+
+</html>

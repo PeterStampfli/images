@@ -62,9 +62,11 @@ lifeShowSquareRGB.init = function(theGui, theCanvas) {
         'greyBlockPixels': greyBlock,
         'greyLinearInterpolation': greyLinearContinuous,
         'greyLinearInterpolationQuantized': greyLinearQuantized,
-        'greyCubicInterpolation': greyCubic,
+        'greyCubicInterpolation': greyCubicContinuous,
+        'greyCubicInterpolationQuantized': greyCubicQuantized,
         'colorBlockPixels': colorBlock,
-        'colorLinearInterpolation': colorLinear,
+        'colorLinearInterpolation': colorLinearContinuous,
+        'colorLinearInterpolationQuantized': colorLinearQuantized,
         'colorCubicInterpolation': colorCubic
     };
     uiController = gui.add({
@@ -300,8 +302,81 @@ function greyLinearQuantized() {
 
 function colorLinear() {
     console.log('drawing color linear interpolation');
+    const canvasSize = Math.min(canvas.height, canvas.width);
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    const d = imageSize / canvasSize; // from pixel indices to image coordinates
+    const imageData = canvasContext.getImageData(0, 0, canvasSize, canvasSize);
+    const pixels = imageData.data;
+    const factor = 255.9 / (nStates - 1);
+    // interpolation:
+    // x and y are image coordinates
+    // in one direction only: cell 0 has center at 0.5, cell 1 at 1.5, thus
+    // x (or y) between 0.5/size and 1.5/size interpolates between cells 0 and 1, (iHigh=1 and iLow=0) and so on
+    // x between imageSize-1.5 and imageSize-0.5 interpolates between cells imageSize-2 and imageSize-1
+    // use periodic boundary condition
+    // x close to imageSize: interpolation between cell imageSize-1 and cell 0==imageSize
+    let pixelIndex = 0;
+    let y = 0;
+    for (var jCanvas = 0; jCanvas < canvasSize; jCanvas++) {
+        let x = 0;
+        let jHigh = Math.round(y); // always 0 <= jHigh <= imageSize
+        let jLow = jHigh - 1; // always -1 <=jLow <= imageSize-1
+        const dy = y - jLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+        if (jHigh === imageSize) {
+            jHigh = 0; // periodic
+        }
+        if (jLow < 0) {
+            jLow = imageSize - 1; // periodic
+        }
+        // multply with row length to get column indices
+        jHigh *= imageSize;
+        jLow *= imageSize;
+        for (var iCanvas = 0; iCanvas < canvasSize; iCanvas++) {
+            // essentially the same as jHigh and jLow
+            let iHigh = Math.round(x);
+            let iLow = iHigh - 1;
+            const dx = x - iLow - 0.5; // element with index 0 lies at 0.5 (scaled), shift of cell centers
+            if (iHigh === imageSize) {
+                iHigh = 0;
+            }
+            if (iLow < 0) {
+                iLow = imageSize - 1;
+            }
+            let r = (1 - dx) * ((1 - dy) * red[iLow + jLow] + dy * red[iLow + jHigh]);
+            r += dx * ((1 - dy) * red[iHigh + jLow] + dy * red[iHigh + jHigh]);
+            let g = (1 - dx) * ((1 - dy) * green[iLow + jLow] + dy * green[iLow + jHigh]);
+            g += dx * ((1 - dy) * green[iHigh + jLow] + dy * green[iHigh + jHigh]);
+            let b = (1 - dx) * ((1 - dy) * blue[iLow + jLow] + dy * blue[iLow + jHigh]);
+            b += dx * ((1 - dy) * blue[iHigh + jLow] + dy * blue[iHigh + jHigh]);
+            if (quantize) {
+                g = Math.floor(quantFactor * g);
+                r = Math.floor(quantFactor * r);
+                b = Math.floor(quantFactor * b);
+            }
+            r = Math.floor(factor * r);
+            g = Math.floor(factor * g);
+            b = Math.floor(factor * b);
+            pixels[pixelIndex] = r;
+            pixels[pixelIndex + 1] = g;
+            pixels[pixelIndex + 2] = b;
+            pixels[pixelIndex + 3] = 255;
+            pixelIndex += 4;
+            x += d;
+        }
+        y += d;
+    }
+    canvasContext.putImageData(imageData, 0, 0);
 }
 
+function colorLinearContinuous() {
+    quantize = false;
+    colorLinear();
+}
+
+function colorLinearQuantized() {
+    quantize = true;
+    colorLinear();
+}
 
 /*
 the interpolation kernel: linear interpolation of the kernel is much slower, the arrow function form is slightly slower
@@ -386,7 +461,9 @@ function greyCubic() {
             grey += weightXHigh * (weightYLower * green[iHigh + jLower] + weightYLow * green[iHigh + jLow] + weightYHigh * green[iHigh + jHigh] + weightYHigher * green[iHigh + jHigher]);
             grey += weightXHigher * (weightYLower * green[iHigher + jLower] + weightYLow * green[iHigher + jLow] + weightYHigh * green[iHigher + jHigh] + weightYHigher * green[iHigher + jHigher]);
             grey = Math.max(0, Math.min(nStates - 1, grey)); // beware of negative values
-            grey = Math.floor(grey * (nStates - 0.00001) / (nStates - 1));
+            if (quantize) {
+                grey = Math.floor(quantFactor * grey);
+            }
             grey = Math.floor(factor * grey);
             pixels[pixelIndex] = grey;
             pixels[pixelIndex + 1] = grey;
@@ -398,6 +475,16 @@ function greyCubic() {
         y += d;
     }
     canvasContext.putImageData(imageData, 0, 0);
+}
+
+function greyCubicContinuous() {
+    quantize = false;
+    greyCubic();
+}
+
+function greyCubicQuantized() {
+    quantize = true;
+    greyCubic();
 }
 
 function colorCubic() {
