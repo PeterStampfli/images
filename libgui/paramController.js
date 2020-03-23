@@ -1,3 +1,4 @@
+/* jshint esversion: 6 */
 import {
     guiUtils,
     BooleanButton,
@@ -610,6 +611,20 @@ ParamController.prototype.hide = function() {
  */
 ParamController.prototype.show = function() {
     this.domElement.style.display = "block";
+    return this;
+};
+
+/**
+ * set if controller is active
+ * @method ParamController#setActive
+ * @param {boolean} isActive
+ */
+ParamController.prototype.setActive = function(isActive) {
+    if (this.uiElement) {
+        this.uiElement.setActive(isActive);
+    } else {
+        console.error('Controller.setActive: There is no ui element because of unknown controller type "' + this.type + '".');
+    }
     return this;
 };
 

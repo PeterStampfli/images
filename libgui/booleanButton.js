@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * representing a switch button with on/off True/false states and adding actions, can use any html element
  *
@@ -38,16 +40,17 @@ export function BooleanButton(parent) {
      * @method BooleanButton#onInteraction
      */
     this.onInteraction = function() {
-        console.log("range Interaction");
+        console.log("booleanButton Interaction");
     };
 
     // a list of actions....
 
     var button = this;
-
-    this.element.onchange = function() {
-        button.onChange();
-    };
+    /*
+        this.element.onchange = function() {
+            button.onChange();
+        };
+        */
 
     this.element.onmousedown = function() {
         button.value = !button.value;
@@ -89,7 +92,7 @@ BooleanButton.backgroundColorOffHover = "#ff0000";
 BooleanButton.backgroundColorOff = "#ff8888";
 // for switched off
 BooleanButton.colorInactive = "black";
-BooleanButton.backgroundColorInactive = "#aaaaaa";
+BooleanButton.backgroundColorInactive = "#cccccc";
 
 /**
  * setup the color styles defaults
@@ -116,9 +119,13 @@ BooleanButton.prototype.colorStyleDefaults = function() {
  * @method BooleanButton#updateStyle
  */
 BooleanButton.prototype.updateStyle = function() {
+    if (this.value) {
+        this.element.textContent = this.textOn;
+    } else {
+        this.element.textContent = this.textOff;
+    }
     if (this.active) {
         if (this.value) {
-            this.element.textContent = this.textOn;
             if (this.hover) {
                 guiUtils.style(this.element)
                     .color(this.colorOnHover)
@@ -129,7 +136,6 @@ BooleanButton.prototype.updateStyle = function() {
                     .backgroundColor(this.backgroundColorOn);
             }
         } else {
-            this.element.textContent = this.textOff;
             if (this.hover) {
                 guiUtils.style(this.element)
                     .color(this.colorOffHover)
@@ -141,7 +147,6 @@ BooleanButton.prototype.updateStyle = function() {
             }
         }
     } else {
-        this.element.textContent = "-";
         guiUtils.style(this.element)
             .color(this.colorInactive)
             .backgroundColor(this.backgroundColorInactive);
@@ -164,6 +169,23 @@ BooleanButton.prototype.setFontSize = function(size) {
  */
 BooleanButton.prototype.setWidth = function(width) {
     this.element.style.width = width + "px";
+};
+
+/**
+ * set if button is active
+ * @method BooleanButton#setActive
+ * @param {boolean} isActive
+ */
+BooleanButton.prototype.setActive = function(isActive) {
+    this.active = isActive;
+    this.element.disabled = !isActive;
+    if (isActive) {
+        this.element.style.cursor = "pointer";
+    } else {
+        this.element.style.cursor = "default";
+        this.hover = false;
+    }
+    this.updateStyle();
 };
 
 /**

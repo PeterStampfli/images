@@ -30,6 +30,23 @@ const nn=gui.add(p,"n",1,1000,0.5).createMulDivButtons()
 nn.onChange(function(){console.log(p)})
 console.log(nn)
 
+const con=gui.add({
+	type:"button",
+	buttonText:"click me",
+	onChange:function(){console.log("hallo")}
+})
+
+con.setActive(false)
+con.setActive(true)
+
+const bb=gui.add({
+	type: 'boolean',
+	initialValue: false,
+	onChange: function(value){console.log(value); bb.setActive(value)}
+})
+
+bb.setActive(false);
+bb.setActive(true);
 </script>
 
 </html>

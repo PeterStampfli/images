@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a text button 
  * simple push button
@@ -103,7 +105,7 @@ Button.backgroundColorDownHover = "#ffff44";
 Button.backgroundColorDown = "#ffff88";
 // for switched off
 Button.colorInactive = "black";
-Button.backgroundColorInactive = "#aaaaaa";
+Button.backgroundColorInactive = "#cccccc";
 
 /**
  * update the color style of the element depending on whether its pressed or hovered
