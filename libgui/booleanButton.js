@@ -8,7 +8,8 @@
  */
 
 import {
-    guiUtils
+    guiUtils,
+    Button
 } from "./modules.js";
 
 export function BooleanButton(parent) {
@@ -46,53 +47,56 @@ export function BooleanButton(parent) {
     // a list of actions....
 
     var button = this;
-    /*
-        this.element.onchange = function() {
-            button.onChange();
-        };
-        */
 
     this.element.onmousedown = function() {
-        button.value = !button.value;
-        button.mouseDown = true;
-        button.onInteraction();
-        button.updateStyle();
+        if (button.active) {
+            button.value = !button.value;
+            button.mouseDown = true;
+            button.onInteraction();
+            button.updateStyle();
+        }
     };
 
     this.element.onmouseup = function() {
-        if (button.mouseDown) {
-            button.mouseDown = false;
-            button.onChange();
+        if (button.active) {
+            if (button.mouseDown) {
+                button.mouseDown = false;
+                button.onChange();
+            }
+            button.element.blur();
+            button.updateStyle();
         }
-        button.element.blur();
-        button.updateStyle();
     };
 
     // hovering
     this.element.onmouseenter = function() {
-        button.hover = true;
-        button.updateStyle();
+        if (button.active) {
+            button.hover = true;
+            button.updateStyle();
+        }
     };
 
     this.element.onmouseleave = function() {
-        button.hover = false;
-        button.element.onmouseup();
+        if (button.active) {
+            button.hover = false;
+            button.element.onmouseup();
+        }
     };
 }
 
 // default colors
-// for active button, depending on hoovering and if it is pressed
-BooleanButton.colorOn = "#444444";
-BooleanButton.colorOnHover = "black";
-BooleanButton.colorOffHover = "black";
-BooleanButton.colorOff = "#444444";
+// for active button, depending on hoovering and if its value is true or false
+BooleanButton.colorOn = Button.colorDown;
+BooleanButton.colorOnHover = Button.colorDownHover;
+BooleanButton.colorOffHover = Button.colorUpHover;
+BooleanButton.colorOff = Button.colorUp;
 BooleanButton.backgroundColorOn = "#88ff88";
 BooleanButton.backgroundColorOnHover = "#00ff00";
 BooleanButton.backgroundColorOffHover = "#ff0000";
 BooleanButton.backgroundColorOff = "#ff8888";
 // for switched off
-BooleanButton.colorInactive = "black";
-BooleanButton.backgroundColorInactive = "#cccccc";
+BooleanButton.colorInactive = Button.colorInactive;
+BooleanButton.backgroundColorInactive = Button.backgroundColorInactive;
 
 /**
  * setup the color styles defaults
@@ -176,17 +180,7 @@ BooleanButton.prototype.setWidth = function(width) {
  * @method BooleanButton#setActive
  * @param {boolean} isActive
  */
-BooleanButton.prototype.setActive = function(isActive) {
-    this.active = isActive;
-    this.element.disabled = !isActive;
-    if (isActive) {
-        this.element.style.cursor = "pointer";
-    } else {
-        this.element.style.cursor = "default";
-        this.hover = false;
-    }
-    this.updateStyle();
-};
+BooleanButton.prototype.setActive = Button.prototype.setActive;
 
 /**
  * get value of booleanButton

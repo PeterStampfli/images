@@ -42,11 +42,29 @@ con.setActive(true)
 const bb=gui.add({
 	type: 'boolean',
 	initialValue: false,
-	onChange: function(value){console.log(value); bb.setActive(value)}
+	onChange: function(value){console.log(value); tt.setActive(value)}
 })
 
 bb.setActive(false);
 bb.setActive(true);
+
+const tt=gui.add({
+	type: 'text',
+	initialValue: 'blabal',
+	onChange: function(value){console.log(value); }
+})
+
+tt.setActive(false)
+
+const s=gui.add({
+	type: 'selection',
+	options:['aa','bana','dasda'],
+	initialValue: 'bana',
+	onChange: function(value){console.log(value); }
+})
+
+s.setActive(false)
+s.setActive(true)
 </script>
 
 </html>

@@ -25,7 +25,7 @@ export function Button(text, parent) {
     // states
     this.pressed = false;
     this.hover = false;
-    this.active = true; // allows switching off
+    this.active = true; 
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.disabled = false;

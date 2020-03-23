@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * selecting a choice of names, use the corresponding index for further work
  * @constructor Select
@@ -16,6 +18,7 @@ export function Select(parent) {
         .cursor("pointer")
         .parent(parent);
     this.hover = false;
+    this.active = true;
     this.colorStyleDefaults();
     this.updateStyle();
     this.nOptions = 0;
@@ -47,18 +50,24 @@ export function Select(parent) {
 
     // hovering
     this.element.onmouseenter = function() {
-        select.hover = true;
-        select.element.focus(); // to be able to use mousewheel
-        select.updateStyle();
+        if (select.active) {
+            select.hover = true;
+            select.element.focus(); // to be able to use mousewheel
+            select.updateStyle();
+        }
     };
 
     this.element.onmouseleave = function() {
-        select.hover = false;
-        select.updateStyle();
+        if (select.active) {
+            select.hover = false;
+            select.updateStyle();
+        }
     };
 
     function interaction() {
-        select.onInteraction();
+        if (select.active) {
+            select.onInteraction();
+        }
     }
 
     this.element.addEventListener("mousedown", interaction, false);
@@ -73,14 +82,17 @@ export function Select(parent) {
     this.element.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        select.onInteraction();
-        if (event.deltaY > 0) {
-            select.changeIndex(1);
-        } else {
-            select.changeIndex(-1);
+        if (select.active) {
+            select.onInteraction();
+            if (event.deltaY > 0) {
+                select.changeIndex(1);
+            } else {
+                select.changeIndex(-1);
+            }
         }
         return false;
     };
+
 }
 
 /**
@@ -89,14 +101,20 @@ export function Select(parent) {
  * @method Select#updateStyle
  */
 Select.prototype.updateStyle = function() {
-    if (this.hover) {
-        guiUtils.style(this.element)
-            .color(this.colorUpHover)
-            .backgroundColor(this.backgroundColorUpHover);
+    if (this.active) {
+        if (this.hover) {
+            guiUtils.style(this.element)
+                .color(this.colorUpHover)
+                .backgroundColor(this.backgroundColorUpHover);
+        } else {
+            guiUtils.style(this.element)
+                .color(this.colorUp)
+                .backgroundColor(this.backgroundColorUp);
+        }
     } else {
         guiUtils.style(this.element)
-            .color(this.colorUp)
-            .backgroundColor(this.backgroundColorUp);
+            .color(this.colorInactive)
+            .backgroundColor(this.backgroundColorInactive);
     }
 };
 
@@ -114,6 +132,8 @@ Select.prototype.colorStyleDefaults = function() {
     this.backgroundColorUpHover = Button.backgroundColorUpHover;
     this.backgroundColorDownHover = Button.backgroundColorDownHover;
     this.backgroundColorDown = Button.backgroundColorDown;
+    this.colorInactive = Button.colorInactive;
+    this.backgroundColorInactive = Button.backgroundColorInactive;
 };
 
 /**
@@ -124,6 +144,13 @@ Select.prototype.colorStyleDefaults = function() {
 Select.prototype.setFontSize = function(size) {
     this.element.style.fontSize = size + "px";
 };
+
+/**
+ * set if button is active
+ * @method Select#setActive
+ * @param {boolean} isActive
+ */
+Select.prototype.setActive = Button.prototype.setActive;
 
 /**
  * add options from simple variables, arrays (final elements are simple), objects (takes the keys)
