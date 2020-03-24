@@ -221,6 +221,8 @@ export function ParamController(gui, domElement, args) {
                 }
                 if (guiUtils.isNumber(args.stepSize)) {
                     numberButton.setStep(args.stepSize);
+                } else if (guiUtils.isNumber(args.step)) {
+                    numberButton.setStep(args.step);
                 } else {
                     numberButton.setStep(NumberButton.findStep(this.initialValue));
                 }

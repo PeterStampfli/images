@@ -768,18 +768,18 @@ NumberButton.prototype.createRange = function(parent) {
 
         this.range.onkeydown = function() {
             if (this.active) {
-            button.onInteraction();
-        }
+                button.onInteraction();
+            }
         };
         this.range.onmousedown = function() {
-             if (this.active) {
-           button.onInteraction();
-       }
+            if (this.active) {
+                button.onInteraction();
+            }
         };
         this.range.onwheel = function() {
             if (this.active) {
-            button.onInteraction();
-        }
+                button.onInteraction();
+            }
         };
     }
     return this.range;

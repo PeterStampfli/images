@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>abyss</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    InstantHelp,
+    output
+}
+from "./modules.js";
+const gui = new ParamGui({
+    closed: false
+}, {
+    name: "abyss controls"
+});
+
+output.createCanvas(gui);
+const canvas = output.canvas;
+const canvasContext = canvas.getContext("2d");
+
+const abyss={};
+abyss.redStart=200;
+abyss.blueStart=200;
+abyss.greenStart=200;
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'redStart',
+	min: 0,
+	max:255,
+	onChange: draw
+})
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'greenStart',
+	min: 0,
+	max:255,
+	onChange: draw
+})
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'blueStart',
+	min: 0,
+	max:255,
+	onChange: draw
+})
+
+abyss.redFlu=70;
+abyss.redBas=50;
+
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'redFlu',
+	min: 0,
+	max:1000,
+	step:2,
+	onChange: draw
+})
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'redBas',
+	min: 0,
+	max:1000,
+	stepSize:0.1,
+	onChange: draw
+})
+
+abyss.r1=70.1;
+abyss.r2=10;
+abyss.r3=10;
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'r1',
+	min: 0,
+	max:1000,
+	step:0.1,
+	onChange: draw
+})
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'r2',
+	min: 0,
+	max:1000,
+	step:0.1,
+	onChange: draw
+})
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'r3',
+	min: 0,
+	max:1000,
+	step:0.1,
+	onChange: draw
+})
+abyss.rMin=0.5;
+
+gui.add({
+	type:'number',
+	params: abyss,
+	property: 'rMin',
+	min: 0,
+	max:2,
+	step:0.01,
+	onChange: draw
+})
+
+function draw() {
+    const height = canvas.height;
+    const width = canvas.width;
+    const imageData = canvasContext.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+
+
+    for (var i = 0; i < width; i++) {
+        let index = 4*i;
+        let red = abyss.redStart;
+        let green = abyss.greenStart;
+        let blue = abyss.blueStart;
+        red=0
+        green=0
+let r1=1-Math.random()*abyss.r1/10000-abyss.rMin/100;
+
+//r1=0.995
+        for (var j = 0; j < height; j++) {
+            red -= 1;
+            green -= i / 100;
+            blue*=r1
+            pixels[index] = Math.floor(red);
+            pixels[index + 1] = Math.floor(green);
+            pixels[index + 2] = Math.floor(blue);
+            pixels[index + 3] = 255;
+
+            index += 4*width;
+        }
+
+    }
+
+    canvasContext.putImageData(imageData, 0, 0);
+
+}
+
+output.draw=draw;
+
+draw();
+</script>
+
+</html>
