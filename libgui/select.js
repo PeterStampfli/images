@@ -122,19 +122,7 @@ Select.prototype.updateStyle = function() {
  * setup the color styles defaults, use for other buttons too
  * @method Select#colorStyleDefaults
  */
-Select.prototype.colorStyleDefaults = function() {
-    // can customize colors, preset defaults
-    this.colorUp = Button.colorUp;
-    this.colorUpHover = Button.colorUpHover;
-    this.colorDownHover = Button.colorDownHover;
-    this.colorDown = Button.colorDown;
-    this.backgroundColorUp = Button.backgroundColorUp;
-    this.backgroundColorUpHover = Button.backgroundColorUpHover;
-    this.backgroundColorDownHover = Button.backgroundColorDownHover;
-    this.backgroundColorDown = Button.backgroundColorDown;
-    this.colorInactive = Button.colorInactive;
-    this.backgroundColorInactive = Button.backgroundColorInactive;
-};
+Select.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults ;
 
 /**
  * set fontsize of the button, in px

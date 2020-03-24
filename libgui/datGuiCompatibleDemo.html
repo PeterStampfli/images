@@ -44,6 +44,10 @@ gui.addParagraph("You can add an indicator in the background.");
 parameters.indi = 1;
 gui.add(parameters, "indi", 0, 10, 0.01)
     .createIndicatorMain();
+
+gui.changeDesign({
+    usePopup: false
+});
 parameters.plusMin = 2;
 gui.add(parameters, "plusMin", -2, 12)
     .createPlusMinusButtons()
@@ -52,7 +56,7 @@ gui.add(parameters, "plusMin", -2, 12)
 
 gui.addParagraph("The additional buttons can go to a popup, appears when changing the number.");
 gui.changeDesign({
-    popupForNumberController: true
+    usePopup: true
 });
 parameters.pop = 1;
 gui.add(parameters, "pop", 1)

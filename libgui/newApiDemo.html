@@ -55,6 +55,9 @@ gui.add({
         stepSize: 0.01
     })
     .createIndicatorMain();
+gui.changeDesign({
+    usePopup: false
+});
 parameters.plusMin = 2;
 gui.add({
         type: "number",
@@ -68,7 +71,7 @@ gui.add({
     .createMaxMinButtons();
 gui.addParagraph("The additional buttons can go to a popup, appears when changing the number.");
 gui.changeDesign({
-    popupForNumberController: true
+    usePopup: true
 });
 gui.addParagraph("No parameter object together with property string required. A callback can be added directly.");
 const popController = gui.add({

@@ -13,9 +13,6 @@ import {
     InstantHelp
 } from "./modules.js";
 
-// note: a line with several ui elements is similar to a folder
-// it has its own design style with design.popupForNumberController=true
-
 /**
  * a controller for a simple parameter
  * inside a given container, using given design

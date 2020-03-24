@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * representing an HTML selection for selecting values as selection name/value pairs
  * choices are either a simple array that determines names of selections and their values

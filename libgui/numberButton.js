@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a button to input numbers,
  *
@@ -24,7 +26,7 @@ export function NumberButton(parent) {
     this.addButtons = [];
     this.range = false;
     this.hover = false;
-    this.pressed = false;
+    this.pressed = false; // corresponds to focus
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = 0;
@@ -65,13 +67,17 @@ export function NumberButton(parent) {
     };
 
     this.input.onmousedown = function() {
-        button.onInteraction();
+        if (button.active) {
+            button.onInteraction();
+        }
     };
 
     // onfocus /onblur corresponds to pressed
     this.input.onfocus = function() {
-        button.pressed = true;
-        button.updateStyle();
+        if (button.active) {
+            button.pressed = true;
+            button.updateStyle();
+        }
     };
 
     this.input.onblur = function() {
@@ -81,19 +87,23 @@ export function NumberButton(parent) {
 
     // hovering
     this.input.onmouseenter = function() {
-        button.hover = true;
-        button.updateStyle();
+        if (button.active) {
+            button.hover = true;
+            button.updateStyle();
+        }
     };
 
     this.input.onmouseleave = function() {
-        button.hover = false;
-        button.updateStyle();
+        if (button.active) {
+            button.hover = false;
+            button.updateStyle();
+        }
     };
 
     this.input.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        if (button.pressed) {
+        if (button.pressed && button.active) {
             button.changeDigit(-event.deltaY);
         }
         return false;
@@ -101,7 +111,7 @@ export function NumberButton(parent) {
 
     this.input.onkeydown = function(event) {
         let key = event.key;
-        if (button.pressed) {
+        if (button.pressed && button.active) {
             if (key === "ArrowDown") {
                 button.changeDigit(-1);
                 event.preventDefault();
@@ -221,6 +231,27 @@ NumberButton.prototype.updateStyle = function() {
  * @method NumberButton#colorStyleDefaults
  */
 NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
+
+
+/**
+ * set if button is active
+ * @method NumberButton#setActive
+ * @param {boolean} isActive
+ */
+NumberButton.prototype.setActive = function(isActive) {
+    this.active = isActive;
+    this.input.disabled = !isActive;
+    this.addButtons.forEach(button => button.setActive(isActive));
+    if (isActive) {
+        this.input.style.cursor = "pointer";
+    } else {
+        this.input.style.cursor = "default";
+        this.pressed = false;
+        this.hover = false;
+    }
+    this.updateStyle();
+};
+
 
 /**
  * switch on the indicator, set its element (it's the background) , adjust to current value

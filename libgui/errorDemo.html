@@ -25,11 +25,12 @@ const gui = new ParamGui({closed: false}, {
 });
 
 const p={}
-p.n=4.011
+p.n=4.0
 const nn=gui.add(p,"n",1,1000,0.5).createMulDivButtons()
 nn.onChange(function(){console.log(p)})
-console.log(nn)
 
+
+nn.setActive(false)
 const con=gui.add({
 	type:"button",
 	buttonText:"click me",
@@ -64,7 +65,22 @@ const s=gui.add({
 })
 
 s.setActive(false)
-s.setActive(true)
+gui.changeDesign({
+    usePopup: false
+});
+
+const n2=gui.add({
+	type: 'number',
+	min:0,
+	max:100,
+	initialValue:2
+})
+n2.createPlusMinusButtons().createSmallRange()
+
+n2.setActive(false)
+//n2.setActive(true)
+
+//s.setActive(true)
 </script>
 
 </html>
