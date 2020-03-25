@@ -426,21 +426,28 @@ ParamController.prototype.setupOnChange = function() {
  * @param {float/integer} step - determines step size (optional)
  */
 ParamController.prototype.add = function(theParams, theProperty, low, high, step) {
-    let args = false;
-    if (arguments.length === 1) {
+    var args;
+    if ((arguments.length === 1) && (guiUtils.isObject(theParams))) {
         args = theParams;
+    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
+        // the first two parameters are objects, combine them into a new parameter object
+        args = {};
+        Object.assign(args, theParams);
+        Object.assign(args, theProperty);
+        if (ParamGui.logConversion) {
+            console.log("parameter object resulting from combination:");
+            console.log(args);
+        }
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    }
-    let controller = false;
-    if (args) {
-        controller = new ParamController(this.gui, this.domElement, args);
     } else {
         const message = document.createElement("span");
-        message.innerHTML = "&nbsp DatGui-style parameters are not ok";
-        console.error("no controller generated because DatGui-style parameters are not ok");
+        message.innerHTML = "&nbsp parameters are not ok";
+        console.error("no controller generated because parameters are not ok");
         this.domElement.appendChild(message);
+        return false;
     }
+    const controller = new ParamController(this.gui, this.domElement, args);
     return controller;
 };
 
@@ -451,23 +458,7 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
  * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
  * @return {ParamController} object
  */
-ParamController.prototype.addColor = function(theParams, theProperty) {
-    let args = false;
-    if (arguments.length === 1) {
-        args = theParams; // the new version
-    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        console.log("ParamController#addColor: generating an argument object from datGui-style parameters");
-        args = {
-            params: theParams,
-            property: theProperty,
-            type: "color"
-        };
-        console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
-        console.log(args);
-    }
-    let controller = this.add(args);
-    return controller;
-};
+ParamController.prototype.addColor = ParamGui.prototype.addColor;
 
 /**
  * add a help alert

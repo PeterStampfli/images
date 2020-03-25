@@ -70,18 +70,24 @@ gui.changeDesign({
     usePopup: false
 });
 
-const n2=gui.add({
+const args={
 	type: 'number',
 	min:0,
 	max:100,
 	initialValue:2
-})
+}
+const n2=gui.add(args)
 n2.createPlusMinusButtons().createSmallRange()
 
 n2.setActive(false)
 n2.setActive(true)
 
+const n3=gui.add(args,{initialValue:3})
+
+
 //s.setActive(true)
+
+
 </script>
 
 </html>

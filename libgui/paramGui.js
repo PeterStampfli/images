@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /*
  * emulator of  https://github.com/dataarts/dat.gui
  * 
@@ -760,13 +762,13 @@ ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 ParamGui.checkParamsProperty = function(theParams, theProperty) {
     let result = true;
     if (!(guiUtils.isObject(theParams) || (guiUtils.isArray(theParams)))) {
-        console.error("datGui-style: the parameter argument is not an object or an array: ");
+        console.error("add controller: the parameter argument is not an object or an array: ");
         console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
         console.log("the property argument is: " + theProperty);
         result = false;
     }
     if (!(guiUtils.isString(theProperty) || (guiUtils.isNumber(theProperty)))) {
-        console.error("datGui-style: the property argument is not a string or a number: ");
+        console.error("add controller: the property argument is not a string or a number: ");
         console.log('its value is ' + theProperty + ' of type "' + (typeof theProperty) + '"');
         result = false;
     }
@@ -785,7 +787,7 @@ ParamGui.checkParamsProperty = function(theParams, theProperty) {
  */
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
     if (ParamGui.logConversion) {
-        console.log("Add: Generating an argument object from datGui-style parameters");
+        console.log("Generating an argument object from datGui-style parameters");
     }
     const args = {
         params: theParams,
@@ -832,7 +834,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
     } else {
         // no idea/error
         args.type = "noType";
-        console.error("Add controller: no fitting controller type found for datGui API parameters");
+        console.error("no fitting controller type found for datGui API parameters");
         console.log('property "' + theProperty + '" with parameter value ' + paramValue + " and low " + low);
     }
     if (ParamGui.logConversion) {
@@ -854,7 +856,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * YOU should update any objects that uses the data of controllers after setting up the gui.
  * @method ParamGui#add
  * @param {Object} theParams - object that has the parameter as a field, or an object with all information for the controller, or false for error
- * @param {String} theProperty - key for the field of params to change, params[property]
+ * @param {String|integer|object} theProperty - key for the field of params to change, params[property], or an object with additional information for the controller
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
@@ -877,6 +879,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
 
 /* new arguments object
  *------------------------------------------------------------
+ * use with gui.add(args) or gui.add(args,modifier)
  * args.type - values are strings: "number", "text", "button", "boolean", "selection", "color" or "image", (mandatory), defines type of controller
  * args.params - an object, the controller controls its args.property field (optional)
  * args.property - string, identifier of the parameter (mandatory if there is a args.params object)
@@ -916,54 +919,72 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  * type="color" - see colorInput.js, values is a string of type "#rrggbb" (opaque) or "#rrggbbaa" (with transparency)
  */
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
-    let args = false;
-    if (arguments.length === 1) {
+    // analyze parameters, make an arguments object or return with error message
+    var args;
+    if ((arguments.length === 1) && (guiUtils.isObject(theParams))) {
+        // new style parameters with a single parameter object as there is no property string
+        // use this object directly to make a controller
         args = theParams;
+    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
+        // the first two parameters are objects, combine them into a new parameter object
+        args = {};
+        Object.assign(args, theParams);
+        Object.assign(args, theProperty);
+        if (ParamGui.logConversion) {
+            console.log("parameter object resulting from combination:");
+            console.log(args);
+        }
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    }
-    let controller = false;
-    if (args) {
-        const controllerDomElement = document.createElement("div");
-        // make a regular spacing between elements
-        controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
-        controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
-        controller = new ParamController(this, controllerDomElement, args);
-        this.bodyDiv.appendChild(controllerDomElement);
     } else {
         const message = document.createElement("div");
-        message.innerHTML = "&nbsp DatGui-style parameters are not ok";
-        console.error("no controller generated because DatGui-style parameters are not ok");
+        message.innerHTML = "&nbsp parameters are not ok";
+        console.error("no controller generated because parameters are not ok");
         this.bodyDiv.appendChild(message);
+        return false;
     }
+    const controllerDomElement = document.createElement("div");
+    // make a regular spacing between elements
+    controllerDomElement.style.paddingTop = this.design.paddingVertical + "px";
+    controllerDomElement.style.paddingBottom = this.design.paddingVertical + "px";
+    const controller = new ParamController(this, controllerDomElement, args);
+    this.bodyDiv.appendChild(controllerDomElement);
     return controller;
 };
 
 /**
- * make a controller for color, datGui.js style parameters
+ * make a controller for color, datGui.js style parameters or new style
+ * uses the add method to create the controller
  * @method ParamGui#addColor
  * @param {Object} theParams - object that has the parameter as a field, or argument object that has all data
  * @param {String} theProperty - key for the field of params to change, theParams[theProperty]
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(theParams, theProperty) {
-    let args = false;
+    // check parameters, if needed create an args object with explicit type 'color'
     if (arguments.length === 1) {
-        args = theParams; // the new version
+        return this.add(theParams);
+    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
+        return this.add(theParams, theProperty);
     } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        args = {
+        const args = {
             params: theParams,
             property: theProperty,
             type: "color"
         };
         if (ParamGui.logConversion) {
-            console.log("Paramgui#addColor: generating an argument object from datGui-style parameters");
+            console.log("addColor: generating an argument object from datGui-style parameters");
             console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
             console.log(args);
         }
+        return this.add(args);
+    } else {
+        const message = document.createElement("div");
+        message.innerHTML = "&nbsp parameters are not ok";
+        console.error("no controller generated because parameters are not ok");
+        this.bodyDiv.appendChild(message);
+        return false;
     }
-    let controller = this.add(args);
-    return controller;
 };
 
 /**
