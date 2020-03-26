@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>arguments</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+	import {
+    ParamGui,
+    InstantHelp,
+    output,
+    guiUtils
+}
+from "../libgui/modules.js";
+
+ParamGui.logConversion=true
+function whatever(args){
+	console.log(ParamGui.combineObject(arguments))
+}
+
+whatever({a:2,b:33},{c:345});
+</script>
+
+</html>

@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * utilities for the gui
  * @namespace guiUtils

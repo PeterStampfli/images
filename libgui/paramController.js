@@ -426,26 +426,17 @@ ParamController.prototype.setupOnChange = function() {
  * @param {float/integer} step - determines step size (optional)
  */
 ParamController.prototype.add = function(theParams, theProperty, low, high, step) {
-    var args;
-    if ((arguments.length === 1) && (guiUtils.isObject(theParams))) {
-        args = theParams;
-    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
-        // the first two parameters are objects, combine them into a new parameter object
-        args = {};
-        Object.assign(args, theParams);
-        Object.assign(args, theProperty);
-        if (ParamGui.logConversion) {
-            console.log("parameter object resulting from combination:");
-            console.log(args);
+    var args = ParamGui.combineObject(arguments);
+    if (!guiUtils.isObject(args)) {
+        if (ParamGui.checkParamsProperty(theParams, theProperty)) {
+            args = ParamGui.createArgs(theParams, theProperty, low, high, step);
+        } else {
+            const message = document.createElement("span");
+            message.innerHTML = "&nbsp parameters are not ok";
+            console.error("no controller generated because parameters are not ok");
+            this.domElement.appendChild(message);
+            return false;
         }
-    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    } else {
-        const message = document.createElement("span");
-        message.innerHTML = "&nbsp parameters are not ok";
-        console.error("no controller generated because parameters are not ok");
-        this.domElement.appendChild(message);
-        return false;
     }
     const controller = new ParamController(this.gui, this.domElement, args);
     return controller;

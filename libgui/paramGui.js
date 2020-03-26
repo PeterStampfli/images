@@ -106,8 +106,6 @@ export function ParamGui(params) {
         ParamGui.addRootGui(this);
         // add the title
         this.createTitle();
-        // autoPlacing the root gui domElement relative to one of the four corners
-        // and make the bodyDiv scrolling vertical, if needed
         this.domElement.appendChild(this.bodyDiv);
 
         const gui = this;
@@ -115,7 +113,8 @@ export function ParamGui(params) {
             ParamGui.moveToFront(gui);
             ParamGui.closePopups(gui);
         };
-
+        // autoPlacing the root gui domElement relative to one of the four corners
+        // and make the bodyDiv scrolling vertical, if needed
         if (this.autoPlace) {
             this.domElement.style.position = "fixed";
             this.domElement.style[design.verticalPosition] = design.verticalShift + "px";
@@ -229,7 +228,7 @@ ParamGui.defaultDesign = {
     titleFontSize: 14,
     titleFontWeight: "bold", // lighter, normal , bold, bolder, depending on font
     // width of the open/close button span, if too small collapses?
-    closeOpenButtonWidth: 30,
+    closeOpenButtonWidth: 40,
     // colors
     titleColor: "#000000",
     titleBackgroundColor: "#bbbbbb",
@@ -783,9 +782,21 @@ ParamGui.checkParamsProperty = function(theParams, theProperty) {
  * @param {float/integer/array} low - determines lower limit/choices (optional)
  * @param {float/integer} high - determines upper limit (optional)
  * @param {float/integer} step - determines step size (optional)
- * @return object
+ * @return args object if parameters are ok, else false
  */
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
+    // test datGui style parameters: message if fail and return false
+    if (!(guiUtils.isObject(theParams) || (guiUtils.isArray(theParams)))) {
+        console.error("add controller: the parameter argument is not an object or an array: ");
+        console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
+        console.log("the property argument is: " + theProperty);
+        return false;
+    }
+    if (!(guiUtils.isString(theProperty) || (guiUtils.isNumber(theProperty)))) {
+        console.error("add controller: the property argument is not a string or a number: ");
+        console.log('its value is ' + theProperty + ' of type "' + (typeof theProperty) + '"');
+        return false;
+    }
     if (ParamGui.logConversion) {
         console.log("Generating an argument object from datGui-style parameters");
     }
@@ -832,10 +843,9 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
             args.stepSize = step;
         }
     } else {
-        // no idea/error
-        args.type = "noType";
         console.error("no fitting controller type found for datGui API parameters");
         console.log('property "' + theProperty + '" with parameter value ' + paramValue + " and low " + low);
+        return false;
     }
     if (ParamGui.logConversion) {
         console.log("property " + theProperty + " with value " + paramValue + ' of type "' + (typeof paramValue) + '"');
@@ -843,6 +853,37 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
         console.log(args);
     }
     return args;
+};
+
+/**
+ * combine several argument objects into a new object, returns the object
+ * the objects that will be combined from the left to the right, adding and overwriting fields
+ * NOTE: the argument is typicall the arguments object of the caller, containing objects
+ * returns false if there is no argument or if an argument is not an object
+ * @method ParamGui.combineObject
+ * @param {Array-like Object of Objects} obs
+ * @return {object} the combination is a new object (not a deep clone)
+ */
+ParamGui.combineObject = function(obs) {
+    var i;
+    const length = obs.length;
+    if (length === 0) {
+        return false;
+    }
+    for (i = 0; i < length; i++) {
+        if (!guiUtils.isObject(obs[i])) {
+            return false;
+        }
+    }
+    let result = {};
+    for (i = 0; i < length; i++) {
+        Object.assign(result, obs[i]);
+    }
+    if (guiUtils.isObject(result) && ParamGui.logConversion && (obs.length > 1)) {
+        console.log("parameter object resulting from combination:");
+        console.log(result);
+    }
+    return result;
 };
 
 /**
@@ -916,27 +957,24 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
  *                    object.icon is an image file path string (URL) or an image data url. Illustrates the choice
  *                    object.value is what gets selected, an image file path string for an input image file, or a file path to *.json file
  * type="text" - see textInput.js
- * type="color" - see colorInput.js, values is a string of type "#rrggbb" (opaque) or "#rrggbbaa" (with transparency)
+ * type="color" - see colorInput.js, value is a string of type "#rrggbb" (opaque) or "#rrggbbaa" (with transparency)
  */
+
+/*
+ * you can use more than one parameter object
+ * they will be composed, going from left to right
+ * adding fieelds or overwriting values of fields
+ */
+
 ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
     // analyze parameters, make an arguments object or return with error message
-    var args;
-    if ((arguments.length === 1) && (guiUtils.isObject(theParams))) {
-        // new style parameters with a single parameter object as there is no property string
-        // use this object directly to make a controller
-        args = theParams;
-    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
-        // the first two parameters are objects, combine them into a new parameter object
-        args = {};
-        Object.assign(args, theParams);
-        Object.assign(args, theProperty);
-        if (ParamGui.logConversion) {
-            console.log("parameter object resulting from combination:");
-            console.log(args);
-        }
-    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
+    // new style - if arguments are all objects, combine them together
+    var args = ParamGui.combineObject(arguments);
+    if (!guiUtils.isObject(args)) {
+        // didn't do, see if we have datgui style parameters
         args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-    } else {
+    }
+    if (!guiUtils.isObject(args)) {
         const message = document.createElement("div");
         message.innerHTML = "&nbsp parameters are not ok";
         console.error("no controller generated because parameters are not ok");

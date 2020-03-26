@@ -20,35 +20,29 @@ const canvasContext = canvas.getContext("2d");
 
 gui.addParagraph('light');
 
+ParamGui.logConversion=true
+
 abyss.lightCenter = 0.5;
 abyss.lightScale = 1;
 abyss.ambient = 0.1;
-gui.add({
+
+const smallNumber = {
     type: "number",
     params: abyss,
-    property: 'lightCenter',
     min: 0,
     max: 2,
     step: 0.01,
     onChange: draw
+};
+
+gui.add(smallNumber, {
+    property: 'lightCenter'
 });
-gui.add({
-    type: "number",
-    params: abyss,
-    property: 'lightScale',
-    min: 0,
-    max: 5,
-    step: 0.01,
-    onChange: draw
+gui.add(smallNumber, {
+    property: 'lightScale'
 });
-gui.add({
-    type: "number",
-    params: abyss,
-    property: 'ambient',
-    min: 0,
-    max: 1,
-    step: 0.01,
-    onChange: draw
+gui.add(smallNumber, {
+    property: 'ambient'
 });
 
 abyss.red = 1;
