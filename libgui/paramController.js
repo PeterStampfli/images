@@ -219,9 +219,7 @@ export function ParamController(gui, domElement, args) {
                 if (guiUtils.isNumber(args.max)) {
                     numberButton.setHigh(args.max);
                 }
-                if (guiUtils.isNumber(args.stepSize)) {
-                    numberButton.setStep(args.stepSize);
-                } else if (guiUtils.isNumber(args.step)) {
+                if (guiUtils.isNumber(args.step)) {
                     numberButton.setStep(args.step);
                 } else {
                     numberButton.setStep(NumberButton.findStep(this.initialValue));
@@ -428,15 +426,15 @@ ParamController.prototype.setupOnChange = function() {
 ParamController.prototype.add = function(theParams, theProperty, low, high, step) {
     var args = ParamGui.combineObject(arguments);
     if (!guiUtils.isObject(args)) {
-        if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-            args = ParamGui.createArgs(theParams, theProperty, low, high, step);
-        } else {
-            const message = document.createElement("span");
-            message.innerHTML = "&nbsp parameters are not ok";
-            console.error("no controller generated because parameters are not ok");
-            this.domElement.appendChild(message);
-            return false;
-        }
+        // didn't do, see if we have datgui style parameters
+        args = ParamGui.createArgs(theParams, theProperty, low, high, step);
+    }
+    if (!guiUtils.isObject(args)) {
+        const message = document.createElement("span");
+        message.innerHTML = "&nbsp parameters are not ok";
+        console.error("no controller generated because parameters are not ok");
+        this.domElement.appendChild(message);
+        return false;
     }
     const controller = new ParamController(this.gui, this.domElement, args);
     return controller;

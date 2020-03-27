@@ -749,31 +749,6 @@ ParamGui.prototype.remove = function(element) {
  */
 ParamGui.prototype.removeFolder = ParamGui.prototype.remove;
 
-/**
- * test datGui style parameters:
- * theParams is object
- * theProperty is string
- * @method ParamGui.checkParamsProperty
- * @param {object} theParams
- * @param {string} theProperty
- * @return boolean, true if ok, false else
- */
-ParamGui.checkParamsProperty = function(theParams, theProperty) {
-    let result = true;
-    if (!(guiUtils.isObject(theParams) || (guiUtils.isArray(theParams)))) {
-        console.error("add controller: the parameter argument is not an object or an array: ");
-        console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
-        console.log("the property argument is: " + theProperty);
-        result = false;
-    }
-    if (!(guiUtils.isString(theProperty) || (guiUtils.isNumber(theProperty)))) {
-        console.error("add controller: the property argument is not a string or a number: ");
-        console.log('its value is ' + theProperty + ' of type "' + (typeof theProperty) + '"');
-        result = false;
-    }
-    return result;
-};
-
 /** 
  * transform from datGui style arguments to the new args object
  * @method ParamGui.createArgs
@@ -786,6 +761,10 @@ ParamGui.checkParamsProperty = function(theParams, theProperty) {
  */
 ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
     // test datGui style parameters: message if fail and return false
+    // special case theParams===false: no error message
+    if (theParams === false) {
+        return false;
+    }
     if (!(guiUtils.isObject(theParams) || (guiUtils.isArray(theParams)))) {
         console.error("add controller: the parameter argument is not an object or an array: ");
         console.log('its value is ' + theParams + ' of type "' + (typeof theParams) + '"');
@@ -840,7 +819,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
             args.max = high;
         }
         if (guiUtils.isNumber(step)) {
-            args.stepSize = step;
+            args.step = step;
         }
     } else {
         console.error("no fitting controller type found for datGui API parameters");
@@ -882,6 +861,19 @@ ParamGui.combineObject = function(obs) {
     if (guiUtils.isObject(result) && ParamGui.logConversion && (obs.length > 1)) {
         console.log("parameter object resulting from combination:");
         console.log(result);
+    }
+    // check if all args fields are good parameters
+    if (guiUtils.isObject(result)) {
+        for (var key in result) {
+            if (goodArgsKeys.indexOf(key) < 0) {
+                console.error('arguments object has unknown parameter "' + key + '" with value "' + result[key] + '"');
+                let mess = "good parameters are: ";
+                for (i = 0; i < goodArgsKeys.length; i++) {
+                    mess += goodArgsKeys[i] + ", ";
+                }
+                console.log(mess.substring(0, mess.length - 2));
+            }
+        }
     }
     return result;
 };
@@ -936,8 +928,28 @@ ParamGui.combineObject = function(obs) {
  * args.options - array or object, only for SELECTION or IMAGE type controllers
  * args.min - minimum value for NUMBER controllers (optional, default is 0)
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
- * args.stepSize - value for step of NUMBER controllers (optional, default is obtained from the initial value)
+ * args.step - value for step of NUMBER controllers (optional, default is obtained from the initial value)
+ * args.colorObject - if true use an object with red, blue, green number fields for color and alpha (if there is transparency), if undef/false use hex color string
  */
+
+let goodArgsKeys = ["type",
+    "params",
+    "property",
+    "initialValue",
+    "listening",
+    "usePopup",
+    "labelText",
+    "buttonText",
+    "onChange",
+    "onClick",
+    "minLabelWidth",
+    "minElementWidth",
+    "options",
+    "min",
+    "max",
+    "step",
+    "colorObject"
+];
 
 /* find details about controllers depending on controller type
  *---------------------------------------------------
@@ -999,30 +1011,19 @@ ParamGui.prototype.add = function(theParams, theProperty, low, high, step) {
  * @return {ParamController} object
  */
 ParamGui.prototype.addColor = function(theParams, theProperty) {
-    // check parameters, if needed create an args object with explicit type 'color'
-    if (arguments.length === 1) {
-        return this.add(theParams);
-    } else if ((guiUtils.isObject(theParams)) && (guiUtils.isObject(theProperty))) {
-        return this.add(theParams, theProperty);
-    } else if (ParamGui.checkParamsProperty(theParams, theProperty)) {
-        const args = {
-            params: theParams,
-            property: theProperty,
-            type: "color"
-        };
-        if (ParamGui.logConversion) {
-            console.log("addColor: generating an argument object from datGui-style parameters");
-            console.log('property "' + theProperty + '" with value ' + theParams[theProperty] + ", generated parameter object:");
-            console.log(args);
+    var args = ParamGui.combineObject(arguments);
+    if (!guiUtils.isObject(args)) {
+        // didn't do, see if we have datgui style parameters
+        args = ParamGui.createArgs(theParams, theProperty);
+        if (ParamGui.logConversion && guiUtils.isObject(args)) {
+            console.log('addColor - changes type: "color"');
         }
-        return this.add(args);
-    } else {
-        const message = document.createElement("div");
-        message.innerHTML = "&nbsp parameters are not ok";
-        console.error("no controller generated because parameters are not ok");
-        this.bodyDiv.appendChild(message);
-        return false;
     }
+    if (guiUtils.isObject(args)) {
+        args.type = "color"; // make shure we get color
+    }
+    args.type = "color";
+    return this.add(args);
 };
 
 /**
