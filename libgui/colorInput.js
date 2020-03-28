@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a color input element (container)
  * to simplify construction and destruction
@@ -107,11 +109,12 @@ export function ColorInput(parent, hasAlpha) {
         colorInput.updateValue(color);
     };
 
-    // get color value from the browsers color input
+    // get color value from the browsers color input and range element( if there is an alpha)
+    // used both for changges in the range element and the RGB color chooser
     function colorElementInput() {
         let color = colorInput.colorElement.value;
         if (colorInput.hasAlpha) { // combine rgb with alpha from range (all elements are synchro)
-            color = ColorInput.rgbaFromRGBAndAlpha(color, colorInput.rangeElement.value);
+            color += hexString(colorInput.rangeElement.value);
         }
         colorInput.updateValue(color);
     }
@@ -231,6 +234,66 @@ ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
     }
 };
 
+/*
+ * make a 2digits hex string from a number
+ * the number is rounded and clamped to 0...255
+ * if the argument is a string, parses it. Usually as decimale number. 
+ "# ...." and "0x ..." are hexadecimal numbers.
+ * If all fails makes an error message and returns "00"
+ */
+function hexString(number) {
+    if (guiUtils.isString(number)) {
+        if (number.substring(0, 1) === "#") {
+            number = parseInt(number.substring(1), 16);
+        } else {
+            number = parseInt(number);
+        }
+    }
+    if (!guiUtils.isNumber(number)) {
+        console.error('hexString: Input is not a number or number string');
+        number = 0;
+    }
+    number = Math.max(0, Math.min(255, Math.round(number)));
+    let result = number.toString(16);
+    if (result.length === 1) {
+        result = "0" + result;
+    }
+    return result;
+}
+
+/**
+ * make a color string from an object with red, green and blue fields, eventually an alpha field
+ * return false if color fields are missing
+ * @method ColorInput.stringFromObject
+ * @param {object} obj
+ * return hex color string or undefined (==false)
+ */
+ColorInput.stringFromObject = function(obj) {
+    var result;
+    if (guiUtils.isDefined(obj.red) && guiUtils.isDefined(obj.green) && guiUtils.isDefined(obj.blue)) {
+        result = "#" + hexString(obj.red) + hexString(obj.green) + hexString(obj.blue);
+        if (guiUtils.isDefined(obj.alpha)) {
+            result += hexString(obj.alpha);
+        }
+    }
+    return result;
+};
+
+/**
+ * set the red, green and blue fields of a parameter object, and eventually an alpha field
+ * depending on a hex color string of form "#rrggbb" or "rrggbbaa"
+ * @method ColorInput.setObject
+ * @param {object} obj
+ * @ param {String} color
+ */
+ColorInput.setObject = function(obj, color) {
+    obj.red = parseInt(color.substring(1, 3), 16);
+    obj.green = parseInt(color.substring(3, 5), 16);
+    obj.blue = parseInt(color.substring(5, 7), 16);
+    if (color.length === 9) {
+        obj.alpha = parseInt(color.substring(7, 9), 16);
+    }
+};
 
 /**
  * test if a color string has alpha
@@ -314,23 +377,6 @@ ColorInput.prototype.alphaFrom = function(color) {
     } else {
         return 255;
     }
-};
-
-/**
- * transform a color string and an integer alpha to a standard rgba string
- * does not check the input for errors, does the most obvious
- * @method ColorInput.rgbaFromRGBAndAlpha
- * @param {String} color - may also be rgba, a is discarded
- * @param {integer} alpha
- * @return String, the transformed color string
- */
-ColorInput.rgbaFromRGBAndAlpha = function(color, alpha) {
-    alpha = Math.max(0, Math.min(255, Math.round(alpha)));
-    alpha = alpha.toString(16);
-    if (alpha.length === 1) {
-        alpha = "0" + alpha;
-    }
-    return ColorInput.rgbFrom(color) + alpha;
 };
 
 /**

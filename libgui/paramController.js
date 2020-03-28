@@ -73,19 +73,26 @@ export function ParamController(gui, domElement, args) {
         // console.log("callback value " + value);
     };
 
-    // get callback from different arguments. For a button it might be the (initial) parameter value
-    // get label text, button is special: the property might be the button text but not the label text
-    var labelText, buttonText;
+    // get callback from different arguments. For a button it might be the (initial) parameter value. A button never has a parameter.
     if (args.type === "button") {
         this.callback = guiUtils.check(args.onChange, args.onClick, parameterValue, this.callback);
         this.hasParameter = false;
+    } else {
+        this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
+    }
+    // get label text, button is special: the property might be the button text but not the label text
+    var labelText, buttonText;
+    if (args.type === "button") {
         labelText = guiUtils.check(args.labelText, "");
         buttonText = guiUtils.check(args.buttonText, args.property, "missing text");
     } else {
-        this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
-        // get initial value from args or from parameter value
-        this.initialValue = guiUtils.check(args.initialValue, parameterValue);
         labelText = guiUtils.check(args.labelText, args.property, "");
+    }
+    // get initial value, not for button. special for color
+    if (args.type === "color") {
+        this.initialValue = guiUtils.check(args.initialValue, parameterValue);
+    } else if (args.type !== "button") {
+        this.initialValue = guiUtils.check(args.initialValue, parameterValue);
     }
     // activate listening if we have a parameter and args.listening is true
     this.listening = this.hasParameter && guiUtils.check(args.listening);
@@ -111,6 +118,9 @@ export function ParamController(gui, domElement, args) {
     this.domElement.appendChild(this.label);
     this.label.textContent = labelText;
 
+    // call if there is no good initial value, makes messages
+    // parameter 'details' gives more information about the error (type of initial value)
+    // set initial value to default value of the ui element
     function noGoodInitialValue(details) {
         const message = document.createElement("span");
         message.innerHTML = "&nbsp " + details;
