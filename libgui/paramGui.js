@@ -929,7 +929,7 @@ ParamGui.combineObject = function(obs) {
  * args.min - minimum value for NUMBER controllers (optional, default is 0)
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
  * args.step - value for step of NUMBER controllers (optional, default is obtained from the initial value)
- * args.colorObject - if true use an object with red, blue, green number fields for color and alpha (if there is transparency), if undef/false use hex color string
+ * args.useRGBFields - if true use an object with red, blue, green number fields for color and alpha (if there is transparency), if undef/false use hex color string
  */
 
 let goodArgsKeys = ["type",
@@ -948,7 +948,7 @@ let goodArgsKeys = ["type",
     "min",
     "max",
     "step",
-    "colorObject"
+    "useRGBFields"
 ];
 
 /* find details about controllers depending on controller type

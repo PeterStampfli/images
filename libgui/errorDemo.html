@@ -95,6 +95,17 @@ const obj={red:9}
 ColorInput.setObject(obj,"#345678aa")
 console.log(obj)
 
+p.c="#456789"
+gui.add({type: 'color',params:p,property:'c',onChange: function(value){console.log(value)}})
+
+p.red=255
+p.green=128
+p.blue=10
+p.alpha=200
+
+gui.add({type: 'color',params:p,labelText:'object',useRGBFields:true,onChange: function(value){console.log(p)}})
+
+
 </script>
 
 </html>

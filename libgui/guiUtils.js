@@ -110,7 +110,7 @@ guiUtils.isObject = function(p) {
  * a field of something "undefined" gives a type error and the program breaks
  * @method guiUtils.check
  * @param {...anything} data
- * @return first defined argument, from left to right, default false
+ * @return first defined argument, from left to right, returns undefined if nothing is defined
  */
 guiUtils.check = function(data) {
     const length = arguments.length;
@@ -119,6 +119,7 @@ guiUtils.check = function(data) {
             return arguments[i];
         }
     }
+    // return undefined, by default
 };
 
 /**

@@ -52,11 +52,11 @@ export function ColorInput(parent, hasAlpha) {
         this.rangeElement.max = 255;
         parent.appendChild(this.rangeElement);
     }
-    // initial value is (transparent) black
+    // initial value is opaque blue
     if (hasAlpha) {
-        this.setValue("#00000000");
+        this.setValue("#0000ffff");
     } else {
-        this.setValue("#000000");
+        this.setValue("#0000ff");
     }
 
     const colorInput = this;
