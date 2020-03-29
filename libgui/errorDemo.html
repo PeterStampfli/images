@@ -87,10 +87,6 @@ n2.setActive(true)
 const n3=gui.add(args,{initialValue:3})
 //s.setActive(true)
 
-
-console.log(ColorInput.stringFromObject({red:12,green:16,blue:"#34",alpha:345}))
-console.log(ColorInput.stringFromObject({}))
-
 const obj={red:9}
 ColorInput.setObject(obj,"#345678aa")
 console.log(obj)
@@ -103,7 +99,7 @@ p.green=128
 p.blue=10
 p.alpha=200
 
-gui.add({type: 'color',params:p,labelText:'object',useRGBFields:true,onChange: function(value){console.log(p)}})
+gui.add({type: 'color',colorObject:p,labelText:'object',onChange: function(value){console.log(p)}})
 
 
 </script>

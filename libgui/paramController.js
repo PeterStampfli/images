@@ -34,6 +34,9 @@ export function ParamController(gui, domElement, args) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.type = args.type;
+    if (guiUtils.isObject(args.colorObject)){
+        this.colorObject=args.colorObject;
+    }
     this.useRGBFields = args.useRGBFields;
     // see if the args object has a parameter value
     this.hasParameter = false;
@@ -60,14 +63,9 @@ export function ParamController(gui, domElement, args) {
             console.log(args);
         }
     } else if (guiUtils.isDefined(args.params)) {
-        // an args.params value without an args.property is only ok for color controllers using rgb fields of the params objects
-        if ((args.type === 'color') && args.useRGBFields) {
-            this.params = args.params;
-        } else {
-            console.error("add Controller: property is not defined although there is a params object or array.");
-            console.log("the arguments object:");
-            console.log(args);
-        }
+        console.error("add Controller: property is not defined although there is a params object or array.");
+        console.log("the arguments object:");
+        console.log(args);
     }
 
     /**
@@ -94,18 +92,10 @@ export function ParamController(gui, domElement, args) {
     } else {
         labelText = guiUtils.check(args.labelText, args.property, "");
     }
-    // get initial value, not for button. special for color
-    if (args.type === "color") {
-        if (args.useRGBFields) {
-            this.hasParameter = false; // for safety, in case there is some property value (that should not be)
-            if (guiUtils.isObject(args.params)) {
-                this.initialValue = guiUtils.check(args.initialValue, ColorInput.stringFromObject(args.params));
-            } else {
-                this.initialValue = args.initialValue;
-            }
-        } else {
-            this.initialValue = guiUtils.check(args.initialValue, parameterValue);
-        }
+    // get initial value, not for button. special for color controller with color object
+    if ((args.type === "color") && guiUtils.isObject(args.colorObject)) {
+        this.hasParameter = false; // for safety, in case there is some property value (that should not be)
+        this.initialValue = guiUtils.check(args.initialValue, ColorInput.stringFromObject(args.colorObject));
     } else if (args.type !== "button") {
         this.initialValue = guiUtils.check(args.initialValue, parameterValue);
     }
@@ -433,8 +423,8 @@ ParamController.prototype.setupOnChange = function() {
         const value = element.getValue();
         if (controller.hasParameter) {
             controller.params[controller.property] = value;
-        } else if (controller.useRGBFields) {
-            ColorInput.setObject(controller.params, value);
+        } else if ((controller.type === "color") && (controller.colorObject)) {
+            ColorInput.setObject(controller.colorObject, value);
         }
         controller.callback(value);
     };
