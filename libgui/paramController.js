@@ -266,6 +266,10 @@ export function ParamController(gui, domElement, args) {
                     this.setValueOnly("#0000ff");
                     noGoodInitialValue("initial value is not a color string");
                 }
+                // make that a color object agrees with the initial value
+                if (guiUtils.isObject(this.colorObject)){
+                    ColorInput.setObject(this.colorObject,this.uiElement.getValue());
+                }
                 break;
             case "image":
                 this.label.style.verticalAlign = "middle";

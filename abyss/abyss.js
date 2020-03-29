@@ -20,15 +20,17 @@ const canvasContext = canvas.getContext("2d");
 
 gui.addParagraph('light');
 
-ParamGui.logConversion=true
+//ParamGui.logConversion=true
 
-abyss.lightCenter = 0.5;
-abyss.lightScale = 1;
-abyss.ambient = 0.1;
+const light={};
+
+light.center = 0.5;
+light.scale = 1;
+
 
 const smallNumber = {
     type: "number",
-    params: abyss,
+    params: light,
     min: 0,
     max: 2,
     step: 0.01,
@@ -36,49 +38,37 @@ const smallNumber = {
 };
 
 gui.add(smallNumber, {
-    property: 'lightCenter'
+    property: 'center'
 });
 gui.add(smallNumber, {
-    property: 'lightScale'
+    property: 'scale',
+    max:10
+});
+
+
+light.red=200;
+light.green=255;
+light.blue=100;
+
+gui.add({type:'color',labelText:'sunColor',colorObject:light,onChange: draw})
+
+const ambient={}
+
+gui.add({type:'color',labelText:'ambient',colorObject:ambient,onChange: draw, initialValue:'#3300ff'})
+
+gui.addParagraph('attenuation')
+
+const atten={};
+atten.min=0.1;
+atten.max=2;
+smallNumber.params=atten;
+smallNumber.max=5;
+gui.add(smallNumber, {
+    property: 'min'
 });
 gui.add(smallNumber, {
-    property: 'ambient'
+    property: 'max'
 });
-
-abyss.red = 1;
-abyss.blue = 1;
-abyss.green = 1;
-
-gui.add({
-    type: 'number',
-    params: abyss,
-    property: 'red',
-    min: 0,
-    max: 1,
-    step: 0.01,
-    onChange: draw
-});
-
-gui.add({
-    type: 'number',
-    params: abyss,
-    property: 'green',
-    min: 0,
-    max: 1,
-    step: 0.01,
-    onChange: draw
-});
-
-gui.add({
-    type: 'number',
-    params: abyss,
-    property: 'blue',
-    min: 0,
-    max: 1,
-    step: 0.01,
-    onChange: draw
-});
-
 
 function draw() {
     const height = canvas.height;
@@ -93,19 +83,23 @@ function draw() {
         // x,y=0...1
         // color components = 0...1
         let x = i / width;
-        let light = abyss.ambient + (1 - abyss.ambient) * Math.exp(-(x - abyss.lightCenter) * (x - abyss.lightCenter) * abyss.lightScale * abyss.lightScale);
-
-        let red = light * abyss.red;
-        let green = light * abyss.green;
-        let blue = light * abyss.blue;
+        let intensity =  Math.exp(-(x - light.center) * (x - light.center) * light.scale * light.scale);
+        let a=atten.min+Math.random()*(atten.max-atten.min)
 
 
         //r1=0.995
         for (var j = 0; j < height; j++) {
 
-            pixels[index] = Math.max(0, Math.min(255, Math.floor(255.9 * red)));
-            pixels[index + 1] = Math.max(0, Math.min(255, Math.floor(255.9 * green)));
-            pixels[index + 2] = Math.max(0, Math.min(255, Math.floor(255.9 * blue)));
+         const   totalLight=intensity*Math.exp(-j/height*a);
+
+        let red = totalLight * light.red+ambient.red;
+        let green = totalLight * light.green+ambient.green;
+        let blue = totalLight * light.blue+ambient.blue;
+
+
+            pixels[index] = Math.max(0, Math.min(255, Math.floor( red)));
+            pixels[index + 1] = Math.max(0, Math.min(255, Math.floor(green)));
+            pixels[index + 2] = Math.max(0, Math.min(255, Math.floor(blue)));
             pixels[index + 3] = 255;
 
             index += 4 * width;

@@ -22,7 +22,6 @@ output.divWidth = 0;
 // a method to (re)draw the canvas upon resize
 // call it after initialization to get a first image
 output.draw = function() {
-    console.log("redraw canvas " + output.canvas.width + " " + output.canvas.height);
 };
 
 // extra canvas parameters
