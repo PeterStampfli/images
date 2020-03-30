@@ -250,7 +250,7 @@ function hexString(number) {
         }
     }
     if (!guiUtils.isNumber(number)) {
-        console.error('hexString: Input is not a number or number string');
+        console.error('hexString: Input is not a number or number string, its value is ' + number);
         number = 0;
     }
     number = Math.max(0, Math.min(255, Math.round(number)));
@@ -382,18 +382,27 @@ ColorInput.prototype.alphaFrom = function(color) {
 /**
  * get value of colorInput,assumes that the textelement has the correct value
  * @method ColorInput#getValue
+ * @param {object} colorObject - optional, gets the color values
  * @return String, the color as hex string "#rrggbb"
  */
-ColorInput.prototype.getValue = function() {
+ColorInput.prototype.getValue = function(colorObject) {
+    if (guiUtils.isObject(colorObject)) {
+        ColorInput.setObject(colorObject, this.textElement.value);
+    }
     return this.textElement.value;
 };
 
 /**
- * set value of input, does nothing if wrong, changes to standard format if ok
+ * set value of input, error message if argument not ok
  * @method ColorInput#setValue
- * @param {String} text
+ * @param {String||object} arg - color string or color object with red, green, blue (and alpha)
  */
-ColorInput.prototype.setValue = function(text) {
+ColorInput.prototype.setValue = function(arg) {
+    let text = arg;
+    // get color string from a color object, if there is one
+    if (guiUtils.isObject(arg)) {
+        text = ColorInput.stringFromObject(arg);
+    }
     if (guiUtils.isColorString(text)) {
         const color = this.colorFrom(text);
         this.lastValue = color;
@@ -403,18 +412,22 @@ ColorInput.prototype.setValue = function(text) {
             this.rangeElement.value = this.alphaFrom(color);
         }
     } else {
-        console.error("ColorInput#setValue: argument is not a good color string");
-        console.log('its value is ' + text + ' of type "' + (typeof text) + '"');
-        console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
+        console.error("ColorInput#setValue: argument is not a good color string or object");
+        console.log('its value is of type "' + (typeof arg) + '":');
+        console.log(arg);
+        console.log("should be a color object or a string of form '#rrggbb' or '#rrggbbaa'");
     }
 };
 
 /**
+ * do not call this method from the outside
+ * method is used only if textinput, color or range elements change
+ * they convert data into a string
  * check if text is a color
  * if color changes do this.onChange and set element values
- * thus we can use it for initialization
+ * else reset things
  * @method ColorInput#updateValue
- * @param {String} text - the color
+ * @param {String} arg - color string 
  */
 ColorInput.prototype.updateValue = function(text) {
     if (guiUtils.isColorString(text)) {
@@ -424,10 +437,7 @@ ColorInput.prototype.updateValue = function(text) {
             this.onChange(color);
         }
     } else {
-        this.setValue(this.lastValue);
-        console.error("ColorInput#updateValue: argument is not a good color string");
-        console.log('its value is ' + text + ' of type "' + (typeof text) + '"');
-        console.log("should be a string of form '#rrggbb' or '#rrggbbaa'");
+        this.setValue(this.lastValue); // resets the color text, to overwrite garbage
     }
 };
 

@@ -34,9 +34,6 @@ export function ParamController(gui, domElement, args) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.type = args.type;
-    if (guiUtils.isObject(args.colorObject)) {
-        this.colorObject = args.colorObject;
-    }
     this.useRGBFields = args.useRGBFields;
     // see if the args object has a parameter value
     this.hasParameter = false;
@@ -95,6 +92,7 @@ export function ParamController(gui, domElement, args) {
     // get initial value, not for button. special for color controller with color object
     if ((args.type === "color") && guiUtils.isObject(args.colorObject)) {
         this.hasParameter = false; // for safety, in case there is some property value (that should not be)
+        this.colorObject = args.colorObject;
         this.initialValue = guiUtils.check(args.initialValue, ColorInput.stringFromObject(args.colorObject));
     } else if (args.type !== "button") {
         this.initialValue = guiUtils.check(args.initialValue, parameterValue);
@@ -492,7 +490,7 @@ ParamController.prototype.addHelp = function(message) {
  * (for multiple parameter changes, use callback only at last change)
  * (Note that this.setValue() is not the same as this.uiElement.setValue())
  * @method ParamController#setValue
- * @param {whatever} value
+ * @param {whatever} value - goes to the controller uiElement setValue method
  */
 ParamController.prototype.setValueOnly = function(value) {
     if (this.uiElement) {
@@ -500,7 +498,7 @@ ParamController.prototype.setValueOnly = function(value) {
         if (this.hasParameter) {
             this.params[this.property] = this.uiElement.getValue();
         } else if ((this.type === "color") && guiUtils.isObject(this.colorObject)) {
-            ColorInput.setObject(this.colorObject, value);
+            ColorInput.setObject(this.colorObject, this.uiElement.getValue());
         }
     } else {
         console.error('Controller.setValueOnly: There is no ui element because of unknown controller type "' + this.type + '".');
@@ -527,22 +525,15 @@ ParamController.prototype.setValue = function(value) {
 
 /**
  * get the value of the controller
- * (should be the same as the value for the param object)
- * if there is a parameter, then its value is relevant, controller value will be updated if it is different
+ * does not check if it is the same as the property value of the params object
+ * sets the fields of a colorObject if there is one and it is a color controller
  * @method ParamController#getValue
+ * @param {object} obj - optional object with red, green, blue (and alpha) fields
  * @return {whatever} value
  */
-ParamController.prototype.getValue = function() {
+ParamController.prototype.getValue = function(obj) {
     if (this.uiElement) {
-        let value = this.uiElement.getValue();
-        if (this.hasParameter) {
-            const parameterValue = this.params[this.property];
-            if (value !== parameterValue) {
-                value = parameterValue;
-                this.uiElement.setValue(parameterValue);
-            }
-            return value;
-        }
+        return this.uiElement.getValue(obj);
     } else {
         console.error('Controller.getValue: There is no ui element because of unknown controller type "' + this.type + '".');
     }
@@ -550,6 +541,7 @@ ParamController.prototype.getValue = function() {
 
 /**
  * set the value of the display (controller) according to the actual value of the parameter in the params object
+ * or color object
  * if params exist, else do nothing
  * does not call the callback
  * @method ParamController#updateDisplay
@@ -557,8 +549,9 @@ ParamController.prototype.getValue = function() {
 ParamController.prototype.updateDisplay = function() {
     if (this.uiElement) {
         if (this.hasParameter) {
-            const value = this.params[this.property];
-            this.uiElement.setValue(value);
+            this.uiElement.setValue(this.params[this.property]);
+        } else if (guiUtils.isObject(this.colorObject)) {
+            this.uiElement.setValue(ColorInput.stringFromObject(this.colorObject));
         }
     } else {
         console.error('Controller.updateDisplay: There is no ui element because of unknown controller type "' + this.type + '".');

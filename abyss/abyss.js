@@ -54,11 +54,35 @@ gui.add({type:'color',labelText:'sunColor',colorObject:light,onChange: draw})
 
 const ambient={}
 
-gui.add({type:'color',labelText:'ambient',colorObject:ambient,onChange: draw, initialValue:'#3300ff'})
+const amb=gui.add({type:'color',labelText:'ambient',colorObject:ambient,onChange: draw, initialValue:'#3300ff'})
+
+const to={}
+
+console.log(amb.getValue(to))
+
+console.log(to)
+to.red=255
+const atten={};
+
+amb.setValue({})
+
+
+
+console.log(amb.getValue(to))
+
+console.log(to)
+
+ambient.green=0;
+ambient.blue=255
+amb.updateDisplay()
+
+console.log(amb.getValue(to))
+
+console.log(to)
+console.log(ambient)
 
 gui.addParagraph('attenuation')
 
-const atten={};
 atten.min=0.1;
 atten.max=2;
 smallNumber.params=atten;
