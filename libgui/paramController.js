@@ -34,8 +34,8 @@ export function ParamController(gui, domElement, args) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.type = args.type;
-    if (guiUtils.isObject(args.colorObject)){
-        this.colorObject=args.colorObject;
+    if (guiUtils.isObject(args.colorObject)) {
+        this.colorObject = args.colorObject;
     }
     this.useRGBFields = args.useRGBFields;
     // see if the args object has a parameter value
@@ -265,10 +265,6 @@ export function ParamController(gui, domElement, args) {
                     // fallback: opaque blue
                     this.setValueOnly("#0000ff");
                     noGoodInitialValue("initial value is not a color string");
-                }
-                // make that a color object agrees with the initial value
-                if (guiUtils.isObject(this.colorObject)){
-                    ColorInput.setObject(this.colorObject,this.uiElement.getValue());
                 }
                 break;
             case "image":
@@ -503,6 +499,8 @@ ParamController.prototype.setValueOnly = function(value) {
         this.uiElement.setValue(value);
         if (this.hasParameter) {
             this.params[this.property] = this.uiElement.getValue();
+        } else if ((this.type === "color") && guiUtils.isObject(this.colorObject)) {
+            ColorInput.setObject(this.colorObject, value);
         }
     } else {
         console.error('Controller.setValueOnly: There is no ui element because of unknown controller type "' + this.type + '".');
