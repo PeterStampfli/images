@@ -157,7 +157,7 @@ export function ParamController(gui, domElement, args) {
                         this.setValueOnly(selectValues.getValue());
                         noGoodInitialValue("initial value is not in options");
                     }
-                } else {
+                } else if (guiUtils.isDefined(args.options)) {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsp selection: options is not an array or object";
                     this.domElement.appendChild(message);
@@ -476,12 +476,33 @@ ParamController.prototype.addHelp = function(message) {
     return this;
 };
 
-// setting and getting values. Be careful if a params object exists
+/**
+ * add an option to a selection controller
+ * @method ParamController#addOption
+ * @param {String|number} name
+ * @param {whatever} value - optional, default value is name
+ */
+
+ParamController.prototype.addOption = function(name, value = name) {
+    if (this.type === "selection") {
+        this.uiElement.addOption(name, value);
+        // to be safe: adding an option to an empty selecction -> choose this option
+        if (this.uiElement.values.length === 1) {
+            this.setValueOnly(value);
+        }
+    } else {
+        console.error('ParamController#addOption: Only for controllers of type "selection"');
+        console.log('this controller type is "' + this.type + '"');
+    }
+
+};
+
+// setting and getting values. 
 //===========================================
 // Two different values, of the ui and the object.
 // they have to be synchronized
 // different values: use the ui value, change the object value
-// if the value of the param object changes, then update the object via callback
+// if the value of the param object changes, then update the ui with updateDisplay
 
 /**
  * updates display and set the value of the param object field if it exists

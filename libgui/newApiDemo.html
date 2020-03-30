@@ -172,12 +172,14 @@ gui.add({
 });
 
 parameters.selection = "beta";
-gui.add({
+const sele=gui.add({
     type: "selection",
     params: parameters,
     property: "selection",
     options: ["alpha", "beta", "gamma", "delta", "epsilon"]
 });
+
+sele.addOption("zeta");
 </script>
 
 </html>

@@ -101,7 +101,10 @@ p.alpha=200
 
 gui.add({type: 'color',colorObject:p,labelText:'object',onChange: function(value){console.log(p)}})
 
-
+const ppp={}
+const sel=gui.add({params:ppp,type:'selection',property:'empty',onChange:function(value){console.log(value);console.log()}})
+sel.addOption('tada')
+console.log(ppp)
 </script>
 
 </html>
