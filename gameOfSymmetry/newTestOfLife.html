@@ -21,7 +21,7 @@ import {
 from "./lifeShowSquareRGB.js"
 
 import {
-    ParamGui,guiUtils,output
+    ParamGui,guiUtils,output,saveAs
 }
 from "../libgui/modules.js";
 
@@ -30,7 +30,18 @@ const gui = new ParamGui({}, {name: "life - controls",closed: false});
 
 
 output.createCanvas(gui,false);     // square canvas
-
+const multiButton = gui.add({
+    type: "button",
+    buttonText: "multisave",
+    onClick: function() {
+        // for some crazy reason, this clears the console
+        for (let i = 0; i < 5; i++) {
+            output.canvas.toBlob(function(blob) {
+                saveAs(blob, 'image'+i + '.png');
+            }, 'image/png');
+        }
+    }
+})
 output.canvas.style.backgroundColor="lightBlue";
 
 lifeShowSquareRGB.init(gui,output.canvas);

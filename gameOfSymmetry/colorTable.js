@@ -19,18 +19,12 @@ colorTable.greens = [];
 colorTable.blues = [];
 colorTable.cssColor = [];
 
-// generator for a grey colors
-function greys(color, x) {
-    color.red = x;
-    color.green = x;
-    color.blue = x;
-}
-
 /**
  * making the table
- *colorTable.nColors gives the number of colors
+ * colorTable.nColors gives the number of colors
  * colorTable.generator(color,x) is a defining function. 
  * x and color components are floats between 0 and 1
+ * colors can be cyclic
  * @method colorTable.create
  */
 colorTable.create = function() {
@@ -39,10 +33,8 @@ colorTable.create = function() {
     colorTable.greens.length = colorTable.nColors;
     colorTable.blues.length = colorTable.nColors;
     colorTable.cssColor.length = colorTable.nColors;
-    const d = 1 / (colorTable.nColors - 1);
-    let x = 0;
     for (var i = 0; i < colorTable.nColors; i++) {
-        colorTable.generator(color, x);
+        colorTable.generator(color, (i + colorTable.shift) % colorTable.nColors);
         // transforming the color components 
         // from floating point values between 0 and 1 to integers between 0 and 255
         color.red = Math.min(255, Math.max(0, Math.floor(255.9 * color.red)));
@@ -52,7 +44,6 @@ colorTable.create = function() {
         colorTable.greens[i] = color.green;
         colorTable.blues[i] = color.blue;
         colorTable.cssColor[i] = ColorInput.stringFromObject(color);
-        x += d;
     }
 };
 
@@ -85,12 +76,14 @@ colorTable.draw = function() {
 // the number of colors - target value for generation, will be length of tables
 // change value in the gui
 colorTable.nColors = 10;
+
+// shifting the entries
+colorTable.shift = 0;
+
 // the args object for the gui
-colorTable.nColorsControllerArgs = {
+colorTable.numberControllerArgs = {
     type: 'number',
     params: colorTable,
-    property: 'nColors',
-    min: 2,
     max: 256,
     onChange: function() {
         colorTable.draw(); // this drawing method will be defined later
@@ -98,9 +91,8 @@ colorTable.nColorsControllerArgs = {
 };
 
 // the options for choosing the table generator: key/value pairs
-colorTable.generator = greys;
 const generatorOptions = {};
-generatorOptions.greys = greys;
+
 // the args object for the gui
 colorTable.generatorControllerArgs = {
     type: 'selection',
@@ -118,14 +110,48 @@ colorTable.generatorControllerArgs = {
  * @param {ParamGui} gui
  */
 colorTable.createUI = function(gui) {
-    gui.add(colorTable.nColorsControllerArgs);
+    gui.add(colorTable.numberControllerArgs, {
+        property: 'nColors',
+        min: 2
+    });
+    gui.add(colorTable.numberControllerArgs, {
+        property: 'shift'
+    });
     gui.add(colorTable.generatorControllerArgs);
 };
 
-// more generators
+// generators
 //==========================================================
 
-function blackBlueYellowWhite(color, x) {
+function greys(color, i) {
+    const x = i / (colorTable.nColors - 1);
+    color.red = x;
+    color.green = x;
+    color.blue = x;
+}
+
+colorTable.generator = greys;
+generatorOptions.greys = greys;
+
+function greyWave(color, i) {
+    var x;
+    const nc = colorTable.nColors+(colorTable.nColors&1);  // odd 1 to odd numbers
+    const nc2 = nc / 2;
+    const d = 2 / nc;
+    if (i < nc2) {
+        x = i * d;
+    } else {
+        x = 1 - d * (i - nc2);
+    }
+    color.red = x;
+    color.green = x;
+    color.blue = x;
+}
+
+generatorOptions.greyWave = greyWave;
+
+function blackBlueYellowWhite(color, i) {
+    const x = i / (colorTable.nColors-1);
     color.red = Math.sqrt(x);
     color.green = x;
     const xs = x * x * x * x * x;
@@ -134,4 +160,20 @@ function blackBlueYellowWhite(color, x) {
 
 generatorOptions.blackBlueYellowWhite = blackBlueYellowWhite;
 
-console.log(generatorOptions);
+function blueGreenRed(color, i) {
+    const x = (i + 0.5) / colorTable.nColors;
+    const a = 1;
+    color.green = a * (1 - Math.abs(3 * x - 2));
+    color.red = a * (1 - Math.abs(3 * x - 1));
+    color.blue = a * Math.max(1 - Math.abs(3 * x - 3), 1 - Math.abs(3 * x));
+}
+generatorOptions.blueGreenRed = blueGreenRed;
+
+function rainbow(color, i) {
+    const x = (i + 0.5) / colorTable.nColors;
+    const a = 2;
+    color.green = a * (1 - Math.abs(3 * x - 2));
+    color.red = a * (1 - Math.abs(3 * x - 1));
+    color.blue = a * Math.max(1 - Math.abs(3 * x - 3), 1 - Math.abs(3 * x));
+}
+generatorOptions.rainbow = rainbow;
