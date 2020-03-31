@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    ColorInput
 }
 from "../libgui/modules.js";
 
@@ -16,6 +17,7 @@ export const colorTable = {};
 colorTable.reds = [];
 colorTable.greens = [];
 colorTable.blues = [];
+colorTable.cssColor = [];
 
 // generator for a grey colors
 function greys(color, x) {
@@ -36,9 +38,10 @@ colorTable.create = function() {
     colorTable.reds.length = colorTable.nColors;
     colorTable.greens.length = colorTable.nColors;
     colorTable.blues.length = colorTable.nColors;
-    const d = 1 / (n - 1);
+    colorTable.cssColor.length = colorTable.nColors;
+    const d = 1 / (colorTable.nColors - 1);
     let x = 0;
-    for (var i = 0; i < n; i++) {
+    for (var i = 0; i < colorTable.nColors; i++) {
         colorTable.generator(color, x);
         // transforming the color components 
         // from floating point values between 0 and 1 to integers between 0 and 255
@@ -48,6 +51,7 @@ colorTable.create = function() {
         colorTable.reds[i] = color.red;
         colorTable.greens[i] = color.green;
         colorTable.blues[i] = color.blue;
+        colorTable.cssColor[i] = ColorInput.stringFromObject(color);
         x += d;
     }
 };
@@ -82,7 +86,7 @@ colorTable.draw = function() {
 // change value in the gui
 colorTable.nColors = 10;
 // the args object for the gui
-colorTable.nColorsController = {
+colorTable.nColorsControllerArgs = {
     type: 'number',
     params: colorTable,
     property: 'nColors',
@@ -95,10 +99,10 @@ colorTable.nColorsController = {
 
 // the options for choosing the table generator: key/value pairs
 colorTable.generator = greys;
-generatorOptions = {};
+const generatorOptions = {};
 generatorOptions.greys = greys;
 // the args object for the gui
-colorTable.generatorController = {
+colorTable.generatorControllerArgs = {
     type: 'selection',
     params: colorTable,
     property: 'generator',
@@ -106,6 +110,16 @@ colorTable.generatorController = {
     onChange: function() {
         colorTable.draw(); // this drawing method may be changed later, if we do not want to draw only samples
     }
+};
+
+/**
+ * create the gui (ui elements)
+ * method colorTable.createUI
+ * @param {ParamGui} gui
+ */
+colorTable.createUI = function(gui) {
+    gui.add(colorTable.nColorsControllerArgs);
+    gui.add(colorTable.generatorControllerArgs);
 };
 
 // more generators
