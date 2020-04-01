@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a canvas inside a div, fitting the leftover space of the guis
  * @namespace output
@@ -21,8 +23,7 @@ output.divWidth = 0;
 
 // a method to (re)draw the canvas upon resize
 // call it after initialization to get a first image
-output.draw = function() {
-};
+output.draw = function() {};
 
 // extra canvas parameters
 let params = {
@@ -71,15 +72,28 @@ function rightSpaceLimit() {
  * the canvas has default position in the div in the upper left corner
  * the width of the div fills the space between left- and right space limit
  * the height is the full window height
+ *=============================================================
+ * resizing the div because of window resize: resize canvas
  * if canvasAutoResize: no scroll bars
- *      for rectangular size: width and height are same as div
- *      for square size: width and height are minimum dimensions of div
+ *      if canvasWidthToHeight<0: width and height are dimensions of div
+ *      if canvasWidthToHeight>0: 
+ *          if div.style.width/div.style.height>canvasWidthToHeight: fit  height=div.style.height
+ *                (the div is "wider" than the canvas)
+ *          if div.style.width/div.style.height<canvasWidthToHeight: fit  width=div.style.width
  *      if canvas dimensions change then redraw
  * if not canvasAutoResize: canvas dimensions are fixed
  *      avoid scroll bar hysteresis: switch off scroll bars
  *      if div too narrow: horizontal scroll bar
  *      if div too high: vertical scroll bar
  *      check again if horizontal scroll bar needed
+ * changing width or height:
+ *      if canvasWidthToHeight>0: change other dimension too
+ * changing the canvasWidthToHeight:
+ *       if canvasAutoResize: 
+ *            same as for resizing the window/div
+ *       if not canvasAutoResize:
+ *           resize with same surface, new width=sqrt(oldWidth*oldHeight*canvasWidthToHeight)
+ *               (newHeight=width/canvasWidthToHeight)S
  * NOTE: changing the canvas size sets canvasAutoResize to false, requires redraw and checking of scroll bars
  */
 
@@ -140,207 +154,145 @@ output.createDiv = function() {
 };
 
 /**
- * create a canvas in the output.div with controllers in a gui
- * maybe wrap its controllers in a folder
- * you can set if it is a sqaure or flexible rectangle
- * @method output.init
+ * create a canvas in the output.div with controllers in a gui (folder)
+ * you can set its width to height ratio to a fixed value in an extra method
+ * @method output.createCanvas
  * @param {ParamGui} gui - the gui that controls the canvas
- * @param {boolean} isRectangular - optional, default: true
  */
-output.createCanvas = function(gui, isRectangular = true) {
-    var widthController, heightController, sizeController, autoResizeController;
+var autoResize;
+var widthController, heightController, sizeController, autoResizeController;
+
+output.createCanvas = function(gui) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
-    } else {
-        if (!output.div) {
-            output.createDiv();
-        }
-        output.canvas = document.createElement("canvas");
-        output.div.appendChild(output.canvas);
-        // the save button and text field for changing the name
-        const saveButton = gui.add({
-                type: "button",
-                buttonText: "save",
-                onClick: function() {
-                    // for some crazy reason, this clears the console
-                    output.canvas.toBlob(function(blob) {
-                        saveAs(blob, params.saveName + '.png');
-                    }, 'image/png');
-                }
-            })
-            .setMinLabelWidth(0);
-        const saveNameInput = saveButton.add({
-                type: "text",
-                params: params,
-                property: "saveName",
-                labelText: "as"
-            })
-            .setMinLabelWidth(20);
-
-        // actual dimensions are not important here:
-        // we only build the controllers
-        // dimensions will be resized later
-
-        if (isRectangular) {
-            widthController = gui.add({
-                type: "number",
-                min: 100,
-                max: 10000,
-                params: output.canvas,
-                property: "width",
-                onChange: function() {
-                    autoResizeController.setValueOnly(false);
-                    updateScrollbars();
-                    output.draw();
-                }
-            });
-            widthController.hSpace(30);
-            heightController = widthController.add({
-                type: "number",
-                min: 100,
-                max: 10000,
-                params: output.canvas,
-                property: "height",
-                onChange: function() {
-                    autoResizeController.setValueOnly(false);
-                    updateScrollbars();
-                    output.draw();
-                }
-            });
-        } else {
-            sizeController = gui.add({
-                type: "number",
-                min: 100,
-                max: 10000,
-                labelText: "size",
-                initialValue: 200,
-                onChange: function(value) {
-                    autoResizeController.setValueOnly(false);
-                    output.canvas.height = value;
-                    output.canvas.width = value;
-                    updateScrollbars();
-                    output.draw();
-                }
-            });
-        }
-
-        // resizing after the output.div has been resized, knowing its new dimensions
-        const autoResize = function() {
-            if (params.canvasAutoResize) {
-                // autoresize: fit canvas into the output.div
-                // thus no scroll bars
-                if (isRectangular) {
-                    widthController.setValueOnly(output.divWidth);
-                    heightController.setValueOnly(output.divHeight);
-                } else {
-                    const size = Math.min(output.divWidth, output.divHeight);
-                    sizeController.setValueOnly(size);
-                    output.canvas.width = size;
-                    output.canvas.height = size;
-                }
-                output.div.style.overflow = "hidden";
-                output.draw();
-            } else {
-                // not autoresizing the canvas: its size does not change, but scroll bars may change
-                updateScrollbars();
+        return;
+    }
+    if (!output.div) {
+        output.createDiv();
+    }
+    output.canvas = document.createElement("canvas");
+    output.div.appendChild(output.canvas);
+    // the save button and text field for changing the name
+    const saveButton = gui.add({
+            type: "button",
+            buttonText: "save",
+            onClick: function() {
+                // for some crazy reason, this clears the console
+                output.canvas.toBlob(function(blob) {
+                    saveAs(blob, params.saveName + '.png');
+                }, 'image/png');
             }
-        };
-
-        autoResizeController = gui.add({
-            type: "boolean",
-            labelText: "auto resize",
+        })
+        .setMinLabelWidth(0);
+    const saveNameInput = saveButton.add({
+            type: "text",
             params: params,
-            property: "canvasAutoResize",
-            onChange: autoResize
-        });
-        autoResize();
-        window.addEventListener("resize", autoResize, false);
-    }
-};
+            property: "saveName",
+            labelText: "as"
+        })
+        .setMinLabelWidth(20);
 
-/**
- * draw a (smooth) pixel image on the canvas,
- * for a square canvas coordinates go from (0,0) to (1,1)
- * use output.draw=function(){output.drawImageUnitSquareCanvas(makeColor)}
- * makeColor(color,x,y), determines somehow color.red, color.green and color.blue from x,y coordinates
- * color components should be integer between 0 and 255
- * @method output.drawImageUnitSquare
- * @param {function} 
- */
-output.drawImageUnitSquareCanvas = function(makeColor) {
-    const canvas = output.canvas;
-    const canvasContext = canvas.getContext("2d");
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    // scaling from canvas to image
-    const ds = 1 / Math.sqrt(canvasWidth * canvasHeight);
-    // the pixels
-    const color = {};
-    const imageData = canvasContext.getImageData(0, 0, canvasWidth, canvasHeight);
-    const pixels = imageData.data;
-    let pixelIndex = 0;
-    let y = 0;
-    for (var j = 0; j < canvasHeight; j++) {
-        let x = 0;
-        for (var i = 0; i < canvasWidth; i++) {
-            makeColor(color, x, y);
-            pixels[pixelIndex] = color.red;
-            pixels[pixelIndex + 1] = color.green;
-            pixels[pixelIndex + 2] = color.blue;
-            pixels[pixelIndex + 3] = 255;
-            pixelIndex += 4;
-            x += ds;
+    // actual dimensions are not important here:
+    // we only build the controllers
+    // dimensions will be resized later
+
+    widthController = gui.add({
+        type: "number",
+        min: 100,
+        max: 10000,
+        params: output.canvas,
+        property: "width",
+        onChange: function(value) {
+            // called only if value changes, thus draw() always
+            if (canvasWidthToHeight > 0.0001) {
+                heightController.setValueOnly(value / canvasWidthToHeight);
+            }
+            autoResizeController.setValueOnly(false);
+            updateScrollbars();
+            output.draw();
         }
-        y += ds;
-    }
-    canvasContext.putImageData(imageData, 0, 0);
-};
-
-/**
- * make a color table with 256 elements, periodically repeating a basic element
- * @method output#makeColorTable
- * @param {Array of strings} colors - strings defining the color
- * @return {Array of strings} the table, lenngth=256, colors, repeated
- */
-output.makeColorTable = function(colors) {
-    const colorsLength = colors.length;
-    const colorTable = [];
-    colorTable.length = 256;
-    for (var i = 0; i < 256; i++) {
-        colorTable[i] = colors[i % colorsLength];
-    }
-    return colorTable;
-};
-
-/**
- * put a block pixel image on the square canvas, using the colorTable
- * @method Life#imageBlockPixelsOnCanvas
- * @param {array} colorTable - an array of colors, length 256
- * @param {array} image - an array of integers 0...255, representing the image
- */
-output.imageBlockPixelsOnCanvas = function(colorTable, image) {
-    const canvas = output.canvas;
-    const canvasContext = canvas.getContext("2d");
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    if (canvasWidth !== canvasHeight) {
-        console.error("output.imageBlockPixelsOnCanvas: Not a square canvas, width " + canvasWidth + ", height" + canvasHeight);
-    }
-    const imageSize = Math.sqrt(image.length);
-    if (imageSize * imageSize !== image.length) {
-        console.error("output.imageBlockPixelsOnCanvas: Image pixels not a square number, image length " + image.length);
-    }
-    const pixelSize = Math.min(canvasWidth, canvasHeight) / imageSize;
-    let y = 0;
-    let index = 0;
-    for (var j = 0; j < imageSize; j++) {
-        let x = 0;
-        for (var i = 0; i < imageSize; i++) {
-            canvasContext.fillStyle = colorTable[image[index] & 255];
-            canvasContext.fillRect(x, y, pixelSize, pixelSize);
-            x += pixelSize;
-            index += 1;
+    });
+    widthController.hSpace(30);
+    heightController = widthController.add({
+        type: "number",
+        min: 100,
+        max: 10000,
+        params: output.canvas,
+        property: "height",
+        onChange: function(value) {
+            // called only if value changes, thus draw() always
+            if (canvasWidthToHeight > 0.0001) {
+                widthController.setValueOnly(value * canvasWidthToHeight);
+            }
+            autoResizeController.setValueOnly(false);
+            updateScrollbars();
+            output.draw();
         }
-        y += pixelSize;
+    });
+
+
+    // resizing after the output.div has been resized, knowing its new dimensions
+    autoResize = function() {
+        if (params.canvasAutoResize) {
+            // autoresize: fit canvas into the output.div
+            // thus no scroll bars
+             output.div.style.overflow = "hidden";
+           const oldWidth = widthController.getValue();
+            const oldHeight = heightController.getValue();
+            let newWidth = output.divWidth;
+            let newHeight = output.divHeight;
+            if (canvasWidthToHeight > 0.0001) {
+                if (output.divWidth / output.divHeight > canvasWidthToHeight) {
+                    // very elongated div: its height determines canvas dimensions
+                    newWidth = Math.round(output.divHeight * canvasWidthToHeight);
+                } else {
+                    newHeight = Math.round(output.divWidth / canvasWidthToHeight);
+                }
+            }
+            if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
+                widthController.setValueOnly(newWidth);
+                heightController.setValueOnly(newHeight);
+                output.draw();
+            }
+        } else {
+            // not autoresizing the canvas: its size does not change, but scroll bars may change, no draw()
+            updateScrollbars();
+        }
+    };
+
+    autoResizeController = gui.add({
+        type: "boolean",
+        labelText: "auto resize",
+        params: params,
+        property: "canvasAutoResize",
+        onChange: autoResize
+    });
+    autoResize();
+    window.addEventListener("resize", autoResize, false);
+};
+
+/**
+ * set the canvasWidthToHeight
+ * if value<0: no fixed ratio
+ * if value>0...1: fixed ratio
+ * needs to update canvas dimensions
+ * @method output.setCanvasWidthToHeight
+ * @param {float} ratio
+ */
+// this parameter will be set by the program, not the user
+let canvasWidthToHeight = -1;
+
+output.setCanvasWidthToHeight = function(ratio) {
+    if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always draw()
+        canvasWidthToHeight = ratio;
+        if (params.canvasAutoResize) {
+            autoResize();
+        } else {
+            const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
+            widthController.setValueOnly(width);
+            heightController.setValueOnly(width / canvasWidthToHeight);
+            output.draw();
+            updateScrollbars();
+        }
     }
 };
