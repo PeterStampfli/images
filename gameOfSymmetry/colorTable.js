@@ -50,9 +50,6 @@ colorTable.create = function() {
 // drawing after changes of parameters: number of different colors and the color table type
 // here: drawing a sample
 colorTable.draw = function() {
-    // before drawing create the color table
-    colorTable.create();
-    // now draw a sample
     const canvas = output.canvas;
     const canvasContext = canvas.getContext("2d");
     const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
@@ -81,11 +78,12 @@ colorTable.nColors = 10;
 colorTable.shift = 0;
 
 // the args object for the gui
-colorTable.numberControllerArgs = {
+const numberControllerArgs = {
     type: 'number',
     params: colorTable,
     max: 256,
     onChange: function() {
+        colorTable.create();
         colorTable.draw(); // this drawing method will be defined later
     }
 };
@@ -94,12 +92,13 @@ colorTable.numberControllerArgs = {
 const generatorOptions = {};
 
 // the args object for the gui
-colorTable.generatorControllerArgs = {
+const generatorControllerArgs = {
     type: 'selection',
     params: colorTable,
     property: 'generator',
     options: generatorOptions,
     onChange: function() {
+        colorTable.create();
         colorTable.draw(); // this drawing method may be changed later, if we do not want to draw only samples
     }
 };
@@ -110,14 +109,14 @@ colorTable.generatorControllerArgs = {
  * @param {ParamGui} gui
  */
 colorTable.createUI = function(gui) {
-    gui.add(colorTable.numberControllerArgs, {
+    gui.add(numberControllerArgs, {
         property: 'nColors',
         min: 2
     });
-    gui.add(colorTable.numberControllerArgs, {
+    gui.add(numberControllerArgs, {
         property: 'shift'
     });
-    gui.add(colorTable.generatorControllerArgs);
+    gui.add(generatorControllerArgs);
 };
 
 // generators

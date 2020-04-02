@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title>colortables</title>
+    <title>transitiontables</title>
 </head>
 
 <body>
@@ -23,28 +23,17 @@ import {
 from "../libgui/modules.js";
 
 import {
-    colorTable
+    transitionTable
 }
-from "./colorTable.js";
+from "./transitionTable.js";
 
 
 const gui = new ParamGui({}, {
-    name: "colortable - controls",
+    name: "transitiontable - controls",
     closed: false
 });
 
 
-output.createCanvas(gui, true);
-
-output.canvas.style.backgroundColor = "lightBlue";
-
-colorTable.createUI(gui);
-
-output.draw = colorTable.draw
-
-        colorTable.create();
-
-colorTable.draw();
 
 </script>
 

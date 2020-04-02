@@ -230,7 +230,6 @@ output.createCanvas = function(gui) {
         }
     });
 
-
     // resizing after the output.div has been resized, knowing its new dimensions
     autoResize = function() {
         if (params.canvasAutoResize) {
