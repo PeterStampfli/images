@@ -33,7 +33,11 @@ const gui = new ParamGui({}, {
     closed: false
 });
 
+transitionTable.createUI(gui);
 
+transitionTable.setNStates(4);
+transitionTable.setTableLength(10);
+console.log(transitionTable.createString())
 
 </script>
 

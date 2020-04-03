@@ -14,11 +14,17 @@
 
 export const transitionTable = {};
 transitionTable.table = [];
+// the drawing routine after changes (from the menue)
+transitionTable.draw=function(){
+	console.log('new table');
+	console.log(transitionTable.createString());        //dummy
+};
 
 // number of states
 let nStates = 2;
 // index steps to sawtooth/tent steps, integer>=1
-let scale = 1;
+const p = {};
+p.scale = 1;
 
 // the different transition tables
 //=============================================================================
@@ -36,9 +42,9 @@ function makeTransitionTableWith(fun) {
 
 /**
  * make a random transition table
- * @method transitionTable.randomTable
+ * @method transitionTable.random
  */
-transitionTable.randomTable = function() {
+transitionTable.random = function() {
     makeTransitionTableWith(function() {
         return Math.floor(Math.random() * nStates);
     });
@@ -46,23 +52,23 @@ transitionTable.randomTable = function() {
 
 /**
  * make a saw tooth transition table, depending on number of states
- * @method transitionTable.sawToothTable
+ * @method transitionTable.sawTooth
  */
-transitionTable.sawToothTable = function() {
+transitionTable.sawTooth = function() {
     const nStates = this.nStates;
-    this.makeTransitionTableWith(function(i) {
-        return i / scale; // table entry: Math.floor(fun(i)) % nStates
+    makeTransitionTableWith(function(i) {
+        return i / p.scale; // table entry: Math.floor(fun(i)) % nStates
     });
 };
 
 /**
  * make a tent transition table, depending on number of states
- * @method transitionTable.tentTable
+ * @method transitionTable.tent
  */
-transitionTable.tentTable = function() {
+transitionTable.tent = function() {
     const period = 2 * (nStates - 1);
-    this.makeTransitionTableWith(function(i) {
-        let result = Math.floor(i / scale) % period;
+    makeTransitionTableWith(function(i) {
+        let result = Math.floor(i / p.scale) % period;
         if (result >= nStates) {
             result = period - result;
         }
@@ -77,7 +83,7 @@ transitionTable.tentTable = function() {
  * @return string
  */
 transitionTable.createString = function() {
-    result = "";
+    let result = "";
     transitionTable.table.forEach(n => result += n.toString(32));
     return result;
 };
@@ -89,21 +95,21 @@ transitionTable.createString = function() {
  * @param {string} s
  */
 transitionTable.fromString = function(s) {
-	const tableLength=transitionTable.table.length;
-    if (tableLength!==s.length){
-    	console.error("transitionTable.fromString: lengths do not agree. String length "+s.length+", table length "+tableLength)
+    const tableLength = transitionTable.table.length;
+    if (tableLength !== s.length) {
+        console.error("transitionTable.fromString: lengths do not agree. String length " + s.length + ", table length " + tableLength);
     }
-    const length=Math.min(tableLength,s.length);
+    const length = Math.min(tableLength, s.length);
     transitionTable.table.fill(0);
-    for (var i=0;i<length;i++){
-    	transitionTable.table[i]=parseInt(s.substring(i,i+1),32);
+    for (var i = 0; i < length; i++) {
+        transitionTable.table[i] = parseInt(s.substring(i, i + 1), 32);
     }
 };
 
 // the args object for the gui
 const numberControllerArgs = {
     type: 'number',
-    params: transitionTable,
+    params: p,
     max: 256,
     onChange: function(value) {
         console.log(value);
@@ -112,10 +118,11 @@ const numberControllerArgs = {
 
 
 // the options for choosing the table generator: key/value pairs
+transitionTable.generator = transitionTable.sawTooth;
 const typeOptions = {};
-typeOptions.random=transitionTable.randomTable;
-typeOptions.sawTooth=transitionTable.sawToothTable;
-typeOptions.tent=transitionTable.tentTable;
+typeOptions.sawTooth = transitionTable.sawTooth;
+typeOptions.tent = transitionTable.tent;
+typeOptions.random = transitionTable.random;
 
 // the args object for the gui
 const typeControllerArgs = {
@@ -124,17 +131,56 @@ const typeControllerArgs = {
     property: 'generator',
     options: typeOptions,
     onChange: function(value) {
-        console.log(value);
+        if (value===transitionTable.random){
+        	scaleController.setActive(false);
+        } else {
+        	scaleController.setActive(true);
+        }
+        transitionTable.generator();
+        transitionTable.draw();
     }
 };
 
-
+var scaleController;
 /**
  * create the gui (ui elements)
  * method transitionTable.createUI
  * @param {ParamGui} gui
  */
 transitionTable.createUI = function(gui) {
-
+    transitionTable.generatorController=gui.add(typeControllerArgs);
+  scaleController=  gui.add(numberControllerArgs, {
+        property: 'scale',
+        min:1
+    });
 };
 
+
+// set table length, set nStates
+
+/**
+* set number of states
+* if changes then recalculate table
+* @method transitionTable.setNStates
+* @param {integer} n
+*/
+transitionTable.setNStates=function(n){
+ if (n!==nStates){
+ 	nStates=n;
+ 	transitionTable.generator();
+ }
+};
+
+
+/**
+* set length of transition table
+* if changes then recalculate table
+* @method transitionTable.setTableLength
+* @param {integer} n
+*/
+transitionTable.setTableLength=function(n){
+ if (n!==transitionTable.table.length){
+ 	transitionTable.table.length=n;
+ 	transitionTable.generator();
+ }
+};
