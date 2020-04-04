@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 // aggregator
 // import all from a common source
 //===================================================
@@ -53,6 +55,11 @@ export {
     ImageButton
 }
 from "./imageButton.js";
+
+export {
+    TextAreaInOut
+}
+from './textAreaInOut.js';
 
 export {
     Popup

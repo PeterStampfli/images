@@ -276,7 +276,7 @@ Button.prototype.asFileInput = function(accept = ".jpg") {
  */
 Button.prototype.destroy = function() {
     this.onClick = null;
-    this.onMouseDown = null;
+    this.onInteraction=null;
     this.onFileInput = null;
     if (this.isFileInput) {
         this.fileInput.onchange = null;
@@ -313,18 +313,21 @@ Button.disable = function(buttons) {
     }
 };
 
+// open-close, if closed something (titlebar) is still visible 
+// show-hide, if hidden nothing is visible
+
 /**
- * open the button
- * @method Button#open
+ * show the button
+ * @method Button#show
  */
-Button.prototype.open = function() {
+Button.prototype.show = function() {
     guiUtils.displayInlineBlock(this.element);
 };
 
 /**
- * close the button
- * @method Button#close
+ * hide the button
+ * @method Button#hide
  */
-Button.prototype.close = function() {
+Button.prototype.hide = function() {
     guiUtils.displayNone(this.element);
 };

@@ -859,7 +859,7 @@ ParamGui.combineObject = function(obs) {
         Object.assign(result, obs[i]);
     }
     if (guiUtils.isObject(result) && ParamGui.logConversion && (obs.length > 1)) {
-        console.log("parameter object resulting from combination:");
+        console.log("parameter object resulting from combination of args objects:");
         console.log(result);
     }
     // check if all args fields are good parameters
@@ -930,6 +930,8 @@ ParamGui.combineObject = function(obs) {
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
  * args.step - value for step of NUMBER controllers (optional, default is obtained from the initial value)
  * args.colorObject - an object with red, blue, green number fields and alpha (if there is transparency) for color controller, if undef/false use hex color string
+ * args.rows - number of rows (horizontal lines) for a textarea
+ * args.columns - number of columns (chars per line) for a textarea
  */
 
 let goodArgsKeys = ["type",
@@ -948,7 +950,9 @@ let goodArgsKeys = ["type",
     "min",
     "max",
     "step",
-    "colorObject"
+    "colorObject",
+    "rows",
+    "columns"
 ];
 
 /* find details about controllers depending on controller type
@@ -970,6 +974,7 @@ let goodArgsKeys = ["type",
  *                    object.value is what gets selected, an image file path string for an input image file, or a file path to *.json file
  * type="text" - see textInput.js
  * type="color" - see colorInput.js, value is a string of type "#rrggbb" (opaque) or "#rrggbbaa" (with transparency)
+ * type="textarea" - see textAreaInOut.js
  */
 
 /*

@@ -7,6 +7,7 @@ import {
     TextInput,
     ColorInput,
     ImageSelect,
+    TextAreaInOut,
     Popup,
     NumberButton,
     ParamGui,
@@ -78,7 +79,7 @@ export function ParamController(gui, domElement, args) {
     if (args.type === "button") {
         this.callback = guiUtils.check(args.onChange, args.onClick, parameterValue, this.callback);
         this.hasParameter = false;
-    } else {
+    } else if (args.type !== "textarea") { // textarea has no onChange event, thus no callback
         this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
     }
     // get label text, button is special: the property might be the button text but not the label text
@@ -197,6 +198,34 @@ export function ParamController(gui, domElement, args) {
                 this.getValue = function() {};
                 this.updateDisplay = function() {};
                 break;
+            case "textarea":
+                console.log('textarea');
+                this.label.style.verticalAlign = "middle";
+                const textarea = new TextAreaInOut(this.domElement);
+                textarea.setFontSize(this.design.buttonFontSize);
+                textarea.element.style.display = "inline-block";
+                textarea.element.style.verticalAlign = "middle";
+                guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
+                this.uiElement = textarea;
+                this.setupOnInteraction();
+                const rows = guiUtils.check(args.rows, 3);
+                console.log(rows);
+                textarea.setRows(rows);
+                const columns = guiUtils.check(args.columns, 3);
+                console.log(columns);
+                textarea.setColumns(columns);
+                if (guiUtils.isString(this.initialValue)) {
+                    this.setValueOnly(this.initialValue); // safe, does not change value
+                } else {
+                    // fallback: convert initial value to string
+                    if (guiUtils.isDefined(this.initialValue)) {
+                        this.setValueOnly(this.initialValue.toString());
+                    } else {
+                        this.setValueOnly("undefined");
+                    }
+                    noGoodInitialValue("initial value is not a string");
+                }
+                break;
             case "text":
                 const textInput = new TextInput(this.domElement);
                 this.uiElement = textInput;
@@ -211,8 +240,9 @@ export function ParamController(gui, domElement, args) {
                     // fallback: convert initial value to string
                     if (guiUtils.isDefined(this.initialValue)) {
                         this.setValueOnly(this.initialValue.toString());
+                    } else {
+                        this.setValueOnly("undefined");
                     }
-                    this.setValueOnly("undefined");
                     noGoodInitialValue("initial value is not a string");
                 }
                 break;

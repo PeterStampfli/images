@@ -29,6 +29,8 @@ const gui = new ParamGui({
 
 gui.addParagraph("This is a <strong>demo</strong> for the new gui API. See the source code");
 
+gui.add({type:'textarea',rows:4,columns:20,labelText:"new textarea",initialValue:"We can write long texts\nwith multiple lines"});
+
 const parameters = {};
 
 
