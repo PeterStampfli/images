@@ -7,7 +7,9 @@
 
 export const guiUtils = {};
 
-// functions that check parameters, for overloading methods
+//=============================================================================
+// functions that check the type of parameters, 
+//==============================================================================
 
 /**
  * test if a variable is defined, and not missing in the call, 
@@ -103,6 +105,10 @@ guiUtils.isObject = function(p) {
     return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
 };
 
+//===============================================================================
+// various checks of data, updating data
+//=================================================================================
+
 /**
  * check if some argument is defined
  * return first defined argument else return undefined 
@@ -192,6 +198,7 @@ guiUtils.updateValues = function(toObject, fromObject) {
     }
 };
 
+//============================================================================
 //   styles, DOM elements
 //============================================================================
 
@@ -295,6 +302,10 @@ addStyles([
     "overflow"
 ]);
 
+//==============================================================================
+// spacing
+//==============================================================================
+
 /**
  * create a horizontal space
  * @method guiUtils.hSpace
@@ -324,8 +335,13 @@ guiUtils.vSpace = function(parent, height) {
     return space;
 };
 
+//==========================================================================
+// display style
+
 /**
  * make that the element display style has given value
+ * checks if the element really exists (avoid errors of type *** is not a function)
+ * checck if element has already the style (avoid reflows)
  * @method guiUtils.setDisplayStyle
  * @param {htmlElement} element
  * @param {string} value
@@ -363,6 +379,9 @@ guiUtils.displayInlineBlock = function(element) {
     guiUtils.setDisplayStyle(element, "inline-block");
 };
 
+//==============================================================================
+// determine position of an element
+//===============================================================================
 
 /**
  * determine top position of an element, including scroll of the parents
@@ -394,4 +413,34 @@ guiUtils.topPosition = function(theElement) {
         element = element.parentElement; // important: does not double count offsetTop
     }
     return offsetY - scrollY;
+};
+
+//================================================================================
+// saving on a file
+//================================================================================
+
+// save blob to a file using an off-screen a-tag element
+const a = document.createElement("a");
+a.style.display = "none";
+document.body.appendChild(a);
+
+function saveBlobAsFile(blob, filename) {
+    const objURL = URL.createObjectURL(blob);
+    a.href = objURL;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(objURL);
+}
+
+/**
+ * save canvas image as a file
+ * @method guiUtils.saveCanvasAsFile
+ * @param {canvas} canvas
+ * @param {string} filename - without extension
+ * @param {string} type - optional, 'png' or 'jpg', default is 'png'
+ */
+guiUtils.saveCanvasAsFile = function(canvas, filename, type = 'png') {
+    canvas.toBlob(function(blob) {
+        saveBlobAsFile(blob, filename + '.' + type);
+    }, 'image/' + type);
 };

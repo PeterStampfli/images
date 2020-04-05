@@ -20,11 +20,6 @@
 // do not create globals without good cause
 
 export {
-    saveAs
-}
-from "./fileSaver.js";
-
-export {
     MouseAndTouch,
     MouseEvents
 }

@@ -7,8 +7,7 @@
 
 import {
     guiUtils,
-    ParamGui,
-    saveAs
+    ParamGui
 }
 from "./modules.js";
 
@@ -24,12 +23,6 @@ output.divWidth = 0;
 // a method to (re)draw the canvas upon resize
 // call it after initialization to get a first image
 output.draw = function() {};
-
-// extra canvas parameters
-let params = {
-    saveName: "image",
-    canvasAutoResize: true
-};
 
 /**
  * get the limit for free space at the left
@@ -154,6 +147,20 @@ output.createDiv = function() {
 };
 
 /**
+ * a function that saves the canvas to file, suitable for animations
+ * @method output.saveCanvasAsFile
+ * @param{string} filename - without extension
+ * @param{string} type - default'png', else use 'jpg' or 'png'
+ */
+output.saveCanvasAsFile = function(filename, type = 'png') {
+    if (output.canvas) {
+        guiUtils.saveCanvasAsFile(output.canvas, filename, type);
+    } else {
+        console.error("output.saveCanvasAsFile: there is no canvas!");
+    }
+};
+
+/**
  * create a canvas in the output.div with controllers in a gui (folder)
  * you can set its width to height ratio to a fixed value in an extra method
  * @method output.createCanvas
@@ -177,20 +184,22 @@ output.createCanvas = function(gui) {
             type: "button",
             buttonText: "save",
             onClick: function() {
-                // for some crazy reason, this clears the console
-                output.canvas.toBlob(function(blob) {
-                    saveAs(blob, params.saveName + '.png');
-                }, 'image/png');
+                output.saveCanvasAsFile(saveName.getValue(), saveType.getValue());
             }
         })
         .setMinLabelWidth(0);
-    const saveNameInput = saveButton.add({
+    const saveName = saveButton.add({
             type: "text",
-            params: params,
-            property: "saveName",
+            initialValue: "image",
             labelText: "as"
         })
         .setMinLabelWidth(20);
+    const saveType = saveButton.add({
+        type: 'selection',
+        options: ['png', 'jpg'],
+        initialValue: 'png',
+        labelText: '.'
+    }).setMinLabelWidth(5);
 
     // actual dimensions are not important here:
     // we only build the controllers
@@ -232,11 +241,11 @@ output.createCanvas = function(gui) {
 
     // resizing after the output.div has been resized, knowing its new dimensions
     autoResize = function() {
-        if (params.canvasAutoResize) {
+        if (autoResizeController.getValue()) {
             // autoresize: fit canvas into the output.div
             // thus no scroll bars
-             output.div.style.overflow = "hidden";
-           const oldWidth = widthController.getValue();
+            output.div.style.overflow = "hidden";
+            const oldWidth = widthController.getValue();
             const oldHeight = heightController.getValue();
             let newWidth = output.divWidth;
             let newHeight = output.divHeight;
@@ -262,8 +271,7 @@ output.createCanvas = function(gui) {
     autoResizeController = gui.add({
         type: "boolean",
         labelText: "auto resize",
-        params: params,
-        property: "canvasAutoResize",
+        initialValue: true,
         onChange: autoResize
     });
     autoResize();
@@ -284,7 +292,7 @@ let canvasWidthToHeight = -1;
 output.setCanvasWidthToHeight = function(ratio) {
     if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always draw()
         canvasWidthToHeight = ratio;
-        if (params.canvasAutoResize) {
+        if (autoResizeController.getValue()) {
             autoResize();
         } else {
             const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
