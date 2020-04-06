@@ -420,15 +420,16 @@ guiUtils.topPosition = function(theElement) {
 //================================================================================
 
 // save blob to a file using an off-screen a-tag element
-const a = document.createElement("a");
-a.style.display = "none";
-document.body.appendChild(a);
 
 function saveBlobAsFile(blob, filename) {
     const objURL = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    document.body.appendChild(a);
     a.href = objURL;
     a.download = filename;
     a.click();
+    a.remove();
     URL.revokeObjectURL(objURL);
 }
 
