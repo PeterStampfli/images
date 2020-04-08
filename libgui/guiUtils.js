@@ -438,10 +438,16 @@ function saveBlobAsFile(blob, filename) {
  * @method guiUtils.saveCanvasAsFile
  * @param {canvas} canvas
  * @param {string} filename - without extension
- * @param {string} type - optional, 'png' or 'jpg', default is 'png'
+ * @param {string} extension - optional, 'png' or 'jpg', default is 'png'
  */
-guiUtils.saveCanvasAsFile = function(canvas, filename, type = 'png') {
-    canvas.toBlob(function(blob) {
-        saveBlobAsFile(blob, filename + '.' + type);
-    }, 'image/' + type);
+guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'png') {
+    if (extension === 'png') {
+        canvas.toBlob(function(blob) {
+            saveBlobAsFile(blob, filename + '.png');
+        }, 'image/png');
+    } else {
+        canvas.toBlob(function(blob) {
+            saveBlobAsFile(blob, filename + '.jpg');
+        }, 'image/jpeg');
+    }
 };
