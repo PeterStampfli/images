@@ -18,11 +18,17 @@ output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = canvas.getContext("2d");
 
+output.makeCanvasSizeButtons(gui, {
+    label: 'small',
+    width: 100,
+    height: 100
+},{width:200,height:150},{width:500});
+
 gui.addParagraph('light');
 
 //ParamGui.logConversion=true
 
-const light={};
+const light = {};
 
 light.center = 0.5;
 light.scale = 1;
@@ -42,51 +48,44 @@ gui.add(smallNumber, {
 });
 gui.add(smallNumber, {
     property: 'scale',
-    max:10
+    max: 10
 });
 
 
-light.red=200;
-light.green=255;
-light.blue=100;
+light.red = 200;
+light.green = 255;
+light.blue = 100;
 
-gui.add({type:'color',labelText:'sunColor',colorObject:light,onChange: draw})
+gui.add({
+    type: 'color',
+    labelText: 'sunColor',
+    colorObject: light,
+    onChange: draw
+});
 
-const ambient={}
+const ambient = {};
 
-const amb=gui.add({type:'color',labelText:'ambient',colorObject:ambient,onChange: draw, initialValue:'#3300ff'})
+const amb = gui.add({
+    type: 'color',
+    labelText: 'ambient',
+    colorObject: ambient,
+    onChange: draw,
+    initialValue: '#3300ff'
+});
 
-const to={}
 
-console.log(amb.getValue(to))
 
-console.log(to)
-to.red=255
+ambient.green = 0;
+ambient.blue = 255;
+amb.updateDisplay();
+
+
+gui.addParagraph('attenuation');
 const atten={};
-
-amb.setValue({})
-
-
-
-console.log(amb.getValue(to))
-
-console.log(to)
-
-ambient.green=0;
-ambient.blue=255
-amb.updateDisplay()
-
-console.log(amb.getValue(to))
-
-console.log(to)
-console.log(ambient)
-
-gui.addParagraph('attenuation')
-
-atten.min=0.1;
-atten.max=2;
-smallNumber.params=atten;
-smallNumber.max=5;
+atten.min = 0.1;
+atten.max = 2;
+smallNumber.params = atten;
+smallNumber.max = 5;
 gui.add(smallNumber, {
     property: 'min'
 });
@@ -107,21 +106,21 @@ function draw() {
         // x,y=0...1
         // color components = 0...1
         let x = i / width;
-        let intensity =  Math.exp(-(x - light.center) * (x - light.center) * light.scale * light.scale);
-        let a=atten.min+Math.random()*(atten.max-atten.min)
+        let intensity = Math.exp(-(x - light.center) * (x - light.center) * light.scale * light.scale);
+        let a = atten.min + Math.random() * (atten.max - atten.min);
 
 
         //r1=0.995
         for (var j = 0; j < height; j++) {
 
-         const   totalLight=intensity*Math.exp(-j/height*a);
+            const totalLight = intensity * Math.exp(-j / height * a);
 
-        let red = totalLight * light.red+ambient.red;
-        let green = totalLight * light.green+ambient.green;
-        let blue = totalLight * light.blue+ambient.blue;
+            let red = totalLight * light.red + ambient.red;
+            let green = totalLight * light.green + ambient.green;
+            let blue = totalLight * light.blue + ambient.blue;
 
 
-            pixels[index] = Math.max(0, Math.min(255, Math.floor( red)));
+            pixels[index] = Math.max(0, Math.min(255, Math.floor(red)));
             pixels[index + 1] = Math.max(0, Math.min(255, Math.floor(green)));
             pixels[index + 2] = Math.max(0, Math.min(255, Math.floor(blue)));
             pixels[index + 3] = 255;

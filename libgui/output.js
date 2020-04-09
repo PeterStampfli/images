@@ -270,7 +270,7 @@ output.createCanvas = function(gui) {
 
     autoResizeController = gui.add({
         type: "boolean",
-        labelText: "auto resize",
+        labelText: "auto resize canvas",
         initialValue: true,
         onChange: autoResize
     });
@@ -301,5 +301,64 @@ output.setCanvasWidthToHeight = function(ratio) {
             output.draw();
             updateScrollbars();
         }
+    }
+};
+
+/**
+ * create buttons that set the canvas width and height to special values
+ * many buttons on one line
+ * buttons are defined by an  object 
+ * {label: string (optional), 
+ *  width: number, 
+ *  height: number (optional for fixed widthToHeight ratio)}
+ * @method output.makeCanvasSizeButtons
+ * @param {ParamGui} gui - where the buttons go to
+ * @param {...object} buttonDefinition - repeated for several on a line
+ */
+
+// make the button text, using label or dimensions
+function makeButtonText(buttonDefinition) {
+    if (guiUtils.isString(buttonDefinition.label)) {
+        return buttonDefinition.label;
+    } else if (guiUtils.isNumber(buttonDefinition.width) && guiUtils.isNumber(buttonDefinition.height)) {
+        return buttonDefinition.width + " x " + buttonDefinition.height;
+    } else if (guiUtils.isNumber(buttonDefinition.width)) {
+        return "width: " + buttonDefinition.width;
+    } else {
+        return '???';
+    }
+}
+
+// make the onClick method, set dimensions, set autoresize to false
+function makeOnClick(buttonDefinition) {
+    return function() {
+        autoResizeController.setValueOnly(false);
+        widthController.setValueOnly(buttonDefinition.width);
+        if (canvasWidthToHeight > 0.0001) {
+            heightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
+        } else {
+            const height = guiUtils.check(buttonDefinition.height, buttonDefinition.width);
+            heightController.setValueOnly(height);
+        }
+        output.draw();
+        autoResize();
+    };
+}
+
+output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
+    // make first button from object, that presumably exists
+    const controller = gui.add({
+        type: 'button',
+        buttonText: makeButtonText(buttonDefinition),
+        onClick: makeOnClick(buttonDefinition)
+    });
+    // make more buttons, arguments[2] ...
+    for (var i = 2; i < arguments.length; i++) {
+        const buttonDefinition = arguments[i];
+        controller.add({
+            type: 'button',
+            buttonText: makeButtonText(buttonDefinition),
+            onClick: makeOnClick(buttonDefinition)
+        }).setMinLabelWidth(0);
     }
 };
