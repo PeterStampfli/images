@@ -324,6 +324,15 @@ ParamGui.updateDefaultDesign = function(newValues) {
 };
 
 /**
+ * update design of this ParamGui instance, using data of another object with the same key 
+ * @method ParamGui#updateDesign
+ * @param {Object} newValues
+ */
+ParamGui.prototype.updateDesign = function(newValues) {
+    guiUtils.updateValues(this.design, newValues);
+};
+
+/**
  * add a span with a space to the parent element
  * @method ParamGui.addSpace
  * @param {HTMLElement} parent
