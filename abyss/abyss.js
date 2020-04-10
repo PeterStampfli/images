@@ -22,7 +22,7 @@ output.makeCanvasSizeButtons(gui, {
     label: 'small',
     width: 100,
     height: 100
-},{width:200,height:150},{width:500});
+},{width:200,height:150},{width:500},{},888);
 
 gui.addParagraph('light');
 

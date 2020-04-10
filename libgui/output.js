@@ -316,49 +316,44 @@ output.setCanvasWidthToHeight = function(ratio) {
  * @param {...object} buttonDefinition - repeated for several on a line
  */
 
-// make the button text, using label or dimensions
-function makeButtonText(buttonDefinition) {
-    if (guiUtils.isString(buttonDefinition.label)) {
-        return buttonDefinition.label;
-    } else if (guiUtils.isNumber(buttonDefinition.width) && guiUtils.isNumber(buttonDefinition.height)) {
-        return buttonDefinition.width + " x " + buttonDefinition.height;
-    } else if (guiUtils.isNumber(buttonDefinition.width)) {
-        return "width: " + buttonDefinition.width;
-    } else {
-        return '???';
-    }
-}
-
-// make the onClick method, set dimensions, set autoresize to false
-function makeOnClick(buttonDefinition) {
-    return function() {
-        autoResizeController.setValueOnly(false);
-        widthController.setValueOnly(buttonDefinition.width);
-        if (canvasWidthToHeight > 0.0001) {
-            heightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
-        } else {
-            const height = guiUtils.check(buttonDefinition.height, buttonDefinition.width);
-            heightController.setValueOnly(height);
-        }
-        output.draw();
-        autoResize();
+function makeArgs(buttonDefinition) {
+    const result = {
+        type: 'button'
     };
+    if (guiUtils.isNumber(buttonDefinition.width)) {
+        if (guiUtils.isString(buttonDefinition.label)) {
+            result.buttonText = buttonDefinition.label;
+        } else if (guiUtils.isNumber(buttonDefinition.height)) {
+            result.buttonText = buttonDefinition.width + " x " + buttonDefinition.height;
+        } else {
+            result.buttonText = 'width: ' + buttonDefinition.width;
+        }
+        result.onClick = function() {
+            autoResizeController.setValueOnly(false);
+            widthController.setValueOnly(buttonDefinition.width);
+            if (canvasWidthToHeight > 0.0001) {
+                heightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
+            } else {
+                heightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
+            }
+            output.draw();
+            autoResize();
+        };
+    } else {
+        result.buttonText = buttonDefinition.label;
+        result.labelText = 'undefined width';
+        console.error('makeCanvasSizeButtons - undefined width in buttonDefinition, which is');
+        console.log(buttonDefinition);
+        console.log('should be an object with fields: label (string, optional), width (number) and height (number, optional)')
+    }
+    return result;
 }
 
 output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
     // make first button from object, that presumably exists
-    const controller = gui.add({
-        type: 'button',
-        buttonText: makeButtonText(buttonDefinition),
-        onClick: makeOnClick(buttonDefinition)
-    });
+    const controller = gui.add(makeArgs(buttonDefinition));
     // make more buttons, arguments[2] ...
     for (var i = 2; i < arguments.length; i++) {
-        const buttonDefinition = arguments[i];
-        controller.add({
-            type: 'button',
-            buttonText: makeButtonText(buttonDefinition),
-            onClick: makeOnClick(buttonDefinition)
-        }).setMinLabelWidth(0);
+        controller.add(makeArgs(arguments[i])).setMinLabelWidth(0);
     }
 };
