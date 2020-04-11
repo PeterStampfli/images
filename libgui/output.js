@@ -140,7 +140,7 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 
 /**
  * create a canvas in the output.div with controllers in a gui (folder)
- * you can set its width to height ratio to a fixed value in an extra method
+ * you can set its width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
  * @param {ParamGui} gui - the gui that controls the canvas
  */

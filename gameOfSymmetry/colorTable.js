@@ -2,7 +2,8 @@
 
 import {
     output,
-    ColorInput
+    ColorInput,
+    ParamGui
 }
 from "../libgui/modules.js";
 
@@ -47,8 +48,12 @@ colorTable.create = function() {
     }
 };
 
-// drawing after changes of parameters: number of different colors and the color table type
-// here: drawing a sample
+/**
+* drawing after changes of parameters: number of different colors and the color table type
+* here: drawing a sample for tests
+* overwrite for running life
+* @method colorTable.draw
+*/
 colorTable.draw = function() {
     const canvas = output.canvas;
     const canvasContext = canvas.getContext("2d");
@@ -119,6 +124,38 @@ colorTable.createUI = function(gui) {
     gui.add(generatorControllerArgs);
 };
 
+// for checking out new colortable prototypes
+//=========================================================
+
+/**
+ * set up a test
+ * @method colorTable.setupTest
+ */
+colorTable.setupTest = function() {
+    const gui = new ParamGui({}, {
+        name: "colortable - controls",
+        closed: false
+    });
+    output.createCanvas(gui);
+    colorTable.createUI(gui);
+    output.draw = colorTable.draw;
+    colorTable.create();
+    colorTable.draw();
+};
+
+/*
+use with
+
+<script type="module">
+import {
+    colorTable
+}
+from "./colorTable.js";
+colorTable.setupTest();
+</script>
+
+*/
+
 // generators
 //==========================================================
 
@@ -134,7 +171,7 @@ generatorOptions.greys = greys;
 
 function greyWave(color, i) {
     var x;
-    const nc = colorTable.nColors+(colorTable.nColors&1);  // odd 1 to odd numbers
+    const nc = colorTable.nColors + (colorTable.nColors & 1); // odd 1 to odd numbers
     const nc2 = nc / 2;
     const d = 2 / nc;
     if (i < nc2) {
@@ -150,7 +187,7 @@ function greyWave(color, i) {
 generatorOptions.greyWave = greyWave;
 
 function blackBlueYellowWhite(color, i) {
-    const x = i / (colorTable.nColors-1);
+    const x = i / (colorTable.nColors - 1);
     color.red = Math.sqrt(x);
     color.green = x;
     const xs = x * x * x * x * x;

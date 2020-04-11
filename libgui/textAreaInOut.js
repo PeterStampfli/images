@@ -17,18 +17,14 @@ export function TextAreaInOut(parent) {
     this.element = document.createElement("textarea");
     parent.appendChild(this.element);
     //   this.element.style.cursor = "text";
-    this.textNode = document.createTextNode('');
-    this.element.appendChild(this.textNode);
     this.hover = false;
     this.pressed = false;
     this.active = true;
-
 
     this.colorStyleDefaults();
     this.updateStyle();
 
     // note: There is no onchange 
-
 
     /**
      * action upon mouse down, doing an interaction
@@ -66,7 +62,6 @@ export function TextAreaInOut(parent) {
         textInput.onInteraction();
     };
 }
-
 
 /**
  * update the color style of the element depending on whether its pressed or hovered
@@ -131,7 +126,7 @@ TextAreaInOut.prototype.setColumns = function(n) {
  *@return string
  */
 TextAreaInOut.prototype.getValue = function() {
-    return this.textNode.textContent;
+    return this.element.value;
 };
 
 /**
@@ -141,7 +136,7 @@ TextAreaInOut.prototype.getValue = function() {
  *@param {string} value
  */
 TextAreaInOut.prototype.setValue = function(value) {
-    this.textNode.textContent = value;
+    this.element.value = value;
 };
 
 /**

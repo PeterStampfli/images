@@ -922,7 +922,7 @@ ParamGui.combineObject = function(obs) {
 /* new arguments object
  *------------------------------------------------------------
  * use with gui.add(args) or gui.add(args,modifier)
- * args.type - values are strings: "number", "text", "button", "boolean", "selection", "color" or "image", (mandatory), defines type of controller
+ * args.type - values are strings: "number", "text", "textarea", "button", "boolean", "selection", "color" or "image", (mandatory), defines type of controller
  * args.params - an object, the controller controls its args.property field (optional)
  * args.property - string, identifier of the parameter (mandatory if there is a args.params object)
  * args.initialValue - initial value for the parameter (optional, else args.params[args.property] or 0)

@@ -199,7 +199,6 @@ export function ParamController(gui, domElement, args) {
                 this.updateDisplay = function() {};
                 break;
             case "textarea":
-                console.log('textarea');
                 this.label.style.verticalAlign = "middle";
                 const textarea = new TextAreaInOut(this.domElement);
                 textarea.setFontSize(this.design.buttonFontSize);
@@ -209,10 +208,8 @@ export function ParamController(gui, domElement, args) {
                 this.uiElement = textarea;
                 this.setupOnInteraction();
                 const rows = guiUtils.check(args.rows, 3);
-                console.log(rows);
                 textarea.setRows(rows);
-                const columns = guiUtils.check(args.columns, 3);
-                console.log(columns);
+                const columns = guiUtils.check(args.columns, 20);
                 textarea.setColumns(columns);
                 if (guiUtils.isString(this.initialValue)) {
                     this.setValueOnly(this.initialValue); // safe, does not change value

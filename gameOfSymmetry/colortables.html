@@ -9,44 +9,14 @@
 
 <body>
 
-
 </body>
 
-
-
 <script type="module">
-import {
-    ParamGui,
-    guiUtils,
-    output
-}
-from "../libgui/modules.js";
-
 import {
     colorTable
 }
 from "./colorTable.js";
-
-
-const gui = new ParamGui({}, {
-    name: "colortable - controls",
-    closed: false
-});
-
-
-output.createCanvas(gui, true);
-
-output.canvas.style.backgroundColor = "lightBlue";
-
-colorTable.createUI(gui);
-
-output.draw = colorTable.draw
-
-        colorTable.create();
-
-colorTable.draw();
-
+colorTable.setupTest();
 </script>
-
 
 </html>
