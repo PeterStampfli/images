@@ -21,7 +21,7 @@ colorTable.blues = [];
 colorTable.cssColor = [];
 
 /**
- * making the table
+ * making the table and adjusting the ui
  * colorTable.nColors gives the number of colors
  * colorTable.generator(color,x) is a defining function. 
  * x and color components are floats between 0 and 1
@@ -82,7 +82,7 @@ colorTable.nColors = 10;
 // shifting the entries
 colorTable.shift = 0;
 
-// the args object for the gui
+// number args object for the gui
 const numberControllerArgs = {
     type: 'number',
     params: colorTable,
@@ -96,7 +96,7 @@ const numberControllerArgs = {
 // the options for choosing the table generator: key/value pairs
 const generatorOptions = {};
 
-// the args object for the gui
+// generator selection args object for the gui
 const generatorControllerArgs = {
     type: 'selection',
     params: colorTable,
@@ -108,11 +108,23 @@ const generatorControllerArgs = {
     }
 };
 
+// color args object for the gui
+const colorControllerArgs={
+type:'color',
+    onChange: function() {
+        colorTable.create();
+        colorTable.draw(); // this drawing method may be changed later, if we do not want to draw only samples
+    }
+};
+
 /**
  * create the gui (ui elements)
  * method colorTable.createUI
  * @param {ParamGui} gui
  */
+ var color1Controller,color2Controller;
+ var color1={};
+
 colorTable.createUI = function(gui) {
     gui.add(numberControllerArgs, {
         property: 'nColors',
@@ -122,6 +134,11 @@ colorTable.createUI = function(gui) {
         property: 'shift'
     });
     gui.add(generatorControllerArgs);
+    color1Controller=gui.add(colorControllerArgs,{
+        labelText:'first',
+        colorObject: color1,
+        initialValue:'#ff0000'
+    })
 };
 
 // for checking out new colortable prototypes
@@ -133,11 +150,11 @@ colorTable.createUI = function(gui) {
  */
 colorTable.setupTest = function() {
     const gui = new ParamGui({}, {
-        name: "colortable - controls",
         closed: false
     });
     output.createCanvas(gui);
-    colorTable.createUI(gui);
+    const colorTableGui=gui.addFolder({closed:false,name:'colortable'});
+    colorTable.createUI(colorTableGui);
     output.draw = colorTable.draw;
     colorTable.create();
     colorTable.draw();
@@ -153,7 +170,6 @@ import {
 from "./colorTable.js";
 colorTable.setupTest();
 </script>
-
 */
 
 // generators

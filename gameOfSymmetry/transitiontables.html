@@ -15,12 +15,7 @@
 
 
 <script type="module">
-import {
-    ParamGui,
-    guiUtils,
-    output
-}
-from "../libgui/modules.js";
+
 
 import {
     transitionTable
@@ -28,15 +23,8 @@ import {
 from "./transitionTable.js";
 
 
-const gui = new ParamGui({}, {
-    name: "transitiontable - controls",
-    closed: false
-});
+transitionTable.setupTest();
 
-transitionTable.createUI(gui);
-
-transitionTable.setNStatesTableLength(4,10);
-console.log(transitionTable.createString())
 
 </script>
 

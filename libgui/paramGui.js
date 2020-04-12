@@ -544,6 +544,9 @@ ParamGui.prototype.createTitle = function() {
             this.closeOpenButton.element.style.outline = "none";
             this.closeOpenButton.setFontSize(design.titleFontSize);
             this.closeOpenButton.setWidth(design.closeOpenButtonWidth);
+            this.closeOpenButton.onInteraction = function() {
+                ParamGui.closePopups();
+            };
             const paramGui = this;
             this.closeOpenButton.onClick = function() {
                 paramGui.close();
@@ -716,20 +719,24 @@ ParamGui.prototype.toFront = function() {
 /**
  * add a folder, it is a gui instance, open by default
  * @method ParamGui#addFolder
- * @param {String} folderName
+ * @param {String} folderName - optional, for compatibility with datgui
  * @param {...Object} designParameters - modifying the design and other parameters
  * @return ParamGui instance (that's the folder)
  */
 ParamGui.prototype.addFolder = function(folderName, designParameters) {
     const allParameters = {
-        name: folderName,
         closeOnTop: true,
         closed: true,
         parent: this,
         autoPlace: false,
         hideable: false
     };
-    for (var i = 1; i < arguments.length; i++) {
+    var firstParamsIndex = 0;
+    if (guiUtils.isString(folderName)) {
+        firstParamsIndex = 1;
+        allParameters.name = folderName;
+    }
+    for (var i = firstParamsIndex; i < arguments.length; i++) {
         Object.assign(allParameters, arguments[i]);
     }
     const folder = new ParamGui(allParameters);

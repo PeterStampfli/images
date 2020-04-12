@@ -206,6 +206,7 @@ export function ParamController(gui, domElement, args) {
                 textarea.element.style.verticalAlign = "middle";
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = textarea;
+                this.setValue = this.setValueOnly;
                 this.setupOnInteraction();
                 const rows = guiUtils.check(args.rows, 3);
                 textarea.setRows(rows);

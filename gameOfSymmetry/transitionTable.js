@@ -1,4 +1,8 @@
 /* jshint esversion: 6 */
+import {
+    ParamGui
+}
+from "../libgui/modules.js";
 
 /**
  * transition table:
@@ -27,6 +31,24 @@ transitionTable.draw = function() {
     console.log(transitionTable.createString()); //dummy
 };
 
+/**
+ * generate the transition table, set up the ui
+ * make redrawing separately
+ * uses the transitionTable.generator method
+ * @method TransitionTable.generate
+ */
+transitionTable.generate = function() {
+    if (transitionTable.generator === transitionTable.random) {
+        scaleController.hide();
+        reRandomButton.show();
+    } else {
+        scaleController.show();
+        reRandomButton.hide();
+    }
+    transitionTable.generator();
+    tableTextController.setValueOnly(transitionTable.createString());
+};
+
 // set table length, set number of States
 //===============================================================
 let nStates = 2;
@@ -45,7 +67,7 @@ let nStates = 2;
 transitionTable.setNStatesTableLength = function(numberStates, tableLength) {
     if (numberStates > 32) {
         console.error('transitionTable.setNStatesTableLength: number of states is too large');
-        console.log('numberStates: ' + numberStates + ' is greater than 32 - now set to 32');
+        console.log('numberStates: ' + numberStates + ' is greater than 32 - I set it to 32');
         numberStates = 32;
     }
     if (numberStates > tableLength) {
@@ -55,7 +77,7 @@ transitionTable.setNStatesTableLength = function(numberStates, tableLength) {
     }
     nStates = numberStates;
     transitionTable.table.length = tableLength;
-    transitionTable.generator();
+    transitionTable.generate();
 };
 
 // transition table to and from strings
@@ -76,18 +98,30 @@ transitionTable.createString = function() {
 /**
  * create a transition table from a string
  * each caracter corresponds to one entry (thus number of states <= 32)
+ * skip characters that are not numbers (line breaks)
  * @transitionTable.fromString
  * @param {string} s
  */
+const goodCharacters = '0123456789abcdefghijklmnopqrstuv'; // numbers 0...31 in base 32
+
 transitionTable.fromString = function(s) {
     const tableLength = transitionTable.table.length;
-    if (tableLength !== s.length) {
-        console.error("transitionTable.fromString: lengths do not agree. String length " + s.length + ", table length " + tableLength);
+    const stringLength = s.length;
+    let tableIndex = 0;
+    let stringIndex = 0;
+    while ((tableIndex < tableLength) && (stringIndex < stringLength)) {
+        const currentChar = s.charAt(stringIndex);
+        const charValue = Math.min(goodCharacters.indexOf(currentChar), nStates - 1);
+        if (charValue >= 0) {
+            transitionTable.table[tableIndex] = charValue;
+            tableIndex += 1;
+        }
+        stringIndex += 1;
     }
-    const length = Math.min(tableLength, s.length);
-    transitionTable.table.fill(0);
-    for (var i = 0; i < length; i++) {
-        transitionTable.table[i] = parseInt(s.substring(i, i + 1), 32);
+    // fill up rest of table with zeros
+    while (tableIndex < tableLength) {
+        transitionTable.table[tableIndex] = 0;
+        tableIndex += 1;
     }
 };
 
@@ -105,14 +139,30 @@ function makeTransitionTableWith(fun) {
     }
 }
 
+// test if transition table has each of the possible states
+function transitionTableHasAllStates() {
+    for (var i = 0; i < nStates; i++) {
+        if (transitionTable.table.indexOf(i) < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// make a single random state
+function randomState() {
+    return Math.floor(Math.random() * nStates);
+}
+
 /**
- * make a random transition table
+ * make a random transition table, all states should be in the table
  * @method transitionTable.random
  */
 transitionTable.random = function() {
-    makeTransitionTableWith(function() {
-        return Math.floor(Math.random() * nStates);
-    });
+    transitionTable.table.fill(0); // fail as defined start
+    while (!transitionTableHasAllStates()) {
+        makeTransitionTableWith(randomState);
+    }
 };
 
 /**
@@ -154,7 +204,7 @@ const typeOptions = {
  * method transitionTable.createUI
  * @param {ParamGui} gui
  */
-var scaleController, tableTextController;
+var scaleController, tableTextController, reRandomButton;
 
 transitionTable.createUI = function(gui) {
     transitionTable.generatorController = gui.add({
@@ -163,12 +213,7 @@ transitionTable.createUI = function(gui) {
         property: 'generator',
         options: typeOptions,
         onChange: function() {
-            if (value === transitionTable.random) {
-                scaleController.setActive(false);
-            } else {
-                scaleController.setActive(true);
-            }
-            transitionTable.generator();
+            transitionTable.generate();
             transitionTable.draw();
         }
     });
@@ -176,15 +221,24 @@ transitionTable.createUI = function(gui) {
         type: 'number',
         initialValue: 1,
         labelText: 'scale',
+        min: 1,
         max: 256,
         onChange: function() {
-            transitionTable.generator();
+            transitionTable.generate();
+            transitionTable.draw();
+        }
+    });
+    reRandomButton = gui.add({
+        type: 'button',
+        buttonText: 'new random table',
+        onClick: function() {
+            transitionTable.generate();
             transitionTable.draw();
         }
     });
     tableTextController = gui.add({
         type: 'textarea',
-        initialValue: 'xxx',
+        initialValue: '',
         labelText: 'table',
         rows: 3,
         columns: 20
@@ -193,7 +247,37 @@ transitionTable.createUI = function(gui) {
         type: 'button',
         buttonText: 'use this table',
         onClick: function() {
-            console.log('table ' + tableTextController.getValue());
+            const text = tableTextController.getValue();
+            if (transitionTable.createString() !== text) {
+                transitionTable.fromString(text);
+                tableTextController.setValueOnly(transitionTable.createString());
+                transitionTable.draw();
+            }
         }
     }).setMinLabelWidth(0);
 };
+
+/**
+ * set up a test
+ * @method colorTable.setupTest
+ */
+transitionTable.setupTest = function() {
+    const gui = new ParamGui({}, {
+        name: "transitiontable - controls",
+        closed: false
+    });
+    transitionTable.createUI(gui);
+    transitionTable.setNStatesTableLength(16, 17);
+};
+
+/*
+use with
+
+<script type="module">
+import {
+    transitionTable
+}
+from "./transitionTable.js";
+transitionTable.setupTest();
+</script>
+*/
