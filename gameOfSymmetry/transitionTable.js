@@ -13,6 +13,9 @@ from "../libgui/modules.js";
  *    (new state=(old state+ tableEntry) % number of states)
  * thus can use the same type of table for both
  * we use one unique table
+ * Note: table[0]===0, always, that means that a cell with neighboring cells all ==0 does not change
+ * (this does not restrict possible automatons, because a 'translation' , 
+ * addition mod number of states, results in equivalent automaton)
  * input/output: number.toString(radix) has maximum 32 for radix, thus maximum number of states is 32
  * @namespace transitionTable
  */
@@ -149,11 +152,6 @@ function transitionTableHasAllStates() {
     return true;
 }
 
-// make a single random state
-function randomState() {
-    return Math.floor(Math.random() * nStates);
-}
-
 /**
  * make a random transition table, all states should be in the table
  * @method transitionTable.random
@@ -161,7 +159,11 @@ function randomState() {
 transitionTable.random = function() {
     transitionTable.table.fill(0); // fail as defined start
     while (!transitionTableHasAllStates()) {
-        makeTransitionTableWith(randomState);
+        // new random state, table[0]===0, always
+        const length = transitionTable.table.length;
+        for (var i = 1; i < length; i++) {
+            transitionTable.table[i] = Math.floor(Math.random() * nStates);
+        }
     }
 };
 

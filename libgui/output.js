@@ -232,7 +232,9 @@ output.createCanvas = function(gui) {
                 if (output.divWidth / output.divHeight > canvasWidthToHeight) {
                     // very elongated div: its height determines canvas dimensions
                     newWidth = Math.round(output.divHeight * canvasWidthToHeight);
+                newHeight = output.divHeight;
                 } else {
+                newWidth = output.divWidth;
                     newHeight = Math.round(output.divWidth / canvasWidthToHeight);
                 }
             } else {
@@ -321,15 +323,16 @@ let canvasWidthToHeight = -1;
 output.setCanvasWidthToHeight = function(ratio) {
     if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always draw()
         canvasWidthToHeight = ratio;
-        if (autoResizeController.getValue()) {
-            autoResize();
-        } else {
+        // if autoresizing we do not need to set canvas dimensions 
+        //because autoResize does this automatically (better names ?)
+        if (!autoResizeController.getValue())  {
             const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
             widthController.setValueOnly(width);
             heightController.setValueOnly(width / canvasWidthToHeight);
             output.draw();
-            updateScrollbars();
         }
+        // adjust canvas dimensions or image or scrollbars
+        autoResize();
     }
 };
 

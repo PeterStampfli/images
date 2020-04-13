@@ -23,12 +23,15 @@ colorTable.cssColor = [];
 /**
  * making the table and adjusting the ui
  * colorTable.nColors gives the number of colors
- * colorTable.generator(color,x) is a defining function. 
- * x and color components are floats between 0 and 1
+ * colorTable.generator(color,i) is a defining function. 
+ * i goes from 0 to nColors-1
+ * color components are floats between 0 and 1
  * colors can be cyclic
  * @method colorTable.create
  */
 colorTable.create = function() {
+    // the ui
+    // the colors
     const color = {};
     colorTable.reds.length = colorTable.nColors;
     colorTable.greens.length = colorTable.nColors;
@@ -49,11 +52,11 @@ colorTable.create = function() {
 };
 
 /**
-* drawing after changes of parameters: number of different colors and the color table type
-* here: drawing a sample for tests
-* overwrite for running life
-* @method colorTable.draw
-*/
+ * drawing after changes of parameters: number of different colors and the color table type
+ * here: drawing a sample for tests
+ * overwrite for running life
+ * @method colorTable.draw
+ */
 colorTable.draw = function() {
     const canvas = output.canvas;
     const canvasContext = canvas.getContext("2d");
@@ -77,7 +80,18 @@ colorTable.draw = function() {
 
 // the number of colors - target value for generation, will be length of tables
 // change value in the gui
+// for the moment we do not need to change it from the outside
 colorTable.nColors = 10;
+
+/**
+* change the number of colors (for initialization)
+* gives correect number in ui !!
+* @method colorTable.setNColors
+* @param {int} n
+*/
+colorTable.setNColors=function(n){
+    nColorsController.setValueOnly(n);
+};
 
 // shifting the entries
 colorTable.shift = 0;
@@ -109,9 +123,10 @@ const generatorControllerArgs = {
 };
 
 // color args object for the gui
-const colorControllerArgs={
-type:'color',
+const colorControllerArgs = {
+    type: 'color',
     onChange: function() {
+        console.log('change');
         colorTable.create();
         colorTable.draw(); // this drawing method may be changed later, if we do not want to draw only samples
     }
@@ -122,11 +137,12 @@ type:'color',
  * method colorTable.createUI
  * @param {ParamGui} gui
  */
- var color1Controller,color2Controller;
- var color1={};
+var nColorsController,color1Controller, color2Controller;
+var color1 = {};
+var color2 = {};
 
 colorTable.createUI = function(gui) {
-    gui.add(numberControllerArgs, {
+    nColorsController=gui.add(numberControllerArgs, {
         property: 'nColors',
         min: 2
     });
@@ -134,11 +150,16 @@ colorTable.createUI = function(gui) {
         property: 'shift'
     });
     gui.add(generatorControllerArgs);
-    color1Controller=gui.add(colorControllerArgs,{
-        labelText:'first',
+    color1Controller = gui.add(colorControllerArgs, {
+        labelText: 'first',
         colorObject: color1,
-        initialValue:'#ff0000'
-    })
+        initialValue: '#ff0000'
+    });
+    color2Controller = gui.add(colorControllerArgs, {
+        labelText: 'second',
+        colorObject: color2,
+        initialValue: '#00ff00'
+    });
 };
 
 // for checking out new colortable prototypes
@@ -153,7 +174,10 @@ colorTable.setupTest = function() {
         closed: false
     });
     output.createCanvas(gui);
-    const colorTableGui=gui.addFolder({closed:false,name:'colortable'});
+    const colorTableGui = gui.addFolder({
+        closed: false,
+        name: 'colortable'
+    });
     colorTable.createUI(colorTableGui);
     output.draw = colorTable.draw;
     colorTable.create();
@@ -174,6 +198,9 @@ colorTable.setupTest();
 
 // generators
 //==========================================================
+// whatever(color,i) is a defining function. 
+// i goes from 0 to nColors-1
+// color components (red, green, blue) are floats between 0 and 1
 
 function greys(color, i) {
     const x = i / (colorTable.nColors - 1);
@@ -229,3 +256,11 @@ function rainbow(color, i) {
     color.blue = a * Math.max(1 - Math.abs(3 * x - 3), 1 - Math.abs(3 * x));
 }
 generatorOptions.rainbow = rainbow;
+
+function twoColorInterpolation(color, i) {
+    const x = i / (colorTable.nColors - 1);
+    color.red = (x * color1.red + (1 - x) * color2.red) / 255;
+    color.green = (x * color1.green + (1 - x) * color2.green) / 255;
+    color.blue = (x * color1.blue + (1 - x) * color2.blue) / 255;
+}
+generatorOptions.twoColors = twoColorInterpolation;
