@@ -84,12 +84,12 @@ colorTable.draw = function() {
 colorTable.nColors = 10;
 
 /**
-* change the number of colors (for initialization)
-* gives correect number in ui !!
-* @method colorTable.setNColors
-* @param {int} n
-*/
-colorTable.setNColors=function(n){
+ * change the number of colors (for initialization)
+ * gives correect number in ui !!
+ * @method colorTable.setNColors
+ * @param {int} n
+ */
+colorTable.setNColors = function(n) {
     nColorsController.setValueOnly(n);
 };
 
@@ -137,12 +137,12 @@ const colorControllerArgs = {
  * method colorTable.createUI
  * @param {ParamGui} gui
  */
-var nColorsController,color1Controller, color2Controller;
+var nColorsController, color1Controller, color2Controller;
 var color1 = {};
 var color2 = {};
 
 colorTable.createUI = function(gui) {
-    nColorsController=gui.add(numberControllerArgs, {
+    nColorsController = gui.add(numberControllerArgs, {
         property: 'nColors',
         min: 2
     });
@@ -160,6 +160,15 @@ colorTable.createUI = function(gui) {
         colorObject: color2,
         initialValue: '#00ff00'
     });
+};
+
+/**
+ * get the number of color
+ * @method colorTable.getNColors
+ * @return int, the number of colors
+ */
+colorTable.getNColors = function() {
+    return nColorsController.getValue();
 };
 
 // for checking out new colortable prototypes

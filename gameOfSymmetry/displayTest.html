@@ -12,60 +12,11 @@
 </body>
 
 <script type="module">
-
 import {
-    output,
-    ParamGui
+    displayRectangularColorTable
 }
-from "../libgui/modules.js";
-import {
-    display
-}
-from "./display.js";
-import {
-    colorTable
-}
-from "./colorTable.js";
-
-const gui = new ParamGui({}, {
-    closed: false
-});
-output.createCanvas(gui);
-const colorTableGui = gui.addFolder({
-    closed: false,
-    name: 'color table'
-});
-
-const nColors=6;
-
-colorTable.createUI(colorTableGui);
-colorTable.setNColors(nColors);
-colorTable.create();
-
-console.log(colorTable.cssColor);
-
-const displayGui = gui.addFolder({
-    closed: false,
-    name: 'display'
-});
-
-display.setDimensions(5,5);
-
-const world=[];
-world.length=25;
-for (var i=0;i<25;i++){
-	world[i]=i%nColors;
-}
-display.setData(world);
-
-display.createUI(displayGui);
-
-colorTable.draw = display.block;
-output.draw = display.block;
-
-
-display.linearInterpolation();
-
+from "./displayRectangularColorTable.js";
+displayRectangularColorTable.setupTest();
 </script>
 
 </html>
