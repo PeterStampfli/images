@@ -21,7 +21,7 @@ export const displayRectangularColorTable = {};
 
 // the input data from the automaton (with possible transformation)
 // it is an 'image', may be the same as the cells, or different (survival time?)
-var imageData, imageWidth, imageHeight;
+var imageData, imageWidth, imageHeight, imageNStates;
 
 /**
  * set the width and height of the image
@@ -52,7 +52,6 @@ displayRectangularColorTable.setData = function(data) {
  * @method displayRectangularColorTable.setImageNStates
  * @param {int} n
  */
-var imageNStates = 2;
 
 displayRectangularColorTable.setImageNStates = function(n) {
     imageNStates = n;
@@ -316,26 +315,32 @@ displayRectangularColorTable.setupTest = function() {
         name: 'display'
     });
     displayRectangularColorTable.createUI(displayGui);
-    // we a test image
-    // adjust the number of colors for different test images
-    const nColors = 6;
+
     const world = [];
-    world.length = 25;
-    for (var i = 0; i < 25; i++) {
-        world[i] = 0;
-        world[i] = (i) % nColors;
-    }
+    const nColors = 6;
+    const width = 5;
+    const height = 5;
+
     // transfer data
-    displayRectangularColorTable.setDimensions(5, 5);
+    displayRectangularColorTable.setDimensions(width, height);
     displayRectangularColorTable.setImageNStates(nColors);
     displayRectangularColorTable.setData(world);
 
     // initialize the color table
     colorTable.setNColors(nColors);
     colorTable.create();
-    // define drawing routines and draw it
+    // define drawing routines
     colorTable.draw = displayRectangularColorTable.draw;
     output.draw = displayRectangularColorTable.draw;
+
+    // make a test image
+
+    world.length = width * height;
+    for (var i = 0; i < world.length; i++) {
+        world[i] = 0;
+        world[i] = (i) % nColors;
+    }
+
     displayRectangularColorTable.draw();
 };
 

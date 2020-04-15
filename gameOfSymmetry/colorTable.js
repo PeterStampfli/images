@@ -31,6 +31,13 @@ colorTable.cssColor = [];
  */
 colorTable.create = function() {
     // the ui
+if (colorTable.generator===twoColorInterpolation){
+color1Controller.show();
+color2Controller.show();
+} else {
+color1Controller.hide();
+color2Controller.hide();
+}
     // the colors
     const color = {};
     colorTable.reds.length = colorTable.nColors;

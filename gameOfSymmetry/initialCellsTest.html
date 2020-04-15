@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>initial cells test</title>
+</head>
+
+<body>
+
+</body>
+
+<script type="module">
+
+import {
+    output,
+    ParamGui
+}
+from "../libgui/modules.js";
+
+import {
+    colorTable
+}
+from "./colorTable.js";
+
+import {
+    initialCells
+}
+from "./initialCells.js";
+import {
+    displayRectangularColorTable
+}
+from "./displayRectangularColorTable.js";
+
+// essentially the same as test for displayrectangularcolortable
+// simply using initialcells to generate the array with image data
+
+const gui = new ParamGui({}, {
+    closed: false
+});
+output.createCanvas(gui);
+const colorTableGui = gui.addFolder({
+    closed: false,
+    name: 'color table'
+});
+colorTable.createUI(colorTableGui);
+const displayGui = gui.addFolder({
+    closed: false,
+    name: 'display'
+});
+displayRectangularColorTable.createUI(displayGui);
+const height=5;
+const width=5;
+const nStates=3;
+const world=[];
+
+
+// initialize the color table
+colorTable.setNColors(nStates);
+colorTable.create();
+// transfer data
+displayRectangularColorTable.setDimensions(width,height);
+displayRectangularColorTable.setImageNStates(nStates);
+displayRectangularColorTable.setData(world);
+
+
+initialCells.setDimensions(width,height);
+initialCells.setData(world);
+initialCells.setNStates(nStates);
+world.length=width*height;
+initialCells.centerMotif();
+
+
+
+
+</script>
+
+</html>
