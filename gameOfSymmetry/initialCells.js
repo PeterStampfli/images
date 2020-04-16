@@ -66,20 +66,104 @@ initialCells.draw = function() {
     // displayRectangularColorTable.interpolation();
 };
 
-
-
-
 // different setups -> choices
 //=====================================================
 
 // simple motif at center, depending on parameters
 
-initialCells.center=1
-initialCells.nearest=2;
-initialCells.second=3;
+initialCells.center = 3;
+initialCells.nearest = 2;
+initialCells.second = 1;
 
-initialCells.centerMotif=function(){
-	worldData.fill(0);
-const centerIndex=Math.floor(0.5*worldWidth*worldHeight)+1;
-worldData[centerIndex]=initialCells.center;
+initialCells.centerMotif = function() {
+    worldData.fill(0);
+    const centerIndex = Math.floor(0.5 * worldWidth * worldHeight);
+    worldData[centerIndex] = initialCells.center;
+    worldData[centerIndex + 1] = initialCells.nearest;
+    worldData[centerIndex - 1] = initialCells.nearest;
+    worldData[centerIndex + worldWidth] = initialCells.nearest;
+    worldData[centerIndex - worldWidth] = initialCells.nearest;
+    worldData[centerIndex + 1 + worldWidth] = initialCells.second;
+    worldData[centerIndex + 1 - worldWidth] = initialCells.second;
+    worldData[centerIndex - 1 + worldWidth] = initialCells.second;
+    worldData[centerIndex - 1 - worldWidth] = initialCells.second;
 };
+
+function randomState() {
+    return Math.floor(worldNStates * Math.random());
+}
+
+initialCells.random = function() {
+    const length = worldData.length;
+    for (var i = 0; i < length; i++) {
+        worldData[i] = randomState();
+    }
+};
+
+initialCells.randomBorder = function() {
+    worldData.fill(0);
+    for (var i = 0; i < worldWidth; i++) {
+        worldData[i] = randomState();
+        worldData[worldData.length - 1 - worldWidth + i] = randomState();
+    }
+    for (var j = 0; j < worldHeight; j++) {
+        worldData[j * worldWidth] = randomState();
+        worldData[j * worldWidth + worldWidth - 1] = randomState();
+    }
+};
+
+initialCells.randomBorderVerticalMirror = function() {
+    worldData.fill(0);
+    const centerX = Math.floor(0.5 * worldWidth);
+    for (var i = 0; i <= centerX; i++) {
+        const ii = worldWidth - 1 - i;
+        let state = randomState();
+        worldData[i] = state;
+        worldData[ii] = state;
+        state = randomState();
+        // top line goes from worldData.length-worldWidth ... worldData.length-1
+        worldData[worldData.length - worldWidth + i] = state;
+        worldData[worldData.length - worldWidth + ii] = state;
+    }
+    for (var j = 0; j < worldHeight; j++) {
+        const state = randomState();
+        worldData[j * worldWidth] = state;
+        worldData[j * worldWidth + worldWidth - 1] = state;
+    }
+};
+
+initialCells.randomVerticalMirror = function() {
+    const centerX = Math.floor(0.5 * worldWidth);
+    for (var i = 0; i <= centerX; i++) {
+        // mirror image:
+        // index in x-direction goes from 0...worldWidth-1
+        const ii = worldWidth - 1 - i;
+        for (var j = 0; j < worldHeight; j++) {
+            const state = randomState();
+            worldData[i + worldWidth * j] = state;
+            worldData[ii + worldWidth * j] = state;
+        }
+    }
+};
+
+initialCells.randomVerticalHorizontalMirror = function() {
+    const centerX = Math.floor(0.5 * worldWidth);
+    const centerY = Math.floor(0.5 * worldHeight);
+    for (var i = 0; i <= centerX; i++) {
+        // mirror image:
+        // index in x-direction goes from 0...worldWidth-1
+        const ii = worldWidth - 1 - i;
+        for (var j = 0; j <= centerY; j++) {
+            const jj = worldHeight - 1 - j;
+            const state = randomState();
+            worldData[i + worldWidth * j] = state;
+            worldData[ii + worldWidth * j] = state;
+            worldData[i + worldWidth * jj] = state;
+            worldData[ii + worldWidth * jj] = state;
+        }
+    }
+};
+// horizontal and vertical mirrors
+
+// horizontal, vertical and diagonal mirrors, only for square world
+// for other worlds padded with zeros

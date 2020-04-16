@@ -90,11 +90,16 @@ function rightSpaceLimit() {
  * NOTE: changing the canvas size sets canvasAutoResize to false, requires redraw and checking of scroll bars
  */
 
+
+// show that the window has been loaded
+output.windowLoaded = false;
+
 /**
- * resizing the output div
+ * resizing the output div, called by window.onResize upon window onload
  * @method resizeOutputDiv
  */
 function resizeOutputDiv() {
+    output.windowLoaded = true;
     const leftOfSpace = leftSpaceLimit();
     const widthOfSpace = rightSpaceLimit() - leftOfSpace;
     output.div.style.left = leftOfSpace + "px";
@@ -155,7 +160,9 @@ output.createCanvas = function(gui) {
     if (!output.div) {
         output.createDiv();
     }
-    gui.updateDesign({textInputWidth:150});
+    gui.updateDesign({
+        textInputWidth: 150
+    });
     output.canvas = document.createElement("canvas");
     output.div.appendChild(output.canvas);
     // the save button and text field for changing the name
@@ -232,9 +239,9 @@ output.createCanvas = function(gui) {
                 if (output.divWidth / output.divHeight > canvasWidthToHeight) {
                     // very elongated div: its height determines canvas dimensions
                     newWidth = Math.round(output.divHeight * canvasWidthToHeight);
-                newHeight = output.divHeight;
+                    newHeight = output.divHeight;
                 } else {
-                newWidth = output.divWidth;
+                    newWidth = output.divWidth;
                     newHeight = Math.round(output.divWidth / canvasWidthToHeight);
                 }
             } else {
@@ -310,10 +317,19 @@ output.createCanvas = function(gui) {
 };
 
 /**
+* autoresizing the canvas, required after changing the width to size ratio
+* @method output.resizeCanvas
+*/
+output.resizeCanvas=function(){
+    autoResize();
+};
+
+/**
  * set the canvasWidthToHeight
  * if value<0: no fixed ratio
  * if value>0...1: fixed ratio
  * needs to update canvas dimensions
+ * CALL autoresize and draw later (particularly in initialization...)
  * @method output.setCanvasWidthToHeight
  * @param {float} ratio
  */
@@ -321,18 +337,15 @@ output.createCanvas = function(gui) {
 let canvasWidthToHeight = -1;
 
 output.setCanvasWidthToHeight = function(ratio) {
-    if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always draw()
+    if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always 
         canvasWidthToHeight = ratio;
         // if autoresizing we do not need to set canvas dimensions 
         //because autoResize does this automatically (better names ?)
-        if (!autoResizeController.getValue())  {
+        if (!autoResizeController.getValue()&&(ratio>0.0001)) {
             const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
             widthController.setValueOnly(width);
             heightController.setValueOnly(width / canvasWidthToHeight);
-            output.draw();
         }
-        // adjust canvas dimensions or image or scrollbars
-        autoResize();
     }
 };
 

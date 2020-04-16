@@ -50,16 +50,18 @@ const displayGui = gui.addFolder({
     name: 'display'
 });
 displayRectangularColorTable.createUI(displayGui);
+
 const height=5;
 const width=5;
-const nStates=3;
+const nStates=4;
 const world=[];
 
-
+   output.draw = displayRectangularColorTable.draw;
 // initialize the color table
 colorTable.setNColors(nStates);
 colorTable.create();
-// transfer data
+    colorTable.draw = displayRectangularColorTable.draw;
+// initialize display
 displayRectangularColorTable.setDimensions(width,height);
 displayRectangularColorTable.setImageNStates(nStates);
 displayRectangularColorTable.setData(world);
@@ -68,10 +70,16 @@ displayRectangularColorTable.setData(world);
 initialCells.setDimensions(width,height);
 initialCells.setData(world);
 initialCells.setNStates(nStates);
+
+// test configs
 world.length=width*height;
 initialCells.centerMotif();
+initialCells.randomVerticalMirror();
+initialCells.randomVerticalHorizontalMirror();
+initialCells.randomBorderVerticalMirror();
 
-
+output.resizeCanvas();
+    displayRectangularColorTable.draw();
 
 
 </script>

@@ -26,6 +26,7 @@ var imageData, imageWidth, imageHeight, imageNStates;
 /**
  * set the width and height of the image
  * sets the width to height ratio of the output canvas: CREATE canvas before calling this
+ * CALL output.resizeCanvas
  * @method displayRectangularColorTable.setDimensions
  * @param {int} width
  * @param {int} height - default: width
@@ -340,6 +341,7 @@ displayRectangularColorTable.setupTest = function() {
         world[i] = 0;
         world[i] = (i) % nColors;
     }
+output.resizeCanvas();
 
     displayRectangularColorTable.draw();
 };
