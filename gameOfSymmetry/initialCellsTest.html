@@ -50,9 +50,14 @@ const displayGui = gui.addFolder({
     name: 'display'
 });
 displayRectangularColorTable.createUI(displayGui);
+const initGui=gui.addFolder({
+    closed: false,
+    name: 'initial configuration'
+});
+initialCells.createUI(gui);
 
-const height=5;
-const width=5;
+const height=7;
+const width=7;
 const nStates=4;
 const world=[];
 
@@ -74,9 +79,9 @@ initialCells.setNStates(nStates);
 // test configs
 world.length=width*height;
 initialCells.centerMotif();
-initialCells.randomVerticalMirror();
-initialCells.randomVerticalHorizontalMirror();
-initialCells.randomBorderVerticalMirror();
+initialCells.randomC4();
+initialCells.axis();
+initialCells.centerMotif();
 
 output.resizeCanvas();
     displayRectangularColorTable.draw();

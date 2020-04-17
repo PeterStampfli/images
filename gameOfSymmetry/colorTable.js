@@ -133,7 +133,6 @@ const generatorControllerArgs = {
 const colorControllerArgs = {
     type: 'color',
     onChange: function() {
-        console.log('change');
         colorTable.create();
         colorTable.draw(); // this drawing method may be changed later, if we do not want to draw only samples
     }

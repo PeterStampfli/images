@@ -12,12 +12,19 @@ from "../libgui/modules.js";
  */
 export const initialCells = {};
 
-// set info about the cells
+// set info about the cells and the world
+//=========================================================
 
 var worldData, worldWidth, worldHeight, worldNStates;
 
+// center of the world is at (centerX,centerY)
+var centerX, centerY;
+
+// world goes from i=-centerX, ... +centerX and j=-centerY, ... +centerY
+// relative to this center, and for odd worldWidth and worldHeight
+
 /**
- * set the width and height of the world
+ * set the width and height of the world, its center
  * @method initialCells.setDimensions
  * @param {int} width
  * @param {int} height - default: width
@@ -31,6 +38,8 @@ initialCells.setDimensions = function(width, height) {
     }
     worldWidth = width;
     worldHeight = height;
+    centerX = Math.floor(0.5 * worldWidth);
+    centerY = Math.floor(0.5 * worldHeight);
 };
 
 /**
@@ -47,12 +56,164 @@ initialCells.setData = function(data) {
 /**
  * set the number of states of the cells
  * determines max for parameters or random numbers
+ * limit number ranges in ui
  * @method initialCells.setNStates
  * @param {int} n
  */
 initialCells.setNStates = function(n) {
     worldNStates = n;
+    centerCellController.uiElement.setHigh(n - 1);
+    nearestController.uiElement.setHigh(n - 1);
+    secondController.uiElement.setHigh(n - 1);
 };
+
+// different setups -> choices
+//=====================================================
+
+// simple motif at center, depending on parameters
+
+initialCells.centerMotif = function() {
+    worldData.fill(0);
+    setCell(0, 0, initialCells.center);
+    setCell(1, 0, initialCells.nearest);
+    setCell(-1, 0, initialCells.nearest);
+    setCell(0, 1, initialCells.nearest);
+    setCell(0, -1, initialCells.nearest);
+    setCell(1, 1, initialCells.second);
+    setCell(1, -1, initialCells.second);
+    setCell(-1, 1, initialCells.second);
+    setCell(-1, -1, initialCells.second);
+};
+
+// simply calculate a random state, of given number of states, 
+// numbers 0...worldNStates
+function randomState() {
+    return Math.floor(worldNStates * Math.random());
+}
+
+// cell relative to center gets given value
+function setCell(i, j, value) {
+    worldData[centerX + i + (centerY + j) * worldWidth] = value;
+}
+
+// fill world with zeros, except border
+// to get random numberss only at border
+initialCells.border = function() {
+    for (var i = -centerX + 1; i < centerX; i++) {
+        for (var j = -centerY + 1; j < centerY; j++) {
+            setCell(i, j, 0);
+        }
+    }
+};
+
+// do nothing, as 'filter'
+initialCells.all = function() {};
+
+// fill outside the axis
+initialCells.axis = function() {
+    for (var i = 1; i <= centerX; i++) {
+        for (var j = 1; j <= centerY; j++) {
+            setCell(i, j, 0);
+            setCell(i, -j, 0);
+            setCell(-i, j, 0);
+            setCell(-i, -j, 0);
+        }
+    }
+};
+
+initialCells.random = function() {
+    const length = worldData.length;
+    for (var i = 0; i < length; i++) {
+        worldData[i] = randomState();
+    }
+};
+
+initialCells.randomBorder = function() {
+    initialCells.random();
+    fillInside();
+};
+
+initialCells.randomVerticalMirror = function() {
+    for (var i = 0; i <= centerX; i++) {
+        for (var j = -centerY; j <= centerY; j++) {
+            const state = randomState();
+            setCell(i, j, state);
+            setCell(-i, j, state);
+        }
+    }
+};
+
+initialCells.randomBorderVerticalMirror = function() {
+    initialCells.randomVerticalMirror();
+    fillInside();
+};
+
+initialCells.randomVerticalHorizontalMirror = function() {
+    for (var i = 0; i <= centerX; i++) {
+        for (var j = 0; j <= centerY; j++) {
+            const state = randomState();
+            setCell(i, j, state);
+            setCell(-i, j, state);
+            setCell(i, -j, state);
+            setCell(-i, -j, state);
+        }
+    }
+};
+
+initialCells.randomBorderVerticalHorizontalMirror = function() {
+    initialCells.randomVerticalHorizontalMirror();
+    fillInside();
+};
+
+initialCells.randomInversion = function() {
+    for (var i = 0; i <= centerX; i++) {
+        for (var j = -centerY; j <= centerY; j++) {
+            const state = randomState();
+            setCell(i, j, state);
+            setCell(-i, -j, state);
+        }
+    }
+};
+
+initialCells.randomBorderInversion = function() {
+    initialCells.randomInversion();
+    fillInside();
+};
+
+initialCells.randomVerHorDiagMirror = function() {
+    worldData.fill(0);
+    const halfAxis = Math.min(centerX, centerY);
+    for (var i = 0; i <= halfAxis; i++) {
+        for (var j = 0; j <= i; j++) {
+            const state = randomState();
+            setCell(i, j, state);
+            setCell(i, -j, state);
+            setCell(-i, j, state);
+            setCell(-i, -j, state);
+            setCell(j, i, state);
+            setCell(j, -i, state);
+            setCell(-j, i, state);
+            setCell(-j, -i, state);
+        }
+    }
+};
+
+initialCells.randomC4 = function() {
+    worldData.fill(0);
+    const halfAxis = Math.min(centerX, centerY);
+    for (var i = 0; i <= halfAxis; i++) {
+        for (var j = 0; j <= halfAxis; j++) {
+            const state = randomState();
+            setCell(i, j, state);
+            setCell(-i, -j, state);
+            setCell(j, -i, state);
+            setCell(-j, i, state);
+        }
+    }
+};
+
+// making the ui and interacting
+//======================================================
 
 /**
  * drawing after changes of parameters: number of different colors and the color table type
@@ -66,104 +227,74 @@ initialCells.draw = function() {
     // displayRectangularColorTable.interpolation();
 };
 
-// different setups -> choices
-//=====================================================
+/**
+ * make initial cell configuration and update the ui
+ * @method initialCells.make
+ */
+initialCells.make = function() {
 
-// simple motif at center, depending on parameters
+};
+
+// setting up the choices
+const regionOptions = {
+    center: initialCells.centerMotif,
+    all: initialCells.all,
+    border: initialCells.border,
+    axis: initialCells.axis
+};
+
+const symmetryOptions = {
+    none: initialCells.random,
+    mirror: initialCells.randomVerticalMirror,
+    twoMirrors: initialCells.randomVerticalHorizontalMirror,
+    inversion: initialCells.randomInversion,
+    d4: initialCells.randomVerHorDiagMirror,
+    c4: initialCells.randomC4
+};
+
+const selectionArgs = {
+    type: 'selection',
+    params: initialCells,
+    onChange: function() {
+        initialCells.make();
+        initialCells.draw();
+    }
+};
+
+initialCells.region = initialCells.centerMotif;
+initialCells.symmetry = initialCells.all;
+
+// number args object for the gui
+const numberControllerArgs = {
+    type: 'number',
+    params: initialCells,
+    onChange: function() {
+        initialCells.make();
+        initialCells.draw();
+    }
+};
 
 initialCells.center = 3;
 initialCells.nearest = 2;
 initialCells.second = 1;
 
-initialCells.centerMotif = function() {
-    worldData.fill(0);
-    const centerIndex = Math.floor(0.5 * worldWidth * worldHeight);
-    worldData[centerIndex] = initialCells.center;
-    worldData[centerIndex + 1] = initialCells.nearest;
-    worldData[centerIndex - 1] = initialCells.nearest;
-    worldData[centerIndex + worldWidth] = initialCells.nearest;
-    worldData[centerIndex - worldWidth] = initialCells.nearest;
-    worldData[centerIndex + 1 + worldWidth] = initialCells.second;
-    worldData[centerIndex + 1 - worldWidth] = initialCells.second;
-    worldData[centerIndex - 1 + worldWidth] = initialCells.second;
-    worldData[centerIndex - 1 - worldWidth] = initialCells.second;
+/**
+ * create the gui (ui elements)
+ * method initialCells.createUI
+ * @param {ParamGui} gui
+ */
+var symmetryController, redoButton, centerCellController, nearestController, secondController;
+initialCells.createUI = function(gui) {
+
+
+    centerCellController = gui.add(numberControllerArgs, {
+        property: 'center'
+    });
+    nearestController = gui.add(numberControllerArgs, {
+        property: 'nearest'
+    });
+    secondController = gui.add(numberControllerArgs, {
+        property: 'second'
+    });
+
 };
-
-function randomState() {
-    return Math.floor(worldNStates * Math.random());
-}
-
-initialCells.random = function() {
-    const length = worldData.length;
-    for (var i = 0; i < length; i++) {
-        worldData[i] = randomState();
-    }
-};
-
-initialCells.randomBorder = function() {
-    worldData.fill(0);
-    for (var i = 0; i < worldWidth; i++) {
-        worldData[i] = randomState();
-        worldData[worldData.length - 1 - worldWidth + i] = randomState();
-    }
-    for (var j = 0; j < worldHeight; j++) {
-        worldData[j * worldWidth] = randomState();
-        worldData[j * worldWidth + worldWidth - 1] = randomState();
-    }
-};
-
-initialCells.randomBorderVerticalMirror = function() {
-    worldData.fill(0);
-    const centerX = Math.floor(0.5 * worldWidth);
-    for (var i = 0; i <= centerX; i++) {
-        const ii = worldWidth - 1 - i;
-        let state = randomState();
-        worldData[i] = state;
-        worldData[ii] = state;
-        state = randomState();
-        // top line goes from worldData.length-worldWidth ... worldData.length-1
-        worldData[worldData.length - worldWidth + i] = state;
-        worldData[worldData.length - worldWidth + ii] = state;
-    }
-    for (var j = 0; j < worldHeight; j++) {
-        const state = randomState();
-        worldData[j * worldWidth] = state;
-        worldData[j * worldWidth + worldWidth - 1] = state;
-    }
-};
-
-initialCells.randomVerticalMirror = function() {
-    const centerX = Math.floor(0.5 * worldWidth);
-    for (var i = 0; i <= centerX; i++) {
-        // mirror image:
-        // index in x-direction goes from 0...worldWidth-1
-        const ii = worldWidth - 1 - i;
-        for (var j = 0; j < worldHeight; j++) {
-            const state = randomState();
-            worldData[i + worldWidth * j] = state;
-            worldData[ii + worldWidth * j] = state;
-        }
-    }
-};
-
-initialCells.randomVerticalHorizontalMirror = function() {
-    const centerX = Math.floor(0.5 * worldWidth);
-    const centerY = Math.floor(0.5 * worldHeight);
-    for (var i = 0; i <= centerX; i++) {
-        // mirror image:
-        // index in x-direction goes from 0...worldWidth-1
-        const ii = worldWidth - 1 - i;
-        for (var j = 0; j <= centerY; j++) {
-            const jj = worldHeight - 1 - j;
-            const state = randomState();
-            worldData[i + worldWidth * j] = state;
-            worldData[ii + worldWidth * j] = state;
-            worldData[i + worldWidth * jj] = state;
-            worldData[ii + worldWidth * jj] = state;
-        }
-    }
-};
-// horizontal and vertical mirrors
-
-// horizontal, vertical and diagonal mirrors, only for square world
-// for other worlds padded with zeros
