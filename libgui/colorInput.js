@@ -17,6 +17,7 @@ import {
 export function ColorInput(parent, hasAlpha) {
     this.parent = parent;
     this.hasAlpha = hasAlpha;
+    this.active = true;
     // a textelement for showing/enetering hex color codes
     this.textElement = document.createElement("input");
     this.textElement.setAttribute("type", "text");
@@ -68,55 +69,71 @@ export function ColorInput(parent, hasAlpha) {
 
     // hovering, focus -> styling
     this.textElement.onmouseenter = function() {
-        colorInput.textHover = true;
-        colorInput.updateTextStyle();
+        if (colorInput.active) {
+            colorInput.textHover = true;
+            colorInput.updateTextStyle();
+        }
     };
 
     this.textElement.onmouseleave = function() {
-        colorInput.textHover = false;
-        colorInput.updateTextStyle();
+        if (colorInput.active) {
+            colorInput.textHover = false;
+            colorInput.updateTextStyle();
+        }
     };
 
     this.textElement.onmousedown = interaction;
 
     // onfocus /onblur corresponds to pressed
     this.textElement.onfocus = function() {
-        colorInput.textPressed = true;
-        colorInput.updateTextStyle();
+        if (colorInput.active) {
+            colorInput.textPressed = true;
+            colorInput.updateTextStyle();
+        }
     };
 
     this.textElement.onblur = function() {
-        colorInput.textPressed = false;
-        colorInput.updateTextStyle();
+        if (colorInput.active) {
+            colorInput.textPressed = false;
+            colorInput.updateTextStyle();
+        }
     };
 
     this.colorElement.onmouseenter = function() {
-        colorInput.colorHover = true;
-        colorInput.updateColorStyle();
+        if (colorInput.active) {
+            colorInput.colorHover = true;
+            colorInput.updateColorStyle();
+        }
     };
 
     this.colorElement.onmouseleave = function() {
-        colorInput.colorHover = false;
-        colorInput.updateColorStyle();
+        if (colorInput.active) {
+            colorInput.colorHover = false;
+            colorInput.updateColorStyle();
+        }
     };
 
     // doing things
     this.textElement.onchange = function() {
-        let color = colorInput.textElement.value;
-        if (color.charAt(0) !== "#") { // in case add missing # at beginning
-            color = "#" + color;
+        if (colorInput.active) {
+            let color = colorInput.textElement.value;
+            if (color.charAt(0) !== "#") { // in case add missing # at beginning
+                color = "#" + color;
+            }
+            colorInput.updateValue(color);
         }
-        colorInput.updateValue(color);
     };
 
     // get color value from the browsers color input and range element( if there is an alpha)
     // used both for changges in the range element and the RGB color chooser
     function colorElementInput() {
-        let color = colorInput.colorElement.value;
-        if (colorInput.hasAlpha) { // combine rgb with alpha from range (all elements are synchro)
-            color += hexString(colorInput.rangeElement.value);
+        if (colorInput.active) {
+            let color = colorInput.colorElement.value;
+            if (colorInput.hasAlpha) { // combine rgb with alpha from range (all elements are synchro)
+                color += hexString(colorInput.rangeElement.value);
+            }
+            colorInput.updateValue(color);
         }
-        colorInput.updateValue(color);
     }
 
     this.colorElement.oninput = colorElementInput;
@@ -166,22 +183,27 @@ ColorInput.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
  * @method ColorInput#updateTextStyle
  */
 ColorInput.prototype.updateTextStyle = function() {
-    if (this.textPressed) {
-        if (this.textHover) {
-            this.textElement.style.color = this.colorDownHover;
-            this.textElement.style.backgroundColor = this.backgroundColorDownHover;
+    if (this.active) {
+        if (this.textPressed) {
+            if (this.textHover) {
+                this.textElement.style.color = this.colorDownHover;
+                this.textElement.style.backgroundColor = this.backgroundColorDownHover;
+            } else {
+                this.textElement.style.color = this.colorDown;
+                this.textElement.style.backgroundColor = this.backgroundColorDown;
+            }
         } else {
-            this.textElement.style.color = this.colorDown;
-            this.textElement.style.backgroundColor = this.backgroundColorDown;
+            if (this.textHover) {
+                this.textElement.style.color = this.colorUpHover;
+                this.textElement.style.backgroundColor = this.backgroundColorUpHover;
+            } else {
+                this.textElement.style.color = this.colorUp;
+                this.textElement.style.backgroundColor = this.backgroundColorUp;
+            }
         }
     } else {
-        if (this.textHover) {
-            this.textElement.style.color = this.colorUpHover;
-            this.textElement.style.backgroundColor = this.backgroundColorUpHover;
-        } else {
-            this.textElement.style.color = this.colorUp;
-            this.textElement.style.backgroundColor = this.backgroundColorUp;
-        }
+        this.textElement.style.color = this.colorInactive;
+        this.textElement.style.backgroundColor = this.backgroundColorInactive;
     }
 };
 
@@ -191,10 +213,16 @@ ColorInput.prototype.updateTextStyle = function() {
  * @method ColorInput#updateStyle
  */
 ColorInput.prototype.updateColorStyle = function() {
-    if (this.colorHover) {
-        this.colorElement.style.backgroundColor = this.backgroundColorUpHover;
+    if (this.active) {
+        this.colorElement.style.cursor = "pointer";
+        if (this.colorHover) {
+            this.colorElement.style.backgroundColor = this.backgroundColorUpHover;
+        } else {
+            this.colorElement.style.backgroundColor = this.backgroundColorUp;
+        }
     } else {
-        this.colorElement.style.backgroundColor = this.backgroundColorUp;
+        this.colorElement.style.cursor = "default";
+        this.colorElement.style.backgroundColor = this.backgroundColorInactive;
     }
 };
 
@@ -231,6 +259,31 @@ ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
     this.colorElement.style.width = colorWidth + "px";
     if (this.hasAlpha) {
         this.rangeElement.style.width = rangeWidth + "px";
+    }
+};
+
+/**
+ * set if input is active
+ * @method NumberButton#setActive
+ * @param {boolean} isActive
+ */
+ColorInput.prototype.setActive = function(isActive) {
+    this.active = isActive;
+    this.textElement.disabled = !isActive;
+    this.updateTextStyle();
+    this.colorElement.disabled = !isActive;
+    this.updateColorStyle();
+    if (!this.active) {
+        this.textHover = false;
+        this.textPressed = false;
+    }
+    if (this.hasAlpha) {
+        this.rangeElement.disabled = !isActive;
+        if (this.active) {
+            this.rangeElement.style.cursor = "pointer";
+        } else {
+            this.rangeElement.style.cursor = "default";
+        }
     }
 };
 

@@ -80,7 +80,8 @@ export function Select(parent) {
     };
 
     this.element.onwheel = function(event) {
-        event.preventDefault();
+         if (select.active) {
+       event.preventDefault();
         event.stopPropagation();
         if (select.active) {
             select.onInteraction();
@@ -91,6 +92,7 @@ export function Select(parent) {
             }
         }
         return false;
+    }
     };
 
 }

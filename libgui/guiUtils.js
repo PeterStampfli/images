@@ -105,6 +105,17 @@ guiUtils.isObject = function(p) {
     return ((typeof p) === "object") && (!Array.isArray(p)) && (p !== null);
 };
 
+/**
+* safely call argument if it is defined and a function
+* @method guiUtils.do
+* @param {whatever} fun
+*/
+guiUtils.do=function(fun){
+    if (guiUtils.isFunction(fun)){
+        fun();
+    }
+}
+
 //===============================================================================
 // various checks of data, updating data
 //=================================================================================

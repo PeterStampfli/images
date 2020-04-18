@@ -83,10 +83,13 @@ initialCells.randomC4();
 initialCells.axis();
 initialCells.centerMotif();
 
-output.resizeCanvas();
+// final setup/display
+initialCells.make();
+
+output.resizeCanvas();    // adjust to dimensions
     displayRectangularColorTable.draw();
 
-
+initialCells.draw =displayRectangularColorTable.draw;
 </script>
 
 </html>

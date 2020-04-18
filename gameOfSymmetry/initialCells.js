@@ -7,7 +7,9 @@ from "../libgui/modules.js";
 
 /**
  * create an initial configuration for the cells
- * choosing between different symmetries, deterministicc or random
+ * choosing between different symmetries, deterministic or random
+ * display always
+ * active only if automaton has stopped, explicit reset ?
  * @namespace initialCells
  */
 export const initialCells = {};
@@ -223,8 +225,6 @@ initialCells.randomC4 = function() {
  */
 initialCells.draw = function() {
     console.log('draw');
-    console.log(worldData);
-    // displayRectangularColorTable.interpolation();
 };
 
 /**
@@ -232,6 +232,23 @@ initialCells.draw = function() {
  * @method initialCells.make
  */
 initialCells.make = function() {
+    console.log('make');
+    if (initialCells.region === initialCells.centerMotif) {
+        console.log('centerMotif');
+        symmetryController.hide();
+        redoButton.hide();
+        centerCellController.show();
+        nearestController.show();
+        secondController.show();
+        initialCells.centerMotif();
+    } else {
+        console.log('random things');
+        symmetryController.show();
+        redoButton.show();
+        centerCellController.hide();
+        nearestController.hide();
+        secondController.hide();
+    }
 
 };
 
@@ -262,7 +279,7 @@ const selectionArgs = {
 };
 
 initialCells.region = initialCells.centerMotif;
-initialCells.symmetry = initialCells.all;
+initialCells.symmetry = initialCells.random;
 
 // number args object for the gui
 const numberControllerArgs = {
@@ -283,9 +300,26 @@ initialCells.second = 1;
  * method initialCells.createUI
  * @param {ParamGui} gui
  */
-var symmetryController, redoButton, centerCellController, nearestController, secondController;
-initialCells.createUI = function(gui) {
+var regionController, symmetryController, redoButton;
+var centerCellController, nearestController, secondController;
 
+initialCells.createUI = function(gui) {
+    regionController = gui.add(selectionArgs, {
+        property: 'region',
+        options: regionOptions
+    });
+    symmetryController = gui.add(selectionArgs, {
+        property: 'symmetry',
+        options: symmetryOptions
+    });
+    redoButton = gui.add({
+        type: 'button',
+        buttonText: 'redo random pattern',
+        onClick: function() {
+            initialCells.make();
+            initialCells.draw();
+        }
+    });
 
     centerCellController = gui.add(numberControllerArgs, {
         property: 'center'
@@ -296,5 +330,4 @@ initialCells.createUI = function(gui) {
     secondController = gui.add(numberControllerArgs, {
         property: 'second'
     });
-
 };

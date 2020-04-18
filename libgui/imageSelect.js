@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a select input with icons (only the select thing, make more complicated layout outside)
  * each option has a name, an icon and a value
@@ -17,6 +19,7 @@ import {
 } from "./modules.js";
 
 export function ImageSelect(parent, newDesign) {
+    this.active = true;
     const design = {};
     this.design = design;
     Object.assign(design, ImageSelect.defaultDesign);
@@ -124,8 +127,30 @@ export function ImageSelect(parent, newDesign) {
 }
 
 /**
+ * set if button is active
+ * @method ImageSelect#setActive
+ * @param {boolean} isActive
+ */
+ImageSelect.prototype.setActive = function(isActive) {
+    this.active = isActive;
+    if (!isActive) {
+        this.closePopup();
+    }
+    this.select.setActive(isActive);
+    if (isActive) {
+        this.guiImage.style.cursor = 'pointer';
+    } else {
+        this.guiImage.style.cursor = 'default';
+    }
+    if (this.userInput) {
+        this.userInput.setActive(isActive);
+    }
+};
+
+/**
  * create an image for the gui that shows the current selection
  * shows the currently selected image (if there is a selection)
+ * create in separate call depending on layout (external)
  * @method ImageSelect#createGuiImage
  * @param {HTML element} parent
  */
@@ -164,23 +189,27 @@ ImageSelect.prototype.createGuiImage = function(parent) {
     const imageSelect = this;
 
     this.guiImage.onmousedown = function() {
-        imageSelect.select.element.focus(); // makes that keyboard events (arrows) go to the select ui element, not elsewhere
-        imageSelect.interaction();
-        return false;
+        if (imageSelect.isActive) {
+            imageSelect.select.element.focus(); // makes that keyboard events (arrows) go to the select ui element, not elsewhere
+            imageSelect.interaction();
+            return false;
+        }
     };
 
     // mousewheel on icon
     this.guiImage.onwheel = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (event.deltaY > 0) {
-            imageSelect.select.changeIndex(1);
-        } else {
-            imageSelect.select.changeIndex(-1);
+        if (imageSelect.isActive) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.deltaY > 0) {
+                imageSelect.select.changeIndex(1);
+            } else {
+                imageSelect.select.changeIndex(-1);
+            }
+            imageSelect.select.element.focus();
+            imageSelect.interaction();
+            return false;
         }
-        imageSelect.select.element.focus();
-        imageSelect.interaction();
-        return false;
     };
 };
 
@@ -283,13 +312,15 @@ ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
  * @method ImageSelect#interaction
  */
 ImageSelect.prototype.interaction = function() {
-    this.popup.open();
-    const index = this.getIndex(); // in case that parameter is out of range
-    if (index >= 0) {
-        this.makeImageButtonVisible(this.popupImageButtons[index]);
+    if (this.active) {
+        this.popup.open();
+        const index = this.getIndex(); // in case that parameter is out of range
+        if (index >= 0) {
+            this.makeImageButtonVisible(this.popupImageButtons[index]);
+        }
+        this.loadImages();
+        this.onInteraction();
     }
-    this.loadImages();
-    this.onInteraction();
 };
 
 /**

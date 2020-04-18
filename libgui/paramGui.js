@@ -629,6 +629,15 @@ ParamGui.prototype.hide = function() {
 };
 
 /**
+ * set if gui is active (or read only for false)
+ * @method ParamGui#setActive
+ * @param {boolean} isActive
+ */
+ParamGui.prototype.setActive = function(isActive) {
+       this.elements.forEach(element => element.setActive(isActive));
+};
+
+/**
  * show the gui/folder. (makes it reappear)
  * note difference between root and folders
  * show in correct open/closed state (body)

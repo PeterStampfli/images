@@ -655,7 +655,7 @@ ParamController.prototype.show = function() {
 };
 
 /**
- * set if controller is active
+ * set if controller is active (or read only)
  * @method ParamController#setActive
  * @param {boolean} isActive
  */

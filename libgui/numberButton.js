@@ -240,6 +240,13 @@ NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 NumberButton.prototype.setActive = function(isActive) {
     this.active = isActive;
     this.input.disabled = !isActive;
+    if (isActive) {
+        this.input.style.cursor = "pointer";
+    } else {
+        this.input.style.cursor = "default";
+        this.pressed = false;
+        this.hover = false;
+    }
     if (this.range) {
         this.range.disabled = !isActive;
         if (isActive) {
@@ -249,13 +256,6 @@ NumberButton.prototype.setActive = function(isActive) {
         }
     }
     this.addButtons.forEach(button => button.setActive(isActive));
-    if (isActive) {
-        this.input.style.cursor = "pointer";
-    } else {
-        this.input.style.cursor = "default";
-        this.pressed = false;
-        this.hover = false;
-    }
     this.updateStyle();
 };
 
