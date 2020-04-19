@@ -39,8 +39,8 @@ gui.addParagraph('light');
 
 const light = {};
 
-light.radius = 0.25;
-light.scale = 1;
+light.radius = 0.07;
+light.scale = 0.3;
 
 const smallNumber = {
     type: "number",
@@ -76,6 +76,8 @@ function draw() {
     const width = canvas.width;
     const imageData = canvasContext.getImageData(0, 0, width, height);
     const pixels = imageData.data;
+    let borderValue=(0.5-light.radius)/light.scale;
+    borderValue=Math.exp(-borderValue*borderValue);
     for (var i = 0; i < width; i++) {
         let index = 4 * i;
         // reduced units, independent of canvas dimensions
@@ -83,7 +85,6 @@ function draw() {
         // color components = 0...1
         let x = i / width;
         for (var j = 0; j < height; j++) {
-
             let y = j / width;
             // calculate alpha
             const radius2 = (x - 0.5) * (x - 0.5) + (y - 0.5) * (y - 0.5);
@@ -91,7 +92,7 @@ function draw() {
             if (radius2 > light.radius * light.radius) {
                 const r = Math.sqrt(radius2);
                 alpha = (r - light.radius) / light.scale;
-                alpha = 255 * Math.exp(-alpha * alpha);
+                alpha = 255 * Math.max(0,(Math.exp(-alpha * alpha)-borderValue)/(1-borderValue));
             }
             pixels[index] = Math.max(0, Math.min(255, Math.floor(light.red)));
             pixels[index + 1] = Math.max(0, Math.min(255, Math.floor(light.green)));
@@ -104,5 +105,5 @@ function draw() {
 }
 
 output.draw = draw;
-
+output.resizeCanvas();
 draw();

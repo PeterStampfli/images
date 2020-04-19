@@ -14,82 +14,12 @@
 <script type="module">
 
 import {
-    output,
-    ParamGui
+    initialCells,
 }
-from "../libgui/modules.js";
+from "./modules.js";
 
-import {
-    colorTable
-}
-from "./colorTable.js";
+initialCells.setupTest();
 
-import {
-    initialCells
-}
-from "./initialCells.js";
-import {
-    displayRectangularColorTable
-}
-from "./displayRectangularColorTable.js";
-
-// essentially the same as test for displayrectangularcolortable
-// simply using initialcells to generate the array with image data
-
-const gui = new ParamGui({}, {
-    closed: false
-});
-output.createCanvas(gui);
-const colorTableGui = gui.addFolder({
-    closed: false,
-    name: 'color table'
-});
-colorTable.createUI(colorTableGui);
-const displayGui = gui.addFolder({
-    closed: false,
-    name: 'display'
-});
-displayRectangularColorTable.createUI(displayGui);
-const initGui=gui.addFolder({
-    closed: false,
-    name: 'initial configuration'
-});
-initialCells.createUI(gui);
-
-const height=7;
-const width=7;
-const nStates=4;
-const world=[];
-
-   output.draw = displayRectangularColorTable.draw;
-// initialize the color table
-colorTable.setNColors(nStates);
-colorTable.create();
-    colorTable.draw = displayRectangularColorTable.draw;
-// initialize display
-displayRectangularColorTable.setDimensions(width,height);
-displayRectangularColorTable.setImageNStates(nStates);
-displayRectangularColorTable.setData(world);
-
-
-initialCells.setDimensions(width,height);
-initialCells.setData(world);
-initialCells.setNStates(nStates);
-
-// test configs
-world.length=width*height;
-initialCells.centerMotif();
-initialCells.randomC4();
-initialCells.axis();
-initialCells.centerMotif();
-
-// final setup/display
-initialCells.make();
-
-output.resizeCanvas();    // adjust to dimensions
-    displayRectangularColorTable.draw();
-
-initialCells.draw =displayRectangularColorTable.draw;
 </script>
 
 </html>

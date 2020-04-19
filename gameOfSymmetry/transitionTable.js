@@ -153,12 +153,22 @@ function transitionTableHasAllStates() {
 }
 
 /**
+ * special test for transition table, redefine, depending on world
+ * typically: use given initial world, run several generations, check frequency of states
+ * @method TransitinTable.isOk
+ * @return boolean, true if we can use the transition table
+ */
+transitionTable.isOk = function() {
+    return true;
+};
+
+/**
  * make a random transition table, all states should be in the table
  * @method transitionTable.random
  */
 transitionTable.random = function() {
     transitionTable.table.fill(0); // fail as defined start
-    while (!transitionTableHasAllStates()) {
+    while (!transitionTableHasAllStates() || !transitionTable.isOk()) {
         // new random state, table[0]===0, always
         const length = transitionTable.table.length;
         for (var i = 1; i < length; i++) {

@@ -325,11 +325,10 @@ output.resizeCanvas=function(){
 };
 
 /**
- * set the canvasWidthToHeight
+ * set the canvasWidthToHeight, does not yet resize the canvas
  * if value<0: no fixed ratio
  * if value>0...1: fixed ratio
- * needs to update canvas dimensions
- * CALL autoresize and draw later (particularly in initialization...)
+ * CALL output.resize and draw later (particularly in initialization...)
  * @method output.setCanvasWidthToHeight
  * @param {float} ratio
  */

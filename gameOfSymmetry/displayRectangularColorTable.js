@@ -296,6 +296,9 @@ displayRectangularColorTable.createUI = function(gui) {
     });
 };
 
+// test this, and show how to set it up
+//=======================================================
+
 /**
  * set up a test
  * @method displayRectangularColorTable.setupTest

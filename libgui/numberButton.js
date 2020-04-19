@@ -241,7 +241,7 @@ NumberButton.prototype.setActive = function(isActive) {
     this.active = isActive;
     this.input.disabled = !isActive;
     if (isActive) {
-        this.input.style.cursor = "pointer";
+        this.input.style.cursor = "text";
     } else {
         this.input.style.cursor = "default";
         this.pressed = false;

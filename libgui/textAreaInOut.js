@@ -86,7 +86,7 @@ TextAreaInOut.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults
 TextAreaInOut.prototype.setActive = function(isActive) {
     this.active = isActive;
     this.element.readOnly = !isActive;
-    if (!isActive) {
+      if (!isActive) {
         this.pressed = false;
         this.hover = false;
     }

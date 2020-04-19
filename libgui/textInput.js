@@ -17,7 +17,6 @@ export function TextInput(parent) {
     this.element = document.createElement("input");
     parent.appendChild(this.element);
     this.element.setAttribute("type", "text");
-    this.element.style.cursor = "pointer";
 
     this.hover = false;
     this.pressed = false;
@@ -112,7 +111,18 @@ TextInput.prototype.setWidth = function(width) {
  * @method TextInput#setActive
  * @param {boolean} isActive
  */
-TextInput.prototype.setActive = Button.prototype.setActive;
+TextInput.prototype.setActive =  function(isActive) {
+    this.active = isActive;
+    this.element.disabled = !isActive;
+    if (isActive) {
+        this.element.style.cursor = "text";
+    } else {
+        this.element.style.cursor = "default";
+        this.pressed = false;
+        this.hover = false;
+    }
+    this.updateStyle();
+};
 
 /**
  * get value of textInput

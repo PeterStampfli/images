@@ -1,9 +1,16 @@
 /* jshint esversion: 6 */
 
 import {
+    output,
     ParamGui
 }
 from "../libgui/modules.js";
+
+import {
+    colorTable,
+    displayRectangularColorTable
+}
+from "./modules.js";
 
 /**
  * create an initial configuration for the cells
@@ -224,7 +231,7 @@ initialCells.randomC4 = function() {
  * @method initialCells.draw
  */
 initialCells.draw = function() {
-    console.log('draw');
+    console.error('initialCells.draw essentially undefined');
 };
 
 /**
@@ -232,9 +239,7 @@ initialCells.draw = function() {
  * @method initialCells.make
  */
 initialCells.make = function() {
-    console.log('make');
     if (initialCells.region === initialCells.centerMotif) {
-        console.log('centerMotif');
         symmetryController.hide();
         redoButton.hide();
         centerCellController.show();
@@ -242,14 +247,14 @@ initialCells.make = function() {
         secondController.show();
         initialCells.centerMotif();
     } else {
-        console.log('random things');
         symmetryController.show();
         redoButton.show();
         centerCellController.hide();
         nearestController.hide();
         secondController.hide();
+        initialCells.symmetry();
+        initialCells.region();
     }
-
 };
 
 // setting up the choices
@@ -331,3 +336,73 @@ initialCells.createUI = function(gui) {
         property: 'second'
     });
 };
+
+
+// test this, and show how to set it up
+//=======================================================
+
+/**
+ * set up a test
+ * @method initialCells.setupTest
+ */
+initialCells.setupTest = function() {
+    const gui = new ParamGui({}, {
+        closed: false
+    });
+    output.createCanvas(gui);
+    output.draw = displayRectangularColorTable.draw;
+    const colorTableGui = gui.addFolder({
+        closed: false,
+        name: 'color table'
+    });
+    colorTable.createUI(colorTableGui);
+    const displayGui = gui.addFolder({
+        closed: false,
+        name: 'display'
+    });
+    displayRectangularColorTable.createUI(displayGui);
+    const initGui = gui.addFolder({
+        closed: false,
+        name: 'initial configuration'
+    });
+    initialCells.createUI(gui);
+
+    const height = 7;
+    const width = 7;
+    const nStates = 4;
+
+    const world = [];
+    world.length = width * height;
+
+    // initialize this module
+    initialCells.setDimensions(width, height);
+    initialCells.setData(world);
+    initialCells.setNStates(nStates);
+    initialCells.draw = displayRectangularColorTable.draw;
+
+    // final setup/display
+    initialCells.make();
+
+    // initialize the color table
+    colorTable.setNColors(nStates);
+    colorTable.create();
+    colorTable.draw = displayRectangularColorTable.draw;
+    // initialize display
+    displayRectangularColorTable.setDimensions(width, height); // sets canvas width to height
+    displayRectangularColorTable.setImageNStates(nStates);
+    displayRectangularColorTable.setData(world);
+
+    output.resizeCanvas(); // adjust to dimensions
+    displayRectangularColorTable.draw();
+};
+
+/* use with
+<script type="module">
+import {
+    initialCells,
+}
+from "./modules.js";
+
+initialCells.setupTest();
+</script>
+*/
