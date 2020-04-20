@@ -24,3 +24,8 @@ export {
     transitionTable
 }
 from "./transitionTable.js";
+
+export {
+    irreversibleBasicAutomaton
+}
+from "./irreversibleBasicAutomaton.js";

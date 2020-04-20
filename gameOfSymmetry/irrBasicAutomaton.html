@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>irrevBasicAutomaton</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type="module">
+
+
+import {
+    irreversibleBasicAutomaton
+}
+from "./modules.js";
+
+const world=[1,2,3,4,5,6];
+irreversibleBasicAutomaton.setDimensions(3,2);
+
+irreversibleBasicAutomaton.isPeriodic=true;
+
+irreversibleBasicAutomaton.newGeneration(world);
+console.log(world);
+console.log(irreversibleBasicAutomaton.oldWorld)
+
+</script>
+
+
+</html>
