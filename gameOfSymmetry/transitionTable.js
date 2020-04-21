@@ -136,9 +136,13 @@ transitionTable.fromString = function(s) {
  * return value (index) modulo nStates used for table entries
  */
 function makeTransitionTableWith(fun) {
-    const length = transitionTable.table.length;
-    for (var i = 0; i < length; i++) {
-        transitionTable.table[i] = Math.floor(fun(i)) % nStates;
+    if (transitionTable.table.length > 0) {
+        const length = transitionTable.table.length;
+        for (var i = 0; i < length; i++) {
+            transitionTable.table[i] = Math.floor(fun(i)) % nStates;
+        }
+    } else {
+        console.error('transitionTable.makeTransitionTableWith: table has length zero');
     }
 }
 
@@ -167,13 +171,17 @@ transitionTable.isOk = function() {
  * @method transitionTable.random
  */
 transitionTable.random = function() {
-    transitionTable.table.fill(0); // fail as defined start
-    while (!transitionTableHasAllStates() || !transitionTable.isOk()) {
-        // new random state, table[0]===0, always
-        const length = transitionTable.table.length;
-        for (var i = 1; i < length; i++) {
-            transitionTable.table[i] = Math.floor(Math.random() * nStates);
+    if (transitionTable.table.length > 0) {
+        transitionTable.table.fill(0); // fail as defined start
+        while (!transitionTableHasAllStates() || !transitionTable.isOk()) {
+            // new random state, table[0]===0, always
+            const length = transitionTable.table.length;
+            for (var i = 1; i < length; i++) {
+                transitionTable.table[i] = Math.floor(Math.random() * nStates);
+            }
         }
+    } else {
+        console.error('transitionTable.random: table has length zero');
     }
 };
 
