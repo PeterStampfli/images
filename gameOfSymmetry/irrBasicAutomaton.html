@@ -25,24 +25,23 @@ import {
     ParamGui
 }
 from "../libgui/modules.js";
-
 // we need a transition table (for calculating the step)
 const gui = new ParamGui({}, {
-        name: "controls",
-        closed: false
-    });
-  const transitionTableGui =gui.addFolder( "transitiontable", {
-        closed: false
-    });
-    transitionTable.createUI(transitionTableGui);
+    name: "controls",
+    closed: false
+});
+const transitionTableGui = gui.addFolder({
+    name: "transitiontable",
+    closed: false
+});
+transitionTable.createUI(transitionTableGui);
 
-    const nStates=10;
-    const tableLength=irreversibleBasicAutomaton.transitionTableLength(nStates);
-    console.log('tablelength',tableLength)
+const nStates = 10;
+const tableLength = irreversibleBasicAutomaton.transitionTableLength(nStates);
+console.log('tablelength', tableLength)
 
-transitionTable.setNStatesTableLength(nStates,tableLength);
+transitionTable.setNStatesTableLength(nStates, tableLength);
 transitionTable.generate();
-
 
 const world=[1,2,3,4,5,6];
 irreversibleBasicAutomaton.setDimensions(2,3);

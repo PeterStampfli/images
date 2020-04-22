@@ -1,8 +1,14 @@
 /* jshint esversion: 6 */
 import {
+    output,
     ParamGui
 }
 from "../libgui/modules.js";
+
+import {
+    colorTable
+}
+from "./modules.js";
 
 /**
  * transition table:
@@ -24,14 +30,36 @@ export const transitionTable = {};
 transitionTable.table = [];
 
 /**
+ * drawing the transition table
+ * for tests and for the final program as control
+ * @method transitionTable.drawTable
+ */
+transitionTable.drawTable = function() {
+    const canvas = output.canvas;
+    const canvasContext = canvas.getContext("2d");
+    const height = canvas.height;
+    const width = canvas.width;
+    const nColors = colorTable.getNColors();
+    const length=transitionTable.table.length;
+    const stripWidth = width / length;
+    let x = 0;
+    for (var i = 0; i < length; i++) {
+        canvasContext.fillStyle = colorTable.cssColor[transitionTable.table[i]%nColors];
+        canvasContext.fillRect(x, 0, stripWidth + 1, height);
+        x += stripWidth;
+    }
+};
+
+/**
  * drawing after changes of parameters: number of different colors and the color table type
- * here: logging the table for tests instead of drawing
+ * here: logging the table for tests and drawing
  * overwrite for running life
  * @method colorTable.draw
  */
 transitionTable.draw = function() {
     console.log('new table');
     console.log(transitionTable.createString()); //dummy
+    transitionTable.drawTable();
 };
 
 /**
@@ -282,12 +310,36 @@ transitionTable.createUI = function(gui) {
  * @method colorTable.setupTest
  */
 transitionTable.setupTest = function() {
-    const gui = new ParamGui({}, {
-        name: "transitiontable - controls",
+    const gui = new ParamGui({
+        name: "controls",
         closed: false
     });
-    transitionTable.createUI(gui);
-    transitionTable.setNStatesTableLength(16, 17);
+     const canvasGui = gui.addFolder({
+        closed: true,
+        name: 'canvas'
+    });   
+     output.createCanvas(canvasGui);
+    output.draw = transitionTable.draw;
+    const colorTableGui = gui.addFolder({
+        closed: true,
+        name: 'color table'
+    });
+    colorTable.createUI(colorTableGui);
+    const transTableGui = gui.addFolder({
+        name: "transitiontable",
+        closed: false
+    });
+
+    const nStates=10;
+    const tableLength=10;
+    colorTable.setNColors(nStates);
+        colorTable.create();
+        colorTable.draw=transitionTable.drawTable;
+
+    transitionTable.createUI(transTableGui);
+    transitionTable.setNStatesTableLength(nStates, tableLength);
+    transitionTable.generate();
+    transitionTable.draw();
 };
 
 /*

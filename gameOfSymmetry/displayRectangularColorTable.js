@@ -82,7 +82,7 @@ function block() {
     const canvasContext = canvas.getContext('2d');
     const blockWidth = canvas.width / imageWidth;
     const blockHeight = canvas.height / imageHeight;
-    const nColors = colorTable.cssColor.length;
+    const nColors = colorTable.getNColors();
     let y = 0;
     let index = 0;
     for (var j = 0; j < imageHeight; j++) {
@@ -105,7 +105,7 @@ function block() {
 function linearInterpolation() {
     // scaling factor from interpolated results 0...imageNStates-1 to 0...nColors-eps before rounding to 0...nColors
     const nColors = colorTable.getNColors();
-    const statesToColors = (nColors - 0.00001) / (imageNStates - 1);
+    const statesToColors = (imageNStates - 0.00001) / (imageNStates - 1);
     // interface to the canvas
     const canvas = output.canvas;
     const canvasContext = canvas.getContext('2d');
@@ -154,7 +154,7 @@ function linearInterpolation() {
             }
             let interpolatedState = (1 - dx) * ((1 - dy) * imageData[iLow + jLow] + dy * imageData[iLow + jHigh]);
             interpolatedState += dx * ((1 - dy) * imageData[iHigh + jLow] + dy * imageData[iHigh + jHigh]);
-            const colorIndex = Math.floor(statesToColors * interpolatedState);
+            const colorIndex = Math.floor(statesToColors * interpolatedState)%nColors;
             pixels[pixelIndex] = colorTable.reds[colorIndex];
             pixels[pixelIndex + 1] = colorTable.greens[colorIndex];
             pixels[pixelIndex + 2] = colorTable.blues[colorIndex];
@@ -186,7 +186,7 @@ function kernel12(x) { // Mitchell-Netrovali, B=C=0.333333, 1<x<2
 function cubicInterpolation() {
     // scaling factor from interpolated results 0...imageNStates-1 to 0...nColors-eps before rounding to 0...nColors
     const nColors = colorTable.getNColors();
-    const statesToColors = (nColors - 0.00001) / (imageNStates - 1);
+    const statesToColors = (imageNStates - 0.00001) / (imageNStates - 1);
     // interface to the canvas
     const canvas = output.canvas;
     const canvasContext = canvas.getContext('2d');
@@ -259,7 +259,7 @@ function cubicInterpolation() {
             interpolatedState += weightXHigh * (weightYLower * imageData[iHigh + jLower] + weightYLow * imageData[iHigh + jLow] + weightYHigh * imageData[iHigh + jHigh] + weightYHigher * imageData[iHigh + jHigher]);
             interpolatedState += weightXHigher * (weightYLower * imageData[iHigher + jLower] + weightYLow * imageData[iHigher + jLow] + weightYHigh * imageData[iHigher + jHigh] + weightYHigher * imageData[iHigher + jHigher]);
             interpolatedState = Math.max(0, Math.min(imageNStates - 1, interpolatedState)); // beware of negative values
-            const colorIndex = Math.floor(statesToColors * interpolatedState);
+            const colorIndex = Math.floor(statesToColors * interpolatedState)%nColors;
             pixels[pixelIndex] = colorTable.reds[colorIndex];
             pixels[pixelIndex + 1] = colorTable.greens[colorIndex];
             pixels[pixelIndex + 2] = colorTable.blues[colorIndex];

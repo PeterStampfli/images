@@ -31,13 +31,13 @@ colorTable.cssColor = [];
  */
 colorTable.create = function() {
     // the ui
-if (colorTable.generator===twoColorInterpolation){
-color1Controller.show();
-color2Controller.show();
-} else {
-color1Controller.hide();
-color2Controller.hide();
-}
+    if (colorTable.generator === twoColorInterpolation) {
+        color1Controller.show();
+        color2Controller.show();
+    } else {
+        color1Controller.hide();
+        color2Controller.hide();
+    }
     // the colors
     const color = {};
     colorTable.reds.length = colorTable.nColors;
@@ -59,31 +59,31 @@ color2Controller.hide();
 };
 
 /**
- * drawing after changes of parameters: number of different colors and the color table type
- * here: drawing a sample for tests
- * overwrite for running life
- * @method colorTable.draw
+ * drawing the color table
+ * for tests and for the final program as control
+ * @method colorTable.drawTable
  */
-colorTable.draw = function() {
+colorTable.drawTable = function() {
     const canvas = output.canvas;
     const canvasContext = canvas.getContext("2d");
-    const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-    const pixels = imageData.data;
-    let pixelIndex = 0;
     const height = canvas.height;
     const width = canvas.width;
-    for (var jCanvas = 0; jCanvas < height; jCanvas++) {
-        for (var iCanvas = 0; iCanvas < width; iCanvas++) {
-            const index = Math.floor(iCanvas / width * (colorTable.nColors - 0.00001));
-            pixels[pixelIndex] = colorTable.reds[index];
-            pixels[pixelIndex + 1] = colorTable.greens[index];
-            pixels[pixelIndex + 2] = colorTable.blues[index];
-            pixels[pixelIndex + 3] = 255;
-            pixelIndex += 4;
-        }
+    const stripWidth = width / colorTable.nColors;
+    let x = 0;
+    for (var i = 0; i < colorTable.nColors; i++) {
+        canvasContext.fillStyle = colorTable.cssColor[i];
+        canvasContext.fillRect(x, 0, stripWidth + 1, height);
+        x += stripWidth;
     }
-    canvasContext.putImageData(imageData, 0, 0);
 };
+
+/**
+ * drawing after changes of parameters: number of different colors and the color table type
+ * here: drawing a sample for tests
+ * overwrite for running life (choices between drawing different things, aspects0)
+ * @method colorTable.draw
+ */
+colorTable.draw = colorTable.drawTable;
 
 // the number of colors - target value for generation, will be length of tables
 // change value in the gui
