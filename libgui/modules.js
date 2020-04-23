@@ -107,6 +107,11 @@ export {
 from "./output.js";
 
 export {
+    animation
+}
+from "./animation.js";
+
+export {
     ParamController
 }
 from "./paramController.js";
