@@ -468,21 +468,21 @@ NumberButton.prototype.setRange = function(minValue, maxValue) {
 };
 
 /**
- * set the lower limit for numbers, maxValue is unchanged
- * @method NumberButton#setLow
+ * set the minimum value for numbers, maxValue is unchanged
+ * @method NumberButton#setMin
  * @param {integer} minValue
  */
-NumberButton.prototype.setLow = function(minValue) {
+NumberButton.prototype.setMin = function(minValue) {
     this.minValue = minValue;
     this.applyChanges();
 };
 
 /**
- * set the upper limit for numbers, minValue is unchanged
- * @method NumberButton#setHigh
+ * set the maximum value for numbers, minValue is unchanged
+ * @method NumberButton#setMax
  * @param {integer} maxValue
  */
-NumberButton.prototype.setHigh = function(maxValue) {
+NumberButton.prototype.setMax = function(maxValue) {
     this.maxValue = maxValue;
     this.applyChanges();
 };

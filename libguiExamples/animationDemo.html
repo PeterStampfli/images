@@ -32,20 +32,11 @@ canvas.style.backgroundColor = 'lightBlue';
 
 // we need some stupid animation
 
-gui.add({
-    type: 'button',
-    buttonText: 'step',
-    onClick: function() {
-        anim.step();
-        anim.draw();
-        console.log('get on ' + x);
-    }
-});
 
 animation.createUI(gui);
 
-const b=animation.makeStepsButton(gui,"10",10);
-const bb=animation.makeStepsButton(b,"100",30);
+const b=animation.makeStepsButton(gui,"10 steps",10);
+const bb=animation.makeStepsButton(b,"100 steps",30);
 
 var x = 0;
 const stepSize = 0.01;
@@ -73,6 +64,7 @@ anim.reset = function() {
 animation.setObject(anim);
 
 anim.draw();
+animation.run();
 </script>
 
 </html>
