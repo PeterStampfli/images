@@ -22,21 +22,23 @@ from "../libgui/modules.js";
 
 const gui = new ParamGui({
     name: "animation demo control",
-    closed: false
+    closed:false
 });
 
-output.createCanvas(gui);
+output.createCanvas(gui,'canvas control');
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 canvas.style.backgroundColor = 'lightBlue';
 
 // we need some stupid animation
+const animGui=gui.addFolder({closed:false,name:"animation"});
 
+animation.createUI(animGui);
 
-animation.createUI(gui);
+const b=animation.addStepsButton(gui,"10 steps",10);
+const bb=animation.addStepsButton(b,"30 steps",30);
 
-const b=animation.makeStepsButton(gui,"10 steps",10);
-const bb=animation.makeStepsButton(b,"30 steps",30);
+animation.addRecording(gui);
 
 var x = 0;
 const stepSize = 0.003;

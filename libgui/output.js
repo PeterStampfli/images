@@ -144,18 +144,23 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 };
 
 /**
- * create a canvas in the output.div with controllers in a gui (folder)
+ * create a canvas in the output.div with controllers in a gui
+ * makes its own gui folder as an option (initially closed)
  * you can set its width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
  * @param {ParamGui} gui - the gui that controls the canvas
+ * @param {string} folderName - optional name for folder, no folder if missing
  */
 var autoResize;
 var widthController, heightController, sizeController, autoResizeController, autoScaleController;
 
-output.createCanvas = function(gui) {
+output.createCanvas = function(gui,folderName) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
         return;
+    }
+    if (guiUtils.isString(folderName)){
+        gui=gui.addFolder(folderName);
     }
     if (!output.div) {
         output.createDiv();

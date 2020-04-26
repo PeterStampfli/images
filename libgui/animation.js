@@ -15,15 +15,15 @@ export const animation = {};
 animation.fps = 60;
 
 var gui, animationObject;
-var running = false; // control the animation (continuous stepping and drawing frames)
+var running = false; // true while the animation runs (continuous stepping and drawing frames)
+var timeoutID; // id for the timeout in the animation loop, for stopping it
+var advancing = false; // true while advancing to given frame number
 var drawing = false; // calling the animationObject.draw method after each animationObject.step, drawing frames
 var recording = false; // saving an animation, draw each frame and save as image with current ferame number
 var frameNumberController; // shows the frame number and can be used to advance it
-var startButton, stopButton, resetButton;
 var currentFrameNumber = 0;
 var initialFrame = true; // for drawing the first frame without doing a step
-var stepControllers = []; // collects all ui elements that might interfere with running the animation
-var timeoutID; // id for the timeout in the animation loop, for stopping it
+var targetFrameNumber; // for running the animation until we get to this frame
 
 /**
  * set the animation object
@@ -44,12 +44,11 @@ animation.setObject = function(theObject) {
 };
 
 /**
- * make the user interface and save the gui reference for more
+ * make the basic user interface (no extra stepping, no recording)
  * @method animation.createUI
- * @param {ParamGui} theGui
+ * @param {ParamGui} gui
  */
-animation.createUI = function(theGui) {
-    gui = theGui;
+animation.createUI = function(gui) {
     const fpsController = gui.add({
         type: 'number',
         params: animation,
@@ -59,90 +58,79 @@ animation.createUI = function(theGui) {
         step: 0.1,
         min: 0.1,
     });
+    // shows the frame number while animation runs, or while waiting
+    // can advance the frame number if animation is not running
     frameNumberController = fpsController.add({
         type: 'number',
         initialValue: 0,
         labelText: 'frame number',
         max: 100000,
         onChange: function(value) {
-            animation.advanceNSteps(value - currentFrameNumber);
+            animation.advanceToTarget(value);
         }
     });
-    stepControllers.push(frameNumberController);
-    startButton = gui.add({
+    // start the animation, disabled visually while doing it
+    // disabled while advancing the frame number
+    const startButton = gui.add({
         type: 'button',
         buttonText: 'start',
-        labelText: 'control',
-        onClick: animation.start
+        onClick: function() {
+            if (running) {
+                animation.stop();
+            } else {
+                animation.start();
+            }
+        }
     });
-    stopButton = startButton.add({
+    // stops the animation or advancing the frame number
+    // always active, has no effect while waiting
+    const stopButton = startButton.add({
         type: 'button',
         buttonText: 'stop',
         onClick: animation.stop
     });
-    stopButton.setActive(false);
-    resetButton = stopButton.add({
+    // stops the animation or advancing frame number, resets the animated object
+    // always active, has no effect at initial frame
+    const resetButton = stopButton.add({
         type: 'button',
         buttonText: 'reset',
-        onClick: function() {
-            resetButton.setActive(false);
-        running = false;
-            initialFrame = true;
-            currentFrameNumber=0;
-            frameNumberController.setMin(0);
-            frameNumberController.setValueOnly(0);
-            animationObject.reset();
-            animationObject.draw(); // only drawing, not recording
-        }
+        onClick: animation.reset
     });
-        resetButton.setActive(false);
-
-    stepControllers.push(resetButton);
-};
-
-/**
- * make a given number of steps
- * without drawing, except for the last step
- * including the possibility of recording
- * @method animation.advanceNSteps
- * @param {integer} nSteps
- */
-animation.advanceNSteps = function(nSteps) {
-
-    if (nSteps > 0) {
-        drawing = false; // drawing only if recording
-        if (initialFrame) {
-            advance(); // to make sure we record initial frame
-        }
-        for (var i = 0; i < nSteps - 1; i++) {
-            advance();
-        }
-        drawing = true;
-        advance();
-    }
 };
 
 
 /**
  * add a button, that makes a given number of steps
- * @method animation.makeStepsButton
+ * disactivated visually while animation runs
+ * does nothing while advancing to targetFrameNumber
+ * @method animation.addStepsButton
  * @param {ParamGui||ParamController} base
  * @param {string} text
  * @param {int} nSteps
  * @return buttonController
  */
-animation.makeStepsButton = function(base, text, nSteps) {
+animation.addStepsButton = function(base, text, nSteps) {
     const buttonController = base.add({
         type: 'button',
         buttonText: text,
         onClick: function() {
-            animation.advanceNSteps(nSteps);
+            if (running) {
+                animation.stop();
+            }
+            animation.advanceToTarget(currentFrameNumber + nSteps);
         }
     });
-    stepControllers.push(buttonController);
     return buttonController;
 };
 
+/**
+ * add recording ui
+ * @method animation.addRecording
+ * @param {ParamGui} gui
+ */
+animation.addRecording = function(gui) {
+
+};
 
 /*
  * advance the animation (doing a step)
@@ -165,26 +153,37 @@ function advance() {
     }
 }
 
-// control variables running, drawing, recording
-
-// basic routines
-// start, advance (step with drawing/recording), run, stop (control buttons)
-
-
-// window.requestAnimationFrame(callback);
-// time: date=new Date(), time=date.now() in msec
-// timeoutId=setTimeout(function, milliseconds)
-// clearTimeout(timeoutID)
+/*
+ * control advancing to target
+ * without drawing, except for the last step
+ * including the possibility of recording
+ */
+function advancingToTarget() {
+    if (advancing) {
+        if (currentFrameNumber < targetFrameNumber) {
+            drawing = (currentFrameNumber === targetFrameNumber - 1);
+            advance();
+            advancingToTarget();
+        } else {
+            advancing = false;
+        }
+    }
+}
 
 /**
- * reset routine:
- * sets current frame to zero, initial frame to true
- * calls reset of the animationObject
- * for reset button and calls from the outside
- * the animated object has to check if a reset is really needed
- * @method animation.reset
+ * advance to targetFrameNumber
+ * initialization
+ * does nothing if animation or advancing is still running
+ * @method animation.advanceToTarget
+ * @param {int} target
  */
-
+animation.advanceToTarget = function(target) {
+    if (!running && !advancing) {
+        targetFrameNumber = target;
+        advancing = true;
+        advancingToTarget();
+    }
+};
 
 /*
  * run the animations, that means
@@ -210,36 +209,47 @@ function run() {
 }
 
 /**
- * start the animation
- * disable interfering buttons
+ * start the animation, interrupts advancing to target
  * set drawing=true because we want to see the animation
  * @method animation.start
  */
 animation.start = function() {
     if (!running) {
-        startButton.setActive(false);
-        stopButton.setActive(true);
-        stepControllers.forEach(controller => controller.setActive(false));
+        advancing = false;
         running = true;
         drawing = true;
         run();
     }
 };
 
-
-
 /**
- * stop the animation
+ * stop the animation or advancing
  * enable all buttons
  * set running to false, clear timeout
  * @method animation.stop
  */
 animation.stop = function() {
     if (running) {
-        stopButton.setActive(false);
-        startButton.setActive(true);
-        stepControllers.forEach(controller => controller.setActive(true));
         running = false;
         clearTimeout(timeoutID);
     }
+    advancing = false;
+};
+
+/**
+ * reset routine:
+ * sets current frame to zero, initial frame to true
+ * calls reset of the animationObject
+ * for reset button and calls from the outside
+ * the animated object has to check if a reset is really needed
+ * @method animation.reset
+ */
+animation.reset = function() {
+    animation.stop();
+    initialFrame = true;
+    currentFrameNumber = 0;
+    frameNumberController.setMin(0);
+    frameNumberController.setValueOnly(0);
+    animationObject.reset();
+    animationObject.draw(); // only drawing, not recording
 };
