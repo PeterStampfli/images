@@ -111,17 +111,19 @@ TextInput.prototype.setWidth = function(width) {
  * @method TextInput#setActive
  * @param {boolean} isActive
  */
-TextInput.prototype.setActive =  function(isActive) {
-    this.active = isActive;
-    this.element.disabled = !isActive;
-    if (isActive) {
-        this.element.style.cursor = "text";
-    } else {
-        this.element.style.cursor = "default";
-        this.pressed = false;
-        this.hover = false;
+TextInput.prototype.setActive = function(isActive) {
+    if (this.isActive !== isActive) {
+        this.active = isActive;
+        this.element.disabled = !isActive;
+        if (isActive) {
+            this.element.style.cursor = "text";
+        } else {
+            this.element.style.cursor = "default";
+            this.pressed = false;
+            this.hover = false;
+        }
+        this.updateStyle();
     }
-    this.updateStyle();
 };
 
 /**

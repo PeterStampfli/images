@@ -84,13 +84,15 @@ TextAreaInOut.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults
  * @param {boolean} isActive
  */
 TextAreaInOut.prototype.setActive = function(isActive) {
-    this.active = isActive;
-    this.element.readOnly = !isActive;
-      if (!isActive) {
-        this.pressed = false;
-        this.hover = false;
+    if (this.isActive !== isActive) {
+        this.active = isActive;
+        this.element.readOnly = !isActive;
+        if (!isActive) {
+            this.pressed = false;
+            this.hover = false;
+        }
+        this.updateStyle();
     }
-    this.updateStyle();
 };
 
 /**

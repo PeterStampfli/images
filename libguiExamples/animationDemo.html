@@ -36,10 +36,10 @@ canvas.style.backgroundColor = 'lightBlue';
 animation.createUI(gui);
 
 const b=animation.makeStepsButton(gui,"10 steps",10);
-const bb=animation.makeStepsButton(b,"100 steps",30);
+const bb=animation.makeStepsButton(b,"30 steps",30);
 
 var x = 0;
-const stepSize = 0.01;
+const stepSize = 0.003;
 const size = 0.1;
 
 const anim = {};
@@ -61,10 +61,11 @@ anim.reset = function() {
     x = 0;
 };
 
-animation.setObject(anim);
+output.draw=anim.draw;
 
+animation.setObject(anim);
+anim.reset();
 anim.draw();
-animation.run();
 </script>
 
 </html>

@@ -268,21 +268,23 @@ ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
  * @param {boolean} isActive
  */
 ColorInput.prototype.setActive = function(isActive) {
-    this.active = isActive;
-    this.textElement.disabled = !isActive;
-    this.updateTextStyle();
-    this.colorElement.disabled = !isActive;
-    this.updateColorStyle();
-    if (!this.active) {
-        this.textHover = false;
-        this.textPressed = false;
-    }
-    if (this.hasAlpha) {
-        this.rangeElement.disabled = !isActive;
-        if (this.active) {
-            this.rangeElement.style.cursor = "pointer";
-        } else {
-            this.rangeElement.style.cursor = "default";
+    if (this.isActive !== isActive) {
+        this.active = isActive;
+        this.textElement.disabled = !isActive;
+        this.updateTextStyle();
+        this.colorElement.disabled = !isActive;
+        this.updateColorStyle();
+        if (!this.active) {
+            this.textHover = false;
+            this.textPressed = false;
+        }
+        if (this.hasAlpha) {
+            this.rangeElement.disabled = !isActive;
+            if (this.active) {
+                this.rangeElement.style.cursor = "pointer";
+            } else {
+                this.rangeElement.style.cursor = "default";
+            }
         }
     }
 };

@@ -132,18 +132,20 @@ export function ImageSelect(parent, newDesign) {
  * @param {boolean} isActive
  */
 ImageSelect.prototype.setActive = function(isActive) {
-    this.active = isActive;
-    if (!isActive) {
-        this.closePopup();
-    }
-    this.select.setActive(isActive);
-    if (isActive) {
-        this.guiImage.style.cursor = 'pointer';
-    } else {
-        this.guiImage.style.cursor = 'default';
-    }
-    if (this.userInput) {
-        this.userInput.setActive(isActive);
+    if (this.isActive !== isActive) {
+        this.active = isActive;
+        if (!isActive) {
+            this.closePopup();
+        }
+        this.select.setActive(isActive);
+        if (isActive) {
+            this.guiImage.style.cursor = 'pointer';
+        } else {
+            this.guiImage.style.cursor = 'default';
+        }
+        if (this.userInput) {
+            this.userInput.setActive(isActive);
+        }
     }
 };
 

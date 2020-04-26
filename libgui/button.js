@@ -25,7 +25,7 @@ export function Button(text, parent) {
     // states
     this.pressed = false;
     this.hover = false;
-    this.active = true; 
+    this.active = true;
     this.colorStyleDefaults();
     this.updateStyle();
     this.element.disabled = false;
@@ -231,16 +231,18 @@ Button.prototype.colorStyleForTransparentSpan = function(color) {
  * @param {boolean} isActive
  */
 Button.prototype.setActive = function(isActive) {
-    this.active = isActive;
-    this.element.disabled = !isActive;
-    if (isActive) {
-        this.element.style.cursor = "pointer";
-    } else {
-        this.element.style.cursor = "default";
-        this.pressed = false;
-        this.hover = false;
+    if (this.isActive !== isActive) {
+        this.active = isActive;
+        this.element.disabled = !isActive;
+        if (isActive) {
+            this.element.style.cursor = "pointer";
+        } else {
+            this.element.style.cursor = "default";
+            this.pressed = false;
+            this.hover = false;
+        }
+        this.updateStyle();
     }
-    this.updateStyle();
 };
 
 /**
@@ -276,7 +278,7 @@ Button.prototype.asFileInput = function(accept = ".jpg") {
  */
 Button.prototype.destroy = function() {
     this.onClick = null;
-    this.onInteraction=null;
+    this.onInteraction = null;
     this.onFileInput = null;
     if (this.isFileInput) {
         this.fileInput.onchange = null;
