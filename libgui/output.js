@@ -165,12 +165,12 @@ output.createCanvas = function(gui,folderName) {
     if (!output.div) {
         output.createDiv();
     }
-    gui.updateDesign({
-        textInputWidth: 150
-    });
     output.canvas = document.createElement("canvas");
     output.div.appendChild(output.canvas);
-    // the save button and text field for changing the name
+ gui.updateDesign({
+        textInputWidth: 150
+    });
+       // the save button and text field for changing the name
     const saveButton = gui.add({
             type: "button",
             buttonText: "save",
