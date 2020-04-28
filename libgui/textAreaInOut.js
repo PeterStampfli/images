@@ -11,7 +11,7 @@
 import {
     Button,
     guiUtils
-} from "../libgui/modules.js";
+} from "./modules.js";
 
 export function TextAreaInOut(parent) {
     this.element = document.createElement("textarea");
