@@ -99,9 +99,15 @@ output.windowLoaded = false;
  * @method resizeOutputDiv
  */
 function resizeOutputDiv() {
+    var leftOfSpace, widthOfSpace;
     output.windowLoaded = true;
-    const leftOfSpace = leftSpaceLimit();
-    const widthOfSpace = rightSpaceLimit() - leftOfSpace;
+    if (extendCanvasController.getValue()) {
+        leftOfSpace = 0;
+        widthOfSpace = window.innerWidth;
+    } else {
+        leftOfSpace = leftSpaceLimit();
+        widthOfSpace = rightSpaceLimit() - leftOfSpace;
+    }
     output.div.style.left = leftOfSpace + "px";
     // resize content: set up final dimensions of the div
     // you can use them to resize content
@@ -143,6 +149,69 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
     }
 };
 
+// resizing after the output.div has been resized, knowing its new dimensions
+function autoResize() {
+    const oldWidth = widthController.getValue();
+    const oldHeight = heightController.getValue();
+    if (autoResizeController.getValue()) {
+        output.canvas.style.width = '';
+        output.canvas.style.height = '';
+        // autoresize: fit canvas into the output.div. thus no scroll bars
+        output.div.style.overflow = "hidden";
+        var newWidth, newHeight;
+        if (canvasWidthToHeight > 0.0001) {
+            if (output.divWidth / output.divHeight > canvasWidthToHeight) {
+                // very elongated div: its height determines canvas dimensions
+                newWidth = Math.round(output.divHeight * canvasWidthToHeight);
+                newHeight = output.divHeight;
+            } else {
+                newWidth = output.divWidth;
+                newHeight = Math.round(output.divWidth / canvasWidthToHeight);
+            }
+        } else {
+            newWidth = output.divWidth;
+            newHeight = output.divHeight;
+        }
+        if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
+            // only if the true canvas dimensions change then we need to redraw
+            widthController.setValueOnly(newWidth);
+            heightController.setValueOnly(newHeight);
+            output.draw();
+        }
+    } else if (autoScaleController.getValue()) {
+        var scale;
+        if (output.canvas.width / output.canvas.height > output.divWidth / output.divHeight) {
+            // the canvas is very wide, its width determines the scale
+            scale = output.divWidth / output.canvas.width;
+        } else {
+            scale = output.divHeight / output.canvas.height;
+        }
+        output.canvas.style.width = scale * output.canvas.width + 'px';
+        output.canvas.style.height = scale * output.canvas.height + 'px';
+        // autoresize: fit canvas 'image' into the output.div. thus no scroll bars
+        output.div.style.overflow = "hidden";
+    } else {
+        output.canvas.style.width = '';
+        output.canvas.style.height = '';
+        // not autoresizing/autoscaling the canvas: its size does not change, 
+        // but scroll bars may change, no draw()
+        output.div.style.overflow = "hidden";
+        // test if width overflows and we have to use overflowX="scroll"
+        if (output.canvas.offsetWidth > output.divWidth) {
+            output.div.style.overflowX = "scroll";
+        }
+        // test if height overflows and we have to use overflowY="scroll"
+        if (output.canvas.offsetHeight > output.divHeight) {
+            output.div.style.overflowY = "scroll";
+            // now the width might overflow into the scroll bar. Thus test again
+            // test if width overflows and we have to use overflowX="scroll"
+            if (output.canvas.offsetWidth > output.divWidth) {
+                output.div.style.overflowX = "scroll";
+            }
+        }
+    }
+}
+
 /**
  * create a canvas in the output.div with controllers in a gui
  * makes its own gui folder as an option (initially closed)
@@ -151,26 +220,22 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
  * @param {ParamGui} gui - the gui that controls the canvas
  * @param {string} folderName - optional name for folder, no folder if missing
  */
-var autoResize;
-var widthController, heightController, sizeController, autoResizeController, autoScaleController;
+var widthController, heightController, sizeController;
+var autoResizeController, autoScaleController, extendCanvasController;
 
-output.createCanvas = function(gui,folderName) {
+output.createCanvas = function(gui, folderName) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
         return;
     }
-    if (guiUtils.isString(folderName)){
-        gui=gui.addFolder(folderName);
-    }
-    if (!output.div) {
-        output.createDiv();
-    }
     output.canvas = document.createElement("canvas");
-    output.div.appendChild(output.canvas);
- gui.updateDesign({
+    if (guiUtils.isString(folderName)) {
+        gui = gui.addFolder(folderName);
+    }
+    gui.updateDesign({
         textInputWidth: 150
     });
-       // the save button and text field for changing the name
+    // the save button and text field for changing the name
     const saveButton = gui.add({
             type: "button",
             buttonText: "save",
@@ -191,10 +256,6 @@ output.createCanvas = function(gui,folderName) {
         initialValue: 'png',
         labelText: '.'
     }).setMinLabelWidth(5);
-
-    // actual dimensions are not important here:
-    // we only build the controllers
-    // dimensions will be resized later
 
     widthController = gui.add({
         type: "number",
@@ -230,69 +291,6 @@ output.createCanvas = function(gui,folderName) {
         }
     });
 
-    // resizing after the output.div has been resized, knowing its new dimensions
-    autoResize = function() {
-        const oldWidth = widthController.getValue();
-        const oldHeight = heightController.getValue();
-        if (autoResizeController.getValue()) {
-            output.canvas.style.width = '';
-            output.canvas.style.height = '';
-            // autoresize: fit canvas into the output.div. thus no scroll bars
-            output.div.style.overflow = "hidden";
-            var newWidth, newHeight;
-            if (canvasWidthToHeight > 0.0001) {
-                if (output.divWidth / output.divHeight > canvasWidthToHeight) {
-                    // very elongated div: its height determines canvas dimensions
-                    newWidth = Math.round(output.divHeight * canvasWidthToHeight);
-                    newHeight = output.divHeight;
-                } else {
-                    newWidth = output.divWidth;
-                    newHeight = Math.round(output.divWidth / canvasWidthToHeight);
-                }
-            } else {
-                newWidth = output.divWidth;
-                newHeight = output.divHeight;
-            }
-            if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
-                // only if the true canvas dimensions change then we need to redraw
-                widthController.setValueOnly(newWidth);
-                heightController.setValueOnly(newHeight);
-                output.draw();
-            }
-        } else if (autoScaleController.getValue()) {
-            var scale;
-            if (output.canvas.width / output.canvas.height > output.divWidth / output.divHeight) {
-                // the canvas is very wide, its width determines the scale
-                scale = output.divWidth / output.canvas.width;
-            } else {
-                scale = output.divHeight / output.canvas.height;
-            }
-            output.canvas.style.width = scale * output.canvas.width + 'px';
-            output.canvas.style.height = scale * output.canvas.height + 'px';
-            // autoresize: fit canvas 'image' into the output.div. thus no scroll bars
-            output.div.style.overflow = "hidden";
-        } else {
-            output.canvas.style.width = '';
-            output.canvas.style.height = '';
-            // not autoresizing/autoscaling the canvas: its size does not change, 
-            // but scroll bars may change, no draw()
-            output.div.style.overflow = "hidden";
-            // test if width overflows and we have to use overflowX="scroll"
-            if (output.canvas.offsetWidth > output.divWidth) {
-                output.div.style.overflowX = "scroll";
-            }
-            // test if height overflows and we have to use overflowY="scroll"
-            if (output.canvas.offsetHeight > output.divHeight) {
-                output.div.style.overflowY = "scroll";
-                // now the width might overflow into the scroll bar. Thus test again
-                // test if width overflows and we have to use overflowX="scroll"
-                if (output.canvas.offsetWidth > output.divWidth) {
-                    output.div.style.overflowX = "scroll";
-                }
-            }
-        }
-    };
-
     autoResizeController = gui.add({
         type: "boolean",
         labelText: "auto resize canvas",
@@ -317,15 +315,44 @@ output.createCanvas = function(gui,folderName) {
         }
     }).addHelp('Scales the image of the canvas to fit the available space.');
 
+    // extending the canvas width
+    extendCanvasController = gui.add({
+        type: 'boolean',
+        initialValue: false,
+        labelText: 'extend canvas width',
+        onChange: function() {
+            resizeOutputDiv();
+            autoResize();
+        }
+    }).addHelp('Extend the canvas width to window width. Maybe, nothing happens for fixed width to height ratio.');
+
+    // extending the browser window to the entire screen
+    gui.add({
+        type: 'boolean',
+        labelText: 'full screen window',
+        initialValue: false,
+        onChange: function(value) {
+            if (value) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    }).addHelp('Switches browser to full screen mode and back.');
+
+    if (!output.div) {
+        output.createDiv();
+    }
+    output.div.appendChild(output.canvas);
     autoResize();
     window.addEventListener("resize", autoResize, false);
 };
 
 /**
-* autoresizing the canvas, required after changing the width to size ratio
-* @method output.resizeCanvas
-*/
-output.resizeCanvas=function(){
+ * autoresizing the canvas, required after changing the width to size ratio
+ * @method output.resizeCanvas
+ */
+output.resizeCanvas = function() {
     autoResize();
 };
 
@@ -345,7 +372,7 @@ output.setCanvasWidthToHeight = function(ratio) {
         canvasWidthToHeight = ratio;
         // if autoresizing we do not need to set canvas dimensions 
         //because autoResize does this automatically (better names ?)
-        if (!autoResizeController.getValue()&&(ratio>0.0001)) {
+        if (!autoResizeController.getValue() && (ratio > 0.0001)) {
             const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
             widthController.setValueOnly(width);
             heightController.setValueOnly(width / canvasWidthToHeight);
