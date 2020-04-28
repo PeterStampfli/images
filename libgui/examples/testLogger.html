@@ -17,10 +17,11 @@ import {
     output,
     log
 }
-from "../libgui/modules.js";
+from "../modules.js";
 
 const gui = new ParamGui({
-    name: "dummy controls"
+    name: "dummy controls",
+    closed:false
 });
 
 gui.add({
@@ -35,7 +36,8 @@ gui.add({
 
 // CREATING A LOGGER IN A FOLDER INSIDE THE MAIN UI
 
-const logger = gui.addFolder("logging things").addLogger();
+const logger = gui.addFolder("logging things",
+    {closed:false}).addLogger();
 
 logger.log("a message");
 logger.log("another message");

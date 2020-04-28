@@ -93,7 +93,8 @@ export function log(message) {
             width: "600",
             horizontalShift: 80,
             verticalPosition: "top",
-            verticalShift: 40
+            verticalShift: 40,
+            closed:false
         }).addLogger();
         logger.container.style.height = "";
 

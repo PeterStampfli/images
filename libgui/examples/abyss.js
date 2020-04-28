@@ -4,7 +4,7 @@ import {
     InstantHelp,
     output
 }
-from "../libgui/modules.js";
+from "../modules.js";
 
 export const abyss = {};
 

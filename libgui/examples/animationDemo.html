@@ -18,7 +18,7 @@ import {
     output,
     animation
 }
-from "../libgui/modules.js";
+from "../modules.js";
 
 const gui = new ParamGui({
     name: "animation demo control",
@@ -35,13 +35,13 @@ const animGui=gui.addFolder({closed:false,name:"animation"});
 
 animation.createUI(animGui);
 
-const b=animation.addStepsButton(gui,"10 steps",10);
+const b=animation.addStepsButton(animGui,"10 steps",10);
 const bb=animation.addStepsButton(b,"30 steps",30);
 
-animation.addRecording(gui);
+animation.addRecording(animGui);
 
 var x = 0;
-const stepSize = 0.003;
+const stepSize = 0.01;
 const size = 0.1;
 
 const anim = {};

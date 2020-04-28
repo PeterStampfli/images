@@ -22,6 +22,7 @@ var advancing = false; // true while advancing to given frame number
 var drawing = false; // calling the animationObject.draw method after each animationObject.step, drawing frames
 
 var frameNumberController; // shows the frame number and can be used to advance it
+var startButton; // starts and stops the animation
 var currentFrameNumber = 0;
 var initialFrame = true; // means that we are at the initial frame, for drawing the first frame without doing a step before
 var targetFrameNumber; // for running the animation until we get to this frame
@@ -82,13 +83,15 @@ animation.createUI = function(gui) {
     });
     // start the animation, disabled visually while doing it
     // disabled while advancing the frame number
-    const startButton = gui.add({
+    startButton = gui.add({
         type: 'button',
         buttonText: 'start',
         onClick: function() {
             if (running) {
                 animation.stop();
+                startButton.setButtonText('start');
             } else {
+                startButton.setButtonText('stop');
                 animation.start();
             }
         }
@@ -171,7 +174,7 @@ animation.addRecording = function(gui) {
 /*
  * make file name, depending on current frame number and movieName
  */
-function makeFileName() {
+function makeFilename() {
     let result = currentFrameNumber.toString(10);
     while (result.length < recorder.numberOfDigits) {
         result = '0' + result;
@@ -215,8 +218,8 @@ function advancingToTarget() {
             drawing = (currentFrameNumber === targetFrameNumber - 1);
             advance();
             if (recorder.recording) {
-                console.log(makeFileName());
-                advancingToTarget();
+                const filename = makeFilename();
+                guiUtils.saveCanvasAsFile(output.canvas, filename, recorder.movieType, advancingToTarget);
             } else {
                 advancingToTarget();
             }
@@ -257,13 +260,15 @@ function run() {
         const startTime = Date.now();
         advance();
         if (recorder.recording) {
-            console.log(makeFileName());
-
-            const endTime = Date.now();
-            // prepare next frame
-            timeoutID = setTimeout(function() {
-                requestAnimationFrame(run);
-            }, deltaTime - (endTime - startTime) - frameTime);
+            const filename = makeFilename();
+            guiUtils.saveCanvasAsFile(output.canvas, filename, recorder.movieType,
+                function() {
+                    const endTime = Date.now();
+                    // prepare next frame
+                    timeoutID = setTimeout(function() {
+                        requestAnimationFrame(run);
+                    }, deltaTime - (endTime - startTime) - frameTime);
+                });
         } else {
             const endTime = Date.now();
             // prepare next frame
@@ -315,11 +320,9 @@ animation.reset = function() {
     animation.stop();
     initialFrame = true;
     currentFrameNumber = 0;
+    startButton.setButtonText('start');
     frameNumberController.setMin(0);
     frameNumberController.setValueOnly(0);
     animationObject.reset();
     animationObject.draw(); // only drawing, not recording
 };
-
-
-//guiUtils.saveCanvasAsFile = function(canvas, filename, extension,callback=function(){}) {
