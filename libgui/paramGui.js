@@ -235,8 +235,8 @@ ParamGui.defaultDesign = {
 
     // style for controller labels
     //----------------------------------------------------
-    // (minimum) width for labels (horizontal alignement)
-    labelWidth: 80,
+    // minimum width for labels (horizontal alignement)
+    minLabelWidth: 80,
     // fontsize for labels
     labelFontSize: 14,
     // text alignment in the label (of minimum width)
@@ -246,6 +246,8 @@ ParamGui.defaultDesign = {
     //--------------------------------------
     // fontsize for buttons
     buttonFontSize: 12,
+    // minimum width for ui elements
+    minElementWidth:0,
     // width of boolean buttons
     booleanButtonWidth: 60,
     // width for text input
@@ -728,7 +730,7 @@ ParamGui.prototype.toFront = function() {
 /**
  * add a folder, it is a gui instance, open by default
  * @method ParamGui#addFolder
- * @param {String} folderName - optional, for compatibility with datgui
+ * @param {String} folderName - optional, for compatibility with datgui, without this we have the same interface as ParamGui itself
  * @param {...Object} designParameters - modifying the design and other parameters
  * @return ParamGui instance (that's the folder)
  */
@@ -862,7 +864,7 @@ ParamGui.createArgs = function(theParams, theProperty, low, high, step) {
 /**
  * combine several argument objects into a new object, returns the object
  * the objects that will be combined from the left to the right, adding and overwriting fields
- * NOTE: the argument is typicall the arguments object of the caller, containing objects
+ * NOTE: the argument is typically the arguments object of the caller, containing objects
  * returns false if there is no argument or if an argument is not an object
  * @method ParamGui.combineObject
  * @param {Array-like Object of Objects} obs
@@ -890,7 +892,7 @@ ParamGui.combineObject = function(obs) {
     // check if all args fields are good parameters
     if (guiUtils.isObject(result)) {
         for (var key in result) {
-            if (goodArgsKeys.indexOf(key) < 0) {
+            if ((goodArgsKeys.indexOf(key) < 0)&& (!guiUtils.isDefined(ParamGui.defaultDesign[key]))){
                 console.error('arguments object has unknown parameter "' + key + '" with value "' + result[key] + '"');
                 let mess = "good parameters are: ";
                 for (i = 0; i < goodArgsKeys.length; i++) {
@@ -948,9 +950,7 @@ ParamGui.combineObject = function(obs) {
  * args.buttonText - string, for the text of the button of BUTTON controllers (optional, else args.property is used)
  * args.onChange - callback function for changes or clicks (type BUTTON), (optional, for BUTTON args.params[args.property] is default)
  * args.onClick - same as args.onChange
- * args.minLabelWidth - number, minimum width for label (optional, default is gui.design.minLabelWidth)
- * args.minElementWidth - number, minimum width for the ui element (optional, else it will fit its contents)
- * args.options - array or object, only for SELECTION or IMAGE type controllers
+* args.options - array or object, only for SELECTION or IMAGE type controllers
  * args.min - minimum value for NUMBER controllers (optional, default is 0)
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
  * args.step - value for step of NUMBER controllers (optional, default is obtained from the initial value)
@@ -969,8 +969,6 @@ let goodArgsKeys = ["type",
     "buttonText",
     "onChange",
     "onClick",
-    "minLabelWidth",
-    "minElementWidth",
     "options",
     "min",
     "max",

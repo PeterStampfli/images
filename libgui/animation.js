@@ -67,8 +67,7 @@ animation.createUI = function(gui) {
         property: 'fps',
         labelText: 'speed (fps)',
         max: 60,
-        step: 0.1,
-        min: 0.1,
+        min: 1,
     });
     // shows the frame number while animation runs, or while waiting
     // can advance the frame number if animation is not running
@@ -76,7 +75,7 @@ animation.createUI = function(gui) {
         type: 'number',
         initialValue: 0,
         labelText: 'frame number',
-        max: 100000,
+        max: 99999,
         onChange: function(value) {
             animation.advanceToTarget(value);
         }
@@ -103,15 +102,15 @@ animation.createUI = function(gui) {
         buttonText: 'stop',
         onClick: animation.stop
     });
+    const stepButton = animation.addStepsButton(stopButton, 'step', 1);
     // stops the animation or advancing frame number, resets the animated object
     // always active, has no effect at initial frame
-    const resetButton = stopButton.add({
+    const resetButton = stepButton.add({
         type: 'button',
         buttonText: 'reset',
         onClick: animation.reset
     });
 };
-
 
 /**
  * add a button, that makes a given number of steps
@@ -163,9 +162,9 @@ animation.addRecording = function(gui) {
         property: 'movieType',
         options: ['png', 'jpg'],
         initialValue: 'jpg',
-        labelText: '.'
-    }).setMinLabelWidth(5);
-
+        labelText: '.',
+        minLabelWidth:5,
+    });
 };
 
 // recording
@@ -254,27 +253,28 @@ animation.advanceToTarget = function(target) {
 function run() {
     if (running) {
         // all times in msec
-        const frameTime = 1000 / 60;
-        const deltaTime = 1000 / animation.fps - frameTime;
+        // minimum time per frame for not exceeding the given fps speed
+        // fps=60 means maximum speed
+        const minimumFrameTime = 1000 / animation.fps-1000/60; 
         // do the current frame
-        const startTime = Date.now();
+        const startOfFrame = Date.now();
         advance();
         if (recorder.recording) {
             const filename = makeFilename();
             guiUtils.saveCanvasAsFile(output.canvas, filename, recorder.movieType,
                 function() {
-                    const endTime = Date.now();
+                    const timeUsed = Date.now()-startOfFrame;
                     // prepare next frame
                     timeoutID = setTimeout(function() {
                         requestAnimationFrame(run);
-                    }, deltaTime - (endTime - startTime) - frameTime);
+                    }, minimumFrameTime - timeUsed);
                 });
         } else {
-            const endTime = Date.now();
+                    const timeUsed = Date.now()-startOfFrame;
             // prepare next frame
             timeoutID = setTimeout(function() {
                 requestAnimationFrame(run);
-            }, deltaTime - (endTime - startTime) - frameTime);
+            }, minimumFrameTime - timeUsed);
         }
     }
 }

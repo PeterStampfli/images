@@ -75,19 +75,14 @@ gui.addParagraph("We can have several controls on a line:");
 parameters.width = 300;
 parameters.height = 200;
 gui.add(parameters, "width", 100, 10000)
-    .setMinLabelWidth(30)
-    .add(parameters, "height", 100, 10000)
-    .setMinLabelWidth(30);
+    .add(parameters, "height", 100, 10000);
 
 parameters.heat = false;
 parameters.sound = true;
 parameters.light = true;
 gui.add(parameters, "heat")
-    .setMinLabelWidth(30)
     .add(parameters, "sound")
-    .setMinLabelWidth(30)
-    .add(parameters, "light")
-    .setMinLabelWidth(30);
+    .add(parameters, "light");
 const haeckel = "./haeckel/haeckel_";
 
 const choices = {};

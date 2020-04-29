@@ -105,33 +105,25 @@ gui.add({
         min: 100,
         max: 10000
     })
-    .setMinLabelWidth(30)
-    .add(parameters, "height", 100, 10000)
-    .setMinLabelWidth(30);
+    .add(parameters, "height", 100, 10000);
 
 gui.addParagraph("The new API is more verbose, but easier to use and debug.");
 
 parameters.heat = false;
 parameters.sound = true;
 parameters.light = true;
-gui.add({
-        type: "boolean",
-        params: parameters,
+
+// simplify, using multiple parameter objects
+const boo={type:'boolean',params:parameters,minLabelWidth:30};
+gui.add(boo, {
         property: "heat"
     })
-    .setMinLabelWidth(30)
-    .add({
-        type: "boolean",
-        params: parameters,
+    .add(boo,{
         property: "light"
     })
-    .setMinLabelWidth(30)
-    .add({
-        type: "boolean",
-        params: parameters,
+    .add(boo,{
         property: "sound"
-    })
-    .setMinLabelWidth(30);
+    });
 const haeckel = "./haeckel/haeckel_";
 
 const choices = {};

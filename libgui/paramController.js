@@ -20,12 +20,19 @@ import {
  * @creator ParamController
  * @param {ParamGui} gui - the gui it is in
  * @param {htmlElement} domElement - container for the controller, div
- * @param {object} args - collection of arguments defining the controller
+ * @param {object} argObjects -  argument objects defining the controller (type, data and special design)
  */
-export function ParamController(gui, domElement, args) {
+export function ParamController(gui, domElement, argObjects) {
     this.gui = gui;
-    this.design = gui.design;
-    const design = gui.design;
+    this.design = {};
+    const design = this.design;
+    Object.assign(design,gui.design);
+        // update design parameters
+    const args={};
+    for (var i = 2; i < arguments.length; i++) {
+        guiUtils.updateValues(design, arguments[i]);
+        Object.assign(args,arguments[i]);
+    }
     this.domElement = domElement;
     const controller = this;
     //  args.type = args.type.toLowerCase();
@@ -114,7 +121,7 @@ export function ParamController(gui, domElement, args) {
     this.label.style.fontSize = design.labelFontSize + "px";
     // minimum width for alignment of inputs
     this.label.style.display = "inline-block";
-    this.label.style.minWidth = guiUtils.check(args.minLabelWidth, design.labelWidth) + "px";
+    this.label.style.minWidth = design.minLabelWidth + "px";
     this.label.style.textAlign = design.labelTextAlign;
     // space between label and controller or left border
     this.label.style.paddingLeft = design.spaceWidth + "px";
@@ -379,8 +386,8 @@ export function ParamController(gui, domElement, args) {
             this.initialValue = this.uiElement.getValue();
         }
         // change the minimum element width if we have a controller
-        if (guiUtils.isObject(this.uiElement) && guiUtils.isNumber(args.minElementWidth)) {
-            this.uiElement.setMinWidth(args.minElementWidth);
+        if (guiUtils.isObject(this.uiElement)&&(guiUtils.isFunction(this.uiElement.setMinWidth))) {
+           this.uiElement.setMinWidth(design.minElementWidth);
         }
     } else {
         const message = document.createElement("span");
@@ -480,8 +487,7 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
         this.domElement.appendChild(message);
         return false;
     }
-    const controller = new ParamController(this.gui, this.domElement, args);
-    controller.setMinLabelWidth(0);
+    const controller = new ParamController(this.gui, this.domElement, {minLabelWidth:0},args);
     return controller;
 };
 
@@ -796,34 +802,6 @@ ParamController.prototype.deleteLabel = function() {
     if (this.label) {
         this.label.remove();
         this.label = false;
-    }
-    return this;
-};
-
-/**
- * set a minimum width for label
- * @method ParamController#setMinLabelWidth
- * @param {int} width
- * @return this, for chaining
- */
-ParamController.prototype.setMinLabelWidth = function(width) {
-    if (this.label) {
-        this.label.style.minWidth = width + "px";
-    }
-    return this;
-};
-
-/**
- * set a minimum width for the main ui element
- * @method ParamController#setMinElementWidth
- * @param {int} width
- * @return this, for chaining
- */
-ParamController.prototype.setMinElementWidth = function(width) {
-    if (this.uiElement) {
-        this.uiElement.setMinWidth(width);
-    } else {
-        console.error('Controller.setMinWidth: There is no ui element because of unknown controller type "' + this.type + '".');
     }
     return this;
 };

@@ -203,7 +203,7 @@ guiUtils.isColorString = function(text) {
  */
 guiUtils.updateValues = function(toObject, fromObject) {
     for (var key in fromObject) {
-        if ((typeof toObject[key] === typeof fromObject[key]) && (typeof fromObject[key] !== "function")) {
+        if (((typeof toObject[key]) === (typeof fromObject[key])) && ((typeof fromObject[key]) !== "function")) {
             toObject[key] = fromObject[key];
         }
     }

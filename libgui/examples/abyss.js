@@ -18,10 +18,18 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext("2d");
 
 output.makeCanvasSizeButtons(gui, {
-    label: 'small',
-    width: 100,
-    height: 100
-},{width:200,height:150},{width:500});
+    label: 'HD',
+    width: 1920,
+    height: 1080
+},{
+    label: '4K',
+    width: 4096,
+    height: 2160
+},{
+    label: '4000 x 3000',
+    width: 4000,
+    height: 3000
+});
 
 gui.addParagraph('light');
 

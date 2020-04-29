@@ -232,30 +232,30 @@ output.createCanvas = function(gui, folderName) {
     if (guiUtils.isString(folderName)) {
         gui = gui.addFolder(folderName);
     }
-    gui.updateDesign({
-        textInputWidth: 150
-    });
+
     // the save button and text field for changing the name
     const saveButton = gui.add({
-            type: "button",
-            buttonText: "save",
-            onClick: function() {
-                output.saveCanvasAsFile(saveName.getValue(), saveType.getValue());
-            }
-        })
-        .setMinLabelWidth(0);
+        type: "button",
+        buttonText: "save",
+        minLabelWidth: 20,
+        onClick: function() {
+            output.saveCanvasAsFile(saveName.getValue(), saveType.getValue());
+        }
+    });
     const saveName = saveButton.add({
-            type: "text",
-            initialValue: "image",
-            labelText: "as"
-        })
-        .setMinLabelWidth(20);
+        type: "text",
+        initialValue: "image",
+        labelText: "as",
+        textInputWidth: 150,
+        minLabelWidth: 20
+    });
     const saveType = saveButton.add({
         type: 'selection',
         options: ['png', 'jpg'],
         initialValue: 'png',
-        labelText: '.'
-    }).setMinLabelWidth(5);
+        labelText: '.',
+        minLabelWidth: 5
+    });
 
     widthController = gui.add({
         type: "number",
@@ -386,7 +386,7 @@ output.setCanvasWidthToHeight = function(ratio) {
  * buttons are defined by an  object 
  * {label: string (optional), 
  *  width: number, 
- *  height: number (optional for fixed widthToHeight ratio)}
+ *  height: number (optional, default is width or width/canvasWidthToHeight ratio}
  * @method output.makeCanvasSizeButtons
  * @param {ParamGui} gui - where the buttons go to
  * @param {...object} buttonDefinition - repeated for several on a line
@@ -430,6 +430,6 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
     const controller = gui.add(makeArgs(buttonDefinition));
     // make more buttons, arguments[2] ...
     for (var i = 2; i < arguments.length; i++) {
-        controller.add(makeArgs(arguments[i])).setMinLabelWidth(0);
+        controller.add(makeArgs(arguments[i]));
     }
 };
