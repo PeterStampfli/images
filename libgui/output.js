@@ -381,6 +381,16 @@ output.setCanvasWidthToHeight = function(ratio) {
 };
 
 /**
+* set the canvas dimensions
+* disactivate controllers that change size (width, height - controllers)
+* hide autoresize controller, switch on autoscale
+* do not create additional buttons that change size, as those below
+* @method output.setCanvasDimensions
+* @param {int} width
+* @param {int} height
+*/
+
+/**
  * create buttons that set the canvas width and height to special values
  * many buttons on one line
  * buttons are defined by an  object 

@@ -29,19 +29,65 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 canvas.style.backgroundColor = 'lightBlue';
 
-gui.add({
+const imageSelector=gui.add({
     type:'image',
     labelText:"input",
     options:{sample:"./haeckel/haeckel_01.png"},
-    initialValue: 'sample'
+    initialValue: 'sample',
+    onChange: draw
 });
 
-gui.add({
-    type:'selection',
-    options:{eins:1,zwei:22},
-    initialValue:'zwei'
+const inputImage=document.createElement("img");
+inputImage.style.display='none';
 
-})
+document.body.appendChild(inputImage);
+
+
+
+function draw(){
+    console.log(imageSelector.getValue())
+    console.log(inputImage.src)
+    let selectedImage=imageSelector.getValue();
+    selectedImage=selectedImage.split('/');
+    selectedImage=selectedImage[selectedImage.length-1];
+    console.log(selectedImage);
+    let loadedImage=inputImage.src;
+    loadedImage=loadedImage.split('/');
+    loadedImage=loadedImage[loadedImage.length-1];
+    console.log(loadedImage);
+
+inputImage.onload=function(){
+
+const canvasWidthToHeight=output.canvas.width/output.canvas.height;
+const imageWidthToHeight=inputImage.width/inputImage.height;
+
+if (canvasWidthToHeight>imageWidthToHeight){
+//  image covers canvas if image width extended to canvas width
+const zoom=output.canvas.width/inputImage.width;
+
+canvasContext.drawImage(inputImage,0,0.5*(inputImage.height-output.canvas.height/zoom),inputImage.width,output.canvas.height/zoom,0,0,output.canvas.width,output.canvas.height);
+
+}else {
+
+}
+
+
+};
+
+
+
+if (loadedImage!==selectedImage){
+    console.log('loading')
+inputImage.src=imageSelector.getValue();
+} else {
+    inputImage.onload();
+}
+
+}
+
+draw();
+output.draw=draw
+
 </script>
 
 </html>
