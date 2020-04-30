@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>input image</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    output,
+    animation
+}
+from "../modules.js";
+
+const gui = new ParamGui({
+    closed:false
+});
+
+output.createCanvas(gui,{name:'canvas control',closed:false});
+const canvas = output.canvas;
+const canvasContext = canvas.getContext('2d');
+canvas.style.backgroundColor = 'lightBlue';
+
+gui.add({
+    type:'image',
+    labelText:"input",
+    options:{sample:"./haeckel/haeckel_01.png"},
+    initialValue: 'sample'
+});
+
+gui.add({
+    type:'selection',
+    options:{eins:1,zwei:22},
+    initialValue:'zwei'
+
+})
+</script>
+
+</html>

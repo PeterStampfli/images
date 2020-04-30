@@ -218,7 +218,7 @@ function autoResize() {
  * you can set its width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
  * @param {ParamGui} gui - the gui that controls the canvas
- * @param {string} folderName - optional name for folder, no folder if missing
+ * @param {string|Object} folderName - optional name or arguments/design object for folder, no folder if missing
  */
 var widthController, heightController, sizeController;
 var autoResizeController, autoScaleController, extendCanvasController;
@@ -229,7 +229,7 @@ output.createCanvas = function(gui, folderName) {
         return;
     }
     output.canvas = document.createElement("canvas");
-    if (guiUtils.isString(folderName)) {
+    if (guiUtils.isDefined(folderName)) {
         gui = gui.addFolder(folderName);
     }
 

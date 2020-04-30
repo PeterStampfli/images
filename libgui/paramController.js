@@ -26,12 +26,12 @@ export function ParamController(gui, domElement, argObjects) {
     this.gui = gui;
     this.design = {};
     const design = this.design;
-    Object.assign(design,gui.design);
-        // update design parameters
-    const args={};
+    Object.assign(design, gui.design);
+    // update design parameters
+    const args = {};
     for (var i = 2; i < arguments.length; i++) {
         guiUtils.updateValues(design, arguments[i]);
-        Object.assign(args,arguments[i]);
+        Object.assign(args, arguments[i]);
     }
     this.domElement = domElement;
     const controller = this;
@@ -159,6 +159,7 @@ export function ParamController(gui, domElement, argObjects) {
                     // sets value to one of the option values, so parameter value will be equal to initial value
                     if (selectValues.findIndex(this.initialValue) >= 0) {
                         this.setValueOnly(this.initialValue); // index found, initial value might be its name or value
+                        this.initialValue=this.getValue();
                     } else {
                         // fallback: use first value of the options, set this value for the parameter too
                         selectValues.setIndex(0);
@@ -328,13 +329,13 @@ export function ParamController(gui, domElement, argObjects) {
                 if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                     imageSelect.addOptions(args.options);
                     // check if the initial value is in the options, accepts option names and values
-                    // sets value to one of the option values
-                    if (imageSelect.findIndex(this.initialValue) >= 0) {
+                    if ( imageSelect.findIndex(this.initialValue) >= 0) {
                         this.setValueOnly(this.initialValue);
+                        this.initialValue = this.getValue();
                     } else {
-                        // fallback: use first value of the options, set this value for the parameter too
+                        // not found, fallback: use first value of the options, set this value for the parameter too
                         imageSelect.setIndex(0);
-                        this.setValueOnly(imageSelect.getValue());
+                        this.setValueOnly(this.getValue());
                         noGoodInitialValue("initial value is not in options");
                     }
                 } else {
@@ -386,8 +387,8 @@ export function ParamController(gui, domElement, argObjects) {
             this.initialValue = this.uiElement.getValue();
         }
         // change the minimum element width if we have a controller
-        if (guiUtils.isObject(this.uiElement)&&(guiUtils.isFunction(this.uiElement.setMinWidth))) {
-           this.uiElement.setMinWidth(design.minElementWidth);
+        if (guiUtils.isObject(this.uiElement) && (guiUtils.isFunction(this.uiElement.setMinWidth))) {
+            this.uiElement.setMinWidth(design.minElementWidth);
         }
     } else {
         const message = document.createElement("span");
@@ -487,7 +488,9 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
         this.domElement.appendChild(message);
         return false;
     }
-    const controller = new ParamController(this.gui, this.domElement, {minLabelWidth:0},args);
+    const controller = new ParamController(this.gui, this.domElement, {
+        minLabelWidth: 0
+    }, args);
     return controller;
 };
 
