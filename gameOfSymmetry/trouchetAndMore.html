@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>trouchet</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    output,
+    animation
+}
+from "../libgui/modules.js";
+
+const gui = new ParamGui({
+    closed:false
+});
+
+output.createCanvas(gui,{name:'canvas control',closed:false});
+const canvas = output.canvas;
+const canvasContext = canvas.getContext('2d');
+canvas.style.backgroundColor = 'lightBlue';
+output.setCanvasWidthToHeight(1);
+
+const color1='#ff0000';
+const color2='#0000ff';
+
+const nTiles=10;
+const overprint=1.1;
+
+function bottomLeftArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+        canvasContext.stroke();
+}
+
+function bottomRightArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI / 2, Math.PI);
+        canvasContext.stroke();
+}
+
+function topRightArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+        canvasContext.stroke();
+}
+
+function topLeftArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+        canvasContext.stroke();
+}
+
+
+function cross() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.lineTo(50,100);
+    canvasContext.moveTo(0,50);
+    canvasContext.lineTo(100,50);
+        canvasContext.stroke();
+}
+
+function bottomLeftQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+    canvasContext.lineTo(0, 0);
+            canvasContext.fill();
+}
+
+function bottomRightQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI / 2, Math.PI);
+    canvasContext.lineTo(100, 0);
+            canvasContext.fill();
+}
+
+function topRightQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+    canvasContext.lineTo(100, 100);
+            canvasContext.fill();
+}
+
+function topLeftQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+    canvasContext.lineTo(0, 100);
+            canvasContext.fill();
+}
+
+function downDiagonalBent() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+    canvasContext.lineTo(0, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+    canvasContext.lineTo(100, 0);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+function upDiagonalBent(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI*1.5, Math.PI * 2);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI * 0.5, Math.PI);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+function upDiagonalSquares(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+        canvasContext.lineTo(100,100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+function downDiagonalSquares(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+        canvasContext.lineTo(100,0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+
+function upDiagonalStraight(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(50, 100);
+        canvasContext.lineTo(0, 50);
+        canvasContext.lineTo(50, 100);
+        canvasContext.lineTo(100, 100);
+        canvasContext.lineTo(100, 50);
+        canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+function downDiagonalStraight(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(50, 0);
+        canvasContext.lineTo(0, 50);
+        canvasContext.lineTo(50, 0);
+        canvasContext.lineTo(100, 0);
+        canvasContext.lineTo(100, 50);
+        canvasContext.lineTo(50, 100);
+    canvasContext.closePath();
+            canvasContext.fill();
+}
+
+
+function bottomLeftTriangle(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+
+function bottomRightTriangle(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(100,0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function topRightTriangle(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(100,100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(50,100);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function topLeftTriangle(){
+    canvasContext.beginPath();
+    canvasContext.moveTo(0,100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(50,100);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function basicTruchet() {
+    if (data[index]===0) {
+        bottomRightArc();
+        topLeftArc();
+    } else {
+        bottomLeftArc();
+        topRightArc();
+    }
+}
+
+var i, j, index;
+
+const data=[];
+data.length=nTiles*nTiles;
+
+const nStates=2;
+
+function randomData(){
+    const length=data.length;
+    for (var i=0;i<length;i++){
+        data[i]=Math.floor(Math.random()*nStates);
+    }
+}
+
+
+function percolationXData(){
+    index=0;
+    const length=data.length;
+        for (i = 0; i < nTiles; i++) {
+        for (j = 0; j < nTiles; j++) {
+data[index]=i&1;
+              index+=1;
+
+}
+}
+}
+
+randomData();
+percolationXData();
+
+// be aware that changing the canvas dimensions resets the context
+function draw() {
+    console.log('draw')
+
+
+    canvasContext.lineWidth = 2;
+    canvasContext.strokeStyle = 'red';
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+    // canvasContext.clearRect(0,0,canvas.width,canvas.height);
+     index=0;
+
+    const tileSize = canvas.width / nTiles;
+    for (i = 0; i < nTiles; i++) {
+        for (j = 0; j < nTiles; j++) {
+            canvasContext.setTransform(tileSize / 100, 0, 0, tileSize / 100, i * tileSize, j * tileSize);
+              basicTruchet();
+              index+=1;
+
+        }
+    }
+
+
+};
+
+draw();
+output.draw=draw
+
+</script>
+
+</html>

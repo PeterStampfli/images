@@ -370,25 +370,28 @@ let canvasWidthToHeight = -1;
 output.setCanvasWidthToHeight = function(ratio) {
     if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always 
         canvasWidthToHeight = ratio;
-        // if autoresizing we do not need to set canvas dimensions 
-        //because autoResize does this automatically (better names ?)
-        if (!autoResizeController.getValue() && (ratio > 0.0001)) {
-            const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
-            widthController.setValueOnly(width);
-            heightController.setValueOnly(width / canvasWidthToHeight);
+        if (ratio > 0.0001) {
+            // need to change the canvas dimensions
+            // if not autoresizing we do not need to set explicitely canvas dimensions 
+            if (!autoResizeController.getValue()) {
+                const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
+                widthController.setValueOnly(width);
+                heightController.setValueOnly(width / canvasWidthToHeight);
+            }
+            autoResize();
         }
     }
 };
 
 /**
-* set the canvas dimensions
-* disactivate controllers that change size (width, height - controllers)
-* hide autoresize controller, switch on autoscale
-* do not create additional buttons that change size, as those below
-* @method output.setCanvasDimensions
-* @param {int} width
-* @param {int} height
-*/
+ * set the canvas dimensions
+ * disactivate controllers that change size (width, height - controllers)
+ * hide autoresize controller, switch on autoscale
+ * do not create additional buttons that change size, as those below
+ * @method output.setCanvasDimensions
+ * @param {int} width
+ * @param {int} height
+ */
 
 /**
  * create buttons that set the canvas width and height to special values
@@ -401,7 +404,6 @@ output.setCanvasWidthToHeight = function(ratio) {
  * @param {ParamGui} gui - where the buttons go to
  * @param {...object} buttonDefinition - repeated for several on a line
  */
-
 function makeArgs(buttonDefinition) {
     const result = {
         type: 'button'
