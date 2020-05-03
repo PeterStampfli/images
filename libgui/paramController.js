@@ -159,7 +159,7 @@ export function ParamController(gui, domElement, argObjects) {
                     // sets value to one of the option values, so parameter value will be equal to initial value
                     if (selectValues.findIndex(this.initialValue) >= 0) {
                         this.setValueOnly(this.initialValue); // index found, initial value might be its name or value
-                        this.initialValue=this.getValue();
+                        this.initialValue = this.getValue();
                     } else {
                         // fallback: use first value of the options, set this value for the parameter too
                         selectValues.setIndex(0);
@@ -329,7 +329,7 @@ export function ParamController(gui, domElement, argObjects) {
                 if (guiUtils.isArray(args.options) || guiUtils.isObject(args.options)) {
                     imageSelect.addOptions(args.options);
                     // check if the initial value is in the options, accepts option names and values
-                    if ( imageSelect.findIndex(this.initialValue) >= 0) {
+                    if (imageSelect.findIndex(this.initialValue) >= 0) {
                         this.setValueOnly(this.initialValue);
                         this.initialValue = this.getValue();
                     } else {
@@ -838,6 +838,21 @@ ParamController.prototype.setMax = function(value) {
         this.uiElement.setMax(value);
     } else {
         console.error('ParamController.setMax: Only for "number" controllers. Type of this controller: "' + this.type + '"');
+    }
+    return this;
+};
+
+/**
+ * set a step value for the number range
+ * @method ParamController#setStep
+ * @param {number} value
+ * @return this controller
+ */
+ParamController.prototype.setStep = function(value) {
+    if (this.type === "number") {
+        this.uiElement.setStep(value);
+    } else {
+        console.error('ParamController.setStep: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
     return this;
 };

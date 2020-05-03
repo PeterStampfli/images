@@ -259,7 +259,6 @@ output.createCanvas = function(gui, folderName) {
 
     widthController = gui.add({
         type: "number",
-        min: 100,
         max: 10000,
         params: output.canvas,
         property: "width",
@@ -276,7 +275,6 @@ output.createCanvas = function(gui, folderName) {
     widthController.hSpace(30);
     heightController = widthController.add({
         type: "number",
-        min: 100,
         max: 10000,
         params: output.canvas,
         property: "height",
@@ -384,14 +382,23 @@ output.setCanvasWidthToHeight = function(ratio) {
 };
 
 /**
- * set the canvas dimensions
- * disactivate controllers that change size (width, height - controllers)
- * hide autoresize controller, switch on autoscale
- * do not create additional buttons that change size, as those below
+ * set that the canvas dimensions are integer multiples of a basic step size
+ * you need this for making images with rectangular tiles
+ * the sides of the tiles should be integer numbers to get an image without artificial dark lines
  * @method output.setCanvasDimensions
- * @param {int} width
- * @param {int} height
+ * @param {int} stepVertical
+ * @param {int} stepHorizontal - optional, default is stepHorizontal
  */
+output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = stepVertical) {
+    const oldWidth = output.canvas.width;
+    const oldHeight = output.canvas.height;
+    widthController.setStep(stepVertical);
+    heightController.setStep(stepHorizontal);
+    if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
+        output.draw();
+    }
+    autoResize();
+};
 
 /**
  * create buttons that set the canvas width and height to special values

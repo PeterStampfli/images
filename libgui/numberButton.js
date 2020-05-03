@@ -342,7 +342,7 @@ NumberButton.prototype.quantizeClamp = function(x) {
 };
 
 /**
- * read the value of the text of a button of type="text"
+ * read the numerical value value of the text of a button of type="text"
  * note that the element.onchange routine makes shure that 
  * the value will be a number if this is called after onchange event
  * @method NumberButton#getValue
@@ -443,17 +443,16 @@ NumberButton.prototype.setStep = function(step) {
     // beware of negative numbers and too small numbers
     const eps = NumberButton.eps; // precision, minimum step size
     step = Math.max(eps, Math.abs(step));
-    // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
-    this.digitsAfterPoint = 0;
-    this.stepInt = Math.round(step * NumberButton.inverseEps);
-    this.step = this.stepInt / NumberButton.inverseEps;
-    this.digitsAfterPoint = 0;
-    // number of digits results from the power of ten times the step giving nearly an integer
-    let stepPower10 = this.step;
-    while (Math.abs(Math.round(stepPower10) - stepPower10) > eps * stepPower10) {
-        this.digitsAfterPoint += 1;
-        stepPower10 *= 10;
-    }
+        // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
+        this.stepInt = Math.round(step * NumberButton.inverseEps);
+        this.step = this.stepInt / NumberButton.inverseEps;
+        this.digitsAfterPoint = 0;
+        // number of digits results from the power of ten times the step giving nearly an integer
+        let stepPower10 = this.step;
+        while (Math.abs(Math.round(stepPower10) - stepPower10) > eps * stepPower10) {
+            this.digitsAfterPoint += 1;
+            stepPower10 *= 10;
+        }
     this.applyChanges();
 };
 
