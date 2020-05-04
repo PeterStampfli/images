@@ -600,6 +600,24 @@ ParamController.prototype.getValue = function(obj) {
 };
 
 /**
+ * for controller of type image
+ * do something with the selected image
+ * loads the selected image and uses it as argument for a callback function
+ * the image is also at this.image, but beware of image loading time delay
+ * @method ImageSelect.useImage
+ * @param {function} callback - function(image), image is a html image object
+ * @return this controller for chaining
+ */
+ParamController.prototype.useImage = function(callback) {
+    if (this.type === "image") {
+        this.uiElement.useImage(callback);
+    } else {
+        console.error('ParamController.useImage: Only for "image" controllers. Type of this controller: "' + this.type + '"');
+    }
+    return this;
+};
+
+/**
  * set the value of the display (controller) according to the actual value of the parameter in the params object
  * or color object
  * if params exist, else do nothing
@@ -756,7 +774,7 @@ ParamController.prototype.hSpace = function(width) {
 };
 
 /**
- * register parent domElement in guiUtils for styling
+ * register the parent domElement of this controller in guiUtils for styling
  * see docu of guiUtils.style
  * use: controller.style().backgroundColor("red")
  * @method ParamController#style

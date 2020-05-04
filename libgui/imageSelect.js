@@ -612,6 +612,35 @@ ImageSelect.prototype.getValue = function() {
 };
 
 /**
+ * do something with the selected image
+ * loads the selected image and uses it as argument for a callback function
+ * the image is also at this.image, but beware of image loading time delay
+ * @method ImageSelect.useImage
+ * @param {function} callback - function(image), image is a html image object
+ */
+ImageSelect.prototype.useImage = function(callback) {
+    const selectedImageSrc = this.getValue();
+    if (guiUtils.isGoodImageFile(selectedImageSrc)) {
+        if (!guiUtils.isDefined(this.image)) {
+            this.image = document.createElement("img");
+            this.image.style.display = 'none';
+            const thisImage = this.image;
+            this.image.onload = function() {
+                callback(thisImage);
+            };
+            document.body.appendChild(this.image);
+        }
+        if (this.image.src !== selectedImageSrc) {
+            this.image.src = selectedImageSrc;
+        } else {
+            callback(this.image);
+        }
+    } else {
+        console.error('ImageSelect.useImage: value "' + selectedImageSrc + '" is not a good image file name');
+    }
+};
+
+/**
  * find the index to a given value
  * searches first the selection values, then the labels
  * @method ImageSelect#findIndex

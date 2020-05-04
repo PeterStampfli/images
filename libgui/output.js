@@ -24,6 +24,7 @@ output.divWidth = 0;
  * a method to (re)draw the canvas upon resize and so on
  * define your own to get your image
  * call it after initialization to get a first image
+ * to avoid flickering use in the beginning output.draw = function(){};
  * @method output.draw
  */
 output.draw = function() {

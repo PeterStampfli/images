@@ -11,7 +11,7 @@ import {
     ParamGui,
     output
 }
-from "../libgui/modules.js";
+from "../modules.js";
 
 const gui = new ParamGui({
     closed: false
