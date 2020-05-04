@@ -20,9 +20,21 @@ output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
 
-// a method to (re)draw the canvas upon resize
-// call it after initialization to get a first image
-output.draw = function() {};
+/**
+ * a method to (re)draw the canvas upon resize and so on
+ * define your own to get your image
+ * call it after initialization to get a first image
+ * @method output.draw
+ */
+output.draw = function() {
+    const canvas = output.canvas;
+    const context = output.canvas.getContext('2d');
+    context.fillStyle = 'blue';
+    context.fillRect(0, 0, output.canvas.width, output.canvas.height);
+    context.fillStyle = 'white';
+    context.font = Math.round(canvas.height / 20) + 'px FreeSans';
+    context.fillText('Please define the output.draw() method!', canvas.width / 20, canvas.height / 2, canvas.width * 0.9);
+};
 
 /**
  * get the limit for free space at the left

@@ -17,16 +17,18 @@ const gui = new ParamGui({
     closed: false
 });
 
+gui.addParagraph('You can use this gui for your own projects. It is at: <strong>https://github.com/PeterStampfli/paramGui</strong>');
+
 output.createCanvas(gui, {
     name: 'canvas control',
     //  closed: false
 });
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
-output.setCanvasWidthToHeight(1);
 
 const truchet = {};
-truchet.nTiles = 10; // number of tiles in x- and y-direction
+truchet.nHorizontal = 15; // number of tiles in x-direction
+truchet.nVertical = 10; // number of tiles in y-direction
 truchet.color1 = '#ff0000'; // fill color
 truchet.color2 = '#0000ff'; // the other fill color
 truchet.lineColor = '#000000';
@@ -35,18 +37,31 @@ truchet.grid = true;
 truchet.gridColor = '#aaaa00';
 truchet.gridWidth = 1;
 truchet.p = 0.5; // relative probability of tiles, o.5 gives classical truchet, 0 gives hor. lines
-
+truchet.squares = 0; // probability for extra tile with squares
 
 gui.addParagraph("<strong>Truchet's</strong>");
 
 gui.add({
     type: 'number',
     params: truchet,
-    property: 'nTiles',
+    property: 'nHorizontal',
     min: 1,
     onChange: function() {
         randomData();
-        output.setCanvasDimensionsStepsize(truchet.nTiles);
+        output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
+        output.setCanvasDimensionsStepsize(truchet.nHorizontal, truchet.nVertical);
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: truchet,
+    property: 'nVertical',
+    min: 1,
+    onChange: function() {
+        randomData();
+        output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
+        output.setCanvasDimensionsStepsize(truchet.nHorizontal, nVertical);
     }
 });
 
@@ -72,6 +87,19 @@ gui.add({
         draw();
     }
 }).addHelp('0.5 gives classical truchet. Other values change the probabilities for selecting tiles. 0 gives horizontal percolating strips. 1 gives isolated dots.');
+
+gui.add({
+    type: 'number',
+    params: truchet,
+    property: 'squares',
+    min: 0,
+    max: 1,
+    step: 0.01,
+    onChange: function() {
+        randomData();
+        draw();
+    }
+}).addHelp('0 gives classical truchet. Finite values give special tiles with straight lines.');
 
 const colorController = {
     type: 'color',
@@ -126,13 +154,18 @@ gui.add(colorController, {
 const data = [];
 
 function randomData() {
-    data.length = truchet.nTiles * truchet.nTiles;
+    data.length = truchet.nHorizontal * truchet.nVertical;
     const length = data.length;
     for (var i = 0; i < length; i++) {
-        if (Math.random() > truchet.p) {
-            data[i] = 1;
+        if (Math.random() > truchet.squares) {
+            // classical truchet tiles
+            if (Math.random() > truchet.p) {
+                data[i] = 1;
+            } else {
+                data[i] = 0;
+            }
         } else {
-            data[i] = 0;
+            data[i] = 2; // squares
         }
     }
 }
@@ -162,6 +195,15 @@ function topLeftArc() {
     canvasContext.beginPath();
     canvasContext.moveTo(0, 50);
     canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+    canvasContext.stroke();
+}
+
+function cross() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(100, 50);
     canvasContext.stroke();
 }
 
@@ -259,29 +301,69 @@ function colorTruchetDown2() {
     downDiagonalBent();
 }
 
+function upDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function downDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
 function colorTruchet(i, j, index) {
     let s = i & 1;
     if (truchet.p > 0.5) {
         s = (i + j) & 1;
     }
-    if (data[index] === s) {
-        if ((i + j) & 1) {
-            colorTruchetUp1();
+    if (data[index] < 2) {
+        if (data[index] === s) {
+            if ((i + j) & 1) {
+                colorTruchetUp1();
+            } else {
+                colorTruchetUp2();
+            }
+            canvasContext.strokeStyle = truchet.lineColor;
+            bottomRightArc();
+            topLeftArc();
         } else {
-            colorTruchetUp2();
+            if ((i + j) & 1) {
+                colorTruchetDown2();
+            } else {
+                colorTruchetDown1();
+            }
+            canvasContext.strokeStyle = truchet.lineColor;
+            bottomLeftArc();
+            topRightArc();
         }
-        canvasContext.strokeStyle = truchet.lineColor;
-        bottomRightArc();
-        topLeftArc();
     } else {
         if ((i + j) & 1) {
-            colorTruchetDown2();
+            canvasContext.fillStyle = truchet.color1;
+            upDiagonalSquares();
+            canvasContext.fillStyle = truchet.color2;
+            downDiagonalSquares();
         } else {
-            colorTruchetDown1();
+            canvasContext.fillStyle = truchet.color2;
+            upDiagonalSquares();
+            canvasContext.fillStyle = truchet.color1;
+            downDiagonalSquares();
         }
         canvasContext.strokeStyle = truchet.lineColor;
-        bottomLeftArc();
-        topRightArc();
+        cross();
     }
 }
 
@@ -289,27 +371,31 @@ function grid() {
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.strokeStyle = truchet.gridColor;
     canvasContext.lineWidth = truchet.gridWidth;
-    for (var i = 1; i < truchet.nTiles; i++) {
-        const x = i * canvas.width / truchet.nTiles;
+    for (var i = 1; i < truchet.nHorizontal; i++) {
+        const x = i * canvas.width / truchet.nHorizontal;
+        canvasContext.beginPath();
+        canvasContext.moveTo(x, 0);
+        canvasContext.lineTo(x, canvas.height);
+        canvasContext.stroke();
+    }
+    for (i = 1; i < truchet.nVertical; i++) {
+        const x = i * canvas.width / truchet.nHorizontal;
         canvasContext.beginPath();
         canvasContext.moveTo(0, x);
         canvasContext.lineTo(canvas.width, x);
-        canvasContext.moveTo(x, 0);
-        canvasContext.lineTo(x, canvas.width);
         canvasContext.stroke();
     }
 }
 
 function draw() {
-    console.log('draw');
     var i, j, index;
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
     index = 0;
     canvasContext.lineWidth = truchet.lineWidth;
-    const tileSize = canvas.width / truchet.nTiles;
-    for (i = 0; i < truchet.nTiles; i++) {
-        for (j = 0; j < truchet.nTiles; j++) {
+    const tileSize = canvas.width / truchet.nHorizontal;
+    for (i = 0; i < truchet.nHorizontal; i++) {
+        for (j = 0; j < truchet.nVertical; j++) {
             canvasContext.setTransform(tileSize / 100, 0, 0, tileSize / 100, i * tileSize, j * tileSize);
             colorTruchet(i, j, index);
             index += 1;
@@ -321,6 +407,8 @@ function draw() {
 }
 
 randomData();
-output.setCanvasDimensionsStepsize(truchet.nTiles);
+output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
+
+output.setCanvasDimensionsStepsize(truchet.nHorizontal, truchet.nVertical);
 output.draw = draw;
 draw();
