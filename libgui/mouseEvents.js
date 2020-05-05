@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * common to mouse and touch events
  * @namespace MouseAndTouch
@@ -55,7 +57,7 @@ export function MouseEvents(element) {
     // no special "focus border"
     this.element.style.outlineStyle = "none";
     // switch events off or on, default is on, switching from outside (eg presentation)
-    this.isActive = true;
+    this.active = true;
     // the event data
     // event.button=0 for left 2 for right button
     this.button = -1;
@@ -90,7 +92,7 @@ export function MouseEvents(element) {
 
     this.element.onmousedown = function(event) {
         MouseAndTouch.preventDefault(event);
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.button = event.button; // left or right button
             mouseEvents.update(event);
             mouseEvents.pressed = true;
@@ -102,7 +104,7 @@ export function MouseEvents(element) {
 
     this.element.onmouseup = function(event) {
         MouseAndTouch.preventDefault(event);
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {
                 mouseEvents.pressed = false;
@@ -114,7 +116,7 @@ export function MouseEvents(element) {
 
     this.element.onmouseenter = function(event) {
         MouseAndTouch.preventDefault(event);
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.mouseInside = true;
             thisElement.focus();
         }
@@ -124,7 +126,7 @@ export function MouseEvents(element) {
     this.element.onmouseleave = function(event) {
         MouseAndTouch.preventDefault(event);
         thisElement.blur();
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.update(event);
             mouseEvents.mouseInside = false;
             if (mouseEvents.pressed) {
@@ -137,7 +139,7 @@ export function MouseEvents(element) {
 
     this.element.onmousemove = function(event) {
         MouseAndTouch.preventDefault(event);
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.update(event);
             if (mouseEvents.pressed) {
                 mouseEvents.dragAction(mouseEvents);
@@ -149,7 +151,7 @@ export function MouseEvents(element) {
     };
 
     this.element.onwheel = function(event) {
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             mouseEvents.update(event);
             if (!mouseEvents.wheelAction(mouseEvents)) {
                 MouseAndTouch.preventDefault(event);
@@ -168,7 +170,7 @@ export function MouseEvents(element) {
 
     this.element.onkeydown = function(event) {
         let key = event.key;
-        if (mouseEvents.isActive) {
+        if (mouseEvents.active) {
             if (mouseEvents.mouseInside) {
                 if (key == mouseEvents.upKey) {
                     mouseEvents.wheelDelta = -1;
@@ -192,7 +194,7 @@ export function MouseEvents(element) {
  * @param {boolean} on - if false there will be no mouse events
  */
 MouseEvents.prototype.setIsActive = function(on) {
-    this.isActive = on;
+    this.active = on;
 };
 
 /**

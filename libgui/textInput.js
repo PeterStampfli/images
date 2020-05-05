@@ -109,13 +109,13 @@ TextInput.prototype.setWidth = function(width) {
 /**
  * set if button is active
  * @method TextInput#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-TextInput.prototype.setActive = function(isActive) {
-    if (this.isActive !== isActive) {
-        this.active = isActive;
-        this.element.disabled = !isActive;
-        if (isActive) {
+TextInput.prototype.setActive = function(on) {
+    if (this.active !== on) {
+        this.active = on;
+        this.element.disabled = !on;
+        if (on) {
             this.element.style.cursor = "text";
         } else {
             this.element.style.cursor = "default";

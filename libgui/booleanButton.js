@@ -178,7 +178,7 @@ BooleanButton.prototype.setWidth = function(width) {
 /**
  * set if button is active
  * @method BooleanButton#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
 BooleanButton.prototype.setActive = Button.prototype.setActive;
 

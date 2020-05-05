@@ -235,13 +235,13 @@ NumberButton.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults;
 /**
  * set if button is active
  * @method NumberButton#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-NumberButton.prototype.setActive = function(isActive) {
-    if (this.isActive !== isActive) {
-        this.active = isActive;
-        this.input.disabled = !isActive;
-        if (isActive) {
+NumberButton.prototype.setActive = function(on) {
+    if (this.active !== on) {
+        this.active = on;
+        this.input.disabled = !on;
+        if (on) {
             this.input.style.cursor = "text";
         } else {
             this.input.style.cursor = "default";
@@ -249,18 +249,17 @@ NumberButton.prototype.setActive = function(isActive) {
             this.hover = false;
         }
         if (this.range) {
-            this.range.disabled = !isActive;
-            if (isActive) {
+            this.range.disabled = !on;
+            if (on) {
                 this.range.style.cursor = "pointer";
             } else {
                 this.range.style.cursor = "default";
             }
         }
-        this.addButtons.forEach(button => button.setActive(isActive));
+        this.addButtons.forEach(button => button.setActive(on));
         this.updateStyle();
     }
 };
-
 
 /**
  * switch on the indicator, set its element (it's the background) , adjust to current value
@@ -443,16 +442,16 @@ NumberButton.prototype.setStep = function(step) {
     // beware of negative numbers and too small numbers
     const eps = NumberButton.eps; // precision, minimum step size
     step = Math.max(eps, Math.abs(step));
-        // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
-        this.stepInt = Math.round(step * NumberButton.inverseEps);
-        this.step = this.stepInt / NumberButton.inverseEps;
-        this.digitsAfterPoint = 0;
-        // number of digits results from the power of ten times the step giving nearly an integer
-        let stepPower10 = this.step;
-        while (Math.abs(Math.round(stepPower10) - stepPower10) > eps * stepPower10) {
-            this.digitsAfterPoint += 1;
-            stepPower10 *= 10;
-        }
+    // analyze: find power of 10, such that step*powerOf10>=0.9 (for safety, 0.9 and not 1)
+    this.stepInt = Math.round(step * NumberButton.inverseEps);
+    this.step = this.stepInt / NumberButton.inverseEps;
+    this.digitsAfterPoint = 0;
+    // number of digits results from the power of ten times the step giving nearly an integer
+    let stepPower10 = this.step;
+    while (Math.abs(Math.round(stepPower10) - stepPower10) > eps * stepPower10) {
+        this.digitsAfterPoint += 1;
+        stepPower10 *= 10;
+    }
     this.applyChanges();
 };
 

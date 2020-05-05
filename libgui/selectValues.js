@@ -59,10 +59,10 @@ SelectValues.prototype.setFontSize = function(size) {
 /**
  * set if button is active
  * @method SelectValues#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-SelectValues.prototype.setActive = function(isActive) {
-    this.select.setActive(isActive);
+SelectValues.prototype.setActive = function(on) {
+    this.select.setActive(on);
 };
 
 /**

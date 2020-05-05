@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+
 /**
  * a single touch with position data of last and current touch
  * @constructor SingleTouch
@@ -32,7 +34,7 @@ SingleTouch.prototype.update = function(touch) {
 export function TouchEvents(element) {
     this.element = element;
     // switch events off or on, default is on, switching from outside (eg presentation)
-    this.isActive = true;
+    this.active = true;
 
     // the list of touches relevant to this element
     this.touches = [];
@@ -78,7 +80,7 @@ export function TouchEvents(element) {
     // if there is a touch outside the shape, the client has to handle this
     function startHandler(event) {
         MouseAndTouch.preventDefault(event);
-        if (touchEvents.isActive) {
+        if (touchEvents.active) {
             const changedTouches = event.changedTouches;
             const length = changedTouches.length;
             var touch;
@@ -104,7 +106,7 @@ export function TouchEvents(element) {
     // move: touches with target==element: update touch, update touchEvents data
     function moveHandler(event) {
         MouseAndTouch.preventDefault(event);
-        if (touchEvents.isActive) {
+        if (touchEvents.active) {
             const changedTouches = event.changedTouches;
             const length = changedTouches.length;
             var touch, index;
@@ -152,7 +154,7 @@ export function TouchEvents(element) {
     // touch end: delete touch if not double touch debugging or if there are more than one touch
     function endHandler(event) {
         MouseAndTouch.preventDefault(event);
-        if (touchEvents.isActive) {
+        if (touchEvents.active) {
             if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
                 deleteTouches(event);
             }
@@ -165,7 +167,7 @@ export function TouchEvents(element) {
 
     function cancelHandler(event) {
         MouseAndTouch.preventDefault(event);
-        if (touchEvents.isActive) {
+        if (touchEvents.active) {
             if (!TouchEvents.doubleTouchDebug || (touchEvents.touches.length > 1)) {
                 deleteTouches(event);
             }
@@ -209,7 +211,7 @@ TouchEvents.log = false;
  * @param {boolean} on - if false there will be no mouse events
  */
 TouchEvents.prototype.setIsActive = function(on) {
-    this.isActive = on;
+    this.active = on;
 };
 
 /**

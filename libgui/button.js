@@ -228,13 +228,13 @@ Button.prototype.colorStyleForTransparentSpan = function(color) {
 /**
  * set if button is active
  * @method Button#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-Button.prototype.setActive = function(isActive) {
-    if (this.isActive !== isActive) {
-        this.active = isActive;
-        this.element.disabled = !isActive;
-        if (isActive) {
+Button.prototype.setActive = function(on) {
+    if (this.active !== on) {
+        this.active = on;
+        this.element.disabled = !on;
+        if (on) {
             this.element.style.cursor = "pointer";
         } else {
             this.element.style.cursor = "default";

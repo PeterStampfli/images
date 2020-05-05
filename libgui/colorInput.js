@@ -265,21 +265,21 @@ ColorInput.prototype.setWidths = function(textWidth, colorWidth, rangeWidth) {
 /**
  * set if input is active
  * @method NumberButton#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-ColorInput.prototype.setActive = function(isActive) {
-    if (this.isActive !== isActive) {
-        this.active = isActive;
-        this.textElement.disabled = !isActive;
+ColorInput.prototype.setActive = function(on) {
+    if (this.active !== on) {
+        this.active = on;
+        this.textElement.disabled = !on;
         this.updateTextStyle();
-        this.colorElement.disabled = !isActive;
+        this.colorElement.disabled = !on;
         this.updateColorStyle();
         if (!this.active) {
             this.textHover = false;
             this.textPressed = false;
         }
         if (this.hasAlpha) {
-            this.rangeElement.disabled = !isActive;
+            this.rangeElement.disabled = !on;
             if (this.active) {
                 this.rangeElement.style.cursor = "pointer";
             } else {

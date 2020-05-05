@@ -81,13 +81,13 @@ TextAreaInOut.prototype.colorStyleDefaults = Button.prototype.colorStyleDefaults
  * else you cannot edit, but you can select and copy
  * thus always has text cursor
  * @method TextAreaInOut#setActive
- * @param {boolean} isActive
+ * @param {boolean} on
  */
-TextAreaInOut.prototype.setActive = function(isActive) {
-    if (this.isActive !== isActive) {
-        this.active = isActive;
-        this.element.readOnly = !isActive;
-        if (!isActive) {
+TextAreaInOut.prototype.setActive = function(on) {
+    if (this.active !== on) {
+        this.active = on;
+        this.element.readOnly = !on;
+        if (!on) {
             this.pressed = false;
             this.hover = false;
         }

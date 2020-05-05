@@ -34,7 +34,7 @@ const imageSelector = gui.add({
     options: {
         default: "./haeckel/haeckel_01.png"
     },
-    initialValue: 'sample',
+    initialValue: 'default',
     onChange: function() {
         imageSelector.useImage(imageCallback);
     }
