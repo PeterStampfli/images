@@ -33,6 +33,7 @@ truchet.color1 = '#ff0000'; // fill color
 truchet.color2 = '#0000ff'; // the other fill color
 truchet.lineColor = '#000000';
 truchet.lineWidth = 3;
+truchet.lines = true;
 truchet.grid = true;
 truchet.gridColor = '#aaaa00';
 truchet.gridWidth = 1;
@@ -61,7 +62,7 @@ gui.add({
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
-        output.setCanvasDimensionsStepsize(truchet.nHorizontal, nVertical);
+        output.setCanvasDimensionsStepsize(truchet.nHorizontal, truchet.nVertical);
     }
 });
 
@@ -124,6 +125,16 @@ gui.add(colorController, {
 
 gui.add(colorController, {
     property: 'color2'
+});
+
+
+gui.add({
+    type: 'boolean',
+    params: truchet,
+    property: 'lines',
+    onChange: function() {
+        draw();
+    }
 });
 
 gui.add(widthController, {
@@ -338,8 +349,10 @@ function colorTruchet(i, j, index) {
                 colorTruchetUp2();
             }
             canvasContext.strokeStyle = truchet.lineColor;
-            bottomRightArc();
-            topLeftArc();
+            if (truchet.lines) {
+                bottomRightArc();
+                topLeftArc();
+            }
         } else {
             if ((i + j) & 1) {
                 colorTruchetDown2();
@@ -347,8 +360,10 @@ function colorTruchet(i, j, index) {
                 colorTruchetDown1();
             }
             canvasContext.strokeStyle = truchet.lineColor;
-            bottomLeftArc();
-            topRightArc();
+            if (truchet.lines) {
+                bottomLeftArc();
+                topRightArc();
+            }
         }
     } else {
         if ((i + j) & 1) {
@@ -363,7 +378,9 @@ function colorTruchet(i, j, index) {
             downDiagonalSquares();
         }
         canvasContext.strokeStyle = truchet.lineColor;
-        cross();
+        if (truchet.lines) {
+            cross();
+        }
     }
 }
 
