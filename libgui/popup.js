@@ -187,18 +187,28 @@ Popup.prototype.getHeight = function() {
 
 /**
  * set top of popup, limited that it is not cut off
- * top of popup does not move upon window resize, it is relative to window top
+ * overrides earlier vertical positioning
  * @method Popup#setTopPosition
- * @param {number} positionY
+ * @param {number} positionY - relative to top of window
  */
 Popup.prototype.setTopPosition = function(positionY) {
-    // top not above window
-    positionY = Math.max(0, positionY);
-    // top plus height not below window
-    positionY = Math.min(document.documentElement.clientHeight - this.getHeight(), positionY);
-    this.mainDiv.style.top = positionY + "px";
+    // top not above window, must be positive
+    let top = Math.max(0, positionY);
+    // top plus height not below window, top plus height must be smaller than client height
+    top = Math.min(document.documentElement.clientHeight - this.getHeight(), top);
+    this.mainDiv.style.top = top + "px";
     this.mainDiv.style.bottom = "";
 };
+
+/**
+ * set center of popup, limited that it is not cut off
+ * overrides earlier vertical positioning
+ * @method Popup#setCenterPosition
+ * @param {number} positionY - relative to top of window
+ */
+Popup.prototype.setCenterPosition = function(positionY) {
+    this.setTopPosition(positionY-this.getHeight()/2);
+}
 
 /**
  * set the styles, use if you change the style parameters

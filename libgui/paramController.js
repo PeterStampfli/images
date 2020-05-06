@@ -430,7 +430,7 @@ ParamController.prototype.setupOnInteraction = function() {
             if (controller.popup && !controller.popup.isOpen()) {
                 controller.popup.open();
                 const topPosition = guiUtils.topPosition(controller.domElement);
-                controller.popup.setTopPosition(topPosition - controller.design.paddingVertical);
+                controller.popup.setCenterPosition(topPosition + controller.domElement.offsetHeight/2);
             }
             controller.callsClosePopup = true;
             ParamGui.closePopups();

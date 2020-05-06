@@ -106,15 +106,15 @@ guiUtils.isObject = function(p) {
 };
 
 /**
-* safely call argument if it is defined and a function
-* @method guiUtils.do
-* @param {whatever} fun
-*/
-guiUtils.do=function(fun){
-    if (guiUtils.isFunction(fun)){
+ * safely call argument if it is defined and a function
+ * @method guiUtils.do
+ * @param {whatever} fun
+ */
+guiUtils.do = function(fun) {
+    if (guiUtils.isFunction(fun)) {
         fun();
     }
-}
+};
 
 //===============================================================================
 // various checks of data, updating data
@@ -453,7 +453,7 @@ function saveBlobAsFile(blob, filename) {
  * @param {string} extension - 'png' or 'jpg'
  * @param {function} callback - optional
  */
-guiUtils.saveCanvasAsFile = function(canvas, filename, extension,callback=function(){}) {
+guiUtils.saveCanvasAsFile = function(canvas, filename, extension, callback = function() {}) {
     if (extension === 'png') {
         canvas.toBlob(function(blob) {
             saveBlobAsFile(blob, filename + '.png');

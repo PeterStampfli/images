@@ -19,6 +19,7 @@ import {
 } from "./modules.js";
 
 export function ImageSelect(parent, newDesign) {
+    this.parent = parent;
     this.active = true;
     const design = {};
     this.design = design;
@@ -246,7 +247,7 @@ ImageSelect.defaultDesign = {
     popupShadowWidth: 0,
     popupShadowBlur: 0,
     popupZIndex: 18, // smaller (between) than hint popup
-    popupPosition: "bottomRight",
+    popupPosition: "topRight",
     popupHorizontalShift: 0
 };
 
@@ -316,6 +317,8 @@ ImageSelect.prototype.makeImageButtonVisible = function(imageButton) {
 ImageSelect.prototype.interaction = function() {
     if (this.active) {
         this.popup.open();
+        const topPosition = guiUtils.topPosition(this.parent);
+        this.popup.setCenterPosition(topPosition + this.parent.offsetHeight / 2);
         const index = this.getIndex(); // in case that parameter is out of range
         if (index >= 0) {
             this.makeImageButtonVisible(this.popupImageButtons[index]);
@@ -647,6 +650,14 @@ ImageSelect.prototype.setValue = function(value) {
     }
 };
 
+/*
+ * find the image name from an URL-string or a src string
+ */
+function imageName(imageSrc) {
+    const imageSrcPieces = imageSrc.split('/');
+    return imageSrcPieces[imageSrcPieces.length - 1];
+}
+
 /**
  * do something with the selected image
  * loads the selected image and uses it as argument for a callback function
@@ -660,13 +671,13 @@ ImageSelect.prototype.useImage = function(callback) {
         if (!guiUtils.isDefined(this.image)) {
             this.image = document.createElement("img");
             this.image.style.display = 'none';
+            document.body.appendChild(this.image);
+        }
+        if (imageName(this.image.src) !== imageName(selectedImageSrc)) {
             const thisImage = this.image;
             this.image.onload = function() {
                 callback(thisImage);
             };
-            document.body.appendChild(this.image);
-        }
-        if (this.image.src !== selectedImageSrc) {
             this.image.src = selectedImageSrc;
         } else {
             callback(this.image);
