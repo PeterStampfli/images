@@ -7,7 +7,7 @@
  * constructor builds only the basic number input text field
  * 
  * @constructor NumberButton 
- * @param {DOM input} parent, an html input, best "div" or "span"
+ * @param {DOM input} parent, an html element, best "div" or "span"
  */
 
 import {
@@ -38,7 +38,7 @@ export function NumberButton(parent) {
     this.lastValue = -1000000000;
     this.colorStyleDefaults();
     this.updateStyle();
-    // do we want to show the indicator in the background, and where
+    // do we want to show the indicator in the background
     this.indicatorElement = false;
     this.setIndicatorColors("#aaaa99", "#ddddff");
 

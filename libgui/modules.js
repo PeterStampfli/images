@@ -82,6 +82,11 @@ export {
 from "./numberButton.js";
 
 export {
+    Integer
+}
+from "./integer.js";
+
+export {
     Select
 }
 from "./select.js";
