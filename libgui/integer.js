@@ -14,7 +14,7 @@ import {
 export function Integer(parentDOM) {
     this.parentDOM = parentDOM;
     this.input = document.createElement("input");
-    this.input.value = 'unknown';
+    this.input.value = '00';
     guiUtils.style(this.input)
         .attribute("type", "text")
         .textAlign("right")
@@ -122,6 +122,9 @@ export function Integer(parentDOM) {
     };
 }
 
+// the same for all number input types
+//===========================================================
+
 /**
  * setup the color styles defaults, use for other buttons too
  * @method Integer#colorStyleDefaults
@@ -222,48 +225,213 @@ Integer.prototype.setActive = function(on) {
     }
 };
 
+/**
+ * set the text value of the input element
+ * set the range element if it exists
+ * set the indicator if it exists
+ * for positive numbers and zero add a leading space 
+ * (takes the place of the minus sign for negative numbers) 
+ * @method Integer#setInputRange
+ * @param {integer} n
+ */
+Integer.prototype.setInputRangeIndicator = function(n) {
+    let text = n.toString();
+    if (this.range) {
+        this.range.value = text;
+    }
+    if (n >= 0) {
+        text = " " + text;
+    }
+    this.input.value = text;
+    if (this.indicatorElement) {
+        let pos = 100 * (n - this.minValue);
+        if (this.cyclic) {
+            pos /= (this.maxValue - this.minValue - this.step);
+        } else {
+            pos /= (this.maxValue - this.minValue);
+        }
+        pos = Math.round(pos);
+        let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
+        backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
+        this.indicatorElement.style.background = backgroundStyle;
+    }
+};
+
+/**
+ * set the limits of the range element (if there is one)
+ * @method Integer#setRangeLimits
+ */
+Integer.prototype.setRangeLimits = function() {
+    if (this.range) {
+        this.range.min = this.minValue;
+        if (this.cyclic) {
+            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
+        } else {
+            this.range.max = this.maxValue;
+        }
+    }
+};
+
+// special for integer
+//=================================================
+
 // quantize with respect to offset
-function quantize(x) {
-    x -= this.offset;
-    x = Math.round(x / step) * step;
-    return x + this.offset;
-}
+Integer.prototype.quantize = function(n) {
+    n -= this.offset;
+    n = Math.round(n / this.step) * this.step;
+    return n + this.offset;
+};
 
 /**
  * wraparound if cyclic
  * clamp to range
  * quantize a number according to step, with offset as basis 
  * @method Integer#quantizeClamp
- * @param {int} x
- * @return int, quantized x
+ * @param {int} n
+ * @return int, quantized n
  */
-Integer.prototype.quantizeClamp = function(x) {
+Integer.prototype.quantizeClamp = function(n) {
     if (this.cyclic) {
         // wraparound, between minValue (inclusive) and maxValue (exclusive)
         // min=0,max=6 results in possible values of 0,1,2,3,4,5
-        x -= this.minValue;
+        n -= this.minValue;
         const d = this.maxValue - this.minValue;
-        x = x - d * Math.floor(x / d);
-        x += this.minValue;
-        x = quantize(x);
+        n = n - d * Math.floor(n / d);
+        n += this.minValue;
+        n = this.quantize(n);
         // it may now be outside the limits, but not by more than one step
-        if (x < this.minValue) {
-            x += step;
+        if (n < this.minValue) {
+            n += this.step;
         }
-        if (x >= this.maxValue) {
-            x -= step;
+        if (n >= this.maxValue) {
+            n -= this.step;
         }
     } else {
         // keep in limits
-        x = Math.min(this.maxValue, Math.max(this.minValue, x));
-        x = quantize(x);
+        n = Math.min(this.maxValue, Math.max(this.minValue, n));
+        n = this.quantize(n);
         // it may now be outside the limits, but not by more than one step
-        if (x < this.minValue) {
-            x += step;
+        if (n < this.minValue) {
+            n += this.step;
         }
-        if (x > this.maxValue) {
-            x -= step;
+        if (n > this.maxValue) {
+            n -= this.step;
         }
     }
-    return x;
+    return n;
+};
+
+/**
+ * set the minimum value for numbers, maxValue is unchanged
+ * @method Integer#setMin
+ * @param {integer} value
+ */
+Integer.prototype.setMin = function(value) {
+    if (guiUtils.isInteger(value)) {
+        this.minValue = value;
+        this.setRangeLimits();
+        this.setInputRangeIndicator(this.getValue());
+    } else {
+        console.error('Integer#setMin: argument is not integer, it is ' + value);
+    }
+};
+
+/**
+ * set the maximum value for numbers, maxValue is unchanged
+ * @method Integer#setMax
+ * @param {integer} value
+ */
+Integer.prototype.setMax = function(value) {
+    if (guiUtils.isInteger(value)) {
+        this.maxValue = value;
+        this.setRangeLimits();
+        this.setInputRangeIndicator(this.getValue());
+    } else {
+        console.error('Integer#setMax: argument is not integer, it is ' + value);
+    }
+};
+
+/**
+ * set the step value for numbers, maxValue is unchanged
+ * @method Integer#setStep
+ * @param {integer} value
+ */
+Integer.prototype.setStep = function(value) {
+    if (guiUtils.isInteger(value)) {
+        this.step = value;
+        this.setRangeLimits();
+        this.setInputRangeIndicator(this.getValue());
+    } else {
+        console.error('Integer#setStep: argument is not integer, it is ' + value);
+    }
+};
+
+/**
+ * set the offset value for numbers, maxValue is unchanged
+ * @method Integer#setOffset
+ * @param {integer} value
+ */
+Integer.prototype.setOffset = function(value) {
+    if (guiUtils.isInteger(value)) {
+        this.offset = value;
+        this.setRangeLimits();
+        this.setInputRangeIndicator(this.getValue());
+    } else {
+        console.error('Integer#setOffset: argument is not integer, it is ' + value);
+    }
+};
+
+/**
+ * set that cyclic numbers are used (wraparound number range)
+ * @method Integer#setCyclic
+ */
+Integer.prototype.setCyclic = function() {
+    this.cyclic = true;
+    this.setRangeLimits();
+    this.setInputRangeIndicator(this.getValue());
+};
+
+/**
+ * read the numerical value of the text input element
+ * to be safe: if it is not an integer, then use the last value
+ * keep it in limits, quantize it according to step and offset
+ * make it cyclic
+ * this means that you can always use its return value
+ * @method Integer#getValue
+ * @return {integer}
+ */
+Integer.prototype.getValue = function() {
+    let n = parseInt(this.input.value, 10);
+    if (!guiUtils.isInteger(n)) {
+        n = this.lastValue;
+    }
+    return this.quantizeClamp(n);
+};
+
+/**
+ * set the value of the text, range and indicator elements
+ * checks range and quantizes
+ * sets lastValue to same number
+ * @method Integer#setValue
+ * @param {integer} value 
+ */
+Integer.prototype.setValue = function(value) {
+    if (guiUtils.isInteger(value)) {
+        value = this.quantizeClamp(value);
+        this.setInputRangeIndicator(value);
+        this.lastValue = value;
+    } else {
+        console.error('Integer#setValue: argument is not integer, it is ' + value);
+    }
+};
+
+
+/**
+ * change value of digit at the left of the cursor in the input element
+ * depending on direction argument (positive increases digit, negative decreases)
+ * @method Integer#changeDigit
+ * @param {float} direction - makes plus or minus changes
+ */
+Integer.prototype.changeDigit = function(direction) {
+    console.log(direction);
 };
