@@ -60,7 +60,7 @@ export function Integer(parentDOM) {
 
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
-        button.updateValue(parseFloat(button.input.value));
+        button.action(parseInt(button.input.value,10));
     };
 
     this.input.onmousedown = function() {
@@ -239,9 +239,6 @@ Integer.prototype.setInputRangeIndicator = function(n) {
     if (this.range) {
         this.range.value = text;
     }
-    if (n >= 0) {
-        text = " " + text;
-    }
     this.input.value = text;
     if (this.indicatorElement) {
         let pos = 100 * (n - this.minValue);
@@ -401,11 +398,11 @@ Integer.prototype.setCyclic = function() {
  * @return {integer}
  */
 Integer.prototype.getValue = function() {
-    let n = parseInt(this.input.value, 10);
-    if (!guiUtils.isInteger(n)) {
-        n = this.lastValue;
+    let value = parseInt(this.input.value, 10);
+    if (!guiUtils.isInteger(value)) {
+        value = this.lastValue;
     }
-    return this.quantizeClamp(n);
+    return this.quantizeClamp(value);
 };
 
 /**
@@ -427,11 +424,69 @@ Integer.prototype.setValue = function(value) {
 
 
 /**
+ * the value of the input element or the range element may have changed:
+ *  if it is different to the last value then set text range and indicator, call onChange
+ * else set text and indicator only
+ * @method Integer#action
+ * @param {integer} value
+ */
+Integer.prototype.action = function(value) {
+    if (guiUtils.isInteger(value)) {
+        value = this.quantizeClamp(value);
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (this.lastValue !== value) {
+       		 this.lastValue = value;
+            this.setInputRangeIndicator(value);
+            this.onChange(value);
+        } else {
+            this.setInputRangeIndicator(value);
+        }
+    } else {
+        console.error('Integer#action: argument is not integer, it is ' + value);
+        this.setInputRangeIndicator(this.lastValue);
+    }
+
+};
+
+/**
  * change value of digit at the left of the cursor in the input element
  * depending on direction argument (positive increases digit, negative decreases)
+ * change at least by this.step
+ *else it is a power of ten
+ * if cursor is at end of input value correct it to position before the end
+ * for negative numbers the cursor position may not be smaller than 1 (at the right of the mminus sign)
  * @method Integer#changeDigit
  * @param {float} direction - makes plus or minus changes
  */
 Integer.prototype.changeDigit = function(direction) {
     console.log(direction);
+    const inputLength=this.input.value.length;
+    const value=this.getValue();
+    console.log('inplength '+inputLength);
+    let cursorPosition=Math.min(this.input.selectionStart,this.input.value.length-1);
+    if (value<0){                          // beware of the minus sign
+    	cursorPosition=Math.max(cursorPosition,1);
+    }
+    console.log('cupo '+cursorPosition);
+    // relevant power is zero if cursor is before end of input string
+    const power=Math.max(this.input.value.length-1-cursorPosition,0);
+    console.log('power '+power)
+        const change = Math.max(this.step, Math.pow(10, power));
+    if (direction > 0) {                           // again the minus sign
+    this.action(value + change);
+    } else {
+    this.action(value - change);
+    }
+
+cursorPosition=this.input.value.length-1-power;
+if (this.getValue()>0){
+	cursorPosition=Math.max(cursorPosition,0);
+}else {
+	cursorPosition=Math.max(cursorPosition,1);
+}
+console.log('new cop '+cursorPosition)
+
+    this.input.setSelectionRange(cursorPosition, cursorPosition);
+
+
 };
