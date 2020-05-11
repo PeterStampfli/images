@@ -43,7 +43,7 @@ export function Integer(parentDOM) {
 
     /**
      * action upon change of the number
-     * @method NumberButton#onchange
+     * @method Integer#onchange
      * @param {integer} value
      */
     this.onChange = function(value) {
@@ -52,7 +52,7 @@ export function Integer(parentDOM) {
 
     /**
      * action upon mouse down, doing an interaction
-     * @method NumberButton#onInteraction
+     * @method Integer#onInteraction
      */
     this.onInteraction = function() {
         console.log("numberInteraction");
@@ -410,10 +410,10 @@ Integer.prototype.getValue = function() {
  * checks range and quantizes
  * sets lastValue to same number
  * @method Integer#setValue
- * @param {integer} value 
+ * @param {number} value 
  */
 Integer.prototype.setValue = function(value) {
-    if (guiUtils.isInteger(value)) {
+    if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;
@@ -428,10 +428,10 @@ Integer.prototype.setValue = function(value) {
  *  if it is different to the last value then set text range and indicator, call onChange
  * else set text and indicator only
  * @method Integer#action
- * @param {integer} value
+ * @param {number} value
  */
 Integer.prototype.action = function(value) {
-    if (guiUtils.isInteger(value)) {
+    if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (this.lastValue !== value) {
@@ -442,10 +442,9 @@ Integer.prototype.action = function(value) {
             this.setInputRangeIndicator(value);
         }
     } else {
-        console.error('Integer#action: argument is not integer, it is ' + value);
+        console.error('Integer#action: argument is not a number, it is ' + value);
         this.setInputRangeIndicator(this.lastValue);
     }
-
 };
 
 /**
@@ -485,6 +484,172 @@ Integer.prototype.changeDigit = function(direction) {
 
 
 // for all number controllers
+
+
+
+/**
+ * create additional buttons that do something
+ * @method Integer.createButton
+ * @param {String} text - shown in the button
+ * @param {htmlElement} parentDOM
+ * @param {function} action
+ * @return the button
+ */
+Integer.prototype.createButton = function(text, parentDOM, action) {
+    const addButton = new Button(text, parentDOM);
+    const button = this;
+    addButton.onInteraction = function() {
+        button.onInteraction();
+    };
+    addButton.onClick = action;
+    this.addButtons.push(addButton);
+    return addButton;
+};
+
+/**
+ * create a button that adds to the number
+ * @method Integer#createAddButton
+ * @param {String} text
+ * @param {htmlelement} parentDOM
+ * @param {number} amount - can be negative too
+ * @return the button
+ */
+Integer.prototype.createAddButton = function(text, parentDOM, amount) {
+    const button = this;
+    return this.createButton(text, parentDOM, function() {
+        button.input.focus();
+        button.action(button.getValue() + amount);
+    });
+};
+
+
+/**
+ * create a button that multiplies the number
+ * @method Integer#createMulButton
+ * @param {String} text
+ * @param {htmlelement} parentDOM
+ * @param {number} factor - can be less than 1 too
+ * @return the button
+ */
+Integer.prototype.createMulButton = function(text, parentDOM, factor) {
+    const button = this;
+    return this.createButton(text, parentDOM, function() {
+        button.input.focus();
+        button.action(button.getValue() * factor);
+    });
+};
+
+/**
+ * create a button that sets the minimum value
+ * @method Integer#createMiniButton
+ * @param {htmlelement} parentDOM
+ * @return the button
+ */
+Integer.prototype.createMiniButton = function(parentDOM) {
+    const button = this;
+    return this.createButton("min", parentDOM, function() {
+        button.input.focus();
+        button.action(button.minValue);
+    });
+};
+
+/**
+ * create a button that sets the maximum value
+ * @method Integer#createMaxiButton
+ * @param {htmlelement} parentDOM
+ * @return the button
+ */
+Integer.prototype.createMaxiButton = function(parentDOM) {
+    const button = this;
+    return this.createButton("max", parentDOM, function() {
+        button.input.focus();
+        if (button.cyclic) {
+            button.action(button.maxValue - button.step); // avoid irritating jump from right to left
+        } else {
+            button.action(button.maxValue);
+        }
+    });
+};
+
+/**
+ * create a button with a suggested value
+ * @method Integer#createSuggestButton
+ * @param {htmlelement} parentDOM
+ * @param {float} value
+ */
+Integer.prototype.createSuggestButton = function(parentDOM, value) {
+    const button = this;
+    return this.createButton(value + "", parentDOM, function() {
+        button.input.focus();
+        if (button.getValue() !== value) {
+            button.action(value);
+        }
+    });
+};
+
+/**
+ * create a interacting range element
+ * @method Integer#createRange
+ * @param {htmlElement} parentDOM
+ * @return the range element
+ */
+Integer.prototype.createRange = function(parentDOM) {
+    if (this.range) {
+        console.log("**** Integer#createRange: range already exists");
+    } else {
+        this.range = document.createElement("input");
+        this.range.step = "any"; // quantization via update
+        guiUtils.style(this.range)
+            .attribute("type", "range")
+            .cursor("pointer")
+            .verticalAlign("middle")
+            .parent(parentDOM);
+        // set the min,max and current value
+        this.range.min = this.minValue;
+        this.range.max = this.maxValue;
+        if (this.cyclic) {
+            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
+        }
+        this.range.value = this.getValue();
+        const button = this;
+
+        // doing things continously
+        this.range.oninput = function() {
+            button.action(parseFloat(button.range.value));
+        };
+
+        this.range.onchange = function() {
+            button.action(parseFloat(button.range.value));
+        };
+
+        this.range.onkeydown = function() {
+            if (this.active) {
+                button.onInteraction();
+            }
+        };
+        this.range.onmousedown = function() {
+            if (this.active) {
+                button.onInteraction();
+            }
+        };
+        this.range.onwheel = function() {
+            if (this.active) {
+                button.onInteraction();
+            }
+        };
+    }
+    return this.range;
+};
+
+/**
+ * set width of the range, in px
+ * @method Integer#setRangeWidth
+ * @param {integer} width
+ */
+Integer.prototype.setRangeWidth = function(width) {
+    this.range.style.width = width + "px";
+};
+
 /**
  * destroy the button, taking care of all references, deletes the associated html input element
  * @method Integer#destroy
