@@ -87,6 +87,11 @@ export {
 from "./integer.js";
 
 export {
+    FixedPoint
+}
+from "./fixedPoint.js";
+
+export {
     Select
 }
 from "./select.js";

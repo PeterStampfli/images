@@ -418,7 +418,7 @@ Integer.prototype.setValue = function(value) {
         this.setInputRangeIndicator(value);
         this.lastValue = value;
     } else {
-        console.error('Integer#setValue: argument is not integer, it is ' + value);
+        console.error('Integer#setValue: argument is not a number, it is ' + value);
     }
 };
 
@@ -481,11 +481,7 @@ Integer.prototype.changeDigit = function(direction) {
     this.input.setSelectionRange(cursorPosition, cursorPosition);
 };
 
-
-
 // for all number controllers
-
-
 
 /**
  * create additional buttons that do something
@@ -521,7 +517,6 @@ Integer.prototype.createAddButton = function(text, parentDOM, amount) {
         button.action(button.getValue() + amount);
     });
 };
-
 
 /**
  * create a button that multiplies the number
