@@ -235,7 +235,7 @@ Integer.prototype.setActive = function(on) {
  * @param {integer} n
  */
 Integer.prototype.setInputRangeIndicator = function(n) {
-    let text = n.toString();
+    let text = n.toFixed(this.digits);
     if (this.range) {
         this.range.value = text;
     }
@@ -422,7 +422,6 @@ Integer.prototype.setValue = function(value) {
     }
 };
 
-
 /**
  * the value of the input element or the range element may have changed:
  *  if it is different to the last value then set text range and indicator, call onChange
@@ -450,18 +449,17 @@ Integer.prototype.action = function(value) {
 /**
  * change value of digit at the left of the cursor in the input element
  * depending on direction argument (positive increases digit, negative decreases)
- * change at least by this.step
- *else it is a power of ten
- * if cursor is at end of input value correct it to position before the end
- * for negative numbers the cursor position may not be smaller than 1 (at the right of the mminus sign)
+ * change at least by this.step, (else it is a larger power of ten)
  * @method Integer#changeDigit
  * @param {float} direction - makes plus or minus changes
  */
 Integer.prototype.changeDigit = function(direction) {
     const inputLength = this.input.value.length;
     const value = this.getValue();
+// if cursor is at (rightside) end of input value, then correct it to position before the end
     let cursorPosition = Math.min(this.input.selectionStart, this.input.value.length - 1);
-    if (value < 0) { // beware of the minus sign
+ // for negative numbers the cursor position may not be smaller than 1 (at the right of the minus sign)
+   if (value < 0) { // beware of the minus sign
         cursorPosition = Math.max(cursorPosition, 1);
     }
     // relevant power is zero if cursor is before end of input string
@@ -473,7 +471,7 @@ Integer.prototype.changeDigit = function(direction) {
         this.action(value - change);
     }
     cursorPosition = this.input.value.length - 1 - power;
-    if (this.getValue() > 0) {
+    if (this.getValue() >= 0) {
         cursorPosition = Math.max(cursorPosition, 0);
     } else {
         cursorPosition = Math.max(cursorPosition, 1);

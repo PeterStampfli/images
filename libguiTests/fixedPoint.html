@@ -23,7 +23,7 @@ import {
 const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
 const f=new FixedPoint(parentDOM);
-f.step=0.1;
+f.setStep(0.05);
 console.log(f.quantize(9.3345));
 console.log(f.quantize(-0.21));
 console.log(f.quantize(-53.32));
