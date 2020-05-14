@@ -92,6 +92,11 @@ export {
 from "./fixedPoint.js";
 
 export {
+    FloatingPoint
+}
+from "./floatingPoint.js";
+
+export {
     Select
 }
 from "./select.js";

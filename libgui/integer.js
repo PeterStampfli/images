@@ -229,13 +229,11 @@ Integer.prototype.setActive = function(on) {
  * set the text value of the input element
  * set the range element if it exists
  * set the indicator if it exists
- * for positive numbers and zero add a leading space 
- * (takes the place of the minus sign for negative numbers) 
  * @method Integer#setInputRange
  * @param {integer} n
  */
 Integer.prototype.setInputRangeIndicator = function(n) {
-    let text = n.toFixed(this.digits);
+    let text = n.toString(10);
     if (this.range) {
         this.range.value = text;
     }

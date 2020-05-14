@@ -131,7 +131,6 @@ FixedPoint.prototype.setIndicatorColors = Integer.prototype.setIndicatorColors;
 FixedPoint.prototype.setFontSize = Integer.prototype.setFontSize;
 FixedPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FixedPoint.prototype.setActive = Integer.prototype.setActive;
-FixedPoint.prototype.setInputRangeIndicator = Integer.prototype.setInputRangeIndicator;
 FixedPoint.prototype.setRangeLimits = Integer.prototype.setRangeLimits;
 FixedPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FixedPoint.prototype.setCyclic = Integer.prototype.setCyclic;
@@ -147,6 +146,33 @@ FixedPoint.prototype.createRange = Integer.prototype.createRange;
 FixedPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
 FixedPoint.prototype.destroy = Integer.prototype.destroy;
 
+/**
+ * set the text value of the input element
+ * set the range element if it exists
+ * set the indicator if it exists
+ * @method FixedPoint#setInputRange
+ * @param {integer} n
+ */
+FixedPoint.prototype.setInputRangeIndicator = function(n) {
+    let text = n.toFixed(this.digits);
+    if (this.range) {
+        this.range.value = text;
+    }
+    this.input.value = text;
+    if (this.indicatorElement) {
+        let pos = 100 * (n - this.minValue);
+        if (this.cyclic) {
+            pos /= (this.maxValue - this.minValue - this.step);
+        } else {
+            pos /= (this.maxValue - this.minValue);
+        }
+        pos = Math.round(pos);
+        let backgroundStyle = "linear-gradient(90deg, " + this.indicatorColorLeft + " ";
+        backgroundStyle += pos + "%, " + this.indicatorColorRight + " " + pos + "%)";
+        this.indicatorElement.style.background = backgroundStyle;
+    }
+};
+
 // setting parameters, now float values and not integers
 
 /**
@@ -155,7 +181,7 @@ FixedPoint.prototype.destroy = Integer.prototype.destroy;
  * @param {number} value
  */
 FixedPoint.prototype.setMin = function(value) {
-    if (guiUtils.isInteger(value)) {
+    if (guiUtils.isNumber(value)) {
         this.minValue = value;
         this.setRangeLimits();
         this.setInputRangeIndicator(this.getValue());
@@ -170,7 +196,7 @@ FixedPoint.prototype.setMin = function(value) {
  * @param {number} value
  */
 FixedPoint.prototype.setMax = function(value) {
-    if (guiUtils.isInteger(value)) {
+    if (guiUtils.isNumber(value)) {
         this.maxValue = value;
         this.setRangeLimits();
         this.setInputRangeIndicator(this.getValue());

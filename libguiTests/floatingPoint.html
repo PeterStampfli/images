@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> floatingPoint (test)</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type='module'>
+
+import {
+    FloatingPoint
+} from "../libgui/modules.js";
+
+const parentDOM=document.createElement("div");
+document.body.appendChild(parentDOM);
+const f=new FloatingPoint(parentDOM);
+
+console.log(f.determineDigits(0.000000002345))
+
+console.log(0.000002.toString())
+</script>
+
+</html>
