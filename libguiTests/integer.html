@@ -23,9 +23,9 @@ import {
 const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
 const int=new Integer(parentDOM);
-
-int.setMin(-100);
 int.setMax(100);
+int.setMin(0);
+
 int.setValue(-12.4);
 int.createAddButton('adding',parentDOM,11);
 int.createMulButton('mult',parentDOM,11);
@@ -33,6 +33,8 @@ int.createMiniButton(parentDOM,11);
 int.createMaxiButton(parentDOM,11);
 int.createSuggestButton(parentDOM,2345)
 int.createRange(parentDOM)
+int.setCyclic();
+int.setStep(2);
 
 </script>
 

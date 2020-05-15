@@ -143,7 +143,7 @@ FloatingPoint.prototype.createMulButton = Integer.prototype.createMulButton;
 FloatingPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
 FloatingPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FloatingPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
-FloatingPoint.prototype.getValue =FixedPoint.prototype.getValue ;
+FloatingPoint.prototype.getValue = FixedPoint.prototype.getValue;
 
 FloatingPoint.prototype.createRange = Integer.prototype.createRange;
 FloatingPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
@@ -203,38 +203,34 @@ FloatingPoint.prototype.setStep = function(value) {};
 // integer numbers and very small numbers give one
 FloatingPoint.prototype.determineDigits = function(value) {
     let text = value.toString();
-// may use scientific notation for numbers with magnitude smaller than 1e**-7
-console.log(text)
-if (text.indexOf('e')>=0){
-	 text=text.split('e');
-	 let significand=text[0];
-	 const magnitude=text[1];
-	 let significandDigits=0;                  // for numbers like 2e-3 with integer significand
-	 if (significand.indexOf('.')>=0){         // significand has decimal point, look at digits after the point
-significand=significand.split('.');
-significandDigits=significand[1].length;
-	 }
-
-	return Math.max(1,significandDigits-parseInt(magnitude));
-}
-else {
-
-
-    const pointPosition = text.indexOf('.');
-    // for safety, there is always a decimal point except for this.maxDigits==0
-    if (pointPosition < 0) {
-        return 1;
+    // may use scientific notation for numbers with magnitude smaller than 1e**-7
+    console.log(value)
+    console.log(text);
+    if (text.indexOf('e') >= 0) {
+        text = text.split('e');
+        let significand = text[0];
+        const magnitude = text[1];
+        let significandDigits = 0; // for numbers like 2e-3 with integer significand
+        if (significand.indexOf('.') >= 0) { // significand has decimal point, look at digits after the point
+            significand = significand.split('.');
+            significandDigits = significand[1].length;
+        }
+        return Math.max(1, significandDigits - parseInt(magnitude));
+    } else {
+        const pointPosition = text.indexOf('.');
+        // for safety, there is always a decimal point except for this.maxDigits==0
+        if (pointPosition < 0) {
+            return 1;
+        }
+        let index = text.length - 1;
+        // find first digit from the right different to zero
+        while (text[index] === '0') {
+            index -= 1;
+        }
+        // digits are difference between position of first nonzero digit and ddecimal point, at least one
+        return Math.max(1, index - pointPosition);
     }
-    let index = text.length - 1;
-    // find first digit from the right different to zero
-    while (text[index] === '0') {
-        index -= 1;
-    }
-    // digits are difference between position of first nonzero digit and ddecimal point, at least one
-    return Math.max(1, index - pointPosition);
-}
 };
-
 
 /**
  * set the value of the text, range and indicator elements
@@ -246,10 +242,74 @@ else {
 FloatingPoint.prototype.setValue = function(value) {
     if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
-        this.digits=this.determineDigits(value)
+        this.digits = this.determineDigits(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;
     } else {
         console.error('FloatingPoint#setValue: argument is not a number, it is ' + value);
     }
+};
+
+/**
+ * the value of the input element or the range element may have changed:
+ * if it is different to the last value then set text range and indicator, call onChange
+ * else set text and indicator only
+ * @method FloatingPoint#action
+ * @param {number} value
+ */
+FloatingPoint.prototype.action = function(value) {
+    if (guiUtils.isNumber(value)) {
+        value = this.quantizeClamp(value);
+         this.digits = Math.max(this.digits,this.determineDigits(value));       // do not through awway SIGNIFICANT trailing zeros
+       // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (this.lastValue !== value) {
+            this.lastValue = value;
+            this.setInputRangeIndicator(value);
+            this.onChange(value);
+        } else {
+            this.setInputRangeIndicator(value);
+        }
+    } else {
+        console.error('FloatingPoint#action: argument is not a number, it is ' + value);
+        this.setInputRangeIndicator(this.lastValue);
+    }
+};
+
+/**
+ * change value of digit at the left of the cursor in the input element
+ * depending on direction argument (positive increases digit, negative decreases)
+ * change at least by this.step, (else it is a larger power of ten)
+ * @method FloatingPoint#changeDigit
+ * @param {float} direction - makes plus or minus changes
+ */
+FloatingPoint.prototype.changeDigit = function(direction) {
+   const inputLength = this.input.value.length;
+    const value = this.getValue();
+    let cursorPosition = this.input.selectionStart;
+    // for negative numbers the cursor position may not be smaller than 1 (at the right of the minus sign)
+    if (value < 0) { // beware of the minus sign
+        cursorPosition = Math.max(cursorPosition, 1);
+    }
+ 
+    // get position of the dot
+    let pointPosition = this.input.value.indexOf('.');
+    // then we can determine the power
+    let power = 0;
+    if (cursorPosition < pointPosition) {
+        console.log('intpart');
+        power = pointPosition - 1 - cursorPosition;
+    } else {
+        // if cursor at left of point: change first digit after the point
+        if (cursorPosition === pointPosition) {
+            cursorPosition = pointPosition + 1;
+        }
+        power = -(cursorPosition - pointPosition);
+    }
+
+
+
+
+
+         this.digits = Math.max(this.digits,this.determineDigits(value));       // do not through awway SIGNIFICANT trailing zeros
+
 };

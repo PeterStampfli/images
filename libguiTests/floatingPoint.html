@@ -24,10 +24,10 @@ import {
 const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
 const f=new FloatingPoint(parentDOM);
-
-console.log(f.determineDigits(0.000000002345))
-
-console.log(0.000002.toString())
+const value=999999999.0
+console.log(typeof value)
+f.setValue(value)
+console.log(value.toString())
 </script>
 
 </html>
