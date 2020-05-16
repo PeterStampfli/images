@@ -454,16 +454,18 @@ Integer.prototype.changeDigit = function(direction) {
         value -= change;
     }
     value = this.quantizeClamp(value);
-    this.lastValue = value;
-    this.setInputRangeIndicator(value);
-    cursorPosition = this.input.value.length - 1 - power;
-    if (this.getValue() >= 0) {
-        cursorPosition = Math.max(cursorPosition, 0);
-    } else {
-        cursorPosition = Math.max(cursorPosition, 1);
+    if (value !== this.lastValue) {
+        this.lastValue = value;
+        this.setInputRangeIndicator(value);
+        cursorPosition = this.input.value.length - 1 - power;
+        if (this.getValue() >= 0) {
+            cursorPosition = Math.max(cursorPosition, 0);
+        } else {
+            cursorPosition = Math.max(cursorPosition, 1);
+        }
+        this.input.setSelectionRange(cursorPosition, cursorPosition);
+        this.onChange(value);
     }
-    this.input.setSelectionRange(cursorPosition, cursorPosition);
-    this.onChange(value);
 };
 
 // for all number controllers
@@ -473,10 +475,10 @@ Integer.prototype.changeDigit = function(direction) {
  * @method Integer.createButton
  * @param {String} text - shown in the button
  * @param {htmlElement} parentDOM
- * @param {function} action - function(value), returns changed value
+ * @param {function} changeValue - function(value), returns changed value
  * @return the button
  */
-Integer.prototype.createButton = function(text, parentDOM, action) {
+Integer.prototype.createButton = function(text, parentDOM, changeValue) {
     const addButton = new Button(text, parentDOM);
     const button = this;
     addButton.onInteraction = function() {
@@ -485,7 +487,7 @@ Integer.prototype.createButton = function(text, parentDOM, action) {
     addButton.onClick = function() {
         button.input.focus();
         let value = button.getValue();
-        value = action(value);
+        value = changeValue(value);
         value = button.quantizeClamp(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
@@ -584,33 +586,25 @@ Integer.prototype.createRange = function(parentDOM) {
         console.log("**** Integer#createRange: range already exists");
     } else {
         this.range = document.createElement("input");
-        this.range.step = "any"; // quantization via update
+        this.range.step = "1"; // for integer, because of offset cannot use this.step
         guiUtils.style(this.range)
             .attribute("type", "range")
             .cursor("pointer")
             .verticalAlign("middle")
             .parent(parentDOM);
-        // set the min,max and current value
-        this.range.min = this.minValue;
-        this.range.max = this.maxValue;
-        if (this.cyclic) {
-            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
-        }
+        this.setRangeLimits();
         this.range.value = this.getValue();
 
         const button = this;
 
         // doing things continously
         this.range.oninput = function() {
-            let value = parseInt(button.range.value);
+            let value = parseInt(button.range.value, 10);
             // does the value change?
             if (button.lastValue !== value) {
                 // if quantized: make that it really steps
-                console.log(value, button.lastValue);
                 if (Math.abs(value - button.lastValue) < button.step) {
-                    console.log('baby');
                     if (value > button.lastValue) {
-                        console.log('up');
                         value = button.lastValue + button.step;
                     } else {
                         value = button.lastValue - button.step;

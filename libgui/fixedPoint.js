@@ -61,7 +61,15 @@ export function FixedPoint(parentDOM) {
 
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
-        button.action(parseFloat(button.input.value));
+        const value = button.getValue(); // garanties that value is a good integer
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (button.lastValue !== value) {
+            button.lastValue = value;
+            button.setInputRangeIndicator(value);
+            button.onChange(value);
+        } else {
+            button.setInputRangeIndicator(value);
+        }
     };
 
     this.input.onmousedown = function() {
@@ -131,7 +139,6 @@ FixedPoint.prototype.setIndicatorColors = Integer.prototype.setIndicatorColors;
 FixedPoint.prototype.setFontSize = Integer.prototype.setFontSize;
 FixedPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FixedPoint.prototype.setActive = Integer.prototype.setActive;
-FixedPoint.prototype.setRangeLimits = Integer.prototype.setRangeLimits;
 FixedPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FixedPoint.prototype.setCyclic = Integer.prototype.setCyclic;
 
@@ -142,7 +149,6 @@ FixedPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
 FixedPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FixedPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
 
-FixedPoint.prototype.createRange = Integer.prototype.createRange;
 FixedPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
 FixedPoint.prototype.destroy = Integer.prototype.destroy;
 
@@ -174,6 +180,23 @@ FixedPoint.prototype.setInputRangeIndicator = function(n) {
 };
 
 // setting parameters, now float values and not integers
+
+
+/**
+ * set the limits of the range element (if there is one)
+ * @method FixedPoint#setRangeLimits
+ */
+FixedPoint.prototype.setRangeLimits = function() {
+    if (this.range) {
+        this.range.min = this.minValue;
+        if (this.cyclic) {
+            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
+        } else {
+            this.range.max = this.maxValue;
+        }
+        this.range.step = this.step.toString();
+    }
+};
 
 /**
  * set the minimum value for numbers, maxValue is unchanged
@@ -245,7 +268,7 @@ FixedPoint.prototype.setStep = function(value) {
  * @return {number}
  */
 FixedPoint.prototype.getValue = function() {
-    let value = parseFloat(this.input.value);
+    let value = parseFloat(this.input.value, 10);
     if (!guiUtils.isNumber(value)) {
         value = this.lastValue;
     }
@@ -269,29 +292,6 @@ FixedPoint.prototype.setValue = function(value) {
     }
 };
 
-/**
- * the value of the input element or the range element may have changed:
- *  if it is different to the last value then set text range and indicator, call onChange
- * else set text and indicator only
- * @method FixedPoint#action
- * @param {number} value
- */
-FixedPoint.prototype.action = function(value) {
-    if (guiUtils.isNumber(value)) {
-        value = this.quantizeClamp(value);
-        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
-        if (this.lastValue !== value) {
-            this.lastValue = value;
-            this.setInputRangeIndicator(value);
-            this.onChange(value);
-        } else {
-            this.setInputRangeIndicator(value);
-        }
-    } else {
-        console.error('FixedPoint#action: argument is not a number, it is ' + value);
-        this.setInputRangeIndicator(this.lastValue);
-    }
-};
 
 /**
  * change value of digit at the left of the cursor in the input element
@@ -302,7 +302,7 @@ FixedPoint.prototype.action = function(value) {
  */
 FixedPoint.prototype.changeDigit = function(direction) {
     const inputLength = this.input.value.length;
-    const value = this.getValue();
+    let value = this.getValue();
     // if cursor is at (rightside) end of input value, then correct it to position before the end
     let cursorPosition = Math.min(this.input.selectionStart, this.input.value.length - 1);
     // for negative numbers the cursor position may not be smaller than 1 (at the right of the minus sign)
@@ -323,23 +323,98 @@ FixedPoint.prototype.changeDigit = function(direction) {
         power = -(cursorPosition - pointPosition);
     }
     const change = Math.max(this.step, Math.pow(10, power));
-    if (direction > 0) { // again the minus sign
-        this.action(value + change);
+    if (direction > 0) {
+        value += change;
     } else {
-        this.action(value - change);
+        value -= change;
     }
-    // the number may have changed, cursorposition is relative to point position
-    // Attention: integer part may have changed number of digit, may change sign
-    pointPosition = this.input.value.indexOf('.');
-    if (power >= 0) {
-        cursorPosition = pointPosition - 1 - power; // integer part: cursor at left of point, left of changing digit
+
+    value = this.quantizeClamp(value);
+    if (value !== this.lastValue) {
+        this.lastValue = value;
+        this.setInputRangeIndicator(value);
+
+
+
+        // the number may have changed, cursorposition is relative to point position
+        // Attention: integer part may have changed number of digit, may change sign
+        pointPosition = this.input.value.indexOf('.');
+        if (power >= 0) {
+            cursorPosition = pointPosition - 1 - power; // integer part: cursor at left of point, left of changing digit
+        } else {
+            cursorPosition = pointPosition - power; // fractional part at the right of the point
+        }
+        if (this.getValue() > 0) {
+            cursorPosition = Math.max(cursorPosition, 0);
+        } else {
+            cursorPosition = Math.max(cursorPosition, 1);
+        }
+        this.input.setSelectionRange(cursorPosition, cursorPosition);
+        this.onChange(value);
+    }
+};
+
+
+/**
+ * create a interacting range element
+ * @method Integer#createRange
+ * @param {htmlElement} parentDOM
+ * @return the range element
+ */
+Integer.prototype.createRange = function(parentDOM) {
+    if (this.range) {
+        console.log("**** Integer#createRange: range already exists");
     } else {
-        cursorPosition = pointPosition - power; // fractional part at the right of the point
+        this.range = document.createElement("input");
+        this.range.step = this.step.toString();
+        guiUtils.style(this.range)
+            .attribute("type", "range")
+            .cursor("pointer")
+            .verticalAlign("middle")
+            .parent(parentDOM);
+        this.setRangeLimits();
+        this.range.value = this.getValue();
+
+        const button = this;
+
+        // doing things continously
+        this.range.oninput = function() {
+            let value = parseFloat(button.range.value, 10);
+            // does the value change?
+            if (button.lastValue !== value) {
+                // if quantized: make that it really steps
+                if (Math.abs(value - button.lastValue) < button.step) {
+                    if (value > button.lastValue) {
+                        value = button.lastValue + button.step;
+                    } else {
+                        value = button.lastValue - button.step;
+                    }
+                }
+                value = button.quantizeClamp(value);
+                // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+                button.lastValue = value;
+                button.setInputRangeIndicator(value);
+                button.onChange(value);
+            }
+        };
+
+        this.range.onchange = this.range.oninput;
+
+        this.range.onkeydown = function() {
+            if (button.active) {
+                button.onInteraction();
+            }
+        };
+        this.range.onmousedown = function() {
+            if (button.active) {
+                button.onInteraction();
+            }
+        };
+        this.range.onwheel = function() {
+            if (button.active) {
+                button.onInteraction();
+            }
+        };
     }
-    if (this.getValue() > 0) {
-        cursorPosition = Math.max(cursorPosition, 0);
-    } else {
-        cursorPosition = Math.max(cursorPosition, 1);
-    }
-    this.input.setSelectionRange(cursorPosition, cursorPosition);
+    return this.range;
 };

@@ -24,10 +24,13 @@ const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
 const f=new FixedPoint(parentDOM);
 f.setStep(0.05);
-console.log(f.quantize(9.3345));
-console.log(f.quantize(-0.21));
-console.log(f.quantize(-53.32));
-
+f.setValue(9.99);
+f.createAddButton('adding',parentDOM,1.1);
+f.createMulButton('mult',parentDOM,2);
+f.createMiniButton(parentDOM,11);
+f.createMaxiButton(parentDOM,11);
+f.createSuggestButton(parentDOM,2.345)
+f.createRange(parentDOM)
 
 </script>
 
