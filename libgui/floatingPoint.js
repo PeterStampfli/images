@@ -31,8 +31,8 @@ export function FloatingPoint(parentDOM) {
     this.pressed = false; // corresponds to focus
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
-    this.minValue = -1e10;
-    this.maxValue = 1e10;
+    this.minValue = Number.MIN_VALUE;
+    this.maxValue = Number.MAX_VALUE;
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
     this.lastValue = this.minValue;
@@ -113,13 +113,13 @@ export function FloatingPoint(parentDOM) {
         let key = event.key;
         if (button.pressed && button.active) {
             if (key === "ArrowDown") {
+                event.preventDefault();
+                event.stopPropagation();
                 button.changeDigit(-1);
-                event.preventDefault();
-                event.stopPropagation();
             } else if (key === "ArrowUp") {
-                button.changeDigit(1);
                 event.preventDefault();
                 event.stopPropagation();
+                button.changeDigit(1);
             }
         }
     };
@@ -145,7 +145,6 @@ FloatingPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FloatingPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
 FloatingPoint.prototype.getValue = FixedPoint.prototype.getValue;
 
-FloatingPoint.prototype.createRange = Integer.prototype.createRange;
 FloatingPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
 FloatingPoint.prototype.destroy = Integer.prototype.destroy;
 
@@ -182,6 +181,30 @@ FloatingPoint.prototype.setMax = function(value) {
 };
 
 /**
+* set the number of digits to use after decimal point
+* at least one
+* set the corresponding step and inverse step
+* @method FloatingPoint.setDigits
+* @param{int} n
+*/
+FloatingPoint.prototype.setDigits=function(n){
+ n=Math.max(1,n);
+ this.digits=n;
+ this.step=Math.pow(10,n);
+ this.invStep=Math.round(1/this.step);
+        this.setRangeLimitsStep();
+        this.setInputRangeIndicator(this.getValue());
+
+};
+
+/**
+ * no step value for floating point, do nothing 
+ * @method FloatingPoint#setStep
+ * @param {number} value
+ */
+FloatingPoint.prototype.setStep = function(value) {};
+
+/**
  * no offset value for fixedPoint, do nothing
  * @method FloatingPoint#setOffset
  */
@@ -192,19 +215,13 @@ FloatingPoint.prototype.quantize = function(x) {
     return x;
 };
 
-/**
- * no step value for floating point, do nothing 
- * @method FloatingPoint#setStep
- * @param {number} value
- */
-FloatingPoint.prototype.setStep = function(value) {};
 
 // determine number of digits after decimal point
 // integer numbers and very small numbers give one
 FloatingPoint.prototype.determineDigits = function(value) {
     let text = value.toString();
     // may use scientific notation for numbers with magnitude smaller than 1e**-7
-    console.log(value)
+    console.log(value);
     console.log(text);
     if (text.indexOf('e') >= 0) {
         text = text.split('e');
@@ -260,8 +277,8 @@ FloatingPoint.prototype.setValue = function(value) {
 FloatingPoint.prototype.action = function(value) {
     if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
-         this.digits = Math.max(this.digits,this.determineDigits(value));       // do not through awway SIGNIFICANT trailing zeros
-       // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        this.digits = Math.max(this.digits, this.determineDigits(value)); // do not through awway SIGNIFICANT trailing zeros
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (this.lastValue !== value) {
             this.lastValue = value;
             this.setInputRangeIndicator(value);
@@ -283,14 +300,15 @@ FloatingPoint.prototype.action = function(value) {
  * @param {float} direction - makes plus or minus changes
  */
 FloatingPoint.prototype.changeDigit = function(direction) {
-   const inputLength = this.input.value.length;
-    const value = this.getValue();
+    console.log('changedigit');
+    const inputLength = this.input.value.length;
+    let value = this.getValue();
     let cursorPosition = this.input.selectionStart;
     // for negative numbers the cursor position may not be smaller than 1 (at the right of the minus sign)
     if (value < 0) { // beware of the minus sign
         cursorPosition = Math.max(cursorPosition, 1);
     }
- 
+
     // get position of the dot
     let pointPosition = this.input.value.indexOf('.');
     // then we can determine the power
@@ -305,11 +323,38 @@ FloatingPoint.prototype.changeDigit = function(direction) {
         }
         power = -(cursorPosition - pointPosition);
     }
+    const change = Math.pow(10, power);
+    if (direction > 0) {
+        value += change;
+    } else {
+        value -= change;
+    }
+
+    // do we get more digits: only if cursor is at end of input string
+    if (cursorPosition===inputLength){
+        this.digits+=1;
+    }
+    value = this.quantizeClamp(value);
 
 
 
-
-
-         this.digits = Math.max(this.digits,this.determineDigits(value));       // do not through awway SIGNIFICANT trailing zeros
-
+    if (value !== this.lastValue) {
+        this.lastValue = value;
+        this.setInputRangeIndicator(value);
+        // the number may have changed, cursorposition is relative to point position
+        // Attention: integer part may have changed number of digit, may change sign
+        pointPosition = this.input.value.indexOf('.');
+        if (power >= 0) {
+            cursorPosition = pointPosition - 1 - power; // integer part: cursor at left of point, left of changing digit
+        } else {
+            cursorPosition = pointPosition - power; // fractional part at the right of the point
+        }
+        if (value > 0) {
+            cursorPosition = Math.max(cursorPosition, 0);
+        } else {
+            cursorPosition = Math.max(cursorPosition, 1);
+        }
+        this.input.setSelectionRange(cursorPosition, cursorPosition);
+        this.onChange(value);
+    }
 };

@@ -37,7 +37,7 @@ export function Integer(parentDOM) {
     this.updateStyle();
     // do we want to show the indicator in the background
     this.indicatorElement = false;
-    this.setIndicatorColors("#aaaa99", "#ddddff");
+    this.setIndicatorColors("#dddd99", "#ddddff");
 
     const button = this;
 
@@ -60,14 +60,11 @@ export function Integer(parentDOM) {
 
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
-        const value = button.getValue(); // garanties that value is a good integer
+        const value = button.getValue(); // garanties that value is a good integer, sets ui elements
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
-            button.setInputRangeIndicator(value);
             button.onChange(value);
-        } else {
-            button.setInputRangeIndicator(value);
         }
     };
 
@@ -262,6 +259,7 @@ Integer.prototype.setInputRangeIndicator = function(n) {
 
 /**
  * set the limits of the range element (if there is one)
+ * its step is always one, for integer, but does not change for larger values (does not work for offset)
  * @method Integer#setRangeLimits
  */
 Integer.prototype.setRangeLimits = function() {
@@ -333,7 +331,7 @@ Integer.prototype.setMin = function(value) {
     if (guiUtils.isInteger(value)) {
         this.minValue = value;
         this.setRangeLimits();
-        this.setInputRangeIndicator(this.getValue());
+        this.getValue(); // updates all
     } else {
         console.error('Integer#setMin: argument is not integer, it is ' + value);
     }
@@ -348,7 +346,7 @@ Integer.prototype.setMax = function(value) {
     if (guiUtils.isInteger(value)) {
         this.maxValue = value;
         this.setRangeLimits();
-        this.setInputRangeIndicator(this.getValue());
+        this.getValue(); // updates all
     } else {
         console.error('Integer#setMax: argument is not integer, it is ' + value);
     }
@@ -363,7 +361,7 @@ Integer.prototype.setStep = function(value) {
     if (guiUtils.isInteger(value)) {
         this.step = value;
         this.setRangeLimits();
-        this.setInputRangeIndicator(this.getValue());
+        this.getValue(); // updates all
     } else {
         console.error('Integer#setStep: argument is not integer, it is ' + value);
     }
@@ -378,7 +376,7 @@ Integer.prototype.setOffset = function(value) {
     if (guiUtils.isInteger(value)) {
         this.offset = value;
         this.setRangeLimits();
-        this.setInputRangeIndicator(this.getValue());
+        this.getValue(); // updates all
     } else {
         console.error('Integer#setOffset: argument is not integer, it is ' + value);
     }
@@ -392,7 +390,7 @@ Integer.prototype.setOffset = function(value) {
 Integer.prototype.setCyclic = function() {
     this.cyclic = true;
     this.setRangeLimits();
-    this.setInputRangeIndicator(this.getValue());
+    this.getValue(); // updates all
 };
 
 /**
@@ -401,6 +399,7 @@ Integer.prototype.setCyclic = function() {
  * keep it in limits, quantize it according to step and offset
  * make it cyclic
  * this means that you can always use its return value
+ * updates the value of the ui-elements (in case that it changed or user rubished it)
  * @method Integer#getValue
  * @return {integer}
  */
@@ -409,7 +408,9 @@ Integer.prototype.getValue = function() {
     if (!guiUtils.isNumber(value)) {
         value = this.lastValue;
     }
-    return this.quantizeClamp(value);
+    value = this.quantizeClamp(value);
+    this.setInputRangeIndicator(value);
+    return value;
 };
 
 /**
@@ -458,7 +459,7 @@ Integer.prototype.changeDigit = function(direction) {
         this.lastValue = value;
         this.setInputRangeIndicator(value);
         cursorPosition = this.input.value.length - 1 - power;
-        if (this.getValue() >= 0) {
+        if (value >= 0) {
             cursorPosition = Math.max(cursorPosition, 0);
         } else {
             cursorPosition = Math.max(cursorPosition, 1);
@@ -602,23 +603,26 @@ Integer.prototype.createRange = function(parentDOM) {
             let value = parseInt(button.range.value, 10);
             // does the value change?
             if (button.lastValue !== value) {
-                // if quantized: make that it really steps
-                if (Math.abs(value - button.lastValue) < button.step) {
-                    if (value > button.lastValue) {
-                        value = button.lastValue + button.step;
-                    } else {
-                        value = button.lastValue - button.step;
-                    }
+                // for steps>1: make that a change goes in the right direction, minimum one step
+                // important for scroll wheel
+                if (value > button.lastValue) {
+                    value = Math.max(button.lastValue + button.step, value);
+                } else if (value < button.lastValue) {
+                    value = Math.min(button.lastValue - button.step, value);
                 }
                 value = button.quantizeClamp(value);
                 // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
-                button.lastValue = value;
-                button.setInputRangeIndicator(value);
-                button.onChange(value);
+                if (button.lastValue !== value) {
+                    button.lastValue = value;
+                    button.setInputRangeIndicator(value);
+                    button.onChange(value);
+                } else {
+                    button.setInputRangeIndicator(value);
+                }
             }
         };
 
-        this.range.onchange = this.range.oninput;
+        this.range.onchange = function() {}; // change already done by input event
 
         this.range.onkeydown = function() {
             if (button.active) {
@@ -646,6 +650,16 @@ Integer.prototype.createRange = function(parentDOM) {
  */
 Integer.prototype.setRangeWidth = function(width) {
     this.range.style.width = width + "px";
+};
+
+/**
+ * switch on the indicator, set its element (it's the background) , adjust to current value
+ * @method Integer#setIndicatorElement
+ * @param {html element} element
+ */
+Integer.prototype.setIndicatorElement = function(element) {
+    this.indicatorElement = element;
+    this.setValue(this.getValue());
 };
 
 /**

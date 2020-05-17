@@ -129,7 +129,7 @@ function randomData() {
     data.length = 2 * (p.nHorizontal + 1) * (p.nVertical + 1);
     const length = data.length;
     for (var i = 0; i < length; i++) {
-        data[i] = Math.floor((5 * Math.random()));
+        data[i] = Math.floor((8 * Math.random()));
     }
 }
 
@@ -249,7 +249,6 @@ function upDiagonalLine() {
     canvasContext.fill();
 }
 
-
 function downDiagonalLine() {
     canvasContext.beginPath();
     canvasContext.moveTo(tileWidth / 4 - rt34 * p.lineWidth, -0.5 * tileHeight - 0.25 * p.lineWidth);
@@ -257,6 +256,62 @@ function downDiagonalLine() {
     canvasContext.lineTo(-tileWidth / 4 + rt34 * p.lineWidth, +0.5 * tileHeight + 0.25 * p.lineWidth);
     canvasContext.lineTo(-tileWidth / 4 - rt34 * p.lineWidth, +0.5 * tileHeight - 0.25 * p.lineWidth);
     canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function largeCircleRight() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(tileWidth / 4 - rt34 * p.lineWidth, 0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(tileWidth, 0, tileHeight + p.lineWidth / 2, 5 / 6 * Math.PI, 7 / 6 * Math.PI, false);
+    canvasContext.lineTo(tileWidth / 4 + rt34 * p.lineWidth, -0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(tileWidth, 0, tileHeight - p.lineWidth / 2, 7 / 6 * Math.PI, 5 / 6 * Math.PI, true);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function largeCircleLeft() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(-tileWidth / 4 + rt34 * p.lineWidth, 0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(-tileWidth, 0, tileHeight + p.lineWidth / 2, 1 / 6 * Math.PI, -1 / 6 * Math.PI, true);
+    canvasContext.lineTo(-tileWidth / 4 - rt34 * p.lineWidth, -0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(-tileWidth, 0, tileHeight - p.lineWidth / 2, -1 / 6 * Math.PI, 1 / 6 * Math.PI, false);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function largeCircleTopLeft() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(tileWidth / 4 - rt34 * p.lineWidth, 0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(-tileWidth / 2, tileHeight, tileHeight - p.lineWidth / 2, -1 / 6 * Math.PI, -Math.PI / 2, true);
+    canvasContext.lineTo(-tileWidth / 2, -p.lineWidth / 2);
+    canvasContext.arc(-tileWidth / 2, tileHeight, tileHeight + p.lineWidth / 2, -Math.PI / 2, -1 / 6 * Math.PI, false);
+    canvasContext.fill();
+}
+
+function largeCircleTopRight() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(-tileWidth / 4 + rt34 * p.lineWidth, 0.5 * tileHeight + 0.25 * p.lineWidth);
+    canvasContext.arc(tileWidth / 2, tileHeight, tileHeight - p.lineWidth / 2, -5 / 6 * Math.PI, -Math.PI / 2, false);
+    canvasContext.lineTo(tileWidth / 2, -p.lineWidth / 2);
+    canvasContext.arc(tileWidth / 2, tileHeight, tileHeight + p.lineWidth / 2, -Math.PI / 2, -5 / 6 * Math.PI, true);
+    canvasContext.fill();
+}
+
+function largeCircleBottomRight() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(-tileWidth / 4 + rt34 * p.lineWidth, -0.5 * tileHeight - 0.25 * p.lineWidth);
+    canvasContext.arc(tileWidth / 2, -tileHeight, tileHeight - p.lineWidth / 2, 5 / 6 * Math.PI, Math.PI / 2, true);
+    canvasContext.lineTo(tileWidth / 2, p.lineWidth / 2);
+    canvasContext.arc(tileWidth / 2, -tileHeight, tileHeight + p.lineWidth / 2, Math.PI / 2, 5 / 6 * Math.PI, false);
+    canvasContext.fill();
+}
+
+function largeCircleBottomLeft() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(tileWidth / 4 - rt34 * p.lineWidth, -0.5 * tileHeight - 0.25 * p.lineWidth);
+    canvasContext.arc(-tileWidth / 2, -tileHeight, tileHeight - p.lineWidth / 2, 1 / 6 * Math.PI, Math.PI / 2, false);
+    canvasContext.lineTo(-tileWidth / 2, p.lineWidth / 2);
+    canvasContext.arc(-tileWidth / 2, -tileHeight, tileHeight + p.lineWidth / 2, Math.PI / 2, 1 / 6 * Math.PI, true);
     canvasContext.fill();
 }
 
@@ -291,8 +346,31 @@ function smallCirclesDownDiagonalLine() {
     downDiagonalLine();
 }
 
+// orthogonal intersections
+
+
+function largeCirclesHorizontalLine() {
+    largeCircleLeft();
+    largeCircleRight();
+    horizontalLine();
+}
+
+function largeCirclesUpDiagonalLine() {
+    largeCircleBottomLeft();
+    largeCircleTopRight();
+    upDiagonalLine();
+}
+
+function largeCirclesDownDiagonalLine() {
+    largeCircleTopLeft();
+    largeCircleBottomRight();
+    downDiagonalLine();
+}
+
+
 function hexagon() {
     dots();
+    
     switch (data[index]) {
         case 0:
         smallCirclesTop();
@@ -309,7 +387,17 @@ function hexagon() {
          case 4:
         smallCirclesDownDiagonalLine();
         break;
+        case 5:
+        largeCirclesHorizontalLine();
+        break;
+         case 6:
+        largeCirclesUpDiagonalLine();
+        break;
+         case 7:
+        largeCirclesDownDiagonalLine();
+        break;
     }
+    
     index += 1;
 }
 

@@ -28,8 +28,8 @@ export function FixedPoint(parentDOM) {
     this.pressed = false; // corresponds to focus
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
-    this.minValue = -1e10;
-    this.maxValue = 1e10;
+    this.minValue = Number.MIN_VALUE;
+    this.maxValue = Number.MAX_VALUE;
     this.setStep(0.001);
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
@@ -119,13 +119,13 @@ export function FixedPoint(parentDOM) {
         let key = event.key;
         if (button.pressed && button.active) {
             if (key === "ArrowDown") {
+                event.preventDefault();
+                event.stopPropagation();
                 button.changeDigit(-1);
-                event.preventDefault();
-                event.stopPropagation();
             } else if (key === "ArrowUp") {
-                button.changeDigit(1);
                 event.preventDefault();
                 event.stopPropagation();
+                button.changeDigit(1);
             }
         }
     };
@@ -186,7 +186,7 @@ FixedPoint.prototype.setInputRangeIndicator = function(n) {
  * set the limits of the range element (if there is one)
  * @method FixedPoint#setRangeLimits
  */
-FixedPoint.prototype.setRangeLimits = function() {
+FixedPoint.prototype.setRangeLimitsStep = function() {
     if (this.range) {
         this.range.min = this.minValue;
         if (this.cyclic) {
@@ -206,7 +206,7 @@ FixedPoint.prototype.setRangeLimits = function() {
 FixedPoint.prototype.setMin = function(value) {
     if (guiUtils.isNumber(value)) {
         this.minValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FixedPoint#setMin: argument is not a number, it is ' + value);
@@ -221,7 +221,7 @@ FixedPoint.prototype.setMin = function(value) {
 FixedPoint.prototype.setMax = function(value) {
     if (guiUtils.isNumber(value)) {
         this.maxValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FixedPoint#setMax: argument is not integer, it is ' + value);
@@ -251,7 +251,7 @@ FixedPoint.prototype.setStep = function(value) {
         this.step = 1 / this.invStep;
         // number of digits depend on step: rounding up
         this.digits = Math.floor(Math.log10(this.invStep) - 0.01) + 1;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FixedPoint#setStep: argument is not a number, it is ' + value);
@@ -263,6 +263,7 @@ FixedPoint.prototype.setStep = function(value) {
  * to be safe: if it is not a number, then use the last value
  * keep it in limits, quantize it according to step and offset
  * make it cyclic
+ * set the value of the ui-elements (in case that it changed or user rubished it)
  * this means that you can always use its return value
  * @method FixedPoint#getValue
  * @return {number}
@@ -272,7 +273,9 @@ FixedPoint.prototype.getValue = function() {
     if (!guiUtils.isNumber(value)) {
         value = this.lastValue;
     }
-    return this.quantizeClamp(value);
+    value = this.quantizeClamp(value);
+    this.setInputRangeIndicator(value);
+    return value;
 };
 
 /**
@@ -328,14 +331,10 @@ FixedPoint.prototype.changeDigit = function(direction) {
     } else {
         value -= change;
     }
-
     value = this.quantizeClamp(value);
     if (value !== this.lastValue) {
         this.lastValue = value;
         this.setInputRangeIndicator(value);
-
-
-
         // the number may have changed, cursorposition is relative to point position
         // Attention: integer part may have changed number of digit, may change sign
         pointPosition = this.input.value.indexOf('.');
@@ -344,7 +343,7 @@ FixedPoint.prototype.changeDigit = function(direction) {
         } else {
             cursorPosition = pointPosition - power; // fractional part at the right of the point
         }
-        if (this.getValue() > 0) {
+        if (value > 0) {
             cursorPosition = Math.max(cursorPosition, 0);
         } else {
             cursorPosition = Math.max(cursorPosition, 1);
@@ -357,22 +356,21 @@ FixedPoint.prototype.changeDigit = function(direction) {
 
 /**
  * create a interacting range element
- * @method Integer#createRange
+ * @method FixedPoint#createRange
  * @param {htmlElement} parentDOM
  * @return the range element
  */
-Integer.prototype.createRange = function(parentDOM) {
+FixedPoint.prototype.createRange = function(parentDOM) {
     if (this.range) {
         console.log("**** Integer#createRange: range already exists");
     } else {
         this.range = document.createElement("input");
-        this.range.step = this.step.toString();
         guiUtils.style(this.range)
             .attribute("type", "range")
             .cursor("pointer")
             .verticalAlign("middle")
             .parent(parentDOM);
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.range.value = this.getValue();
 
         const button = this;
