@@ -65,10 +65,7 @@ export function FixedPoint(parentDOM) {
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
-            button.setInputRangeIndicator(value);
             button.onChange(value);
-        } else {
-            button.setInputRangeIndicator(value);
         }
     };
 
@@ -141,14 +138,14 @@ FixedPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FixedPoint.prototype.setActive = Integer.prototype.setActive;
 FixedPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FixedPoint.prototype.setCyclic = Integer.prototype.setCyclic;
-
+FixedPoint.prototype.setRangeLimitsStep = Integer.prototype.setRangeLimitsStep;
 FixedPoint.prototype.createButton = Integer.prototype.createButton;
 FixedPoint.prototype.createAddButton = Integer.prototype.createAddButton;
 FixedPoint.prototype.createMulButton = Integer.prototype.createMulButton;
 FixedPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
 FixedPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FixedPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
-
+FixedPoint.prototype.setIndicatorElement = Integer.prototype.setIndicatorElement;
 FixedPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
 FixedPoint.prototype.destroy = Integer.prototype.destroy;
 
@@ -181,22 +178,6 @@ FixedPoint.prototype.setInputRangeIndicator = function(n) {
 
 // setting parameters, now float values and not integers
 
-
-/**
- * set the limits of the range element (if there is one)
- * @method FixedPoint#setRangeLimits
- */
-FixedPoint.prototype.setRangeLimitsStep = function() {
-    if (this.range) {
-        this.range.min = this.minValue;
-        if (this.cyclic) {
-            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
-        } else {
-            this.range.max = this.maxValue;
-        }
-        this.range.step = this.step.toString();
-    }
-};
 
 /**
  * set the minimum value for numbers, maxValue is unchanged
@@ -295,7 +276,6 @@ FixedPoint.prototype.setValue = function(value) {
     }
 };
 
-
 /**
  * change value of digit at the left of the cursor in the input element
  * depending on direction argument (positive increases digit, negative decreases)
@@ -316,7 +296,6 @@ FixedPoint.prototype.changeDigit = function(direction) {
     let pointPosition = this.input.value.indexOf('.');
     let power = 0;
     if (cursorPosition < pointPosition) {
-        console.log('intpart');
         power = pointPosition - 1 - cursorPosition;
     } else {
         // if cursor at left of point: change first digit after the point
@@ -353,7 +332,6 @@ FixedPoint.prototype.changeDigit = function(direction) {
     }
 };
 
-
 /**
  * create a interacting range element
  * @method FixedPoint#createRange
@@ -380,19 +358,14 @@ FixedPoint.prototype.createRange = function(parentDOM) {
             let value = parseFloat(button.range.value, 10);
             // does the value change?
             if (button.lastValue !== value) {
-                // if quantized: make that it really steps
-                if (Math.abs(value - button.lastValue) < button.step) {
-                    if (value > button.lastValue) {
-                        value = button.lastValue + button.step;
-                    } else {
-                        value = button.lastValue - button.step;
-                    }
-                }
-                value = button.quantizeClamp(value);
                 // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
-                button.lastValue = value;
-                button.setInputRangeIndicator(value);
-                button.onChange(value);
+                if (button.lastValue !== value) {
+                    button.lastValue = value;
+                    button.setInputRangeIndicator(value);
+                    button.onChange(value);
+                } else {
+                    button.setInputRangeIndicator(value);
+                }
             }
         };
 

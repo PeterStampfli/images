@@ -258,18 +258,15 @@ Integer.prototype.setInputRangeIndicator = function(n) {
 };
 
 /**
- * set the limits of the range element (if there is one)
- * its step is always one, for integer, but does not change for larger values (does not work for offset)
- * @method Integer#setRangeLimits
+ * set the limits and step of the range element (if there is one)
+ * such that it alwways gives the correct value
+ * @method Integer#setRangeLimitsStep
  */
-Integer.prototype.setRangeLimits = function() {
+Integer.prototype.setRangeLimitsStep = function() {
     if (this.range) {
-        this.range.min = this.minValue;
-        if (this.cyclic) {
-            this.range.max = this.maxValue - this.step; // avoid irritating jump from right to left
-        } else {
-            this.range.max = this.maxValue;
-        }
+        this.range.step = this.step;
+        this.range.min = this.quantizeClamp(this.minValue);
+        this.range.max = this.quantizeClamp(this.maxValue);
     }
 };
 
@@ -330,7 +327,7 @@ Integer.prototype.quantizeClamp = function(n) {
 Integer.prototype.setMin = function(value) {
     if (guiUtils.isInteger(value)) {
         this.minValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.getValue(); // updates all
     } else {
         console.error('Integer#setMin: argument is not integer, it is ' + value);
@@ -345,7 +342,7 @@ Integer.prototype.setMin = function(value) {
 Integer.prototype.setMax = function(value) {
     if (guiUtils.isInteger(value)) {
         this.maxValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.getValue(); // updates all
     } else {
         console.error('Integer#setMax: argument is not integer, it is ' + value);
@@ -360,7 +357,7 @@ Integer.prototype.setMax = function(value) {
 Integer.prototype.setStep = function(value) {
     if (guiUtils.isInteger(value)) {
         this.step = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.getValue(); // updates all
     } else {
         console.error('Integer#setStep: argument is not integer, it is ' + value);
@@ -375,7 +372,7 @@ Integer.prototype.setStep = function(value) {
 Integer.prototype.setOffset = function(value) {
     if (guiUtils.isInteger(value)) {
         this.offset = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.getValue(); // updates all
     } else {
         console.error('Integer#setOffset: argument is not integer, it is ' + value);
@@ -386,10 +383,11 @@ Integer.prototype.setOffset = function(value) {
  * set that cyclic numbers are used (wraparound number range)
  * going from this.minValue to this.maxValue-this.step
  * @method Integer#setCyclic
+ * @param {boolean} isCyclic - optional, default is truee
  */
-Integer.prototype.setCyclic = function() {
-    this.cyclic = true;
-    this.setRangeLimits();
+Integer.prototype.setCyclic = function(isCyclic=true) {
+    this.cyclic = isCyclic;
+    this.setRangeLimitsStep();
     this.getValue(); // updates all
 };
 
@@ -587,30 +585,21 @@ Integer.prototype.createRange = function(parentDOM) {
         console.log("**** Integer#createRange: range already exists");
     } else {
         this.range = document.createElement("input");
-        this.range.step = "1"; // for integer, because of offset cannot use this.step
         guiUtils.style(this.range)
             .attribute("type", "range")
             .cursor("pointer")
             .verticalAlign("middle")
             .parent(parentDOM);
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.range.value = this.getValue();
 
         const button = this;
 
         // doing things continously
         this.range.oninput = function() {
-            let value = parseInt(button.range.value, 10);
+            let value = parseInt(button.range.value, 10); // because of its max,min,step parameters should always give correct result
             // does the value change?
             if (button.lastValue !== value) {
-                // for steps>1: make that a change goes in the right direction, minimum one step
-                // important for scroll wheel
-                if (value > button.lastValue) {
-                    value = Math.max(button.lastValue + button.step, value);
-                } else if (value < button.lastValue) {
-                    value = Math.min(button.lastValue - button.step, value);
-                }
-                value = button.quantizeClamp(value);
                 // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
                 if (button.lastValue !== value) {
                     button.lastValue = value;

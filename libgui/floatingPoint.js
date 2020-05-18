@@ -63,7 +63,16 @@ export function FloatingPoint(parentDOM) {
 
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
-        button.action(parseFloat(button.input.value));
+       const value = button.getValue(); // garanties that value is a good integer
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (button.lastValue !== value) {
+        const digits = button.determineDigits(value); 
+        if (digits>this.digits){// do not through away SIGNIFICANT trailing zeros
+            button.setDigits(digits);
+        }
+            button.lastValue = value;
+            button.onChange(value);
+        }
     };
 
     this.input.onmousedown = function() {
@@ -143,7 +152,6 @@ FloatingPoint.prototype.createMulButton = Integer.prototype.createMulButton;
 FloatingPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
 FloatingPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FloatingPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
-FloatingPoint.prototype.getValue = FixedPoint.prototype.getValue;
 
 FloatingPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
 FloatingPoint.prototype.destroy = Integer.prototype.destroy;
@@ -247,6 +255,29 @@ FloatingPoint.prototype.determineDigits = function(value) {
         // digits are difference between position of first nonzero digit and ddecimal point, at least one
         return Math.max(1, index - pointPosition);
     }
+};
+
+
+/**
+ * read the numerical value of the text input element
+ * to be safe: if it is not a number, then use the last value
+ * keep it in limits, quantize it according to step and offset
+ * make it cyclic
+ * determine number of digits
+ * set the value of the ui-elements (in case that it changed or user rubished it)
+ * this means that you can always use its return value
+ * @method FixedPoint#getValue
+ * @return {number}
+ */
+FloatingPoint.prototype.getValue = function() {
+    let value = parseFloat(this.input.value, 10);
+    if (!guiUtils.isNumber(value)) {
+        value = this.lastValue;
+    }
+    console.log.error('TODO')
+    value = this.quantizeClamp(value);
+    this.setInputRangeIndicator(value);
+    return value;
 };
 
 /**
