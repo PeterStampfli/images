@@ -20,7 +20,7 @@ export function Integer(parentDOM) {
         .textAlign("right")
         .verticalAlign("middle")
         .parent(parentDOM);
-    this.addButtons = [];
+    this.additionalButtons = [];
     this.range = false;
     this.hover = false;
     this.pressed = false; // corresponds to focus
@@ -189,7 +189,7 @@ Integer.prototype.setIndicatorColors = function(colorLeft, colorRight) {
  */
 Integer.prototype.setFontSize = function(size) {
     this.input.style.fontSize = size + "px";
-    this.addButtons.forEach(button => button.setFontSize(size));
+    this.additionalButtons.forEach(button => button.setFontSize(size));
 };
 
 /**
@@ -225,7 +225,7 @@ Integer.prototype.setActive = function(on) {
                 this.range.style.cursor = "default";
             }
         }
-        this.addButtons.forEach(button => button.setActive(on));
+        this.additionalButtons.forEach(button => button.setActive(on));
         this.updateStyle();
     }
 };
@@ -467,8 +467,6 @@ Integer.prototype.changeDigit = function(direction) {
     }
 };
 
-// for all number controllers
-
 /**
  * create additional buttons that do something
  * @method Integer.createButton
@@ -478,12 +476,12 @@ Integer.prototype.changeDigit = function(direction) {
  * @return the button
  */
 Integer.prototype.createButton = function(text, parentDOM, changeValue) {
-    const addButton = new Button(text, parentDOM);
+    const additionalButton = new Button(text, parentDOM);
     const button = this;
-    addButton.onInteraction = function() {
+    additionalButton.onInteraction = function() {
         button.onInteraction();
     };
-    addButton.onClick = function() {
+    additionalButton.onClick = function() {
         button.input.focus();
         let value = button.getValue();
         value = changeValue(value);
@@ -497,8 +495,8 @@ Integer.prototype.createButton = function(text, parentDOM, changeValue) {
             button.setInputRangeIndicator(value);
         }
     };
-    this.addButtons.push(addButton);
-    return addButton;
+    this.additionalButtons.push(additionalButton);
+    return additionalButton;
 };
 
 /**
@@ -667,8 +665,8 @@ Integer.prototype.destroy = function() {
     this.input.onkeydown = null;
     this.input.remove();
     this.input = null;
-    this.addButtons.forEach(button => button.destroy());
-    this.addButtons.lenght = 0;
+    this.additionalButtons.forEach(button => button.destroy());
+    this.additionalButtons.lenght = 0;
     if (this.range) {
         this.range.onchange = null;
         this.range.oninput = null;

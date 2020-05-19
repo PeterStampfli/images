@@ -22,7 +22,7 @@ export function FixedPoint(parentDOM) {
         .textAlign("right")
         .verticalAlign("middle")
         .parent(parentDOM);
-    this.addButtons = [];
+    this.additionalButtons = [];
     this.range = false;
     this.hover = false;
     this.pressed = false; // corresponds to focus

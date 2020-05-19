@@ -24,8 +24,8 @@ export function FloatingPoint(parentDOM) {
         .verticalAlign("middle")
         .parent(parentDOM);
     this.maxDigits = 15;
-    this.digits = 1;
-    this.addButtons = [];
+    this.setDigits(1);
+    this.additionalButtons = [];
     this.range = false;
     this.hover = false;
     this.pressed = false; // corresponds to focus
@@ -62,14 +62,18 @@ export function FloatingPoint(parentDOM) {
     };
 
     // if the text of the input element changes: read text as number and update everything
+    // including number of digits
     this.input.onchange = function() {
-       const value = button.getValue(); // garanties that value is a good integer
+        let value = parseFloat(button.input.value, 10);
+        if (!guiUtils.isNumber(value)) {
+            value = button.lastValue;
+        }
+        const digits = button.determineDigits(value);
+        button.setDigits(digits);
+        value = button.quantizeClamp(value);
+        button.setInputRangeIndicator(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
-        const digits = button.determineDigits(value); 
-        if (digits>this.digits){// do not through away SIGNIFICANT trailing zeros
-            button.setDigits(digits);
-        }
             button.lastValue = value;
             button.onChange(value);
         }
@@ -143,10 +147,48 @@ FloatingPoint.prototype.setFontSize = Integer.prototype.setFontSize;
 FloatingPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FloatingPoint.prototype.setActive = Integer.prototype.setActive;
 FloatingPoint.prototype.setRangeLimits = Integer.prototype.setRangeLimits;
+FloatingPoint.prototype.quantize = FixedPoint.prototype.quantize;
 FloatingPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FloatingPoint.prototype.setCyclic = Integer.prototype.setCyclic;
 FloatingPoint.prototype.setInputRangeIndicator = FixedPoint.prototype.setInputRangeIndicator;
-FloatingPoint.prototype.createButton = Integer.prototype.createButton;
+FloatingPoint.prototype.setRangeLimitsStep = Integer.prototype.setRangeLimitsStep;
+
+/**
+ * create additional buttons that do something
+ * @method FloatingPoint.createButton
+ * @param {String} text - shown in the button
+ * @param {htmlElement} parentDOM
+ * @param {function} changeValue - function(value), returns changed value
+ * @return the button
+ */
+FloatingPoint.prototype.createButton = function(text, parentDOM, changeValue) {
+    const additionalButton = new Button(text, parentDOM);
+    const button = this;
+    additionalButton.onInteraction = function() {
+        button.onInteraction();
+    };
+    additionalButton.onClick = function() {
+        button.input.focus();
+        let value = button.getValue();
+        value = changeValue(value);
+        console.log(value);
+        // the number fo digits might have changed
+        const digits = button.determineDigits(value);
+        button.setDigits(digits);
+        value = button.quantizeClamp(value);
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (button.lastValue !== value) {
+            button.lastValue = value;
+            button.setInputRangeIndicator(value);
+            button.onChange(value);
+        } else {
+            button.setInputRangeIndicator(value);
+        }
+    };
+    this.additionalButtons.push(additionalButton);
+    return additionalButton;
+};
+
 FloatingPoint.prototype.createAddButton = Integer.prototype.createAddButton;
 FloatingPoint.prototype.createMulButton = Integer.prototype.createMulButton;
 FloatingPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
@@ -189,20 +231,20 @@ FloatingPoint.prototype.setMax = function(value) {
 };
 
 /**
-* set the number of digits to use after decimal point
-* at least one
-* set the corresponding step and inverse step
-* @method FloatingPoint.setDigits
-* @param{int} n
-*/
-FloatingPoint.prototype.setDigits=function(n){
- n=Math.max(1,n);
- this.digits=n;
- this.step=Math.pow(10,n);
- this.invStep=Math.round(1/this.step);
-        this.setRangeLimitsStep();
-        this.setInputRangeIndicator(this.getValue());
-
+ * set the number of digits to use after decimal point
+ * at least one
+ * set the corresponding step and inverse step
+ * sets range limits and step
+ * does Not update appearance of ui elements
+ * @method FloatingPoint.setDigits
+ * @param{int} n
+ */
+FloatingPoint.prototype.setDigits = function(n) {
+    n = Math.max(1, n);
+    this.digits = n;
+    this.step = Math.pow(10, -n);
+    this.invStep = Math.round(1 / this.step);
+    this.setRangeLimitsStep();
 };
 
 /**
@@ -217,12 +259,6 @@ FloatingPoint.prototype.setStep = function(value) {};
  * @method FloatingPoint#setOffset
  */
 FixedPoint.prototype.setOffset = function() {};
-
-// quantizing, nothing for FloatingPoint
-FloatingPoint.prototype.quantize = function(x) {
-    return x;
-};
-
 
 // determine number of digits after decimal point
 // integer numbers and very small numbers give one
@@ -257,16 +293,13 @@ FloatingPoint.prototype.determineDigits = function(value) {
     }
 };
 
-
 /**
  * read the numerical value of the text input element
  * to be safe: if it is not a number, then use the last value
- * keep it in limits, quantize it according to step and offset
+ * keep it in limits, quantize it according to present step and offset
  * make it cyclic
- * determine number of digits
- * set the value of the ui-elements (in case that it changed or user rubished it)
- * this means that you can always use its return value
- * @method FixedPoint#getValue
+ * note that it does not change the number of digits
+ * @method FloatingPoint#getValue
  * @return {number}
  */
 FloatingPoint.prototype.getValue = function() {
@@ -274,9 +307,7 @@ FloatingPoint.prototype.getValue = function() {
     if (!guiUtils.isNumber(value)) {
         value = this.lastValue;
     }
-    console.log.error('TODO')
     value = this.quantizeClamp(value);
-    this.setInputRangeIndicator(value);
     return value;
 };
 
@@ -289,8 +320,10 @@ FloatingPoint.prototype.getValue = function() {
  */
 FloatingPoint.prototype.setValue = function(value) {
     if (guiUtils.isNumber(value)) {
+        const digits = this.determineDigits(value);
+        this.setDigits(digits);
+        console.log(this.digits);
         value = this.quantizeClamp(value);
-        this.digits = this.determineDigits(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;
     } else {
@@ -339,7 +372,6 @@ FloatingPoint.prototype.changeDigit = function(direction) {
     if (value < 0) { // beware of the minus sign
         cursorPosition = Math.max(cursorPosition, 1);
     }
-
     // get position of the dot
     let pointPosition = this.input.value.indexOf('.');
     // then we can determine the power
@@ -360,15 +392,11 @@ FloatingPoint.prototype.changeDigit = function(direction) {
     } else {
         value -= change;
     }
-
-    // do we get more digits: only if cursor is at end of input string
-    if (cursorPosition===inputLength){
-        this.digits+=1;
+    // if cursor is at end of input string then we get an additional digit
+    if (cursorPosition === inputLength) {
+        this.setDigits(this.digits + 1);
     }
     value = this.quantizeClamp(value);
-
-
-
     if (value !== this.lastValue) {
         this.lastValue = value;
         this.setInputRangeIndicator(value);
