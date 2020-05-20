@@ -25,9 +25,19 @@ const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
 const f=new FloatingPoint(parentDOM);
 const value=9.0123
-f.setValue(value)
+f.setValue(value);
+f.setMin(-11.2);
+f.setMax(111.3456);
 
 f.createMulButton('mult',parentDOM,1.2);
+f.createAddButton('adding',parentDOM,1.1);
+f.createMulButton('mult',parentDOM,2);
+f.createMiniButton(parentDOM,11);
+f.createMaxiButton(parentDOM,11);
+f.createSuggestButton(parentDOM,2.345)
+f.createRange(parentDOM)
+f.setIndicatorElement(document.body);
+
 
 </script>
 

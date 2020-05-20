@@ -13,7 +13,6 @@ import {
     FixedPoint
 } from "./modules.js";
 
-
 export function FloatingPoint(parentDOM) {
     this.parentDOM = parentDOM;
     this.input = document.createElement("input");
@@ -146,7 +145,6 @@ FloatingPoint.prototype.setIndicatorColors = Integer.prototype.setIndicatorColor
 FloatingPoint.prototype.setFontSize = Integer.prototype.setFontSize;
 FloatingPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FloatingPoint.prototype.setActive = Integer.prototype.setActive;
-FloatingPoint.prototype.setRangeLimits = Integer.prototype.setRangeLimits;
 FloatingPoint.prototype.quantize = FixedPoint.prototype.quantize;
 FloatingPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FloatingPoint.prototype.setCyclic = Integer.prototype.setCyclic;
@@ -171,8 +169,7 @@ FloatingPoint.prototype.createButton = function(text, parentDOM, changeValue) {
         button.input.focus();
         let value = button.getValue();
         value = changeValue(value);
-        console.log(value);
-        // the number fo digits might have changed
+        // the number of digits might have changed
         const digits = button.determineDigits(value);
         button.setDigits(digits);
         value = button.quantizeClamp(value);
@@ -195,7 +192,9 @@ FloatingPoint.prototype.createMiniButton = Integer.prototype.createMiniButton;
 FloatingPoint.prototype.createMaxiButton = Integer.prototype.createMaxiButton;
 FloatingPoint.prototype.createSuggestButton = Integer.prototype.createSuggestButton;
 
+FloatingPoint.prototype.createRange = FixedPoint.prototype.createRange;
 FloatingPoint.prototype.setRangeWidth = Integer.prototype.setRangeWidth;
+FloatingPoint.prototype.setIndicatorElement = Integer.prototype.setIndicatorElement;
 FloatingPoint.prototype.destroy = Integer.prototype.destroy;
 
 // setting parameters, now float values and not integers
@@ -208,7 +207,7 @@ FloatingPoint.prototype.destroy = Integer.prototype.destroy;
 FloatingPoint.prototype.setMin = function(value) {
     if (guiUtils.isNumber(value)) {
         this.minValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FloatingPoint#setMin: argument is not a number, it is ' + value);
@@ -223,7 +222,7 @@ FloatingPoint.prototype.setMin = function(value) {
 FloatingPoint.prototype.setMax = function(value) {
     if (guiUtils.isNumber(value)) {
         this.maxValue = value;
-        this.setRangeLimits();
+        this.setRangeLimitsStep();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FloatingPoint#setMax: argument is not integer, it is ' + value);
@@ -265,8 +264,6 @@ FixedPoint.prototype.setOffset = function() {};
 FloatingPoint.prototype.determineDigits = function(value) {
     let text = value.toString();
     // may use scientific notation for numbers with magnitude smaller than 1e**-7
-    console.log(value);
-    console.log(text);
     if (text.indexOf('e') >= 0) {
         text = text.split('e');
         let significand = text[0];
@@ -288,7 +285,7 @@ FloatingPoint.prototype.determineDigits = function(value) {
         while (text[index] === '0') {
             index -= 1;
         }
-        // digits are difference between position of first nonzero digit and ddecimal point, at least one
+        // digits are difference between position of first nonzero digit and decimal point, at least one
         return Math.max(1, index - pointPosition);
     }
 };
@@ -322,37 +319,11 @@ FloatingPoint.prototype.setValue = function(value) {
     if (guiUtils.isNumber(value)) {
         const digits = this.determineDigits(value);
         this.setDigits(digits);
-        console.log(this.digits);
         value = this.quantizeClamp(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;
     } else {
         console.error('FloatingPoint#setValue: argument is not a number, it is ' + value);
-    }
-};
-
-/**
- * the value of the input element or the range element may have changed:
- * if it is different to the last value then set text range and indicator, call onChange
- * else set text and indicator only
- * @method FloatingPoint#action
- * @param {number} value
- */
-FloatingPoint.prototype.action = function(value) {
-    if (guiUtils.isNumber(value)) {
-        value = this.quantizeClamp(value);
-        this.digits = Math.max(this.digits, this.determineDigits(value)); // do not through awway SIGNIFICANT trailing zeros
-        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
-        if (this.lastValue !== value) {
-            this.lastValue = value;
-            this.setInputRangeIndicator(value);
-            this.onChange(value);
-        } else {
-            this.setInputRangeIndicator(value);
-        }
-    } else {
-        console.error('FloatingPoint#action: argument is not a number, it is ' + value);
-        this.setInputRangeIndicator(this.lastValue);
     }
 };
 

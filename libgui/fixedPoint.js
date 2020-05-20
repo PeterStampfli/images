@@ -340,7 +340,7 @@ FixedPoint.prototype.changeDigit = function(direction) {
  */
 FixedPoint.prototype.createRange = function(parentDOM) {
     if (this.range) {
-        console.log("**** Integer#createRange: range already exists");
+        console.log("**** FixedPoint#createRange: range already exists");
     } else {
         this.range = document.createElement("input");
         guiUtils.style(this.range)
