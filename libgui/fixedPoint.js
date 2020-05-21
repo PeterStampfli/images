@@ -28,7 +28,7 @@ export function FixedPoint(parentDOM) {
     this.pressed = false; // corresponds to focus
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
-    this.minValue = Number.MIN_VALUE;
+    this.minValue = -Number.MAX_VALUE;
     this.maxValue = Number.MAX_VALUE;
     this.setStep(0.001);
     this.cyclic = false;
@@ -62,8 +62,8 @@ export function FixedPoint(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
         const value = button.getValue(); // garanties that value is a good integer
-             this.setInputRangeIndicator(value);
-   // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        this.setInputRangeIndicator(value);
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
             button.onChange(value);

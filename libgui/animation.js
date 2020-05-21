@@ -76,6 +76,8 @@ animation.createUI = function(gui) {
         initialValue: 0,
         labelText: 'frame number',
         max: 99999,
+        min:0,
+        step:1,
         onChange: function(value) {
             animation.advanceToTarget(value);
         }

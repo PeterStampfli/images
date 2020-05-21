@@ -30,7 +30,7 @@ export function FloatingPoint(parentDOM) {
     this.pressed = false; // corresponds to focus
     this.active = true;
     // limiting the number range: defaults, minimum is zero, maximum is very large
-    this.minValue = Number.MIN_VALUE;
+    this.minValue = -Number.MAX_VALUE;
     this.maxValue = Number.MAX_VALUE;
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
@@ -241,7 +241,6 @@ FloatingPoint.prototype.setMax = function(value) {
  * @param{int} n
  */
 FloatingPoint.prototype.setDigits = function(n) {
-    n = Math.max(1, n);
     this.digits = n;
     this.step = Math.pow(10, -n);
     this.invStep = Math.round(1 / this.step);
@@ -254,7 +253,7 @@ FloatingPoint.prototype.setDigits = function(n) {
  * @param {number} value
  */
 FloatingPoint.prototype.setStep = function(value) {
-    console.error("FloatingPoint#setStep: Step value is irrelevant. It is "+value);
+    console.error("FloatingPoint#setStep: Step value is irrelevant. It is " + value);
 };
 
 /**
@@ -262,7 +261,7 @@ FloatingPoint.prototype.setStep = function(value) {
  * @method FloatingPoint#setOffset
  */
 FixedPoint.prototype.setOffset = function(value) {
-        console.error("FloatingPoint#setOffset: Offset value is irrelevant. It is "+value);
+    console.error("FloatingPoint#setOffset: Offset value is irrelevant. It is " + value);
 };
 
 // determine number of digits after decimal point
@@ -284,15 +283,15 @@ FloatingPoint.prototype.determineDigits = function(value) {
         const pointPosition = text.indexOf('.');
         // for safety, there is always a decimal point except for this.maxDigits==0
         if (pointPosition < 0) {
-            return 1;
+            return 0;
         }
         let index = text.length - 1;
         // find first digit from the right different to zero
         while (text[index] === '0') {
             index -= 1;
         }
-        // digits are difference between position of first nonzero digit and decimal point, at least one
-        return Math.max(1, index - pointPosition);
+        // digits are difference between position of first nonzero digit and decimal point
+        return index - pointPosition;
     }
 };
 
@@ -352,14 +351,20 @@ FloatingPoint.prototype.changeDigit = function(direction) {
     let pointPosition = this.input.value.indexOf('.');
     // then we can determine the power
     let power = 0;
-    if (cursorPosition < pointPosition) {
-        power = pointPosition - 1 - cursorPosition;
+    if (pointPosition < 0) {
+        // there is no point -> integer numbers
+        // if cursor is at end of input string, then power = -1
+        power = inputLength - 1 - cursorPosition;
     } else {
-        // if cursor at left of point: change first digit after the point
-        if (cursorPosition === pointPosition) {
-            cursorPosition = pointPosition + 1;
+        if (cursorPosition < pointPosition) {
+            power = pointPosition - 1 - cursorPosition;
+        } else {
+            // if cursor at left of point: change first digit after the point
+            if (cursorPosition === pointPosition) {
+                cursorPosition = pointPosition + 1;
+            }
+            power = -(cursorPosition - pointPosition);
         }
-        power = -(cursorPosition - pointPosition);
     }
     const change = Math.pow(10, power);
     if (direction > 0) {
@@ -378,10 +383,15 @@ FloatingPoint.prototype.changeDigit = function(direction) {
         // the number may have changed, cursorposition is relative to point position
         // Attention: integer part may have changed number of digit, may change sign
         pointPosition = this.input.value.indexOf('.');
-        if (power >= 0) {
-            cursorPosition = pointPosition - 1 - power; // integer part: cursor at left of point, left of changing digit
+        if (pointPosition < 0) {
+            // again. no point to skip. pure integer
+            cursorPosition = this.input.value.length - 1 - power; //attention: input length can change
         } else {
-            cursorPosition = pointPosition - power; // fractional part at the right of the point
+            if (power >= 0) {
+                cursorPosition = pointPosition - 1 - power; // integer part: cursor at left of point, left of changing digit
+            } else {
+                cursorPosition = pointPosition - power; // fractional part at the right of the point
+            }
         }
         if (value > 0) {
             cursorPosition = Math.max(cursorPosition, 0);

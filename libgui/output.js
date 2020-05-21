@@ -273,6 +273,7 @@ output.createCanvas = function(gui, folderName) {
     widthController = gui.add({
         type: "number",
         max: 10000,
+        step:1,
         params: output.canvas,
         property: "width",
         onChange: function(value) {
@@ -289,6 +290,7 @@ output.createCanvas = function(gui, folderName) {
     heightController = widthController.add({
         type: "number",
         max: 10000,
+        step:1,
         params: output.canvas,
         property: "height",
         onChange: function(value) {

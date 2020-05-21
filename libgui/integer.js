@@ -364,7 +364,7 @@ Integer.prototype.setStep = function(stepValue) {
         if (stepValue > 0) {
             this.step = stepValue;
             this.setRangeLimitsStep();
-        this.setInputRangeIndicator(this.getValue());
+            this.setInputRangeIndicator(this.getValue());
         } else {
             console.error('integer#setStep: arguments is smaller than 1, it is: ' + stepValue);
         }
@@ -397,7 +397,7 @@ Integer.prototype.setOffset = function(offsetValue) {
 Integer.prototype.setCyclic = function(isCyclic = true) {
     this.cyclic = isCyclic;
     this.setRangeLimitsStep();
-        this.setInputRangeIndicator(this.getValue());
+    this.setInputRangeIndicator(this.getValue());
 };
 
 /**
@@ -463,7 +463,7 @@ Integer.prototype.changeDigit = function(direction) {
     if (value !== this.lastValue) {
         this.lastValue = value;
         this.setInputRangeIndicator(value);
-        cursorPosition = this.input.value.length - 1 - power;
+        cursorPosition = this.input.value.length - 1 - power; //attention: input length can change
         if (value >= 0) {
             cursorPosition = Math.max(cursorPosition, 0);
         } else {
@@ -653,8 +653,8 @@ Integer.prototype.setRangeWidth = function(width) {
  */
 Integer.prototype.setIndicatorElement = function(element) {
     this.indicatorElement = element;
-    const value=this.getValue();
-            this.setInputRangeIndicator(value);
+    const value = this.getValue();
+    this.setInputRangeIndicator(value);
 };
 
 /**

@@ -288,6 +288,7 @@ export function ParamController(gui, domElement, argObjects) {
                 }
                 // error checking and correction of initial value
                 if (guiUtils.isNumber(this.initialValue)) {
+                    console.log(this.initialValue)
                     this.setValueOnly(this.initialValue); // changes value if out of bounds or does not agree with step size
                 } else {
                     // fallback: use zero as number
