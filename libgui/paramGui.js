@@ -950,13 +950,15 @@ ParamGui.combineObject = function(obs) {
  * args.buttonText - string, for the text of the button of BUTTON controllers (optional, else args.property is used)
  * args.onChange - callback function for changes or clicks (type BUTTON), (optional, for BUTTON args.params[args.property] is default)
  * args.onClick - same as args.onChange
-* args.options - array or object, only for SELECTION or IMAGE type controllers
+ * args.options - array or object, only for SELECTION or IMAGE type controllers
  * args.min - minimum value for NUMBER controllers (optional, default is 0)
  * args.max - maximum value for NUMBER controllers (optional, default is a large number)
- * args.step - value for step of NUMBER controllers (optional, default is obtained from the initial value)
+ * args.step - value for step of NUMBER controllers (optional)
+ * args.offset - value for offset of NUMBER controllers for iinteger values (optional)
  * args.colorObject - an object with red, blue, green number fields and alpha (if there is transparency) for color controller, if undef/false use hex color string
  * args.rows - number of rows (horizontal lines) for a textarea
  * args.columns - number of columns (chars per line) for a textarea
+ * args.width - width of the ui element, if supported by ui element ('number', 'text', 'booleanButton')
  */
 
 let goodArgsKeys = ["type",
@@ -973,9 +975,11 @@ let goodArgsKeys = ["type",
     "min",
     "max",
     "step",
+    "offset",
     "colorObject",
     "rows",
-    "columns"
+    "columns",
+    "width"
 ];
 
 /* find details about controllers depending on controller type

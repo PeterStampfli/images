@@ -62,7 +62,8 @@ export function FixedPoint(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
         const value = button.getValue(); // garanties that value is a good integer
-        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+             this.setInputRangeIndicator(value);
+   // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
             button.onChange(value);
@@ -213,7 +214,9 @@ FixedPoint.prototype.setMax = function(value) {
  * no offset value for fixedPoint, do nothing
  * @method FixedPoint#setOffset
  */
-FixedPoint.prototype.setOffset = function() {};
+FixedPoint.prototype.setOffset = function(value) {
+    console.error("FixedPoint#setOffset: value is irrelevant. It is " + value);
+};
 
 // quantizing, special for fixedPoint, no offset, step size as 1/integer 
 FixedPoint.prototype.quantize = function(x) {
@@ -228,12 +231,18 @@ FixedPoint.prototype.quantize = function(x) {
  */
 FixedPoint.prototype.setStep = function(value) {
     if (guiUtils.isNumber(value)) {
-        this.invStep = Math.max(2, Math.round(1 / value));
-        this.step = 1 / this.invStep;
-        // number of digits depend on step: rounding up
-        this.digits = Math.floor(Math.log10(this.invStep) - 0.01) + 1;
-        this.setRangeLimitsStep();
-        this.setInputRangeIndicator(this.getValue());
+        const minStep = 0.0000001;
+        if (value > minStep) {
+            this.invStep = Math.max(2, Math.round(1 / value));
+            this.step = 1 / this.invStep;
+            // number of digits depend on step: rounding up
+            this.digits = Math.floor(Math.log10(this.invStep) - 0.01) + 1;
+            this.setRangeLimitsStep();
+            this.setInputRangeIndicator(this.getValue());
+        } else {
+            console.error('fixedPoint#setStep: arguments is too small, it is: ' + value + ' should be larger than ' + minStep);
+
+        }
     } else {
         console.error('FixedPoint#setStep: argument is not a number, it is ' + value);
     }
@@ -244,7 +253,6 @@ FixedPoint.prototype.setStep = function(value) {
  * to be safe: if it is not a number, then use the last value
  * keep it in limits, quantize it according to step and offset
  * make it cyclic
- * set the value of the ui-elements (in case that it changed or user rubished it)
  * this means that you can always use its return value
  * @method FixedPoint#getValue
  * @return {number}
@@ -349,7 +357,7 @@ FixedPoint.prototype.createRange = function(parentDOM) {
             .verticalAlign("middle")
             .parent(parentDOM);
         this.setRangeLimitsStep();
-        this.range.value = this.getValue();
+        this.setInputRangeIndicator(this.getValue());
 
         const button = this;
 

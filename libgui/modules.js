@@ -77,11 +77,6 @@ export {
 from "./textInput.js";
 
 export {
-    NumberButton
-}
-from "./numberButton.js";
-
-export {
     Integer
 }
 from "./integer.js";

@@ -66,7 +66,8 @@ gui.add({
         params: parameters,
         property: "plusMin",
         min: -2,
-        max: 12
+        max: 12,
+        step:1
     })
     .createPlusMinusButtons()
     .createIndicatorMain()
@@ -103,9 +104,10 @@ gui.add({
         params: parameters,
         property: "width",
         min: 100,
-        max: 10000
+        max: 10000,
+        step:1
     })
-    .add(parameters, "height", 100, 10000);
+    .add(parameters, "height", 100, 10000,1);
 
 gui.addParagraph("The new API is more verbose, but easier to use and debug.");
 

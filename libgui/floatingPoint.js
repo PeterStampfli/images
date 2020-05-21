@@ -63,6 +63,8 @@ export function FloatingPoint(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     // including number of digits
     this.input.onchange = function() {
+        // we have to read the full value, not cutting off digits
+        // thus we cannot use getValue
         let value = parseFloat(button.input.value, 10);
         if (!guiUtils.isNumber(value)) {
             value = button.lastValue;
@@ -251,13 +253,17 @@ FloatingPoint.prototype.setDigits = function(n) {
  * @method FloatingPoint#setStep
  * @param {number} value
  */
-FloatingPoint.prototype.setStep = function(value) {};
+FloatingPoint.prototype.setStep = function(value) {
+    console.error("FloatingPoint#setStep: Step value is irrelevant. It is "+value);
+};
 
 /**
  * no offset value for fixedPoint, do nothing
  * @method FloatingPoint#setOffset
  */
-FixedPoint.prototype.setOffset = function() {};
+FixedPoint.prototype.setOffset = function(value) {
+        console.error("FloatingPoint#setOffset: Offset value is irrelevant. It is "+value);
+};
 
 // determine number of digits after decimal point
 // integer numbers and very small numbers give one
@@ -335,7 +341,6 @@ FloatingPoint.prototype.setValue = function(value) {
  * @param {float} direction - makes plus or minus changes
  */
 FloatingPoint.prototype.changeDigit = function(direction) {
-    console.log('changedigit');
     const inputLength = this.input.value.length;
     let value = this.getValue();
     let cursorPosition = this.input.selectionStart;
@@ -348,7 +353,6 @@ FloatingPoint.prototype.changeDigit = function(direction) {
     // then we can determine the power
     let power = 0;
     if (cursorPosition < pointPosition) {
-        console.log('intpart');
         power = pointPosition - 1 - cursorPosition;
     } else {
         // if cursor at left of point: change first digit after the point

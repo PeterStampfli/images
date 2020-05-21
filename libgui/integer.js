@@ -61,6 +61,7 @@ export function Integer(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
         const value = button.getValue(); // garanties that value is a good integer, sets ui elements
+        this.setInputRangeIndicator(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
@@ -129,6 +130,10 @@ export function Integer(parentDOM) {
 
 // the same for all number input types
 //===========================================================
+
+
+// width for spaces in px
+Integer.spaceWidth = 5;
 
 /**
  * setup the color styles defaults, use for other buttons too
@@ -322,60 +327,64 @@ Integer.prototype.quantizeClamp = function(n) {
 /**
  * set the minimum value for numbers, maxValue is unchanged
  * @method Integer#setMin
- * @param {integer} value
+ * @param {integer} minValue
  */
-Integer.prototype.setMin = function(value) {
-    if (guiUtils.isInteger(value)) {
-        this.minValue = value;
+Integer.prototype.setMin = function(minValue) {
+    if (guiUtils.isInteger(minValue)) {
+        this.minValue = minValue;
         this.setRangeLimitsStep();
-        this.getValue(); // updates all
+        this.setInputRangeIndicator(this.getValue());
     } else {
-        console.error('Integer#setMin: argument is not integer, it is ' + value);
+        console.error('Integer#setMin: argument is not integer, it is ' + minValue);
     }
 };
 
 /**
  * set the maximum value for numbers, maxValue is unchanged
  * @method Integer#setMax
- * @param {integer} value
+ * @param {integer} maxValue
  */
-Integer.prototype.setMax = function(value) {
-    if (guiUtils.isInteger(value)) {
-        this.maxValue = value;
+Integer.prototype.setMax = function(maxValue) {
+    if (guiUtils.isInteger(maxValue)) {
+        this.maxValue = maxValue;
         this.setRangeLimitsStep();
-        this.getValue(); // updates all
+        this.setInputRangeIndicator(this.getValue());
     } else {
-        console.error('Integer#setMax: argument is not integer, it is ' + value);
+        console.error('Integer#setMax: argument is not integer, it is ' + maxValue);
     }
 };
 
 /**
  * set the step value for numbers, maxValue is unchanged
  * @method Integer#setStep
- * @param {integer} value
+ * @param {integer} stepValue
  */
-Integer.prototype.setStep = function(value) {
-    if (guiUtils.isInteger(value)) {
-        this.step = value;
-        this.setRangeLimitsStep();
-        this.getValue(); // updates all
+Integer.prototype.setStep = function(stepValue) {
+    if (guiUtils.isInteger(stepValue)) {
+        if (stepValue > 0) {
+            this.step = stepValue;
+            this.setRangeLimitsStep();
+        this.setInputRangeIndicator(this.getValue());
+        } else {
+            console.error('integer#setStep: arguments is smaller than 1, it is: ' + stepValue);
+        }
     } else {
-        console.error('Integer#setStep: argument is not integer, it is ' + value);
+        console.error('Integer#setStep: argument is not integer, it is ' + stepValue);
     }
 };
 
 /**
  * set the offset value for numbers, maxValue is unchanged
  * @method Integer#setOffset
- * @param {integer} value
+ * @param {integer} offsetValue
  */
-Integer.prototype.setOffset = function(value) {
-    if (guiUtils.isInteger(value)) {
-        this.offset = value;
+Integer.prototype.setOffset = function(offsetValue) {
+    if (guiUtils.isInteger(offsetValue)) {
+        this.offset = offsetValue;
         this.setRangeLimitsStep();
-        this.getValue(); // updates all
+        this.setInputRangeIndicator(this.getValue());
     } else {
-        console.error('Integer#setOffset: argument is not integer, it is ' + value);
+        console.error('Integer#setOffset: argument is not integer, it is ' + offsetValue);
     }
 };
 
@@ -385,10 +394,10 @@ Integer.prototype.setOffset = function(value) {
  * @method Integer#setCyclic
  * @param {boolean} isCyclic - optional, default is truee
  */
-Integer.prototype.setCyclic = function(isCyclic=true) {
+Integer.prototype.setCyclic = function(isCyclic = true) {
     this.cyclic = isCyclic;
     this.setRangeLimitsStep();
-    this.getValue(); // updates all
+        this.setInputRangeIndicator(this.getValue());
 };
 
 /**
@@ -397,7 +406,6 @@ Integer.prototype.setCyclic = function(isCyclic=true) {
  * keep it in limits, quantize it according to step and offset
  * make it cyclic
  * this means that you can always use its return value
- * updates the value of the ui-elements (in case that it changed or user rubished it)
  * @method Integer#getValue
  * @return {integer}
  */
@@ -407,7 +415,6 @@ Integer.prototype.getValue = function() {
         value = this.lastValue;
     }
     value = this.quantizeClamp(value);
-    this.setInputRangeIndicator(value);
     return value;
 };
 
@@ -646,7 +653,8 @@ Integer.prototype.setRangeWidth = function(width) {
  */
 Integer.prototype.setIndicatorElement = function(element) {
     this.indicatorElement = element;
-    this.setValue(this.getValue());
+    const value=this.getValue();
+            this.setInputRangeIndicator(value);
 };
 
 /**

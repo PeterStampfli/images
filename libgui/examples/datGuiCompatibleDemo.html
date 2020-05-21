@@ -49,7 +49,7 @@ gui.changeDesign({
     usePopup: false
 });
 parameters.plusMin = 2;
-gui.add(parameters, "plusMin", -2, 12)
+gui.add(parameters, "plusMin", -2, 12,1)
     .createPlusMinusButtons()
     .createIndicatorMain()
     .createMaxMinButtons();
@@ -74,8 +74,8 @@ gui.addParagraph("We can have several controls on a line:");
 
 parameters.width = 300;
 parameters.height = 200;
-gui.add(parameters, "width", 100, 10000)
-    .add(parameters, "height", 100, 10000);
+gui.add(parameters, "width", 100, 10000,1)
+    .add(parameters, "height", 100, 10000,1);
 
 parameters.heat = false;
 parameters.sound = true;
