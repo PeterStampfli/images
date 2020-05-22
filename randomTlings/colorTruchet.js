@@ -11,7 +11,7 @@ import {
     ParamGui,
     output
 }
-from "../modules.js";
+from "../libgui/modules.js";
 
 const gui = new ParamGui({
     closed: false
@@ -47,6 +47,7 @@ gui.add({
     params: truchet,
     property: 'nHorizontal',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
@@ -59,6 +60,7 @@ gui.add({
     params: truchet,
     property: 'nVertical',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);

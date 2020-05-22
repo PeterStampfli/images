@@ -7,7 +7,7 @@ import {
     animation,
     guiUtils
 }
-from "../modules.js";
+from "../libgui/modules.js";
 const gui = new ParamGui({
     closed: false
 });
@@ -31,10 +31,6 @@ ps.lineWidth = 1;
 const imageSelector = gui.add({
     type: 'image',
     labelText: "input",
-    options: {
-        default: "./haeckel/haeckel_01.png"
-    },
-    initialValue: 'default',
     onChange: draw,
 });
 
@@ -58,6 +54,7 @@ gui.add({
     params: ps,
     property: 'horizontal',
     min: 1,
+    step:1,
     onChange: draw
 });
 
@@ -66,6 +63,7 @@ gui.add({
     params: ps,
     property: 'vertical',
     min: 1,
+    step:1,
     onChange: draw
 });
 

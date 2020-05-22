@@ -57,6 +57,7 @@ const widthController = {
     type: 'number',
     params: p,
     min: 1,
+    step:1,
     onChange: function() {
         draw();
     }
@@ -67,6 +68,7 @@ gui.add({
     params: p,
     property: 'nHorizontal',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));

@@ -28,7 +28,7 @@ var initialFrame = true; // means that we are at the initial frame, for drawing 
 var targetFrameNumber; // for running the animation until we get to this frame
 
 var recorder = {};
-//recorder.controller;   // switches recording on and off
+//recorder.onOffSwitch;   // paramController, type 'booleanButton', switches recording on and off
 recorder.recording = false; // saving an animation, draw each frame and save as image with current frame number
 recorder.movieName = 'movie'; // name for 'downloading' the animation images
 recorder.movieType = 'jpg'; // type for the animation images
@@ -67,7 +67,7 @@ animation.createUI = function(gui) {
         property: 'fps',
         labelText: 'speed (fps)',
         max: 60,
-        min: 1,
+        min: 0.2,
     });
     // shows the frame number while animation runs, or while waiting
     // can advance the frame number if animation is not running
@@ -76,9 +76,10 @@ animation.createUI = function(gui) {
         initialValue: 0,
         labelText: 'frame number',
         max: 99999,
-        min:0,
-        step:1,
+        min: 0,
+        step: 1,
         onChange: function(value) {
+                frameNumberController.setMin(value);
             animation.advanceToTarget(value);
         }
     });
@@ -147,7 +148,7 @@ animation.addRecording = function(gui) {
     gui.updateDesign({
         textInputWidth: 150
     });
-    recorder.controller = gui.add({
+    recorder.onOffSwitch = gui.add({
         type: 'boolean',
         params: recorder,
         property: 'recording'
@@ -165,7 +166,7 @@ animation.addRecording = function(gui) {
         options: ['png', 'jpg'],
         initialValue: 'jpg',
         labelText: '.',
-        minLabelWidth:5,
+        minLabelWidth: 5,
     });
 };
 
@@ -201,8 +202,11 @@ function advance() {
         currentFrameNumber += 1;
         animationObject.step();
     }
+    if (currentFrameNumber>frameNumberController.getValue()){
+        // advance only
     frameNumberController.setValueOnly(currentFrameNumber);
     frameNumberController.setMin(currentFrameNumber);
+}
     if (drawing || recorder.recording) {
         animationObject.draw();
     }
@@ -257,7 +261,7 @@ function run() {
         // all times in msec
         // minimum time per frame for not exceeding the given fps speed
         // fps=60 means maximum speed
-        const minimumFrameTime = 1000 / animation.fps-1000/60; 
+        const minimumFrameTime = 1000 / animation.fps - 1000 / 60;
         // do the current frame
         const startOfFrame = Date.now();
         advance();
@@ -265,14 +269,14 @@ function run() {
             const filename = makeFilename();
             guiUtils.saveCanvasAsFile(output.canvas, filename, recorder.movieType,
                 function() {
-                    const timeUsed = Date.now()-startOfFrame;
+                    const timeUsed = Date.now() - startOfFrame;
                     // prepare next frame
                     timeoutID = setTimeout(function() {
                         requestAnimationFrame(run);
                     }, minimumFrameTime - timeUsed);
                 });
         } else {
-                    const timeUsed = Date.now()-startOfFrame;
+            const timeUsed = Date.now() - startOfFrame;
             // prepare next frame
             timeoutID = setTimeout(function() {
                 requestAnimationFrame(run);
@@ -318,7 +322,7 @@ animation.stop = function() {
  * @method animation.reset
  */
 animation.reset = function() {
-    recorder.controller.setValueOnly(false);
+    recorder.onOffSwitch.setValueOnly(false);
     animation.stop();
     initialFrame = true;
     currentFrameNumber = 0;

@@ -61,7 +61,7 @@ export function Integer(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
         const value = button.getValue(); // garanties that value is a good integer, sets ui elements
-        this.setInputRangeIndicator(value);
+        button.setInputRangeIndicator(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;

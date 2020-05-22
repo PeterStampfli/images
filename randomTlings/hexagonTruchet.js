@@ -33,7 +33,6 @@ p.colorLine = '#ff0000';
 p.lineWidth = 5;
 p.colorBackground = '#0000ff';
 
-
 p.colorGrid = '#000000';
 p.gridLineWidth = 5;
 
@@ -55,6 +54,7 @@ gui.add({
     params: p,
     property: 'nHorizontal',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
@@ -67,6 +67,7 @@ gui.add({
     params: p,
     property: 'nVertical',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
@@ -91,7 +92,6 @@ gui.add({
     }
 });
 
-
 gui.add(colorController, {
     property: 'colorBackground'
 });
@@ -99,7 +99,6 @@ gui.add(colorController, {
 gui.add(colorController, {
     property: 'colorLine'
 });
-
 
 gui.add(widthController, {
     property: 'lineWidth'
@@ -113,7 +112,6 @@ gui.add({
         draw();
     }
 });
-
 
 gui.add(colorController, {
     property: 'colorGrid'
@@ -132,7 +130,6 @@ function randomData() {
         data[i] = Math.floor((8 * Math.random()));
     }
 }
-
 
 var tileHeight, tileWidth, s;
 var index;
@@ -348,7 +345,6 @@ function smallCirclesDownDiagonalLine() {
 
 // orthogonal intersections
 
-
 function largeCirclesHorizontalLine() {
     largeCircleLeft();
     largeCircleRight();
@@ -366,7 +362,6 @@ function largeCirclesDownDiagonalLine() {
     largeCircleBottomRight();
     downDiagonalLine();
 }
-
 
 function hexagon() {
     dots();
@@ -400,7 +395,6 @@ function hexagon() {
     
     index += 1;
 }
-
 
 function draw() {
     var i, j;

@@ -239,7 +239,7 @@ export function ParamController(gui, domElement, argObjects) {
                 this.uiElement = textInput;
                 this.setupOnChange();
                 this.setupOnInteraction();
-                textInput.setWidth(guiUtils.check(args.width,this.design.textInputWidth));
+                textInput.setWidth(guiUtils.check(args.width, this.design.textInputWidth));
                 textInput.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 if (guiUtils.isString(this.initialValue)) {
@@ -288,7 +288,6 @@ export function ParamController(gui, domElement, argObjects) {
                 }
                 // error checking and correction of initial value
                 if (guiUtils.isNumber(this.initialValue)) {
-                    console.log(this.initialValue)
                     this.setValueOnly(this.initialValue); // changes value if out of bounds or does not agree with step size
                 } else {
                     // fallback: use zero as number
@@ -352,7 +351,7 @@ export function ParamController(gui, domElement, argObjects) {
                         this.setValueOnly(this.getValue());
                         noGoodInitialValue("initial value is not in options");
                     }
-                } else {
+                } else if (guiUtils.isDefined(args.options)) {
                     const message = document.createElement("span");
                     message.innerHTML = "&nbsps image: options is not an array or object";
                     this.domElement.appendChild(message);
@@ -360,6 +359,12 @@ export function ParamController(gui, domElement, argObjects) {
                     console.log('its value is ' + args.options + ' of type "' + (typeof args.options) + '"');
                     console.log("the arguments object is:");
                     console.log(args);
+                } else {
+                    imageSelect.addOptions({
+                        grey: ImageSelect.notLoadedURL
+                    });
+                    this.setValueOnly('grey');
+                    this.initialValue = this.getValue();
                 }
                 break;
             case "notype":

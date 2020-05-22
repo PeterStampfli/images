@@ -11,7 +11,7 @@ import {
     ParamGui,
     output
 }
-from "../modules.js";
+from "../libgui/modules.js";
 
 const gui = new ParamGui({
     closed: false
@@ -49,6 +49,7 @@ const widthController = {
     type: 'number',
     params: p,
     min: 1,
+    step:1,
     onChange: function() {
         draw();
     }
@@ -59,6 +60,7 @@ gui.add({
     params: p,
     property: 'nHorizontal',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
@@ -210,9 +212,6 @@ function draw() {
     canvasContext.lineCap='round';
     tileHeight = canvas.height / p.nVertical;
     tileWidth = canvas.width / p.nHorizontal;
-
-    console.log(tileWidth,tileHeight)
-    console.log(Math.sqrt(3)*tileWidth/2,tileHeight)
             canvasContext.strokeStyle = p.colorLine;
             canvasContext.fillStyle = p.colorLine;
 

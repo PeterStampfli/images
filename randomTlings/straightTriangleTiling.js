@@ -31,19 +31,14 @@ p.nHorizontal = 15; // number of tiles in x-direction
 p.nVertical = 10; // number of tiles in y-direction
 p.colorLine = '#ff0000';
 p.lineWidth = 5;
-p.dotRadius = 5;
 p.colorBackground = '#0000ff';
-
-p.prob = 0.6;
 
 p.colorGrid = '#000000';
 p.gridLineWidth = 5;
 
 p.grid = false;
 
-
 gui.addParagraph("<strong>Tiling control</strong>");
-
 
 const widthController = {
     type: 'number',
@@ -59,6 +54,7 @@ gui.add({
     params: p,
     property: 'nHorizontal',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
@@ -71,13 +67,13 @@ gui.add({
     params: p,
     property: 'nVertical',
     min: 1,
+    step:1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
         output.setCanvasDimensionsStepsize(p.nHorizontal, 1);
     }
 });
-
 
 gui.add({
     type: 'button',
@@ -88,7 +84,6 @@ gui.add({
     }
 });
 
-
 const colorController = {
     type: 'color',
     params: p,
@@ -96,7 +91,6 @@ const colorController = {
         draw();
     }
 };
-
 
 gui.add(colorController, {
     property: 'colorBackground'
@@ -111,23 +105,6 @@ gui.add(widthController, {
     property: 'lineWidth'
 });
 
-gui.add(widthController, {
-    property: 'dotRadius'
-});
-
-gui.add({
-    type: 'number',
-    params: p,
-    property: 'prob',
-    onChange: function() {
-        randomData();
-        draw();
-    },
-    step: 0.01,
-    min: 0,
-    max: 1
-})
-
 gui.add({
     type: 'boolean',
     params: p,
@@ -136,7 +113,6 @@ gui.add({
         draw();
     }
 });
-
 
 gui.add(colorController, {
     property: 'colorGrid'
@@ -147,7 +123,6 @@ gui.add(widthController, {
 });
 
 const data=[];
-
 
 function randomData() {
     data.length = 2 * (p.nHorizontal + 1) * (p.nVertical + 1);
@@ -218,16 +193,12 @@ function draw() {
     canvasContext.lineCap = 'round';
     tileHeight = canvas.height / p.nVertical;
     tileWidth = canvas.width / p.nHorizontal;
-
     canvasContext.strokeStyle = p.colorLine;
     canvasContext.fillStyle = p.colorLine;
-
     index = 0;
     for (j = 0; j <= p.nVertical; j++) {
         const y = j * tileHeight;
-
         canvasContext.setTransform(1, 0, 0, 1, 0, 0);
-
         for (i = -1; i <= 2 * p.nHorizontal; i++) {
             if ((i + j) & 1) {
                 const x = i * tileWidth / 2;
