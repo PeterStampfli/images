@@ -30,7 +30,7 @@ export function FixedPoint(parentDOM) {
     // limiting the number range: defaults, minimum is zero, maximum is very large
     this.minValue = -Number.MAX_VALUE;
     this.maxValue = Number.MAX_VALUE;
-    this.setStep(0.001);
+    this.setStep(1e-7);
     this.cyclic = false;
     // remember the last value, for starters an extremely improbable value
     this.lastValue = this.minValue;
@@ -62,7 +62,7 @@ export function FixedPoint(parentDOM) {
     // if the text of the input element changes: read text as number and update everything
     this.input.onchange = function() {
         const value = button.getValue(); // garanties that value is a good integer
-        this.setInputRangeIndicator(value);
+        button.setInputRangeIndicator(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
         if (button.lastValue !== value) {
             button.lastValue = value;
@@ -139,7 +139,7 @@ FixedPoint.prototype.setInputWidth = Integer.prototype.setInputWidth;
 FixedPoint.prototype.setActive = Integer.prototype.setActive;
 FixedPoint.prototype.quantizeClamp = Integer.prototype.quantizeClamp;
 FixedPoint.prototype.setCyclic = Integer.prototype.setCyclic;
-FixedPoint.prototype.setRangeLimitsStep = Integer.prototype.setRangeLimitsStep;
+FixedPoint.prototype.setLimitsStepOfRange = Integer.prototype.setLimitsStepOfRange;
 FixedPoint.prototype.createButton = Integer.prototype.createButton;
 FixedPoint.prototype.createAddButton = Integer.prototype.createAddButton;
 FixedPoint.prototype.createMulButton = Integer.prototype.createMulButton;
@@ -188,7 +188,7 @@ FixedPoint.prototype.setInputRangeIndicator = function(n) {
 FixedPoint.prototype.setMin = function(value) {
     if (guiUtils.isNumber(value)) {
         this.minValue = value;
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FixedPoint#setMin: argument is not a number, it is ' + value);
@@ -203,7 +203,7 @@ FixedPoint.prototype.setMin = function(value) {
 FixedPoint.prototype.setMax = function(value) {
     if (guiUtils.isNumber(value)) {
         this.maxValue = value;
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('FixedPoint#setMax: argument is not integer, it is ' + value);
@@ -231,18 +231,12 @@ FixedPoint.prototype.quantize = function(x) {
  */
 FixedPoint.prototype.setStep = function(value) {
     if (guiUtils.isNumber(value)) {
-        const minStep = 0.0000001;
-        if (value > minStep) {
             this.invStep = Math.max(2, Math.round(1 / value));
             this.step = 1 / this.invStep;
             // number of digits depend on step: rounding up
             this.digits = Math.floor(Math.log10(this.invStep) - 0.01) + 1;
-            this.setRangeLimitsStep();
+            this.setLimitsStepOfRange();
             this.setInputRangeIndicator(this.getValue());
-        } else {
-            console.error('fixedPoint#setStep: arguments is too small, it is: ' + value + ' should be larger than ' + minStep);
-
-        }
     } else {
         console.error('FixedPoint#setStep: argument is not a number, it is ' + value);
     }
@@ -356,7 +350,7 @@ FixedPoint.prototype.createRange = function(parentDOM) {
             .cursor("pointer")
             .verticalAlign("middle")
             .parent(parentDOM);
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
 
         const button = this;

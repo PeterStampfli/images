@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title> floatingPoint (test)</title>
+    <title> realNumber (test)</title>
 </head>
 
 <body>
@@ -18,12 +18,15 @@
 <script type='module'>
 
 import {
-    FloatingPoint
+    RealNumber
 } from "../libgui/modules.js";
 
 const parentDOM=document.createElement("div");
 document.body.appendChild(parentDOM);
-const f=new FloatingPoint(parentDOM);
+const f=new RealNumber(parentDOM);
+
+
+
 const value=9
 f.setValue(2.34);
 f.setMin(-11.2);

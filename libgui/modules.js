@@ -92,6 +92,11 @@ export {
 from "./floatingPoint.js";
 
 export {
+    RealNumber
+}
+from "./realNumber.js";
+
+export {
     Select
 }
 from "./select.js";

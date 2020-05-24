@@ -265,9 +265,9 @@ Integer.prototype.setInputRangeIndicator = function(n) {
 /**
  * set the limits and step of the range element (if there is one)
  * such that it alwways gives the correct value
- * @method Integer#setRangeLimitsStep
+ * @method Integer#setLimitsStepOfRange
  */
-Integer.prototype.setRangeLimitsStep = function() {
+Integer.prototype.setLimitsStepOfRange = function() {
     if (this.range) {
         this.range.step = this.step;
         this.range.min = this.quantizeClamp(this.minValue);
@@ -332,7 +332,7 @@ Integer.prototype.quantizeClamp = function(n) {
 Integer.prototype.setMin = function(minValue) {
     if (guiUtils.isInteger(minValue)) {
         this.minValue = minValue;
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('Integer#setMin: argument is not integer, it is ' + minValue);
@@ -347,7 +347,7 @@ Integer.prototype.setMin = function(minValue) {
 Integer.prototype.setMax = function(maxValue) {
     if (guiUtils.isInteger(maxValue)) {
         this.maxValue = maxValue;
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('Integer#setMax: argument is not integer, it is ' + maxValue);
@@ -363,7 +363,8 @@ Integer.prototype.setStep = function(stepValue) {
     if (guiUtils.isInteger(stepValue)) {
         if (stepValue > 0) {
             this.step = stepValue;
-            this.setRangeLimitsStep();
+            this.setLimitsStepOfRange();
+            // getValue() quantizes and sets limits
             this.setInputRangeIndicator(this.getValue());
         } else {
             console.error('integer#setStep: arguments is smaller than 1, it is: ' + stepValue);
@@ -381,7 +382,7 @@ Integer.prototype.setStep = function(stepValue) {
 Integer.prototype.setOffset = function(offsetValue) {
     if (guiUtils.isInteger(offsetValue)) {
         this.offset = offsetValue;
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.setInputRangeIndicator(this.getValue());
     } else {
         console.error('Integer#setOffset: argument is not integer, it is ' + offsetValue);
@@ -396,7 +397,7 @@ Integer.prototype.setOffset = function(offsetValue) {
  */
 Integer.prototype.setCyclic = function(isCyclic = true) {
     this.cyclic = isCyclic;
-    this.setRangeLimitsStep();
+    this.setLimitsStepOfRange();
     this.setInputRangeIndicator(this.getValue());
 };
 
@@ -595,7 +596,7 @@ Integer.prototype.createRange = function(parentDOM) {
             .cursor("pointer")
             .verticalAlign("middle")
             .parent(parentDOM);
-        this.setRangeLimitsStep();
+        this.setLimitsStepOfRange();
         this.range.value = this.getValue();
 
         const button = this;
