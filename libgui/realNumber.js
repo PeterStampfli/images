@@ -49,20 +49,20 @@ export function RealNumber(parentDOM) {
     this.indicatorElement = false;
     this.setIndicatorColors("#aaaa99", "#ddddff");
 
-    const button = this;
+    const realNumber = this;
 
     /**
      * action upon change of the number
-     * @method Integer#onchange
+     * @method RealNumber#onchange
      * @param {integer} value
      */
     this.onChange = function(value) {
-        console.log("onChange value " + button.getValue());
+        console.log("onChange value " + realNumber.getValue());
     };
 
     /**
      * action upon mouse down, doing an interaction
-     * @method Integer#onInteraction
+     * @method RealNumber#onInteraction
      */
     this.onInteraction = function() {
         console.log("numberInteraction");
@@ -73,74 +73,74 @@ export function RealNumber(parentDOM) {
     this.input.onchange = function() {
         // we have to read the full value, not cutting off digits
         // thus we cannot use getValue
-        let value = parseFloat(button.input.value, 10);
+        let value = parseFloat(realNumber.input.value, 10);
         if (!guiUtils.isNumber(value)) {
-            value = button.lastValue;
+            value = realNumber.lastValue;
         }
-        button.determineVisibleDigits(value);
-        value = button.quantizeClamp(value);
-        button.setInputRangeIndicator(value);
+        realNumber.determineVisibleDigits(value);
+        value = realNumber.quantizeClamp(value);
+        realNumber.setInputRangeIndicator(value);
         // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
-        if (button.lastValue !== value) {
-            button.lastValue = value;
-            button.onChange(value);
+        if (realNumber.lastValue !== value) {
+            realNumber.lastValue = value;
+            realNumber.onChange(value);
         }
     };
 
     this.input.onmousedown = function() {
-        if (button.active) {
-            button.onInteraction();
+        if (realNumber.active) {
+            realNumber.onInteraction();
         }
     };
 
     // onfocus /onblur corresponds to pressed
     this.input.onfocus = function() {
-        if (button.active) {
-            button.pressed = true;
-            button.updateStyle();
+        if (realNumber.active) {
+            realNumber.pressed = true;
+            realNumber.updateStyle();
         }
     };
 
     this.input.onblur = function() {
-        button.pressed = false;
-        button.updateStyle();
+        realNumber.pressed = false;
+        realNumber.updateStyle();
     };
 
     // hovering
     this.input.onmouseenter = function() {
-        if (button.active) {
-            button.hover = true;
-            button.updateStyle();
+        if (realNumber.active) {
+            realNumber.hover = true;
+            realNumber.updateStyle();
         }
     };
 
     this.input.onmouseleave = function() {
-        if (button.active) {
-            button.hover = false;
-            button.updateStyle();
+        if (realNumber.active) {
+            realNumber.hover = false;
+            realNumber.updateStyle();
         }
     };
 
     this.input.onwheel = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        if (button.pressed && button.active) {
-            button.changeDigit(-event.deltaY);
+        if (realNumber.pressed && realNumber.active) {
+            realNumber.changeDigit(-event.deltaY);
         }
         return false;
     };
 
     this.input.onkeydown = function(event) {
         let key = event.key;
-        if (button.pressed && button.active) {
+        if (realNumber.pressed && realNumber.active) {
             if (key === "ArrowDown") {
                 event.preventDefault();
                 event.stopPropagation();
-                button.changeDigit(-1);
+                realNumber.changeDigit(-1);
             } else if (key === "ArrowUp") {
                 event.preventDefault();
                 event.stopPropagation();
-                button.changeDigit(1);
+                realNumber.changeDigit(1);
             }
         }
     };
@@ -170,6 +170,17 @@ RealNumber.prototype.setInputWidth = function(width) {
 RealNumber.prototype.setIndicatorColors = function(colorLeft, colorRight) {
     this.indicatorColorLeft = colorLeft;
     this.indicatorColorRight = colorRight;
+};
+
+/**
+ * switch on the indicator, set its element (it's the background) , adjust to current value
+ * @method RealNumber#setIndicatorElement
+ * @param {html element} element
+ */
+RealNumber.prototype.setIndicatorElement = function(element) {
+    this.indicatorElement = element;
+    const value = this.getValue();
+    this.setInputRangeIndicator(value);
 };
 
 /**
@@ -231,7 +242,7 @@ RealNumber.prototype.setActive = function(on) {
 
 /**
  * set the limits and step of the range element (if there is one)
- * such that it alwways gives the correct value
+ * such that it always gives the correct value
  * @method RealNumber#updateRangeParameters
  */
 RealNumber.prototype.updateRangeParameters = function() {
@@ -478,11 +489,8 @@ RealNumber.prototype.powerFromCursorPosition = function() {
  * note that determining the power we have restricted its value to >= - this.maxDigits
  */
 RealNumber.prototype.cursorPositionFromPower = function(power) {
-    console.log('cupo', this.input.value)
     var cursorPosition;
     const pointPosition = this.input.value.indexOf('.');
-    console.log('powre', power)
-    console.log('po', pointPosition)
     if (pointPosition < 0) {
         // no point, integer
         cursorPosition = this.input.value.length - 1 - power;
@@ -531,5 +539,208 @@ RealNumber.prototype.changeDigit = function(direction) {
         }
         this.input.setSelectionRange(cursorPosition, cursorPosition);
         this.onChange(value);
+    }
+};
+
+/**
+ * create additional buttons that do something
+ * @method RealNumber.createButton
+ * @param {String} text - shown in the button
+ * @param {htmlElement} parentDOM
+ * @param {function} changeValue - function(value), returns changed value
+ * @return the button
+ */
+RealNumber.prototype.createButton = function(text, parentDOM, changeValue) {
+    const additionalButton = new Button(text, parentDOM);
+    const realNumber = this;
+    additionalButton.onInteraction = function() {
+        realNumber.onInteraction();
+    };
+    additionalButton.onClick = function() {
+        realNumber.input.focus();
+        let value = realNumber.getValue();
+        value = changeValue(value);
+        value = realNumber.quantizeClamp(value);
+        // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+        if (realNumber.lastValue !== value) {
+            realNumber.lastValue = value;
+            realNumber.determineVisibleDigits(value);
+            realNumber.setInputRangeIndicator(value);
+            realNumber.onChange(value);
+        } else {
+            realNumber.setInputRangeIndicator(value);
+        }
+    };
+    this.additionalButtons.push(additionalButton);
+    return additionalButton;
+};
+
+
+/**
+ * create a button that adds to the number
+ * @method RealNumber#createAddButton
+ * @param {String} text
+ * @param {htmlelement} parentDOM
+ * @param {number} amount - can be negative too
+ * @return the button
+ */
+RealNumber.prototype.createAddButton = function(text, parentDOM, amount) {
+    const button = this;
+    return this.createButton(text, parentDOM, function(value) {
+        return value + amount;
+    });
+};
+
+/**
+ * create a button that multiplies the number
+ * @method RealNumber #createMulButton
+ * @param {String} text
+ * @param {htmlelement} parentDOM
+ * @param {number} factor - can be less than 1 too
+ * @return the button
+ */
+RealNumber.prototype.createMulButton = function(text, parentDOM, factor) {
+    const button = this;
+    return this.createButton(text, parentDOM, function(value) {
+        return value * factor;
+    });
+};
+
+/**
+ * create a button that sets the minimum value
+ * @method RealNumber#createMiniButton
+ * @param {htmlelement} parentDOM
+ * @return the button
+ */
+RealNumber.prototype.createMiniButton = function(parentDOM) {
+    const button = this;
+    return this.createButton("min", parentDOM, function() {
+        return button.minValue;
+    });
+};
+
+/**
+ * create a button that sets the maximum value
+ * @method RealNumber#createMaxiButton
+ * @param {htmlelement} parentDOM
+ * @return the button
+ */
+RealNumber.prototype.createMaxiButton = function(parentDOM) {
+    const button = this;
+    return this.createButton("max", parentDOM, function() {
+        if (button.cyclic) {
+            return button.maxValue - button.step; // avoid irritating jump from right to left
+        } else {
+            return button.maxValue;
+        }
+    });
+};
+
+/**
+ * create a button with a suggested value
+ * @method RealNumber#createSuggestButton
+ * @param {htmlelement} parentDOM
+ * @param {float} value
+ */
+RealNumber.prototype.createSuggestButton = function(parentDOM, suggestion) {
+    const button = this;
+    return this.createButton(suggestion + "", parentDOM, function() {
+        return suggestion;
+    });
+};
+
+
+/**
+ * create a interacting range element
+ * @method RealNumber#createRange
+ * @param {htmlElement} parentDOM
+ * @return the range element
+ */
+RealNumber.prototype.createRange = function(parentDOM) {
+    if (this.range) {
+        console.log("**** RealNumber#createRange: range already exists");
+    } else {
+        this.range = document.createElement("input");
+        guiUtils.style(this.range)
+            .attribute("type", "range")
+            .cursor("pointer")
+            .verticalAlign("middle")
+            .parent(parentDOM);
+        this.updateRangeParameters();
+        this.range.value = this.getValue();
+
+        const realNumber = this;
+
+        // doing things continously
+        this.range.oninput = function() {
+            let value = parseFloat(realNumber.range.value, 10); 
+            // does the value change?
+            if (realNumber.lastValue !== value) {
+                // it may be that after quantization we get the same number, then nothing changed, but we need update of ui
+                if (realNumber.lastValue !== value) {
+                    realNumber.lastValue = value;
+                    realNumber.determineVisibleDigits(value);
+                    realNumber.setInputRangeIndicator(value);
+                    realNumber.onChange(value);
+                } else {
+                    realNumber.setInputRangeIndicator(value);
+                }
+            }
+        };
+
+        this.range.onchange = function() {}; // change already done by input event
+
+        this.range.onkeydown = function() {
+            if (realNumber.active) {
+                realNumber.onInteraction();
+            }
+        };
+        this.range.onmousedown = function() {
+            if (realNumber.active) {
+                realNumber.onInteraction();
+            }
+        };
+        this.range.onwheel = function() {
+            if (realNumber.active) {
+                realNumber.onInteraction();
+            }
+        };
+    }
+    return this.range;
+};
+
+/**
+ * set width of the range, in px
+ * @method RealNumber#setRangeWidth
+ * @param {integer} width
+ */
+RealNumber.prototype.setRangeWidth = function(width) {
+    this.range.style.width = width + "px";
+};
+
+/**
+ * destroy the realNumber, taking care of all references, deletes the associated html input element
+ * @method RealNumber#destroy
+ */
+RealNumber.prototype.destroy = function() {
+    this.onChange = null;
+    this.input.onchange = null;
+    this.input.onfocus = null;
+    this.input.onblur = null;
+    this.input.onmouseenter = null;
+    this.input.onmousedown = null;
+    this.input.onmouseleave = null;
+    this.input.onwheel = null;
+    this.input.onkeydown = null;
+    this.input.remove();
+    this.input = null;
+    this.additionalButtons.forEach(button => button.destroy());
+    this.additionalButtons.lenght = 0;
+    if (this.range) {
+        this.range.onchange = null;
+        this.range.oninput = null;
+        this.range.onkeydown = null;
+        this.range.onmousedown = null;
+        this.range.onwheel = null;
     }
 };

@@ -494,7 +494,7 @@ ImageSelect.addImagePopupText = "drop images here!";
  */
 ImageSelect.prototype.makeAddImageButton = function(parent) {
     const button = new Button(ImageSelect.addImageButtonText, parent);
-    // this creates an invisible button.fileInput input element, clicking on this button here makes a click on the input
+    // this uses an invisible button.fileInput input element, clicking on this button here makes a click on the input
     button.asFileInput("image/*");
     button.fileInput.setAttribute("multiple", "true");
     button.setFontSize(this.design.buttonFontSize);
