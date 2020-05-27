@@ -11,7 +11,6 @@ import {
     guiUtils
 } from "./modules.js";
 
-
 export function RealNumber(parentDOM) {
     this.parentDOM = parentDOM;
     this.input = document.createElement("input");
@@ -26,7 +25,7 @@ export function RealNumber(parentDOM) {
     this.step = 0.001;
     // maximum number of digits after decimal point
     this.maxDigits = 3;
-    this.setStep(0.001);
+    this.setStep(1e-9);
     // both are determined with setStep
     // offset for integer quantization
     this.offset = 0;
@@ -151,6 +150,9 @@ RealNumber.prototype.updateStyle = Button.prototype.updateStyle;
 RealNumber.prototype.setFontSize = Button.prototype.setFontSize;
 RealNumber.prototype.setWidth = Button.prototype.setWidth;
 RealNumber.prototype.setMinWidth = Button.prototype.setMinWidth;
+
+// width for spaces in px
+RealNumber.spaceWidth = 5;
 
 /**
  * set width of the input, in px
@@ -441,6 +443,7 @@ RealNumber.prototype.getValue = function() {
 RealNumber.prototype.setValue = function(value) {
     if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
+        this.determineVisibleDigits(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;
     } else {
@@ -649,7 +652,6 @@ RealNumber.prototype.createSuggestButton = function(parentDOM, suggestion) {
     });
 };
 
-
 /**
  * create a interacting range element
  * @method RealNumber#createRange
@@ -673,7 +675,7 @@ RealNumber.prototype.createRange = function(parentDOM) {
 
         // doing things continously
         this.range.oninput = function() {
-            let value = parseFloat(realNumber.range.value, 10); 
+            let value = parseFloat(realNumber.range.value, 10);
             // does the value change?
             if (realNumber.lastValue !== value) {
                 // it may be that after quantization we get the same number, then nothing changed, but we need update of ui

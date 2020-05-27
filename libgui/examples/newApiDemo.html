@@ -34,8 +34,10 @@ gui.add({type:'textarea',rows:4,columns:20,labelText:"new textarea",initialValue
 const parameters = {};
 
 
-gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too)");
-
+gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too). We can have a range slider.");
+gui.changeDesign({
+    usePopup: false
+});
 
 parameters.nn = 3.4;
 
@@ -43,9 +45,13 @@ const nc = gui.add({
     type: "number",
     params: parameters,
     property: "nn",
+    step:0.1,
     min: 0,
     max: 8
-});
+})
+
+nc.createVeryLongRange();
+
 gui.addParagraph("You can add an indicator in the background.");
 parameters.indi = 1;
 gui.add({
@@ -57,9 +63,7 @@ gui.add({
         step: 0.01
     })
     .createIndicatorMain();
-gui.changeDesign({
-    usePopup: false
-});
+
 parameters.plusMin = 2;
 gui.add({
         type: "number",
@@ -76,12 +80,13 @@ gui.addParagraph("The additional buttons can go to a popup, appears when changin
 gui.changeDesign({
     usePopup: true
 });
-gui.addParagraph("No parameter object together with property string required. A callback can be added directly.");
+gui.addParagraph("No parameter object together with property string required. A callback can be added directly. We can have many digits.");
 const popController = gui.add({
         type: "number",
         labelText: "pop",
         min: 1,
         initialValue:3,
+        width:200,
         onChange: function(value) {
             console.log("pop value: " + value);
         }
@@ -89,7 +94,8 @@ const popController = gui.add({
     .createPlusMinusButtons()
     .createIndicatorMain()
     .createMulDivButtons()
-    .createSuggestButton(500);
+    .createSuggestButton(500)
+    .createLongRange();
 gui.addParagraph("The indicator can go to the popup:");
 parameters.popIn = 10;
 gui.add(parameters, "popIn", 0, 20)

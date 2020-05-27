@@ -11,9 +11,7 @@ import {
     Popup,
     ParamGui,
     InstantHelp,
-    Integer,
-    FloatingPoint,
-    FixedPoint
+    RealNumber
 } from "./modules.js";
 
 /**
@@ -255,35 +253,26 @@ export function ParamController(gui, domElement, argObjects) {
                 }
                 break;
             case "number":
-                let numberButton = null;
-                if (guiUtils.isNumber(args.step)) {
-                    if (guiUtils.isInteger(args.step)) {
-                        // if args. min, max, offset are not integer, then we get an error message from integer.js
-                        numberButton = new Integer(this.domElement);
-                    } else {
-                        numberButton = new FixedPoint(this.domElement);
-                    }
-                } else {
-                    numberButton = new FloatingPoint(this.domElement);
-                }
-                this.uiElement = numberButton;
+                let realNumber = new RealNumber(this.domElement);
+
+                this.uiElement = realNumber;
                 this.setupOnChange();
                 this.setupOnInteraction();
                 this.buttonContainer = false;
-                numberButton.setInputWidth(guiUtils.check(args.width, this.design.numberInputWidth));
+                realNumber.setInputWidth(guiUtils.check(args.width, this.design.numberInputWidth));
                 // separating space to additional elements
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 // set limits and step
                 if (guiUtils.isNumber(args.min)) {
-                    numberButton.setMin(args.min);
+                    realNumber.setMin(args.min);
                 }
                 if (guiUtils.isNumber(args.max)) {
-                    numberButton.setMax(args.max);
+                    realNumber.setMax(args.max);
                 }
                 if (guiUtils.isNumber(args.step)) {
-                    numberButton.setStep(args.step);
+                    realNumber.setStep(args.step);
                     if (guiUtils.isNumber(args.offset)) {
-                        numberButton.setOffset(args.offset);
+                        realNumber.setOffset(args.offset);
                     }
                 }
                 // error checking and correction of initial value
@@ -937,7 +926,7 @@ ParamController.prototype.createAddButton = function(text, amount) {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createAddButton(text, this.buttonContainer, amount);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createAddButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -967,7 +956,7 @@ ParamController.prototype.createMulButton = function(text, amount) {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMulButton(text, this.buttonContainer, amount);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createMulButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -995,7 +984,7 @@ ParamController.prototype.createMiniButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMiniButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createMiniButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1011,7 +1000,7 @@ ParamController.prototype.createMaxiButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createMaxiButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createMaxiButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1038,7 +1027,7 @@ ParamController.prototype.createLeftButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createLeftButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createLeftButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1054,7 +1043,7 @@ ParamController.prototype.createRightButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createRightButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createRightButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1070,7 +1059,7 @@ ParamController.prototype.createDecButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createDecButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createDecButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1086,7 +1075,7 @@ ParamController.prototype.createIncButton = function() {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createIncButton(this.buttonContainer);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createIncButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1116,7 +1105,7 @@ ParamController.prototype.createSuggestButton = function(value) {
     if (this.type === "number") {
         this.setupButtonContainer();
         this.uiElement.createSuggestButton(this.buttonContainer, value);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createSuggestButton: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1133,7 +1122,7 @@ ParamController.prototype.createSmallRange = function() {
         this.setupButtonContainer();
         this.uiElement.createRange(this.buttonContainer);
         this.uiElement.setRangeWidth(this.design.rangeSliderLengthShort);
-        guiUtils.hSpace(this.buttonContainer, Integer.spaceWidth);
+        guiUtils.hSpace(this.buttonContainer, RealNumber.spaceWidth);
     } else {
         console.error('ParamController.createSmallRange: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }

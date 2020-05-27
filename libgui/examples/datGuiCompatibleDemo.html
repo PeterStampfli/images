@@ -36,18 +36,19 @@ const parameters = {};
 
 gui.addParagraph("The ui for numbers is basically only a text input field interacting with the mouse, mouse wheel, keyboard (arrows too)");
 
+gui.changeDesign({
+    usePopup: false
+});
 parameters.number = 3.4;
 
 const nc = gui.add(parameters, "number", 0, 8);
+nc.createVeryLongRange();
 
 gui.addParagraph("You can add an indicator in the background.");
 parameters.indi = 1;
 gui.add(parameters, "indi", 0, 10, 0.01)
     .createIndicatorMain();
 
-gui.changeDesign({
-    usePopup: false
-});
 parameters.plusMin = 2;
 gui.add(parameters, "plusMin", -2, 12,1)
     .createPlusMinusButtons()
