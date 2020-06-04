@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> linearTransform (test)</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    ParamGui
+} from "../libgui/modules.js";
+
+const gui=new ParamGui({name:'test',closed:false});
+const ct=gui.addCoordinateTransform();
+ct.setValues(1,2,3,4)
+
+console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
+//ct.reset()
+console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
+const v={x:234,y:456}
+ct.do(v)
+console.log(v)
+ct.inverse(v)
+console.log(v)
+</script>
+
+</html>

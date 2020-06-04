@@ -42,7 +42,8 @@ import {
     ParamController,
     Button,
     InstantHelp,
-    Logger
+    Logger,
+    CoordinateTransform
 } from "./modules.js";
 
 export function ParamGui(params) {
@@ -247,7 +248,7 @@ ParamGui.defaultDesign = {
     // fontsize for buttons
     buttonFontSize: 12,
     // minimum width for ui elements
-    minElementWidth:0,
+    minElementWidth: 0,
     // width of boolean buttons
     booleanButtonWidth: 60,
     // width for text input
@@ -636,7 +637,7 @@ ParamGui.prototype.hide = function() {
  * @param {boolean} isActive
  */
 ParamGui.prototype.setActive = function(isActive) {
-       this.elements.forEach(element => element.setActive(isActive));
+    this.elements.forEach(element => element.setActive(isActive));
 };
 
 /**
@@ -892,7 +893,7 @@ ParamGui.combineObject = function(obs) {
     // check if all args fields are good parameters
     if (guiUtils.isObject(result)) {
         for (var key in result) {
-            if ((goodArgsKeys.indexOf(key) < 0)&& (!guiUtils.isDefined(ParamGui.defaultDesign[key]))){
+            if ((goodArgsKeys.indexOf(key) < 0) && (!guiUtils.isDefined(ParamGui.defaultDesign[key]))) {
                 console.error('arguments object has unknown parameter "' + key + '" with value "' + result[key] + '"');
                 let mess = "good parameters are: ";
                 for (i = 0; i < goodArgsKeys.length; i++) {
@@ -1077,6 +1078,18 @@ ParamGui.prototype.addLogger = function() {
     this.bodyDiv.appendChild(container);
     const logger = new Logger(this, container);
     return logger;
+};
+
+/**
+ * add a transformation of coordinates
+ * shift and scaling, optional rotation
+ * @method ParamGui#addCoordinateTransform
+ * @param {boolean} withRotation - optional, default=false
+ * @return coordinateTransform object
+ */
+ParamGui.prototype.addCoordinateTransform = function(withRotation = false) {
+    const coordinateTransform = new CoordinateTransform(this, withRotation);
+    return coordinateTransform;
 };
 
 /**

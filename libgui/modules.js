@@ -107,6 +107,11 @@ export {
 from "./output.js";
 
 export {
+    CoordinateTransform
+}
+from "./coordinateTransform.js";
+
+export {
     animation
 }
 from "./animation.js";
