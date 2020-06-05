@@ -19,21 +19,70 @@
 
 import {
     CoordinateTransform,
-    ParamGui
+    ParamGui,
+    output
 } from "../libgui/modules.js";
 
 const gui=new ParamGui({name:'test',closed:false});
-const ct=gui.addCoordinateTransform();
-ct.setValues(1,2,3,4)
+// an output canvas and some test image
+output.createCanvas(gui);
+const canvas = output.canvas;
+const canvasContext = canvas.getContext("2d");
+gui.addParagraph('coordinate transform')
+const ct=gui.addCoordinateTransform(true);
+ct.forOutputCanvas(canvas);
+console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
 
-console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
-//ct.reset()
-console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
-const v={x:234,y:456}
-ct.do(v)
-console.log(v)
-ct.inverse(v)
-console.log(v)
+function draw() {
+	ct.checkOutputCanvas();
+	console.log(ct.canvasScale)
+    const height = canvas.height;
+    const width = canvas.width;
+    const imageData = canvasContext.getImageData(0, 0, width, height);
+    const pixels = imageData.data;
+    const v={};
+v.x=1
+v.y=1
+                ct.outputCanvasDo(v);
+                console.log(v);
+
+    let xMin=1000000;
+    let xMax=-1000000;
+    for (var i = 0; i < width; i++) {
+        let index = 4 * i;
+        for (var j = 0; j < height; j++) {
+            v.y=j;
+            v.x=i;
+         //   ct.outputCanvasDo(v);
+
+            let red = 255;
+            let green = 0;
+            let blue = 200;
+
+
+            if ((v.x>0.4)&&(v.x<0.6)&&(v.y>0.4)&&(v.y<0.6)){
+            	green=255;
+            }
+            if (v.x>0.5){
+            	blue=0;
+            }
+
+            xMin=Math.min(xMin,v.x)
+            xMax=Math.max(xMax,v.x)
+
+            pixels[index] = Math.max(0, Math.min(255, Math.floor(red)));
+            pixels[index + 1] = Math.max(0, Math.min(255, Math.floor(green)));
+            pixels[index + 2] = Math.max(0, Math.min(255, Math.floor(blue)));
+            pixels[index + 3] = 255;
+            index += 4 * width;
+        }
+    }
+    console.log(xMin,xMax)
+    canvasContext.putImageData(imageData, 0, 0);
+}
+
+output.draw=draw;
+draw();
 </script>
 
 </html>

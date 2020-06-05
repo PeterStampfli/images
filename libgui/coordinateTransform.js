@@ -1,4 +1,8 @@
 /* jshint esversion:6 */
+import {
+    MouseEvents
+}
+from "./modules.js";
 
 /**
  * shift, scale and rotation (optional) for object with x and y components
@@ -11,10 +15,68 @@
 
 export function CoordinateTransform(gui, withRotation = false) {
     console.log(withRotation);
-    this.setValues();
+    this.withRotation = withRotation;
+    this.shiftX = 0;
+    this.shiftY = 0;
+    this.scale = 1;
+    this.angle = 0;
+    this.updateScaleAngle();
+
+    const coordinateTransform = this;
+
+    const numbers = {
+        type: 'number',
+        params: this,
+        onChange: function() {
+            coordinateTransform.updateScaleAngle();
+            coordinateTransform.onChange();
+        }
+    };
+    this.controlShiftX = gui.add(numbers, {
+        property: 'shiftX',
+        labelText: 'translate X'
+    });
+    this.controlShiftY = this.controlShiftX.add(numbers, {
+        property: 'shiftY',
+        labelText: ' Y'
+    });
+    this.controlScale = gui.add(numbers, {
+        property: 'scale'
+    });
+    if (withRotation) {
+        this.controlAngle = this.controlScale.add(numbers, {
+            property: 'angle',
+            min: -180,
+            max: 180,
+            step: 1
+        });
+        this.controlAngle.cyclic();
+    }
+
     this.setResetValues();
 
+    /**
+     * action upon change of the number
+     * @method RealNumber#onchange
+     * @param {integer} value
+     */
+    this.onChange = function(value) {
+        console.log("onChange", coordinateTransform.shiftX, coordinateTransform.shiftY, coordinateTransform.scale, coordinateTransform.angle);
+    };
 }
+
+/**
+ * update the ui values
+ * @method CoordinateTransfrom#updateUI
+ */
+CoordinateTransform.prototype.updateUI = function() {
+    this.controlShiftX.updateDisplay();
+    this.controlShiftY.updateDisplay();
+    this.controlScale.updateDisplay();
+    if (this.withRotation) {
+        this.controlAngle.updateDisplay();
+    }
+};
 
 /**
  * update the combined scale-angle factors
@@ -22,8 +84,9 @@ export function CoordinateTransform(gui, withRotation = false) {
  * @method CoordinateTransform#updateScaleAngle
  */
 CoordinateTransform.prototype.updateScaleAngle = function() {
-    const cosAngle = Math.cos(this.angle);
-    const sinAngle = Math.sin(this.angle);
+    const angleRad = Math.PI / 180 * this.angle;
+    const cosAngle = Math.cos(angleRad);
+    const sinAngle = Math.sin(angleRad);
     this.cosAngleScale = this.scale * cosAngle;
     this.sinAngleScale = this.scale * sinAngle;
     this.cosAngleInvScale = cosAngle / this.scale;
@@ -44,6 +107,7 @@ CoordinateTransform.prototype.setValues = function(shiftX = 0, shiftY = 0, scale
     this.scale = scale;
     this.angle = angle;
     this.updateScaleAngle();
+    this.updateUI();
 };
 
 /**
@@ -71,6 +135,7 @@ CoordinateTransform.prototype.reset = function() {
     this.scale = this.resetScale;
     this.angle = this.resetAngle;
     this.updateScaleAngle();
+    this.updateUI();
 };
 
 // a vector object for intermediate result
@@ -85,7 +150,7 @@ const vInter = {
  * @param {float} deltaX
  * @param {float} deltaY
  */
-LinearTransform.prototype.changeShift = function(deltaX, deltaY) {
+CoordinateTransform.prototype.changeShift = function(deltaX, deltaY) {
     this.shiftX += deltaX;
     this.shiftY += deltaY;
 };
@@ -137,5 +202,47 @@ CoordinateTransform.prototype.inverse = function(v) {
     v.y -= this.shiftY;
     let h = this.cosAngleInvScale * v.x + this.sinAngleInvScale * v.y;
     v.y = -this.sinAngleInvScale * v.x + this.cosAngleInvScale * v.y;
+    v.x = h;
+};
+
+// attaching an output canvas
+//====================================================
+
+// scale canvas coordinates by prefactor to unit range (for square canvas)
+// takes into account changes of the canvas size
+
+/**
+* use transformation for an output canvas
+* attach mouse events
+* @method CoordinateTransform#forOutputCanvas
+* @param {canvas element} canvas
+*/
+CoordinateTransform.prototype.forOutputCanvas=function(canvas){
+    this.canvas=canvas;
+
+
+};
+
+/**
+* determine the output canvas prefactor for normalizing dimension
+* use before drawing
+* we have to use combination of scaling / double steps
+* @method CoordinateTransform#checkOutputCanvas
+*/
+CoordinateTransform.prototype.checkOutputCanvas=function(){
+    this.canvasScale=1/Math.sqrt(this.canvas.width*this.canvas.height);
+};
+
+
+/**
+ * do the transform for an output canvas: first rotate and scale, then shift
+ * @method CoordinateTransform#outputCanvasDo
+ * @param {Object} v - with coordinates v.x and v.y
+ */
+CoordinateTransform.prototype.outputCanvasDo = function(v) {
+    v.x*=this.canvasScale;
+    v.y*=this.canvasScale;
+    let h = this.cosAngleScale * v.x - this.sinAngleScale * v.y + this.shiftX;
+    v.y = this.sinAngleScale * v.x + this.cosAngleScale * v.y + this.shiftY;
     v.x = h;
 };
