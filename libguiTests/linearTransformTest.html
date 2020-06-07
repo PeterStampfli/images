@@ -29,23 +29,17 @@ output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = canvas.getContext("2d");
 gui.addParagraph('coordinate transform')
-const ct=gui.addCoordinateTransform(true);
-ct.forOutputCanvas(canvas);
-console.log(ct.shiftX,ct.shiftY,ct.scale,ct.angle)
+output.addCoordinateTransform(gui,false);
 
 function draw() {
-	ct.checkOutputCanvas();
-	console.log(ct.canvasScale)
+	output.updateCanvasScale();
     const height = canvas.height;
     const width = canvas.width;
     const imageData = canvasContext.getImageData(0, 0, width, height);
     const pixels = imageData.data;
     const v={};
-v.x=1
-v.y=1
-                ct.outputCanvasDo(v);
-                console.log(v);
-
+    v.x=1
+    v.y=1
     let xMin=1000000;
     let xMax=-1000000;
     for (var i = 0; i < width; i++) {
@@ -53,7 +47,7 @@ v.y=1
         for (var j = 0; j < height; j++) {
             v.y=j;
             v.x=i;
-           ct.outputCanvasDo(v);
+            output.transform(v);
 
             let red = 255;
             let green = 0;

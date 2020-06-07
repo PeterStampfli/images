@@ -7,6 +7,7 @@
 
 import {
     guiUtils,
+    CoordinateTransform,
     ParamGui
 }
 from "./modules.js";
@@ -16,14 +17,26 @@ export const output = {};
 // doing both canvas and div together simplifies things
 
 output.canvas = false;
+output.canvasScale = 1; // scale to transform (square) canvas dimensions to (0...1)
 output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
 
 /**
+ * method for updating the canvas scale
+ * always call in the beginning of the draw method if using the canvas transform
+ * makes that the transformed image does not change when the canvas size changes
+ * a square canvas will have coordinates going from 0...1
+ * @method output.updateCanvasScale
+ */
+output.updateCanvasScale = function() {
+    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+};
+
+/**
  * a method to (re)draw the canvas upon resize and so on
- * define your own to get your image
- * call it after initialization to get a first image
+ * define your own method to get your image
+ * call it after initialization of everything to get a first image
  * to avoid flickering use in the beginning output.draw = function(){};
  * @method output.draw
  */
@@ -161,8 +174,11 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
         console.error("output.saveCanvasAsFile: there is no canvas!");
     }
 };
-
+// if autoresize is on:
 // resizing after the output.div has been resized, knowing its new dimensions
+// draws output if outoresize is on and size changes
+// if autoscale is on: adjust size of canvas image, the canvas itself does not change, no redraw
+// else adjust scroll  bars
 function autoResize() {
     const oldWidth = widthController.getValue();
     const oldHeight = heightController.getValue();
@@ -273,7 +289,7 @@ output.createCanvas = function(gui, folderName) {
     widthController = gui.add({
         type: "number",
         max: 10000,
-        step:1,
+        step: 1,
         params: output.canvas,
         property: "width",
         onChange: function(value) {
@@ -282,15 +298,15 @@ output.createCanvas = function(gui, folderName) {
                 heightController.setValueOnly(value / canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
-            output.draw();
             autoResize();
+            output.draw();
         }
     });
     widthController.hSpace(30);
     heightController = widthController.add({
         type: "number",
         max: 10000,
-        step:1,
+        step: 1,
         params: output.canvas,
         property: "height",
         onChange: function(value) {
@@ -299,8 +315,8 @@ output.createCanvas = function(gui, folderName) {
                 widthController.setValueOnly(value * canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
-            output.draw();
             autoResize();
+            output.draw();
         }
     });
 
@@ -466,4 +482,36 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
     for (var i = 2; i < arguments.length; i++) {
         controller.add(makeArgs(arguments[i]));
     }
+};
+
+/**
+ * add a coordinate transform to the canvas
+ * @method output.addCoordinateTransform
+ * @param {ParamGui} gui - for the transform UI elements
+ * @param {boolean} withRotation - optional, default is false
+ */
+output.addCoordinateTransform = function(gui, withRotation = false) {
+    output.coordinateTransform = gui.addCoordinateTransform(withRotation);
+    output.coordinateTransform.onChange=function(){
+        output.draw();                              // this calls always the latest version
+    };
+
+    // mouse events on the output canvas may do other things than aa coordinate transform
+    // in case, set this to false
+    output.mouseForCoordinateTransform = true;
+};
+
+
+/**
+ * do the transform for the output canvas: first rotate and scale, then shift
+ * @method output#transform
+ * @param {Object} v - with coordinates v.x and v.y
+ */
+output.transform = function(v) {
+    v.x *= output.canvasScale;
+    v.y *= output.canvasScale;
+    const transform = output.coordinateTransform;
+    let h = transform.cosAngleScale * v.x - transform.sinAngleScale * v.y + transform.shiftX;
+    v.y = transform.sinAngleScale * v.x + transform.cosAngleScale * v.y + transform.shiftY;
+    v.x = h;
 };

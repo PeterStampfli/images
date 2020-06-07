@@ -155,7 +155,6 @@ CoordinateTransform.prototype.changeShift = function(deltaX, deltaY) {
     this.shiftY += deltaY;
 };
 
-
 // the transforms
 //============================================================
 
@@ -202,47 +201,5 @@ CoordinateTransform.prototype.inverse = function(v) {
     v.y -= this.shiftY;
     let h = this.cosAngleInvScale * v.x + this.sinAngleInvScale * v.y;
     v.y = -this.sinAngleInvScale * v.x + this.cosAngleInvScale * v.y;
-    v.x = h;
-};
-
-// attaching an output canvas
-//====================================================
-
-// scale canvas coordinates by prefactor to unit range (for square canvas)
-// takes into account changes of the canvas size
-
-/**
-* use transformation for an output canvas
-* attach mouse events
-* @method CoordinateTransform#forOutputCanvas
-* @param {canvas element} canvas
-*/
-CoordinateTransform.prototype.forOutputCanvas=function(canvas){
-    this.canvas=canvas;
-
-
-};
-
-/**
-* determine the output canvas prefactor for normalizing dimension
-* use before drawing
-* we have to use combination of scaling / double steps
-* @method CoordinateTransform#checkOutputCanvas
-*/
-CoordinateTransform.prototype.checkOutputCanvas=function(){
-    this.canvasScale=1/Math.sqrt(this.canvas.width*this.canvas.height);
-};
-
-
-/**
- * do the transform for an output canvas: first rotate and scale, then shift
- * @method CoordinateTransform#outputCanvasDo
- * @param {Object} v - with coordinates v.x and v.y
- */
-CoordinateTransform.prototype.outputCanvasDo = function(v) {
-    v.x*=this.canvasScale;
-    v.y*=this.canvasScale;
-    let h = this.cosAngleScale * v.x - this.sinAngleScale * v.y + this.shiftX;
-    v.y = this.sinAngleScale * v.x + this.cosAngleScale * v.y + this.shiftY;
     v.x = h;
 };
