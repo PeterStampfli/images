@@ -8,6 +8,7 @@
 import {
     guiUtils,
     CoordinateTransform,
+    MouseEvents,
     ParamGui
 }
 from "./modules.js";
@@ -17,20 +18,43 @@ export const output = {};
 // doing both canvas and div together simplifies things
 
 output.canvas = false;
+output.canvasContext=false;   // 2d-context
 output.canvasScale = 1; // scale to transform (square) canvas dimensions to (0...1)
 output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
 
 /**
- * method for updating the canvas scale
- * always call in the beginning of the draw method if using the canvas transform
+ * updating the canvas scale
+ * always use in the beginning of the draw method if using the canvas transform
  * makes that the transformed image does not change when the canvas size changes
  * a square canvas will have coordinates going from 0...1
  * @method output.updateCanvasScale
  */
 output.updateCanvasScale = function() {
     output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+};
+
+/**
+* updating the canvas context transform
+* always use at start of draw method if canvas context drawing is done
+* calls updateCanvasScale as this is always required
+* @method output.updateCanvasTransform
+*/
+output.updateCanvasTransform=function(){
+    output.updateCanvasScale();
+const coordinateTransform=output.coordinateTransform;
+         const totalScale=1/(coordinateTransform.scale*output.canvasScale);
+       output.canvasContext.setTransform(
+        totalScale,
+        0,
+        0,
+        totalScale,
+        -totalScale*coordinateTransform.shiftX,
+        -totalScale*coordinateTransform.shiftY
+  )
+
+
 };
 
 /**
@@ -258,6 +282,7 @@ output.createCanvas = function(gui, folderName) {
         return;
     }
     output.canvas = document.createElement("canvas");
+    output.canvasContext = output.canvas.getContext("2d");
     if (guiUtils.isDefined(folderName)) {
         gui = gui.addFolder(folderName);
     }
@@ -378,14 +403,6 @@ output.createCanvas = function(gui, folderName) {
 };
 
 /**
- * autoresizing the canvas, required after changing the width to size ratio
- * @method output.resizeCanvas
- */
-output.resizeCanvas = function() {
-    autoResize();
-};
-
-/**
  * set the canvasWidthToHeight, does not yet resize the canvas
  * if value<0: no fixed ratio
  * if value>0...1: fixed ratio
@@ -492,15 +509,108 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
  */
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
-    output.coordinateTransform.onChange=function(){
-        output.draw();                              // this calls always the latest version
+    output.coordinateTransform.onChange = function() {
+        output.draw(); // this calls always the latest version
     };
+    output.canvas.style.cursor = "pointer";
+    output.mouseEvents = new MouseEvents(output.canvas);
+    const mouseEvents = output.mouseEvents;
+    const coordinateTransform = output.coordinateTransform;
 
     // mouse events on the output canvas may do other things than aa coordinate transform
     // in case, set this to false
-    output.mouseForCoordinateTransform = true;
-};
+    output.leftMouseButtonPressed = true; // true if left mouse button pressed or none (false if other buttons pressed)
 
+    // mouse wheel zooming
+    output.zoomFactor = 1.04;
+
+    // vectors for intermediate results
+    const u = {
+        x: 0,
+        y: 0
+    };
+    const v = {
+        x: 0,
+        y: 0
+    };
+    // other actions (right mouse button pressed) 
+    // than changing the transform/view (left mouse button pressed)
+    output.mouseDownAction = function(mouseEvents) {}; // mouse down 
+    output.mouseDragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
+    output.mouseMoveAction = function(mouseEvents) {}; // mouse move (move with button released)
+    output.mouseUpAction = function(mouseEvents) {}; // mouse up
+    output.mouseOutAction = function(mouseEvents) {}; // mouse out (leave)
+    output.mouseWheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
+
+    // change the transform or do something else
+    mouseEvents.downAction = function() {
+        output.leftMouseButtonPressed = (mouseEvents.button === 0);
+        if (output.leftMouseButtonPressed) {
+            // nothing to do
+        } else {
+            output.mouseDownAction(mouseEvents);
+        }
+    };
+    mouseEvents.dragAction = function() {
+        if (output.leftMouseButtonPressed) {
+            console.log('mouse drag');
+            v.x = output.canvasScale * mouseEvents.dx;
+            v.y = output.canvasScale * mouseEvents.dy;
+            coordinateTransform.rotateScale(v);
+            coordinateTransform.shiftX -= v.x;
+            coordinateTransform.shiftY -= v.y;
+            coordinateTransform.updateUI();
+            output.draw();
+        } else {
+            output.mouseDragAction(mouseEvents);
+        }
+    };
+    mouseEvents.moveAction = function() {
+        if (output.leftMouseButtonPressed) {
+            // nothing to do
+        } else {
+            output.mouseMoveAction(mouseEvents);
+        }
+    };
+    mouseEvents.upAction = function() {
+        if (output.leftMouseButtonPressed) {
+            // nothing to do
+        } else {
+            output.mouseUpAction(mouseEvents);
+        }
+        output.leftMouseButtonPressed = true; // mouse wheel continues to zoom
+    };
+    mouseEvents.outAction = function() {
+        if (output.leftMouseButtonPressed) {
+            // nothing to do
+        } else {
+            output.mouseOutAction(mouseEvents);
+        }
+        output.leftMouseButtonPressed = true; // mouse wheel continues to zoom
+    };
+    mouseEvents.wheelAction = function() {
+        if (output.leftMouseButtonPressed) {
+            const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+            console.log(zoomFactor);
+            // the zoom center, prescaled
+            u.x = output.canvasScale * mouseEvents.x;
+            u.y = output.canvasScale * mouseEvents.y;
+            v.x = output.canvasScale * mouseEvents.x;
+            v.y = output.canvasScale * mouseEvents.y;
+            coordinateTransform.rotateScale(u);
+            console.log(mouseEvents.pressed)
+            coordinateTransform.scale *= zoomFactor;
+            coordinateTransform.updateScaleAngle();
+            coordinateTransform.rotateScale(v);
+            coordinateTransform.shiftX += u.x - v.x;
+            coordinateTransform.shiftY += u.y - v.y;
+            coordinateTransform.updateUI();
+            output.draw();
+        } else {
+            output.mouseWheelAction(mouseEvents);
+        }
+    };
+};
 
 /**
  * do the transform for the output canvas: first rotate and scale, then shift

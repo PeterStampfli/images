@@ -11,9 +11,10 @@ from "./modules.js";
  * @creator CoordinateTransform
  * @param {ParamGui} gui
  * @param {boolean} withRotation - optional, defaault=false
- */
+  * @param {float} stepSize - optional, step size for UI, default is 0.001
+*/
 
-export function CoordinateTransform(gui, withRotation = false) {
+export function CoordinateTransform(gui,withRotation = false, stepSize=0.001) {
     console.log(withRotation);
     this.withRotation = withRotation;
     this.shiftX = 0;
@@ -27,30 +28,32 @@ export function CoordinateTransform(gui, withRotation = false) {
     const numbers = {
         type: 'number',
         params: this,
+        step: stepSize,
+        width: 55,
         onChange: function() {
             coordinateTransform.updateScaleAngle();
             coordinateTransform.onChange();
         }
     };
-    this.controlShiftX = gui.add(numbers, {
+    this.shiftXController = gui.add(numbers, {
         property: 'shiftX',
         labelText: 'translate X'
     });
-    this.controlShiftY = this.controlShiftX.add(numbers, {
+    this.shiftYController = this.shiftXController.add(numbers, {
         property: 'shiftY',
         labelText: ' Y'
     });
-    this.controlScale = gui.add(numbers, {
+    this.scaleController = gui.add(numbers, {
         property: 'scale'
     });
     if (withRotation) {
-        this.controlAngle = this.controlScale.add(numbers, {
+        this.angleController = this.scaleController.add(numbers, {
             property: 'angle',
             min: -180,
             max: 180,
             step: 1
         });
-        this.controlAngle.cyclic();
+        this.angleController.cyclic();
     }
 
     this.setResetValues();
@@ -70,11 +73,11 @@ export function CoordinateTransform(gui, withRotation = false) {
  * @method CoordinateTransfrom#updateUI
  */
 CoordinateTransform.prototype.updateUI = function() {
-    this.controlShiftX.updateDisplay();
-    this.controlShiftY.updateDisplay();
-    this.controlScale.updateDisplay();
+    this.shiftXController.updateDisplay();
+    this.shiftYController.updateDisplay();
+    this.scaleController.updateDisplay();
     if (this.withRotation) {
-        this.controlAngle.updateDisplay();
+        this.angleController.updateDisplay();
     }
 };
 

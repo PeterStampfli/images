@@ -27,12 +27,13 @@ const gui=new ParamGui({name:'test',closed:false});
 // an output canvas and some test image
 output.createCanvas(gui);
 const canvas = output.canvas;
-const canvasContext = canvas.getContext("2d");
+const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform')
-output.addCoordinateTransform(gui,false);
+output.addCoordinateTransform(gui,true);
 
 function draw() {
 	output.updateCanvasScale();
+    output.updateCanvasTransform();
     const height = canvas.height;
     const width = canvas.width;
     const imageData = canvasContext.getImageData(0, 0, width, height);
@@ -71,8 +72,9 @@ function draw() {
             index += 4 * width;
         }
     }
-    console.log(xMin,xMax)
     canvasContext.putImageData(imageData, 0, 0);
+    canvasContext.lineWidth=0.03;
+    canvasContext.strokeRect(0.4,0.4,0.2,0.2);
 }
 
 output.draw=draw;
