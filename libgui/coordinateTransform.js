@@ -11,10 +11,10 @@ from "./modules.js";
  * @creator CoordinateTransform
  * @param {ParamGui} gui
  * @param {boolean} withRotation - optional, defaault=false
-  * @param {float} stepSize - optional, step size for UI, default is 0.001
-*/
+ * @param {float} stepSize - optional, step size for UI, default is 0.001
+ */
 
-export function CoordinateTransform(gui,withRotation = false, stepSize=0.001) {
+export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001) {
     console.log(withRotation);
     this.withRotation = withRotation;
     this.shiftX = 0;
@@ -42,6 +42,14 @@ export function CoordinateTransform(gui,withRotation = false, stepSize=0.001) {
     this.shiftYController = this.shiftXController.add(numbers, {
         property: 'shiftY',
         labelText: ' Y'
+    });
+    this.resetButton = this.shiftYController.add({
+        type: 'button',
+        buttonText: 'reset',
+        onClick: function() {
+            coordinateTransform.reset();
+            coordinateTransform.onChange();
+        }
     });
     this.scaleController = gui.add(numbers, {
         property: 'scale'

@@ -9,6 +9,7 @@ import {
     guiUtils,
     CoordinateTransform,
     MouseEvents,
+    keyboard,
     ParamGui
 }
 from "./modules.js";
@@ -18,7 +19,7 @@ export const output = {};
 // doing both canvas and div together simplifies things
 
 output.canvas = false;
-output.canvasContext=false;   // 2d-context
+output.canvasContext = false; // 2d-context
 output.canvasScale = 1; // scale to transform (square) canvas dimensions to (0...1)
 output.div = false;
 output.divHeight = 0;
@@ -36,25 +37,24 @@ output.updateCanvasScale = function() {
 };
 
 /**
-* updating the canvas context transform
-* always use at start of draw method if canvas context drawing is done
-* calls updateCanvasScale as this is always required
-* @method output.updateCanvasTransform
-*/
-output.updateCanvasTransform=function(){
+ * updating the canvas context transform
+ * always use at start of draw method if canvas context drawing is done
+ * calls updateCanvasScale as this is always required
+ * @method output.updateCanvasTransform
+ */
+output.updateCanvasTransform = function() {
     output.updateCanvasScale();
-const coordinateTransform=output.coordinateTransform;
-         const totalScale=1/(coordinateTransform.scale*output.canvasScale);
-       output.canvasContext.setTransform(
-        totalScale,
-        0,
-        0,
-        totalScale,
-        -totalScale*coordinateTransform.shiftX,
-        -totalScale*coordinateTransform.shiftY
-  )
-
-
+    const coordinateTransform = output.coordinateTransform;
+    const totalScale = 1 / (coordinateTransform.scale * output.canvasScale);
+    const angle = Math.PI / 180 * coordinateTransform.angle;
+    const cosAngleScale = totalScale * Math.cos(angle);
+    const sinAngleScale = totalScale * Math.sin(angle);
+    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    const deltaX = cosAngleScale * coordinateTransform.shiftX + sinAngleScale * coordinateTransform.shiftY;
+    const deltaY = -sinAngleScale * coordinateTransform.shiftX + cosAngleScale * coordinateTransform.shiftY;
+    output.canvasContext.translate(-deltaX, -deltaY);
+    output.canvasContext.rotate(-angle);
+    output.canvasContext.scale(totalScale, totalScale);
 };
 
 /**
@@ -140,17 +140,12 @@ function rightSpaceLimit() {
  * NOTE: changing the canvas size sets canvasAutoResize to false, requires redraw and checking of scroll bars
  */
 
-
-// show that the window has been loaded
-output.windowLoaded = false;
-
 /**
  * resizing the output div, called by window.onResize upon window onload
  * @method resizeOutputDiv
  */
 function resizeOutputDiv() {
     var leftOfSpace, widthOfSpace;
-    output.windowLoaded = true;
     if (extendCanvasController.getValue()) {
         leftOfSpace = 0;
         widthOfSpace = window.innerWidth;
@@ -503,11 +498,14 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 
 /**
  * add a coordinate transform to the canvas
+ * add mouse events to change the visible part (-> changes transform)
+ * ctrl-key allows for other actions, Shift key changes wheel action to rotation
  * @method output.addCoordinateTransform
  * @param {ParamGui} gui - for the transform UI elements
  * @param {boolean} withRotation - optional, default is false
  */
 output.addCoordinateTransform = function(gui, withRotation = false) {
+    output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
     output.coordinateTransform.onChange = function() {
         output.draw(); // this calls always the latest version
@@ -517,12 +515,10 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     const mouseEvents = output.mouseEvents;
     const coordinateTransform = output.coordinateTransform;
 
-    // mouse events on the output canvas may do other things than aa coordinate transform
-    // in case, set this to false
-    output.leftMouseButtonPressed = true; // true if left mouse button pressed or none (false if other buttons pressed)
-
-    // mouse wheel zooming
+    // mouse wheel zooming factor
     output.zoomFactor = 1.04;
+    // and rotating, angle step, in degrees
+    output.angleStep = 1;
 
     // vectors for intermediate results
     const u = {
@@ -544,15 +540,14 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
 
     // change the transform or do something else
     mouseEvents.downAction = function() {
-        output.leftMouseButtonPressed = (mouseEvents.button === 0);
-        if (output.leftMouseButtonPressed) {
-            // nothing to do
-        } else {
+        if (keyboard.ctrlPressed) {
             output.mouseDownAction(mouseEvents);
         }
     };
     mouseEvents.dragAction = function() {
-        if (output.leftMouseButtonPressed) {
+        if (keyboard.ctrlPressed) {
+            output.mouseDragAction(mouseEvents);
+        } else {
             console.log('mouse drag');
             v.x = output.canvasScale * mouseEvents.dx;
             v.y = output.canvasScale * mouseEvents.dy;
@@ -561,53 +556,47 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             coordinateTransform.shiftY -= v.y;
             coordinateTransform.updateUI();
             output.draw();
-        } else {
-            output.mouseDragAction(mouseEvents);
         }
     };
     mouseEvents.moveAction = function() {
-        if (output.leftMouseButtonPressed) {
-            // nothing to do
-        } else {
+        if (keyboard.ctrlPressed) {
             output.mouseMoveAction(mouseEvents);
         }
     };
     mouseEvents.upAction = function() {
-        if (output.leftMouseButtonPressed) {
-            // nothing to do
-        } else {
+        if (keyboard.ctrlPressed) {
             output.mouseUpAction(mouseEvents);
         }
-        output.leftMouseButtonPressed = true; // mouse wheel continues to zoom
     };
     mouseEvents.outAction = function() {
-        if (output.leftMouseButtonPressed) {
-            // nothing to do
-        } else {
+        if (keyboard.ctrlPressed) {
             output.mouseOutAction(mouseEvents);
         }
-        output.leftMouseButtonPressed = true; // mouse wheel continues to zoom
     };
     mouseEvents.wheelAction = function() {
-        if (output.leftMouseButtonPressed) {
-            const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
-            console.log(zoomFactor);
+        if (keyboard.ctrlPressed) {
+            output.mouseWheelAction(mouseEvents);
+        } else {
             // the zoom center, prescaled
             u.x = output.canvasScale * mouseEvents.x;
             u.y = output.canvasScale * mouseEvents.y;
             v.x = output.canvasScale * mouseEvents.x;
             v.y = output.canvasScale * mouseEvents.y;
             coordinateTransform.rotateScale(u);
-            console.log(mouseEvents.pressed)
-            coordinateTransform.scale *= zoomFactor;
+            if (keyboard.shiftPressed && output.withRotation) {
+                const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
+                coordinateTransform.angle += step;
+            } else {
+                const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+                console.log(zoomFactor);
+                coordinateTransform.scale *= zoomFactor;
+            }
             coordinateTransform.updateScaleAngle();
             coordinateTransform.rotateScale(v);
             coordinateTransform.shiftX += u.x - v.x;
             coordinateTransform.shiftY += u.y - v.y;
             coordinateTransform.updateUI();
             output.draw();
-        } else {
-            output.mouseWheelAction(mouseEvents);
         }
     };
 };

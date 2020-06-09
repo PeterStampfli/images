@@ -26,6 +26,11 @@ export {
 from "./mouseEvents.js";
 
 export {
+    keyboard
+}
+from "./keyboard.js";
+
+export {
     TouchEvents
 }
 from "./touchEvents.js";
