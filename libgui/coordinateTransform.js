@@ -15,7 +15,6 @@ from "./modules.js";
  */
 
 export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001) {
-    console.log(withRotation);
     this.withRotation = withRotation;
     this.shiftX = 0;
     this.shiftY = 0;

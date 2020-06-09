@@ -466,3 +466,17 @@ guiUtils.saveCanvasAsFile = function(canvas, filename, extension, callback = fun
         }, 'image/jpeg');
     }
 };
+
+// check byte order of the machine
+//=================================================
+
+// byte order is important for putting color components in a 32 bit integer
+
+const abgr = new Int8Array(4);
+const intColor = new Int32Array(abgr.buffer);
+abgr[0] = 3; // the red byte, all others are 0
+
+// use as flag to choose the correct method
+// tests if the [a,b,g,r] byte array as 32 bit integer is equal to 3 for a,b,g=0 and r=3
+// thus the r(ed) byte (value 3) with lowest index has to be packed into the least significant byte of 32 bit integers
+guiUtils.abgrOrder = (intColor[0] === 3);
