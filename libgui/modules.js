@@ -107,6 +107,11 @@ export {
 from "./imageSelect.js";
 
 export {
+    Pixels
+}
+from "./pixels.js";
+
+export {
     output
 }
 from "./output.js";
