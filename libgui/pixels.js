@@ -418,7 +418,7 @@ if (guiUtils.abgrOrder) {
             red += kx * (kym * (pixM >>> 24 & 0xFF) + ky0 * (pix0 >>> 24 & 0xFF) + ky1 * (pix1 >>> 24 & 0xFF) + ky2 * (pix2 >>> 24 & 0xFF));
             green += kx * (kym * (pixM >>> 16 & 0xFF) + ky0 * (pix0 >>> 16 & 0xFF) + ky1 * (pix1 >>> 16 & 0xFF) + ky2 * (pix2 >>> 16 & 0xFF));
             blue += kx * (kym * (pixM >>> 8 & 0xFF) + ky0 * (pix0 >>> 8 & 0xFF) + ky1 * (pix1 >>> 8 & 0xFF) + ky2 * (pix2 >>> 8 & 0xFF));
-            // beware of negative values, with accelerated rounding
+            // beware of negative values
             color.red = Math.max(0, Math.min(255, Math.round(red)));
             color.green = Math.max(0, Math.min(255, Math.round(green)));
             color.blue = Math.max(0, Math.min(255, Math.round(blue)));
@@ -505,4 +505,136 @@ Pixels.prototype.createIntegralColorTables = function() {
             integralBlue[index] = iBlue;
         }
     }
+};
+
+/**
+ * get average color of rectangle centered at (x,y), rounded
+ * clamping to limits (0...width-1, 0... height-1), taking into account the shifted tables with extra 0's
+ * @method Pixels#getAverageColor
+ * @param {Color} color - will be set to the average color of canvas image near pixel coordinates
+ * @param {float} x - pixel x-coordinate
+ * @param {float} y - pixel y-coordinate
+ * @param {float} halfSize - half of the size of pixel
+ * @return true, if color is valid, false, if point lies outside
+ */
+Pixels.prototype.getAverageColor = function(color, x, y, halfSize) {
+    x = Math.round(x);
+    y = Math.round(y);
+    if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
+        color.red = 0;
+        color.green = 0;
+        color.blue = 0;
+        color.alpha = 0;
+        return false;
+    }
+    halfSize = Math.floor(halfSize);
+    let left = Math.max(0, x - halfSize);
+    let bottom = Math.max(0, y - halfSize);
+    let right = Math.min(this.width - 1, x + halfSize) + 1;
+    let top = Math.min(this.height - 1, y + halfSize) + 1;
+    let norm = 1.0 / ((right - left) * (top - bottom));
+    let widthPlus = this.widthPlus;
+    let iRightTop = right + top * widthPlus;
+    let iLeftTop = left + top * widthPlus;
+    let iRightBottom = right + bottom * widthPlus;
+    let iLeftBottom = left + bottom * widthPlus;
+    let integral = this.integralRed;
+    // faster special method for rounding: BITwise or
+    color.red = 0 | (norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]));
+    integral = this.integralGreen;
+    color.green = 0 | (norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]));
+    integral = this.integralBlue;
+    color.blue = 0 | (norm * (integral[iRightTop] - integral[iLeftTop] - integral[iRightBottom] + integral[iLeftBottom]));
+    color.alpha = 255;
+    return true;
+};
+
+// reading pixel colors at different quality
+//======================================================
+
+// pixel coordinates are x,y
+// the square of the pixel size is the surface a unit pixel after transformation by the map
+// essentially the Lyapunov koefficient
+// relates to the mapping of vectors from one pixel to neighbors
+
+/**
+ * threshold for doing cubic interpolation (if lyapunov coefficient/pixel size is smaller)
+ * that means map strongly shrinks pixels and we need a good interpolation
+ * @var Pixels.thresholdCubic
+ */
+Pixels.thresholdCubic = 0.2;
+
+/**
+ * threshold for doing linear interpolation (if lyapunov coefficient/pixel size is smaller)
+ * @var PixelCanvas.thresholdLinear
+ */
+Pixels.thresholdLinear = 1;
+
+/**
+ * threshold for doing averaging (if lyapunov coefficient/pixel size is larger)
+ * map expands pixel
+ * @var PixelCanvas.thresholdAverage
+ */
+Pixels.thresholdAverage = 3;
+
+/**
+ * smoothing factor, gives half of the smoothing square if multiplied with the pixel size
+ * thus about 0.5e
+ * @var PixelCanvas.smoothing
+ */
+Pixels.smoothing = 0.5;
+
+/**
+ * get very high quality pixel color, depending on transformed pixel size (total lyapunov coefficient)
+ * using cubic interpolation, linear interpolation or averaging where needed
+ * @method Pixels#getVeryHighQualityColor
+ * @param {Color} color - will be set to new pixel color
+ * @param {float} x - coordinate of pixel
+ * @param {float} y - coordinate of pixel
+ * @param {float} size - of the pixel (total Lyapunov coefficient)
+ * @return true, if color is valid, false, if point lies outside
+ */
+Pixels.prototype.getVeryHighQualityColor = function(color, x, y, size) {
+    if (size < Pixels.thresholdCubic) {
+        return this.getCubicColor(color, x, y);
+    }
+    if (size < Pixels.thresholdLinear) {
+        return this.getLinearColor(color, x, y);
+    }
+    if (size < Pixels.thresholdAverage) {
+        return this.getNearestColor(color, x, y);
+    }
+    return this.getAverageColor(color, x, y, Pixels.smoothing * size);
+};
+
+/**
+ * get high quality pixel color, depending on transformed pixel size (total lyapunov coefficient), no cubic interpolation
+ * does not use cubic interpolation
+ * @method Pixels#getHighQualityColor
+ * @param {Color} color - will be set to new pixel color
+ * @param {float} x - coordinate of pixel
+ * @param {float} y - coordinate of pixel
+ * @param {float} size - of the pixel (total Lyapunov coefficient)
+ * @return true, if color is valid, false, if point lies outside
+ */
+Pixels.prototype.getHighQualityColor = function(color, x, y, size) {
+    if (size < Pixels.thresholdLinear) {
+        return this.getLinearColor(color, x, y);
+    }
+    if (size < Pixels.thresholdAverage) {
+        return this.getNearestColor(color, x, y);
+    }
+    return this.getAverageColor(color, x, y, Pixels.smoothing * size);
+};
+
+/**
+ * get low quality pixel color, using only nearest neighbor pixels
+ * @method Pixels#getLowQualityColor
+ * @param {Color} color - will be set to new pixel color
+ * @param {float} x - coordinate of pixel
+ * @param {float} y - coordinate of pixel
+ * @return true, if color is valid, false, if point lies outside
+ */
+Pixels.prototype.getLowQualityColor = function(color, x, y) {
+    return this.getNearestColor(color, x, y);
 };
