@@ -122,6 +122,11 @@ export {
 from "./coordinateTransform.js";
 
 export {
+    map
+}
+from "./map.js";
+
+export {
     animation
 }
 from "./animation.js";

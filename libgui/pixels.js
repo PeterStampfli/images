@@ -64,6 +64,22 @@ Pixels.prototype.show = function() {
 // pixels.array[index] = integerColorValue;
 
 /**
+ * transform color into integer with correct byte order
+ * @method Pixels.integerOfColor
+ * @param {Color} color
+ * @return integer value for the color
+ */
+if (guiUtils.abgrOrder) {
+    Pixels.integerOfColor = function(color) {
+        return color.red | color.green << 8 | color.blue << 16 | color.alpha << 24;
+    };
+} else {
+    Pixels.integerOfColor = function(color) {
+        return color.alpha | color.blue << 8 | color.green << 16 | color.red << 24;
+    };
+}
+
+/**
  * set color of pixel at given total index, 
  * color is an object with red, green, blue and alpha components
  * assumes that index is in range and that color components are between 0 and 255
@@ -446,7 +462,7 @@ Pixels.prototype.createIntegralColorTables = function() {
     let color = {};
     var i, j, jWidthPlus, jWidth, index;
     // resize only if size increases
-    if (size > this.integralRed.length) {
+    if (size !== this.integralRed.length) {
         // for small input images use typed Uint32Array
         if (size < 16700000) {
             this.integralRed = new Uint32Array(size);

@@ -548,7 +548,6 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (keyboard.ctrlPressed) {
             output.mouseDragAction(mouseEvents);
         } else {
-            console.log('mouse drag');
             v.x = output.canvasScale * mouseEvents.dx;
             v.y = output.canvasScale * mouseEvents.dy;
             coordinateTransform.rotateScale(v);
@@ -588,7 +587,6 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
                 coordinateTransform.angle += step;
             } else {
                 const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
-                console.log(zoomFactor);
                 coordinateTransform.scale *= zoomFactor;
             }
             coordinateTransform.updateScaleAngle();

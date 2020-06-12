@@ -21,7 +21,8 @@ import {
     CoordinateTransform,
     Pixels,
     ParamGui,
-    output
+    output,
+    map
 } from "../libgui/modules.js";
 
 const gui=new ParamGui({name:'test',closed:false});
@@ -29,18 +30,15 @@ const gui=new ParamGui({name:'test',closed:false});
 output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
-var p=new Pixels(canvas);
 gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
+
 function draw() {
-    output.updateCanvasScale();
-    output.updateCanvasTransform();
-    p.updateArraySize();
+    map.initialize();
     const color = {};
     const height = canvas.height;
     const width = canvas.width;
-    const imageData = canvasContext.getImageData(0, 0, width, height);
-    const pixels = imageData.data;
+  
     const v = {};
     v.x = 1
     v.y = 1
@@ -70,19 +68,16 @@ function draw() {
             color.alpha = 255;
             color.green = green;
             color.blue = blue;
-            p.setColorAtIndex(color,index);
+            output.pixels.setColorAtIndex(color,index);
 
             index += 1;
         }
     }
     // canvasContext.putImageData(imageData, 0, 0);
-    p.show();
+    output.pixels.show();
     canvasContext.lineWidth = 0.03;
     canvasContext.strokeRect(0.4, 0.4, 0.2, 0.2);
-    console.log(p.getNearestColor(color,-2,3))
-    console.log(p.getLinearColor(color,2,3))
-    p.createIntegralColorTables();
-        console.log(p.getVeryHighQualityColor(color,20,30,0.66))
+    
 
 }
 output.draw=draw;
