@@ -35,50 +35,16 @@ output.addCoordinateTransform(gui,false);
 
 function draw() {
     map.initialize();
-    const color = {};
-    const height = canvas.height;
-    const width = canvas.width;
+    map.make(function(data){
+        data.iterations=Math.round(4*data.x+4*data.y);
+        data.x=4*data.x;
+        data.y+=9;
+    })
+    map.showStructure();
+   map.normalize();
+    map.normalize();
   
-    const v = {};
-    v.x = 1
-    v.y = 1
-    let xMin = 1000000;
-    let xMax = -1000000;
-    let index = 0;
-    for (var j = 0; j < height; j++) {
-        for (var i = 0; i < width; i++) {
-            v.y = j;
-
-            v.x = i;
-            output.transform(v);
-
-            let red = 255;
-            let green = 0;
-            let blue = 200;
-
-
-            if ((v.x > 0.4) && (v.x < 0.6) && (v.y > 0.4) && (v.y < 0.6)) {
-                green = 255;
-            }
-            if (v.x > 0.5) {
-                blue = 0;
-            }
-
-            color.red = red;
-            color.alpha = 255;
-            color.green = green;
-            color.blue = blue;
-            output.pixels.setColorAtIndex(color,index);
-
-            index += 1;
-        }
-    }
-    // canvasContext.putImageData(imageData, 0, 0);
-    output.pixels.show();
-    canvasContext.lineWidth = 0.03;
-    canvasContext.strokeRect(0.4, 0.4, 0.2, 0.2);
-    
-
+   
 }
 output.draw=draw;
 draw();

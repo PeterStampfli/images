@@ -96,6 +96,7 @@ map.make = function(mapping) {
             map.yArray[index] = point.y;
             map.sectorArray[index] = point.sector;
             map.iterationsArray[index] = point.iterations;
+            index += 1;
         }
     }
 };
@@ -127,7 +128,7 @@ map.makeColorTable = function(color1, color2) {
     const intColor1 = Pixels.integerOfColor(color1);
     const intColor2 = Pixels.integerOfColor(color2);
     for (var i = 0; i < 256; i++) {
-        map.colorTable[i] = (i & 1 === 0) ? intColor1 : intColor2;
+        map.colorTable[i] = (i & 1) ? intColor1 : intColor2;
     }
 };
 
@@ -149,4 +150,47 @@ map.makeColorTable(black, white);
 
 /**
  * show structure of the map: color depending on the number of iterations
+ * using the map.colorTable
+ * @method map.showStructure
  */
+map.showStructure = function() {
+    let index = 0;
+    for (var j = 0; j < height; j++) {
+        for (var i = 0; i < width; i++) {
+            if (map.showSector[map.sectorArray[index]]) {
+                output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
+            }
+            index += 1;
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * normalize the map points to a unit square, centered
+ * @method map.normalize
+ */
+map.normalize = function() {
+    var i;
+    const length = width * height;
+    let xMin = 1e10;
+    let xMax = -1e10;
+    let yMin = 1e10;
+    let yMax = -1e10;
+    for (i = 0; i < length; i++) {
+        const x = map.xArray[i];
+        xMax = Math.max(x, xMax);
+        xMin = Math.min(x, xMin);
+        const y = map.yArray[i];
+        yMax = Math.max(y, yMax);
+        yMin = Math.min(y, yMin);
+    }
+    console.log(xMin,xMax,yMin,yMax);
+    const scale = Math.min(1 / (xMax - xMin), 1 / (yMax - yMin));
+    const deltaX = 0.5 * (1 - scale * (xMax + xMin));
+    const deltaY = 0.5 * (1 - scale * (yMax + yMin));
+    for (i = 0; i < length; i++) {
+        map.xArray[i] = scale * map.xArray[i] + deltaX;
+        map.yArray[i] = scale * map.yArray[i] + deltaY;
+    }
+};

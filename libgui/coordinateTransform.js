@@ -124,7 +124,7 @@ CoordinateTransform.prototype.setValues = function(shiftX = 0, shiftY = 0, scale
 };
 
 /**
- * set values for resetting
+ * set values for resetting, default parameter values are current values
  * @method CoordinateTransform#setResetValues
  * @param {number} shiftX - optional, default=current value of this.shiftX
  * @param {number} shiftY - optional, default=current value of this.shiftY
