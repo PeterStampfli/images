@@ -1117,7 +1117,7 @@ ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
 /**
  * add a "paragraph" (its actually a div with optional inner html)
  * text wraps automatically (rewraps if scroll bar appears)
- * @method ParamGui#paragraph
+ * @method ParamGui#addParagraph
  * @param {String} text - with HTML markup (=>innerHTML)
  * @return the html <p> element, for futher formatting, in case
  */
@@ -1133,6 +1133,16 @@ ParamGui.prototype.addParagraph = function(innerHTML) {
     para.innerHTML = innerHTML;
     this.bodyDiv.appendChild(para);
     return para;
+};
+
+/**
+ * add a title in boldface
+ * @method ParamGui#addTitle
+ * @param {String} text - with HTML markup (=>innerHTML)
+ * @return the html <p> element, for futher formatting, in case
+ */
+ParamGui.prototype.addTitle = function(innerHTML) {
+    this.addParagraph('<strong>' + innerHTML + '</strong>');
 };
 
 /**

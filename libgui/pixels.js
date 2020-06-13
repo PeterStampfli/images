@@ -24,6 +24,7 @@ export function Pixels(canvas) {
     this.width = 0;
     this.height = 0;
     this.array = null;
+    // only for input image averaging
     this.integralRed = new Uint32Array(1);
     this.integralBlue = new Uint32Array(1);
     this.integralGreen = new Uint32Array(1);

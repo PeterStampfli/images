@@ -32,6 +32,8 @@ const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
+gui.addTitle('input image');
+map.setupInputImage(gui);
 
 function draw() {
     map.initialize();
