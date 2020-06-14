@@ -36,18 +36,17 @@ export function Pixels(canvas) {
 
 /**
  * update/create the array buffer views
- * always call before drawing, does nothing if canvas dimensions did not change
- * @method Pixels#updateArraySize
+ * always call when size might change, or pixels (loading an image)
+ * @method Pixels#update
  */
-Pixels.prototype.updateArraySize = function() {
+Pixels.prototype.update = function() {
     const canvas = this.canvas;
-    if ((this.width !== canvas.width) || (this.height !== canvas.height)) {
-        this.width = canvas.width;
-        this.height = canvas.height;
-        this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-        this.pixelComponents = this.imageData.data;
-        this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    }
+    this.width = canvas.width;
+    this.height = canvas.height;
+    this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+    this.pixelComponents = this.imageData.data;
+    this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    this.integralTablesNotValid = true;
 };
 
 /**
@@ -480,84 +479,79 @@ if (guiUtils.abgrOrder) {
 // with additional row and columns of zeros to make lookup faster
 
 /**
- * note that the integral tables are not valid
- * @method Pixels#integralTablesNotValid
- */
-Pixels.prototype.setIntegralTablesNotValid = function() {
-    this.integralTablesNotValid = true;
-}
-
-/**
  * create integral color tables of input image, depending on input image,
- * call only when using averages
+ * call when using averages (high and very high quality)
  * @method Pixels#createIntegralColorTables
  */
 Pixels.prototype.createIntegralColorTables = function() {
-    let width = this.width;
-    this.widthPlus = width + 1;
-    let widthPlus = this.widthPlus;
-    let height = this.height;
-    let size = (width + 1) * (height + 1);
-    let color = {};
-    var i, j, jWidthPlus, jWidth, index;
-    // resize only if size increases
-    if (size !== this.integralRed.length) {
-        // for small input images use typed Uint32Array
-        if (size < 16700000) {
-            this.integralRed = new Uint32Array(size);
-            this.integralGreen = new Uint32Array(size);
-            this.integralBlue = new Uint32Array(size);
+    if (this.integralTablesNotValid) {
+        this.integralTablesNotValid = true;
+        let width = this.width;
+        this.widthPlus = width + 1;
+        let widthPlus = this.widthPlus;
+        let height = this.height;
+        let size = (width + 1) * (height + 1);
+        let color = {};
+        var i, j, jWidthPlus, jWidth, index;
+        // resize only if size increases
+        if (size !== this.integralRed.length) {
+            // for small input images use typed Uint32Array
+            if (size < 16700000) {
+                this.integralRed = new Uint32Array(size);
+                this.integralGreen = new Uint32Array(size);
+                this.integralBlue = new Uint32Array(size);
+            }
+            // for large images use generic array with larger integer numbers
+            else {
+                this.integralRed = new Array(size);
+                this.integralGreen = new Array(size);
+                this.integralBlue = new Array(size);
+            }
         }
-        // for large images use generic array with larger integer numbers
-        else {
-            this.integralRed = new Array(size);
-            this.integralGreen = new Array(size);
-            this.integralBlue = new Array(size);
+        var iRed, iRedLast, iRedBelow, iRedBelowLast;
+        var iGreen, iGreenLast, iGreenBelow, iGreenBelowLast;
+        var iBlue, iBlueLast, iBlueBelow, iBlueBelowLast;
+        const integralRed = this.integralRed;
+        const integralGreen = this.integralGreen;
+        const integralBlue = this.integralBlue;
+        // do the first line of zeros
+        for (i = 0; i < widthPlus; i++) {
+            integralRed[i] = 0;
+            integralGreen[i] = 0;
+            integralBlue[i] = 0;
         }
-    }
-    var iRed, iRedLast, iRedBelow, iRedBelowLast;
-    var iGreen, iGreenLast, iGreenBelow, iGreenBelowLast;
-    var iBlue, iBlueLast, iBlueBelow, iBlueBelowLast;
-    const integralRed = this.integralRed;
-    const integralGreen = this.integralGreen;
-    const integralBlue = this.integralBlue;
-    // do the first line of zeros
-    for (i = 0; i < widthPlus; i++) {
-        integralRed[i] = 0;
-        integralGreen[i] = 0;
-        integralBlue[i] = 0;
-    }
-    // do the rest
-    for (j = 1; j <= height; j++) {
-        jWidthPlus = j * widthPlus;
-        jWidth = (j - 1) * width - 1; // index to pixels, with compensation for extra row and column of the table
-        iRed = 0;
-        iRedBelow = 0;
-        iGreen = 0;
-        iGreenBelow = 0;
-        iBlue = 0;
-        iBlueBelow = 0;
-        integralRed[jWidthPlus] = 0;
-        integralGreen[jWidthPlus] = 0;
-        integralBlue[jWidthPlus] = 0;
-        for (i = 1; i < widthPlus; i++) {
-            index = jWidthPlus + i; // index to integrals
-            this.getColorAtIndex(color, i + jWidth);
-            iRedLast = iRed;
-            iRedBelowLast = iRedBelow;
-            iRedBelow = integralRed[index - widthPlus];
-            iRed = iRedLast + iRedBelow - iRedBelowLast + color.red;
-            integralRed[index] = iRed;
-            iGreenLast = iGreen;
-            iGreenBelowLast = iGreenBelow;
-            iGreenBelow = integralGreen[index - widthPlus];
-            iGreen = iGreenLast + iGreenBelow - iGreenBelowLast + color.green;
-            integralGreen[index] = iGreen;
-            iBlueLast = iBlue;
-            iBlueBelowLast = iBlueBelow;
-            iBlueBelow = integralBlue[index - widthPlus];
-            iBlue = iBlueLast + iBlueBelow - iBlueBelowLast + color.blue;
-            integralBlue[index] = iBlue;
+        // do the rest
+        for (j = 1; j <= height; j++) {
+            jWidthPlus = j * widthPlus;
+            jWidth = (j - 1) * width - 1; // index to pixels, with compensation for extra row and column of the table
+            iRed = 0;
+            iRedBelow = 0;
+            iGreen = 0;
+            iGreenBelow = 0;
+            iBlue = 0;
+            iBlueBelow = 0;
+            integralRed[jWidthPlus] = 0;
+            integralGreen[jWidthPlus] = 0;
+            integralBlue[jWidthPlus] = 0;
+            for (i = 1; i < widthPlus; i++) {
+                index = jWidthPlus + i; // index to integrals
+                this.getColorAtIndex(color, i + jWidth);
+                iRedLast = iRed;
+                iRedBelowLast = iRedBelow;
+                iRedBelow = integralRed[index - widthPlus];
+                iRed = iRedLast + iRedBelow - iRedBelowLast + color.red;
+                integralRed[index] = iRed;
+                iGreenLast = iGreen;
+                iGreenBelowLast = iGreenBelow;
+                iGreenBelow = integralGreen[index - widthPlus];
+                iGreen = iGreenLast + iGreenBelow - iGreenBelowLast + color.green;
+                integralGreen[index] = iGreen;
+                iBlueLast = iBlue;
+                iBlueBelowLast = iBlueBelow;
+                iBlueBelow = integralBlue[index - widthPlus];
+                iBlue = iBlueLast + iBlueBelow - iBlueBelowLast + color.blue;
+                integralBlue[index] = iBlue;
+            }
         }
     }
 };
@@ -573,11 +567,7 @@ Pixels.prototype.createIntegralColorTables = function() {
  * @return true, if color is valid, false, if point lies outside
  */
 Pixels.prototype.getAverageColor = function(color, x, y, halfSize) {
-	if (this.integralTablesNotValid){
-			this.integralTablesNotValid=false;
-this.createIntegralColorTables();
-	}
-	    x = Math.round(x);
+    x = Math.round(x);
     y = Math.round(y);
     if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
         color.red = 0;

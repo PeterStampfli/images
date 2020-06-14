@@ -53,11 +53,12 @@ map.sizeArray = new Float32Array(1);
  * @method map.initialize
  */
 map.initialize = function() {
-    map.sizeArrayNeedsUpdate = true;
+    map.needsSizeArrayUpdate = true;
+    map.needsNormalization = true;
     if (!guiUtils.isDefined(output.pixels)) {
         output.pixels = new Pixels(output.canvas);
     }
-    output.pixels.updateArraySize();
+    output.pixels.update();
     output.updateCanvasScale();
     output.updateCanvasTransform();
     const canvas = output.canvas;
@@ -185,35 +186,43 @@ map.showStructure = function() {
 // map.controlCanvas is for choosing how to map the input image (shift, scale rotate)
 // map.inputTransform see above
 // map.inputToControlScale is scale factor from input image to control canvas
-// map.toInputScale is prefactor, scales the unit square inside the input image (without borders)
 
 /**
- * normalize the map points to a unit square, centered
+ * normalize the map points to the inside of a square, centered
+ * size of the square is typical image size
  * simplifies mapping to an input image
+ * only required for using an input image
  * @method map.normalize
  */
+map.typicalImageSize = 2000;
+map.needsNormalization = true;
+
 map.normalize = function() {
-    var i;
-    const length = width * height;
-    let xMin = 1e10;
-    let xMax = -1e10;
-    let yMin = 1e10;
-    let yMax = -1e10;
-    for (i = 0; i < length; i++) {
-        const x = map.xArray[i];
-        xMax = Math.max(x, xMax);
-        xMin = Math.min(x, xMin);
-        const y = map.yArray[i];
-        yMax = Math.max(y, yMax);
-        yMin = Math.min(y, yMin);
-    }
-    console.log(xMin, xMax, yMin, yMax);
-    const scale = Math.min(1 / (xMax - xMin), 1 / (yMax - yMin));
-    const deltaX = 0.5 * (1 - scale * (xMax + xMin));
-    const deltaY = 0.5 * (1 - scale * (yMax + yMin));
-    for (i = 0; i < length; i++) {
-        map.xArray[i] = scale * map.xArray[i] + deltaX;
-        map.yArray[i] = scale * map.yArray[i] + deltaY;
+    if (map.needsNormalization) {
+        console.log('map.normalize');
+        map.needsNormalization = false;
+        var i;
+        const length = width * height;
+        let xMin = 1e10;
+        let xMax = -1e10;
+        let yMin = 1e10;
+        let yMax = -1e10;
+        for (i = 0; i < length; i++) {
+            const x = map.xArray[i];
+            xMax = Math.max(x, xMax);
+            xMin = Math.min(x, xMin);
+            const y = map.yArray[i];
+            yMax = Math.max(y, yMax);
+            yMin = Math.min(y, yMin);
+        }
+        console.log(xMin, xMax, yMin, yMax);
+        const scale = map.typicalImageSize / Math.max(xMax - xMin, yMax - yMin);
+        const deltaX = 0.5 * (map.typicalImageSize - scale * (xMax + xMin));
+        const deltaY = 0.5 * (map.typicalImageSize - scale * (yMax + yMin));
+        for (i = 0; i < length; i++) {
+            map.xArray[i] = scale * map.xArray[i] + deltaX;
+            map.yArray[i] = scale * map.yArray[i] + deltaY;
+        }
     }
 };
 
@@ -222,83 +231,71 @@ map.normalize = function() {
  * does not include the scaling from the map to the input image
  * includes all other scaling (from outputCanvas to map space)
  * multiply with scale from mapped image to input image
- * @method map.calculateSizes
+ * required for high and very high quality images
+ * @method map.sizeArrayUpdate
  */
-map.sizeArrayNeedsUpdate = true;
+map.needsSizeArrayUpdate = true;
 
-map.calculateSizes = function() {
-    map.sizeArrayNeedsUpdate = false;
-    const width = map.width;
-    const widthM = width - 1;
-    const heightM = map.height - 1;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const sizeArray = map.sizeArray;
-    var xPlusX, x, yPlusX, y;
-    var index;
-    var ax, ay, bx, by;
-    var size;
-    // use rhomb defined by mapped vectors
-    // from point(i,j) to point(i+1,j)
-    // from point(i,j) to point(i,j+1)
-    // so it's offset by half a pixel
-    // sizes for i=width-1 and j=height-1 have to be copied
-    for (var j = 0; j < heightM; j++) {
-        index = j * width;
-        xPlusX = xArray[index];
-        yPlusX = yArray[index];
-        for (var i = 0; i < widthM; i++) {
-            x = xPlusX;
-            xPlusX = xArray[index + 1];
-            y = yPlusX;
-            yPlusX = yArray[index + 1];
-            // if size <0 then it is an invalid point, do not change that
-            if (sizeArray[index] > 0) {
-                // the first side
-                ax = xPlusX - x;
-                ay = yPlusX - y;
-                // the second side
-                bx = xArray[index + width] - x;
-                by = yArray[index + width] - y;
-                // surface results from absolute value of the cross product
-                // the size is its square root
-                size = Math.sqrt(Math.abs(ax * by - ay * bx));
-                sizeArray[index] = size;
+map.sizeArrayUpdate = function() {
+    if (map.needsSizeArrayUpdate) {
+        console.log('map.sizeArrayUpdate');
+        map.needsSizeArrayUpdate = false;
+        const width = map.width;
+        const widthM = width - 1;
+        const heightM = map.height - 1;
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const sizeArray = map.sizeArray;
+        var xPlusX, x, yPlusX, y;
+        var index;
+        var ax, ay, bx, by;
+        var size;
+        // use rhomb defined by mapped vectors
+        // from point(i,j) to point(i+1,j)
+        // from point(i,j) to point(i,j+1)
+        // so it's offset by half a pixel
+        // sizes for i=width-1 and j=height-1 have to be copied
+        for (var j = 0; j < heightM; j++) {
+            index = j * width;
+            xPlusX = xArray[index];
+            yPlusX = yArray[index];
+            for (var i = 0; i < widthM; i++) {
+                x = xPlusX;
+                xPlusX = xArray[index + 1];
+                y = yPlusX;
+                yPlusX = yArray[index + 1];
+                // if size <0 then it is an invalid point, do not change that
+                if (sizeArray[index] > 0) {
+                    // the first side
+                    ax = xPlusX - x;
+                    ay = yPlusX - y;
+                    // the second side
+                    bx = xArray[index + width] - x;
+                    by = yArray[index + width] - y;
+                    // surface results from absolute value of the cross product
+                    // the size is its square root
+                    size = Math.sqrt(Math.abs(ax * by - ay * bx));
+                    sizeArray[index] = size;
+                }
+                index++;
             }
-            index++;
+            // the last pixel i=width-1 in a row copies the value before
+            sizeArray[index] = size;
         }
-        // the last pixel i=width-1 in a row copies the value before
-        sizeArray[index] = size;
+        // the top row at j=height-1 copies the lower row
+        let indexMax = width * map.height;
+        for (index = indexMax - width; index < indexMax; index++) {
+            sizeArray[index] = sizeArray[index - width];
+        }
+        for (index = 0; index < width; index++) {
+            sizeArray[index] = sizeArray[index + width];
+        }
     }
-    // the top row at j=height-1 copies the lower row
-    let indexMax = width * map.height;
-    for (index = indexMax - width; index < indexMax; index++) {
-        sizeArray[index] = sizeArray[index - width];
-    }
-    for (index = 0; index < width; index++) {
-        sizeArray[index] = sizeArray[index + width];
-    }
-};
-
-/**
- * what to do when the map.imageController changes the image
- * @method map.onChangeImage
- */
-map.onChangeImage = function() {
-    console.log('changed image: ' + map.inputImage);
-};
-
-/**
- * what to do when what to show changes
- * @method map.onChangeWhatToShow
- */
-map.onChangeWhatToShow = function() {
-    console.log('changed what to show: ' + map.whatToShow);
 };
 
 /**
  * create image select, div with canvas and coordinate transform
- * for using input images
+ * initialization for using input images
  * @method map.setupInputImage
  * @param {ParamGui} gui
  */
@@ -316,7 +313,8 @@ map.setupInputImage = function(gui) {
         property: 'whatToShow',
         options: ['structure', 'image'],
         onChange: function() {
-            map.onChangeWhatToShow();
+            console.log('changed what to show: ' + map.whatToShow);
+
         },
         labelText: 'show'
     });
@@ -330,9 +328,22 @@ map.setupInputImage = function(gui) {
         },
         labelText: 'input image',
         onChange: function() {
+            console.log('changed image: ' + map.inputImage);
             map.whatToShowController.setValueOnly('image');
             map.loadInputImage();
-            map.onChangeImage();
+
+        }
+    });
+    // setup quality selection
+    map.quality = 'low';
+    map.qualityController = gui.add({
+        type: 'selection',
+        params: map,
+        property: 'quality',
+        options: ['low', 'high', 'very high'],
+        onChange: function() {
+            console.log('changed quality: ' + map.quality);
+
         }
     });
     // setup control canvas
@@ -380,12 +391,13 @@ map.setupInputImage = function(gui) {
 map.loadInputImage = function(url) {
     let image = new Image();
     image.onload = function() {
+        // load to the input canvas and get pixels
+
         map.controlCanvasContext.drawImage(image, 0, 0);
         image = null;
 
         map.inputTransform.setValues(2, 2); // scale !!
         map.inputTransform.setResetValues();
-        map.inputPixels.setIntegralTablesNotValid();
     };
 
     image.src = map.inputImage;
