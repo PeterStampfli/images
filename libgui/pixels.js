@@ -20,10 +20,11 @@ from "./modules.js";
 export function Pixels(canvas) {
     this.canvas = canvas;
     this.canvasContext = this.canvas.getContext('2d');
-    this.imageData = null;
+    this.imageData = null; // changes when canvas dimensions change
+    this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
+    this.array = null; // UInt32Array with packed rgba for one pixel
     this.width = 0;
     this.height = 0;
-    this.array = null;
     // only for input image averaging
     this.integralRed = new Uint32Array(1);
     this.integralBlue = new Uint32Array(1);
@@ -44,8 +45,8 @@ Pixels.prototype.updateArraySize = function() {
         this.width = canvas.width;
         this.height = canvas.height;
         this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-        const pixelBytes = this.imageData.data;
-        this.array = new Uint32Array(pixelBytes.buffer); // a view of the pixels as an array of 32 bit integers
+        this.pixelComponents = this.imageData.data;
+        this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     }
 };
 
@@ -98,6 +99,34 @@ if (guiUtils.abgrOrder) {
         this.array[index] = color.alpha | color.blue << 8 | color.green << 16 | color.red << 24;
     };
 }
+
+// changing opacity (alpha channel) only
+
+/**
+ * set the alpha value of all pixels
+ * @method Pixels#setAlpha
+ * @param {integer} alpha - value for all pixels,optional, default is semiopaque
+ */
+Pixels.prototype.setAlpha = function(alpha = 128) {
+    for (var i = this.pixelComponents.length - 1; i > 0; i -= 4) {
+        this.pixelComponents[i] = alpha;
+    }
+};
+
+/**
+ * set alpha value of a pixel to 255 (checks if coordinates are on canvas)
+ * @method Pixels#setOpaque
+ * @param {float} x - coordinate of pixel
+ * @param {float} y - coordinate of pixel
+ */
+Pixels.prototype.setOpaque = function(x, y) {
+    x = Math.round(x);
+    y = Math.round(y);
+    // but check if we are on the canvas, shift to multiply
+    if ((x >= 0) && (x < this.width) && (y >= 0) && (y < this.height)) {
+        this.pixelComponents[((this.width * y + x) << 2) + 3] = 255;
+    }
+};
 
 // reading pixels
 //================================================================
@@ -451,7 +480,16 @@ if (guiUtils.abgrOrder) {
 // with additional row and columns of zeros to make lookup faster
 
 /**
- * create integral color tables of input image, depending on input image, call upon loading the image ???
+ * note that the integral tables are not valid
+ * @method Pixels#integralTablesNotValid
+ */
+Pixels.prototype.setIntegralTablesNotValid = function() {
+    this.integralTablesNotValid = true;
+}
+
+/**
+ * create integral color tables of input image, depending on input image,
+ * call only when using averages
  * @method Pixels#createIntegralColorTables
  */
 Pixels.prototype.createIntegralColorTables = function() {
@@ -535,7 +573,11 @@ Pixels.prototype.createIntegralColorTables = function() {
  * @return true, if color is valid, false, if point lies outside
  */
 Pixels.prototype.getAverageColor = function(color, x, y, halfSize) {
-    x = Math.round(x);
+	if (this.integralTablesNotValid){
+			this.integralTablesNotValid=false;
+this.createIntegralColorTables();
+	}
+	    x = Math.round(x);
     y = Math.round(y);
     if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
         color.red = 0;
@@ -612,6 +654,7 @@ Pixels.smoothing = 0.5;
  * @return true, if color is valid, false, if point lies outside
  */
 Pixels.prototype.getVeryHighQualityColor = function(color, x, y, size) {
+
     if (size < Pixels.thresholdCubic) {
         return this.getCubicColor(color, x, y);
     }

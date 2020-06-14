@@ -34,6 +34,7 @@ gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
 gui.addTitle('input image');
 map.setupInputImage(gui);
+map.loadInputImage();
 
 function draw() {
     map.initialize();
@@ -44,8 +45,9 @@ function draw() {
     })
     map.showStructure();
    map.normalize();
-    map.normalize();
   
+map.calculateSizes();
+
    
 }
 output.draw=draw;

@@ -53,6 +53,7 @@ map.sizeArray = new Float32Array(1);
  * @method map.initialize
  */
 map.initialize = function() {
+    map.sizeArrayNeedsUpdate = true;
     if (!guiUtils.isDefined(output.pixels)) {
         output.pixels = new Pixels(output.canvas);
     }
@@ -84,6 +85,7 @@ const point = {};
  * at return they have the final position
  * point.sector has the number of a sector. Typically, there is no mapping between sectors
  * point.iterations has the number of iterations done, or other info
+ * point.valid>=0 means that point can be used in display, else make pixel transparent
  * the xArray, yArray, iterationsArray and sectorArray have new values, but not the sizeArray
  * results are not normalized
  * @method map.make
@@ -98,12 +100,14 @@ map.make = function(mapping) {
             point.y = j;
             point.sector = 0;
             point.iterations = 0;
+            point.valid = 1;
             output.transform(point);
             mapping(point);
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
             map.sectorArray[index] = point.sector;
             map.iterationsArray[index] = point.iterations;
+            map.sizeArray[index] = point.valid;
             index += 1;
         }
     }
@@ -177,6 +181,12 @@ map.showStructure = function() {
 // using an input image
 //==============================================================
 
+// map.inputCanvas is for the pixels of the input image
+// map.controlCanvas is for choosing how to map the input image (shift, scale rotate)
+// map.inputTransform see above
+// map.inputToControlScale is scale factor from input image to control canvas
+// map.toInputScale is prefactor, scales the unit square inside the input image (without borders)
+
 /**
  * normalize the map points to a unit square, centered
  * simplifies mapping to an input image
@@ -208,6 +218,69 @@ map.normalize = function() {
 };
 
 /**
+ * calculate the sizes of pixels based on the maps differences
+ * does not include the scaling from the map to the input image
+ * includes all other scaling (from outputCanvas to map space)
+ * multiply with scale from mapped image to input image
+ * @method map.calculateSizes
+ */
+map.sizeArrayNeedsUpdate = true;
+
+map.calculateSizes = function() {
+    map.sizeArrayNeedsUpdate = false;
+    const width = map.width;
+    const widthM = width - 1;
+    const heightM = map.height - 1;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const sizeArray = map.sizeArray;
+    var xPlusX, x, yPlusX, y;
+    var index;
+    var ax, ay, bx, by;
+    var size;
+    // use rhomb defined by mapped vectors
+    // from point(i,j) to point(i+1,j)
+    // from point(i,j) to point(i,j+1)
+    // so it's offset by half a pixel
+    // sizes for i=width-1 and j=height-1 have to be copied
+    for (var j = 0; j < heightM; j++) {
+        index = j * width;
+        xPlusX = xArray[index];
+        yPlusX = yArray[index];
+        for (var i = 0; i < widthM; i++) {
+            x = xPlusX;
+            xPlusX = xArray[index + 1];
+            y = yPlusX;
+            yPlusX = yArray[index + 1];
+            // if size <0 then it is an invalid point, do not change that
+            if (sizeArray[index] > 0) {
+                // the first side
+                ax = xPlusX - x;
+                ay = yPlusX - y;
+                // the second side
+                bx = xArray[index + width] - x;
+                by = yArray[index + width] - y;
+                // surface results from absolute value of the cross product
+                // the size is its square root
+                size = Math.sqrt(Math.abs(ax * by - ay * bx));
+                sizeArray[index] = size;
+            }
+            index++;
+        }
+        // the last pixel i=width-1 in a row copies the value before
+        sizeArray[index] = size;
+    }
+    // the top row at j=height-1 copies the lower row
+    let indexMax = width * map.height;
+    for (index = indexMax - width; index < indexMax; index++) {
+        sizeArray[index] = sizeArray[index - width];
+    }
+    for (index = 0; index < width; index++) {
+        sizeArray[index] = sizeArray[index + width];
+    }
+};
+
+/**
  * what to do when the map.imageController changes the image
  * @method map.onChangeImage
  */
@@ -234,6 +307,7 @@ map.setupInputImage = function(gui) {
     map.inputCanvas = document.createElement('canvas');
     map.inputCanvas.style.display = 'none';
     map.inputPixels = new Pixels(map.inputCanvas);
+    map.inputCanvasContext = map.inputCanvas.getContext('2d');
     // what to we want to see (you can delete it)
     map.whatToShow = 'structure';
     map.whatToShowController = gui.add({
@@ -257,6 +331,7 @@ map.setupInputImage = function(gui) {
         labelText: 'input image',
         onChange: function() {
             map.whatToShowController.setValueOnly('image');
+            map.loadInputImage();
             map.onChangeImage();
         }
     });
@@ -282,7 +357,11 @@ map.setupInputImage = function(gui) {
     map.controlCanvas.style.left = '50%';
     map.controlCanvas.style.transform = 'translate(-50%,-50%)';
     map.controlPixels = new Pixels(map.controlCanvas);
+    map.controlCanvasContext = map.controlCanvas.getContext('2d');
     // the transform from the map to the input image, normalized
+    // beware of border
+    // initial values depend on the image
+    // but not on the map (because it is normalized)
     map.inputTransform = new CoordinateTransform(gui, true);
 
 
@@ -292,4 +371,22 @@ map.setupInputImage = function(gui) {
     map.controlCanvas.style.backgroundColor = 'blue';
     map.controlCanvas.style.width = '200px';
     map.controlCanvas.style.height = '100px';
+};
+
+/**
+ * load the  map.inputImage
+ * @method map.loadInputImage
+ */
+map.loadInputImage = function(url) {
+    let image = new Image();
+    image.onload = function() {
+        map.controlCanvasContext.drawImage(image, 0, 0);
+        image = null;
+
+        map.inputTransform.setValues(2, 2); // scale !!
+        map.inputTransform.setResetValues();
+        map.inputPixels.setIntegralTablesNotValid();
+    };
+
+    image.src = map.inputImage;
 };
