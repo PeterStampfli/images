@@ -95,7 +95,7 @@ map.make = function(mapping) {
         y: 0,
         iterations: 0,
         sector: 0,
-        size: 1
+        valid: 1
     };
     let index = 0;
     for (var j = 0; j < height; j++) {
@@ -170,13 +170,10 @@ map.makeColorTable(black, white);
  * @method map.showStructure
  */
 map.showStructure = function() {
-    let index = 0;
-    for (var j = 0; j < height; j++) {
-        for (var i = 0; i < width; i++) {
-            if (map.showSector[map.sectorArray[index]]) {
-                output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
-            }
-            index += 1;
+    const length = width * height;
+    for (var index = 0; index < length; index++) {
+        if (map.showSector[map.sectorArray[index]]) {
+            output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
         }
     }
     output.pixels.show();
@@ -191,7 +188,9 @@ map.showStructure = function() {
 // map.inputToControlScale is scale factor from input image to control canvas
 
 /**
- * normalize the map points to the inside of a square, centered
+ * normalize the map points to the inside of a square
+ * the square is centered around the origin
+ * the map too is centered around the origin
  * size of the square is typical image size
  * simplifies mapping to an input image
  * only required for using an input image
@@ -203,7 +202,7 @@ map.needsNormalization = true;
 map.normalize = function() {
     if (map.needsNormalization) {
         console.log('map.normalize');
-        map.needsNormalization = false;
+       // map.needsNormalization = false;
         var i;
         const length = width * height;
         let xMin = 1e10;
@@ -220,8 +219,8 @@ map.normalize = function() {
         }
         console.log(xMin, xMax, yMin, yMax);
         const scale = map.typicalImageSize / Math.max(xMax - xMin, yMax - yMin);
-        const deltaX = 0.5 * (map.typicalImageSize - scale * (xMax + xMin));
-        const deltaY = 0.5 * (map.typicalImageSize - scale * (yMax + yMin));
+        const deltaX = - 0.5*scale * (xMax + xMin);
+        const deltaY = - 0.5*scale * (yMax + yMin);
         for (i = 0; i < length; i++) {
             map.xArray[i] = scale * map.xArray[i] + deltaX;
             map.yArray[i] = scale * map.yArray[i] + deltaY;
@@ -303,7 +302,7 @@ map.sizeArrayUpdate = function() {
  * @method map.showImage
  */
 map.showImage = function() {
-    let index = 0;
+	map.controlPixels.setAlpha(128);
     const color = {
         red: 0,
         green: 128,
@@ -314,15 +313,25 @@ map.showImage = function() {
         x: 0,
         y: 0
     };
-    for (var j = 0; j < height; j++) {
-        for (var i = 0; i < width; i++) {
+    const length = width * height;
+    for (var index = 0; index < length; index++) {
+        if (map.showSector[map.sectorArray[index]]&&(map.sizeArray[index]>=0)) {
+point.x=map.xArray[index];
+point.y=map.yArray[index];
+map.inputTransform.do(point);
 
-            output.pixels.setColorAtIndex(color, index);
-            index += 1;
+output.pixels.array[index]=map.inputPixels.getNearestPixel(point.x,point.y);
+map.controlPixels.setOpaque(map.inputImageControlCanvasScale*point.x,map.inputImageControlCanvasScale*point.y);
+
+        }
+        else {
+        	output.pixels.array[index]=0;   //transparent black
         }
     }
+    map.controlPixels.show();
     output.pixels.show();
 };
+
 
 
 /**
@@ -343,7 +352,7 @@ map.setupInputImage = function(gui) {
         type: 'selection',
         params: map,
         property: 'whatToShow',
-        options: ['structure', 'image'],
+        options: ['structure', 'image - low quality', 'image - high quality', 'image - very high quality'],
         onChange: function() {
             console.log('changed what to show: ' + map.whatToShow);
 
@@ -363,18 +372,6 @@ map.setupInputImage = function(gui) {
             console.log('changed image: ' + map.inputImage);
             map.whatToShowController.setValueOnly('image');
             map.loadInputImage();
-
-        }
-    });
-    // setup quality selection
-    map.quality = 'low';
-    map.qualityController = gui.add({
-        type: 'selection',
-        params: map,
-        property: 'quality',
-        options: ['low', 'high', 'very high'],
-        onChange: function() {
-            console.log('changed quality: ' + map.quality);
 
         }
     });
@@ -409,11 +406,14 @@ map.setupInputImage = function(gui) {
 };
 
 /**
- * load the  map.inputImage
+ * load the image with url=map.inputImage
+ * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
+ * @param{function} callback - what to do after image has been loaded
  */
-map.loadInputImage = function(url) {
+map.loadInputImage = function(callback) {
     let image = new Image();
+    console.log(callback)
 
     image.onload = function() {
         // load to the input canvas, determine scale, and update pixels
@@ -421,9 +421,11 @@ map.loadInputImage = function(url) {
         map.inputCanvas.height = image.height;
         map.inputCanvasContext.drawImage(image, 0, 0);
         map.inputPixels.update();
-        // scale from square with typical image size to input image
-        const scale = Math.min(image.height, image.width) / map.typicalImageSize;
-        map.inputTransform.setValues(2, 2, scale, 0); // scale !!
+        // determine initial transformation from map range: map already done before loading image !
+
+        //
+        const scale = (Math.min(image.height, image.width)-4) / map.typicalImageSize;
+        map.inputTransform.setValues(0.5*image.width, 0.5*image.height, scale, 0); // scale !!
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width
         map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
@@ -432,6 +434,7 @@ map.loadInputImage = function(url) {
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;
+        callback();
     };
 
     image.src = map.inputImage;

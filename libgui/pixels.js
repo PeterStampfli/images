@@ -40,13 +40,15 @@ export function Pixels(canvas) {
  * @method Pixels#update
  */
 Pixels.prototype.update = function() {
-    const canvas = this.canvas;
-    this.width = canvas.width;
-    this.height = canvas.height;
-    this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-    this.pixelComponents = this.imageData.data;
-    this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     this.integralTablesNotValid = true;
+    const canvas = this.canvas;
+    if ((this.width !== canvas.width) || (this.height !== canvas.height)) {
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+        this.pixelComponents = this.imageData.data;
+        this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    }
 };
 
 /**
@@ -158,14 +160,14 @@ if (guiUtils.abgrOrder) {
 }
 
 /**
- * get integer (color) nearest to given position
- * returns integer color value, for pixels lying outside the canvas
- * @method Pixels#getNearestInteger
+ * get pixel as integer (color) nearest to given position
+ * returns integer color value, for pixels lying outside the canvas returns 0 (transparent black)
+ * @method Pixels#getNearestPixel
  * @param {float} x - coordinate of point to check
  * @param {float} y - coordinate of point to check
  * @return integer color value, if point lies outside returns 0 (transparent black)
  */
-Pixels.prototype.getNearestInteger = function(color, x, y) {
+Pixels.prototype.getNearestPixel = function(x, y) {
     const h = Math.round(x);
     const k = Math.round(y);
     if ((h < 0) || (h >= this.width) || (k < 0) || (k >= this.height)) {

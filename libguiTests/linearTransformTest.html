@@ -34,25 +34,30 @@ gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
 gui.addTitle('input image');
 map.setupInputImage(gui);
-map.loadInputImage();
 
-function draw() {
+function draw() {console.log('drawing')
     map.initialize();
     map.make(function(data){
         data.iterations=Math.round(4*data.x+4*data.y);
  //       data.x=4*data.x;
+ data.x=Math.abs(data.x-0.5)
+ data.x=data.x-Math.floor(data.x);
  //       data.y+=9;
     })
-    map.showImage();
+ //   map.showStructure();
    map.normalize();
    map.normalize();
-  
+      map.showImage();
+
 map.sizeArrayUpdate();
 
    
 }
 output.draw=draw;
-draw();
+
+map.loadInputImage(draw);
+
+
 </script>
 
 </html>
