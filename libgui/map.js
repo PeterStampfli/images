@@ -74,10 +74,6 @@ map.initialize = function() {
     }
 };
 
-// an object with the mapping data for a single point
-// fields are x, y, iterations, sector
-// has input and return data for mapping function
-const point = {};
 
 /**
  * make the map using the mapping(point) function
@@ -94,6 +90,13 @@ const point = {};
  */
 map.make = function(mapping) {
     map.initialize();
+    const point = {
+        x: 0,
+        y: 0,
+        iterations: 0,
+        sector: 0,
+        size: 1
+    };
     let index = 0;
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
@@ -293,6 +296,35 @@ map.sizeArrayUpdate = function() {
     }
 };
 
+
+/**
+ * show image resulting from the map and the input image
+ * depending on quality and transform
+ * @method map.showImage
+ */
+map.showImage = function() {
+    let index = 0;
+    const color = {
+        red: 0,
+        green: 128,
+        blue: 0,
+        alpha: 255
+    };
+    const point = {
+        x: 0,
+        y: 0
+    };
+    for (var j = 0; j < height; j++) {
+        for (var i = 0; i < width; i++) {
+
+            output.pixels.setColorAtIndex(color, index);
+            index += 1;
+        }
+    }
+    output.pixels.show();
+};
+
+
 /**
  * create image select, div with canvas and coordinate transform
  * initialization for using input images
@@ -374,14 +406,6 @@ map.setupInputImage = function(gui) {
     // initial values depend on the image
     // but not on the map (because it is normalized)
     map.inputTransform = new CoordinateTransform(gui, true);
-
-
-
-
-    // only debugging
-    map.controlCanvas.style.backgroundColor = 'blue';
-    map.controlCanvas.style.width = '200px';
-    map.controlCanvas.style.height = '100px';
 };
 
 /**
@@ -390,14 +414,24 @@ map.setupInputImage = function(gui) {
  */
 map.loadInputImage = function(url) {
     let image = new Image();
+
     image.onload = function() {
-        // load to the input canvas and get pixels
-
-        map.controlCanvasContext.drawImage(image, 0, 0);
-        image = null;
-
-        map.inputTransform.setValues(2, 2); // scale !!
+        // load to the input canvas, determine scale, and update pixels
+        map.inputCanvas.width = image.width;
+        map.inputCanvas.height = image.height;
+        map.inputCanvasContext.drawImage(image, 0, 0);
+        map.inputPixels.update();
+        // scale from square with typical image size to input image
+        const scale = Math.min(image.height, image.width) / map.typicalImageSize;
+        map.inputTransform.setValues(2, 2, scale, 0); // scale !!
         map.inputTransform.setResetValues();
+        // load to control canvas, determine scale to fit into square of gui width
+        map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
+        map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
+        map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
+        map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
+        map.controlPixels.update();
+        image = null;
     };
 
     image.src = map.inputImage;
