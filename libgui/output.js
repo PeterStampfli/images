@@ -39,10 +39,9 @@ output.updateCanvasScale = function() {
 /**
  * updating the canvas context transform
  * always use at start of draw method if canvas context drawing is done
- * calls updateCanvasScale as this is always required
- * @method output.updateCanvasTransform
+ * @method output.updateCanvasContextTransform
  */
-output.updateCanvasTransform = function() {
+output.updateCanvasContextTransform = function() {
     output.updateCanvasScale();
     const coordinateTransform = output.coordinateTransform;
     const totalScale = 1 / (coordinateTransform.scale * output.canvasScale);

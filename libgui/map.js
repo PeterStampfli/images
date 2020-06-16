@@ -25,7 +25,7 @@ export const map = {};
 
 map.inputImage = '../libgui/testimage.jpg';
 
-// dimensions, private, required to see if resizing arrays is required
+// dimensions, private, required to check if resizing arrays is required
 // then same as for output canvas
 
 let width = 1;
@@ -44,6 +44,29 @@ map.iterationsArray = new Uint8Array(1);
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
+
+/**
+ * the mapping function transforms a point argument
+ * point.re and point.im have the intial position at call
+ * at return they have the final position
+ * point.sector has the number of a sector. Typically, there is no mapping between sectors
+ * point.iterations has the number of iterations done, or other info
+ * point.valid>=0 means that point can be used in display, else make pixel transparent
+ * the xArray, yArray, iterationsArray and sectorArray have new values, but not the sizeArray
+ * results are not normalized
+ * @method map.mapping
+ * @param {object}point
+ */
+map.mapping = function(point) {}; // default is identity
+
+/**
+ * set the mapping function
+ * @method map.setMapping
+ * @param {function} mappingFun
+ */
+map.setMapping = function(mappingFun) {
+    map.mapping = mappingFun;
+};
 
 /**
  * initialization, at start of the drawing method
@@ -74,22 +97,12 @@ map.initialize = function() {
     }
 };
 
-
 /**
- * make the map using the mapping(point) function
- * initializes canvas transform and array sizes
- * point.x and point.y have the intial position at call
- * at return they have the final position
- * point.sector has the number of a sector. Typically, there is no mapping between sectors
- * point.iterations has the number of iterations done, or other info
- * point.valid>=0 means that point can be used in display, else make pixel transparent
- * the xArray, yArray, iterationsArray and sectorArray have new values, but not the sizeArray
- * results are not normalized
+ * make the map using the map.mapping(point) function
+ * initialize map before
  * @method map.make
- * @param {function} mapping 
  */
-map.make = function(mapping) {
-    map.initialize();
+map.make = function() {
     const point = {
         x: 0,
         y: 0,
@@ -100,21 +113,38 @@ map.make = function(mapping) {
     let index = 0;
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
-            point.x = i;
-            point.y = j;
+            point.re = i;
+            point.im = j;
             point.sector = 0;
             point.iterations = 0;
             point.valid = 1;
             output.transform(point);
             mapping(point);
-            map.xArray[index] = point.x;
-            map.yArray[index] = point.y;
+            map.xArray[index] = point.re;
+            map.yArray[index] = point.im;
             map.sectorArray[index] = point.sector;
             map.iterationsArray[index] = point.iterations;
             map.sizeArray[index] = point.valid;
             index += 1;
         }
     }
+};
+
+/**
+ * set the output transform values (in overaall setup)
+ * after transform the center of the canvas will have given coordinate values
+ * and geometric mean range for canvas will have given value
+ * @method map.setOutputCanvasCenterRange
+ * @param {number} centerX
+ * @param {number} centerY
+ * @param {number} range
+ */
+map.setOutputCanvasCenterRange = function(centerX, centerY, range) {
+    const totalScale = range * output.canvasScale;
+    const shiftX = centerX - 0.5 * output.canvas.width * totalScale;
+    const shiftY = centerY - 0.5 * output.canvas.height * totalScale;
+    output.transform.setValue(shiftX, shiftY, range, 0);
+    output.transform.setResetValues();
 };
 
 // showing the map
@@ -188,21 +218,16 @@ map.showStructure = function() {
 // map.inputToControlScale is scale factor from input image to control canvas
 
 /**
- * normalize the map points to the inside of a square
- * the square is centered around the origin
- * the map too is centered around the origin
- * size of the square is typical image size
- * simplifies mapping to an input image
+ * get range of map values
  * only required for using an input image
- * @method map.normalize
+ * @method map.determineRange
  */
-map.typicalImageSize = 2000;
-map.needsNormalization = true;
 
-map.normalize = function() {
+
+map.determineRange = function() {
     if (map.needsNormalization) {
         console.log('map.normalize');
-       // map.needsNormalization = false;
+        // map.needsNormalization = false;
         var i;
         const length = width * height;
         let xMin = 1e10;
@@ -217,14 +242,10 @@ map.normalize = function() {
             yMax = Math.max(y, yMax);
             yMin = Math.min(y, yMin);
         }
-        console.log(xMin, xMax, yMin, yMax);
-        const scale = map.typicalImageSize / Math.max(xMax - xMin, yMax - yMin);
-        const deltaX = - 0.5*scale * (xMax + xMin);
-        const deltaY = - 0.5*scale * (yMax + yMin);
-        for (i = 0; i < length; i++) {
-            map.xArray[i] = scale * map.xArray[i] + deltaX;
-            map.yArray[i] = scale * map.yArray[i] + deltaY;
-        }
+        map.xMin = xMin;
+        map.xMax = xMax;
+        map.yMin = yMin;
+        map.yMax = yMax;
     }
 };
 
@@ -302,30 +323,29 @@ map.sizeArrayUpdate = function() {
  * @method map.showImage
  */
 map.showImage = function() {
-	map.controlPixels.setAlpha(128);
+    map.controlPixels.setAlpha(128);
     const color = {
         red: 0,
         green: 128,
         blue: 0,
         alpha: 255
     };
-    const point = {
-        x: 0,
-        y: 0
+    const point = { // make it a complex number
+        re: 0,
+        im: 0
     };
     const length = width * height;
     for (var index = 0; index < length; index++) {
-        if (map.showSector[map.sectorArray[index]]&&(map.sizeArray[index]>=0)) {
-point.x=map.xArray[index];
-point.y=map.yArray[index];
-map.inputTransform.do(point);
+        if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+            point.re = map.xArray[index];
+            point.im = map.yArray[index];
+            map.inputTransform.do(point);
 
-output.pixels.array[index]=map.inputPixels.getNearestPixel(point.x,point.y);
-map.controlPixels.setOpaque(map.inputImageControlCanvasScale*point.x,map.inputImageControlCanvasScale*point.y);
+            output.pixels.array[index] = map.inputPixels.getNearestPixel(point.re, point.im);
+            map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.re, map.inputImageControlCanvasScale * point.im);
 
-        }
-        else {
-        	output.pixels.array[index]=0;   //transparent black
+        } else {
+            output.pixels.array[index] = 0; //transparent black
         }
     }
     map.controlPixels.show();
@@ -413,7 +433,6 @@ map.setupInputImage = function(gui) {
  */
 map.loadInputImage = function(callback) {
     let image = new Image();
-    console.log(callback)
 
     image.onload = function() {
         // load to the input canvas, determine scale, and update pixels
@@ -424,8 +443,8 @@ map.loadInputImage = function(callback) {
         // determine initial transformation from map range: map already done before loading image !
 
         //
-        const scale = (Math.min(image.height, image.width)-4) / map.typicalImageSize;
-        map.inputTransform.setValues(0.5*image.width, 0.5*image.height, scale, 0); // scale !!
+        const scale = (Math.min(image.height, image.width) - 4) / map.typicalImageSize;
+        map.inputTransform.setValues(0.5 * image.width, 0.5 * image.height, scale, 0); // scale !!
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width
         map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
