@@ -430,6 +430,8 @@ RealNumber.prototype.getValue = function() {
         value = this.lastValue;
     }
     value = this.quantizeClamp(value);
+    this.determineVisibleDigits(value);
+    this.setInputRangeIndicator(value);
     return value;
 };
 
@@ -508,7 +510,6 @@ RealNumber.prototype.cursorPositionFromPower = function(power) {
     return cursorPosition;
 };
 
-
 /**
  * change value of digit at the left of the cursor in the input element
  * depending on direction argument (positive increases digit, negative decreases)
@@ -533,6 +534,7 @@ RealNumber.prototype.changeDigit = function(direction) {
         if (this.input.selectionStart === this.input.value.length) {
             this.visibleDigits = Math.min(this.visibleDigits + 1, this.maxDigits);
         }
+        this.determineVisibleDigits(value);
         this.setInputRangeIndicator(value);
         let cursorPosition = this.cursorPositionFromPower(power);
         if (value >= 0) {

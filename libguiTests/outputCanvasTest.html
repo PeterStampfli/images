@@ -24,19 +24,24 @@ import {
     output,
     map
 } from "../libgui/modules.js";
-
-const gui=new ParamGui({name:'test',closed:false});
+const gui = new ParamGui({
+    name: 'test',
+    closed: false
+});
 // an output canvas and some test image
 output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
-gui.addParagraph('coordinate transform')
-output.addCoordinateTransform(gui,false);
-var pix=new Pixels(canvas);
+gui.addTitle('coordinate transform')
+output.addCoordinateTransform(gui, true);
+gui.addTitle('grid');
+
+output.addGrid(gui);
+var pix = new Pixels(canvas);
+output.setInitialCoordinates(-1,0,3);
 
 function draw() {
-    output.updateCanvasScale();
-    output.updateCanvasContextTransform();
+    output.updateTransform();
     pix.update();
     const color = {};
     const height = canvas.height;
@@ -54,34 +59,37 @@ function draw() {
             v.x = i;
             output.transform(v);
 
-            let red = 255;
+            let red = 0;
             let green = 0;
             let blue = 200;
 
 
-            if ((v.x > 0.4) && (v.x < 0.6) && (v.y > 0.4) && (v.y < 0.6)) {
-                green = 255;
+            if ((Math.round(v.x) + Math.round(v.y)) & 1) {
+                red = 255;
             }
-            if (v.x > 0.5) {
-                blue = 0;
+            if ((v.x > 0) & (v.y > 0) & (v.x < 0.5) & (v.y < 0.5)) {
+                green = 255;
             }
 
             color.red = red;
             color.alpha = 255;
             color.green = green;
             color.blue = blue;
-            pix.setColorAtIndex(color,index);
+            pix.setColorAtIndex(color, index);
 
             index += 1;
         }
     }
     // canvasContext.putImageData(imageData, 0, 0);
     pix.show();
-    canvasContext.lineWidth = 0.03;
-    canvasContext.strokeRect(0.4, 0.4, 0.2, 0.2);
+    output.setLineWidth(3);
+    canvasContext.strokeStyle='yellow'
+    canvasContext.strokeRect(0.0, 0.0, 0.2, 0.2);
+    output.drawGrid();
 
 }
-output.draw=draw;
+output.draw = draw;
+output.gridDraw=draw;
 draw();
 
 </script>

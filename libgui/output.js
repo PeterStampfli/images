@@ -26,37 +26,6 @@ output.divHeight = 0;
 output.divWidth = 0;
 
 /**
- * updating the canvas scale
- * always use in the beginning of the draw method if using the canvas transform
- * makes that the transformed image does not change when the canvas size changes
- * a square canvas will have coordinates going from 0...1
- * @method output.updateCanvasScale
- */
-output.updateCanvasScale = function() {
-    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
-};
-
-/**
- * updating the canvas context transform
- * always use at start of draw method if canvas context drawing is done
- * @method output.updateCanvasContextTransform
- */
-output.updateCanvasContextTransform = function() {
-    output.updateCanvasScale();
-    const coordinateTransform = output.coordinateTransform;
-    const totalScale = 1 / (coordinateTransform.scale * output.canvasScale);
-    const angle = Math.PI / 180 * coordinateTransform.angle;
-    const cosAngleScale = totalScale * Math.cos(angle);
-    const sinAngleScale = totalScale * Math.sin(angle);
-    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-    const deltaX = cosAngleScale * coordinateTransform.shiftX + sinAngleScale * coordinateTransform.shiftY;
-    const deltaY = -sinAngleScale * coordinateTransform.shiftX + cosAngleScale * coordinateTransform.shiftY;
-    output.canvasContext.translate(-deltaX, -deltaY);
-    output.canvasContext.rotate(-angle);
-    output.canvasContext.scale(totalScale, totalScale);
-};
-
-/**
  * a method to (re)draw the canvas upon resize and so on
  * define your own method to get your image
  * call it after initialization of everything to get a first image
@@ -599,15 +568,163 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
 };
 
 /**
+ * change initial coordinate axis ranges:
+ * define coordinate values (centerX, centerY) at center of image
+ * define range for square canvas, mean value for rectangular canvas
+ * @method output.setInitialCoordinates
+ * @param {number} centerX
+ * @param {number} centerY
+ * @param {number} range
+ */
+output.setInitialCoordinates = function(centerX, centerY, range) {
+    const coordinateTransform = output.coordinateTransform;
+    const canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+    const shiftX = centerX - 0.5 * output.canvas.width * canvasScale * range;
+    const shiftY = centerY - 0.5 * output.canvas.height * canvasScale * range;
+    coordinateTransform.setValues(shiftX, shiftY, range, 0);
+    coordinateTransform.setResetValues();
+};
+
+
+
+
+/**
+ * updating the canvas context transform and the pixel transform parameters
+ * always use at start of draw method if canvas context drawing is done
+ * @method output.updateCanvasContextTransform
+ */
+var cosAngleTotalScale, sinAngleTotalScale;
+var shiftX, shiftY;
+output.updateTransform = function() {
+    const coordinateTransform = output.coordinateTransform;
+    // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
+    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+    // inverse transform, coordinate space to pixels
+    const invTotalScale = 1 / (coordinateTransform.scale * output.canvasScale);
+    const cosAngleInvTotalScale = coordinateTransform.cosAngleInvScale / output.canvasScale;
+    const sinAngleInvTotalScale = coordinateTransform.sinAngleInvScale / output.canvasScale;
+    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    const deltaX = cosAngleInvTotalScale * coordinateTransform.shiftX + sinAngleInvTotalScale * coordinateTransform.shiftY;
+    const deltaY = -sinAngleInvTotalScale * coordinateTransform.shiftX + cosAngleInvTotalScale * coordinateTransform.shiftY;
+    output.canvasContext.translate(-deltaX, -deltaY);
+    output.canvasContext.rotate(-coordinateTransform.angle / 180 * Math.PI);
+    output.canvasContext.scale(invTotalScale, invTotalScale);
+    // forward transform pixel indices to coordinate space
+    cosAngleTotalScale = output.canvasScale * coordinateTransform.cosAngleScale;
+    sinAngleTotalScale = output.canvasScale * coordinateTransform.sinAngleScale;
+    shiftX = coordinateTransform.shiftX;
+    shiftY = coordinateTransform.shiftY;
+};
+
+/**
+ * set the line width in pixels, independent of scale
+ * compensate for the scaling of the inverse transform: multiply with scale of forward transform
+ * @method output.setLineWidth
+ * @param{number} width
+ */
+output.setLineWidth = function(width) {
+    output.canvasContext.lineWidth = width * output.canvasScale * output.coordinateTransform.scale;
+};
+
+/**
  * do the transform for the output canvas: first rotate and scale, then shift
  * @method output#transform
  * @param {Object} v - with coordinates v.x and v.y
  */
 output.transform = function(v) {
-    v.x *= output.canvasScale;
-    v.y *= output.canvasScale;
-    const transform = output.coordinateTransform;
-    let h = transform.cosAngleScale * v.x - transform.sinAngleScale * v.y + transform.shiftX;
-    v.y = transform.sinAngleScale * v.x + transform.cosAngleScale * v.y + transform.shiftY;
+    let h = cosAngleTotalScale * v.x - sinAngleTotalScale * v.y + shiftX;
+    v.y = sinAngleTotalScale * v.x + cosAngleTotalScale * v.y + shiftY;
     v.x = h;
+};
+
+/**
+ * redrawing when grid parameters change
+ * the map remains the same
+ * @method output.gridDraw()
+ */
+output.gridDraw = function() {
+    console.log('gridDraw');
+};
+
+/**
+ * add a grid to the canvas
+ * @method output.addGrid
+ * @param {ParamGui} gui
+ */
+const grid = {};
+grid.on = true;
+grid.interval = 1;
+grid.color = '#000000';
+grid.axisWidth = 6;
+grid.lineWidth = 3;
+
+output.addGrid = function(gui) {
+    const onOffController = gui.add({
+        type: 'boolean',
+        params: grid,
+        property: 'on',
+        labelText: '',
+        onChange: function() {
+            output.gridDraw();
+        }
+    });
+    const intervalController = onOffController.add({
+        type: 'number',
+        params: grid,
+        property: 'interval',
+        step: 0.1,
+        min: 0.1,
+        onChange: function() {
+            output.gridDraw();
+        }
+    });
+    const colorController = gui.add({
+        type: 'color',
+        params: grid,
+        property: 'color',
+        onChange: function() {
+            output.gridDraw();
+        }
+    });
+};
+
+/**
+ * draw the grid
+ * @method output.drawGrid
+ */
+output.drawGrid = function() {
+    if (grid.on){
+    const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = grid.color;
+    // canvas limits to coordinate space, without rotation
+    const coordinateTransform = output.coordinateTransform;
+    const xMin = coordinateTransform.shiftX;
+    const xMax = output.canvas.width * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftX;
+    const yMin = coordinateTransform.shiftY;
+    const yMax = output.canvas.height * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftY;
+    // axis
+    output.setLineWidth(grid.axisWidth);
+    canvasContext.beginPath();
+    canvasContext.moveTo(xMin, 0);
+    canvasContext.lineTo(xMax, 0);
+    canvasContext.moveTo(0, yMin);
+    canvasContext.lineTo(0, yMax);
+    canvasContext.stroke();
+    //grid lines
+    output.setLineWidth(grid.lineWidth);
+    const iMax = Math.floor(xMax / grid.interval);
+    for (let i = Math.floor(xMin / grid.interval + 1); i <= iMax; i++) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(i * grid.interval, yMin);
+        canvasContext.lineTo(i * grid.interval, yMax);
+        canvasContext.stroke();
+    }
+    const jMax = Math.floor(yMax / grid.interval);
+    for (let j = Math.floor(yMin / grid.interval + 1); j <= jMax; j++) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(xMin, j * grid.interval);
+        canvasContext.lineTo(xMax, j * grid.interval);
+        canvasContext.stroke();
+    }
+}
 };
