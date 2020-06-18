@@ -55,28 +55,22 @@ function draw() {
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
             v.y = j;
-
             v.x = i;
             output.transform(v);
-
             let red = 0;
             let green = 0;
             let blue = 200;
-
-
             if ((Math.round(v.x) + Math.round(v.y)) & 1) {
                 red = 255;
             }
             if ((v.x > 0) & (v.y > 0) & (v.x < 0.5) & (v.y < 0.5)) {
                 green = 255;
             }
-
             color.red = red;
             color.alpha = 255;
             color.green = green;
             color.blue = blue;
             pix.setColorAtIndex(color, index);
-
             index += 1;
         }
     }
@@ -86,7 +80,6 @@ function draw() {
     canvasContext.strokeStyle='yellow'
     canvasContext.strokeRect(0.0, 0.0, 0.2, 0.2);
     output.drawGrid();
-
 }
 output.draw = draw;
 output.gridDraw=draw;

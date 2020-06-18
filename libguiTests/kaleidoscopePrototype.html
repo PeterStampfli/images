@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title> linearTransform (test)</title>
+    <title> kaleidoscope prototype</title>
 </head>
 
 <body>
@@ -33,33 +33,26 @@ const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
+output.setInitialCoordinates(-1,0,3);
 gui.addTitle('input image');
 map.setupInputImage(gui);
 
 // setup mapping show structure
 
+map.mapping=function(point){
+  point.iterations=(Math.round(v.x) + Math.round(v.y)) & 1 ;
+                
+}
 
-function draw() {console.log('drawing')
-    map.initialize();
-    map.make(function(data){
-        data.iterations=Math.round(4*data.x+4*data.y);
- //       data.x=4*data.x;
- data.x=Math.abs(data.x-0.5)
- data.x=data.x-Math.floor(data.x);
- //       data.y+=9;
-    })
- //   map.showStructure();
-   map.normalize();
-   map.normalize();
-      map.showImage();
 
-map.sizeArrayUpdate();
-
+function draw() {
+console.log('drawing '+map.whatToShow);
    
 }
+
+draw();
 output.draw=draw;
 
-map.loadInputImage(draw);
 
 
 </script>

@@ -119,7 +119,7 @@ map.make = function() {
             point.iterations = 0;
             point.valid = 1;
             output.transform(point);
-            mapping(point);
+            map.mapping(point);
             map.xArray[index] = point.re;
             map.yArray[index] = point.im;
             map.sectorArray[index] = point.sector;
@@ -128,23 +128,6 @@ map.make = function() {
             index += 1;
         }
     }
-};
-
-/**
- * set the output transform values (in overaall setup)
- * after transform the center of the canvas will have given coordinate values
- * and geometric mean range for canvas will have given value
- * @method map.setOutputCanvasCenterRange
- * @param {number} centerX
- * @param {number} centerY
- * @param {number} range
- */
-map.setOutputCanvasCenterRange = function(centerX, centerY, range) {
-    const totalScale = range * output.canvasScale;
-    const shiftX = centerX - 0.5 * output.canvas.width * totalScale;
-    const shiftY = centerY - 0.5 * output.canvas.height * totalScale;
-    output.transform.setValue(shiftX, shiftY, range, 0);
-    output.transform.setResetValues();
 };
 
 // showing the map
@@ -157,6 +140,22 @@ map.showSector.length = 256;
 for (let i = 0; i < 256; i++) {
     map.showSector[i] = true;
 }
+
+/**
+* showing the map as structure or image, depending on map.whatToShow
+* @method map.show
+*/
+map.show=function(){
+    console.log('map.show '+map.whatToShow);
+
+    switch (map.whatToShow){
+       case 'structure':
+       case   'image - low quality':
+        case   'image - high quality':
+         case   'image - very high quality':
+
+    }
+};
 
 // show the structure resulting from the number of iterations
 // typically two colors (even/odd)
@@ -355,7 +354,7 @@ map.showImage = function() {
 
 
 /**
- * create image select, div with canvas and coordinate transform
+ * create selector for what to show, image select, div with canvas and coordinate transform
  * initialization for using input images
  * @method map.setupInputImage
  * @param {ParamGui} gui
