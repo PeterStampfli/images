@@ -69,6 +69,32 @@ map.setMapping = function(mappingFun) {
 };
 
 /**
+ * what to do when only the image changed (incl quality)
+ * @method map.showImageChanged
+ */
+map.showImageChanged = function() {
+    map.show(); // default, change if you want to show a grid ...
+};
+
+output.showGridChanged = function() {
+    map.showImageChanged();
+};
+
+/**
+ * what to do when the map changes (parameters, canvas size too)
+ * @method map.showMapChanged
+ */
+map.showMapChanged = function() {
+    map.initialize();
+    map.make();
+    map.showImageChanged();
+};
+
+output.showCanvasChanged = function() {
+    map.showMapChanged();
+};
+
+/**
  * initialization, at start of the drawing method
  * update output canvas parameters and array dimensions
  * make sure that we have output.pixels(output.canvas)
@@ -142,17 +168,17 @@ for (let i = 0; i < 256; i++) {
 }
 
 /**
-* showing the map as structure or image, depending on map.whatToShow
-* @method map.show
-*/
-map.show=function(){
-    console.log('map.show '+map.whatToShow);
+ * showing the map as structure or image, depending on map.whatToShow
+ * @method map.show
+ */
+map.show = function() {
+    console.log('map.show ' + map.whatToShow);
 
-    switch (map.whatToShow){
-       case 'structure':
-       case   'image - low quality':
-        case   'image - high quality':
-         case   'image - very high quality':
+    switch (map.whatToShow) {
+        case 'structure':
+        case 'image - low quality':
+        case 'image - high quality':
+        case 'image - very high quality':
 
     }
 };

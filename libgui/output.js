@@ -26,20 +26,22 @@ output.divHeight = 0;
 output.divWidth = 0;
 
 /**
- * a method to (re)draw the canvas upon resize and so on
+ * show the output image when the canvas changes (size or transform)
  * define your own method to get your image
  * call it after initialization of everything to get a first image
- * to avoid flickering use in the beginning output.draw = function(){};
- * @method output.draw
+ * @method output.showCanvasChange
  */
-output.draw = function() {
-    const canvas = output.canvas;
-    const context = output.canvas.getContext('2d');
-    context.fillStyle = 'blue';
-    context.fillRect(0, 0, output.canvas.width, output.canvas.height);
-    context.fillStyle = 'white';
-    context.font = Math.round(canvas.height / 20) + 'px FreeSans';
-    context.fillText('Please define the output.draw() method!', canvas.width / 20, canvas.height / 2, canvas.width * 0.9);
+output.showCanvasChanged = function() {
+    console.error('Please define method output.showCanvasChanged!');
+};
+
+/**
+ * show output image when grid parameters change
+ * the map remains the same, do same as when image changes
+ * @method output.showGridChanged()
+ */
+output.showGridChanged = function() {
+    console.error('Please define method output.showGridChanged!');
 };
 
 /**
@@ -161,11 +163,14 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
         console.error("output.saveCanvasAsFile: there is no canvas!");
     }
 };
+
 // if autoresize is on:
 // resizing after the output.div has been resized, knowing its new dimensions
 // draws output if outoresize is on and size changes
 // if autoscale is on: adjust size of canvas image, the canvas itself does not change, no redraw
-// else adjust scroll  bars
+// else adjust scroll bars
+let showCanvasOnResize = false;
+
 function autoResize() {
     const oldWidth = widthController.getValue();
     const oldHeight = heightController.getValue();
@@ -192,7 +197,9 @@ function autoResize() {
             // only if the true canvas dimensions change then we need to redraw
             widthController.setValueOnly(newWidth);
             heightController.setValueOnly(newHeight);
-            output.draw();
+            if (showCanvasOnResize) {
+                output.showCanvasChanged();
+            }
         }
     } else if (autoScaleController.getValue()) {
         var scale;
@@ -287,7 +294,7 @@ output.createCanvas = function(gui, folderName) {
             }
             autoResizeController.setValueOnly(false);
             autoResize();
-            output.draw();
+            output.showCanvasChanged();
         }
     });
     widthController.hSpace(30);
@@ -304,7 +311,7 @@ output.createCanvas = function(gui, folderName) {
             }
             autoResizeController.setValueOnly(false);
             autoResize();
-            output.draw();
+            output.showCanvasChanged();
         }
     });
 
@@ -361,7 +368,9 @@ output.createCanvas = function(gui, folderName) {
         output.createDiv();
     }
     output.div.appendChild(output.canvas);
+                showCanvasOnResize = false;
     autoResize();
+                showCanvasOnResize = true;
     window.addEventListener("resize", autoResize, false);
 };
 
@@ -406,7 +415,7 @@ output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = ste
     widthController.setStep(stepVertical);
     heightController.setStep(stepHorizontal);
     if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
-        output.draw();
+        output.showCanvasChanged();
     }
     autoResize();
 };
@@ -442,7 +451,7 @@ function makeArgs(buttonDefinition) {
             } else {
                 heightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
             }
-            output.draw();
+            output.showCanvasChanged();
             autoResize();
         };
     } else {
@@ -476,7 +485,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
     output.coordinateTransform.onChange = function() {
-        output.draw(); // this calls always the latest version
+        output.showCanvasChanged(); // this calls always the latest version
     };
     output.canvas.style.cursor = "pointer";
     output.mouseEvents = new MouseEvents(output.canvas);
@@ -522,7 +531,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             coordinateTransform.shiftX -= v.x;
             coordinateTransform.shiftY -= v.y;
             coordinateTransform.updateUI();
-            output.draw();
+            output.showCanvasChanged();
         }
     };
     mouseEvents.moveAction = function() {
@@ -562,7 +571,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             coordinateTransform.shiftX += u.x - v.x;
             coordinateTransform.shiftY += u.y - v.y;
             coordinateTransform.updateUI();
-            output.draw();
+            output.showCanvasChanged();
         }
     };
 };
@@ -584,9 +593,6 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
     coordinateTransform.setValues(shiftX, shiftY, range, 0);
     coordinateTransform.setResetValues();
 };
-
-
-
 
 /**
  * updating the canvas context transform and the pixel transform parameters
@@ -638,15 +644,6 @@ output.transform = function(v) {
 };
 
 /**
- * redrawing when grid parameters change
- * the map remains the same
- * @method output.gridDraw()
- */
-output.gridDraw = function() {
-    console.log('gridDraw');
-};
-
-/**
  * add a grid to the canvas
  * @method output.addGrid
  * @param {ParamGui} gui
@@ -665,7 +662,7 @@ output.addGrid = function(gui) {
         property: 'on',
         labelText: '',
         onChange: function() {
-            output.gridDraw();
+            output.showGridChanged();
         }
     });
     const intervalController = onOffController.add({
@@ -675,7 +672,7 @@ output.addGrid = function(gui) {
         step: 0.1,
         min: 0.1,
         onChange: function() {
-            output.gridDraw();
+            output.showGridChanged();
         }
     });
     const colorController = gui.add({
@@ -683,7 +680,7 @@ output.addGrid = function(gui) {
         params: grid,
         property: 'color',
         onChange: function() {
-            output.gridDraw();
+            output.showGridChanged();
         }
     });
 };
@@ -693,38 +690,38 @@ output.addGrid = function(gui) {
  * @method output.drawGrid
  */
 output.drawGrid = function() {
-    if (grid.on){
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = grid.color;
-    // canvas limits to coordinate space, without rotation
-    const coordinateTransform = output.coordinateTransform;
-    const xMin = coordinateTransform.shiftX;
-    const xMax = output.canvas.width * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftX;
-    const yMin = coordinateTransform.shiftY;
-    const yMax = output.canvas.height * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftY;
-    // axis
-    output.setLineWidth(grid.axisWidth);
-    canvasContext.beginPath();
-    canvasContext.moveTo(xMin, 0);
-    canvasContext.lineTo(xMax, 0);
-    canvasContext.moveTo(0, yMin);
-    canvasContext.lineTo(0, yMax);
-    canvasContext.stroke();
-    //grid lines
-    output.setLineWidth(grid.lineWidth);
-    const iMax = Math.floor(xMax / grid.interval);
-    for (let i = Math.floor(xMin / grid.interval + 1); i <= iMax; i++) {
+    if (grid.on) {
+        const canvasContext = output.canvasContext;
+        canvasContext.strokeStyle = grid.color;
+        // canvas limits to coordinate space, without rotation
+        const coordinateTransform = output.coordinateTransform;
+        const xMin = coordinateTransform.shiftX;
+        const xMax = output.canvas.width * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftX;
+        const yMin = coordinateTransform.shiftY;
+        const yMax = output.canvas.height * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftY;
+        // axis
+        output.setLineWidth(grid.axisWidth);
         canvasContext.beginPath();
-        canvasContext.moveTo(i * grid.interval, yMin);
-        canvasContext.lineTo(i * grid.interval, yMax);
+        canvasContext.moveTo(xMin, 0);
+        canvasContext.lineTo(xMax, 0);
+        canvasContext.moveTo(0, yMin);
+        canvasContext.lineTo(0, yMax);
         canvasContext.stroke();
+        //grid lines
+        output.setLineWidth(grid.lineWidth);
+        const iMax = Math.floor(xMax / grid.interval);
+        for (let i = Math.floor(xMin / grid.interval + 1); i <= iMax; i++) {
+            canvasContext.beginPath();
+            canvasContext.moveTo(i * grid.interval, yMin);
+            canvasContext.lineTo(i * grid.interval, yMax);
+            canvasContext.stroke();
+        }
+        const jMax = Math.floor(yMax / grid.interval);
+        for (let j = Math.floor(yMin / grid.interval + 1); j <= jMax; j++) {
+            canvasContext.beginPath();
+            canvasContext.moveTo(xMin, j * grid.interval);
+            canvasContext.lineTo(xMax, j * grid.interval);
+            canvasContext.stroke();
+        }
     }
-    const jMax = Math.floor(yMax / grid.interval);
-    for (let j = Math.floor(yMin / grid.interval + 1); j <= jMax; j++) {
-        canvasContext.beginPath();
-        canvasContext.moveTo(xMin, j * grid.interval);
-        canvasContext.lineTo(xMax, j * grid.interval);
-        canvasContext.stroke();
-    }
-}
 };

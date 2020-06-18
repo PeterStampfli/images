@@ -116,5 +116,5 @@ function draw() {
     canvasContext.putImageData(imageData, 0, 0);
 }
 
-output.draw = draw;
+output.showCanvasChanged = draw;
 draw();

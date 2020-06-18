@@ -81,8 +81,8 @@ function draw() {
     canvasContext.strokeRect(0.0, 0.0, 0.2, 0.2);
     output.drawGrid();
 }
-output.draw = draw;
-output.gridDraw=draw;
+output.showCanvasChanged = draw;
+output.showGridChanged=draw;
 draw();
 
 </script>
