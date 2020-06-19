@@ -484,8 +484,9 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
-    let helpText='The values of "translateX" and "Y" are the coordinates of the upper left canvas corner.';
-    helpText+='<br>The value of "scale" is the mean range of the canvas along the coordinate x- and y-axis.'
+    let helpText='The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
+    helpText+='<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
+    helpText+='<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.'
     output.coordinateTransform.addHelp(helpText);
     output.coordinateTransform.onChange = function() {
         output.showCanvasChanged(); // this calls always the latest version
@@ -494,12 +495,10 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     output.mouseEvents = new MouseEvents(output.canvas);
     const mouseEvents = output.mouseEvents;
     const coordinateTransform = output.coordinateTransform;
-
     // mouse wheel zooming factor
     output.zoomFactor = 1.04;
     // and rotating, angle step, in degrees
     output.angleStep = 1;
-
     // vectors for intermediate results
     const u = {
         x: 0,

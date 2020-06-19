@@ -4,7 +4,8 @@ import {
     guiUtils,
     output,
     Pixels,
-    CoordinateTransform
+    CoordinateTransform,
+    MouseEvents
 } from "../libgui/modules.js";
 
 /**
@@ -44,6 +45,9 @@ map.iterationsArray = new Uint8Array(1);
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
+
+// greying out the control image
+map.controlPixelsAlpha = 128;
 
 /**
  * the mapping function transforms a point argument
@@ -103,7 +107,7 @@ output.showCanvasChanged = function() {
  */
 map.initialize = function() {
     map.needsSizeArrayUpdate = true;
-         map.rangeValid = false;
+    map.rangeValid = false;
     if (!guiUtils.isDefined(output.pixels)) {
         output.pixels = new Pixels(output.canvas);
     }
@@ -228,8 +232,8 @@ map.makeColorTable(black, white);
  * @method map.showStructure
  */
 map.showStructure = function() {
-if (    map.inputImageLoaded)  {
-  map.controlPixels.setAlpha(map.controlPixelsAlpha);
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
     const length = width * height;
@@ -257,7 +261,7 @@ if (    map.inputImageLoaded)  {
 map.determineRange = function() {
     if (!map.rangeValid) {
         console.log('map.determineRange');
-         map.rangeValid = true;
+        map.rangeValid = true;
         var i;
         const length = width * height;
         let xMin = 1e10;
@@ -346,52 +350,46 @@ map.sizeArrayUpdate = function() {
     }
 };
 
-
 /**
  * show image resulting from the map and the input image
  * depending on quality and transform
  * @method map.showImage
  */
- map.controlPixelsAlpha=128;
 map.showImage = function() {
     // make sure we have an input image, if not: load and use it in a callback
-    if (!map.inputImageLoaded){
-        map.inputImageLoaded=true;
+    if (!map.inputImageLoaded) {
+        map.inputImageLoaded = true;
         map.loadInputImage();
-    }
-    else {
-                map.updateInputTransform();
-    map.controlPixels.setAlpha(map.controlPixelsAlpha);
-    const color = {
-        red: 0,
-        green: 128,
-        blue: 0,
-        alpha: 255
-    };
-    const point = {
-        x: 0,
-        y: 0
-    };
-    const length = width * height;
-    for (var index = 0; index < length; index++) {
-        if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
-            point.x = map.xArray[index];
-            point.y = map.yArray[index];
-            map.doInputTransform(point);
+    } else {
+        map.updateInputTransform();
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        const color = {
+            red: 0,
+            green: 128,
+            blue: 0,
+            alpha: 255
+        };
+        const point = {
+            x: 0,
+            y: 0
+        };
+        const length = width * height;
+        for (var index = 0; index < length; index++) {
+            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+                point.x = map.xArray[index];
+                point.y = map.yArray[index];
+                map.doInputTransform(point);
+                output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
+                map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 
-            output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
-            map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
-
-        } else {
-            output.pixels.array[index] = 0; //transparent black
+            } else {
+                output.pixels.array[index] = 0; //transparent black
+            }
         }
+        map.controlPixels.show();
+        output.pixels.show();
     }
-    map.controlPixels.show();
-    output.pixels.show();
-}
 };
-
-
 
 /**
  * create selector for what to show, image select, div with canvas and coordinate transform
@@ -406,7 +404,7 @@ map.setupInputImage = function(gui) {
     map.inputCanvas.style.display = 'none';
     map.inputPixels = new Pixels(map.inputCanvas);
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
-    map.inputImageLoaded=false;
+    map.inputImageLoaded = false;
     // what to we want to see (you can delete it)
     map.whatToShow = 'structure';
     map.whatToShowController = gui.add({
@@ -431,9 +429,9 @@ map.setupInputImage = function(gui) {
         labelText: 'input image',
         onChange: function() {
             console.log('changed image: ' + map.inputImage);
-           if ( map.whatToShow==='structure'){
-            map.whatToShowController.setValueOnly('image - low quality');
-        }
+            if (map.whatToShow === 'structure') {
+                map.whatToShowController.setValueOnly('image - low quality');
+            }
             map.loadInputImage();
         }
     });
@@ -453,64 +451,65 @@ map.setupInputImage = function(gui) {
     controlDiv.style.backgroundColor = '#dddddd';
     // a CENTERED canvas in the controldiv 
     map.controlCanvas = document.createElement('canvas');
-    controlDiv.appendChild(map.controlCanvas);
-    map.controlCanvas.style.position = 'absolute';
-    map.controlCanvas.style.top = '50%';
-    map.controlCanvas.style.left = '50%';
-    map.controlCanvas.style.transform = 'translate(-50%,-50%)';
-    map.controlPixels = new Pixels(map.controlCanvas);
-    map.controlCanvasContext = map.controlCanvas.getContext('2d');
+    const controlCanvas = map.controlCanvas;
+    controlDiv.appendChild(controlCanvas);
+    controlCanvas.style.position = 'absolute';
+    controlCanvas.style.top = '50%';
+    controlCanvas.style.left = '50%';
+    controlCanvas.style.transform = 'translate(-50%,-50%)';
+    controlCanvas.style.cursor = 'pointer';
+    controlCanvas.width = map.guiWidth;
+    controlCanvas.height = map.guiWidth;
+    map.controlPixels = new Pixels(controlCanvas);
+    map.controlCanvasContext = controlCanvas.getContext('2d');
     // the transform from the map to the input image, normalized
     // beware of border
     // initial values depend on the image
     // but not on the map (because it is normalized)
     map.inputTransform = new CoordinateTransform(gui, true);
+    const inputTransform = map.inputTransform;
     map.inputTransform.onChange = function() {
         console.log('change input transform');
         map.showImageChanged();
     };
-};
+    // the mouse events on the control canvas
+    map.mouseEvents = new MouseEvents(map.controlCanvas);
+    const mouseEvents = map.mouseEvents;
+    // mouse wheel zooming factor
+    map.zoomFactor = 1.04;
+    // and rotating, angle step, in degrees
+    map.angleStep = 1;
+    // vectors for intermediate results
+    const u = {
+        x: 0,
+        y: 0
+    };
+    const v = {
+        x: 0,
+        y: 0
+    };
 
-/**
- * load the image with url=map.inputImage
- * call a callback, might be different for loading the test image than for loading further images
- * @method map.loadInputImage
- */
-map.loadInputImage = function(callback) {
-    console.log('loadinpim');
-    let image = new Image();
+    // upon click on control image and showing structure change to showing image
+    mouseEvents.downAction = function() {
+        if (map.whatToShow === 'structure') {
+            map.whatToShowController.setValueOnly('image - low quality');
+            map.showImageChanged();
+        }
 
-    image.onload = function() {
-        // load to the input canvas, determine scale, and update pixels
-        map.inputCanvas.width = image.width;
-        map.inputCanvas.height = image.height;
-        map.inputCanvasContext.drawImage(image, 0, 0);
-        map.inputPixels.update();
-        // determine initial transformation from map range: map already done before loading image !
-        // preescale factor: fit map into image map.imageScale ??
-        // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
-        map.determineRange(); // always needed at this point, and only here?
-        // find scale to fit map into input image, with some free border, serves as reference
-        map.inputScale=0.9*Math.min(image.width/(map.xMax-map.xMin),image.height/(map.yMax-map.yMin));
-// shift to center
-const centerX=0.5*(map.xMax+map.xMin)*map.inputScale;
-const centerY=0.5*(map.yMax+map.yMin)*map.inputScale;
-
-        map.inputTransform.setValues((0.5*image.width-centerX)/map.scaleInputShift,(0.5*image.height-centerY)/map.scaleInputShift, 1, 0); 
-        map.inputTransform.setResetValues();
-        // load to control canvas, determine scale to fit into square of gui width
-        map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
-        map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
-        map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
-        map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
-        map.controlPixels.update();
-        image = null;
+        // all guis close popup
+    };
+    // drag image: map.inputImageControlCanvasScale is scale from input image to control image
+    // map.scaleInputShift scales the shift value of the transform interface
+    mouseEvents.dragAction = function() {
+        const shiftX = mouseEvents.dx / map.inputImageControlCanvasScale / map.scaleInputShift;
+        const shiftY = mouseEvents.dy / map.inputImageControlCanvasScale / map.scaleInputShift;
+        inputTransform.shiftX += shiftX;
+        inputTransform.shiftY += shiftY;
+        inputTransform.updateUI();
         map.showImageChanged();
     };
 
-    image.src = map.inputImage;
 };
-
 
 
 /*
@@ -533,4 +532,43 @@ map.doInputTransform = function(v) {
     let h = cosAngleTotalScale * v.x - sinAngleTotalScale * v.y + shiftX;
     v.y = sinAngleTotalScale * v.x + cosAngleTotalScale * v.y + shiftY;
     v.x = h;
+};
+
+/**
+ * load the image with url=map.inputImage
+ * call a callback, might be different for loading the test image than for loading further images
+ * @method map.loadInputImage
+ */
+map.loadInputImage = function(callback) {
+    console.log('loadinpim');
+    let image = new Image();
+
+    image.onload = function() {
+        // load to the input canvas, determine scale, and update pixels
+        map.inputCanvas.width = image.width;
+        map.inputCanvas.height = image.height;
+        map.inputCanvasContext.drawImage(image, 0, 0);
+        map.inputPixels.update();
+        // determine initial transformation from map range: map already done before loading image !
+        // preescale factor: fit map into image map.imageScale ??
+        // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
+        map.determineRange(); // always needed at this point, and only here?
+        // find scale to fit map into input image, with some free border, serves as reference
+        map.inputScale = 0.9 * Math.min(image.width / (map.xMax - map.xMin), image.height / (map.yMax - map.yMin));
+        // shift to center
+        const centerX = 0.5 * (map.xMax + map.xMin) * map.inputScale;
+        const centerY = 0.5 * (map.yMax + map.yMin) * map.inputScale;
+        map.inputTransform.setValues((0.5 * image.width - centerX) / map.scaleInputShift, (0.5 * image.height - centerY) / map.scaleInputShift, 1, 0);
+        map.inputTransform.setResetValues();
+        // load to control canvas, determine scale to fit into square of gui width
+        map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
+        map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
+        map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
+        map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
+        map.controlPixels.update();
+        image = null;
+        map.showImageChanged();
+    };
+
+    image.src = map.inputImage;
 };
