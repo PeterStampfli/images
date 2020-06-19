@@ -484,6 +484,9 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
+    let helpText='The values of "translateX" and "Y" are the coordinates of the upper left canvas corner.';
+    helpText+='<br>The value of "scale" is the mean range of the canvas along the coordinate x- and y-axis.'
+    output.coordinateTransform.addHelp(helpText);
     output.coordinateTransform.onChange = function() {
         output.showCanvasChanged(); // this calls always the latest version
     };
@@ -620,8 +623,6 @@ output.updateTransform = function() {
     sinAngleTotalScale = output.canvasScale * coordinateTransform.sinAngleScale;
     shiftX = coordinateTransform.shiftX;
     shiftY = coordinateTransform.shiftY;
-    console.log('updtra');
-    console.log(cosAngleTotalScale)
 };
 
 /**

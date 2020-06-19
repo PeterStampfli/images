@@ -33,7 +33,7 @@ export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001)
     this.onChange = function(value) {
         console.log("onChange", coordinateTransform.shiftX, coordinateTransform.shiftY, coordinateTransform.scale, coordinateTransform.angle);
     };
-    
+
     const numbers = {
         type: 'number',
         params: this,
@@ -85,6 +85,15 @@ CoordinateTransform.prototype.updateUI = function() {
     if (this.withRotation) {
         this.angleController.updateDisplay();
     }
+};
+
+/**
+ * add a help text popup
+ * @method CoordinateTransform#addHelp
+ * @param {String} message - can have html
+ */
+CoordinateTransform.prototype.addHelp = function(message) {
+    this.resetButton.addHelp(message);
 };
 
 /**

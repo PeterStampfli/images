@@ -228,6 +228,10 @@ map.makeColorTable(black, white);
  * @method map.showStructure
  */
 map.showStructure = function() {
+if (    map.inputImageLoaded)  {
+  map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
     const length = width * height;
     for (var index = 0; index < length; index++) {
         if (map.showSector[map.sectorArray[index]]) {
@@ -348,15 +352,16 @@ map.sizeArrayUpdate = function() {
  * depending on quality and transform
  * @method map.showImage
  */
+ map.controlPixelsAlpha=128;
 map.showImage = function() {
     // make sure we have an input image, if not: load and use it in a callback
     if (!map.inputImageLoaded){
         map.inputImageLoaded=true;
-        map.loadInputImage(map.showImage);
+        map.loadInputImage();
     }
     else {
                 map.updateInputTransform();
-    map.controlPixels.setAlpha(128);
+    map.controlPixels.setAlpha(map.controlPixelsAlpha);
     const color = {
         red: 0,
         green: 128,
@@ -426,9 +431,10 @@ map.setupInputImage = function(gui) {
         labelText: 'input image',
         onChange: function() {
             console.log('changed image: ' + map.inputImage);
-            map.whatToShowController.setValueOnly('image');
+           if ( map.whatToShow==='structure'){
+            map.whatToShowController.setValueOnly('image - low quality');
+        }
             map.loadInputImage();
-            map.showImageChanged();
         }
     });
     // setup control canvas
@@ -469,7 +475,6 @@ map.setupInputImage = function(gui) {
  * load the image with url=map.inputImage
  * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
- * @param{function} callback - what to do after image has been loaded
  */
 map.loadInputImage = function(callback) {
     console.log('loadinpim');
@@ -490,8 +495,7 @@ map.loadInputImage = function(callback) {
 // shift to center
 const centerX=0.5*(map.xMax+map.xMin)*map.inputScale;
 const centerY=0.5*(map.yMax+map.yMin)*map.inputScale;
-console.log(centerX,centerY)
-console.log(map.inputScale)
+
         map.inputTransform.setValues((0.5*image.width-centerX)/map.scaleInputShift,(0.5*image.height-centerY)/map.scaleInputShift, 1, 0); 
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width
@@ -501,7 +505,7 @@ console.log(map.inputScale)
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;
-        callback();
+        map.showImageChanged();
     };
 
     image.src = map.inputImage;
