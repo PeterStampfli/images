@@ -33,14 +33,14 @@ const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform')
 output.addCoordinateTransform(gui,false);
-output.setInitialCoordinates(-1,0,3);
+output.setInitialCoordinates(0,0,3);
 gui.addTitle('input image');
 map.setupInputImage(gui);
 
 // setup mapping show structure
 
 map.mapping=function(point){
-  point.iterations=(Math.round(v.x) + Math.round(v.y)) & 1 ;
+  point.iterations=(Math.round(point.x) + Math.round(point.y)) & 1 ;
                 
 }
 

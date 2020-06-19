@@ -103,13 +103,12 @@ output.showCanvasChanged = function() {
  */
 map.initialize = function() {
     map.needsSizeArrayUpdate = true;
-    map.needsNormalization = true;
+         map.rangeValid = false;
     if (!guiUtils.isDefined(output.pixels)) {
         output.pixels = new Pixels(output.canvas);
     }
     output.pixels.update();
-    output.updateCanvasScale();
-    output.updateCanvasTransform();
+    output.updateTransform();
     const canvas = output.canvas;
     if ((width !== canvas.width) || (height !== canvas.height)) {
         width = canvas.width;
@@ -139,15 +138,15 @@ map.make = function() {
     let index = 0;
     for (var j = 0; j < height; j++) {
         for (var i = 0; i < width; i++) {
-            point.re = i;
-            point.im = j;
+            point.x = i;
+            point.y = j;
             point.sector = 0;
             point.iterations = 0;
             point.valid = 1;
             output.transform(point);
             map.mapping(point);
-            map.xArray[index] = point.re;
-            map.yArray[index] = point.im;
+            map.xArray[index] = point.x;
+            map.yArray[index] = point.y;
             map.sectorArray[index] = point.sector;
             map.iterationsArray[index] = point.iterations;
             map.sizeArray[index] = point.valid;
@@ -176,7 +175,11 @@ map.show = function() {
 
     switch (map.whatToShow) {
         case 'structure':
+            map.showStructure();
+            break;
         case 'image - low quality':
+            map.showImage();
+            break;
         case 'image - high quality':
         case 'image - very high quality':
 
@@ -244,15 +247,13 @@ map.showStructure = function() {
 
 /**
  * get range of map values
- * only required for using an input image
+ * only required for loading an input image
  * @method map.determineRange
  */
-
-
 map.determineRange = function() {
-    if (map.needsNormalization) {
-        console.log('map.normalize');
-        // map.needsNormalization = false;
+    if (!map.rangeValid) {
+        console.log('map.determineRange');
+         map.rangeValid = true;
         var i;
         const length = width * height;
         let xMin = 1e10;
@@ -348,6 +349,13 @@ map.sizeArrayUpdate = function() {
  * @method map.showImage
  */
 map.showImage = function() {
+    // make sure we have an input image, if not: load and use it in a callback
+    if (!map.inputImageLoaded){
+        map.inputImageLoaded=true;
+        map.loadInputImage(map.showImage);
+    }
+    else {
+                map.updateInputTransform();
     map.controlPixels.setAlpha(128);
     const color = {
         red: 0,
@@ -355,19 +363,19 @@ map.showImage = function() {
         blue: 0,
         alpha: 255
     };
-    const point = { // make it a complex number
-        re: 0,
-        im: 0
+    const point = {
+        x: 0,
+        y: 0
     };
     const length = width * height;
     for (var index = 0; index < length; index++) {
         if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
-            point.re = map.xArray[index];
-            point.im = map.yArray[index];
-            map.inputTransform.do(point);
+            point.x = map.xArray[index];
+            point.y = map.yArray[index];
+            map.doInputTransform(point);
 
-            output.pixels.array[index] = map.inputPixels.getNearestPixel(point.re, point.im);
-            map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.re, map.inputImageControlCanvasScale * point.im);
+            output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
+            map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 
         } else {
             output.pixels.array[index] = 0; //transparent black
@@ -375,6 +383,7 @@ map.showImage = function() {
     }
     map.controlPixels.show();
     output.pixels.show();
+}
 };
 
 
@@ -382,6 +391,7 @@ map.showImage = function() {
 /**
  * create selector for what to show, image select, div with canvas and coordinate transform
  * initialization for using input images
+ * CALL THIS BEFORE calculating the map (with map.make)
  * @method map.setupInputImage
  * @param {ParamGui} gui
  */
@@ -391,6 +401,7 @@ map.setupInputImage = function(gui) {
     map.inputCanvas.style.display = 'none';
     map.inputPixels = new Pixels(map.inputCanvas);
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
+    map.inputImageLoaded=false;
     // what to we want to see (you can delete it)
     map.whatToShow = 'structure';
     map.whatToShowController = gui.add({
@@ -400,7 +411,7 @@ map.setupInputImage = function(gui) {
         options: ['structure', 'image - low quality', 'image - high quality', 'image - very high quality'],
         onChange: function() {
             console.log('changed what to show: ' + map.whatToShow);
-
+            map.showImageChanged();
         },
         labelText: 'show'
     });
@@ -417,7 +428,7 @@ map.setupInputImage = function(gui) {
             console.log('changed image: ' + map.inputImage);
             map.whatToShowController.setValueOnly('image');
             map.loadInputImage();
-
+            map.showImageChanged();
         }
     });
     // setup control canvas
@@ -448,6 +459,10 @@ map.setupInputImage = function(gui) {
     // initial values depend on the image
     // but not on the map (because it is normalized)
     map.inputTransform = new CoordinateTransform(gui, true);
+    map.inputTransform.onChange = function() {
+        console.log('change input transform');
+        map.showImageChanged();
+    };
 };
 
 /**
@@ -457,6 +472,7 @@ map.setupInputImage = function(gui) {
  * @param{function} callback - what to do after image has been loaded
  */
 map.loadInputImage = function(callback) {
+    console.log('loadinpim');
     let image = new Image();
 
     image.onload = function() {
@@ -466,10 +482,17 @@ map.loadInputImage = function(callback) {
         map.inputCanvasContext.drawImage(image, 0, 0);
         map.inputPixels.update();
         // determine initial transformation from map range: map already done before loading image !
-
-        //
-        const scale = (Math.min(image.height, image.width) - 4) / map.typicalImageSize;
-        map.inputTransform.setValues(0.5 * image.width, 0.5 * image.height, scale, 0); // scale !!
+        // preescale factor: fit map into image map.imageScale ??
+        // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
+        map.determineRange(); // always needed at this point, and only here?
+        // find scale to fit map into input image, with some free border, serves as reference
+        map.inputScale=0.9*Math.min(image.width/(map.xMax-map.xMin),image.height/(map.yMax-map.yMin));
+// shift to center
+const centerX=0.5*(map.xMax+map.xMin)*map.inputScale;
+const centerY=0.5*(map.yMax+map.yMin)*map.inputScale;
+console.log(centerX,centerY)
+console.log(map.inputScale)
+        map.inputTransform.setValues((0.5*image.width-centerX)/map.scaleInputShift,(0.5*image.height-centerY)/map.scaleInputShift, 1, 0); 
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width
         map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
@@ -482,4 +505,28 @@ map.loadInputImage = function(callback) {
     };
 
     image.src = map.inputImage;
+};
+
+
+
+/*
+ * the input transform
+ * note scaling of shifts
+ */
+
+var cosAngleTotalScale, sinAngleTotalScale, shiftX, shiftY;
+map.scaleInputShift = 1000;
+
+map.updateInputTransform = function() {
+    const transform = map.inputTransform;
+    cosAngleTotalScale = map.inputScale * transform.cosAngleScale;
+    sinAngleTotalScale = map.inputScale * transform.sinAngleScale;
+    shiftX = map.scaleInputShift * transform.shiftX;
+    shiftY = map.scaleInputShift * transform.shiftY;
+};
+
+map.doInputTransform = function(v) {
+    let h = cosAngleTotalScale * v.x - sinAngleTotalScale * v.y + shiftX;
+    v.y = sinAngleTotalScale * v.x + cosAngleTotalScale * v.y + shiftY;
+    v.x = h;
 };

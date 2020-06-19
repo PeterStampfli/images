@@ -620,6 +620,8 @@ output.updateTransform = function() {
     sinAngleTotalScale = output.canvasScale * coordinateTransform.sinAngleScale;
     shiftX = coordinateTransform.shiftX;
     shiftY = coordinateTransform.shiftY;
+    console.log('updtra');
+    console.log(cosAngleTotalScale)
 };
 
 /**

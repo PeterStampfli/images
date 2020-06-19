@@ -21,9 +21,19 @@ export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001)
     this.scale = 1;
     this.angle = 0;
     this.updateScaleAngle();
+    this.setResetValues();
 
     const coordinateTransform = this;
 
+    /**
+     * action upon change of the number
+     * @method RealNumber#onchange
+     * @param {integer} value
+     */
+    this.onChange = function(value) {
+        console.log("onChange", coordinateTransform.shiftX, coordinateTransform.shiftY, coordinateTransform.scale, coordinateTransform.angle);
+    };
+    
     const numbers = {
         type: 'number',
         params: this,
@@ -62,17 +72,6 @@ export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001)
         });
         this.angleController.cyclic();
     }
-
-    this.setResetValues();
-
-    /**
-     * action upon change of the number
-     * @method RealNumber#onchange
-     * @param {integer} value
-     */
-    this.onChange = function(value) {
-        console.log("onChange", coordinateTransform.shiftX, coordinateTransform.shiftY, coordinateTransform.scale, coordinateTransform.angle);
-    };
 }
 
 /**
