@@ -255,13 +255,12 @@ map.showStructure = function() {
 // map.inputToControlScale is scale factor from input image to control canvas
 
 /**
- * get range of map values
- * only required for loading an input image
+ * get center and range of map values
+ * required for loading an input image and zooming/rotating image
  * @method map.determineRange
  */
 map.determineRange = function() {
     if (!map.rangeValid) {
-        console.log('map.determineRange');
         map.rangeValid = true;
         var i;
         const length = width * height;
@@ -277,10 +276,10 @@ map.determineRange = function() {
             yMax = Math.max(y, yMax);
             yMin = Math.min(y, yMin);
         }
-        map.xMin = xMin;
-        map.xMax = xMax;
-        map.yMin = yMin;
-        map.yMax = yMax;
+        map.centerX = 0.5 * (xMax + xMin);
+        map.centerY = 0.5 * (yMax + yMin);
+        map.rangeX = xMax - xMin;
+        map.rangeY = yMax - yMin;
     }
 };
 
@@ -511,17 +510,17 @@ map.setupInputImage = function(gui) {
     };
     // zoom or rotate
     // the controlcanvas shows a 'shadow' of the mapping result
-    // this shadow should stay fixed at the corsor position
+    // its center should stay fixed when zoomin or scrolling
+    // that means the inputTransformation does not change its image of the center of the map
     mouseEvents.wheelAction = function() {
-
         // the zoom center, map to input image
-        u.x = mouseEvents.x / map.inputImageControlCanvasScale;
-        u.y = mouseEvents.y / map.inputImageControlCanvasScale;
+        map.determineRange();
+        u.x = map.centerX;
+        u.y = map.centerY;
         v.x = u.x;
         v.y = u.y;
-        //map to the output of the mapping, except for map.inputScale
-
-
+        // transform center before zooming/rotating
+        map.doInputTransform(u);
         if (keyboard.shiftPressed) {
             const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
             inputTransform.angle += step;
@@ -531,16 +530,15 @@ map.setupInputImage = function(gui) {
         }
         inputTransform.updateScaleAngle();
         map.updateInputTransform();
-        // map back
-        map.doInputTransform(u);
-        inputTransform.shiftX -= (u.x - v.x) / map.scaleInputShift;
-        inputTransform.shiftY -= (u.y - v.y) / map.scaleInputShift;
+        // transform center after zooming/rotating
+        map.doInputTransform(v);
+        // correction
+        inputTransform.shiftX -= (v.x - u.x) / map.scaleInputShift;
+        inputTransform.shiftY -= (v.y - u.y) / map.scaleInputShift;
         inputTransform.updateUI();
         map.showImageChanged();
     };
-
 };
-
 
 /*
  * the input transform
@@ -548,6 +546,7 @@ map.setupInputImage = function(gui) {
  */
 
 var cosAngleTotalScale, sinAngleTotalScale, shiftX, shiftY;
+var cosAngleTotalInvScale, sinAngleTotalInvScale;
 map.scaleInputShift = 1000;
 
 map.updateInputTransform = function() {
@@ -593,10 +592,10 @@ map.loadInputImage = function(callback) {
         // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
         map.determineRange(); // always needed at this point, and only here?
         // find scale to fit map into input image, with some free border, serves as reference
-        map.inputScale = 0.9 * Math.min(image.width / (map.xMax - map.xMin), image.height / (map.yMax - map.yMin));
-        // shift to center
-        const centerX = 0.5 * (map.xMax + map.xMin) * map.inputScale;
-        const centerY = 0.5 * (map.yMax + map.yMin) * map.inputScale;
+        map.inputScale = 0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY);
+        // shift to center. Additionl scaling
+        const centerX = map.centerX * map.inputScale;
+        const centerY = map.centerY * map.inputScale;
         map.inputTransform.setValues((0.5 * image.width - centerX) / map.scaleInputShift, (0.5 * image.height - centerY) / map.scaleInputShift, 1, 0);
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width

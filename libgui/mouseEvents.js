@@ -30,6 +30,9 @@ MouseAndTouch.relativePosition = function(event, element) {
     let x = event.pageX;
     let y = event.pageY;
     // take into account offset of this element and all containing elements as long as position not fixed
+    // NOTE: this seems not to work in all cases
+    // maybe better use element.getBoundingClientRect
+    // difficulties with scroll and transform ...
     while (element != body) {
         x -= element.offsetLeft;
         y -= element.offsetTop;
