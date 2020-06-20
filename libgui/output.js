@@ -558,8 +558,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             // the zoom center, prescaled
             u.x = output.canvasScale * mouseEvents.x;
             u.y = output.canvasScale * mouseEvents.y;
-            v.x = output.canvasScale * mouseEvents.x;
-            v.y = output.canvasScale * mouseEvents.y;
+            v.x = u.x;
+            v.y = u.y;
             coordinateTransform.rotateScale(u);
             if (keyboard.shiftPressed && output.withRotation) {
                 const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;

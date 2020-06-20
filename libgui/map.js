@@ -5,7 +5,8 @@ import {
     output,
     Pixels,
     CoordinateTransform,
-    MouseEvents
+    MouseEvents,
+    keyboard
 } from "../libgui/modules.js";
 
 /**
@@ -508,6 +509,35 @@ map.setupInputImage = function(gui) {
         inputTransform.updateUI();
         map.showImageChanged();
     };
+    // zoom or rotate
+    // the controlcanvas shows a 'shadow' of the mapping result
+    // this shadow should stay fixed at the corsor position
+    mouseEvents.wheelAction = function() {
+
+        // the zoom center, map to input image
+        u.x = mouseEvents.x / map.inputImageControlCanvasScale;
+        u.y = mouseEvents.y / map.inputImageControlCanvasScale;
+        v.x = u.x;
+        v.y = u.y;
+        //map to the output of the mapping, except for map.inputScale
+
+
+        if (keyboard.shiftPressed) {
+            const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
+            inputTransform.angle += step;
+        } else {
+            const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+            inputTransform.scale *= zoomFactor;
+        }
+        inputTransform.updateScaleAngle();
+        map.updateInputTransform();
+        // map back
+        map.doInputTransform(u);
+        inputTransform.shiftX -= (u.x - v.x) / map.scaleInputShift;
+        inputTransform.shiftY -= (u.y - v.y) / map.scaleInputShift;
+        inputTransform.updateUI();
+        map.showImageChanged();
+    };
 
 };
 
@@ -524,6 +554,8 @@ map.updateInputTransform = function() {
     const transform = map.inputTransform;
     cosAngleTotalScale = map.inputScale * transform.cosAngleScale;
     sinAngleTotalScale = map.inputScale * transform.sinAngleScale;
+    cosAngleTotalInvScale = transform.cosAngleInvScale / map.inputScale;
+    sinAngleTotalInvScale = transform.sinAngleInvScale / map.inputScale;
     shiftX = map.scaleInputShift * transform.shiftX;
     shiftY = map.scaleInputShift * transform.shiftY;
 };
@@ -534,13 +566,20 @@ map.doInputTransform = function(v) {
     v.x = h;
 };
 
+map.doInvInputTransform = function(v) {
+    v.x -= shiftX;
+    v.y -= shiftY;
+    let h = cosAngleTotalInvScale * v.x + sinAngleTotalInvScale * v.y;
+    v.y = -sinAngleTotalInvScale * v.x + cosAngleTotalInvScale * v.y;
+    v.x = h;
+};
+
 /**
  * load the image with url=map.inputImage
  * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
  */
 map.loadInputImage = function(callback) {
-    console.log('loadinpim');
     let image = new Image();
 
     image.onload = function() {
