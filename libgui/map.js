@@ -6,7 +6,8 @@ import {
     Pixels,
     CoordinateTransform,
     MouseEvents,
-    keyboard
+    keyboard,
+    ParamGui
 } from "../libgui/modules.js";
 
 /**
@@ -183,11 +184,14 @@ map.show = function() {
             map.showStructure();
             break;
         case 'image - low quality':
-            map.showImage();
+            map.showImageLowQuality();
             break;
         case 'image - high quality':
+        map.showImageHighQuality();
+        break;
         case 'image - very high quality':
-
+        map.showImageVeryHighQuality();
+        break;
     }
 };
 
@@ -294,10 +298,12 @@ map.determineRange = function() {
 map.needsSizeArrayUpdate = true;
 
 map.sizeArrayUpdate = function() {
+    console.log('///')
     if (map.needsSizeArrayUpdate) {
         console.log('map.sizeArrayUpdate');
         map.needsSizeArrayUpdate = false;
         const width = map.width;
+        console.log(map.width)
         const widthM = width - 1;
         const heightM = map.height - 1;
         const xArray = map.xArray;
@@ -321,6 +327,7 @@ map.sizeArrayUpdate = function() {
                 xPlusX = xArray[index + 1];
                 y = yPlusX;
                 yPlusX = yArray[index + 1];
+                console.log(index,sizeArray[index])
                 // if size <0 then it is an invalid point, do not change that
                 if (sizeArray[index] > 0) {
                     // the first side
@@ -333,6 +340,7 @@ map.sizeArrayUpdate = function() {
                     // the size is its square root
                     size = Math.sqrt(Math.abs(ax * by - ay * bx));
                     sizeArray[index] = size;
+                    console.log(size,index)
                 }
                 index++;
             }
@@ -352,16 +360,59 @@ map.sizeArrayUpdate = function() {
 
 /**
  * show image resulting from the map and the input image
- * depending on quality and transform
- * @method map.showImage
+ * low quality using nearest neighbor
+ * @method map.showImageLowQuality
  */
-map.showImage = function() {
+map.showImageLowQuality = function() {
     // make sure we have an input image, if not: load and use it in a callback
     if (!map.inputImageLoaded) {
         map.inputImageLoaded = true;
         map.loadInputImage();
     } else {
         map.updateInputTransform();
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        const point = {
+            x: 0,
+            y: 0
+        };
+        const length = width * height;
+        for (var index = 0; index < length; index++) {
+            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+                point.x = map.xArray[index];
+                point.y = map.yArray[index];
+                map.doInputTransform(point);
+                output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
+                map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
+
+            } else {
+                output.pixels.array[index] = 0; //transparent black
+            }
+        }
+        map.controlPixels.show();
+        output.pixels.show();
+    }
+};
+
+/**
+ * show image resulting from the map and the input image
+ * high quality using nearest neighbor, averaging or linear interpolation
+ * @method map.showImageHighQuality
+ */
+map.showImageHighQuality = function() {
+    // make sure we have an input image, if not: load and use it in a callback
+    if (!map.inputImageLoaded) {
+        map.inputImageLoaded = true;
+        map.loadInputImage();
+    } else {
+        map.updateInputTransform();
+        console.log(map.needsSizeArrayUpdate)
+        map.sizeArrayUpdate();
+        console.log(map.sizeArray)
+        console.log(map.xArray)
+        const totalScale = map.inputScale *map.inputTransform.scale;
+        console.log(totalScale)
+        console.log('map.inputScale',map.inputScale)
+        console.log('widths',map.inputCanvas.width,output.canvas.width)
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         const color = {
             red: 0,
@@ -379,7 +430,9 @@ map.showImage = function() {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
                 map.doInputTransform(point);
-                output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
+                let size=totalScale* map.sizeArray[index];
+                map.inputPixels.getHighQualityColor(color,point.x,point.y,size);
+output.pixels.setColorAtIndex(color,index);
                 map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 
             } else {
@@ -495,8 +548,7 @@ map.setupInputImage = function(gui) {
             map.whatToShowController.setValueOnly('image - low quality');
             map.showImageChanged();
         }
-
-        // all guis close popup
+ParamGui.closePopups();
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
     // map.scaleInputShift scales the shift value of the transform interface
@@ -592,6 +644,8 @@ map.loadInputImage = function(callback) {
         // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
         map.determineRange(); // always needed at this point, and only here?
         // find scale to fit map into input image, with some free border, serves as reference
+        console.log('wi',image.width,map.rangeX)
+        console.log(output.canvas.width)
         map.inputScale = 0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY);
         // shift to center. Additionl scaling
         const centerX = map.centerX * map.inputScale;
