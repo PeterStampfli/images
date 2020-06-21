@@ -555,30 +555,32 @@ map.setupInputImage = function(gui) {
     // its center should stay fixed when zoomin or scrolling
     // that means the inputTransformation does not change its image of the center of the map
     mouseEvents.wheelAction = function() {
-        // the zoom center, map to input image
-        map.determineRange();
-        u.x = map.centerX;
-        u.y = map.centerY;
-        v.x = u.x;
-        v.y = u.y;
-        // transform center before zooming/rotating
-        map.doInputTransform(u);
-        if (keyboard.shiftPressed) {
-            const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
-            inputTransform.angle += step;
-        } else {
-            const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
-            inputTransform.scale *= zoomFactor;
+        if (map.whatToShow !== 'structure') {
+            // the zoom center, map to input image
+            map.determineRange();
+            u.x = map.centerX;
+            u.y = map.centerY;
+            v.x = u.x;
+            v.y = u.y;
+            // transform center before zooming/rotating
+            map.doInputTransform(u);
+            if (keyboard.shiftPressed) {
+                const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
+                inputTransform.angle += step;
+            } else {
+                const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+                inputTransform.scale *= zoomFactor;
+            }
+            inputTransform.updateScaleAngle();
+            map.updateInputTransform();
+            // transform center after zooming/rotating
+            map.doInputTransform(v);
+            // correction
+            inputTransform.shiftX -= (v.x - u.x) / map.scaleInputShift;
+            inputTransform.shiftY -= (v.y - u.y) / map.scaleInputShift;
+            inputTransform.updateUI();
+            map.showImageChanged();
         }
-        inputTransform.updateScaleAngle();
-        map.updateInputTransform();
-        // transform center after zooming/rotating
-        map.doInputTransform(v);
-        // correction
-        inputTransform.shiftX -= (v.x - u.x) / map.scaleInputShift;
-        inputTransform.shiftY -= (v.y - u.y) / map.scaleInputShift;
-        inputTransform.updateUI();
-        map.showImageChanged();
     };
 };
 

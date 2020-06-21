@@ -36,19 +36,17 @@ export function Pixels(canvas) {
 
 /**
  * update/create the array buffer views
- * always call when size might change, or pixels (loading an image)
+ * always call when size might change, or after loading an image (changes imageData)
  * @method Pixels#update
  */
 Pixels.prototype.update = function() {
     this.integralTablesNotValid = true;
     const canvas = this.canvas;
-    if ((this.width !== canvas.width) || (this.height !== canvas.height)) {
-        this.width = canvas.width;
-        this.height = canvas.height;
-        this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-        this.pixelComponents = this.imageData.data;
-        this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    }
+    this.width = canvas.width;
+    this.height = canvas.height;
+    this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
+    this.pixelComponents = this.imageData.data;
+    this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
 };
 
 /**
@@ -487,7 +485,7 @@ if (guiUtils.abgrOrder) {
  */
 Pixels.prototype.createIntegralColorTables = function() {
     if (this.integralTablesNotValid) {
-        this.integralTablesNotValid = true;
+        this.integralTablesNotValid = false;
         let width = this.width;
         this.widthPlus = width + 1;
         let widthPlus = this.widthPlus;
@@ -569,6 +567,7 @@ Pixels.prototype.createIntegralColorTables = function() {
  * @return true, if color is valid, false, if point lies outside
  */
 Pixels.prototype.getAverageColor = function(color, x, y, halfSize) {
+    this.createIntegralColorTables(); //does only something once for a new image
     x = Math.round(x);
     y = Math.round(y);
     if ((x < 0) || (x >= this.width) || (y < 0) || (y >= this.height)) {
