@@ -31,8 +31,8 @@ map.inputImage = '../libgui/testimage.jpg';
 // dimensions, private, required to check if resizing arrays is required
 // then same as for output canvas
 
-let width = 1;
-let height = 1;
+map.width = 1;
+map.height = 1;
 
 // map data, accessible from the outside
 // the mapped coordinates
@@ -116,10 +116,10 @@ map.initialize = function() {
     output.pixels.update();
     output.updateTransform();
     const canvas = output.canvas;
-    if ((width !== canvas.width) || (height !== canvas.height)) {
-        width = canvas.width;
-        height = canvas.height;
-        const size = width * height;
+    if ((map.width !== canvas.width) || (map.height !== canvas.height)) {
+        map.width = canvas.width;
+        map.height = canvas.height;
+        const size = map.width * map.height;
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
         map.sectorArray = new Uint8Array(size);
@@ -142,8 +142,8 @@ map.make = function() {
         valid: 1
     };
     let index = 0;
-    for (var j = 0; j < height; j++) {
-        for (var i = 0; i < width; i++) {
+    for (var j = 0; j < map.height; j++) {
+        for (var i = 0; i < map.width; i++) {
             point.x = i;
             point.y = j;
             point.sector = 0;
@@ -187,11 +187,11 @@ map.show = function() {
             map.showImageLowQuality();
             break;
         case 'image - high quality':
-        map.showImageHighQuality();
-        break;
+            map.showImageHighQuality();
+            break;
         case 'image - very high quality':
-        map.showImageVeryHighQuality();
-        break;
+            map.showImageVeryHighQuality();
+            break;
     }
 };
 
@@ -241,7 +241,7 @@ map.showStructure = function() {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const length = width * height;
+    const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         if (map.showSector[map.sectorArray[index]]) {
             output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
@@ -267,7 +267,7 @@ map.determineRange = function() {
     if (!map.rangeValid) {
         map.rangeValid = true;
         var i;
-        const length = width * height;
+        const length = map.width * map.height;
         let xMin = 1e10;
         let xMax = -1e10;
         let yMin = 1e10;
@@ -298,12 +298,10 @@ map.determineRange = function() {
 map.needsSizeArrayUpdate = true;
 
 map.sizeArrayUpdate = function() {
-    console.log('///')
     if (map.needsSizeArrayUpdate) {
         console.log('map.sizeArrayUpdate');
         map.needsSizeArrayUpdate = false;
         const width = map.width;
-        console.log(map.width)
         const widthM = width - 1;
         const heightM = map.height - 1;
         const xArray = map.xArray;
@@ -319,7 +317,7 @@ map.sizeArrayUpdate = function() {
         // so it's offset by half a pixel
         // sizes for i=width-1 and j=height-1 have to be copied
         for (var j = 0; j < heightM; j++) {
-            index = j * width;
+            index = j * map.width;
             xPlusX = xArray[index];
             yPlusX = yArray[index];
             for (var i = 0; i < widthM; i++) {
@@ -327,7 +325,6 @@ map.sizeArrayUpdate = function() {
                 xPlusX = xArray[index + 1];
                 y = yPlusX;
                 yPlusX = yArray[index + 1];
-                console.log(index,sizeArray[index])
                 // if size <0 then it is an invalid point, do not change that
                 if (sizeArray[index] > 0) {
                     // the first side
@@ -340,11 +337,10 @@ map.sizeArrayUpdate = function() {
                     // the size is its square root
                     size = Math.sqrt(Math.abs(ax * by - ay * bx));
                     sizeArray[index] = size;
-                    console.log(size,index)
                 }
                 index++;
             }
-            // the last pixel i=width-1 in a row copies the value before
+            // the last pixel i=map.width-1 in a row copies the value before
             sizeArray[index] = size;
         }
         // the top row at j=height-1 copies the lower row
@@ -375,7 +371,7 @@ map.showImageLowQuality = function() {
             x: 0,
             y: 0
         };
-        const length = width * height;
+        const length = map.width * map.height;
         for (var index = 0; index < length; index++) {
             if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
@@ -405,14 +401,8 @@ map.showImageHighQuality = function() {
         map.loadInputImage();
     } else {
         map.updateInputTransform();
-        console.log(map.needsSizeArrayUpdate)
         map.sizeArrayUpdate();
-        console.log(map.sizeArray)
-        console.log(map.xArray)
-        const totalScale = map.inputScale *map.inputTransform.scale;
-        console.log(totalScale)
-        console.log('map.inputScale',map.inputScale)
-        console.log('widths',map.inputCanvas.width,output.canvas.width)
+        const totalScale = map.inputScale * map.inputTransform.scale;
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         const color = {
             red: 0,
@@ -424,15 +414,15 @@ map.showImageHighQuality = function() {
             x: 0,
             y: 0
         };
-        const length = width * height;
+        const length = map.width * map.height;
         for (var index = 0; index < length; index++) {
             if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
                 map.doInputTransform(point);
-                let size=totalScale* map.sizeArray[index];
-                map.inputPixels.getHighQualityColor(color,point.x,point.y,size);
-output.pixels.setColorAtIndex(color,index);
+                let size = totalScale * map.sizeArray[index];
+                map.inputPixels.getHighQualityColor(color, point.x, point.y, size);
+                output.pixels.setColorAtIndex(color, index);
                 map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 
             } else {
@@ -548,7 +538,7 @@ map.setupInputImage = function(gui) {
             map.whatToShowController.setValueOnly('image - low quality');
             map.showImageChanged();
         }
-ParamGui.closePopups();
+        ParamGui.closePopups();
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
     // map.scaleInputShift scales the shift value of the transform interface
@@ -644,8 +634,6 @@ map.loadInputImage = function(callback) {
         // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
         map.determineRange(); // always needed at this point, and only here?
         // find scale to fit map into input image, with some free border, serves as reference
-        console.log('wi',image.width,map.rangeX)
-        console.log(output.canvas.width)
         map.inputScale = 0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY);
         // shift to center. Additionl scaling
         const centerX = map.centerX * map.inputScale;
