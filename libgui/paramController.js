@@ -74,13 +74,22 @@ export function ParamController(gui, domElement, argObjects) {
     }
 
     /**
-     * default callback for changes
+     * default callback for changes/click
+     * NOTE: cannot use name 'onChange' for compatibility with datgui
      * @method ParamController#callback
      * @param {anything} value
      */
     this.callback = function(value) {
         // console.log("callback value " + value);
     };
+
+    /**
+    * default action for click on a controller (interaction)
+    * @method ParamController#interaction
+    */
+    this.interaction=function(){
+        console.log("interaction");
+    }
 
     // get callback from different arguments. For a button it might be the (initial) parameter value. A button never has a parameter.
     if (args.type === "button") {
@@ -89,6 +98,7 @@ export function ParamController(gui, domElement, argObjects) {
     } else if (args.type !== "textarea") { // textarea has no onChange event, thus no callback
         this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
     }
+    this.interaction=guiUtils.check(args.onInteraction,this.interaction);
     // get label text, button is special: the property might be the button text but not the label text
     var labelText, buttonText;
     if (args.type === "button") {
@@ -446,6 +456,7 @@ ParamController.prototype.setupOnInteraction = function() {
         } else {
             ParamGui.closePopups();
         }
+        controller.interaction();
     };
 };
 

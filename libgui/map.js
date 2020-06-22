@@ -178,7 +178,6 @@ for (let i = 0; i < 256; i++) {
  */
 map.show = function() {
     console.log('map.show ' + map.whatToShow);
-
     switch (map.whatToShow) {
         case 'structure':
             map.showStructure();
@@ -422,6 +421,51 @@ map.showImageHighQuality = function() {
                 map.doInputTransform(point);
                 let size = totalScale * map.sizeArray[index];
                 map.inputPixels.getHighQualityColor(color, point.x, point.y, size);
+                output.pixels.setColorAtIndex(color, index);
+                map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
+
+            } else {
+                output.pixels.array[index] = 0; //transparent black
+            }
+        }
+        map.controlPixels.show();
+        output.pixels.show();
+    }
+};
+
+/**
+ * show image resulting from the map and the input image
+ * high quality using nearest neighbor, averaging, cubic, linear interpolation
+ * @method map.showImageVeryHighQuality
+ */
+map.showImageVeryHighQuality = function() {
+    // make sure we have an input image, if not: load and use it in a callback
+    if (!map.inputImageLoaded) {
+        map.inputImageLoaded = true;
+        map.loadInputImage();
+    } else {
+        map.updateInputTransform();
+        map.sizeArrayUpdate();
+        const totalScale = map.inputScale * map.inputTransform.scale;
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        const color = {
+            red: 0,
+            green: 128,
+            blue: 0,
+            alpha: 255
+        };
+        const point = {
+            x: 0,
+            y: 0
+        };
+        const length = map.width * map.height;
+        for (var index = 0; index < length; index++) {
+            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+                point.x = map.xArray[index];
+                point.y = map.yArray[index];
+                map.doInputTransform(point);
+                let size = totalScale * map.sizeArray[index];
+                map.inputPixels.getVeryHighQualityColor(color, point.x, point.y, size);
                 output.pixels.setColorAtIndex(color, index);
                 map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 

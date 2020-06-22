@@ -405,6 +405,9 @@ ImageSelect.prototype.addOptions = function(options) {
                     imageSelect.setIndex(index);
                     imageSelect.onChange();
                 }
+                else {
+                    imageSelect.onInteraction();
+                }
             };
             // do we have an icon?
             if (guiUtils.isGoodImageFile(options.icon)) {
@@ -450,7 +453,7 @@ ImageSelect.prototype.addUserImage = function(file, selectThis = false) {
             option.value = fileReader.result;
             imageSelect.addOptions(option);
             // make the loaded image potentially visible
-            // chnge selecction if selectThis
+            // change selection if selectThis
             const index = imageSelect.findIndex(fileReader.result);
             if (index >= 0) {
                 imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
