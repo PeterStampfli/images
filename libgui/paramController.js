@@ -88,7 +88,7 @@ export function ParamController(gui, domElement, argObjects) {
     * @method ParamController#interaction
     */
     this.interaction=function(){
-        console.log("interaction");
+       // console.log("interaction");
     }
 
     // get callback from different arguments. For a button it might be the (initial) parameter value. A button never has a parameter.

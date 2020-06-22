@@ -22,7 +22,8 @@ import {
     Pixels,
     ParamGui,
     output,
-    map
+    map,
+    guiUtils
 } from "../libgui/modules.js";
 
 // basic setup
@@ -36,12 +37,13 @@ output.addCoordinateTransform(gui,false);
 output.setInitialCoordinates(0,0,3);
 gui.addTitle('input image');
 map.setupInputImage(gui);
+gui.addTitle('region control');
 
 // setup mapping show structure
 
 map.mapping=function(point){
-  point.iterations=(Math.round(point.x) + Math.round(point.y)) & 1 ;
-                
+  point.structureIndex=(Math.round(point.x) + Math.round(point.y)) & 1 ;
+    point.region=point.structureIndex
 }
 
 
@@ -51,6 +53,9 @@ console.log('drawing '+map.whatToShow);
 }
 
 map.showMapChanged();
+
+map.regionControl(gui,8);
+
 
 </script>
 

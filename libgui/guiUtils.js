@@ -480,3 +480,19 @@ abgr[0] = 3; // the red byte, all others are 0
 // tests if the [a,b,g,r] byte array as 32 bit integer is equal to 3 for a,b,g=0 and r=3
 // thus the r(ed) byte (value 3) with lowest index has to be packed into the least significant byte of 32 bit integers
 guiUtils.abgrOrder = (intColor[0] === 3);
+
+// array things
+//===================================
+
+/**
+ * repeat first n elements of an array until it is filled
+ * @method guiUtils.arrayRepeat
+ * @param {Array} array
+ * @params {integer} n
+ */
+guiUtils.arrayRepeat = function(array, n) {
+    const length = array.length;
+    for (var i = n; i < length; i++) {
+        array[i] = array[i - n];
+    }
+};

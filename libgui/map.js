@@ -39,11 +39,11 @@ map.height = 1;
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
 
-// the sector (for color symmetry and selective display) or other info
-map.sectorArray = new Uint8Array(1);
+// the region (for color symmetry and selective display) or other info
+map.regionArray = new Uint8Array(1);
 
-// the number of iterations, or other info
-map.iterationsArray = new Uint8Array(1);
+// the number of iterations, or other info, gives a structure index
+map.structureIndexArray = new Uint8Array(1);
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
@@ -55,10 +55,10 @@ map.controlPixelsAlpha = 128;
  * the mapping function transforms a point argument
  * point.re and point.im have the intial position at call
  * at return they have the final position
- * point.sector has the number of a sector. Typically, there is no mapping between sectors
- * point.iterations has the number of iterations done, or other info
+ * point.region has the number of a region. Typically, there is no mapping between regions
+ * point.structureIndex has the number of iterations done, or other info
  * point.valid>=0 means that point can be used in display, else make pixel transparent
- * the xArray, yArray, iterationsArray and sectorArray have new values, but not the sizeArray
+ * the xArray, yArray, structureIndexArray and regionArray have new values, but not the sizeArray
  * results are not normalized
  * @method map.mapping
  * @param {object}point
@@ -122,8 +122,8 @@ map.initialize = function() {
         const size = map.width * map.height;
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
-        map.sectorArray = new Uint8Array(size);
-        map.iterationsArray = new Uint8Array(size);
+        map.regionArray = new Uint8Array(size);
+        map.structureIndexArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
 };
@@ -137,8 +137,8 @@ map.make = function() {
     const point = {
         x: 0,
         y: 0,
-        iterations: 0,
-        sector: 0,
+        structureIndex: 0,
+        region: 0,
         valid: 1
     };
     let index = 0;
@@ -146,15 +146,15 @@ map.make = function() {
         for (var i = 0; i < map.width; i++) {
             point.x = i;
             point.y = j;
-            point.sector = 0;
-            point.iterations = 0;
+            point.region = 0;
+            point.structureIndex = 0;
             point.valid = 1;
             output.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
-            map.sectorArray[index] = point.sector;
-            map.iterationsArray[index] = point.iterations;
+            map.regionArray[index] = point.region;
+            map.structureIndexArray[index] = point.structureIndex;
             map.sizeArray[index] = point.valid;
             index += 1;
         }
@@ -164,13 +164,46 @@ map.make = function() {
 // showing the map
 //==================================
 
-// selecting the sectors that will be shown, max 256 sectors
-map.showSector = [];
-map.showSector.length = 256;
+// selecting the regions that will be shown, max 256 regions
+map.showRegion = [];
+map.showRegion.length = 256;
 // default, show all
 for (let i = 0; i < 256; i++) {
-    map.showSector[i] = true;
+    map.showRegion[i] = true;
 }
+
+/**
+ * switching regions on and off
+ * @method map.regionControl
+ * @param {ParamGui} gui
+ * @param {integer} nRegions
+ */
+map.regionsOnLine = 3;
+map.regionControl = function(gui, nRegions) {
+    const regionControllerArgs = {
+        type: 'boolean',
+        params: map.showRegion,
+        onChange: function() {
+            map.showImageChanged();
+        },
+    };
+    let region = 0;
+    while (region < nRegions) {
+        let regionController = gui.add(regionControllerArgs, {
+            property: region,
+            labelText: 'region ' + region
+        });
+        region += 1;
+        let onLine = 1;
+        while ((onLine < map.regionsOnLine) && (region < nRegions)) {
+            regionController = regionController.add(regionControllerArgs, {
+                property: region
+            });
+            region += 1;
+            onLine += 1;
+        }
+    }
+};
 
 /**
  * showing the map as structure or image, depending on map.whatToShow
@@ -194,11 +227,12 @@ map.show = function() {
     }
 };
 
-// show the structure resulting from the number of iterations
+// show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
-// using a table (maximum number of iterations is 255)
+// using a table (maximum number of colors is 255)
 map.colorTable = [];
 map.colorTable.length = 256;
+map.colors = [];
 
 /**
  * make an alternating color table
@@ -207,12 +241,26 @@ map.colorTable.length = 256;
  * @param {object}color2 - with red, green blue and alpha fields
  */
 map.makeColorTable = function(color1, color2) {
-    const intColor1 = Pixels.integerOfColor(color1);
-    const intColor2 = Pixels.integerOfColor(color2);
-    for (var i = 0; i < 256; i++) {
-        map.colorTable[i] = (i & 1) ? intColor1 : intColor2;
+    map.colorTable[0] = Pixels.integerOfColor(color1);
+    map.colorTable[1] = Pixels.integerOfColor(color2);
+    guiUtils.arrayRepeat(map.colorTable, 2);
+};
+
+/**
+ * make a color table
+ * @method map.makeNewColorTable
+ * @param {ParamGui} gui
+ * @param {integer} nColors
+ */
+map.makeNewColorTable = function(gui, nColors) {
+    map.colors.length = 0;
+
+    for (i = 0; i < nColors; i++) {
+        const light = Math.floor(255 * i / (nColors - 1));
+        const color = {};
     }
 };
+
 
 const black = {
     red: 0,
@@ -231,7 +279,7 @@ const white = {
 map.makeColorTable(black, white);
 
 /**
- * show structure of the map: color depending on the number of iterations
+ * show structure of the map: color depending on the structure index
  * using the map.colorTable
  * @method map.showStructure
  */
@@ -242,8 +290,10 @@ map.showStructure = function() {
     }
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
-        if (map.showSector[map.sectorArray[index]]) {
-            output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
+        if (map.showRegion[map.regionArray[index]]) {
+            output.pixels.array[index] = map.colorTable[map.structureIndexArray[index]];
+        } else {
+            output.pixels.array[index] = 0; // transparent black
         }
     }
     output.pixels.show();
@@ -298,7 +348,6 @@ map.needsSizeArrayUpdate = true;
 
 map.sizeArrayUpdate = function() {
     if (map.needsSizeArrayUpdate) {
-        console.log('map.sizeArrayUpdate');
         map.needsSizeArrayUpdate = false;
         const width = map.width;
         const widthM = width - 1;
@@ -356,6 +405,7 @@ map.sizeArrayUpdate = function() {
 /**
  * show image resulting from the map and the input image
  * low quality using nearest neighbor
+ * loads image if not yet an image loaded
  * @method map.showImageLowQuality
  */
 map.showImageLowQuality = function() {
@@ -372,7 +422,7 @@ map.showImageLowQuality = function() {
         };
         const length = map.width * map.height;
         for (var index = 0; index < length; index++) {
-            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+            if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
                 map.doInputTransform(point);
@@ -415,7 +465,7 @@ map.showImageHighQuality = function() {
         };
         const length = map.width * map.height;
         for (var index = 0; index < length; index++) {
-            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+            if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
                 map.doInputTransform(point);
@@ -460,7 +510,7 @@ map.showImageVeryHighQuality = function() {
         };
         const length = map.width * map.height;
         for (var index = 0; index < length; index++) {
-            if (map.showSector[map.sectorArray[index]] && (map.sizeArray[index] >= 0)) {
+            if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
                 map.doInputTransform(point);
@@ -520,6 +570,13 @@ map.setupInputImage = function(gui) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
             map.loadInputImage();
+        },
+        onInteraction: function() {
+            console.log('interact image: ' + map.inputImage);
+            if (map.whatToShow === 'structure') {
+                map.whatToShowController.setValueOnly('image - low quality');
+            }
+            map.showImageChanged();
         }
     });
     // setup control canvas
