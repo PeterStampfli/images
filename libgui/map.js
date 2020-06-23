@@ -210,7 +210,6 @@ map.regionControl = function(gui, nRegions) {
  * @method map.show
  */
 map.show = function() {
-    console.log('map.show ' + map.whatToShow);
     switch (map.whatToShow) {
         case 'structure':
             map.showStructure();
@@ -229,7 +228,7 @@ map.show = function() {
 
 // show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
-// using a table (maximum number of colors is 255)
+// using a table (maximum number of colors is 255) of color integers
 map.colorTable = [];
 map.colorTable.length = 256;
 map.colors = [];
@@ -246,6 +245,17 @@ map.makeColorTable = function(color1, color2) {
     guiUtils.arrayRepeat(map.colorTable, 2);
 };
 
+/*
+ * update the color table with integer colors, repeating
+ */
+map.updateColorTable = function() {
+    console.log('updatecota');
+    for (var i = 0; i < map.colors.length; i++) {
+        map.colorTable[i] = Pixels.integerOfColor(map.colors[i]);
+    }
+    guiUtils.arrayRepeat(map.colorTable, map.colors.length);
+};
+
 /**
  * make a color table
  * @method map.makeNewColorTable
@@ -255,28 +265,33 @@ map.makeColorTable = function(color1, color2) {
 map.makeNewColorTable = function(gui, nColors) {
     map.colors.length = 0;
 
-    for (i = 0; i < nColors; i++) {
+    for (var i = 0; i < nColors; i++) {
         const light = Math.floor(255 * i / (nColors - 1));
-        const color = {};
+        const color = {
+            red: light,
+            green: light,
+            blue: light,
+            alpha: 255
+        };
+        map.colors.push(color);
+        gui.add({
+            type: 'color',
+            labelText: 'color ' + i,
+            colorObject: color,
+            onChange: function() {
+                map.updateColorTable();
+                map.showImageChanged();
+            },
+            onInteraction: function(){
+if (map.whatToShow!=='structure'){
+    map.whatToShow='structure';
+    map.showImageChanged();
+}
+            }
+        });
     }
+    map.updateColorTable();
 };
-
-
-const black = {
-    red: 0,
-    green: 0,
-    blue: 0,
-    alpha: 255
-};
-
-const white = {
-    red: 255,
-    green: 255,
-    blue: 255,
-    alpha: 255
-};
-
-map.makeColorTable(black, white);
 
 /**
  * show structure of the map: color depending on the structure index

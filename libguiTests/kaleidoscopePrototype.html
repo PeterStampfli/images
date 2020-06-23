@@ -39,6 +39,11 @@ gui.addTitle('input image');
 map.setupInputImage(gui);
 gui.addTitle('region control');
 
+map.regionControl(gui,8);
+
+gui.addTitle('colors');
+map.makeNewColorTable(gui,4);
+
 // setup mapping show structure
 
 map.mapping=function(point){
@@ -54,7 +59,6 @@ console.log('drawing '+map.whatToShow);
 
 map.showMapChanged();
 
-map.regionControl(gui,8);
 
 
 </script>
