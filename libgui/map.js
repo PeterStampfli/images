@@ -82,22 +82,30 @@ map.showImageChanged = function() {
     map.show(); // default, change if you want to show a grid ...
 };
 
-output.showGridChanged = function() {
-    map.showImageChanged();
-};
 
 /**
  * what to do when the map changes (parameters, canvas size too)
  * @method map.showMapChanged
  */
 map.showMapChanged = function() {
-    map.initialize();
+    map.startDrawing();
     map.make();
     map.showImageChanged();
 };
 
-output.showCanvasChanged = function() {
-    map.showMapChanged();
+/**
+ * create output canvas and set drawing routines
+ * @method map.createCanvas
+ * @param {ParamGui} gui
+ */
+map.createCanvas = function(gui) {
+    output.createCanvas(gui);
+    output.showGridChanged = function() {
+        map.showImageChanged();
+    };
+    output.showCanvasChanged = function() {
+        map.showMapChanged();
+    };
 };
 
 /**
@@ -105,9 +113,9 @@ output.showCanvasChanged = function() {
  * update output canvas parameters and array dimensions
  * make sure that we have output.pixels(output.canvas)
  * update pixels
- * @method map.initialize
+ * @method map.startDrawing
  */
-map.initialize = function() {
+map.startDrawing = function() {
     map.needsSizeArrayUpdate = true;
     map.rangeValid = false;
     if (!guiUtils.isDefined(output.pixels)) {
@@ -264,7 +272,6 @@ map.updateColorTable = function() {
  */
 map.makeNewColorTable = function(gui, nColors) {
     map.colors.length = 0;
-
     for (var i = 0; i < nColors; i++) {
         const light = Math.floor(255 * i / (nColors - 1));
         const color = {
@@ -282,11 +289,11 @@ map.makeNewColorTable = function(gui, nColors) {
                 map.updateColorTable();
                 map.showImageChanged();
             },
-            onInteraction: function(){
-if (map.whatToShow!=='structure'){
-    map.whatToShow='structure';
-    map.showImageChanged();
-}
+            onInteraction: function() {
+                if (map.whatToShow !== 'structure') {
+                    map.whatToShow = 'structure';
+                    map.showImageChanged();
+                }
             }
         });
     }

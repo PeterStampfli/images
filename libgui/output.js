@@ -37,7 +37,7 @@ output.showCanvasChanged = function() {
 
 /**
  * show output image when grid parameters change
- * the map remains the same, do same as when image changes
+ * kaleidoscopes: the map remains the same, do same as when image changes
  * @method output.showGridChanged()
  */
 output.showGridChanged = function() {
@@ -368,9 +368,9 @@ output.createCanvas = function(gui, folderName) {
         output.createDiv();
     }
     output.div.appendChild(output.canvas);
-                showCanvasOnResize = false;
+    showCanvasOnResize = false;
     autoResize();
-                showCanvasOnResize = true;
+    showCanvasOnResize = true;
     window.addEventListener("resize", autoResize, false);
 };
 
@@ -385,7 +385,7 @@ output.createCanvas = function(gui, folderName) {
 // this parameter will be set by the program, not the user
 let canvasWidthToHeight = -1;
 
-output.setCanvasWidthToHeight = function(ratio) {
+output.setCanvasWidthToHeight = function(ratio = 1) {
     if (Math.abs(canvasWidthToHeight - ratio) > 0.0001) { // do this only if ratio changes, thus always 
         canvasWidthToHeight = ratio;
         if (ratio > 0.0001) {
@@ -484,9 +484,9 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(withRotation);
-    let helpText='The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
-    helpText+='<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
-    helpText+='<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.'
+    let helpText = 'The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
+    helpText += '<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
+    helpText += '<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.';
     output.coordinateTransform.addHelp(helpText);
     output.coordinateTransform.onChange = function() {
         output.showCanvasChanged(); // this calls always the latest version
@@ -599,6 +599,7 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
 /**
  * updating the canvas context transform and the pixel transform parameters
  * always use at start of draw method if canvas context drawing is done
+ * AFTER clearCanvas
  * @method output.updateCanvasContextTransform
  */
 var cosAngleTotalScale, sinAngleTotalScale;
@@ -726,4 +727,15 @@ output.drawGrid = function() {
             canvasContext.stroke();
         }
     }
+};
+
+/**
+ * clear the canvas (for line drawings ...)
+ * this resets the transform: call at start of drawing routine
+ * call updateTransform afterwards
+ * @method output.clearCanvas
+ */
+output.clearCanvas = function() {
+    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
 };

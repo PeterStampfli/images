@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> koch</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    ParamGui,
+    output
+} from "../libgui/modules.js";
+
+// basic setup
+const gui=new ParamGui({name:'Kochflakes',closed:false});
+// an output canvas and some test image
+output.createCanvas(gui);
+const canvas = output.canvas;
+const canvasContext = output.canvasContext;
+gui.addParagraph('coordinate transform');
+output.showCanvasChanged=function(){};
+output.setCanvasWidthToHeight();
+output.addCoordinateTransform(gui,false);
+output.setInitialCoordinates(0,0,100);
+
+const koch={};
+koch.nCorners=5;
+koch.m=2;
+koch.radius=30;
+koch.background='#eeeeaa';
+koch.lineWidth=3;
+koch.generations=0;
+
+
+function line(generation,ax,ay,bx,by){
+  if (generation<=0){
+    canvasContext.beginPath();
+    canvasContext.moveTo(ax,ay);
+    canvasContext.lineTo(bx,by);
+    canvasContext.stroke();
+  } else {
+    generation--;
+    const aax=ax+xLeft*(bx-ax);
+    const aay=ay+xLeft*(by-ay);
+    const bbx=bx+xRight*(ax-bx);
+    const bby=by+xRight*(ay-by);
+    const px=(aax+bbx)*0.5-0.866*(bby-aay)*triangleHeight;
+    const py=(aay+bby)*0.5+0.866*(bbx-aax)*triangleHeight;
+    line(generation,ax,ay,aax,aay);
+    line(generation,aax,aay,px,py);
+    line(generation,px,py,bbx,bby);
+    line(generation,bbx,bby,bx,by);
+  }
+}
+
+function draw(){
+  console.log('drawing');
+  output.clearCanvas();
+  output.updateTransform();
+output.setLineWidth(2);
+  canvas.style.backgroundColor=koch.background;
+for (var i=0;i<koch.nCorners;i++){
+let angle=2*Math.PI/koch.nCorners*koch.m*i;
+const ax=koch.radius*Math.cos(angle);
+const ay=koch.radius*Math.sin(angle);
+angle=2*Math.PI/koch.nCorners*koch.m*(i+1);
+const bx=koch.radius*Math.cos(angle);
+const by=koch.radius*Math.sin(angle);
+line(koch.generations,ax,ay,bx,by);
+
+}
+
+}
+
+output.showCanvasChanged=draw;
+draw();
+
+</script>
+
+</html>
