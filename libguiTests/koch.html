@@ -22,69 +22,151 @@ import {
     ParamGui,
     output
 } from "../libgui/modules.js";
-
 // basic setup
-const gui=new ParamGui({name:'Kochflakes',closed:false});
+const gui = new ParamGui({
+    name: 'Kochflakes',
+    closed: false
+});
+const canvasGui=gui.addFolder({name:'image controls',closed: true});
 // an output canvas and some test image
-output.createCanvas(gui);
+output.createCanvas(canvasGui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
-gui.addParagraph('coordinate transform');
-output.showCanvasChanged=function(){};
+canvasGui.addTitle('coordinate transform');
+output.showCanvasChanged = function() {};
 output.setCanvasWidthToHeight();
-output.addCoordinateTransform(gui,false);
-output.setInitialCoordinates(0,0,100);
+output.addCoordinateTransform(canvasGui, false);
+output.setInitialCoordinates(0, 0, 100);
 
-const koch={};
-koch.nCorners=5;
-koch.m=2;
-koch.radius=30;
-koch.background='#eeeeaa';
-koch.lineWidth=3;
-koch.generations=0;
+const koch = {};
+koch.nCorners = 5;
+koch.m = 2;
+koch.radius = 45;
+koch.background = '#eeeeaa';
+koch.linecolor = '#000066';
+koch.lineWidth = 1;
+koch.generations = 6;
+koch.heightExtension = 1;
+koch.widthExtension = 1;
 
+gui.addParagraph('You can use the mouse wheel to change numbers.');
+// controls
+gui.addTitle('basic star polygon {p/q}:');
+const number = {
+    type: 'number',
+    params: koch,
+    onChange: function() {
+        draw();
+    }
+};
+gui.add(number, {
+    step: 1,
+    min: 3,
+    property: 'nCorners',
+    labelText: 'p'
+})
+gui.add(number, {
+    step: 1,
+    min: 1,
+    property: 'm',
+    labelText: 'q'
+})
+gui.add(number, {
+    min: 10,
+    property: 'radius'
+})
 
-function line(generation,ax,ay,bx,by){
-  if (generation<=0){
-    canvasContext.beginPath();
-    canvasContext.moveTo(ax,ay);
-    canvasContext.lineTo(bx,by);
-    canvasContext.stroke();
-  } else {
-    generation--;
-    const aax=ax+xLeft*(bx-ax);
-    const aay=ay+xLeft*(by-ay);
-    const bbx=bx+xRight*(ax-bx);
-    const bby=by+xRight*(ay-by);
-    const px=(aax+bbx)*0.5-0.866*(bby-aay)*triangleHeight;
-    const py=(aay+bby)*0.5+0.866*(bbx-aax)*triangleHeight;
-    line(generation,ax,ay,aax,aay);
-    line(generation,aax,aay,px,py);
-    line(generation,px,py,bbx,bby);
-    line(generation,bbx,bby,bx,by);
-  }
+gui.addTitle('number of iterations');
+gui.add(number, {
+    property: 'generations',
+    labelText: '',
+    max:7
+});
+
+gui.addTitle('modification of the triangle');
+gui.add(number,{
+property: 'heightExtension',
+labelText:'height'
+});
+gui.add(number,{
+property: 'widthExtension',
+labelText:'width'
+});
+
+gui.addTitle('styling');
+gui.add(number, {
+    property: 'lineWidth',
+    labelText: 'width of line',
+    min: 1
+});
+gui.add({
+    type: 'color',
+    params: koch,
+    property: 'background',
+    onChange: function() {
+        draw();
+    }
+});
+gui.add({
+    type: 'color',
+    params: koch,
+    property: 'linecolor',
+    onChange: function() {
+        draw();
+    }
+});
+
+// define the triangle
+var relativeLength; // length of the sides of thenew generation as a fraction of the length of the previous generation
+var relativeHeight; // height of the added triangles as a fraction of the side length of the previous generation
+
+function line(generation, ax, ay, bx, by) {
+    if (generation <= 0) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(ax, ay);
+        canvasContext.lineTo(bx, by);
+        canvasContext.stroke();
+    } else {
+        generation--;
+        const cx = 0.5 * (ax + bx);
+        const cy = 0.5 * (ay + by);
+        const px = cx + relativeHeight * (by - ay);
+        const py = cy - relativeHeight * (bx - ax);
+        const aax = ax + relativeLength * (bx - ax);
+        const aay = ay + relativeLength * (by - ay);
+        const bbx = bx + relativeLength * (ax - bx);
+        const bby = by + relativeLength * (ay - by);
+        line(generation, ax, ay, aax, aay);
+        line(generation, aax, aay, px, py);
+        line(generation, px, py, bbx, bby);
+        line(generation, bbx, bby, bx, by);
+    }
 }
 
-function draw(){
-  console.log('drawing');
-  output.clearCanvas();
-  output.updateTransform();
-output.setLineWidth(2);
-  canvas.style.backgroundColor=koch.background;
-for (var i=0;i<koch.nCorners;i++){
-let angle=2*Math.PI/koch.nCorners*koch.m*i;
-const ax=koch.radius*Math.cos(angle);
-const ay=koch.radius*Math.sin(angle);
-angle=2*Math.PI/koch.nCorners*koch.m*(i+1);
-const bx=koch.radius*Math.cos(angle);
-const by=koch.radius*Math.sin(angle);
-line(koch.generations,ax,ay,bx,by);
-
+function draw() {
+    // setting up the canvas
+    output.updateTransform();
+    output.setLineWidth(koch.lineWidth);
+    output.clearCanvas();
+    canvasContext.strokeStyle=koch.linecolor;
+    canvas.style.backgroundColor = koch.background;
+    // general parameters
+    const gamma = 2 * Math.PI / koch.nCorners * koch.m;
+    relativeLength = 0.5 / (1 + Math.cos(gamma / 2));
+    relativeHeight = koch.heightExtension * relativeLength * Math.sin(gamma / 2);
+    relativeLength = koch.widthExtension*relativeLength+0.5*(1-koch.widthExtension);
+    for (var i = 0; i < koch.nCorners; i++) {
+        let angle = gamma * i;
+        const ax = koch.radius * Math.cos(angle);
+        const ay = koch.radius * Math.sin(angle);
+        angle += gamma;
+        const bx = koch.radius * Math.cos(angle);
+        const by = koch.radius * Math.sin(angle);
+        line(koch.generations, ax, ay, bx, by);
+    }
 }
 
-}
-
-output.showCanvasChanged=draw;
+output.showCanvasChanged = draw;
 draw();
 
 </script>

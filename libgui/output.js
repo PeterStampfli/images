@@ -598,8 +598,7 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
 
 /**
  * updating the canvas context transform and the pixel transform parameters
- * always use at start of draw method if canvas context drawing is done
- * AFTER clearCanvas
+ * ALWAYS use at start of draw method
  * @method output.updateCanvasContextTransform
  */
 var cosAngleTotalScale, sinAngleTotalScale;
@@ -731,11 +730,13 @@ output.drawGrid = function() {
 
 /**
  * clear the canvas (for line drawings ...)
- * this resets the transform: call at start of drawing routine
+ * preserves the current transform
  * call updateTransform afterwards
  * @method output.clearCanvas
  */
 output.clearCanvas = function() {
+    const transform=output.canvasContext.getTransform();
     output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
+    output.canvasContext.setTransform(transform);
 };
