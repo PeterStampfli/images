@@ -6,8 +6,8 @@ from "./modules.js";
 
 /**
  * shift, scale and rotation (optional) for object with x and y components
- * also manages components of the transform (matrix)
- * particularly of a canvas
+ * using an additional prescaling (accounting for varying output canvas sizee, input image)
+ * also manages components of the transform (matrix) of a canvas context 
  * @creator CoordinateTransform
  * @param {ParamGui} gui
  * @param {boolean} withRotation - optional, defaault=false

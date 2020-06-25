@@ -27,7 +27,10 @@ const gui = new ParamGui({
     name: 'Kochflakes',
     closed: false
 });
-const canvasGui=gui.addFolder({name:'image controls',closed: true});
+const canvasGui = gui.addFolder({
+    name: 'image controls',
+    closed: true
+});
 // an output canvas and some test image
 output.createCanvas(canvasGui);
 const canvas = output.canvas;
@@ -52,53 +55,103 @@ koch.widthExtension = 1;
 gui.addParagraph('You can use the mouse wheel to change numbers.');
 // controls
 gui.addTitle('basic star polygon {p/q}:');
-const number = {
+
+function defineLength() {
+    const gamma = 2 * Math.PI / koch.nCorners * koch.m;
+    const relativeLength = 0.5 / (1 + Math.cos(gamma / 2));
+    outerControl.setValueOnly(relativeLength);
+    innerControl.setValueOnly(relativeLength);
+}
+
+gui.add({
     type: 'number',
     params: koch,
-    onChange: function() {
-        draw();
-    }
-};
-gui.add(number, {
+    property: 'nCorners',
     step: 1,
     min: 3,
-    property: 'nCorners',
-    labelText: 'p'
+    labelText: 'p',
+    onChange: function(value) {
+      qController.uiElement.setMax(value-1);
+        defineLength();
+        draw();
+    },
 })
-gui.add(number, {
+const qController=gui.add({
+    type: 'number',
+    params: koch,
+    property: 'm',
     step: 1,
     min: 1,
-    property: 'm',
-    labelText: 'q'
+    max:koch.nCorners-1,
+    labelText: 'q',
+    onChange: function() {
+        defineLength();
+        draw();
+    },
 })
-gui.add(number, {
+gui.add({
+    type: 'number',
+    params: koch,
+    property: 'radius',
     min: 10,
-    property: 'radius'
 })
+
 
 gui.addTitle('number of iterations');
-gui.add(number, {
+gui.add({
+    type: 'number',
+    params: koch,
     property: 'generations',
+    step: 1,
+    min: 0,
+    max: 7,
     labelText: '',
-    max:7
-});
+    onChange: function() {
+        draw();
+    },
+})
 
-gui.addTitle('modification of the triangle');
-gui.add(number,{
-property: 'heightExtension',
-labelText:'height'
-});
-gui.add(number,{
-property: 'widthExtension',
-labelText:'width'
-});
+const gamma = 2 * Math.PI / koch.nCorners * koch.m;
+koch.outer = 0.5 / (1 + Math.cos(gamma / 2));;
+koch.inner = koch.outer;
+
+gui.addTitle('modification of the line lengths');
+
+const outerControl = gui.add({
+    type: 'number',
+    params: koch,
+    property: 'outer',
+    step: 0.001,
+    min: -1,
+    max: 1,
+    onChange: function() {
+        draw();
+    },
+})
+
+const innerControl = gui.add({
+    type: 'number',
+    params: koch,
+    property: 'inner',
+    step: 0.001,
+    min: -1,
+    max: 1,
+    onChange: function() {
+        draw();
+    },
+})
 
 gui.addTitle('styling');
-gui.add(number, {
+gui.add({
+    type: 'number',
+    params: koch,
     property: 'lineWidth',
+    min: 1,
     labelText: 'width of line',
-    min: 1
-});
+    onChange: function() {
+        draw();
+    },
+})
 gui.add({
     type: 'color',
     params: koch,
@@ -115,6 +168,7 @@ gui.add({
         draw();
     }
 });
+
 
 // define the triangle
 var relativeLength; // length of the sides of thenew generation as a fraction of the length of the previous generation
@@ -148,13 +202,15 @@ function draw() {
     output.updateTransform();
     output.setLineWidth(koch.lineWidth);
     output.clearCanvas();
-    canvasContext.strokeStyle=koch.linecolor;
+    canvasContext.strokeStyle = koch.linecolor;
     canvas.style.backgroundColor = koch.background;
     // general parameters
     const gamma = 2 * Math.PI / koch.nCorners * koch.m;
-    relativeLength = 0.5 / (1 + Math.cos(gamma / 2));
-    relativeHeight = koch.heightExtension * relativeLength * Math.sin(gamma / 2);
-    relativeLength = koch.widthExtension*relativeLength+0.5*(1-koch.widthExtension);
+    relativeLength = koch.outer;
+    relativeHeight = Math.sqrt(Math.max(0, koch.inner * koch.inner - (0.5 - koch.outer) * (0.5 - koch.outer)));
+    if (koch.inner < 0) {
+        relativeHeight *= -1;
+    }
     for (var i = 0; i < koch.nCorners; i++) {
         let angle = gamma * i;
         const ax = koch.radius * Math.cos(angle);
