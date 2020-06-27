@@ -27,16 +27,19 @@ output.setInitialCoordinates(0, 0, 100);
 
 // parameters
 const koch = {};
+
 // basic
 koch.corners = 5;
 koch.winding = 2;
 koch.radius = 45;
-koch.generations = 6;
+koch.generations = 1;
+
 // modification
-koch.outer = 0.333;
+ koch.outer=0.333;
+ koch.inner=0.333;
 koch.angle = 0;
-koch.inner = 0.333;
 koch.side = 'outside';
+
 //style
 koch.lineWidth = 1;
 koch.background = '#eeeeaa';
@@ -55,6 +58,7 @@ gui.add({
     labelText: 'p (corners)',
     onChange: function(p) {
         windingController.setMax(Math.floor(p / 2));
+setLengths();
 
         draw();
     },
@@ -68,6 +72,8 @@ const windingController = gui.add({
     max: koch.nCorners - 1,
     labelText: 'q (winding)',
     onChange: function() {
+    	console.log('******************8')
+setLengths();
 
         draw();
     },
@@ -145,6 +151,17 @@ innerControl.add({
     },
 });
 
+function setLengths(){
+const gamma = 2 * Math.PI / koch.corners * koch.winding;
+
+console.log('leng',koch.corners,koch.winding)
+console.log(gamma)
+const length=0.5 / (1 + Math.cos(gamma / 2));
+outerControl.setValueOnly(length);
+innerControl.setValueOnly(length);
+}
+setLengths();
+
 gui.addTitle('styling');
 gui.add({
     type: 'number',
@@ -173,8 +190,79 @@ gui.add({
     }
 });
 
+var outerCosAngle, outerSinAngle, height;
 
+function line(generation, ax, ay, bx, by) {
+    if (generation <= 0) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(ax, ay);
+        canvasContext.lineTo(bx, by);
+        canvasContext.stroke();
+    } else {
+    	const abx=bx-ax;
+    	const aby=by-ay;
+    	const perpx=aby;
+    	const perpy=-abx;
+    	const aax=ax+abx*outerCosAngle+perpx*outerSinAngle;
+    	const aay=ay+aby*outerCosAngle+perpy*outerSinAngle;
+    	const bbx=bx-abx*outerCosAngle+perpx*outerSinAngle;
+    	const bby=by-aby*outerCosAngle+perpy*outerSinAngle;
+    	const topx=0.5*(aax+bbx)+height*perpx;
+    	const topy=0.5*(aay+bby)+height*perpy;
+    	generation-=1;
+    	line(generation,ax,ay,aax,aay);
+    	line(generation,aax,aay,topx,topy);
+    	line(generation,topx,topy,bbx,bby);
+    	line(generation,bbx,bby,bx,by);
+    }
+}
+
+function gcd(p, q) {
+    while (q > 0) {
+        const r = p % q;
+        p = q;
+        q = r;
+    }
+    return p;
+}
 
 function draw() {
     console.log('show');
+    // setting up the canvas
+    output.updateTransform();
+    output.setLineWidth(koch.lineWidth);
+    output.clearCanvas();
+    canvasContext.strokeStyle = koch.linecolor;
+    canvas.style.backgroundColor = koch.background;
+    // general parameters
+    const gamma = 2 * Math.PI / koch.corners * koch.winding;
+    console.log(gamma);
+    const repeat = gcd(koch.corners, koch.winding);
+    console.log(repeat);
+    const corners = koch.corners / repeat;
+    outerCosAngle = koch.outer * Math.cos(Math.PI / 180 * koch.angle);
+    outerSinAngle = koch.outer * Math.sin(Math.PI / 180 * koch.angle);
+    const gapHalf = 0.5 - outerCosAngle;
+    height = Math.sqrt(Math.max(0, koch.inner * koch.inner - gapHalf * gapHalf));
+    if (koch.side === 'inside') {
+        height = -height;
+    }
+    console.log(height);
+
+    for (var r = 0; r < repeat; r++) {
+        console.log(r);
+        let angle = r * gamma / repeat;
+        for (var i = 0; i < corners; i++) {
+            const ax = koch.radius * Math.cos(angle);
+            const ay = koch.radius * Math.sin(angle);
+            angle += gamma;
+            const bx = koch.radius * Math.cos(angle);
+            const by = koch.radius * Math.sin(angle);
+            line(koch.generations, ax, ay, bx, by);
+        }
+    }
+
 }
+
+output.showCanvasChanged = draw;
+draw();
