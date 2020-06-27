@@ -1085,11 +1085,12 @@ ParamGui.prototype.addLogger = function() {
  * add a transformation of coordinates
  * shift and scaling, optional rotation
  * @method ParamGui#addCoordinateTransform
- * @param {boolean} withRotation - optional, default=false
- * @return coordinateTransform object
+* @param {canvas} canvas - optional, default==null, transform applies to canvas context
+ * @param {boolean} withRotation - optional, default==false
+ * @param {float} stepSize - optional, step size for UI, default is 0.001 * @return coordinateTransform object
  */
-ParamGui.prototype.addCoordinateTransform = function(withRotation = false) {
-    const coordinateTransform = new CoordinateTransform(this, withRotation);
+ParamGui.prototype.addCoordinateTransform = function(canvas=null,withRotation = false, stepSize = 0.001) {
+    const coordinateTransform = new CoordinateTransform(this,canvas, withRotation,stepSize);
     return coordinateTransform;
 };
 

@@ -233,6 +233,11 @@ function autoResize() {
             }
         }
     }
+    if (guiUtils.isDefined(output.coordinateTransform)) {
+        // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
+        output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+        output.coordinateTransform.updateTransform();
+    }
 }
 
 /**
@@ -483,7 +488,9 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
  */
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
-    output.coordinateTransform = gui.addCoordinateTransform(withRotation);
+    output.coordinateTransform = gui.addCoordinateTransform(output.canvas, withRotation);
+    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+    output.coordinateTransform.updateTransform();
     let helpText = 'The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
     helpText += '<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
     helpText += '<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.';
@@ -605,8 +612,6 @@ var cosAngleTotalScale, sinAngleTotalScale;
 var shiftX, shiftY;
 output.updateTransform = function() {
     const coordinateTransform = output.coordinateTransform;
-    // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
-    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
     // inverse transform, coordinate space to pixels
     const invTotalScale = 1 / (coordinateTransform.scale * output.canvasScale);
     const cosAngleInvTotalScale = coordinateTransform.cosAngleInvScale / output.canvasScale;
@@ -735,7 +740,7 @@ output.drawGrid = function() {
  * @method output.clearCanvas
  */
 output.clearCanvas = function() {
-    const transform=output.canvasContext.getTransform();
+    const transform = output.canvasContext.getTransform();
     output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
     output.canvasContext.setTransform(transform);

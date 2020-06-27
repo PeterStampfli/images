@@ -1,6 +1,7 @@
 /* jshint esversion:6 */
 import {
-    MouseEvents
+    MouseEvents,
+    guiUtils
 }
 from "./modules.js";
 
@@ -10,17 +11,20 @@ from "./modules.js";
  * also manages components of the transform (matrix) of a canvas context 
  * @creator CoordinateTransform
  * @param {ParamGui} gui
- * @param {boolean} withRotation - optional, defaault=false
+ * @param {canvas} canvas - optional, default==null, transform applies to canvas context
+ * @param {boolean} withRotation - optional, default==false
  * @param {float} stepSize - optional, step size for UI, default is 0.001
  */
 
-export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001) {
+export function CoordinateTransform(gui, canvas = null, withRotation = false, stepSize = 0.001) {
+    this.canvas = canvas;
     this.withRotation = withRotation;
     this.shiftX = 0;
     this.shiftY = 0;
+    this.prescale = 1;
     this.scale = 1;
     this.angle = 0;
-    this.updateScaleAngle();
+    this.updateTransform();
     this.setResetValues();
 
     const coordinateTransform = this;
@@ -40,7 +44,7 @@ export function CoordinateTransform(gui, withRotation = false, stepSize = 0.001)
         step: stepSize,
         width: 55,
         onChange: function() {
-            coordinateTransform.updateScaleAngle();
+            coordinateTransform.updateTransform();
             coordinateTransform.onChange();
         }
     };
@@ -98,17 +102,44 @@ CoordinateTransform.prototype.addHelp = function(message) {
 
 /**
  * update the combined scale-angle factors
- * call if scale or angle changes
- * @method CoordinateTransform#updateScaleAngle
+ * call if prescale, scale, angle or shift changes
+ * updates canvas context if canvas present
+ * @method CoordinateTransform#updateTransform
  */
-CoordinateTransform.prototype.updateScaleAngle = function() {
+CoordinateTransform.prototype.updateTransform = function() {
     const angleRad = Math.PI / 180 * this.angle;
     const cosAngle = Math.cos(angleRad);
     const sinAngle = Math.sin(angleRad);
-    this.cosAngleScale = this.scale * cosAngle;
-    this.sinAngleScale = this.scale * sinAngle;
-    this.cosAngleInvScale = cosAngle / this.scale;
-    this.sinAngleInvScale = sinAngle / this.scale;
+    const scale = this.prescale * this.scale;
+    this.cosAngleScale = scale * cosAngle;
+    this.sinAngleScale = scale * sinAngle;
+    this.cosAngleInvScale = cosAngle / scale;
+    this.sinAngleInvScale = sinAngle / scale;
+    if (guiUtils.isDefined(this.canvas)) {
+        // backtransform for the canvas context
+        const canvasContext = this.canvas.getContext('2d');
+        const cosAngleInvTotalScale = cosAngle / scale;
+        const sinAngleInvTotalScale = sinAngle / scale;
+
+        const deltaX = cosAngleInvTotalScale * this.shiftX + sinAngleInvTotalScale * this.shiftY;
+        const deltaY = -sinAngleInvTotalScale * this.shiftX + cosAngleInvTotalScale * this.shiftY;
+        canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+        canvasContext.translate(-deltaX, -deltaY);
+        canvasContext.rotate(-this.angle / 180 * Math.PI);
+        canvasContext.scale(1/scale, 1/scale);
+
+    }
+};
+
+/**
+ * set the prescale value 
+ * (for changes of the canvas size without changing the ui values)
+ * @method CoordinateTransform#setPrescale
+ * @param {number} prescale
+ */
+CoordinateTransform.prototype.setPrescale = function(prescale) {
+    this.prescale = prescale;
+    this.updateTransform();
 };
 
 /**
@@ -127,7 +158,7 @@ CoordinateTransform.prototype.setValues = function(shiftX = 0, shiftY = 0, scale
     this.shiftY = shiftY;
     this.scale = scale;
     this.angle = angle;
-    this.updateScaleAngle();
+    this.updateTransform();
     this.updateUI();
 };
 
@@ -155,7 +186,7 @@ CoordinateTransform.prototype.reset = function() {
     this.shiftY = this.resetShiftY;
     this.scale = this.resetScale;
     this.angle = this.resetAngle;
-    this.updateScaleAngle();
+    this.updateTransform();
     this.updateUI();
 };
 
