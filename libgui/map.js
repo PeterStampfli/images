@@ -100,10 +100,10 @@ map.showMapChanged = function() {
  */
 map.createCanvas = function(gui) {
     output.createCanvas(gui);
-    output.showGridChanged = function() {
+    output.drawGridChanged = function() {
         map.showImageChanged();
     };
-    output.showCanvasChanged = function() {
+    output.drawCanvasChanged = function() {
         map.showMapChanged();
     };
 };
@@ -122,7 +122,6 @@ map.startDrawing = function() {
         output.pixels = new Pixels(output.canvas);
     }
     output.pixels.update();
-    output.updateTransform();
     const canvas = output.canvas;
     if ((map.width !== canvas.width) || (map.height !== canvas.height)) {
         map.width = canvas.width;
@@ -157,7 +156,7 @@ map.make = function() {
             point.region = 0;
             point.structureIndex = 0;
             point.valid = 1;
-            output.transform(point);
+            output.coordinateTransform.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
@@ -257,7 +256,6 @@ map.makeColorTable = function(color1, color2) {
  * update the color table with integer colors, repeating
  */
 map.updateColorTable = function() {
-    console.log('updatecota');
     for (var i = 0; i < map.colors.length; i++) {
         map.colorTable[i] = Pixels.integerOfColor(map.colors[i]);
     }
@@ -551,9 +549,11 @@ map.showImageVeryHighQuality = function() {
 };
 
 /**
- * create selector for what to show, image select, div with canvas and coordinate transform
- * initialization for using input images
- * CALL THIS BEFORE calculating the map (with map.make)
+ * create canvas for input image
+ * selector for what to show, image select, div with control canvas and coordinate transform
+ * the transform from the map result to the input image has a prescaling that makes 
+ * that at scale==1 much of the input image will be sampled
+ * shifts are input pixels
  * @method map.setupInputImage
  * @param {ParamGui} gui
  */
@@ -632,8 +632,9 @@ map.setupInputImage = function(gui) {
     // beware of border
     // initial values depend on the image
     // but not on the map (because it is normalized)
-    map.inputTransform = new CoordinateTransform(gui, true);
+    map.inputTransform = new CoordinateTransform(gui, null,true);
     const inputTransform = map.inputTransform;
+    inputTransform.setStepShift(1);
     map.inputTransform.onChange = function() {
         console.log('change input transform');
         map.showImageChanged();

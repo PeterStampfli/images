@@ -91,7 +91,6 @@ gui.add(smallNumber, {
 });
 
 function draw() {
-    console.log('drawing');
     const height = canvas.height;
     const width = canvas.width;
     const imageData = canvasContext.getImageData(0, 0, width, height);

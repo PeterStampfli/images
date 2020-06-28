@@ -28,12 +28,14 @@ import {
 
 // basic setup
 const gui=new ParamGui({name:'test',closed:false});
+output.drawCanvasChanged=function(){};
+
 // an output canvas and some test image
 map.createCanvas(gui);
 
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
-gui.addParagraph('coordinate transform')
+gui.addParagraph('coordinate transform');
 output.addCoordinateTransform(gui,false);
 output.setInitialCoordinates(0,0,3);
 gui.addTitle('input image');
@@ -43,7 +45,7 @@ gui.addTitle('region control');
 map.regionControl(gui,8);
 
 gui.addTitle('colors');
-map.makeNewColorTable(gui,4);
+map.makeNewColorTable(gui,2);
 
 // setup mapping show structure
 

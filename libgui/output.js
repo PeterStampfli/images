@@ -20,7 +20,6 @@ export const output = {};
 
 output.canvas = false;
 output.canvasContext = false; // 2d-context
-output.canvasScale = 1; // scale to transform (square) canvas dimensions to (0...1)
 output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
@@ -33,7 +32,7 @@ output.divWidth = 0;
  */
 output.drawCanvasChanged = function() {
     console.error('Please define method output.drawCanvasChanged!');
-    console.log('You can hide this messsage by using initially:');
+    console.log('You can hide this message by using initially:');
     console.log('output.drawCanvasChanged=function(){};');
 };
 
@@ -176,7 +175,7 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 let oldWidth = 0;
 let oldHeight = 0;
 
-function autoResize() {
+function autoResizeDraw() {
     if (autoResizeController.getValue()) {
         // autoresize: fit canvas into the output.div. thus no scroll bars
         output.canvas.style.width = '';
@@ -237,8 +236,6 @@ function autoResize() {
             }
         }
     }
-    console.log('checckdim');
-    console.log(oldWidth, output.canvas.width);
     // draw if dimensions changed
     if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
         oldWidth = output.canvas.width;
@@ -246,7 +243,7 @@ function autoResize() {
         // if there is a transform we have to update ...
         if (guiUtils.isDefined(output.coordinateTransform)) {
             // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
-            output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+            output.coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
             output.coordinateTransform.updateTransform();
             console.log('update canvasscale');
         }
@@ -312,7 +309,7 @@ output.createCanvas = function(gui, folderName) {
                 heightController.setValueOnly(value / canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
-            autoResize();
+            autoResizeDraw();
         }
     });
     widthController.hSpace(30);
@@ -328,7 +325,7 @@ output.createCanvas = function(gui, folderName) {
                 widthController.setValueOnly(value * canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
-            autoResize();
+            autoResizeDraw();
         }
     });
 
@@ -340,7 +337,7 @@ output.createCanvas = function(gui, folderName) {
             if (on) {
                 autoScaleController.setValueOnly(false);
             }
-            autoResize();
+            autoResizeDraw();
         }
     }).addHelp("Sets the canvas dimensions to fit the available space.");
 
@@ -352,7 +349,7 @@ output.createCanvas = function(gui, folderName) {
             if (on) {
                 autoResizeController.setValueOnly(false);
             }
-            autoResize();
+            autoResizeDraw();
         }
     }).addHelp('Scales the image of the canvas to fit the available space.');
 
@@ -363,7 +360,7 @@ output.createCanvas = function(gui, folderName) {
         labelText: 'extend canvas width',
         onChange: function() {
             resizeOutputDiv();
-            autoResize();
+            autoResizeDraw();
         }
     }).addHelp('Extend the canvas width to window width. Maybe, nothing happens for fixed width to height ratio.');
 
@@ -386,8 +383,8 @@ output.createCanvas = function(gui, folderName) {
         output.createDiv();
     }
     output.div.appendChild(output.canvas);
-    autoResize();
-    window.addEventListener("resize", autoResize, false);
+    autoResizeDraw();
+    window.addEventListener("resize", autoResizeDraw, false);
 };
 
 /**
@@ -412,7 +409,7 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
                 widthController.setValueOnly(width);
                 heightController.setValueOnly(width / canvasWidthToHeight);
             }
-            autoResize();
+            autoResizeDraw();
         }
     }
 };
@@ -428,7 +425,7 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
 output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = stepVertical) {
     widthController.setStep(stepVertical); // might resize output.canvas.width
     heightController.setStep(stepHorizontal);
-    autoResize();
+    autoResizeDraw();
 };
 
 /**
@@ -462,7 +459,7 @@ function makeArgs(buttonDefinition) {
             } else {
                 heightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
             }
-            autoResize();
+            autoResizeDraw();
         };
     } else {
         result.buttonText = buttonDefinition.label;
@@ -494,19 +491,19 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
     output.coordinateTransform = gui.addCoordinateTransform(output.canvas, withRotation);
-    output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
-    output.coordinateTransform.updateTransform();
+    const coordinateTransform = output.coordinateTransform;
+    coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
+    coordinateTransform.updateTransform();
     let helpText = 'The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
     helpText += '<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
     helpText += '<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.';
-    output.coordinateTransform.addHelp(helpText);
+    coordinateTransform.addHelp(helpText);
     output.coordinateTransform.onChange = function() {
         output.drawCanvasChanged(); // this calls always the latest version
     };
     output.canvas.style.cursor = "pointer";
     output.mouseEvents = new MouseEvents(output.canvas);
     const mouseEvents = output.mouseEvents;
-    const coordinateTransform = output.coordinateTransform;
     // mouse wheel zooming factor
     output.zoomFactor = 1.04;
     // and rotating, angle step, in degrees
@@ -539,12 +536,13 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (keyboard.ctrlPressed) {
             output.mouseDragAction(mouseEvents);
         } else {
-            v.x = output.canvasScale * mouseEvents.dx;
-            v.y = output.canvasScale * mouseEvents.dy;
+            v.x =  mouseEvents.dx;
+            v.y =  mouseEvents.dy;
             coordinateTransform.rotateScale(v);
             coordinateTransform.shiftX -= v.x;
             coordinateTransform.shiftY -= v.y;
             coordinateTransform.updateUI();
+            coordinateTransform.updateTransform();
             output.drawCanvasChanged();
         }
     };
@@ -568,8 +566,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             output.mouseWheelAction(mouseEvents);
         } else {
             // the zoom center, prescaled
-            u.x = output.canvasScale * mouseEvents.x;
-            u.y = output.canvasScale * mouseEvents.y;
+            u.x = mouseEvents.x;
+            u.y = mouseEvents.y;
             v.x = u.x;
             v.y = u.y;
             coordinateTransform.rotateScale(u);
@@ -580,11 +578,12 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
                 const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
                 coordinateTransform.scale *= zoomFactor;
             }
-            coordinateTransform.updateScaleAngle();
+            coordinateTransform.updateTransform();
             coordinateTransform.rotateScale(v);
             coordinateTransform.shiftX += u.x - v.x;
             coordinateTransform.shiftY += u.y - v.y;
             coordinateTransform.updateUI();
+            coordinateTransform.updateTransform();
             output.drawCanvasChanged();
         }
     };
@@ -609,50 +608,13 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
 };
 
 /**
- * updating the canvas context transform and the pixel transform parameters
- * ALWAYS use at start of draw method
- * @method output.updateCanvasContextTransform
- */
-var cosAngleTotalScale, sinAngleTotalScale;
-var shiftX, shiftY;
-output.updateTransform = function() {
-    const coordinateTransform = output.coordinateTransform;
-    // inverse transform, coordinate space to pixels
-    const invTotalScale = 1 / (coordinateTransform.scale * output.canvasScale);
-    const cosAngleInvTotalScale = coordinateTransform.cosAngleInvScale / output.canvasScale;
-    const sinAngleInvTotalScale = coordinateTransform.sinAngleInvScale / output.canvasScale;
-    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-    const deltaX = cosAngleInvTotalScale * coordinateTransform.shiftX + sinAngleInvTotalScale * coordinateTransform.shiftY;
-    const deltaY = -sinAngleInvTotalScale * coordinateTransform.shiftX + cosAngleInvTotalScale * coordinateTransform.shiftY;
-    output.canvasContext.translate(-deltaX, -deltaY);
-    output.canvasContext.rotate(-coordinateTransform.angle / 180 * Math.PI);
-    output.canvasContext.scale(invTotalScale, invTotalScale);
-    // forward transform pixel indices to coordinate space
-    cosAngleTotalScale = output.canvasScale * coordinateTransform.cosAngleScale;
-    sinAngleTotalScale = output.canvasScale * coordinateTransform.sinAngleScale;
-    shiftX = coordinateTransform.shiftX;
-    shiftY = coordinateTransform.shiftY;
-};
-
-/**
  * set the line width in pixels, independent of scale
  * compensate for the scaling of the inverse transform: multiply with scale of forward transform
  * @method output.setLineWidth
  * @param{number} width
  */
 output.setLineWidth = function(width) {
-    output.canvasContext.lineWidth = width * output.canvasScale * output.coordinateTransform.scale;
-};
-
-/**
- * do the transform for the output canvas: first rotate and scale, then shift
- * @method output#transform
- * @param {Object} v - with coordinates v.x and v.y
- */
-output.transform = function(v) {
-    let h = cosAngleTotalScale * v.x - sinAngleTotalScale * v.y + shiftX;
-    v.y = sinAngleTotalScale * v.x + cosAngleTotalScale * v.y + shiftY;
-    v.x = h;
+    output.canvasContext.lineWidth = width * output.coordinateTransform.totalScale;
 };
 
 /**
@@ -698,19 +660,25 @@ output.addGrid = function(gui) {
 };
 
 /**
- * draw the grid
+ * draw the grid, no rotation
  * @method output.drawGrid
  */
 output.drawGrid = function() {
     if (grid.on) {
         const canvasContext = output.canvasContext;
         canvasContext.strokeStyle = grid.color;
-        // canvas limits to coordinate space, without rotation
-        const coordinateTransform = output.coordinateTransform;
-        const xMin = coordinateTransform.shiftX;
-        const xMax = output.canvas.width * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftX;
-        const yMin = coordinateTransform.shiftY;
-        const yMax = output.canvas.height * output.canvasScale * coordinateTransform.scale + coordinateTransform.shiftY;
+        // canvas limits to coordinate space limits, from transformation of corners
+        const v = {};
+        v.x = 0;
+        v.y = 0;
+        output.coordinateTransform.transform(v);
+        const xMin = v.x;
+        const yMin = v.y;
+        v.x = output.canvas.width;
+        v.y = output.canvas.height;
+        output.coordinateTransform.transform(v);
+        const xMax = v.x;
+        const yMax = v.y;
         // axis
         output.setLineWidth(grid.axisWidth);
         canvasContext.beginPath();

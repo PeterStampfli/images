@@ -13,10 +13,9 @@ from "./modules.js";
  * @param {ParamGui} gui
  * @param {canvas} canvas - optional, default==null, transform applies to canvas context
  * @param {boolean} withRotation - optional, default==false
- * @param {float} stepSize - optional, step size for UI, default is 0.001
  */
 
-export function CoordinateTransform(gui, canvas = null, withRotation = false, stepSize = 0.001) {
+export function CoordinateTransform(gui, canvas = null, withRotation = false) {
     this.canvas = canvas;
     this.withRotation = withRotation;
     this.shiftX = 0;
@@ -41,7 +40,6 @@ export function CoordinateTransform(gui, canvas = null, withRotation = false, st
     const numbers = {
         type: 'number',
         params: this,
-        step: stepSize,
         width: 55,
         onChange: function() {
             coordinateTransform.updateTransform();
@@ -76,7 +74,29 @@ export function CoordinateTransform(gui, canvas = null, withRotation = false, st
         });
         this.angleController.cyclic();
     }
+
+    this.setStepShift(0.001);
+    this.setStepScale(0.001);
 }
+
+/**
+* set step size for shift controllers
+* @method CoordinateTransform#setStepShift
+* @param {number} step
+*/
+CoordinateTransform.prototype.setStepShift=function(step){
+ this.shiftXController.setStep(step);
+ this.shiftYController.setStep(step);
+};
+
+/**
+* set step size for scale controller
+* @method CoordinateTransform#setStepScale
+* @param {number} step
+*/
+CoordinateTransform.prototype.setStepScale=function(step){
+ this.scaleController.setStep(step);
+};
 
 /**
  * update the ui values
@@ -110,24 +130,22 @@ CoordinateTransform.prototype.updateTransform = function() {
     const angleRad = Math.PI / 180 * this.angle;
     const cosAngle = Math.cos(angleRad);
     const sinAngle = Math.sin(angleRad);
-    const scale = this.prescale * this.scale;
-    this.cosAngleScale = scale * cosAngle;
-    this.sinAngleScale = scale * sinAngle;
-    this.cosAngleInvScale = cosAngle / scale;
-    this.sinAngleInvScale = sinAngle / scale;
+    this.totalScale = this.prescale * this.scale;
+    this.cosAngleScale = this.totalScale * cosAngle;
+    this.sinAngleScale = this.totalScale * sinAngle;
+    this.cosAngleInvScale = cosAngle / this.totalScale;
+    this.sinAngleInvScale = sinAngle / this.totalScale;
     if (guiUtils.isDefined(this.canvas)) {
         // backtransform for the canvas context
         const canvasContext = this.canvas.getContext('2d');
-        const cosAngleInvTotalScale = cosAngle / scale;
-        const sinAngleInvTotalScale = sinAngle / scale;
-
+        const cosAngleInvTotalScale = cosAngle / this.totalScale;
+        const sinAngleInvTotalScale = sinAngle / this.totalScale;
         const deltaX = cosAngleInvTotalScale * this.shiftX + sinAngleInvTotalScale * this.shiftY;
         const deltaY = -sinAngleInvTotalScale * this.shiftX + cosAngleInvTotalScale * this.shiftY;
         canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
         canvasContext.translate(-deltaX, -deltaY);
         canvasContext.rotate(-this.angle / 180 * Math.PI);
-        canvasContext.scale(1/scale, 1/scale);
-
+        canvasContext.scale(1/this.totalScale, 1/this.totalScale);
     }
 };
 
@@ -205,6 +223,8 @@ const vInter = {
 CoordinateTransform.prototype.changeShift = function(deltaX, deltaY) {
     this.shiftX += deltaX;
     this.shiftY += deltaY;
+    this.updateTransform();
+    this.updateUI();
 };
 
 // the transforms
@@ -223,10 +243,10 @@ CoordinateTransform.prototype.rotateScale = function(v) {
 
 /**
  * do the transform: first rotate and scale, then shift
- * @method CoordinateTransform#do
+ * @method CoordinateTransform#transform
  * @param {Object} v - with coordinates v.x and v.y
  */
-CoordinateTransform.prototype.do = function(v) {
+CoordinateTransform.prototype.transform = function(v) {
     let h = this.cosAngleScale * v.x - this.sinAngleScale * v.y + this.shiftX;
     v.y = this.sinAngleScale * v.x + this.cosAngleScale * v.y + this.shiftY;
     v.x = h;
@@ -245,10 +265,10 @@ CoordinateTransform.prototype.inverseRotateScale = function(v) {
 
 /**
  * inverse transform: first undo the shift, then scale with inverse and rotate by opposite angle
- * @method CoordinateTransform#inverse
+ * @method CoordinateTransform#inverseTransform
  * @param {Vector2} v
  */
-CoordinateTransform.prototype.inverse = function(v) {
+CoordinateTransform.prototype.inverseTransform = function(v) {
     v.x -= this.shiftX;
     v.y -= this.shiftY;
     let h = this.cosAngleInvScale * v.x + this.sinAngleInvScale * v.y;

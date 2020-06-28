@@ -15,12 +15,12 @@ const canvasGui = gui.addFolder({
     name: 'image controls',
     closed: true
 });
+output.drawCanvasChanged=function(){};
 // an output canvas and some test image
 output.createCanvas(canvasGui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 canvasGui.addTitle('coordinate transform');
-output.showCanvasChanged = function() {};
 output.setCanvasWidthToHeight();
 output.addCoordinateTransform(canvasGui, false);
 output.setInitialCoordinates(0, 0, 100);
@@ -152,7 +152,6 @@ innerControl.add({
 
 function setLengths() {
     const gamma = 2 * Math.PI / koch.corners * koch.winding;
-
     const length = 0.5 / (1 + Math.cos(gamma / 2));
     outerControl.setValueOnly(length);
     innerControl.setValueOnly(length);
@@ -224,9 +223,7 @@ function gcd(p, q) {
 }
 
 function draw() {
-	console.log('draw');
     // setting up the canvas
-    output.updateTransform();
     output.setLineWidth(koch.lineWidth);
     output.clearCanvas();
     canvasContext.strokeStyle = koch.linecolor;
@@ -255,5 +252,5 @@ function draw() {
     }
 }
 
-output.showCanvasChanged = draw;
+output.drawCanvasChanged = draw;
 draw();
