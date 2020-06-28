@@ -224,6 +224,7 @@ function gcd(p, q) {
 }
 
 function draw() {
+	console.log('draw');
     // setting up the canvas
     output.updateTransform();
     output.setLineWidth(koch.lineWidth);

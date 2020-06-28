@@ -26,22 +26,24 @@ output.divHeight = 0;
 output.divWidth = 0;
 
 /**
- * show the output image when the canvas changes (size or transform)
+ * draw the output image when the canvas changes (size or transform)
  * define your own method to get your image
  * call it after initialization of everything to get a first image
- * @method output.showCanvasChange
+ * @method output.drawCanvasChange
  */
-output.showCanvasChanged = function() {
-    console.error('Please define method output.showCanvasChanged!');
+output.drawCanvasChanged = function() {
+    console.error('Please define method output.drawCanvasChanged!');
+    console.log('You can hide this messsage by using initially:');
+    console.log('output.drawCanvasChanged=function(){};');
 };
 
 /**
- * show output image when grid parameters change
+ * draw output image when grid parameters change
  * kaleidoscopes: the map remains the same, do same as when image changes
- * @method output.showGridChanged()
+ * @method output.drawGridChanged()
  */
-output.showGridChanged = function() {
-    console.error('Please define method output.showGridChanged!');
+output.drawGridChanged = function() {
+    console.error('Please define method output.drawGridChanged!');
 };
 
 /**
@@ -169,23 +171,25 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 // draws output if outoresize is on and size changes
 // if autoscale is on: adjust size of canvas image, the canvas itself does not change, no redraw
 // else adjust scroll bars
-let showCanvasOnResize = false;
+// redraw if canvas dimensions changed since last call
+// (re)draw at first call
+let oldWidth = 0;
+let oldHeight = 0;
 
 function autoResize() {
-    const oldWidth = widthController.getValue();
-    const oldHeight = heightController.getValue();
     if (autoResizeController.getValue()) {
+        // autoresize: fit canvas into the output.div. thus no scroll bars
         output.canvas.style.width = '';
         output.canvas.style.height = '';
-        // autoresize: fit canvas into the output.div. thus no scroll bars
         output.div.style.overflow = "hidden";
         var newWidth, newHeight;
         if (canvasWidthToHeight > 0.0001) {
             if (output.divWidth / output.divHeight > canvasWidthToHeight) {
-                // very elongated div: its height determines canvas dimensions
+                // elongated div: its height determines canvas dimensions
                 newWidth = Math.round(output.divHeight * canvasWidthToHeight);
                 newHeight = output.divHeight;
             } else {
+                // narrow div: its width determiness canvas dimensions
                 newWidth = output.divWidth;
                 newHeight = Math.round(output.divWidth / canvasWidthToHeight);
             }
@@ -193,13 +197,13 @@ function autoResize() {
             newWidth = output.divWidth;
             newHeight = output.divHeight;
         }
-        if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
-            // only if the true canvas dimensions change then we need to redraw
+        // only if the true canvas dimensions change then we need to redraw
+        // controllers directly change canvas dimensions
+        if (oldWidth !== newWidth) {
             widthController.setValueOnly(newWidth);
+        }
+        if (oldHeight !== newHeight) {
             heightController.setValueOnly(newHeight);
-            if (showCanvasOnResize) {
-                output.showCanvasChanged();
-            }
         }
     } else if (autoScaleController.getValue()) {
         var scale;
@@ -233,10 +237,20 @@ function autoResize() {
             }
         }
     }
-    if (guiUtils.isDefined(output.coordinateTransform)) {
-        // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
-        output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
-        output.coordinateTransform.updateTransform();
+    console.log('checckdim');
+    console.log(oldWidth, output.canvas.width);
+    // draw if dimensions changed
+    if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
+        oldWidth = output.canvas.width;
+        oldHeight = output.canvas.height;
+        // if there is a transform we have to update ...
+        if (guiUtils.isDefined(output.coordinateTransform)) {
+            // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
+            output.canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+            output.coordinateTransform.updateTransform();
+            console.log('update canvasscale');
+        }
+        output.drawCanvasChanged();
     }
 }
 
@@ -299,7 +313,6 @@ output.createCanvas = function(gui, folderName) {
             }
             autoResizeController.setValueOnly(false);
             autoResize();
-            output.showCanvasChanged();
         }
     });
     widthController.hSpace(30);
@@ -316,7 +329,6 @@ output.createCanvas = function(gui, folderName) {
             }
             autoResizeController.setValueOnly(false);
             autoResize();
-            output.showCanvasChanged();
         }
     });
 
@@ -356,6 +368,7 @@ output.createCanvas = function(gui, folderName) {
     }).addHelp('Extend the canvas width to window width. Maybe, nothing happens for fixed width to height ratio.');
 
     // extending the browser window to the entire screen
+    // the output div andd canvas resize because of the window.onresize event
     gui.add({
         type: 'boolean',
         labelText: 'full screen window',
@@ -373,9 +386,7 @@ output.createCanvas = function(gui, folderName) {
         output.createDiv();
     }
     output.div.appendChild(output.canvas);
-    showCanvasOnResize = false;
     autoResize();
-    showCanvasOnResize = true;
     window.addEventListener("resize", autoResize, false);
 };
 
@@ -415,13 +426,8 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
  * @param {int} stepHorizontal - optional, default is stepHorizontal
  */
 output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = stepVertical) {
-    const oldWidth = output.canvas.width;
-    const oldHeight = output.canvas.height;
-    widthController.setStep(stepVertical);
+    widthController.setStep(stepVertical); // might resize output.canvas.width
     heightController.setStep(stepHorizontal);
-    if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
-        output.showCanvasChanged();
-    }
     autoResize();
 };
 
@@ -456,7 +462,6 @@ function makeArgs(buttonDefinition) {
             } else {
                 heightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
             }
-            output.showCanvasChanged();
             autoResize();
         };
     } else {
@@ -496,7 +501,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     helpText += '<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.';
     output.coordinateTransform.addHelp(helpText);
     output.coordinateTransform.onChange = function() {
-        output.showCanvasChanged(); // this calls always the latest version
+        output.drawCanvasChanged(); // this calls always the latest version
     };
     output.canvas.style.cursor = "pointer";
     output.mouseEvents = new MouseEvents(output.canvas);
@@ -540,7 +545,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             coordinateTransform.shiftX -= v.x;
             coordinateTransform.shiftY -= v.y;
             coordinateTransform.updateUI();
-            output.showCanvasChanged();
+            output.drawCanvasChanged();
         }
     };
     mouseEvents.moveAction = function() {
@@ -580,7 +585,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             coordinateTransform.shiftX += u.x - v.x;
             coordinateTransform.shiftY += u.y - v.y;
             coordinateTransform.updateUI();
-            output.showCanvasChanged();
+            output.drawCanvasChanged();
         }
     };
 };
@@ -669,7 +674,7 @@ output.addGrid = function(gui) {
         property: 'on',
         labelText: '',
         onChange: function() {
-            output.showGridChanged();
+            output.drawGridChanged();
         }
     });
     const intervalController = onOffController.add({
@@ -679,7 +684,7 @@ output.addGrid = function(gui) {
         step: 0.1,
         min: 0.1,
         onChange: function() {
-            output.showGridChanged();
+            output.drawGridChanged();
         }
     });
     const colorController = gui.add({
@@ -687,7 +692,7 @@ output.addGrid = function(gui) {
         params: grid,
         property: 'color',
         onChange: function() {
-            output.showGridChanged();
+            output.drawGridChanged();
         }
     });
 };
