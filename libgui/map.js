@@ -434,7 +434,6 @@ map.showImageLowQuality = function() {
         map.inputImageLoaded = true;
         map.loadInputImage();
     } else {
-        map.updateInputTransform();
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         const point = {
             x: 0,
@@ -445,7 +444,7 @@ map.showImageLowQuality = function() {
             if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
-                map.doInputTransform(point);
+                map.inputTransform.transform(point);
                 output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
                 map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
 
@@ -469,9 +468,8 @@ map.showImageHighQuality = function() {
         map.inputImageLoaded = true;
         map.loadInputImage();
     } else {
-        map.updateInputTransform();
         map.sizeArrayUpdate();
-        const totalScale = map.inputScale * map.inputTransform.scale;
+        const totalScale = map.inputTransform.totalScale;
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         const color = {
             red: 0,
@@ -488,7 +486,7 @@ map.showImageHighQuality = function() {
             if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
-                map.doInputTransform(point);
+                map.inputTransform.transform(point);
                 let size = totalScale * map.sizeArray[index];
                 map.inputPixels.getHighQualityColor(color, point.x, point.y, size);
                 output.pixels.setColorAtIndex(color, index);
@@ -514,9 +512,8 @@ map.showImageVeryHighQuality = function() {
         map.inputImageLoaded = true;
         map.loadInputImage();
     } else {
-        map.updateInputTransform();
         map.sizeArrayUpdate();
-        const totalScale = map.inputScale * map.inputTransform.scale;
+        const totalScale = map.inputTransform.totalScale;
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         const color = {
             red: 0,
@@ -533,7 +530,7 @@ map.showImageVeryHighQuality = function() {
             if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
                 point.x = map.xArray[index];
                 point.y = map.yArray[index];
-                map.doInputTransform(point);
+                map.inputTransform.transform(point);
                 let size = totalScale * map.sizeArray[index];
                 map.inputPixels.getVeryHighQualityColor(color, point.x, point.y, size);
                 output.pixels.setColorAtIndex(color, index);
@@ -632,7 +629,7 @@ map.setupInputImage = function(gui) {
     // beware of border
     // initial values depend on the image
     // but not on the map (because it is normalized)
-    map.inputTransform = new CoordinateTransform(gui, null,true);
+    map.inputTransform = new CoordinateTransform(gui, null, true);
     const inputTransform = map.inputTransform;
     inputTransform.setStepShift(1);
     map.inputTransform.onChange = function() {
@@ -658,20 +655,20 @@ map.setupInputImage = function(gui) {
 
     // upon click on control image and showing structure change to showing image
     mouseEvents.downAction = function() {
+        ParamGui.closePopups();
         if (map.whatToShow === 'structure') {
             map.whatToShowController.setValueOnly('image - low quality');
             map.showImageChanged();
         }
-        ParamGui.closePopups();
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
-    // map.scaleInputShift scales the shift value of the transform interface
     mouseEvents.dragAction = function() {
-        const shiftX = mouseEvents.dx / map.inputImageControlCanvasScale / map.scaleInputShift;
-        const shiftY = mouseEvents.dy / map.inputImageControlCanvasScale / map.scaleInputShift;
+        const shiftX = mouseEvents.dx / map.inputImageControlCanvasScale;
+        const shiftY = mouseEvents.dy / map.inputImageControlCanvasScale;
         inputTransform.shiftX += shiftX;
         inputTransform.shiftY += shiftY;
         inputTransform.updateUI();
+        inputTransform.updateTransform();
         map.showImageChanged();
     };
     // zoom or rotate
@@ -700,45 +697,12 @@ map.setupInputImage = function(gui) {
             // transform center after zooming/rotating
             map.doInputTransform(v);
             // correction
-            inputTransform.shiftX -= (v.x - u.x) / map.scaleInputShift;
-            inputTransform.shiftY -= (v.y - u.y) / map.scaleInputShift;
+            inputTransform.shiftX -= (v.x - u.x);
+            inputTransform.shiftY -= (v.y - u.y);
             inputTransform.updateUI();
             map.showImageChanged();
         }
     };
-};
-
-/*
- * the input transform
- * note scaling of shifts
- */
-
-var cosAngleTotalScale, sinAngleTotalScale, shiftX, shiftY;
-var cosAngleTotalInvScale, sinAngleTotalInvScale;
-map.scaleInputShift = 1000;
-
-map.updateInputTransform = function() {
-    const transform = map.inputTransform;
-    cosAngleTotalScale = map.inputScale * transform.cosAngleScale;
-    sinAngleTotalScale = map.inputScale * transform.sinAngleScale;
-    cosAngleTotalInvScale = transform.cosAngleInvScale / map.inputScale;
-    sinAngleTotalInvScale = transform.sinAngleInvScale / map.inputScale;
-    shiftX = map.scaleInputShift * transform.shiftX;
-    shiftY = map.scaleInputShift * transform.shiftY;
-};
-
-map.doInputTransform = function(v) {
-    let h = cosAngleTotalScale * v.x - sinAngleTotalScale * v.y + shiftX;
-    v.y = sinAngleTotalScale * v.x + cosAngleTotalScale * v.y + shiftY;
-    v.x = h;
-};
-
-map.doInvInputTransform = function(v) {
-    v.x -= shiftX;
-    v.y -= shiftY;
-    let h = cosAngleTotalInvScale * v.x + sinAngleTotalInvScale * v.y;
-    v.y = -sinAngleTotalInvScale * v.x + cosAngleTotalInvScale * v.y;
-    v.x = h;
 };
 
 /**
@@ -759,12 +723,17 @@ map.loadInputImage = function(callback) {
         // preescale factor: fit map into image map.imageScale ??
         // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
         map.determineRange(); // always needed at this point, and only here?
-        // find scale to fit map into input image, with some free border, serves as reference
-        map.inputScale = 0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY);
-        // shift to center. Additionl scaling
-        const centerX = map.centerX * map.inputScale;
-        const centerY = map.centerY * map.inputScale;
-        map.inputTransform.setValues((0.5 * image.width - centerX) / map.scaleInputShift, (0.5 * image.height - centerY) / map.scaleInputShift, 1, 0);
+        // find prescale for inputTransform to fit map into input image, with some free border
+        map.inputTransform.setPrescale(0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY));
+        // determine shifts to get map center to input image center: determine transform of map center without shift
+        map.inputTransform.setValues(0, 0, 1, 0); // updates UI and transform
+        const v = {
+            x: map.centerX,
+            y: map.centerY
+        };
+        map.inputTransform.transform(v);
+        // now we know the correct shifts
+        map.inputTransform.setValues(0.5 * image.width - v.x, 0.5 * image.height - v.y, 1, 0);
         map.inputTransform.setResetValues();
         // load to control canvas, determine scale to fit into square of gui width
         map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
