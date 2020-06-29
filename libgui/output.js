@@ -32,7 +32,7 @@ output.divWidth = 0;
  */
 output.drawCanvasChanged = function() {
     console.error('Please define method output.drawCanvasChanged!');
-    console.log('You can hide this message by using initially:');
+    console.log('You can hide this message by using before calling output.createCanvas():');
     console.log('output.drawCanvasChanged=function(){};');
 };
 

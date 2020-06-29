@@ -25,6 +25,7 @@ const gui = new ParamGui({
     closed:false
 });
 
+output.drawCanvasChanged=function(){};
 output.createCanvas(gui,'canvas control');
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');

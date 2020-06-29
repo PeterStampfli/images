@@ -84,12 +84,12 @@ export function ParamController(gui, domElement, argObjects) {
     };
 
     /**
-    * default action for click on a controller (interaction)
-    * @method ParamController#interaction
-    */
-    this.interaction=function(){
-       // console.log("interaction");
-    }
+     * default action for click on a controller (interaction)
+     * @method ParamController#interaction
+     */
+    this.interaction = function() {
+        // console.log("interaction");
+    };
 
     // get callback from different arguments. For a button it might be the (initial) parameter value. A button never has a parameter.
     if (args.type === "button") {
@@ -98,7 +98,7 @@ export function ParamController(gui, domElement, argObjects) {
     } else if (args.type !== "textarea") { // textarea has no onChange event, thus no callback
         this.callback = guiUtils.check(args.onChange, args.onClick, this.callback);
     }
-    this.interaction=guiUtils.check(args.onInteraction,this.interaction);
+    this.interaction = guiUtils.check(args.onInteraction, this.interaction);
     // get label text, button is special: the property might be the button text but not the label text
     var labelText, buttonText;
     if (args.type === "button") {
@@ -264,7 +264,6 @@ export function ParamController(gui, domElement, argObjects) {
                 break;
             case "number":
                 let realNumber = new RealNumber(this.domElement);
-
                 this.uiElement = realNumber;
                 this.setupOnChange();
                 this.setupOnInteraction();
@@ -850,7 +849,8 @@ ParamController.prototype.deleteLabel = function() {
 //===================================================
 
 /**
- * set a new minimum value for the number range
+ * set/change a new minimum value for the number range
+ * may change parameter value
  * @method ParamController#setMin
  * @param {number} value
  * @return this controller
@@ -858,6 +858,9 @@ ParamController.prototype.deleteLabel = function() {
 ParamController.prototype.setMin = function(value) {
     if (this.type === "number") {
         this.uiElement.setMin(value);
+        if (this.hasParameter) {
+            this.params[this.property] = this.uiElement.getValue();
+        }
     } else {
         console.error('ParamController.setMin: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -865,7 +868,8 @@ ParamController.prototype.setMin = function(value) {
 };
 
 /**
- * set a new maximum value for the number range
+ * set/change a new maximum value for the number range
+ * may change parameter value
  * @method ParamController#setMax
  * @param {number} value
  * @return this controller
@@ -873,6 +877,9 @@ ParamController.prototype.setMin = function(value) {
 ParamController.prototype.setMax = function(value) {
     if (this.type === "number") {
         this.uiElement.setMax(value);
+        if (this.hasParameter) {
+            this.params[this.property] = this.uiElement.getValue();
+        }
     } else {
         console.error('ParamController.setMax: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -880,7 +887,8 @@ ParamController.prototype.setMax = function(value) {
 };
 
 /**
- * set a step value for the number range
+ * set/change a step value for the number range
+ * may change parameter value
  * @method ParamController#setStep
  * @param {number} value
  * @return this controller
@@ -888,6 +896,9 @@ ParamController.prototype.setMax = function(value) {
 ParamController.prototype.setStep = function(value) {
     if (this.type === "number") {
         this.uiElement.setStep(value);
+        if (this.hasParameter) {
+            this.params[this.property] = this.uiElement.getValue();
+        }
     } else {
         console.error('ParamController.setStep: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }
@@ -1178,6 +1189,9 @@ ParamController.prototype.createVeryLongRange = function() {
 ParamController.prototype.cyclic = function() {
     if (this.type === "number") {
         this.uiElement.setCyclic();
+        if (this.hasParameter) {
+            this.params[this.property] = this.uiElement.getValue();
+        }
     } else {
         console.error('ParamController.cyclic: Only for "number" controllers. Type of this controller: "' + this.type + '"');
     }

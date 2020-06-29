@@ -24,9 +24,10 @@ export function RealNumber(parentDOM) {
     // step size for quantization, determines maxDigits
     this.step = 0.001;
     // maximum number of digits after decimal point
-    this.maxDigits = 3;
-    this.setStep(1e-9);
-    // both are determined with setStep
+    this.maxDigits = 9;
+    this.step = 1e-9;
+    // set step makes fixed point true : show all digits, even trailing zeros
+    this.fixedpoint = false;
     // offset for integer quantization
     this.offset = 0;
     // number of digits shown after decimal point (no trailing zeros)
@@ -308,6 +309,7 @@ RealNumber.prototype.setStep = function(x) {
             // maximum number of digits after decimal point depend on step: rounding up
             // make that 0.01,0.02,0.05 all give 2 digits
             this.maxDigits = Math.floor(-Math.log10(x) - 0.01) + 1;
+            this.fixedpoint = true;
         }
         this.updateRangeParameters();
         const value = this.getValue(); // quantizes and limits
@@ -351,22 +353,25 @@ RealNumber.prototype.setCyclic = function(isCyclic = true) {
 
 // determine visible number of digits after decimal point
 RealNumber.prototype.determineVisibleDigits = function(value) {
-    let text = value.toFixed(this.maxDigits);
-    // look only on as many digits as needed for this.step
-    const pointPosition = text.indexOf('.');
-    if (pointPosition < 0) {
-        this.visibleDigits = 0; // for integers, this.Step >= 1
+    if (this.fixedpoint) {
+        this.visibleDigits = this.maxDigits;
     } else {
-        let index = text.length - 1;
-        // find first digit from the right different to zero
-        while (text[index] === '0') {
-            index -= 1;
+        let text = value.toFixed(this.maxDigits);
+        // look only on as many digits as needed for this.step
+        const pointPosition = text.indexOf('.');
+        if (pointPosition < 0) {
+            this.visibleDigits = 0; // for integers, this.Step >= 1
+        } else {
+            let index = text.length - 1;
+            // find first digit from the right different to zero
+            while (text[index] === '0') {
+                index -= 1;
+            }
+            // digits are difference between position of first nonzero digit and decimal point
+            this.visibleDigits = index - pointPosition;
         }
-        // digits are difference between position of first nonzero digit and decimal point
-        this.visibleDigits = index - pointPosition;
     }
 };
-
 
 // quantize with respect to offset
 RealNumber.prototype.quantize = function(x) {

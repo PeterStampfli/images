@@ -29,6 +29,7 @@ const gui = new ParamGui({
     closed: false
 });
 // an output canvas and some test image
+output.drawCanvasChanged=function(){};
 output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
@@ -41,7 +42,6 @@ var pix = new Pixels(canvas);
 output.setInitialCoordinates(-1,0,3);
 
 function draw() {
-    output.updateTransform();
     pix.update();
     const color = {};
     const height = canvas.height;
@@ -56,7 +56,7 @@ function draw() {
         for (var i = 0; i < width; i++) {
             v.y = j;
             v.x = i;
-            output.transform(v);
+            output.coordinateTransform.transform(v);
             let red = 0;
             let green = 0;
             let blue = 200;
@@ -81,8 +81,8 @@ function draw() {
     canvasContext.strokeRect(0.0, 0.0, 0.2, 0.2);
     output.drawGrid();
 }
-output.showCanvasChanged = draw;
-output.showGridChanged=draw;
+output.drawCanvasChanged = draw;
+output.drawGridChanged=draw;
 draw();
 
 </script>

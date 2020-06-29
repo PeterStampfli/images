@@ -15,7 +15,7 @@ const canvasGui = gui.addFolder({
     name: 'image controls',
     closed: true
 });
-output.drawCanvasChanged=function(){};
+output.drawCanvasChanged = function() {};
 // an output canvas and some test image
 output.createCanvas(canvasGui);
 const canvas = output.canvas;
@@ -23,6 +23,8 @@ const canvasContext = output.canvasContext;
 canvasGui.addTitle('coordinate transform');
 output.setCanvasWidthToHeight();
 output.addCoordinateTransform(canvasGui, false);
+output.coordinateTransform.setStepShift(0.1);
+output.coordinateTransform.setStepScale(0.01);
 output.setInitialCoordinates(0, 0, 100);
 
 // parameters
@@ -32,7 +34,7 @@ const koch = {};
 koch.corners = 5;
 koch.winding = 2;
 koch.radius = 45;
-koch.generations = 1;
+koch.generations = 5;
 
 // modification
 koch.outer = 0.333;
@@ -59,7 +61,6 @@ gui.add({
     onChange: function(p) {
         windingController.setMax(Math.floor(p / 2));
         setLengths();
-
         draw();
     },
 });
@@ -69,11 +70,10 @@ const windingController = gui.add({
     property: 'winding',
     step: 1,
     min: 1,
-    max: koch.nCorners - 1,
+    max: Math.floor(koch.corners / 2),
     labelText: 'q (winding)',
     onChange: function() {
         setLengths();
-
         draw();
     },
 });
@@ -91,7 +91,7 @@ gui.add({
     property: 'generations',
     step: 1,
     min: 0,
-    max: 7,
+    max: 8,
     labelText: '',
     onChange: function() {
         draw();
@@ -111,7 +111,7 @@ const outerControl = gui.add({
         draw();
     },
 });
-outerControl.add({
+const angleControl = outerControl.add({
     type: 'number',
     params: koch,
     property: 'angle',
@@ -134,7 +134,6 @@ const innerControl = gui.add({
     params: koch,
     property: 'inner',
     step: 0.001,
-    min: 0.333,
     max: 1,
     onChange: function() {
         draw();
@@ -154,6 +153,8 @@ function setLengths() {
     const gamma = 2 * Math.PI / koch.corners * koch.winding;
     const length = 0.5 / (1 + Math.cos(gamma / 2));
     outerControl.setValueOnly(length);
+    angleControl.setValueOnly(0);
+    innerControl.setMin(0.5 - length);
     innerControl.setValueOnly(length);
 }
 setLengths();
