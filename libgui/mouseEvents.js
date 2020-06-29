@@ -27,23 +27,8 @@ var body = document.getElementsByTagName("body")[0];
  * @param {Element} element
  */
 MouseAndTouch.relativePosition = function(event, element) {
-    let x = event.pageX;
-    let y = event.pageY;
-    // take into account offset of this element and all containing elements as long as position not fixed
-    // NOTE: this seems not to work in all cases
-    // maybe better use element.getBoundingClientRect
-    // difficulties with scroll and transform ...
-    while (element != body) {
-        x -= element.offsetLeft;
-        y -= element.offsetTop;
-        if (element.style.position == "fixed") {
-            x -= window.pageXOffset;
-            y -= window.pageYOffset;
-            break;
-        }
-        element = element.offsetParent; // important: does not double count offsets
-    }
-    return [x, y];
+    console.error('use "event.offsetX,event.offsetY" instead of MouseAndTouch.relativePosition');
+    return [event.offsetX,event.offsetY];
 };
 
 /**
@@ -210,7 +195,8 @@ MouseEvents.prototype.update = function(event) {
     this.button = event.button;
     this.lastX = this.x;
     this.lastY = this.y;
-    [this.x, this.y] = MouseAndTouch.relativePosition(event, this.element);
+    this.x=event.offsetX;
+    this.y=event.offsetY;
     this.dx = this.x - this.lastX;
     this.dy = this.y - this.lastY;
     this.wheelDelta = event.deltaY;

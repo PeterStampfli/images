@@ -591,7 +591,6 @@ map.setupInputImage = function(gui) {
             map.loadInputImage();
         },
         onInteraction: function() {
-            console.log('interact image: ' + map.inputImage);
             if (map.whatToShow === 'structure') {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
@@ -684,7 +683,18 @@ map.setupInputImage = function(gui) {
             v.x = u.x;
             v.y = u.y;
             // transform center before zooming/rotating
-            map.doInputTransform(u);
+            inputTransform.transform(u);
+
+            // position of mouse in input image plane
+u.x=mouseEvents.x / map.inputImageControlCanvasScale;
+u.y=mouseEvents.y / map.inputImageControlCanvasScale;
+console.log(u)
+            v.x = u.x;
+            v.y = u.y;
+            // back to map plane
+            inputTransform.inverseTransform(v);
+
+
             if (keyboard.shiftPressed) {
                 const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
                 inputTransform.angle += step;
@@ -692,14 +702,14 @@ map.setupInputImage = function(gui) {
                 const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
                 inputTransform.scale *= zoomFactor;
             }
-            inputTransform.updateScaleAngle();
-            map.updateInputTransform();
-            // transform center after zooming/rotating
-            map.doInputTransform(v);
+            inputTransform.updateTransform();
+            // transform after zooming/rotating
+            inputTransform.transform(v);
             // correction
             inputTransform.shiftX -= (v.x - u.x);
             inputTransform.shiftY -= (v.y - u.y);
             inputTransform.updateUI();
+            inputTransform.updateTransform();
             map.showImageChanged();
         }
     };
