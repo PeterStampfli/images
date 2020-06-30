@@ -19,6 +19,7 @@ const gui = new ParamGui({
 
 gui.addParagraph('You can use this gui for your own projects. It is at: <strong>https://github.com/PeterStampfli/paramGui</strong>');
 
+output.drawCanvasChanged = function() {};
 output.createCanvas(gui, {
     name: 'canvas control',
     //  closed: false
@@ -47,7 +48,7 @@ gui.add({
     params: truchet,
     property: 'nHorizontal',
     min: 1,
-    step:1,
+    step: 1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
@@ -60,7 +61,7 @@ gui.add({
     params: truchet,
     property: 'nVertical',
     min: 1,
-    step:1,
+    step: 1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
@@ -429,5 +430,5 @@ randomData();
 output.setCanvasWidthToHeight(truchet.nHorizontal / truchet.nVertical);
 
 output.setCanvasDimensionsStepsize(truchet.nHorizontal, truchet.nVertical);
-output.draw = draw;
+output.drawCanvasChanged = draw;
 draw();

@@ -19,6 +19,7 @@ const gui = new ParamGui({
 
 gui.addParagraph('You can use this gui for your own projects. It is at: <strong>https://github.com/PeterStampfli/paramGui</strong>');
 
+output.drawCanvasChanged=function(){};
 output.createCanvas(gui, {
     name: 'canvas control',
     //  closed: false
@@ -238,6 +239,6 @@ randomData();
 
 output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
 output.setCanvasDimensionsStepsize(p.nHorizontal, p.nVertical);
-output.draw = draw;
+output.drawCanvasChanged = draw;
 
 draw();

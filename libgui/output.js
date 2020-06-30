@@ -185,12 +185,12 @@ function autoResizeDraw() {
         if (canvasWidthToHeight > 0.0001) {
             if (output.divWidth / output.divHeight > canvasWidthToHeight) {
                 // elongated div: its height determines canvas dimensions
-                newWidth = Math.round(output.divHeight * canvasWidthToHeight);
+                newWidth = Math.floor(output.divHeight * canvasWidthToHeight);
                 newHeight = output.divHeight;
             } else {
-                // narrow div: its width determiness canvas dimensions
+                // narrow div: its width determines canvas dimensions
                 newWidth = output.divWidth;
-                newHeight = Math.round(output.divWidth / canvasWidthToHeight);
+                newHeight = Math.floor(output.divWidth / canvasWidthToHeight);
             }
         } else {
             newWidth = output.divWidth;
@@ -245,7 +245,6 @@ function autoResizeDraw() {
             // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
             output.coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
             output.coordinateTransform.updateTransform();
-            console.log('update canvasscale');
         }
         output.drawCanvasChanged();
     }
@@ -536,8 +535,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (keyboard.ctrlPressed) {
             output.mouseDragAction(mouseEvents);
         } else {
-            v.x =  mouseEvents.dx;
-            v.y =  mouseEvents.dy;
+            v.x = mouseEvents.dx;
+            v.y = mouseEvents.dy;
             coordinateTransform.rotateScale(v);
             coordinateTransform.shiftX -= v.x;
             coordinateTransform.shiftY -= v.y;

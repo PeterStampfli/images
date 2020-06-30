@@ -12,8 +12,7 @@ const gui = new ParamGui({
     closed: false
 });
 
-output.draw = function() {};
-
+output.drawCanvasChanged = function() {};
 output.createCanvas(gui, {
     name: 'canvas control',
     closed: false
@@ -54,7 +53,7 @@ gui.add({
     params: ps,
     property: 'horizontal',
     min: 1,
-    step:1,
+    step: 1,
     onChange: draw
 });
 
@@ -63,7 +62,7 @@ gui.add({
     params: ps,
     property: 'vertical',
     min: 1,
-    step:1,
+    step: 1,
     onChange: draw
 });
 
@@ -95,4 +94,4 @@ function draw() {
 }
 
 draw();
-output.draw = draw;
+output.drawCanvasChanged = draw;
