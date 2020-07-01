@@ -706,27 +706,14 @@ output.drawGrid = function() {
 };
 
 /**
- * clear the canvas with TRANSPARENT BLACK (for line drawings ...)
+ * clear the canvas (for line drawings ...)
  * preserves the current transform
+ * call updateTransform afterwards
  * @method output.clearCanvas
  */
 output.clearCanvas = function() {
     const transform = output.canvasContext.getTransform();
     output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
-    output.canvasContext.setTransform(transform);
-};
-
-/**
- * fill the canvas with some color (for line drawings ...)
- * preserves the current transform, changes fill style
- * @method output.fillCanvas
- * @param {String} color - hex color string
- */
-output.fillCanvas = function(color) {
-    const transform = output.canvasContext.getTransform();
-    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-    output.canvasContext.fillStyle=color;
-    output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
     output.canvasContext.setTransform(transform);
 };

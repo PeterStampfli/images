@@ -234,8 +234,9 @@ function gcd(p, q) {
 function draw() {
     // setting up the canvas
     output.setLineWidth(koch.lineWidth);
-    output.fillCanvas(koch.background);
+    output.clearCanvas();
     canvasContext.strokeStyle = koch.linecolor;
+    canvas.style.backgroundColor = koch.background;
     // general parameters
     const gamma = 2 * Math.PI / koch.corners * koch.winding;
     const repeat = gcd(koch.corners, koch.winding);
