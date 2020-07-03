@@ -92,6 +92,9 @@ gui.add({
     params: koch,
     property: 'radius',
     min: 10,
+    onChange: function() {
+        draw();
+    },
 });
 
 gui.addTitle('number of iterations');

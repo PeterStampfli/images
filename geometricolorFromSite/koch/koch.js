@@ -11,7 +11,9 @@ const gui = new ParamGui({
     name: 'Kochflakes',
     closed: false
 });
-const help=gui.addFolder('help',{closed:false});
+const help = gui.addFolder('help', {
+    closed: false
+});
 help.addParagraph('You can <strong>zoom the image,</strong> with the mouse wheel if the mouse is on the image.');
 help.addParagraph('You can <strong>move the image</strong> with a mouse drag.');
 help.addParagraph('You can <strong>change numbers</strong> by choosing a digit with the mouse and turning the mouse wheel.');
@@ -90,6 +92,9 @@ gui.add({
     params: koch,
     property: 'radius',
     min: 10,
+    onChange: function() {
+        draw();
+    },
 });
 
 gui.addTitle('number of iterations');
@@ -151,7 +156,7 @@ innerControl.add({
     type: 'selection',
     params: koch,
     property: 'side',
-    options: ['outside', 'inside'],
+    options: ['outside', 'inside', 'both', 'in-out', 'out-in'],
     onChange: function() {
         draw();
     },
@@ -212,13 +217,24 @@ function line(generation, ax, ay, bx, by) {
         const aay = ay + aby * outerCosAngle + perpy * outerSinAngle;
         const bbx = bx - abx * outerCosAngle + perpx * outerSinAngle;
         const bby = by - aby * outerCosAngle + perpy * outerSinAngle;
-        const topx = 0.5 * (aax + bbx) + height * perpx;
-        const topy = 0.5 * (aay + bby) + height * perpy;
+        const oddGeneration = (koch.generations - generation) & 1;
         generation -= 1;
-        line(generation, ax, ay, aax, aay);
-        line(generation, aax, aay, topx, topy);
-        line(generation, topx, topy, bbx, bby);
-        line(generation, bbx, bby, bx, by);
+        if ((koch.side === 'outside') || (koch.side === 'both') || (!oddGeneration && (koch.side === 'out-in')) || (oddGeneration && (koch.side === 'in-out'))) {
+            const topx = 0.5 * (aax + bbx) + height * perpx;
+            const topy = 0.5 * (aay + bby) + height * perpy;
+            line(generation, ax, ay, aax, aay);
+            line(generation, aax, aay, topx, topy);
+            line(generation, topx, topy, bbx, bby);
+            line(generation, bbx, bby, bx, by);
+        }
+        if ((koch.side === 'inside') || (koch.side === 'both') || (oddGeneration && (koch.side === 'out-in')) || (!oddGeneration && (koch.side === 'in-out'))) {
+            const topx = 0.5 * (aax + bbx) - height * perpx;
+            const topy = 0.5 * (aay + bby) - height * perpy;
+            line(generation, ax, ay, aax, aay);
+            line(generation, aax, aay, topx, topy);
+            line(generation, topx, topy, bbx, bby);
+            line(generation, bbx, bby, bx, by);
+        }
     }
 }
 
@@ -244,9 +260,6 @@ function draw() {
     outerSinAngle = koch.outer * Math.sin(Math.PI / 180 * koch.angle);
     const gapHalf = 0.5 - outerCosAngle;
     height = Math.sqrt(Math.max(0, koch.inner * koch.inner - gapHalf * gapHalf));
-    if (koch.side === 'inside') {
-        height = -height;
-    }
     for (var r = 0; r < repeat; r++) {
         let angle = r * gamma / repeat;
         for (var i = 0; i < corners; i++) {
