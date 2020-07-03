@@ -569,7 +569,6 @@ map.setupInputImage = function(gui) {
         property: 'whatToShow',
         options: ['structure', 'image - low quality', 'image - high quality', 'image - very high quality'],
         onChange: function() {
-            console.log('changed what to show: ' + map.whatToShow);
             map.showImageChanged();
         },
         labelText: 'show'
@@ -684,11 +683,9 @@ map.setupInputImage = function(gui) {
             v.y = u.y;
             // transform center before zooming/rotating
             inputTransform.transform(u);
-
             // position of mouse in input image plane
-u.x=mouseEvents.x / map.inputImageControlCanvasScale;
-u.y=mouseEvents.y / map.inputImageControlCanvasScale;
-console.log(u)
+            u.x = mouseEvents.x / map.inputImageControlCanvasScale;
+            u.y = mouseEvents.y / map.inputImageControlCanvasScale;
             v.x = u.x;
             v.y = u.y;
             // back to map plane
@@ -720,6 +717,8 @@ console.log(u)
  * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
  */
+map.initialImageRegion = 0.75 ; // fractional length of image region checked initially
+
 map.loadInputImage = function(callback) {
     let image = new Image();
 
@@ -734,7 +733,7 @@ map.loadInputImage = function(callback) {
         // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
         map.determineRange(); // always needed at this point, and only here?
         // find prescale for inputTransform to fit map into input image, with some free border
-        map.inputTransform.setPrescale(0.9 * Math.min(image.width / map.rangeX, image.height / map.rangeY));
+        map.inputTransform.setPrescale(map.initialImageRegion * Math.min(image.width / map.rangeX, image.height / map.rangeY));
         // determine shifts to get map center to input image center: determine transform of map center without shift
         map.inputTransform.setValues(0, 0, 1, 0); // updates UI and transform
         const v = {

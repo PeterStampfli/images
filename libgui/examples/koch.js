@@ -4,7 +4,7 @@ import {
     CoordinateTransform,
     ParamGui,
     output
-} from "../libgui/modules.js";
+} from "../modules.js";
 
 // basic setup: the canvas and its transform
 const gui = new ParamGui({
@@ -54,8 +54,8 @@ koch.side = 'outside';
 
 //style
 koch.lineWidth = 1;
-koch.background = '#eeeeaa';
-koch.linecolor = '#000066';
+koch.background = '#eeeeaaff';
+koch.linecolor = '#000066ff';
 
 // controls
 gui.addParagraph('You can use the mouse wheel to change numbers.');

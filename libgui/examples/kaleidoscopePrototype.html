@@ -9,11 +9,7 @@
 </head>
 
 <body>
-
-
 </body>
-
-
 
 <script type='module'>
 
@@ -24,7 +20,7 @@ import {
     output,
     map,
     guiUtils
-} from "../libgui/modules.js";
+} from "../modules.js";
 
 // basic setup
 const gui=new ParamGui({name:'test',closed:false});
@@ -32,37 +28,44 @@ output.drawCanvasChanged=function(){};
 
 // an output canvas and some test image
 map.createCanvas(gui);
-
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform');
-output.addCoordinateTransform(gui,false);
-output.setInitialCoordinates(0,0,3);
+output.addCoordinateTransform(gui, false);
+output.setInitialCoordinates(0, 0, 3);
 gui.addTitle('input image');
+map.inputImage = '../testimage.jpg';
 map.setupInputImage(gui);
 gui.addTitle('region control');
 
-map.regionControl(gui,8);
+map.regionControl(gui, 8);
 
 gui.addTitle('colors');
-map.makeNewColorTable(gui,2);
+map.makeNewColorTable(gui, 2);
 
 // setup mapping show structure
-
-map.mapping=function(point){
-  point.structureIndex=(Math.round(point.x) + Math.round(point.y)) & 1 ;
-    point.region=point.structureIndex
-}
-
-
-function draw() {
-console.log('drawing '+map.whatToShow);
-   
-}
-
+map.mapping = function(point) {
+    let x = point.x - Math.floor(point.x);
+    if (x > 0.5) {
+        x = 1 - x;
+        point.structureIndex++;
+    }
+    let y = point.y - Math.floor(point.y);
+    if (y > 0.5) {
+        y = 1 - y;
+        point.structureIndex++;
+    }
+    if (x > y) {
+        const h = x;
+        x = y;
+        y = h;
+        point.structureIndex++;
+    }
+    point.x = x;
+    point.y = y;
+};
+// make that an image appeaars at startup
 map.showMapChanged();
-
-
 
 </script>
 
