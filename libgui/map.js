@@ -51,6 +51,9 @@ map.sizeArray = new Float32Array(1);
 // greying out the control image
 map.controlPixelsAlpha = 128;
 
+// fractional length of image region checked initially
+map.initialImageRegion = 0.75 ; 
+
 /**
  * the mapping function transforms a point argument
  * point.re and point.im have the intial position at call
@@ -690,8 +693,6 @@ map.setupInputImage = function(gui) {
             v.y = u.y;
             // back to map plane
             inputTransform.inverseTransform(v);
-
-
             if (keyboard.shiftPressed) {
                 const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
                 inputTransform.angle += step;
@@ -717,7 +718,6 @@ map.setupInputImage = function(gui) {
  * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
  */
-map.initialImageRegion = 0.75 ; // fractional length of image region checked initially
 
 map.loadInputImage = function(callback) {
     let image = new Image();

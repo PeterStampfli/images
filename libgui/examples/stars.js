@@ -44,15 +44,14 @@ const koch = {};
 koch.corners = 5;
 koch.winding = 2;
 koch.radius = 45;
-koch.innerRadius = 0.6;
-koch.geometry = 'polygon';
-koch.generations = 5;
+koch.generations = 0;
 
 // modification
 koch.outer = 0.333;
 koch.inner = 0.333;
 koch.angle = 0;
 koch.side = 'outside';
+koch.rin = koch.radius;
 
 //style
 koch.lineWidth = 1;
@@ -98,35 +97,6 @@ gui.add({
         draw();
     },
 });
-
-gui.add({
-    type: 'selection',
-    params: koch,
-    property: 'geometry',
-    options: ['polygon', 'radial lines', 'star'],
-    onChange: function() {
-        draw();
-        if (koch.geometry === 'star') {
-            innerRadiusController.setActive(true);
-        } else {
-            innerRadiusController.setActive(false);
-        }
-    },
-});
-
-const innerRadiusController = gui.add({
-    type: 'number',
-    params: koch,
-    property: 'innerRadius',
-    min: 0,
-    step: 0.001,
-    max: 1,
-    onChange: function() {
-        draw();
-    },
-});
-
-innerRadiusController.setActive(false);
 
 gui.addTitle('number of iterations');
 gui.add({
@@ -200,10 +170,13 @@ function setLengths() {
     angleControl.setValueOnly(0);
     innerControl.setMin(0.5 - length);
     innerControl.setValueOnly(length);
+    //
     const alpha = 0.5 * (Math.PI - gamma);
     const beta = Math.PI / koch.corners;
-    innerRadiusController.setValueOnly(Math.sin(alpha) / (Math.sin(alpha) * Math.cos(beta) + Math.sin(beta) * Math.cos(alpha)));
+    koch.rin = koch.radius * Math.sin(alpha) / (Math.sin(alpha) * Math.cos(beta) + Math.sin(beta) * Math.cos(alpha));
+
 }
+
 setLengths();
 
 gui.addTitle('styling');
@@ -282,63 +255,31 @@ function gcd(p, q) {
 }
 
 function draw() {
-    var i, gamma;
     // setting up the canvas
     output.setLineWidth(koch.lineWidth);
     output.fillCanvas(koch.background);
     canvasContext.strokeStyle = koch.linecolor;
-    // data for the iteration
+    // general parameters
+    const gamma = 2 * Math.PI / koch.corners;
     outerCosAngle = koch.outer * Math.cos(Math.PI / 180 * koch.angle);
     outerSinAngle = koch.outer * Math.sin(Math.PI / 180 * koch.angle);
     const gapHalf = 0.5 - outerCosAngle;
     height = Math.sqrt(Math.max(0, koch.inner * koch.inner - gapHalf * gapHalf));
-    switch (koch.geometry) {
-        case 'polygon':
-            gamma = 2 * Math.PI / koch.corners * koch.winding;
-            const repeat = gcd(koch.corners, koch.winding);
-            const corners = koch.corners / repeat;
-            for (var r = 0; r < repeat; r++) {
-                let angle = r * gamma / repeat;
-                for (i = 0; i < corners; i++) {
-                    const ax = koch.radius * Math.cos(angle);
-                    const ay = koch.radius * Math.sin(angle);
-                    angle += gamma;
-                    const bx = koch.radius * Math.cos(angle);
-                    const by = koch.radius * Math.sin(angle);
-                    line(koch.generations, ax, ay, bx, by);
-                }
-            }
-            break;
-        case 'radial lines':
-            console.log('lines');
-            gamma = 2 * Math.PI / koch.corners;
-            for (i = 0; i < koch.corners; i++) {
-                let angle = i * gamma;
-                const ax = koch.radius * Math.cos(angle);
-                const ay = koch.radius * Math.sin(angle);
-                line(koch.generations, ax, ay, 0, 0);
-                line(koch.generations, 0, 0, ax, ay);
-            }
-            break;
-        case 'star':
-        console.log('star')
-            gamma = 2 * Math.PI / koch.corners;
-            const rin=koch.innerRadius*koch.radius;
-            for (i = 0; i < koch.corners; i++) {
-                let angle = i * gamma;
-                const ax = koch.radius * Math.cos(angle);
-                const ay = koch.radius * Math.sin(angle);
+    for (var i = 0; i < koch.corners; i++) {
+        let angle = i * gamma;
+        const ax = koch.radius * Math.cos(angle);
+        const ay = koch.radius * Math.sin(angle);
+        angle += gamma / 2;
+        const bx = koch.rin * Math.cos(angle);
+        const by = koch.rin * Math.sin(angle);
+        line(koch.generations, ax, ay, bx, by);
                 angle += gamma / 2;
-                const bx = rin * Math.cos(angle);
-                const by = rin * Math.sin(angle);
-                line(koch.generations, ax, ay, bx, by);
-                angle += gamma / 2;
-                const cx = koch.radius * Math.cos(angle);
-                const cy = koch.radius * Math.sin(angle);
-                line(koch.generations, bx, by, cx, cy);
-            }
-            break;
+        const cx = koch.radius * Math.cos(angle);
+        const cy = koch.radius * Math.sin(angle);
+        line(koch.generations, bx, by,cx,cy);
+
     }
+
 }
 
 output.drawCanvasChanged = draw;
