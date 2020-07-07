@@ -67,6 +67,15 @@ map.mapping = function(point) {
 // make that an image appeaars at startup
 map.showMapChanged();
 
+const ctrl1={
+mouseDownShiftAction: function(){
+    console.log('down1');
+    return true;
+}
+};
+
+output.useCtrlObjects([ctrl1]);
+
 </script>
 
 </html>

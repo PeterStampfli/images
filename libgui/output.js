@@ -605,13 +605,34 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
 };
 
 /**
-* alternative approach to ctrl-mouse actions with a list of objects
-* objects can have actions and shift-actions methods
-* doing objects with fitting method until method returns true
-* Methods: mouseDown, mouseDrag, mouseMove, mouseUp, mouseWheel, mouseOut
-* @method output.useCtrlObjects
-* @param {Array of Objects} ctrlObjects
-*/
+ * alternative approach to ctrl-mouse actions with a list of objects
+ * objects can have actions and shift-actions methods
+ * doing objects with fitting method until method returns true
+ * Methods: mouseDownAction, mouseDragAction, mouseMoveAction, mouseUpAction, mouseWheelAction, mouseOutAction
+ * Methods: mouseDownShiftAction, mouseDragShiftAction, mouseMoveShiftAction, mouseUpShiftAction, mouseWheelShiftAction, mouseOutShiftAction
+ * @method output.useCtrlObjects
+ * @param {Array of Objects} ctrlObjects
+ */
+output.useCtrlObjects = function(ctrlObjects) {
+    this.mouseDownAction = function(mouseEvents) {
+        const length = ctrlObjects.length;
+        for (var i = 0; i < length; i++) {
+            if (mouseEvents.shiftPressed) {
+                if (guiUtils.isFunction(ctrlObjects[i].mouseDownShiftAction)) {
+                    if (ctrlObjects[i].mouseDownShiftAction(mouseEvents)) {
+                        return;
+                    }
+                }
+            } else {
+                if (guiUtils.isFunction(ctrlObjects[i].mouseDownAction)) {
+                    if (ctrlObjects[i].mouseDownAction(mouseEvents)) {
+                        return;
+                    }
+                }
+            }
+        }
+    };
+};
 
 
 /**
