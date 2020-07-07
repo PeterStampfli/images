@@ -1,5 +1,10 @@
 /* jshint esversion: 6 */
 
+import {
+    keyboard
+}
+from "./modules.js";
+
 /**
  * common to mouse and touch events
  * @namespace MouseAndTouch
@@ -28,7 +33,7 @@ var body = document.getElementsByTagName("body")[0];
  */
 MouseAndTouch.relativePosition = function(event, element) {
     console.error('use "event.offsetX,event.offsetY" instead of MouseAndTouch.relativePosition');
-    return [event.offsetX,event.offsetY];
+    return [event.offsetX, event.offsetY];
 };
 
 /**
@@ -62,7 +67,7 @@ export function MouseEvents(element) {
     this.upKey = "ArrowUp";
     this.downKey = "ArrowDown";
 
-    // event action - strategy pattern
+    // event action
     this.downAction = function(mouseEvents) {}; // mouse down 
     this.dragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
     this.moveAction = function(mouseEvents) {}; // mouse move (move with button released)
@@ -83,6 +88,7 @@ export function MouseEvents(element) {
         if (mouseEvents.active) {
             mouseEvents.button = event.button; // left or right button
             mouseEvents.update(event);
+            mouseEvents.updateShiftCtrl();
             mouseEvents.pressed = true;
             thisElement.focus();
             mouseEvents.downAction(mouseEvents);
@@ -94,6 +100,7 @@ export function MouseEvents(element) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.active) {
             mouseEvents.update(event);
+            mouseEvents.updateShiftCtrl();
             if (mouseEvents.pressed) {
                 mouseEvents.pressed = false;
                 mouseEvents.upAction(mouseEvents);
@@ -116,6 +123,7 @@ export function MouseEvents(element) {
         thisElement.blur();
         if (mouseEvents.active) {
             mouseEvents.update(event);
+            mouseEvents.updateShiftCtrl();
             mouseEvents.mouseInside = false;
             if (mouseEvents.pressed) {
                 mouseEvents.pressed = false;
@@ -129,6 +137,7 @@ export function MouseEvents(element) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.active) {
             mouseEvents.update(event);
+            mouseEvents.updateShiftCtrl();
             if (mouseEvents.pressed) {
                 mouseEvents.dragAction(mouseEvents);
             } else {
@@ -141,6 +150,7 @@ export function MouseEvents(element) {
     this.element.onwheel = function(event) {
         if (mouseEvents.active) {
             mouseEvents.update(event);
+            mouseEvents.updateShiftCtrl();
             if (!mouseEvents.wheelAction(mouseEvents)) {
                 MouseAndTouch.preventDefault(event);
             }
@@ -160,6 +170,7 @@ export function MouseEvents(element) {
         let key = event.key;
         if (mouseEvents.active) {
             if (mouseEvents.mouseInside) {
+                mouseEvents.updateShiftCtrl();
                 if (key == mouseEvents.upKey) {
                     mouseEvents.wheelDelta = -1;
                     if (!mouseEvents.wheelAction(mouseEvents)) {
@@ -195,11 +206,20 @@ MouseEvents.prototype.update = function(event) {
     this.button = event.button;
     this.lastX = this.x;
     this.lastY = this.y;
-    this.x=event.offsetX;
-    this.y=event.offsetY;
+    this.x = event.offsetX;
+    this.y = event.offsetY;
     this.dx = this.x - this.lastX;
     this.dy = this.y - this.lastY;
     this.wheelDelta = event.deltaY;
+};
+
+/**
+ * update the event.shiftPressed and event.ctrlPressed fields
+ * @method MouseEvents.updateShiftCtrl
+ */
+MouseEvents.prototype.updateShiftCtrl = function() {
+    this.shiftPressed = keyboard.shiftPressed;
+    this.ctrlPressed = keyboard.ctrlPressed;
 };
 
 /**

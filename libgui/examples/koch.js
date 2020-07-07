@@ -310,7 +310,6 @@ function draw() {
             }
             break;
         case 'radial lines':
-            console.log('lines');
             gamma = 2 * Math.PI / koch.corners;
             for (i = 0; i < koch.corners; i++) {
                 let angle = i * gamma;
@@ -321,9 +320,8 @@ function draw() {
             }
             break;
         case 'star':
-        console.log('star')
             gamma = 2 * Math.PI / koch.corners;
-            const rin=koch.innerRadius*koch.radius;
+            const rin = koch.innerRadius * koch.radius;
             for (i = 0; i < koch.corners; i++) {
                 let angle = i * gamma;
                 const ax = koch.radius * Math.cos(angle);
