@@ -68,8 +68,19 @@ map.mapping = function(point) {
 map.showMapChanged();
 
 const ctrl1={
-mouseDownShiftAction: function(){
+mouseDownAction: function(event){
     console.log('down1');
+    console.log(event.x,event.y);
+    return true;
+},
+mouseDownShiftAction: function(event){
+    console.log('shiftdown1');
+    console.log(event.x,event.y);
+    return true;
+},
+mouseMoveAction: function(event){
+    console.log('moveit');
+    console.log(event.dx,event.dy);
     return true;
 }
 };

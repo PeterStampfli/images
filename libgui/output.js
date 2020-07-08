@@ -604,36 +604,66 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
     coordinateTransform.setResetValues();
 };
 
+/*
+* transform mouse event data to calculation coordinates
+* position with shift, change of position scale and rotation only
+*/
+const dPosition = {};
+
+function transformMouseEvents(mouseEvents) {
+    output.coordinateTransform.transform(mouseEvents);
+    dPosition.x = mouseEvents.dx;
+    dPosition.y = mouseEvents.dy;
+    output.coordinateTransform.rotateScale(dPosition);
+    mouseEvents.dx = dPosition.x;
+    mouseEvents.dy = dPosition.y;
+}
+
 /**
  * alternative approach to ctrl-mouse actions with a list of objects
  * objects can have actions and shift-actions methods
  * doing objects with fitting method until method returns true
  * Methods: mouseDownAction, mouseDragAction, mouseMoveAction, mouseUpAction, mouseWheelAction, mouseOutAction
  * Methods: mouseDownShiftAction, mouseDragShiftAction, mouseMoveShiftAction, mouseUpShiftAction, mouseWheelShiftAction, mouseOutShiftAction
+ * mouse event position data is transformed to computational space
  * @method output.useCtrlObjects
  * @param {Array of Objects} ctrlObjects
  */
 output.useCtrlObjects = function(ctrlObjects) {
-    this.mouseDownAction = function(mouseEvents) {
-        const length = ctrlObjects.length;
-        for (var i = 0; i < length; i++) {
-            if (mouseEvents.shiftPressed) {
-                if (guiUtils.isFunction(ctrlObjects[i].mouseDownShiftAction)) {
-                    if (ctrlObjects[i].mouseDownShiftAction(mouseEvents)) {
-                        return;
+
+    function createCtrlEvents(action, shiftAction) {
+        output[action] = function(mouseEvents) {
+            transformMouseEvents(mouseEvents);
+            const length = ctrlObjects.length;
+            for (var i = 0; i < length; i++) {
+                if (mouseEvents.shiftPressed) {
+                    if (guiUtils.isFunction(ctrlObjects[i][shiftAction])) {
+                        if (ctrlObjects[i][shiftAction](mouseEvents)) {
+                            return;
+                        }
                     }
-                }
-            } else {
-                if (guiUtils.isFunction(ctrlObjects[i].mouseDownAction)) {
-                    if (ctrlObjects[i].mouseDownAction(mouseEvents)) {
-                        return;
+                } else {
+                    if (guiUtils.isFunction(ctrlObjects[i][action])) {
+                        if (ctrlObjects[i][action](mouseEvents)) {
+                            return;
+                        }
                     }
                 }
             }
-        }
-    };
+        };
+    }
+
+    createCtrlEvents('mouseDownAction', 'mouseDownShiftAction');
+    createCtrlEvents('mouseDragAction', 'mouseDragShiftAction');
+    createCtrlEvents('mouseMoveAction', 'mouseMoveShiftAction');
+    createCtrlEvents('mouseUpAction', 'mouseUpShiftAction');
+    createCtrlEvents('mouseOutAction', 'mouseOutShiftAction');
+    createCtrlEvents('mouseWheelAction', 'mouseWheelShiftAction');
 };
 
+/**
+* create pixels object for canvas
+*/
 
 /**
  * set the line width in pixels, independent of scale

@@ -112,6 +112,12 @@ export function MouseEvents(element) {
     this.element.onmouseenter = function(event) {
         MouseAndTouch.preventDefault(event);
         if (mouseEvents.active) {
+            this.x = event.offsetX;
+            this.y = event.offsetY;
+            this.dx = 0;
+            this.dy = 0;
+            this.lastX = this.x;
+            this.lastY = this.y;
             mouseEvents.mouseInside = true;
             thisElement.focus();
         }
@@ -204,12 +210,12 @@ MouseEvents.prototype.setIsActive = function(on) {
  */
 MouseEvents.prototype.update = function(event) {
     this.button = event.button;
-    this.lastX = this.x;
-    this.lastY = this.y;
     this.x = event.offsetX;
     this.y = event.offsetY;
     this.dx = this.x - this.lastX;
     this.dy = this.y - this.lastY;
+    this.lastX = this.x;
+    this.lastY = this.y;
     this.wheelDelta = event.deltaY;
 };
 
