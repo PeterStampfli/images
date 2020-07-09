@@ -13,7 +13,6 @@ const gui = new ParamGui({
     name: "abyss controls"
 });
 
-output.drawCanvasChanged=function(){};
 
 output.createCanvas(gui);
 const canvas = output.canvas;
@@ -119,4 +118,4 @@ function draw() {
 }
 
 output.drawCanvasChanged = draw;
-draw();
+output.firstDrawing();

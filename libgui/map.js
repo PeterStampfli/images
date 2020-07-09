@@ -52,7 +52,7 @@ map.sizeArray = new Float32Array(1);
 map.controlPixelsAlpha = 128;
 
 // fractional length of image region checked initially
-map.initialImageRegion = 0.75 ; 
+map.initialImageRegion = 0.75;
 
 /**
  * the mapping function transforms a point argument
@@ -79,35 +79,33 @@ map.setMapping = function(mappingFun) {
 
 /**
  * what to do when only the image changed (incl quality)
- * @method map.showImageChanged
+ * @method map.drawImageChanged
  */
-map.showImageChanged = function() {
-    map.show(); // default, change if you want to show a grid ...
+map.drawImageChanged = function() {
+    map.draw(); // default, change if you want to show a grid ...
 };
-
 
 /**
  * what to do when the map changes (parameters, canvas size too)
- * @method map.showMapChanged
+ * @method map.drawMapChanged
  */
-map.showMapChanged = function() {
+map.drawMapChanged = function() {
     map.startDrawing();
     map.make();
-    map.showImageChanged();
+    map.drawImageChanged();
 };
 
 /**
- * create output canvas and set drawing routines
- * @method map.createCanvas
- * @param {ParamGui} gui
+ * define the output drawing routines: 
+ * always use newest versions (if redefined) of map.draw...
+ * @method map.setOutputDraw
  */
-map.createCanvas = function(gui) {
-    output.createCanvas(gui);
+map.setOutputDraw = function() {
     output.drawGridChanged = function() {
-        map.showImageChanged();
+        map.drawImageChanged();
     };
     output.drawCanvasChanged = function() {
-        map.showMapChanged();
+        map.drawMapChanged();
     };
 };
 
@@ -194,7 +192,7 @@ map.regionControl = function(gui, nRegions) {
         type: 'boolean',
         params: map.showRegion,
         onChange: function() {
-            map.showImageChanged();
+            map.drawImageChanged();
         },
     };
     let region = 0;
@@ -217,21 +215,21 @@ map.regionControl = function(gui, nRegions) {
 
 /**
  * showing the map as structure or image, depending on map.whatToShow
- * @method map.show
+ * @method map.draw
  */
-map.show = function() {
+map.draw = function() {
     switch (map.whatToShow) {
         case 'structure':
-            map.showStructure();
+            map.drawStructure();
             break;
         case 'image - low quality':
-            map.showImageLowQuality();
+            map.drawImageLowQuality();
             break;
         case 'image - high quality':
-            map.showImageHighQuality();
+            map.drawImageHighQuality();
             break;
         case 'image - very high quality':
-            map.showImageVeryHighQuality();
+            map.drawImageVeryHighQuality();
             break;
     }
 };
@@ -288,12 +286,12 @@ map.makeNewColorTable = function(gui, nColors) {
             colorObject: color,
             onChange: function() {
                 map.updateColorTable();
-                map.showImageChanged();
+                map.drawImageChanged();
             },
             onInteraction: function() {
                 if (map.whatToShow !== 'structure') {
                     map.whatToShow = 'structure';
-                    map.showImageChanged();
+                    map.drawImageChanged();
                 }
             }
         });
@@ -304,9 +302,9 @@ map.makeNewColorTable = function(gui, nColors) {
 /**
  * show structure of the map: color depending on the structure index
  * using the map.colorTable
- * @method map.showStructure
+ * @method map.drawStructure
  */
-map.showStructure = function() {
+map.drawStructure = function() {
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
@@ -429,9 +427,9 @@ map.sizeArrayUpdate = function() {
  * show image resulting from the map and the input image
  * low quality using nearest neighbor
  * loads image if not yet an image loaded
- * @method map.showImageLowQuality
+ * @method map.drawImageLowQuality
  */
-map.showImageLowQuality = function() {
+map.drawImageLowQuality = function() {
     // make sure we have an input image, if not: load and use it in a callback
     if (!map.inputImageLoaded) {
         map.inputImageLoaded = true;
@@ -463,9 +461,9 @@ map.showImageLowQuality = function() {
 /**
  * show image resulting from the map and the input image
  * high quality using nearest neighbor, averaging or linear interpolation
- * @method map.showImageHighQuality
+ * @method map.drawImageHighQuality
  */
-map.showImageHighQuality = function() {
+map.drawImageHighQuality = function() {
     // make sure we have an input image, if not: load and use it in a callback
     if (!map.inputImageLoaded) {
         map.inputImageLoaded = true;
@@ -507,9 +505,9 @@ map.showImageHighQuality = function() {
 /**
  * show image resulting from the map and the input image
  * high quality using nearest neighbor, averaging, cubic, linear interpolation
- * @method map.showImageVeryHighQuality
+ * @method map.drawImageVeryHighQuality
  */
-map.showImageVeryHighQuality = function() {
+map.drawImageVeryHighQuality = function() {
     // make sure we have an input image, if not: load and use it in a callback
     if (!map.inputImageLoaded) {
         map.inputImageLoaded = true;
@@ -572,7 +570,7 @@ map.setupInputImage = function(gui) {
         property: 'whatToShow',
         options: ['structure', 'image - low quality', 'image - high quality', 'image - very high quality'],
         onChange: function() {
-            map.showImageChanged();
+            map.drawImageChanged();
         },
         labelText: 'show'
     });
@@ -596,7 +594,7 @@ map.setupInputImage = function(gui) {
             if (map.whatToShow === 'structure') {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
-            map.showImageChanged();
+            map.drawImageChanged();
         }
     });
     // setup control canvas
@@ -635,7 +633,7 @@ map.setupInputImage = function(gui) {
     inputTransform.setStepShift(1);
     map.inputTransform.onChange = function() {
         console.log('change input transform');
-        map.showImageChanged();
+        map.drawImageChanged();
     };
     // the mouse events on the control canvas
     map.mouseEvents = new MouseEvents(map.controlCanvas);
@@ -659,7 +657,7 @@ map.setupInputImage = function(gui) {
         ParamGui.closePopups();
         if (map.whatToShow === 'structure') {
             map.whatToShowController.setValueOnly('image - low quality');
-            map.showImageChanged();
+            map.drawImageChanged();
         }
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
@@ -670,7 +668,7 @@ map.setupInputImage = function(gui) {
         inputTransform.shiftY += shiftY;
         inputTransform.updateUI();
         inputTransform.updateTransform();
-        map.showImageChanged();
+        map.drawImageChanged();
     };
     // zoom or rotate
     // the controlcanvas shows a 'shadow' of the mapping result
@@ -708,7 +706,7 @@ map.setupInputImage = function(gui) {
             inputTransform.shiftY -= (v.y - u.y);
             inputTransform.updateUI();
             inputTransform.updateTransform();
-            map.showImageChanged();
+            map.drawImageChanged();
         }
     };
 };
@@ -751,7 +749,7 @@ map.loadInputImage = function(callback) {
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;
-        map.showImageChanged();
+        map.drawImageChanged();
     };
 
     image.src = map.inputImage;

@@ -173,6 +173,8 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 // (re)draw at first call
 let oldWidth = 0;
 let oldHeight = 0;
+// initially do not draw
+let isDrawing = false;
 
 function autoResizeDraw() {
     if (autoResizeController.getValue()) {
@@ -245,7 +247,9 @@ function autoResizeDraw() {
             output.coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
             output.coordinateTransform.updateTransform();
         }
-        output.drawCanvasChanged();
+        if (isDrawing) {
+            output.drawCanvasChanged();
+        }
     }
 }
 
@@ -389,7 +393,7 @@ output.createCanvas = function(gui, folderName) {
  * set the canvasWidthToHeight, does not yet resize the canvas
  * if value<0: no fixed ratio
  * if value>0...1: fixed ratio
- * CALL output.resize and draw later (particularly in initialization...)
+ * CALL output.resizeCanvasDraw later
  * @method output.setCanvasWidthToHeight
  * @param {float} ratio
  */
@@ -407,9 +411,19 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
                 widthController.setValueOnly(width);
                 heightController.setValueOnly(width / canvasWidthToHeight);
             }
-            autoResizeDraw();
         }
+        autoResizeDraw();
     }
+};
+
+/**
+ * draw and enable drawing at resizing
+ * call when drawing has been defined
+ * @method output.resizeCanvasDraw
+ */
+output.firstDrawing = function() {
+    isDrawing = true;
+    output.drawCanvasChanged();
 };
 
 /**
@@ -605,9 +619,9 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
 };
 
 /*
-* transform mouse event data to calculation coordinates
-* position with shift, change of position scale and rotation only
-*/
+ * transform mouse event data to calculation coordinates
+ * position with shift, change of position scale and rotation only
+ */
 const dPosition = {};
 
 function transformMouseEvents(mouseEvents) {
@@ -662,8 +676,8 @@ output.useCtrlObjects = function(ctrlObjects) {
 };
 
 /**
-* create pixels object for canvas
-*/
+ * create pixels object for canvas
+ */
 
 /**
  * set the line width in pixels, independent of scale

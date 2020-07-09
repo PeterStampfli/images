@@ -25,7 +25,6 @@ const canvasGui = gui.addFolder({
     name: 'image controls',
     closed: true
 });
-output.drawCanvasChanged = function() {};
 // an output canvas and some test image
 output.createCanvas(canvasGui);
 const canvas = output.canvas;
@@ -340,4 +339,4 @@ function draw() {
 }
 
 output.drawCanvasChanged = draw;
-draw();
+output.firstDrawing();

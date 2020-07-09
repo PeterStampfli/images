@@ -29,7 +29,6 @@ const gui = new ParamGui({
     closed: false
 });
 // an output canvas and some test image
-output.drawCanvasChanged=function(){};
 output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
@@ -83,7 +82,7 @@ function draw() {
 }
 output.drawCanvasChanged = draw;
 output.drawGridChanged=draw;
-draw();
+output.firstDrawing();
 
 </script>
 

@@ -24,15 +24,15 @@ import {
 
 // basic setup
 const gui=new ParamGui({name:'test',closed:false});
-output.drawCanvasChanged=function(){};
 
 // an output canvas and some test image
-map.createCanvas(gui);
+output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addParagraph('coordinate transform');
 output.addCoordinateTransform(gui, false);
 output.setInitialCoordinates(0, 0, 3);
+map.setOutputDraw();
 gui.addTitle('input image');
 map.inputImage = '../testimage.jpg';
 map.setupInputImage(gui);
@@ -64,8 +64,8 @@ map.mapping = function(point) {
     point.x = x;
     point.y = y;
 };
-// make that an image appeaars at startup
-map.showMapChanged();
+// resize canvas and make that an image appears at startup
+output.firstDrawing();
 
 const ctrl1={
 mouseDownAction: function(event){
