@@ -119,9 +119,6 @@ map.setOutputDraw = function() {
 map.startDrawing = function() {
     map.needsSizeArrayUpdate = true;
     map.rangeValid = false;
-    if (!guiUtils.isDefined(output.pixels)) {
-        output.pixels = new Pixels(output.canvas);
-    }
     output.pixels.update();
     const canvas = output.canvas;
     if ((map.width !== canvas.width) || (map.height !== canvas.height)) {
@@ -556,6 +553,12 @@ map.drawImageVeryHighQuality = function() {
  * @param {ParamGui} gui
  */
 map.setupInputImage = function(gui) {
+    if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
+        console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
+        console.log('Please use as gui the base gui or a first level folder.');
+        gui.addParagraph('map.setupInputImage: Use as gui the base gui or a first level folder!!!')
+        return;
+    }
     // a hidden canvas for the input image
     map.inputCanvas = document.createElement('canvas');
     map.inputCanvas.style.display = 'none';
@@ -607,7 +610,21 @@ map.setupInputImage = function(gui) {
     gui.bodyDiv.appendChild(controlDiv);
     // now the clientwidth accounts for the scroll bar
     // and we can get the effective width of the gui
+    // we can only determine the clientwidth if the folder (and parents) is open (displayed)
+    const parentGuiClosed = gui.parent && gui.parent.closed;
+    if (parentGuiClosed) {
+        gui.parent.bodyDiv.style.display = "block";
+    }
+    if (gui.closed) {
+        gui.bodyDiv.style.display = "block";
+    }
     map.guiWidth = gui.bodyDiv.clientWidth;
+    if (gui.closed) {
+        gui.bodyDiv.style.display = "none";
+    }
+    if (parentGuiClosed) {
+        gui.parent.bodyDiv.style.display = "none";
+    }
     controlDiv.style.width = map.guiWidth + 'px';
     controlDiv.style.height = map.guiWidth + 'px';
     controlDiv.style.backgroundColor = '#dddddd';

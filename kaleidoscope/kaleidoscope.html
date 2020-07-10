@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title> kaleidoscope prototype</title>
+    <title> kaleidoscope in progress</title>
 </head>
 
 <body>
@@ -20,7 +20,11 @@ import {
     output,
     map,
     guiUtils
-} from "../modules.js";
+} from "../libgui/modules.js";
+
+import {
+    Circle
+} from './circle.js';
 
 // basic setup
 const gui=new ParamGui({name:'test',closed:false});
@@ -35,8 +39,8 @@ outputGui.addParagraph('coordinate transform');
 output.addCoordinateTransform(outputGui, false);
 output.setInitialCoordinates(0, 0, 3);
 map.setOutputDraw();
-const inputGui=gui.addFolder('input image',{closed:true});
-map.inputImage = '../testimage.jpg';
+const inputGui=gui.addFolder('input image');
+map.inputImage = '../libgui/testimage.jpg';
 map.setupInputImage(inputGui);
 const regionGui=gui.addFolder('regions');
 
@@ -67,6 +71,28 @@ map.mapping = function(point) {
 };
 // resize canvas and make that an image appears at startup
 output.firstDrawing();
+
+const ctrl1={
+mouseDownAction: function(event){
+    console.log('down1');
+    console.log(event.x,event.y);
+    return true;
+},
+mouseDownShiftAction: function(event){
+    console.log('shiftdown1');
+    console.log(event.x,event.y);
+    return true;
+},
+mouseMoveAction: function(event){
+    console.log('moveit');
+    console.log(event.dx,event.dy);
+    return true;
+}
+};
+
+output.useCtrlObjects([ctrl1]);
+
+console.log(new Circle(gui))
 
 </script>
 

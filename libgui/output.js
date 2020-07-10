@@ -8,6 +8,7 @@
 import {
     guiUtils,
     CoordinateTransform,
+    Pixels,
     MouseEvents,
     ParamGui
 }
@@ -37,7 +38,11 @@ output.drawCanvasChanged = function() {
 
 /**
  * draw output image when grid parameters change
- * kaleidoscopes: the map remains the same, do same as when image changes
+ * kaleidoscopes: the map remains the same, pixels remain the same
+ * output.drawGridChanged=function(){
+ *   output.pixels.show();
+ *   output.drawGrid();
+ * };
  * @method output.drawGridChanged()
  */
 output.drawGridChanged = function() {
@@ -139,7 +144,7 @@ function resizeOutputDiv() {
  */
 output.createDiv = function() {
     if (output.div) {
-        console.error("div exists already!");
+        console.error("output div exists already!");
     } else {
         output.div = document.createElement("div");
         output.div.style.position = "absolute";
@@ -676,8 +681,17 @@ output.useCtrlObjects = function(ctrlObjects) {
 };
 
 /**
- * create pixels object for canvas
+ * create pixels object for canvas, call after creating the canvas
+ * show with: output.pixels.show();
+ * @method output.createPixels
  */
+ output.createPixels = function() {
+    if (output.pixels) {
+        console.error("output.createPixels: pixels exists already!");
+        return;
+    }
+    output.pixels=new Pixels(output.canvas);
+};
 
 /**
  * set the line width in pixels, independent of scale

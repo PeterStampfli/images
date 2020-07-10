@@ -30,6 +30,7 @@ const gui = new ParamGui({
 });
 // an output canvas and some test image
 output.createCanvas(gui);
+output.createPixels();
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
 gui.addTitle('coordinate transform')
@@ -37,8 +38,8 @@ output.addCoordinateTransform(gui, true);
 gui.addTitle('grid');
 
 output.addGrid(gui);
-var pix = new Pixels(canvas);
-output.setInitialCoordinates(-1,0,3);
+var pix = output.pixels;
+output.setInitialCoordinates(0,0,3);
 
 function draw() {
     pix.update();
@@ -75,13 +76,13 @@ function draw() {
     }
     // canvasContext.putImageData(imageData, 0, 0);
     pix.show();
-    output.setLineWidth(3);
-    canvasContext.strokeStyle='yellow'
-    canvasContext.strokeRect(0.0, 0.0, 0.2, 0.2);
     output.drawGrid();
 }
 output.drawCanvasChanged = draw;
-output.drawGridChanged=draw;
+output.drawGridChanged=function(){
+    output.pixels.show();
+    output.drawGrid();
+};
 output.firstDrawing();
 
 </script>
