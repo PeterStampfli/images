@@ -20,6 +20,7 @@ export const output = {};
 
 output.canvas = false;
 output.canvasContext = false; // 2d-context
+output.pixels = false;
 output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
@@ -685,12 +686,12 @@ output.useCtrlObjects = function(ctrlObjects) {
  * show with: output.pixels.show();
  * @method output.createPixels
  */
- output.createPixels = function() {
+output.createPixels = function() {
     if (output.pixels) {
         console.error("output.createPixels: pixels exists already!");
         return;
     }
-    output.pixels=new Pixels(output.canvas);
+    output.pixels = new Pixels(output.canvas);
 };
 
 /**
