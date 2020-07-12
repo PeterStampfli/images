@@ -70,41 +70,38 @@ map.mapping = function(point) {
     point.y = y;
 };
 
-map.draw = function() {
-    console.log('draw');
-}
 
-// resize canvas and make that an image appears at startup
-output.firstDrawing();
 
-const ctrl1={
-mouseDownAction: function(event){
-    console.log('down1');
-    console.log(event.x,event.y);
-    return true;
-},
-mouseDownShiftAction: function(event){
-    console.log('shiftdown1');
-    console.log(event.x,event.y);
-    return true;
-},
-mouseMoveAction: function(event){
-    console.log('moveit');
-    console.log(event.dx,event.dy);
-    return true;
-}
-};
-
-output.useCtrlObjects([ctrl1]);
 
 const circle=new Circle(gui);
 
 console.log(circle)
 
-circle.setRadius(2);
-circle.setCenter(2,3);
+circle.setRadius(0.5);
+circle.setCenter(0,0);
 circle.setMapDirection('inside-out')
 console.log(circle);
+
+
+map.drawImageChanged = function() {
+    console.log('draw');
+map.draw();
+    circle.draw()
+}
+Circle.draw=map.drawImageChanged;
+
+output.mouseCtrlMoveAction=function(event){
+    output.pixels.show();
+    if (circle.isSelected(event)){
+            output.canvas.style.cursor = "pointer";
+    } else {
+                    output.canvas.style.cursor = "default";
+    }
+    circle.draw(false);
+};
+
+output.firstDrawing();
+
 
 </script>
 

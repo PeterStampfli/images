@@ -68,9 +68,10 @@ export function MouseEvents(element) {
     this.downKey = "ArrowDown";
 
     // event action
-    this.downAction = function(mouseEvents) {}; // mouse down 
-    this.dragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
+     this.inAction = function(mouseEvents) {}; // mouse in (enter)
     this.moveAction = function(mouseEvents) {}; // mouse move (move with button released)
+   this.downAction = function(mouseEvents) {}; // mouse down 
+    this.dragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
     this.upAction = function(mouseEvents) {}; // mouse up
     this.outAction = function(mouseEvents) {}; // mouse out (leave)
     this.wheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
@@ -120,6 +121,7 @@ export function MouseEvents(element) {
             this.lastY = this.y;
             mouseEvents.mouseInside = true;
             thisElement.focus();
+                mouseEvents.inAction(mouseEvents);
         }
         return false;
     };
@@ -131,10 +133,8 @@ export function MouseEvents(element) {
             mouseEvents.update(event);
             mouseEvents.updateShiftCtrl();
             mouseEvents.mouseInside = false;
-            if (mouseEvents.pressed) {
                 mouseEvents.pressed = false;
-                mouseEvents.outAction(mouseEvents);
-            }
+                mouseEvents.outAction(mouseEvents);    // out action even if no mouse button pressed
         }
         return false;
     };
@@ -160,7 +160,6 @@ export function MouseEvents(element) {
             if (!mouseEvents.wheelAction(mouseEvents)) {
                 MouseAndTouch.preventDefault(event);
             }
-
         }
         return false;
     };
@@ -203,6 +202,14 @@ MouseEvents.prototype.setIsActive = function(on) {
 };
 
 /**
+ * set pressed===false
+ * @method MouseEvents.setPressedFalse
+ */
+MouseEvents.prototype.setPressedFalse = function() {
+    this.pressed = false;
+};
+
+/**
  * read the mouse position relative to element, calculate changes, update data, prevent defaut (scroll)
  * for fixed elements subtract scroll
  * @method MouseEvents#update
@@ -241,6 +248,7 @@ MouseEvents.prototype.destroy = function() {
     this.element.onmousemove = null;
     this.element.onwheel = null;
     this.element.onkeydown = null;
+    this.inAction = null;
     this.downAction = null;
     this.dragAction = null;
     this.moveAction = null;

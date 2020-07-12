@@ -5,8 +5,17 @@ import {
 }
 from "../libgui/modules.js";
 
+// directions
 const insideOut = 'inside-out';
 const outsideIn = 'outside-in';
+
+// parameters for drawing, change if you do not like it 
+Circle.lineWidth = 2;
+Circle.highlightLineWidth = 6;
+Circle.highlightColor = 'yellow';
+
+// selection, regionwidth in px
+Circle.selectWidth = Circle.highlightLineWidth;
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -29,7 +38,7 @@ export function Circle(gui) {
         property: 'radius',
         min: 0,
         onChange: function() {
-            this.radius2 = this.radius * this.radius;
+            circle.radius2 = circle.radius * circle.radius;
             console.log('radius changed');
             Circle.draw();
         }
@@ -131,29 +140,36 @@ Circle.draw = function() {
     console.log('Circle.draw');
 };
 
-// parameters for drawing
-Circle.lineWidth = 1;
-Circle.highlightLineWidth = 3;
-Circle.highlightColor = 'yellow';
-
 /**
  * drawing a circle
+ * as a braod circle in highlight color or narrow in its own color
  * (is the naming too confusing?)
  * @method Circle#draw
- * @param {boolean} highlight
+ * @param {boolean} highlight - optional, default is false
  */
-Circle.prototype.draw = function(highlight) {
+Circle.prototype.draw = function(highlight = false) {
     const context = output.canvasContext;
     if (highlight) {
         output.setLineWidth(Circle.highlightLineWidth);
         context.strokeStyle = Circle.highlightColor;
-        context.beginPath();
-        context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
-        context.stroke();
+    } else {
+        output.setLineWidth(Circle.lineWidth);
+        context.strokeStyle = this.color;
     }
-    output.setLineWidth(Circle.lineWidth);
-    context.strokeStyle = this.color;
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
     context.stroke();
+};
+
+/**
+ * check if the circle is selected by position
+ * @method Circle#isSelected
+ * @param {object} position - with x and y fields, such as mouseEvents
+ * @return boolean, true if selected
+ */
+Circle.prototype.isSelected = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    const effSelectWidth = Circle.selectWidth * output.coordinateTransform.totalScale;
+    return Math.abs(dx * dx + dy * dy - this.radius2) < this.radius * effSelectWidth;
 };
