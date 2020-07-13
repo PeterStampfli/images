@@ -54,20 +54,52 @@ map.setupInputImage(inputGui);
 gui.add({
     type:'selection',
     initialValue: initialSize,
-    options:[255,511,1023,2047,4095],
+    options:[256,512,1024,2048,4096],
     onChange:function(size){
         output.setCanvasDimensions(size);
         map.drawMapChanged();
     }
 })
+// centers are rounded down coordinates
+// sizes are even 
+
+// copy from higher to lower coordinates
+function topDown(centerX,centerY,size){
+    var i,j,index;
+    let size2=size/2;
+    // limit size
+// lower position: center-size2+1>=0
+size2=Math.min(size2,centerX+1,centerY+1);
+// upper position: center+size2<=canvas.width-1
+// (inclusive)
+size2=Math.min(size2,output.canvas.width-1-centerX,output.canvas.height-1-centerY);
+// the corners
+const left=centerX-size2+1;
+const right=centerX+size2;
+const bottom=centerY-size2+1;
+const top=centerY+size2;
+// map left to right with i -> left+right-i
+// mirror at up diagonal (i,j) -> (j-bottom+left,i-left+bottom)
+// mirror at down diagonal (i,j) -> (right+bottom-j,right+bottom-i)
+// note that top-bottom=size-1 and left-right=size-1
+
+    const fromTop=centerY+size/2;
+    const left=centerX-size/2+1;
+    const right=centerX+size/2;
+    for (j = 0; j < map.height; j++) {
+        for ( i = 0; i < map.width; i++) {
+           
+
+        }
+    }
+}
 
 map.make = function() {
-
+    var i,j;
+   
     let index = 0;
-    for (var j = 0; j < map.height; j++) {
-        for (var i = 0; i < map.width; i++) {
-
-
+    for (j = 0; j < map.height; j++) {
+        for ( i = 0; i < map.width; i++) {
             map.xArray[index] = i;
             map.yArray[index] = j;
             map.regionArray[index] = 0;
@@ -76,6 +108,8 @@ map.make = function() {
             index += 1;
         }
     }
+
+
 };
 
 
