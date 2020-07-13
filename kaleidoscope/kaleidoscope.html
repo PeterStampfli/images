@@ -75,16 +75,13 @@ map.mapping = function(point) {
 
 const circle=new Circle(gui);
 
-console.log(circle)
 
 circle.setRadius(0.5);
 circle.setCenter(0,0);
 circle.setMapDirection('inside-out')
-console.log(circle);
 
 
 map.drawImageChanged = function() {
-    console.log('draw');
 map.draw();
     circle.draw()
 }

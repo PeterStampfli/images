@@ -79,6 +79,12 @@ export function CoordinateTransform(gui, canvas = null, withRotation = false) {
     this.setStepScale(0.001);
 }
 
+// coordinate transforms are often related to mouse events
+    // mouse wheel zooming factor
+    CoordinateTransform.zoomFactor = 1.04;
+    // and rotating, angle step, in degrees
+    CoordinateTransform.angleStep = 1;
+
 /**
 * set step size for shift controllers
 * @method CoordinateTransform#setStepShift

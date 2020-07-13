@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> fractoscope</title>
+</head>
+
+<body>
+</body>
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    Pixels,
+    ParamGui,
+    output,
+    map,
+    guiUtils
+} from "../libgui/modules.js";
+
+import {
+    Circle
+} from './circle.js';
+// basic setup
+const gui = new ParamGui({
+    name: 'test',
+    closed: false
+});
+
+// an output canvas and some test image
+const outputGui = gui.addFolder('output image');
+output.createCanvas(outputGui);
+output.createPixels();
+const canvas = output.canvas;
+const canvasContext = output.canvasContext;
+
+const initialSize=511;
+
+output.setCanvasDimensions(initialSize);
+
+
+map.setOutputDraw();
+const inputGui = gui.addFolder('input image');
+inputGui.open();
+map.inputImage = '../libgui/testimage.jpg';
+map.setupInputImage(inputGui);
+
+//map.whatToShowController.setValueOnly('image - low quality');
+
+gui.add({
+    type:'selection',
+    initialValue: initialSize,
+    options:[255,511,1023,2047,4095],
+    onChange:function(size){
+        output.setCanvasDimensions(size);
+        map.drawMapChanged();
+    }
+})
+
+map.make = function() {
+
+    let index = 0;
+    for (var j = 0; j < map.height; j++) {
+        for (var i = 0; i < map.width; i++) {
+
+
+            map.xArray[index] = i;
+            map.yArray[index] = j;
+            map.regionArray[index] = 0;
+            map.structureIndexArray[index] = 0;
+            map.sizeArray[index] = 1;
+            index += 1;
+        }
+    }
+};
+
+
+
+
+output.firstDrawing();
+
+</script>
+
+</html>

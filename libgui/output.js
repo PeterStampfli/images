@@ -423,6 +423,20 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
 };
 
 /**
+ * set canvas dimensions
+ * disactivate the autoresizing
+ * @method output.setCanvasDimensions
+ * @param {integer} width
+ * @param {integer} height - optional, default width
+ */
+output.setCanvasDimensions = function(width, height = width) {
+    autoResizeController.setValueOnly(false);
+    autoResizeController.setActive(false);
+    widthController.setValueOnly(width);
+    heightController.setValueOnly(height);
+};
+
+/**
  * draw and enable drawing at resizing
  * call when drawing has been defined
  * @method output.resizeCanvasDraw
@@ -523,10 +537,6 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     output.canvas.style.cursor = "pointer";
     output.mouseEvents = new MouseEvents(output.canvas);
     const mouseEvents = output.mouseEvents;
-    // mouse wheel zooming factor
-    output.zoomFactor = 1.04;
-    // and rotating, angle step, in degrees
-    output.angleStep = 1;
     // vectors for intermediate results
     const u = {
         x: 0,
@@ -630,10 +640,10 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             v.y = u.y;
             coordinateTransform.rotateScale(u);
             if (mouseEvents.shiftPressed && output.withRotation) {
-                const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
+                const step = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.angleStep : -CoordinateTransform.angleStep;
                 coordinateTransform.angle += step;
             } else {
-                const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+                const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
                 coordinateTransform.scale *= zoomFactor;
             }
             coordinateTransform.updateTransform();

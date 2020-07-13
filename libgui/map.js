@@ -709,12 +709,12 @@ map.setupInputImage = function(gui) {
             // back to map plane
             inputTransform.inverseTransform(v);
             if (keyboard.shiftPressed) {
-                const step = (mouseEvents.wheelDelta > 0) ? output.angleStep : -output.angleStep;
+                const step = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.angleStep : -CoordinateTransform.angleStep;
                 inputTransform.angle += step;
             } else {
-                const zoomFactor = (mouseEvents.wheelDelta > 0) ? output.zoomFactor : 1 / output.zoomFactor;
+                const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
                 inputTransform.scale *= zoomFactor;
-            }
+                }
             inputTransform.updateTransform();
             // transform after zooming/rotating
             inputTransform.transform(v);
