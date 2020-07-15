@@ -78,7 +78,8 @@ const circle=new Circle(gui);
 
 circle.setRadius(0.5);
 circle.setCenter(0,0);
-circle.setMapDirection('inside-out')
+circle.setIsOutsideInMap(true)
+circle.setIsOutsideInMap(false)
 
 
 map.drawImageChanged = function() {
@@ -95,6 +96,7 @@ output.mouseCtrlMoveAction=function(event){
                     output.canvas.style.cursor = "default";
     }
     circle.draw(false);
+    console.log(circle.isInTarget(event))
 };
 
 output.firstDrawing();

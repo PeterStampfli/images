@@ -308,7 +308,7 @@ map.drawStructure = function() {
     }
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
-        if (map.showRegion[map.regionArray[index]]) {
+        if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0))  {
             output.pixels.array[index] = map.colorTable[map.structureIndexArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black
@@ -326,7 +326,7 @@ map.drawStructure = function() {
 // map.inputToControlScale is scale factor from input image to control canvas
 
 /**
- * get center and range of map values
+ * get center and range of map values (only valid points)
  * required for loading an input image and zooming/rotating image
  * @method map.determineRange
  */
@@ -340,12 +340,14 @@ map.determineRange = function() {
         let yMin = 1e10;
         let yMax = -1e10;
         for (i = 0; i < length; i++) {
+            if (map.sizeArray[i] >= 0){
             const x = map.xArray[i];
             xMax = Math.max(x, xMax);
             xMin = Math.min(x, xMin);
             const y = map.yArray[i];
             yMax = Math.max(y, yMax);
             yMin = Math.min(y, yMin);
+        }
         }
         map.centerX = 0.5 * (xMax + xMin);
         map.centerY = 0.5 * (yMax + yMin);
@@ -693,14 +695,6 @@ map.setupInputImage = function(gui) {
     // that means the inputTransformation does not change its image of the center of the map
     mouseEvents.wheelAction = function() {
         if (map.whatToShow !== 'structure') {
-            // the zoom center, map to input image
-            map.determineRange();
-            u.x = map.centerX;
-            u.y = map.centerY;
-            v.x = u.x;
-            v.y = u.y;
-            // transform center before zooming/rotating
-            inputTransform.transform(u);
             // position of mouse in input image plane
             u.x = mouseEvents.x / map.inputImageControlCanvasScale;
             u.y = mouseEvents.y / map.inputImageControlCanvasScale;
