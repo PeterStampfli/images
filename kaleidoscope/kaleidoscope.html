@@ -99,6 +99,19 @@ output.mouseCtrlMoveAction=function(event){
     console.log(circle.isInTarget(event))
 };
 
+output.mouseCtrlDragAction=function(event){
+    circle.dragAction(event);
+    map.drawImageChanged();
+};
+
+
+
+
+output.mouseCtrlWheelAction=function(event){
+    circle.wheelAction(event);
+    map.drawImageChanged();
+};
+
 output.firstDrawing();
 
 

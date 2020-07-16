@@ -21,6 +21,11 @@ import {
 
 export const map = {};
 
+    // mouse wheel zooming factor
+    map.zoomFactor = 1.04;
+    // and rotating, angle step, in degrees
+    map.angleStep = 1;
+
 // default input image for tests
 // set its absolute path for use in a internet site:
 // http://someSite.com/images/testimage.jpg or something similar
@@ -657,10 +662,6 @@ map.setupInputImage = function(gui) {
     // the mouse events on the control canvas
     map.mouseEvents = new MouseEvents(map.controlCanvas);
     const mouseEvents = map.mouseEvents;
-    // mouse wheel zooming factor
-    map.zoomFactor = 1.04;
-    // and rotating, angle step, in degrees
-    map.angleStep = 1;
     // vectors for intermediate results
     const u = {
         x: 0,

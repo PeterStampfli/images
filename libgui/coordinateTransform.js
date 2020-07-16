@@ -80,28 +80,28 @@ export function CoordinateTransform(gui, canvas = null, withRotation = false) {
 }
 
 // coordinate transforms are often related to mouse events
-    // mouse wheel zooming factor
-    CoordinateTransform.zoomFactor = 1.04;
-    // and rotating, angle step, in degrees
-    CoordinateTransform.angleStep = 1;
+// mouse wheel zooming factor
+CoordinateTransform.zoomFactor = 1.04;
+// and rotating, angle step, in degrees
+CoordinateTransform.angleStep = 1;
 
 /**
-* set step size for shift controllers
-* @method CoordinateTransform#setStepShift
-* @param {number} step
-*/
-CoordinateTransform.prototype.setStepShift=function(step){
- this.shiftXController.setStep(step);
- this.shiftYController.setStep(step);
+ * set step size for shift controllers
+ * @method CoordinateTransform#setStepShift
+ * @param {number} step
+ */
+CoordinateTransform.prototype.setStepShift = function(step) {
+    this.shiftXController.setStep(step);
+    this.shiftYController.setStep(step);
 };
 
 /**
-* set step size for scale controller
-* @method CoordinateTransform#setStepScale
-* @param {number} step
-*/
-CoordinateTransform.prototype.setStepScale=function(step){
- this.scaleController.setStep(step);
+ * set step size for scale controller
+ * @method CoordinateTransform#setStepScale
+ * @param {number} step
+ */
+CoordinateTransform.prototype.setStepScale = function(step) {
+    this.scaleController.setStep(step);
 };
 
 /**
@@ -151,7 +151,7 @@ CoordinateTransform.prototype.updateTransform = function() {
         canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
         canvasContext.translate(-deltaX, -deltaY);
         canvasContext.rotate(-this.angle / 180 * Math.PI);
-        canvasContext.scale(1/this.totalScale, 1/this.totalScale);
+        canvasContext.scale(1 / this.totalScale, 1 / this.totalScale);
     }
 };
 

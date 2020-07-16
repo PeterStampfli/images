@@ -27,7 +27,7 @@ const backgroundColor = '#aaaaaa';
 canvas.style.backgroundColor = backgroundColor;
 const canvasContext = output.canvasContext;
 
-const initialSize = 512;
+const initialSize = 3*128;
 
 output.setCanvasDimensions(initialSize);
 
@@ -42,8 +42,9 @@ map.setupInputImage(inputGui);
 
 
 const params = {};
-params.generations = 3;
+params.generations = 5;
 
+/*
 gui.add({
     type: 'selection',
     initialValue: initialSize,
@@ -54,6 +55,7 @@ gui.add({
         map.drawMapChanged();
     }
 });
+*/
 
 gui.add({
     type: 'number',
@@ -86,6 +88,7 @@ gui.add({
 // copy from higher to lower coordinates
 // mirror at center with j -> top+bottom-j
 function topToBottom(centerX, centerY, width, height = width) {
+    console.log(centerX, centerY, width, height)
     var i, j, index;
     // limit size
     // lower position: center-size2+1>=0
@@ -112,7 +115,7 @@ function topToBottom(centerX, centerY, width, height = width) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -146,7 +149,7 @@ function bottomToTop(centerX, centerY, width, height = width) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -177,7 +180,7 @@ function rightToLeft(centerX, centerY, width, height = width) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -208,7 +211,7 @@ function leftToRight(centerX, centerY, width, height = width) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -236,7 +239,7 @@ function upperLeftToLowerRight(centerX, centerY, size) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -264,7 +267,7 @@ function lowerRightToUpperLeft(centerX, centerY, size) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -293,7 +296,7 @@ function upperRightToLowerLeft(centerX, centerY, size) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
@@ -322,17 +325,75 @@ function lowerLeeftToUpperRight(centerX, centerY, size) {
             map.yArray[one] = map.yArray[two];
             map.sizeArray[one] = 1;
             map.sizeArray[two] = 1;
-             map.structureIndexArray[one]= map.structureIndexArray[two]+1;
+            map.structureIndexArray[one] = map.structureIndexArray[two] + 1;
         }
     }
 }
 
+// combinations
+//========================================
+
 // central square with full symmetry
-function centralSquare(){
-    const size=canvas.width/2;
-    upperLeftToLowerRight(size-1,size-1,size);
-    leftToRight(size-1,size-1,size);
-    bottomToTop(size-1,size-1,size);
+function centralSquare(size) {
+    const center = canvas.width / 2-1;
+    upperLeftToLowerRight(center, center, size);
+    leftToRight(center, center, size);
+    bottomToTop(center, center, size);
+}
+
+// experimental cross
+//===========================
+
+function crossBottom(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    console.log(generation);
+    const size=parentSize/2;
+    console.log(size)
+    const centerX=parentCenterX;
+    const centerY=parentCenterY-1.5*size;
+    topToBottom(parentCenterX,parentCenterY-size,size,2*size);
+    if (generation < params.generations) {
+        crossBottom(generation,centerX,centerY,size);
+    }
+}
+
+function crossTop(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    console.log(generation);
+    const size=parentSize/2;
+    console.log(size)
+    const centerX=parentCenterX;
+    const centerY=parentCenterY+1.5*size;
+    bottomToTop(parentCenterX,parentCenterY+size,size,2*size);
+    if (generation < params.generations) {
+      crossTop(generation,centerX,centerY,size);
+    }
+}
+
+function crossLeft(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    console.log(generation);
+    const size=parentSize/2;
+    console.log(size)
+    const centerX=parentCenterX-1.5*size;
+    const centerY=parentCenterY;
+    rightToLeft(parentCenterX-size,parentCenterY,2*size,size);
+    if (generation < params.generations) {
+        crossLeft(generation,centerX,centerY,size);
+    }
+}
+
+function crossRight(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    console.log(generation);
+    const size=parentSize/2;
+    console.log(size)
+    const centerX=parentCenterX+1.5*size;
+    const centerY=parentCenterY;
+    leftToRight(parentCenterX+size,parentCenterY,2*size,size);
+    if (generation < params.generations) {
+        crossRight(generation,centerX,centerY,size);
+    }
 }
 
 map.make = function() {
@@ -348,7 +409,13 @@ map.make = function() {
             index += 1;
         }
     }
-   centralSquare();
+    const size = Math.floor(canvas.width / 3);
+    centralSquare(size);
+    const center = canvas.width / 2-1;
+    crossBottom(0, center, center, size);
+    crossTop(0, center, center, size);
+    crossLeft(0, center, center, size);
+    crossRight(0, center, center, size);
 };
 
 output.firstDrawing();

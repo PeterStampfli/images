@@ -13,6 +13,9 @@ const outsideIn = 'outside-in';
 const epsilon = 0.0001;
 const epsilon2 = epsilon * epsilon;
 
+// for mouse wheel action
+Circle.zoomFactor = 1.04;
+
 // parameters for drawing, change if you do not like it 
 Circle.lineWidth = 2;
 Circle.highlightLineWidth = 6;
@@ -33,7 +36,7 @@ export function Circle(gui) {
     this.centerY = 0;
     this.isOutsideInMap = true;
     this.mapDirection = outsideIn;
-    this.color = '#000000';
+    this.color = '#00ff00';
     const circle = this;
     // controllers: do not do things with them from the outside
     this.radiusController = gui.add({
@@ -90,6 +93,17 @@ export function Circle(gui) {
 }
 
 /**
+ * update the ui values
+ * @method Circle#updateUI
+ */
+Circle.prototype.updateUI = function() {
+    this.centerXController.updateDisplay();
+    this.centerYController.updateDisplay();
+    this.radiusController.updateDisplay();
+    this.mapDirectionController.updateDisplay();
+};
+
+/**
  * set the radius of the circle
  * NOTE: use this and do not set value of the controller directly
  * @method Circle#setRadius
@@ -99,7 +113,7 @@ export function Circle(gui) {
 Circle.prototype.setRadius = function(radius) {
     this.radius2 = radius * radius;
     this.radius = radius;
-    this.radiusController.updateDisplay();
+    this.updateUI();
     return this;
 };
 
@@ -113,8 +127,7 @@ Circle.prototype.setRadius = function(radius) {
 Circle.prototype.setCenter = function(x, y) {
     this.centerX = x;
     this.centerY = y;
-    this.centerXController.updateDisplay();
-    this.centerYController.updateDisplay();
+    this.updateUI();
     return this;
 };
 
@@ -127,7 +140,7 @@ Circle.prototype.setIsOutsideInMap = function(isOutsideIn) {
     this.isOutsideInMap = isOutsideIn;
     const direction = (isOutsideIn) ? outsideIn : insideOut;
     this.mapDirection = direction;
-    this.mapDirectionController.updateDisplay();
+    this.updateUI();
 };
 
 /**
@@ -220,4 +233,29 @@ Circle.prototype.map = function(position) {
             return true;
         }
     }
+};
+
+/**
+ * dragging the circle
+ * action depends on intersections
+ * @method Circle#dragAction
+ * @param{object} event
+ */
+Circle.prototype.dragAction = function(event) {
+    this.centerX += event.dx;
+    this.centerY += event.dy;
+    this.updateUI();
+};
+
+
+/**
+ * mouse wheel on the circle
+ * action depends on intersections
+ * @method Circle#wheelAction
+ * @param{object} event
+ */
+Circle.prototype.wheelAction = function(event) {
+    const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
+    this.radius *= zoomFactor;
+    this.updateUI();
 };
