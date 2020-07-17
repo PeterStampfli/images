@@ -434,6 +434,7 @@ output.setCanvasDimensions = function(width, height = width) {
     autoResizeController.setActive(false);
     widthController.setValueOnly(width);
     heightController.setValueOnly(height);
+        autoResizeDraw();
 };
 
 /**

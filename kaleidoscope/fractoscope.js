@@ -395,21 +395,23 @@ function bigSquare() {
     const size = canvas.width;
     const center = canvas.width / 2 - 1;
 
-    let newSize = size / 2;
-    for (var i = 0; i < params.generations; i++) {
+    let newSize = size ;
+    for (var i = 0; i < params.generations; i++) {  
         console.log(i);
-        const newCenterX = center - newSize;
-        const newCenterY = center + newSize;
-        // topLeftTo
+        newSize=newSize/2;
+        const newCenterX = center - newSize/2;
+        const newCenterY = center + newSize/2;
+        console.log(newCenterX,newCenterY,newSize)
+         topLeftToBottomRight(newCenterX,newCenterY,newSize);
+         leftToRight(newCenterX,newCenterY,newSize);
     }
 
 
-
-    upperLeftToLowerRight(center, center, size);
+    bottomLeftToTopRight(center, center, size);
     leftToRight(center, center, size);
-    bottomToTop(center, center, size);
+    topToBottom(center, center, size);
+    
 }
-
 
 // central square with full symmetry
 //=======================================================
@@ -434,10 +436,10 @@ map.make = function() {
         }
     }
     const size = Math.floor(canvas.width / 3);
-    //  bigSquare();
+      bigSquare();
+//    centralSquare(size);
 
     const center = canvas.width / 2 - 1;
-    bottomLeftToTopRight(center, center, size);
     /*
     centralSquare(size);
     const center = canvas.width / 2-1;
