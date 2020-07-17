@@ -1,0 +1,226 @@
+https://twitter.com/search?q=(from%3ArealDonaldTrump)%20until%3A2016-06-30%20since%3A2016-06-01%20-filter%3Areplies&src=typed_query
+
+https://twitter.com/search?q=enemy%20of%20the%20people%20(from%3Arealdonaldtrump)&src=typed_query&f=live
+
+“” (quotation marks)
+
+The quotation marks search operator limits results to tweets that contain an exact phrase. This is not case sensitive, and it’s the default behavior for single-word search terms.
+
+    Example: “world series”
+
+    – (hyphen)
+
+The quotation marks search operator limits results to tweets that do not include the term thereafter. This operator can’t be used by itself, and you must surround the term with quotation marks if it uses more than one word.
+
+    Example: baseball -basketball
+
+? (question mark)
+
+The quotation marks search operator limits results to tweets that contain a question.
+
+    Example: wedding ?
+
+OR
+
+The “OR” search operator limits results to tweets that include either term. You must surround a term with quotation marks if it uses more than one word.
+
+    Example: sink OR swim
+
+Interaction-Based Search Operators for Twitter
+
+As a social media site that revolves heavily around communicating with others, Twitter supports multiple search operators that allow us to filter through user interactions. These include mentions, replies, and lists.
+@ (“at” sign)
+
+The “at” sign search operator limits results to tweets that mention the Twitter user thereafter.
+
+to
+
+The “to” search operator limits results to tweets that are directed to or made in reply to the Twitter user thereafter.
+
+    Example: to:shaq
+
+from
+
+The “from” search operator limits results to tweets that are sent by the Twitter user thereafter.
+
+    Example: from:aoc
+
+list
+
+The “list” search operator limits results to tweets that are sent by members of the Twitter list thereafter. This requires both the username of the Twitter user who owns the list and the list’s URL slug.
+
+    Example: list:scobleizer/world-news
+
+    Some of Twitter’s most powerful and specific filtering options revolve around the “filter” operator. With this operator, we can narrow down tweets by what type of media they contain, when they were tweeted, and which sites they link to.
+
+filter:safe
+
+The “filter:safe” search operator limits results to tweets that are marked as safe and not potentially sensitive. This operator can’t be used by itself.
+
+    Example: elephant filter:safe
+
+    filter:media
+
+The “filter:media” search operator limits results to tweets that contain an image or video. This operator can’t be used by itself.
+
+    Example: kitten filter:media
+
+filter:retweets
+
+The “filter:retweets” search operator limits results to tweets that are not retweets. This operator can’t be used by itself.
+
+    Example: politics filter:retweets
+
+filter:native_video
+
+The “filter:native_video” search operator limits results to tweets that contain video from Amplify, Periscope, or Vine. This operator can’t be used by itself, and you can also filter specifically by video platforms with “filter:periscope” and “filter:vine”.
+
+    Example: meme filter:native_video
+
+filter:images
+
+The “filter:images” search operator limits results to tweets that contain images. This operator can’t be used by itself, and you can only search for natively-hosted images with “filter:twimg”.
+
+    Example: dunk filter:images
+
+filter:links
+
+The “filter:links” search operator limits results to tweets that contain links. This operator can’t be used by itself and will include tweets with comments on a retweet that contains a link.
+
+    Example: france filter:links
+
+url:amazon
+
+The “url” search operator limits results to tweets that contain a link including the text thereafter. This operator can’t be used by itself.
+
+    Example: game url:amazon
+
+since
+
+The “since” search operator limits results to tweets that have been tweeted after the date thereafter (year-month-day format). This operator can’t be used by itself.
+
+    Example: hurricane since:2017-09-20
+
+until
+
+The “until” search operator limits results to tweets that have been tweeted after the date thereafter (year-month-day format). This operator can’t be used by itself.
+
+    Example: earthquake until:2018-02-11
+
+A great trick you can use is combining the hyphen search operator with any of the “filter” operators. This will allow you to do things like search for tweets that don’t contain images or contain potentially sensitive material. Stringing together more than one operator can really laser-focus your search to the exact results that you’re looking for.
+
+
+content
+	
+
+love hate   love AND hate   (love hate)
+	   Containing both "love" and "hate"
+ 	--------------------------------
+love OR hate
+	   At least one of either "love" or "hate"
+ 	--------------------------------
+-love
+	   Excluding "love"
+ 	--------------------------------
+#tgif
+	   A hashtag
+ 	--------------------------------
+$twtr
+	   A cashtag, useful for following stock information
+ 	--------------------------------
+"love hate"
+	   The complete phrase "love hate"
+ 	--------------------------------
+filter:news
+	   Containing link to a news story. Combine with a list operator to narrow the user set down further.
+ 	--------------------------------
+filter:safe
+	   Excluding NSFW content.
+ 	 	 --------------------------------
+
+
+Users
+
+	   from:user
+	   Sent by a particular @username e.g. "#space from:NASA"
+ 	--------------------------------
+to:user
+	   Replying to a particular @username
+ 	--------------------------------
+"+@user"
+	   Mentioning a particular @username e.g. "+@NASA"
+ 	--------------------------------
+list:user/list-name
+	   From members of this List e.g. list:NASA/space-tweets
+ 	--------------------------------
+filter:verified
+	   From verified users
+ 	 	 --------------------------------
+
+
+Tweet info
+
+	   near:city
+	   Geotagged in this place
+ 	--------------------------------
+within:radius
+	   Within specific radius of the "near" operator, to apply a limit. Can use km or mi. e.g. "fire near:san-francisco within:10km"
+ 	--------------------------------
+since:yyyy-mm-dd
+	   On or after a specified date
+ 	--------------------------------
+until:yyyy-mm-dd
+	   On or before a specified date. Combine with the "since" operator for dates between.
+ 	--------------------------------
+filter:nativeretweets
+	   Retweets from users who have hit the retweet button.
+ 	--------------------------------
+filter:retweets
+	   Old style retweets ("RT") + quoted tweets.
+ 	--------------------------------
+filter:replies
+	   Tweet is a reply to another Tweet.
+ 	--------------------------------
+min_retweets:5
+	   A minimum number of Retweets
+ 	--------------------------------
+min_faves:10
+	   A minimum number of Likes
+ 	--------------------------------
+min_replies:100
+	   A minimum number of replies
+ 	--------------------------------
+source:client_name
+	   Sent from a specified client e.g. source:tweetdeck (common clients are: tweetdeck, twitter_for_iphone, twitter_for_android, web)
+ 	 	 --------------------------------
+
+ 	 	 
+Media
+	
+
+filter:media
+	   All media types.
+ 	--------------------------------
+filter:twimg
+	   Native Twitter images (pic.twitter.com links)
+ 	--------------------------------
+filter:images
+	   All images.
+ 	--------------------------------
+filter:video
+	   All video types, including native Twitter video and external sources such as Youtube.
+ 	--------------------------------
+filter:periscope
+	   Periscopes
+ 	--------------------------------
+filter:native_video
+	   All Twitter-owned video types (native video, vine, periscope)
+ 	--------------------------------
+filter:consumer_video
+	   Twitter native video only
+ 	--------------------------------
+filter:pro_video
+	   Twitter pro video (Amplify) only   
+
+
+https://twitter.com/search?q=(from%3ArealDonaldTrump)%20since%3A2020-05-01%20-filter%3Areplies%20-filter%3Aretweets%20-filter%3Anativeretweets&src=typed_query

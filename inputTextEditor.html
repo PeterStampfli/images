@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8" />
+
+<head>
+    <title>inputTextEditor</title>
+</head>
+
+<body>
+	<h3>Input text editor</h3>
+	Input text: <input type='file' accept='.txt' multiple='true' id='openInput-file' />
+	or paste or drag&drop	
+	<br>
+	<textarea id='input-text' cols='150' rows='6'></textarea>
+	<br>
+	<button id='add-button' > add to the collection </button>
+	<br>
+	<button id='clearCollection-button' > clear the collection </button>
+	<br>
+	Collection of input texts: 
+	<input type='file' accept='.txt' multiple='true' id='openCollection-file' /> 
+	or drag&drop
+	<br>
+	<textarea id='collection-text' cols='150' rows='10'></textarea>
+	<br>
+	<button id='save-button' > save the collection </button>
+	as
+	<input type="text" id="filename-input">.txt
+</body>
+
+<script src='inputTextEditor.js' > </script>
+
+</html>

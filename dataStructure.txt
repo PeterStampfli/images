@@ -1,0 +1,101 @@
+Note: transition weights not need to be integer. But is is easiest to use unit weights for new connections.
+To partially forget old texts, we can multiply all transition weights by a small factor < 1 !!
+
+For indexing words:
+===================		
+Finding index starts with empty word at index 0
+
+					            wordIndex
+					                |
+					                |
+				  		            V
+words = 			[ ... , word as String , ...]
+         													      char
+																	|
+wordsMoreChars =    [ ... , moreChars as String, ....]				|
+																	V
+							moreChars = '      ..          ..     char    ............'
+																	|
+wordsMoreWords =    [ ... , moreWords as Integer Array, ....]		|  (indexOf)
+																	V
+							moreWords = [    ...         ,  index to words, ....]
+							                                        |
+							                                        V
+							                                   wordIndex
+
+For transitions from a single word to a new word:
+=================================================
+Text always starts with dummy word with index 0, empty text
+
+					            wordIndex
+					                |
+					                |
+				  		            V
+wordsTransitionWeights =  [  .... , transitionWeights as Integer Array , ....]			
+									
+                     									transitionWeights = [ ... , weight , .....]
+                     																	|
+wordsTransitionSums =  [  .... , transitionSum as Integer , ....]	--> transitionSum ->|<-- random number
+																						|  ^ 
+wordsTransitionIndices =  [  .... , transitionIndices as Integer Array , ....]			|  | (indexOf)
+																						V  |
+                     									transitionIndices = [ ... , nextWordIndex , .....]
+                     																    |  ^ 
+												                                        V  |
+												                                   nextWordIndex
+
+For transitions from a pair of words to a new word:
+===================================================
+
+first get a unique index for word pairs from firstWordIndex and secondWordIndex
+
+word pairs are similar as word transitions
+
+wordsSecondWords === wordTransitionIndices
+
+							        firstWordIndex
+					      		          |
+								          |						         		second word index
+							  		      V												|
+wordsSecondWords =  	[  .... , secondWords as Integer Array , ....]					|
+										  |												|
+										  |												V
+                     					  |				secondWords = [ ... , index to words , .....]
+                     					  |											    |
+										  V		                                        |  (indexOf)
+wordsPairIndices=  		[  .... , pairIndices as Integer Array , ....]					|
+																						V
+                                                       pairIndices = [ ...   , index to pairs , ...]
+                                                                                        |
+                                                                                        V
+                                                                                   pairIndex
+
+Note that there is no array for the word pairs themselves needed if we only 
+make transitions from pairs to words as output comes from the words array ...
+
+If we want transitions between pairs we can store info for one pair in a single integer:
+maximum safe integer: 9007199254740991
+maximum number of words : 100'000
+info = firstWord*100'000+secondWord is safe
+
+We need only info for transitions, which can be organized as for the single word to word transition.
+
+(Note: log size of arrays to see if we run out of memory.)
+
+
+For transitions from a word pair to a new word:
+=================================================
+start with pair at index 0, is a pair with both word empty at index zero
+
+pairsTransitionWeights =  [  .... , transitionWeights as Integer Array , ....]			
+									
+                     									transitionWeights = [ ... , weight , .....]
+                     																	|
+pairsTransitionSums =  [  .... , transitionSum as Integer , ....]	--> transitionSum ->|<-- random number
+																						|  ^ 
+pairsTransitionIndizes =  [  .... , transitionIndizes as Integer Array , ....]			|  | (indexOf)
+																						V  |
+                     									transitionIndizes = [ ... , nextWordIndex , .....]
+                     																    |  ^ 
+												                                        V  |
+												                                   nextWordIndex
