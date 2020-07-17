@@ -27,7 +27,8 @@ const backgroundColor = '#aaaaaa';
 canvas.style.backgroundColor = backgroundColor;
 const canvasContext = output.canvasContext;
 
-const initialSize = 3*128;
+let initialSize = 3 * 128;
+initialSize = 512;
 
 output.setCanvasDimensions(initialSize);
 
@@ -88,7 +89,6 @@ gui.add({
 // copy from higher to lower coordinates
 // mirror at center with j -> top+bottom-j
 function topToBottom(centerX, centerY, width, height = width) {
-    console.log(centerX, centerY, width, height)
     var i, j, index;
     // limit size
     // lower position: center-size2+1>=0
@@ -218,7 +218,7 @@ function leftToRight(centerX, centerY, width, height = width) {
 
 // copy from upper left to lower right coordinates
 // mirror at up diagonal (i,j) -> (j-bottom+left,i-left+bottom)
-function upperLeftToLowerRight(centerX, centerY, size) {
+function topLeftToBottomRight(centerX, centerY, size) {
     var i, j, index;
     let size2 = size / 2;
     size2 = Math.min(size2, centerX + 1, centerY + 1);
@@ -246,7 +246,7 @@ function upperLeftToLowerRight(centerX, centerY, size) {
 
 // copy from lower right to upper left coordinates
 // mirror at up diagonal (i,j) -> (j-bottom+left,i-left+bottom)
-function lowerRightToUpperLeft(centerX, centerY, size) {
+function bottomRightToTopLeft(centerX, centerY, size) {
     var i, j, index;
     let size2 = size / 2;
     size2 = Math.min(size2, centerX + 1, centerY + 1);
@@ -274,7 +274,7 @@ function lowerRightToUpperLeft(centerX, centerY, size) {
 
 // copy from upper right to lower left
 // mirror at down diagonal (i,j) -> (right+bottom-j,right+bottom-i)
-function upperRightToLowerLeft(centerX, centerY, size) {
+function topRightToBottomLeft(centerX, centerY, size) {
     var i, j, index;
     let size2 = size / 2;
     size2 = Math.min(size2, centerX + 1, centerY + 1);
@@ -303,7 +303,7 @@ function upperRightToLowerLeft(centerX, centerY, size) {
 
 // copy from lower left to upper right
 // mirror at down diagonal (i,j) -> (right+bottom-j,right+bottom-i)
-function lowerLeeftToUpperRight(centerX, centerY, size) {
+function bottomLeftToTopRight(centerX, centerY, size) {
     var i, j, index;
     let size2 = size / 2;
     size2 = Math.min(size2, centerX + 1, centerY + 1);
@@ -333,13 +333,6 @@ function lowerLeeftToUpperRight(centerX, centerY, size) {
 // combinations
 //========================================
 
-// central square with full symmetry
-function centralSquare(size) {
-    const center = canvas.width / 2-1;
-    upperLeftToLowerRight(center, center, size);
-    leftToRight(center, center, size);
-    bottomToTop(center, center, size);
-}
 
 // experimental cross
 //===========================
@@ -347,53 +340,84 @@ function centralSquare(size) {
 function crossBottom(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
     console.log(generation);
-    const size=parentSize/2;
-    console.log(size)
-    const centerX=parentCenterX;
-    const centerY=parentCenterY-1.5*size;
-    topToBottom(parentCenterX,parentCenterY-size,size,2*size);
+    const size = parentSize / 2;
+    console.log(size);
+    const centerX = parentCenterX;
+    const centerY = parentCenterY - 1.5 * size;
+    topToBottom(parentCenterX, parentCenterY - size, size, 2 * size);
     if (generation < params.generations) {
-        crossBottom(generation,centerX,centerY,size);
+        crossBottom(generation, centerX, centerY, size);
     }
 }
 
 function crossTop(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
     console.log(generation);
-    const size=parentSize/2;
-    console.log(size)
-    const centerX=parentCenterX;
-    const centerY=parentCenterY+1.5*size;
-    bottomToTop(parentCenterX,parentCenterY+size,size,2*size);
+    const size = parentSize / 2;
+    console.log(size);
+    const centerX = parentCenterX;
+    const centerY = parentCenterY + 1.5 * size;
+    bottomToTop(parentCenterX, parentCenterY + size, size, 2 * size);
     if (generation < params.generations) {
-      crossTop(generation,centerX,centerY,size);
+        crossTop(generation, centerX, centerY, size);
     }
 }
 
 function crossLeft(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
     console.log(generation);
-    const size=parentSize/2;
-    console.log(size)
-    const centerX=parentCenterX-1.5*size;
-    const centerY=parentCenterY;
-    rightToLeft(parentCenterX-size,parentCenterY,2*size,size);
+    const size = parentSize / 2;
+    console.log(size);
+    const centerX = parentCenterX - 1.5 * size;
+    const centerY = parentCenterY;
+    rightToLeft(parentCenterX - size, parentCenterY, 2 * size, size);
     if (generation < params.generations) {
-        crossLeft(generation,centerX,centerY,size);
+        crossLeft(generation, centerX, centerY, size);
     }
 }
 
 function crossRight(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
     console.log(generation);
-    const size=parentSize/2;
-    console.log(size)
-    const centerX=parentCenterX+1.5*size;
-    const centerY=parentCenterY;
-    leftToRight(parentCenterX+size,parentCenterY,2*size,size);
+    const size = parentSize / 2;
+    console.log(size);
+    const centerX = parentCenterX + 1.5 * size;
+    const centerY = parentCenterY;
+    leftToRight(parentCenterX + size, parentCenterY, 2 * size, size);
     if (generation < params.generations) {
-        crossRight(generation,centerX,centerY,size);
+        crossRight(generation, centerX, centerY, size);
     }
+}
+
+// big square
+//==========================================================
+function bigSquare() {
+    const size = canvas.width;
+    const center = canvas.width / 2 - 1;
+
+    let newSize = size / 2;
+    for (var i = 0; i < params.generations; i++) {
+        console.log(i);
+        const newCenterX = center - newSize;
+        const newCenterY = center + newSize;
+        // topLeftTo
+    }
+
+
+
+    upperLeftToLowerRight(center, center, size);
+    leftToRight(center, center, size);
+    bottomToTop(center, center, size);
+}
+
+
+// central square with full symmetry
+//=======================================================
+function centralSquare(size) {
+    const center = canvas.width / 2 - 1;
+    bottomLeftToTopRight(center, center, size);
+    leftToRight(center, center, size);
+    topToBottom(center, center, size);
 }
 
 map.make = function() {
@@ -410,12 +434,18 @@ map.make = function() {
         }
     }
     const size = Math.floor(canvas.width / 3);
+    //  bigSquare();
+
+    const center = canvas.width / 2 - 1;
+    bottomLeftToTopRight(center, center, size);
+    /*
     centralSquare(size);
     const center = canvas.width / 2-1;
     crossBottom(0, center, center, size);
     crossTop(0, center, center, size);
     crossLeft(0, center, center, size);
     crossRight(0, center, center, size);
+    */
 };
 
 output.firstDrawing();
