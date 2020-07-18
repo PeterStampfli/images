@@ -81,11 +81,21 @@ circle.setRadius(0.5);
 circle.setCenter(0,0);
 circle.setIsOutsideInMap(true)
 circle.setIsOutsideInMap(false)
+mirrors.add(circle)
 
+const circle2=new Circle(gui);
+
+
+circle2.setRadius(0.75);
+circle2.setCenter(0,-1);
+
+mirrors.add(circle2)
+
+mirrors.selected=circle;
 
 map.drawImageChanged = function() {
 map.draw();
-    circle.draw()
+    mirrors.draw()
 }
 Circle.draw=map.drawImageChanged;
 
