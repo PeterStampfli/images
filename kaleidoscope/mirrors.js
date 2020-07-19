@@ -10,7 +10,7 @@ export const mirrors = {};
 // collecting the mirror objects
 mirrors.collection = [];
 // a selected mirror
-mirrors.selected=false;
+mirrors.selected = false;
 
 // adding and removing mirrors
 
@@ -45,23 +45,82 @@ mirrors.remove = function(mirror) {
 };
 
 /**
-* delete all mirrors
-* @method mirrors.clear
-*/
-mirrors.clear=function(){
-mirrors.collection.length=0;
+ * delete all mirrors
+ * @method mirrors.clear
+ */
+mirrors.clear = function() {
+    mirrors.collection.length = 0;
 };
 
 /**
-* draw the mirrors
-* highlight selected circle
-* @method mirrors.draw
-*/
-mirrors.draw=function(){
-	if (mirrors.selected){
-		mirrors.selected.draw(true);
-	}
-	mirrors.collection.forEach(mirror => mirror.draw(false));
+ * draw the mirrors
+ * highlight selected circle
+ * @method mirrors.draw
+ */
+mirrors.draw = function() {
+    if (mirrors.selected) {
+        mirrors.selected.draw(true);
+    }
+    mirrors.collection.forEach(mirror => mirror.draw(false));
 };
 
 // interaction with the mouse
+//==================================================
+
+
+/**
+ * check if a mirror is selected depending on (mouse) position
+ * for a mouse ctrl move action
+ * @method mirrors.isSelected
+ * @param {object} position - with (x,y) fields
+ * @return boolean, true if a mirror is selected
+ */
+mirrors.isSelected = function(position) {
+    const length = mirrors.collection.length;
+    for (var i = 0; i < length; i++) {
+        if (mirrors.collection[i].isSelected(position)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+/**
+ * select a mirror depending on (mouse) position
+ * for a mouse ctrl down event
+ * @method mirrors.select
+ * @param {object} position - with (x,y) fields
+ */
+mirrors.select = function(position) {
+    const length = mirrors.collection.length;
+    for (var i = 0; i < length; i++) {
+        if (mirrors.collection[i].isSelected(position)) {
+            mirrors.selected = mirrors.collection[i];
+            return;
+        }
+    }
+};
+
+/**
+ * wheel action on the selected mirror
+ * actually depends on its intersections (but that's its problem)
+ * @method mirrors.wheelAction
+ * @param {object} event - with wheel data
+ */
+mirrors.wheelAction = function(event) {
+    if (mirrors.selected) {
+        mirrors.selected.wheelAction(event);
+    }
+};
+
+/**
+ * drag action on the selected mirror
+ * actually depends on its intersections (but that's its problem)
+ * @method mirrors.dragAction
+ * @param {object} event - with wheel data
+ */
+mirrors.dragAction = function(event) {
+    if (mirrors.selected) {
+        mirrors.selected.dragAction(event);
+    }
+};

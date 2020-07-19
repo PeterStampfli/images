@@ -9,9 +9,6 @@ import {
     guiUtils
 } from "../libgui/modules.js";
 
-import {
-    Circle
-} from './circle.js';
 // basic setup
 const gui = new ParamGui({
     name: 'test',
@@ -28,7 +25,7 @@ canvas.style.backgroundColor = backgroundColor;
 const canvasContext = output.canvasContext;
 
 let initialSize = 3 * 128;
-initialSize = 512;
+initialSize=512;
 
 output.setCanvasDimensions(initialSize);
 
@@ -341,40 +338,40 @@ function bottomLeftToTopRight(centerX, centerY, size) {
 
 function crossBottom(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
-    console.log(generation);
     const size = parentSize / 2;
-    console.log(size);
     const centerX = parentCenterX;
     const centerY = parentCenterY - 1.5 * size;
     topToBottom(parentCenterX, parentCenterY - size, size, 2 * size);
     if (generation < params.generations) {
         crossBottom(generation, centerX, centerY, size);
+        crossLeft(generation, centerX, centerY, size);
+        crossRight(generation, centerX, centerY, size);
     }
 }
 
 function crossTop(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
-    console.log(generation);
     const size = parentSize / 2;
-    console.log(size);
     const centerX = parentCenterX;
     const centerY = parentCenterY + 1.5 * size;
     bottomToTop(parentCenterX, parentCenterY + size, size, 2 * size);
     if (generation < params.generations) {
         crossTop(generation, centerX, centerY, size);
+        crossLeft(generation, centerX, centerY, size);
+        crossRight(generation, centerX, centerY, size);
     }
 }
 
 function crossLeft(generation, parentCenterX, parentCenterY, parentSize) {
     generation += 1;
-    console.log(generation);
     const size = parentSize / 2;
-    console.log(size);
     const centerX = parentCenterX - 1.5 * size;
     const centerY = parentCenterY;
     rightToLeft(parentCenterX - size, parentCenterY, 2 * size, size);
     if (generation < params.generations) {
         crossLeft(generation, centerX, centerY, size);
+        crossTop(generation, centerX, centerY, size);
+        crossBottom(generation, centerX, centerY, size);
     }
 }
 
@@ -388,32 +385,80 @@ function crossRight(generation, parentCenterX, parentCenterY, parentSize) {
     leftToRight(parentCenterX + size, parentCenterY, 2 * size, size);
     if (generation < params.generations) {
         crossRight(generation, centerX, centerY, size);
+        crossTop(generation, centerX, centerY, size);
+        crossBottom(generation, centerX, centerY, size);
     }
 }
 
-// big square
-//==========================================================
-function bigSquare() {
-    const size = canvas.width;
-    const center = canvas.width / 2 - 1;
+// corners
+//=======================================
 
-    let newSize = size ;
-    for (var i = 0; i < params.generations; i++) {  
-        console.log(i);
-        newSize=newSize/2;
-        const newCenterX = center - newSize/2;
-        const newCenterY = center + newSize/2;
-        console.log(newCenterX,newCenterY,newSize)
-         topLeftToBottomRight(newCenterX,newCenterY,newSize);
-         leftToRight(newCenterX,newCenterY,newSize);
+function cornerBottomLeft(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    const size = (generation < params.generations)?parentSize / 2:parentSize;
+    const shift=parentSize/2;
+    const centerX = parentCenterX - shift;
+    const centerY = parentCenterY-shift;
+    topToBottom(centerX, centerY, size, size);
+    rightToLeft(centerX, centerY, size, size);
+    if (generation < params.generations) {
+            cornerBottomLeft(generation,centerX, centerY, size);
+            cornerBottomRight(generation,centerX, centerY, size);
+            cornerTopLeft(generation,centerX, centerY, size);
     }
-
-
-    bottomLeftToTopRight(center, center, size);
-    leftToRight(center, center, size);
-    topToBottom(center, center, size);
-    
 }
+
+function cornerBottomRight(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    const size = (generation < params.generations)?parentSize / 2:parentSize;
+    const shift=parentSize/2;
+    const centerX = parentCenterX + shift;
+    const centerY = parentCenterY-shift;
+    topToBottom(centerX, centerY, size, size);
+    leftToRight(centerX, centerY, size, size);
+    if (generation < params.generations) {
+            cornerBottomRight(generation,centerX, centerY, size);
+            cornerBottomLeft(generation,centerX, centerY, size);
+            cornerTopRight(generation,centerX, centerY, size);
+    }
+}
+
+function cornerTopRight(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    const size = (generation < params.generations)?parentSize / 2:parentSize;
+    const shift=parentSize/2;
+    const centerX = parentCenterX + shift;
+    const centerY = parentCenterY+shift;
+    bottomToTop(centerX, centerY, size, size);
+    leftToRight(centerX, centerY, size, size);
+    if (generation < params.generations) {
+            cornerTopRight(generation,centerX, centerY, size);
+            cornerTopLeft(generation,centerX, centerY, size);
+            cornerBottomRight(generation,centerX, centerY, size);
+    }
+}
+
+function cornerTopLeft(generation, parentCenterX, parentCenterY, parentSize) {
+    generation += 1;
+    const size = (generation < params.generations)?parentSize / 2:parentSize;
+    const shift=parentSize/2;
+    const centerX = parentCenterX - shift;
+    const centerY = parentCenterY+shift;
+    bottomToTop(centerX, centerY, size, size);
+    rightToLeft(centerX, centerY, size, size);
+    if (generation < params.generations) {
+            cornerTopLeft(generation,centerX, centerY, size);
+            cornerTopRight(generation,centerX, centerY, size);
+            cornerBottomLeft(generation,centerX, centerY, size);
+    }
+}
+
+// fathauers fold out
+//=========================================================
+
+
+
+
 
 // central square with full symmetry
 //=======================================================
@@ -437,15 +482,17 @@ map.make = function() {
             index += 1;
         }
     }
-    const size = Math.floor(canvas.width / 3);
-      bigSquare();
-//    centralSquare(size);
+   // const size = Math.floor(canvas.width / 3);
+    const size = Math.floor(canvas.width / 2);
 
     const center = canvas.width / 2 - 1;
-    /*
+    
     centralSquare(size);
-    const center = canvas.width / 2-1;
-    crossBottom(0, center, center, size);
+    cornerBottomLeft(0, center, center, size);
+    cornerBottomRight(0, center, center, size);
+    cornerTopRight(0, center, center, size);
+    cornerTopLeft(0, center, center, size);
+/*    crossBottom(0, center, center, size);
     crossTop(0, center, center, size);
     crossLeft(0, center, center, size);
     crossRight(0, center, center, size);
