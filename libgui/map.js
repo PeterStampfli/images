@@ -21,10 +21,10 @@ import {
 
 export const map = {};
 
-    // mouse wheel zooming factor
-    map.zoomFactor = 1.04;
-    // and rotating, angle step, in degrees
-    map.angleStep = 1;
+// mouse wheel zooming factor
+map.zoomFactor = 1.04;
+// and rotating, angle step, in degrees
+map.angleStep = 1;
 
 // default input image for tests
 // set its absolute path for use in a internet site:
@@ -313,7 +313,7 @@ map.drawStructure = function() {
     }
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
-        if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0))  {
+        if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
             output.pixels.array[index] = map.colorTable[map.structureIndexArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black
@@ -345,14 +345,14 @@ map.determineRange = function() {
         let yMin = 1e10;
         let yMax = -1e10;
         for (i = 0; i < length; i++) {
-            if (map.sizeArray[i] >= 0){
-            const x = map.xArray[i];
-            xMax = Math.max(x, xMax);
-            xMin = Math.min(x, xMin);
-            const y = map.yArray[i];
-            yMax = Math.max(y, yMax);
-            yMin = Math.min(y, yMin);
-        }
+            if (map.sizeArray[i] >= 0) {
+                const x = map.xArray[i];
+                xMax = Math.max(x, xMax);
+                xMin = Math.min(x, xMin);
+                const y = map.yArray[i];
+                yMax = Math.max(y, yMax);
+                yMin = Math.min(y, yMin);
+            }
         }
         map.centerX = 0.5 * (xMax + xMin);
         map.centerY = 0.5 * (yMax + yMin);
@@ -563,7 +563,7 @@ map.setupInputImage = function(gui) {
     if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
         console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
         console.log('Please use as gui the base gui or a first level folder.');
-        gui.addParagraph('map.setupInputImage: Use as gui the base gui or a first level folder!!!')
+        gui.addParagraph('map.setupInputImage: Use as gui the base gui or a first level folder!!!');
         return;
     }
     // a hidden canvas for the input image
@@ -709,7 +709,7 @@ map.setupInputImage = function(gui) {
             } else {
                 const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
                 inputTransform.scale *= zoomFactor;
-                }
+            }
             inputTransform.updateTransform();
             // transform after zooming/rotating
             inputTransform.transform(v);

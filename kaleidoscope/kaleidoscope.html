@@ -33,6 +33,8 @@ const gui=new ParamGui({name:'test',closed:false});
 // an output canvas and some test image
 const outputGui=gui.addFolder('output image');
 output.createCanvas(outputGui);
+
+output.canvas.style.backgroundColor='grey';
 output.createPixels();
 const canvas = output.canvas;
 const canvasContext = output.canvasContext;
@@ -50,37 +52,19 @@ map.regionControl(regionGui, 2);
 map.makeNewColorTable(regionGui, 2);
 
 // setup mapping show structure
+//point.x ,.y.structureIndex
 map.mapping = function(point) {
-    let x = point.x - Math.floor(point.x);
-    if (x > 0.5) {
-        x = 1 - x;
-        point.structureIndex++;
-    }
-    let y = point.y - Math.floor(point.y);
-    if (y > 0.5) {
-        y = 1 - y;
-        point.structureIndex++;
-    }
-    if (x > y) {
-        const h = x;
-        x = y;
-        y = h;
-        point.structureIndex++;
-    }
-    point.x = x;
-    point.y = y;
+    mirrors.map(point);
 };
 
 
 gui.addParagraph('circle 1')
 
 const circle=new Circle(gui);
+const d=Math.sqrt(3)/2;
 
-
-circle.setRadius(0.5);
-circle.setCenter(0,0);
-circle.setIsOutsideInMap(true)
-circle.setIsOutsideInMap(false)
+circle.setRadius(1);
+circle.setCenter(d,0);
 mirrors.add(circle)
 
 gui.addParagraph('circle 2')
@@ -88,8 +72,8 @@ gui.addParagraph('circle 2')
 const circle2=new Circle(gui);
 
 
-circle2.setRadius(0.75);
-circle2.setCenter(0,-1);
+circle2.setRadius(1);
+circle2.setCenter(-d,0);
 
 mirrors.add(circle2)
 
@@ -98,7 +82,8 @@ map.drawImageChanged = function() {
 map.draw();
     mirrors.draw()
 }
-Circle.draw=map.drawImageChanged;
+
+Circle.draw=map.drawMapChanged;
 
 output.mouseCtrlMoveAction=function(event){
     if (mirrors.isSelected(event)){
@@ -116,22 +101,15 @@ output.mouseCtrlDownAction=function(event){
     mirrors.draw(false);
 };
 
-output.mouseCtrlDragAction=function(event){
-    circle.dragAction(event);
-    map.drawImageChanged();
-};
-
-
-
 
 output.mouseCtrlWheelAction=function(event){
     mirrors.wheelAction(event);
-    map.drawImageChanged();
+    map.drawMapChanged();
 };
 
 output.mouseCtrlDragAction=function(event){
     mirrors.dragAction(event);
-    map.drawImageChanged();
+    map.drawMapChanged();
 };
 
 output.firstDrawing();

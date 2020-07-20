@@ -181,10 +181,9 @@ Circle.prototype.draw = function(highlight = false) {
  * @return boolean, true if selected
  */
 Circle.prototype.isSelected = function(position) {
-    const dx = position.x - this.centerX;
-    const dy = position.y - this.centerY;
+    const r = Math.hypot(position.x - this.centerX, position.y - this.centerY);
     const effSelectWidth = Circle.selectWidth * output.coordinateTransform.totalScale;
-    return Math.abs(dx * dx + dy * dy - this.radius2) < this.radius * effSelectWidth;
+    return Math.abs(r - this.radius) < effSelectWidth;
 };
 
 /**
@@ -215,7 +214,7 @@ Circle.prototype.map = function(position) {
     const dy = position.y - this.centerY;
     const dr2 = dx * dx + dy * dy;
     if (this.isOutsideInMap) {
-        if (dr2 > this.radius2) {
+        if (dr2 < this.radius2) {
             return false;
         } else {
             const factor = this.radius2 / dr2;
@@ -242,9 +241,7 @@ Circle.prototype.map = function(position) {
  * @param{object} event
  */
 Circle.prototype.dragAction = function(event) {
-    this.centerX += event.dx;
-    this.centerY += event.dy;
-    this.updateUI();
+    this.setCenter(this.centerX + event.dx, this.centerY + event.dy);
 };
 
 
@@ -256,6 +253,5 @@ Circle.prototype.dragAction = function(event) {
  */
 Circle.prototype.wheelAction = function(event) {
     const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
-    this.radius *= zoomFactor;
-    this.updateUI();
+    this.setRadius(this.radius * zoomFactor);
 };

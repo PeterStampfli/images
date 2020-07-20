@@ -124,3 +124,34 @@ mirrors.dragAction = function(event) {
         mirrors.selected.dragAction(event);
     }
 };
+
+// mapping
+//==================================
+
+// basic, rudimentary
+
+// max number of iterations
+const maxIterations=20;
+
+/**
+* mapping, using the mirrors, repeat until no more mapping
+* or maximum number of iterations
+* @method mirrors.map
+* @param {object} point - with x,y,structureIndex and valid fields
+*/
+mirrors.map=function(point){
+    const collectionLength=mirrors.collection.length;
+    for (var i=0;i<maxIterations;i++){
+        let mapped=false;
+        for (var j=0;j<collectionLength;j++){
+            if (mirrors.collection[j].map(point)){
+                mapped=true;
+                point.structureIndex+=1;
+            }
+        }
+        if (!mapped){
+            return;
+        }
+    }
+    point.valid=-1;   // invalid position/pixel
+}
