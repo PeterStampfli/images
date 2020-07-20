@@ -100,7 +100,7 @@ function makeWordStream(char) {
         // end of text as a special word
         if (!doingWhitespace) {
             // end of text directly after a word, use this word
-            doWord(word);
+            makeTextStream(word);
             // doing whitespace in the beginning of next text
             doingWhitespace = true;
         }
@@ -149,42 +149,43 @@ function integerOfChar(char) {
 // each array has indices to the words array for words with with the same hash code
 // thus no problems with collision, may not be the most efficient solution
 const wordHashTable = [];
-// its length is about the number of words, a prime numer ?
-wordHashTable.length = 10067;
+// its length is about the number of words, a power of two ?
+wordHashTable.length = Math.pow(2,14);
+console.log(wordHashTable.length);
 // factor for combining the character integer values, about the number of different chars
 // should not be a divisor of the hash table length
 const hashFactor = 85;
+// in case of collision: hop by this distance
+const collisionDistance=123;
 
 function findIndex(word) {
-    var result, i;
     const hashTableLength = wordHashTable.length;
     let index = 0;
-    for (i = 0; i < word.length; i++) {
+            if (words.length===hashTableLength){
+            console.error('hash table is full, length: '+hashTableLength);
+            return 0;
+        }
+
+    for (var i = 0; i < word.length; i++) {
         index = (index * hashFactor + integerOfChar(word.charAt(i))) % hashTableLength;
     }
-    if (isUndefined(wordHashTable[index])) {
-        wordHashTable[index] = [];
+// search for the word as long as we find hash table entries
+while (isDefined(wordHashTable[index])){
+    const result=wordHashTable[index];
+    // check if hash table entry is index to given word
+    if (words[result]===word){
+        return result;
     }
-    const hashResult = wordHashTable[index];
-    console.log(hashResult);
-    // hash result has only indices  to the words, not the words themselves, thus cannot use indexOf()
-    result = -1;
-    for (i = 0; i < hashResult.length; i++) {
-        if (words[hashResult[i]] === word) {
-            result = hashResult[i];
-            break;
-        }
+    index+=collisionDistance;
+    if (index>=hashTableLength){
+        index-=hashTableLength;
     }
-    if (result < 0) {
-        result = words.length;
-        hashResult.push(result);
+}
+// not found, make new entry
+        const result = words.length;
         words.push(word);
-        // add transition data, word to word
-        //    wordsTransitionWeights.push([]);
-        //   wordsTransitionTargets.push([]);
-        //   wordsTransitionSums.push(0);
-    }
-    return result;
+        wordHashTable[index]=result;
+        return result;
 }
 
 function makeTextStream(word) {
