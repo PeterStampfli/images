@@ -12,6 +12,36 @@ mirrors.collection = [];
 // a selected mirror
 mirrors.selected = false;
 
+// ids and colors for mirror objects
+
+let id=0;
+
+/**
+* get an id number
+* @method mirror.getId
+* @return integer id
+*/
+mirrors.getId=function(){
+    id+=1;
+    return id;
+};
+
+let colorIndex=-1;
+const colors=['#ff0000','#00ff00','#ff00ff','#0000ff','#000000'];
+
+/**
+* get a color
+* @method mirrors.getColor
+* @return string, defines color
+*/
+mirrors.getColor=function(){
+    colorIndex+=1;
+    if (colorIndex>=colors.length){
+        colorIndex-=colors.length;
+    }
+    return colors[colorIndex];
+};
+
 // adding and removing mirrors
 
 /**

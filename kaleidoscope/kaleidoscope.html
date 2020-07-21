@@ -58,7 +58,6 @@ map.mapping = function(point) {
 };
 
 
-gui.addParagraph('circle 1')
 
 const circle=new Circle(gui);
 const d=Math.sqrt(3)/2;
@@ -67,9 +66,8 @@ circle.setRadius(1);
 circle.setCenter(d,0);
 mirrors.add(circle)
 
-gui.addParagraph('circle 2')
 
-const circle2=new Circle(gui);
+const circle2=new Circle(gui,{radius:1,centerX:-0.5,id:99});
 
 
 circle2.setRadius(1);

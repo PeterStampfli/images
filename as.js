@@ -128,7 +128,22 @@ function makeWordStream(char) {
 //=========================================
 
 // an array of strings, contains each word of the texts
-const words = [];
+// empty string is for begin of text
+const words = [''];
+
+// for each word an array of indices to next words
+// defines word pairs too
+const wordsToNextWordIndices = [
+    []
+];
+
+// for each word an array of transition frequencies to next words
+const wordsToNextWordsFrequencies = [
+    []
+];
+
+// for each word a sum of the transition frequencies, including transition to end of text
+const wordsSumOfTransitionFrequencies = [0];
 
 // an array of integers, indices to the words array
 const inputText = [];
@@ -150,52 +165,94 @@ function integerOfChar(char) {
 // thus no problems with collision, may not be the most efficient solution
 const wordHashTable = [];
 // its length is about the number of words, a power of two ?
-wordHashTable.length = Math.pow(2,14);
+wordHashTable.length = Math.pow(2, 14);
 console.log(wordHashTable.length);
 // factor for combining the character integer values, about the number of different chars
 // should not be a divisor of the hash table length
 const hashFactor = 85;
 // in case of collision: hop by this distance
-const collisionDistance=123;
+const collisionDistance = 123;
 
 function findIndex(word) {
     const hashTableLength = wordHashTable.length;
     let index = 0;
-            if (words.length===hashTableLength){
-            console.error('hash table is full, length: '+hashTableLength);
-            return 0;
-        }
-
+    if (words.length === hashTableLength) {
+        console.error('hash table is full, length: ' + hashTableLength);
+        return 0;
+    }
     for (var i = 0; i < word.length; i++) {
         index = (index * hashFactor + integerOfChar(word.charAt(i))) % hashTableLength;
     }
-// search for the word as long as we find hash table entries
-while (isDefined(wordHashTable[index])){
-    const result=wordHashTable[index];
-    // check if hash table entry is index to given word
-    if (words[result]===word){
-        return result;
+    // search for the word as long as we find hash table entries
+    while (isDefined(wordHashTable[index])) {
+        const result = wordHashTable[index];
+        // check if hash table entry is index to given word
+        if (words[result] === word) {
+            return result;
+        }
+        index += collisionDistance;
+        if (index >= hashTableLength) {
+            index -= hashTableLength;
+        }
     }
-    index+=collisionDistance;
-    if (index>=hashTableLength){
-        index-=hashTableLength;
-    }
-}
-// not found, make new entry
-        const result = words.length;
-        words.push(word);
-        wordHashTable[index]=result;
-        return result;
+    // not found, make new entry
+    const result = words.length;
+    words.push(word);
+    // add initialized data for transitions
+    wordsToNextWordIndices.push([]);
+    wordsToNextWordsFrequencies.push([]);
+    wordsSumOfTransitionFrequencies.push(0);
+    wordHashTable[index] = result;
+    return result;
 }
 
 function makeTextStream(word) {
     console.log(word);
     if (word === endOfTextChar) {
         // text is complete, analyze, update transition tables
+        analyzeText(inputText);
         inputText.length = 0;
     } else {
         const wordIndex = findIndex(word);
         console.log(wordIndex, word);
         inputText.push(wordIndex);
+    }
+}
+
+// analyze the text, make transition table
+//==========================================
+
+function analyzeText(text){
+    console.log(text);
+    const textLength = text.length;
+
+    if (textLength >= 2) {
+        // index of current word to word table and to transition table
+        let currentWordIndex = 0; // begin of text
+        for (var i = 0; i < textLength; i++) {
+            const nextWordIndex = text[i];
+            // tables for the transitions of the current word
+            const toNextWordIndices = wordsToNextWordIndices[currentWordIndex];
+            const toNextWordsFrequencies = wordsToNextWordsFrequencies[currentWordIndex];
+            // see if there is already data for the transition to the next word
+            // and get the index
+            let transitionIndex = toNextWordIndices.indexOf(nextWordIndex);
+            if (transitionIndex < 0) {
+                // transition not found, add initialized data
+                transitionIndex = toNextWordIndices.length;
+                toNextWordIndices.push(nextWordIndex);
+                toNextWordsFrequencies.push(0);
+            }
+            // increase the transition frequencies
+            toNextWordsFrequencies[nextWordIndex] += 1;
+            wordsSumOfTransitionFrequencies[currentWordIndex] += 1;
+
+
+            currentWordIndex = nextWordIndex;
+        }
+
+        // for the end of text we increase the sum of transitions
+        // default for transitions is end of text
+        wordsSumOfTransitionFrequencies[currentWordIndex] += 1;
     }
 }

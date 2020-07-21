@@ -1,9 +1,14 @@
 /* jshint esversion: 6 */
 
 import {
+    guiUtils,
     output
 }
 from "../libgui/modules.js";
+
+import {
+    mirrors
+} from './modules.js';
 
 // directions
 const insideOut = 'inside-out';
@@ -28,17 +33,28 @@ Circle.selectWidth = Circle.highlightLineWidth;
  * a circle as a building block for kaleidoscopes
  * gets its own gui
  * @constructor Circle
- * @param{ParamGui} gui 
+ * @param{ParamGui} parentGui 
+ * @param{object} properties - radius, centerX, centerY, isOutsideInMap, color (all optional),id
  */
-export function Circle(gui) {
+export function Circle(parentGui, properties) {
     this.radius = 1;
     this.centerX = 0;
     this.centerY = 0;
     this.isOutsideInMap = true;
     this.mapDirection = outsideIn;
-    this.color = '#00ff00';
+    if (guiUtils.isObject(properties)) {
+        Object.assign(this, properties);
+    }
+    if (!guiUtils.isNumber(this.id)) {
+        this.id = mirrors.getId();
+    }
+    if (!guiUtils.isString(this.id)) {
+        this.color = mirrors.getColor();
+    }
     const circle = this;
     // controllers: do not do things with them from the outside
+    const gui = parentGui.addFolder('Circle ' + this.id);
+
     this.radiusController = gui.add({
         type: 'number',
         params: this,
@@ -90,6 +106,8 @@ export function Circle(gui) {
             Circle.draw();
         }
     });
+    this.setRadius(this.radius);
+    this.setIsOutsideInMap(this.isOutsideInMap);
 }
 
 /**
