@@ -34,7 +34,7 @@ Circle.selectWidth = Circle.highlightLineWidth;
  * gets its own gui
  * @constructor Circle
  * @param{ParamGui} parentGui 
- * @param{object} properties - radius, centerX, centerY, isOutsideInMap, color (all optional),id
+ * @param{object} properties - optional, radius, centerX, centerY, isOutsideInMap, color (all optional),id
  */
 export function Circle(parentGui, properties) {
     this.radius = 1;
@@ -53,9 +53,9 @@ export function Circle(parentGui, properties) {
     }
     const circle = this;
     // controllers: do not do things with them from the outside
-    const gui = parentGui.addFolder('Circle ' + this.id);
+    this.gui = parentGui.addFolder('Circle ' + this.id);
 
-    this.radiusController = gui.add({
+    this.radiusController = this.gui.add({
         type: 'number',
         params: this,
         property: 'radius',
@@ -66,7 +66,7 @@ export function Circle(parentGui, properties) {
             Circle.draw();
         }
     });
-    this.centerXController = gui.add({
+    this.centerXController = this.gui.add({
         type: 'number',
         params: this,
         property: 'centerX',
@@ -86,7 +86,7 @@ export function Circle(parentGui, properties) {
             Circle.draw();
         }
     });
-    this.mapDirectionController = gui.add({
+    this.mapDirectionController = this.gui.add({
         type: 'selection',
         params: this,
         property: 'mapDirection',
@@ -97,7 +97,7 @@ export function Circle(parentGui, properties) {
             Circle.draw();
         }
     });
-    this.colorController = gui.add({
+    this.colorController = this.gui.add({
         type: 'color',
         params: this,
         property: 'color',
@@ -159,6 +159,23 @@ Circle.prototype.setIsOutsideInMap = function(isOutsideIn) {
     const direction = (isOutsideIn) ? outsideIn : insideOut;
     this.mapDirection = direction;
     this.updateUI();
+};
+
+/**
+ * get a parameter object that defines the circle
+ * with additional field type: 'circle'
+ * @method Circle#getProperties
+ * @return object with the properties
+ */
+Circle.prototype.getProperties = function() {
+    const properties = {
+        type: 'circle',
+        radius: this.radius,
+        centerX: this.centerX,
+        centerY: this.centerY,
+        isOutsideInMap: this.isOutsideInMap
+    };
+    return properties;
 };
 
 /**
@@ -272,4 +289,13 @@ Circle.prototype.dragAction = function(event) {
 Circle.prototype.wheelAction = function(event) {
     const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
     this.setRadius(this.radius * zoomFactor);
+};
+
+/**
+ * destroy the circle and all that depends on it
+ * make that there are no more references to this circle hanging around
+ * @method Circle#destroy
+ */
+Circle.prototype.destroy = function() {
+    this.gui.destroy();
 };

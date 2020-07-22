@@ -513,7 +513,6 @@ ColorInput.prototype.destroy = function() {
     this.textElement = null;
     this.colorElement.onmouseenter = null;
     this.colorElement.onmouseleave = null;
-    this.textElement.onmousedown = null;
     this.colorElement.oninput = null;
     this.colorElement.onchange = null;
     this.colorElement.remove();

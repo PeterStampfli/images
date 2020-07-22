@@ -225,7 +225,6 @@ function makeTextStream(word) {
 function analyzeText(text){
     console.log(text);
     const textLength = text.length;
-
     if (textLength >= 2) {
         // index of current word to word table and to transition table
         let currentWordIndex = 0; // begin of text
@@ -246,11 +245,8 @@ function analyzeText(text){
             // increase the transition frequencies
             toNextWordsFrequencies[nextWordIndex] += 1;
             wordsSumOfTransitionFrequencies[currentWordIndex] += 1;
-
-
             currentWordIndex = nextWordIndex;
         }
-
         // for the end of text we increase the sum of transitions
         // default for transitions is end of text
         wordsSumOfTransitionFrequencies[currentWordIndex] += 1;

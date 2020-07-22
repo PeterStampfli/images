@@ -59,22 +59,18 @@ map.mapping = function(point) {
 
 
 
-const circle=new Circle(gui);
 const d=Math.sqrt(3)/2;
 
-circle.setRadius(1);
-circle.setCenter(d,0);
-mirrors.add(circle)
+
+mirrors.makeGui(gui);
 
 
-const circle2=new Circle(gui,{radius:1,centerX:-0.5,id:99});
 
+mirrors.addCircle({radius:1,centerX:-d})
+mirrors.addCircle({radius:1,centerX:d})
 
-circle2.setRadius(1);
-circle2.setCenter(-d,0);
-
-mirrors.add(circle2)
-
+console.log(mirrors.getJSON())
+console.log(JSON.parse(mirrors.getJSON()))
 
 map.drawImageChanged = function() {
 map.draw();

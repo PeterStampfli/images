@@ -1,5 +1,14 @@
 /* jshint esversion: 6 */
 
+import {
+    map,
+    guiUtils
+} from "../libgui/modules.js";
+
+import {
+    Circle
+} from './modules.js';
+
 /**
  * collection of mirror objects, such as Circle and Line
  * @ namespace mirrors
@@ -14,30 +23,30 @@ mirrors.selected = false;
 
 // ids and colors for mirror objects
 
-let id=0;
+let id = 0;
 
 /**
-* get an id number
-* @method mirror.getId
-* @return integer id
-*/
-mirrors.getId=function(){
-    id+=1;
+ * get an id number
+ * @method mirror.getId
+ * @return integer id
+ */
+mirrors.getId = function() {
+    id += 1;
     return id;
 };
 
-let colorIndex=-1;
-const colors=['#ff0000','#00ff00','#ff00ff','#0000ff','#000000'];
+let colorIndex = -1;
+const colors = ['#ff0000', '#00ff00', '#ff00ff', '#0000ff', '#000000'];
 
 /**
-* get a color
-* @method mirrors.getColor
-* @return string, defines color
-*/
-mirrors.getColor=function(){
-    colorIndex+=1;
-    if (colorIndex>=colors.length){
-        colorIndex-=colors.length;
+ * get a color
+ * @method mirrors.getColor
+ * @return string, defines color
+ */
+mirrors.getColor = function() {
+    colorIndex += 1;
+    if (colorIndex >= colors.length) {
+        colorIndex -= colors.length;
     }
     return colors[colorIndex];
 };
@@ -45,11 +54,11 @@ mirrors.getColor=function(){
 // adding and removing mirrors
 
 /**
- * add a mirror to the collecction
- * @method mirrors.add
+ * add a mirror object to the collection
+ * @method mirrors.addMirror
  * @param {object}mirror - with all "mirror" methods
  */
-mirrors.add = function(mirror) {
+mirrors.addMirror = function(mirror) {
     const index = mirrors.collection.indexOf(mirror);
     if (index >= 0) {
         console.error('mirrors.add: mirror already there. It is:');
@@ -75,11 +84,56 @@ mirrors.remove = function(mirror) {
 };
 
 /**
- * delete all mirrors
+ * destroy all mirrors
  * @method mirrors.clear
  */
 mirrors.clear = function() {
+    mirrors.collection.forEach(mirror => mirror.destroy());
     mirrors.collection.length = 0;
+};
+
+/**
+ * add a circle as mirror
+ * @method mirrors.addCircle
+ * @param{ParamGui} gui 
+ * @param{object} properties - optional, radius, centerX, centerY, isOutsideInMap, color (all optional),id
+ */
+mirrors.addCircle = function(properties) {
+    mirrors.addMirror(new Circle(mirrors.gui, properties));
+};
+
+/**
+ * add a whatever as mirror
+ * @method mirrors.add
+ * @param{ParamGui} gui 
+ * @param{object} properties - mandatory field type:'circle',optionals: radius, centerX, centerY, isOutsideInMap, color (all optional),id
+ */
+mirrors.add = function(properties) {
+    if (properties.type === 'circle') {
+        mirrors.addCircle(properties);
+    }
+};
+
+/**
+ * make an array of properties for the mirrors, stringify it in JSON
+ * @method mirrors.getJSON
+ * @return JSON string
+ */
+mirrors.getJSON = function() {
+    const result = [];
+    mirrors.collection.forEach(mirror => result.push(mirror.getProperties()));
+    return JSON.stringify(result);
+};
+
+/**
+ * set the array of mirrors from a JSON string
+ * @method mirrors.setJSON
+ * @param {string} json
+ */
+mirrors.setJSON = function(json) {
+    const input = JSON.parse(json);
+    mirrors.clear();
+    input.forEach(properties => mirrors.add(properties));
 };
 
 /**
@@ -97,6 +151,36 @@ mirrors.draw = function() {
 // interaction with the mouse
 //==================================================
 
+/**
+ * make the gui and add some buttons
+ * @method mirrors.makeGui
+ * @param{Paramgui} parentGui
+ */
+mirrors.makeGui = function(parentGui) {
+    mirrors.gui = parentGui.addFolder('mirrors');
+    mirrors.gui.add({
+        type: 'button',
+        buttonText: 'add circle',
+        onClick: function() {
+            mirrors.addCircle();
+            map.drawMapChanged();
+        }
+    });
+    mirrors.deleteButton = mirrors.gui.add({
+        type: 'button',
+        buttonText: 'delete selected',
+        onClick: function() {
+            mirrors.deleteButton.setActive(false);
+            if (guiUtils.isObject(mirrors.selected)) {
+                mirrors.remove(mirrors.selected);
+                mirrors.selected.destroy();
+                mirrors.selected = false;
+                map.drawMapChanged();
+            }
+        }
+    });
+    mirrors.deleteButton.setActive(false);
+};
 
 /**
  * check if a mirror is selected depending on (mouse) position
@@ -126,6 +210,7 @@ mirrors.select = function(position) {
     for (var i = 0; i < length; i++) {
         if (mirrors.collection[i].isSelected(position)) {
             mirrors.selected = mirrors.collection[i];
+            mirrors.deleteButton.setActive(true);
             return;
         }
     }
@@ -161,27 +246,54 @@ mirrors.dragAction = function(event) {
 // basic, rudimentary
 
 // max number of iterations
-const maxIterations=20;
+const maxIterations = 20;
 
 /**
-* mapping, using the mirrors, repeat until no more mapping
-* or maximum number of iterations
-* @method mirrors.map
-* @param {object} point - with x,y,structureIndex and valid fields
-*/
-mirrors.map=function(point){
-    const collectionLength=mirrors.collection.length;
-    for (var i=0;i<maxIterations;i++){
-        let mapped=false;
-        for (var j=0;j<collectionLength;j++){
-            if (mirrors.collection[j].map(point)){
-                mapped=true;
-                point.structureIndex+=1;
+ * mapping, using the mirrors, repeat until no more mapping
+ * or maximum number of iterations
+ * @method mirrors.map
+ * @param {object} point - with x,y,structureIndex and valid fields
+ */
+mirrors.map = function(point) {
+    const collectionLength = mirrors.collection.length;
+    for (var i = 0; i < maxIterations; i++) {
+        let mapped = false;
+        for (var j = 0; j < collectionLength; j++) {
+            if (mirrors.collection[j].map(point)) {
+                mapped = true;
+                point.structureIndex += 1;
             }
         }
-        if (!mapped){
+        if (!mapped) {
             return;
         }
     }
-    point.valid=-1;   // invalid position/pixel
-}
+    point.valid = -1; // invalid position/pixel
+};
+
+// determine target regions of the mapping
+//===========================================
+
+// for each pixel
+// number of the target region its mapping goees to
+// region 0 contains infinity
+// region 255 is not a target
+// region 254 is unspecified target
+mirrors.targetRegions = new Uint8Array(1);
+
+/**
+ * determine of a point is inside any target region of combined mapping
+ * @method mirrors.isInTarget
+ * @param {object} position - with x and y fields, such as mouseEvents
+ * @return boolean, true if in target region (inside for outsideIn)
+ */
+mirrors.isInTarget = function(position) {
+    const length = mirrors.collection.length;
+    const collection = mirrors.collection;
+    for (var i = 0; i < length; i++) {
+        if (!collection[i].isInTarget(position)) {
+            return false;
+        }
+    }
+    return true;
+};
