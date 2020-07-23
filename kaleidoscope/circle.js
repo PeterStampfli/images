@@ -42,6 +42,7 @@ export function Circle(parentGui, properties) {
     this.centerY = 0;
     this.isOutsideInMap = true;
     this.mapDirection = outsideIn;
+    this.intersections=[];
     if (guiUtils.isObject(properties)) {
         Object.assign(this, properties);
     }
@@ -176,6 +177,22 @@ Circle.prototype.getProperties = function() {
         isOutsideInMap: this.isOutsideInMap
     };
     return properties;
+};
+
+/**
+* adjust the distance to another circle
+* moves center of this circle to or away from center of other circle
+* @method Circle#adjustDistanceToCircle
+* @param {number} distance
+* @param {Circle} circle
+*/
+Circle.prototype.adjustDistanceToCircle=function(distance,circle){
+const dx=this.centerX-circle.centerX;
+const dy=this.centerY-circle.centerY;
+const d=Math.hypot(dx,dy);
+const factor=distance/d;
+this.centerX=circle.centerX+factor*dx;
+this.centerY=circle.centerY+factor*dy;
 };
 
 /**

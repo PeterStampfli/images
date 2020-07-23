@@ -24,9 +24,13 @@ export {
 }
 from "./circle.js";
 
-
 export {
     mirrors
 }
 from "./mirrors.js";
+
+export {
+    Intersection
+}
+from "./intersection.js";
 

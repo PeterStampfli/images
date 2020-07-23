@@ -24,7 +24,8 @@ import {
 
 import {
     Circle,
-    mirrors
+    mirrors,
+    Intersection
 } from './modules.js';
 
 // basic setup
@@ -69,8 +70,12 @@ mirrors.makeGui(gui);
 mirrors.addCircle({radius:1,centerX:-d})
 mirrors.addCircle({radius:1,centerX:d})
 
-console.log(mirrors.getJSON())
-console.log(JSON.parse(mirrors.getJSON()))
+const is=new Intersection(mirrors.collection[0],mirrors.collection[1],4)
+console.log(is.distanceBetweenCenters())
+console.log(d)
+const dd=is.distanceBetweenCenters();
+
+mirrors.collection[0].adjustDistanceToCircle(dd,mirrors.collection[1])
 
 map.drawImageChanged = function() {
 map.draw();
@@ -97,8 +102,12 @@ output.mouseCtrlDownAction=function(event){
 
 
 output.mouseCtrlWheelAction=function(event){
+    if (event.shiftPressed){
+console.log('wheel')
+    } else {
     mirrors.wheelAction(event);
     map.drawMapChanged();
+}
 };
 
 output.mouseCtrlDragAction=function(event){
