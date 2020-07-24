@@ -70,25 +70,20 @@ mirrors.makeGui(gui);
 mirrors.addCircle({radius:1,centerX:-d})
 mirrors.addCircle({radius:1,centerX:d})
 
-const is=new Intersection(mirrors.collection[0],mirrors.collection[1],4)
-console.log(is.distanceBetweenCenters())
-console.log(d)
-const dd=is.distanceBetweenCenters();
+const is=new Intersection(mirrors.collection[0],mirrors.collection[1],5)
 
-mirrors.collection[0].adjustDistanceToCircle(dd,mirrors.collection[1])
 
 map.drawImageChanged = function() {
 map.draw();
     mirrors.draw()
 }
+Circle.draw = map.drawMapChanged;
 
-Circle.draw=map.drawMapChanged;
-
-output.mouseCtrlMoveAction=function(event){
-    if (mirrors.isSelected(event)){
-            output.canvas.style.cursor = "pointer";
+output.mouseCtrlMoveAction = function(event) {
+    if (mirrors.isSelected(event)) {
+        output.canvas.style.cursor = "pointer";
     } else {
-                    output.canvas.style.cursor = "default";
+        output.canvas.style.cursor = "default";
     }
     output.pixels.show();
     mirrors.draw(false);
@@ -100,14 +95,16 @@ output.mouseCtrlDownAction=function(event){
     mirrors.draw(false);
 };
 
+output.mouseCtrlWheelAction = function(event) {
+    if (event.shiftPressed) {
+        console.log('wheel')
+        is.incDecN(event.wheelDelta);
+        map.drawMapChanged();
 
-output.mouseCtrlWheelAction=function(event){
-    if (event.shiftPressed){
-console.log('wheel')
     } else {
-    mirrors.wheelAction(event);
-    map.drawMapChanged();
-}
+        mirrors.wheelAction(event);
+        map.drawMapChanged();
+    }
 };
 
 output.mouseCtrlDragAction=function(event){

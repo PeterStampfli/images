@@ -200,6 +200,16 @@ mirrors.isSelected = function(position) {
 };
 
 /**
+* set a mirror as selected, and set that it can be deleted
+* @method mirrors.setSelected
+* @param {Mirror object} mirror
+*/
+mirrors.setSelected=function(mirror){
+           mirrors.selected = mirror;
+            mirrors.deleteButton.setActive(true);
+};
+
+/**
  * select a mirror depending on (mouse) position
  * for a mouse ctrl down event
  * @method mirrors.select
@@ -209,9 +219,8 @@ mirrors.select = function(position) {
     const length = mirrors.collection.length;
     for (var i = 0; i < length; i++) {
         if (mirrors.collection[i].isSelected(position)) {
-            mirrors.selected = mirrors.collection[i];
-            mirrors.deleteButton.setActive(true);
-            return;
+            mirrors.setSelected(mirrors.collection[i]);
+             return;
         }
     }
 };

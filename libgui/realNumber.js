@@ -199,7 +199,9 @@ RealNumber.prototype.setInputRangeIndicator = function(value) {
     if (this.range) {
         this.range.value = text;
     }
+    const cursorPosition = this.input.selectionStart;
     this.input.value = text;
+    this.input.setSelectionRange(cursorPosition, cursorPosition);
     if (this.indicatorElement) {
         let pos = 100 * (value - this.minValue);
         if (this.cyclic) {

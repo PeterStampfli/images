@@ -274,7 +274,7 @@ map.updateColorTable = function() {
 map.makeNewColorTable = function(gui, nColors) {
     map.colors.length = 0;
     for (var i = 0; i < nColors; i++) {
-        const light = Math.floor(255 * i / (nColors - 1));
+        const light = Math.floor(255 * (i+0.75) / nColors );
         const color = {
             red: light,
             green: light,
