@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> kaleidoscope in progress</title>
+</head>
+
+<body>
+</body>
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    Pixels,
+    ParamGui,
+    output,
+    map,
+    guiUtils
+} from "../libgui/modules.js";
+
+import {
+    Circle,
+    mirrors,
+    Intersection
+} from './modules.js';
+
+// basic setup
+const gui=new ParamGui({name:'test',closed:false});
+
+// an output canvas and some test image
+const outputGui=gui.addFolder('output image');
+output.createCanvas(outputGui);
+
+output.canvas.style.backgroundColor='grey';
+output.createPixels();
+const canvas = output.canvas;
+const canvasContext = output.canvasContext;
+outputGui.addParagraph('coordinate transform');
+output.addCoordinateTransform(outputGui, false);
+output.setInitialCoordinates(0, 0, 3);
+map.setOutputDraw();
+const inputGui=gui.addFolder('input image');
+map.inputImage = '../libgui/testimage.jpg';
+map.setupInputImage(inputGui);
+const regionGui=gui.addFolder('regions');
+
+map.regionControl(regionGui, 2);
+
+map.makeNewColorTable(regionGui, 2);
+
+// setup mapping show structure
+//point.x ,.y.structureIndex
+map.mapping = function(point) {
+    mirrors.map(point);
+};
+
+
+
+const d=Math.sqrt(3)/2;
+
+
+mirrors.makeGui(gui);
+
+
+
+mirrors.addCircle({radius:1,centerX:-d})
+mirrors.addCircle({radius:1,centerX:d})
+
+const is=new Intersection(mirrors.collection[0],mirrors.collection[1],5)
+
+
+map.drawImageChanged = function() {
+map.draw();
+    mirrors.draw()
+}
+Circle.draw = map.drawMapChanged;
+
+output.mouseCtrlMoveAction = function(event) {
+    if (mirrors.isSelected(event)) {
+        output.canvas.style.cursor = "pointer";
+    } else {
+        output.canvas.style.cursor = "default";
+    }
+    output.pixels.show();
+    mirrors.draw(false);
+};
+
+output.mouseCtrlDownAction=function(event){
+    mirrors.select(event);
+    output.pixels.show();
+    mirrors.draw(false);
+};
+
+output.mouseCtrlWheelAction = function(event) {
+    if (event.shiftPressed) {
+        console.log('wheel')
+        is.incDecN(event.wheelDelta);
+        map.drawMapChanged();
+
+    } else {
+        mirrors.wheelAction(event);
+        map.drawMapChanged();
+    }
+};
+
+output.mouseCtrlDragAction=function(event){
+    mirrors.dragAction(event);
+    map.drawMapChanged();
+};
+
+output.firstDrawing();
+
+
+</script>
+
+</html>

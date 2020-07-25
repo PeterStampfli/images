@@ -73,10 +73,23 @@ export function Circle(parentGui, properties) {
         params: this,
         property: 'centerX',
         labelText: 'center: x',
-        onChange: function() {
+        onChange: function(x) {
             mirrors.setSelected(circle);
-             circle.setCenter(circle.centerX,circle.centerY);
-           console.log('centerX changed');
+            if (circle.intersections.length === 1) {
+                // only one intersection: adjust y-coordinate to get a rotation of center
+                // x- coordinate restricted to range of d around center of other circcle
+                const intersection = circle.intersections[0];
+                const d = intersection.distanceBetweenCenters();
+                const otherMirror = intersection.getOtherMirror(circle);
+                const otherCenterX = otherMirror.centerX;
+                const otherCenterY = otherMirror.centerY;
+                const dx = Math.min(d, Math.max(-d, x - otherCenterX));
+                if (circle.centerY < otherCenterY) {
+                    circle.setCenter(otherCenterX + dx, otherCenterY - Math.sqrt(d * d - dx * dx));
+                } else {
+                    circle.setCenter(otherCenterX + dx, otherCenterY + Math.sqrt(d * d - dx * dx));
+                }
+            }
             Circle.draw();
         }
     });
@@ -85,9 +98,23 @@ export function Circle(parentGui, properties) {
         params: this,
         property: 'centerY',
         labelText: ' y',
-        onChange: function() {
+        onChange: function(y) {
             mirrors.setSelected(circle);
-             circle.setCenter(circle.centerX,circle.centerY);
+            if (circle.intersections.length === 1) {
+                // only one intersection: adjust x-coordinate to get a rotation of center
+                // y- coordinate restricted to range of d around center of other circcle
+                const intersection = circle.intersections[0];
+                const d = intersection.distanceBetweenCenters();
+                const otherMirror = intersection.getOtherMirror(circle);
+                const otherCenterX = otherMirror.centerX;
+                const otherCenterY = otherMirror.centerY;
+                const dy = Math.min(d, Math.max(-d, y - otherCenterY));
+                if (circle.centerX < otherCenterX) {
+                    circle.setCenter(otherCenterX - Math.sqrt(d * d - dy * dy), otherCenterY + dy);
+                } else {
+                    circle.setCenter(otherCenterX + Math.sqrt(d * d - dy * dy), otherCenterY + dy);
+                }
+            }
             Circle.draw();
         }
     });
@@ -97,8 +124,8 @@ export function Circle(parentGui, properties) {
         property: 'mapDirection',
         options: [outsideIn, insideOut],
         onChange: function() {
-             mirrors.setSelected(circle);
-             circle.setIsOutsideInMap (circle.mapDirection === outsideIn);
+            mirrors.setSelected(circle);
+            circle.setIsOutsideInMap(circle.mapDirection === outsideIn);
             console.log('mapDirection changed', circle.isOutsideInMap);
             Circle.draw();
         }
