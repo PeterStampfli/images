@@ -172,7 +172,6 @@ mirrors.makeGui = function(parentGui) {
         onClick: function() {
             mirrors.deleteButton.setActive(false);
             if (guiUtils.isObject(mirrors.selected)) {
-                mirrors.remove(mirrors.selected);
                 mirrors.selected.destroy();
                 mirrors.selected = false;
                 map.drawMapChanged();

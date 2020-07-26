@@ -216,6 +216,75 @@ Circle.prototype.getProperties = function() {
 };
 
 /**
+ * activate ui depending on number of intersections
+ * call when number of intersections changes
+ * @method Circle.activateUI
+ */
+Circle.prototype.activateUI = function() {
+    switch (this.intersections.length) {
+        case 0:
+            this.radiusController.setActive(true);
+            this.centerXController.setActive(true);
+            this.centerYController.setActive(true);
+            break;
+        case 1:
+            this.radiusController.setActive(true);
+            this.centerXController.setActive(true);
+            this.centerYController.setActive(true);
+            break;
+        case 2:
+            this.radiusController.setActive(true);
+            this.centerXController.setActive(false);
+            this.centerYController.setActive(false);
+            break;
+        case 3:
+            this.radiusController.setActive(false);
+            this.centerXController.setActive(false);
+            this.centerYController.setActive(false);
+            break;
+    }
+};
+
+/**
+ * add an intersection
+ * @method Circle#addIntersection
+ * @param {Intersection} intersection
+ */
+Circle.prototype.addIntersection = function(intersection) {
+    if (this.intersections.length > 2) {
+        console.error('Circle.addIntersection: Circle has more than 2 intersections, cannot add more. Intersection:');
+        console.log(intersection);
+        console.log(this.intersections);
+    } else {
+        for (var i = 0; i < this.intersections.length; i++) {
+            if (this === this.intersections[i].getOtherMirror(this)) {
+                console.error('Circle#addIntersection: This intersection is already there:');
+                console.log(intersection);
+                console.log(this.intersections);
+            }
+        }
+        this.intersections.push(intersection);
+        this.activateUI();
+    }
+};
+
+/**
+ * remove an intersection
+ * @method Circle#removeIntersection
+ * @param {Intersection} intersection
+ */
+Circle.prototype.removeIntersection = function(intersection) {
+    const index = this.intersections.indexOf(intersection);
+    if (index >= 0) {
+        this.intersections.splice(index, 1);
+    } else {
+        console.error('Circle.removeIntersection: intersection not found. It is:');
+        console.log(intersection);
+        console.log(this.intersections);
+    }
+};
+
+/**
  * adjust the distance to another circle
  * moves center of this circle to or away from center of other circle
  * @method Circle#adjustDistanceToCircle
@@ -232,12 +301,12 @@ Circle.prototype.adjustDistanceToCircle = function(distance, circle) {
 };
 
 /**
- * adjust circle to intersections
+ * adjust circle to intersections when some parameters change
  * nothing to do if there is no intersection
  * update the UI after calling this!!
  * adjust distance to other circcle if there is only one interssection
  *....
- * @method Circlee#adjustToIntersections
+ * @method Circle#adjustToIntersections
  */
 Circle.prototype.adjustToIntersections = function() {
     switch (this.intersections.length) {
@@ -247,6 +316,9 @@ Circle.prototype.adjustToIntersections = function() {
             const d = this.intersections[0].distanceBetweenCenters();
             const otherMirror = this.intersections[0].getOtherMirror(this);
             this.adjustDistanceToCircle(d, otherMirror);
+            return;
+        case 2:
+            console.log('2 intersections');
             return;
     }
 };
@@ -352,7 +424,6 @@ Circle.prototype.dragAction = function(event) {
     this.setCenter(this.centerX + event.dx, this.centerY + event.dy);
 };
 
-
 /**
  * mouse wheel on the circle
  * action depends on intersections
@@ -371,4 +442,6 @@ Circle.prototype.wheelAction = function(event) {
  */
 Circle.prototype.destroy = function() {
     this.gui.destroy();
+    mirrors.remove(this);
+    this.intersections.forEach(intersection => intersection.destroy());
 };

@@ -6,7 +6,7 @@ import {
 
 /**
  * intersection between mirrors, making a definite n-fold dihedral symmetry
- * NOTE: this may require adjustments elsewhere
+ * makes that one of the mirrors adjusts (seleected one preferred)
  * @constructor Intersection
  * @params {Mirror} mirror1
  * @params {Mirror} mirror2
@@ -14,19 +14,11 @@ import {
  */
 
 export function Intersection(mirror1, mirror2, n = 3) {
-    if (mirror1.intersections.length > 2) {
-        console.error('Intersection: Circle1 has more than 2 intersections, cannot add more. Circle1:');
-        console.log(mirror1.intersections);
-    } else if (mirror2.intersections.length > 2) {
-        console.error('Intersection: Circle2 has more than 2 intersections, cannot add more. Circle2:');
-        console.log(mirror2.intersections);
-    } else {
-        mirror1.intersections.push(this);
-        mirror2.intersections.push(this);
-    }
     this.mirror1 = mirror1;
     this.mirror2 = mirror2;
     this.setN(n);
+    mirror1.addIntersection(this);
+    mirror2.addIntersection(this);
 }
 
 /**
