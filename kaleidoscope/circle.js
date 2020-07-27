@@ -285,27 +285,56 @@ Circle.prototype.removeIntersection = function(intersection) {
 };
 
 /**
- * adjust the distance to another circle
+ * adjust the distance to another circle for a single intersection
  * moves center of this circle to or away from center of other circle
- * @method Circle#adjustDistanceToCircle
- * @param {number} distance
- * @param {Circle} circle
+ * @method Circle#adjustOneIntersection
  */
-Circle.prototype.adjustDistanceToCircle = function(distance, circle) {
-    const dx = this.centerX - circle.centerX;
-    const dy = this.centerY - circle.centerY;
+Circle.prototype.adjustOneIntersection = function() {
+    const distance = this.intersections[0].distanceBetweenCenters();
+    const otherMirror = this.intersections[0].getOtherMirror(this);
+    const dx = this.centerX - otherMirror.centerX;
+    const dy = this.centerY - otherMirror.centerY;
     const d = Math.hypot(dx, dy);
     const factor = distance / d;
-    this.centerX = circle.centerX + factor * dx;
-    this.centerY = circle.centerY + factor * dy;
+    this.centerX = otherMirror.centerX + factor * dx;
+    this.centerY = otherMirror.centerY + factor * dy;
+};
+
+/**
+ * for two intersections adjust position of circle
+ * @method Circle#adjustTwoIntersections
+ */
+Circle.prototype.adjustTwoIntersections = function() {
+    const intersection1 = this.intersections[0];
+    const intersection2 = this.intersections[1];
+    const otherMirror1 = intersection1.getOtherMirror(this);
+    const otherMirror2 = intersection2.getOtherMirror(this);
+    const center1X = otherMirror1.centerX;
+    const center1Y = otherMirror1.centerY;
+    const center2X = otherMirror2.centerX;
+    const center2Y = otherMirror2.centerY;
+    let e12X = center2X - center1X;
+    let e12Y = center2Y - center1Y;
+    const d = Math.hypot(e12X, e12Y);
+    e12X /= d;
+    e12Y /= d;
+    let d1=intersection1.distanceBetweenCenters();
+    let d2=intersection2.distanceBetweenCenters();
+    console.log(d,d1,d2);
+    // determine minimum radius
+    if (d>d1+d2){
+        console.log('radius too small');
+        
+    }
+
 };
 
 /**
  * adjust circle to intersections when some parameters change
  * nothing to do if there is no intersection
  * update the UI after calling this!!
- * adjust distance to other circcle if there is only one interssection
- *....
+ * adjust distance to other circle if there is only one interssection
+ * adjust podition of circle if there are two intersections
  * @method Circle#adjustToIntersections
  */
 Circle.prototype.adjustToIntersections = function() {
@@ -313,12 +342,11 @@ Circle.prototype.adjustToIntersections = function() {
         case 0:
             return;
         case 1:
-            const d = this.intersections[0].distanceBetweenCenters();
-            const otherMirror = this.intersections[0].getOtherMirror(this);
-            this.adjustDistanceToCircle(d, otherMirror);
+            this.adjustOneIntersection();
             return;
         case 2:
             console.log('2 intersections');
+            this.adjustTwoIntersections();
             return;
     }
 };

@@ -26,12 +26,24 @@ export function Intersection(mirror1, mirror2, n = 3) {
  * ok, becomes more complicated if there are mirror lines too
  * resulting from their radius, mapping direction and n
  * @method Intersection#distanceBetweenCenters
+ * @return number, required distance between centers
  */
 Intersection.prototype.distanceBetweenCenters = function() {
     const sign = (this.mirror1.isOutsideInMap === this.mirror2.isOutsideInMap) ? 1 : -1;
     const cosAlpha = Math.cos(Math.PI / this.n);
     const d2 = this.mirror1.radius2 + this.mirror2.radius2 + 2 * sign * this.mirror1.radius * this.mirror2.radius * cosAlpha;
     return Math.sqrt(d2);
+};
+
+/**
+* calculate sign times cos(angle)
+* @method Intersection#signCosAngle
+* @return number
+*/
+Intersection.prototype.signCosAngle = function() {
+    const sign = (this.mirror1.isOutsideInMap === this.mirror2.isOutsideInMap) ? 1 : -1;
+    const cosAlpha = Math.cos(Math.PI / this.n);
+    return sign*cosAlpha;
 };
 
 /**
