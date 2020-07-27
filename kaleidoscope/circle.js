@@ -301,10 +301,12 @@ Circle.prototype.adjustOneIntersection = function() {
 };
 
 /**
- * for two intersections adjust position of circle
- * @method Circle#adjustTwoIntersections
+ * for two intersections, calculate the two center positions
+ * @method Circle#centerPositionsTwoIntersections
+ * @param {object} pos1 - with x- and y fields
+ * @param {object} pos2 - with x- and y fields
  */
-Circle.prototype.adjustTwoIntersections = function() {
+Circle.prototype.centerPositionsTwoIntersections = function(pos1,pos2) {
     const intersection1 = this.intersections[0];
     const intersection2 = this.intersections[1];
     const otherMirror1 = intersection1.getOtherMirror(this);
@@ -313,20 +315,53 @@ Circle.prototype.adjustTwoIntersections = function() {
     const center1Y = otherMirror1.centerY;
     const center2X = otherMirror2.centerX;
     const center2Y = otherMirror2.centerY;
-    let e12X = center2X - center1X;
-    let e12Y = center2Y - center1Y;
-    const d = Math.hypot(e12X, e12Y);
-    e12X /= d;
-    e12Y /= d;
-    let d1=intersection1.distanceBetweenCenters();
-    let d2=intersection2.distanceBetweenCenters();
-    console.log(d,d1,d2);
+    let center1To2X = center2X - center1X;
+    let center1To2Y = center2Y - center1Y;
+    // the actual distances between centers
+    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+    // the required distances from center of this circle
+    let distanceToCenter1 = intersection1.distanceBetweenCenters();
+    let distanceToCenter2 = intersection2.distanceBetweenCenters();
+    console.log(distanceCenter1To2, distanceToCenter1, distanceToCenter2);
     // determine minimum radius
-    if (d>d1+d2){
+    if (distanceCenter1To2 > distanceToCenter1 + distanceToCenter2) {
         console.log('radius too small');
-        
+        // solve the system of two quadratic equations: 
+        // do the resulting linear equation part
+        const coeff1 = 2 * otherMirror1.radius * intersection1.signCosAngle();
+        const coeff2 = 2 * otherMirror2.radius * intersection2.signCosAngle();
+        const radius1Square = otherMirror1.radius2;
+        const radius2Square = otherMirror2.radius2;
+        // coefficients for the linear equation for this.radius
+        const a0 = 0.5 * (distanceCenter1To2 + (radius1Square - radius2Square) / distanceCenter1To2);
+        const a1 = 0.5 * (coeff1 - coeff2) / distanceCenter1To2;
+        // setup the quadratic equation
+        const a = 1 - a1 * a1;
+        const b = coeff1 - 2 * a0 * a1;
+        const c = radius1Square - a0 * a0;
+        const data = {};
+        guiUtils.quadraticEquation(a, b, c, data);
+        console.log(data);
+        // the smaller solution is negative, take the larger positive one
+        console.log('new radius');
+        this.radius = data.y;
+        this.radius2 = data.y * data.y;
+        // recalculate distances to the other centers
+        distanceToCenter1 = intersection1.distanceBetweenCenters();
+        distanceToCenter2 = intersection2.distanceBetweenCenters();
     }
-
+    // midpoint of the two solutions on the line between the two other centers
+    const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
+    let xi = parallelPosition / distanceCenter1To2;
+    const px = center1X + center1To2X * xi;
+    const py = center1Y + center1To2Y * xi;
+    // get the two solutions from the displacement perpendicular
+    const perpendicularPosition = Math.sqrt(distanceToCenter1 * distanceToCenter1 - parallelPosition * parallelPosition);
+    xi = perpendicularPosition / distanceCenter1To2;
+    pos1.x = px + center1To2Y * xi;
+    pos1.y = py - center1To2X * xi;
+    pos2.x = px - center1To2Y * xi;
+    pos2.y = py + center1To2X * xi;
 };
 
 /**
@@ -346,7 +381,9 @@ Circle.prototype.adjustToIntersections = function() {
             return;
         case 2:
             console.log('2 intersections');
-            this.adjustTwoIntersections();
+            const pos1 = {};
+            const pos2 = {};
+            this.centerPositionsTwoIntersections(pos1, pos2);
             return;
     }
 };

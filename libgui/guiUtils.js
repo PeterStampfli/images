@@ -538,3 +538,32 @@ guiUtils.regulaFalsi = function(fun, x1, x2, acc) {
     }
     console.error('regulaFalsi: not converged');
 };
+
+
+/**
+ * solve quadratic equation ax**2+bx+c=0
+ * only for real solutions
+ * solutions are in Fast.xLow and Fast.xHigh
+ * @method guiUtils.quadraticEquation
+ * @param {float} a - has to be diffferent from zero, check before !!!
+ * @param {float} b
+ * @param {float} c
+ * @param {Vector2} data - x and y fields are the lower and higher solutions, data.x < data.y
+ * @return {boolean} true if there are real solutions
+ */
+guiUtils.quadraticEquation = function(a, b, c, data) {
+    const rootArg = b * b - 4 * a * c;
+    if (rootArg < 0) {
+        data.x = 0;
+        data.y = 0;
+        return false;
+    }
+    if (b > 0) {
+        data.x = 0.5 * (-b - Math.sqrt(rootArg)) / a;
+        data.y = c / a / data.x;
+    } else {
+        data.y = 0.5 * (-b + Math.sqrt(rootArg)) / a;
+        data.x = c / a / data.y;
+    }
+    return true;
+};
