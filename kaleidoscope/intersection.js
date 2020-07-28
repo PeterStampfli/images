@@ -6,7 +6,8 @@ import {
 
 /**
  * intersection between mirrors, making a definite n-fold dihedral symmetry
- * makes that one of the mirrors adjusts (seleected one preferred)
+ * makes that one of the mirrors adjusts (selected one preferred)
+ * adjust later
  * @constructor Intersection
  * @params {Mirror} mirror1
  * @params {Mirror} mirror2

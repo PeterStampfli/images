@@ -58,28 +58,24 @@ map.mapping = function(point) {
     mirrors.map(point);
 };
 
-let r=5;
 
-let d=1.84;
 
-d=d/Math.sqrt(3)*r;
+const d=Math.sqrt(3);
+
+
 mirrors.makeGui(gui);
 
 const rt32=Math.sqrt(3)/2;
 
-mirrors.addCircle({radius:r,centerX:0,centerY:d,isOutsideInMap:false})
-mirrors.addCircle({radius:r,centerX:d*rt32,centerY:-0.5*d,isOutsideInMap:false})
-mirrors.addCircle({radius:r,centerX:-d*rt32,centerY:-0.5*d,isOutsideInMap:false})
+mirrors.addCircle({radius:1,centerX:0,centerY:1,isOutsideInMap:false})
+mirrors.addCircle({radius:1,centerX:rt32,centerY:-0.5,isOutsideInMap:false})
+mirrors.addCircle({radius:1,centerX:-rt32,centerY:-0.5,isOutsideInMap:false})
 
-const is=new Intersection(mirrors.collection[0],mirrors.collection[1],4)
-mirrors.collection[0].adjustToIntersections();
-const is2=new Intersection(mirrors.collection[0],mirrors.collection[2],4)
-mirrors.collection[0].adjustToIntersections();
+const is=new Intersection(mirrors.collection[0],mirrors.collection[1],3)
+const is2=new Intersection(mirrors.collection[0],mirrors.collection[2],3)
+const is3=new Intersection(mirrors.collection[1],mirrors.collection[2],3)
 
-const is3=new Intersection(mirrors.collection[1],mirrors.collection[2],4)
-mirrors.collection[1].adjustToIntersections();
 
-mirrors.addCircle({radius:d-0.97*r,isOutsideInMap:false})
 map.drawImageChanged = function() {
 map.draw();
     mirrors.draw()

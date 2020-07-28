@@ -362,6 +362,28 @@ Circle.prototype.centerPositionsTwoIntersections = function(pos1, pos2) {
     pos2.y = py + center1To2X * xi;
 };
 
+
+/**
+ * for three intersections, calculate the two center positions
+ * @method Circle#centerPositionsThreeIntersections
+ * @param {object} pos1 - with x- and y fields
+ * @param {object} pos2 - with x- and y fields
+ */
+Circle.prototype.centerPositionsThreeIntersections = function(pos1, pos2) {
+    const intersection1 = this.intersections[0];
+    const intersection2 = this.intersections[1];
+    const intersection3 = this.intersections[2];
+    const otherMirror1 = intersection1.getOtherMirror(this);
+    const otherMirror2 = intersection2.getOtherMirror(this);
+    const otherMirror3 = intersection3.getOtherMirror(this);
+    const center1X = otherMirror1.centerX;
+    const center1Y = otherMirror1.centerY;
+    const center2X = otherMirror2.centerX;
+    const center2Y = otherMirror2.centerY;
+    const center3X = otherMirror3.centerX;
+    const center3Y = otherMirror3.centerY;
+};
+
 /**
  * adjust circle to intersections when some parameters change
  * nothing to do if there is no intersection
@@ -393,6 +415,12 @@ Circle.prototype.adjustToIntersections = function() {
                 this.centerY = pos2.y;
                 this.centerX = pos2.x;
             }
+            return;
+        case 3:
+            console.log('3 intersections');
+
+            // determine the two possible positions
+            this.centerPositionsThreeIntersections(pos1, pos2);
             return;
     }
 };
@@ -519,6 +547,8 @@ Circle.prototype.dragAction = function(event) {
                 this.centerX = pos2.x;
             }
             return;
+        case 3:
+            return; // fixed position, no drag
     }
 };
 
