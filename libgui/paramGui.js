@@ -1119,6 +1119,9 @@ ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
 /**
  * add a "paragraph" (its actually a div with optional inner html)
  * text wraps automatically (rewraps if scroll bar appears)
+ * you can change its text with para.innerHTML = innerHTML;
+ * you can delete it with para.remove();
+ * you can style it
  * @method ParamGui#addParagraph
  * @param {String} text - with HTML markup (=>innerHTML)
  * @return the html <p> element, for futher formatting, in case

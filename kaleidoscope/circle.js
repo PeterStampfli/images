@@ -49,9 +49,13 @@ export function Circle(parentGui, properties) {
     if (!guiUtils.isNumber(this.id)) {
         this.id = mirrors.getId();
     }
-    if (!guiUtils.isString(this.id)) {
+    if (!guiUtils.isString(this.color)) {
         this.color = mirrors.getColor();
     }
+    this.radius2 = this.radius * this.radius;
+    const direction = (this.isOutsideInMap) ? outsideIn : insideOut;
+    this.mapDirection = direction;
+
     const circle = this;
     // controllers: do not do things with them from the outside
     this.gui = parentGui.addFolder('Circle ' + this.id);
@@ -139,8 +143,6 @@ export function Circle(parentGui, properties) {
             Circle.draw();
         }
     });
-    this.setRadius(this.radius);
-    this.setIsOutsideInMap(this.isOutsideInMap);
 }
 
 /**
@@ -315,15 +317,16 @@ Circle.prototype.centerPositionsTwoIntersections = function(pos1, pos2) {
     const center1Y = otherMirror1.centerY;
     const center2X = otherMirror2.centerX;
     const center2Y = otherMirror2.centerY;
-    let center1To2X = center2X - center1X;
-    let center1To2Y = center2Y - center1Y;
-    // the actual distances between centers
+    const center1To2X = center2X - center1X;
+    const center1To2Y = center2Y - center1Y;
+    // the actual distances between centers of other circles
     const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
-    // the required distances from center of this circle
+    // the required distances from center of this circle to the other circles
     let distanceToCenter1 = intersection1.distanceBetweenCenters();
     let distanceToCenter2 = intersection2.distanceBetweenCenters();
-    // determine minimum radius
+    // check if we can form a triangle
     if (distanceCenter1To2 > distanceToCenter1 + distanceToCenter2) {
+        // determine the minimum distance
         // solve the system of two quadratic equations: 
         // do the resulting linear equation part
         const coeff1 = 2 * otherMirror1.radius * intersection1.signCosAngle();
@@ -338,10 +341,16 @@ Circle.prototype.centerPositionsTwoIntersections = function(pos1, pos2) {
         const b = coeff1 - 2 * a0 * a1;
         const c = radius1Square - a0 * a0;
         const data = {};
-        guiUtils.quadraticEquation(a, b, c, data);
-        // the smaller solution is negative, take the larger positive one
-        this.radius = data.y;
-        this.radius2 = data.y * data.y;
+        if (guiUtils.quadraticEquation(a, b, c, data)) {
+            // the smaller solution is negative, take the larger positive one
+            this.radius = data.y;
+            this.radius2 = data.y * data.y;
+        } else {
+            console.error('Circle#centerPositionsTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
+            console.log(this);
+            this.radius = 1;
+            this.radius2 = 1;
+        }
         // recalculate distances to the other centers
         distanceToCenter1 = intersection1.distanceBetweenCenters();
         distanceToCenter2 = intersection2.distanceBetweenCenters();
@@ -362,26 +371,114 @@ Circle.prototype.centerPositionsTwoIntersections = function(pos1, pos2) {
     pos2.y = py + center1To2X * xi;
 };
 
-
 /**
- * for three intersections, calculate the two center positions
- * @method Circle#centerPositionsThreeIntersections
+ * solution for three intersections
+ * there are two possible solutions for the radius
+ * the resulting centers may be close to each other
+ * take the radius that is closer to the current radius
+ * @method Circle#solveThreeIntersections
  * @param {object} pos1 - with x- and y fields
  * @param {object} pos2 - with x- and y fields
  */
-Circle.prototype.centerPositionsThreeIntersections = function(pos1, pos2) {
+Circle.prototype.solveThreeIntersections = function(pos1, pos2) {
     const intersection1 = this.intersections[0];
     const intersection2 = this.intersections[1];
     const intersection3 = this.intersections[2];
     const otherMirror1 = intersection1.getOtherMirror(this);
     const otherMirror2 = intersection2.getOtherMirror(this);
     const otherMirror3 = intersection3.getOtherMirror(this);
+    console.log(otherMirror1)
+    console.log(otherMirror2)
+    console.log(otherMirror3)
     const center1X = otherMirror1.centerX;
     const center1Y = otherMirror1.centerY;
+    const center1Square = center1X * center1X + center1Y * center1Y;
     const center2X = otherMirror2.centerX;
     const center2Y = otherMirror2.centerY;
+    const center2Square = center2X * center2X + center2Y * center2Y;
     const center3X = otherMirror3.centerX;
     const center3Y = otherMirror3.centerY;
+    const center3Square = center3X * center3X + center3Y * center3Y;
+    const center1To2X = center2X - center1X;
+    const center1To2Y = center2Y - center1Y;
+    const center1To3X = center3X - center1X;
+    const center1To3Y = center3Y - center1Y;
+    const coeff1 = 2 * otherMirror1.radius * intersection1.signCosAngle();
+    const coeff2 = 2 * otherMirror2.radius * intersection2.signCosAngle();
+    const coeff3 = 2 * otherMirror3.radius * intersection3.signCosAngle();
+    console.log(coeff1,coeff2,coeff3);
+    const radius1Square = otherMirror1.radius2;
+    const radius2Square = otherMirror2.radius2;
+    const radius3Square = otherMirror3.radius2;
+    // the system of linear equations for the center of this circle
+    const denom = center1To2X * center1To3Y - center1To3X * center1To2Y;
+    const g13 = 0.5 * (coeff1 - coeff3);
+    const g21 = 0.5 * (coeff2 - coeff1);
+    const g32 = 0.5 * (coeff3 - coeff2);
+    console.log(g13,g21,g32);
+    const f13 = 0.5 * (otherMirror3.radius2 - otherMirror1.radius2 - center3Square + center1Square);
+    const f21 = 0.5 * (otherMirror1.radius2 - otherMirror2.radius2 - center1Square + center2Square);
+    const f32 = 0.5 * (otherMirror2.radius2 - otherMirror3.radius2 - center2Square + center3Square);
+
+console.log(f13,f21,f32)
+    // coefficients of the linear equation for this circle center as a function of r
+    const a0 = (f32 * center1Y + f21 * center3Y + f13 * center2Y) / denom;
+    const a1 = (g32 * center1Y + g21 * center3Y + g13 * center2Y) / denom;
+    const b0 = (f32 * center1X + f21 * center3X + f13 * center2X) / denom;
+    const b1 = (g32 * center1X + g21 * center3X + g13 * center2X) / denom;
+    // setting up the quadratic equation for r
+    const a = 1 - a1 * a1 - b1 * b1;
+    const b = coeff1 - 2 * a1 * (a0 - center1X) - 2 * b1 * (b0 - center1Y);
+    const c = otherMirror1.radius2 - (a0 - center1X) * (a0 - center1X) - (b0 - center1Y) * (b0 - center1Y);
+    const data = {};
+    console.log(a,b,c);
+    if (!guiUtils.quadraticEquation(a, b, c, data)) {
+        console.error('Circle#centerPositionsThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
+        console.log(this);
+        // some surrogate radius
+    //    this.radius = 1;
+    } else if (data.y < 0) {
+        console.error('Circle#centerPositionsThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
+        console.log(this);
+        // some surrogate radius
+        this.radius = 1;
+    } else if (data.x < 0) {
+        // only one positive solution
+        this.radius = data.y;
+    } else {
+        // choose solution closer to this.radius
+        if (Math.abs(data.x - this.radius) < Math.abs(data.y - this.radius)) {
+            this.radius = data.x;
+        } else {
+            this.radius = data.y;
+        }
+    }
+    console.log(this.radius)
+    this.radius2 = this.radius * this.radius;
+    // now determine the position of the center
+    // we get two solutions from the first two intersections,
+    // choose the one with the better result for the third intersection
+        // the actual distances between centers of other circles
+    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+    // required distances
+  const     distanceToCenter1 = intersection1.distanceBetweenCenters();
+   const     distanceToCenter2 = intersection2.distanceBetweenCenters();
+   const     distanceToCenter3 = intersection3.distanceBetweenCenters();
+    // midpoint of the two solutions on the line between the two other centers
+    const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
+    let xi = parallelPosition / distanceCenter1To2;
+    const px = center1X + center1To2X * xi;
+    const py = center1Y + center1To2Y * xi;
+    // get the two solutions from the displacement perpendicular
+    // danger: root of negative number
+    const perpSquare = distanceToCenter1 * distanceToCenter1 - parallelPosition * parallelPosition;
+    const perpendicularPosition = Math.sqrt(Math.max(0, perpSquare));
+    xi = perpendicularPosition / distanceCenter1To2;
+    const pos1x = px + center1To2Y * xi;
+    const pos1y = py - center1To2X * xi;
+    const pos2x = px - center1To2Y * xi;
+    const pos2y = py + center1To2X * xi;
+
 };
 
 /**
@@ -419,8 +516,7 @@ Circle.prototype.adjustToIntersections = function() {
         case 3:
             console.log('3 intersections');
 
-            // determine the two possible positions
-            this.centerPositionsThreeIntersections(pos1, pos2);
+            this.solveThreeIntersections();
             return;
     }
 };

@@ -71,6 +71,7 @@ mirrors.addCircle({radius:1,centerX:-d})
 mirrors.addCircle({radius:1,centerX:d})
 
 const is=new Intersection(mirrors.collection[0],mirrors.collection[1],5)
+mirrors.collection[0].adjustToIntersections();
 
 
 map.drawImageChanged = function() {

@@ -17,7 +17,7 @@ import {
 export function Intersection(mirror1, mirror2, n = 3) {
     this.mirror1 = mirror1;
     this.mirror2 = mirror2;
-    this.setN(n);
+    this.n = Math.max(2, Math.round(n));
     mirror1.addIntersection(this);
     mirror2.addIntersection(this);
 }

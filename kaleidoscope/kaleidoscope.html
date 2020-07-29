@@ -53,7 +53,7 @@ map.regionControl(regionGui, 2);
 map.makeNewColorTable(regionGui, 2);
 
 // setup mapping show structure
-//point.x ,.y.structureIndex
+//point.x , point.y and point.structureIndex
 map.mapping = function(point) {
     mirrors.map(point);
 };
@@ -70,16 +70,25 @@ const rt32=Math.sqrt(3)/2;
 mirrors.addCircle({radius:r,centerX:0,centerY:d,isOutsideInMap:false})
 mirrors.addCircle({radius:r,centerX:d*rt32,centerY:-0.5*d,isOutsideInMap:false})
 mirrors.addCircle({radius:r,centerX:-d*rt32,centerY:-0.5*d,isOutsideInMap:false})
-
-const is=new Intersection(mirrors.collection[0],mirrors.collection[1],4)
-mirrors.collection[0].adjustToIntersections();
-const is2=new Intersection(mirrors.collection[0],mirrors.collection[2],4)
-mirrors.collection[0].adjustToIntersections();
-
-const is3=new Intersection(mirrors.collection[1],mirrors.collection[2],4)
-mirrors.collection[1].adjustToIntersections();
-
 mirrors.addCircle({radius:d-0.97*r,isOutsideInMap:false})
+
+const nOut=2;
+const is=new Intersection(mirrors.collection[0],mirrors.collection[1],nOut)
+const is2=new Intersection(mirrors.collection[0],mirrors.collection[2],nOut)
+const is3=new Intersection(mirrors.collection[1],mirrors.collection[2],nOut)
+
+const nIn=2;
+new Intersection(mirrors.collection[0],mirrors.collection[3],nIn)
+new Intersection(mirrors.collection[1],mirrors.collection[3],nIn)
+new Intersection(mirrors.collection[2],mirrors.collection[3],nIn)
+
+
+mirrors.collection[0].adjustToIntersections();
+//mirrors.collection[1].adjustToIntersections();
+//mirrors.collection[2].adjustToIntersections();
+//mirrors.collection[3].adjustToIntersections();
+
+
 map.drawImageChanged = function() {
 map.draw();
     mirrors.draw()
