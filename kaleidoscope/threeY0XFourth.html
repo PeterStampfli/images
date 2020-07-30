@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> kaleidoscope in progress</title>
+</head>
+
+<body>
+</body>
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    Pixels,
+    ParamGui,
+    output,
+    map,
+    guiUtils
+} from "../libgui/modules.js";
+
+import {
+    Circle,
+    mirrors,
+    Intersection
+} from './modules.js';
+
+// basic setup
+const gui=new ParamGui({name:'test',closed:false});
+
+// an output canvas and some test image
+const outputGui=gui.addFolder('output image');
+output.createCanvas(outputGui);
+
+output.canvas.style.backgroundColor='grey';
+output.createPixels();
+const canvas = output.canvas;
+const canvasContext = output.canvasContext;
+outputGui.addParagraph('coordinate transform');
+output.addCoordinateTransform(outputGui, false);
+output.setInitialCoordinates(0, 0, 3);
+map.setOutputDraw();
+const inputGui=gui.addFolder('input image');
+map.inputImage = '../libgui/testimage.jpg';
+map.setupInputImage(inputGui);
+const regionGui=gui.addFolder('regions');
+
+map.regionControl(regionGui, 2);
+
+map.makeNewColorTable(regionGui, 2);
+
+// setup mapping show structure
+//point.x , point.y and point.structureIndex
+map.mapping = function(point) {
+    mirrors.map(point);
+};
+
+
+mirrors.makeGui(gui);
+
+const r=0.2;
+
+mirrors.addCircle({radius:r,centerX:0,centerY:1,isOutsideInMap:false})
+mirrors.addCircle({radius:r,centerX:0,centerY:0,isOutsideInMap:false})
+mirrors.addCircle({radius:r,centerX:1,centerY:0,isOutsideInMap:false})
+
+
+//fourth circle, data irrelevant
+mirrors.addCircle({isOutsideInMap:false});
+
+
+const nOut=2;
+const is=new Intersection(mirrors.collection[0],mirrors.collection[3],nOut)
+const is2=new Intersection(mirrors.collection[1],mirrors.collection[3],nOut)
+const is3=new Intersection(mirrors.collection[2],mirrors.collection[3],nOut)
+
+
+
+mirrors.collection[3].adjustToIntersections();
+//mirrors.collection[1].adjustToIntersections();
+//mirrors.collection[2].adjustToIntersections();
+//mirrors.collection[3].adjustToIntersections();
+
+
+map.drawImageChanged = function() {
+map.draw();
+    mirrors.draw()
+}
+Circle.draw = map.drawMapChanged;
+
+output.mouseCtrlMoveAction = function(event) {
+    if (mirrors.isSelected(event)) {
+        output.canvas.style.cursor = "pointer";
+    } else {
+        output.canvas.style.cursor = "default";
+    }
+    output.pixels.show();
+    mirrors.draw(false);
+};
+
+output.mouseCtrlDownAction=function(event){
+    mirrors.select(event);
+    output.pixels.show();
+    mirrors.draw(false);
+};
+
+output.mouseCtrlWheelAction = function(event) {
+    if (event.shiftPressed) {
+        console.log('wheel')
+        is.incDecN(event.wheelDelta);
+        map.drawMapChanged();
+
+    } else {
+        mirrors.wheelAction(event);
+        map.drawMapChanged();
+    }
+};
+
+output.mouseCtrlDragAction=function(event){
+    mirrors.dragAction(event);
+    map.drawMapChanged();
+};
+
+output.firstDrawing();
+
+
+
+</script>
+
+</html>

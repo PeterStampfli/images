@@ -97,9 +97,12 @@ mirrors.clear = function() {
  * @method mirrors.addCircle
  * @param{ParamGui} gui 
  * @param{object} properties - optional, radius, centerX, centerY, isOutsideInMap, color (all optional),id
+ * @return the circle
  */
 mirrors.addCircle = function(properties) {
-    mirrors.addMirror(new Circle(mirrors.gui, properties));
+    const circle = new Circle(mirrors.gui, properties);
+    mirrors.addMirror(circle);
+    return circle;
 };
 
 /**
@@ -199,13 +202,13 @@ mirrors.isSelected = function(position) {
 };
 
 /**
-* set a mirror as selected, and set that it can be deleted
-* @method mirrors.setSelected
-* @param {Mirror object} mirror
-*/
-mirrors.setSelected=function(mirror){
-           mirrors.selected = mirror;
-            mirrors.deleteButton.setActive(true);
+ * set a mirror as selected, and set that it can be deleted
+ * @method mirrors.setSelected
+ * @param {Mirror object} mirror
+ */
+mirrors.setSelected = function(mirror) {
+    mirrors.selected = mirror;
+    mirrors.deleteButton.setActive(true);
 };
 
 /**
@@ -219,7 +222,7 @@ mirrors.select = function(position) {
     for (var i = 0; i < length; i++) {
         if (mirrors.collection[i].isSelected(position)) {
             mirrors.setSelected(mirrors.collection[i]);
-             return;
+            return;
         }
     }
 };
