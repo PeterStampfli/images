@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
 <head>
-    <title> kaleidoscope in progress</title>
+    <title> two circles one intersection</title>
 </head>
 
 <body>
@@ -24,7 +24,7 @@ import {
 
 import {
     Circle,
-    mirrors,
+    circles,
     Intersection
 } from './modules.js';
 
@@ -55,7 +55,7 @@ map.makeNewColorTable(regionGui, 2);
 // setup mapping show structure
 //point.x ,.y.structureIndex
 map.mapping = function(point) {
-    mirrors.map(point);
+    circles.map(point);
 };
 
 
@@ -63,37 +63,37 @@ map.mapping = function(point) {
 const d=Math.sqrt(3)/2;
 
 
-mirrors.makeGui(gui);
+circles.makeGui(gui);
 
 
 
-mirrors.addCircle({radius:1,centerX:-d})
-mirrors.addCircle({radius:1,centerX:d})
+circles.add({radius:1,centerX:-d})
+circles.add({radius:1,centerX:d})
 
-const is=new Intersection(mirrors.collection[0],mirrors.collection[1],5)
-mirrors.collection[0].adjustToIntersections();
+const is=new Intersection(circles.collection[0],circles.collection[1],5)
+circles.collection[0].adjustToIntersections();
 
 
 map.drawImageChanged = function() {
 map.draw();
-    mirrors.draw()
+    circles.draw()
 }
 Circle.draw = map.drawMapChanged;
 
 output.mouseCtrlMoveAction = function(event) {
-    if (mirrors.isSelected(event)) {
+    if (circles.isSelected(event)) {
         output.canvas.style.cursor = "pointer";
     } else {
         output.canvas.style.cursor = "default";
     }
     output.pixels.show();
-    mirrors.draw(false);
+    circles.draw(false);
 };
 
 output.mouseCtrlDownAction=function(event){
-    mirrors.select(event);
+    circles.select(event);
     output.pixels.show();
-    mirrors.draw(false);
+    circles.draw(false);
 };
 
 output.mouseCtrlWheelAction = function(event) {
@@ -103,13 +103,13 @@ output.mouseCtrlWheelAction = function(event) {
         map.drawMapChanged();
 
     } else {
-        mirrors.wheelAction(event);
+        circles.wheelAction(event);
         map.drawMapChanged();
     }
 };
 
 output.mouseCtrlDragAction=function(event){
-    mirrors.dragAction(event);
+    circles.dragAction(event);
     map.drawMapChanged();
 };
 

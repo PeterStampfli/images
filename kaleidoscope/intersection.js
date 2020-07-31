@@ -1,38 +1,37 @@
 /* jshint esversion: 6 */
 
 import {
-    mirrors
+    circles
 } from './modules.js';
 
 /**
- * intersection between mirrors, making a definite n-fold dihedral symmetry
- * makes that one of the mirrors adjusts (selected one preferred)
+ * intersection between circles, making a definite n-fold dihedral symmetry
+ * makes that one of the circles adjusts (selected one preferred)
  * adjust later
  * @constructor Intersection
- * @params {Mirror} mirror1
- * @params {Mirror} mirror2
+ * @params {Circle} circle1
+ * @params {Circle} circle2
  * @params {integer} n - optional, has to be >=2, default 3
  */
 
-export function Intersection(mirror1, mirror2, n = 3) {
-    this.mirror1 = mirror1;
-    this.mirror2 = mirror2;
+export function Intersection(circle1, circle2, n = 3) {
+    this.circle1 = circle1;
+    this.circle2 = circle2;
     this.n = Math.max(2, Math.round(n));
-    mirror1.addIntersection(this);
-    mirror2.addIntersection(this);
+    circle1.addIntersection(this);
+    circle2.addIntersection(this);
 }
 
 /**
- * calculate the distance between the two circles as mirrors
- * ok, becomes more complicated if there are mirror lines too
+ * calculate the distance between the two intersecting circles
  * resulting from their radius, mapping direction and n
  * @method Intersection#distanceBetweenCenters
  * @return number, required distance between centers
  */
 Intersection.prototype.distanceBetweenCenters = function() {
-    const sign = (this.mirror1.isOutsideInMap === this.mirror2.isOutsideInMap) ? 1 : -1;
+    const sign = (this.circle1.isOutsideInMap === this.circle2.isOutsideInMap) ? 1 : -1;
     const cosAlpha = Math.cos(Math.PI / this.n);
-    const d2 = this.mirror1.radius2 + this.mirror2.radius2 + 2 * sign * this.mirror1.radius * this.mirror2.radius * cosAlpha;
+    const d2 = this.circle1.radius2 + this.circle2.radius2 + 2 * sign * this.circle1.radius * this.circle2.radius * cosAlpha;
     return Math.sqrt(d2);
 };
 
@@ -42,7 +41,7 @@ Intersection.prototype.distanceBetweenCenters = function() {
 * @return number
 */
 Intersection.prototype.signCosAngle = function() {
-    const sign = (this.mirror1.isOutsideInMap === this.mirror2.isOutsideInMap) ? 1 : -1;
+    const sign = (this.circle1.isOutsideInMap === this.circle2.isOutsideInMap) ? 1 : -1;
     const cosAlpha = Math.cos(Math.PI / this.n);
     return sign*cosAlpha;
 };
@@ -56,11 +55,11 @@ Intersection.prototype.signCosAngle = function() {
  */
 Intersection.prototype.setN = function(n) {
     this.n = Math.max(2, Math.round(n));
-    if ((mirrors.selected !== this.mirror1) && (mirrors.selected !== this.circcle2)) {
-        mirrors.setSelected(this.mirror2);
+    if ((circles.selected !== this.circle1) && (circles.selected !== this.circcle2)) {
+        circles.setSelected(this.circle2);
     }
-    mirrors.selected.adjustToIntersections();
-    mirrors.selected.updateUI();
+    circles.selected.adjustToIntersections();
+    circles.selected.updateUI();
 };
 
 /**
@@ -77,15 +76,15 @@ Intersection.prototype.incDecN = function(direction) {
 };
 
 /**
- * get the other mirror of an intersection
- * @method Intersection#getOtherMirror
- * @param {Mirror} mirror
- * @return {Mirror} 
+ * get the other circle of an intersection
+ * @method Intersection#getOtherCircle
+ * @param {Circle} circle
+ * @return {Circle} 
  */
-Intersection.prototype.getOtherMirror = function(mirror) {
-    if (mirror === this.mirror1) {
-        return this.mirror2;
+Intersection.prototype.getOtherCircle = function(circle) {
+    if (circle === this.circle1) {
+        return this.circle2;
     } else {
-        return this.mirror1;
+        return this.circle1;
     }
 };

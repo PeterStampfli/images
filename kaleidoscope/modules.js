@@ -25,9 +25,9 @@ export {
 from "./circle.js";
 
 export {
-    mirrors
+    circles
 }
-from "./mirrors.js";
+from "./circles.js";
 
 export {
     Intersection
