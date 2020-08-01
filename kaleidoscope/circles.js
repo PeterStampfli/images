@@ -21,7 +21,7 @@ circles.collection = [];
 // a selected circle
 circles.selected = false;
 // the other selected circle (making intersections)
-
+circles.otherSelected=false;
 // ids and colors for circles
 
 let id = 0;
@@ -71,7 +71,7 @@ circles.add = function(properties={}) {
         circles.selected=circles.collection[index];
     } else {
         circles.collection.push(circle);
-        circles.selected=circle;
+        circles.setSelected(circle);
     }
     return circle;
 };
@@ -128,10 +128,12 @@ circles.setJSON = function(json) {
  * @method circles.draw
  */
 circles.draw = function() {
-    if (circles.selected) {
-        circles.selected.draw(true);
+    if (circles.otherSelected) {
+        circles.otherSelected.draw(2);
+    }    if (circles.selected) {
+        circles.selected.draw(1);
     }
-    circles.collection.forEach(circle => circle.draw(false));
+    circles.collection.forEach(circle => circle.draw(0));
 };
 
 // interaction with the mouse
@@ -149,7 +151,7 @@ circles.makeGui = function(parentGui,args={}) {
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
-            circles.addCircle();
+            circles.add();
             map.drawMapChanged();
         }
     });
@@ -157,12 +159,13 @@ circles.makeGui = function(parentGui,args={}) {
         type: 'button',
         buttonText: 'delete selected',
         onClick: function() {
-            circles.deleteButton.setActive(false);
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
-                circles.selected = false;
+                circles.selected = circles.otherSelected;
+                circles.otherSelected=false;
                 map.drawMapChanged();
             }
+            circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
         }
     });
     circles.deleteButton.setActive(false);
@@ -187,12 +190,17 @@ circles.isSelected = function(position) {
 
 /**
  * set a circle as selected, and set that it can be deleted
+ * note already seleccted circcle as other selected circle (for making intersections)
  * @method circles.setSelected
  * @param {Circle} circle
  */
 circles.setSelected = function(circle) {
+    // do only something if circle not selected
+    if (circle!==circles.selected){
+    circles.otherSelected=circles.selected;
     circles.selected = circle;
     circles.deleteButton.setActive(true);
+}
 };
 
 /**

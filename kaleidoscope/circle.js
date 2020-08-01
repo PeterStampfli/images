@@ -22,6 +22,7 @@ Circle.zoomFactor = 1.04;
 Circle.lineWidth = 2;
 Circle.highlightLineWidth = 6;
 Circle.highlightColor = 'yellow';
+Circle.otherHighlightColor = 'white';
 
 // selection, regionwidth in px
 Circle.selectWidth = Circle.highlightLineWidth;
@@ -260,16 +261,23 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
  * drawing a circle
  * as a broader circle in a highlight color or narrow in its own color
  * @method Circle#draw
- * @param {boolean} highlight - optional, default is false
+ * @param {boolean} highlight - optional, default is 0, not highlighted
  */
-Circle.prototype.draw = function(highlight = false) {
+Circle.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
-    if (highlight) {
-        output.setLineWidth(Circle.highlightLineWidth);
-        context.strokeStyle = Circle.highlightColor;
-    } else {
+    switch (highlight){
+        case 0:
         output.setLineWidth(Circle.lineWidth);
         context.strokeStyle = this.color;
+        break;
+        case 1:
+output.setLineWidth(Circle.highlightLineWidth);
+        context.strokeStyle = Circle.highlightColor;
+        break;
+        case 2:
+output.setLineWidth(Circle.highlightLineWidth);
+        context.strokeStyle = Circle.otherHighlightColor;
+        break;
     }
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
