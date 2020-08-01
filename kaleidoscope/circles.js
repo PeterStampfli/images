@@ -20,6 +20,7 @@ export const circles = {};
 circles.collection = [];
 // a selected circle
 circles.selected = false;
+// the other selected circle (making intersections)
 
 // ids and colors for circles
 
@@ -67,8 +68,10 @@ circles.add = function(properties={}) {
     if (index >= 0) {
         console.error('circles.add: circle already there. It is:');
         console.log(circle);
+        circles.selected=circles.collection[index];
     } else {
         circles.collection.push(circle);
+        circles.selected=circle;
     }
     return circle;
 };
@@ -138,9 +141,10 @@ circles.draw = function() {
  * make the gui and add some buttons
  * @method circles.makeGui
  * @param{Paramgui} parentGui
+ * @param{Object} args - optional, modifying the gui
  */
-circles.makeGui = function(parentGui) {
-    circles.gui = parentGui.addFolder('circles');
+circles.makeGui = function(parentGui,args={}) {
+    circles.gui = parentGui.addFolder('circles',args);
     circles.gui.add({
         type: 'button',
         buttonText: 'add circle',

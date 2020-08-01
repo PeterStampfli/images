@@ -33,7 +33,7 @@ The increment of value for each scroll changes the digit where the caret is.
  * autoPlace - boolean - placing the gui automatically?? - default: true
  * hideable - boolean - hide/show with keyboard ParamGui.hideCharacter press ("Tab") - default: true
  *                                              (should not be a printable character)
- * closed - boolean - start gui in closed state - default: false
+ * closed - boolean - start gui in closed state - default: true
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
  */
 

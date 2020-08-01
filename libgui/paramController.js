@@ -188,11 +188,14 @@ export function ParamController(gui, domElement, argObjects) {
                 break;
             case "boolean":
                 const booleanButton = new BooleanButton(this.domElement);
+               if (guiUtils.isArray(args.buttonText)){
+                    booleanButton.setTexts(args.buttonText[0],args.buttonText[1]);
+                }
                 booleanButton.setWidth(guiUtils.check(args.width, this.design.booleanButtonWidth));
                 booleanButton.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = booleanButton;
-                this.setupOnChange();
+                 this.setupOnChange();
                 this.setupOnInteraction();
                 if (guiUtils.isBoolean(this.initialValue)) {
                     this.setValueOnly(this.initialValue); // that is safe, does not change value

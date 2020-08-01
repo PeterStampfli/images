@@ -90,13 +90,34 @@ BooleanButton.colorOn = Button.colorDown;
 BooleanButton.colorOnHover = Button.colorDownHover;
 BooleanButton.colorOffHover = Button.colorUpHover;
 BooleanButton.colorOff = Button.colorUp;
-BooleanButton.backgroundColorOn = "#88ff88";
-BooleanButton.backgroundColorOnHover = "#00ff00";
-BooleanButton.backgroundColorOffHover = "#ff0000";
-BooleanButton.backgroundColorOff = "#ff8888";
+
 // for switched off
 BooleanButton.colorInactive = Button.colorInactive;
 BooleanButton.backgroundColorInactive = Button.backgroundColorInactive;
+
+/**
+ * use the basic button background colors
+ * @method BooleanButton.whiteBackground
+ */
+BooleanButton.whiteBackground = function() {
+    BooleanButton.backgroundColorOn = Button.backgroundColorUp;
+    BooleanButton.backgroundColorOnHover = Button.backgroundColorUpHover;
+    BooleanButton.backgroundColorOffHover = Button.backgroundColorUpHover;
+    BooleanButton.backgroundColorOff = Button.backgroundColorUp;
+};
+
+/**
+ * use the green and red button background colors
+ * @method BooleanButton.greenRedBackground
+ */
+BooleanButton.greenRedBackground = function() {
+    BooleanButton.backgroundColorOn = "#88ff88";
+    BooleanButton.backgroundColorOnHover = "#00ff00";
+    BooleanButton.backgroundColorOffHover = "#ff0000";
+    BooleanButton.backgroundColorOff = "#ff8888";
+};
+
+BooleanButton.whiteBackground();
 
 /**
  * setup the color styles defaults

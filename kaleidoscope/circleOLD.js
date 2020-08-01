@@ -552,7 +552,7 @@ Circle.prototype.isSelected = function(position) {
 };
 
 /**
- * check if the position is inside the target region of thhe circle map (inside or outside the circle)
+ * check if the position is inside the target region of the circle map (inside or outside the circle)
  * NOTE: Avoid double negations, use positive form of function
  * @method Circle#isInTarget
  * @param {object} position - with x and y fields, such as mouseEvents

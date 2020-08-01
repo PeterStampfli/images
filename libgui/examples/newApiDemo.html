@@ -124,7 +124,8 @@ parameters.light = true;
 // simplify, using multiple parameter objects
 const boo={type:'boolean',params:parameters,minLabelWidth:30};
 gui.add(boo, {
-        property: "heat"
+        property: "heat",
+        buttonText: ['high','low']
     })
     .add(boo,{
         property: "light"
