@@ -161,6 +161,23 @@ Circle.prototype.activateUI = function() {
 };
 
 /**
+ * adjust the distance to another circle for a single intersection
+ * use this for all cases
+ * moves center of this circle to or away from center of the other circle of the intersection
+ * @method Circle#adjustOneIntersection
+ */
+Circle.prototype.adjustOneIntersection = function() {
+    const distance = this.intersections[0].distanceBetweenCenters();
+    const otherCircle = this.intersections[0].getOtherCircle(this);
+    const dx = this.centerX - otherCircle.centerX;
+    const dy = this.centerY - otherCircle.centerY;
+    const d = Math.hypot(dx, dy);
+    const factor = distance / d;
+    this.centerX = otherCircle.centerX + factor * dx;
+    this.centerY = otherCircle.centerY + factor * dy;
+};
+
+/**
  * try a given value for the radius, adjust circle radius and position to intersections
  * if fails do not change current radius
  * if success update UI to new values and draw image
@@ -176,7 +193,10 @@ Circle.prototype.tryRadius = function(radius) {
             this.radius2 = radius * radius;
             break;
         case 1:
-
+            // keep the radius, change distance to other circle
+            this.radius = radius;
+            this.radius2 = radius * radius;
+            this.adjustOneIntersection();
             break;
         case 2:
 
@@ -208,7 +228,10 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
             this.centerY = centerY;
             break;
         case 1:
-
+            // keep the radius, change distance to other circle
+            this.centerX = centerX;
+            this.centerY = centerY;
+            this.adjustOneIntersection();
             break;
         case 2:
 
@@ -240,7 +263,7 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
         case 0:
             break;
         case 1:
-
+            this.adjustOneIntersection();
             break;
         case 2:
 
@@ -258,6 +281,92 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
 };
 
 /**
+ * adjust circle to intersections when adding intersection or changing order
+ * nothing to do if there is no intersection
+ * adjust distance to other circle if there is only one intersection (increase radius if too small)
+ * adjust position of circle if there are two intersections
+ * adjust radius and position of circle for three intersections
+ * update UI if successful
+ * return if successful
+ * @method Circle#adjustToIntersections
+ * @return boolean, true if success, false if something failed
+ */
+Circle.prototype.adjustToIntersections = function() {
+    switch (this.intersections.length) {
+        case 0:
+            return true;
+        case 1:
+            // one intersection is 'trivial', we can keep the radius and change the distance to the other circle
+            this.adjustOneIntersection();
+            return true;
+        case 2:
+            console.log('2 intersections');
+            const pos1 = {};
+            const pos2 = {};
+            // determine the two possible positions
+            this.centerPositionsTwoIntersections(pos1, pos2);
+            const dis1 = (this.centerX - pos1.x) * (this.centerX - pos1.x) + (this.centerY - pos1.y) * (this.centerY - pos1.y);
+            const dis2 = (this.centerX - pos2.x) * (this.centerX - pos2.x) + (this.centerY - pos2.y) * (this.centerY - pos2.y);
+            console.log(dis1, dis2);
+            if (dis1 < dis2) {
+                this.centerY = pos1.y;
+                this.centerX = pos1.x;
+            } else {
+                this.centerY = pos2.y;
+                this.centerX = pos2.x;
+            }
+            return;
+        case 3:
+            console.log('3 intersections');
+
+            this.solveThreeIntersections();
+            return;
+    }
+};
+
+/**
+ * add an intersection
+ * @method Circle#addIntersection
+ * @param {Intersection} intersection
+ */
+Circle.prototype.addIntersection = function(intersection) {
+    if (this.intersections.length > 2) {
+        console.error('Circle#addIntersection: Circle has 3 intersections, cannot add more. Intersection:');
+        console.log(intersection);
+        console.log(this.intersections);
+    } else {
+        for (var i = 0; i < this.intersections.length; i++) {
+            if (this === this.intersections[i].getOtherCircle(this)) {
+                console.error('Circle#addIntersection: This intersection is already there:');
+                console.log(intersection);
+                console.log(this.intersections);
+            }
+        }
+        this.intersections.push(intersection);
+        this.activateUI();
+    }
+};
+
+/**
+ * remove an intersection from the collection
+ * @method Circle.removeIntersection
+ * @param {Intersection} intersection
+ */
+Circle.prototype.removeIntersection = function(intersection) {
+    const index = this.intersections.indexOf(intersection);
+    if (index >= 0) {
+        this.intersections.splice(index, 1);
+        // just in case that we had a fail in adjusting to intersections
+        this.adjustToIntersections();
+        this.activateUI();
+    } else {
+        console.error('Circle#removeIntersection: intersection not found. It is:');
+        console.log(intersection);
+        console.log(this);
+    }
+};
+
+/**
  * drawing a circle
  * as a broader circle in a highlight color or narrow in its own color
  * @method Circle#draw
@@ -265,19 +374,19 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
  */
 Circle.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
-    switch (highlight){
+    switch (highlight) {
         case 0:
-        output.setLineWidth(Circle.lineWidth);
-        context.strokeStyle = this.color;
-        break;
+            output.setLineWidth(Circle.lineWidth);
+            context.strokeStyle = this.color;
+            break;
         case 1:
-output.setLineWidth(Circle.highlightLineWidth);
-        context.strokeStyle = Circle.highlightColor;
-        break;
+            output.setLineWidth(Circle.highlightLineWidth);
+            context.strokeStyle = Circle.highlightColor;
+            break;
         case 2:
-output.setLineWidth(Circle.highlightLineWidth);
-        context.strokeStyle = Circle.otherHighlightColor;
-        break;
+            output.setLineWidth(Circle.highlightLineWidth);
+            context.strokeStyle = Circle.otherHighlightColor;
+            break;
     }
     context.beginPath();
     context.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
@@ -365,6 +474,7 @@ Circle.prototype.dragAction = function(event) {
             this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
             return;
         case 1:
+            this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
             return;
         case 2:
             return;
@@ -390,7 +500,9 @@ Circle.prototype.wheelAction = function(event) {
  * @method Circle#destroy
  */
 Circle.prototype.destroy = function() {
+    while (this.intersections.length > 0) {
+        this.intersections[this.intersections.length - 1].destroy();
+    }
     this.gui.destroy();
     circles.remove(this);
-    this.intersections.forEach(intersection => intersection.destroy());
 };

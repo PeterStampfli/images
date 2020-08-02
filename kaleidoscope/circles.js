@@ -21,7 +21,7 @@ circles.collection = [];
 // a selected circle
 circles.selected = false;
 // the other selected circle (making intersections)
-circles.otherSelected=false;
+circles.otherSelected = false;
 // ids and colors for circles
 
 let id = 0;
@@ -60,15 +60,15 @@ circles.getColor = function() {
  * @param{object} properties - optional, with fields: radius, centerX, centerY, isOutsideInMap (all optional)
  * @return the circle
  */
-circles.add = function(properties={}) {
-        properties.id = circles.getId();
-        properties.color = circles.getColor();
+circles.add = function(properties = {}) {
+    properties.id = circles.getId();
+    properties.color = circles.getColor();
     const circle = new Circle(circles.gui, properties);
     const index = circles.collection.indexOf(circle);
     if (index >= 0) {
         console.error('circles.add: circle already there. It is:');
         console.log(circle);
-        circles.selected=circles.collection[index];
+        circles.selected = circles.collection[index];
     } else {
         circles.collection.push(circle);
         circles.setSelected(circle);
@@ -130,7 +130,8 @@ circles.setJSON = function(json) {
 circles.draw = function() {
     if (circles.otherSelected) {
         circles.otherSelected.draw(2);
-    }    if (circles.selected) {
+    }
+    if (circles.selected) {
         circles.selected.draw(1);
     }
     circles.collection.forEach(circle => circle.draw(0));
@@ -145,8 +146,8 @@ circles.draw = function() {
  * @param{Paramgui} parentGui
  * @param{Object} args - optional, modifying the gui
  */
-circles.makeGui = function(parentGui,args={}) {
-    circles.gui = parentGui.addFolder('circles',args);
+circles.makeGui = function(parentGui, args = {}) {
+    circles.gui = parentGui.addFolder('circles', args);
     circles.gui.add({
         type: 'button',
         buttonText: 'add circle',
@@ -162,7 +163,7 @@ circles.makeGui = function(parentGui,args={}) {
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
                 circles.selected = circles.otherSelected;
-                circles.otherSelected=false;
+                circles.otherSelected = false;
                 map.drawMapChanged();
             }
             circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
@@ -196,11 +197,11 @@ circles.isSelected = function(position) {
  */
 circles.setSelected = function(circle) {
     // do only something if circle not selected
-    if (circle!==circles.selected){
-    circles.otherSelected=circles.selected;
-    circles.selected = circle;
-    circles.deleteButton.setActive(true);
-}
+    if (circle !== circles.selected) {
+        circles.otherSelected = circles.selected;
+        circles.selected = circle;
+        circles.deleteButton.setActive(true);
+    }
 };
 
 /**
@@ -218,6 +219,7 @@ circles.select = function(position) {
         }
     }
 };
+
 
 /**
  * wheel action on the selected circle

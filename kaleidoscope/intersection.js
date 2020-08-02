@@ -29,7 +29,7 @@ export function Intersection(circle1, circle2, n = 3) {
  * @return number, required distance between centers
  */
 Intersection.prototype.distanceBetweenCenters = function() {
-    const sign = (this.circle1.isOutsideInMap === this.circle2.isOutsideInMap) ? 1 : -1;
+    const sign = (this.circle1.isInsideOutMap === this.circle2.isInsideOutMap) ? 1 : -1;
     const cosAlpha = Math.cos(Math.PI / this.n);
     const d2 = this.circle1.radius2 + this.circle2.radius2 + 2 * sign * this.circle1.radius * this.circle2.radius * cosAlpha;
     return Math.sqrt(d2);
@@ -41,7 +41,7 @@ Intersection.prototype.distanceBetweenCenters = function() {
 * @return number
 */
 Intersection.prototype.signCosAngle = function() {
-    const sign = (this.circle1.isOutsideInMap === this.circle2.isOutsideInMap) ? 1 : -1;
+    const sign = (this.circle1.isInsideOutMap === this.circle2.isInsideOutMap) ? 1 : -1;
     const cosAlpha = Math.cos(Math.PI / this.n);
     return sign*cosAlpha;
 };
@@ -54,6 +54,7 @@ Intersection.prototype.signCosAngle = function() {
  * @param {integer} n
  */
 Intersection.prototype.setN = function(n) {
+    console.log('setn')
     this.n = Math.max(2, Math.round(n));
     if ((circles.selected !== this.circle1) && (circles.selected !== this.circcle2)) {
         circles.setSelected(this.circle2);
@@ -87,4 +88,16 @@ Intersection.prototype.getOtherCircle = function(circle) {
     } else {
         return this.circle1;
     }
+};
+
+/**
+ * destroy the intersection and all that depends on it
+ * particularly references at the two circles
+ * @method Intersection#destroy
+ */
+Intersection.prototype.destroy = function() {
+ this.circle1.removeIntersection(this);
+ this.circle2.removeIntersection(this);
+
+// remove from list, delete UI
 };
