@@ -309,6 +309,7 @@ Circle.prototype.adjustOneIntersection = function() {
  * @param {object} pos2 - with x- and y fields
  */
 Circle.prototype.centerPositionsTwoIntersections = function(pos1, pos2) {
+// get
     const intersection1 = this.intersections[0];
     const intersection2 = this.intersections[1];
     const otherCircle1 = intersection1.getOtherCircle(this);

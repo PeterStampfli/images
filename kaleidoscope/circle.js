@@ -178,6 +178,107 @@ Circle.prototype.adjustOneIntersection = function() {
 };
 
 /**
+ * for two intersections and a given radius
+ * adjust the center position and eventually radius, if possible
+ * return success
+ * @method Circle#adjustTwoIntersections
+ * @param {number} radius
+ * @return boolean success
+ */
+Circle.prototype.adjustTwoIntersections = function(radius) {
+    // messing things up, restore if needed
+    const currentRadius = this.radius;
+    this.radius = radius;
+    this.radius2 = radius * radius;
+    // get basic data, circle centers
+    const intersection1 = this.intersections[0];
+    const intersection2 = this.intersections[1];
+    const otherCircle1 = intersection1.getOtherCircle(this);
+    const otherCircle2 = intersection2.getOtherCircle(this);
+    const center1X = otherCircle1.centerX;
+    const center1Y = otherCircle1.centerY;
+    const center2X = otherCircle2.centerX;
+    const center2Y = otherCircle2.centerY;
+    const center1To2X = center2X - center1X;
+    const center1To2Y = center2Y - center1Y;
+    // the actual distances between centers of other circles
+    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+    // the required distances from center of this circle to the other circles
+    let distanceToCenter1 = intersection1.distanceBetweenCenters();
+    let distanceToCenter2 = intersection2.distanceBetweenCenters();
+    // check if we can form a triangle
+    if (distanceCenter1To2 > distanceToCenter1 + distanceToCenter2) {
+        // determine the minimum distance
+        // solve the system of two quadratic equations: 
+        // do the resulting linear equation part
+        const coeff1 = 2 * otherCircle1.radius * intersection1.signCosAngle();
+        const coeff2 = 2 * otherCircle2.radius * intersection2.signCosAngle();
+        const radius1Square = otherCircle1.radius2;
+        const radius2Square = otherCircle2.radius2;
+        // coefficients for the linear equation for this.radius
+        const a0 = 0.5 * (distanceCenter1To2 + (radius1Square - radius2Square) / distanceCenter1To2);
+        const a1 = 0.5 * (coeff1 - coeff2) / distanceCenter1To2;
+        // setup the quadratic equation
+        const a = 1 - a1 * a1;
+        const b = coeff1 - 2 * a0 * a1;
+        const c = radius1Square - a0 * a0;
+        const data = {};
+        if (guiUtils.quadraticEquation(a, b, c, data)) {
+            // data.x is the smaller solution than data.y
+            if ((data.x > 0) && (Math.abs(radius - data.x) < Math.abs(radius - data.y))) {
+                radius = data.x;
+            } else if (data.y > 0) {
+                radius = data.y;
+            } else {
+                console.error('Circle#centerPositionsTwoIntersections: Quadratic equation for minimum radius has no positve solution! Intersection:');
+                console.log(this);
+                // fail, restore radius, do not change position
+                this.radius = currentRadius;
+                this.radius2 = currentRadius * currentRadius;
+                return false;
+            }
+            this.radius = radius;
+            this.radius2 = radius * radius;
+            // recalculate distances to the other centers
+            distanceToCenter1 = intersection1.distanceBetweenCenters();
+            distanceToCenter2 = intersection2.distanceBetweenCenters();
+        } else {
+            console.error('Circle#centerPositionsTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
+            console.log(this);
+            // fail, restore radius, do not change position
+            this.radius = currentRadius;
+            this.radius2 = currentRadius * currentRadius;
+            return false;
+        }
+    }
+    // midpoint of the two solutions on the line between the two other centers
+    const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
+    let xi = parallelPosition / distanceCenter1To2;
+    const px = center1X + center1To2X * xi;
+    const py = center1Y + center1To2Y * xi;
+    // get the two solutions from the displacement perpendicular
+    // danger: root of near zero but negative number
+    const perpSquare = distanceToCenter1 * distanceToCenter1 - parallelPosition * parallelPosition;
+    const perpendicularPosition = Math.sqrt(Math.max(0, perpSquare));
+    xi = perpendicularPosition / distanceCenter1To2;
+    const pos1x = px + center1To2Y * xi;
+    const pos1y = py - center1To2X * xi;
+    const pos2x = px - center1To2Y * xi;
+    const pos2y = py + center1To2X * xi;
+    // choose position closer to current center
+    const dis1 = (this.centerX - pos1x) * (this.centerX - pos1x) + (this.centerY - pos1y) * (this.centerY - pos1y);
+    const dis2 = (this.centerX - pos2x) * (this.centerX - pos2x) + (this.centerY - pos2y) * (this.centerY - pos2y);
+    if (dis1 < dis2) {
+        this.centerY = pos1y;
+        this.centerX = pos1x;
+    } else {
+        this.centerY = pos2y;
+        this.centerX = pos2x;
+    }
+    return true;
+};
+
+/**
  * try a given value for the radius, adjust circle radius and position to intersections
  * if fails do not change current radius
  * if success update UI to new values and draw image
@@ -185,7 +286,6 @@ Circle.prototype.adjustOneIntersection = function() {
  * @param {number} radius
  */
 Circle.prototype.tryRadius = function(radius) {
-    console.log('try radius', radius);
     let success = true;
     switch (this.intersections.length) {
         case 0:
@@ -199,16 +299,86 @@ Circle.prototype.tryRadius = function(radius) {
             this.adjustOneIntersection();
             break;
         case 2:
-
+            success = this.adjustTwoIntersections(radius);
             break;
         case 3:
-
+            success = false; // geht nie
             break;
     }
     if (success) {
         this.updateUI();
         Circle.draw();
     }
+};
+
+
+/**
+ * circle with two intersections, try a given new position, 
+ * adjust circle radius and position to intersections
+ * return if it changed something
+ * @method tryPosition
+ * @param {number} centerX
+ * @param {number} centerY
+ * @return boolean, true if something changed
+ */
+Circle.prototype.tryPositionTwoIntersections = function(centerX, centerY) {
+    // get basic data
+    const intersection1 = this.intersections[0];
+    const intersection2 = this.intersections[1];
+    const otherCircle1 = intersection1.getOtherCircle(this);
+    const otherCircle2 = intersection2.getOtherCircle(this);
+    const center1X = otherCircle1.centerX;
+    const center1Y = otherCircle1.centerY;
+    const center2X = otherCircle2.centerX;
+    const center2Y = otherCircle2.centerY;
+    let center1To2X = center2X - center1X;
+    let center1To2Y = center2Y - center1Y;
+    // the actual distances between centers of other circles
+    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+    // normalized distance vector
+    center1To2X /= distanceCenter1To2;
+    center1To2Y /= distanceCenter1To2;
+    // coefficients of the eqn. for required distances
+    const coeff1 = 2 * otherCircle1.radius * intersection1.signCosAngle();
+    const coeff2 = 2 * otherCircle2.radius * intersection2.signCosAngle();
+    // determine distance y of this center perpendicularly from the line between the two other centers
+    // perpendicular vector is (-center1To2Y,center1To2X), rotating 90 degrees in positve sense
+    const y = -(centerX - center1X) * center1To2Y + (centerY - center1Y) * center1To2X;
+    // linear eqn for the distance x from the first center towards the second center
+    // coefficients a1*r + a0
+    const a0 = 0.5 * (distanceCenter1To2 * distanceCenter1To2 + otherCircle1.radius2 - otherCircle2.radius2) / distanceCenter1To2;
+    const a1 = 0.5 * (coeff1 - coeff2) / distanceCenter1To2;
+    // make the quadratic equation for the radius
+    const a = (1 - a1 * a1);
+    const b = (coeff1 - 2 * a1 * a0);
+    const c = -a0 * a0 - y * y + otherCircle1.radius2;
+    // solve quadratic eqn, choose good solution
+    const data = {};
+    if (guiUtils.quadraticEquation(a, b, c, data)) {
+        // data.x is the smaller solution than data.y
+        if ((data.x > 0) && (Math.abs(this.radius - data.x) < Math.abs(this.radius - data.y))) {
+            this.radius = data.x;
+        } else if (data.y > 0) {
+            this.radius = data.y;
+        } else {
+            console.error('Circle#tryPositionTwoIntersections: Quadratic equation for minimum radius has no positve solution! Intersection:');
+            console.log(this);
+            // fail, do not change anything
+            return false;
+        }
+        this.radius2 = this.radius * this.radius;
+    } else {
+        console.error('Circle#tryPositionTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
+        console.log(this);
+        // fail, do not change anything
+        return false;
+    }
+    // determine x from radius
+    const x = a1 * this.radius + a0;
+    // determine position from x and y
+    this.centerX = center1X + center1To2X * x - center1To2Y * y;
+    this.centerY = center1Y + center1To2Y * x + center1To2X * y;
+    return true;
 };
 
 /**
@@ -220,7 +390,6 @@ Circle.prototype.tryRadius = function(radius) {
  * @param {number} centerY
  */
 Circle.prototype.tryPosition = function(centerX, centerY) {
-    console.log('try position', centerX, centerY);
     let success = true;
     switch (this.intersections.length) {
         case 0:
@@ -234,49 +403,15 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
             this.adjustOneIntersection();
             break;
         case 2:
-
+            success = this.tryPositionTwoIntersections(centerX, centerY);
             break;
         case 3:
-
+            success = false; // never possible
             break;
     }
     if (success) {
         this.updateUI();
         Circle.draw();
-    }
-};
-
-/**
- * try a given map direction, adjust circle radius and position to intersections
- * if fails do not change current position
- * if success update UI to new values and draw image
- * @method tryMapDirection
- * @param {boolean} isInsideOutMap
- */
-Circle.prototype.tryMapDirection = function(isInsideOutMap) {
-    console.log('try map direction', isInsideOutMap);
-    // remember the old parameter (maybe it did not change?)
-    const currentIsInsideOutMap = this.isInsideOutMap;
-    this.isInsideOutMap = isInsideOutMap;
-    let success = true;
-    switch (this.intersections.length) {
-        case 0:
-            break;
-        case 1:
-            this.adjustOneIntersection();
-            break;
-        case 2:
-
-            break;
-        case 3:
-
-            break;
-    }
-    if (success) {
-        this.updateUI();
-        Circle.draw();
-    } else {
-        this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
     }
 };
 
@@ -292,35 +427,45 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
  * @return boolean, true if success, false if something failed
  */
 Circle.prototype.adjustToIntersections = function() {
+    let success = true;
     switch (this.intersections.length) {
         case 0:
-            return true;
+            break;
         case 1:
             // one intersection is 'trivial', we can keep the radius and change the distance to the other circle
             this.adjustOneIntersection();
-            return true;
+            break;
         case 2:
             console.log('2 intersections');
-            const pos1 = {};
-            const pos2 = {};
-            // determine the two possible positions
-            this.centerPositionsTwoIntersections(pos1, pos2);
-            const dis1 = (this.centerX - pos1.x) * (this.centerX - pos1.x) + (this.centerY - pos1.y) * (this.centerY - pos1.y);
-            const dis2 = (this.centerX - pos2.x) * (this.centerX - pos2.x) + (this.centerY - pos2.y) * (this.centerY - pos2.y);
-            console.log(dis1, dis2);
-            if (dis1 < dis2) {
-                this.centerY = pos1.y;
-                this.centerX = pos1.x;
-            } else {
-                this.centerY = pos2.y;
-                this.centerX = pos2.x;
-            }
-            return;
+            success = this.adjustTwoIntersections(this.radius);
+            break;
         case 3:
             console.log('3 intersections');
 
             this.solveThreeIntersections();
-            return;
+            break;
+    }
+    return success;
+};
+
+/**
+ * try a given map direction, adjust circle radius and position to intersections
+ * if fails do not change current position
+ * if success update UI to new values and draw image
+ * @method tryMapDirection
+ * @param {boolean} isInsideOutMap
+ */
+Circle.prototype.tryMapDirection = function(isInsideOutMap) {
+    console.log('try map direction', isInsideOutMap);
+    // remember the old parameter (maybe it did not change?)
+    const currentIsInsideOutMap = this.isInsideOutMap;
+    this.isInsideOutMap = isInsideOutMap;
+    let success = this.adjustToIntersections();
+    if (success) {
+        this.updateUI();
+        Circle.draw();
+    } else {
+        this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
     }
 };
 
@@ -438,7 +583,7 @@ Circle.prototype.map = function(position) {
         const dy = position.y - this.centerY;
         const dr2 = dx * dx + dy * dy;
         if (this.isInsideOutMap) {
-            if (dr2 < this.radius2) {
+            if (dr2 > this.radius2) {
                 return false;
             } else {
                 const factor = this.radius2 / Math.max(dr2, epsilon2);
@@ -447,7 +592,7 @@ Circle.prototype.map = function(position) {
                 return true;
             }
         } else {
-            if (dr2 > this.radius2) {
+            if (dr2 < this.radius2) {
                 return false;
             } else {
                 const factor = this.radius2 / dr2;
@@ -469,18 +614,7 @@ Circle.prototype.map = function(position) {
  * @param{object} event
  */
 Circle.prototype.dragAction = function(event) {
-    switch (this.intersections.length) {
-        case 0:
-            this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
-            return;
-        case 1:
-            this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
-            return;
-        case 2:
-            return;
-        case 3:
-            return; // fixed position, no drag
-    }
+    this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
 };
 
 /**
