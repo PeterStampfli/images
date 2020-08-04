@@ -3,9 +3,10 @@
 <html lang="en">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<link rel="icon" href="data:,">
 
 <head>
-    <title> kaleidoscope in progress</title>
+    <title> two circles intersecting</title>
 </head>
 
 <body>
@@ -24,7 +25,7 @@ import {
 
 import {
     Circle,
-    mirrors,
+    circles,
     Intersection
 } from './modules.js';
 
@@ -53,64 +54,47 @@ map.regionControl(regionGui, 2);
 map.makeNewColorTable(regionGui, 2);
 
 // setup mapping show structure
-//point.x , point.y and point.structureIndex
+//point.x ,.y.structureIndex
 map.mapping = function(point) {
-    mirrors.map(point);
+    circles.map(point);
 };
 
 
-mirrors.makeGui(gui);
 
-const r=0.2;
-const rt2=Math.sqrt(0.5);
-
-let phi1=60;
-phi1=Math.PI/180*phi1;
-let phi2=180;
-phi2=Math.PI/180*phi2;
-
-mirrors.addCircle({radius:r,centerX:-rt2,centerY:0,isOutsideInMap:false})
-mirrors.addCircle({radius:r,centerX:0,centerY:rt2,isOutsideInMap:false})
-mirrors.addCircle({radius:r,centerX:rt2,centerY:0,isOutsideInMap:false})
+const d=Math.sqrt(3)/2;
 
 
-//fourth circle, data irrelevant
-mirrors.addCircle({isOutsideInMap:false});
-
-
-const nOut=234;
-const is=new Intersection(mirrors.collection[0],mirrors.collection[3],nOut)
-const is2=new Intersection(mirrors.collection[1],mirrors.collection[3],nOut)
-const is3=new Intersection(mirrors.collection[2],mirrors.collection[3],nOut)
+circles.makeGui(gui);
 
 
 
-mirrors.collection[3].adjustToIntersections();
-//mirrors.collection[1].adjustToIntersections();
-//mirrors.collection[2].adjustToIntersections();
-//mirrors.collection[3].adjustToIntersections();
+circles.add({radius:1,centerX:-d})
+circles.add({radius:1,centerX:d})
+
+const is=new Intersection(circles.collection[0],circles.collection[1],5)
+circles.collection[0].adjustToIntersections();
 
 
 map.drawImageChanged = function() {
 map.draw();
-    mirrors.draw()
+    circles.draw()
 }
 Circle.draw = map.drawMapChanged;
 
 output.mouseCtrlMoveAction = function(event) {
-    if (mirrors.isSelected(event)) {
+    if (circles.isSelected(event)) {
         output.canvas.style.cursor = "pointer";
     } else {
         output.canvas.style.cursor = "default";
     }
     output.pixels.show();
-    mirrors.draw(false);
+    circles.draw(false);
 };
 
 output.mouseCtrlDownAction=function(event){
-    mirrors.select(event);
+    circles.select(event);
     output.pixels.show();
-    mirrors.draw(false);
+    circles.draw(false);
 };
 
 output.mouseCtrlWheelAction = function(event) {
@@ -120,18 +104,17 @@ output.mouseCtrlWheelAction = function(event) {
         map.drawMapChanged();
 
     } else {
-        mirrors.wheelAction(event);
+        circles.wheelAction(event);
         map.drawMapChanged();
     }
 };
 
 output.mouseCtrlDragAction=function(event){
-    mirrors.dragAction(event);
+    circles.dragAction(event);
     map.drawMapChanged();
 };
 
 output.firstDrawing();
-
 
 
 </script>

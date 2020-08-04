@@ -388,6 +388,7 @@ Circle.prototype.tryPositionTwoIntersections = function(centerX, centerY) {
  * @method tryPosition
  * @param {number} centerX
  * @param {number} centerY
+ * @return boolean true if successful and case solved
  */
 Circle.prototype.tryPosition = function(centerX, centerY) {
     let success = true;
@@ -413,6 +414,7 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
         this.updateUI();
         Circle.draw();
     }
+    return success;
 };
 
 /**
@@ -606,7 +608,6 @@ Circle.prototype.map = function(position) {
     }
 };
 
-
 /**
  * dragging the circle
  * action depends on intersections
@@ -614,7 +615,34 @@ Circle.prototype.map = function(position) {
  * @param{object} event
  */
 Circle.prototype.dragAction = function(event) {
-    this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
+    let success = this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
+    if (!success && (this.intersections.length === 2)) {
+        // try tunneling
+        console.log('tunnel');
+        // get basic data: unit vector between the two other circles
+        // repeats work done before, but is not expensive
+        const intersection1 = this.intersections[0];
+        const intersection2 = this.intersections[1];
+        const otherCircle1 = intersection1.getOtherCircle(this);
+        const otherCircle2 = intersection2.getOtherCircle(this);
+        const center1X = otherCircle1.centerX;
+        const center1Y = otherCircle1.centerY;
+        const center2X = otherCircle2.centerX;
+        const center2Y = otherCircle2.centerY;
+        let center1To2X = center2X - center1X;
+        let center1To2Y = center2Y - center1Y;
+        // the actual distances between centers of other circles
+        const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+        // normalized distance vector
+        center1To2X /= distanceCenter1To2;
+        center1To2Y /= distanceCenter1To2;
+        const c1ToMLength = center1To2X * (this.centerX - center1X) + center1To2Y * (this.centerY - center1Y);
+        const mX = center1X + c1ToMLength * center1To2X;
+        const mY = center1Y + c1ToMLength * center1To2Y;
+        const flippedX = 2 * mX - this.centerX;
+        const flippedY = 2 * mY - this.centerY;
+        this.tryPosition(flippedX + event.dx, flippedY + event.dy);
+    }
 };
 
 /**
