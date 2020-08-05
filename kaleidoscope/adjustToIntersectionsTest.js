@@ -142,7 +142,6 @@ console.log('distance',d);
 circle.setCenter(centerX+Math.cos(phi2)*d,centerY+Math.sin(phi2)*d);
 }
 
-
 if (nInter>=3){
 const circle=mirrors.addCircle({
     radius: r3,
@@ -156,10 +155,7 @@ console.log('distance',d);
 circle.setCenter(centerX+Math.cos(phi3)*d,centerY+Math.sin(phi3)*d);
 }
 
-
 mirrors.collection[0].adjustToIntersections();
-
-
 
 map.drawImageChanged = function() {
     map.draw();

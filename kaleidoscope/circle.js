@@ -332,13 +332,13 @@ Circle.prototype.adjustRadiusTwoIntersections = function(centerX, centerY) {
             // fail, do not change anything
             return false;
         }
-        this.radius2 = this.radius * this.radius;
     } else {
         console.error('Circle#adjustRadiusTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
         console.log(this);
         // fail, do not change anything
         return false;
     }
+        this.radius2 = this.radius * this.radius;
     // determine x from radius
     const x = a1 * this.radius + a0;
     // determine position from x and y
@@ -519,6 +519,7 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
  * adjust position of circle if there are two intersections
  * adjust radius and position of circle for three intersections
  * update UI if successful
+ * update output image elsewhere
  * return if successful
  * @method Circle#adjustToIntersections
  * @return boolean, true if success, false if something failed
@@ -541,6 +542,9 @@ Circle.prototype.adjustToIntersections = function() {
             success=this.adjustThreeIntersections();
             break;
     }
+    if (success){
+        this.updateUI();
+    }
     return success;
 };
 
@@ -552,7 +556,6 @@ Circle.prototype.adjustToIntersections = function() {
  * @param {boolean} isInsideOutMap
  */
 Circle.prototype.tryMapDirection = function(isInsideOutMap) {
-    console.log('try map direction', isInsideOutMap);
     // remember the old parameter (maybe it did not change?)
     const currentIsInsideOutMap = this.isInsideOutMap;
     this.isInsideOutMap = isInsideOutMap;
