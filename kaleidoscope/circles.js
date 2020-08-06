@@ -128,7 +128,6 @@ circles.setJSON = function(json) {
  * @method circles.draw
  */
 circles.draw = function() {
-    console.log("drawing");
     if (circles.otherSelected) {
         circles.otherSelected.draw(2);
     }

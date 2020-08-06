@@ -54,7 +54,6 @@ Intersection.prototype.signCosAngle = function() {
  * @param {integer} n
  */
 Intersection.prototype.setN = function(n) {
-    console.log('setn')
     this.n = Math.max(2, Math.round(n));
     if ((circles.selected !== this.circle1) && (circles.selected !== this.circcle2)) {
         circles.setSelected(this.circle2);

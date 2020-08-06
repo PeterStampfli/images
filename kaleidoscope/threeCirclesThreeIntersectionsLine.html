@@ -96,10 +96,8 @@ output.mouseCtrlDownAction=function(event){
 
 output.mouseCtrlWheelAction = function(event) {
     if (event.shiftPressed) {
-        console.log('wheel')
         is.incDecN(event.wheelDelta);
         map.drawMapChanged();
-
     } else {
         circles.wheelAction(event);
         map.drawMapChanged();

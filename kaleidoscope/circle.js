@@ -125,7 +125,6 @@ export function Circle(parentGui, properties) {
         params: this,
         property: 'color',
         onChange: function() {
-            console.log('color changed');
             Circle.draw();
         }
     });
@@ -206,8 +205,13 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
     // the required distances from center of this circle to the other circles
     let distanceToCenter1 = intersection1.distanceBetweenCenters();
     let distanceToCenter2 = intersection2.distanceBetweenCenters();
-    // check if we can form a triangle
-    if (distanceCenter1To2 > distanceToCenter1 + distanceToCenter2) {
+    // check if we can form a triangle: every side of the triangle has to be smaller than the sum of the other two side
+    // if not: we have to increase the radius. Minimum radius from all three centers on a line ?
+    // Because the degenerate triangle is the most extreme case with respect to the triangle rule.
+    let fail = distanceCenter1To2 > distanceToCenter1 + distanceToCenter2;
+    fail = fail || (distanceToCenter1 > distanceCenter1To2 + distanceToCenter2);
+    fail = fail || (distanceToCenter2 > distanceCenter1To2 + distanceToCenter1);
+    if (fail) {
         // determine the minimum distance
         // solve the system of two quadratic equations: 
         // do the resulting linear equation part
@@ -251,6 +255,7 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
             return false;
         }
     }
+
     // midpoint of the two solutions on the line between the two other centers
     const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
     let xi = parallelPosition / distanceCenter1To2;
@@ -327,18 +332,18 @@ Circle.prototype.adjustRadiusTwoIntersections = function(centerX, centerY) {
         } else if (data.y > 0) {
             this.radius = data.y;
         } else {
-            console.error('Circle#adjustRadiusTwoIntersections: Quadratic equation for minimum radius has no positve solution! Intersection:');
-            console.log(this);
+            //console.error('Circle#adjustRadiusTwoIntersections: Quadratic equation for minimum radius has no positve solution! Intersection:');
+            //console.log(this);
             // fail, do not change anything
             return false;
         }
     } else {
-        console.error('Circle#adjustRadiusTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
-        console.log(this);
+        //console.error('Circle#adjustRadiusTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
+        //console.log(this);
         // fail, do not change anything
         return false;
     }
-        this.radius2 = this.radius * this.radius;
+    this.radius2 = this.radius * this.radius;
     // determine x from radius
     const x = a1 * this.radius + a0;
     // determine position from x and y
@@ -422,7 +427,7 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     } else if (data.y < 0) {
         console.error('Circle#centerPositionsThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
         console.log(this);
-       return false;
+        return false;
     } else if (data.x < 0) {
         // only one positive solution
         this.radius = data.y;
@@ -534,15 +539,13 @@ Circle.prototype.adjustToIntersections = function() {
             this.adjustPositionOneIntersection();
             break;
         case 2:
-            console.log('2 intersections');
             success = this.adjustPositionTwoIntersections(this.radius);
             break;
         case 3:
-            console.log('3 intersections');
-            success=this.adjustThreeIntersections();
+            success = this.adjustThreeIntersections();
             break;
     }
-    if (success){
+    if (success) {
         this.updateUI();
     }
     return success;
@@ -715,7 +718,6 @@ Circle.prototype.dragAction = function(event) {
     let success = this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
     if (!success && (this.intersections.length === 2)) {
         // try tunneling
-        console.log('tunnel');
         // get basic data: unit vector between the two other circles
         // repeats work done before, but is not expensive
         const intersection1 = this.intersections[0];
