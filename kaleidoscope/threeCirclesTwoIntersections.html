@@ -55,10 +55,10 @@ map.mapping = function(point) {
 
 circles.makeGui(gui);
 
-const d=Math.sqrt(3);
-circles.add({radius:1,centerX:0})
-circles.add({radius:1,centerX:-d})
-circles.add({radius:1,centerX:d})
+const d=0.6;
+circles.add({radius:0.4,centerX:0, isInsideOutMap:true})
+circles.add({radius:0.4,centerX:-d})
+circles.add({radius:0.4,centerX:d})
 
 const is=new Intersection(circles.collection[0],circles.collection[1],3)
 const is2=new Intersection(circles.collection[0],circles.collection[2],3)

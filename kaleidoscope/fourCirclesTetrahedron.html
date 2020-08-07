@@ -55,25 +55,28 @@ map.mapping = function(point) {
 
 circles.makeGui(gui);
 
-const d=Math.sqrt(3);
+const d=2;
 let rt32=Math.sqrt(3)/2;
-rt32=1.5;
-circles.add({radius:0.5,centerX:0,centerY:0})
-circles.add({radius:1,centerX:0,centerY:1})
-circles.add({radius:1,centerX:rt32,centerY:-0.5})
-circles.add({radius:1,centerX:-rt32,centerY:-0.5})
+circles.add({radius:0.5,centerX:1,centerY:1})
+circles.add({radius:0.7,centerX:1,centerY:-0.2})
+circles.add({radius:0.8,centerX:0.7,centerY:0.4, isInsideOutMap:false})
+circles.add({radius:0.5,centerX:0.2,centerY:0.5})
 
 const is=new Intersection(circles.collection[0],circles.collection[1],4)
-const is2=new Intersection(circles.collection[0],circles.collection[2],4)
-const is3=new Intersection(circles.collection[0],circles.collection[3],4)
-new Intersection(circles.collection[1],circles.collection[2],4)
+const is2=new Intersection(circles.collection[0],circles.collection[2],2)
+const is3=new Intersection(circles.collection[0],circles.collection[3],99)
+circles.collection[0].adjustToIntersections();
+
+
+new Intersection(circles.collection[1],circles.collection[2],5)
 new Intersection(circles.collection[1],circles.collection[3],4)
-new Intersection(circles.collection[2],circles.collection[3],4)
 
 circles.collection[1].adjustToIntersections();
+
+
+new Intersection(circles.collection[2],circles.collection[3],3)
 circles.collection[2].adjustToIntersections();
 circles.collection[3].adjustToIntersections();
-circles.collection[0].adjustToIntersections();
 
 map.drawImageChanged = function() {
 map.draw();

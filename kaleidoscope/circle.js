@@ -159,11 +159,59 @@ Circle.prototype.activateUI = function() {
     }
 };
 
+
+/**
+ * adjust the radius of a circle with only one intersection
+ * use this for a given position of the center
+* return if successful
+ * @method Circle#adjustRadiusOneIntersection
+ @return boolean, success
+ */
+Circle.prototype.adjustRadiusOneIntersection = function() {
+    // basic data
+    const intersection = this.intersections[0];
+    const otherCircle = intersection.getOtherCircle(this);
+    let distance2 = (this.centerX - otherCircle.centerX) * (this.centerX - otherCircle.centerX);
+    distance2 += (this.centerY - otherCircle.centerY) * (this.centerY - otherCircle.centerY);
+    const coeff = 2 * otherCircle.radius * intersection.signCosAngle();
+    // setting up the quadratic equation
+    const a = 1;
+    const b = coeff;
+    const c = otherCircle.radius2 - distance2;
+    // solve
+    let success = true;
+    if (guiUtils.quadraticEquation(a, b, c, data)) {
+        if ((data.x > 0) && (Math.abs(radius - data.x) < Math.abs(radius - data.y))) {
+            // data.x is the smaller solution than data.y
+            // if it is positive, then we have two valid solutions, take the one that is closer to current radius
+            this.radius = data.x;
+        } else if (data.y > 0) {
+            // we have only one positive solution for the radius
+            this.radius = data.y;
+        } else {
+            // no positive solution, fail
+            console.error('Circle#adjustRadiusOneIntersection: Quadratic equation for minimum radius has no positve solution! Intersection:');
+            console.log(this);
+            success = false;
+        }
+    } else {
+        // no real solution, fail
+        console.error('Circle#adjustRadiusOneIntersection: Quadratic equation for minimum radius has no real solution! Intersection:');
+        console.log(this);
+        success = false;
+    }
+    if (success) {
+        this.radius2 = this.radius * this.radius;
+    }
+    return success;
+};
+
 /**
  * adjust the distance to another circle for a single intersection
- * use this for all cases
+ * use this for a given radius
  * moves center of this circle to or away from center of the other circle of the intersection
  * @method Circle#adjustPositionOneIntersection
+ * @return true, always successful
  */
 Circle.prototype.adjustPositionOneIntersection = function() {
     const distance = this.intersections[0].distanceBetweenCenters();
@@ -174,6 +222,7 @@ Circle.prototype.adjustPositionOneIntersection = function() {
     const factor = distance / d;
     this.centerX = otherCircle.centerX + factor * dx;
     this.centerY = otherCircle.centerY + factor * dy;
+    return true;
 };
 
 /**
@@ -568,6 +617,7 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
         Circle.draw();
     } else {
         this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
+        this.updateUI();
     }
 };
 
