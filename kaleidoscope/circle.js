@@ -159,29 +159,59 @@ Circle.prototype.activateUI = function() {
     }
 };
 
-
 /**
  * adjust the radius of a circle with only one intersection
  * use this for a given position of the center
-* return if successful
+ * return if successful
  * @method Circle#adjustRadiusOneIntersection
- @return boolean, success
+ * @param {number} centerX
+ * @param {number} centerY
+ * @return boolean, success
  */
-Circle.prototype.adjustRadiusOneIntersection = function() {
+Circle.prototype.adjustRadiusOneIntersection = function(centerX, centerY) {
     // basic data
     const intersection = this.intersections[0];
     const otherCircle = intersection.getOtherCircle(this);
-    let distance2 = (this.centerX - otherCircle.centerX) * (this.centerX - otherCircle.centerX);
-    distance2 += (this.centerY - otherCircle.centerY) * (this.centerY - otherCircle.centerY);
     const coeff = 2 * otherCircle.radius * intersection.signCosAngle();
+    if (coeff < 0) {
+           return false;     // unstable because of two possible solutions radius(distance)
+    }
+    const dx = centerX - otherCircle.centerX;
+    const dy = centerY - otherCircle.centerY;
+    const distance2 = dx * dx + dy * dy;
+    if ((coeff > 0) && (distance2 < otherCircle.radius2)) {
+        // both circles map in the same direction:
+        // center of this circle cannot lie inside other circle, (would result in negative radius)
+        // Correction: center lies on the circle and its radius vanishes
+        const factor = Math.sqrt(otherCircle.radius2 / distance2);
+        this.centerX = otherCircle.centerX + factor * dx;
+        this.centerY = otherCircle.centerY + factor * dy;
+        this.radius = 0;
+        this.radius2 = 0;
+        return true;
+    }
+    const minDistance2 = otherCircle.radius2 - 0.25 * coeff * coeff;
+    if ((coeff < 0) && (distance2 < minDistance2)) {
+        // center is too close to other circle, no real solution possible
+        // increase distance to minimum value, get unique double solution
+        console.log('min distance');
+        const factor = Math.sqrt(minDistance2 / distance2);
+        this.centerX = otherCircle.centerX + factor * dx;
+        this.centerY = otherCircle.centerY + factor * dy;
+        this.radius = -0.5 * coeff;
+        this.radius2 = this.radius * this.radius;
+        return true;
+    }
     // setting up the quadratic equation
     const a = 1;
     const b = coeff;
     const c = otherCircle.radius2 - distance2;
-    // solve
+    // solve, there should always be exactly one positive real solution
+    // but we check for all cases anyway. (Catch failing limiting cases.)
     let success = true;
+    const data = {};
     if (guiUtils.quadraticEquation(a, b, c, data)) {
-        if ((data.x > 0) && (Math.abs(radius - data.x) < Math.abs(radius - data.y))) {
+        if ((data.x > 0) && (Math.abs(this.radius - data.x) < Math.abs(this.radius - data.y))) {
             // data.x is the smaller solution than data.y
             // if it is positive, then we have two valid solutions, take the one that is closer to current radius
             this.radius = data.x;
@@ -202,13 +232,15 @@ Circle.prototype.adjustRadiusOneIntersection = function() {
     }
     if (success) {
         this.radius2 = this.radius * this.radius;
+        this.centerX = centerX;
+        this.centerY = centerY;
     }
     return success;
 };
 
 /**
  * adjust the distance to another circle for a single intersection
- * use this for a given radius
+ * use this for the current radius and position
  * moves center of this circle to or away from center of the other circle of the intersection
  * @method Circle#adjustPositionOneIntersection
  * @return true, always successful
@@ -304,7 +336,6 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
             return false;
         }
     }
-
     // midpoint of the two solutions on the line between the two other centers
     const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
     let xi = parallelPosition / distanceCenter1To2;
@@ -512,7 +543,7 @@ Circle.prototype.tryRadius = function(radius) {
             this.radius2 = radius * radius;
             break;
         case 1:
-            // keep the radius, change distance to other circle
+            // keep the radius, change distance to other circle, always possible
             this.radius = radius;
             this.radius2 = radius * radius;
             this.adjustPositionOneIntersection();
@@ -547,10 +578,13 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
             this.centerY = centerY;
             break;
         case 1:
-            // keep the radius, change distance to other circle
-            this.centerX = centerX;
-            this.centerY = centerY;
-            this.adjustPositionOneIntersection();
+            // first try to adjust the radius for the new position
+            if (!this.adjustRadiusOneIntersection(centerX, centerY)) {
+                // if it failed, keep radius and adjust distance between the circles
+                this.centerX = centerX;
+                this.centerY = centerY;
+                this.adjustPositionOneIntersection();
+            }
             break;
         case 2:
             success = this.adjustRadiusTwoIntersections(centerX, centerY);
