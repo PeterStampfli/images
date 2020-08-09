@@ -190,24 +190,11 @@ Circle.prototype.adjustRadiusOneIntersection = function(centerX, centerY) {
         this.radius2 = 0;
         return true;
     }
-    const minDistance2 = otherCircle.radius2 - 0.25 * coeff * coeff;
-    if ((coeff < 0) && (distance2 < minDistance2)) {
-        // center is too close to other circle, no real solution possible
-        // increase distance to minimum value, get unique double solution
-        console.log('min distance');
-        const factor = Math.sqrt(minDistance2 / distance2);
-        this.centerX = otherCircle.centerX + factor * dx;
-        this.centerY = otherCircle.centerY + factor * dy;
-        this.radius = -0.5 * coeff;
-        this.radius2 = this.radius * this.radius;
-        return true;
-    }
     // setting up the quadratic equation
     const a = 1;
     const b = coeff;
     const c = otherCircle.radius2 - distance2;
-    // solve, there should always be exactly one positive real solution
-    // but we check for all cases anyway. (Catch failing limiting cases.)
+    // solve, catch fails (no real solution, no positve solution)
     let success = true;
     const data = {};
     if (guiUtils.quadraticEquation(a, b, c, data)) {
@@ -407,6 +394,7 @@ Circle.prototype.adjustRadiusTwoIntersections = function(centerX, centerY) {
     const data = {};
     if (guiUtils.quadraticEquation(a, b, c, data)) {
         // data.x is the smaller solution than data.y
+        // if data.x is positive and closer to the current radius take it as solution
         if ((data.x > 0) && (Math.abs(this.radius - data.x) < Math.abs(this.radius - data.y))) {
             this.radius = data.x;
         } else if (data.y > 0) {
@@ -500,25 +488,27 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     const c = otherCircle1.radius2 - (a0 - center1X) * (a0 - center1X) - (b0 - center1Y) * (b0 - center1Y);
     const data = {};
     console.log(a, b, c);
-    if (!guiUtils.quadraticEquation(a, b, c, data)) {
-        console.error('Circle#centerPositionsThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
-        console.log(this);
-        return false;
-    } else if (data.y < 0) {
-        console.error('Circle#centerPositionsThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
-        console.log(this);
-        return false;
-    } else if (data.x < 0) {
-        // only one positive solution
-        this.radius = data.y;
-    } else {
-        // choose solution closer to this.radius
-        if (Math.abs(data.x - this.radius) < Math.abs(data.y - this.radius)) {
+
+ if (guiUtils.quadraticEquation(a, b, c, data)) {
+        // data.x is the smaller solution than data.y
+        // if data.x is positive and closer to the current radius take it as solution
+        if ((data.x > 0) && (Math.abs(this.radius - data.x) < Math.abs(this.radius - data.y))) {
             this.radius = data.x;
-        } else {
+        } else if (data.y > 0) {
             this.radius = data.y;
+        } else {
+        console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
+            console.log(this);
+            // fail, do not change anything
+            return false;
         }
+    } else {
+        console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
+        //console.log(this);
+        // fail, do not change anything
+        return false;
     }
+
     console.log('solution for r', data);
     console.log(this);
     this.radius2 = this.radius * this.radius;
@@ -623,6 +613,40 @@ Circle.prototype.adjustToIntersections = function() {
             break;
         case 2:
             success = this.adjustPositionTwoIntersections(this.radius);
+            break;
+        case 3:
+            success = this.adjustThreeIntersections();
+            break;
+    }
+    if (success) {
+        this.updateUI();
+    }
+    return success;
+};
+
+/**
+ * adjust circle to intersections when adding intersection or changing order
+ * nothing to do if there is no intersection
+ * adjust radius if there is only one intersection (increase radius if too small)
+ * adjust radius of circle if there are two intersections
+ * adjust radius and position of circle for three intersections
+ * update UI if successful
+ * update output image elsewhere
+ * return if successful
+ * @method Circle#adjustToIntersections
+ * @return boolean, true if success, false if something failed
+ */
+Circle.prototype.adjustRadiusToIntersections = function() {
+    let success = true;
+    switch (this.intersections.length) {
+        case 0:
+            break;
+        case 1:
+            // one intersection is 'trivial', we can keep the radius and change the distance to the other circle
+            this.adjustRadiusOneIntersection(this.centerX,this.centerY);
+            break;
+        case 2:
+            success = this.adjustRadiusTwoIntersections(this.centerX,this.centerY);
             break;
         case 3:
             success = this.adjustThreeIntersections();

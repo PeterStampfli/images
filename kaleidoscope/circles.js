@@ -24,7 +24,7 @@ circles.selected = false;
 circles.otherSelected = false;
 // ids and colors for circles
 
-let id = 0;
+let id = -1;
 
 /**
  * get an id number
