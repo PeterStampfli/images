@@ -66,7 +66,6 @@ Intersection.prototype.setN = function(n) {
         circles.setSelected(this.circle1);
         circles.setSelected(this.circle2);
     }
-
     let success = circles.selected.adjustToIntersections();
     if (!success) {
         success = circles.otherSelected.adjustToIntersections();

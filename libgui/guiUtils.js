@@ -559,9 +559,7 @@ guiUtils.quadraticEquation = function(a, b, c, data) {
         data.y = 0;
         return false;
     }
-    console.log(b)
     if (b > 0) {
-        console.log('+')
         s1 = 0.5 * (-b - Math.sqrt(rootArg)) / a;
     } else {
         s1 = 0.5 * (-b + Math.sqrt(rootArg)) / a;
@@ -574,7 +572,5 @@ guiUtils.quadraticEquation = function(a, b, c, data) {
         data.x=s2;
         data.y=s1;
     }
-
-    console.log(data)
     return true;
 };
