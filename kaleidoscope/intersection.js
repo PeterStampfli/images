@@ -47,16 +47,18 @@ Intersection.prototype.signCosAngle = function() {
 };
 
 /**
- * change the order n of the intersection
+ * try to change the order n of the intersection
  * see if one of the circles is selected, then adjust it
  * if fail try to adjust the other circle
  * if none is selected try both
- * if all faails restore order n
+ * if all fails restore order n
+ * return if successful
  * makes that both circles will be selected
- * @method Intersection#setN
+ * @method Intersection#tryN
  * @param {integer} n
+ * @return boolean, true if success
  */
-Intersection.prototype.setN = function(n) {
+Intersection.prototype.tryN = function(n) {
     const currentN = this.n;
     this.n = Math.max(2, Math.round(n));
     if (circles.selected === this.circle1) {
@@ -73,6 +75,7 @@ Intersection.prototype.setN = function(n) {
     if (!success) {
         this.n = currentN;
     }
+    return success;
 };
 
 /**
@@ -82,9 +85,9 @@ Intersection.prototype.setN = function(n) {
  */
 Intersection.prototype.incDecN = function(direction) {
     if (direction > 0) {
-        this.setN(this.n + 1);
+        this.tryN(this.n + 1);
     } else {
-        this.setN(this.n - 1);
+        this.tryN(this.n - 1);
     }
 };
 

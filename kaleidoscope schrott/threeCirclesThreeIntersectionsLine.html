@@ -58,15 +58,15 @@ circles.makeGui(gui);
 const d=0.9;
 
 circles.add({radius:1,centerX:-d,isInsideOutMap:false})
-circles.add({radius:1,centerX:d,isInsideOutMap:false})
-
-const is=new Intersection(circles.collection[0],circles.collection[1],3)
+circles.add({radius:1,centerX:d,isInsideOutMap:true})
+new Intersection(circles.collection[0],circles.collection[1],3)
 
 circles.collection[0].adjustToIntersections();
 
 circles.add({radius:0.2})
 
-new Intersection(circles.collection[2],circles.collection[0],4)
+
+const is=new Intersection(circles.collection[2],circles.collection[0],4)
 new Intersection(circles.collection[2],circles.collection[1],4)
 
 circles.collection[2].adjustToIntersections();
