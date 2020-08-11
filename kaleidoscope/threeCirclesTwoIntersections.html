@@ -56,7 +56,7 @@ map.mapping = function(point) {
 circles.makeGui(gui);
 
 const d=0.6;
-circles.add({radius:0.4,centerX:0, isInsideOutMap:true})
+circles.add({radius:0.4,centerX:0, isInsideOutMap:false})
 circles.add({radius:0.4,centerX:-d})
 circles.add({radius:0.4,centerX:d})
 
@@ -66,6 +66,7 @@ const is2=new Intersection(circles.collection[0],circles.collection[2],3)
 circles.collection[0].adjustToIntersections();
 circles.collection[1].adjustToIntersections();
 circles.collection[2].adjustToIntersections();
+circles.setSelected(circles.collection[0])
 
 map.drawImageChanged = function() {
 map.draw();

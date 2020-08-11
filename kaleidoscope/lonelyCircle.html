@@ -61,6 +61,7 @@ map.mapping = function(point) {
 circles.makeGui(gui,{closed:false});
 
 const circle=circles.add({radius:1, isInsideOutMap:false});
+circle.gui.open();
 
 map.drawImageChanged = function() {
 map.draw();

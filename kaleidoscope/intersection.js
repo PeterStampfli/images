@@ -70,7 +70,8 @@ Intersection.prototype.tryN = function(n) {
     }
     let success = circles.selected.adjustToIntersections();
     if (!success) {
-        success = circles.otherSelected.adjustToIntersections();
+        circles.setSelected(circles.otherSelected);
+        success = circles.selected.adjustToIntersections();
     }
     if (!success) {
         this.n = currentN;
