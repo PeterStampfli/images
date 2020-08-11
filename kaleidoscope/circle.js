@@ -340,6 +340,7 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
         }
     }
     // midpoint of the two solutions on the line between the two other centers
+    // distance from center of circle 1 to the midpoint
     const parallelPosition = 0.5 * (distanceCenter1To2 + (distanceToCenter1 * distanceToCenter1 - distanceToCenter2 * distanceToCenter2) / distanceCenter1To2);
     let xi = parallelPosition / distanceCenter1To2;
     const px = center1X + center1To2X * xi;

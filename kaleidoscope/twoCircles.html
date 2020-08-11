@@ -61,9 +61,13 @@ circles.add({radius:1,centerX:d, isInsideOutMap:false})
 const is=new Intersection(circles.collection[0],circles.collection[1],5)
 circles.collection[0].adjustToIntersections();
 
+const pos1={}
+const pos2={}
 map.drawImageChanged = function() {
 map.draw();
-    circles.draw()
+    circles.draw();
+is.draw(1);
+is.draw();
 }
 Circle.draw = map.drawMapChanged;
 
@@ -75,12 +79,16 @@ output.mouseCtrlMoveAction = function(event) {
     }
     output.pixels.show();
     circles.draw(false);
+is.draw(1);
+is.draw();
 };
 
 output.mouseCtrlDownAction=function(event){
     circles.select(event);
     output.pixels.show();
     circles.draw(false);
+is.draw(1);
+is.draw();
 };
 
 output.mouseCtrlWheelAction = function(event) {
