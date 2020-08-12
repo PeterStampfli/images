@@ -10,10 +10,12 @@ import {
 } from './modules.js';
 
 // parameters for drawing, change if you do not like it 
-Intersection.radius = 15; // in pixel
+Intersection.radius = 15; // for drawing, in pixels
+Intersection.selectionRadius = 18; // for selecting, in pixels
 Intersection.lineWidth = 2;
 Intersection.highlightLineWidth = 6;
 Intersection.highlightColor = 'yellow';
+Intersection.frozenHighlightColor = '#ffbbbb';
 Intersection.maxCorners = 16; // polygons with more corners will be circles
 
 /**
@@ -186,7 +188,6 @@ Intersection.prototype.drawPolygon = function(center, radius) {
         context.arc(center.x, center.y, radius, 0, 2 * Math.PI);
         context.stroke();
     }
-
 };
 
 /**
@@ -205,10 +206,37 @@ Intersection.prototype.draw = function(highlight = 0) {
         this.drawPolygon(pos2, Intersection.radius);
     } else {
         output.setLineWidth(Intersection.highlightLineWidth);
-        context.strokeStyle = Intersection.highlightColor;
+        if ((this.circle1.canChange) || (this.circle2.canChange)) {
+            context.strokeStyle = Intersection.highlightColor;
+        } else {
+            context.strokeStyle = Intersection.frozenHighlightColor;
+        }
         this.drawPolygon(pos1, Intersection.radius);
         this.drawPolygon(pos2, Intersection.radius);
     }
+};
+
+/**
+ * check if the intersection is selected by position
+ * @method Intersection#isSelected
+ * @param {object} position - with x and y fields, such as mouseEvents
+ * @return boolean, true if selected
+ */
+Intersection.prototype.isSelected = function(position) {
+    let selectionRadius2 = Intersection.selectionRadius * output.coordinateTransform.totalScale;
+    selectionRadius2 = selectionRadius2 * selectionRadius2;
+    this.determinePositions(pos1, pos2);
+    let dx = position.x - pos1.x;
+    let dy = position.y - pos1.y;
+    if (dx * dx + dy * dy < selectionRadius2) {
+        return true;
+    }
+    dx = position.x - pos2.x;
+    dy = position.y - pos2.y;
+    if (dx * dx + dy * dy < selectionRadius2) {
+        return true;
+    }
+    return false;
 };
 
 /**

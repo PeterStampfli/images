@@ -34,3 +34,8 @@ export {
 }
 from "./intersection.js";
 
+export {
+    intersections
+}
+from "./intersections.js";
+

@@ -72,7 +72,7 @@ is.draw();
 Circle.draw = map.drawMapChanged;
 
 output.mouseCtrlMoveAction = function(event) {
-    if (circles.isSelected(event)) {
+    if (is.isSelected(event)) {
         output.canvas.style.cursor = "pointer";
     } else {
         output.canvas.style.cursor = "default";
