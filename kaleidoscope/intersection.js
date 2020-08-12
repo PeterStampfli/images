@@ -20,20 +20,20 @@ Intersection.maxCorners = 16; // polygons with more corners will be circles
 
 /**
  * intersection between circles, making a definite n-fold dihedral symmetry
- * makes that one of the circles adjusts (selected one preferred)
- * adjust later
+ * only general initialization, adjust circles later
  * @constructor Intersection
  * @params {Circle} circle1
  * @params {Circle} circle2
- * @params {integer} n - optional, has to be >=2, default 3
+ * @param {String} color - for drawing, optional, default is black
+ * @params {integer} n - optional, has to be >=2, default 3, for tests
  */
-export function Intersection(circle1, circle2, n = 3) {
+export function Intersection(circle1, circle2, color='#000000',n = 3) {
     this.circle1 = circle1;
     this.circle2 = circle2;
     this.n = Math.max(2, Math.round(n));
     circle1.addIntersection(this);
     circle2.addIntersection(this);
-    this.color = '#000000'; // default color for drawing
+    this.color = color;
 }
 
 /**
@@ -61,6 +61,21 @@ Intersection.prototype.signCosAngle = function() {
 };
 
 /**
+* select the intersecting circles of this intersection
+* if one of them is already selected, then it will remain so
+* @method Intersection.selectCircles
+*/
+Intersection.prototype.selectCircles=function(){
+    if (circles.selected === this.circle1) {
+        circles.setSelected(this.circle2);
+        circles.setSelected(this.circle1);
+    } else {
+        circles.setSelected(this.circle1);
+        circles.setSelected(this.circle2);
+    }
+};
+
+/**
  * try to change the order n of the intersection
  * see if one of the circles is selected, then adjust it
  * if fail try to adjust the other circle
@@ -75,13 +90,7 @@ Intersection.prototype.signCosAngle = function() {
 Intersection.prototype.tryN = function(n) {
     const currentN = this.n;
     this.n = Math.max(2, Math.round(n));
-    if (circles.selected === this.circle1) {
-        circles.setSelected(this.circle2);
-        circles.setSelected(this.circle1);
-    } else {
-        circles.setSelected(this.circle1);
-        circles.setSelected(this.circle2);
-    }
+    this.selectCircles();
     let success = circles.selected.adjustToIntersections();
     if (!success) {
         circles.setSelected(circles.otherSelected);

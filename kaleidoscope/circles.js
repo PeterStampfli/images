@@ -22,7 +22,11 @@ circles.collection = [];
 circles.selected = false;
 // the other selected circle (making intersections)
 circles.otherSelected = false;
+
 // ids and colors for circles
+// we have to use id numbers, not indices for the array
+// because we may delete elements of the collection array
+// we need id numbers to reconstruct intersections between circles (presets, saving the structure)
 
 let id = -1;
 
@@ -68,11 +72,10 @@ circles.add = function(properties = {}) {
     if (index >= 0) {
         console.error('circles.add: circle already there. It is:');
         console.log(circle);
-        circles.selected = circles.collection[index];
     } else {
         circles.collection.push(circle);
-        circles.setSelected(circle);
     }
+        circles.setSelected(circle);
     return circle;
 };
 
@@ -191,7 +194,7 @@ circles.isSelected = function(position) {
 
 /**
  * set a circle as selected, and set that it can be deleted
- * note already seleccted circcle as other selected circle (for making intersections)
+ * note already selected circle as other selected circle (for making intersections)
  * @method circles.setSelected
  * @param {Circle} circle
  */

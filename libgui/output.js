@@ -554,30 +554,35 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     // things can become confusing if ctrl&mousebutton pressed, ctrl released, mouse moves and image gets dragged
     // thus ctrl key up or down event sets mouse pressed to false
     // selected elements should stay selected even if ctrl-key goes up
+    // if ctrl key goes down, select elements
 
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "default";
             mouseEvents.setPressedFalse();
-        }
+             output.ctrlKeyDownAction(mouseEvents);
+       }
     }, false);
 
     document.addEventListener('keyup', function(event) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "pointer";
             mouseEvents.setPressedFalse();
-            output.mouseCtrlUpAction();
+            output.ctrlKeyUpAction(mouseEvents);
         }
     }, false);
 
-    // other actions (ctrl-key pressed) than changing the transform/view
-    output.mouseCtrlInAction = function(mouseEvents) {}; // mouse up
+    // other mouse actions (ctrl-key pressed) than changing the transform/view
+    output.mouseCtrlInAction = function(mouseEvents) {}; // mouse in (enter)
     output.mouseCtrlMoveAction = function(mouseEvents) {}; // mouse move (move with button released)
     output.mouseCtrlDownAction = function(mouseEvents) {}; // mouse down 
     output.mouseCtrlDragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
     output.mouseCtrlUpAction = function(mouseEvents) {}; // mouse up
     output.mouseCtrlOutAction = function(mouseEvents) {}; // mouse out (leave)
     output.mouseCtrlWheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
+// actions upon ctrl key down/up
+output.ctrlKeyUpAction=function(mouseEvent){};
+output.ctrlKeyDownAction=function(mouseEvent){};
 
     // change the transform or do something else
     mouseEvents.inAction = function() {

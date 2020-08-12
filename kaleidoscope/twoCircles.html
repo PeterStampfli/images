@@ -26,7 +26,8 @@ import {
 import {
     Circle,
     circles,
-    Intersection
+    Intersection,
+    intersections
 } from './modules.js';
 
 // basic setup
@@ -58,37 +59,37 @@ const d=Math.sqrt(3)/2;
 circles.add({radius:1,centerX:-d, isInsideOutMap:false})
 circles.add({radius:1,centerX:d, isInsideOutMap:false})
 
-const is=new Intersection(circles.collection[0],circles.collection[1],5)
+const is=intersections.add(circles.collection[0],circles.collection[1],5)
 circles.collection[0].adjustToIntersections();
 
-const pos1={}
-const pos2={}
 map.drawImageChanged = function() {
 map.draw();
     circles.draw();
-is.draw(1);
-is.draw();
+intersections.draw();
 }
 Circle.draw = map.drawMapChanged;
 
 output.mouseCtrlMoveAction = function(event) {
-    if (is.isSelected(event)) {
+    console.log(event)
+    if (intersections.isSelected(event)) {
         output.canvas.style.cursor = "pointer";
-    } else {
+    } else if (circles.isSelected(event)) {
+        output.canvas.style.cursor = "pointer";
+    }else {
         output.canvas.style.cursor = "default";
     }
     output.pixels.show();
     circles.draw(false);
-is.draw(1);
-is.draw();
+    intersections.draw();
 };
+
+output.ctrlKeyDownAction=output.mouseCtrlMoveAction;
 
 output.mouseCtrlDownAction=function(event){
     circles.select(event);
     output.pixels.show();
     circles.draw(false);
-is.draw(1);
-is.draw();
+    intersections.draw();
 };
 
 output.mouseCtrlWheelAction = function(event) {
