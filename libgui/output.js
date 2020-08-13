@@ -560,8 +560,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "default";
             mouseEvents.setPressedFalse();
-             makeTransformedMouseEvent(transformedEvent,mouseEvents);
-          output.ctrlKeyDownAction(transformedEvent);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
+            output.ctrlKeyDownAction(transformedEvent);
         }
     }, false);
 
@@ -591,19 +591,19 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
 
     mouseEvents.inAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlInAction(transformedEvent);
         }
     };
     mouseEvents.moveAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlMoveAction(transformedEvent);
         }
     };
     mouseEvents.downAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlDownAction(transformedEvent);
         } else {
             output.canvas.style.cursor = "grabbing";
@@ -611,7 +611,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     };
     mouseEvents.dragAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlDragAction(transformedEvent);
         } else {
             v.x = mouseEvents.dx;
@@ -626,7 +626,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     };
     mouseEvents.upAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlUpAction(transformedEvent);
         } else {
             output.canvas.style.cursor = "pointer";
@@ -634,13 +634,13 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     };
     mouseEvents.outAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlOutAction(transformedEvent);
         }
     };
     mouseEvents.wheelAction = function() {
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlWheelAction(transformedEvent);
         } else {
             // the zoom center, prescaled

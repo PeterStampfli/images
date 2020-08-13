@@ -6,7 +6,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    Circle
+    Circle,
+    intersections
 } from './modules.js';
 
 /**
@@ -75,6 +76,7 @@ circles.add = function(properties = {}) {
 
 /**
  * remove a circle from the collection
+ * beware if selected
  * @method circles.remove
  * @param {Circle} circle
  */
@@ -86,6 +88,15 @@ circles.remove = function(circle) {
         console.error('circles.remove: circle not found. It is:');
         console.log(circle);
     }
+    if (circles.selected === circle) {
+        circles.selected = circles.otherSelected;
+        circles.otherSelected = false;
+    }
+    if (circles.otherSelected === circle) {
+        circles.otherSelected = false;
+    }
+    circles.updateUI();
+    intersections.updateUI();
 };
 
 /**
@@ -159,14 +170,20 @@ circles.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
-                circles.selected = circles.otherSelected;
-                circles.otherSelected = false;
                 map.drawMapChanged();
             }
-            circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
         }
     });
-    circles.deleteButton.setActive(false);
+    circles.updateUI();
+};
+
+/**
+ * update the UI
+ * (activating the delete button)
+ * @method circles.updateUI
+ */
+circles.updateUI = function() {
+    circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
 };
 
 /**
@@ -197,7 +214,8 @@ circles.setSelected = function(circle) {
     if (circle !== circles.selected) {
         circles.otherSelected = circles.selected;
         circles.selected = circle;
-        circles.deleteButton.setActive(true);
+        circles.updateUI();
+        intersections.updateUI();
     }
 };
 
@@ -216,7 +234,6 @@ circles.select = function(position) {
         }
     }
 };
-
 
 /**
  * wheel action on the selected circle

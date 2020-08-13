@@ -1,8 +1,13 @@
 /* jshint esversion: 6 */
 
+import {
+    guiUtils,
+    map
+} from "../libgui/modules.js";
 
 import {
-    Intersection
+    Intersection,
+    circles
 } from './modules.js';
 
 /**
@@ -42,27 +47,26 @@ intersections.getColor = function() {
 // still no gui
 
 /**
-* find index of intersection given its two circles
-* returns -1 if not found
-* @method intersections.indexOf
+ * find index of intersection given its two circles
+ * returns -1 if not found
+ * @method intersections.indexOf
  * @param{Circle} circle1
  * @param{Circle} circle2
-* @return integer
+ * @return integer
  */
-intersections.indexOf=function(circle1,circle2){
-const length=intersections.collection.length;
-for (var i=0;i<length;i++){
-	const intersection=intersections.collection[i];
-if ((intersection.circle1===circle1)&&(intersection.circle2===circle2)){
-	return i;
-}
-if ((intersection.circle1===circle2)&&(intersection.circle2===circle1)){
-	return i;
-}
-}
-return -1;
+intersections.indexOf = function(circle1, circle2) {
+    const length = intersections.collection.length;
+    for (var i = 0; i < length; i++) {
+        const intersection = intersections.collection[i];
+        if ((intersection.circle1 === circle1) && (intersection.circle2 === circle2)) {
+            return i;
+        }
+        if ((intersection.circle1 === circle2) && (intersection.circle2 === circle1)) {
+            return i;
+        }
+    }
+    return -1;
 };
-
 
 /**
  * make an intersection and add to the collection, set its color
@@ -73,18 +77,19 @@ return -1;
  * @return the intersection
  */
 intersections.add = function(circle1, circle2, n = 3) {
-    const index = intersections.indexOf(circle1,circle2);
+    const index = intersections.indexOf(circle1, circle2);
     var intersection;
     if (index >= 0) {
         console.error('intersections.add: intersection between given circles already there. It is:');
-        intersection=intersections.collection[index];
+        intersection = intersections.collection[index];
         console.log(intersection);
-        console.log("circle ids",intersection.circle1.id,intersection.circle2.id);
+        console.log("circle ids", intersection.circle1.id, intersection.circle2.id);
     } else {
-     intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
-       intersections.collection.push(intersection);
+        intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
+        intersections.collection.push(intersection);
     }
     intersections.setSelected(intersection);
+    intersections.updateUI();
     return intersection;
 };
 
@@ -101,6 +106,10 @@ intersections.remove = function(intersection) {
         console.error('intersection.remove: intersection not found. It is:');
         console.log(circle);
     }
+    if (intersections.selected === intersection) {
+        intersections.selected = false;
+    }
+    intersections.updateUI();
 };
 
 /**
@@ -122,6 +131,58 @@ intersections.draw = function() {
         intersections.selected.draw(1);
     }
     intersections.collection.forEach(intersection => intersection.draw(0));
+};
+
+// interaction with the mouse
+//==================================================
+
+/**
+ * make the gui and add some buttons
+ * @method intersections.makeGui
+ * @param{Paramgui} parentGui
+ * @param{Object} args - optional, modifying the gui
+ */
+intersections.makeGui = function(parentGui, args = {}) {
+    intersections.gui = parentGui.addFolder('intersections', args);
+    intersections.addButton = intersections.gui.add({
+        type: 'button',
+        buttonText: 'add intersection',
+        onClick: function() {
+            // add an interssection between the two selected circles
+            // button cannot be clicked if this is not possible
+
+            map.drawMapChanged();
+        }
+    });
+    intersections.deleteButton = intersections.gui.add({
+        type: 'button',
+        buttonText: 'delete selected',
+        onClick: function() {
+            if (guiUtils.isObject(intersections.selected)) {
+                intersections.selected.destroy();
+
+                map.drawMapChanged(); // removing the intersection actually should not change the map
+            }
+        }
+    });
+    intersections.updateUI();
+};
+
+/**
+ * update the UI
+ * (activating buttons)
+ * @method intersections.updateUI
+ */
+intersections.updateUI = function() {
+    // can only delete selected intersection if an interssection is selected
+    intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
+    // can add an intersection only if  two circles are selected, and they do not have an intersection
+    if (guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected)) {
+        const index = intersections.indexOf(circles.selected, circles.otherSelected);
+        intersections.addButton.setActive(index < 0);
+    } else {
+        intersections.addButton.setActive(false);
+    }
 };
 
 /**

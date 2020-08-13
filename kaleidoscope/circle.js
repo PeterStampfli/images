@@ -23,7 +23,7 @@ Circle.lineWidth = 2;
 Circle.highlightLineWidth = 6;
 Circle.highlightColor = 'yellow';
 Circle.otherHighlightColor = 'white';
-Circle.frozenHighlightColor='#ffbbbb';
+Circle.frozenHighlightColor = '#ffbbbb';
 
 // selection, regionwidth in px
 Circle.selectWidth = Circle.highlightLineWidth;
@@ -719,11 +719,11 @@ Circle.prototype.draw = function(highlight = 0) {
             break;
         case 1:
             output.setLineWidth(Circle.highlightLineWidth);
-            context.strokeStyle =(this.canChange)? Circle.highlightColor:Circle.frozenHighlightColor;
+            context.strokeStyle = (this.canChange) ? Circle.highlightColor : Circle.frozenHighlightColor;
             break;
         case 2:
             output.setLineWidth(Circle.highlightLineWidth);
-            context.strokeStyle =(this.canChange)? Circle.otherHighlightColor:Circle.frozenHighlightColor;
+            context.strokeStyle = (this.canChange) ? Circle.otherHighlightColor : Circle.frozenHighlightColor;
             break;
     }
     context.beginPath();

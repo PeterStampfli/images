@@ -6,7 +6,8 @@ import {
 from "../libgui/modules.js";
 
 import {
-    circles
+    circles,
+    intersections
 } from './modules.js';
 
 // parameters for drawing, change if you do not like it 
@@ -27,7 +28,7 @@ Intersection.maxCorners = 16; // polygons with more corners will be circles
  * @param {String} color - for drawing, optional, default is black
  * @params {integer} n - optional, has to be >=2, default 3, for tests
  */
-export function Intersection(circle1, circle2, color='#000000',n = 3) {
+export function Intersection(circle1, circle2, color = '#000000', n = 3) {
     this.circle1 = circle1;
     this.circle2 = circle2;
     this.n = Math.max(2, Math.round(n));
@@ -61,11 +62,11 @@ Intersection.prototype.signCosAngle = function() {
 };
 
 /**
-* select the intersecting circles of this intersection
-* if one of them is already selected, then it will remain so
-* @method Intersection.selectCircles
-*/
-Intersection.prototype.selectCircles=function(){
+ * select the intersecting circles of this intersection
+ * if one of them is already selected, then it will remain so
+ * @method Intersection.selectCircles
+ */
+Intersection.prototype.selectCircles = function() {
     if (circles.selected === this.circle1) {
         circles.setSelected(this.circle2);
         circles.setSelected(this.circle1);
@@ -258,4 +259,5 @@ Intersection.prototype.destroy = function() {
     this.circle2.removeIntersection(this);
 
     // remove from list, delete UI
+    intersections.remove(this);
 };

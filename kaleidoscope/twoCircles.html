@@ -55,6 +55,8 @@ map.mapping = function(point) {
 
 circles.makeGui(gui);
 
+intersections.makeGui(gui,{closed:false});
+
 const d=Math.sqrt(3)/2;
 const c1=circles.add({radius:1,centerX:-d, isInsideOutMap:false})
 const c2=circles.add({radius:1,centerX:d, isInsideOutMap:false})
@@ -62,10 +64,7 @@ const c2=circles.add({radius:1,centerX:d, isInsideOutMap:false})
 const is=intersections.add(circles.collection[0],circles.collection[1],5)
 circles.collection[0].adjustToIntersections();
 
-console.log(intersections.indexOf(c1,c2))
-console.log(intersections.indexOf(c2,c1))
-console.log(intersections.indexOf(c1,c1))
-intersections.add(circles.collection[0],circles.collection[1],5)
+
 
 map.drawImageChanged = function() {
 map.draw();
