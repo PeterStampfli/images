@@ -67,15 +67,9 @@ circles.getColor = function() {
 circles.add = function(properties = {}) {
     properties.id = circles.getId();
     properties.color = circles.getColor();
-    const circle = new Circle(circles.gui, properties);
-    const index = circles.collection.indexOf(circle);
-    if (index >= 0) {
-        console.error('circles.add: circle already there. It is:');
-        console.log(circle);
-    } else {
-        circles.collection.push(circle);
-    }
-        circles.setSelected(circle);
+    const circle = new Circle(circles.gui, properties); // this creates a unique new circle, which is not in the collection
+    circles.collection.push(circle);
+    circles.setSelected(circle);
     return circle;
 };
 

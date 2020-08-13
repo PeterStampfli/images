@@ -42,6 +42,29 @@ intersections.getColor = function() {
 // still no gui
 
 /**
+* find index of intersection given its two circles
+* returns -1 if not found
+* @method intersections.indexOf
+ * @param{Circle} circle1
+ * @param{Circle} circle2
+* @return integer
+ */
+intersections.indexOf=function(circle1,circle2){
+const length=intersections.collection.length;
+for (var i=0;i<length;i++){
+	const intersection=intersections.collection[i];
+if ((intersection.circle1===circle1)&&(intersection.circle2===circle2)){
+	return i;
+}
+if ((intersection.circle1===circle2)&&(intersection.circle2===circle1)){
+	return i;
+}
+}
+return -1;
+};
+
+
+/**
  * make an intersection and add to the collection, set its color
  * @method circles.add
  * @param{Circle} circle1
@@ -50,13 +73,16 @@ intersections.getColor = function() {
  * @return the intersection
  */
 intersections.add = function(circle1, circle2, n = 3) {
-    const intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
-    const index = intersections.collection.indexOf(intersection);
+    const index = intersections.indexOf(circle1,circle2);
+    var intersection;
     if (index >= 0) {
-        console.error('intersections.add: intersection already there. It is:');
+        console.error('intersections.add: intersection between given circles already there. It is:');
+        intersection=intersections.collection[index];
         console.log(intersection);
+        console.log("circle ids",intersection.circle1.id,intersection.circle2.id);
     } else {
-        intersections.collection.push(intersection);
+     intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
+       intersections.collection.push(intersection);
     }
     intersections.setSelected(intersection);
     return intersection;

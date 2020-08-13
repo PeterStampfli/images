@@ -56,11 +56,16 @@ map.mapping = function(point) {
 circles.makeGui(gui);
 
 const d=Math.sqrt(3)/2;
-circles.add({radius:1,centerX:-d, isInsideOutMap:false})
-circles.add({radius:1,centerX:d, isInsideOutMap:false})
+const c1=circles.add({radius:1,centerX:-d, isInsideOutMap:false})
+const c2=circles.add({radius:1,centerX:d, isInsideOutMap:false})
 
 const is=intersections.add(circles.collection[0],circles.collection[1],5)
 circles.collection[0].adjustToIntersections();
+
+console.log(intersections.indexOf(c1,c2))
+console.log(intersections.indexOf(c2,c1))
+console.log(intersections.indexOf(c1,c1))
+intersections.add(circles.collection[0],circles.collection[1],5)
 
 map.drawImageChanged = function() {
 map.draw();
@@ -70,7 +75,6 @@ intersections.draw();
 Circle.draw = map.drawMapChanged;
 
 output.mouseCtrlMoveAction = function(event) {
-    console.log(event)
     if (intersections.isSelected(event)) {
         output.canvas.style.cursor = "pointer";
     } else if (circles.isSelected(event)) {
@@ -83,8 +87,10 @@ output.mouseCtrlMoveAction = function(event) {
     intersections.draw();
 };
 
-output.ctrlKeyDownAction=output.mouseCtrlMoveAction;
 
+output.ctrlKeyDownAction=function(event){
+    output.mouseCtrlMoveAction(event);
+}
 output.mouseCtrlDownAction=function(event){
     circles.select(event);
     output.pixels.show();
