@@ -434,7 +434,7 @@ output.setCanvasDimensions = function(width, height = width) {
     autoResizeController.setActive(false);
     widthController.setValueOnly(width);
     heightController.setValueOnly(height);
-        autoResizeDraw();
+    autoResizeDraw();
 };
 
 /**
@@ -560,55 +560,59 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "default";
             mouseEvents.setPressedFalse();
-             output.ctrlKeyDownAction(mouseEvents);
-       }
+             makeTransformedMouseEvent(transformedEvent,mouseEvents);
+          output.ctrlKeyDownAction(transformedEvent);
+        }
     }, false);
 
     document.addEventListener('keyup', function(event) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "pointer";
             mouseEvents.setPressedFalse();
-            output.ctrlKeyUpAction(mouseEvents);
+            output.ctrlKeyUpAction(transformedEvent);
         }
     }, false);
 
     // other mouse actions (ctrl-key pressed) than changing the transform/view
-    output.mouseCtrlInAction = function(mouseEvents) {}; // mouse in (enter)
-    output.mouseCtrlMoveAction = function(mouseEvents) {}; // mouse move (move with button released)
-    output.mouseCtrlDownAction = function(mouseEvents) {}; // mouse down 
-    output.mouseCtrlDragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
-    output.mouseCtrlUpAction = function(mouseEvents) {}; // mouse up
-    output.mouseCtrlOutAction = function(mouseEvents) {}; // mouse out (leave)
-    output.mouseCtrlWheelAction = function(mouseEvents) {}; // mouse wheel or keyboard keys
-// actions upon ctrl key down/up
-output.ctrlKeyUpAction=function(mouseEvent){};
-output.ctrlKeyDownAction=function(mouseEvent){};
+    output.mouseCtrlInAction = function(event) {}; // mouse in (enter)
+    output.mouseCtrlMoveAction = function(event) {}; // mouse move (move with button released)
+    output.mouseCtrlDownAction = function(event) {}; // mouse down 
+    output.mouseCtrlDragAction = function(event) {}; // mouse drag (move with button pressed)
+    output.mouseCtrlUpAction = function(event) {}; // mouse up
+    output.mouseCtrlOutAction = function(event) {}; // mouse out (leave)
+    output.mouseCtrlWheelAction = function(event) {}; // mouse wheel or keyboard keys
+    // actions upon ctrl key down/up
+    output.ctrlKeyUpAction = function(event) {};
+    output.ctrlKeyDownAction = function(event) {};
 
     // change the transform or do something else
+
+    const transformedEvent = {};
+
     mouseEvents.inAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlInAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlInAction(transformedEvent);
         }
     };
     mouseEvents.moveAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlMoveAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlMoveAction(transformedEvent);
         }
     };
     mouseEvents.downAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlDownAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlDownAction(transformedEvent);
         } else {
             output.canvas.style.cursor = "grabbing";
         }
     };
     mouseEvents.dragAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlDragAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlDragAction(transformedEvent);
         } else {
             v.x = mouseEvents.dx;
             v.y = mouseEvents.dy;
@@ -622,22 +626,22 @@ output.ctrlKeyDownAction=function(mouseEvent){};
     };
     mouseEvents.upAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlUpAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlUpAction(transformedEvent);
         } else {
             output.canvas.style.cursor = "pointer";
         }
     };
     mouseEvents.outAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlOutAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlOutAction(transformedEvent);
         }
     };
     mouseEvents.wheelAction = function() {
         if (mouseEvents.ctrlPressed) {
-            transformMouseEvents(mouseEvents);
-            output.mouseCtrlWheelAction(mouseEvents);
+            makeTransformedMouseEvent(transformedEvent,mouseEvents);
+            output.mouseCtrlWheelAction(transformedEvent);
         } else {
             // the zoom center, prescaled
             u.x = mouseEvents.x;
@@ -681,19 +685,31 @@ output.setInitialCoordinates = function(centerX, centerY, range) {
     coordinateTransform.setResetValues();
 };
 
-/*
- * transform mouse event data to calculation coordinates
- * position with shift, change of position scale and rotation only
+/**
+ * make a transfomed mouse event object with
+ * position data transformed to calculation coordinates
+ * @method makeTransformedMouseEvent
+ * @param {object} transformedEvent
+ * @param {object} mouseEvent
  */
 const dPosition = {};
 
-function transformMouseEvents(mouseEvents) {
-    output.coordinateTransform.transform(mouseEvents);
+function makeTransformedMouseEvent(transformedEvent, mouseEvents) {
+    // copy data that does not change
+    transformedEvent.button = mouseEvents.button;
+    transformedEvent.wheelDelta = mouseEvents.wheelDelta;
+    transformedEvent.shiftPressed = mouseEvents.shiftPressed;
+    transformedEvent.ctrlPressed = mouseEvents.ctrlPressed;
+    // transform position with shift, rotate and scale
+    transformedEvent.x = mouseEvents.x;
+    transformedEvent.y = mouseEvents.y;
+    output.coordinateTransform.transform(transformedEvent);
+    // transform change in position (rotate and shift only)
     dPosition.x = mouseEvents.dx;
     dPosition.y = mouseEvents.dy;
     output.coordinateTransform.rotateScale(dPosition);
-    mouseEvents.dx = dPosition.x;
-    mouseEvents.dy = dPosition.y;
+    transformedEvent.dx = dPosition.x;
+    transformedEvent.dy = dPosition.y;
 }
 
 /**

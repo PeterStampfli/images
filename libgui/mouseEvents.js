@@ -68,9 +68,9 @@ export function MouseEvents(element) {
     this.downKey = "ArrowDown";
 
     // event action
-     this.inAction = function(mouseEvents) {}; // mouse in (enter)
+    this.inAction = function(mouseEvents) {}; // mouse in (enter)
     this.moveAction = function(mouseEvents) {}; // mouse move (move with button released)
-   this.downAction = function(mouseEvents) {}; // mouse down 
+    this.downAction = function(mouseEvents) {}; // mouse down 
     this.dragAction = function(mouseEvents) {}; // mouse drag (move with button pressed)
     this.upAction = function(mouseEvents) {}; // mouse up
     this.outAction = function(mouseEvents) {}; // mouse out (leave)
@@ -82,7 +82,6 @@ export function MouseEvents(element) {
     // we have only one single mouse event
     // so it is not necessary to use this.element.addEventListener("...",script)
     // event.button=0 for left 2 for right button
-
 
     this.element.onmousedown = function(event) {
         MouseAndTouch.preventDefault(event);
@@ -121,7 +120,7 @@ export function MouseEvents(element) {
             this.lastY = this.y;
             mouseEvents.mouseInside = true;
             thisElement.focus();
-                mouseEvents.inAction(mouseEvents);
+            mouseEvents.inAction(mouseEvents);
         }
         return false;
     };
@@ -133,8 +132,8 @@ export function MouseEvents(element) {
             mouseEvents.update(event);
             mouseEvents.updateShiftCtrl();
             mouseEvents.mouseInside = false;
-                mouseEvents.pressed = false;
-                mouseEvents.outAction(mouseEvents);    // out action even if no mouse button pressed
+            mouseEvents.pressed = false;
+            mouseEvents.outAction(mouseEvents); // out action even if no mouse button pressed
         }
         return false;
     };

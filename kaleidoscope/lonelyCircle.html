@@ -79,6 +79,10 @@ output.mouseCtrlMoveAction = function(event) {
     circles.draw(false);
 };
 
+output.ctrlKeyDownAction=function(event){
+    output.mouseCtrlMoveAction(event);
+}
+
 output.mouseCtrlDownAction=function(event){
     circles.select(event);
     output.pixels.show();
