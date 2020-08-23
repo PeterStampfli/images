@@ -26,7 +26,8 @@ import {
 import {
     Circle,
     circles,
-    Intersection
+    Intersection,
+    intersections
 } from './modules.js';
 
 // basic setup
@@ -54,6 +55,7 @@ map.mapping = function(point) {
 };
 
 circles.makeGui(gui);
+intersections.makeGui(gui,{closed:false});
 
 const d=Math.sqrt(3);
 const rt32=Math.sqrt(3)/2;

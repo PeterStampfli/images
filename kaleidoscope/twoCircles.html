@@ -64,7 +64,7 @@ const c2=circles.add({radius:1,centerX:d, isInsideOutMap:false})
 const is=intersections.add(circles.collection[0],circles.collection[1],5)
 circles.collection[0].adjustToIntersections();
 
-
+console.log(c1.intersectsCircle(c2))
 
 map.drawImageChanged = function() {
 map.draw();

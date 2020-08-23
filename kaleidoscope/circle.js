@@ -180,7 +180,8 @@ Circle.prototype.activateUI = function() {
 /**
  * adjust the radius of a circle with only one intersection
  * use this for a given position of the center
- * return if successful
+ * return true if successful, false if fails
+ * does not change the circle for fail
  * @method Circle#adjustRadiusOneIntersection
  * @param {number} centerX
  * @param {number} centerY
@@ -212,7 +213,7 @@ Circle.prototype.adjustRadiusOneIntersection = function(centerX, centerY) {
     const a = 1;
     const b = coeff;
     const c = otherCircle.radius2 - distance2;
-    // solve, catch fails (no real solution, no positve solution)
+    // solve, catch fails (no real solution, no positive solution)
     let success = true;
     const data = {};
     if (guiUtils.quadraticEquation(a, b, c, data)) {
@@ -265,7 +266,8 @@ Circle.prototype.adjustPositionOneIntersection = function() {
 /**
  * for two intersections and a given radius
  * adjust the center position, set radius (if it is too small)
- * return if successful (and something probaly changed)
+ * return true if successful, false if fails
+ * does not change the circle for fail
  * @method Circle#adjustPositionTwoIntersections
  * @param {number} radius
  * @return boolean success
@@ -372,7 +374,8 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
 /**
  * circle with two intersections, try a given new position, 
  * adjust mainly circle radius and partly position to intersections
- * return if successful, it changed circle position or radius
+ * return true if successful, false if fails
+ * does not change the circle for fail
  * @method Circle#adjustRadiusTwoIntersections
  * @param {number} centerX
  * @param {number} centerY
@@ -444,6 +447,8 @@ Circle.prototype.adjustRadiusTwoIntersections = function(centerX, centerY) {
  * there are two possible solutions for the radius
  * the resulting centers may be close to each other
  * take the radius that is closer to the current radius
+ * return true if successful, false if fails
+ * does not change the circle for fail
  * @method Circle#adjustThreeIntersections
  * @param {object} pos1 - with x- and y fields
  * @param {object} pos2 - with x- and y fields
@@ -526,7 +531,8 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
 
 /**
  * try a given value for the radius, adjust circle radius and position to intersections
- * if fails do not change current radius
+ * if fails, do not change current radius
+ * does nothing for three or mor intersections
  * if success update UI to new values and draw image
  * @method tryRadius
  * @param {number} radius
@@ -548,8 +554,8 @@ Circle.prototype.tryRadius = function(radius) {
             case 2:
                 success = this.adjustPositionTwoIntersections(radius);
                 break;
-            case 3:
-                success = false; // not possible
+            default:
+                success = false; // not possible for three or more intersections
                 break;
         }
         if (success) {
@@ -588,8 +594,8 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
             case 2:
                 success = this.adjustRadiusTwoIntersections(centerX, centerY);
                 break;
-            case 3:
-                success = false; // never possible
+            default:
+                success = false; // not possible for three or more intersections
                 break;
         }
         if (success) {
@@ -610,7 +616,8 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
  * adjust radius and position of circle for three intersections
  * update UI if successful
  * update output image elsewhere
- * return if successful
+ * return true if successful, false if fails
+ * does not change the circle for fail
  * @method Circle#adjustToIntersections
  * @return boolean, true if success, false if something failed
  */
@@ -630,6 +637,9 @@ Circle.prototype.adjustToIntersections = function() {
             case 3:
                 success = this.adjustThreeIntersections();
                 break;
+            default:
+                success = false; // not possible for more than 3 intersections
+                break;
         }
         if (success) {
             this.updateUI();
@@ -639,7 +649,6 @@ Circle.prototype.adjustToIntersections = function() {
         return false;
     }
 };
-
 
 /**
  * try a given map direction, adjust circle radius and position to intersections
@@ -658,31 +667,50 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
         Circle.draw();
     } else {
         this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
-        this.updateUI();
+        this.updateUI(); // reset the shown map direction value
     }
 };
 
 /**
+ * for checking if we can have an intersection:
+ * do the circles really intersect ?
+ * @method Circle#intersectsCircle
+ * @param {Circle} circle
+ * @return boolean, true if the circles intersect
+ */
+Circle.prototype.intersectsCircle = function(circle) {
+    const distance = Math.hypot(this.centerX - circle.centerX, this.centerY - circle.centerY);
+    return (this.radius + circle.radius) > distance;
+};
+
+/**
+ * more checks: Circle can adjust to a new intersection
+ * means it can change and has less than 3 intersections
+ * @method Circle#canAdjust
+ * @return boolean, true if circle can adjust
+ */
+Circle.prototype.canAdjust = function() {
+    return (this.canChange) && (this.intersections.length < 3);
+};
+
+/**
  * add an intersection
+ * we can have more than 3, but then this circle cannot adjust to intersections
  * @method Circle#addIntersection
  * @param {Intersection} intersection
  */
 Circle.prototype.addIntersection = function(intersection) {
-    if (this.intersections.length > 2) {
-        console.error('Circle#addIntersection: Circle has 3 intersections, cannot add more. Intersection:');
-        console.log(intersection);
-        console.log(this.intersections);
-    } else {
-        for (var i = 0; i < this.intersections.length; i++) {
-            if (this === this.intersections[i].getOtherCircle(this)) {
-                console.error('Circle#addIntersection: This intersection is already there:');
-                console.log(intersection);
-                console.log(this.intersections);
-            }
+    // for safety, check if intersection already there
+    for (var i = 0; i < this.intersections.length; i++) {
+        if (this === this.intersections[i].getOtherCircle(this)) {
+            console.error('Circle#addIntersection: This intersection is already there:');
+            console.log(intersection);
+            console.log(this.intersections);
+            return;
         }
-        this.intersections.push(intersection);
-        this.activateUI();
     }
+    this.intersections.push(intersection);
+    this.activateUI();
 };
 
 /**

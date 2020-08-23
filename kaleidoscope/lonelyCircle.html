@@ -25,7 +25,8 @@ import {
 import {
     Circle,
     circles,
-    Intersection
+    Intersection,
+    intersections
 } from './modules.js';
 
 // basic setup
@@ -59,6 +60,7 @@ map.mapping = function(point) {
 };
 
 circles.makeGui(gui,{closed:false});
+intersections.makeGui(gui,{closed:false});
 
 const circle=circles.add({radius:1, isInsideOutMap:false});
 circle.gui.open();

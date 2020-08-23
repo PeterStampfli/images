@@ -70,6 +70,7 @@ intersections.indexOf = function(circle1, circle2) {
 
 /**
  * make an intersection and add to the collection, set its color
+ * add intersection to its circles' intersection list
  * @method circles.add
  * @param{Circle} circle1
  * @param{Circle} circle2
@@ -87,7 +88,7 @@ intersections.add = function(circle1, circle2, n = 3) {
     } else {
         intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
         intersections.collection.push(intersection);
-    }
+     }
     intersections.setSelected(intersection);
     intersections.updateUI();
     return intersection;
@@ -174,15 +175,17 @@ intersections.makeGui = function(parentGui, args = {}) {
  * @method intersections.updateUI
  */
 intersections.updateUI = function() {
-    // can only delete selected intersection if an interssection is selected
+    // can always delete selected intersection if an interssection is selected
     intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
-    // can add an intersection only if  two circles are selected, and they do not have an intersection
-    if (guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected)) {
-        const index = intersections.indexOf(circles.selected, circles.otherSelected);
-        intersections.addButton.setActive(index < 0);
-    } else {
-        intersections.addButton.setActive(false);
-    }
+    // can add an intersection only if two circles are selected ...
+   let canAddIntersection=(guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected) );
+    // and they do not already have an intersection ...
+   canAddIntersection = canAddIntersection&&(intersections.indexOf(circles.selected, circles.otherSelected)<0);
+   // ....
+
+
+
+        intersections.addButton.setActive(canAddIntersection);
 };
 
 /**
