@@ -95,8 +95,8 @@ circles.remove = function(circle) {
     if (circles.otherSelected === circle) {
         circles.otherSelected = false;
     }
-    circles.updateUI();
-    intersections.updateUI();
+    circles.activateUI();
+    intersections.activateUI();
 };
 
 /**
@@ -174,15 +174,14 @@ circles.makeGui = function(parentGui, args = {}) {
             }
         }
     });
-    circles.updateUI();
+    circles.activateUI();
 };
 
 /**
- * update the UI
- * (activating the delete button)
- * @method circles.updateUI
+ * activate the UI (the dlete button depending whether there is a circle left over)
+ * @method circles.activateUI
  */
-circles.updateUI = function() {
+circles.activateUI = function() {
     circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
 };
 
@@ -214,8 +213,9 @@ circles.setSelected = function(circle) {
     if (circle !== circles.selected) {
         circles.otherSelected = circles.selected;
         circles.selected = circle;
-        circles.updateUI();
-        intersections.updateUI();
+        intersections.selectUsingSelectedCircles();
+        circles.activateUI();
+        intersections.activateUI();
     }
 };
 

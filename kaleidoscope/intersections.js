@@ -90,7 +90,7 @@ intersections.add = function(circle1, circle2, n = 3) {
         intersections.collection.push(intersection);
      }
     intersections.setSelected(intersection);
-    intersections.updateUI();
+    intersections.activateUI();
     return intersection;
 };
 
@@ -110,7 +110,7 @@ intersections.remove = function(intersection) {
     if (intersections.selected === intersection) {
         intersections.selected = false;
     }
-    intersections.updateUI();
+    intersections.activateUI();
 };
 
 /**
@@ -166,23 +166,22 @@ intersections.makeGui = function(parentGui, args = {}) {
             }
         }
     });
-    intersections.updateUI();
+    intersections.activateUI();
 };
 
 /**
- * update the UI
- * (activating buttons)
- * @method intersections.updateUI
+ * activate the UI
+ * @method intersections.activateUI
  */
-intersections.updateUI = function() {
+intersections.activateUI = function() {
     // can always delete selected intersection if an interssection is selected
     intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
     // can add an intersection only if two circles are selected ...
    let canAddIntersection=(guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected) );
     // and they do not already have an intersection ...
    canAddIntersection = canAddIntersection&&(intersections.indexOf(circles.selected, circles.otherSelected)<0);
-   // ....
-
+   // and the circles intersect
+canAddIntersection = canAddIntersection&&(circles.selected.intersectsCircle(circles.otherSelected));
 
 
         intersections.addButton.setActive(canAddIntersection);
@@ -206,11 +205,24 @@ intersections.isSelected = function(position) {
 };
 
 /**
+* select intersection of selected circles
+* @method intersections.selectUsingSelectedCircles
+*/
+intersections.selectUsingSelectedCircles=function(){
+    const index = intersections.indexOf(circles.selected, circles.otherSelected);
+    if (index>=0){
+        intersections.setSelected(intersections.collection[index]);
+    } else {
+        intersections.setSelected(false);
+    }
+};
+
+/**
  * set an intersection as selected, and set that it can be deleted
  * @method intersection.setSelected
  * @param {Intersection} intersection
  */
 intersections.setSelected = function(intersection) {
-    // do only something if circle not selected
     intersections.selected = intersection;
+    intersections.activateUI();
 };

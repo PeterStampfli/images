@@ -747,11 +747,19 @@ Circle.prototype.draw = function(highlight = 0) {
             break;
         case 1:
             output.setLineWidth(Circle.highlightLineWidth);
-            context.strokeStyle = (this.canChange) ? Circle.highlightColor : Circle.frozenHighlightColor;
+            if ((this.intersections.length < 3) && (this.canChange)){
+            context.strokeStyle = Circle.highlightColor;
+        } else {
+            context.strokeStyle = Circle.frozenHighlightColor;
+        }
             break;
         case 2:
             output.setLineWidth(Circle.highlightLineWidth);
-            context.strokeStyle = (this.canChange) ? Circle.otherHighlightColor : Circle.frozenHighlightColor;
+            if ((this.intersections.length < 3) && (this.canChange)){
+            context.strokeStyle = Circle.otherHighlightColor;
+        } else {
+            context.strokeStyle = Circle.frozenHighlightColor;
+        }
             break;
     }
     context.beginPath();
