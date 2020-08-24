@@ -8,7 +8,8 @@ import {
 from "../libgui/modules.js";
 
 import {
-    circles
+    circles,
+    intersections
 } from './modules.js';
 
 // beware of hitting the circle center
@@ -81,8 +82,10 @@ export function Circle(parentGui, properties) {
         buttonText: ['can change', 'frozen'],
         onChange: function() {
             circle.activateUI();
+            intersections.activateUI();
             circle.mapDirectionController.setActive(circle.canChange);
             circles.draw();
+            intersections.draw();
         }
     });
 
@@ -560,6 +563,7 @@ Circle.prototype.tryRadius = function(radius) {
         }
         if (success) {
             this.updateUI();
+            intersections.activateUI();
             Circle.draw();
         }
     }
@@ -600,6 +604,7 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
         }
         if (success) {
             this.updateUI();
+            intersections.activateUI();
             Circle.draw();
         }
         return success;
@@ -747,19 +752,19 @@ Circle.prototype.draw = function(highlight = 0) {
             break;
         case 1:
             output.setLineWidth(Circle.highlightLineWidth);
-            if ((this.intersections.length < 3) && (this.canChange)){
-            context.strokeStyle = Circle.highlightColor;
-        } else {
-            context.strokeStyle = Circle.frozenHighlightColor;
-        }
+            if ((this.intersections.length < 3) && (this.canChange)) {
+                context.strokeStyle = Circle.highlightColor;
+            } else {
+                context.strokeStyle = Circle.frozenHighlightColor;
+            }
             break;
         case 2:
             output.setLineWidth(Circle.highlightLineWidth);
-            if ((this.intersections.length < 3) && (this.canChange)){
-            context.strokeStyle = Circle.otherHighlightColor;
-        } else {
-            context.strokeStyle = Circle.frozenHighlightColor;
-        }
+            if ((this.intersections.length < 3) && (this.canChange)) {
+                context.strokeStyle = Circle.otherHighlightColor;
+            } else {
+                context.strokeStyle = Circle.frozenHighlightColor;
+            }
             break;
     }
     context.beginPath();

@@ -205,6 +205,7 @@ circles.isSelected = function(position) {
 /**
  * set a circle as selected, and set that it can be deleted
  * note already selected circle as other selected circle (for making intersections)
+ * select the corresponding intersection, if there is one
  * @method circles.setSelected
  * @param {Circle} circle
  */
@@ -213,8 +214,13 @@ circles.setSelected = function(circle) {
     if (circle !== circles.selected) {
         circles.otherSelected = circles.selected;
         circles.selected = circle;
-        intersections.selectUsingSelectedCircles();
-        circles.activateUI();
+    const index = intersections.indexOf(circles.selected, circles.otherSelected);
+    if (index>=0){
+        intersections.selected=intersections.collection[index];
+    } else {
+        intersections.selected=false;
+    }
+            circles.activateUI();
         intersections.activateUI();
     }
 };
