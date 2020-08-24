@@ -161,6 +161,7 @@ circles.makeGui = function(parentGui, args = {}) {
         buttonText: 'add circle',
         onClick: function() {
             circles.add();
+            intersections.activateUI();
             map.drawMapChanged();
         }
     });
@@ -170,6 +171,7 @@ circles.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
+                intersections.activateUI();
                 map.drawMapChanged();
             }
         }
@@ -214,13 +216,13 @@ circles.setSelected = function(circle) {
     if (circle !== circles.selected) {
         circles.otherSelected = circles.selected;
         circles.selected = circle;
-    const index = intersections.indexOf(circles.selected, circles.otherSelected);
-    if (index>=0){
-        intersections.selected=intersections.collection[index];
-    } else {
-        intersections.selected=false;
-    }
-            circles.activateUI();
+        const index = intersections.indexOf(circles.selected, circles.otherSelected);
+        if (index >= 0) {
+            intersections.selected = intersections.collection[index];
+        } else {
+            intersections.selected = false;
+        }
+        circles.activateUI();
         intersections.activateUI();
     }
 };

@@ -6,6 +6,7 @@ import {
 from "../libgui/modules.js";
 
 import {
+    Circle,
     circles,
     intersections
 } from './modules.js';
@@ -22,19 +23,51 @@ Intersection.maxCorners = 16; // polygons with more corners will be circles
 /**
  * intersection between circles, making a definite n-fold dihedral symmetry
  * only general initialization, adjust circles later
+ * gets its own gui
  * @constructor Intersection
+ * @param{ParamGui} parentGui 
  * @params {Circle} circle1
  * @params {Circle} circle2
  * @param {String} color - for drawing, optional, default is black
  * @params {integer} n - optional, has to be >=2, default 3, for tests
  */
-export function Intersection(circle1, circle2, color = '#000000', n = 3) {
+export function Intersection(parentGui, circle1, circle2, color = '#000000', n = 3) {
     this.circle1 = circle1;
     this.circle2 = circle2;
     this.n = Math.max(2, Math.round(n));
     circle1.addIntersection(this);
     circle2.addIntersection(this);
     this.color = color;
+    const circle = this;
+
+    // the controllers
+    const intersection = this;
+    this.gui = parentGui.addFolder('Intersection of circles ' + circle1.id + ' and ' + circle2.id);
+
+// try to change the order
+    this.nController = this.gui.add({
+        type: 'number',
+        initialValue: this.n,
+        labelText: 'n',
+        min: 2,
+        step:1,
+        onChange: function(n) {
+
+
+            
+        }
+    });
+
+
+    this.colorController = this.gui.add({
+        type: 'color',
+        params: this,
+        property: 'color',
+        onChange: function() {console.log('draw')
+             intersections.setSelected(intersection);
+          Circle.draw();
+        }
+    });
 }
 
 /**
@@ -257,7 +290,6 @@ Intersection.prototype.isSelected = function(position) {
 Intersection.prototype.destroy = function() {
     this.circle1.removeIntersection(this);
     this.circle2.removeIntersection(this);
-
-    // remove from list, delete UI
+    this.gui.destroy();
     intersections.remove(this);
 };

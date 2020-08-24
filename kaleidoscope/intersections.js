@@ -71,7 +71,7 @@ intersections.indexOf = function(circle1, circle2) {
 /**
  * make an intersection and add to the collection, set its color
  * add intersection to its circles' intersection list
- * @method circles.add
+ * @method intersections.add
  * @param{Circle} circle1
  * @param{Circle} circle2
  * @params {integer} n - optional, has to be >=2, default 3, for tests
@@ -86,10 +86,10 @@ intersections.add = function(circle1, circle2, n = 3) {
         console.log(intersection);
         console.log("circle ids", intersection.circle1.id, intersection.circle2.id);
     } else {
-        intersection = new Intersection(circle1, circle2, intersections.getColor(), n);
+        intersection = new Intersection(intersections.gui, circle1, circle2, intersections.getColor(), n);
         intersections.collection.push(intersection);
-     }
-    intersections.selected=intersection;
+    }
+    intersections.selected = intersection;
     intersections.activateUI();
     return intersection;
 };
@@ -174,22 +174,17 @@ intersections.makeGui = function(parentGui, args = {}) {
  * @method intersections.activateUI
  */
 intersections.activateUI = function() {
-    console.log('aui')
     // can always delete selected intersection if an interssection is selected
     intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
     // can add an intersection only if two circles are selected ...
-   let canAddIntersection=(guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected) );
- console.log(canAddIntersection)
+    let canAddIntersection = (guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected));
     // and they do not already have an intersection ...
-   canAddIntersection = canAddIntersection&&(intersections.indexOf(circles.selected, circles.otherSelected)<0);
- console.log(canAddIntersection)
-   // and the circles intersect
-canAddIntersection = canAddIntersection&&(circles.selected.intersectsCircle(circles.otherSelected));
- console.log(canAddIntersection)
-// and at least one of the circcles can adjust to intersections
-canAddIntersection = canAddIntersection&&(circles.selected.canAdjust()||circles.otherSelected.canAdjust());
- console.log(canAddIntersection)
-        intersections.addButton.setActive(canAddIntersection);
+    canAddIntersection = canAddIntersection && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
+    // and the circles intersect
+    canAddIntersection = canAddIntersection && (circles.selected.intersectsCircle(circles.otherSelected));
+    // and at least one of the circcles can adjust to intersections
+    canAddIntersection = canAddIntersection && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
+    intersections.addButton.setActive(canAddIntersection);
 };
 
 /**
@@ -207,4 +202,24 @@ intersections.isSelected = function(position) {
         }
     }
     return false;
+};
+
+/**
+ * set that given intersection is selected
+ * makes that the corresponding two circles are selected
+ * @method intersection.setSelected
+ * @param {Intersection} intersection
+ */
+intersections.setSelected = function(intersection) {
+    intersections.selected = intersection;
+    if (circles.selected === intersection.circle1) {
+        circles.otherSelected = intersection.circle2;
+    } else if (circles.selected === intersection.circle2) {
+        circles.otherSelected = intersection.circle1;
+    } else {
+        circles.selected = intersection.circle1;
+        circles.otherSelected = intersection.circle2;
+    }
+    circles.activateUI();
+    intersections.activateUI();
 };

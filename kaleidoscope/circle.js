@@ -30,7 +30,7 @@ Circle.frozenHighlightColor = '#ffbbbb';
 Circle.selectWidth = Circle.highlightLineWidth;
 
 /**
- * the (re)drawing routine for anything, called after some circle changes
+ * the (re)drawing routine for anything, called after some circle or intersection changes
  * to be defined, depending on what to draw
  * typically calls map.draw
  * @method Circle.draw
@@ -67,8 +67,8 @@ export function Circle(parentGui, properties) {
 
     // the controllers
     // they do not directly change the parameter value of this circle
-    // depending on intersections controllers try to change parameters
-    // if it does not work, we still have the old values
+    // controllers try to change parameters
+    // if it does not work because of intersections, we still have the old values
     const circle = this;
     this.gui = parentGui.addFolder('Circle ' + this.id);
 
@@ -145,7 +145,8 @@ export function Circle(parentGui, properties) {
         params: this,
         property: 'color',
         onChange: function() {
-            Circle.draw();
+               circles.setSelected(circle);
+        Circle.draw();
         }
     });
 }
