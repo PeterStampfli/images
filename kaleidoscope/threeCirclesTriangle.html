@@ -63,9 +63,9 @@ circles.add({radius:1,centerX:0,centerY:1.5, isInsideOutMap:false})
 circles.add({radius:1,centerX:rt32,centerY:-0})
 circles.add({radius:1,centerX:-rt32,centerY:-0})
 
-const is=new Intersection(circles.collection[0],circles.collection[1],4)
-const is2=new Intersection(circles.collection[0],circles.collection[2],3)
-const is3=new Intersection(circles.collection[1],circles.collection[2],3)
+const is=intersections.add(circles.collection[0],circles.collection[1],4)
+const is2=intersections.add(circles.collection[0],circles.collection[2],3)
+const is3=intersections.add(circles.collection[1],circles.collection[2],3)
 
 circles.collection[0].adjustToIntersections();
 circles.collection[1].adjustToIntersections();

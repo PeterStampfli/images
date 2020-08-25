@@ -141,10 +141,10 @@ intersections.draw = function() {
  * make the gui and add some buttons
  * @method intersections.makeGui
  * @param{Paramgui} parentGui
- * @param{Object} args - optional, modifying the gui
+ * @param{Object} args - optional, modifying the gui (keep it closed)
  */
 intersections.makeGui = function(parentGui, args = {}) {
-    intersections.gui = parentGui.addFolder('intersections', args);
+    intersections.gui = parentGui.addFolder('intersections',{closed:false}, args);
     intersections.addButton = intersections.gui.add({
         type: 'button',
         buttonText: 'add intersection',
@@ -170,7 +170,8 @@ intersections.makeGui = function(parentGui, args = {}) {
 };
 
 /**
- * activate the UI
+ * activate the UI of the intersections collection and of all intersections
+ * call when circles change
  * @method intersections.activateUI
  */
 intersections.activateUI = function() {
@@ -185,6 +186,9 @@ intersections.activateUI = function() {
     // and at least one of the circcles can adjust to intersections
     canAddIntersection = canAddIntersection && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
     intersections.addButton.setActive(canAddIntersection);
+    intersections.collection.forEach(intersection=>intersection.activateUI());
+
+    console.log(Intersection.estimateN(circles.selected,circles.otherSelected));
 };
 
 /**

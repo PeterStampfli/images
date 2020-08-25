@@ -256,7 +256,7 @@ Circle.prototype.adjustRadiusOneIntersection = function(centerX, centerY) {
  * @return true, always successful
  */
 Circle.prototype.adjustPositionOneIntersection = function() {
-    const distance = this.intersections[0].distanceBetweenCenters();
+    const distance = this.intersections[0].requireDistanceBetweenCenters();
     const otherCircle = this.intersections[0].getOtherCircle(this);
     const dx = this.centerX - otherCircle.centerX;
     const dy = this.centerY - otherCircle.centerY;
@@ -295,8 +295,8 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
     // the actual distances between centers of other circles
     const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
     // the required distances from center of this circle to the other circles
-    let distanceToCenter1 = intersection1.distanceBetweenCenters();
-    let distanceToCenter2 = intersection2.distanceBetweenCenters();
+    let distanceToCenter1 = intersection1.requireDistanceBetweenCenters();
+    let distanceToCenter2 = intersection2.requireDistanceBetweenCenters();
     // check if we can form a triangle: every side of the triangle has to be smaller than the sum of the other two side
     // if not: we have to increase the radius. Minimum radius from all three centers on a line ?
     // Because the degenerate triangle is the most extreme case with respect to the triangle rule.
@@ -336,8 +336,8 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
             this.radius = radius;
             this.radius2 = radius * radius;
             // recalculate distances to the other centers
-            distanceToCenter1 = intersection1.distanceBetweenCenters();
-            distanceToCenter2 = intersection2.distanceBetweenCenters();
+            distanceToCenter1 = intersection1.requireDistanceBetweenCenters();
+            distanceToCenter2 = intersection2.requireDistanceBetweenCenters();
         } else {
             //  console.error('Circle#centerPositionsTwoIntersections: Quadratic equation for minimum radius has no real solution! Intersection:');
             //  console.log(this);
