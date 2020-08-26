@@ -91,11 +91,13 @@ output.mouseCtrlMoveAction = function(event) {
     intersections.draw();
 };
 
-output.mouseCtrlDownAction=function(event){
-    circles.select(event);
-    output.pixels.show();
-    circles.draw(false);
-    intersections.draw();
+
+output.mouseCtrlDownAction = function(event) {
+    if (intersections.select(event) || circles.select(event)) {
+        output.pixels.show();
+        circles.draw();
+        intersections.draw();
+    }
 };
 
 output.mouseCtrlWheelAction = function(event) {

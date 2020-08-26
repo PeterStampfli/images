@@ -2,6 +2,8 @@
 
 import {
     map,
+    BooleanButton,
+    output,
     guiUtils
 } from "../libgui/modules.js";
 
@@ -136,13 +138,15 @@ circles.setJSON = function(json) {
  * @method circles.draw
  */
 circles.draw = function() {
-    if (circles.otherSelected) {
-        circles.otherSelected.draw(2);
+    if (circles.visible) {
+        if (circles.otherSelected) {
+            circles.otherSelected.draw(2);
+        }
+        if (circles.selected) {
+            circles.selected.draw(1);
+        }
+        circles.collection.forEach(circle => circle.draw(0));
     }
-    if (circles.selected) {
-        circles.selected.draw(1);
-    }
-    circles.collection.forEach(circle => circle.draw(0));
 };
 
 // interaction with the mouse
@@ -155,14 +159,30 @@ circles.draw = function() {
  * @param{Object} args - optional, modifying the gui
  */
 circles.makeGui = function(parentGui, args = {}) {
-    circles.gui = parentGui.addFolder('circles',{closed:false}, args);
+    circles.gui = parentGui.addFolder('circles', {
+        closed: false
+    }, args);
+    circles.visible = true;
+    BooleanButton.greenRedBackground();
+    circles.visibleButton = circles.gui.add({
+        type: 'boolean',
+        params: circles,
+        property: 'visible',
+        labelText:'',
+        buttonText: ['visible', 'hidden'],
+        onChange: function() {
+            output.pixels.show(); // no new map
+            circles.draw();
+            intersections.draw();
+        }
+    });
     circles.gui.add({
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
             circles.add();
             intersections.activateUI();
-            map.drawMapChanged();
+            Circle.draw();
         }
     });
     circles.deleteButton = circles.gui.add({
@@ -172,7 +192,7 @@ circles.makeGui = function(parentGui, args = {}) {
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
                 intersections.activateUI();
-                map.drawMapChanged();
+                Circle.draw();
             }
         }
     });
@@ -229,18 +249,21 @@ circles.setSelected = function(circle) {
 
 /**
  * select a circle depending on (mouse) position
- * for a mouse ctrl down event
+ * sets selected (and otherSelected) circle
+ * reurns true if something has been selected (for preventing other events)
  * @method circles.select
  * @param {object} position - with (x,y) fields
+ * @return boolean, true if a circle has been selected
  */
 circles.select = function(position) {
     const length = circles.collection.length;
     for (var i = 0; i < length; i++) {
         if (circles.collection[i].isSelected(position)) {
             circles.setSelected(circles.collection[i]);
-            return;
+            return true;
         }
     }
+    return false;
 };
 
 /**

@@ -90,13 +90,14 @@ output.mouseCtrlMoveAction = function(event) {
 output.ctrlKeyDownAction=function(event){
     output.mouseCtrlMoveAction(event);
 }
-output.mouseCtrlDownAction=function(event){
-    circles.select(event);
-    output.pixels.show();
-    circles.draw();
-    intersections.draw();
-};
 
+output.mouseCtrlDownAction = function(event) {
+    if (intersections.select(event) || circles.select(event)) {
+        output.pixels.show();
+        circles.draw();
+        intersections.draw();
+    }
+};
 output.mouseCtrlWheelAction = function(event) {
     if (event.shiftPressed) {
         is.incDecN(event.wheelDelta);

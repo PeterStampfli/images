@@ -53,7 +53,7 @@ export function Intersection(parentGui, circle1, circle2, color = '#000000', n =
         step: 1,
         onChange: function(n) {
             intersection.tryN(n);
-            Circle.draw();
+            Circle.draw();                 // map chnges
         }
     });
 
@@ -63,7 +63,9 @@ export function Intersection(parentGui, circle1, circle2, color = '#000000', n =
         property: 'color',
         onChange: function() {
             intersections.setSelected(intersection);
-            Circle.draw();
+        output.pixels.show();    // no new map
+        circles.draw();
+        intersections.draw();
         }
     });
 }

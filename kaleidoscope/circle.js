@@ -84,8 +84,9 @@ export function Circle(parentGui, properties) {
             circle.activateUI();
             intersections.activateUI();
             circle.mapDirectionController.setActive(circle.canChange);
-            circles.draw();
-            intersections.draw();
+               output.pixels.show();    // no new map
+        circles.draw();
+        intersections.draw();
         }
     });
 
@@ -137,7 +138,7 @@ export function Circle(parentGui, properties) {
         labelText: '',
         onChange: function() {
             circles.setSelected(circle);
-            Circle.draw();
+            Circle.draw();        // changes map
         }
     });
     this.colorController = this.gui.add({
@@ -146,7 +147,9 @@ export function Circle(parentGui, properties) {
         property: 'color',
         onChange: function() {
                circles.setSelected(circle);
-        Circle.draw();
+        output.pixels.show();    // no new map
+        circles.draw();
+        intersections.draw();
         }
     });
 }

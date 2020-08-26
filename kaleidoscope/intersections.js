@@ -2,6 +2,8 @@
 
 import {
     guiUtils,
+    output,
+    BooleanButton,
     map
 } from "../libgui/modules.js";
 
@@ -128,10 +130,12 @@ intersections.clear = function() {
  * @method intersections.draw
  */
 intersections.draw = function() {
-    if (intersections.selected) {
-        intersections.selected.draw(1);
+    if (intersections.visible) {
+        if (intersections.selected) {
+            intersections.selected.draw(1);
+        }
+        intersections.collection.forEach(intersection => intersection.draw(0));
     }
-    intersections.collection.forEach(intersection => intersection.draw(0));
 };
 
 // interaction with the mouse
@@ -144,7 +148,23 @@ intersections.draw = function() {
  * @param{Object} args - optional, modifying the gui (keep it closed)
  */
 intersections.makeGui = function(parentGui, args = {}) {
-    intersections.gui = parentGui.addFolder('intersections',{closed:false}, args);
+    intersections.gui = parentGui.addFolder('intersections', {
+        closed: false
+    }, args);
+    intersections.visible = true;
+    BooleanButton.greenRedBackground();
+    intersections.visibleButton = intersections.gui.add({
+        type: 'boolean',
+        params: intersections,
+        property: 'visible',
+        labelText:'',
+        buttonText: ['visible', 'hidden'],
+        onChange: function() {
+            output.pixels.show(); // no new map
+            circles.draw();
+            intersections.draw();
+        }
+    });
     intersections.addButton = intersections.gui.add({
         type: 'button',
         buttonText: 'add intersection',
@@ -152,7 +172,7 @@ intersections.makeGui = function(parentGui, args = {}) {
             // add an interssection between the two selected circles
             // button cannot be clicked if this is not possible
 
-            map.drawMapChanged();
+            Circle.draw();
         }
     });
     intersections.deleteButton = intersections.gui.add({
@@ -161,8 +181,9 @@ intersections.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             if (guiUtils.isObject(intersections.selected)) {
                 intersections.selected.destroy();
-
-                map.drawMapChanged(); // removing the intersection actually should not change the map
+                output.pixels.show(); // no new map
+                circles.draw();
+                intersections.draw();
             }
         }
     });
@@ -183,12 +204,12 @@ intersections.activateUI = function() {
     canAddIntersection = canAddIntersection && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
     // and the circles intersect
     canAddIntersection = canAddIntersection && (circles.selected.intersectsCircle(circles.otherSelected));
-    // and at least one of the circcles can adjust to intersections
+    // and at least one of the circles can adjust to intersections
     canAddIntersection = canAddIntersection && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
     intersections.addButton.setActive(canAddIntersection);
-    intersections.collection.forEach(intersection=>intersection.activateUI());
+    intersections.collection.forEach(intersection => intersection.activateUI());
 
-    console.log(Intersection.estimateN(circles.selected,circles.otherSelected));
+    console.log(Intersection.estimateN(circles.selected, circles.otherSelected));
 };
 
 /**
@@ -226,4 +247,23 @@ intersections.setSelected = function(intersection) {
     }
     circles.activateUI();
     intersections.activateUI();
+};
+
+/**
+ * select an intersection depending on (mouse) position
+ * sets selected intersection
+ * reurns true if something has been selected (for preventing other events)
+ * @method intersections.select
+ * @param {object} position - with (x,y) fields
+ * @return boolean, true if a circle has been selected
+ */
+intersections.select = function(position) {
+    const length = intersections.collection.length;
+    for (var i = 0; i < length; i++) {
+        if (intersections.collection[i].isSelected(position)) {
+            intersections.setSelected(intersections.collection[i]);
+            return true;
+        }
+    }
+    return false;
 };
