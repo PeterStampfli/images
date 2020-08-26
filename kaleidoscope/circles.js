@@ -159,9 +159,7 @@ circles.draw = function() {
  * @param{Object} args - optional, modifying the gui
  */
 circles.makeGui = function(parentGui, args = {}) {
-    circles.gui = parentGui.addFolder('circles', {
-        closed: false
-    }, args);
+    circles.gui = parentGui.addFolder('circles', args);
     circles.visible = true;
     BooleanButton.greenRedBackground();
     circles.visibleButton = circles.gui.add({

@@ -191,6 +191,22 @@ intersections.makeGui = function(parentGui, args = {}) {
 };
 
 /**
+* checck if we can add an intersection between the two selected circles
+* @method intersections.canAdd
+* @return boolean, true if it is possible to add an intersection
+* and adjust to a dihedral group
+*/
+intersections.canAdd=function(){
+   // can add an intersection only if two circles are selected and they define a dihedral group
+    let canDo = (Intersection.estimateN(circles.selected,circles.otherSelected)>0);
+    // and they do not already have an intersection ...
+    canDo = canDo && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
+    // and at least one of the circles can adjust to intersections
+    canDo = canDo && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
+    return canDo;
+};
+
+/**
  * activate the UI of the intersections collection and of all intersections
  * call when circles change
  * @method intersections.activateUI
@@ -198,15 +214,9 @@ intersections.makeGui = function(parentGui, args = {}) {
 intersections.activateUI = function() {
     // can always delete selected intersection if an interssection is selected
     intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
-    // can add an intersection only if two circles are selected ...
-    let canAddIntersection = (guiUtils.isObject(circles.selected) && guiUtils.isObject(circles.otherSelected));
-    // and they do not already have an intersection ...
-    canAddIntersection = canAddIntersection && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
-    // and the circles intersect
-    canAddIntersection = canAddIntersection && (circles.selected.intersectsCircle(circles.otherSelected));
-    // and at least one of the circles can adjust to intersections
-    canAddIntersection = canAddIntersection && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
-    intersections.addButton.setActive(canAddIntersection);
+ 
+    intersections.addButton.setActive(intersections.canAdd());
+    // UI of the intersections
     intersections.collection.forEach(intersection => intersection.activateUI());
 
     console.log(Intersection.estimateN(circles.selected, circles.otherSelected));

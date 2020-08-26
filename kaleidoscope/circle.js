@@ -84,9 +84,9 @@ export function Circle(parentGui, properties) {
             circle.activateUI();
             intersections.activateUI();
             circle.mapDirectionController.setActive(circle.canChange);
-               output.pixels.show();    // no new map
-        circles.draw();
-        intersections.draw();
+            output.pixels.show(); // no new map
+            circles.draw();
+            intersections.draw();
         }
     });
 
@@ -138,7 +138,7 @@ export function Circle(parentGui, properties) {
         labelText: '',
         onChange: function() {
             circles.setSelected(circle);
-            Circle.draw();        // changes map
+            Circle.draw(); // changes map
         }
     });
     this.colorController = this.gui.add({
@@ -146,10 +146,10 @@ export function Circle(parentGui, properties) {
         params: this,
         property: 'color',
         onChange: function() {
-               circles.setSelected(circle);
-        output.pixels.show();    // no new map
-        circles.draw();
-        intersections.draw();
+            circles.setSelected(circle);
+            output.pixels.show(); // no new map
+            circles.draw();
+            intersections.draw();
         }
     });
 }
@@ -678,18 +678,6 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
         this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
         this.updateUI(); // reset the shown map direction value
     }
-};
-
-/**
- * for checking if we can have an intersection:
- * do the circles really intersect ?
- * @method Circle#intersectsCircle
- * @param {Circle} circle
- * @return boolean, true if the circles intersect
- */
-Circle.prototype.intersectsCircle = function(circle) {
-    const distance = Math.hypot(this.centerX - circle.centerX, this.centerY - circle.centerY);
-    return (this.radius + circle.radius) > distance;
 };
 
 /**

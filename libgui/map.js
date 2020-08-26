@@ -183,7 +183,7 @@ for (let i = 0; i < 256; i++) {
 }
 
 /**
- * switching regions on and off
+ * add buttons for switching regions on and off
  * @method map.regionControl
  * @param {ParamGui} gui
  * @param {integer} nRegions
@@ -266,7 +266,7 @@ map.updateColorTable = function() {
 };
 
 /**
- * make a color table
+ * make a Ui for choosing the colors of regions
  * @method map.makeNewColorTable
  * @param {ParamGui} gui
  * @param {integer} nColors
