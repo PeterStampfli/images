@@ -52,7 +52,9 @@ basic.setup = function() {
     map.regionControl(regionGui, 2);
     map.makeNewColorTable(regionGui, 2);
     // GUI's for circles and intersections: you can close them afterwards
-    circles.makeGui(gui);
+    circles.makeGui(gui, {
+        closed: false
+    });
     intersections.makeGui(gui, {
         closed: false
     });
@@ -61,28 +63,78 @@ basic.setup = function() {
         circles.draw();
         intersections.draw();
     };
+    // mouse controls
+    // mouse move with ctrl shows objects that can be selected
+    output.mouseCtrlMoveAction = function(event) {
+        if (intersections.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else if (circles.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else {
+            output.canvas.style.cursor = "default";
+        }
+        output.pixels.show();
+        circles.draw();
+        intersections.draw();
+    };
+    // smooth transition when ctrl key is pressed
+    output.ctrlKeyDownAction = function(event) {
+            output.mouseCtrlMoveAction(event);
+        }
+        // mouse down with ctrl selects intersection or circle
+    output.mouseCtrlDownAction = function(event) {
+        if (intersections.select(event) || circles.select(event)) {
+            output.pixels.show();
+            circles.draw();
+            intersections.draw();
+        }
+    };
+    // mouse drag with ctrl moves selected circle
+    output.mouseCtrlDragAction = function(event) {
+        circles.dragAction(event);
+        map.drawMapChanged();
+    };
+
+    // mouse wheel with ctrl changes radius of slected circle
+    // with ctrl+shift changes order of selected intersection
+
+    output.mouseCtrlWheelAction = function(event) {
+        if (event.shiftPressed) {
+            intersections.wheelAction(event);
+        } else {
+            circles.wheelAction(event);
+        }
+        map.drawMapChanged();
+    };
 };
+
+// standardized drawing routines
+// also useful for testing
 
 /**
  * recalculating the map, generating new pixel image and drawing
  * use if the map changed
  * @method basic.drawMapChanged
  */
-basic.drawMapChanged = map.drawMapChanged;
+basic.drawMapChanged = function() {
+    map.drawMapChanged();
+};
 
 /**
  * generating new pixel image and drawing
  * use if the map remains and only the image changes
  * @method basic.drawImageChanged
  */
-basic.drawImageChanged = map.drawImageChanged;
+basic.drawImageChanged = function() {
+    map.drawImageChanged();
+};
 
 /**
  * drawing
  * use if only the display of circles and intersection changes
- * @method basic.drawOnly
+ * @method basic.drawCirclesIntersections
  */
-basic.drawOnly = function() {
+basic.drawCirclesIntersections = function() {
     output.pixels.show(); // no new map
     circles.draw();
     intersections.draw();

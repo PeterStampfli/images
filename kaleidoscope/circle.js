@@ -9,7 +9,8 @@ from "../libgui/modules.js";
 
 import {
     circles,
-    intersections
+    intersections,
+    basic
 } from './modules.js';
 
 // beware of hitting the circle center
@@ -28,16 +29,6 @@ Circle.frozenHighlightColor = '#ffbbbb';
 
 // selection, regionwidth in px
 Circle.selectWidth = Circle.highlightLineWidth;
-
-/**
- * the (re)drawing routine for anything, called after some circle or intersection changes
- * to be defined, depending on what to draw
- * typically calls map.draw
- * @method Circle.draw
- */
-Circle.draw = function() {
-    console.log('Circle.draw');
-};
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -84,9 +75,7 @@ export function Circle(parentGui, properties) {
             circle.activateUI();
             intersections.activateUI();
             circle.mapDirectionController.setActive(circle.canChange);
-            output.pixels.show(); // no new map
-            circles.draw();
-            intersections.draw();
+            basic.drawCirclesIntersections(); // no new map
         }
     });
 
@@ -138,7 +127,7 @@ export function Circle(parentGui, properties) {
         labelText: '',
         onChange: function() {
             circles.setSelected(circle);
-            Circle.draw(); // changes map
+            basic.drawMapChanged(); // changes map
         }
     });
     this.colorController = this.gui.add({
@@ -147,9 +136,7 @@ export function Circle(parentGui, properties) {
         property: 'color',
         onChange: function() {
             circles.setSelected(circle);
-            output.pixels.show(); // no new map
-            circles.draw();
-            intersections.draw();
+            basic.drawCirclesIntersections(); //no new map
         }
     });
 }
@@ -568,7 +555,7 @@ Circle.prototype.tryRadius = function(radius) {
         if (success) {
             this.updateUI();
             intersections.activateUI();
-            Circle.draw();
+            basic.drawMapChanged();
         }
     }
 };
@@ -609,7 +596,7 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
         if (success) {
             this.updateUI();
             intersections.activateUI();
-            Circle.draw();
+            basic.drawMapChanged();
         }
         return success;
     } else {
@@ -673,7 +660,7 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
     let success = this.adjustToIntersections();
     if (success) {
         this.updateUI();
-        Circle.draw();
+        basic.drawMapChanged();
     } else {
         this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
         this.updateUI(); // reset the shown map direction value
@@ -875,8 +862,8 @@ Circle.prototype.dragAction = function(event) {
 };
 
 /**
- * mouse wheel on the circle
- * action depends on intersections
+ * mouse wheel on the circle, changing raadius
+ * effective action depends on intersections
  * @method Circle#wheelAction
  * @param{object} event
  */

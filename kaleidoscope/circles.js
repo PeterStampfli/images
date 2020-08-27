@@ -9,7 +9,8 @@ import {
 
 import {
     Circle,
-    intersections
+    intersections,
+    basic
 } from './modules.js';
 
 /**
@@ -161,12 +162,13 @@ circles.draw = function() {
 circles.makeGui = function(parentGui, args = {}) {
     circles.gui = parentGui.addFolder('circles', args);
     circles.visible = true;
+    circles.selectedMessage = circles.gui.addParagraph('Selected: none');
     BooleanButton.greenRedBackground();
     circles.visibleButton = circles.gui.add({
         type: 'boolean',
         params: circles,
         property: 'visible',
-        labelText:'',
+        labelText: '',
         buttonText: ['visible', 'hidden'],
         onChange: function() {
             output.pixels.show(); // no new map
@@ -179,8 +181,7 @@ circles.makeGui = function(parentGui, args = {}) {
         buttonText: 'add circle',
         onClick: function() {
             circles.add();
-            intersections.activateUI();
-            Circle.draw();
+            basic.drawMapChanged();
         }
     });
     circles.deleteButton = circles.gui.add({
@@ -189,8 +190,7 @@ circles.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             if (guiUtils.isObject(circles.selected)) {
                 circles.selected.destroy();
-                intersections.activateUI();
-                Circle.draw();
+                basic.drawMapChanged();
             }
         }
     });
@@ -199,10 +199,21 @@ circles.makeGui = function(parentGui, args = {}) {
 
 /**
  * activate the UI (the dlete button depending whether there is a circle left over)
+ * and update message for selected circles
  * @method circles.activateUI
  */
 circles.activateUI = function() {
     circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
+    let message = 'Selected: ';
+    if (guiUtils.isObject(circles.selected)) {
+        message += '<strong>' + circles.selected.id + '</strong>';
+        if (guiUtils.isObject(circles.otherSelected)) {
+            message += ' and ' + circles.otherSelected.id;
+        }
+    } else {
+        message += 'none';
+    }
+    circles.selectedMessage.innerHTML = message;
 };
 
 /**

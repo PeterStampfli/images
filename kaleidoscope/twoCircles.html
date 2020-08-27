@@ -47,47 +47,10 @@ circles.collection[0].adjustToIntersections();
 
 
 
-Circle.draw = map.drawMapChanged;
-
-output.mouseCtrlMoveAction = function(event) {
-    if (intersections.isSelected(event)) {
-        output.canvas.style.cursor = "pointer";
-    } else if (circles.isSelected(event)) {
-        output.canvas.style.cursor = "pointer";
-    }else {
-        output.canvas.style.cursor = "default";
-    }
-    output.pixels.show();
-    circles.draw();
-    intersections.draw();
-};
 
 
-output.ctrlKeyDownAction=function(event){
-    output.mouseCtrlMoveAction(event);
-}
 
-output.mouseCtrlDownAction = function(event) {
-    if (intersections.select(event) || circles.select(event)) {
-        output.pixels.show();
-        circles.draw();
-        intersections.draw();
-    }
-};
-output.mouseCtrlWheelAction = function(event) {
-    if (event.shiftPressed) {
-        is.incDecN(event.wheelDelta);
-        map.drawMapChanged();
-    } else {
-        circles.wheelAction(event);
-        map.drawMapChanged();
-    }
-};
 
-output.mouseCtrlDragAction=function(event){
-    circles.dragAction(event);
-    map.drawMapChanged();
-};
 
 output.firstDrawing();
 

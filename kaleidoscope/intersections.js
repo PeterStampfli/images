@@ -9,7 +9,8 @@ import {
 
 import {
     Intersection,
-    circles
+    circles,
+    basic
 } from './modules.js';
 
 /**
@@ -157,7 +158,7 @@ intersections.makeGui = function(parentGui, args = {}) {
         type: 'boolean',
         params: intersections,
         property: 'visible',
-        labelText:'',
+        labelText: '',
         buttonText: ['visible', 'hidden'],
         onChange: function() {
             output.pixels.show(); // no new map
@@ -169,10 +170,10 @@ intersections.makeGui = function(parentGui, args = {}) {
         type: 'button',
         buttonText: 'add intersection',
         onClick: function() {
-            // add an interssection between the two selected circles
+            // add an intersection between the two selected circles
             // button cannot be clicked if this is not possible
 
-            Circle.draw();
+            basic.drawMapChanged();
         }
     });
     intersections.deleteButton = intersections.gui.add({
@@ -181,9 +182,7 @@ intersections.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             if (guiUtils.isObject(intersections.selected)) {
                 intersections.selected.destroy();
-                output.pixels.show(); // no new map
-                circles.draw();
-                intersections.draw();
+                basic.drawCirclesIntersections();
             }
         }
     });
@@ -191,14 +190,14 @@ intersections.makeGui = function(parentGui, args = {}) {
 };
 
 /**
-* checck if we can add an intersection between the two selected circles
-* @method intersections.canAdd
-* @return boolean, true if it is possible to add an intersection
-* and adjust to a dihedral group
-*/
-intersections.canAdd=function(){
-   // can add an intersection only if two circles are selected and they define a dihedral group
-    let canDo = (Intersection.estimateN(circles.selected,circles.otherSelected)>0);
+ * checck if we can add an intersection between the two selected circles
+ * @method intersections.canAdd
+ * @return boolean, true if it is possible to add an intersection
+ * and adjust to a dihedral group
+ */
+intersections.canAdd = function() {
+    // can add an intersection only if two circles are selected and they define a dihedral group
+    let canDo = (Intersection.estimateN(circles.selected, circles.otherSelected) > 0);
     // and they do not already have an intersection ...
     canDo = canDo && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
     // and at least one of the circles can adjust to intersections
@@ -214,12 +213,9 @@ intersections.canAdd=function(){
 intersections.activateUI = function() {
     // can always delete selected intersection if an interssection is selected
     intersections.deleteButton.setActive(guiUtils.isObject(intersections.selected));
- 
     intersections.addButton.setActive(intersections.canAdd());
     // UI of the intersections
     intersections.collection.forEach(intersection => intersection.activateUI());
-
-    console.log(Intersection.estimateN(circles.selected, circles.otherSelected));
 };
 
 /**
@@ -276,4 +272,15 @@ intersections.select = function(position) {
         }
     }
     return false;
+};
+
+/**
+ * wheel action on the selected intersection
+ * @method intersections.wheelAction
+ * @param {object} event - with wheel data
+ */
+intersections.wheelAction = function(event) {
+    if (intersections.selected) {
+        intersections.selected.wheelAction(event);
+    }
 };

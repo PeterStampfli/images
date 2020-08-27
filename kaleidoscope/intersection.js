@@ -7,9 +7,9 @@ import {
 from "../libgui/modules.js";
 
 import {
-    Circle,
     circles,
-    intersections
+    intersections,
+    basic
 } from './modules.js';
 
 // parameters for drawing, change if you do not like it 
@@ -54,7 +54,7 @@ export function Intersection(parentGui, circle1, circle2, color = '#000000', n =
         step: 1,
         onChange: function(n) {
             intersection.tryN(n);
-            Circle.draw(); // map chnges
+            basic.drawMapChanged(); // map changes
         }
     });
 
@@ -181,13 +181,14 @@ Intersection.prototype.tryN = function(n) {
     return success;
 };
 
+
 /**
- * increase/decrease order n (for mouse wheel action)
- * @method Intersection#incDecN
- * @param {number} direction - > 0 for increment
+ * mouse wheel on the intersection, increase/decrease order n
+ * @method Intersection#wheelAction
+ * @param{object} event
  */
-Intersection.prototype.incDecN = function(direction) {
-    if (direction > 0) {
+Intersection.prototype.wheelAction = function(event) {
+    if (event.wheelDelta > 0) {
         this.tryN(this.n + 1);
     } else {
         this.tryN(this.n - 1);
