@@ -139,3 +139,30 @@ basic.drawCirclesIntersections = function() {
     circles.draw();
     intersections.draw();
 };
+
+/**
+* get json string for the kaleidoscope (saving as preset)
+* @method basic.getJSON
+* @return String, defines the kaleidoscope
+*/
+basic.getJSON=function(){
+const kaleidoscope={
+	intersections: intersections.get(),
+	circles: circles.get()
+};
+return JSON.stringify(kaleidoscope);
+};
+
+/**
+* set the kaleidoscope using JSON string
+* @method basic.setJSON
+* @param {String} kaleidoscopeJSON
+*/
+basic.setJSON=function(kaleidoscopeJSON){
+	const kaleidoscope=JSON.parse(kaleidoscopeJSON);
+	console.log(kaleidoscope);
+	// first create the circles
+	circles.set(kaleidoscope.circles);
+
+	// then we can creaate the ingtersections
+}

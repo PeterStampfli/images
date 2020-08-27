@@ -142,6 +142,24 @@ export function Circle(parentGui, properties) {
 }
 
 /**
+ * get properties of this circle as an object
+ * @method Circle#getProperties
+ * @return object, with all properties needed to build the same circle
+ */
+Circle.prototype.getProperties = function() {
+    const properties = {
+        radius: this.radius,
+        centerX: this.centerX,
+        centerY: this.centerY,
+        isInsideOutMap: this.isInsideOutMap,
+        isMapping: this.isMapping,
+        color: this.color,
+        id: this.id
+    };
+    return properties;
+};
+
+/**
  * update the ui values
  * need explicite setting the values from this circle's data
  * @method Circle#updateUI

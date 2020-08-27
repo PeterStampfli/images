@@ -92,7 +92,7 @@ intersections.add = function(circle1, circle2, n = 3) {
         intersection = new Intersection(intersections.gui, circle1, circle2, intersections.getColor(), n);
         intersections.collection.push(intersection);
     }
-    intersections.selected = intersection;
+    intersections.setSelected(intersection);
     intersections.activateUI();
     return intersection;
 };
@@ -121,8 +121,20 @@ intersections.remove = function(intersection) {
  * @method intersections.clear
  */
 intersections.clear = function() {
-    intersections.collection.forEach(intersection => intersection.destroy());
-    intersection.collection.length = 0;
+    while (intersections.collection.length > 0) {
+        intersections.collection[intersections.collection.length - 1].destroy();
+    }
+};
+
+/**
+ * make an array of properties for the intersections
+ * @method intersections.get
+ * @return array of circle property objects
+ */
+intersections.get = function() {
+    const result = [];
+    intersections.collection.forEach(intersection => result.push(intersection.getProperties()));
+    return result;
 };
 
 /**
@@ -172,7 +184,10 @@ intersections.makeGui = function(parentGui, args = {}) {
         onClick: function() {
             // add an intersection between the two selected circles
             // button cannot be clicked if this is not possible
-
+            const n = Intersection.estimateN(circles.selected, circles.otherSelected);
+            console.log(n);
+            intersections.add(circles.selected, circles.otherSelected, n);
+            intersections.selected.tryN(n); // this adjusts the circles
             basic.drawMapChanged();
         }
     });

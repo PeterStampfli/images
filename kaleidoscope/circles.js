@@ -69,8 +69,12 @@ circles.getColor = function() {
  * @return the circle
  */
 circles.add = function(properties = {}) {
-    properties.id = circles.getId();
-    properties.color = circles.getColor();
+    if (!guiUtils.isNumber(properties.id)) {
+        properties.id = circles.getId();
+    }
+    if (!guiUtils.isString(properties.color)) {
+        properties.color = circles.getColor();
+    }
     const circle = new Circle(circles.gui, properties); // this creates a unique new circle, which is not in the collection
     circles.collection.push(circle);
     circles.setSelected(circle);
@@ -103,33 +107,54 @@ circles.remove = function(circle) {
 };
 
 /**
+ * get a circle with a given id number
+ * returns false if not found
+ * @method circles.findId
+ * @param {Integer} id
+ * @return Circle, with given id, or false if not found
+ */
+circles.findId = function(id) {
+    const length = circles.collection.length;
+    for (var i = 0; i < length; i++) {
+        if (id === circles.collection[i].id) {
+            return circles.collection[i];
+        }
+    }
+    console.error('circles.findId: id not found. Is ' + id + '. The collection of circles:');
+    console.log(circles.collection);
+    return false;
+};
+
+
+/**
  * destroy all circles
  * @method circles.clear
  */
 circles.clear = function() {
-    circles.collection.forEach(circle => circle.destroy());
-    circles.collection.length = 0;
+    while (circles.collection.length > 0) {
+        circles.collection[circles.collection.length - 1].destroy();
+    }
 };
 
 /**
- * make an array of properties for the circles, stringify it in JSON
- * @method circles.getJSON
- * @return JSON string
+ * make an array of properties for the circles
+ * @method circles.get
+ * @return array of circle property objects
  */
-circles.getJSON = function() {
+circles.get = function() {
     const result = [];
     circles.collection.forEach(circle => result.push(circle.getProperties()));
-    return JSON.stringify(result);
+    return result;
 };
 
 /**
- * set the array of circles from a JSON string
- * @method circles.setJSON
- * @param {string} json
+ * set the array of circles from an array of properties
+ * @method circles.set
+ * @param {array of circle property objects} input
  */
-circles.setJSON = function(json) {
-    const input = JSON.parse(json);
+circles.set = function(input) {
     circles.clear();
+    console.log(circles)
     input.forEach(properties => circles.add(properties));
 };
 
@@ -301,8 +326,6 @@ circles.dragAction = function(event) {
 
 // mapping
 //==================================
-
-// basic, rudimentary
 
 // max number of iterations
 const maxIterations = 20;
