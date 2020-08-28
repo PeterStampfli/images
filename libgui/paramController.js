@@ -188,14 +188,14 @@ export function ParamController(gui, domElement, argObjects) {
                 break;
             case "boolean":
                 const booleanButton = new BooleanButton(this.domElement);
-               if (guiUtils.isArray(args.buttonText)){
-                    booleanButton.setTexts(args.buttonText[0],args.buttonText[1]);
+                if (guiUtils.isArray(args.buttonText)) {
+                    booleanButton.setTexts(args.buttonText[0], args.buttonText[1]);
                 }
                 booleanButton.setWidth(guiUtils.check(args.width, this.design.booleanButtonWidth));
                 booleanButton.setFontSize(this.design.buttonFontSize);
                 guiUtils.hSpace(this.domElement, ParamGui.spaceWidth);
                 this.uiElement = booleanButton;
-                 this.setupOnChange();
+                this.setupOnChange();
                 this.setupOnInteraction();
                 if (guiUtils.isBoolean(this.initialValue)) {
                     this.setValueOnly(this.initialValue); // that is safe, does not change value
@@ -542,11 +542,10 @@ ParamController.prototype.addHelp = function(message) {
  * @param {String|number} name
  * @param {whatever} value - optional, default value is name
  */
-
 ParamController.prototype.addOption = function(name, value = name) {
     if (this.type === "selection") {
         this.uiElement.addOption(name, value);
-        // to be safe: adding an option to an empty selecction -> choose this option
+        // to be safe: adding an option to an empty selection -> choose this option
         if (this.uiElement.values.length === 1) {
             this.setValueOnly(value);
         }
@@ -554,7 +553,6 @@ ParamController.prototype.addOption = function(name, value = name) {
         console.error('ParamController#addOption: Only for controllers of type "selection"');
         console.log('this controller type is "' + this.type + '"');
     }
-
 };
 
 // setting and getting values. 
@@ -803,6 +801,20 @@ ParamController.prototype.onFinishChange = ParamController.prototype.onChange;
 ParamController.prototype.hSpace = function(width) {
     guiUtils.hSpace(this.domElement, width);
     return this;
+};
+
+/**
+ * layout: add a span with text
+ * @method ParamController#addSpan
+ * @param {String} innerHTML - with HTML markup
+ * @return the span, for changing the text
+ */
+ParamController.prototype.addSpan = function(innerHTML) {
+    const span = document.createElement("span");
+    span.innerHTML = innerHTML;
+    span.style.fontSize = this.design.labelFontSize + "px";
+    this.domElement.appendChild(span);
+    return span;
 };
 
 /**

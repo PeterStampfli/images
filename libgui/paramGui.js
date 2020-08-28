@@ -1123,7 +1123,7 @@ ParamGui.prototype.addVerticalSpace = function(height, backgroundColor) {
  * you can delete it with para.remove();
  * you can style it
  * @method ParamGui#addParagraph
- * @param {String} text - with HTML markup (=>innerHTML)
+ * @param {String} innerHTML - with HTML markup
  * @return the html <p> element, for futher formatting, in case
  */
 ParamGui.prototype.addParagraph = function(innerHTML) {

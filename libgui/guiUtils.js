@@ -424,25 +424,34 @@ function saveBlobAsFile(blob, filename) {
 
 /**
  * save canvas image as a file
- * execute an optional callback
  * @method guiUtils.saveCanvasAsFile
  * @param {canvas} canvas
  * @param {string} filename - without extension
- * @param {string} extension - 'png' or 'jpg'
- * @param {function} callback - optional
+ * @param {string} extension - optional, 'png' or 'jpg', default is 'jpg'
  */
-guiUtils.saveCanvasAsFile = function(canvas, filename, extension, callback = function() {}) {
+guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg') {
     if (extension === 'png') {
         canvas.toBlob(function(blob) {
             saveBlobAsFile(blob, filename + '.png');
-            callback();
         }, 'image/png');
     } else {
         canvas.toBlob(function(blob) {
             saveBlobAsFile(blob, filename + '.jpg');
-            callback();
         }, 'image/jpeg');
     }
+};
+
+/**
+ * save a (text) string as a file
+ * @method guiUtils.saveTextAsFile
+ * @param {String} text
+ * @param {String} filename - without extension (will be .txt)
+ */
+guiUtils.saveTextAsFile = function(text, filename) {
+    const blob = new Blob([text], {
+        type: 'text/plain'
+    });
+    saveBlobAsFile(blob, filename + '.txt');
 };
 
 // check byte order of the machine
@@ -552,7 +561,7 @@ guiUtils.regulaFalsi = function(fun, x1, x2, acc) {
  * @return {boolean} true if there are real solutions
  */
 guiUtils.quadraticEquation = function(a, b, c, data) {
-    var s1,s2;
+    var s1, s2;
     const rootArg = b * b - 4 * a * c;
     if (rootArg < 0) {
         data.x = 0;
@@ -565,12 +574,12 @@ guiUtils.quadraticEquation = function(a, b, c, data) {
         s1 = 0.5 * (-b + Math.sqrt(rootArg)) / a;
     }
     s2 = c / a / s1;
-    if (s1<s2){
-        data.x=s1;
-        data.y=s2;
+    if (s1 < s2) {
+        data.x = s1;
+        data.y = s2;
     } else {
-        data.x=s2;
-        data.y=s1;
+        data.x = s2;
+        data.y = s1;
     }
     return true;
 };

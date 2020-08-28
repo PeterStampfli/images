@@ -9,6 +9,7 @@ import {
 import {
     circles,
     intersections,
+    presets
 } from './modules.js';
 
 /**
@@ -51,6 +52,10 @@ basic.setup = function() {
     const regionGui = gui.addFolder('regions');
     map.regionControl(regionGui, 2);
     map.makeNewColorTable(regionGui, 2);
+    // the presets: make gui and load
+    presets.makeGui(gui, {
+        closed: false
+    });
     // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui, {
         closed: false

@@ -560,7 +560,6 @@ ImageSelect.prototype.addDragAndDrop = function() {
             // select only the first good image file
             selectThis = selectThis && !guiUtils.isGoodImageFile(file.name);
         }
-
     };
 };
 
