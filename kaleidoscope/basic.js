@@ -79,9 +79,9 @@ basic.setup = function() {
     };
     // smooth transition when ctrl key is pressed
     output.ctrlKeyDownAction = function(event) {
-            output.mouseCtrlMoveAction(event);
-        }
-        // mouse down with ctrl selects intersection or circle
+        output.mouseCtrlMoveAction(event);
+    };
+    // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
         if (intersections.select(event) || circles.select(event)) {
             output.pixels.show();
@@ -141,28 +141,27 @@ basic.drawCirclesIntersections = function() {
 };
 
 /**
-* get json string for the kaleidoscope (saving as preset)
-* @method basic.getJSON
-* @return String, defines the kaleidoscope
-*/
-basic.getJSON=function(){
-const kaleidoscope={
-	intersections: intersections.get(),
-	circles: circles.get()
-};
-return JSON.stringify(kaleidoscope);
+ * get json string for the kaleidoscope (saving as preset)
+ * @method basic.getJSON
+ * @return String, defines the kaleidoscope
+ */
+basic.getJSON = function() {
+    const kaleidoscope = {
+        intersections: intersections.get(),
+        circles: circles.get()
+    };
+    return JSON.stringify(kaleidoscope);
 };
 
 /**
-* set the kaleidoscope using JSON string
-* @method basic.setJSON
-* @param {String} kaleidoscopeJSON
-*/
-basic.setJSON=function(kaleidoscopeJSON){
-	const kaleidoscope=JSON.parse(kaleidoscopeJSON);
-	console.log(kaleidoscope);
-	// first create the circles
-	circles.set(kaleidoscope.circles);
-
-	// then we can creaate the ingtersections
-}
+ * set the kaleidoscope using JSON string
+ * @method basic.setJSON
+ * @param {String} kaleidoscopeJSON
+ */
+basic.setJSON = function(kaleidoscopeJSON) {
+    const kaleidoscope = JSON.parse(kaleidoscopeJSON);
+    // first create the circles
+    circles.set(kaleidoscope.circles);
+    // then we can create the ingtersections
+    intersections.set(kaleidoscope.intersections);
+};

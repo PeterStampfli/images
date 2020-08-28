@@ -138,6 +138,23 @@ intersections.get = function() {
 };
 
 /**
+ * set the array of intersections from an array of properties
+ * @method intersections.set
+ * @param {array of intersection property objects} input
+ */
+intersections.set = function(input) {
+    intersections.clear();
+    const length = input.length;
+    for (var i = 0; i < length; i++) {
+        const property = input[i];
+        const circle1 = circles.findId(property.idCircle1);
+        const circle2 = circles.findId(property.idCircle2);
+        intersections.add(circle1, circle2, property.n);
+        intersections.selected.tryN(property.n);
+    }
+};
+
+/**
  * draw the intersections
  * highlight selected intersection
  * @method intersections.draw

@@ -154,7 +154,6 @@ circles.get = function() {
  */
 circles.set = function(input) {
     circles.clear();
-    console.log(circles)
     input.forEach(properties => circles.add(properties));
 };
 
