@@ -57,7 +57,7 @@ map.sizeArray = new Float32Array(1);
 map.controlPixelsAlpha = 128;
 
 // fractional length of image region checked initially
-map.initialImageRegion = 0.75;
+map.initialImageCovering = 0.75;
 
 /**
  * the mapping function transforms a point argument
@@ -274,7 +274,7 @@ map.updateColorTable = function() {
 map.makeNewColorTable = function(gui, nColors) {
     map.colors.length = 0;
     for (var i = 0; i < nColors; i++) {
-        const light = Math.floor(255 * (i+0.75) / nColors );
+        const light = Math.floor(255 * (i + 0.75) / nColors);
         const color = {
             red: light,
             green: light,
@@ -452,7 +452,6 @@ map.drawImageLowQuality = function() {
                 map.inputTransform.transform(point);
                 output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
                 map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
-
             } else {
                 output.pixels.array[index] = 0; //transparent black
             }
@@ -567,7 +566,7 @@ map.setupInputImage = function(gui) {
         return;
     }
     // a hidden canvas for the input image
-    map.inputCanvas = document.createElement('canvas');
+    map.inputCanvas = document.createElement('canvas'); // has default width and height
     map.inputCanvas.style.display = 'none';
     map.inputPixels = new Pixels(map.inputCanvas);
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
@@ -656,9 +655,14 @@ map.setupInputImage = function(gui) {
     const inputTransform = map.inputTransform;
     inputTransform.setStepShift(1);
     map.inputTransform.onChange = function() {
-        console.log('change input transform');
         map.drawImageChanged();
     };
+    // resetting the input transform means adjusting the image to range
+    map.inputTransform.resetButton.callback = function() {
+        map.setupMapImageTransform();
+        map.drawImageChanged();
+    };
+
     // the mouse events on the control canvas
     map.mouseEvents = new MouseEvents(map.controlCanvas);
     const mouseEvents = map.mouseEvents;
@@ -724,6 +728,28 @@ map.setupInputImage = function(gui) {
 };
 
 /**
+ * determine transformation from map to input image
+ * use for loading a new imaage or for resetting after changing the map
+ * @method map.setupMapImageTransform
+ */
+map.setupMapImageTransform = function() {
+    map.determineRange();
+    // find prescale for inputTransform to fit map into input image, with some free border
+    const imageWidth = map.inputCanvas.width;
+    const imageHeight = map.inputCanvas.height;
+    map.inputTransform.setPrescale(map.initialImageCovering * Math.min(imageWidth / map.rangeX, imageHeight / map.rangeY));
+    // determine shifts to get map center to input image center: determine transform of the map center without shift
+    map.inputTransform.setValues(0, 0, 1, 0);
+    const v = {
+        x: map.centerX,
+        y: map.centerY
+    };
+    map.inputTransform.transform(v);
+    // now we can determine the correct shifts
+    map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
+};
+
+/**
  * load the image with url=map.inputImage
  * call a callback, might be different for loading the test image than for loading further images
  * @method map.loadInputImage
@@ -738,26 +764,14 @@ map.loadInputImage = function(callback) {
         map.inputCanvas.height = image.height;
         map.inputCanvasContext.drawImage(image, 0, 0);
         map.inputPixels.update();
-        // determine initial transformation from map range: map already done before loading image !
-        // preescale factor: fit map into image map.imageScale ??
-        // multiply shift of image transform by 1000 -> shift by one pixel for shown 0.001
-        map.determineRange(); // always needed at this point, and only here?
-        // find prescale for inputTransform to fit map into input image, with some free border
-        map.inputTransform.setPrescale(map.initialImageRegion * Math.min(image.width / map.rangeX, image.height / map.rangeY));
-        // determine shifts to get map center to input image center: determine transform of map center without shift
-        map.inputTransform.setValues(0, 0, 1, 0); // updates UI and transform
-        const v = {
-            x: map.centerX,
-            y: map.centerY
-        };
-        map.inputTransform.transform(v);
-        // now we know the correct shifts
-        map.inputTransform.setValues(0.5 * image.width - v.x, 0.5 * image.height - v.y, 1, 0);
-        map.inputTransform.setResetValues();
-        // load to control canvas, determine scale to fit into square of gui width
+        // transform from map to input image
+        map.setupMapImageTransform();
+        // determine scale from input image to controle image
+        // to fit the control image into a square of gui width
         map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
         map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
         map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
+        // load input image to the control canvas
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;

@@ -97,7 +97,6 @@ basic.setup = function() {
 
     // mouse wheel with ctrl changes radius of slected circle
     // with ctrl+shift changes order of selected intersection
-
     output.mouseCtrlWheelAction = function(event) {
         if (event.shiftPressed) {
             intersections.wheelAction(event);
@@ -109,14 +108,16 @@ basic.setup = function() {
 };
 
 // standardized drawing routines
-// also useful for testing
 
 /**
  * recalculating the map, generating new pixel image and drawing
+ * taking care for case that all circles are inverting inside out
  * use if the map changed
  * @method basic.drawMapChanged
  */
 basic.drawMapChanged = function() {
+	    circles.finalInversion=circles.allInsideOut();
+    console.log(circles.finalInversion);
     map.drawMapChanged();
 };
 

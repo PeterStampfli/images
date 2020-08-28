@@ -330,7 +330,28 @@ circles.dragAction = function(event) {
 const maxIterations = 20;
 
 /**
+ * check if all mapping circles are mapping inside out
+ * @circles.allInsideOut
+ * @return boolean, true if all circles are mapping inside out, false if there is no mapping circle
+ */
+circles.allInsideOut = function() {
+    let mappingCircle = false;
+    const length = circles.collection.length;
+    for (var i = 0; i < length; i++) {
+        const circle = circles.collection[i];
+        if (circle.isMapping) {
+            if (!circle.isInsideOutMap) {
+                return false;
+            }
+            mappingCircle = true;
+        }
+    }
+    return mappingCircle;
+};
+
+/**
  * mapping, using the circles, repeat until no more mapping
+ * make an inversion at first circle, if all circles are inside->out mapping
  * or maximum number of iterations
  * @method circles.map
  * @param {object} point - with x,y,structureIndex and valid fields
@@ -346,6 +367,10 @@ circles.map = function(point) {
             }
         }
         if (!mapped) {
+            // inversion needed if all circles map inside out
+            if (circles.finalInversion){
+                circles.collection[0].invert(point);
+            }
             return;
         }
     }

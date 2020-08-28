@@ -838,6 +838,19 @@ Circle.prototype.map = function(position) {
 };
 
 /**
+ * invert at the circle, used to get always a good image
+ * @method Circle.invert
+ * @param {object} position - with x and y fields, will be changed
+ */
+Circle.prototype.invert = function(position) {
+        const dx = position.x - this.centerX;
+        const dy = position.y - this.centerY;
+        const dr2 = dx * dx + dy * dy;
+                const factor = this.radius2 / Math.max(dr2, epsilon2);
+                position.x = this.centerX + factor * dx;
+                position.y = this.centerY + factor * dy;        
+};
+/**
  * dragging the circle
  * action depends on intersections
  * @method Circle#dragAction
