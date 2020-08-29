@@ -180,7 +180,7 @@ output.saveCanvasAsFile = function(filename, type = 'png') {
 let oldWidth = 0;
 let oldHeight = 0;
 // initially do not draw
-let isDrawing = false;
+output.isDrawing = false;
 
 function autoResizeDraw() {
     if (autoResizeController.getValue()) {
@@ -253,7 +253,7 @@ function autoResizeDraw() {
             output.coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
             output.coordinateTransform.updateTransform();
         }
-        if (isDrawing) {
+        if (output.isDrawing) {
             output.drawCanvasChanged();
         }
     }
@@ -443,7 +443,7 @@ output.setCanvasDimensions = function(width, height = width) {
  * @method output.resizeCanvasDraw
  */
 output.firstDrawing = function() {
-    isDrawing = true;
+    output.isDrawing = true;
     output.drawCanvasChanged();
 };
 

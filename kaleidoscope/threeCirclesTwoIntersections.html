@@ -47,12 +47,46 @@ circles.collection[2].adjustToIntersections();
 circles.setSelected(circles.collection[0])
 
 
-basic.setJSON(basic.getJSON())
+console.log(basic.getProperties())
+const properties = {
+    circles: [{
+        radius: 0.6898979485566357,
+        centerX: 0,
+        centerY: 0,
+        isInsideOutMap: false,
+        color: '#ff0000',
+        id: 0
+    }, {
+        radius: 0.4,
+        centerX: -0.6,
+        centerY: 0,
+        isInsideOutMap: true,
+        color: '#00ff00',
+        id: 1
+    }, {
+        radius: 0.4,
+        centerX: 0.6,
+        centerY: 0,
+        isInsideOutMap: true,
+        color: '#00ffff',
+        id: 2
+    }],
+    intersections: [{
+        idCircle1: 0,
+        idCircle2: 1,
+        n: 3
+    }, {
+        idCircle1: 0,
+        idCircle2: 2,
+        n: 3
+    }]
+}
+basic.setProperties(properties)
 Circle.draw = map.drawMapChanged;
 
 
 
-output.firstDrawing();
+basic.drawMapChanged()
 
 
 </script>

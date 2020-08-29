@@ -78,9 +78,10 @@ export function Intersection(parentGui, circle1, circle2, color = '#000000', n =
  */
 Intersection.prototype.getProperties = function() {
     const properties = {
-    idCircle1:this.circle1.id,
-    idCircle2:this.circle2.id,
-    n:this.n     
+        idCircle1: this.circle1.id,
+        idCircle2: this.circle2.id,
+        n: this.n,
+        color: this.color
     };
     return properties;
 };

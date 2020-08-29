@@ -122,7 +122,6 @@ basic.setup = function() {
  */
 basic.drawMapChanged = function() {
 	    circles.finalInversion=circles.allInsideOut();
-    console.log(circles.finalInversion);
     map.drawMapChanged();
 };
 
@@ -147,16 +146,47 @@ basic.drawCirclesIntersections = function() {
 };
 
 /**
+ * get properties of the kaleidoscope (saving as preset)
+ * @method basic.get
+ * @return object, defines the kaleidoscope
+ */
+basic.get = function() {
+    const kaleidoscope = {
+        circles: circles.get(),
+        intersections: intersections.get()
+    };
+    return kaleidoscope;
+};
+
+/**
  * get json string for the kaleidoscope (saving as preset)
  * @method basic.getJSON
  * @return String, defines the kaleidoscope
  */
 basic.getJSON = function() {
-    const kaleidoscope = {
-        intersections: intersections.get(),
-        circles: circles.get()
-    };
-    return JSON.stringify(kaleidoscope);
+    return JSON.stringify(basic.get());
+};
+
+/**
+ * get code string for the properties of the kaleidoscope (saving as preset)
+ * ATTENTION: Add "'" around the color strings
+ * @method basic.getProperties
+ * @return String, defines the kaleidoscope
+ */
+basic.getProperties = function() {
+    return basic.getJSON().replace(/"/g,"");
+};
+
+/**
+ * set the kaleidoscope using a properties object
+ * @method basic.setJSON
+ * @param {Object} properties
+ */
+basic.setProperties = function(properties) {
+    // first create the circles
+    circles.set(properties.circles);
+    // then we can create the ingtersections
+    intersections.set(properties.intersections);
 };
 
 /**
@@ -165,9 +195,6 @@ basic.getJSON = function() {
  * @param {String} kaleidoscopeJSON
  */
 basic.setJSON = function(kaleidoscopeJSON) {
-    const kaleidoscope = JSON.parse(kaleidoscopeJSON);
-    // first create the circles
-    circles.set(kaleidoscope.circles);
-    // then we can create the ingtersections
-    intersections.set(kaleidoscope.intersections);
+    const properties = JSON.parse(kaleidoscopeJSON);
+    basic.setProperties(properties);
 };

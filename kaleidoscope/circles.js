@@ -138,12 +138,19 @@ circles.clear = function() {
 
 /**
  * make an array of properties for the circles
+ * take only circles that are mapping
  * @method circles.get
  * @return array of circle property objects
  */
 circles.get = function() {
     const result = [];
-    circles.collection.forEach(circle => result.push(circle.getProperties()));
+    const length=circles.collection.length;
+    for (var i=0;i<length;i++){
+        const circle=circles.collection[i];
+        if (circle.isMapping){
+            result.push(circle.getProperties())
+        }
+    }
     return result;
 };
 
@@ -281,7 +288,7 @@ circles.setSelected = function(circle) {
 };
 
 /**
- * select a circle depending on (mouse) position
+ * select circles depending on (mouse) position
  * sets selected (and otherSelected) circle
  * reurns true if something has been selected (for preventing other events)
  * @method circles.select
@@ -290,13 +297,14 @@ circles.setSelected = function(circle) {
  */
 circles.select = function(position) {
     const length = circles.collection.length;
+    let selected=false;
     for (var i = 0; i < length; i++) {
         if (circles.collection[i].isSelected(position)) {
             circles.setSelected(circles.collection[i]);
-            return true;
+            selected=true;
         }
     }
-    return false;
+    return selected;
 };
 
 /**

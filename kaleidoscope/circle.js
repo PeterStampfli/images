@@ -151,8 +151,8 @@ Circle.prototype.getProperties = function() {
         radius: this.radius,
         centerX: this.centerX,
         centerY: this.centerY,
+        canChange: this.canChange,
         isInsideOutMap: this.isInsideOutMap,
-        isMapping: this.isMapping,
         color: this.color,
         id: this.id
     };

@@ -89,12 +89,16 @@ SelectValues.prototype.addOption = function(name, value = name) {
 
 /**
  * add options and values
- * from a simple array with values for both
+ * from an array of simple values (number or string), each value is both name and value
+
+
+ 
  * or an object={name1: value1, name2: value2, ...}
  * @method SelectValues#addOptions
  * @param {Array||Object} options
  */
 SelectValues.prototype.addOptions = function(options) {
+    console.log('addo',options)
     if (guiUtils.isArray(options)) {
         options.forEach(option => this.addOption(option));
     } else if (guiUtils.isObject(options)) {

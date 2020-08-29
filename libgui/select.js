@@ -155,6 +155,7 @@ Select.prototype.addOptions = function(names) {
         } else if (typeof names === "object") {
             this.addOptions(Object.keys(names));
         } else {
+            // here we have a simple value (number, string, boolean), make it an option
             const option = document.createElement("option");
             option.textContent = "" + names;
             this.element.appendChild(option);

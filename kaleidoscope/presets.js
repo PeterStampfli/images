@@ -1,12 +1,19 @@
 /* jshint esversion: 6 */
 
 /**
-* using presets, including user defined ones
-* @namespace presets
-*/
-export const presets={};
+ * using presets, including user defined ones
+ * @namespace presets
+ */
+export const presets = {};
 
+// presets in the collection have a name (shown in the selection
+// and a JSON string that defines the kaleidoscope
+// provide initial presets in an array
+// elements are objects:
+// field name is a string 
+// field kaleidoscope is the property object
 
+presets.collection = [];
 
 /**
  * make the gui and add some buttons
@@ -16,8 +23,33 @@ export const presets={};
  */
 presets.makeGui = function(parentGui, args = {}) {
     presets.gui = parentGui.addFolder('presets', args);
+    const gui = presets.gui;
+    gui.add({
+    	type:'selection',
+    	params:presets,
+    	property:'selectedValue',
+labelText:'choice',
+options:presets.collection
+    })
 
-    
+};
+
+
+/**
+* set the selected preset value from indexx to the presets.collection
+* @method presets.setSelectedValue
+* @param {integer} index
+*/
+presets.setSelectedValue=function(index){
+ presets.selectedValue=presets.collection[index].value;
+};
+
+/**
+ * using the selected preset value
+ * @method presets.useSelectedValue
+ */
+presets.useSelectedValue = function() {
+
 };
 
 
@@ -77,3 +109,54 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
 };
 
 */
+
+// adding presets to the collection
+//---------------------------------------------------
+
+presets.collection.push({
+    name: "* (lonely circle)",
+    value: {
+        circles: [{
+            radius: 1,
+            centerX: 0,
+            centerY: 0,
+            canChange: true,
+            isInsideOutMap: false,
+            isMapping: true,
+            color: "#ff0000",
+            id: 0
+        }],
+        intersections: []
+    }
+});
+
+presets.collection.push({
+    name: "*5 (two intersecting circles)",
+    value: {
+        circles: [{
+            radius: 1,
+            centerX: -1.0360876288058687,
+            centerY: 0,
+            canChange: true,
+            isInsideOutMap: false,
+            color: '#ff0000',
+            id: 0
+        }, {
+            radius: 1,
+            centerX: 0.8660254037844386,
+            centerY: 0,
+            canChange: true,
+            isInsideOutMap: false,
+            color: '#00ff00',
+            id: 1
+        }],
+        intersections: [{
+            idCircle1: 0,
+            idCircle2: 1,
+            n: 5,
+            color: '#ff0000'
+        }]
+    }
+});
+
+presets.setSelectedValue(1);

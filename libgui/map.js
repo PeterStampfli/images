@@ -125,6 +125,7 @@ map.startDrawing = function() {
     map.needsSizeArrayUpdate = true;
     map.rangeValid = false;
     output.pixels.update();
+    output.isDrawing = true;
     const canvas = output.canvas;
     if ((map.width !== canvas.width) || (map.height !== canvas.height)) {
         map.width = canvas.width;

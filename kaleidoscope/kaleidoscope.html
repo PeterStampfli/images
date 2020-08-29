@@ -6,7 +6,7 @@
 <link rel="icon" href="data:,">
 
 <head>
-    <title> two circles intersecting</title>
+    <title> kaleidoscope</title>
 </head>
 
 <body>
@@ -28,22 +28,13 @@ import {
     circles,
     Intersection,
     intersections,
-    basic
+    basic,
+    presets
 } from './modules.js';
 
 basic.setup();
-
-
-const d=Math.sqrt(3)/2;
-const c1=circles.add({radius:1,centerX:-d, isInsideOutMap:false})
-const c2=circles.add({radius:1,centerX:d, isInsideOutMap:false})
-
-const is=intersections.add(circles.collection[0],circles.collection[1],5)
-circles.collection[0].adjustToIntersections();
-
-
-
-console.log(basic.getProperties())
+console.log(presets.collection[0])
+basic.setProperties(presets.collection[0].kaleidoscope)
 
 basic.drawMapChanged();
 
