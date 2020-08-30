@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <meta charset="utf-8" />
@@ -15,28 +14,12 @@
 <script type='module'>
 
 import {
-    CoordinateTransform,
-    Pixels,
-    ParamGui,
-    output,
-    map,
-    guiUtils
-} from "../libgui/modules.js";
-
-import {
-    Circle,
-    circles,
-    Intersection,
-    intersections,
     basic,
     presets
 } from './modules.js';
 
 basic.setup();
-console.log(presets.collection[0])
-basic.setProperties(presets.collection[0].kaleidoscope)
-
-basic.drawMapChanged();
+presets.useSelectedValue();
 
 </script>
 

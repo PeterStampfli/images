@@ -32,13 +32,12 @@ Intersection.maxCorners = 16; // polygons with more corners will be circles
  * @param {String} color - for drawing, optional, default is black
  * @params {integer} n - optional, has to be >=2, default 3, for tests
  */
-export function Intersection(parentGui, circle1, circle2, color = '#000000', n = 3) {
+export function Intersection(parentGui, circle1, circle2, n = 3) {
     this.circle1 = circle1;
     this.circle2 = circle2;
     this.n = Math.max(2, Math.round(n));
     circle1.addIntersection(this);
     circle2.addIntersection(this);
-    this.color = color;
     const circle = this;
 
     // the controllers
@@ -57,18 +56,6 @@ export function Intersection(parentGui, circle1, circle2, color = '#000000', n =
             basic.drawMapChanged(); // map changes
         }
     });
-
-    this.colorController = this.gui.add({
-        type: 'color',
-        params: this,
-        property: 'color',
-        onChange: function() {
-            intersections.setSelected(intersection);
-            output.pixels.show(); // no new map
-            circles.draw();
-            intersections.draw();
-        }
-    });
 }
 
 /**
@@ -80,8 +67,7 @@ Intersection.prototype.getProperties = function() {
     const properties = {
         idCircle1: this.circle1.id,
         idCircle2: this.circle2.id,
-        n: this.n,
-        color: this.color
+        n: this.n
     };
     return properties;
 };
@@ -304,9 +290,12 @@ Intersection.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
     if (highlight === 0) {
         output.setLineWidth(Intersection.lineWidth);
-        context.strokeStyle = this.color;
+        context.strokeStyle = this.circle1.color;
         this.drawPolygon(pos1, Intersection.radius);
         this.drawPolygon(pos2, Intersection.radius);
+                context.strokeStyle = this.circle2.color;
+        this.drawPolygon(pos1, Intersection.radius+2*Intersection.lineWidth);
+        this.drawPolygon(pos2, Intersection.radius+2*Intersection.lineWidth);
     } else {
         output.setLineWidth(Intersection.highlightLineWidth);
         if ((this.circle1.canChange) || (this.circle2.canChange)) {
@@ -316,6 +305,8 @@ Intersection.prototype.draw = function(highlight = 0) {
         }
         this.drawPolygon(pos1, Intersection.radius);
         this.drawPolygon(pos2, Intersection.radius);
+        this.drawPolygon(pos1, Intersection.radius+2*Intersection.lineWidth);
+        this.drawPolygon(pos2, Intersection.radius+2*Intersection.lineWidth);
     }
 };
 

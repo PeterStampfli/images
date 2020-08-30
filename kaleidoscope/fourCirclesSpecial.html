@@ -27,7 +27,8 @@ import {
     Circle,
     circles,
     Intersection,
-    intersections
+    intersections,
+    basic
 } from './modules.js';
 
 // basic setup
@@ -61,16 +62,26 @@ const d=2;
 let rt32=Math.sqrt(3)/2;
 circles.add({radius:10,centerX:2.4,centerY:9, isInsideOutMap:false})
 circles.add({radius:10,centerX:2.4,centerY:-9, isInsideOutMap:false})
-new Intersection(circles.collection[0],circles.collection[1],4)
+intersections.add(circles.collection[0],circles.collection[1],4)
+
+
 circles.collection[1].adjustToIntersections();
 circles.add({radius:1.2,centerX:0.5,centerY:0.3})
-new Intersection(circles.collection[0],circles.collection[2],99)
-new Intersection(circles.collection[1],circles.collection[2],2)
+
+intersections.add(circles.collection[0],circles.collection[2],99)
+
+
+intersections.add(circles.collection[1],circles.collection[2],2)
+
 circles.collection[2].adjustToIntersections();
 circles.add({radius:0.7,centerX:-0.5,centerY:-0.5})
-new Intersection(circles.collection[0],circles.collection[3],2)
-const is=new Intersection(circles.collection[2],circles.collection[3],2)
-new Intersection(circles.collection[1],circles.collection[3],99)
+intersections.add(circles.collection[0],circles.collection[3],2)
+
+intersections.add(circles.collection[2],circles.collection[3],2)
+
+intersections.add(circles.collection[1],circles.collection[3],99)
+
+
 circles.collection[3].adjustToIntersections();
 
 
@@ -114,6 +125,9 @@ output.mouseCtrlDragAction=function(event){
 };
 
 output.firstDrawing();
+
+console.log(basic.getProperties())
+
 
 </script>
 

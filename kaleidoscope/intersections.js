@@ -29,26 +29,6 @@ intersections.selected = false;
 // we do not need id numbers for intersections:
 // first create the circles, then their intersections, which have id numbers of the intersecting circles
 
-let colorIndex = -1;
-const colors = ['#ff0000', '#00ff00', '#ff00ff', '#0000ff', '#000000'];
-
-/**
- * get a color
- * @method intersections.getColor
- * @return string, defines color
- */
-intersections.getColor = function() {
-    colorIndex += 1;
-    if (colorIndex >= colors.length) {
-        colorIndex -= colors.length;
-    }
-    return colors[colorIndex];
-};
-
-// adding and removing circles
-
-// still no gui
-
 /**
  * find index of intersection given its two circles
  * returns -1 if not found
@@ -89,7 +69,7 @@ intersections.add = function(circle1, circle2, n = 3) {
         console.log(intersection);
         console.log("circle ids", intersection.circle1.id, intersection.circle2.id);
     } else {
-        intersection = new Intersection(intersections.gui, circle1, circle2, intersections.getColor(), n);
+        intersection = new Intersection(intersections.gui, circle1, circle2, n);
         intersections.collection.push(intersection);
     }
     intersections.setSelected(intersection);
@@ -161,10 +141,11 @@ intersections.set = function(input) {
  */
 intersections.draw = function() {
     if (intersections.visible) {
+        intersections.collection.forEach(intersection => intersection.draw(0));
         if (intersections.selected) {
             intersections.selected.draw(1);
+            intersections.selected.draw(0);
         }
-        intersections.collection.forEach(intersection => intersection.draw(0));
     }
 };
 

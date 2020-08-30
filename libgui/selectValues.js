@@ -90,17 +90,19 @@ SelectValues.prototype.addOption = function(name, value = name) {
 /**
  * add options and values
  * from an array of simple values (number or string), each value is both name and value
-
-
- 
+ * from an array of objects with name and value fields
  * or an object={name1: value1, name2: value2, ...}
  * @method SelectValues#addOptions
  * @param {Array||Object} options
  */
 SelectValues.prototype.addOptions = function(options) {
-    console.log('addo',options)
     if (guiUtils.isArray(options)) {
-        options.forEach(option => this.addOption(option));
+        if (guiUtils.isObject(options[0])){
+         options.forEach(option => this.addOption(option.name,option.value));    // array elements as objects with name and value fields 
+        }
+            else {
+        options.forEach(option => this.addOption(option,option));           // simple array elements are name and value
+    }
     } else if (guiUtils.isObject(options)) {
         // an object defines selection values as value[key] pair, key is shown as name of a selection (option)
         const names = Object.keys(options);

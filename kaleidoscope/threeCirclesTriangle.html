@@ -27,7 +27,8 @@ import {
     Circle,
     circles,
     Intersection,
-    intersections
+    intersections,
+    basic
 } from './modules.js';
 
 // basic setup
@@ -108,7 +109,9 @@ output.mouseCtrlDragAction=function(event){
     map.drawMapChanged();
 };
 
-output.firstDrawing();
+basic.drawMapChanged()
+console.log(basic.getProperties())
+
 
 </script>
 
