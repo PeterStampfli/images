@@ -42,13 +42,13 @@ export function Intersection(parentGui, circle1, circle2, n = 3) {
 
     // the controllers
     const intersection = this;
-    this.gui = parentGui.addFolder('Intersection of circles ' + circle1.id + ' and ' + circle2.id);
+    const label = 'Circle ' + circle1.id + ' and ' + circle2.id + ', order:';
 
     // try to change the order
-    this.nController = this.gui.add({
+    this.nController = parentGui.add({
         type: 'number',
         initialValue: this.n,
-        labelText: 'order',
+        labelText: label,
         min: 2,
         step: 1,
         onChange: function(n) {
@@ -155,7 +155,7 @@ Intersection.prototype.selectCircles = function() {
 
 /**
  * try to change the order n of the intersection
- * see if one of the circles is selected, then adjust it
+ * see which of the circles has less intersections, then try to adjust it
  * if fail try to adjust the other circle
  * if none is selected try both
  * if all fails restore order n
@@ -169,18 +169,26 @@ Intersection.prototype.tryN = function(n) {
     const currentN = this.n;
     this.n = Math.max(2, Math.round(n));
     this.selectCircles();
+    const selected = circles.selected;
+    // switch circles if selected circcle has more intersections than otherSelected
+    if (circles.selected.intersections.length > circles.otherSelected.intersections.length) {
+        circles.setSelected(circles.otherSelected); 
+    }
+    // try to adjust selected circle
     let success = circles.selected.adjustToIntersections();
+    // if faail try to adjust otherSelected circle
     if (!success) {
         circles.setSelected(circles.otherSelected);
         success = circles.selected.adjustToIntersections();
     }
+        // if that faails too, restore things
     if (!success) {
+        circles.setSelected(selected);
         this.n = currentN;
     }
     this.updateUI();
     return success;
 };
-
 
 /**
  * mouse wheel on the intersection, increase/decrease order n
@@ -293,9 +301,9 @@ Intersection.prototype.draw = function(highlight = 0) {
         context.strokeStyle = this.circle1.color;
         this.drawPolygon(pos1, Intersection.radius);
         this.drawPolygon(pos2, Intersection.radius);
-                context.strokeStyle = this.circle2.color;
-        this.drawPolygon(pos1, Intersection.radius+2*Intersection.lineWidth);
-        this.drawPolygon(pos2, Intersection.radius+2*Intersection.lineWidth);
+        context.strokeStyle = this.circle2.color;
+        this.drawPolygon(pos1, Intersection.radius + 2 * Intersection.lineWidth);
+        this.drawPolygon(pos2, Intersection.radius + 2 * Intersection.lineWidth);
     } else {
         output.setLineWidth(Intersection.highlightLineWidth);
         if ((this.circle1.canChange) || (this.circle2.canChange)) {
@@ -305,8 +313,8 @@ Intersection.prototype.draw = function(highlight = 0) {
         }
         this.drawPolygon(pos1, Intersection.radius);
         this.drawPolygon(pos2, Intersection.radius);
-        this.drawPolygon(pos1, Intersection.radius+2*Intersection.lineWidth);
-        this.drawPolygon(pos2, Intersection.radius+2*Intersection.lineWidth);
+        this.drawPolygon(pos1, Intersection.radius + 2 * Intersection.lineWidth);
+        this.drawPolygon(pos2, Intersection.radius + 2 * Intersection.lineWidth);
     }
 };
 
@@ -341,6 +349,6 @@ Intersection.prototype.isSelected = function(position) {
 Intersection.prototype.destroy = function() {
     this.circle1.removeIntersection(this);
     this.circle2.removeIntersection(this);
-    this.gui.destroy();
+    this.nController.destroy();
     intersections.remove(this);
 };

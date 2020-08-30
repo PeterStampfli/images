@@ -7,7 +7,7 @@
  * if enabled, the user can add his own images
  * @constructor ImageSelect
  * @param {DOM element} parent, an html element, best "div"
- * @param {...object} newDesign - modifying the default design
+ * @param {...object} newDesign - optional, modifying the default design
  */
 
 import {
@@ -474,14 +474,7 @@ ImageSelect.prototype.addUserImage = function(file, selectThis = false) {
     }
 };
 
-/**
- * make that user images are accepted
- * creates a button to add user images and drag and drop to the popup
- * @method ImageSelect#acceptUserImages
- * @param {htmlElement} parent
- */
-
-// texts for the button and the popup
+// texts for the button and the popup for loading user images
 ImageSelect.addImageButtonText = "add images";
 ImageSelect.addImagePopupText = "drop images here!";
 

@@ -1,6 +1,11 @@
 /* jshint esversion: 6 */
 
 import {
+    guiUtils
+}
+from "../libgui/modules.js";
+
+import {
     basic
 } from './modules.js';
 
@@ -31,7 +36,7 @@ const initialPreset = 1;
 presets.makeGui = function(parentGui, args = {}) {
     presets.gui = parentGui.addFolder('presets', args);
     const gui = presets.gui;
-    gui.add({
+    presets.selectionController=gui.add({
         type: 'selection',
         params: presets,
         property: 'selectedValue',
@@ -42,6 +47,26 @@ presets.makeGui = function(parentGui, args = {}) {
         }
     });
 
+    // load presets
+
+// save preset
+// Filename will be name of preset, file content is JSON of properties
+    presets.saveButton = gui.add({
+        type: "button",
+        buttonText: "save kaleidoscope",
+        minLabelWidth: 20,
+        onClick: function() {
+guiUtils.saveTextAsFile(basic.getJSON(),presets.saveName.getValue());
+        }
+    });
+    presets.saveName = presets.saveButton.add({
+        type: "text",
+        initialValue: "preset",
+        labelText: "as",
+        textInputWidth: 150,
+        minLabelWidth: 20
+    });
+presets.saveName.addSpan('.txt');
 };
 
 

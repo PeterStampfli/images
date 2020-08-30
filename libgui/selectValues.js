@@ -10,7 +10,8 @@
 
 import {
     Select,
-    guiUtils
+    guiUtils,
+    Button
 } from "./modules.js";
 
 export function SelectValues(parent) {
@@ -97,12 +98,11 @@ SelectValues.prototype.addOption = function(name, value = name) {
  */
 SelectValues.prototype.addOptions = function(options) {
     if (guiUtils.isArray(options)) {
-        if (guiUtils.isObject(options[0])){
-         options.forEach(option => this.addOption(option.name,option.value));    // array elements as objects with name and value fields 
+        if (guiUtils.isObject(options[0])) {
+            options.forEach(option => this.addOption(option.name, option.value)); // array elements as objects with name and value fields 
+        } else {
+            options.forEach(option => this.addOption(option, option)); // simple array elements are name and value
         }
-            else {
-        options.forEach(option => this.addOption(option,option));           // simple array elements are name and value
-    }
     } else if (guiUtils.isObject(options)) {
         // an object defines selection values as value[key] pair, key is shown as name of a selection (option)
         const names = Object.keys(options);
@@ -112,6 +112,71 @@ SelectValues.prototype.addOptions = function(options) {
         console.log('its value is ' + options + ' of type "' + (typeof options) + '"');
     }
 };
+
+// text for the button for loading user defined objects (presets)
+SelectValues.addObjectsButtonText = "add";
+
+/**
+ * make an add values button for opening user defined objects (presets)
+ * stored as JSON in text files
+ * make that first loaded preset will be selected
+ * @method ImageSelect#makeAddObjectsButton
+ * @param {htmlElement} parent
+ * @return Button, set fontsize later
+ */
+SelectValues.prototype.makeAddObjectsButton = function(parent) {
+    const button = new Button(SelectValues.addObjectsButtonText, parent);
+    // this uses an invisible button.fileInput input element, clicking on this button here makes a click on the input
+    button.asFileInput(".txt");
+    button.fileInput.setAttribute("multiple", "true");
+
+    // adding events
+    // maybe needs to be overwritten
+    const selectValues = this;
+
+    button.onInteraction = function() {
+        selectValues.interaction();
+    };
+
+    // this is the callback to be called via the file input element after all files have been choosen by the user
+    button.onFileInput = function(files) {
+        let currentFileNumber = 0;
+        const fileReader = new FileReader();
+
+        fileReader.onload = function() {
+            const option = {};
+            const file = files[currentFileNumber];
+            option.name = file.name.split('.')[0]; // filename without extension        const result = fileReader.result;
+            const result = fileReader.result;
+            option.value = JSON.parse(result); // recover object from JSON
+            selectValues.addOption(option);
+            if (currentFileNumber === 0) {
+                selectValues.setValue(option.value);
+                selectValues.onChange();
+            }
+            currentFileNumber += 1;
+            if (currentFileNumber < files.length) {
+                fileReader.readAsText(files[currentFileNumber]);
+            }
+        };
+
+        fileReader.readAsText(files[0]);
+    };
+
+    return button;
+};
+
+/**
+ * make that user values are accepted 
+ * (reading from files, one value per file, may be objects)
+ * creates a button to add user options
+ * @method SelectValues#acceptUserValues
+ * @param {htmlElement} parent
+ */
+
+
+
+
 
 /**
  * get the selected index
