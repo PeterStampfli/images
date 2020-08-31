@@ -37,7 +37,7 @@ const initialPreset = 2;
 presets.makeGui = function(parentGui, args = {}) {
     presets.gui = parentGui.addFolder('presets', args);
     const gui = presets.gui;
-    presets.selectionController=gui.add({
+    presets.selectionController = gui.add({
         type: 'selection',
         params: presets,
         property: 'selectedValue',
@@ -48,16 +48,16 @@ presets.makeGui = function(parentGui, args = {}) {
         }
     });
     // load presets
-    SelectValues.addObjectsButtonText = "add my own kaleidoscopes";
+    SelectValues.addObjectsButtonText = "add my presets (*.txt-files)";
     presets.selectionController.acceptUserObjects();
-// save preset
-// Filename will be name of preset, file content is JSON of properties
+    // save preset
+    // Filename will be name of preset, file content is JSON of properties
     presets.saveButton = gui.add({
         type: "button",
         buttonText: "save kaleidoscope",
         minLabelWidth: 20,
         onClick: function() {
-guiUtils.saveTextAsFile(basic.getJSON(),presets.saveName.getValue());
+            guiUtils.saveTextAsFile(basic.getJSON(), presets.saveName.getValue());
         }
     });
     presets.saveName = presets.saveButton.add({
@@ -67,7 +67,7 @@ guiUtils.saveTextAsFile(basic.getJSON(),presets.saveName.getValue());
         textInputWidth: 150,
         minLabelWidth: 20
     });
-presets.saveName.addSpan('.txt');
+    presets.saveName.addSpan('.txt');
 };
 
 

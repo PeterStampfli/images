@@ -144,12 +144,10 @@ circles.clear = function() {
  */
 circles.get = function() {
     const result = [];
-    const length=circles.collection.length;
-    for (var i=0;i<length;i++){
-        const circle=circles.collection[i];
-        if (circle.isMapping){
-            result.push(circle.getProperties())
-        }
+    const length = circles.collection.length;
+    for (var i = 0; i < length; i++) {
+        const circle = circles.collection[i];
+        result.push(circle.getProperties());
     }
     return result;
 };
@@ -297,11 +295,11 @@ circles.setSelected = function(circle) {
  */
 circles.select = function(position) {
     const length = circles.collection.length;
-    let selected=false;
+    let selected = false;
     for (var i = 0; i < length; i++) {
         if (circles.collection[i].isSelected(position)) {
             circles.setSelected(circles.collection[i]);
-            selected=true;
+            selected = true;
         }
     }
     return selected;
@@ -376,7 +374,7 @@ circles.map = function(point) {
         }
         if (!mapped) {
             // inversion needed if all circles map inside out
-            if (circles.finalInversion){
+            if (circles.finalInversion) {
                 circles.collection[0].invert(point);
             }
             return;

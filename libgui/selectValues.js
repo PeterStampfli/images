@@ -134,24 +134,19 @@ SelectValues.prototype.makeAddObjectsButton = function(parent) {
     // maybe needs to be overwritten
     const selectValues = this;
 
-    button.onInteraction = function() {
-        selectValues.interaction();
-    };
-
     // this is the callback to be called via the file input element after all files have been choosen by the user
     button.onFileInput = function(files) {
         let currentFileNumber = 0;
         const fileReader = new FileReader();
 
         fileReader.onload = function() {
-            const option = {};
             const file = files[currentFileNumber];
-            option.name = file.name.split('.')[0]; // filename without extension        const result = fileReader.result;
+            const name = file.name.split('.')[0]; // filename without extension        const result = fileReader.result;
             const result = fileReader.result;
-            option.value = JSON.parse(result); // recover object from JSON
-            selectValues.addOption(option);
+            const value = JSON.parse(result); // recover object from JSON
+            selectValues.addOption(name, value);
             if (currentFileNumber === 0) {
-                selectValues.setValue(option.value);
+                selectValues.setValue(value);
                 selectValues.onChange();
             }
             currentFileNumber += 1;

@@ -404,8 +404,7 @@ ImageSelect.prototype.addOptions = function(options) {
                 if (imageSelect.getIndex() !== index) {
                     imageSelect.setIndex(index);
                     imageSelect.onChange();
-                }
-                else {
+                } else {
                     imageSelect.onInteraction();
                 }
             };

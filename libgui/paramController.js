@@ -875,25 +875,27 @@ ParamController.prototype.deleteLabel = function() {
 //===============================================
 
 /**
-* make that selection accepts user defined objects from .txt files with JSON
-* @method ParamController#acceptUserObjects
-*/
-ParamController.prototype.acceptUserObjects=function(){
-        if (this.type === "selection") {
-        
-    this.domElement.appendChild(document.createElement('br'));
-// alignment
-    const dummyLabel = document.createElement("span");
-    dummyLabel.style.display = "inline-block";
-    dummyLabel.style.minWidth = this.design.minLabelWidth + "px";
-    dummyLabel.style.paddingLeft = this.design.spaceWidth + "px";
-    dummyLabel.style.paddingRight = this.design.spaceWidth + "px";
-    this.domElement.appendChild(dummyLabel);
-    // adding the button, text: SelectValues.addObjectsButtonText
-const addButton=this.uiElement.makeAddObjectsButton(this.domElement);
-                addButton.setFontSize(this.design.buttonFontSize);
-}
-else {
+ * make that selection accepts user defined objects from .txt files with JSON
+ * @method ParamController#acceptUserObjects
+ */
+ParamController.prototype.acceptUserObjects = function() {
+    if (this.type === "selection") {
+        this.domElement.appendChild(document.createElement('br'));
+        // alignment
+        const dummyLabel = document.createElement("span");
+        dummyLabel.style.display = "inline-block";
+        dummyLabel.style.minWidth = this.design.minLabelWidth + "px";
+        dummyLabel.style.paddingLeft = this.design.spaceWidth + "px";
+        dummyLabel.style.paddingRight = this.design.spaceWidth + "px";
+        this.domElement.appendChild(dummyLabel);
+        // adding the button, text: SelectValues.addObjectsButtonText
+        const addButton = this.uiElement.makeAddObjectsButton(this.domElement);
+        addButton.setFontSize(this.design.buttonFontSize);
+        const controller = this;
+        addButton.onInteraction = function() {
+            controller.interaction();
+        };
+    } else {
         console.error('ParamController.acceptUserObject: Only for "selection" controllers. Type of this controller: "' + this.type + '"');
     }
 };
