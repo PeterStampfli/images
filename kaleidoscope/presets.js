@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    guiUtils
+    guiUtils,
+    SelectValues
 }
 from "../libgui/modules.js";
 
@@ -25,7 +26,7 @@ export const presets = {};
 presets.collection = [];
 
 // index to initial preset
-const initialPreset = 1;
+const initialPreset = 2;
 
 /**
  * make the gui and add some buttons
@@ -46,9 +47,9 @@ presets.makeGui = function(parentGui, args = {}) {
             presets.useSelectedValue();
         }
     });
-
     // load presets
-
+    SelectValues.addObjectsButtonText = "add my own kaleidoscopes";
+    presets.selectionController.acceptUserObjects();
 // save preset
 // Filename will be name of preset, file content is JSON of properties
     presets.saveButton = gui.add({

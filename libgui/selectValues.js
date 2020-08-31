@@ -167,18 +167,6 @@ SelectValues.prototype.makeAddObjectsButton = function(parent) {
 };
 
 /**
- * make that user values are accepted 
- * (reading from files, one value per file, may be objects)
- * creates a button to add user options
- * @method SelectValues#acceptUserValues
- * @param {htmlElement} parent
- */
-
-
-
-
-
-/**
  * get the selected index
  * @method SelectValues#getIndex
  * @return integer, the selected index
