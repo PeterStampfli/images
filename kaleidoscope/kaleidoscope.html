@@ -14,11 +14,34 @@
 <script type='module'>
 
 import {
+    map
+}
+from "../libgui/modules.js";
+
+
+import {
     basic,
-    presets
+    presets,
+    regions,
+    circles,
+    intersections
 } from './modules.js';
 
 basic.setup();
+
+   map.drawImageChanged = function() {
+
+regions.collectCircles();
+console.log(regions.insideOutMappingCircles)
+console.log(regions.outsideInMappingCircles)
+regions.determineBoundingRectangle();
+        map.draw();
+        circles.draw();
+        intersections.draw();
+        regions.drawBoundingRectangle();
+    };
+
+
 presets.useSelectedValue();
 
 </script>

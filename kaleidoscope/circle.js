@@ -191,6 +191,23 @@ Circle.prototype.activateUI = function() {
 };
 
 /**
+ * for checking if we can have an intersection:
+ * do the circles really intersect ?
+ * using the triangle rule "for all three sides"
+ * @method Circle#intersectsCircle
+ * @param {Circle} circle
+ * @return boolean, true if the circles intersect
+ */
+Circle.prototype.intersectsCircle = function(circle) {
+    const distance = Math.hypot(this.centerX - circle.centerX, this.centerY - circle.centerY);
+    const safetyFactor = 0.999; // float numbers are never accurate
+    let intersects = ((this.radius + circle.radius) >= distance * safetyFactor);
+    intersects = intersects && ((this.radius + distance) >= circle.radius * safetyFactor);
+    intersects = intersects && ((circle.radius + distance) >= this.radius * safetyFactor);
+    return intersects;
+};
+
+/**
  * adjust the radius of a circle with only one intersection
  * use this for a given position of the center
  * return true if successful, false if fails

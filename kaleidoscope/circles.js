@@ -32,7 +32,7 @@ circles.otherSelected = false;
 // because we may delete elements of the collection array
 // we need id numbers to reconstruct intersections between circles (presets, saving the structure)
 
-let id = -1;
+let lastId = -1;
 
 /**
  * get an id number
@@ -40,8 +40,9 @@ let id = -1;
  * @return integer id
  */
 circles.getId = function() {
-    id += 1;
-    return id;
+    lastId += 1;
+    console.log(lastId)
+    return lastId;
 };
 
 let colorIndex = -1;
@@ -71,10 +72,13 @@ circles.getColor = function() {
 circles.add = function(properties = {}) {
     if (!guiUtils.isNumber(properties.id)) {
         properties.id = circles.getId();
+    } else {
+        lastId=Math.max(lastId,properties.id);     // for having unique ids when using presets
     }
     if (!guiUtils.isString(properties.color)) {
         properties.color = circles.getColor();
     }
+    console.log(properties)
     const circle = new Circle(circles.gui, properties); // this creates a unique new circle, which is not in the collection
     circles.collection.push(circle);
     circles.setSelected(circle);

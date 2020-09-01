@@ -48,3 +48,8 @@ export {
     presets
 }
 from "./presets.js";
+
+export {
+    regions
+}
+from "./regions.js";
