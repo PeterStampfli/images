@@ -28,14 +28,13 @@ Corner.drawRadius = 8;
 
 /**
  * draw the corner as a circle
- * @method corner#draw
+ * @method Corner#draw
  */
 Corner.prototype.draw = function() {
     const context = output.canvasContext;
     output.setLineWidth(Corner.lineWidth);
     context.strokeStyle = Corner.color;
     context.beginPath();
-    console.log(this)
-    context.arc(this.x, this.y, Corner.drawRadius*output.coordinateTransform.totalScale, 0, 2 * Math.PI);
+    context.arc(this.x, this.y, Corner.drawRadius * output.coordinateTransform.totalScale, 0, 2 * Math.PI);
     context.stroke();
 };

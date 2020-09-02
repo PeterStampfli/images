@@ -58,3 +58,8 @@ export {
     Corner
 }
 from "./corner.js";
+
+export {
+    Line
+}
+from "./line.js";

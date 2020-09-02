@@ -32,14 +32,15 @@ basic.setup();
    map.drawImageChanged = function() {
 
 regions.collectCircles();
-console.log(regions.insideOutMappingCircles)
-console.log(regions.outsideInMappingCircles)
 regions.determineBoundingRectangle();
+regions.linesFromInsideOutMappingCircles();
+console.log(regions.lines)
         map.draw();
         circles.draw();
         intersections.draw();
         regions.drawBoundingRectangle();
         regions.drawCorners();
+        regions.drawLines();
     };
 
 
