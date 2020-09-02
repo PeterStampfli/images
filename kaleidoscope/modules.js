@@ -53,3 +53,8 @@ export {
     regions
 }
 from "./regions.js";
+
+export {
+    Corner
+}
+from "./corner.js";
