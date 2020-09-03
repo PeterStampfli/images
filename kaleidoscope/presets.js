@@ -48,7 +48,7 @@ presets.makeGui = function(parentGui, args = {}) {
         }
     });
     // load presets
-    SelectValues.addObjectsButtonText = "add my presets (*.txt-files)";
+    SelectValues.addObjectsButtonText = "add presets (*.txt-files)";
     presets.selectionController.acceptUserObjects();
     // save preset
     // Filename will be name of preset, file content is JSON of properties

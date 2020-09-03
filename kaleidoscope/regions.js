@@ -13,6 +13,8 @@ import {
 
 /**
  * detecting disjoint target regions as defined by the circles
+ * making separating polygons around these regions
+ * some may be empty
  * @namespace regions
  */
 export const regions = {};
@@ -193,32 +195,87 @@ regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
     let dYLine = inOutCorner.y - outInCircle.centerY;
     // determine the quadrant of this vector, a pedestrian approach
     // from this get coordinates of new corner, and create it
-    var quadrant;
+    var newCorner = false;
+    console.log(dXLine, dYLine);
     if (dYLine > 0) {
         const deltaY = regions.boundingTop - inOutCorner.y;
         if (dXLine > 0) {
-            const deltaX = regions.boundingRight - inOutCorner.x;
             // going up and right
-            // does it go to the right or top boundary ?
-            if (dyLine * deltaX < dXLine * deltaY) {
+            // does it go to the right or top border ?
+            const deltaX = regions.boundingRight - inOutCorner.x;
+            if (Math.abs(dYLine * deltaX) < Math.abs(dXLine * deltaY)) {
                 // the line is relatively closer to the x-axis -> hits the right border
                 const newCornerX = regions.boundingRight;
                 const newCornerY = inOutCorner.y + dYLine * deltaX / dXLine;
-
-                //...
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersRight.push(newCorner);
+            } else {
+                // line is closer to y-axis, hits the top border
+                const newCornerX = inOutCorner.x + dXLine * deltaY / dYLine;
+                const newCornerY = regions.boundingTop;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersTop.push(newCorner);
             }
-
         } else {
-            quadrant = 2;
+            // going up and left, hitting the left or top border
+            const deltaX = regions.boundingLeft - inOutCorner.x;
+            if (Math.abs(dYLine * deltaX) < Math.abs(dXLine * deltaY)) {
+                // the line is relatively closer to the x-axis -> hits the left border
+                const newCornerX = regions.boundingLeft;
+                const newCornerY = inOutCorner.y + dYLine * deltaX / dXLine;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersLeft.push(newCorner);
+            } else {
+                // line is closer to y-axis, hits the top border
+                const newCornerX = inOutCorner.x + dXLine * deltaY / dYLine;
+                const newCornerY = regions.boundingTop;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersTop.push(newCorner);
+            }
         }
     } else {
+        const deltaY = regions.boundingBottom - inOutCorner.y;
         if (dXLine > 0) {
-            quadrant = 4;
+            // going down and right
+            // does it go to the right or bottom border ?
+            const deltaX = regions.boundingRight - inOutCorner.x;
+            if (Math.abs(dYLine * deltaX) < Math.abs(dXLine * deltaY)) {
+                // the line is relatively closer to the x-axis -> hits the right border
+                const newCornerX = regions.boundingRight;
+                const newCornerY = inOutCorner.y + dYLine * deltaX / dXLine;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersRight.push(newCorner);
+            } else {
+                // the line is closer to the y-axis -> hits the bottom border
+                const newCornerX = inOutCorner.x + dXLine * deltaY / dYLine;
+                const newCornerY = regions.boundingBottom;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersBottom.push(newCorner);
+            }
         } else {
-            quadrant = 3;
+            // going down and left
+            // does it go to the left or bottom border ?
+            const deltaX = regions.boundingLeft - inOutCorner.x;
+            if (Math.abs(dYLine * deltaX) < Math.abs(dXLine * deltaY)) {
+                // the line is relatively closer to the x-axis -> hits the left border
+                const newCornerX = regions.boundingLeft;
+                const newCornerY = inOutCorner.y + dYLine * deltaX / dXLine;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersLeft.push(newCorner);
+            } else {
+                // the line is closer to the y-axis -> hits the bottom border
+                const newCornerX = inOutCorner.x + dXLine * deltaY / dYLine;
+                const newCornerY = regions.boundingBottom;
+                newCorner = new Corner(newCornerX, newCornerY);
+                regions.cornersBottom.push(newCorner);
+            }
         }
     }
-
+    if (newCorner) {
+        regions.corners.push(newCorner);
+        const line = new Line(newCorner, inOutCorner);
+        regions.lines.push(line);
+    }
 };
 
 /**
@@ -247,9 +304,9 @@ regions.linesFromOutsideInMappingCircles = function() {
         // corners from intersections
         const lengthInOut = regions.insideOutMappingCircles.length;
         const lengthOutIn = regions.outsideInMappingCircles.length;
-        for (var i = 0; i < lengthInOut - 1; i++) {
+        for (var i = 0; i < lengthInOut; i++) {
             const circle1 = regions.insideOutMappingCircles[i];
-            for (var j = i + 1; j < lengthOutIn; j++) {
+            for (var j = 0; j < lengthOutIn; j++) {
                 const circle2 = regions.outsideInMappingCircles[j];
                 if (circle1.intersectsCircle(circle2)) {
                     regions.insideOutIntersectsOutsideIn(regions.corners[i], circle2);
