@@ -37,6 +37,7 @@ export const regions = {};
 
 regions.insideOutMappingCircles = []; // give corners, same position as circle centers, same index as in this array
 regions.outsideInMappingCircles = []; // these make some additional corners, in particular the corners of the bounding rectangle 
+regions.hasOutsideInMappingCircles = false;
 
 // collecting the corners and lines
 // it is for building polygons (they refer to corners as object references)
@@ -77,8 +78,6 @@ regions.collectCircles = function() {
 // collect the corners at each side of the boundary
 // and sort according to position, gives then lines
 
-// regions.cornersTop, ...
-
 /**
  * determine bounding rectangle of intersection region
  * for circles with outside->in mapping
@@ -95,6 +94,7 @@ regions.determineBoundingRectangle = function() {
     regions.boundingRight = 0;
     // some outside->in
     if (regions.outsideInMappingCircles.length > 0) {
+        regions.hasOutsideInMappingCircles = true;
         const circle = regions.outsideInMappingCircles[0];
         regions.boundingTop = circle.centerY + circle.radius;
         regions.boundingBottom = circle.centerY - circle.radius;
@@ -111,6 +111,7 @@ regions.determineBoundingRectangle = function() {
     } else {
         //inside->out only
         const circle = regions.insideOutMappingCircles[0];
+        regions.hasOutsideInMappingCircles = false;
         regions.boundingTop = circle.centerY + circle.radius;
         regions.boundingBottom = circle.centerY - circle.radius;
         regions.boundingRight = circle.centerX + circle.radius;
@@ -167,6 +168,100 @@ regions.linesFromInsideOutMappingCircles = function() {
     }
 };
 
+// data for the corners in bounding rectangle
+regions.cornersTop = [];
+regions.cornersBottom = [];
+regions.cornersLeft = [];
+regions.cornersRight = [];
+
+/**
+ * doing the intersection between an insideout and an outsidein circle
+ * @method regions.insideOutIntersectsOutsideIn
+ * @param {Corner} inOutCorner - we need the corner object of the inside out mapping circlee for making lines
+ * @param {Circle} outInCircle - outside-in mapping
+ */
+regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
+    // the line goes from the inoutCorner opposite to the outin circle center
+    // until it intersects the bounding rectangle
+    // the inoutcorner may lie outside the bounding rectangle, 
+    // then we get a line that lies outside the bounding rectangle.
+    // but this line is still important for closing a polygon
+
+    // determine vector parallel to the line, with correct orientation
+    // pointing away from the outsideIn mapping cirle when put to the inout corner
+    let dXLine = inOutCorner.x - outInCircle.centerX;
+    let dYLine = inOutCorner.y - outInCircle.centerY;
+    // determine the quadrant of this vector, a pedestrian approach
+    // from this get coordinates of new corner, and create it
+    var quadrant;
+    if (dYLine > 0) {
+        const deltaY = regions.boundingTop - inOutCorner.y;
+        if (dXLine > 0) {
+            const deltaX = regions.boundingRight - inOutCorner.x;
+            // going up and right
+            // does it go to the right or top boundary ?
+            if (dyLine * deltaX < dXLine * deltaY) {
+                // the line is relatively closer to the x-axis -> hits the right border
+                const newCornerX = regions.boundingRight;
+                const newCornerY = inOutCorner.y + dYLine * deltaX / dXLine;
+
+                //...
+            }
+
+        } else {
+            quadrant = 2;
+        }
+    } else {
+        if (dXLine > 0) {
+            quadrant = 4;
+        } else {
+            quadrant = 3;
+        }
+    }
+
+};
+
+/**
+ * lines due to outside->in mapping circles
+ * @method regions.linesFromOutsideInMappingCircles
+ */
+regions.linesFromOutsideInMappingCircles = function() {
+    regions.cornersTop.length = 0;
+    regions.cornersBottom.length = 0;
+    regions.cornersLeft.length = 0;
+    regions.cornersRight.length = 0;
+    if (regions.hasOutsideInMappingCircles) {
+        // the corners of the bounding rectangle
+        let corner = new Corner(regions.boundingLeft, regions.boundingTop);
+        regions.cornersTop.push(corner);
+        regions.corners.push(corner);
+        corner = new Corner(regions.boundingRight, regions.boundingTop);
+        regions.cornersTop.push(corner);
+        regions.corners.push(corner);
+        corner = new Corner(regions.boundingLeft, regions.boundingBottom);
+        regions.cornersBottom.push(corner);
+        regions.corners.push(corner);
+        corner = new Corner(regions.boundingRight, regions.boundingBottom);
+        regions.cornersBottom.push(corner);
+        regions.corners.push(corner);
+        // corners from intersections
+        const lengthInOut = regions.insideOutMappingCircles.length;
+        const lengthOutIn = regions.outsideInMappingCircles.length;
+        for (var i = 0; i < lengthInOut - 1; i++) {
+            const circle1 = regions.insideOutMappingCircles[i];
+            for (var j = i + 1; j < lengthOutIn; j++) {
+                const circle2 = regions.outsideInMappingCircles[j];
+                if (circle1.intersectsCircle(circle2)) {
+                    regions.insideOutIntersectsOutsideIn(regions.corners[i], circle2);
+                }
+            }
+        }
+
+
+
+    }
+
+};
 
 /**
  * draw the corners
