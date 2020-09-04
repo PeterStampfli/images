@@ -316,6 +316,16 @@ function sortY(a) {
     }
 }
 
+// making lines from boundary pieces
+// based on sorted arrays of corners
+function makeLines(corners){
+	const length=corners.length;
+	for (var i=0;i<length-1;i++){
+		const line=new Line(corners[i],corners[i+1]);
+		regions.lines.push(line);
+	}
+}
+
 /**
  * lines due to outside->in mapping circles
  * @method regions.linesFromOutsideInMappingCircles
@@ -360,7 +370,11 @@ sortX(regions.cornersTop);
 sortX(regions.cornersBottom);
 sortY(regions.cornersLeft);
 sortY(regions.cornersRight);
-
+// making the lines along the border
+makeLines(regions.cornersTop);
+makeLines(regions.cornersBottom);
+makeLines(regions.cornersLeft);
+makeLines(regions.cornersRight);
     }
 
 };

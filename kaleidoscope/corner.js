@@ -20,7 +20,17 @@ import {
 export function Corner(x, y) {
     this.x = x;
     this.y = y;
+    this.lines = [];
 }
+
+/**
+ * add a line to the array of lines
+ * @method Corner#addLine
+ * @param {Line} line
+ */
+Corner.prototype.addLine = function(line) {
+    this.lines.push(line);
+};
 
 Corner.lineWidth = 3;
 Corner.color = '#00ffff';
