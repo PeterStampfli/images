@@ -110,7 +110,7 @@ regions.determineBoundingRectangle = function() {
             regions.boundingRight = Math.min(regions.boundingRight, circle.centerX + circle.radius);
             regions.boundingLeft = Math.max(regions.boundingLeft, circle.centerX - circle.radius);
         }
-    } else {
+    } else  if (regions.insideOutMappingCircles.length > 0){
         //inside->out only
         const circle = regions.insideOutMappingCircles[0];
         regions.hasOutsideInMappingCircles = false;
@@ -196,7 +196,6 @@ regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
     // determine the quadrant of this vector, a pedestrian approach
     // from this get coordinates of new corner, and create it
     var newCorner = false;
-    console.log(dXLine, dYLine);
     if (dYLine > 0) {
         const deltaY = regions.boundingTop - inOutCorner.y;
         if (dXLine > 0) {
@@ -278,6 +277,45 @@ regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
     }
 };
 
+// ordering objects depending on x-field values
+function sortX(a) {
+    const length = a.length;
+    for (var i = 0; i < length - 1; i++) {
+        // find maximum of remaining array, and its index
+        let maxValue = a[i].x;
+        let maxIndex = i;
+        for (var j = i + 1; j < length; j++) {
+            if (a[j].x > maxValue) {
+                maxValue = a[j].x;
+                maxIndex = j;
+            }
+        }
+        // put object with maximum value in front
+        const h=a[maxIndex];
+        a[maxIndex]=a[i];
+        a[i]=h;
+    }
+}
+// ordering objects depending on y-field values
+function sortY(a) {
+    const length = a.length;
+    for (var i = 0; i < length - 1; i++) {
+        // find maximum of remaining array, and its index
+        let maxValue = a[i].y;
+        let maxIndex = i;
+        for (var j = i + 1; j < length; j++) {
+            if (a[j].y > maxValue) {
+                maxValue = a[j].y;
+                maxIndex = j;
+            }
+        }
+        // put object with maximum value in front
+        const h=a[maxIndex];
+        a[maxIndex]=a[i];
+        a[i]=h;
+    }
+}
+
 /**
  * lines due to outside->in mapping circles
  * @method regions.linesFromOutsideInMappingCircles
@@ -290,15 +328,19 @@ regions.linesFromOutsideInMappingCircles = function() {
     if (regions.hasOutsideInMappingCircles) {
         // the corners of the bounding rectangle
         let corner = new Corner(regions.boundingLeft, regions.boundingTop);
+        regions.cornersLeft.push(corner);
         regions.cornersTop.push(corner);
         regions.corners.push(corner);
         corner = new Corner(regions.boundingRight, regions.boundingTop);
+        regions.cornersRight.push(corner);
         regions.cornersTop.push(corner);
         regions.corners.push(corner);
         corner = new Corner(regions.boundingLeft, regions.boundingBottom);
+        regions.cornersLeft.push(corner);
         regions.cornersBottom.push(corner);
         regions.corners.push(corner);
         corner = new Corner(regions.boundingRight, regions.boundingBottom);
+        regions.cornersRight.push(corner);
         regions.cornersBottom.push(corner);
         regions.corners.push(corner);
         // corners from intersections
@@ -313,8 +355,11 @@ regions.linesFromOutsideInMappingCircles = function() {
                 }
             }
         }
-
-
+        // order the corners on the boundarys
+sortX(regions.cornersTop);
+sortX(regions.cornersBottom);
+sortY(regions.cornersLeft);
+sortY(regions.cornersRight);
 
     }
 

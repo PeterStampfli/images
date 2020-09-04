@@ -78,7 +78,6 @@ circles.add = function(properties = {}) {
     if (!guiUtils.isString(properties.color)) {
         properties.color = circles.getColor();
     }
-    console.log(properties)
     const circle = new Circle(circles.gui, properties); // this creates a unique new circle, which is not in the collection
     circles.collection.push(circle);
     circles.setSelected(circle);
