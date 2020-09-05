@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    guiUtils
 }
 from "../libgui/modules.js";
 
@@ -110,7 +111,7 @@ regions.determineBoundingRectangle = function() {
             regions.boundingRight = Math.min(regions.boundingRight, circle.centerX + circle.radius);
             regions.boundingLeft = Math.max(regions.boundingLeft, circle.centerX - circle.radius);
         }
-    } else  if (regions.insideOutMappingCircles.length > 0){
+    } else if (regions.insideOutMappingCircles.length > 0) {
         //inside->out only
         const circle = regions.insideOutMappingCircles[0];
         regions.hasOutsideInMappingCircles = false;
@@ -277,53 +278,14 @@ regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
     }
 };
 
-// ordering objects depending on x-field values
-function sortX(a) {
-    const length = a.length;
-    for (var i = 0; i < length - 1; i++) {
-        // find maximum of remaining array, and its index
-        let maxValue = a[i].x;
-        let maxIndex = i;
-        for (var j = i + 1; j < length; j++) {
-            if (a[j].x > maxValue) {
-                maxValue = a[j].x;
-                maxIndex = j;
-            }
-        }
-        // put object with maximum value in front
-        const h=a[maxIndex];
-        a[maxIndex]=a[i];
-        a[i]=h;
-    }
-}
-// ordering objects depending on y-field values
-function sortY(a) {
-    const length = a.length;
-    for (var i = 0; i < length - 1; i++) {
-        // find maximum of remaining array, and its index
-        let maxValue = a[i].y;
-        let maxIndex = i;
-        for (var j = i + 1; j < length; j++) {
-            if (a[j].y > maxValue) {
-                maxValue = a[j].y;
-                maxIndex = j;
-            }
-        }
-        // put object with maximum value in front
-        const h=a[maxIndex];
-        a[maxIndex]=a[i];
-        a[i]=h;
-    }
-}
-
 // making lines from boundary pieces
 // based on sorted arrays of corners
-function makeLines(corners){
-	const length=corners.length;
-	for (var i=0;i<length-1;i++){
-		const line=new Line(corners[i],corners[i+1]);
-		regions.lines.push(line);
-	}
+function makeLines(corners) {
+    const length = corners.length;
+    for (var i = 0; i < length - 1; i++) {
+        const line = new Line(corners[i], corners[i + 1]);
+        regions.lines.push(line);
+    }
 }
 
 /**
@@ -366,17 +328,16 @@ regions.linesFromOutsideInMappingCircles = function() {
             }
         }
         // order the corners on the boundarys
-sortX(regions.cornersTop);
-sortX(regions.cornersBottom);
-sortY(regions.cornersLeft);
-sortY(regions.cornersRight);
-// making the lines along the border
-makeLines(regions.cornersTop);
-makeLines(regions.cornersBottom);
-makeLines(regions.cornersLeft);
-makeLines(regions.cornersRight);
+        guiUtils.sortObjects(regions.cornersTop,'x');
+        guiUtils.sortObjects(regions.cornersBottom,'x');
+        guiUtils.sortObjects(regions.cornersLeft,'y');
+        guiUtils.sortObjects(regions.cornersRight,'y');        
+        // making the lines along the border
+        makeLines(regions.cornersTop);
+        makeLines(regions.cornersBottom);
+        makeLines(regions.cornersLeft);
+        makeLines(regions.cornersRight);
     }
-
 };
 
 /**
