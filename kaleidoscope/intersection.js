@@ -106,7 +106,7 @@ Intersection.prototype.requireDistanceBetweenCenters = function() {
  * @method Intersection.estimateN
  * @param {Circle} circle1
  * @param {Circle} circle2
- * @return number, if >=2 estimate for the order
+ * @return number, if >=2 this is an estimate for the order, if <0 then there is no dihedral group
  */
 Intersection.estimateN = function(circle1, circle2) {
     if (guiUtils.isObject(circle1) && guiUtils.isObject(circle2)) {
@@ -115,7 +115,7 @@ Intersection.estimateN = function(circle1, circle2) {
         const d2 = dx * dx + dy * dy;
         const sign = (circle1.isInsideOutMap === circle2.isInsideOutMap) ? 1 : -1;
         const cosAlpha = 0.5 * (d2 - circle1.radius2 - circle2.radius2) / circle1.radius / circle2.radius / sign;
-        if ((cosAlpha < -0.1) || (cosAlpha > 1.1)) {
+        if ((cosAlpha < -0.2) || (cosAlpha > 1.1)) {
             return -1;
         } else {
             // safe limits for acos function, maximum n=20 for the order

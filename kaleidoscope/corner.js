@@ -6,7 +6,7 @@ import {
 from "../libgui/modules.js";
 
 import {
-    circles
+    regions
 } from './modules.js';
 
 /**
@@ -30,6 +30,22 @@ export function Corner(x, y) {
  */
 Corner.prototype.addLine = function(line) {
     this.lines.push(line);
+};
+
+/**
+ * remove an line from the collection
+ * @method Corner#removeLine
+ * @param {Line} line
+ */
+Corner.prototype.removeLine = function(line) {
+    const index = this.lines.indexOf(line);
+    if (index >= 0) {
+        this.lines.splice(index, 1);
+    } else {
+        console.error('Corner#removeLine: line not found. It is:');
+        console.log(line);
+        console.log(this.lines);
+    }
 };
 
 Corner.lineWidth = 3;

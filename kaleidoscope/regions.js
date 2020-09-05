@@ -52,7 +52,7 @@ regions.lines = [];
 // but circles and corners then have the same indices
 
 /**
- * collect circles according to mapping direction
+ * collect mapping circles according to mapping direction
  * each inside->out mapping circlee gives a potential corner
  * inside->out mapping circles are potential corners
  * @method regions.collectCircles
@@ -64,11 +64,13 @@ regions.collectCircles = function() {
     regions.corners.length = 0;
     for (var i = 0; i < length; i++) {
         const circle = circles.collection[i];
-        if (circle.isInsideOutMap) {
-            regions.insideOutMappingCircles.push(circle);
-            regions.corners.push(new Corner(circle.centerX, circle.centerY));
-        } else {
-            regions.outsideInMappingCircles.push(circle);
+        if (circle.isMapping) {
+            if (circle.isInsideOutMap) {
+                regions.insideOutMappingCircles.push(circle);
+                regions.corners.push(new Corner(circle.centerX, circle.centerY));
+            } else {
+                regions.outsideInMappingCircles.push(circle);
+            }
         }
     }
 };
@@ -328,15 +330,72 @@ regions.linesFromOutsideInMappingCircles = function() {
             }
         }
         // order the corners on the boundarys
-        guiUtils.sortObjects(regions.cornersTop,'x');
-        guiUtils.sortObjects(regions.cornersBottom,'x');
-        guiUtils.sortObjects(regions.cornersLeft,'y');
-        guiUtils.sortObjects(regions.cornersRight,'y');        
+        guiUtils.sortObjects(regions.cornersTop, 'x');
+        guiUtils.sortObjects(regions.cornersBottom, 'x');
+        guiUtils.sortObjects(regions.cornersLeft, 'y');
+        guiUtils.sortObjects(regions.cornersRight, 'y');
         // making the lines along the border
         makeLines(regions.cornersTop);
         makeLines(regions.cornersBottom);
         makeLines(regions.cornersLeft);
         makeLines(regions.cornersRight);
+    }
+};
+
+/**
+ * remove an line from the collection here and from its corners' collections
+ * @method regions.removeLine
+ * @param {Line} line
+ */
+regions.removeLine = function(line) {
+    const index = this.lines.indexOf(line);
+    if (index >= 0) {
+        regions.lines.splice(index, 1);
+        line.corner1.removeLine(line);
+        line.corner2.removeLine(line);
+    } else {
+        console.error('regions.removeLine: line not found. It is:');
+        console.log(line);
+        console.log(regions.lines);
+    }
+};
+
+/**
+ * remove a corner from the collection here, and its connecting lines
+ * @method regions.removeCorner
+ * @param {Corner} corner
+ */
+regions.removeCorner = function(corner) {
+    const index = this.corners.indexOf(corner);
+    if (index >= 0) {
+        regions.corners.splice(index, 1);
+        while (corner.lines.length > 0) {
+            regions.removeLine(corner.lines[corner.lines.length - 1]);
+        }
+    } else {
+        console.error('regions.removeCorner: corner not found. It is:');
+        console.log(corner);
+        console.log(regions.corners);
+    }
+};
+
+/**
+ * remove all dead ends (corners with a single line, and corners without a line)
+ * @method regions.removeDeadEnds
+ */
+regions.removeDeadEnds = function() {
+    let success = true;
+    while (success) {
+        success = false;
+        const length = regions.corners.length;
+        // counting down: we do not get problems when elements are removed
+        for (var i = length - 1; i >= 0; i--) {
+            const corner = regions.corners[i];
+            if (corner.lines.length <= 1) {
+                success = true;
+                regions.removeCorner(corner);
+            }
+        }
     }
 };
 

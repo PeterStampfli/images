@@ -101,6 +101,9 @@ circles.remove = function(circle) {
     if (circles.selected === circle) {
         circles.selected = circles.otherSelected;
         circles.otherSelected = false;
+        if (!guiUtils.isObject(circles.selected)&&(circles.collection.length>=1)){
+            circles.selected=circles.collection[circles.collection.length-1];
+        }
     }
     if (circles.otherSelected === circle) {
         circles.otherSelected = false;
@@ -230,7 +233,7 @@ circles.makeGui = function(parentGui, args = {}) {
 };
 
 /**
- * activate the UI (the dlete button depending whether there is a circle left over)
+ * activate the UI (the delete button depending whether there is a circle left over)
  * and update message for selected circles
  * @method circles.activateUI
  */
