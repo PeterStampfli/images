@@ -63,3 +63,8 @@ export {
     Line
 }
 from "./line.js";
+
+export {
+    Polygon
+}
+from "./polygon.js";

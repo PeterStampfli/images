@@ -20,30 +20,81 @@ export function Line(corner1, corner2) {
     this.corner1 = corner1;
     this.corner2 = corner2;
     // angle going from corner1 to corner2
-    this.angle = Math.atan2(corner2.y - corner1.y, corner2.x - corner1.x);
+    this.angle = Math.atan2(corner2.y - corner1.y, corner2.x - corner1.x) + Math.PI;
+    // check if the line going out from corners is done
+    this.pathFrom1Done = false;
+    this.pathFrom2Done = false;
     // add to the endpoint's array of lines
     corner1.addLine(this);
     corner2.addLine(this);
 }
 
 /**
- * for building polygons: Make that the line goes out from given corner
- * @method Line.setCorner1
+ * get the angle of the line going out from given corner
+ * @method Line.getAngle
+ * @param {Corner} corner
+ * @result number, angle going from given corner to the other corner, 0..2pi
+ */
+Line.prototype.getAngle = function(corner) {
+    if (corner === this.corner1) {
+        return this.angle;
+    } else if (corner === this.corner2) {
+        return (this.angle > Math.PI) ? this.angle - Math.PI : this.angle + Math.PI;
+    } else {
+        console.error('Line#getAngle: corner is not one of the line ends. It is');
+        console.log(corner);
+        console.log('line ends', this.corner1, this.corner2);
+    }
+};
+
+/**
+ * get the other corner connected to the given corner
+ * @method Line.getOtherCorner
+ * @param {Corner} corner
+ * @result corner, at the other end of the line
+ */
+Line.prototype.getOtherCorner = function(corner) {
+    if (corner === this.corner1) {
+        return this.corner2;
+    } else if (corner === this.corner2) {
+        return this.corner1;
+    } else {
+        console.error('Line#getOtherCorner');
+        console.log(corner);
+        console.log('line ends', this.corner1, this.corner2);
+    }
+};
+
+/**
+ * get if the outgoing path from given corner has been done
+ * @method Line.getPathDone
+ * @param {Corner} corner
+ * @result boolean, true if path has been done
+ */
+Line.prototype.getPathDone = function(corner) {
+    if (corner === this.corner1) {
+        return this.pathFrom1Done;
+    } else if (corner === this.corner2) {
+        return this.pathFrom2Done;
+    } else {
+        console.error('Line#getPathDone: corner is not one of the line ends. It is');
+        console.log(corner);
+        console.log('line ends', this.corner1, this.corner2);
+    }
+};
+
+/**
+ * set that the outgoing path from given corner has been done
+ * @method Line.pathDone
  * @param {Corner} corner
  */
-Line.prototype.setCorner1 = function(corner) {
-    if (corner === this.corner2) {
-        // exchange corner points if it is the second corner
-        this.corner2 = this.corner1;
-        this.corner1 = corner;
-        //invert direction: add pi
-        this.angle += Math.PI;
-        // if larger than pi subtract 2pi to keep it in range -pi ... pi
-        if (this.angle > Math.PI) {
-            this.angle -= 2 * Math.PI;
-        }
-    } else if (corner !== this.corner1) {
-        console.error('Line#setCorner1: corner is not one of the line ends. It is');
+Line.prototype.pathDone = function(corner) {
+    if (corner === this.corner1) {
+        this.pathFrom1Done = true;
+    } else if (corner === this.corner2) {
+        this.pathFrom2Done = true;
+    } else {
+        console.error('Line#pathDone: corner is not one of the line ends. It is');
         console.log(corner);
         console.log('line ends', this.corner1, this.corner2);
     }

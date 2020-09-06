@@ -48,6 +48,49 @@ Corner.prototype.removeLine = function(line) {
     }
 };
 
+/** 
+ * sort lines in ascending order of their angles
+ * @method Corner#sortLines
+ */
+Corner.prototype.sortLines = function() {
+    const corner = this;
+    this.lines.sort(function(a, b) {
+        return a.getAngle(corner) - b.getAngle(corner);
+    });
+};
+
+/**
+ * find the next line (in ascending angle) to given line
+ * @method Corner#getNextLine
+ * @param {Line} line
+ * @return Line
+ */
+Corner.prototype.getNextLine = function(line) {
+    let index = this.lines.indexOf(line);
+    if (index >= 0) {
+        if (index === this.lines.length) {
+            index = 0;
+        }
+        return this.lines[index];
+    } else {
+        console.error('Corner#getNextLine: line not found. it is');
+        console.log(line);
+        console.log(this.lines);
+    }
+};
+
+/**
+ * make polygons
+ * a polygon for each line whose path going out from this circle has not been done
+ * @method Corner.makePolygons
+ */
+Corner.prototype.makePolygons = function() {
+    const lenght = this.lines.length;
+    console.log('do polygo');
+
+
+};
+
 Corner.lineWidth = 3;
 Corner.color = '#00ffff';
 Corner.drawRadius = 8;

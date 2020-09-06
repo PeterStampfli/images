@@ -46,6 +46,7 @@ regions.hasOutsideInMappingCircles = false;
 // it is for building polygons (they refer to corners as object references)
 regions.corners = [];
 regions.lines = [];
+regions.polygons=[];
 
 // each inside-> out mapping cirle center might be a corner
 // we collect them all, some might be unused
@@ -397,6 +398,16 @@ regions.removeDeadEnds = function() {
             }
         }
     }
+};
+
+/**
+* make the polygons
+* @method regions.makePolygons
+*/
+regions.makePolygons=function(){
+ regions.polygons.length=0;
+    regions.corners.forEach(corner => corner.sortLines());
+    regions.corners.forEach(corner => corner.makePolygons());
 };
 
 /**

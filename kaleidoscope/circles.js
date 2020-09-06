@@ -206,9 +206,7 @@ circles.makeGui = function(parentGui, args = {}) {
         labelText: '',
         buttonText: ['visible', 'hidden'],
         onChange: function() {
-            output.pixels.show(); // no new map
-            circles.draw();
-            intersections.draw();
+            basic.drawCirclesIntersections();
         }
     });
     circles.gui.add({
@@ -227,6 +225,16 @@ circles.makeGui = function(parentGui, args = {}) {
                 circles.selected.destroy();
                 basic.drawMapChanged();
             }
+        }
+    });
+        circles.gui.add({
+        type: 'button',
+        buttonText: 'select nothing',
+        onClick: function() {
+            circles.selected=false;
+            circles.otherSelected=false;
+            intersections.selected=false;
+           basic.drawCirclesIntersections();
         }
     });
     circles.activateUI();

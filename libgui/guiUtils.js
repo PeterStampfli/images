@@ -472,15 +472,17 @@ guiUtils.abgrOrder = (intColor[0] === 3);
 //===================================
 
 /**
-* sort an array of object according to given key
-* lowest value comes first
-* @method guiUtils.sortObjects
-* @param {Array of Objects} objects
-* @param {String} key
-*/
-guiUtils.sortObjects=function(objects,key){
-    objects.sort(function(a,b){return a[key]-b[key]});
-}
+ * sort an array of object according to given key
+ * lowest value comes first
+ * @method guiUtils.sortObjects
+ * @param {Array of Objects} objects
+ * @param {String} key
+ */
+guiUtils.sortObjects = function(objects, key) {
+    objects.sort(function(a, b) {
+        return a[key] - b[key];
+    });
+};
 
 /**
  * repeat first n elements of an array until it is filled
