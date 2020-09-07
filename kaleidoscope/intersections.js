@@ -203,7 +203,7 @@ intersections.makeGui = function(parentGui, args = {}) {
 };
 
 /**
- * checck if we can add an intersection between the two selected circles
+ * check if we can add an intersection between the two selected circles
  * @method intersections.canAdd
  * @return boolean, true if it is possible to add an intersection
  * and adjust to a dihedral group
@@ -211,10 +211,12 @@ intersections.makeGui = function(parentGui, args = {}) {
 intersections.canAdd = function() {
     // can add an intersection only if two circles are selected and they define a dihedral group
     let canDo = (Intersection.estimateN(circles.selected, circles.otherSelected) > 0);
-    // and they do not already have an intersection ...
+    // and these two do not already have an intersection ...
     canDo = canDo && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
-    // and at least one of the circles can adjust to intersections
-    canDo = canDo && (circles.selected.canAdjust() || circles.otherSelected.canAdjust());
+    // and at least one of the circles can get a new intersection
+    const selectedCan=circles.selected.canChange&&(circles.selected.intersections.length<=2); 
+    const otherSelectedCan=circles.otherSelected.canChange&&(circles.otherSelected.intersections.length<=2);
+    canDo = canDo && (selectedCan||otherSelectedCan);
     return canDo;
 };
 

@@ -704,16 +704,6 @@ Circle.prototype.tryMapDirection = function(isInsideOutMap) {
 };
 
 /**
- * more checks: Circle can adjust to a new intersection
- * means it can change and has less than 3 intersections
- * @method Circle#canAdjust
- * @return boolean, true if circle can adjust
- */
-Circle.prototype.canAdjust = function() {
-    return (this.canChange) && (this.intersections.length < 3);
-};
-
-/**
  * add an intersection
  * we can have more than 3, but then this circle cannot adjust to intersections
  * @method Circle#addIntersection

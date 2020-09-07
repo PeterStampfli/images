@@ -80,11 +80,13 @@ Intersection.prototype.updateUI = function() {
 };
 
 /**
- * activate ui depending on state of circles
+ * activate ui depending on state of circles: At least one can change and has 3 intersections or less
  * @method Intersection.activateUI
  */
 Intersection.prototype.activateUI = function() {
-    this.nController.setActive(this.circle1.canAdjust() || this.circle2.canAdjust());
+    const circle1Can = this.circle1.canChange && (this.circle1.intersections.length <= 3);
+    const circle2Can = this.circle2.canChange && (this.circle1.intersections.length <= 3);
+    this.nController.setActive(circle1Can || circle2Can);
 };
 
 /**
@@ -172,7 +174,7 @@ Intersection.prototype.tryN = function(n) {
     const selected = circles.selected;
     // switch circles if selected circcle has more intersections than otherSelected
     if (circles.selected.intersections.length > circles.otherSelected.intersections.length) {
-        circles.setSelected(circles.otherSelected); 
+        circles.setSelected(circles.otherSelected);
     }
     // try to adjust selected circle
     let success = circles.selected.adjustToIntersections();
@@ -181,7 +183,7 @@ Intersection.prototype.tryN = function(n) {
         circles.setSelected(circles.otherSelected);
         success = circles.selected.adjustToIntersections();
     }
-        // if that faails too, restore things
+    // if that faails too, restore things
     if (!success) {
         circles.setSelected(selected);
         this.n = currentN;

@@ -6,7 +6,8 @@ import {
 from "../libgui/modules.js";
 
 import {
-    regions
+    regions,
+    Polygon
 } from './modules.js';
 
 /**
@@ -68,7 +69,7 @@ Corner.prototype.sortLines = function() {
 Corner.prototype.getNextLine = function(line) {
     let index = this.lines.indexOf(line);
     if (index >= 0) {
-    	index+=1;
+        index += 1;
         if (index === this.lines.length) {
             index = 0;
         }
@@ -87,36 +88,61 @@ Corner.prototype.getNextLine = function(line) {
  */
 Corner.prototype.makePolygons = function() {
     const length = this.lines.length;
-    console.log('do polygo');
     for (var i = 0; i < length; i++) {
-        console.log('walking',this.x,this.y);
         let lineOut = this.lines[i];
         // go, if we have not already gone along the line
         if (!lineOut.getPathDone(this)) {
+            // we get a polygon
+            const polygon = new Polygon();
+            polygon.addCorner(this);
+            let nCorners = 1;
+            let sumAngles = 0;
             lineOut.setPathDone(this);
             let nextCorner = lineOut.getOtherCorner(this);
             // stepping around, until going back
             while (nextCorner !== this) {
-            // go to the new corner, examine its lines
+                // go to the new corner, examine its lines
+                nCorners += 1;
                 let corner = nextCorner;
+                polygon.addCorner(corner);
                 let lineIn = lineOut;
                 // get the next outgoing line from the current corner
                 lineOut = corner.getNextLine(lineIn);
                 // do not go along this line more than once in the same direction
+                // stop, if that happens
                 if (lineOut.getPathDone(corner)) {
                     console.error('Corner#makePolygon: repeating outgoing path on line');
                     console.log(lineOut);
                     console.log(corner);
-                    break;
+                    return;
                 }
                 // walk along the lineOut
-                console.log('step',corner.x,corner.y);
+                let angle = lineOut.getAngle(corner) - lineIn.getAngle(corner);
+                if (angle < 0) {
+                    angle += 2 * Math.PI;
+                }
+                sumAngles += angle;
                 lineOut.setPathDone(corner);
                 nextCorner = lineOut.getOtherCorner(corner);
             }
+            // we are back, check angle and path
+            let lineIn = lineOut;
+            lineOut = this.getNextLine(lineIn);
+            if (lineOut !== this.lines[i]) {
+                console.error('Corner#makePolygon: coming back, lines do not match');
+                console.log('lineOut at first', this.lines[i]);
+                console.log('lineOut after going around', lineOut);
+            }
+            let angle = lineOut.getAngle(this) - lineIn.getAngle(this);
+            if (angle < 0) {
+                angle += 2 * Math.PI;
+            }
+            sumAngles += angle;
+            if (Math.abs(sumAngles - (nCorners - 2) * Math.PI) < 0.01) {
+                regions.polygons.push(polygon);
+            }
         }
     }
-
 };
 
 Corner.lineWidth = 3;
