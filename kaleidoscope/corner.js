@@ -68,6 +68,7 @@ Corner.prototype.sortLines = function() {
 Corner.prototype.getNextLine = function(line) {
     let index = this.lines.indexOf(line);
     if (index >= 0) {
+    	index+=1;
         if (index === this.lines.length) {
             index = 0;
         }
@@ -85,9 +86,36 @@ Corner.prototype.getNextLine = function(line) {
  * @method Corner.makePolygons
  */
 Corner.prototype.makePolygons = function() {
-    const lenght = this.lines.length;
+    const length = this.lines.length;
     console.log('do polygo');
-
+    for (var i = 0; i < length; i++) {
+        console.log('walking',this.x,this.y);
+        let lineOut = this.lines[i];
+        // go, if we have not already gone along the line
+        if (!lineOut.getPathDone(this)) {
+            lineOut.setPathDone(this);
+            let nextCorner = lineOut.getOtherCorner(this);
+            // stepping around, until going back
+            while (nextCorner !== this) {
+            // go to the new corner, examine its lines
+                let corner = nextCorner;
+                let lineIn = lineOut;
+                // get the next outgoing line from the current corner
+                lineOut = corner.getNextLine(lineIn);
+                // do not go along this line more than once in the same direction
+                if (lineOut.getPathDone(corner)) {
+                    console.error('Corner#makePolygon: repeating outgoing path on line');
+                    console.log(lineOut);
+                    console.log(corner);
+                    break;
+                }
+                // walk along the lineOut
+                console.log('step',corner.x,corner.y);
+                lineOut.setPathDone(corner);
+                nextCorner = lineOut.getOtherCorner(corner);
+            }
+        }
+    }
 
 };
 

@@ -85,10 +85,10 @@ Line.prototype.getPathDone = function(corner) {
 
 /**
  * set that the outgoing path from given corner has been done
- * @method Line.pathDone
+ * @method Line.setPathDone
  * @param {Corner} corner
  */
-Line.prototype.pathDone = function(corner) {
+Line.prototype.setPathDone = function(corner) {
     if (corner === this.corner1) {
         this.pathFrom1Done = true;
     } else if (corner === this.corner2) {
