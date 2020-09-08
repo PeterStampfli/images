@@ -40,7 +40,6 @@ export const regions = {};
 
 regions.insideOutMappingCircles = []; // give corners, same position as circle centers, same index as in this array
 regions.outsideInMappingCircles = []; // these make some additional corners, in particular the corners of the bounding rectangle 
-regions.hasOutsideInMappingCircles = false;
 
 // collecting the corners and lines
 // it is for building polygons (they refer to corners as object references)
@@ -85,51 +84,32 @@ regions.collectCircles = function() {
 // and sort according to position, gives then lines
 
 /**
- * determine bounding rectangle of intersection region
- * for circles with outside->in mapping
- * or bounding region of all circles, if there are only inside->out mapping circles
+ * determine bounding rectangle of all circles
  * uses regions.outsideInMappingCircles
  * @method regions.determineBoundingRectangle
  */
 regions.determineBoundingRectangle = function() {
     var i;
     // just in case that there is no circle
-    regions.boundingTop = 0;
-    regions.boundingBottom = 0;
-    regions.boundingLeft = 0;
-    regions.boundingRight = 0;
-    // some outside->in
-    if (regions.outsideInMappingCircles.length > 0) {
-        regions.hasOutsideInMappingCircles = true;
-        const circle = regions.outsideInMappingCircles[0];
-        regions.boundingTop = circle.centerY + circle.radius;
-        regions.boundingBottom = circle.centerY - circle.radius;
-        regions.boundingRight = circle.centerX + circle.radius;
-        regions.boundingLeft = circle.centerX - circle.radius;
-        const length = regions.outsideInMappingCircles.length;
-        for (i = 1; i < length; i++) {
-            const circle = regions.outsideInMappingCircles[i];
-            regions.boundingTop = Math.min(regions.boundingTop, circle.centerY + circle.radius);
-            regions.boundingBottom = Math.max(regions.boundingBottom, circle.centerY - circle.radius);
-            regions.boundingRight = Math.min(regions.boundingRight, circle.centerX + circle.radius);
-            regions.boundingLeft = Math.max(regions.boundingLeft, circle.centerX - circle.radius);
-        }
-    } else if (regions.insideOutMappingCircles.length > 0) {
-        //inside->out only
-        const circle = regions.insideOutMappingCircles[0];
-        regions.hasOutsideInMappingCircles = false;
-        regions.boundingTop = circle.centerY + circle.radius;
-        regions.boundingBottom = circle.centerY - circle.radius;
-        regions.boundingRight = circle.centerX + circle.radius;
-        regions.boundingLeft = circle.centerX - circle.radius;
-        const length = regions.insideOutMappingCircles.length;
-        for (i = 1; i < length; i++) {
-            const circle = regions.insideOutMappingCircles[i];
-            regions.boundingTop = Math.max(regions.boundingTop, circle.centerY + circle.radius);
-            regions.boundingBottom = Math.min(regions.boundingBottom, circle.centerY - circle.radius);
-            regions.boundingRight = Math.max(regions.boundingRight, circle.centerX + circle.radius);
-            regions.boundingLeft = Math.min(regions.boundingLeft, circle.centerX - circle.radius);
-        }
+    regions.boundingTop = -1e10;
+    regions.boundingBottom = 1e10;
+    regions.boundingLeft = 1e10;
+    regions.boundingRight = -1e10;
+    let length = regions.outsideInMappingCircles.length;
+    for (i = 0; i < length; i++) {
+        const circle = regions.outsideInMappingCircles[i];
+        regions.boundingTop = Math.max(regions.boundingTop, circle.centerY + circle.radius);
+        regions.boundingBottom = Math.min(regions.boundingBottom, circle.centerY - circle.radius);
+        regions.boundingRight = Math.max(regions.boundingRight, circle.centerX + circle.radius);
+        regions.boundingLeft = Math.min(regions.boundingLeft, circle.centerX - circle.radius);
+    }
+    length = regions.insideOutMappingCircles.length;
+    for (i = 0; i < length; i++) {
+        const circle = regions.insideOutMappingCircles[i];
+        regions.boundingTop = Math.max(regions.boundingTop, circle.centerY + circle.radius);
+        regions.boundingBottom = Math.min(regions.boundingBottom, circle.centerY - circle.radius);
+        regions.boundingRight = Math.max(regions.boundingRight, circle.centerX + circle.radius);
+        regions.boundingLeft = Math.min(regions.boundingLeft, circle.centerX - circle.radius);
     }
 };
 
@@ -300,7 +280,7 @@ regions.linesFromOutsideInMappingCircles = function() {
     regions.cornersBottom.length = 0;
     regions.cornersLeft.length = 0;
     regions.cornersRight.length = 0;
-    if (regions.hasOutsideInMappingCircles) {
+    if (regions.outsideInMappingCircles.length > 0) {
         // the corners of the bounding rectangle
         let corner = new Corner(regions.boundingLeft, regions.boundingTop);
         regions.cornersLeft.push(corner);

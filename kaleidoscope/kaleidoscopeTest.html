@@ -18,8 +18,6 @@ import {
     guiUtils
 }
 from "../libgui/modules.js";
-
-
 import {
     basic,
     presets,
@@ -30,31 +28,29 @@ import {
 
 basic.setup();
 
-   map.drawImageChanged = function() {
+map.drawImageChanged = function() {
 
-regions.collectCircles();
-regions.determineBoundingRectangle();
-regions.linesFromInsideOutMappingCircles();
-regions.linesFromOutsideInMappingCircles();
-regions.removeDeadEnds();
+    regions.collectCircles();
+    regions.determineBoundingRectangle();
+    regions.linesFromInsideOutMappingCircles();
+    regions.linesFromOutsideInMappingCircles();
+    regions.removeDeadEnds();
 
-regions.makePolygons();
+    regions.makePolygons();
 
 
-        map.draw();
-        circles.draw();
-        intersections.draw();
-        regions.drawBoundingRectangle();
-        regions.drawCorners();
-        regions.drawLines();
-        regions.drawPolygons();
+    map.draw();
+    circles.draw();
+    intersections.draw();
+    regions.drawBoundingRectangle();
+    regions.drawCorners();
+    regions.drawLines();
+  //  regions.drawPolygons();
 
-    };
+};
 
 
 presets.useSelectedValue();
-
-
 
 </script>
 
