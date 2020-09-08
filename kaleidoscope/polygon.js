@@ -6,7 +6,7 @@ import {
 from "../libgui/modules.js";
 
 import {
-
+    Side
 } from './modules.js';
 
 /**
@@ -15,6 +15,12 @@ import {
  */
 export function Polygon() {
     this.corners = [];
+    this.sides = [];
+    // boundary
+    this.top = 0;
+    this.bottom = 0;
+    this.left = 0;
+    this.right = 0;
 }
 
 /**
@@ -30,6 +36,50 @@ Polygon.prototype.addCorner = function(corner) {
     } else {
         this.corners.push(corner);
     }
+};
+
+/**
+ * determine the boundary parameters
+ * @method Polygon#determineBoundary
+ */
+Polygon.prototype.determineBoundary = function() {
+    const length = this.corners.length;
+    if (length > 0) {
+        let corner = this.corners[0];
+        this.top = corner.y;
+        this.bottom = corner.y;
+        this.left = corner.x;
+        this.right = corner.x;
+        for (var i = 1; i < length; i++) {
+            corner = this.corners[i];
+            this.top = Math.max(this.top, corner.y);
+            this.bottom = Math.min(this.bottom, corner.y);
+            this.left = Math.min(this.left, corner.x);
+            this.right = Math.max(this.right, corner.x);
+        }
+    } else {
+        console.error('Polygon#determineBoundary: There are no corners');
+        console.log(this);
+    }
+};
+
+/**
+ * make the sides of the polygon
+ * @method Polygon#makeSides
+ */
+Polygon.prototype.makeSides = function() {
+    const length = this.corners.length;
+    this.sides.length = 0;
+    if (length > 1) {
+        this.sides.push(new Side(this.corners[0], this.corners[length - 1]));
+        for (var i = 1; i < length; i++) {
+            this.sides.push(new Side(this.corners[i], this.corners[i - 1]));
+        }
+    } else {
+        console.error('Polygon#makeSides: There are less than 2 corners');
+        console.log(this);
+    }
+    console.log(this.sides);
 };
 
 // shifting polygon corners towards the center for drawing
@@ -67,4 +117,7 @@ Polygon.prototype.draw = function() {
         context.closePath();
         context.stroke();
     }
+
+    this.makeSides();
+
 };

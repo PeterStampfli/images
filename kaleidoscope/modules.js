@@ -68,3 +68,8 @@ export {
     Polygon
 }
 from "./polygon.js";
+
+export {
+    Side
+}
+from "./side.js";
