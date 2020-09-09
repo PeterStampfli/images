@@ -78,9 +78,7 @@ basic.setup = function() {
         } else {
             output.canvas.style.cursor = "default";
         }
-        output.pixels.show();
-        circles.draw();
-        intersections.draw();
+             basic.drawCirclesIntersections();
     };
     // smooth transition when ctrl key is pressed
     output.ctrlKeyDownAction = function(event) {
@@ -89,9 +87,7 @@ basic.setup = function() {
     // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
         if (intersections.select(event) || circles.select(event)) {
-            output.pixels.show();
-            circles.draw();
-            intersections.draw();
+            basic.drawCirclesIntersections();
         }
     };
     // mouse drag with ctrl moves selected circle

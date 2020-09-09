@@ -15,7 +15,8 @@
 
 import {
     map,
-    guiUtils
+    guiUtils,
+    output
 }
 from "../libgui/modules.js";
 import {
@@ -23,7 +24,8 @@ import {
     presets,
     regions,
     circles,
-    intersections
+    intersections,
+    Polygon
 } from './modules.js';
 
 basic.setup();
@@ -48,6 +50,21 @@ map.drawImageChanged = function() {
     regions.drawPolygons();
 
 };
+basic.drawCirclesIntersections=map.drawImageChanged;
+
+    output.mouseCtrlMoveAction = function(event) {
+        Polygon.point.x=event.x;
+        Polygon.point.y=event.y;
+
+        if (intersections.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else if (circles.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else {
+            output.canvas.style.cursor = "default";
+        }
+             map.drawImageChanged();
+    };
 
 
 presets.useSelectedValue();

@@ -79,7 +79,22 @@ Polygon.prototype.makeSides = function() {
         console.error('Polygon#makeSides: There are less than 2 corners');
         console.log(this);
     }
-    console.log(this.sides);
+};
+
+/**
+* determine if a point is inside the polygon
+* @method Polygon#isInside
+* @param {Object} point - with x- and y-fields
+* @return boolean, true if point is inside
+*/
+Polygon.prototype.isInside=function(point){
+// check the bounding rectangle
+if ((point.x<this.left)||(point.x>this.right)||(point.y<this.bottom)||(point.y>this.top)){
+	return false;
+}
+
+return true;
+
 };
 
 // shifting polygon corners towards the center for drawing
@@ -88,12 +103,20 @@ Polygon.drawShift = 0.1;
 Polygon.lineWidth = 3;
 Polygon.color = '#ff8800';
 
+Polygon.point={};
+
 /**
  * draw the polygon
  * corners are shifted towards the center to show polygons sharing edges
  * @method Polygon#draw
  */
 Polygon.prototype.draw = function() {
+
+
+if (!this.isInside(Polygon.point)){
+	return;
+}
+
     var i;
     const context = output.canvasContext;
     const length = this.corners.length;
