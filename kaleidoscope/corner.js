@@ -141,6 +141,7 @@ Corner.prototype.makePolygons = function() {
             if (Math.abs(sumAngles - (nCorners - 2) * Math.PI) < 0.01) {
                 // this is a good polygon, finish it's setup and save
                 polygon.determineBoundary();
+                polygon.makeSides();
                 regions.polygons.push(polygon);
             }
         }
