@@ -2,7 +2,8 @@
 
 import {
     output,
-    guiUtils
+    guiUtils,
+    ColorInput
 }
 from "../libgui/modules.js";
 
@@ -47,14 +48,41 @@ regions.corners = [];
 regions.lines = [];
 regions.polygons = [];
 
-// each inside-> out mapping cirle center might be a corner
-// we collect them all, some might be unused
-// but circles and corners then have the same indices
+// know, which polygon regions are active, boolean, true if there is some pixel inside
+// do not renumber regions (we might look at a small part of the image, such as part of the Poincare disc)
+// hide the UI for unused/inactive regions
+regions.active = [];
+regions.active.length = 256;
+
+// gui to control the regions
+// general: contrast between 0, odd and even number of iterations
+// region color controllers: 0 ... regions.polygons.length
+// show only controllers for active regions/polygons
+// on/off and basic color
+// for each region a basic color and an array of colors[iterations]
+
+// switching on/off regions via 'map.showRegion[map.regionArray[index]]'
+// initially all true
+
+regions.basicColor = [];
+regions.basicColor.length = 256;
+regions.basicColor[0] = '#ff0000';
+//guiUtils.arrayRepeat = function(array, n) {
+regions.structureColors = []; // each element is an array of colors
+regions.structureColors.length = 256;
+
+// obj.red,.green,.blue
+//ColorInput.stringFromObject = function(obj) 
+//ColorInput.setObject = function(obj, color) {
+
+
+
 
 /**
  * collect mapping circles according to mapping direction
- * each inside->out mapping circlee gives a potential corner
+ * each inside->out mapping circle gives a potential corner
  * inside->out mapping circles are potential corners
+ * a circle and the corresponding corner have the same index
  * @method regions.collectCircles
  */
 regions.collectCircles = function() {
@@ -391,21 +419,28 @@ regions.makePolygons = function() {
 };
 
 /**
-* determine in which polygon a point lies
-* returns the index of the polygon, or -1 if not found
-* @method regions.getPolygonIndex
-* @param {Object} point - with x- and y-fields
-* @return integer, index to regions.polygons, -1 if point is not in a polygon
-*/
-regions.getPolygonIndex=function(point){
-    const length=regions.polygons.length;
-    for (var i=0;i<length;i++){
-        if (regions.polygons[i].isInside(point))
-        {
+ * determine in which polygon a point lies
+ * returns the index of the polygon, or -1 if not found
+ * @method regions.getPolygonIndex
+ * @param {Object} point - with x- and y-fields
+ * @return integer, index to regions.polygons, -1 if point is not in a polygon
+ */
+regions.getPolygonIndex = function(point) {
+    const length = regions.polygons.length;
+    for (var i = 0; i < length; i++) {
+        if (regions.polygons[i].isInside(point)) {
             return i;
         }
     }
     return -1;
+};
+
+/**
+ * clear active regions, set all to false
+ * @method regions.clearActive
+ */
+regions.clearActive = function() {
+    regions.active.fill(false);
 };
 
 /**

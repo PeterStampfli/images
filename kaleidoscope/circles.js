@@ -42,7 +42,6 @@ let lastId = -1;
  */
 circles.getId = function() {
     lastId += 1;
-    console.log(lastId)
     return lastId;
 };
 
@@ -74,7 +73,7 @@ circles.add = function(properties = {}) {
     if (!guiUtils.isNumber(properties.id)) {
         properties.id = circles.getId();
     } else {
-        lastId=Math.max(lastId,properties.id);     // for having unique ids when using presets
+        lastId = Math.max(lastId, properties.id); // for having unique ids when using presets
     }
     if (!guiUtils.isString(properties.color)) {
         properties.color = circles.getColor();
@@ -102,8 +101,8 @@ circles.remove = function(circle) {
     if (circles.selected === circle) {
         circles.selected = circles.otherSelected;
         circles.otherSelected = false;
-        if (!guiUtils.isObject(circles.selected)&&(circles.collection.length>=1)){
-            circles.selected=circles.collection[circles.collection.length-1];
+        if (!guiUtils.isObject(circles.selected) && (circles.collection.length >= 1)) {
+            circles.selected = circles.collection[circles.collection.length - 1];
         }
     }
     if (circles.otherSelected === circle) {
@@ -228,14 +227,14 @@ circles.makeGui = function(parentGui, args = {}) {
             }
         }
     });
-        circles.gui.add({
+    circles.gui.add({
         type: 'button',
         buttonText: 'select nothing',
         onClick: function() {
-            circles.selected=false;
-            circles.otherSelected=false;
-            intersections.selected=false;
-           basic.drawCirclesIntersections();
+            circles.selected = false;
+            circles.otherSelected = false;
+            intersections.selected = false;
+            basic.drawCirclesIntersections();
         }
     });
     circles.activateUI();
@@ -378,7 +377,7 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    let logError=true;
+    let logError = true;
     const collectionLength = circles.collection.length;
     for (var i = 0; i < maxIterations; i++) {
         let mapped = false;
@@ -391,19 +390,19 @@ circles.map = function(point) {
         if (!mapped) {
             // mapping is finished, we know where the point ends up
             // determine its region
-const i=regions.getPolygonIndex(point);
-if (i>=0){
-point.region=i;
-}else{
-    point.region=255;     // for error
-    if (logError){
-        logError=false;    // make only one error message
-        console.error('circles.map: region not found, point at');
-        console.log(point);
-    }
-}
-
-
+            const i = regions.getPolygonIndex(point);
+            if (i >= 0) {
+                point.region = i;
+                regions.active[i]=true;
+            } else {
+                point.region = 255; // for error, irrelevant
+                point.valid = -1; // will make size<0, do not draw invalid points
+                if (logError) {
+                    logError = false; // make only one error message
+                    console.error('circles.map: region not found, point at');
+                    console.log(point);
+                }
+            }
             // inversion needed to get a good mapping of input image if all circles map inside out
             if (circles.finalInversion) {
                 circles.collection[0].invert(point);
@@ -411,6 +410,7 @@ point.region=i;
             return;
         }
     }
+    point.region = 255; // to be safe??
     point.valid = -1; // invalid position/pixel
 };
 

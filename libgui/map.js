@@ -178,10 +178,7 @@ map.make = function() {
 // selecting the regions that will be shown, max 256 regions
 map.showRegion = [];
 map.showRegion.length = 256;
-// default, show all
-for (let i = 0; i < 256; i++) {
-    map.showRegion[i] = true;
-}
+map.showRegion.fill(true);
 
 /**
  * add buttons for switching regions on and off

@@ -62,9 +62,12 @@ basic.setup = function() {
         regions.linesFromOutsideInMappingCircles();
         regions.removeDeadEnds();
         regions.makePolygons();
+        regions.clearActive();
         map.startDrawing();
         map.make();
         map.drawImageChanged();
+
+        console.log(regions.active)
     };
 
 
@@ -72,16 +75,18 @@ basic.setup = function() {
     // setting up the regions
     // only the beginning ?
     // something is not ok !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    const regionGui = gui.addFolder('regions');
-    map.regionControl(regionGui, 2);
-    map.makeNewColorTable(regionGui, 2);
-
+    const regionGuix = gui.addFolder('regionsxxx');
+    map.regionControl(regionGuix, 2);
+    map.makeNewColorTable(regionGuix, 2);
 
 
     // the presets: make gui and load
     presets.makeGui(gui, {
         closed: false
     });
+
+    // new version for regions
+
     // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui, {
         closed: false
