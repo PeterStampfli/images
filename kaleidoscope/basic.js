@@ -9,7 +9,8 @@ import {
 import {
     circles,
     intersections,
-    presets
+    presets,
+    regions
 } from './modules.js';
 
 /**
@@ -46,12 +47,37 @@ basic.setup = function() {
     const inputGui = gui.addFolder('input image');
     map.inputImage = '../libgui/testimage.jpg';
     map.setupInputImage(inputGui);
+
+    // a new map means changed circles
+    // we have to work out the regions
+    /**
+     * what to do when the map changes (parameters, canvas size too)
+     * @method map.drawMapChanged
+     */
+    map.drawMapChanged = function() {
+        console.log('changi');
+        regions.collectCircles();
+        regions.determineBoundingRectangle();
+        regions.linesFromInsideOutMappingCircles();
+        regions.linesFromOutsideInMappingCircles();
+        regions.removeDeadEnds();
+        regions.makePolygons();
+        map.startDrawing();
+        map.make();
+        map.drawImageChanged();
+    };
+
+
+
     // setting up the regions
     // only the beginning ?
     // something is not ok !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const regionGui = gui.addFolder('regions');
     map.regionControl(regionGui, 2);
     map.makeNewColorTable(regionGui, 2);
+
+
+
     // the presets: make gui and load
     presets.makeGui(gui, {
         closed: false
@@ -78,7 +104,7 @@ basic.setup = function() {
         } else {
             output.canvas.style.cursor = "default";
         }
-             basic.drawCirclesIntersections();
+        basic.drawCirclesIntersections();
     };
     // smooth transition when ctrl key is pressed
     output.ctrlKeyDownAction = function(event) {
@@ -93,7 +119,7 @@ basic.setup = function() {
     // mouse drag with ctrl moves selected circle
     output.mouseCtrlDragAction = function(event) {
         circles.dragAction(event);
-        map.drawMapChanged();
+        basic.drawMapChanged();
     };
 
     // mouse wheel with ctrl changes radius of slected circle
@@ -108,6 +134,7 @@ basic.setup = function() {
     };
 };
 
+
 // standardized drawing routines
 
 /**
@@ -117,7 +144,7 @@ basic.setup = function() {
  * @method basic.drawMapChanged
  */
 basic.drawMapChanged = function() {
-	    circles.finalInversion=circles.allInsideOut();
+    circles.finalInversion = circles.allInsideOut();
     map.drawMapChanged();
 };
 
@@ -170,7 +197,7 @@ basic.getJSON = function() {
  * @return String, defines the kaleidoscope
  */
 basic.getProperties = function() {
-    return basic.getJSON().replace(/"/g,"");
+    return basic.getJSON().replace(/"/g, "");
 };
 
 /**

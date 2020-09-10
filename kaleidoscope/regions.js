@@ -391,6 +391,24 @@ regions.makePolygons = function() {
 };
 
 /**
+* determine in which polygon a point lies
+* returns the index of the polygon, or -1 if not found
+* @method regions.getPolygonIndex
+* @param {Object} point - with x- and y-fields
+* @return integer, index to regions.polygons, -1 if point is not in a polygon
+*/
+regions.getPolygonIndex=function(point){
+    const length=regions.polygons.length;
+    for (var i=0;i<length;i++){
+        if (regions.polygons[i].isInside(point))
+        {
+            return i;
+        }
+    }
+    return -1;
+};
+
+/**
  * draw the corners
  * @method regions.drawCorners
  */

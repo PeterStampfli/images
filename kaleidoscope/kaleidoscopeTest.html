@@ -31,12 +31,7 @@ import {
 basic.setup();
 
 map.drawImageChanged = function() {
-    regions.collectCircles();
-    regions.determineBoundingRectangle();
-    regions.linesFromInsideOutMappingCircles();
-    regions.linesFromOutsideInMappingCircles();
-    regions.removeDeadEnds();
-    regions.makePolygons();
+
     map.draw();
     circles.draw();
     intersections.draw();
@@ -48,8 +43,6 @@ map.drawImageChanged = function() {
 basic.drawCirclesIntersections=map.drawImageChanged;
 
     output.mouseCtrlMoveAction = function(event) {
-        Polygon.point.x=event.x;
-        Polygon.point.y=event.y;
         if (intersections.isSelected(event)) {
             output.canvas.style.cursor = "pointer";
         } else if (circles.isSelected(event)) {
@@ -58,7 +51,10 @@ basic.drawCirclesIntersections=map.drawImageChanged;
             output.canvas.style.cursor = "default";
         }
              map.drawImageChanged();
-                 regions.drawPolygons();
+             const i=regions.getPolygonIndex(event);
+             if (i>=0){
+                 regions.polygons[i].draw();
+             }
     };
 
 presets.useSelectedValue();

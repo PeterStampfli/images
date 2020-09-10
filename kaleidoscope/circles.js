@@ -10,7 +10,8 @@ import {
 import {
     Circle,
     intersections,
-    basic
+    basic,
+    regions
 } from './modules.js';
 
 /**
@@ -377,6 +378,7 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
+    let logError=true;
     const collectionLength = circles.collection.length;
     for (var i = 0; i < maxIterations; i++) {
         let mapped = false;
@@ -387,7 +389,22 @@ circles.map = function(point) {
             }
         }
         if (!mapped) {
-            // inversion needed if all circles map inside out
+            // mapping is finished, we know where the point ends up
+            // determine its region
+const i=regions.getPolygonIndex(point);
+if (i>=0){
+point.region=i;
+}else{
+    point.region=255;     // for error
+    if (logError){
+        logError=false;    // make only one error message
+        console.error('circles.map: region not found, point at');
+        console.log(point);
+    }
+}
+
+
+            // inversion needed to get a good mapping of input image if all circles map inside out
             if (circles.finalInversion) {
                 circles.collection[0].invert(point);
             }

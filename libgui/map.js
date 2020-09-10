@@ -47,8 +47,8 @@ map.yArray = new Float32Array(1);
 // the region (for color symmetry and selective display) or other info
 map.regionArray = new Uint8Array(1);
 
-// the number of iterations, or other info, gives a structure index
-map.structureIndexArray = new Uint8Array(1);
+// the number of iterations
+map.iterationsArray = new Uint8Array(1);
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
@@ -66,7 +66,7 @@ map.initialImageCovering = 0.75;
  * point.region has the number of a region. Typically, there is no mapping between regions
  * point.structureIndex has the number of iterations done, or other info
  * point.valid>=0 means that point can be used in display, else make pixel transparent
- * the xArray, yArray, structureIndexArray and regionArray have new values, but not the sizeArray
+ * the xArray, yArray, iterationsArray and regionArray have new values, but not the sizeArray
  * results are not normalized
  * @method map.mapping
  * @param {object}point
@@ -134,7 +134,7 @@ map.startDrawing = function() {
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
         map.regionArray = new Uint8Array(size);
-        map.structureIndexArray = new Uint8Array(size);
+        map.iterationsArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
 };
@@ -165,7 +165,7 @@ map.make = function() {
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
             map.regionArray[index] = point.region;
-            map.structureIndexArray[index] = point.structureIndex;
+            map.iterationsArray[index] = point.structureIndex;
             map.sizeArray[index] = point.valid;
             index += 1;
         }
@@ -315,7 +315,7 @@ map.drawStructure = function() {
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
-            output.pixels.array[index] = map.colorTable[map.structureIndexArray[index]];
+            output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black
         }

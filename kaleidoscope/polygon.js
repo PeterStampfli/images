@@ -110,20 +110,12 @@ Polygon.drawShift = 0.1;
 Polygon.lineWidth = 3;
 Polygon.color = '#ff8800';
 
-Polygon.point = {};
-
 /**
  * draw the polygon
  * corners are shifted towards the center to show polygons sharing edges
  * @method Polygon#draw
  */
 Polygon.prototype.draw = function() {
-
-
-    if (!this.isInside(Polygon.point)) {
-        return;
-    }
-
     var i;
     const context = output.canvasContext;
     const length = this.corners.length;
