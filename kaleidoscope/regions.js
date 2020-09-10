@@ -61,8 +61,8 @@ regions.active.length = 256;
 // on/off and basic color
 // for each region a basic color and an array of colors[iterations]
 // create controllers as needed, make them visible/hide depending on regions.active[] value
-regions.colorControllers=[];
-regions.onOffControllers=[];
+regions.colorControllers = [];
+regions.onOffControllers = [];
 
 // switching on/off regions via 'map.showRegion[map.regionArray[index]]'
 // initially all true
@@ -82,7 +82,6 @@ regions.basicColor.push('#0000ff');
 regions.basicColor.push('#ff00ff');
 regions.basicColor.length = 256;
 guiUtils.arrayRepeat(regions.basicColor, 6);
-
 
 /**
  * make structure colors for active regions, from their basic color
@@ -112,6 +111,17 @@ regions.makeStructureColors = function() {
             }
         }
     }
+};
+
+/**
+ * make the gui and add some buttons
+ * @method regions.makeGui
+ * @param{Paramgui} parentGui
+ * @param{Object} args - optional, modifying the gui
+ */
+regions.makeGui = function(parentGui, args = {}) {
+    regions.gui = parentGui.addFolder('regions', args);
+
 };
 
 /**

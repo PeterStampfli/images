@@ -67,7 +67,7 @@ basic.setup = function() {
         map.make();
         map.drawImageChanged();
 
-        console.log(regions.active)
+        console.log(regions.active);
     };
 
 
@@ -86,7 +86,9 @@ basic.setup = function() {
     });
 
     // new version for regions
-
+    regions.makeGui(gui, {
+        closed: false
+    });
     // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui, {
         closed: false
