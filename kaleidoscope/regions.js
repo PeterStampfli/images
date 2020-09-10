@@ -48,7 +48,7 @@ regions.corners = [];
 regions.lines = [];
 regions.polygons = [];
 
-// know, which polygon regions are active, boolean, true if there is some pixel inside
+// know, which polygon regions are relevant, boolean, true if there is some pixel inside
 // do not renumber regions (we might look at a small part of the image, such as part of the Poincare disc)
 // hide the UI for unused/inactive regions
 regions.active = [];
@@ -60,23 +60,59 @@ regions.active.length = 256;
 // show only controllers for active regions/polygons
 // on/off and basic color
 // for each region a basic color and an array of colors[iterations]
+// create controllers as needed, make them visible/hide depending on regions.active[] value
+regions.colorControllers=[];
+regions.onOffControllers=[];
 
 // switching on/off regions via 'map.showRegion[map.regionArray[index]]'
 // initially all true
-
 regions.basicColor = [];
+
+// colors for showing the structure
+// each element is an array of colors, generate as needed
+regions.structureColors = [];
+// for odd/even colors. 0 gives basicColor. 1 gives black and white
+regions.contrast = 0.2;
+
+regions.basicColor.push('#ff0000');
+regions.basicColor.push('#ff8800');
+regions.basicColor.push('#00ff00');
+regions.basicColor.push('#00ffff');
+regions.basicColor.push('#0000ff');
+regions.basicColor.push('#ff00ff');
 regions.basicColor.length = 256;
-regions.basicColor[0] = '#ff0000';
-//guiUtils.arrayRepeat = function(array, n) {
-regions.structureColors = []; // each element is an array of colors
-regions.structureColors.length = 256;
-
-// obj.red,.green,.blue
-//ColorInput.stringFromObject = function(obj) 
-//ColorInput.setObject = function(obj, color) {
+guiUtils.arrayRepeat(regions.basicColor, 6);
 
 
-
+/**
+ * make structure colors for active regions, from their basic color
+ * call when drawing structure (does not take much time)
+ * @method regions.makeStructureColors
+ */
+regions.makeStructureColors = function() {
+    for (var index = 0; index < 256; index++) {
+        if (regions.active[index]) {
+            const basicColor = {};
+            ColorInput.setObject(basicColor, regions.basicColor[index]);
+            const oddColor = {};
+            const evenColor = {};
+            oddColor.red = (1 - regions.contrast) * basicColor.red;
+            oddColor.blue = (1 - regions.contrast) * basicColor.blue;
+            oddColor.green = (1 - regions.contrast) * basicColor.green;
+            const oddColorString = ColorInput.stringFromObject(oddColor);
+            evenColor.red = regions.contrast * 255 + (1 - regions.contrast) * basicColor.red;
+            evenColor.blue = regions.contrast * 255 + (1 - regions.contrast) * basicColor.blue;
+            evenColor.green = regions.contrast * 255 + (1 - regions.contrast) * basicColor.green;
+            const evenColorString = ColorInput.stringFromObject(evenColor);
+            const colors = [];
+            regions.structureColors[index] = colors;
+            colors[0] = regions.basicColor[index];
+            for (var i = 1; i < 256; i++) {
+                colors[i] = ((i & 1) === 0) ? evenColorString : oddColorString;
+            }
+        }
+    }
+};
 
 /**
  * collect mapping circles according to mapping direction
