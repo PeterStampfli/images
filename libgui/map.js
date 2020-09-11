@@ -214,25 +214,30 @@ map.regionControl = function(gui, nRegions) {
 };
 
 /**
- * showing the map as structure or image, depending on map.whatToShow
+ * showing the map as structure or image, redefine in controller
+ * take care, in case user supplies new routines
  * @method map.draw
  */
-map.draw = function() {
-    switch (map.whatToShow) {
-        case 'structure':
-            map.drawStructure();
-            break;
-        case 'image - low quality':
-            map.drawImageLowQuality();
-            break;
-        case 'image - high quality':
-            map.drawImageHighQuality();
-            break;
-        case 'image - very high quality':
-            map.drawImageVeryHighQuality();
-            break;
-    }
+map.drawingImage = false;
+
+map.callDrawStructure = function() {
+    map.drawingImage = false;
+    map.drawStructure();
 };
+map.callDrawImageLowQuality = function() {
+    map.drawingImage = true;
+    map.drawImageHighQuality();
+};
+map.callDrawImageHighQuality = function() {
+    map.drawingImage = true;
+    map.drawImageHighQuality();
+};
+map.callDrawImageLowQuality = function() {
+    map.drawingImage = true;
+    map.drawImageVeryHighQuality();
+};
+
+map.draw = map.callDrawStructure;
 
 // show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
@@ -570,12 +575,16 @@ map.setupInputImage = function(gui) {
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
     map.inputImageLoaded = false;
     // what to we want to see (you can delete it)
-    map.whatToShow = 'structure';
     map.whatToShowController = gui.add({
         type: 'selection',
         params: map,
-        property: 'whatToShow',
-        options: ['structure', 'image - low quality', 'image - high quality', 'image - very high quality'],
+        property: 'draw',
+        options: {
+            'structure': map.callDrawStructure,
+            'image - low quality': map.drawImageLowQuality,
+            'image - high quality': map.drawImageHighQuality,
+            'image - very high quality': map.drawImageVeryHighQuality
+        },
         onChange: function() {
             map.drawImageChanged();
         },
@@ -591,14 +600,13 @@ map.setupInputImage = function(gui) {
         },
         labelText: 'input image',
         onChange: function() {
-            console.log('changed image: ' + map.inputImage);
-            if (map.whatToShow === 'structure') {
+            if (!map.drawingImage) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
             map.loadInputImage();
         },
         onInteraction: function() {
-            if (map.whatToShow === 'structure') {
+            if (!map.drawingImage) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
             map.drawImageChanged();
@@ -677,7 +685,7 @@ map.setupInputImage = function(gui) {
     // upon click on control image and showing structure change to showing image
     mouseEvents.downAction = function() {
         ParamGui.closePopups();
-        if (map.whatToShow === 'structure') {
+        if (!map.drawingImage) {
             map.whatToShowController.setValueOnly('image - low quality');
             map.drawImageChanged();
         }
@@ -697,7 +705,7 @@ map.setupInputImage = function(gui) {
     // its center should stay fixed when zoomin or scrolling
     // that means the inputTransformation does not change its image of the center of the map
     mouseEvents.wheelAction = function() {
-        if (map.whatToShow !== 'structure') {
+        if (map.showingImage) {
             // position of mouse in input image plane
             u.x = mouseEvents.x / map.inputImageControlCanvasScale;
             u.y = mouseEvents.y / map.inputImageControlCanvasScale;

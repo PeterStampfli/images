@@ -44,7 +44,7 @@ basic.setup = function() {
         circles.map(point);
     };
     map.setOutputDraw(); // links the ouput drawing routines
-    const inputGui = gui.addFolder('input image');
+    const inputGui = gui.addFolder('showing');
     map.inputImage = '../libgui/testimage.jpg';
     map.setupInputImage(inputGui);
 
@@ -56,7 +56,6 @@ basic.setup = function() {
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
-        console.log('changi');
         // determine fundamental regions
         regions.collectCircles();
         regions.determineBoundingRectangle();
@@ -70,7 +69,6 @@ basic.setup = function() {
         map.make();
         // now we know which regions are relevant
         // make their controllers visible
-        console.log(regions.active);
         regions.showControls();
         // draw image, taking into account regions, and new options
         map.drawImageChanged();

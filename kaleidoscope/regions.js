@@ -143,7 +143,6 @@ regions.makeGui = function(parentGui, args = {}) {
  */
 regions.addControls = function() {
     const n = regions.onOffControllers.length;
-    console.log('ad co', n);
     BooleanButton.greenRedBackground();
     const onOffController = regions.gui.add({
         type: 'boolean',
@@ -178,16 +177,13 @@ regions.showControls = function() {
     regions.gui.hide();
     var i;
     let length = regions.polygons.length;
-    console.log('showControllers');
     // add controllers if needed
     for (i = regions.onOffControllers.length; i < length; i++) {
         regions.addControls();
-        console.log(i);
     }
     // show/hide
     length = regions.onOffControllers.length;
     for (i = 0; i < length; i++) {
-        console.log(i);
         if (regions.active[i]) {
             regions.onOffControllers[i].show();
             regions.colorControllers[i].show();
