@@ -3,7 +3,8 @@
 import {
     map,
     output,
-    ParamGui
+    ParamGui,
+    Pixels
 } from "../libgui/modules.js";
 
 import {
@@ -70,6 +71,10 @@ basic.setup = function() {
         // now we know which regions are relevant
         // make their controllers visible
         regions.showControls();
+        // create colors
+                    regions.makeStructureColors();
+                    console.log(regions.structureColors)
+                    console.log(regions.active)
         // draw image, taking into account regions, and new options
         map.drawImageChanged();
 
@@ -96,6 +101,31 @@ basic.setup = function() {
     });
 
 
+/**
+ * show structure of the map: color depending on the structure index
+ * using the map.colorTable
+ * @method map.drawStructure
+ */
+map.drawStructure = function() {
+    console.log('str')
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const length = map.width * map.height;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const region=map.regionArray[index];
+        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
+            // colors for the target region
+            const colors=regions.structureColors[region];
+            output.pixels.array[index] = colors[map.iterationsArray[index]];
+        } else {
+            output.pixels.array[index] = 0; // transparent black
+        }
+    }
+    output.pixels.show();
+};
 
 
     // GUI's for circles and intersections: you can close them afterwards

@@ -5,7 +5,8 @@ import {
     guiUtils,
     ColorInput,
     map,
-    BooleanButton
+    BooleanButton,
+    Pixels
 }
 from "../libgui/modules.js";
 
@@ -75,7 +76,8 @@ regions.basicColor = [];
 // each element is an array of colors, generate as needed
 regions.structureColors = [];
 // for odd/even colors. 0 gives basicColor. 1 gives black and white
-regions.contrast = 0.2;
+regions.light = 0.6;
+regions.dark = 0.3;
 
 regions.basicColor.push('#ff0000');
 regions.basicColor.push('#ff8800');
@@ -96,21 +98,25 @@ regions.makeStructureColors = function() {
         if (regions.active[index]) {
             const basicColor = {};
             ColorInput.setObject(basicColor, regions.basicColor[index]);
+            basicColor.alpha=255;
+            console.log(basicColor)
             const oddColor = {};
-            const evenColor = {};
-            oddColor.red = (1 - regions.contrast) * basicColor.red;
-            oddColor.blue = (1 - regions.contrast) * basicColor.blue;
-            oddColor.green = (1 - regions.contrast) * basicColor.green;
-            const oddColorString = ColorInput.stringFromObject(oddColor);
-            evenColor.red = regions.contrast * 255 + (1 - regions.contrast) * basicColor.red;
-            evenColor.blue = regions.contrast * 255 + (1 - regions.contrast) * basicColor.blue;
-            evenColor.green = regions.contrast * 255 + (1 - regions.contrast) * basicColor.green;
-            const evenColorString = ColorInput.stringFromObject(evenColor);
+             oddColor.alpha=255;
+           const evenColor = {};
+            evenColor.alpha=255;
+            oddColor.red = (1 - regions.dark) * basicColor.red;
+            oddColor.blue = (1 - regions.dark) * basicColor.blue;
+            oddColor.green = (1 - regions.dark) * basicColor.green;
+            const oddColorInt = Pixels.integerOfColor(oddColor);
+            evenColor.red = regions.light * 255 + (1 - regions.light) * basicColor.red;
+            evenColor.blue = regions.light * 255 + (1 - regions.light) * basicColor.blue;
+            evenColor.green = regions.light * 255 + (1 - regions.light) * basicColor.green;
+            const evenColorInt = Pixels.integerOfColor(evenColor);
             const colors = [];
             regions.structureColors[index] = colors;
-            colors[0] = regions.basicColor[index];
+            colors[0] = Pixels.integerOfColor(basicColor);
             for (var i = 1; i < 256; i++) {
-                colors[i] = ((i & 1) === 0) ? evenColorString : oddColorString;
+                colors[i] = ((i & 1) === 0) ? evenColorInt : oddColorInt;
             }
         }
     }
@@ -124,15 +130,28 @@ regions.makeStructureColors = function() {
  */
 regions.makeGui = function(parentGui, args = {}) {
     regions.gui = parentGui.addFolder('regions', args);
-    regions.gui.add({
+    const lightController=regions.gui.add({
         type: 'number',
         params: regions,
-        property: 'contrast',
+        property: 'light',
         min: 0,
         max: 1,
         onChange: function() {
-            console.log('contrast chnged');
-            basic.drawImageChanged();
+            console.log('light chnged');
+             regions.makeStructureColors();
+           basic.drawImageChanged();
+        }
+    });
+        lightController.add({
+        type: 'number',
+        params: regions,
+        property: 'dark',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            console.log('dark chnged');
+             regions.makeStructureColors();
+           basic.drawImageChanged();
         }
     });
 };
@@ -150,7 +169,6 @@ regions.addControls = function() {
         property: n,
         labelText: 'region ' + n,
         onChange: function() {
-            console.log(map.showRegion);
             basic.drawImageChanged();
         }
     });
@@ -163,7 +181,6 @@ regions.addControls = function() {
         onChange: function() {
             regions.makeStructureColors();
             basic.drawImageChanged();
-            console.log(regions.basicColor);
         }
     });
     regions.colorControllers.push(colorController);
