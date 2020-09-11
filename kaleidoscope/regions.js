@@ -3,14 +3,17 @@
 import {
     output,
     guiUtils,
-    ColorInput
+    ColorInput,
+    map,
+    BooleanButton
 }
 from "../libgui/modules.js";
 
 import {
     circles,
     Corner,
-    Line
+    Line,
+    basic
 } from './modules.js';
 
 /**
@@ -85,7 +88,7 @@ guiUtils.arrayRepeat(regions.basicColor, 6);
 
 /**
  * make structure colors for active regions, from their basic color
- * call when drawing structure (does not take much time)
+ * call when changing map or colors (does not take much time)
  * @method regions.makeStructureColors
  */
 regions.makeStructureColors = function() {
@@ -121,7 +124,79 @@ regions.makeStructureColors = function() {
  */
 regions.makeGui = function(parentGui, args = {}) {
     regions.gui = parentGui.addFolder('regions', args);
+    regions.gui.add({
+        type: 'number',
+        params: regions,
+        property: 'contrast',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            console.log('contrast chnged');
+            basic.drawImageChanged();
+        }
+    });
+};
 
+/**
+ * add buttons for controlling a region (onOff and color)
+ * @method regions.addControls
+ */
+regions.addControls = function() {
+    const n = regions.onOffControllers.length;
+    console.log('ad co', n);
+    BooleanButton.greenRedBackground();
+    const onOffController = regions.gui.add({
+        type: 'boolean',
+        params: map.showRegion,
+        property: n,
+        labelText: 'region ' + n,
+        onChange: function() {
+            console.log(map.showRegion);
+            basic.drawImageChanged();
+        }
+    });
+    regions.onOffControllers.push(onOffController);
+    const colorController = onOffController.add({
+        type: 'color',
+        params: regions.basicColor,
+        property: n,
+        labelText: '',
+        onChange: function() {
+            regions.makeStructureColors();
+            basic.drawImageChanged();
+            console.log(regions.basicColor);
+        }
+    });
+    regions.colorControllers.push(colorController);
+};
+
+/**
+ * create/show the relevant controllers
+ * @method regions.showControllers
+ */
+regions.showControls = function() {
+    regions.gui.hide();
+    var i;
+    let length = regions.polygons.length;
+    console.log('showControllers');
+    // add controllers if needed
+    for (i = regions.onOffControllers.length; i < length; i++) {
+        regions.addControls();
+        console.log(i);
+    }
+    // show/hide
+    length = regions.onOffControllers.length;
+    for (i = 0; i < length; i++) {
+        console.log(i);
+        if (regions.active[i]) {
+            regions.onOffControllers[i].show();
+            regions.colorControllers[i].show();
+        } else {
+            regions.onOffControllers[i].hide();
+            regions.colorControllers[i].hide();
+        }
+    }
+    regions.gui.show();
 };
 
 /**

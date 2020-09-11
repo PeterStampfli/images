@@ -52,10 +52,12 @@ basic.setup = function() {
     // we have to work out the regions
     /**
      * what to do when the map changes (parameters, canvas size too)
+     * circles might change - we have to determine the regions
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
         console.log('changi');
+        // determine fundamental regions
         regions.collectCircles();
         regions.determineBoundingRectangle();
         regions.linesFromInsideOutMappingCircles();
@@ -63,11 +65,16 @@ basic.setup = function() {
         regions.removeDeadEnds();
         regions.makePolygons();
         regions.clearActive();
+        // apply map to all pixels
         map.startDrawing();
         map.make();
+        // now we know which regions are relevant
+        // make their controllers visible
+        console.log(regions.active);
+        regions.showControls();
+        // draw image, taking into account regions, and new options
         map.drawImageChanged();
 
-        console.log(regions.active);
     };
 
 
@@ -89,6 +96,10 @@ basic.setup = function() {
     regions.makeGui(gui, {
         closed: false
     });
+
+
+
+
     // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui, {
         closed: false
