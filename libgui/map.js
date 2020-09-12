@@ -7,6 +7,8 @@ import {
     CoordinateTransform,
     MouseEvents,
     keyboard,
+    BooleanButton,
+    ColorInput,
     ParamGui
 } from "../libgui/modules.js";
 
@@ -183,11 +185,6 @@ map.make = function() {
 // showing the map
 //==================================
 
-// selecting the regions that will be shown, max 256 regions
-map.showRegion = [];
-map.showRegion.length = 256;
-map.showRegion.fill(true);
-
 /**
  * showing the map as structure or image, redefine in controller
  * take care, in case user supplies new routines
@@ -214,9 +211,147 @@ map.callDrawImageLowQuality = function() {
 
 map.draw = map.callDrawStructure;
 
+// selecting the regions that will be shown, max 256 regions
+map.showRegion = [];
+map.showRegion.length = 256;
+map.showRegion.fill(true);
+
 // show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
 // using a table (maximum number of colors is 255) of color integers
+
+// gui to control the regions
+// general: contrast between 0, odd and even number of iterations
+// show only controllers for active regions
+// for each region a basic color and an array of colors[iterations]
+// create controllers as needed, make them visible/hide 
+map.colorControllers = [];
+map.onOffControllers = [];
+
+// switching on/off regions via 'map.showRegion[map.regionArray[index]]'
+// initially all true
+map.basicColor = [];
+
+// colors for showing the structure
+// each element is an array of colors, generate as needed
+map.structureColors = [];
+// for odd/even colors. 0 gives basicColor. 1 gives black and white
+map.light = 0.6;
+map.dark = 0.3;
+
+map.basicColor.push('#ff0000');
+map.basicColor.push('#ff8800');
+map.basicColor.push('#00ff00');
+map.basicColor.push('#00ffff');
+map.basicColor.push('#0000ff');
+map.basicColor.push('#ff00ff');
+map.basicColor.length = 256;
+guiUtils.arrayRepeat(map.basicColor, 6);
+
+/**
+ * make structure colors for active regions, from their basic color
+ * call when changing map or colors (does not take much time)
+ * @method map.makeStructureColors
+ */
+map.makeStructureColors = function() {
+    for (var index = 0; index < 256; index++) {
+        if (regions.active[index]) {
+            const basicColor = {};
+            ColorInput.setObject(basicColor, map.basicColor[index]);
+            basicColor.alpha=255;
+            console.log(basicColor)
+            const oddColor = {};
+             oddColor.alpha=255;
+           const evenColor = {};
+            evenColor.alpha=255;
+            oddColor.red = (1 - map.dark) * basicColor.red;
+            oddColor.blue = (1 - map.dark) * basicColor.blue;
+            oddColor.green = (1 - map.dark) * basicColor.green;
+            const oddColorInt = Pixels.integerOfColor(oddColor);
+            evenColor.red = map.light * 255 + (1 - map.light) * basicColor.red;
+            evenColor.blue = map.light * 255 + (1 - map.light) * basicColor.blue;
+            evenColor.green = map.light * 255 + (1 - map.light) * basicColor.green;
+            const evenColorInt = Pixels.integerOfColor(evenColor);
+            const colors = [];
+            map.structureColors[index] = colors;
+            colors[0] = Pixels.integerOfColor(basicColor);
+            for (var i = 1; i < 256; i++) {
+                colors[i] = ((i & 1) === 0) ? evenColorInt : oddColorInt;
+            }
+        }
+    }
+};
+
+/**
+ * make the gui and add some buttons
+ * @method map.makeRegionsGui
+ * @param{Paramgui} parentGui
+ * @param{Object} args - optional, modifying the gui
+ */
+map.makeRegionsGui = function(parentGui, args = {}) {
+    regions.gui = parentGui.addFolder('regions', args);
+    const lightController=regions.gui.add({
+        type: 'number',
+        params: map,
+        property: 'light',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            console.log('light chnged');
+             regions.makeStructureColors();
+           basic.drawImageChanged();
+        }
+    });
+        lightController.add({
+        type: 'number',
+        params: map,
+        property: 'dark',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            console.log('dark chnged');
+             regions.makeStructureColors();
+           basic.drawImageChanged();
+        }
+    });
+};
+
+/**
+ * add buttons for controlling a region (onOff and color)
+ * @method map.addControls
+ */
+map.addControls = function() {
+    const n = map.onOffControllers.length;
+    BooleanButton.greenRedBackground();
+    const onOffController = regions.gui.add({
+        type: 'boolean',
+        params: map.showRegion,
+        property: n,
+        labelText: 'region ' + n,
+        onChange: function() {
+            basic.drawImageChanged();
+        }
+    });
+    map.onOffControllers.push(onOffController);
+    const colorController = onOffController.add({
+        type: 'color',
+        params: map.basicColor,
+        property: n,
+        labelText: '',
+        onChange: function() {
+            map.makeStructureColors();
+            basic.drawImageChanged();
+        }
+    });
+    map.colorControllers.push(colorController);
+};
+
+
+
+
+
+
+
 
 /**
  * show structure of the map: color depending on the structure index
@@ -235,7 +370,7 @@ map.drawStructure = function() {
         const region=map.regionArray[index];
         if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
             // colors for the target region
-            const colors=regions.structureColors[region];
+            const colors=map.structureColors[region];
             output.pixels.array[index] = colors[map.iterationsArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black

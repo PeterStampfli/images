@@ -58,133 +58,6 @@ regions.polygons = [];
 regions.active = [];
 regions.active.length = 256;
 
-// gui to control the regions
-// general: contrast between 0, odd and even number of iterations
-// region color controllers: 0 ... regions.polygons.length
-// show only controllers for active regions/polygons
-// on/off and basic color
-// for each region a basic color and an array of colors[iterations]
-// create controllers as needed, make them visible/hide depending on regions.active[] value
-regions.colorControllers = [];
-regions.onOffControllers = [];
-
-// switching on/off regions via 'map.showRegion[map.regionArray[index]]'
-// initially all true
-regions.basicColor = [];
-
-// colors for showing the structure
-// each element is an array of colors, generate as needed
-regions.structureColors = [];
-// for odd/even colors. 0 gives basicColor. 1 gives black and white
-regions.light = 0.6;
-regions.dark = 0.3;
-
-regions.basicColor.push('#ff0000');
-regions.basicColor.push('#ff8800');
-regions.basicColor.push('#00ff00');
-regions.basicColor.push('#00ffff');
-regions.basicColor.push('#0000ff');
-regions.basicColor.push('#ff00ff');
-regions.basicColor.length = 256;
-guiUtils.arrayRepeat(regions.basicColor, 6);
-
-/**
- * make structure colors for active regions, from their basic color
- * call when changing map or colors (does not take much time)
- * @method regions.makeStructureColors
- */
-regions.makeStructureColors = function() {
-    for (var index = 0; index < 256; index++) {
-        if (regions.active[index]) {
-            const basicColor = {};
-            ColorInput.setObject(basicColor, regions.basicColor[index]);
-            basicColor.alpha=255;
-            console.log(basicColor)
-            const oddColor = {};
-             oddColor.alpha=255;
-           const evenColor = {};
-            evenColor.alpha=255;
-            oddColor.red = (1 - regions.dark) * basicColor.red;
-            oddColor.blue = (1 - regions.dark) * basicColor.blue;
-            oddColor.green = (1 - regions.dark) * basicColor.green;
-            const oddColorInt = Pixels.integerOfColor(oddColor);
-            evenColor.red = regions.light * 255 + (1 - regions.light) * basicColor.red;
-            evenColor.blue = regions.light * 255 + (1 - regions.light) * basicColor.blue;
-            evenColor.green = regions.light * 255 + (1 - regions.light) * basicColor.green;
-            const evenColorInt = Pixels.integerOfColor(evenColor);
-            const colors = [];
-            regions.structureColors[index] = colors;
-            colors[0] = Pixels.integerOfColor(basicColor);
-            for (var i = 1; i < 256; i++) {
-                colors[i] = ((i & 1) === 0) ? evenColorInt : oddColorInt;
-            }
-        }
-    }
-};
-
-/**
- * make the gui and add some buttons
- * @method regions.makeGui
- * @param{Paramgui} parentGui
- * @param{Object} args - optional, modifying the gui
- */
-regions.makeGui = function(parentGui, args = {}) {
-    regions.gui = parentGui.addFolder('regions', args);
-    const lightController=regions.gui.add({
-        type: 'number',
-        params: regions,
-        property: 'light',
-        min: 0,
-        max: 1,
-        onChange: function() {
-            console.log('light chnged');
-             regions.makeStructureColors();
-           basic.drawImageChanged();
-        }
-    });
-        lightController.add({
-        type: 'number',
-        params: regions,
-        property: 'dark',
-        min: 0,
-        max: 1,
-        onChange: function() {
-            console.log('dark chnged');
-             regions.makeStructureColors();
-           basic.drawImageChanged();
-        }
-    });
-};
-
-/**
- * add buttons for controlling a region (onOff and color)
- * @method regions.addControls
- */
-regions.addControls = function() {
-    const n = regions.onOffControllers.length;
-    BooleanButton.greenRedBackground();
-    const onOffController = regions.gui.add({
-        type: 'boolean',
-        params: map.showRegion,
-        property: n,
-        labelText: 'region ' + n,
-        onChange: function() {
-            basic.drawImageChanged();
-        }
-    });
-    regions.onOffControllers.push(onOffController);
-    const colorController = onOffController.add({
-        type: 'color',
-        params: regions.basicColor,
-        property: n,
-        labelText: '',
-        onChange: function() {
-            regions.makeStructureColors();
-            basic.drawImageChanged();
-        }
-    });
-    regions.colorControllers.push(colorController);
-};
 
 /**
  * create/show the relevant controllers
@@ -195,18 +68,18 @@ regions.showControls = function() {
     var i;
     let length = regions.polygons.length;
     // add controllers if needed
-    for (i = regions.onOffControllers.length; i < length; i++) {
-        regions.addControls();
+    for (i = map.onOffControllers.length; i < length; i++) {
+        map.addControls();
     }
     // show/hide
-    length = regions.onOffControllers.length;
+    length = map.onOffControllers.length;
     for (i = 0; i < length; i++) {
         if (regions.active[i]) {
-            regions.onOffControllers[i].show();
-            regions.colorControllers[i].show();
+            map.onOffControllers[i].show();
+            map.colorControllers[i].show();
         } else {
-            regions.onOffControllers[i].hide();
-            regions.colorControllers[i].hide();
+            map.onOffControllers[i].hide();
+            map.colorControllers[i].hide();
         }
     }
     regions.gui.show();

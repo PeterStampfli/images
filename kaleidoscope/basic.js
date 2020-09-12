@@ -72,14 +72,10 @@ basic.setup = function() {
         // make their controllers visible
         regions.showControls();
         // create colors
-                    regions.makeStructureColors();
-                    console.log(regions.structureColors)
-                    console.log(regions.active)
+        map.makeStructureColors();
         // draw image, taking into account regions, and new options
         map.drawImageChanged();
-
     };
-
 
     // the presets: make gui and load
     presets.makeGui(gui, {
@@ -87,11 +83,9 @@ basic.setup = function() {
     });
 
     // new version for regions
-    regions.makeGui(gui, {
+    map.makeRegionsGui(gui, {
         closed: false
     });
-
-
 
     // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui, {
@@ -144,7 +138,6 @@ basic.setup = function() {
         map.drawMapChanged();
     };
 };
-
 
 // standardized drawing routines
 
