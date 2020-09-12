@@ -81,15 +81,6 @@ basic.setup = function() {
     };
 
 
-
-    // setting up the regions
-    // only the beginning ?
-    // something is not ok !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    const regionGuix = gui.addFolder('regionsxxx');
-    map.regionControl(regionGuix, 2);
-    map.makeNewColorTable(regionGuix, 2);
-
-
     // the presets: make gui and load
     presets.makeGui(gui, {
         closed: false
@@ -100,32 +91,6 @@ basic.setup = function() {
         closed: false
     });
 
-
-/**
- * show structure of the map: color depending on the structure index
- * using the map.colorTable
- * @method map.drawStructure
- */
-map.drawStructure = function() {
-    console.log('str')
-    if (map.inputImageLoaded) {
-        map.controlPixels.setAlpha(map.controlPixelsAlpha);
-        map.controlPixels.show();
-    }
-    const length = map.width * map.height;
-    for (var index = 0; index < length; index++) {
-        // target region, where the pixel has been mapped into
-        const region=map.regionArray[index];
-        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
-            // colors for the target region
-            const colors=regions.structureColors[region];
-            output.pixels.array[index] = colors[map.iterationsArray[index]];
-        } else {
-            output.pixels.array[index] = 0; // transparent black
-        }
-    }
-    output.pixels.show();
-};
 
 
     // GUI's for circles and intersections: you can close them afterwards

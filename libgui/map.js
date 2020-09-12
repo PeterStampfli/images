@@ -10,6 +10,14 @@ import {
     ParamGui
 } from "../libgui/modules.js";
 
+
+import {
+    circles,
+    intersections,
+    presets,
+    regions
+} from '../kaleidoscope/modules.js';
+
 /**
  * organizing the mapping from the output canvas
  * (after transforming the pixel positions to a adjustable space region)
@@ -181,39 +189,6 @@ map.showRegion.length = 256;
 map.showRegion.fill(true);
 
 /**
- * add buttons for switching regions on and off
- * @method map.regionControl
- * @param {ParamGui} gui
- * @param {integer} nRegions
- */
-map.regionsOnLine = 3;
-map.regionControl = function(gui, nRegions) {
-    const regionControllerArgs = {
-        type: 'boolean',
-        params: map.showRegion,
-        onChange: function() {
-            map.drawImageChanged();
-        },
-    };
-    let region = 0;
-    while (region < nRegions) {
-        let regionController = gui.add(regionControllerArgs, {
-            property: region,
-            labelText: 'region ' + region
-        });
-        region += 1;
-        let onLine = 1;
-        while ((onLine < map.regionsOnLine) && (region < nRegions)) {
-            regionController = regionController.add(regionControllerArgs, {
-                property: region
-            });
-            region += 1;
-            onLine += 1;
-        }
-    }
-};
-
-/**
  * showing the map as structure or image, redefine in controller
  * take care, in case user supplies new routines
  * @method map.draw
@@ -242,67 +217,6 @@ map.draw = map.callDrawStructure;
 // show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
 // using a table (maximum number of colors is 255) of color integers
-map.colorTable = [];
-map.colorTable.length = 256;
-map.colors = [];
-
-/**
- * make an alternating color table
- * @method map.makeColorTable
- * @param {object}color1 - with red, green blue and alpha fields
- * @param {object}color2 - with red, green blue and alpha fields
- */
-map.makeColorTable = function(color1, color2) {
-    map.colorTable[0] = Pixels.integerOfColor(color1);
-    map.colorTable[1] = Pixels.integerOfColor(color2);
-    guiUtils.arrayRepeat(map.colorTable, 2);
-};
-
-/*
- * update the color table with integer colors, repeating
- */
-map.updateColorTable = function() {
-    for (var i = 0; i < map.colors.length; i++) {
-        map.colorTable[i] = Pixels.integerOfColor(map.colors[i]);
-    }
-    guiUtils.arrayRepeat(map.colorTable, map.colors.length);
-};
-
-/**
- * make a Ui for choosing the colors of regions
- * @method map.makeNewColorTable
- * @param {ParamGui} gui
- * @param {integer} nColors
- */
-map.makeNewColorTable = function(gui, nColors) {
-    map.colors.length = 0;
-    for (var i = 0; i < nColors; i++) {
-        const light = Math.floor(255 * (i + 0.75) / nColors);
-        const color = {
-            red: light,
-            green: light,
-            blue: light,
-            alpha: 255
-        };
-        map.colors.push(color);
-        gui.add({
-            type: 'color',
-            labelText: 'color ' + i,
-            colorObject: color,
-            onChange: function() {
-                map.updateColorTable();
-                map.drawImageChanged();
-            },
-            onInteraction: function() {
-                if (map.whatToShow !== 'structure') {
-                    map.whatToShow = 'structure';
-                    map.drawImageChanged();
-                }
-            }
-        });
-    }
-    map.updateColorTable();
-};
 
 /**
  * show structure of the map: color depending on the structure index
@@ -310,14 +224,19 @@ map.makeNewColorTable = function(gui, nColors) {
  * @method map.drawStructure
  */
 map.drawStructure = function() {
+    console.log('str')
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
-        if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
-            output.pixels.array[index] = map.colorTable[map.iterationsArray[index]];
+        // target region, where the pixel has been mapped into
+        const region=map.regionArray[index];
+        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
+            // colors for the target region
+            const colors=regions.structureColors[region];
+            output.pixels.array[index] = colors[map.iterationsArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black
         }
