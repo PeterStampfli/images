@@ -200,6 +200,10 @@ map.callDrawImageLowQuality = function() {
     map.drawingImage = true;
     map.drawImageVeryHighQuality();
 };
+map.callDrawRegions = function() {
+    map.drawingImage = false;
+    map.drawRegions();
+};
 
 map.draw = map.callDrawStructure;
 
@@ -250,7 +254,7 @@ map.light = 0.6;
 map.dark = 0.3;
 
 map.basicColor.push('#ff0000');
-map.basicColor.push('#ff8800');
+map.basicColor.push('#ffaa00');
 map.basicColor.push('#00ff00');
 map.basicColor.push('#00ffff');
 map.basicColor.push('#0000ff');
@@ -404,6 +408,31 @@ map.drawStructure = function() {
             // colors for the target region
             const colors = map.structureColors[region];
             output.pixels.array[index] = colors[map.iterationsArray[index]];
+        } else {
+            output.pixels.array[index] = 0; // transparent black
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * show regions of the map (iterations===0)
+ * using the map.colorTable
+ * @method map.drawRegions
+ */
+map.drawRegions = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const length = map.width * map.height;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const region = map.regionArray[index];
+        if (map.showRegion[region] && (map.sizeArray[index] >= 0) && (map.iterationsArray[index] === 0)) {
+            // colors for the target region
+            const colors = map.structureColors[region];
+            output.pixels.array[index] = colors[0];
         } else {
             output.pixels.array[index] = 0; // transparent black
         }
@@ -639,15 +668,17 @@ map.drawImageVeryHighQuality = function() {
 };
 
 /**
+ * make gui for selection of what to show
  * create canvas for input image
  * selector for what to show, image select, div with control canvas and coordinate transform
  * the transform from the map result to the input image has a prescaling that makes 
  * that at scale==1 much of the input image will be sampled
  * shifts are input pixels
  * @method map.setupInputImage
- * @param {ParamGui} gui
+ * @param {ParamGui} parentGui
  */
-map.setupInputImage = function(gui) {
+map.makeShowingGui = function(parentGui, args = {}) {
+    const gui = parentGui.addFolder('showing', args);
     if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
         console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
         console.log('Please use as gui the base gui or a first level folder.');
@@ -817,6 +848,15 @@ map.setupInputImage = function(gui) {
             map.drawImageChanged();
         }
     };
+};
+
+/**
+ * add the possibility to show regions
+ * @method map.addShowRegions
+ */
+map.addShowRegions = function() {
+    console.log('addshre');
+    map.whatToShowController.addOption('regions', map.callDrawRegions);
 };
 
 /**

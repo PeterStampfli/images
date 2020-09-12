@@ -45,9 +45,9 @@ basic.setup = function() {
         circles.map(point);
     };
     map.setOutputDraw(); // links the ouput drawing routines
-    const inputGui = gui.addFolder('showing');
     map.inputImage = '../libgui/testimage.jpg';
-    map.setupInputImage(inputGui);
+    map.makeShowingGui(gui);
+    map.addShowRegions();
 
     // a new map means changed circles
     // we have to work out the regions
