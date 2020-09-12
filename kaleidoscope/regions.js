@@ -3,10 +3,7 @@
 import {
     output,
     guiUtils,
-    ColorInput,
-    map,
-    BooleanButton,
-    Pixels
+    map
 }
 from "../libgui/modules.js";
 
@@ -51,39 +48,6 @@ regions.outsideInMappingCircles = []; // these make some additional corners, in 
 regions.corners = [];
 regions.lines = [];
 regions.polygons = [];
-
-// know, which polygon regions are relevant, boolean, true if there is some pixel inside
-// do not renumber regions (we might look at a small part of the image, such as part of the Poincare disc)
-// hide the UI for unused/inactive regions
-regions.active = [];
-regions.active.length = 256;
-
-
-/**
- * create/show the relevant controllers
- * @method regions.showControllers
- */
-regions.showControls = function() {
-    regions.gui.hide();
-    var i;
-    let length = regions.polygons.length;
-    // add controllers if needed
-    for (i = map.onOffControllers.length; i < length; i++) {
-        map.addControls();
-    }
-    // show/hide
-    length = map.onOffControllers.length;
-    for (i = 0; i < length; i++) {
-        if (regions.active[i]) {
-            map.onOffControllers[i].show();
-            map.colorControllers[i].show();
-        } else {
-            map.onOffControllers[i].hide();
-            map.colorControllers[i].hide();
-        }
-    }
-    regions.gui.show();
-};
 
 /**
  * collect mapping circles according to mapping direction
@@ -440,14 +404,6 @@ regions.getPolygonIndex = function(point) {
         }
     }
     return -1;
-};
-
-/**
- * clear active regions, set all to false
- * @method regions.clearActive
- */
-regions.clearActive = function() {
-    regions.active.fill(false);
 };
 
 /**

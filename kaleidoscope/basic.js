@@ -64,13 +64,13 @@ basic.setup = function() {
         regions.linesFromOutsideInMappingCircles();
         regions.removeDeadEnds();
         regions.makePolygons();
-        regions.clearActive();
+        map.clearActive();
         // apply map to all pixels
         map.startDrawing();
         map.make();
         // now we know which regions are relevant
         // make their controllers visible
-        regions.showControls();
+        map.showControls();
         // create colors
         map.makeStructureColors();
         // draw image, taking into account regions, and new options

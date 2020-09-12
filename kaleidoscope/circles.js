@@ -393,7 +393,7 @@ circles.map = function(point) {
             const i = regions.getPolygonIndex(point);
             if (i >= 0) {
                 point.region = i;
-                regions.active[i]=true;
+                map.activeRegions[i]=true;
             } else {
                 point.region = 255; // for error, irrelevant
                 point.valid = -1; // will make size<0, do not draw invalid points

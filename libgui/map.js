@@ -12,14 +12,6 @@ import {
     ParamGui
 } from "../libgui/modules.js";
 
-
-import {
-    circles,
-    intersections,
-    presets,
-    regions
-} from '../kaleidoscope/modules.js';
-
 /**
  * organizing the mapping from the output canvas
  * (after transforming the pixel positions to a adjustable space region)
@@ -211,10 +203,28 @@ map.callDrawImageLowQuality = function() {
 
 map.draw = map.callDrawStructure;
 
-// selecting the regions that will be shown, max 256 regions
+// the gui: selecting the regions that will be shown, max 256 regions
 map.showRegion = [];
 map.showRegion.length = 256;
 map.showRegion.fill(true);
+
+// know, which regions are relevant, boolean, true if there is some pixel inside
+// do not renumber regions (we might look at a small part of the image, such as part of the Poincare disc)
+// hide the UI for unused/inactive regions
+map.activeRegions = [];
+map.activeRegions.length = 256;
+
+/**
+ * clear active regions, set all to false
+ * @method map.clearActive
+ */
+map.clearActive = function() {
+    map.activeRegions.fill(false);
+};
+
+// default: one active region
+map.clearActive();
+map.activeRegions[0] = true;
 
 // show the structure resulting from the number of iterations, parity, ...
 // typically two colors (even/odd)
@@ -255,15 +265,14 @@ guiUtils.arrayRepeat(map.basicColor, 6);
  */
 map.makeStructureColors = function() {
     for (var index = 0; index < 256; index++) {
-        if (regions.active[index]) {
+        if (map.activeRegions[index]) {
             const basicColor = {};
             ColorInput.setObject(basicColor, map.basicColor[index]);
-            basicColor.alpha=255;
-            console.log(basicColor)
+            basicColor.alpha = 255;
             const oddColor = {};
-             oddColor.alpha=255;
-           const evenColor = {};
-            evenColor.alpha=255;
+            oddColor.alpha = 255;
+            const evenColor = {};
+            evenColor.alpha = 255;
             oddColor.red = (1 - map.dark) * basicColor.red;
             oddColor.blue = (1 - map.dark) * basicColor.blue;
             oddColor.green = (1 - map.dark) * basicColor.green;
@@ -289,29 +298,27 @@ map.makeStructureColors = function() {
  * @param{Object} args - optional, modifying the gui
  */
 map.makeRegionsGui = function(parentGui, args = {}) {
-    regions.gui = parentGui.addFolder('regions', args);
-    const lightController=regions.gui.add({
+    map.regionsGui = parentGui.addFolder('regions', args);
+    const lightController = map.regionsGui.add({
         type: 'number',
         params: map,
         property: 'light',
         min: 0,
         max: 1,
         onChange: function() {
-            console.log('light chnged');
-             regions.makeStructureColors();
-           basic.drawImageChanged();
+            map.makeStructureColors();
+            map.drawImageChanged();
         }
     });
-        lightController.add({
+    lightController.add({
         type: 'number',
         params: map,
         property: 'dark',
         min: 0,
         max: 1,
         onChange: function() {
-            console.log('dark chnged');
-             regions.makeStructureColors();
-           basic.drawImageChanged();
+            map.makeStructureColors();
+            map.drawImageChanged();
         }
     });
 };
@@ -323,13 +330,13 @@ map.makeRegionsGui = function(parentGui, args = {}) {
 map.addControls = function() {
     const n = map.onOffControllers.length;
     BooleanButton.greenRedBackground();
-    const onOffController = regions.gui.add({
+    const onOffController = map.regionsGui.add({
         type: 'boolean',
         params: map.showRegion,
         property: n,
         labelText: 'region ' + n,
         onChange: function() {
-            basic.drawImageChanged();
+            map.drawImageChanged();
         }
     });
     map.onOffControllers.push(onOffController);
@@ -340,18 +347,44 @@ map.addControls = function() {
         labelText: '',
         onChange: function() {
             map.makeStructureColors();
-            basic.drawImageChanged();
+            map.drawImageChanged();
         }
     });
     map.colorControllers.push(colorController);
 };
 
-
-
-
-
-
-
+/**
+ * create/show the relevant controllers
+ * @method map.showControllers
+ */
+map.showControls = function() {
+    var i;
+    map.regionsGui.hide();
+    // determine max index of active regions
+    let maxIndex = 0;
+    for (i = 0; i < map.activeRegions.length; i++) {
+        if (map.activeRegions[i]) {
+            maxIndex = i;
+        }
+    }
+    let length = maxIndex + 1;
+    // add controllers if needed
+    for (i = map.onOffControllers.length; i < length; i++) {
+        map.addControls();
+    }
+    // show/hide
+    length = map.onOffControllers.length;
+    for (i = 0; i < length; i++) {
+        if (map.activeRegions[i]) {
+            map.onOffControllers[i].show();
+            map.colorControllers[i].show();
+        } else {
+            map.onOffControllers[i].hide();
+            map.colorControllers[i].hide();
+        }
+    }
+    map.regionsGui.show();
+};
 
 /**
  * show structure of the map: color depending on the structure index
@@ -359,7 +392,6 @@ map.addControls = function() {
  * @method map.drawStructure
  */
 map.drawStructure = function() {
-    console.log('str')
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
@@ -367,10 +399,10 @@ map.drawStructure = function() {
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
-        const region=map.regionArray[index];
+        const region = map.regionArray[index];
         if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
             // colors for the target region
-            const colors=map.structureColors[region];
+            const colors = map.structureColors[region];
             output.pixels.array[index] = colors[map.iterationsArray[index]];
         } else {
             output.pixels.array[index] = 0; // transparent black
