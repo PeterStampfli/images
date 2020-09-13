@@ -14,36 +14,28 @@
 <script type='module'>
 
 import {
-    map
+    map,
+    guiUtils,
+    output
 }
 from "../libgui/modules.js";
-
-
 import {
     basic,
     presets,
     regions,
     circles,
-    intersections
+    intersections,
+    Polygon
 } from './modules.js';
 
 basic.setup();
 
-   map.drawImageChanged = function() {
-
-regions.collectCircles();
-regions.determineBoundingRectangle();
-regions.linesFromInsideOutMappingCircles();
-regions.linesFromOutsideInMappingCircles();
-
-        map.draw();
-        circles.draw();
-        intersections.draw();
-    
-    };
 
 
 presets.useSelectedValue();
+
+map.makeIterationsColor();
+console.log(map.iterationsColor);
 
 </script>
 
