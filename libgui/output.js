@@ -10,7 +10,8 @@ import {
     CoordinateTransform,
     Pixels,
     MouseEvents,
-    ParamGui
+    ParamGui,
+    BooleanButton
 }
 from "./modules.js";
 
@@ -276,7 +277,7 @@ output.createCanvas = function(gui, folderName) {
         return;
     }
     output.canvas = document.createElement("canvas");
-    output.canvasBackgroundColor='#444444';
+    output.canvasBackgroundColor = '#5555bb';
     output.canvas.style.backgroundColor = output.canvasBackgroundColor;
     output.canvasContext = output.canvas.getContext("2d");
     if (guiUtils.isDefined(folderName)) {
@@ -388,16 +389,17 @@ output.createCanvas = function(gui, folderName) {
             }
         }
     }).addHelp('Switches browser to full screen mode and back.');
-output.canvasBackgroundColorController=gui.add({
-    type:'color',
-    params:output,
-    property:'canvasBackgroundColor',
-    labelText:'background',
-    onChange: function(){
-        output.canvas.style.backgroundColor=output.canvasBackgroundColor;
-    }
-});
-console.log(output.canvas.style.backgroundColor);
+    // note that changing the background color has no effect on *.jpg images
+    // and all alpha=0 pixels become opaque black in *.jpg output
+    output.canvasBackgroundColorController = gui.add({
+        type: 'color',
+        params: output,
+        property: 'canvasBackgroundColor',
+        labelText: 'background',
+        onChange: function() {
+            output.canvas.style.backgroundColor = output.canvasBackgroundColor;
+        }
+    });
     if (!output.div) {
         output.createDiv();
     }
@@ -752,13 +754,15 @@ output.setLineWidth = function(width) {
  * @param {ParamGui} gui
  */
 const grid = {};
-grid.on = true;
+output.grid = grid;
+grid.on = false;
 grid.interval = 1;
 grid.color = '#000000';
 grid.axisWidth = 6;
 grid.lineWidth = 3;
 
 output.addGrid = function(gui) {
+    BooleanButton.greenRedBackground();
     const onOffController = gui.add({
         type: 'boolean',
         params: grid,

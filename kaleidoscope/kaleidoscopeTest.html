@@ -30,31 +30,7 @@ import {
 
 basic.setup();
 
-map.drawImageChanged = function() {
-    map.draw();
-    circles.draw();
-    intersections.draw();
-    regions.drawBoundingRectangle();
-    regions.drawCorners();
-    regions.drawLines();
-};
 
-basic.drawCirclesIntersections=map.drawImageChanged;
-
-    output.mouseCtrlMoveAction = function(event) {
-        if (intersections.isSelected(event)) {
-            output.canvas.style.cursor = "pointer";
-        } else if (circles.isSelected(event)) {
-            output.canvas.style.cursor = "pointer";
-        } else {
-            output.canvas.style.cursor = "default";
-        }
-             map.drawImageChanged();
-             const i=regions.getPolygonIndex(event);
-             if (i>=0){
-                 regions.polygons[i].draw();
-             }
-    };
 
 presets.useSelectedValue();
 

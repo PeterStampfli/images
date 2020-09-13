@@ -20,6 +20,9 @@ import {
  */
 export const basic = {};
 
+// for debug drawing/messages
+basic.debug = false;
+
 /**
  * setting up the output, gui and drawing
  * @method basic.setup
@@ -36,14 +39,18 @@ basic.setup = function() {
     output.createCanvas(outputGui);
     output.createPixels();
     // coordinate transform for the output image
-    outputGui.addParagraph('coordinate transform');
-    output.addCoordinateTransform(outputGui, false);
+    const transformGui = outputGui.addFolder('coordinate transform');
+    output.addCoordinateTransform(transformGui, false);
     output.setInitialCoordinates(0, 0, 3);
+    const gridGui = outputGui.addFolder('grid');
+    output.grid.interval = 0.1;
+    output.addGrid(gridGui);
+
     // setting up the mapping, and its default input image
     map.mapping = function(point) {
         circles.map(point);
     };
-    map.setOutputDraw(); // links the ouput drawing routines
+    map.setOutputDraw(); // links the output drawing routines
     map.inputImage = '../libgui/testimage.jpg';
     map.makeShowingGui(gui);
 
@@ -75,6 +82,22 @@ basic.setup = function() {
         map.drawImageChanged();
     };
 
+    /**
+     * what to do when only the image changes
+     * @method map.drawImageChanged
+     */
+    map.drawImageChanged = function() {
+        map.draw();
+        output.drawGrid();
+        circles.draw();
+        intersections.draw();
+        if (regions.debug) {
+            regions.drawBoundingRectangle();
+            regions.drawCorners();
+            regions.drawLines();
+        }
+    };
+
     // the presets: make gui and load
     presets.makeGui(gui, {
         closed: false
@@ -97,11 +120,7 @@ basic.setup = function() {
     intersections.makeGui(gui, {
         closed: false
     });
-    map.drawImageChanged = function() {
-        map.draw();
-        circles.draw();
-        intersections.draw();
-    };
+
     // mouse controls
     // mouse move with ctrl shows objects that can be selected
     output.mouseCtrlMoveAction = function(event) {
@@ -171,8 +190,14 @@ basic.drawImageChanged = function() {
  */
 basic.drawCirclesIntersections = function() {
     output.pixels.show(); // no new map
+    output.drawGrid();
     circles.draw();
     intersections.draw();
+    if (regions.debug) {
+        regions.drawBoundingRectangle();
+        regions.drawCorners();
+        regions.drawLines();
+    }
 };
 
 /**
