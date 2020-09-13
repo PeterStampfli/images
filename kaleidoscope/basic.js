@@ -53,6 +53,7 @@ basic.setup = function() {
     map.setOutputDraw(); // links the output drawing routines
     map.inputImage = '../libgui/testimage.jpg';
     map.makeShowingGui(gui);
+    map.addDrawIterations();
 
     // a new map means changed circles
     // we have to work out the regions

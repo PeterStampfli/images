@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<link rel="icon" href="data:,">
+
+<head>
+    <title> kaleidoscope</title>
+</head>
+
+<body>
+</body>
+
+<script type='module'>
+
+import {
+    map,
+    guiUtils,
+    output
+}
+from "../libgui/modules.js";
+import {
+    basic,
+    presets,
+    regions,
+    circles,
+    intersections,
+    Polygon
+} from './modules.js';
+
+basic.setup();
+
+
+
+presets.useSelectedValue();
+
+map.makeIterationsColor();
+console.log(map.iterationsColor);
+
+</script>
+
+</html>

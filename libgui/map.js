@@ -61,7 +61,6 @@ map.controlPixelsAlpha = 128;
 // fractional length of image region checked initially
 map.initialImageCovering = 0.75;
 
-
 // max number of iterations of the map
 map.maxIterations = 20;
 
@@ -208,6 +207,10 @@ map.callDrawRegions = function() {
     map.drawingImage = false;
     map.drawRegions();
 };
+map.callDrawIterations = function() {
+    map.drawingImage = false;
+    map.drawIterations();
+};
 
 map.draw = map.callDrawStructure;
 
@@ -267,11 +270,11 @@ map.basicColor.length = 256;
 guiUtils.arrayRepeat(map.basicColor, 6);
 
 // colors for showing iterations
-map.iterationsColor=[];
-map.iterationsColor.length=256;
+map.iterationsColor = [];
+map.iterationsColor.length = 256;
 // parameters for making iterations colors
-map.iterationsThreshold=4;
-map.iterationsGamma=2;
+map.iterationsThreshold = 4;
+map.iterationsGamma = 2;
 
 /**
  * make structure colors for active regions, from their basic color
@@ -307,26 +310,31 @@ map.makeStructureColors = function() {
 };
 
 /**
-* make colors for showing iterations
-* white with variable alpha
-* @method map#makeIterationsColor
-*/
-map.makeIterationsColor=function(){
+ * make colors for showing iterations
+ * white with variable alpha, depends on maxIterations, gamma, threshold
+ * @method map#makeIterationsColor
+ */
+map.makeIterationsColor = function() {
     var i;
-    const color={};
-    color.red=255;
-    color.blue=255;
-    color.green=255;
-    color.alpha=0;
-map.iterationsColor.fill(Pixels.integerOfColor(color));
-for (i=map.iterationsThreshold;i<map.maxIterations;i++){
-
-}
-color.alpha=255;
-const white=Pixels.integerOfColor(color);
-for (i=map.maxIterations;i<256;i++){
-map.iterationsColor[i]=white;
-}
+    const color = {};
+    color.red = 255;
+    color.blue = 255;
+    color.green = 255;
+    color.alpha = 0;
+    map.iterationsColor.fill(Pixels.integerOfColor(color));
+    for (i = map.iterationsThreshold; i < map.maxIterations; i++) {
+        let x = (i - map.iterationsThreshold) / (map.maxIterations - map.iterationsThreshold);
+        x = Math.pow(x, map.iterationsGamma);
+        console.log(x)
+        color.alpha = Math.floor(255.9 * x);
+        console.log(i,color.alpha);
+        map.iterationsColor[i] = Pixels.integerOfColor(color);
+    }
+    color.alpha = 255;
+    const white = Pixels.integerOfColor(color);
+    for (i = map.maxIterations; i < 256; i++) {
+        map.iterationsColor[i] = white;
+    }
 };
 
 /**
@@ -451,7 +459,7 @@ map.drawStructure = function() {
 };
 
 /**
- * show regions of the map (iterations===0)
+ * draw regions of the map (iterations===0)
  * using the map.colorTable
  * @method map.drawRegions
  */
@@ -470,6 +478,30 @@ map.drawRegions = function() {
             output.pixels.array[index] = colors[0];
         } else {
             output.pixels.array[index] = 0; // transparent black
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * draw iterations of the map 
+ * using the map.colorTable
+ * @method map.drawIterations
+ */
+map.drawIterations = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const white = Pixels.integerOfColor({red:255,blue:255,green:255,alpha:255});
+    const length = map.width * map.height;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const region = map.regionArray[index];
+        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
+            output.pixels.array[index] = map.iterationsColor[map.iterationsArray[index]];
+        } else {
+            output.pixels.array[index] = white; // opaque white, pixel presumably belongs to the limit set
         }
     }
     output.pixels.show();
@@ -940,11 +972,19 @@ map.makeShowingGui = function(parentGui, args = {}) {
 };
 
 /**
- * add the possibility to show regions
- * @method map.addShowRegions
+ * add the possibility to draw regions
+ * @method map.addDrawRegions
  */
-map.addShowRegions = function() {
+map.addDrawRegions = function() {
     map.whatToShowController.addOption('regions', map.callDrawRegions);
+};
+
+/**
+ * add the possibility to draw iterations
+ * @method map.addDrawIterations
+ */
+map.addDrawIterations = function() {
+    map.whatToShowController.addOption('iterations', map.callDrawIterations);
 };
 
 /**
@@ -959,10 +999,11 @@ map.makeSettingsGui = function(parentGui, args = {}) {
         type: 'number',
         params: map,
         property: 'maxIterations',
-        labelText: 'max iterations',
+        labelText: 'iterations',
         min: 0,
         step: 1,
         onClick: function() {
+            map.makeIterationsColor();
             map.drawMapChanged();
         }
     });
