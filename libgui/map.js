@@ -61,12 +61,16 @@ map.controlPixelsAlpha = 128;
 // fractional length of image region checked initially
 map.initialImageCovering = 0.75;
 
+
+// max number of iterations of the map
+map.maxIterations = 20;
+
 /**
  * the mapping function transforms a point argument
  * point.re and point.im have the intial position at call
  * at return they have the final position
  * point.region has the number of a region. Typically, there is no mapping between regions
- * point.structureIndex has the number of iterations done, or other info
+ * point.iterations has the number of iterations done, or other info
  * point.valid>=0 means that point can be used in display, else make pixel transparent
  * the xArray, yArray, iterationsArray and regionArray have new values, but not the sizeArray
  * results are not normalized
@@ -160,14 +164,14 @@ map.make = function() {
             point.x = i;
             point.y = j;
             point.region = 0;
-            point.structureIndex = 0;
+            point.iterations = 0;
             point.valid = 1;
             output.coordinateTransform.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
             map.regionArray[index] = point.region;
-            map.iterationsArray[index] = point.structureIndex;
+            map.iterationsArray[index] = point.iterations;
             map.sizeArray[index] = point.valid;
             index += 1;
         }
@@ -668,6 +672,60 @@ map.drawImageVeryHighQuality = function() {
 };
 
 /**
+ * determine transformation from map to input image
+ * use for loading a new imaage or for resetting after changing the map
+ * @method map.setupMapImageTransform
+ */
+map.setupMapImageTransform = function() {
+    map.determineRange();
+    // find prescale for inputTransform to fit map into input image, with some free border
+    const imageWidth = map.inputCanvas.width;
+    const imageHeight = map.inputCanvas.height;
+    map.inputTransform.setPrescale(map.initialImageCovering * Math.min(imageWidth / map.rangeX, imageHeight / map.rangeY));
+    // determine shifts to get map center to input image center: determine transform of the map center without shift
+    map.inputTransform.setValues(0, 0, 1, 0);
+    const v = {
+        x: map.centerX,
+        y: map.centerY
+    };
+    map.inputTransform.transform(v);
+    // now we can determine the correct shifts
+    map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
+};
+
+/**
+ * load the image with url=map.inputImage
+ * call a callback, might be different for loading the test image than for loading further images
+ * @method map.loadInputImage
+ */
+
+map.loadInputImage = function(callback) {
+    let image = new Image();
+
+    image.onload = function() {
+        // load to the input canvas, determine scale, and update pixels
+        map.inputCanvas.width = image.width;
+        map.inputCanvas.height = image.height;
+        map.inputCanvasContext.drawImage(image, 0, 0);
+        map.inputPixels.update();
+        // transform from map to input image
+        map.setupMapImageTransform();
+        // determine scale from input image to controle image
+        // to fit the control image into a square of gui width
+        map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
+        map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
+        map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
+        // load input image to the control canvas
+        map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
+        map.controlPixels.update();
+        image = null;
+        map.drawImageChanged();
+    };
+
+    image.src = map.inputImage;
+};
+
+/**
  * make gui for selection of what to show
  * create canvas for input image
  * selector for what to show, image select, div with control canvas and coordinate transform
@@ -855,60 +913,26 @@ map.makeShowingGui = function(parentGui, args = {}) {
  * @method map.addShowRegions
  */
 map.addShowRegions = function() {
-    console.log('addshre');
     map.whatToShowController.addOption('regions', map.callDrawRegions);
 };
 
 /**
- * determine transformation from map to input image
- * use for loading a new imaage or for resetting after changing the map
- * @method map.setupMapImageTransform
+ * make gui for settings (parameters)
+ * @method map.makeSettingsGui
+ * @param{Paramgui} parentGui
+ * @param{Object} args - optional, modifying the gui
  */
-map.setupMapImageTransform = function() {
-    map.determineRange();
-    // find prescale for inputTransform to fit map into input image, with some free border
-    const imageWidth = map.inputCanvas.width;
-    const imageHeight = map.inputCanvas.height;
-    map.inputTransform.setPrescale(map.initialImageCovering * Math.min(imageWidth / map.rangeX, imageHeight / map.rangeY));
-    // determine shifts to get map center to input image center: determine transform of the map center without shift
-    map.inputTransform.setValues(0, 0, 1, 0);
-    const v = {
-        x: map.centerX,
-        y: map.centerY
-    };
-    map.inputTransform.transform(v);
-    // now we can determine the correct shifts
-    map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
-};
-
-/**
- * load the image with url=map.inputImage
- * call a callback, might be different for loading the test image than for loading further images
- * @method map.loadInputImage
- */
-
-map.loadInputImage = function(callback) {
-    let image = new Image();
-
-    image.onload = function() {
-        // load to the input canvas, determine scale, and update pixels
-        map.inputCanvas.width = image.width;
-        map.inputCanvas.height = image.height;
-        map.inputCanvasContext.drawImage(image, 0, 0);
-        map.inputPixels.update();
-        // transform from map to input image
-        map.setupMapImageTransform();
-        // determine scale from input image to controle image
-        // to fit the control image into a square of gui width
-        map.inputImageControlCanvasScale = Math.min(map.guiWidth / image.width, map.guiWidth / image.height);
-        map.controlCanvas.width = map.inputImageControlCanvasScale * image.width;
-        map.controlCanvas.height = map.inputImageControlCanvasScale * image.height;
-        // load input image to the control canvas
-        map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
-        map.controlPixels.update();
-        image = null;
-        map.drawImageChanged();
-    };
-
-    image.src = map.inputImage;
+map.makeSettingsGui = function(parentGui, args = {}) {
+    map.settingsGui = parentGui.addFolder('settings', args);
+    map.settingsGui.add({
+        type: 'number',
+        params: map,
+        property: 'maxIterations',
+        labelText: 'max iterations',
+        min: 0,
+        step: 1,
+        onClick: function() {
+            map.drawMapChanged();
+        }
+    });
 };

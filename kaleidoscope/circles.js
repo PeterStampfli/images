@@ -346,9 +346,6 @@ circles.dragAction = function(event) {
 // mapping
 //==================================
 
-// max number of iterations
-const maxIterations = 20;
-
 /**
  * check if all mapping circles are mapping inside out
  * @circles.allInsideOut
@@ -377,28 +374,28 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    let logError = true;
+    map.logRegionNotFound = true;
     const collectionLength = circles.collection.length;
-    for (var i = 0; i < maxIterations; i++) {
+    for (var i = 0; i <= map.maxIterations; i++) {
         let mapped = false;
         for (var j = 0; j < collectionLength; j++) {
             if (circles.collection[j].map(point)) {
                 mapped = true;
-                point.structureIndex += 1;
+                point.iterations += 1;
             }
         }
         if (!mapped) {
             // mapping is finished, we know where the point ends up
             // determine its region
-            const i = regions.getPolygonIndex(point);
+          const i = regions.getPolygonIndex(point);
             if (i >= 0) {
                 point.region = i;
                 map.activeRegions[i]=true;
             } else {
                 point.region = 255; // for error, irrelevant
                 point.valid = -1; // will make size<0, do not draw invalid points
-                if (logError) {
-                    logError = false; // make only one error message
+                if (map.logRegionNotFound) {
+                    map.logRegionNotFound = false; // make only one error message
                     console.error('circles.map: region not found, point at');
                     console.log(point);
                 }
@@ -409,20 +406,13 @@ circles.map = function(point) {
             }
             return;
         }
+        if (point.iterations>map.maxIterations){
+            break;
+        }
     }
     point.region = 255; // to be safe??
     point.valid = -1; // invalid position/pixel
 };
-
-// determine target regions of the mapping
-//===========================================
-
-// for each pixel
-// number of the target region its mapping goees to
-// region 0 contains infinity
-// region 255 is not a target
-// region 254 is unspecified target
-circles.targetRegions = new Uint8Array(1);
 
 /**
  * determine of a point is inside any target region of combined mapping

@@ -47,7 +47,6 @@ basic.setup = function() {
     map.setOutputDraw(); // links the ouput drawing routines
     map.inputImage = '../libgui/testimage.jpg';
     map.makeShowingGui(gui);
-    map.addShowRegions();
 
     // a new map means changed circles
     // we have to work out the regions
@@ -79,6 +78,11 @@ basic.setup = function() {
 
     // the presets: make gui and load
     presets.makeGui(gui, {
+        closed: false
+    });
+
+    // unclassified parameters
+    map.makeSettingsGui(gui, {
         closed: false
     });
 
