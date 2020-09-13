@@ -276,6 +276,8 @@ output.createCanvas = function(gui, folderName) {
         return;
     }
     output.canvas = document.createElement("canvas");
+    output.canvasBackgroundColor='#444444';
+    output.canvas.style.backgroundColor = output.canvasBackgroundColor;
     output.canvasContext = output.canvas.getContext("2d");
     if (guiUtils.isDefined(folderName)) {
         gui = gui.addFolder(folderName);
@@ -386,7 +388,16 @@ output.createCanvas = function(gui, folderName) {
             }
         }
     }).addHelp('Switches browser to full screen mode and back.');
-
+output.canvasBackgroundColorController=gui.add({
+    type:'color',
+    params:output,
+    property:'canvasBackgroundColor',
+    labelText:'background',
+    onChange: function(){
+        output.canvas.style.backgroundColor=output.canvasBackgroundColor;
+    }
+});
+console.log(output.canvas.style.backgroundColor);
     if (!output.div) {
         output.createDiv();
     }

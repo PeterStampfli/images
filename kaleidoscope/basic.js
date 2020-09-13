@@ -34,7 +34,6 @@ basic.setup = function() {
     // create an output canvas
     const outputGui = gui.addFolder('output image');
     output.createCanvas(outputGui);
-    output.canvas.style.backgroundColor = 'grey';
     output.createPixels();
     // coordinate transform for the output image
     outputGui.addParagraph('coordinate transform');

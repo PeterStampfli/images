@@ -266,6 +266,13 @@ map.basicColor.push('#ff00ff');
 map.basicColor.length = 256;
 guiUtils.arrayRepeat(map.basicColor, 6);
 
+// colors for showing iterations
+map.iterationsColor=[];
+map.iterationsColor.length=256;
+// parameters for making iterations colors
+map.iterationsThreshold=4;
+map.iterationsGamma=2;
+
 /**
  * make structure colors for active regions, from their basic color
  * call when changing map or colors (does not take much time)
@@ -300,7 +307,31 @@ map.makeStructureColors = function() {
 };
 
 /**
- * make the gui and add some buttons
+* make colors for showing iterations
+* white with variable alpha
+* @method map#makeIterationsColor
+*/
+map.makeIterationsColor=function(){
+    var i;
+    const color={};
+    color.red=255;
+    color.blue=255;
+    color.green=255;
+    color.alpha=0;
+map.iterationsColor.fill(Pixels.integerOfColor(color));
+for (i=map.iterationsThreshold;i<map.maxIterations;i++){
+
+}
+color.alpha=255;
+const white=Pixels.integerOfColor(color);
+for (i=map.maxIterations;i<256;i++){
+map.iterationsColor[i]=white;
+}
+};
+
+/**
+ * make the gui for controlling regions
+ * add buttons for controlling contrast showing the structure
  * @method map.makeRegionsGui
  * @param{Paramgui} parentGui
  * @param{Object} args - optional, modifying the gui

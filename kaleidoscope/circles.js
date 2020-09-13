@@ -376,7 +376,7 @@ circles.allInsideOut = function() {
 circles.map = function(point) {
     map.logRegionNotFound = true;
     const collectionLength = circles.collection.length;
-    for (var i = 0; i <= map.maxIterations; i++) {
+    while (point.iterations <= map.maxIterations) {
         let mapped = false;
         for (var j = 0; j < collectionLength; j++) {
             if (circles.collection[j].map(point)) {
@@ -387,10 +387,10 @@ circles.map = function(point) {
         if (!mapped) {
             // mapping is finished, we know where the point ends up
             // determine its region
-          const i = regions.getPolygonIndex(point);
-            if (i >= 0) {
-                point.region = i;
-                map.activeRegions[i]=true;
+          const region = regions.getPolygonIndex(point);
+            if (region >= 0) {
+                point.region = region;
+                map.activeRegions[region]=true;
             } else {
                 point.region = 255; // for error, irrelevant
                 point.valid = -1; // will make size<0, do not draw invalid points
@@ -405,9 +405,6 @@ circles.map = function(point) {
                 circles.collection[0].invert(point);
             }
             return;
-        }
-        if (point.iterations>map.maxIterations){
-            break;
         }
     }
     point.region = 255; // to be safe??
