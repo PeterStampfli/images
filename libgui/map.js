@@ -211,6 +211,10 @@ map.callDrawIterations = function() {
     map.drawingImage = false;
     map.drawIterations();
 };
+map.callDrawLimitset = function() {
+    map.drawingImage = false;
+    map.drawLimitset();
+};
 
 map.draw = map.callDrawStructure;
 
@@ -355,7 +359,7 @@ map.makeRegionsGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     });
-    const darkController=lightController.add({
+    const darkController = lightController.add({
         type: 'number',
         params: map,
         property: 'dark',
@@ -505,6 +509,59 @@ map.drawIterations = function() {
             output.pixels.array[index] = map.iterationsColor[map.iterationsArray[index]];
         } else {
             output.pixels.array[index] = white; // opaque white, pixel presumably belongs to the limit set
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * draw limit set of the map as white opaque
+ * pixels that did not converge (size<0) or different pixels in a 2x2 array
+ * @method map.drawLimitset
+ */
+map.drawLimitset = function() {
+    console.log('drawlimitset')
+    var i, j, index;
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const white = Pixels.integerOfColor({
+        red: 255,
+        blue: 255,
+        green: 255,
+        alpha: 255
+    });
+    // top and left pixels are always transparent
+    // because they have no neigbors above or at the left
+    for (i = 0; i < map.width; i++) {
+        output.pixels.array[i] = 0; //transparent black
+    }
+    index = 0;
+    for (i = 0; i < map.height; i++) {
+        output.pixels.array[index] = 0; //transparent black
+        index += map.width;
+    }
+    index = 0;
+    // for all other pixels
+    for (j = 1; j < map.height; j++) {
+        index += 1; // skip first pixel of each row
+        for (i = 1; i < map.width; i++) {
+            if (map.sizeArray[index] < 0) {
+                output.pixels.array[index] = white;
+            } else {
+                const region = map.regionArray[index];
+                if (region !== map.regionArray[index - 1]) {
+                    output.pixels.array[index] = white;
+                } else if (region !== map.regionArray[index - map.width]) {
+                    output.pixels.array[index] = white;
+                }  else if (region !== map.regionArray[index - map.width-1]) {
+                    output.pixels.array[index] = white;
+                } else {
+                                        output.pixels.array[index] = 0;
+                }
+            }
+            index+=1;
         }
     }
     output.pixels.show();
@@ -1012,12 +1069,12 @@ map.makeSettingsGui = function(parentGui, args = {}) {
 map.addDrawIterations = function() {
     map.whatToShowController.addOption('iterations', map.callDrawIterations);
     map.makeIterationsColor();
-    map.settingsGui.addParagraph('showing iterations:')
+    map.settingsGui.addParagraph('showing iterations:');
     map.iterationsThresholdController = map.settingsGui.add({
         type: 'number',
         params: map,
         property: 'iterationsThreshold',
-        labelText:'threshold',
+        labelText: 'threshold',
         step: 1,
         min: 0,
         onChange: function() {
@@ -1025,15 +1082,24 @@ map.addDrawIterations = function() {
             map.drawMapChanged();
         }
     });
-        map.iterationsThresholdController.add({
+    map.iterationsThresholdController.add({
         type: 'number',
         params: map,
         property: 'iterationsGamma',
-        labelText:'gamma',
+        labelText: 'gamma',
         min: 0.1,
         onChange: function() {
             map.makeIterationsColor();
             map.drawMapChanged();
         }
     });
+};
+
+/**
+ * add the possibility to draw the limit set
+ * needs the settingsGui
+ * @method map.addDrawLimitset
+ */
+map.addDrawLimitset = function() {
+    map.whatToShowController.addOption('limit set', map.callDrawLimitset);
 };

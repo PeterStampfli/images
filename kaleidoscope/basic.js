@@ -108,6 +108,7 @@ basic.setup = function() {
         closed: false
     });
         map.addDrawIterations();
+        map.addDrawLimitset();
 
     // new version for regions
     map.makeRegionsGui(gui, {

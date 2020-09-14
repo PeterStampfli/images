@@ -374,7 +374,7 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    map.logRegionNotFound = true;
+    let logRegionNotFound = true;
     const collectionLength = circles.collection.length;
     while (point.iterations <= map.maxIterations) {
         let mapped = false;
@@ -394,8 +394,8 @@ circles.map = function(point) {
             } else {
                 point.region = 255; // for error, irrelevant
                 point.valid = -1; // will make size<0, do not draw invalid points
-                if (map.logRegionNotFound) {
-                    map.logRegionNotFound = false; // make only one error message
+                if (logRegionNotFound) {
+                    logRegionNotFound = false; // make only one error message
                     console.error('circles.map: region not found, point at');
                     console.log(point);
                 }
