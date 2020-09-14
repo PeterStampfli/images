@@ -339,7 +339,8 @@ output.createCanvas = function(gui, folderName) {
             autoResizeDraw();
         }
     });
-
+    
+    BooleanButton.greenRedBackground();
     autoResizeController = gui.add({
         type: "boolean",
         labelText: "auto resize canvas",

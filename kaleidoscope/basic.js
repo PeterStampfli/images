@@ -30,7 +30,7 @@ basic.debug = false;
 basic.setup = function() {
     // base gui
     const gui = new ParamGui({
-        name: 'test',
+        name: 'kaleidoscopeBuilder',
         closed: false
     });
     basic.gui = gui;
@@ -53,7 +53,6 @@ basic.setup = function() {
     map.setOutputDraw(); // links the output drawing routines
     map.inputImage = '../libgui/testimage.jpg';
     map.makeShowingGui(gui);
-    map.addDrawIterations();
 
     // a new map means changed circles
     // we have to work out the regions
@@ -108,6 +107,7 @@ basic.setup = function() {
     map.makeSettingsGui(gui, {
         closed: false
     });
+        map.addDrawIterations();
 
     // new version for regions
     map.makeRegionsGui(gui, {

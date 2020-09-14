@@ -325,9 +325,7 @@ map.makeIterationsColor = function() {
     for (i = map.iterationsThreshold; i < map.maxIterations; i++) {
         let x = (i - map.iterationsThreshold) / (map.maxIterations - map.iterationsThreshold);
         x = Math.pow(x, map.iterationsGamma);
-        console.log(x)
         color.alpha = Math.floor(255.9 * x);
-        console.log(i,color.alpha);
         map.iterationsColor[i] = Pixels.integerOfColor(color);
     }
     color.alpha = 255;
@@ -357,7 +355,7 @@ map.makeRegionsGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     });
-    lightController.add({
+    const darkController=lightController.add({
         type: 'number',
         params: map,
         property: 'dark',
@@ -493,7 +491,12 @@ map.drawIterations = function() {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const white = Pixels.integerOfColor({red:255,blue:255,green:255,alpha:255});
+    const white = Pixels.integerOfColor({
+        red: 255,
+        blue: 255,
+        green: 255,
+        alpha: 255
+    });
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
@@ -980,14 +983,6 @@ map.addDrawRegions = function() {
 };
 
 /**
- * add the possibility to draw iterations
- * @method map.addDrawIterations
- */
-map.addDrawIterations = function() {
-    map.whatToShowController.addOption('iterations', map.callDrawIterations);
-};
-
-/**
  * make gui for settings (parameters)
  * @method map.makeSettingsGui
  * @param{Paramgui} parentGui
@@ -1002,7 +997,41 @@ map.makeSettingsGui = function(parentGui, args = {}) {
         labelText: 'iterations',
         min: 0,
         step: 1,
-        onClick: function() {
+        onChange: function() {
+            map.makeIterationsColor();
+            map.drawMapChanged();
+        }
+    });
+};
+
+/**
+ * add the possibility to draw iterations
+ * needs the settingsGui
+ * @method map.addDrawIterations
+ */
+map.addDrawIterations = function() {
+    map.whatToShowController.addOption('iterations', map.callDrawIterations);
+    map.makeIterationsColor();
+    map.settingsGui.addParagraph('showing iterations:')
+    map.iterationsThresholdController = map.settingsGui.add({
+        type: 'number',
+        params: map,
+        property: 'iterationsThreshold',
+        labelText:'threshold',
+        step: 1,
+        min: 0,
+        onChange: function() {
+            map.makeIterationsColor();
+            map.drawMapChanged();
+        }
+    });
+        map.iterationsThresholdController.add({
+        type: 'number',
+        params: map,
+        property: 'iterationsGamma',
+        labelText:'gamma',
+        min: 0.1,
+        onChange: function() {
             map.makeIterationsColor();
             map.drawMapChanged();
         }
