@@ -31,11 +31,13 @@ import {
 } from './modules.js';
 
 basic.setup();
+regions.debug=true;
 
 
 
 presets.useSelectedValue();
-
+console.log(map.whatToShowController.getValue())
+console.log(map.whatToShowController.getValue()===map.callDrawStructure)
 
 </script>
 

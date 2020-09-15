@@ -4,7 +4,8 @@ import {
     map,
     output,
     ParamGui,
-    Pixels
+    Pixels,
+    ColorInput
 } from "../libgui/modules.js";
 
 import {
@@ -72,6 +73,7 @@ basic.setup = function() {
         map.clearActive();
         // apply map to all pixels
         map.startDrawing();
+        circles.lastCircleIndexArray = new Uint8Array(map.xArray.length);
         map.make();
         // now we know which regions are relevant
         // make their controllers visible
@@ -107,9 +109,9 @@ basic.setup = function() {
     map.makeSettingsGui(gui, {
         closed: false
     });
-        map.addDrawIterations();
-        map.addDrawLimitset();
-
+    map.addDrawIterations();
+    map.addDrawLimitset();
+    map.addDrawIndrasPearls();
     // new version for regions
     map.makeRegionsGui(gui, {
         closed: false
@@ -201,6 +203,58 @@ basic.drawCirclesIntersections = function() {
         regions.drawLines();
     }
 };
+
+// Indra's pearls
+
+map.callDrawIndrasPearls = function() {
+    map.drawingImage = false;
+    map.drawIndrasPearls();
+};
+
+/**
+ * draw Indra's pearls (pixel gets color of last mapping circle)
+ * @method map.drawIndrasPearls
+ */
+map.drawIndrasPearls = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    // make table of colors related to circles.collection
+    const colors = [];
+    const colorObj = {
+        alpha: 255
+    };
+    colors.length = circles.collection.length;
+    for (var i = 0; i < circles.collection.length; i++) {
+        ColorInput.setObject(colorObj, circles.collection[i].color);
+        colors[i] = Pixels.integerOfColor(colorObj);
+    }
+    const length = map.width * map.height;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const lastCircleIndex = circles.lastCircleIndexArray[index];
+        if (lastCircleIndex < 255) {
+            output.pixels.array[index] = colors[lastCircleIndex];
+        } else {
+            output.pixels.array[index] = 0; // transparent black
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * add the possibility to draw Indra's pearls
+ * needs the settingsGui
+ * @method map.addDrawIndrasPearls
+ */
+map.addDrawIndrasPearls = function() {
+    map.whatToShowController.addOption("Indra's Pearls", map.callDrawIndrasPearls);
+};
+
+
+// presets
+//============================================================
 
 /**
  * get properties of the kaleidoscope (saving as preset)

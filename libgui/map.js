@@ -165,6 +165,7 @@ map.make = function() {
             point.region = 0;
             point.iterations = 0;
             point.valid = 1;
+            point.index=index;      // for further work, more data
             output.coordinateTransform.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
@@ -264,14 +265,13 @@ map.structureColors = [];
 map.light = 0.6;
 map.dark = 0.3;
 
-map.basicColor.push('#ff0000');
-map.basicColor.push('#ffaa00');
-map.basicColor.push('#00ff00');
-map.basicColor.push('#00ffff');
-map.basicColor.push('#0000ff');
-map.basicColor.push('#ff00ff');
+map.basicColor.push('#ddddbb');
+map.basicColor.push('#ffbbbb');
+map.basicColor.push('#ccccff');
+map.basicColor.push('#bbffbb');
+map.basicColor.push('#ffaaff');
 map.basicColor.length = 256;
-guiUtils.arrayRepeat(map.basicColor, 6);
+guiUtils.arrayRepeat(map.basicColor, 5);
 
 // colors for showing iterations
 map.iterationsColor = [];
@@ -409,9 +409,9 @@ map.addControls = function() {
 map.showControls = function() {
     var i;
     map.regionsGui.hide();
-    // determine max index of active regions
+    // determine max index of active regions, including the outside region
     let maxIndex = 0;
-    for (i = 0; i < map.activeRegions.length; i++) {
+    for (i = 0; i <= map.activeRegions.length; i++) {
         if (map.activeRegions[i]) {
             maxIndex = i;
         }

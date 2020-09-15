@@ -46,7 +46,7 @@ circles.getId = function() {
 };
 
 let colorIndex = -1;
-const colors = ['#ff0000', '#00ff00', '#ff00ff', '#0000ff', '#000000'];
+const colors = ['#ee0000', '#0000ff', '#00dd00', '#aa9900', '#000000'];
 
 /**
  * get a color
@@ -346,6 +346,10 @@ circles.dragAction = function(event) {
 // mapping
 //==================================
 
+// for Indra's pearls: id of the last mapping circle
+// id===255 means: no circle
+circles.lastCircleIndexArray = new Uint8Array(1);
+
 /**
  * check if all mapping circles are mapping inside out
  * @circles.allInsideOut
@@ -374,39 +378,40 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    let logRegionNotFound = true;
+    let lastCircleIndex = 255;
     const collectionLength = circles.collection.length;
     while (point.iterations <= map.maxIterations) {
         let mapped = false;
-        for (var j = 0; j < collectionLength; j++) {
+        let j=0;
+        while ((j < collectionLength)&&(point.iterations<map.maxIterations)){
             if (circles.collection[j].map(point)) {
                 mapped = true;
                 point.iterations += 1;
+                lastCircleIndex = j;
             }
+            j+=1;
         }
         if (!mapped) {
-            // mapping is finished, we know where the point ends up
-            // determine its region
-          const region = regions.getPolygonIndex(point);
+            // mapping is a success, we know where the point ends up
+            // determine if it is in a polygon
+            const region = regions.getPolygonIndex(point);
             if (region >= 0) {
+                // the polygon corresponds to its region
                 point.region = region;
-                map.activeRegions[region]=true;
             } else {
-                point.region = 255; // for error, irrelevant
-                point.valid = -1; // will make size<0, do not draw invalid points
-                if (logRegionNotFound) {
-                    logRegionNotFound = false; // make only one error message
-                    console.error('circles.map: region not found, point at');
-                    console.log(point);
-                }
+                // not in a polygon, then it is in the outside region, it is always the last region
+                point.region = regions.polygons.length;
             }
+            map.activeRegions[region] = true;
             // inversion needed to get a good mapping of input image if all circles map inside out
             if (circles.finalInversion) {
                 circles.collection[0].invert(point);
             }
+            circles.lastCircleIndexArray[point.index] = lastCircleIndex;
             return;
         }
     }
+    circles.lastCircleIndexArray[point.index] = lastCircleIndex;
     point.region = 255; // to be safe??
     point.valid = -1; // invalid position/pixel
 };

@@ -3,7 +3,8 @@
 import {
     guiUtils,
     BooleanButton,
-    output
+    output,
+    map
 }
 from "../libgui/modules.js";
 
@@ -136,7 +137,11 @@ export function Circle(parentGui, properties) {
         property: 'color',
         onChange: function() {
             circles.setSelected(circle);
-            basic.drawCirclesIntersections(); //no new map
+            if (map.whatToShowController.getValue() === map.callDrawIndrasPearls) {
+                basic.drawImageChanged();
+            } else {
+                basic.drawCirclesIntersections();
+            }
         }
     });
 }
@@ -825,7 +830,7 @@ Circle.prototype.map = function(position) {
             if (dr2 > this.radius2) {
                 return false;
             } else {
-                const factor = this.radius2 / Math.max(dr2, epsilon2);
+                const factor = this.radius2 / (dr2 + epsilon2);
                 position.x = this.centerX + factor * dx;
                 position.y = this.centerY + factor * dy;
                 return true;
@@ -854,7 +859,7 @@ Circle.prototype.invert = function(position) {
     const dx = position.x - this.centerX;
     const dy = position.y - this.centerY;
     const dr2 = dx * dx + dy * dy;
-    const factor = this.radius2 / Math.max(dr2, epsilon2);
+    const factor = this.radius2 / (dr2 + epsilon2);
     position.x = this.centerX + factor * dx;
     position.y = this.centerY + factor * dy;
 };
