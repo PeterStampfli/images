@@ -96,6 +96,22 @@ map.drawImageChanged = function() {
 };
 
 /**
+ * combination for showing a new image option
+ * depends on whether the map is updated or not
+ * @method map.drawImageChangedCheckMapUpdate
+ */
+map.drawImageChangedCheckMapUpdate = function() {
+    if (map.updatingTheMap) {
+        // map exists, only redraw image
+        map.drawImageChanged();
+    } else {
+        // have to make map
+        map.updatingTheMap = true;
+        map.drawMapChanged();
+    }
+};
+
+/**
  * what to do when the map changes (parameters, canvas size too)
  * @method map.drawMapChanged
  */
@@ -165,7 +181,7 @@ map.make = function() {
             point.region = 0;
             point.iterations = 0;
             point.valid = 1;
-            point.index=index;      // for further work, more data
+            point.index = index; // for further work, more data
             output.coordinateTransform.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
@@ -186,35 +202,42 @@ map.make = function() {
  * take care, in case user supplies new routines
  * @method map.draw
  */
-map.drawingImage = false;
+// flag to show that the input image is used
+map.drawingInputImage = false;
+// flag, shows if there is an updated map
+map.updatingTheMap = true;
 
 map.callDrawStructure = function() {
-    map.drawingImage = false;
+    map.drawingInputImage = false;
     map.drawStructure();
 };
 map.callDrawImageLowQuality = function() {
-    map.drawingImage = true;
+    map.drawingInputImage = true;
     map.drawImageHighQuality();
 };
 map.callDrawImageHighQuality = function() {
-    map.drawingImage = true;
+    map.drawingInputImage = true;
     map.drawImageHighQuality();
 };
 map.callDrawImageLowQuality = function() {
-    map.drawingImage = true;
+    map.drawingInputImage = true;
     map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
-    map.drawingImage = false;
+    map.drawingInputImage = false;
     map.drawRegions();
 };
 map.callDrawIterations = function() {
-    map.drawingImage = false;
+    map.drawingInputImage = false;
     map.drawIterations();
 };
 map.callDrawLimitset = function() {
-    map.drawingImage = false;
+    map.drawingInputImage = false;
     map.drawLimitset();
+};
+map.callDrawFundamentalRegion = function() {
+    map.drawingInputImage = false;
+    map.drawFundamentalRegion();
 };
 
 map.draw = map.callDrawStructure;
@@ -520,7 +543,7 @@ map.drawIterations = function() {
  * @method map.drawLimitset
  */
 map.drawLimitset = function() {
-    console.log('drawlimitset')
+    console.log('drawlimitset');
     var i, j, index;
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -555,13 +578,13 @@ map.drawLimitset = function() {
                     output.pixels.array[index] = white;
                 } else if (region !== map.regionArray[index - map.width]) {
                     output.pixels.array[index] = white;
-                }  else if (region !== map.regionArray[index - map.width-1]) {
+                } else if (region !== map.regionArray[index - map.width - 1]) {
                     output.pixels.array[index] = white;
                 } else {
-                                        output.pixels.array[index] = 0;
+                    output.pixels.array[index] = 0;
                 }
             }
-            index+=1;
+            index += 1;
         }
     }
     output.pixels.show();
@@ -842,7 +865,7 @@ map.loadInputImage = function(callback) {
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;
-        map.drawImageChanged();
+        map.drawImageChangedCheckMapUpdate();
     };
 
     image.src = map.inputImage;
@@ -884,7 +907,15 @@ map.makeShowingGui = function(parentGui, args = {}) {
             'image - very high quality': map.drawImageVeryHighQuality
         },
         onChange: function() {
-            map.drawImageChanged();
+            if (map.draw === map.callDrawFundamentalRegion) {
+                // choosing not to make the map etc. for accelerating builder
+                map.updatingTheMap = false;
+                map.drawMapChanged();
+            } else {
+                // making map and output image if map has not been created before
+                // because of using accelerated builder
+                map.drawImageChangedCheckMapUpdate();
+            }
         },
         labelText: 'show'
     });
@@ -898,16 +929,16 @@ map.makeShowingGui = function(parentGui, args = {}) {
         },
         labelText: 'input image',
         onChange: function() {
-            if (!map.drawingImage) {
+            if (!map.drawingInputImage) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
             map.loadInputImage();
         },
         onInteraction: function() {
-            if (!map.drawingImage) {
+            if (!map.drawingInputImage) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
-            map.drawImageChanged();
+            map.drawImageChangedCheckMapUpdate();
         }
     });
     // setup control canvas
@@ -980,12 +1011,12 @@ map.makeShowingGui = function(parentGui, args = {}) {
         y: 0
     };
 
-    // upon click on control image and showing structure change to showing image
+    // upon click on control image: change to showing image in low quality
     mouseEvents.downAction = function() {
         ParamGui.closePopups();
-        if (!map.drawingImage) {
+        if (!map.drawingInputImage) {
             map.whatToShowController.setValueOnly('image - low quality');
-            map.drawImageChanged();
+            map.drawImageChangedCheckMapUpdate();
         }
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
@@ -1059,6 +1090,16 @@ map.makeSettingsGui = function(parentGui, args = {}) {
             map.drawMapChanged();
         }
     });
+};
+
+/**
+ * add an option to show the fundaamental region
+ * pixels that do not map, accelerates the calculation
+ * implementation depends on the model
+ * @method map.addSwitchOffImage
+ */
+map.addSwitchOffImage = function() {
+    map.whatToShowController.addOption('fundamental region', map.callDrawFundamentalRegion);
 };
 
 /**

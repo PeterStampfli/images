@@ -382,26 +382,24 @@ circles.map = function(point) {
     const collectionLength = circles.collection.length;
     while (point.iterations <= map.maxIterations) {
         let mapped = false;
-        let j=0;
-        while ((j < collectionLength)&&(point.iterations<map.maxIterations)){
+        let j = 0;
+        while ((j < collectionLength) && (point.iterations < map.maxIterations)) {
             if (circles.collection[j].map(point)) {
                 mapped = true;
                 point.iterations += 1;
                 lastCircleIndex = j;
             }
-            j+=1;
+            j += 1;
         }
         if (!mapped) {
             // mapping is a success, we know where the point ends up
             // determine if it is in a polygon
-            const region = regions.getPolygonIndex(point);
-            if (region >= 0) {
-                // the polygon corresponds to its region
-                point.region = region;
-            } else {
+            let region = regions.getPolygonIndex(point);
+            if (region < 0) {
                 // not in a polygon, then it is in the outside region, it is always the last region
-                point.region = regions.polygons.length;
+                region = regions.polygons.length;
             }
+            point.region = region;
             map.activeRegions[region] = true;
             // inversion needed to get a good mapping of input image if all circles map inside out
             if (circles.finalInversion) {

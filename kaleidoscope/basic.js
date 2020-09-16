@@ -63,18 +63,20 @@ basic.setup = function() {
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
-        // determine fundamental regions
-        regions.collectCircles();
-        regions.determineBoundingRectangle();
-        regions.linesFromInsideOutMappingCircles();
-        regions.linesFromOutsideInMappingCircles();
-        regions.removeDeadEnds();
-        regions.makePolygons();
         map.clearActive();
-        // apply map to all pixels
-        map.startDrawing();
-        circles.lastCircleIndexArray = new Uint8Array(map.xArray.length);
-        map.make();
+        if (map.updatingTheMap) {
+            // determine fundamental regions
+            regions.collectCircles();
+            regions.determineBoundingRectangle();
+            regions.linesFromInsideOutMappingCircles();
+            regions.linesFromOutsideInMappingCircles();
+            regions.removeDeadEnds();
+            regions.makePolygons();
+            // apply map to all pixels
+            map.startDrawing();
+            circles.lastCircleIndexArray = new Uint8Array(map.xArray.length);
+            map.make();
+        }
         // now we know which regions are relevant
         // make their controllers visible
         map.showControls();
@@ -93,7 +95,7 @@ basic.setup = function() {
         output.drawGrid();
         circles.draw();
         intersections.draw();
-        if (regions.debug) {
+        if (regions.debug && map.updatingTheMap) {
             regions.drawBoundingRectangle();
             regions.drawCorners();
             regions.drawLines();
@@ -112,6 +114,7 @@ basic.setup = function() {
     map.addDrawIterations();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
+    map.addSwitchOffImage();
     // new version for regions
     map.makeRegionsGui(gui, {
         closed: false
@@ -197,7 +200,7 @@ basic.drawCirclesIntersections = function() {
     output.drawGrid();
     circles.draw();
     intersections.draw();
-    if (regions.debug) {
+        if (regions.debug && map.updatingTheMap) {
         regions.drawBoundingRectangle();
         regions.drawCorners();
         regions.drawLines();
@@ -250,6 +253,56 @@ map.drawIndrasPearls = function() {
  */
 map.addDrawIndrasPearls = function() {
     map.whatToShowController.addOption("Indra's Pearls", map.callDrawIndrasPearls);
+};
+
+
+/**
+ * show fundamental region of the map: points that do not get mapped
+ * @method map.drawFundamentalRegion
+ */
+map.drawFundamentalRegion = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+// making the solid colors
+    const color = {};
+    color.red = 255;
+    color.blue = 255;
+    color.green = 255;
+    color.alpha = 255;
+    const white = Pixels.integerOfColor(color);
+    color.red = 0;
+    color.blue = 0;
+    color.green = 0;
+    const black = Pixels.integerOfColor(color);
+
+// drawing
+    const point = {
+        x: 0,
+        y: 0
+    };
+    let index = 0;
+    for (var j = 0; j < map.height; j++) {
+        for (var i = 0; i < map.width; i++) {
+            point.x = i;
+            point.y = j;
+
+            output.coordinateTransform.transform(point);
+
+            if (circles.isInTarget(point)) {
+                output.pixels.array[index] = black;
+
+            } else {
+                output.pixels.array[index] = white;
+
+            }
+
+            index += 1;
+        }
+    }
+
+    output.pixels.show();
 };
 
 
