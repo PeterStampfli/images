@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    map
 }
 from "../libgui/modules.js";
 
@@ -107,7 +108,6 @@ Polygon.prototype.isInside = function(point) {
 // shifting polygon corners towards the center for drawing
 // 0 means no shift, 1 means all ccorners are at the center
 Polygon.drawShift = 0.1;
-Polygon.lineWidth = 3;
 Polygon.color = '#ff8800';
 
 /**
@@ -129,7 +129,7 @@ Polygon.prototype.draw = function() {
         centerX *= Polygon.drawShift / length;
         centerY *= Polygon.drawShift / length;
         const t = 1 - Polygon.drawShift;
-        output.setLineWidth(Polygon.lineWidth);
+        output.setLineWidth(map.linewidth);
         context.strokeStyle = Polygon.color;
         context.beginPath();
         context.moveTo(t * this.corners[0].x + centerX, t * this.corners[0].y + centerY);

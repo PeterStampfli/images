@@ -111,10 +111,11 @@ basic.setup = function() {
     map.makeSettingsGui(gui, {
         closed: false
     });
+    map.addLinewidthController();
     map.addDrawIterations();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
-    map.addSwitchOffImage();
+    map.addDrawFundamentalRegion();
     // new version for regions
     map.makeRegionsGui(gui, {
         closed: false
@@ -248,7 +249,6 @@ map.drawIndrasPearls = function() {
 
 /**
  * add the possibility to draw Indra's pearls
- * needs the settingsGui
  * @method map.addDrawIndrasPearls
  */
 map.addDrawIndrasPearls = function() {

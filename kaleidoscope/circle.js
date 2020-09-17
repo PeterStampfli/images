@@ -22,14 +22,9 @@ const epsilon2 = epsilon * epsilon;
 Circle.zoomFactor = 1.04;
 
 // parameters for drawing, change if you do not like it 
-Circle.lineWidth = 2;
-Circle.highlightLineWidth = 6;
 Circle.highlightColor = 'yellow';
 Circle.otherHighlightColor = 'white';
 Circle.frozenHighlightColor = '#ffbbbb';
-
-// selection, regionwidth in px
-Circle.selectWidth = Circle.highlightLineWidth;
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -757,11 +752,11 @@ Circle.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
     switch (highlight) {
         case 0:
-            output.setLineWidth(Circle.lineWidth);
+            output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
             break;
         case 1:
-            output.setLineWidth(Circle.highlightLineWidth);
+            output.setLineWidth(3*map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.highlightColor;
             } else {
@@ -769,7 +764,7 @@ Circle.prototype.draw = function(highlight = 0) {
             }
             break;
         case 2:
-            output.setLineWidth(Circle.highlightLineWidth);
+            output.setLineWidth(3*map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.otherHighlightColor;
             } else {
@@ -790,7 +785,7 @@ Circle.prototype.draw = function(highlight = 0) {
  */
 Circle.prototype.isSelected = function(position) {
     const r = Math.hypot(position.x - this.centerX, position.y - this.centerY);
-    const effSelectWidth = Circle.selectWidth * output.coordinateTransform.totalScale;
+    const effSelectWidth = 3*map.linewidth * output.coordinateTransform.totalScale;
     return Math.abs(r - this.radius) < effSelectWidth;
 };
 

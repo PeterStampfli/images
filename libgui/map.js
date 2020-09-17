@@ -64,6 +64,9 @@ map.initialImageCovering = 0.75;
 // max number of iterations of the map
 map.maxIterations = 20;
 
+// linewidth for additional drawings, in pixels
+map.linewidth = 3;
+
 /**
  * the mapping function transforms a point argument
  * point.re and point.im have the intial position at call
@@ -1093,12 +1096,12 @@ map.makeSettingsGui = function(parentGui, args = {}) {
 };
 
 /**
- * add an option to show the fundaamental region
+ * add an option to show the fundamental region
  * pixels that do not map, accelerates the calculation
  * implementation depends on the model
- * @method map.addSwitchOffImage
+ * @method map.addDrawFundamentalRegion
  */
-map.addSwitchOffImage = function() {
+map.addDrawFundamentalRegion = function() {
     map.whatToShowController.addOption('fundamental region', map.callDrawFundamentalRegion);
 };
 
@@ -1135,6 +1138,22 @@ map.addDrawIterations = function() {
         }
     });
 };
+
+/**
+ * add a chooser for line width to the settings gui
+ * @method map.addLinewidthController
+ */
+map.addLinewidthController = function() {
+    map.settingsGui.add({
+        type: 'number',
+        params: map,
+        property: 'linewidth',
+        min: 1,
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+}
 
 /**
  * add the possibility to draw the limit set

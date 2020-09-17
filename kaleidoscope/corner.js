@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    map
 }
 from "../libgui/modules.js";
 
@@ -148,7 +149,6 @@ Corner.prototype.makePolygons = function() {
     }
 };
 
-Corner.lineWidth = 3;
 Corner.color = '#00ffff';
 Corner.drawRadius = 8;
 
@@ -158,9 +158,10 @@ Corner.drawRadius = 8;
  */
 Corner.prototype.draw = function() {
     const context = output.canvasContext;
-    output.setLineWidth(Corner.lineWidth);
+    output.setLineWidth(map.linewidth);
+    const radius = 4 * map.linewidth;
     context.strokeStyle = Corner.color;
     context.beginPath();
-    context.arc(this.x, this.y, Corner.drawRadius * output.coordinateTransform.totalScale, 0, 2 * Math.PI);
+    context.arc(this.x, this.y, radius * output.coordinateTransform.totalScale, 0, 2 * Math.PI);
     context.stroke();
 };

@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    map
 }
 from "../libgui/modules.js";
 
@@ -100,7 +101,6 @@ Line.prototype.setPathDone = function(corner) {
     }
 };
 
-Line.lineWidth = 3;
 Line.color = '#0000ff';
 
 /**
@@ -109,7 +109,8 @@ Line.color = '#0000ff';
  */
 Line.prototype.draw = function() {
     const context = output.canvasContext;
-    output.setLineWidth(Line.lineWidth);
+    output.setLineWidth(map.linewidth);
+    context.lineCap = 'round';
     context.strokeStyle = Line.color;
     context.beginPath();
     context.moveTo(this.corner1.x, this.corner1.y);
