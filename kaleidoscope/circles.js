@@ -383,7 +383,7 @@ circles.map = function(point) {
     while (point.iterations <= map.maxIterations) {
         let mapped = false;
         let j = 0;
-        while ((j < collectionLength) && (point.iterations < map.maxIterations)) {
+        while ((j < collectionLength) && (point.iterations <= map.maxIterations)) {
             if (circles.collection[j].map(point)) {
                 mapped = true;
                 point.iterations += 1;
