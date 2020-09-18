@@ -756,7 +756,7 @@ Circle.prototype.draw = function(highlight = 0) {
             context.strokeStyle = this.color;
             break;
         case 1:
-            output.setLineWidth(3*map.linewidth);
+            output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.highlightColor;
             } else {
@@ -764,7 +764,7 @@ Circle.prototype.draw = function(highlight = 0) {
             }
             break;
         case 2:
-            output.setLineWidth(3*map.linewidth);
+            output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.otherHighlightColor;
             } else {
@@ -785,7 +785,7 @@ Circle.prototype.draw = function(highlight = 0) {
  */
 Circle.prototype.isSelected = function(position) {
     const r = Math.hypot(position.x - this.centerX, position.y - this.centerY);
-    const effSelectWidth = 3*map.linewidth * output.coordinateTransform.totalScale;
+    const effSelectWidth = 3 * map.linewidth * output.coordinateTransform.totalScale;
     return Math.abs(r - this.radius) < effSelectWidth;
 };
 
@@ -837,6 +837,52 @@ Circle.prototype.map = function(position) {
                 const factor = this.radius2 / dr2;
                 position.x = this.centerX + factor * dx;
                 position.y = this.centerY + factor * dy;
+                return true;
+            }
+        }
+    } else {
+        return false;
+    }
+};
+
+/**
+ * make the mapping and draw trajectory, return true if mapping occured
+ * @method Circle.drawTrajectory
+ * @param {object} position - with x and y fields, will be changed
+ * @return boolean, true if mapping occured (point was outside target and is inside now)
+ */
+Circle.prototype.drawTrajectory = function(position) {
+    if (this.isMapping) {
+        const context = output.canvasContext;
+        output.setLineWidth(map.linewidth);
+        context.strokeStyle = this.color;
+        const dx = position.x - this.centerX;
+        const dy = position.y - this.centerY;
+        const dr2 = dx * dx + dy * dy;
+        if (this.isInsideOutMap) {
+            if (dr2 > this.radius2) {
+                return false;
+            } else {
+                context.beginPath();
+                context.moveTo(position.x, position.y);
+                const factor = this.radius2 / (dr2 + epsilon2);
+                position.x = this.centerX + factor * dx;
+                position.y = this.centerY + factor * dy;
+                context.lineTo(position.x, position.y);
+                context.stroke();
+                return true;
+            }
+        } else {
+            if (dr2 < this.radius2) {
+                return false;
+            } else {
+                context.beginPath();
+                context.moveTo(position.x, position.y);
+                const factor = this.radius2 / dr2;
+                position.x = this.centerX + factor * dx;
+                position.y = this.centerY + factor * dy;
+                context.lineTo(position.x, position.y);
+                context.stroke();
                 return true;
             }
         }

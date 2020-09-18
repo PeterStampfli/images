@@ -339,7 +339,7 @@ output.createCanvas = function(gui, folderName) {
             autoResizeDraw();
         }
     });
-    
+
     BooleanButton.greenRedBackground();
     autoResizeController = gui.add({
         type: "boolean",
@@ -563,8 +563,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     };
 
     // switching with ctrl key from coordinate transformation to other actions
-    // changes cursor
-    // terminate events ?
+    // modifying things with shift key
     // things can become confusing if ctrl&mousebutton pressed, ctrl released, mouse moves and image gets dragged
     // thus ctrl key up or down event sets mouse pressed to false
     // selected elements should stay selected even if ctrl-key goes up
@@ -576,6 +575,9 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             mouseEvents.setPressedFalse();
             makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.ctrlKeyDownAction(transformedEvent);
+        } else if (event.key === 'Shift') {
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
+            output.shiftKeyDownAction(transformedEvent);
         }
     }, false);
 
@@ -583,7 +585,11 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         if (event.key === 'Control') {
             output.canvas.style.cursor = "pointer";
             mouseEvents.setPressedFalse();
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.ctrlKeyUpAction(transformedEvent);
+        } else if (event.key === 'Shift') {
+            makeTransformedMouseEvent(transformedEvent, mouseEvents);
+            output.shiftKeyUpAction(transformedEvent);
         }
     }, false);
 
@@ -598,6 +604,9 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     // actions upon ctrl key down/up
     output.ctrlKeyUpAction = function(event) {};
     output.ctrlKeyDownAction = function(event) {};
+    // actions upon shift key down/up
+    output.shiftKeyUpAction = function(event) {};
+    output.shiftKeyDownAction = function(event) {};
 
     // change the transform or do something else
 

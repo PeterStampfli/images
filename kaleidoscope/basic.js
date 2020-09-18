@@ -111,8 +111,8 @@ basic.setup = function() {
     map.makeSettingsGui(gui, {
         closed: false
     });
-    map.addLinewidthController();
     map.addDrawIterations();
+    map.addLinewidthController();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
     map.addDrawFundamentalRegion();
@@ -140,11 +140,15 @@ basic.setup = function() {
             output.canvas.style.cursor = "default";
         }
         basic.drawCirclesIntersections();
+        if (event.shiftPressed){
+        circles.drawTrajectory(event);
+    }
     };
     // smooth transition when ctrl key is pressed
     output.ctrlKeyDownAction = function(event) {
         output.mouseCtrlMoveAction(event);
     };
+
     // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
         if (intersections.select(event) || circles.select(event)) {

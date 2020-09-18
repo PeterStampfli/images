@@ -414,6 +414,36 @@ circles.map = function(point) {
     point.valid = -1; // invalid position/pixel
 };
 
+
+/**
+ * mapping and drawing the trajetory, using the circles, 
+ * repeat until no more mapping or maximum number of iterations reached
+ * @method circles.drawTrajectory
+ * @param {object} point - with x,y,structureIndex and valid fields
+ */
+circles.drawTrajectory = function(point) {
+    const context = output.canvasContext;
+    output.setLineWidth(map.linewidth);
+    context.strokeStyle = 'black';
+    context.beginPath();
+    context.arc(point.x, point.y, 2.5 * map.linewidth * output.coordinateTransform.totalScale, 0, 2 * Math.PI);
+    context.stroke();
+    const collectionLength = circles.collection.length;
+    let mapped = true;
+    let iterations = 0;
+    while (mapped && (iterations <= map.maxIterations)) {
+        mapped = false;
+        let j = 0;
+        while ((j < collectionLength) && (iterations <= map.maxIterations)) {
+            if (circles.collection[j].drawTrajectory(point)) {
+                mapped = true;
+                iterations += 1;
+            }
+            j += 1;
+        }
+    }
+};
+
 /**
  * determine of a point is inside any target region of combined mapping
  * @method circles.isInTarget

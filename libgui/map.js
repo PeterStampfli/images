@@ -67,6 +67,9 @@ map.maxIterations = 20;
 // linewidth for additional drawings, in pixels
 map.linewidth = 3;
 
+// some trajectory
+map.trajectoryColor='#000000';
+
 /**
  * the mapping function transforms a point argument
  * point.re and point.im have the intial position at call
@@ -1113,7 +1116,6 @@ map.addDrawFundamentalRegion = function() {
 map.addDrawIterations = function() {
     map.whatToShowController.addOption('iterations', map.callDrawIterations);
     map.makeIterationsColor();
-    map.settingsGui.addParagraph('showing iterations:');
     map.iterationsThresholdController = map.settingsGui.add({
         type: 'number',
         params: map,
@@ -1126,7 +1128,7 @@ map.addDrawIterations = function() {
             map.drawMapChanged();
         }
     });
-    map.iterationsThresholdController.add({
+    map.iterationsGammaController=map.iterationsThresholdController.add({
         type: 'number',
         params: map,
         property: 'iterationsGamma',
@@ -1140,7 +1142,7 @@ map.addDrawIterations = function() {
 };
 
 /**
- * add a chooser for line width to the settings gui
+ * add a controller for line width to the settings gui
  * @method map.addLinewidthController
  */
 map.addLinewidthController = function() {
@@ -1149,6 +1151,36 @@ map.addLinewidthController = function() {
         params: map,
         property: 'linewidth',
         min: 1,
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+}
+
+/**
+ * add a controller for a trajectory color to the settings gui
+ * @method map.addTrajectoryColorController
+ */
+map.addTrajectoryColorController = function() {
+    map.settingsGui.add({
+        type: 'color',
+        params: map,
+        property: 'trajectoryColor',
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+}
+
+/**
+ * add a controller for switching on/off showing trajectory color to the settings gui
+ * @method map.addTrajectoryOnOffController
+ */
+map.addTrajectoryOnOffController = function() {
+    map.settingsGui.add({
+        type: 'color',
+        params: map,
+        property: 'trajectoryColor',
         onChange: function() {
             map.drawImageChanged();
         }
