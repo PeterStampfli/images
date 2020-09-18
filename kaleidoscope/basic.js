@@ -112,6 +112,7 @@ basic.setup = function() {
         closed: false
     });
     map.addDrawIterations();
+    map.addTrajectoryOnOffController();
     map.addLinewidthController();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
@@ -140,9 +141,9 @@ basic.setup = function() {
             output.canvas.style.cursor = "default";
         }
         basic.drawCirclesIntersections();
-        if (event.shiftPressed){
-        circles.drawTrajectory(event);
-    }
+        if (map.trajectory) {
+            circles.drawTrajectory(event);
+        }
     };
     // smooth transition when ctrl key is pressed
     output.ctrlKeyDownAction = function(event) {
@@ -153,12 +154,18 @@ basic.setup = function() {
     output.mouseCtrlDownAction = function(event) {
         if (intersections.select(event) || circles.select(event)) {
             basic.drawCirclesIntersections();
+            if (map.trajectory) {
+                circles.drawTrajectory(event);
+            }
         }
     };
     // mouse drag with ctrl moves selected circle
     output.mouseCtrlDragAction = function(event) {
         circles.dragAction(event);
         basic.drawMapChanged();
+        if (map.trajectory) {
+            circles.drawTrajectory(event);
+        }
     };
 
     // mouse wheel with ctrl changes radius of slected circle
@@ -170,6 +177,9 @@ basic.setup = function() {
             circles.wheelAction(event);
         }
         map.drawMapChanged();
+        if (map.trajectory) {
+            circles.drawTrajectory(event);
+        }
     };
 };
 
@@ -205,7 +215,7 @@ basic.drawCirclesIntersections = function() {
     output.drawGrid();
     circles.draw();
     intersections.draw();
-        if (regions.debug && map.updatingTheMap) {
+    if (regions.debug && map.updatingTheMap) {
         regions.drawBoundingRectangle();
         regions.drawCorners();
         regions.drawLines();
@@ -269,7 +279,7 @@ map.drawFundamentalRegion = function() {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-// making the solid colors
+    // making the solid colors
     const color = {};
     color.red = 255;
     color.blue = 255;
@@ -280,8 +290,7 @@ map.drawFundamentalRegion = function() {
     color.blue = 0;
     color.green = 0;
     const black = Pixels.integerOfColor(color);
-
-// drawing
+    // drawing
     const point = {
         x: 0,
         y: 0
@@ -291,24 +300,17 @@ map.drawFundamentalRegion = function() {
         for (var i = 0; i < map.width; i++) {
             point.x = i;
             point.y = j;
-
             output.coordinateTransform.transform(point);
-
             if (circles.isInTarget(point)) {
                 output.pixels.array[index] = black;
-
             } else {
                 output.pixels.array[index] = white;
-
             }
-
             index += 1;
         }
     }
-
     output.pixels.show();
 };
-
 
 // presets
 //============================================================

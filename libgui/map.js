@@ -69,6 +69,7 @@ map.linewidth = 3;
 
 // some trajectory
 map.trajectoryColor='#000000';
+map.trajectory=false;   // switching on and off
 
 /**
  * the mapping function transforms a point argument
@@ -1177,10 +1178,11 @@ map.addTrajectoryColorController = function() {
  * @method map.addTrajectoryOnOffController
  */
 map.addTrajectoryOnOffController = function() {
+    BooleanButton.greenRedBackground();
     map.settingsGui.add({
-        type: 'color',
+        type: 'boolean',
         params: map,
-        property: 'trajectoryColor',
+        property: 'trajectory',
         onChange: function() {
             map.drawImageChanged();
         }
