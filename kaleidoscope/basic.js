@@ -226,6 +226,7 @@ basic.drawCirclesIntersections = function() {
 
 map.callDrawIndrasPearls = function() {
     map.drawingImage = false;
+    map.controlDiv.style.display='none';
     map.drawIndrasPearls();
 };
 

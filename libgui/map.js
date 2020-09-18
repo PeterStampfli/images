@@ -216,34 +216,46 @@ map.updatingTheMap = true;
 
 map.callDrawStructure = function() {
     map.drawingInputImage = false;
+    map.controlDiv.style.display='none';
+    map.inputTransform.hide();
+    map.imageController.hide();
     map.drawStructure();
 };
 map.callDrawImageLowQuality = function() {
+    console.log('image')
     map.drawingInputImage = true;
-    map.drawImageHighQuality();
+    map.controlDiv.style.display='block';
+    map.drawImageLowQuality();
 };
 map.callDrawImageHighQuality = function() {
     map.drawingInputImage = true;
+    map.controlDiv.style.display='block';
     map.drawImageHighQuality();
 };
-map.callDrawImageLowQuality = function() {
+map.callDrawImageVeryHighQuality = function() {
     map.drawingInputImage = true;
+    map.controlDiv.style.display='block';
     map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
     map.drawingInputImage = false;
+    map.controlDiv.style.display='none';
     map.drawRegions();
 };
 map.callDrawIterations = function() {
     map.drawingInputImage = false;
+    map.controlDiv.style.display='none';
     map.drawIterations();
 };
 map.callDrawLimitset = function() {
+    console.log('limitset')
     map.drawingInputImage = false;
+    map.controlDiv.style.display='none';
     map.drawLimitset();
 };
 map.callDrawFundamentalRegion = function() {
     map.drawingInputImage = false;
+    map.controlDiv.style.display='none';
     map.drawFundamentalRegion();
 };
 
@@ -550,7 +562,6 @@ map.drawIterations = function() {
  * @method map.drawLimitset
  */
 map.drawLimitset = function() {
-    console.log('drawlimitset');
     var i, j, index;
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -909,9 +920,9 @@ map.makeShowingGui = function(parentGui, args = {}) {
         property: 'draw',
         options: {
             'structure': map.callDrawStructure,
-            'image - low quality': map.drawImageLowQuality,
-            'image - high quality': map.drawImageHighQuality,
-            'image - very high quality': map.drawImageVeryHighQuality
+            'image - low quality': map.callDrawImageLowQuality,
+            'image - high quality': map.callDrawImageHighQuality,
+            'image - very high quality': map.callDrawImageVeryHighQuality
         },
         onChange: function() {
             if (map.draw === map.callDrawFundamentalRegion) {
@@ -952,6 +963,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
     // a div that contains the control canvas to 
     // avoid that the lower part of the gui 'jumps' if the input image changes
     const controlDiv = document.createElement('div');
+    map.controlDiv=controlDiv;
     // force the scroll bar with vertical overflow of the bodydiv
     controlDiv.style.position = 'relative'; // to make centering work
     controlDiv.style.height = '10000px';
@@ -974,7 +986,11 @@ map.makeShowingGui = function(parentGui, args = {}) {
         gui.parent.bodyDiv.style.display = "none";
     }
     controlDiv.style.width = map.guiWidth + 'px';
+
+
+
     controlDiv.style.height = map.guiWidth + 'px';
+
     controlDiv.style.backgroundColor = '#dddddd';
     // a CENTERED canvas in the controldiv 
     map.controlCanvas = document.createElement('canvas');

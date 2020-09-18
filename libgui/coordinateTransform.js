@@ -118,6 +118,32 @@ CoordinateTransform.prototype.updateUI = function() {
 };
 
 /**
+ * hide the ui
+ * @method CoordinateTransfrom#hide
+ */
+CoordinateTransform.prototype.hide = function() {
+    this.shiftXController.hide();
+    this.shiftYController.hide();
+    this.scaleController.hide();
+    if (this.withRotation) {
+        this.angleController.hide();
+    }
+};
+
+/**
+ * show the ui
+ * @method CoordinateTransfrom#show
+ */
+CoordinateTransform.prototype.show = function() {
+    this.shiftXController.show();
+    this.shiftYController.show();
+    this.scaleController.show();
+    if (this.withRotation) {
+        this.angleController.show();
+    }
+};
+
+/**
  * add a help text popup
  * @method CoordinateTransform#addHelp
  * @param {String} message - can have html
