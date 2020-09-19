@@ -777,7 +777,7 @@ output.addGrid = function(gui) {
         type: 'boolean',
         params: grid,
         property: 'on',
-        labelText: '',
+        labelText: 'grid',
         onChange: function() {
             output.drawGridChanged();
         }
@@ -796,6 +796,7 @@ output.addGrid = function(gui) {
         type: 'color',
         params: grid,
         property: 'color',
+        labelText: '',
         onChange: function() {
             output.drawGridChanged();
         }

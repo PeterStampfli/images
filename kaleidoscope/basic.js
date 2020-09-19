@@ -39,13 +39,12 @@ basic.setup = function() {
     const outputGui = gui.addFolder('output image');
     output.createCanvas(outputGui);
     output.createPixels();
-    // coordinate transform for the output image
-    const transformGui = outputGui.addFolder('coordinate transform');
-    output.addCoordinateTransform(transformGui, false);
-    output.setInitialCoordinates(0, 0, 3);
-    const gridGui = outputGui.addFolder('grid');
     output.grid.interval = 0.1;
-    output.addGrid(gridGui);
+    output.addGrid(outputGui);
+    // coordinate transform for the output image
+    outputGui.addParagraph('<strong>coordinate transform:</strong>');
+    output.addCoordinateTransform(outputGui, false);
+    output.setInitialCoordinates(0, 0, 3);
 
     // setting up the mapping, and its default input image
     map.mapping = function(point) {
@@ -54,6 +53,7 @@ basic.setup = function() {
     map.setOutputDraw(); // links the output drawing routines
     map.inputImage = '../libgui/testimage.jpg';
     map.makeShowingGui(gui);
+    map.trajectoryColorController.destroy();
 
     // a new map means changed circles
     // we have to work out the regions
@@ -107,13 +107,7 @@ basic.setup = function() {
         closed: false
     });
 
-    // unclassified parameters
-    map.makeSettingsGui(gui, {
-        closed: false
-    });
     map.addDrawIterations();
-    map.addTrajectoryOnOffController();
-    map.addLinewidthController();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
     map.addDrawFundamentalRegion();
@@ -226,7 +220,9 @@ basic.drawCirclesIntersections = function() {
 
 map.callDrawIndrasPearls = function() {
     map.drawingImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawIndrasPearls();
 };
 

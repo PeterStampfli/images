@@ -30,7 +30,7 @@ export function Select(parent) {
      * @method Select#onChange
      */
     this.onChange = function() {
-        console.log("onchange " + select.getIndex());
+        console.log("onChange " + select.getIndex());
     };
 
     /**
@@ -38,7 +38,7 @@ export function Select(parent) {
      * @method Select#uponInteraction (open popup, close others)
      */
     this.onInteraction = function() {
-        console.log("*sel interaction");
+        console.log("onInteraction");
     };
 
     /**
@@ -79,22 +79,7 @@ export function Select(parent) {
         this.element.removeEventListener("keydown", interaction, false);
     };
 
-    this.element.onwheel = function(event) {
-        if (select.active) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (select.active) {
-                select.onInteraction();
-                if (event.deltaY > 0) {
-                    select.changeIndex(1);
-                } else {
-                    select.changeIndex(-1);
-                }
-            }
-            return false;
-        }
-    };
-
+    // no wheel scrolling as this interferes with scrolling through a large UI
 }
 
 /**

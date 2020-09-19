@@ -152,7 +152,9 @@ export function MouseEvents(element) {
         return false;
     };
 
-    this.element.onwheel = function(event) {
+    // be careful not to interfere with ui scrolling
+
+    this.onWheelHandler = function(event) {
         if (mouseEvents.active) {
             mouseEvents.update(event);
             mouseEvents.updateShiftCtrl();
@@ -162,6 +164,7 @@ export function MouseEvents(element) {
         }
         return false;
     };
+    this.element.onwheel = this.onWheelHandler;
 
     // keys for wheel actions
     // requires that element can have focus

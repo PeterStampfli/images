@@ -68,8 +68,8 @@ map.maxIterations = 20;
 map.linewidth = 3;
 
 // some trajectory
-map.trajectoryColor='#000000';
-map.trajectory=false;   // switching on and off
+map.trajectoryColor = '#000000';
+map.trajectory = false; // switching on and off
 
 /**
  * the mapping function transforms a point argument
@@ -215,56 +215,104 @@ map.drawingInputImage = false;
 map.updatingTheMap = true;
 
 // hide the input image controllers
-map.inputImageControllersHide=function(){
-    map.controlDiv.style.display='none';
+map.inputImageControllersHide = function() {
+    map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
 };
 // show the input image controllers
-map.inputImageControllersShow=function(){
-    map.controlDiv.style.display='block';
+map.inputImageControllersShow = function() {
+    map.controlDiv.style.display = 'block';
     map.inputTransform.show();
     map.imageController.show();
 };
 
+// hide the threshold and gamma controllers, if exist
+map.thresholdGammaControllersHide = function() {
+    if (guiUtils.isDefined(map.thresholdController)) {
+        map.thresholdController.hide();
+        map.gammaController.hide();
+    }
+};
+
+// show the threshold and gamma controllers, if exist
+map.thresholdGammaControllersShow = function() {
+    if (guiUtils.isDefined(map.thresholdController)) {
+        map.thresholdController.show();
+        map.gammaController.show();
+    }
+};
+
+// hide the light and dark controllers
+map.lightDarkControllersHide = function() {
+    if (guiUtils.isDefined(map.lightController)) {
+        map.lightController.hide();
+        map.darkController.hide();
+    }
+};
+
+// show the light and dark controllers
+map.lightDarkControllersShow = function() {
+    if (guiUtils.isDefined(map.lightController)) {
+        map.lightController.show();
+        map.darkController.show();
+    }
+};
+
 map.callDrawStructure = function() {
     map.drawingInputImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersShow();
     map.drawStructure();
 };
 map.callDrawImageLowQuality = function() {
     map.drawingInputImage = true;
-map.inputImageControllersShow();
+    map.inputImageControllersShow();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawImageLowQuality();
 };
 map.callDrawImageHighQuality = function() {
     map.drawingInputImage = true;
-map.inputImageControllersShow();
+    map.inputImageControllersShow();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
     map.drawingInputImage = true;
-map.inputImageControllersShow();
+    map.inputImageControllersShow();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
     map.drawingInputImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawRegions();
 };
 map.callDrawIterations = function() {
     map.drawingInputImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersShow();
+    map.lightDarkControllersHide();
     map.drawIterations();
 };
 map.callDrawLimitset = function() {
     map.drawingInputImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawLimitset();
 };
 map.callDrawFundamentalRegion = function() {
     map.drawingInputImage = false;
-map.inputImageControllersHide();
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
     map.drawFundamentalRegion();
 };
 
@@ -392,35 +440,12 @@ map.makeIterationsColor = function() {
 
 /**
  * make the gui for controlling regions
- * add buttons for controlling contrast showing the structure
  * @method map.makeRegionsGui
  * @param{Paramgui} parentGui
  * @param{Object} args - optional, modifying the gui
  */
 map.makeRegionsGui = function(parentGui, args = {}) {
     map.regionsGui = parentGui.addFolder('regions', args);
-    const lightController = map.regionsGui.add({
-        type: 'number',
-        params: map,
-        property: 'light',
-        min: 0,
-        max: 1,
-        onChange: function() {
-            map.makeStructureColors();
-            map.drawImageChanged();
-        }
-    });
-    const darkController = lightController.add({
-        type: 'number',
-        params: map,
-        property: 'dark',
-        min: 0,
-        max: 1,
-        onChange: function() {
-            map.makeStructureColors();
-            map.drawImageChanged();
-        }
-    });
 };
 
 /**
@@ -905,24 +930,66 @@ map.loadInputImage = function(callback) {
  * the transform from the map result to the input image has a prescaling that makes 
  * that at scale==1 much of the input image will be sampled
  * shifts are input pixels
- * @method map.setupInputImage
+ * @method map.makeShowingGui
  * @param {ParamGui} parentGui
  */
 map.makeShowingGui = function(parentGui, args = {}) {
     const gui = parentGui.addFolder('showing', args);
+    map.showingGui = gui;
     if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
         console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
         console.log('Please use as gui the base gui or a first level folder.');
         gui.addParagraph('map.setupInputImage: Use as gui the base gui or a first level folder!!!');
         return;
     }
-    // a hidden canvas for the input image
-    map.inputCanvas = document.createElement('canvas'); // has default width and height
-    map.inputCanvas.style.display = 'none';
-    map.inputPixels = new Pixels(map.inputCanvas);
-    map.inputCanvasContext = map.inputCanvas.getContext('2d');
-    map.inputImageLoaded = false;
-    // what to we want to see (you can delete it)
+    // limit number of iterations, destroy if not needed
+    map.maxIterationsController = gui.add({
+        type: 'number',
+        params: map,
+        property: 'maxIterations',
+        labelText: 'iterations',
+        min: 0,
+        step: 1,
+        onChange: function() {
+            map.makeIterationsColor();
+            map.drawMapChanged();
+        }
+    });
+
+
+    // add a controller for line width 
+
+    map.linewidthController = gui.add({
+        type: 'number',
+        params: map,
+        property: 'linewidth',
+        min: 1,
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+
+
+    // add a controller for switching on/off showing trajectory color to the settings gui
+    BooleanButton.greenRedBackground();
+    map.trajectoryOnOffController = gui.add({
+        type: 'boolean',
+        params: map,
+        property: 'trajectory',
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+    // add a controller for a trajectory color, destroy if not required
+    map.trajectoryColorController = gui.add({
+        type: 'color',
+        params: map,
+        property: 'trajectoryColor',
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
+    // what to we want to see (you can destroy it)
     map.whatToShowController = gui.add({
         type: 'selection',
         params: map,
@@ -943,9 +1010,37 @@ map.makeShowingGui = function(parentGui, args = {}) {
                 // because of using accelerated builder
                 map.drawImageChangedCheckMapUpdate();
             }
-        },
-        labelText: 'show'
+        }
     });
+    // add controllers for structure contrast
+    map.lightController = gui.add({
+        type: 'number',
+        params: map,
+        property: 'light',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            map.makeStructureColors();
+            map.drawImageChanged();
+        }
+    });
+    map.darkController = map.lightController.add({
+        type: 'number',
+        params: map,
+        property: 'dark',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            map.makeStructureColors();
+            map.drawImageChanged();
+        }
+    });
+    // a hidden canvas for the input image
+    map.inputCanvas = document.createElement('canvas'); // has default width and height
+    map.inputCanvas.style.display = 'none';
+    map.inputPixels = new Pixels(map.inputCanvas);
+    map.inputCanvasContext = map.inputCanvas.getContext('2d');
+    map.inputImageLoaded = false;
     // setup image selection
     map.imageController = gui.add({
         type: 'image',
@@ -972,7 +1067,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
     // a div that contains the control canvas to 
     // avoid that the lower part of the gui 'jumps' if the input image changes
     const controlDiv = document.createElement('div');
-    map.controlDiv=controlDiv;
+    map.controlDiv = controlDiv;
     // force the scroll bar with vertical overflow of the bodydiv
     controlDiv.style.position = 'relative'; // to make centering work
     controlDiv.style.height = '10000px';
@@ -1046,6 +1141,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.whatToShowController.setValueOnly('image - low quality');
             map.drawImageChangedCheckMapUpdate();
         }
+        mouseEvents.element.onwheel = mouseEvents.onWheelHandler;
     };
     // drag image: map.inputImageControlCanvasScale is scale from input image to control image
     mouseEvents.dragAction = function() {
@@ -1061,6 +1157,9 @@ map.makeShowingGui = function(parentGui, args = {}) {
     // the controlcanvas shows a 'shadow' of the mapping result
     // its center should stay fixed when zoomin or scrolling
     // that means the inputTransformation does not change its image of the center of the map
+    // be careful not to interfere with ui scrolling
+    mouseEvents.element.onwheel = null;
+
     mouseEvents.wheelAction = function() {
         if (map.drawingInputImage) {
             // position of mouse in input image plane
@@ -1088,6 +1187,10 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     };
+
+    mouseEvents.outAction = function() {
+        mouseEvents.element.onwheel = null;
+    };
 };
 
 /**
@@ -1096,28 +1199,6 @@ map.makeShowingGui = function(parentGui, args = {}) {
  */
 map.addDrawRegions = function() {
     map.whatToShowController.addOption('regions', map.callDrawRegions);
-};
-
-/**
- * make gui for settings (parameters)
- * @method map.makeSettingsGui
- * @param{Paramgui} parentGui
- * @param{Object} args - optional, modifying the gui
- */
-map.makeSettingsGui = function(parentGui, args = {}) {
-    map.settingsGui = parentGui.addFolder('settings', args);
-    map.settingsGui.add({
-        type: 'number',
-        params: map,
-        property: 'maxIterations',
-        labelText: 'iterations',
-        min: 0,
-        step: 1,
-        onChange: function() {
-            map.makeIterationsColor();
-            map.drawMapChanged();
-        }
-    });
 };
 
 /**
@@ -1138,7 +1219,7 @@ map.addDrawFundamentalRegion = function() {
 map.addDrawIterations = function() {
     map.whatToShowController.addOption('iterations', map.callDrawIterations);
     map.makeIterationsColor();
-    map.iterationsThresholdController = map.settingsGui.add({
+    map.thresholdController = map.showingGui.add({
         type: 'number',
         params: map,
         property: 'iterationsThreshold',
@@ -1150,7 +1231,7 @@ map.addDrawIterations = function() {
             map.drawMapChanged();
         }
     });
-    map.iterationsGammaController=map.iterationsThresholdController.add({
+    map.gammaController = map.thresholdController.add({
         type: 'number',
         params: map,
         property: 'iterationsGamma',
@@ -1159,53 +1240,6 @@ map.addDrawIterations = function() {
         onChange: function() {
             map.makeIterationsColor();
             map.drawMapChanged();
-        }
-    });
-};
-
-/**
- * add a controller for line width to the settings gui
- * @method map.addLinewidthController
- */
-map.addLinewidthController = function() {
-    map.settingsGui.add({
-        type: 'number',
-        params: map,
-        property: 'linewidth',
-        min: 1,
-        onChange: function() {
-            map.drawImageChanged();
-        }
-    });
-};
-
-/**
- * add a controller for a trajectory color to the settings gui
- * @method map.addTrajectoryColorController
- */
-map.addTrajectoryColorController = function() {
-    map.settingsGui.add({
-        type: 'color',
-        params: map,
-        property: 'trajectoryColor',
-        onChange: function() {
-            map.drawImageChanged();
-        }
-    });
-};
-
-/**
- * add a controller for switching on/off showing trajectory color to the settings gui
- * @method map.addTrajectoryOnOffController
- */
-map.addTrajectoryOnOffController = function() {
-    BooleanButton.greenRedBackground();
-    map.settingsGui.add({
-        type: 'boolean',
-        params: map,
-        property: 'trajectory',
-        onChange: function() {
-            map.drawImageChanged();
         }
     });
 };

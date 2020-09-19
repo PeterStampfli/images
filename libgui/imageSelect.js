@@ -199,21 +199,8 @@ ImageSelect.prototype.createGuiImage = function(parent) {
         }
     };
 
-    // mousewheel on icon
-    this.guiImage.onwheel = function(event) {
-        if (imageSelect.active) {
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.deltaY > 0) {
-                imageSelect.select.changeIndex(1);
-            } else {
-                imageSelect.select.changeIndex(-1);
-            }
-            imageSelect.select.element.focus();
-            imageSelect.interaction();
-            return false;
-        }
-    };
+    // no mousewheel action on icon, interferes with ui scrolling
+
 };
 
 ImageSelect.defaultDesign = {
