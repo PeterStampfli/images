@@ -214,48 +214,57 @@ map.drawingInputImage = false;
 // flag, shows if there is an updated map
 map.updatingTheMap = true;
 
-map.callDrawStructure = function() {
-    map.drawingInputImage = false;
+// hide the input image controllers
+map.inputImageControllersHide=function(){
     map.controlDiv.style.display='none';
     map.inputTransform.hide();
     map.imageController.hide();
+};
+// show the input image controllers
+map.inputImageControllersShow=function(){
+    map.controlDiv.style.display='block';
+    map.inputTransform.show();
+    map.imageController.show();
+};
+
+map.callDrawStructure = function() {
+    map.drawingInputImage = false;
+map.inputImageControllersHide();
     map.drawStructure();
 };
 map.callDrawImageLowQuality = function() {
-    console.log('image')
     map.drawingInputImage = true;
-    map.controlDiv.style.display='block';
+map.inputImageControllersShow();
     map.drawImageLowQuality();
 };
 map.callDrawImageHighQuality = function() {
     map.drawingInputImage = true;
-    map.controlDiv.style.display='block';
+map.inputImageControllersShow();
     map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
     map.drawingInputImage = true;
-    map.controlDiv.style.display='block';
+map.inputImageControllersShow();
     map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
     map.drawingInputImage = false;
-    map.controlDiv.style.display='none';
+map.inputImageControllersHide();
     map.drawRegions();
 };
 map.callDrawIterations = function() {
     map.drawingInputImage = false;
-    map.controlDiv.style.display='none';
+map.inputImageControllersHide();
     map.drawIterations();
 };
 map.callDrawLimitset = function() {
-    console.log('limitset')
     map.drawingInputImage = false;
-    map.controlDiv.style.display='none';
+map.inputImageControllersHide();
     map.drawLimitset();
 };
 map.callDrawFundamentalRegion = function() {
     map.drawingInputImage = false;
-    map.controlDiv.style.display='none';
+map.inputImageControllersHide();
     map.drawFundamentalRegion();
 };
 
@@ -986,11 +995,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
         gui.parent.bodyDiv.style.display = "none";
     }
     controlDiv.style.width = map.guiWidth + 'px';
-
-
-
     controlDiv.style.height = map.guiWidth + 'px';
-
     controlDiv.style.backgroundColor = '#dddddd';
     // a CENTERED canvas in the controldiv 
     map.controlCanvas = document.createElement('canvas');
@@ -1057,7 +1062,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
     // its center should stay fixed when zoomin or scrolling
     // that means the inputTransformation does not change its image of the center of the map
     mouseEvents.wheelAction = function() {
-        if (map.showingImage) {
+        if (map.drawingInputImage) {
             // position of mouse in input image plane
             u.x = mouseEvents.x / map.inputImageControlCanvasScale;
             u.y = mouseEvents.y / map.inputImageControlCanvasScale;
@@ -1172,7 +1177,7 @@ map.addLinewidthController = function() {
             map.drawImageChanged();
         }
     });
-}
+};
 
 /**
  * add a controller for a trajectory color to the settings gui
@@ -1187,7 +1192,7 @@ map.addTrajectoryColorController = function() {
             map.drawImageChanged();
         }
     });
-}
+};
 
 /**
  * add a controller for switching on/off showing trajectory color to the settings gui
@@ -1203,7 +1208,7 @@ map.addTrajectoryOnOffController = function() {
             map.drawImageChanged();
         }
     });
-}
+};
 
 /**
  * add the possibility to draw the limit set
