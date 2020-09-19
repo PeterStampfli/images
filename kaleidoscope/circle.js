@@ -721,6 +721,7 @@ Circle.prototype.addIntersection = function(intersection) {
     }
     this.intersections.push(intersection);
     this.activateUI();
+        console.log('add',this.id,this.intersections.length);
 };
 
 /**
@@ -740,6 +741,7 @@ Circle.prototype.removeIntersection = function(intersection) {
         console.log(intersection);
         console.log(this);
     }
+    console.log('remove',this.id,this.intersections.length);
 };
 
 /**

@@ -179,7 +179,7 @@ Intersection.prototype.tryN = function(n) {
         circles.setSelected(circles.otherSelected);
         success = circles.selected.adjustToIntersections();
     }
-    // if that faails too, restore things
+    // if that fails too, restore things
     if (!success) {
         circles.setSelected(selected);
         this.n = currentN;

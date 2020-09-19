@@ -642,6 +642,61 @@ map.drawLimitset = function() {
     output.pixels.show();
 };
 
+/**
+ * show fundamental region of the map: points that do not get mapped
+ * @method map.drawFundamentalRegion
+ */
+
+ /**
+ * determine if point is in fundamental region, define according to problem
+ * @method map.isInFundamentalRegion
+ * @param {Object} point - with x- and y-fields
+ * @return boolean, true if point is inside fundamental region
+ */
+ map.isInFundamentalRegion=function(point){
+return true;
+ };
+
+map.drawFundamentalRegion = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    // making the solid colors
+    const color = {};
+    color.red = 255;
+    color.blue = 255;
+    color.green = 255;
+    color.alpha = 255;
+    const white = Pixels.integerOfColor(color);
+    color.red = 0;
+    color.blue = 0;
+    color.green = 0;
+    const black = Pixels.integerOfColor(color);
+    // drawing
+    const point = {
+        x: 0,
+        y: 0
+    };
+    let index = 0;
+    const canvas=output.canvas;
+    const pixels=output.pixels;
+    for (var j = 0; j < canvas.height; j++) {
+        for (var i = 0; i < canvas.width; i++) {
+            point.x = i;
+            point.y = j;
+            output.coordinateTransform.transform(point);
+            if (map.isInFundamentalRegion(point)) {
+                pixels.array[index] = black;
+            } else {
+                pixels.array[index] = white;
+            }
+            index += 1;
+        }
+    }
+    pixels.show();
+};
+
 // using an input image
 //==============================================================
 
