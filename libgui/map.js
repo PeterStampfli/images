@@ -201,6 +201,34 @@ map.make = function() {
     }
 };
 
+/**
+ * renumber active regions to get sequential numbers 1 ... n without gaps
+ * @method map.renumber
+ */
+map.renumber = function() {
+    var i;
+    console.log(map.activeRegions);
+    const newNumbers = [];
+    newNumbers.length = 256;
+    newNumbers[255] = 255; // region for invalid points
+    let currentRegionNumber = 0;
+    for (i = 0; i < 255; i++) {
+        newNumbers[i] = currentRegionNumber;
+        if (map.activeRegions[i]) {
+            currentRegionNumber += 1;
+        }
+    }
+    console.log(newNumbers);
+    map.activeRegions.fill(false);
+    map.activeRegions.fill(true, 0, currentRegionNumber);
+    console.log(map.activeRegions);
+    const length = map.regionArray.length;
+    for (i = 0; i < length; i++) {
+        map.regionArray[i] = newNumbers[map.regionArray[i]];
+    }
+};
+
+
 // showing the map
 //==================================
 
@@ -314,6 +342,19 @@ map.callDrawFundamentalRegion = function() {
     map.thresholdGammaControllersHide();
     map.lightDarkControllersHide();
     map.drawFundamentalRegion();
+};
+map.callDrawNoImage = function() {
+    map.drawingInputImage = false;
+    map.inputImageControllersHide();
+    map.thresholdGammaControllersHide();
+    map.lightDarkControllersHide();
+    // simply fill canvas
+    const context = output.canvasContext;
+    context.save();
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.fillStyle = '#bbbbbb';
+    context.fillRect(0, 0, output.canvas.width, output.canvas.height);
+    context.restore();
 };
 
 map.draw = map.callDrawStructure;
@@ -647,15 +688,15 @@ map.drawLimitset = function() {
  * @method map.drawFundamentalRegion
  */
 
- /**
+/**
  * determine if point is in fundamental region, define according to problem
  * @method map.isInFundamentalRegion
  * @param {Object} point - with x- and y-fields
  * @return boolean, true if point is inside fundamental region
  */
- map.isInFundamentalRegion=function(point){
-return true;
- };
+map.isInFundamentalRegion = function(point) {
+    return true;
+};
 
 map.drawFundamentalRegion = function() {
     if (map.inputImageLoaded) {
@@ -679,8 +720,8 @@ map.drawFundamentalRegion = function() {
         y: 0
     };
     let index = 0;
-    const canvas=output.canvas;
-    const pixels=output.pixels;
+    const canvas = output.canvas;
+    const pixels = output.pixels;
     for (var j = 0; j < canvas.height; j++) {
         for (var i = 0; i < canvas.width; i++) {
             point.x = i;
@@ -1056,7 +1097,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             'image - very high quality': map.callDrawImageVeryHighQuality
         },
         onChange: function() {
-            if (map.draw === map.callDrawFundamentalRegion) {
+            if ((map.draw === map.callDrawFundamentalRegion) || (map.draw === map.callDrawNoImage)) {
                 // choosing not to make the map etc. for accelerating builder
                 map.updatingTheMap = false;
                 map.drawMapChanged();
@@ -1264,6 +1305,16 @@ map.addDrawRegions = function() {
  */
 map.addDrawFundamentalRegion = function() {
     map.whatToShowController.addOption('fundamental region', map.callDrawFundamentalRegion);
+};
+
+/**
+ * add an option to show no image
+ * pixels that do not map, accelerates the calculation
+ * implementation depends on the model
+ * @method map.addDrawFundamentalRegion
+ */
+map.addDrawNoImage = function() {
+    map.whatToShowController.addOption('no image', map.callDrawNoImage);
 };
 
 /**

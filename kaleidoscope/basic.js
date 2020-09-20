@@ -64,7 +64,7 @@ basic.setup = function() {
      */
     map.drawMapChanged = function() {
         map.clearActive();
-            map.startDrawing();
+        map.startDrawing();
         if (map.updatingTheMap) {
             // determine fundamental regions
             regions.collectCircles();
@@ -75,11 +75,12 @@ basic.setup = function() {
             regions.makePolygons();
             circles.lastCircleIndexArray = new Uint8Array(map.xArray.length);
             map.make();
+            map.renumber();
         }
         // now we know which regions are relevant
         // make their controllers visible
         map.showControls();
-        // create colors
+        // create colors for structure (regions)
         map.makeStructureColors();
         // draw image, taking into account regions, and new options
         map.drawImageChanged();
@@ -105,11 +106,11 @@ basic.setup = function() {
     presets.makeGui(gui, {
         closed: false
     });
-
+    map.addDrawFundamentalRegion();
+    map.addDrawNoImage();
     map.addDrawIterations();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
-    map.addDrawFundamentalRegion();
     // new version for regions
     map.makeRegionsGui(gui, {
         closed: false
@@ -216,9 +217,9 @@ basic.drawCirclesIntersections = function() {
 };
 
 // for drawing the fundamental region
-map.isInFundamentalRegion=function(point){
-return circles.isInTarget(point);
- };
+map.isInFundamentalRegion = function(point) {
+    return circles.isInTarget(point);
+};
 
 // Indra's pearls
 
