@@ -207,7 +207,6 @@ map.make = function() {
  */
 map.renumber = function() {
     var i;
-    console.log(map.activeRegions);
     const newNumbers = [];
     newNumbers.length = 256;
     newNumbers[255] = 255; // region for invalid points
@@ -218,10 +217,8 @@ map.renumber = function() {
             currentRegionNumber += 1;
         }
     }
-    console.log(newNumbers);
     map.activeRegions.fill(false);
     map.activeRegions.fill(true, 0, currentRegionNumber);
-    console.log(map.activeRegions);
     const length = map.regionArray.length;
     for (i = 0; i < length; i++) {
         map.regionArray[i] = newNumbers[map.regionArray[i]];
@@ -352,8 +349,7 @@ map.callDrawNoImage = function() {
     const context = output.canvasContext;
     context.save();
     context.setTransform(1, 0, 0, 1, 0, 0);
-    context.fillStyle = '#bbbbbb';
-    context.fillRect(0, 0, output.canvas.width, output.canvas.height);
+    context.clearRect(0, 0, output.canvas.width, output.canvas.height);
     context.restore();
 };
 
@@ -705,15 +701,11 @@ map.drawFundamentalRegion = function() {
     }
     // making the solid colors
     const color = {};
-    color.red = 255;
-    color.blue = 255;
-    color.green = 255;
+    color.red = 180;
+    color.blue = 180;
+    color.green = 180;
     color.alpha = 255;
-    const white = Pixels.integerOfColor(color);
-    color.red = 0;
-    color.blue = 0;
-    color.green = 0;
-    const black = Pixels.integerOfColor(color);
+    const grey = Pixels.integerOfColor(color);
     // drawing
     const point = {
         x: 0,
@@ -728,9 +720,9 @@ map.drawFundamentalRegion = function() {
             point.y = j;
             output.coordinateTransform.transform(point);
             if (map.isInFundamentalRegion(point)) {
-                pixels.array[index] = black;
+                pixels.array[index] = grey;
             } else {
-                pixels.array[index] = white;
+                pixels.array[index] = 0;  // transparent black
             }
             index += 1;
         }
