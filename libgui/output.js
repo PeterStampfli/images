@@ -277,7 +277,7 @@ output.createCanvas = function(gui, folderName) {
         return;
     }
     output.canvas = document.createElement("canvas");
-    output.canvasBackgroundColor = '#0000bb';
+    output.canvasBackgroundColor = '#000099';
     output.canvas.style.backgroundColor = output.canvasBackgroundColor;
     output.canvasContext = output.canvas.getContext("2d");
     if (guiUtils.isDefined(folderName)) {

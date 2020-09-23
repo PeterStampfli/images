@@ -116,8 +116,8 @@ Intersection.estimateN = function(circle1, circle2) {
         if ((cosAlpha < -0.2) || (cosAlpha > 1.1)) {
             return -1;
         } else {
-            // safe limits for acos function, maximum n=20 for the order
-            const alpha = Math.max(Math.acos(Math.max(Math.min(cosAlpha, 1), 0)), Math.PI / 20);
+            // safe limits for acos function, maximum n=200 for the order
+            const alpha = Math.max(Math.acos(Math.max(Math.min(cosAlpha, 1), 0)), Math.PI / 200);
             return Math.round(Math.PI / alpha);
         }
     } else {
@@ -168,13 +168,9 @@ Intersection.prototype.tryN = function(n) {
     this.n = Math.max(2, Math.round(n));
     this.selectCircles();
     const selected = circles.selected;
-    // switch circles if selected circle has more intersections than otherSelected
-    if (circles.selected.intersections.length > circles.otherSelected.intersections.length) {
-        circles.setSelected(circles.otherSelected);
-    }
     // try to adjust selected circle
     let success = circles.selected.adjustToIntersections();
-    // if faail try to adjust otherSelected circle
+    // if fail try to adjust otherSelected circle
     if (!success) {
         circles.setSelected(circles.otherSelected);
         success = circles.selected.adjustToIntersections();

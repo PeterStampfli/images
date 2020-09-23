@@ -86,6 +86,28 @@ basic.setup = function() {
         map.drawImageChanged();
     };
 
+    // for debug show the polygons when showing fundamental regions
+    map.callDrawFundamentalRegion = function() {
+        map.drawingInputImage = false;
+        map.inputImageControllersHide();
+        map.thresholdGammaControllersHide();
+        map.lightDarkControllersHide();
+        map.drawFundamentalRegion();
+        if (regions.debug) {
+            // determine fundamental regions
+            regions.collectCircles();
+            regions.determineBoundingRectangle();
+            regions.linesFromInsideOutMappingCircles();
+            regions.linesFromOutsideInMappingCircles();
+            regions.removeDeadEnds();
+            regions.makePolygons();
+            // show the regions
+            regions.drawBoundingRectangle();
+            regions.drawCorners();
+            regions.drawLines();
+        }
+    };
+
     /**
      * what to do when only the image changes
      * @method map.drawImageChanged
@@ -233,6 +255,7 @@ map.callDrawIndrasPearls = function() {
 
 /**
  * draw Indra's pearls (pixel gets color of last mapping circle)
+ * inverted colors for odd regions
  * @method map.drawIndrasPearls
  */
 map.drawIndrasPearls = function() {
@@ -242,6 +265,7 @@ map.drawIndrasPearls = function() {
     }
     // make table of colors related to circles.collection
     const colors = [];
+    const invertedColors = [];
     const colorObj = {
         alpha: 255
     };
@@ -249,13 +273,21 @@ map.drawIndrasPearls = function() {
     for (var i = 0; i < circles.collection.length; i++) {
         ColorInput.setObject(colorObj, circles.collection[i].color);
         colors[i] = Pixels.integerOfColor(colorObj);
+        colorObj.red = 255 - colorObj.red;
+        colorObj.green = 255 - colorObj.green;
+        colorObj.blue = 255 - colorObj.blue;
+        invertedColors[i] = Pixels.integerOfColor(colorObj);
     }
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const lastCircleIndex = circles.lastCircleIndexArray[index];
         if (lastCircleIndex < 255) {
-            output.pixels.array[index] = colors[lastCircleIndex];
+            if ((map.regionArray[index] & 1) === 0) {
+                output.pixels.array[index] = colors[lastCircleIndex];
+            } else {
+                output.pixels.array[index] = invertedColors[lastCircleIndex];
+            }
         } else {
             output.pixels.array[index] = 0; // transparent black
         }

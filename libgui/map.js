@@ -1348,5 +1348,5 @@ map.addDrawIterations = function() {
  * @method map.addDrawLimitset
  */
 map.addDrawLimitset = function() {
-    map.whatToShowController.addOption('limit set', map.callDrawLimitset);
+    map.whatToShowController.addOption('borders', map.callDrawLimitset);
 };
