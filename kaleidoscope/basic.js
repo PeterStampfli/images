@@ -281,9 +281,10 @@ map.drawIndrasPearls = function() {
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
+        const region = map.regionArray[index];
         const lastCircleIndex = circles.lastCircleIndexArray[index];
-        if (lastCircleIndex < 255) {
-            if ((map.regionArray[index] & 1) === 0) {
+        if (map.showRegion[region] && (lastCircleIndex < 255)) {
+            if ((region & 1) === 0) {
                 output.pixels.array[index] = colors[lastCircleIndex];
             } else {
                 output.pixels.array[index] = invertedColors[lastCircleIndex];
