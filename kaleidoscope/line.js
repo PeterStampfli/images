@@ -101,6 +101,45 @@ Line.prototype.setPathDone = function(corner) {
     }
 };
 
+/**
+ * find intersection with another line
+ * @method findIntersection
+ * @param {Line} other
+ * @return false, if no intersection, Corner if there is an intersection
+ */
+Line.prototype.findIntersection = function(other) {
+    // check if some corners are the same -> no intersection
+    if ((this.corner1 === other.corner1) || (this.corner1 === other.corner2)) {
+        return false;
+    } else if ((this.corner2 === other.corner1) || (this.corner2 === other.corner2)) {
+        return false;
+    }
+    // determine differences between endpoints and determinant
+    const deltaThisX = this.corner2.x - this.corner1.x;
+    const deltaThisY = this.corner2.y - this.corner1.y;
+    const deltaOtherX = other.corner2.x - other.corner1.x;
+    const deltaOtherY = other.corner2.y - other.corner1.y;
+    const det = deltaThisX * deltaOtherY - deltaThisY * deltaOtherX;
+    const thisLength2 = deltaThisX * deltaThisX + deltaThisY * deltaThisY;
+    const otherLength2 = deltaOtherX * deltaOtherX + deltaOtherY * deltaOtherY;
+    if (det * det < 0.0000001 * thisLength2 * otherLength2) {
+        return false;
+    }
+    // determine intersection parameters and check
+    const deltaOtherThisX = other.corner1.x - this.corner1.x;
+    const deltaOtherThisY = other.corner1.y - this.corner1.y;
+    const t = (deltaOtherThisX * deltaOtherY - deltaOtherThisY * deltaOtherY) / det;
+    if ((t < 0) || (t > 1)) {
+        return false;
+    }
+    const s = (deltaOtherThisX * deltaThisY - deltaOtherThisY * deltaThisY) / det;
+    if ((s < 0) || (s > 1)) {
+        return false;
+    }
+    const corner = new Corner(this.corner1.x + t * deltaThisX, this.corner1.y + t * deltaThisY);
+    return corner;
+};
+
 Line.color = '#0000ff';
 
 /**
