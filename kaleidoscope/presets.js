@@ -72,7 +72,7 @@ presets.makeGui = function(parentGui, args = {}) {
 
 
 /**
- * set the selected preset value from indexx to the presets.collection
+ * set the selected preset value from index to the presets.collection
  * @method presets.setSelectedValue
  * @param {integer} index
  */
@@ -89,340 +89,30 @@ presets.useSelectedValue = function() {
     basic.drawMapChanged();
 };
 
-
-// saving and recalling
-
-// guiUtils.saveTextAsFile = function(text, filename) {
-
-
-/*
-
-const fileInput = document.querySelector('#file-input');
-fileInput.onchange = function() {
-    const files = fileInput.files;
-    let currentFileNumber = 0;
-    const fileReader = new FileReader();
-
-    fileReader.onload = function() {
-        const result = fileReader.result;
-        makeCharStream(result);
-        currentFileNumber += 1;
-        if (currentFileNumber < files.length) {
-            fileReader.readAsText(files[currentFileNumber]);
-        }
-    };
-
-    fileReader.readAsText(files[0]);
-};
-
-ImageSelect.prototype.makeAddImageButton = function(parent) {
-    const button = new Button(ImageSelect.addImageButtonText, parent);
-    // this uses an invisible button.fileInput input element, clicking on this button here makes a click on the input
-    button.asFileInput("image/*");  // '.txt'
-    button.fileInput.setAttribute("multiple", "true");
-    button.setFontSize(this.design.buttonFontSize);
-
-    // adding events
-    // maybe needs to be overwritten
-    const imageSelect = this;
-
-    button.onInteraction = function() {
-        imageSelect.interaction();
-    };
-
-    // this is the callback to be called via the file input element after all files have been choosen by the user
-    button.onFileInput = function(files) {
-        // files is NOT an array
-        let selectThis = true;
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            imageSelect.addUserImage(file, selectThis);
-            // select only the first good image file
-            selectThis = selectThis && !guiUtils.isGoodImageFile(file.name);
-        }
-    };
-
-    return button;
-};
-
-*/
-
 // adding presets to the collection
 //---------------------------------------------------
 
-presets.collection.push({
-    name: "*: lonely circle",
-    value: {
-        circles: [{
-            radius: 1,
-            centerX: 0,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: false,
-            isMapping: true,
-            color: "#ff0000",
-            id: 0
-        }],
-        intersections: []
-    }
-});
+/**
+ * adding a preset: name as string, value is JSON string (use'')
+ * @method presets.add
+ * @param {string} presetName
+ * @param {string} JSONValue
+ */
+presets.add = function(presetName, JSONValue) {
+    presets.collection.push({
+        name: presetName,
+        value: JSON.parse(JSONValue)
+    });
+};
 
-presets.collection.push({
-    name: "*5: two intersecting circles",
-    value: {
-        circles: [{
-            radius: 1,
-            centerX: -1.0360876288058687,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#ff0000',
-            id: 0
-        }, {
-            radius: 1,
-            centerX: 0.8660254037844386,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#00ff00',
-            id: 1
-        }],
-        intersections: [{
-            idCircle1: 0,
-            idCircle2: 1,
-            n: 5,
-            color: '#ff0000'
-        }]
-    }
-});
+presets.add('single circle','{"circles":[{"radius":1,"centerX":0,"centerY":0,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ff0000","id":0}],"intersections":[]}');
 
-presets.collection.push({
-    name: "*33: three circles, two intersections",
-    value: {
-        circles: [{
-            radius: 0.6898979485566357,
-            centerX: 0,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#ff0000',
-            id: 0
-        }, {
-            radius: 0.4,
-            centerX: -0.6,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#00ff00',
-            id: 1
-        }, {
-            radius: 0.4,
-            centerX: 0.6,
-            centerY: 0,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#ff00ff',
-            id: 2
-        }],
-        intersections: [{
-            idCircle1: 0,
-            idCircle2: 1,
-            n: 3,
-            color: '#ff0000'
-        }, {
-            idCircle1: 0,
-            idCircle2: 2,
-            n: 3,
-            color: '#00ff00'
-        }]
-    }
-});
+presets.add('two intersecting circles','{"circles":[{"radius":1,"centerX":-1.0360876288058687,"centerY":0,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ff0000","id":0},{"radius":1,"centerX":0.8660254037844384,"centerY":0,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#00ff00","id":1}],"intersections":[{"idCircle1":0,"idCircle2":1,"n":5}]}');
 
-presets.collection.push({
-    name: '*334: three circles, three intersections',
-    value: {
-        circles: [{
-            radius: 1,
-            centerX: 0.11957315586905015,
-            centerY: 0.16910197872576277,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#ff0000',
-            id: 0
-        }, {
-            radius: 1,
-            centerX: 0.8660254037844386,
-            centerY: 5.551115123125783e-17,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#00ff00',
-            id: 1
-        }, {
-            radius: 1,
-            centerX: -0.8660254037844386,
-            centerY: 5.551115123125783e-16,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#ff00ff',
-            id: 2
-        }],
-        intersections: [{
-            idCircle1: 0,
-            idCircle2: 1,
-            n: 4,
-            color: '#ff0000'
-        }, {
-            idCircle1: 0,
-            idCircle2: 2,
-            n: 3,
-            color: '#00ff00'
-        }, {
-            idCircle1: 1,
-            idCircle2: 2,
-            n: 3,
-            color: '#ff00ff'
-        }]
-    }
-});
+presets.add('three intersecting circles','{"circles":[{"radius":1,"centerX":0,"centerY":0.9020508075688771,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ff0000","id":0},{"radius":1,"centerX":0.04341714846051642,"centerY":-0.8294557477809884,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ee0000","id":1},{"radius":0.17425941432052647,"centerX":-0.1052460480689232,"centerY":0.04337044933599854,"canChange":true,"isInsideOutMap":true,"isMapping":true,"color":"#0000ff","id":2}],"intersections":[{"idCircle1":0,"idCircle2":1,"n":3},{"idCircle1":2,"idCircle2":0,"n":5},{"idCircle1":1,"idCircle2":2,"n":4}]}');
 
-presets.collection.push({
-    name: "*??: four circles, 6 interssections, tetrahedron",
-    value: {
-        circles: [{
-            radius: 0.2101245228749845,
-            centerX: 0.13854167954197485,
-            centerY: -0.20738527270744167,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#ff0000',
-            id: 0
-        }, {
-            radius: 0.36397025780577524,
-            centerX: 0.6688861940332455,
-            centerY: -0.14806320915239415,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#00ff00',
-            id: 1
-        }, {
-            radius: 0.5232793284999671,
-            centerX: 0.5742606680165471,
-            centerY: 0.15055680896431697,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#ff00ff',
-            id: 2
-        }, {
-            radius: 0.49999999999999983,
-            centerX: 0.2000000000000004,
-            centerY: 0.5000000000000002,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#0000ff',
-            id: 3
-        }],
-        intersections: [{
-            idCircle1: 0,
-            idCircle2: 1,
-            n: 4,
-            color: '#ff0000'
-        }, {
-            idCircle1: 0,
-            idCircle2: 2,
-            n: 2,
-            color: '#00ff00'
-        }, {
-            idCircle1: 0,
-            idCircle2: 3,
-            n: 99,
-            color: '#ff00ff'
-        }, {
-            idCircle1: 1,
-            idCircle2: 2,
-            n: 5,
-            color: '#0000ff'
-        }, {
-            idCircle1: 1,
-            idCircle2: 3,
-            n: 4,
-            color: '#000000'
-        }, {
-            idCircle1: 2,
-            idCircle2: 3,
-            n: 3,
-            color: '#ff0000'
-        }]
-    }
-});
+presets.add('four circles gasket','{"circles":[{"radius":1,"centerX":1.942890293094024e-16,"centerY":0.9020508075688771,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ff0000","id":0},{"radius":1.3740135895694454,"centerX":-0.20253941803400638,"centerY":-1.1524332439714127,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ee0000","id":1},{"radius":0.154681140944993,"centerX":-0.10249897729895652,"centerY":0.06287640142680494,"canChange":true,"isInsideOutMap":true,"isMapping":true,"color":"#0000ff","id":2},{"radius":0.12636490983098742,"centerX":0.1565787086706391,"centerY":0.04248776885771971,"canChange":true,"isInsideOutMap":true,"isMapping":true,"color":"#ee0000","id":4}],"intersections":[{"idCircle1":0,"idCircle2":1,"n":3},{"idCircle1":2,"idCircle2":0,"n":99},{"idCircle1":1,"idCircle2":2,"n":99},{"idCircle1":4,"idCircle2":1,"n":99},{"idCircle1":0,"idCircle2":4,"n":99},{"idCircle1":2,"idCircle2":4,"n":4}]}');
 
-presets.collection.push({
-    name: '*??: four circles, 6 intersections, touching',
-    value: {
-        circles: [{
-            radius: 10,
-            centerX: 2.4,
-            centerY: 9,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#ff0000',
-            id: 0
-        }, {
-            radius: 10,
-            centerX: 2.4,
-            centerY: -9.477590650225736,
-            canChange: true,
-            isInsideOutMap: false,
-            color: '#00ff00',
-            id: 1
-        }, {
-            radius: 1.2,
-            centerX: 0.48444243810704357,
-            centerY: 0.41031303190399804,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#ff00ff',
-            id: 2
-        }, {
-            radius: 0.6868901027080727,
-            centerX: -0.4483298516240479,
-            centerY: -0.6103504134628539,
-            canChange: true,
-            isInsideOutMap: true,
-            color: '#0000ff',
-            id: 3
-        }],
-        intersections: [{
-            idCircle1: 0,
-            idCircle2: 1,
-            n: 4,
-            color: '#ff0000'
-        }, {
-            idCircle1: 0,
-            idCircle2: 2,
-            n: 99,
-            color: '#00ff00'
-        }, {
-            idCircle1: 1,
-            idCircle2: 2,
-            n: 2,
-            color: '#ff00ff'
-        }, {
-            idCircle1: 0,
-            idCircle2: 3,
-            n: 2,
-            color: '#0000ff'
-        }, {
-            idCircle1: 2,
-            idCircle2: 3,
-            n: 2,
-            color: '#000000'
-        }, {
-            idCircle1: 1,
-            idCircle2: 3,
-            n: 99,
-            color: '#ff0000'
-        }]
-    }
-});
+presets.add('four circles fractal','{"circles":[{"radius":10.00000000000004,"centerX":2.4000000000000137,"centerY":9.000000000000037,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#ff0000","id":0},{"radius":10,"centerX":2.399999999999985,"centerY":-9.477590650225736,"canChange":true,"isInsideOutMap":false,"isMapping":true,"color":"#00ff00","id":1},{"radius":1.2,"centerX":0.48444243810704357,"centerY":0.41031303190399804,"canChange":true,"isInsideOutMap":true,"isMapping":true,"color":"#ff00ff","id":2},{"radius":0.6868901027080808,"centerX":-0.4483298516240455,"centerY":-0.6103504134628567,"canChange":true,"isInsideOutMap":true,"isMapping":true,"color":"#0000ff","id":3}],"intersections":[{"idCircle1":0,"idCircle2":1,"n":4},{"idCircle1":0,"idCircle2":2,"n":99},{"idCircle1":1,"idCircle2":2,"n":2},{"idCircle1":0,"idCircle2":3,"n":2},{"idCircle1":2,"idCircle2":3,"n":2},{"idCircle1":1,"idCircle2":3,"n":99}]}');
 
 presets.setSelectedValue(initialPreset);

@@ -45,6 +45,24 @@ basic.setup = function() {
     outputGui.addParagraph('<strong>coordinate transform:</strong>');
     output.addCoordinateTransform(outputGui, false);
     output.setInitialCoordinates(0, 0, 3);
+    // more  UI
+    // the presets: make gui and load
+    presets.makeGui(gui, {
+        closed: false
+    });
+        map.makeShowingGui(gui);
+        basic.addView(gui);
+        // new version for regions
+    map.makeRegionsGui(gui, {
+        closed: false
+    });
+    // GUI's for circles and intersections: you can close them afterwards
+    circles.makeGui(gui, {
+        closed: false
+    });
+    intersections.makeGui(gui, {
+        closed: false
+    });
 
     // setting up the mapping, and its default input image
     map.mapping = function(point) {
@@ -52,7 +70,6 @@ basic.setup = function() {
     };
     map.setOutputDraw(); // links the output drawing routines
     map.inputImage = '../libgui/testimage.jpg';
-    map.makeShowingGui(gui);
     map.trajectoryColorController.destroy();
 
     // a new map means changed circles
@@ -124,27 +141,11 @@ basic.setup = function() {
         }
     };
 
-    // the presets: make gui and load
-    presets.makeGui(gui, {
-        closed: false
-    });
     map.addDrawFundamentalRegion();
     map.addDrawNoImage();
     map.addDrawIterations();
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
-    // new version for regions
-    map.makeRegionsGui(gui, {
-        closed: false
-    });
-
-    // GUI's for circles and intersections: you can close them afterwards
-    circles.makeGui(gui, {
-        closed: false
-    });
-    intersections.makeGui(gui, {
-        closed: false
-    });
 
     // mouse controls
     // mouse move with ctrl shows objects that can be selected
@@ -302,6 +303,17 @@ map.drawIndrasPearls = function() {
  */
 map.addDrawIndrasPearls = function() {
     map.whatToShowController.addOption("Indra's Pearls", map.callDrawIndrasPearls);
+};
+
+/**
+* add a view ui
+* @method basic.addView
+* @param {ParamGui} parentGui
+*/
+basic.addView=function(parentGui){
+console.log('addView');
+    const gui = parentGui.addFolder('View',{closed:false});
+
 };
 
 // presets
