@@ -27,6 +27,14 @@ output.divHeight = 0;
 output.divWidth = 0;
 
 /**
+* call this when drawing starts
+* @method output.startDrawing
+*/
+output.startDrawing=function(){
+output.isDrawing = true;
+};
+
+/**
  * draw the output image when the canvas changes (size or transform)
  * define your own method to get your image
  * call it after initialization of everything to get a first image
@@ -851,18 +859,6 @@ output.drawGrid = function() {
 };
 
 /**
- * clear the canvas with TRANSPARENT BLACK (for line drawings ...)
- * preserves the current transform
- * @method output.clearCanvas
- */
-output.clearCanvas = function() {
-    const transform = output.canvasContext.getTransform();
-    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-    output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
-    output.canvasContext.setTransform(transform);
-};
-
-/**
  * fill the canvas with some color (for line drawings ...)
  * preserves the current transform, changes fill style
  * @method output.fillCanvas
@@ -872,6 +868,18 @@ output.fillCanvas = function(color) {
     const transform = output.canvasContext.getTransform();
     output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     output.canvasContext.fillStyle = color;
-    output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
+    output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
+    if (color!=='#00000000'){
+        output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
+   }
     output.canvasContext.setTransform(transform);
+};
+
+/**
+ * clear the canvas with TRANSPARENT BLACK (for line drawings ...)
+ * preserves the current transform
+ * @method output.clearCanvas
+ */
+output.clearCanvas = function() {
+    output.fillCanvas('#00000000');
 };

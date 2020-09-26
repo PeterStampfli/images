@@ -73,3 +73,8 @@ export {
     Side
 }
 from "./side.js";
+
+export {
+    view
+}
+from "./view.js";

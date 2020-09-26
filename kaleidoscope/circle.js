@@ -656,7 +656,6 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
 Circle.prototype.adjustToIntersections = function() {
     if (this.canChange) {
         let success = true;
-        console.log('intersects',this.intersections.length);
         switch (this.intersections.length) {
             case 0:
                 break;

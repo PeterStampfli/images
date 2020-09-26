@@ -12,7 +12,8 @@ import {
     circles,
     intersections,
     presets,
-    regions
+    regions,
+    view
 } from './modules.js';
 
 /**
@@ -50,9 +51,11 @@ basic.setup = function() {
     presets.makeGui(gui, {
         closed: false
     });
-        map.makeShowingGui(gui);
-        basic.addView(gui);
-        // new version for regions
+    map.makeShowingGui(gui);
+    view.makeGui(gui, {
+        closed: false
+    });
+    // new version for regions
     map.makeRegionsGui(gui, {
         closed: false
     });
@@ -303,17 +306,6 @@ map.drawIndrasPearls = function() {
  */
 map.addDrawIndrasPearls = function() {
     map.whatToShowController.addOption("Indra's Pearls", map.callDrawIndrasPearls);
-};
-
-/**
-* add a view ui
-* @method basic.addView
-* @param {ParamGui} parentGui
-*/
-basic.addView=function(parentGui){
-console.log('addView');
-    const gui = parentGui.addFolder('View',{closed:false});
-
 };
 
 // presets
