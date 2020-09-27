@@ -10,6 +10,7 @@ import {
 
 import {
     circles,
+    Circle,
     intersections,
     presets,
     regions,
@@ -142,6 +143,7 @@ basic.setup = function() {
             regions.drawCorners();
             regions.drawLines();
         }
+        view.draw();
     };
 
     map.addDrawFundamentalRegion();
@@ -156,6 +158,8 @@ basic.setup = function() {
         if (intersections.isSelected(event)) {
             output.canvas.style.cursor = "pointer";
         } else if (circles.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else if (view.mode !== 'direct') {
             output.canvas.style.cursor = "pointer";
         } else {
             output.canvas.style.cursor = "default";
@@ -172,29 +176,45 @@ basic.setup = function() {
 
     // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
-        if (intersections.select(event) || circles.select(event)) {
-            basic.drawCirclesIntersections();
-            if (map.trajectory) {
-                circles.drawTrajectory(event);
+        if (view.mode === 'direct') {
+            if (intersections.select(event)) {
+                basic.drawCirclesIntersections();
+            } else if (circles.select(event)) {
+                basic.drawCirclesIntersections();
             }
         }
+        if (map.trajectory) {
+            circles.drawTrajectory(event);
+        }
     };
+
     // mouse drag with ctrl moves selected circle
     output.mouseCtrlDragAction = function(event) {
-        circles.dragAction(event);
+        if (view.mode === 'direct') {
+            circles.dragAction(event);
+        } else {
+            view.centerX += event.dx;
+            view.centerY += event.dy;
+        }
         basic.drawMapChanged();
         if (map.trajectory) {
             circles.drawTrajectory(event);
         }
     };
 
-    // mouse wheel with ctrl changes radius of slected circle
+    // mouse wheel with ctrl changes radius of selected circle
     // with ctrl+shift changes order of selected intersection
     output.mouseCtrlWheelAction = function(event) {
-        if (event.shiftPressed) {
-            intersections.wheelAction(event);
+        if (view.mode === 'direct') {
+            if (event.shiftPressed) {
+                intersections.wheelAction(event);
+            } else {
+                circles.wheelAction(event);
+            }
         } else {
-            circles.wheelAction(event);
+            const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
+            view.radius *= zoomFactor;
+            view.radius2 = view.radius * view.radius;
         }
         map.drawMapChanged();
         if (map.trajectory) {
@@ -240,6 +260,7 @@ basic.drawCirclesIntersections = function() {
         regions.drawCorners();
         regions.drawLines();
     }
+    view.draw();
 };
 
 // for drawing the fundamental region

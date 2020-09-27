@@ -721,7 +721,7 @@ Circle.prototype.addIntersection = function(intersection) {
     }
     this.intersections.push(intersection);
     this.activateUI();
-     //   console.log('add',this.id,this.intersections.length);
+    //   console.log('add',this.id,this.intersections.length);
 };
 
 /**
@@ -741,7 +741,7 @@ Circle.prototype.removeIntersection = function(intersection) {
         console.log(intersection);
         console.log(this);
     }
-  //  console.log('remove',this.id,this.intersections.length);
+    //  console.log('remove',this.id,this.intersections.length);
 };
 
 /**
@@ -814,7 +814,7 @@ Circle.prototype.isInTarget = function(position) {
 
 /**
  * make the mapping, return true if mapping occured
- * @method Circle.map
+ * @method Circle#map
  * @param {object} position - with x and y fields, will be changed
  * @return boolean, true if mapping occured (point was outside target and is inside now)
  */
@@ -849,53 +849,29 @@ Circle.prototype.map = function(position) {
 
 /**
  * make the mapping and draw trajectory, return true if mapping occured
- * @method Circle.drawTrajectory
+ * @method Circle#drawTrajectory
  * @param {object} position - with x and y fields, will be changed
  * @return boolean, true if mapping occured (point was outside target and is inside now)
  */
 Circle.prototype.drawTrajectory = function(position) {
-    if (this.isMapping) {
+    const startX = position.x;
+    const startY = position.y;
+    let mapped = this.map(position);
+    if (mapped) {
         const context = output.canvasContext;
         output.setLineWidth(map.linewidth);
         context.strokeStyle = this.color;
-        const dx = position.x - this.centerX;
-        const dy = position.y - this.centerY;
-        const dr2 = dx * dx + dy * dy;
-        if (this.isInsideOutMap) {
-            if (dr2 > this.radius2) {
-                return false;
-            } else {
-                context.beginPath();
-                context.moveTo(position.x, position.y);
-                const factor = this.radius2 / (dr2 + epsilon2);
-                position.x = this.centerX + factor * dx;
-                position.y = this.centerY + factor * dy;
-                context.lineTo(position.x, position.y);
-                context.stroke();
-                return true;
-            }
-        } else {
-            if (dr2 < this.radius2) {
-                return false;
-            } else {
-                context.beginPath();
-                context.moveTo(position.x, position.y);
-                const factor = this.radius2 / dr2;
-                position.x = this.centerX + factor * dx;
-                position.y = this.centerY + factor * dy;
-                context.lineTo(position.x, position.y);
-                context.stroke();
-                return true;
-            }
-        }
-    } else {
-        return false;
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(position.x, position.y);
+        context.stroke();
     }
+    return mapped;
 };
 
 /**
  * invert at the circle, used to get always a good image
- * @method Circle.invert
+ * @method Circle#invert
  * @param {object} position - with x and y fields, will be changed
  */
 Circle.prototype.invert = function(position) {
