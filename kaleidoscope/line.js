@@ -12,7 +12,8 @@ import {
 } from './modules.js';
 
 /**
- * line for the polygons
+ * line for the polygons, makes line between corners, 
+ * adds line to each corner's list of lines
  * separating different regions, making a network
  * @constructor Line
  * @param {Corner} corner1
@@ -118,12 +119,9 @@ Line.prototype.findIntersection = function(other) {
     // determine differences between endpoints and determinant
     const deltaThisX = this.corner2.x - this.corner1.x;
     const deltaThisY = this.corner2.y - this.corner1.y;
-    console.log(deltaThisX,deltaThisY);
     const deltaOtherX = other.corner2.x - other.corner1.x;
     const deltaOtherY = other.corner2.y - other.corner1.y;
-    console.log(deltaOtherX,deltaOtherY);
     const det = deltaThisX * deltaOtherY - deltaThisY * deltaOtherX;
-    console.log(det);
     const thisLength2 = deltaThisX * deltaThisX + deltaThisY * deltaThisY;
     const otherLength2 = deltaOtherX * deltaOtherX + deltaOtherY * deltaOtherY;
     if (det * det < 0.0000001 * thisLength2 * otherLength2) {

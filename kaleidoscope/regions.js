@@ -261,7 +261,7 @@ regions.insideOutIntersectsOutsideIn = function(inOutCorner, outInCircle) {
 };
 
 // making lines from boundary pieces
-// based on sorted arrays of corners
+// based on sorted arrays of corners, connecting corners in sequence
 function makeLines(corners) {
     const length = corners.length;
     for (var i = 0; i < length - 1; i++) {
@@ -337,6 +337,47 @@ regions.removeLine = function(line) {
         console.error('regions.removeLine: line not found. It is:');
         console.log(line);
         console.log(regions.lines);
+    }
+};
+
+/**
+ * intersecting lines/nonplanar graph:
+ * intersection as new corner, cut lines in pieces
+ * @method regions.resolveIntersections
+ */
+regions.resolveIntersections = function() {
+    console.log('recsli');
+    let foundIntersection = true;
+    // repeat until no intersection found
+    while (foundIntersection) {
+        foundIntersection = false;
+        let i = 0;
+        // note that lines.length may change
+        // finding an intersection and changing lines disorders everything
+        // and we have to begin search from start (?)
+        // this is safe but not fast, as speed is not really important here
+        while ((i < regions.lines.length) && !foundIntersection) {
+            const lineI = regions.lines[i];
+            let j = i + 1;
+            while ((j < regions.lines.length) && !foundIntersection) {
+                const lineJ = regions.lines[j];
+                const intersection = lineI.findIntersection(lineJ);
+                if (guiUtils.isObject(intersection)) {
+                    foundIntersection = true;
+                    regions.corners.push(intersection);
+                    console.log('intersection lines', i, j);
+                    // add the new lines, from each endpoint off lines to the intersection
+                    regions.lines.push(new Line(lineI.corner1, intersection));
+                    regions.lines.push(new Line(lineI.corner2, intersection));
+                    regions.lines.push(new Line(lineJ.corner1, intersection));
+                    regions.lines.push(new Line(lineJ.corner2, intersection));
+                    regions.removeLine(lineI);
+                    regions.removeLine(lineJ);
+                }
+                j += 1;
+            }
+            i += 1;
+        }
     }
 };
 

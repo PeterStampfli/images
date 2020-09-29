@@ -92,6 +92,7 @@ basic.setup = function() {
             regions.determineBoundingRectangle();
             regions.linesFromInsideOutMappingCircles();
             regions.linesFromOutsideInMappingCircles();
+            regions.resolveIntersections();
             regions.removeDeadEnds();
             regions.makePolygons();
             circles.lastCircleIndexArray = new Uint8Array(map.xArray.length);
@@ -120,6 +121,7 @@ basic.setup = function() {
             regions.determineBoundingRectangle();
             regions.linesFromInsideOutMappingCircles();
             regions.linesFromOutsideInMappingCircles();
+            regions.resolveIntersections();
             regions.removeDeadEnds();
             regions.makePolygons();
             // show the regions
