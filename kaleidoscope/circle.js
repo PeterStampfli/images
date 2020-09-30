@@ -49,6 +49,12 @@ export function Circle(parentGui, properties) {
     if (guiUtils.isObject(properties)) {
         Object.assign(this, properties);
     }
+
+
+
+
+
+
     // for speeding up the mapping
     this.radius2 = this.radius * this.radius;
     // the collection of the circle's intersections
@@ -118,25 +124,33 @@ export function Circle(parentGui, properties) {
             console.log('map type selected', mapType);
             circles.setSelected(circle);
             // if map direction changes, try new direction
-            if ((mapType === 'inside -> out') && !this.isInsideOutMap) {
-                this.isInsideOutMap=true; // we want inside->out map
+            if ((mapType === 'inside -> out') && !circle.isInsideOutMap) {
+                circle.isInsideOutMap=true; // we want inside->out map
                 // check if successful
-                success= this.adjustToIntersections();
+                const success= circle.adjustToIntersections();
                 if (!success) {
                     // failing to change direction, change selection
                     circle.mapTypeController.setValueOnly('outside -> in');
+                }
+            } else if ((mapType === 'outside -> in') && circle.isInsideOutMap) {
+                circle.isInsideOutMap=false; // we want outside->in map
+                // check if successful
+                const success= circle.adjustToIntersections();
+                if (!success) {
+                    // failing to change direction, change selection
+                    circle.mapTypeController.setValueOnly('inside -> out');
                 }
             }
 
 
             //.....
 
-            
+
             // set properties of map, may have changed
             console.log('final typ', circle.mapTypeController.getValue());
-            console.log(circle.isInsideOutMap);
-            console.log(circle.isMapping);
+
             circle.setMapProperties(circle.mapTypeController.getValue());
+                        console.log(circle.isInsideOutMap,circle.isMapping);
             basic.drawMapChanged();
         }
     });
@@ -189,8 +203,7 @@ Circle.prototype.getProperties = function() {
         centerX: this.centerX,
         centerY: this.centerY,
         canChange: this.canChange,
-        isInsideOutMap: this.isInsideOutMap,
-        isMapping: this.isMapping,
+        mapType: this.mapType,
         color: this.color,
         id: this.id
     };
