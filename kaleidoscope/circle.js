@@ -39,6 +39,8 @@ export function Circle(parentGui, properties) {
     this.radius = 1;
     this.centerX = 0;
     this.centerY = 0;
+    this.mapType = 'inside -> out';
+    this.setMapProperties(this.mapType);
     this.isInsideOutMap = true; // map direction, inside-out is more useful, not all circles overlap
     this.isMapping = true; // switch mapping on or off (debugging and building), the intersections remain
     this.color = '#000000'; // color for drawing a circle
@@ -64,7 +66,7 @@ export function Circle(parentGui, properties) {
         type: 'boolean',
         params: this,
         property: 'canChange',
-        labelText: 'parameters',
+        labelText: '',
         width: 100,
         buttonText: ['can change', 'frozen'],
         onChange: function() {
@@ -75,16 +77,6 @@ export function Circle(parentGui, properties) {
         }
     });
 
-    this.radiusController = this.gui.add({
-        type: 'number',
-        initialValue: this.radius,
-        labelText: 'radius',
-        min: 0,
-        onChange: function(radius) {
-            circles.setSelected(circle);
-            circle.tryRadius(radius);
-        }
-    });
     this.centerXController = this.gui.add({
         type: 'number',
         labelText: 'center: x',
@@ -103,29 +95,52 @@ export function Circle(parentGui, properties) {
             circle.tryPosition(circle.centerX, centerY);
         }
     });
-    BooleanButton.whiteBackground();
-    this.mapDirectionController = this.gui.add({
-        type: 'boolean',
+
+    this.radiusController = this.centerYController.add({
+        type: 'number',
+        initialValue: this.radius,
+        labelText: 'radius',
+        min: 0,
+        onChange: function(radius) {
+            circles.setSelected(circle);
+            circle.tryRadius(radius);
+        }
+    });
+
+    this.mapTypeController = this.gui.add({
+        type: 'selection',
+        params: this,
+        property: 'mapType',
         labelText: 'map',
         width: 100,
-        buttonText: ['inside -> out', 'outside -> in'],
-        initialValue: this.isInsideOutMap,
-        onChange: function(isInsideOutMap) {
+        options: ['inside -> out', 'outside -> in', 'no mapping'],
+        onChange: function(mapType) {
+            console.log('map type selected', mapType);
             circles.setSelected(circle);
-            circle.tryMapDirection(isInsideOutMap);
+            // if map direction changes, try new direction
+            if ((mapType === 'inside -> out') && !this.isInsideOutMap) {
+                this.isInsideOutMap=true; // we want inside->out map
+                // check if successful
+                success= this.adjustToIntersections();
+                if (!success) {
+                    // failing to change direction, change selection
+                    circle.mapTypeController.setValueOnly('outside -> in');
+                }
+            }
+
+
+            //.....
+
+            
+            // set properties of map, may have changed
+            console.log('final typ', circle.mapTypeController.getValue());
+            console.log(circle.isInsideOutMap);
+            console.log(circle.isMapping);
+            circle.setMapProperties(circle.mapTypeController.getValue());
+            basic.drawMapChanged();
         }
     });
-    BooleanButton.greenRedBackground();
-    this.mapOnOffController = this.mapDirectionController.add({
-        type: 'boolean',
-        params: this,
-        property: 'isMapping',
-        labelText: '',
-        onChange: function() {
-            circles.setSelected(circle);
-            basic.drawMapChanged(); // changes map
-        }
-    });
+
     this.colorController = this.gui.add({
         type: 'color',
         params: this,
@@ -140,6 +155,28 @@ export function Circle(parentGui, properties) {
         }
     });
 }
+
+/**
+ * set mapping properties from mapType
+ * @method Circle#setMapProperties
+ * @param {String} mapType
+ */
+Circle.prototype.setMapProperties = function(mapType) {
+    switch (mapType) {
+        case 'inside -> out':
+            this.isInsideOutMap = true;
+            this.isMapping = true;
+            break;
+        case 'outside -> in':
+            this.isInsideOutMap = false;
+            this.isMapping = true;
+            break;
+        case 'no mapping':
+            this.isMapping = false;
+            break;
+    }
+};
+
 
 /**
  * get properties of this circle as an object
@@ -169,7 +206,7 @@ Circle.prototype.updateUI = function() {
     this.centerXController.setValueOnly(this.centerX);
     this.centerYController.setValueOnly(this.centerY);
     this.radiusController.setValueOnly(this.radius);
-    this.mapDirectionController.setValueOnly(this.isInsideOutMap);
+    //    this.mapDirectionController.setValueOnly(this.isInsideOutMap);
 };
 
 /**
@@ -683,27 +720,6 @@ Circle.prototype.adjustToIntersections = function() {
 };
 
 /**
- * try a given map direction, adjust circle radius and position to intersections
- * if fails do not change current position
- * if success update UI to new values and draw image
- * @method tryMapDirection
- * @param {boolean} isInsideOutMap
- */
-Circle.prototype.tryMapDirection = function(isInsideOutMap) {
-    // remember the old parameter (maybe it did not change?)
-    const currentIsInsideOutMap = this.isInsideOutMap;
-    this.isInsideOutMap = isInsideOutMap;
-    let success = this.adjustToIntersections();
-    if (success) {
-        this.updateUI();
-        basic.drawMapChanged();
-    } else {
-        this.isInsideOutMap = currentIsInsideOutMap; // fail: restore value
-        this.updateUI(); // reset the shown map direction value
-    }
-};
-
-/**
  * add an intersection
  * we can have more than 3, but then this circle cannot adjust to intersections
  * @method Circle#addIntersection
@@ -741,7 +757,6 @@ Circle.prototype.removeIntersection = function(intersection) {
         console.log(intersection);
         console.log(this);
     }
-    //  console.log('remove',this.id,this.intersections.length);
 };
 
 /**
