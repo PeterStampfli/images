@@ -111,7 +111,7 @@ export function Circle(parentGui, properties) {
         property: 'mapType',
         labelText: 'map',
         width: 100,
-        options: ['inside -> out', 'outside -> in', 'no mapping'],
+        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view'],
         onChange: function(mapType) {
             console.log('map type selected', mapType);
             circles.setSelected(circle);
@@ -159,6 +159,7 @@ export function Circle(parentGui, properties) {
 
 /**
  * set mapping properties from mapType
+ * note the redundancy of data, difficult to improve, thus modify only using this method
  * @method Circle#setMapProperties
  * @param {String} mapType
  */
@@ -167,15 +168,24 @@ Circle.prototype.setMapProperties = function(mapType) {
         case 'inside -> out':
             this.isInsideOutMap = true; // map direction, inside-out is more useful, not all circles overlap
             this.isMapping = true; // switch mapping on or off (debugging and building), the intersections remain
+            this.map=this.insideOutMap;   // improving speed
             break;
         case 'outside -> in':
             this.isInsideOutMap = false;
             this.isMapping = true;
+            this.map=this.outsideInMap;
             break;
         case 'no mapping':
             this.isMapping = false;
+            this.map=this.noMap;
+            break;
+                    case 'inverting view':
+                    console.log('invert');
+            this.isMapping = false;
+            this.map=this.noMap;
             break;
     }
+    console.log(this.map);
 };
 
 /**
@@ -761,6 +771,7 @@ Circle.prototype.removeIntersection = function(intersection) {
 /**
  * drawing a circle
  * as a broader circle in a highlight color or narrow in its own color
+ * inverting view with cross mark at center for mor precise positioning
  * @method Circle#draw
  * @param {boolean} highlight - optional, default is 0, not highlighted
  */
@@ -768,10 +779,27 @@ Circle.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
     switch (highlight) {
         case 0:
+        // basic drawing without highlight
             output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
+            if (this.mapType==='inverting view'){
+                
+        const d = 2 * map.linewidth * output.coordinateTransform.totalScale;
+        const D = 10 * map.linewidth * output.coordinateTransform.totalScale;
+        context.beginPath();
+        context.moveTo(this.centerX - D, this.centerY);
+        context.lineTo(this.centerX - d, this.centerY);
+        context.moveTo(this.centerX + D, this.centerY);
+        context.lineTo(this.centerX + d, this.centerY);
+        context.moveTo(this.centerX, this.centerY - D);
+        context.lineTo(this.centerX, this.centerY - d);
+        context.moveTo(this.centerX, this.centerY + D);
+        context.lineTo(this.centerX, this.centerY + d);
+        context.stroke();
+            }
             break;
         case 1:
+        // highlighting the last selection
             output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.highlightColor;
@@ -780,6 +808,7 @@ Circle.prototype.draw = function(highlight = 0) {
             }
             break;
         case 2:
+        // highlighting the other selection
             output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.otherHighlightColor;
@@ -933,7 +962,8 @@ Circle.prototype.outsideInMap = function(position) {
 };
 
 /**
- * invert at the circle, used to get always a good image
+ * invert at the circle, used to get a good image even if all circles are mapping inside->out
+ * and for inverted views
  * @method Circle#invert
  * @param {object} position - with x and y fields, will be changed
  */

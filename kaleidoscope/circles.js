@@ -11,8 +11,7 @@ import {
     Circle,
     intersections,
     basic,
-    regions,
-    view
+    regions
 } from './modules.js';
 
 /**
@@ -379,7 +378,7 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    view.transform(point);
+  //  view.transform(point);
     let lastCircleIndex = 255;
     const collectionLength = circles.collection.length;
     while (point.iterations <= map.maxIterations) {
@@ -424,7 +423,7 @@ circles.map = function(point) {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.drawTrajectory = function(point) {
-    if (view.mode === 'direct') {
+ //   if (view.mode === 'direct') {
         const context = output.canvasContext;
         output.setLineWidth(map.linewidth);
         context.strokeStyle = 'black';
@@ -445,7 +444,7 @@ circles.drawTrajectory = function(point) {
                 j += 1;
             }
         }
-    }
+//    }
 };
 
 /**
