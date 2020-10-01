@@ -170,27 +170,23 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isMapping = true; // switch mapping on or off (debugging and building), the intersections remain
             this.isView = false; // true for circles that change the view, such as inversion
             this.map = this.insideOutMap; // improving speed
-            this.view=this.noMap;
             break;
         case 'outside -> in':
             this.isInsideOutMap = false;
             this.isMapping = true;
             this.isView = false;
             this.map = this.outsideInMap;
-            this.view=this.noMap;
             break;
         case 'no mapping':
             this.isMapping = false;
             this.isView = false;
             this.map = this.noMap;
-            this.view=this.noMap;
             break;
         case 'inverting view':
             console.log('invert');
             this.isMapping = false;
             this.isView = true;
-            this.map = this.noMap;
-             this.view=this.invert;
+            this.map = this.invert;
            break;
     }
 };
@@ -957,15 +953,6 @@ Circle.prototype.invert = function(position) {
     position.x = this.centerX + factor * dx;
     position.y = this.centerY + factor * dy;
 };
-
-/**
- * map for changing the view, initially
- * mainly inversion
- * changes the position
- * @method Circle#view
- * @param {object} position - with x and y fields, will be changed
- */
-Circle.prototype.view = function(position) {};
 
 /**
  * dragging the circle
