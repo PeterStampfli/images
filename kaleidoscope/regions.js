@@ -160,7 +160,8 @@ regions.cornersLeft = [];
 regions.cornersRight = [];
 
 /**
- * doing the intersection between an insideout and an outsidein circle
+ * doing the intersection between an inside->out and an outside->in circle
+ * creates the corresponding line
  * @method regions.insideOutIntersectsOutsideIn
  * @param {Corner} inOutCorner - we need the corner object of the inside out mapping circlee for making lines
  * @param {Circle} outInCircle - outside-in mapping
@@ -272,6 +273,7 @@ function makeLines(corners) {
 
 /**
  * lines due to outside->in mapping circles
+ * makes a bounding rectangle and lines going from inside->out mapping cirles to the bounding rectangle
  * @method regions.linesFromOutsideInMappingCircles
  */
 regions.linesFromOutsideInMappingCircles = function() {
@@ -370,6 +372,7 @@ regions.resolveIntersections = function() {
                     regions.lines.push(new Line(lineI.corner2, intersection));
                     regions.lines.push(new Line(lineJ.corner1, intersection));
                     regions.lines.push(new Line(lineJ.corner2, intersection));
+                    console.log(regions.lines);
                     regions.removeLine(lineI);
                     regions.removeLine(lineJ);
                 }

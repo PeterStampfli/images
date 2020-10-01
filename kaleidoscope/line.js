@@ -104,6 +104,21 @@ Line.prototype.setPathDone = function(corner) {
 };
 
 /**
+ * calculate the distance between two corners
+ * if too small they are equal
+ * @method Line.prototype.areEqual
+ * @param {Corner} a
+ * @param {Corner} b
+ * @return boolean, true, if distance between corners is too small
+ */
+const eps2 = 0.0001;
+Line.prototype.areEqual = function(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    return dx * dx + dy * dy < eps2;
+};
+
+/**
  * find intersection with another line
  * @method findIntersection
  * @param {Line} other
@@ -111,9 +126,9 @@ Line.prototype.setPathDone = function(corner) {
  */
 Line.prototype.findIntersection = function(other) {
     // check if some corners are the same -> no intersection
-    if ((this.corner1 === other.corner1) || (this.corner1 === other.corner2)) {
+    if (this.areEqual(this.corner1, other.corner1) || this.areEqual(this.corner1, other.corner2)) {
         return false;
-    } else if ((this.corner2 === other.corner1) || (this.corner2 === other.corner2)) {
+    } else if (this.areEqual(this.corner2, other.corner1) || this.areEqual(this.corner2, other.corner2)) {
         return false;
     }
     // determine differences between endpoints and determinant
@@ -138,6 +153,7 @@ Line.prototype.findIntersection = function(other) {
     if ((s < 0) || (s > 1)) {
         return false;
     }
+    console.log("st",s,t)
     const corner = new Corner(this.corner1.x + t * deltaThisX, this.corner1.y + t * deltaThisY);
     return corner;
 };

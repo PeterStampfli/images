@@ -187,7 +187,7 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isMapping = false;
             this.isView = true;
             this.map = this.invert;
-           break;
+            break;
     }
 };
 
@@ -243,17 +243,25 @@ Circle.prototype.activateUI = function() {
  * for checking if we can have an intersection:
  * do the circles really intersect ?
  * using the triangle rule "for all three sides"
+ * nearly concentric circles with nearly same radius do not intersect
  * @method Circle#intersectsCircle
  * @param {Circle} circle
  * @return boolean, true if the circles intersect
  */
+const eps = 0.001;
 Circle.prototype.intersectsCircle = function(circle) {
     const distance = Math.hypot(this.centerX - circle.centerX, this.centerY - circle.centerY);
-    const safetyFactor = 0.999; // float numbers are never accurate
-    let intersects = ((this.radius + circle.radius) >= distance * safetyFactor);
-    intersects = intersects && ((this.radius + distance) >= circle.radius * safetyFactor);
-    intersects = intersects && ((circle.radius + distance) >= this.radius * safetyFactor);
-    return intersects;
+    // Note: Concentric circles of same radius do not intersect
+    if (distance < eps * (this.radius + circle.radius)) {
+        return false;
+    } else {
+        // float numbers are never accurate, make sure that touching circles intersect
+        const safetyFactor = 0.999;
+        let intersects = ((this.radius + circle.radius) >= distance * safetyFactor);
+        intersects = intersects && ((this.radius + distance) >= circle.radius * safetyFactor);
+        intersects = intersects && ((circle.radius + distance) >= this.radius * safetyFactor);
+        return intersects;
+    }
 };
 
 /**
@@ -782,7 +790,7 @@ Circle.prototype.draw = function(highlight = 0) {
     const context = output.canvasContext;
     switch (highlight) {
         case 0:
-        // basic drawing without highlight
+            // basic drawing without highlight
             output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
             if (this.mapType === 'inverting view') {
