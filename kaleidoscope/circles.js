@@ -28,6 +28,11 @@ circles.selected = false;
 // the other selected circle (making intersections)
 circles.otherSelected = false;
 
+// collection of circles with a map
+circles.mapCollection=[];
+// collection of circles with a view transform
+circles.viewCollection=[];
+
 // ids and colors for circles
 // we have to use id numbers, not indices for the array
 // because we may delete elements of the collection array
@@ -113,6 +118,26 @@ circles.remove = function(circle) {
 };
 
 /**
+* categorize circles
+* make collection of circles with map or view
+* @method circles.categorize
+*/
+circles.categorize=function(){
+    circles.mapCollection.length=0;
+    circles.viewCollection.length=0;
+    const length=circles.collection.length;
+    console.log('xxx',length)
+    for (var i=0;i<length;i++){
+        const circle=circles.collection[i];
+        if (circle.isMapping){
+            circles.mapCollection.push(circle);
+        } else if (circle.isView){
+            circles.viewCollection.push(circle);
+        }
+    }
+}
+
+/**
  * get a circle with a given id number
  * returns false if not found
  * @method circles.findId
@@ -130,7 +155,6 @@ circles.findId = function(id) {
     console.log(circles.collection);
     return false;
 };
-
 
 /**
  * destroy all circles

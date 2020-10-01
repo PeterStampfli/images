@@ -168,24 +168,31 @@ Circle.prototype.setMapProperties = function(mapType) {
         case 'inside -> out':
             this.isInsideOutMap = true; // map direction, inside-out is more useful, not all circles overlap
             this.isMapping = true; // switch mapping on or off (debugging and building), the intersections remain
-            this.map=this.insideOutMap;   // improving speed
+            this.isView = false; // true for circles that change the view, such as inversion
+            this.map = this.insideOutMap; // improving speed
+            this.view=this.noMap;
             break;
         case 'outside -> in':
             this.isInsideOutMap = false;
             this.isMapping = true;
-            this.map=this.outsideInMap;
+            this.isView = false;
+            this.map = this.outsideInMap;
+            this.view=this.noMap;
             break;
         case 'no mapping':
             this.isMapping = false;
-            this.map=this.noMap;
+            this.isView = false;
+            this.map = this.noMap;
+            this.view=this.noMap;
             break;
-                    case 'inverting view':
-                    console.log('invert');
+        case 'inverting view':
+            console.log('invert');
             this.isMapping = false;
-            this.map=this.noMap;
-            break;
+            this.isView = true;
+            this.map = this.noMap;
+             this.view=this.invert;
+           break;
     }
-    console.log(this.map);
 };
 
 /**
@@ -782,24 +789,24 @@ Circle.prototype.draw = function(highlight = 0) {
         // basic drawing without highlight
             output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
-            if (this.mapType==='inverting view'){
-                
-        const d = 2 * map.linewidth * output.coordinateTransform.totalScale;
-        const D = 10 * map.linewidth * output.coordinateTransform.totalScale;
-        context.beginPath();
-        context.moveTo(this.centerX - D, this.centerY);
-        context.lineTo(this.centerX - d, this.centerY);
-        context.moveTo(this.centerX + D, this.centerY);
-        context.lineTo(this.centerX + d, this.centerY);
-        context.moveTo(this.centerX, this.centerY - D);
-        context.lineTo(this.centerX, this.centerY - d);
-        context.moveTo(this.centerX, this.centerY + D);
-        context.lineTo(this.centerX, this.centerY + d);
-        context.stroke();
+            if (this.mapType === 'inverting view') {
+
+                const d = 2 * map.linewidth * output.coordinateTransform.totalScale;
+                const D = 10 * map.linewidth * output.coordinateTransform.totalScale;
+                context.beginPath();
+                context.moveTo(this.centerX - D, this.centerY);
+                context.lineTo(this.centerX - d, this.centerY);
+                context.moveTo(this.centerX + D, this.centerY);
+                context.lineTo(this.centerX + d, this.centerY);
+                context.moveTo(this.centerX, this.centerY - D);
+                context.lineTo(this.centerX, this.centerY - d);
+                context.moveTo(this.centerX, this.centerY + D);
+                context.lineTo(this.centerX, this.centerY + d);
+                context.stroke();
             }
             break;
         case 1:
-        // highlighting the last selection
+            // highlighting the last selection
             output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.highlightColor;
@@ -808,7 +815,7 @@ Circle.prototype.draw = function(highlight = 0) {
             }
             break;
         case 2:
-        // highlighting the other selection
+            // highlighting the other selection
             output.setLineWidth(3 * map.linewidth);
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.otherHighlightColor;
@@ -843,8 +850,8 @@ Circle.prototype.isSelected = function(position) {
  */
 Circle.prototype.isInTarget = function(position) {
     if (this.isMapping) {
-    const dx = position.x - this.centerX;
-    const dy = position.y - this.centerY;
+        const dx = position.x - this.centerX;
+        const dy = position.y - this.centerY;
         if (this.isInsideOutMap) {
             return dx * dx + dy * dy > this.radius2;
         } else {
@@ -862,32 +869,7 @@ Circle.prototype.isInTarget = function(position) {
  * @return boolean, true if mapping occured (point was outside target and is inside now)
  */
 Circle.prototype.map = function(position) {
-    if (this.isMapping) {
-        const dx = position.x - this.centerX;
-        const dy = position.y - this.centerY;
-        const dr2 = dx * dx + dy * dy;
-        if (this.isInsideOutMap) {
-            if (dr2 > this.radius2) {
-                return false;
-            } else {
-                const factor = this.radius2 / (dr2 + epsilon2);
-                position.x = this.centerX + factor * dx;
-                position.y = this.centerY + factor * dy;
-                return true;
-            }
-        } else {
-            if (dr2 < this.radius2) {
-                return false;
-            } else {
-                const factor = this.radius2 / dr2;
-                position.x = this.centerX + factor * dx;
-                position.y = this.centerY + factor * dy;
-                return true;
-            }
-        }
-    } else {
-        return false;
-    }
+    return false;
 };
 
 /**
@@ -975,6 +957,16 @@ Circle.prototype.invert = function(position) {
     position.x = this.centerX + factor * dx;
     position.y = this.centerY + factor * dy;
 };
+
+/**
+ * map for changing the view, initially
+ * mainly inversion
+ * changes the position
+ * @method Circle#view
+ * @param {object} position - with x and y fields, will be changed
+ */
+Circle.prototype.view = function(position) {};
+
 /**
  * dragging the circle
  * action depends on intersections

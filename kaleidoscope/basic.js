@@ -80,7 +80,8 @@ basic.setup = function() {
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
-        map.clearActive();
+            circles.categorize();
+        map.clearActive();   // clears regions
         map.startDrawing();
         if (map.updatingTheMap) {
             // determine fundamental regions
@@ -110,6 +111,7 @@ basic.setup = function() {
         map.inputImageControllersHide();
         map.thresholdGammaControllersHide();
         map.lightDarkControllersHide();
+    circles.categorize();
         map.drawFundamentalRegion();
         if (regions.debug) {
             // determine fundamental regions

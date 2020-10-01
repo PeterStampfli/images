@@ -346,7 +346,6 @@ regions.removeLine = function(line) {
  * @method regions.resolveIntersections
  */
 regions.resolveIntersections = function() {
-    console.log('recsli');
     let foundIntersection = true;
     // repeat until no intersection found
     while (foundIntersection) {
