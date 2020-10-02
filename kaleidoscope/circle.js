@@ -11,7 +11,8 @@ from "../libgui/modules.js";
 import {
     circles,
     intersections,
-    basic
+    basic,
+    Fast
 } from './modules.js';
 
 // beware of hitting the circle center
@@ -111,7 +112,7 @@ export function Circle(parentGui, properties) {
         property: 'mapType',
         labelText: 'map',
         width: 100,
-        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view'],
+        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view'],
         onChange: function(mapType) {
             console.log('map type selected', mapType);
             circles.setSelected(circle);
@@ -190,6 +191,13 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isMapping = false;
             this.isView = true;
             this.map = this.invert;
+            this.isInTarget = this.noMap;
+            break;
+        case 'logarithmic view':
+            console.log('log');
+            this.isMapping = false;
+            this.isView = true;
+            this.map = this.exponential;
             this.isInTarget = this.noMap;
             break;
     }
@@ -977,6 +985,36 @@ Circle.prototype.invert = function(position) {
     const factor = this.radius2 / (dr2 + epsilon2);
     position.x = this.centerX + factor * dx;
     position.y = this.centerY + factor * dy;
+};
+
+/**
+ * complex logarithm at the circle for exponential views
+ * backtransformation gives the inverse
+ * @method Circle#logarithm
+ * @param {object} position - with x and y fields, will be changed
+ */
+Circle.prototype.logarithm = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    const dr2 = dx * dx + dy * dy + epsilon2;
+    position.x = this.center.x + 0.5 * Fast.log(dr2 / this.radius2);
+    position.y = this.center.y + Fast.atan2(dy, dx);
+};
+
+/**
+ * complex exponent at the circle for logarithmic views
+ * circle center as origin, radius as scale
+ * backtransformation gives the inverse
+ * @method Circle#exponential
+ * @param {object} position - with x and y fields, will be changed
+ */
+Circle.prototype.exponential = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    Fast.cosSin(dy, position);
+    const r = Fast.exp(dx / this.radius) * this.radius;
+    position.x = this.centerX + r * position.x;
+    position.y = this.centerY + r * position.y;
 };
 
 /**
