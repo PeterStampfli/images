@@ -350,7 +350,11 @@ regions.removeLine = function(line) {
 regions.resolveIntersections = function() {
     let foundIntersection = true;
     // repeat until no intersection found
-    while (foundIntersection) {
+    // with loop breaker just in case (avoid hanging up)
+    const maxIterations = 20;
+    let iterations = 0;
+    while (foundIntersection && (iterations <= maxIterations)) {
+        iterations += 1;
         foundIntersection = false;
         let i = 0;
         // note that lines.length may change
@@ -364,17 +368,21 @@ regions.resolveIntersections = function() {
                 const lineJ = regions.lines[j];
                 const intersection = lineI.findIntersection(lineJ);
                 if (guiUtils.isObject(intersection)) {
-                    foundIntersection = true;
                     regions.corners.push(intersection);
-                    console.log('intersection lines', i, j);
-                    // add the new lines, from each endpoint off lines to the intersection
-                    regions.lines.push(new Line(lineI.corner1, intersection));
-                    regions.lines.push(new Line(lineI.corner2, intersection));
-                    regions.lines.push(new Line(lineJ.corner1, intersection));
-                    regions.lines.push(new Line(lineJ.corner2, intersection));
-                    console.log(regions.lines);
-                    regions.removeLine(lineI);
-                    regions.removeLine(lineJ);
+                    // this is tricky, the intersection might lie at the end of a line
+                    // cut lines only if intersection is far from endpoints of the line
+                    if (!lineI.corner1.isEqual(intersection) && !lineI.corner2.isEqual(intersection)) {
+                        foundIntersection = true;
+                        regions.lines.push(new Line(lineI.corner1, intersection));
+                        regions.lines.push(new Line(lineI.corner2, intersection));
+                        regions.removeLine(lineI);   // removes line from corners' list of lines too, we can't simply change endpoints
+                    }
+                    if (!lineJ.corner1.isEqual(intersection) && !lineJ.corner2.isEqual(intersection)) {
+                        foundIntersection = true;
+                        regions.lines.push(new Line(lineJ.corner1, intersection));
+                        regions.lines.push(new Line(lineJ.corner2, intersection));
+                        regions.removeLine(lineJ);
+                    }
                 }
                 j += 1;
             }

@@ -236,7 +236,21 @@ circles.makeGui = function(parentGui, args = {}) {
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
-            circles.add();
+            // add a circle that does not intersect with others
+            const length=circles.collection.length;
+            // if there is no circle: add circle near center of image
+            let mini=1;
+            let maxi=-1;
+            for (var i=0;i<length;i++){
+                const circle=circles.collection[i];
+mini=Math.min(mini,circle.centerX-1.05*circle.radius);
+maxi=Math.max(maxi,circle.centerX+1.05*circle.radius);
+            }
+            if (Math.abs(mini)<Math.abs(maxi)){
+                          circles.add({centerX:mini-1.05});  
+            } else {
+                          circles.add({centerX:maxi+1.05});  
+            }
             basic.drawMapChanged();
         }
     });

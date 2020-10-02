@@ -26,6 +26,21 @@ export function Corner(x, y) {
 }
 
 /**
+ * calculate the distance between two corners
+ * if too small they are equal
+ * @method Corner.prototype.isEqual
+ * @param {Corner} other
+ * @return boolean, true, if distance between corners is too small
+ */
+const eps2 = 0.0001;
+Corner.prototype.isEqual = function(other) {
+    const dx = this.x - other.x;
+    const dy = this.y - other.y;
+    const d2=dx * dx + dy * dy ;
+    return d2< eps2;
+};
+
+/**
  * add a line to the array of lines
  * @method Corner#addLine
  * @param {Line} line
