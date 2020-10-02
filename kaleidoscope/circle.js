@@ -170,23 +170,27 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isMapping = true; // switch mapping on or off (debugging and building), the intersections remain
             this.isView = false; // true for circles that change the view, such as inversion
             this.map = this.insideOutMap; // improving speed
+            this.isInTarget = this.isOutside;
             break;
         case 'outside -> in':
             this.isInsideOutMap = false;
             this.isMapping = true;
             this.isView = false;
             this.map = this.outsideInMap;
+            this.isInTarget = this.isInside;
             break;
         case 'no mapping':
             this.isMapping = false;
             this.isView = false;
             this.map = this.noMap;
+            this.isInTarget = this.noMap;
             break;
         case 'inverting view':
             console.log('invert');
             this.isMapping = false;
             this.isView = true;
             this.map = this.invert;
+            this.isInTarget = this.noMap;
             break;
     }
 };
@@ -847,23 +851,36 @@ Circle.prototype.isSelected = function(position) {
 
 /**
  * check if the position is inside the target region of the circle map (inside or outside the circle)
- * NOTE: Avoid double negations, use positive form of function
  * @method Circle#isInTarget
  * @param {object} position - with x and y fields, such as mouseEvents
  * @return boolean, true if in target region (inside for outsideIn)
  */
 Circle.prototype.isInTarget = function(position) {
-    if (this.isMapping) {
-        const dx = position.x - this.centerX;
-        const dy = position.y - this.centerY;
-        if (this.isInsideOutMap) {
-            return dx * dx + dy * dy > this.radius2;
-        } else {
-            return dx * dx + dy * dy < this.radius2;
-        }
-    } else {
-        return true;
-    }
+    return false;
+};
+
+/**
+ * check if the position is inside the circle (target region for outside->in mapping circles)
+ * @method Circle#isInside
+ * @param {object} position - with x and y fields, such as mouseEvents
+ * @return boolean, true if in target region (inside for outsideIn)
+ */
+Circle.prototype.isInside = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    return dx * dx + dy * dy < this.radius2;
+};
+
+/**
+ * check if the position is inside the circle (target region for inside->out mapping circles)
+ * @method Circle#isOutside
+ * @param {object} position - with x and y fields, such as mouseEvents
+ * @return boolean, true if in target region (inside for outsideIn)
+ */
+Circle.prototype.isOutside = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    return dx * dx + dy * dy > this.radius2;
 };
 
 /**
