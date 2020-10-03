@@ -112,7 +112,7 @@ export function Circle(parentGui, properties) {
         property: 'mapType',
         labelText: 'map',
         width: 100,
-        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view'],
+        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view', 'ortho-stereographic view'],
         onChange: function(mapType) {
             console.log('map type selected', mapType);
             circles.setSelected(circle);
@@ -135,10 +135,7 @@ export function Circle(parentGui, properties) {
                 }
             }
             // set properties of map, may have changed
-            console.log('final typ', circle.mapTypeController.getValue());
-
             circle.setMapProperties(circle.mapTypeController.getValue());
-            console.log(circle.isInsideOutMap, circle.isMapping);
             basic.drawMapChanged();
         }
     });
@@ -187,17 +184,21 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isInTarget = this.noMap;
             break;
         case 'inverting view':
-            console.log('invert');
             this.isMapping = false;
             this.isView = true;
             this.map = this.invert;
             this.isInTarget = this.noMap;
             break;
         case 'logarithmic view':
-            console.log('log');
             this.isMapping = false;
             this.isView = true;
             this.map = this.exponential;
+            this.isInTarget = this.noMap;
+            break;
+        case 'ortho-stereographic view':
+            this.isMapping = false;
+            this.isView = true;
+            this.map = this.orthoStereo;
             this.isInTarget = this.noMap;
             break;
     }
@@ -1012,9 +1013,27 @@ Circle.prototype.exponential = function(position) {
     const dx = position.x - this.centerX;
     const dy = position.y - this.centerY;
     Fast.cosSin(dy, position);
-    const r = Fast.exp(dx / this.radius) * this.radius;
+    const r = Fast.exp(dx / this.radius-1) * this.radius;
     position.x = this.centerX + r * position.x;
     position.y = this.centerY + r * position.y;
+};
+
+/**
+ * orthographic view of stereographic projection
+ * circle center as origin, radius as equator of the prejection sphere
+ * projection of the "inside", direct view of the outside
+ * @method Circle#orthoStereo
+ * @param {object} position - with x, y and valid fields, will be changed
+ */
+Circle.prototype.orthoStereo = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < this.radius2) {
+        const factor = 1 / (1 + Math.sqrt(1 - d2 / this.radius2));
+        position.x = this.centerX + factor * dx;
+        position.y = this.centerY + factor * dy;
+    }
 };
 
 /**
