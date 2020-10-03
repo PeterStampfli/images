@@ -23,9 +23,9 @@ const epsilon2 = epsilon * epsilon;
 Circle.zoomFactor = 1.04;
 
 // parameters for drawing, change if you do not like it 
-Circle.highlightColor = 'yellow';
-Circle.otherHighlightColor = 'white';
-Circle.frozenHighlightColor = '#ffbbbb';
+Circle.highlightColor = '#ffff00';
+Circle.otherHighlightColor = '#ffffff';
+Circle.frozenHighlightColor = '#eeee88';
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -58,20 +58,19 @@ export function Circle(parentGui, properties) {
     // controllers try to change parameters
     // if it does not work because of intersections, we still have the old values
     const circle = this;
-    this.gui = parentGui.addFolder('Circle ' + this.id);
+    this.gui = parentGui;
 
     BooleanButton.greenRedBackground();
     this.canChangeController = this.gui.add({
         type: 'boolean',
         params: this,
         property: 'canChange',
-        labelText: '',
+        labelText: '<strong>circle ' + this.id + '</strong>',
         width: 100,
         buttonText: ['can change', 'frozen'],
         onChange: function() {
             circle.activateUI();
             intersections.activateUI();
-            circle.mapDirectionController.setActive(circle.canChange);
             basic.drawCirclesIntersections(); // no new map
         }
     });
@@ -231,7 +230,6 @@ Circle.prototype.updateUI = function() {
     this.centerXController.setValueOnly(this.centerX);
     this.centerYController.setValueOnly(this.centerY);
     this.radiusController.setValueOnly(this.radius);
-    //    this.mapDirectionController.setValueOnly(this.isInsideOutMap);
 };
 
 /**
@@ -1013,7 +1011,7 @@ Circle.prototype.exponential = function(position) {
     const dx = position.x - this.centerX;
     const dy = position.y - this.centerY;
     Fast.cosSin(dy, position);
-    const r = Fast.exp(dx / this.radius-1) * this.radius;
+    const r = Fast.exp(dx / this.radius - 1) * this.radius;
     position.x = this.centerX + r * position.x;
     position.y = this.centerY + r * position.y;
 };
@@ -1100,6 +1098,11 @@ Circle.prototype.destroy = function() {
     while (this.intersections.length > 0) {
         this.intersections[this.intersections.length - 1].destroy();
     }
-    this.gui.destroy();
+    this.canChangeController.destroy();
+    this.radiusController.destroy();
+    this.centerYController.destroy();
+    this.centerXController.destroy();
+    this.mapTypeController.destroy();
+    this.colorController.destroy();
     circles.remove(this);
 };

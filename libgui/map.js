@@ -722,7 +722,7 @@ map.drawFundamentalRegion = function() {
             if (map.isInFundamentalRegion(point)) {
                 pixels.array[index] = grey;
             } else {
-                pixels.array[index] = 0;  // transparent black
+                pixels.array[index] = 0; // transparent black
             }
             index += 1;
         }
@@ -1105,6 +1105,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
         type: 'number',
         params: map,
         property: 'light',
+        labelText: 'lightening',
         min: 0,
         max: 1,
         onChange: function() {
@@ -1116,6 +1117,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
         type: 'number',
         params: map,
         property: 'dark',
+        labelText: 'darkening',
         min: 0,
         max: 1,
         onChange: function() {

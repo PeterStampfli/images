@@ -375,7 +375,7 @@ regions.resolveIntersections = function() {
                         foundIntersection = true;
                         regions.lines.push(new Line(lineI.corner1, intersection));
                         regions.lines.push(new Line(lineI.corner2, intersection));
-                        regions.removeLine(lineI);   // removes line from corners' list of lines too, we can't simply change endpoints
+                        regions.removeLine(lineI); // removes line from corners' list of lines too, we can't simply change endpoints
                     }
                     if (!lineJ.corner1.isEqual(intersection) && !lineJ.corner2.isEqual(intersection)) {
                         foundIntersection = true;

@@ -31,7 +31,7 @@ The increment of value for each scroll changes the digit where the caret is.
  * load - Object - saved state of the gui (JSON) ??? - default: null
  * parent - ParamGui instance - the gui this one is nested in - default: null (root)
  * autoPlace - boolean - placing the gui automatically?? - default: true
- * hideable - boolean - hide/show with keyboard ParamGui.hideCharacter press ("Tab") - default: true
+ * hideable - boolean - hide/show with keyboard ParamGui.hideCharacter press ("@") - default: true
  *                                              (should not be a printable character)
  * closed - boolean - start gui in closed state - default: true
  * closeOnTop - boolean - make a titlebar with show/close button - default: false
@@ -313,7 +313,7 @@ ParamGui.listeningInterval = 400;
 // keyboard character to hide/show all guis
 // Attention: should not interfere with usual text input (file names...)
 // should not be "tab" (switches between input elements)
-ParamGui.hideCharacter = "$";
+ParamGui.hideCharacter = "@";
 // width for spaces in px
 ParamGui.spaceWidth = 7;
 
@@ -607,30 +607,6 @@ ParamGui.prototype.setZIndex = function(zIndex) {
     this.domElement.style.zIndex = zIndex;
 };
 
-// hide and show might be used in a program to hide irrelevant parameters
-// including title
-
-/**
- * hide the gui/folder. (makes it disappear)
- * note difference between root and folders
- * @method ParamGui#hide
- */
-ParamGui.prototype.hide = function() {
-    this.hidden = true;
-    if (this.isRoot()) {
-        // root, hide base container with border
-        this.domElement.style.visibility = "hidden";
-    } else {
-        // folder, hide topDiv if exists
-        if ((this.closeOnTop) || (this.name !== "")) {
-            this.titleDiv.style.display = "none";
-        }
-        // hide body div and the bottom padding div
-        this.bodyDiv.style.display = "none";
-    }
-    this.closePopup();
-};
-
 /**
  * set if gui is active (or read only for false)
  * @method ParamGui#setActive
@@ -640,28 +616,52 @@ ParamGui.prototype.setActive = function(isActive) {
     this.elements.forEach(element => element.setActive(isActive));
 };
 
+// hide and show might be used in a program to hide irrelevant parameters
+// including title
+
 /**
- * show the gui/folder. (makes it reappear)
+ * hide the gui/folder inluding the title. (makes it disappear)
+ * note difference between root and folders
+ * @method ParamGui#hide
+ */
+ParamGui.prototype.hide = function() {
+    //this.hidden = true;   //remove???
+    if (this.isRoot()) {
+        // root, hide base container with border
+        this.domElement.style.visibility = "hidden";
+    } else {
+        // folder, hide topDiv if exists
+        if (guiUtils.isObject(this.titleDiv)) {
+            this.titleDiv.style.display = "none";
+        }
+        // hide body div and the bottom padding div
+        this.bodyDiv.style.display = "none";
+    }
+    this.closePopup();
+};
+
+/**
+ * show the gui/folder including the title. (makes it reappear)
+ * if closed, show only the title
  * note difference between root and folders
  * show in correct open/closed state (body)
  * @method ParamGui#show
  */
 ParamGui.prototype.show = function() {
-    this.hidden = false;
+    //this.hidden = false;
     if (this.isRoot()) {
         // root, show base container
         this.domElement.style.visibility = "visible";
     } else {
-        // folder, show topDiv if exists, including the buttons
-        if ((this.closeOnTop) || (this.name !== "")) {
+        // folder, show titleDiv if exists
+        if (guiUtils.isObject(this.titleDiv)) {
             this.titleDiv.style.display = "block";
         }
-        this.bodyDiv.style.display = "block";
+        if (!this.closed) {
+            this.bodyDiv.style.display = "block";
+        }
     }
 };
-
-// open/close should not be used in a program (makes no sense)
-// use only in the gui
 
 /**
  * open the body of a gui 
@@ -681,7 +681,7 @@ ParamGui.prototype.open = function() {
 };
 
 /**
- * close the body of a gui 
+ * close the body of a gui, the title rest visible
  * only if there are open/close buttons
  * @method ParamGui#open
  */
@@ -1085,12 +1085,12 @@ ParamGui.prototype.addLogger = function() {
  * add a transformation of coordinates
  * shift and scaling, optional rotation
  * @method ParamGui#addCoordinateTransform
-* @param {canvas} canvas - optional, default==null, transform applies to canvas context
+ * @param {canvas} canvas - optional, default==null, transform applies to canvas context
  * @param {boolean} withRotation - optional, default==false
  * @param {float} stepSize - optional, step size for UI, default is 0.001 * @return coordinateTransform object
  */
-ParamGui.prototype.addCoordinateTransform = function(canvas=null,withRotation = false, stepSize = 0.001) {
-    const coordinateTransform = new CoordinateTransform(this,canvas, withRotation,stepSize);
+ParamGui.prototype.addCoordinateTransform = function(canvas = null, withRotation = false, stepSize = 0.001) {
+    const coordinateTransform = new CoordinateTransform(this, canvas, withRotation, stepSize);
     return coordinateTransform;
 };
 

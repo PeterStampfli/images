@@ -159,9 +159,7 @@ intersections.draw = function() {
  * @param{Object} args - optional, modifying the gui (keep it closed)
  */
 intersections.makeGui = function(parentGui, args = {}) {
-    intersections.gui = parentGui.addFolder('intersections', {
-        closed: false
-    }, args);
+    intersections.gui = parentGui.addFolder('intersections', args);
     intersections.visible = true;
     BooleanButton.greenRedBackground();
     intersections.visibleButton = intersections.gui.add({

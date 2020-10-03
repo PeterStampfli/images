@@ -220,7 +220,7 @@ circles.draw = function() {
 circles.makeGui = function(parentGui, args = {}) {
     circles.gui = parentGui.addFolder('circles', args);
     circles.visible = true;
-    circles.selectedMessage = circles.gui.addParagraph('Selected: none');
+    circles.selectedMessage = circles.gui.addParagraph('selected: none');
     BooleanButton.greenRedBackground();
     circles.visibleButton = circles.gui.add({
         type: 'boolean',
@@ -297,7 +297,7 @@ circles.activateUI = function() {
     } else {
         message += 'none';
     }
-    circles.selectedMessage.innerHTML = message;
+    circles.selectedMessage.innerHTML = '<strong>' + message + '</strong>';
 };
 
 /**

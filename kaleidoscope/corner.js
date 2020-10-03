@@ -36,8 +36,8 @@ const eps2 = 0.0001;
 Corner.prototype.isEqual = function(other) {
     const dx = this.x - other.x;
     const dy = this.y - other.y;
-    const d2=dx * dx + dy * dy ;
-    return d2< eps2;
+    const d2 = dx * dx + dy * dy;
+    return d2 < eps2;
 };
 
 /**

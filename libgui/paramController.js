@@ -100,6 +100,7 @@ export function ParamController(gui, domElement, argObjects) {
     }
     this.interaction = guiUtils.check(args.onInteraction, this.interaction);
     // get label text, button is special: the property might be the button text but not the label text
+    // label can have HTML
     var labelText, buttonText;
     if (args.type === "button") {
         labelText = guiUtils.check(args.labelText, "");
@@ -136,8 +137,8 @@ export function ParamController(gui, domElement, argObjects) {
     // space between label and controller or left border
     this.label.style.paddingLeft = design.spaceWidth + "px";
     this.label.style.paddingRight = design.spaceWidth + "px";
+    this.label.innerHTML = labelText;
     this.domElement.appendChild(this.label);
-    this.label.textContent = labelText;
 
     // call if there is no good initial value, makes messages
     // parameter 'details' gives more information about the error (type of initial value)
@@ -722,7 +723,7 @@ ParamController.prototype.setActive = function(isActive) {
     if (this.uiElement) {
         this.uiElement.setActive(isActive);
     } else {
-        console.error('Controller.setActive: There is no ui element because of unknown controller type "' + this.type + '".');
+        console.error('Controller.setActive: There is no ui element. Something deleted it?');
     }
     return this;
 };

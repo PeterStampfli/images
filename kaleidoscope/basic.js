@@ -48,21 +48,13 @@ basic.setup = function() {
     output.setInitialCoordinates(0, 0, 3);
     // more  UI
     // the presets: make gui and load
-    presets.makeGui(gui, {
-        closed: false
-    });
+    presets.makeGui(gui);
     map.makeShowingGui(gui);
     // new version for regions
-    map.makeRegionsGui(gui, {
-        closed: false
-    });
+    map.makeRegionsGui(gui);
     // GUI's for circles and intersections: you can close them afterwards
-    circles.makeGui(gui, {
-        closed: false
-    });
-    intersections.makeGui(gui, {
-        closed: false
-    });
+    circles.makeGui(gui);
+    intersections.makeGui(gui);
 
     // setting up the mapping, and its default input image
     map.mapping = function(point) {
@@ -80,8 +72,8 @@ basic.setup = function() {
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
-            circles.categorize();
-        map.clearActive();   // clears regions
+        circles.categorize();
+        map.clearActive(); // clears regions
         map.startDrawing();
         if (map.updatingTheMap) {
             // determine fundamental regions
@@ -111,7 +103,7 @@ basic.setup = function() {
         map.inputImageControllersHide();
         map.thresholdGammaControllersHide();
         map.lightDarkControllersHide();
-    circles.categorize();
+        circles.categorize();
         map.drawFundamentalRegion();
         if (regions.debug) {
             // determine fundamental regions
@@ -173,11 +165,11 @@ basic.setup = function() {
 
     // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
-            if (intersections.select(event)) {
-                basic.drawCirclesIntersections();
-            } else if (circles.select(event)) {
-                basic.drawCirclesIntersections();
-            }
+        if (intersections.select(event)) {
+            basic.drawCirclesIntersections();
+        } else if (circles.select(event)) {
+            basic.drawCirclesIntersections();
+        }
         if (map.trajectory) {
             circles.drawTrajectory(event);
         }
@@ -185,7 +177,7 @@ basic.setup = function() {
 
     // mouse drag with ctrl moves selected circle
     output.mouseCtrlDragAction = function(event) {
-            circles.dragAction(event);
+        circles.dragAction(event);
         basic.drawMapChanged();
         if (map.trajectory) {
             circles.drawTrajectory(event);
@@ -195,12 +187,12 @@ basic.setup = function() {
     // mouse wheel with ctrl changes radius of selected circle
     // with ctrl+shift changes order of selected intersection
     output.mouseCtrlWheelAction = function(event) {
-            if (event.shiftPressed) {
-                intersections.wheelAction(event);
-            } else {
-                circles.wheelAction(event);
-            }
-       
+        if (event.shiftPressed) {
+            intersections.wheelAction(event);
+        } else {
+            circles.wheelAction(event);
+        }
+
         map.drawMapChanged();
         if (map.trajectory) {
             circles.drawTrajectory(event);

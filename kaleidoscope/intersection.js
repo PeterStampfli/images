@@ -38,7 +38,7 @@ export function Intersection(parentGui, circle1, circle2, n = 3) {
 
     // the controllers
     const intersection = this;
-    const label = 'Circle ' + circle1.id + ' and ' + circle2.id + ', order:';
+    const label = '<strong>circle ' + circle1.id + ' and ' + circle2.id + '</strong>, order:';
 
     // try to change the order
     this.nController = parentGui.add({
