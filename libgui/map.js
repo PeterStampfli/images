@@ -54,6 +54,7 @@ map.iterationsArray = new Uint8Array(1);
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
+map.maxSize = 0; // maximum value
 
 // greying out the control image
 map.controlPixelsAlpha = 128;
@@ -239,12 +240,25 @@ map.drawingInputImage = false;
 // flag, shows if there is an updated map
 map.updatingTheMap = true;
 
-// hide the input image controllers
-map.inputImageControllersHide = function() {
+// hide all image controllers
+map.allImageControllersHide = function() {
     map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
+    if (guiUtils.isDefined(map.thresholdController)) {
+        map.thresholdController.hide();
+        map.gammaController.hide();
+    }
+    if (guiUtils.isDefined(map.lightController)) {
+        map.lightController.hide();
+        map.darkController.hide();
+    }
+    if (guiUtils.isDefined(map.divergenceThresholdController)) {
+        map.divergenceThresholdController.hide();
+        map.divergenceSaturationController.hide();
+    }
 };
+
 // show the input image controllers
 map.inputImageControllersShow = function() {
     map.controlDiv.style.display = 'block';
@@ -252,27 +266,12 @@ map.inputImageControllersShow = function() {
     map.imageController.show();
 };
 
-// hide the threshold and gamma controllers, if exist
-map.thresholdGammaControllersHide = function() {
-    if (guiUtils.isDefined(map.thresholdController)) {
-        map.thresholdController.hide();
-        map.gammaController.hide();
-    }
-};
 
 // show the threshold and gamma controllers, if exist
 map.thresholdGammaControllersShow = function() {
     if (guiUtils.isDefined(map.thresholdController)) {
         map.thresholdController.show();
         map.gammaController.show();
-    }
-};
-
-// hide the light and dark controllers
-map.lightDarkControllersHide = function() {
-    if (guiUtils.isDefined(map.lightController)) {
-        map.lightController.hide();
-        map.darkController.hide();
     }
 };
 
@@ -284,67 +283,67 @@ map.lightDarkControllersShow = function() {
     }
 };
 
+// show the saturation controllers
+map.divergenceControllersShow = function() {
+    if (guiUtils.isDefined(map.divergenceThresholdController)) {
+        map.divergenceThresholdController.show();
+        map.divergenceSaturationController.show();
+    }
+};
+
 map.callDrawStructure = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
+    map.allImageControllersHide();
     map.lightDarkControllersShow();
     map.drawStructure();
 };
 map.callDrawImageLowQuality = function() {
     map.drawingInputImage = true;
+    map.allImageControllersHide();
     map.inputImageControllersShow();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
     map.drawImageLowQuality();
 };
 map.callDrawImageHighQuality = function() {
     map.drawingInputImage = true;
+    map.allImageControllersHide();
     map.inputImageControllersShow();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
     map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
     map.drawingInputImage = true;
+    map.allImageControllersHide();
     map.inputImageControllersShow();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
-    map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
+    map.allImageControllersHide();
     map.drawRegions();
 };
 map.callDrawIterations = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
+    map.allImageControllersHide();
     map.thresholdGammaControllersShow();
-    map.lightDarkControllersHide();
     map.drawIterations();
 };
 map.callDrawLimitset = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
+    map.allImageControllersHide();
     map.drawLimitset();
 };
 map.callDrawFundamentalRegion = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
+    map.allImageControllersHide();
     map.drawFundamentalRegion();
+};
+map.callDrawDivergence = function() {
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.divergenceControllersShow();
+    map.drawDivergence();
 };
 map.callDrawNoImage = function() {
     map.drawingInputImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
+    map.allImageControllersHide();
     // simply fill canvas
     const context = output.canvasContext;
     context.save();
@@ -415,6 +414,10 @@ map.iterationsColor.length = 256;
 // parameters for making iterations colors
 map.iterationsThreshold = 4;
 map.iterationsGamma = 2;
+
+// parameters for showing divergence, normalized range 0...1
+map.divergenceThreshold = 0.6;
+map.divergenceSaturation = 0.9;
 
 /**
  * make structure colors for active regions, from their basic color
@@ -618,10 +621,14 @@ map.drawIterations = function() {
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const region = map.regionArray[index];
-        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
-            output.pixels.array[index] = map.iterationsColor[map.iterationsArray[index]];
+        if (map.showRegion[region]) {
+            if (map.sizeArray[index] >= 0) {
+                output.pixels.array[index] = map.iterationsColor[map.iterationsArray[index]];
+            } else {
+                output.pixels.array[index] = white; // opaque white, pixel presumably belongs to the limit set
+            }
         } else {
-            output.pixels.array[index] = white; // opaque white, pixel presumably belongs to the limit set
+            output.pixels.array[index] = 0; // transparent black
         }
     }
     output.pixels.show();
@@ -681,6 +688,7 @@ map.drawLimitset = function() {
 
 /**
  * show fundamental region of the map: points that do not get mapped
+ * depends on mapping
  * @method map.drawFundamentalRegion
  */
 
@@ -729,6 +737,50 @@ map.drawFundamentalRegion = function() {
     }
     pixels.show();
 };
+
+/**
+ * draw divergence of the map, from normalized map.sizeArray 
+ * @method map.drawDivergence
+ */
+map.drawDivergence = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    map.sizeArrayUpdate();
+    const color = {
+        red: 255,
+        blue: 255,
+        green: 255,
+        alpha: 255
+    };
+    const white = Pixels.integerOfColor(color);
+    const factor = 255.9 / (Math.abs(map.divergenceSaturation - map.divergenceThreshold) + 0.01);
+    const iMaxSize = 1 / map.maxSize;
+    const length = map.width * map.height;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const region = map.regionArray[index];
+        if (map.showRegion[region]) {
+            let size = map.sizeArray[index];
+            if (size >= 0) {
+                size = size * iMaxSize - map.divergenceThreshold;
+                if (size > 0) {
+                    color.alpha = Math.min(255, Math.floor(factor * size));
+                    output.pixels.array[index] = Pixels.integerOfColor(color);
+                } else {
+                    output.pixels.array[index] = 0; // not enough diverging
+                }
+            } else {
+                output.pixels.array[index] = white; // opaque white, iteration did not end, assuming diverging map
+            }
+        } else {
+            output.pixels.array[index] = 0;
+        }
+    }
+    output.pixels.show();
+};
+
 
 // using an input image
 //==============================================================
@@ -782,6 +834,7 @@ map.needsSizeArrayUpdate = true;
 map.sizeArrayUpdate = function() {
     if (map.needsSizeArrayUpdate) {
         map.needsSizeArrayUpdate = false;
+        map.maxSize = 0;
         const width = map.width;
         const widthM = width - 1;
         const heightM = map.height - 1;
@@ -823,6 +876,7 @@ map.sizeArrayUpdate = function() {
             }
             // the last pixel i=map.width-1 in a row copies the value before
             sizeArray[index] = size;
+            map.maxSize = Math.max(map.maxSize, size);
         }
         // the top row at j=height-1 copies the lower row
         let indexMax = width * map.height;
@@ -1351,4 +1405,35 @@ map.addDrawIterations = function() {
  */
 map.addDrawLimitset = function() {
     map.whatToShowController.addOption('borders', map.callDrawLimitset);
+};
+
+/**
+ * add the possibility to draw the map divergence as estimated by pixel size
+ * needs the settingsGui
+ * @method map.addDrawDivergence
+ */
+map.addDrawDivergence = function() {
+    map.whatToShowController.addOption('divergence', map.callDrawDivergence);
+    map.divergenceThresholdController = map.showingGui.add({
+        type: 'number',
+        params: map,
+        property: 'divergenceThreshold',
+        labelText: 'threshold',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            map.drawMapChanged();
+        }
+    });
+    map.divergenceSaturationController = map.divergenceThresholdController.add({
+        type: 'number',
+        params: map,
+        property: 'divergenceSaturation',
+        labelText: 'saturation',
+        min: 0,
+        max: 1,
+        onChange: function() {
+            map.drawMapChanged();
+        }
+    });
 };

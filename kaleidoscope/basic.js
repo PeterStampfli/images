@@ -100,9 +100,7 @@ basic.setup = function() {
     // for debug show the polygons when showing fundamental regions
     map.callDrawFundamentalRegion = function() {
         map.drawingInputImage = false;
-        map.inputImageControllersHide();
-        map.thresholdGammaControllersHide();
-        map.lightDarkControllersHide();
+        map.allImageControllersHide();
         circles.categorize();
         map.drawFundamentalRegion();
         if (regions.debug) {
@@ -141,6 +139,7 @@ basic.setup = function() {
     map.addDrawNoImage();
     map.addDrawIterations();
     map.addDrawLimitset();
+    map.addDrawDivergence();
     map.addDrawIndrasPearls();
 
     // mouse controls
@@ -248,9 +247,7 @@ map.isInFundamentalRegion = function(point) {
 
 map.callDrawIndrasPearls = function() {
     map.drawingImage = false;
-    map.inputImageControllersHide();
-    map.thresholdGammaControllersHide();
-    map.lightDarkControllersHide();
+     map.allImageControllersHide();
     map.drawIndrasPearls();
 };
 
