@@ -757,6 +757,7 @@ map.drawDivergence = function() {
     const white = Pixels.integerOfColor(color);
     const factor = 255.9 / (Math.abs(map.divergenceSaturation - map.divergenceThreshold) + 0.01);
     const iMaxSize = 1 / map.maxSize;
+    console.log(iMaxSize)
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
@@ -870,13 +871,13 @@ map.sizeArrayUpdate = function() {
                     // surface results from absolute value of the cross product
                     // the size is its square root
                     size = Math.sqrt(Math.abs(ax * by - ay * bx));
-                    sizeArray[index] = size;
+             map.maxSize = Math.max(map.maxSize, size);
+                   sizeArray[index] = size;
                 }
                 index++;
             }
             // the last pixel i=map.width-1 in a row copies the value before
             sizeArray[index] = size;
-            map.maxSize = Math.max(map.maxSize, size);
         }
         // the top row at j=height-1 copies the lower row
         let indexMax = width * map.height;
@@ -1098,9 +1099,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
         }
     });
 
-
     // add a controller for line width 
-
     map.linewidthController = gui.add({
         type: 'number',
         params: map,
@@ -1110,7 +1109,6 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     });
-
 
     // add a controller for switching on/off showing trajectory color to the settings gui
     BooleanButton.greenRedBackground();
