@@ -181,7 +181,6 @@ intersections.makeGui = function(parentGui, args = {}) {
             // add an intersection between the two selected circles
             // button cannot be clicked if this is not possible
             const n = Intersection.estimateN(circles.selected, circles.otherSelected);
-            console.log('estimated n',n);
             intersections.add(circles.selected, circles.otherSelected, n);
             intersections.selected.tryN(n); // this adjusts the circles
             basic.drawMapChanged();

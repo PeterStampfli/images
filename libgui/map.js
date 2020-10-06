@@ -313,6 +313,7 @@ map.callDrawImageVeryHighQuality = function() {
     map.drawingInputImage = true;
     map.allImageControllersHide();
     map.inputImageControllersShow();
+    map.drawImageVeryHighQuality();
 };
 map.callDrawRegions = function() {
     map.drawingInputImage = false;

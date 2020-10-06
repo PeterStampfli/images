@@ -113,23 +113,26 @@ export function Circle(parentGui, properties) {
         width: 100,
         options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view', 'ortho-stereographic view'],
         onChange: function(mapType) {
-            console.log('map type selected', mapType);
             circles.setSelected(circle);
             // if map direction changes, try new direction
             if ((mapType === 'inside -> out') && !circle.isInsideOutMap) {
                 circle.isInsideOutMap = true; // we want inside->out map
                 // check if successful
                 const success = circle.adjustToIntersections();
-                if (!success) {
-                    // failing to change direction, change selection
+                if (success) {
+                    intersections.activateUI();
+                } else {
+                    // failing to change direction, reset selection
                     circle.mapTypeController.setValueOnly('outside -> in');
                 }
             } else if ((mapType === 'outside -> in') && circle.isInsideOutMap) {
                 circle.isInsideOutMap = false; // we want outside->in map
                 // check if successful
                 const success = circle.adjustToIntersections();
-                if (!success) {
-                    // failing to change direction, change selection
+                if (success) {
+                    intersections.activateUI();
+                } else {
+                    // failing to change direction, reset selection
                     circle.mapTypeController.setValueOnly('inside -> out');
                 }
             }
@@ -1091,10 +1094,12 @@ Circle.prototype.wheelAction = function(event) {
 
 /**
  * destroy the circle and all that depends on it
+ * remove from circles
  * make that there are no more references to this circle hanging around
  * @method Circle#destroy
  */
 Circle.prototype.destroy = function() {
+    circles.remove(this);
     while (this.intersections.length > 0) {
         this.intersections[this.intersections.length - 1].destroy();
     }
@@ -1104,5 +1109,4 @@ Circle.prototype.destroy = function() {
     this.centerXController.destroy();
     this.mapTypeController.destroy();
     this.colorController.destroy();
-    circles.remove(this);
 };

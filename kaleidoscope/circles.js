@@ -236,9 +236,9 @@ circles.makeGui = function(parentGui, args = {}) {
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
-            // add a circle that does not intersect with others
             const length = circles.collection.length;
-            // if there is no circle: add circle near center of image
+             // add a circle that does not intersect with others
+           // if there is no circle: add circle near center of image
             let mini = 1;
             let maxi = -1;
             for (var i = 0; i < length; i++) {
@@ -275,6 +275,8 @@ circles.makeGui = function(parentGui, args = {}) {
             circles.selected = false;
             circles.otherSelected = false;
             intersections.selected = false;
+            circles.activateUI();
+            intersections.activateUI();
             basic.drawCirclesIntersections();
         }
     });
