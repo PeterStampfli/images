@@ -237,8 +237,8 @@ circles.makeGui = function(parentGui, args = {}) {
         buttonText: 'add circle',
         onClick: function() {
             const length = circles.collection.length;
-             // add a circle that does not intersect with others
-           // if there is no circle: add circle near center of image
+            // add a circle that does not intersect with others
+            // if there is no circle: add circle near center of image
             let mini = 1;
             let maxi = -1;
             for (var i = 0; i < length; i++) {
@@ -291,8 +291,10 @@ circles.makeGui = function(parentGui, args = {}) {
 circles.activateUI = function() {
     circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
     let message = 'Selected: ';
+    circles.collection.forEach(circle => circle.canChangeController.label.style.backgroundColor = '#00000000');
     if (guiUtils.isObject(circles.selected)) {
         message += '<strong>' + circles.selected.id + '</strong>';
+        circles.selected.canChangeController.label.style.backgroundColor = '#eeeeaa';
         if (guiUtils.isObject(circles.otherSelected)) {
             message += ' and ' + circles.otherSelected.id;
         }

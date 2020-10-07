@@ -247,7 +247,7 @@ map.isInFundamentalRegion = function(point) {
 
 map.callDrawIndrasPearls = function() {
     map.drawingImage = false;
-     map.allImageControllersHide();
+    map.allImageControllersHide();
     map.drawIndrasPearls();
 };
 
@@ -282,7 +282,7 @@ map.drawIndrasPearls = function() {
         const region = map.regionArray[index];
         const lastCircleIndex = circles.lastCircleIndexArray[index];
         if (map.showRegion[region] && (lastCircleIndex < 255)) {
-                output.pixels.array[index] = colors[lastCircleIndex];
+            output.pixels.array[index] = colors[lastCircleIndex];
         } else {
             output.pixels.array[index] = 0; // transparent black
         }

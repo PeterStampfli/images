@@ -211,9 +211,9 @@ intersections.canAdd = function() {
     // and these two do not already have an intersection ...
     canDo = canDo && (intersections.indexOf(circles.selected, circles.otherSelected) < 0);
     // and at least one of the circles can get a new intersection
-    const selectedCan=circles.selected.canChange&&(circles.selected.intersections.length<=2); 
-    const otherSelectedCan=circles.otherSelected.canChange&&(circles.otherSelected.intersections.length<=2);
-    canDo = canDo && (selectedCan||otherSelectedCan);
+    const selectedCan = circles.selected.canChange && (circles.selected.intersections.length <= 2);
+    const otherSelectedCan = circles.otherSelected.canChange && (circles.otherSelected.intersections.length <= 2);
+    canDo = canDo && (selectedCan || otherSelectedCan);
     return canDo;
 };
 
@@ -228,6 +228,10 @@ intersections.activateUI = function() {
     intersections.addButton.setActive(intersections.canAdd());
     // UI of the intersections
     intersections.collection.forEach(intersection => intersection.activateUI());
+    intersections.collection.forEach(intersection => intersection.nController.label.style.backgroundColor = '#00000000');
+    if (guiUtils.isObject(intersections.selected)) {
+        intersections.selected.nController.label.style.backgroundColor = '#eeeeaa';
+    }
 };
 
 /**
