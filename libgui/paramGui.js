@@ -539,14 +539,14 @@ ParamGui.prototype.createTitle = function() {
         }
         // create close and open buttons if wanted
         // small arrows (as for file system), before name
-        if (this.closeOnTop) {
-            this.closeOpenButton = new Button("▼", this.titleDiv);
+        if (this.closeOnTop) {   
+            this.closeOpenButton = new Button("▼&ensp; "+this.name, this.titleDiv);
             this.closeOpenButton.colorStyleForTransparentSpan(design.titleColor);
             this.closeOpenButton.element.style.borderRadius = "0px";
             this.closeOpenButton.element.style.borderStyle = "none";
             this.closeOpenButton.element.style.outline = "none";
+        this.closeOpenButton.element.style.fontWeight = design.titleFontWeight;
             this.closeOpenButton.setFontSize(design.titleFontSize);
-            this.closeOpenButton.setWidth(design.closeOpenButtonWidth);
             this.closeOpenButton.onInteraction = function() {
                 ParamGui.closePopups();
             };
@@ -560,13 +560,12 @@ ParamGui.prototype.createTitle = function() {
             this.titleDiv.appendChild(spanElement);
             spanElement.style.display = "inline-block";
             spanElement.style.width = design.closeOpenButtonWidth + "px";
-        }
-        // write name of folder/gui in the title div
         this.titleLabel = document.createElement("span");
         this.titleLabel.innerHTML = this.name;
         this.titleDiv.appendChild(this.titleLabel);
-        this.titleLabel.style.fontSize = design.titleFontSize + "px";
-        this.titleLabel.style.fontWeight = design.titleFontWeight;
+        }
+         this.titleDiv.style.fontSize = design.titleFontSize + "px";
+        this.titleDiv.style.fontWeight = design.titleFontWeight;
         // attach to the dom only after all changes have been done
         // might accelerate things (page reflow only once)
         this.domElement.appendChild(this.titleDiv);
@@ -671,7 +670,7 @@ ParamGui.prototype.show = function() {
 ParamGui.prototype.open = function() {
     if (this.closeOnTop) {
         this.closed = false;
-        this.closeOpenButton.setText("▼");
+       this.closeOpenButton.setText("▼&ensp; "+this.name);
         const paramGui = this;
         this.closeOpenButton.onClick = function() {
             paramGui.close();
@@ -688,7 +687,7 @@ ParamGui.prototype.open = function() {
 ParamGui.prototype.close = function() {
     if (this.closeOnTop) {
         this.closed = true;
-        this.closeOpenButton.setText("►");
+        this.closeOpenButton.setText("►&ensp; "+this.name);
         const paramGui = this;
         this.closeOpenButton.onClick = function() {
             paramGui.open();

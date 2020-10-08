@@ -194,7 +194,7 @@ Button.prototype.setMinWidth = function(width) {
  * @param {String} text
  */
 Button.prototype.setText = function(text) {
-    this.element.textContent = text;
+    this.element.innerHTML = text;
 };
 
 /**
