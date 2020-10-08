@@ -27,11 +27,11 @@ output.divHeight = 0;
 output.divWidth = 0;
 
 /**
-* call this when drawing starts
-* @method output.startDrawing
-*/
-output.startDrawing=function(){
-output.isDrawing = true;
+ * call this when drawing starts
+ * @method output.startDrawing
+ */
+output.startDrawing = function() {
+    output.isDrawing = true;
 };
 
 /**
@@ -314,7 +314,7 @@ output.createCanvas = function(gui, folderName) {
         initialValue: 'png',
         labelText: '.',
         minLabelWidth: 5
-    });
+    }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
     widthController = gui.add({
         type: "number",
@@ -346,7 +346,7 @@ output.createCanvas = function(gui, folderName) {
             autoResizeController.setValueOnly(false);
             autoResizeDraw();
         }
-    });
+    }).addHelp('You can set image sizes in pixels. Values up to 10000 are possible.');
 
     BooleanButton.greenRedBackground();
     autoResizeController = gui.add({
@@ -397,7 +397,7 @@ output.createCanvas = function(gui, folderName) {
                 document.exitFullscreen();
             }
         }
-    }).addHelp('Switches browser to full screen mode and back.');
+    }).addHelp('Switches full screen mode on and off.');
     // note that changing the background color has no effect on *.jpg images
     // and all alpha=0 pixels become opaque black in *.jpg output
     output.canvasBackgroundColorController = gui.add({
@@ -408,7 +408,7 @@ output.createCanvas = function(gui, folderName) {
         onChange: function() {
             output.canvas.style.backgroundColor = output.canvasBackgroundColor;
         }
-    });
+    }).addHelp('Choose a convenient background color for transparent image parts. Note: They will always be opaque black in saved *.jpg files.');
     if (!output.div) {
         output.createDiv();
     }
@@ -550,10 +550,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     const coordinateTransform = output.coordinateTransform;
     coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
     coordinateTransform.updateTransform();
-    let helpText = 'The values of "translateX" and "Y" are the coordinates of the upper left image corner.';
-    helpText += '<br>The value of "scale" is the mean range of the image along the coordinate x- and y-axis.';
-    helpText += '<br>Drag the mouse on the image to move it. Change the scale with the mouse wheel.';
-    coordinateTransform.addHelp(helpText);
+    coordinateTransform.addHelp('The values of "translateX" and "Y" are the coordinates of the upper left image corner. The value of "scale" is the mean range of the image along the coordinate x- and y-axis. Drag the mouse on the image to move it. Change the scale with the mouse wheel. Use the reset button to come back to the original settings.');
     output.coordinateTransform.onChange = function() {
         output.drawCanvasChanged(); // this calls always the latest version
     };
@@ -799,7 +796,7 @@ output.addGrid = function(gui) {
         onChange: function() {
             output.drawGridChanged();
         }
-    });
+    }).addHelp('This draws a grid on top of the image. The two coordinate axis appear with thicker lines.');
     const colorController = gui.add({
         type: 'color',
         params: grid,
@@ -869,9 +866,9 @@ output.fillCanvas = function(color) {
     output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
     output.canvasContext.fillStyle = color;
     output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
-    if (color!=='#00000000'){
+    if (color !== '#00000000') {
         output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
-   }
+    }
     output.canvasContext.setTransform(transform);
 };
 

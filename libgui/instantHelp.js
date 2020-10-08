@@ -70,6 +70,7 @@ InstantHelp.popup = new Popup({
 
 InstantHelp.popup.close();
 InstantHelp.handleActiveColor = "#ffff88";
+InstantHelp.popup.contentDiv.style.textAlign = "left";
 
 /**
  * set fontsize of the handle, in px
