@@ -50,6 +50,8 @@ basic.setup = function() {
     // the presets: make gui and load
     presets.makeGui(gui);
     map.makeShowingGui(gui);
+    map.maxIterationsController.name('inversions');
+    map.maxIterationsController.addHelp('Upper limit for the number of inversions. Increase if there are undefined transparent patches of pixels. Decrease if app is lagging too much.');
     // new version for regions
     map.makeRegionsGui(gui);
     // GUI's for circles and intersections: you can close them afterwards

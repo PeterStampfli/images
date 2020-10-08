@@ -42,7 +42,7 @@ export function ParamController(gui, domElement, argObjects) {
     // put controller in list of elements (for destruction, popup controll,...)
     gui.elements.push(this);
     this.type = args.type;
-    this.useRGBFields = args.useRGBFields;
+    this.useRGBFields = guiUtils.check(args.useRGBFields, false);
     // see if the args object has a parameter value
     this.hasParameter = false;
     var parameterValue;
@@ -117,7 +117,7 @@ export function ParamController(gui, domElement, argObjects) {
         this.initialValue = guiUtils.check(args.initialValue, parameterValue);
     }
     // activate listening if we have a parameter and args.listening is true
-    this.listening = this.hasParameter && guiUtils.check(args.listening);
+    this.listening = this.hasParameter && guiUtils.check(args.listening, false);
     if (this.listening) {
         ParamGui.startListening(); // automatically update display
     }
