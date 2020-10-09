@@ -756,7 +756,7 @@ map.drawDivergence = function() {
         alpha: 255
     };
     const white = Pixels.integerOfColor(color);
-    const factor = 255.9 / (Math.abs(map.divergenceSaturation - map.divergenceThreshold) + 0.01);
+    const factor = 255.9 / (Math.max(0,map.divergenceSaturation - map.divergenceThreshold) + 0.01);
     const iMaxSize = 1 / map.maxSize;
     console.log(iMaxSize)
     const length = map.width * map.height;
@@ -1178,6 +1178,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     });
+        map.darkController.addHelp('Sets contrast between odd and even number of iterations. Use zero to get flat color.');
     // a hidden canvas for the input image
     map.inputCanvas = document.createElement('canvas'); // has default width and height
     map.inputCanvas.style.display = 'none';
@@ -1206,6 +1207,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChangedCheckMapUpdate();
         }
     });
+
     // setup control canvas
     // a div that contains the control canvas to 
     // avoid that the lower part of the gui 'jumps' if the input image changes

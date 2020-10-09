@@ -773,8 +773,7 @@ output.grid = grid;
 grid.on = false;
 grid.interval = 1;
 grid.color = '#000000';
-grid.axisWidth = 6;
-grid.lineWidth = 3;
+grid.lineWidth = 1;
 
 output.addGrid = function(gui) {
     BooleanButton.greenRedBackground();
@@ -782,7 +781,7 @@ output.addGrid = function(gui) {
         type: 'boolean',
         params: grid,
         property: 'on',
-        labelText: 'grid',
+        labelText: '<strong>grid</strong>',
         onChange: function() {
             output.drawGridChanged();
         }
@@ -796,12 +795,22 @@ output.addGrid = function(gui) {
         onChange: function() {
             output.drawGridChanged();
         }
-    }).addHelp('This draws a grid on top of the image. The two coordinate axis appear with thicker lines.');
+    }).addHelp('Draws a grid. The two coordinate axis appear as thicker lines.');
     const colorController = gui.add({
         type: 'color',
         params: grid,
         property: 'color',
-        labelText: '',
+        labelText: 'color',
+        onChange: function() {
+            output.drawGridChanged();
+        }
+    });
+        const lineWidthControllerController = gui.add({
+        type: 'number',
+        params: grid,
+        min:0,
+        property: 'lineWidth',
+        labelText: 'linewidth',
         onChange: function() {
             output.drawGridChanged();
         }
@@ -829,7 +838,7 @@ output.drawGrid = function() {
         const xMax = v.x;
         const yMax = v.y;
         // axis
-        output.setLineWidth(grid.axisWidth);
+        output.setLineWidth(3*grid.lineWidth);
         canvasContext.beginPath();
         canvasContext.moveTo(xMin, 0);
         canvasContext.lineTo(xMax, 0);

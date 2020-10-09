@@ -52,6 +52,18 @@ basic.setup = function() {
     map.makeShowingGui(gui);
     map.maxIterationsController.name('inversions');
     map.maxIterationsController.addHelp('Upper limit for the number of inversions. Increase if there are undefined transparent patches of pixels. Decrease if app is lagging too much.');
+    map.linewidthController.addHelp('Width in pixels for drawing circles, intersections and the trajectory.');
+    map.trajectoryOnOffController.addHelp('Switch on and press the ctrl-button to see a trajectory of the circle inversions, starting at the mouse position. The trajectory line pieces have the same color as the inverting circle. No trajectory is shown if some circles make an inverting, logarithmic or ortho-stereographic view.');
+    let showHelp = '<strong>structure:</strong> Pixels get the color of the region they are mapped into. For odd numbers of inversions the color is darkened. For even numbers it is lightened.<br>';
+    showHelp += '<strong>image - low quality:</strong> Maps an input image. Fast, but strong aliasing and block pixels may appear.<br>';
+    showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and linear pixel interpolation.<br>';
+    showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and cubic pixel interpolation.<br>';
+    showHelp += '<strong>fundamental region:</strong> Shows the regions where pixels get mapped into as solid grey. Much faster than the other options. Use for setup.<br>';
+    showHelp += '<strong>iterations:</strong> Shows pixels that need many inversions in white. Else transparent black.<br>';
+    showHelp += '<strong>borders:</strong> Shows pixels that lie at the border of different mapping regions in white. Else transparent black.<br>';
+    showHelp += "<strong>Indra's pearls:</strong> Pixels get the color of the last circle that inverted their position. Use for non-intersecting circles.<br>";
+    map.whatToShowController.addHelp(showHelp);
+        map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
     // new version for regions
     map.makeRegionsGui(gui);
     // GUI's for circles and intersections: you can close them afterwards
@@ -138,10 +150,8 @@ basic.setup = function() {
     };
 
     map.addDrawFundamentalRegion();
-    map.addDrawNoImage();
     map.addDrawIterations();
     map.addDrawLimitset();
-    map.addDrawDivergence();
     map.addDrawIndrasPearls();
 
     // mouse controls

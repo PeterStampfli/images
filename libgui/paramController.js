@@ -526,12 +526,15 @@ ParamController.prototype.add = function(theParams, theProperty, low, high, step
 ParamController.prototype.addColor = ParamGui.prototype.addColor;
 
 /**
- * add a help alert
+ * add a help alert, or overwrite
  * @method ParamController#addHelp
  * @param {String} message - with html markup
  * @return this, for chaining
  */
 ParamController.prototype.addHelp = function(message) {
+    if (guiUtils.isObject(this.helpButton)){
+        this.helpButton.destroy();
+    }
     this.helpButton = new InstantHelp(message, this.domElement);
     this.helpButton.setFontSize(this.design.buttonFontSize);
     return this;

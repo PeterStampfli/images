@@ -63,7 +63,7 @@ InstantHelp.spaceWidth = 5;
 
 InstantHelp.popup = new Popup({
     popupHasControl: false,
-    popupInnerWidth: 400,
+    popupInnerWidth: 500,
     popupFontSize: 18,
     popupBorder: "none"
 });
