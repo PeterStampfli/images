@@ -460,6 +460,24 @@ ImageSelect.prototype.addUserImage = function(file, selectThis = false) {
     }
 };
 
+/**
+ * read image files and add to image choices
+ * @method ImageSelect#readFiles
+ * @param {object} files
+ */
+ImageSelect.prototype.readFiles = function(files) {
+    // files is NOT an array
+    // select the first good image file
+    let selectThis = true;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (guiUtils.isGoodImageFile(file.name)) {
+            this.addUserImage(file, selectThis);
+            selectThis = false;
+        }
+    }
+};
+
 // texts for the button and the popup for loading user images
 ImageSelect.addImageButtonText = "add images";
 
@@ -481,7 +499,6 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
     button.setFontSize(this.design.buttonFontSize);
 
     // adding events
-    // maybe needs to be overwritten
     const imageSelect = this;
 
     button.onInteraction = function() {
@@ -490,36 +507,10 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
 
     // this is the callback to be called via the file input element after all files have been choosen by the user
     button.onFileInput = function(files) {
-        // files is NOT an array
-        let selectThis = true;
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            imageSelect.addUserImage(file, selectThis);
-            // select only the first good image file
-            selectThis = selectThis && !guiUtils.isGoodImageFile(file.name);
-        }
+            imageSelect.readFiles(files);
     };
 
     return button;
-};
-
-/**
- * read files upon drop and add to image choices
- * @method ImageSelect#dropAction
- * @param {object} event
- */
-ImageSelect.prototype.dropAction = function(event) {
-    const files = event.dataTransfer.files;
-    // event.dataTransfer.files is NOT an array
-    // select the first good image file
-    let selectThis = true;
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (guiUtils.isGoodImageFile(file.name)) {
-            this.addUserImage(file, selectThis);
-            selectThis = false;
-        }
-    }
 };
 
 /**
@@ -539,7 +530,8 @@ ImageSelect.prototype.addDragAndDrop = function() {
 
     this.popup.mainDiv.ondrop = function(event) {
         event.preventDefault();
-        imageSelect.dropAction(event);
+     const files = event.dataTransfer.files;
+       imageSelect.readFiles(files);
     };
 };
 
@@ -557,7 +549,8 @@ ImageSelect.prototype.addDragAndDropWindow=function(){
     };
     window.addEventListener('drop',function(event){
         event.preventDefault();
-        imageSelect.dropAction(event);
+     const files = event.dataTransfer.files;
+       imageSelect.readFiles(files);
     },false);
 };
 
