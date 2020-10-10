@@ -145,12 +145,13 @@ for (var i = 10; i < 20; i++) {
 
 parameters.image = haeckel + "0" + 5 + ".png";
 
-gui.add({
+const imageController=gui.add({
     type: "image",
     params: parameters,
     property: "image",
     options: choices
 });
+imageController.addDragAndDropWindow();
 parameters.rgba = "#ff0000ff";
 gui.addParagraph("addColor(...) not needed anymore as with type:COLOR there is no confusion with type: TEXT controllers:");
 const co = gui.add({
@@ -186,6 +187,7 @@ sele.addOption("zeta");
 
 gui.setActive(false);
 gui.setActive(true);
+
 </script>
 
 </html>

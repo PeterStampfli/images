@@ -638,7 +638,7 @@ ParamController.prototype.getValue = function(obj) {
  * do something with the selected image
  * loads the selected image and uses it as argument for a callback function
  * the image is also at this.image, but beware of image loading time delay
- * @method ImageSelect.useImage
+ * @method ParamController#useImage
  * @param {function} callback - function(image), image is a html image object
  * @return this controller for chaining
  */
@@ -647,6 +647,20 @@ ParamController.prototype.useImage = function(callback) {
         this.uiElement.useImage(callback);
     } else {
         console.error('ParamController.useImage: Only for "image" controllers. Type of this controller: "' + this.type + '"');
+    }
+    return this;
+};
+
+/**
+ * for controller of type image
+ * make that we can drag and drop image files on the window
+ * @method ParamController#addDragAndDropWindow
+ */
+ParamController.prototype.addDragAndDropWindow = function(callback) {
+    if (this.type === "image") {
+        this.uiElement.addDragAndDropWindow();
+    } else {
+        console.error('ParamController.addDragAndDropWindow: Only for "image" controllers. Type of this controller: "' + this.type + '"');
     }
     return this;
 };
@@ -885,14 +899,15 @@ ParamController.prototype.deleteLabel = function() {
 ParamController.prototype.acceptUserObjects = function() {
     if (this.type === "selection") {
         this.domElement.appendChild(document.createElement('br'));
-        // alignment
+        // alignment, make a span that has the same width as the labels (with padding)
         const dummyLabel = document.createElement("span");
         dummyLabel.style.display = "inline-block";
         dummyLabel.style.minWidth = this.design.minLabelWidth + "px";
         dummyLabel.style.paddingLeft = this.design.spaceWidth + "px";
         dummyLabel.style.paddingRight = this.design.spaceWidth + "px";
         this.domElement.appendChild(dummyLabel);
-        // adding the button, text: SelectValues.addObjectsButtonText
+        // adding the button for opening files
+        // button text: SelectValues.addObjectsButtonText
         const addButton = this.uiElement.makeAddObjectsButton(this.domElement);
         addButton.setFontSize(this.design.buttonFontSize);
         const controller = this;

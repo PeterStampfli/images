@@ -64,6 +64,9 @@ basic.setup = function() {
     showHelp += "<strong>Indra's pearls:</strong> Pixels get the color of the last circle that inverted their position. Use for non-intersecting circles.<br>";
     map.whatToShowController.addHelp(showHelp);
         map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
+ map.imageController.addDragAndDropWindow();
+
+
     // new version for regions
     map.makeRegionsGui(gui);
     // GUI's for circles and intersections: you can close them afterwards

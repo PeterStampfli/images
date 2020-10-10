@@ -462,7 +462,6 @@ ImageSelect.prototype.addUserImage = function(file, selectThis = false) {
 
 // texts for the button and the popup for loading user images
 ImageSelect.addImageButtonText = "add images";
-ImageSelect.addImagePopupText = "drop images here!";
 
 /**
  * make an add image button for opening user images
@@ -531,15 +530,6 @@ ImageSelect.prototype.dropAction = function(event) {
  * @method ImageSelect#addDragAndDrop
  */
 ImageSelect.prototype.addDragAndDrop = function() {
-    // write that we can drop images into the popup
-    this.dragAndDropMessageDiv = document.createElement("div");
-    this.dragAndDropMessageDiv.innerText = ImageSelect.addImagePopupText;
-    guiUtils.fontSize(this.design.buttonFontSize + "px", this.dragAndDropMessageDiv)
-        .paddingBottom(this.popup.design.popupPadding + "px");
-    this.popup.controlDiv.insertBefore(this.dragAndDropMessageDiv, this.popup.closeButton.element);
-
-    // adding events
-    // maybe needs to be overwritten
     const imageSelect = this;
 
     // we need dragover to prevent default loading of image, even if dragover does nothing else
@@ -551,6 +541,24 @@ ImageSelect.prototype.addDragAndDrop = function() {
         event.preventDefault();
         imageSelect.dropAction(event);
     };
+};
+
+/**
+* add drag and drop to the window
+* remove it from the popup, in case it is there
+* @method ImageSelect#addDragAndDropWindow
+*/
+ImageSelect.prototype.addDragAndDropWindow=function(){
+    const imageSelect = this;
+         this.popup.mainDiv.ondragover = function(event) {    };
+    this.popup.mainDiv.ondrop = function(event) { };
+        window.ondragover = function(event) {
+        event.preventDefault();
+    };
+    window.addEventListener('drop',function(event){
+        event.preventDefault();
+        imageSelect.dropAction(event);
+    },false);
 };
 
 /**
