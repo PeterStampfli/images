@@ -505,6 +505,25 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
 };
 
 /**
+ * read files upon drop and add to image choices
+ * @method ImageSelect#dropAction
+ * @param {object} event
+ */
+ImageSelect.prototype.dropAction = function(event) {
+    const files = event.dataTransfer.files;
+    // event.dataTransfer.files is NOT an array
+    // select the first good image file
+    let selectThis = true;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (guiUtils.isGoodImageFile(file.name)) {
+            this.addUserImage(file, selectThis);
+            selectThis = false;
+        }
+    }
+};
+
+/**
  * add message and drag and drop to the popup
  * good for simple image select
  * eventually rewrite methods (ondrop)
@@ -513,11 +532,11 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
  */
 ImageSelect.prototype.addDragAndDrop = function() {
     // write that we can drop images into the popup
-    const messageDiv = document.createElement("div");
-    messageDiv.innerText = ImageSelect.addImagePopupText;
-    guiUtils.fontSize(this.design.buttonFontSize + "px", messageDiv)
+    this.dragAndDropMessageDiv = document.createElement("div");
+    this.dragAndDropMessageDiv.innerText = ImageSelect.addImagePopupText;
+    guiUtils.fontSize(this.design.buttonFontSize + "px", this.dragAndDropMessageDiv)
         .paddingBottom(this.popup.design.popupPadding + "px");
-    this.popup.controlDiv.insertBefore(messageDiv, this.popup.closeButton.element);
+    this.popup.controlDiv.insertBefore(this.dragAndDropMessageDiv, this.popup.closeButton.element);
 
     // adding events
     // maybe needs to be overwritten
@@ -530,15 +549,7 @@ ImageSelect.prototype.addDragAndDrop = function() {
 
     this.popup.mainDiv.ondrop = function(event) {
         event.preventDefault();
-        const files = event.dataTransfer.files;
-        // event.dataTransfer.files is NOT an array
-        let selectThis = true;
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            imageSelect.addUserImage(file, selectThis);
-            // select only the first good image file
-            selectThis = selectThis && !guiUtils.isGoodImageFile(file.name);
-        }
+        imageSelect.dropAction(event);
     };
 };
 
