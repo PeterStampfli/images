@@ -115,6 +115,52 @@ SelectValues.prototype.addOptions = function(options) {
 
 // text for the button for loading user defined objects (presets)
 SelectValues.addObjectsButtonText = "add";
+const fileReader = new FileReader();
+
+/**
+ * read and parse JSON *.txt files that define objects
+ * @method SelectValues#readJSONFiles
+ * @param {object} files
+ */
+SelectValues.prototype.readJSONFiles = function(files) {
+    let currentFileNumber = 0;
+    let presetLoaded = false; // for selecting the first loaded preset
+    const selectValues = this;
+
+    fileReader.onload = function() {
+        const file = files[currentFileNumber];
+        const fileNameParts = file.name.split('.');
+        if (fileNameParts[1] === 'txt') {
+            // use only *.txt files (for window drag and drop)
+            const result = fileReader.result;
+            let ok = true;
+            var value;
+            try {
+                value = JSON.parse(result); // recover object from JSON, catch syntax errors
+            } catch (err) {
+                alert('JSON syntax error in: ' + file.name);
+                ok = false;
+            }
+            // load only if there is no syntax error
+            if (ok) {
+                const name = fileNameParts[0]; // filename without extension, use as name of selection  
+                selectValues.addOption(name, value);
+                // set selection to the first loaded preset
+                if (!presetLoaded) {
+                    selectValues.setValue(value);
+                    selectValues.onChange();
+                    presetLoaded = true;
+                }
+            }
+        }
+        currentFileNumber += 1;
+        if (currentFileNumber < files.length) {
+            fileReader.readAsText(files[currentFileNumber]);
+        }
+    };
+
+    fileReader.readAsText(files[0]);
+};
 
 /**
  * make an add values button for opening user defined objects (presets)
@@ -136,26 +182,7 @@ SelectValues.prototype.makeAddObjectsButton = function(parent) {
 
     // this is the callback to be called via the file input element after all files have been choosen by the user
     button.onFileInput = function(files) {
-        let currentFileNumber = 0;
-        const fileReader = new FileReader();
-
-        fileReader.onload = function() {
-            const file = files[currentFileNumber];
-            const name = file.name.split('.')[0]; // filename without extension        const result = fileReader.result;
-            const result = fileReader.result;
-            const value = JSON.parse(result); // recover object from JSON
-            selectValues.addOption(name, value);
-            if (currentFileNumber === 0) {
-                selectValues.setValue(value);
-                selectValues.onChange();
-            }
-            currentFileNumber += 1;
-            if (currentFileNumber < files.length) {
-                fileReader.readAsText(files[currentFileNumber]);
-            }
-        };
-
-        fileReader.readAsText(files[0]);
+        selectValues.readJSONFiles(files);
     };
 
     return button;
