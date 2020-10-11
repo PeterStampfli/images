@@ -123,59 +123,63 @@ const fileReader = new FileReader();
  * @param {object} files
  */
 SelectValues.prototype.readJSONFiles = function(files) {
-    let currentFileNumber = 0;
-    let presetLoaded = false; // for selecting the first loaded preset
+    let currentFileNumber = -1; // loadNextFile() first advances file number
+    let selectionChoiceUpdated = false; // for selecting the first loaded preset
     const selectValues = this;
 
-    // load next file, it is a *.txt file, not yet in the options
-    // in case, set selected value
-    function loadNextFile(){
-        
+    // load next file only if it is a *.txt file and not yet in the options
+    // if in options and selection not updated set selected value
+    function loadNextFile() {
+        var file;
+        currentFileNumber += 1; // advance to next file
+        while (currentFileNumber < files.length) {
+            file = files[currentFileNumber];
+            const fileNameParts = file.name.split('.');
+            // use only *.txt files (for window drag and drop)
+            if (fileNameParts[1] === 'txt') {
+                const name = fileNameParts[0]; // filename without extension, use as name of selection 
+                // load only once 
+                if (selectValues.findIndex(name) < 0) {
+                    fileReader.readAsText(file);
+                    return;
+                } else if (!selectionChoiceUpdated) {
+                    // set selection to the first previously loaded preset
+                    selectValues.setValue(name);
+                    selectValues.onChange();
+                    selectionChoiceUpdated = true;
+                }
+            }
+            // nothing loaded, look at next file
+            currentFileNumber += 1;
+        }
     }
 
     fileReader.onload = function() {
+        // we know that the file is a *.txt file and that the name is not yet in the options
         const file = files[currentFileNumber];
         const fileNameParts = file.name.split('.');
-        // use only *.txt files (for window drag and drop)
-        if (fileNameParts[1] === 'txt') {
-            let ok = true;
-            const name = fileNameParts[0]; // filename without extension, use as name of selection  
-            // do not load twice
-            if (selectValues.findIndex(name) < 0) {
-                const result = fileReader.result;
-                var value;
-                try {
-                    value = JSON.parse(result); // recover object from JSON, catch syntax errors
-                } catch (err) {
-                    alert('JSON syntax error in: ' + file.name);
-                    ok = false;
-                }
-                // load only if there is no syntax error and JSON not yet loaded
-                if (ok) {
-                    selectValues.addOption(name, value);
-                }
-            }
-            // set selection to the first loaded preset
-            if (!presetLoaded) {
+        const name = fileNameParts[0]; // filename without extension, use as name of selection  
+        const result = fileReader.result;
+        try {
+            const value = JSON.parse(result); // recover object from JSON, catch syntax errors
+            selectValues.addOption(name, value);
+            if (!selectionChoiceUpdated) {
+                // set selection to the first loaded preset
                 selectValues.setValue(name);
                 selectValues.onChange();
-                presetLoaded = true;
+                selectionChoiceUpdated = true;
             }
+        } catch (err) {
+            alert('JSON syntax error in: ' + file.name);
         }
-        currentFileNumber += 1;
-        if (currentFileNumber < files.length) {
-            fileReader.readAsText(files[currentFileNumber]);
-        }
+        loadNextFile();
     };
 
     fileReader.onerror = function() {
-        currentFileNumber += 1;
-        if (currentFileNumber < files.length) {
-            fileReader.readAsText(files[currentFileNumber]);
-        }
+        loadNextFile();
     };
 
-    fileReader.readAsText(files[0]);
+    loadNextFile();
 };
 
 /**
