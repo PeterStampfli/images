@@ -460,22 +460,59 @@ ImageSelect.prototype.addUserImage = function(file, selectThis = false) {
     }
 };
 
+const fileReader = new FileReader();
+
 /**
  * read image files and add to image choices
  * @method ImageSelect#readFiles
  * @param {object} files
  */
 ImageSelect.prototype.readFiles = function(files) {
-    // files is NOT an array
-    // select the first good image file
-    let selectThis = true;
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+    let currentFileNumber = 0;
+    let imageLoaded = false; // for selecting the first loaded image
+    const imageSelect = this;
+
+    fileReader.onload = function() {
+        const file = files[currentFileNumber];
         if (guiUtils.isGoodImageFile(file.name)) {
-            this.addUserImage(file, selectThis);
-            selectThis = false;
+            // load image from file reader
+            // fileReader.result is the dataURL for the image
+            // add image only once
+            let index = imageSelect.findIndex(fileReader.result);
+            if (index < 0) {
+                const option = {};
+                option.name = file.name.split(".")[0];
+                option.icon = fileReader.result;
+                option.value = fileReader.result;
+                imageSelect.addOptions(option);
+            }
+            // make the loaded image potentially visible
+            index = imageSelect.findIndex(fileReader.result);
+            if (index >= 0) {
+                imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
+                imageSelect.loadImages();
+                // set selection to the first loaded image
+                if (!imageLoaded) {
+                    imageSelect.setValue(fileReader.result);
+                    imageSelect.onChange();
+                    imageLoaded = true;
+                }
+            }
         }
-    }
+        currentFileNumber += 1;
+        if (currentFileNumber < files.length) {
+            fileReader.readAsDataURL(files[currentFileNumber]);
+        }
+    };
+
+    fileReader.onerror = function() {
+        currentFileNumber += 1;
+        if (currentFileNumber < files.length) {
+            fileReader.readAsText(files[currentFileNumber]);
+        }
+    };
+    
+    fileReader.readAsDataURL(files[0]);
 };
 
 // texts for the button and the popup for loading user images
@@ -507,7 +544,7 @@ ImageSelect.prototype.makeAddImageButton = function(parent) {
 
     // this is the callback to be called via the file input element after all files have been choosen by the user
     button.onFileInput = function(files) {
-            imageSelect.readFiles(files);
+        imageSelect.readFiles(files);
     };
 
     return button;
@@ -530,28 +567,28 @@ ImageSelect.prototype.addDragAndDrop = function() {
 
     this.popup.mainDiv.ondrop = function(event) {
         event.preventDefault();
-     const files = event.dataTransfer.files;
-       imageSelect.readFiles(files);
+        const files = event.dataTransfer.files;
+        imageSelect.readFiles(files);
     };
 };
 
 /**
-* add drag and drop to the window
-* remove it from the popup, in case it is there
-* @method ImageSelect#addDragAndDropWindow
-*/
-ImageSelect.prototype.addDragAndDropWindow=function(){
+ * add drag and drop to the window
+ * remove it from the popup, in case it is there
+ * @method ImageSelect#addDragAndDropWindow
+ */
+ImageSelect.prototype.addDragAndDropWindow = function() {
     const imageSelect = this;
-         this.popup.mainDiv.ondragover = function(event) {    };
-    this.popup.mainDiv.ondrop = function(event) { };
-        window.ondragover = function(event) {
+    this.popup.mainDiv.ondragover = function(event) {};
+    this.popup.mainDiv.ondrop = function(event) {};
+    window.ondragover = function(event) {
         event.preventDefault();
     };
-    window.addEventListener('drop',function(event){
+    window.addEventListener('drop', function(event) {
         event.preventDefault();
-     const files = event.dataTransfer.files;
-       imageSelect.readFiles(files);
-    },false);
+        const files = event.dataTransfer.files;
+        imageSelect.readFiles(files);
+    }, false);
 };
 
 /**

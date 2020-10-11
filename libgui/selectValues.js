@@ -127,32 +127,48 @@ SelectValues.prototype.readJSONFiles = function(files) {
     let presetLoaded = false; // for selecting the first loaded preset
     const selectValues = this;
 
+    // load next file, it is a *.txt file, not yet in the options
+    // in case, set selected value
+    function loadNextFile(){
+        
+    }
+
     fileReader.onload = function() {
         const file = files[currentFileNumber];
         const fileNameParts = file.name.split('.');
+        // use only *.txt files (for window drag and drop)
         if (fileNameParts[1] === 'txt') {
-            // use only *.txt files (for window drag and drop)
-            const result = fileReader.result;
             let ok = true;
-            var value;
-            try {
-                value = JSON.parse(result); // recover object from JSON, catch syntax errors
-            } catch (err) {
-                alert('JSON syntax error in: ' + file.name);
-                ok = false;
-            }
-            // load only if there is no syntax error
-            if (ok) {
-                const name = fileNameParts[0]; // filename without extension, use as name of selection  
-                selectValues.addOption(name, value);
-                // set selection to the first loaded preset
-                if (!presetLoaded) {
-                    selectValues.setValue(value);
-                    selectValues.onChange();
-                    presetLoaded = true;
+            const name = fileNameParts[0]; // filename without extension, use as name of selection  
+            // do not load twice
+            if (selectValues.findIndex(name) < 0) {
+                const result = fileReader.result;
+                var value;
+                try {
+                    value = JSON.parse(result); // recover object from JSON, catch syntax errors
+                } catch (err) {
+                    alert('JSON syntax error in: ' + file.name);
+                    ok = false;
+                }
+                // load only if there is no syntax error and JSON not yet loaded
+                if (ok) {
+                    selectValues.addOption(name, value);
                 }
             }
+            // set selection to the first loaded preset
+            if (!presetLoaded) {
+                selectValues.setValue(name);
+                selectValues.onChange();
+                presetLoaded = true;
+            }
         }
+        currentFileNumber += 1;
+        if (currentFileNumber < files.length) {
+            fileReader.readAsText(files[currentFileNumber]);
+        }
+    };
+
+    fileReader.onerror = function() {
         currentFileNumber += 1;
         if (currentFileNumber < files.length) {
             fileReader.readAsText(files[currentFileNumber]);
@@ -219,7 +235,7 @@ SelectValues.prototype.getValue = function() {
 };
 
 /**
- * find the index for a given value
+ * find the index for a given value, only for basic values, does not compare objects
  * searches first the selection values, then the labels
  * @method SelectValues#findIndex
  * @param {whatever} value
