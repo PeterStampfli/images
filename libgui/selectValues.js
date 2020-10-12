@@ -209,6 +209,22 @@ SelectValues.prototype.makeAddObjectsButton = function(parent) {
 };
 
 /**
+ * add drag and drop to the window (for adding JSON objects)
+ * @method SelectValues#addDragAndDropWindow
+ */
+SelectValues.prototype.addDragAndDropWindow = function() {
+    const selectValues = this;
+    window.ondragover = function(event) {
+        event.preventDefault();
+    };
+    window.addEventListener('drop', function(event) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        selectValues.readJSONFiles(files);
+    }, false);
+};
+
+/**
  * get the selected index
  * @method SelectValues#getIndex
  * @return integer, the selected index

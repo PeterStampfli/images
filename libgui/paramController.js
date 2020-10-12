@@ -657,10 +657,10 @@ ParamController.prototype.useImage = function(callback) {
  * @method ParamController#addDragAndDropWindow
  */
 ParamController.prototype.addDragAndDropWindow = function(callback) {
-    if (this.type === "image") {
+    if ((this.type === "image") ||(this.type==="selection")){
         this.uiElement.addDragAndDropWindow();
     } else {
-        console.error('ParamController.addDragAndDropWindow: Only for "image" controllers. Type of this controller: "' + this.type + '"');
+        console.error('ParamController.addDragAndDropWindow: Only for "image" and "selection" controllers. Type of this controller: "' + this.type + '"');
     }
     return this;
 };

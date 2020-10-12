@@ -48,8 +48,9 @@ presets.makeGui = function(parentGui, args = {}) {
         }
     }).addHelp('Choose from this list of predefined circle and intersection configurations. You can add your own saved *.txt files with JSON definitions to this list.');
     // load presets
-    SelectValues.addObjectsButtonText = "add saved configurations";
+    SelectValues.addObjectsButtonText = "add saved";
     presets.selectionController.acceptUserObjects();
+    presets.selectionController.addDragAndDropWindow();
     // save preset
     // Filename will be name of preset, file content is JSON of properties
     presets.saveButton = gui.add({
