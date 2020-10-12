@@ -124,11 +124,11 @@ const fileReader = new FileReader();
  */
 SelectValues.prototype.readJSONFiles = function(files) {
     let currentFileNumber = -1; // loadNextFile() first advances file number
-    let selectionChoiceUpdated = false; // for selecting the first loaded preset
+    let selectionChoiceUpdated = false; // for selecting the first preset in files
     const selectValues = this;
 
     // load next file only if it is a *.txt file and not yet in the options
-    // if in options and selection not updated set selected value
+    // if in options and selection not updated, then set selected value
     function loadNextFile() {
         var file;
         currentFileNumber += 1; // advance to next file

@@ -468,51 +468,69 @@ const fileReader = new FileReader();
  * @param {object} files
  */
 ImageSelect.prototype.readFiles = function(files) {
-    let currentFileNumber = 0;
-    let imageLoaded = false; // for selecting the first loaded image
+    let currentFileNumber = -1;
+    let selectionChoiceUpdated = false; // for selecting the first image in files
     const imageSelect = this;
 
-    fileReader.onload = function() {
-        const file = files[currentFileNumber];
-        if (guiUtils.isGoodImageFile(file.name)) {
-            // load image from file reader
-            // fileReader.result is the dataURL for the image
-            // add image only once
-            let index = imageSelect.findIndex(fileReader.result);
-            if (index < 0) {
-                const option = {};
-                option.name = file.name.split(".")[0];
-                option.icon = fileReader.result;
-                option.value = fileReader.result;
-                imageSelect.addOptions(option);
-            }
-            // make the loaded image potentially visible
-            index = imageSelect.findIndex(fileReader.result);
-            if (index >= 0) {
-                imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
-                imageSelect.loadImages();
-                // set selection to the first loaded image
-                if (!imageLoaded) {
-                    imageSelect.setValue(fileReader.result);
+    // load next file only if it is an image file and not yet in the options
+    // if in options and selection not updated, then set selected value
+    function loadNextFile() {
+        var file;
+        currentFileNumber += 1; // advance to next file
+        while (currentFileNumber < files.length) {
+            file = files[currentFileNumber];
+            const fileNameParts = file.name.split('.');
+            // use only image files (for window drag and drop)
+            if (guiUtils.isGoodImageFile(file.name)) {
+                const name = fileNameParts[0]; // filename without extension, use as name of selection 
+                // load only once 
+                if (imageSelect.findIndex(name) < 0) {
+                    fileReader.readAsDataURL(file);
+                    return;
+                } else if (!selectionChoiceUpdated) {
+                    // set selection to the first previously loaded preset
+                    imageSelect.setValue(name);
                     imageSelect.onChange();
-                    imageLoaded = true;
+                    selectionChoiceUpdated = true;
                 }
             }
+            // nothing loaded, look at next file
+            currentFileNumber += 1;
         }
-        currentFileNumber += 1;
-        if (currentFileNumber < files.length) {
-            fileReader.readAsDataURL(files[currentFileNumber]);
+    }
+
+    fileReader.onload = function() {
+        // we know that file is a good image file and it is not yet an option
+        const file = files[currentFileNumber];
+        const fileNameParts = file.name.split('.');
+        const name = fileNameParts[0]; // filename without extension, use as name of selection  
+        // load image from file reader
+        // fileReader.result is the dataURL for the image
+        const option = {};
+        option.name = name;
+        option.icon = fileReader.result;
+        option.value = fileReader.result;
+        imageSelect.addOptions(option);
+        // make the loaded image potentially visible
+        const index = imageSelect.findIndex(fileReader.result);
+        if (index >= 0) {
+            imageSelect.makeImageButtonVisible(imageSelect.popupImageButtons[index]);
+            imageSelect.loadImages();
+            // set selection to the first loaded image
+            if (!selectionChoiceUpdated) {
+                imageSelect.setValue(name);
+                imageSelect.onChange();
+                selectionChoiceUpdated = true;
+            }
         }
+        loadNextFile();
     };
 
     fileReader.onerror = function() {
-        currentFileNumber += 1;
-        if (currentFileNumber < files.length) {
-            fileReader.readAsText(files[currentFileNumber]);
-        }
+        loadNextFile();
     };
-    
-    fileReader.readAsDataURL(files[0]);
+
+    loadNextFile();
 };
 
 // texts for the button and the popup for loading user images
