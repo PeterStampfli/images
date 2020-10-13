@@ -236,25 +236,51 @@ circles.makeGui = function(parentGui, args = {}) {
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
+            var i;
             const length = circles.collection.length;
             // add a circle that does not intersect with others
             // if there is no circle: add circle near center of image
-            let mini = 1;
-            let maxi = -1;
-            for (var i = 0; i < length; i++) {
+            let minX = 1;
+            let maxX = -1;
+            for (i = 0; i < length; i++) {
                 const circle = circles.collection[i];
-                mini = Math.min(mini, circle.centerX - 1.05 * circle.radius);
-                maxi = Math.max(maxi, circle.centerX + 1.05 * circle.radius);
+                minX = Math.min(minX, circle.centerX - 1.05 * circle.radius);
+                maxX = Math.max(maxX, circle.centerX + 1.05 * circle.radius);
             }
-            if (Math.abs(mini) < Math.abs(maxi)) {
+            if (Math.abs(minX) < Math.abs(maxX)) {
                 circles.add({
-                    centerX: mini - 1.05
+                    centerX: minX - 1.05
                 });
             } else {
                 circles.add({
-                    centerX: maxi + 1.05
+                    centerX: maxX + 1.05
                 });
             }
+            // make all circle centers visible
+            const coordinateTransform = output.coordinateTransform;
+            minX = 0;
+            maxX = 0;
+            minY = 0;
+            maxY = 0;
+            for (i = 0; i < length; i++) {
+                const circle = circles.collection[i];
+                minX = Math.min(minX, circle.centerX);
+                maxX = Math.max(maxX, circle.centerX);
+                minY = Math.min(minY, circle.centerY);
+                maxY = Math.max(maxY, circle.centerY);
+            }
+            // get range and center
+            let rangeX = 1 + maxX - minX;
+            let rangeY = 1 + maxY - minY;
+            const centerX = 0.5 * (maxX + minX);
+            const centerY = 0.5 * (maxY + minY);
+            const scaleX = rangeX / output.canvas.width / coordinateTransform.prescale;
+            const scaleY = rangeY / output.canvas.height / coordinateTransform.prescale;
+            const scale = Math.max(scaleX, scaleY);
+            rangeX = output.canvas.width * coordinateTransform.prescale * scale;
+            rangeY = output.canvas.height * coordinateTransform.prescale * scale;
+            coordinateTransform.setValues(centerX - 0.5 * rangeX, centerY - 0.5 * rangeY, scale);
+
             basic.drawMapChanged();
         }
     });
@@ -297,7 +323,7 @@ circles.activateUI = function() {
         circles.selected.canChangeController.label.style.backgroundColor = '#ffffaa';
         if (guiUtils.isObject(circles.otherSelected)) {
             message += ' and ' + circles.otherSelected.id;
-        circles.otherSelected.canChangeController.label.style.backgroundColor = '#f8f8f8';
+            circles.otherSelected.canChangeController.label.style.backgroundColor = '#f8f8f8';
         }
     } else {
         message += 'none';
