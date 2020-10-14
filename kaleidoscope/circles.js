@@ -237,50 +237,54 @@ circles.makeGui = function(parentGui, args = {}) {
         buttonText: 'add circle',
         onClick: function() {
             var i;
-            const length = circles.collection.length;
-            // add a circle that does not intersect with others
-            // if there is no circle: add circle near center of image
-            let minX = 1;
-            let maxX = -1;
-            for (i = 0; i < length; i++) {
-                const circle = circles.collection[i];
-                minX = Math.min(minX, circle.centerX - 1.05 * circle.radius);
-                maxX = Math.max(maxX, circle.centerX + 1.05 * circle.radius);
-            }
-            if (Math.abs(minX) < Math.abs(maxX)) {
-                circles.add({
-                    centerX: minX - 1.05
-                });
-            } else {
-                circles.add({
-                    centerX: maxX + 1.05
-                });
-            }
-            // make all circle centers visible
+            // transform data: i => prescale*scale*i+shiftX, j => prescale*scale+shiftY
             const coordinateTransform = output.coordinateTransform;
-            minX = 0;
-            maxX = 0;
-            minY = 0;
-            maxY = 0;
+            const prescale = coordinateTransform.prescale;
+            let scale = coordinateTransform.scale;
+            // upper left corner of viewport
+            let shiftX = coordinateTransform.shiftX;
+            let shiftY = coordinateTransform.shiftY;
+            // size of viewport
+            let rangeX = output.canvas.width * prescale * scale;
+            let rangeY = output.canvas.height * prescale * scale;
+            const length = circles.collection.length;
+            // add a circle at the left of existing circles, at a reasonable distance
+            // horizontally in the middle of the viewport
+            // if there is no circle: add circle near center of image
+            // beware of circles with very large radius
+            let minX = 2.05;
             for (i = 0; i < length; i++) {
                 const circle = circles.collection[i];
                 minX = Math.min(minX, circle.centerX);
-                maxX = Math.max(maxX, circle.centerX);
-                minY = Math.min(minY, circle.centerY);
-                maxY = Math.max(maxY, circle.centerY);
             }
-            // get range and center
-            let rangeX = 1 + maxX - minX;
-            let rangeY = 1 + maxY - minY;
-            const centerX = 0.5 * (maxX + minX);
-            const centerY = 0.5 * (maxY + minY);
-            const scaleX = rangeX / output.canvas.width / coordinateTransform.prescale;
-            const scaleY = rangeY / output.canvas.height / coordinateTransform.prescale;
-            const scale = Math.max(scaleX, scaleY);
-            rangeX = output.canvas.width * coordinateTransform.prescale * scale;
-            rangeY = output.canvas.height * coordinateTransform.prescale * scale;
-            coordinateTransform.setValues(centerX - 0.5 * rangeX, centerY - 0.5 * rangeY, scale);
-
+            // center of new circle
+            const newCenterX = minX - 2.05;
+            const newCenterY = shiftY + 0.5 * rangeY;
+            circles.add({
+                centerX: newCenterX,
+                centerY: newCenterY
+            });
+            // the new left border position, do not change if additional circle already visible
+            const newShiftX = newCenterX - 0.5;
+            if (shiftX > newShiftX) {
+                // changing the left of the viewport, we might have to adjust the right
+                shiftX = newShiftX;
+                // determine the new minimum range in x-direction, rightmost circle center
+                let maxX = newCenterX;
+                for (i = 0; i < length; i++) {
+                    const circle = circles.collection[i];
+                    maxX = Math.max(maxX, circle.centerX);
+                }
+                const newRangeX = maxX + 0.5 - newShiftX;
+                // only change scale if viewport is too narrow
+                // keep horizontal center in place
+                if (rangeX < newRangeX) {
+                    const newScale = newRangeX / rangeX * scale;
+                    shiftY += 0.5 * rangeY * (1 - newScale / scale); // rangeY has scale as factor
+                    scale = newScale;
+                }
+            }
+            coordinateTransform.setValues(shiftX, shiftY, scale);
             basic.drawMapChanged();
         }
     });
