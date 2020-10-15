@@ -41,6 +41,7 @@ export function Circle(parentGui, properties) {
     this.centerX = 0;
     this.centerY = 0;
     this.mapType = 'inside -> out';
+    this.osInterpolation = 1; // interpolation for ortho-stereographic projection
     this.color = '#000000'; // color for drawing a circle
     this.id = 0;
     // overwrite defaults with fields of the parameter object                                        // unique id, if circles are deleted the id is not related to index in circles.collection
@@ -50,6 +51,7 @@ export function Circle(parentGui, properties) {
     this.setMapProperties(this.mapType);
     // for speeding up the mapping
     this.radius2 = this.radius * this.radius;
+    this.updateOSParameters();
     // the collection of the circle's intersections
     this.intersections = [];
 
@@ -102,6 +104,7 @@ export function Circle(parentGui, properties) {
         onChange: function(radius) {
             circles.setSelected(circle);
             circle.tryRadius(radius);
+            circle.updateOSParameters();
         }
     });
 
@@ -136,11 +139,31 @@ export function Circle(parentGui, properties) {
                     circle.mapTypeController.setValueOnly('inside -> out');
                 }
             }
+            if (mapType === 'ortho-stereographic view') {
+                circle.osInterpolationController.show();
+            } else {
+                circle.osInterpolationController.hide();
+            }
             // set properties of map, may have changed
             circle.setMapProperties(circle.mapTypeController.getValue());
             basic.drawMapChanged();
         }
     });
+
+    this.osInterpolationController = this.gui.add({
+        type: 'number',
+        params: this,
+        property: 'osInterpolation',
+        min: 0,
+        max: 1,
+        labelText: 'interpolation',
+        usePopup: false,
+        onChange: function() {
+            circle.updateOSParameters();
+        }
+    });
+    this.osInterpolationController.createLongRange();
+    this.osInterpolationController.hide();
 
     this.colorController = this.gui.add({
         type: 'color',
@@ -204,6 +227,15 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isInTarget = this.noMap;
             break;
     }
+};
+
+/**
+ * calculate parameterss for the ortho-stereographic view
+ * @method Circle#updateOSParameters
+ */
+Circle.prototype.updateOSParameters = function() {
+    this.osFactor = 1 + Math.sqrt(Math.max(0, 1 - this.osInterpolation * this.osInterpolation));
+    this.osx2r2 = this.osInterpolation * this.osInterpolation / this.radius2;
 };
 
 /**
@@ -1031,7 +1063,7 @@ Circle.prototype.orthoStereo = function(position) {
     const dy = position.y - this.centerY;
     const d2 = dx * dx + dy * dy;
     if (d2 < this.radius2) {
-        const factor = 1 / (1 + Math.sqrt(1 - d2 / this.radius2));
+        const factor = this.osFactor / (1 + Math.sqrt(1 - d2 * this.osx2r2));
         position.x = this.centerX + factor * dx;
         position.y = this.centerY + factor * dy;
     }
@@ -1089,6 +1121,7 @@ Circle.prototype.wheelAction = function(event) {
     if (this.canChange) {
         const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
         this.tryRadius(this.radius * zoomFactor);
+        circle.updateOSParameters();
     }
 };
 
