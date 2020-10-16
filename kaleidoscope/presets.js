@@ -46,7 +46,7 @@ presets.makeGui = function(parentGui, args = {}) {
         onChange: function() {
             presets.useSelectedValue();
         }
-    }).addHelp('Choose from this list of predefined circle and intersection configurations. You can add your own saved *.txt files with JSON definitions to this list.');
+    }).addHelp('Choose from this list of predefined circle and intersection configurations. You can add your own saved *.txt files with JSON definitions to this list. Use the "add saved" button or drag and drop preset files on the window');
     // load presets
     SelectValues.addObjectsButtonText = "add saved";
     presets.selectionController.acceptUserObjects();

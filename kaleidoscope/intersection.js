@@ -48,7 +48,10 @@ export function Intersection(parentGui, circle1, circle2, n = 3) {
         min: 2,
         step: 1,
         onChange: function(n) {
-            intersection.tryN(n);
+            const success = intersection.tryN(n);
+            if (!success) {
+                alert('Fail: Cannot change interaction');
+            }
             basic.drawMapChanged(); // map changes
         }
     });
@@ -190,10 +193,14 @@ Intersection.prototype.tryN = function(n) {
  * @param{object} event
  */
 Intersection.prototype.wheelAction = function(event) {
+    var success;
     if (event.wheelDelta > 0) {
-        this.tryN(this.n + 1);
+        success = this.tryN(this.n + 1);
     } else {
-        this.tryN(this.n - 1);
+        success = this.tryN(this.n - 1);
+    }
+    if (!success) {
+        alert('Fail: Cannot change interaction');
     }
 };
 

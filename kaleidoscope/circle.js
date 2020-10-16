@@ -43,8 +43,9 @@ export function Circle(parentGui, properties) {
     this.mapType = 'inside -> out';
     this.osInterpolation = 1; // interpolation for ortho-stereographic projection
     this.color = '#000000'; // color for drawing a circle
+// unique id, if circles are deleted the id is not related to index in circles.collection
     this.id = 0;
-    // overwrite defaults with fields of the parameter object                                        // unique id, if circles are deleted the id is not related to index in circles.collection
+    // overwrite defaults with fields of the parameter object  
     if (guiUtils.isObject(properties)) {
         Object.assign(this, properties);
     }
@@ -83,7 +84,10 @@ export function Circle(parentGui, properties) {
         initialValue: this.centerX,
         onChange: function(centerX) {
             circles.setSelected(circle);
-            circle.tryPosition(centerX, circle.centerY);
+            const success = circle.tryPosition(centerX, circle.centerY);
+            if (!success) {
+                alert('Fail: Cannot change position');
+            }
         }
     });
     this.centerYController = this.centerXController.add({
@@ -92,7 +96,10 @@ export function Circle(parentGui, properties) {
         initialValue: this.centerY,
         onChange: function(centerY) {
             circles.setSelected(circle);
-            circle.tryPosition(circle.centerX, centerY);
+            const success = circle.tryPosition(circle.centerX, centerY);
+            if (!success) {
+                alert('Fail: Cannot change position');
+            }
         }
     });
 
@@ -103,8 +110,11 @@ export function Circle(parentGui, properties) {
         min: 0,
         onChange: function(radius) {
             circles.setSelected(circle);
-            circle.tryRadius(radius);
+            const success = circle.tryRadius(radius);
             circle.updateOSParameters();
+            if (!success) {
+                alert('Fail: Cannot change radius');
+            }
         }
     });
 
@@ -127,6 +137,7 @@ export function Circle(parentGui, properties) {
                 } else {
                     // failing to change direction, reset selection
                     circle.mapTypeController.setValueOnly('outside -> in');
+                    alert('Fail: Cannot change map direction');
                 }
             } else if ((mapType === 'outside -> in') && circle.isInsideOutMap) {
                 circle.isInsideOutMap = false; // we want outside->in map
@@ -137,6 +148,7 @@ export function Circle(parentGui, properties) {
                 } else {
                     // failing to change direction, reset selection
                     circle.mapTypeController.setValueOnly('inside -> out');
+                    alert('Fail: Cannot change map direction');
                 }
             }
             if (mapType === 'ortho-stereographic view') {
@@ -160,6 +172,7 @@ export function Circle(parentGui, properties) {
         usePopup: false,
         onChange: function() {
             circle.updateOSParameters();
+            basic.drawMapChanged();
         }
     });
     this.osInterpolationController.createLongRange();
@@ -234,8 +247,8 @@ Circle.prototype.setMapProperties = function(mapType) {
  * @method Circle#updateOSParameters
  */
 Circle.prototype.updateOSParameters = function() {
-    this.osFactor = 1 + Math.sqrt(Math.max(0, 1 - this.osInterpolation * this.osInterpolation));
-    this.osx2r2 = this.osInterpolation * this.osInterpolation / this.radius2;
+    this.osFactor = 1 + Math.sqrt(Math.max(0, 1 - this.osInterpolation));
+    this.osx2r2 = this.osInterpolation / this.radius2;
 };
 
 /**
@@ -505,8 +518,7 @@ Circle.prototype.adjustPositionTwoIntersections = function(radius) {
 };
 
 /**
- * circle with two intersections, try a given new position, 
- * adjust mainly circle radius and partly position to intersections
+ * circle with two intersections, try a given new position, adjust circle radius and position
  * return true if successful, false if fails
  * does not change the circle for fail
  * @method Circle#adjustRadiusTwoIntersections
@@ -669,6 +681,7 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
  * if success update UI to new values and draw image
  * @method tryRadius
  * @param {number} radius
+ * @return boolean true if successful and case solved
  */
 Circle.prototype.tryRadius = function(radius) {
     if (this.canChange) {
@@ -696,6 +709,9 @@ Circle.prototype.tryRadius = function(radius) {
             intersections.activateUI();
             basic.drawMapChanged();
         }
+        return success;
+    } else {
+        return false;
     }
 };
 
@@ -768,6 +784,9 @@ Circle.prototype.adjustToIntersections = function() {
                 break;
             case 2:
                 success = this.adjustPositionTwoIntersections(this.radius);
+                if (!success) {
+                    success = this.adjustRadiusTwoIntersections(this.centerX, this.centerY);
+                }
                 break;
             case 3:
                 success = this.adjustThreeIntersections();
@@ -839,8 +858,7 @@ Circle.prototype.draw = function(highlight = 0) {
             // basic drawing without highlight
             output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
-            if (this.mapType === 'inverting view') {
-
+            if ((this.mapType === 'inverting view')||(this.mapType === 'ortho-stereographic view')||(this.mapType === 'logarithmic view')) {
                 const d = 2 * map.linewidth * output.coordinateTransform.totalScale;
                 const D = 10 * map.linewidth * output.coordinateTransform.totalScale;
                 context.beginPath();
@@ -1108,6 +1126,9 @@ Circle.prototype.dragAction = function(event) {
             // try dragging the circle away from its mirrored position
             this.tryPosition(flippedX + event.dx, flippedY + event.dy);
         }
+        if (!success) {
+            alert('Fail: Cannot change position');
+        }
     }
 };
 
@@ -1120,8 +1141,11 @@ Circle.prototype.dragAction = function(event) {
 Circle.prototype.wheelAction = function(event) {
     if (this.canChange) {
         const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
-        this.tryRadius(this.radius * zoomFactor);
-        circle.updateOSParameters();
+        const success = this.tryRadius(this.radius * zoomFactor);
+        this.updateOSParameters();
+        if (!success) {
+              alert('Fail: Cannot change radius');
+        }
     }
 };
 
