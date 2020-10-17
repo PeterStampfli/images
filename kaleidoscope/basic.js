@@ -66,7 +66,6 @@ basic.setup = function() {
         map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
  map.imageController.addDragAndDropWindow();
 
-
     // new version for regions
     map.makeRegionsGui(gui);
     // GUI's for circles and intersections: you can close them afterwards
@@ -78,7 +77,6 @@ basic.setup = function() {
         circles.map(point);
     };
     map.setOutputDraw(); // links the output drawing routines
-    map.inputImage = '../libgui/testimage.jpg';
     map.trajectoryColorController.destroy();
 
     // a new map means changed circles
