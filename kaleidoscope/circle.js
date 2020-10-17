@@ -43,7 +43,7 @@ export function Circle(parentGui, properties) {
     this.mapType = 'inside -> out';
     this.osInterpolation = 1; // interpolation for ortho-stereographic projection
     this.color = '#000000'; // color for drawing a circle
-// unique id, if circles are deleted the id is not related to index in circles.collection
+    // unique id, if circles are deleted the id is not related to index in circles.collection
     this.id = 0;
     // overwrite defaults with fields of the parameter object  
     if (guiUtils.isObject(properties)) {
@@ -858,7 +858,7 @@ Circle.prototype.draw = function(highlight = 0) {
             // basic drawing without highlight
             output.setLineWidth(map.linewidth);
             context.strokeStyle = this.color;
-            if ((this.mapType === 'inverting view')||(this.mapType === 'ortho-stereographic view')||(this.mapType === 'logarithmic view')) {
+            if ((this.mapType === 'inverting view') || (this.mapType === 'ortho-stereographic view') || (this.mapType === 'logarithmic view')) {
                 const d = 2 * map.linewidth * output.coordinateTransform.totalScale;
                 const D = 10 * map.linewidth * output.coordinateTransform.totalScale;
                 context.beginPath();
@@ -1144,7 +1144,7 @@ Circle.prototype.wheelAction = function(event) {
         const success = this.tryRadius(this.radius * zoomFactor);
         this.updateOSParameters();
         if (!success) {
-              alert('Fail: Cannot change radius');
+            alert('Fail: Cannot change radius');
         }
     }
 };

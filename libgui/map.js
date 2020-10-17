@@ -50,7 +50,7 @@ map.sizeArray = new Float32Array(1);
 map.maxSize = 0; // maximum value
 
 // greying out the control image
-map.controlPixelsAlpha = 128;
+map.controlPixelsAlpha = 100;
 
 // fractional length of image region checked initially
 map.initialImageCovering = 0.75;
@@ -509,6 +509,9 @@ map.addControls = function() {
             map.drawImageChanged();
         }
     });
+    if (map.colorControllers.length===0){
+        colorController.addHelp('You can switch off pixels that end up in a certain region after the mapping. They will become transparent black and you will see the background color of the canvas. You can choose the color used for pixels related to the region.');
+    }
     map.colorControllers.push(colorController);
 };
 
@@ -1202,7 +1205,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChangedCheckMapUpdate();
         }
     });
-    map.imageController.addHelp('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+    map.imageController.addHelp('Choose the input image that will be mapped onto the kaleidoscopic structure. You can use your own images (*.jpg and *.png files). Use thee "add images" button or ddrag and drop on the window.');
 
     // setup control canvas
     // a div that contains the control canvas to 
@@ -1261,6 +1264,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
         map.setupMapImageTransform();
         map.drawImageChanged();
     };
+    map.inputTransform.resetButton.addHelp('Above you see the input image and its parts used for the kaleidoscopic image. Unused pixels are greyed out. You can change this using mouse drag on the image for translation, mouse wheel to zoom and shift-mouse wheel to rotate. The current mouse position is the center for zoom and rotation.');
 
     // the mouse events on the control canvas
     map.mouseEvents = new MouseEvents(map.controlCanvas);

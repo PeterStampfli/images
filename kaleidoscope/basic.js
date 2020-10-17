@@ -63,8 +63,8 @@ basic.setup = function() {
     showHelp += '<strong>borders:</strong> Shows pixels that lie at the border of different mapping regions in white. Else transparent black.<br>';
     showHelp += "<strong>Indra's pearls:</strong> Pixels get the color of the last circle that inverted their position. Use for non-intersecting circles.<br>";
     map.whatToShowController.addHelp(showHelp);
-        map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
- map.imageController.addDragAndDropWindow();
+    map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
+    map.imageController.addDragAndDropWindow();
 
     // new version for regions
     map.makeRegionsGui(gui);
@@ -152,6 +152,7 @@ basic.setup = function() {
 
     map.addDrawFundamentalRegion();
     map.addDrawIterations();
+    map.gammaController.addHelp('Only pixels with more inversions than the threshold will get color. For large gamma mainly pixels with a number of inversions near the limit get much color. For small gamma pixels near the threshold get more color.');
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
 
