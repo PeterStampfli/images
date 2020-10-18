@@ -140,7 +140,7 @@ intersections.set = function(input) {
  * @method intersections.draw
  */
 intersections.draw = function() {
-    if (intersections.visible) {
+    if (intersections.visible&&circles.visible) {
         intersections.collection.forEach(intersection => intersection.draw(0));
         if (intersections.selected) {
             intersections.selected.draw(1);

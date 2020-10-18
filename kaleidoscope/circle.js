@@ -77,6 +77,9 @@ export function Circle(parentGui, properties) {
             basic.drawCirclesIntersections(); // no new map
         }
     });
+    if (circles.collection.length === 0) {
+        this.canChangeController.addHelp('You can fix the position and radius of the circle. Prevents changes upon adding controlled intersections.');
+    }
 
     this.centerXController = this.gui.add({
         type: 'number',
@@ -102,7 +105,6 @@ export function Circle(parentGui, properties) {
             }
         }
     });
-
     this.radiusController = this.centerYController.add({
         type: 'number',
         initialValue: this.radius,
@@ -117,6 +119,9 @@ export function Circle(parentGui, properties) {
             }
         }
     });
+    if (circles.collection.length === 0) {
+        this.radiusController.addHelp('Change the position of the center and the radius: Type numbers direectly or use the mouse wheel to change the digit at the right of the cursor. Use ctrl-mouse drag on the image to change the position. Ctrl-mouse wheel changes the radius. If the circle has controlled intersections, then changing on quantity will automatically change others.');
+    }
 
     this.mapTypeController = this.gui.add({
         type: 'selection',
@@ -161,6 +166,15 @@ export function Circle(parentGui, properties) {
             basic.drawMapChanged();
         }
     });
+    if (circles.collection.length === 0) {
+        let helpText = '<strong>outside -> in:</strong> The circle is part of the kaleidoscope. It inverts points lying outside into its inside.<br>';
+        helpText += '<strong>inside -> out:</strong> The circle is part of the kaleidoscope. It inverts points lying inside into its outside.<br>';
+        helpText += '<strong>no mapping:</strong> The circle does nothing. Switch it off and to see what it does. Use it for borders of the Poincare disc.<br>';
+        helpText += '<strong>inverting view:</strong> Inverts the kaleidoscopic image. Transforms circles passing through its center into straight lines.<br>';
+        helpText += '<strong>logarithmic view:</strong> Transforms pixel position using the complex logarithm before making the kaleidoscopic image. Concentric circles become straight lines.<br>';
+        helpText += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection. The outside of the circle is not changed.<br>';
+        this.mapTypeController.addHelp(helpText);
+    }
 
     this.osInterpolationController = this.gui.add({
         type: 'number',
@@ -175,6 +189,9 @@ export function Circle(parentGui, properties) {
             basic.drawMapChanged();
         }
     });
+    if (circles.collection.length === 0) {
+        this.osInterpolationController.addHelp('Interpolates between direct view and the ortho-stereographic view.');
+    }
     this.osInterpolationController.createLongRange();
     this.osInterpolationController.hide();
 
@@ -191,6 +208,9 @@ export function Circle(parentGui, properties) {
             }
         }
     });
+    if (circles.collection.length === 0) {
+        this.colorController.addHelp('Choose the color for drawing this circle. Also determines its color for the "Indra' + "'" + 'Pearls" drawing option.');
+    }
 }
 
 /**
