@@ -140,7 +140,7 @@ intersections.set = function(input) {
  * @method intersections.draw
  */
 intersections.draw = function() {
-    if (intersections.visible&&circles.visible) {
+    if (intersections.visible && circles.visible) {
         intersections.collection.forEach(intersection => intersection.draw(0));
         if (intersections.selected) {
             intersections.selected.draw(1);
@@ -174,6 +174,7 @@ intersections.makeGui = function(parentGui, args = {}) {
             intersections.draw();
         }
     });
+    intersections.visibleButton.addHelp('You can hide the intersection symbols to get a neater image.');
     intersections.addButton = intersections.gui.add({
         type: 'button',
         buttonText: 'add intersection',
@@ -191,6 +192,7 @@ intersections.makeGui = function(parentGui, args = {}) {
             basic.drawMapChanged();
         }
     });
+    intersections.addButton.addHelp('Adds a controlled intersection between the two selected circles, highlighted yellow and white. The angle of such an intersection is an integer fraction of 180 degrees. You can only add it if the two circles intersect with a similar angle.');
     intersections.deleteButton = intersections.gui.add({
         type: 'button',
         buttonText: 'delete selected',
@@ -201,6 +203,7 @@ intersections.makeGui = function(parentGui, args = {}) {
             }
         }
     });
+    intersections.deleteButton.addHelp('Deletes the controlled intersection highlighted in yellow.');
     intersections.activateUI();
 };
 

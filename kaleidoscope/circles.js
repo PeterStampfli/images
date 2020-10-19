@@ -232,7 +232,7 @@ circles.makeGui = function(parentGui, args = {}) {
             basic.drawCirclesIntersections();
         }
     });
-    circles.visibleButton.addHelp('You can hide the circles and intersection symbols to get a neat image.');
+    circles.visibleButton.addHelp('You can hide the circles and intersection symbols to get a neater image.');
     circles.addCircleButton=circles.gui.add({
         type: 'button',
         buttonText: 'add circle',
@@ -289,7 +289,7 @@ circles.makeGui = function(parentGui, args = {}) {
             basic.drawMapChanged();
         }
     });
-    circles.addCircleButton.addHelp('Adds an additional circle at the left. It is inside->out mapping.')
+    circles.addCircleButton.addHelp('Adds an additional circle at the left. It is inside->out mapping.');
     circles.deleteButton = circles.gui.add({
         type: 'button',
         buttonText: 'delete selected',
