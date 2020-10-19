@@ -1185,5 +1185,6 @@ Circle.prototype.destroy = function() {
     this.centerYController.destroy();
     this.centerXController.destroy();
     this.mapTypeController.destroy();
+    this.osInterpolationController.destroy();
     this.colorController.destroy();
 };
