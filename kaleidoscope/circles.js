@@ -329,7 +329,7 @@ circles.activateUI = function() {
     circles.collection.forEach(circle => circle.canChangeController.label.style.backgroundColor = '#00000000');
     if (guiUtils.isObject(circles.selected)) {
         message += '<strong>' + circles.selected.id + '</strong>';
-        circles.selected.canChangeController.label.style.backgroundColor = '#ffffaa';
+        circles.selected.canChangeController.label.style.backgroundColor = '#eeeeaa';
         if (guiUtils.isObject(circles.otherSelected)) {
             message += ' and ' + circles.otherSelected.id;
             circles.otherSelected.canChangeController.label.style.backgroundColor = '#f8f8f8';

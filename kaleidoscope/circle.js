@@ -25,7 +25,7 @@ Circle.zoomFactor = 1.04;
 // parameters for drawing, change if you do not like it 
 Circle.highlightColor = '#ffff00';
 Circle.otherHighlightColor = '#ffffff';
-Circle.frozenHighlightColor = '#eeee88';
+Circle.frozenHighlightColor = '#eeeeee';
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -72,14 +72,19 @@ export function Circle(parentGui, properties) {
         width: 100,
         buttonText: ['can change', 'frozen'],
         onChange: function() {
+            circles.setSelected(circle); // updates circles and intersections ui
             circle.activateUI();
-            intersections.activateUI();
             basic.drawCirclesIntersections(); // no new map
         }
     });
     if (circles.collection.length === 0) {
         this.canChangeController.addHelp('You can fix the position and radius of the circle. Prevents changes upon adding controlled intersections.');
     }
+    this.canChangeController.label.onclick = function() {
+        circles.setSelected(circle);
+        basic.drawCirclesIntersections();
+    };
+    this.canChangeController.label.style.cursor = 'pointer';
 
     this.centerXController = this.gui.add({
         type: 'number',
@@ -89,8 +94,12 @@ export function Circle(parentGui, properties) {
             circles.setSelected(circle);
             const success = circle.tryPosition(centerX, circle.centerY);
             if (!success) {
-                alert('Fail: Cannot change position');
+                alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
             }
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     this.centerYController = this.centerXController.add({
@@ -101,8 +110,12 @@ export function Circle(parentGui, properties) {
             circles.setSelected(circle);
             const success = circle.tryPosition(circle.centerX, centerY);
             if (!success) {
-                alert('Fail: Cannot change position');
+                alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
             }
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     this.radiusController = this.centerYController.add({
@@ -115,8 +128,12 @@ export function Circle(parentGui, properties) {
             const success = circle.tryRadius(radius);
             circle.updateOSParameters();
             if (!success) {
-                alert('Fail: Cannot change radius');
+                alert('Fail: Cannot change radius. Maybe there are too many controlled intersections.');
             }
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     if (circles.collection.length === 0) {
@@ -164,6 +181,10 @@ export function Circle(parentGui, properties) {
             // set properties of map, may have changed
             circle.setMapProperties(circle.mapTypeController.getValue());
             basic.drawMapChanged();
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     if (circles.collection.length === 0) {
@@ -187,6 +208,10 @@ export function Circle(parentGui, properties) {
         onChange: function() {
             circle.updateOSParameters();
             basic.drawMapChanged();
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     if (circles.collection.length === 0) {
@@ -206,6 +231,10 @@ export function Circle(parentGui, properties) {
             } else {
                 basic.drawCirclesIntersections();
             }
+        },
+        onInteraction: function() {
+            circles.setSelected(circle);
+            basic.drawCirclesIntersections();
         }
     });
     if (circles.collection.length === 0) {
