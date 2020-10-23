@@ -137,7 +137,7 @@ export function Circle(parentGui, properties) {
         }
     });
     if (circles.collection.length === 0) {
-        this.radiusController.addHelp('Change the position of the center and the radius: Type numbers direectly or use the mouse wheel to change the digit at the right of the cursor. Use ctrl-mouse drag on the image to change the position. Ctrl-mouse wheel changes the radius. If the circle has controlled intersections, then changing on quantity will automatically change others.');
+        this.radiusController.addHelp('Change the position of the center and the radius: Type numbers direectly or use the mouse wheel to change the digit at the right of the cursor. Use ctrl-mouse drag on the image to change the position. Ctrl-mouse wheel changes the radius. If the circle has controlled intersections, then changing one quantity will automatically change others.');
     }
 
     this.mapTypeController = this.gui.add({

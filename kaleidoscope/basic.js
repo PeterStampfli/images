@@ -32,10 +32,24 @@ basic.debug = false;
 basic.setup = function() {
     // base gui
     const gui = new ParamGui({
-        name: 'kaleidoscopeBuilder',
+        name: 'kaleidoBuilder',
         closed: false
     });
     basic.gui = gui;
+    // help
+    const help = gui.addFolder('help');
+    help.addParagraph('This app cannot be used with touch devices. Send bug reports and other comments to: <strong>pestampf@gmail.com</strong>');
+    help.addParagraph('For more information see "Kaleidoscopes for Non-Euclidean Space" (http://archive.bridgesmathart.org/2018/bridges2018-67.html) and "Fractal Images from Multiple Inversion in Circles" (http://archive.bridgesmathart.org/2019/bridges2019-263.html).');
+    help.addParagraph('Zoom the image with the mouse wheel while the mouse is on the image. Move the image with a mouse drag. Or use the "output image" part of the gui.');
+    help.addParagraph('The image results from inversion at circles. Select a circle with the ctrl key and mouse click. Move it with the ctrl key and mouse drag. Change the radius with ctrl key and mouse wheel. Or use the "circles" part of the gui.');
+    help.addParagraph('Circles are tied together by controlled intersections. They are shown as small polygons. Select with the ctrl key and mouse click. Change the intersection angle with ctrl and shift keys and mouse wheel. Or use the "intersections" part of the gui.');
+    help.addParagraph('"output image": Change the image size and display options. Save the image. Zoom and translate.');
+    help.addParagraph('"presets": Choose between predefined kaleidoscopes. Save and load your own work.');
+    help.addParagraph('"showing": Determine how the kaleidoscopic image is displayed. "fundamental region" is particularly fast and useful for building complicated structures. With "image ..." you map an input image onto the structure.');
+    help.addParagraph('"regions": Switch on and off distinct image parts. Change their tints.');
+    help.addParagraph('"circles": Add and destroy circles. Change their properties.');
+    help.addParagraph('"intersections": Add and destroy controlled intersections. Change the order of their dihedral group');
+
     // create an output canvas
     const outputGui = gui.addFolder('output image');
     output.createCanvas(outputGui);
