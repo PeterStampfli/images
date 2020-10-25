@@ -50,6 +50,7 @@ export function Intersection(parentGui, circle1, circle2, n = 3) {
         onChange: function(n) {
             const success = intersection.tryN(n);
             if (!success) {
+                intersection.nController.setValueOnly(interaction.n);
                 alert('Fail: Cannot change interaction');
             }
             basic.drawMapChanged(); // map changes

@@ -94,6 +94,7 @@ export function Circle(parentGui, properties) {
             circles.setSelected(circle);
             const success = circle.tryPosition(centerX, circle.centerY);
             if (!success) {
+                circle.centerXController.setValueOnly(circle.centerX);
                 alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
             }
         },
@@ -110,6 +111,7 @@ export function Circle(parentGui, properties) {
             circles.setSelected(circle);
             const success = circle.tryPosition(circle.centerX, centerY);
             if (!success) {
+                circle.centerYController.setValueOnly(circle.centerY);
                 alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
             }
         },
@@ -128,6 +130,7 @@ export function Circle(parentGui, properties) {
             const success = circle.tryRadius(radius);
             circle.updateOSParameters();
             if (!success) {
+                circle.radiusController.setValueOnly(circle.radius);
                 alert('Fail: Cannot change radius. Maybe there are too many controlled intersections.');
             }
         },
@@ -659,10 +662,10 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     const center1Square = center1X * center1X + center1Y * center1Y;
     const center2X = otherCircle2.centerX;
     const center2Y = otherCircle2.centerY;
-    const center2Square = center2X * center2X + center2Y * center2Y;
+   const center2Square = center2X * center2X + center2Y * center2Y;
     const center3X = otherCircle3.centerX;
     const center3Y = otherCircle3.centerY;
-    const center3Square = center3X * center3X + center3Y * center3Y;
+   const center3Square = center3X * center3X + center3Y * center3Y;
     const center1To2X = center2X - center1X;
     const center1To2Y = center2Y - center1Y;
     const center1To3X = center3X - center1X;
@@ -675,7 +678,7 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     const radius3Square = otherCircle3.radius2;
     // the system of linear equations for the center of this circle
     const denom = center1To2X * center1To3Y - center1To3X * center1To2Y;
-    if (denom < 0.001 * (Math.abs(center1To2X * center1To3Y) + Math.abs(center1To3X * center1To2Y))) {
+    if (Math.abs(denom) < 0.001 * (Math.abs(center1To2X * center1To3Y) + Math.abs(center1To3X * center1To2Y))) {
         // nearly colinear, fail
         return false;
     }
@@ -705,13 +708,13 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
         } else if (data.y > 0) {
             this.radius = data.y;
         } else {
-            //  console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
-            //      console.log(this);
+              console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
+                  console.log(data.x,data.y);
             // fail, do not change anything
             return false;
         }
     } else {
-        //  console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
+          console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
         //console.log(this);
         // fail, do not change anything
         return false;
