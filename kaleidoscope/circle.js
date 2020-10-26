@@ -93,6 +93,7 @@ export function Circle(parentGui, properties) {
         onChange: function(centerX) {
             circles.setSelected(circle);
             const success = circle.tryPosition(centerX, circle.centerY);
+            circle.updateOSParameters();
             if (!success) {
                 circle.centerXController.setValueOnly(circle.centerX);
                 alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
@@ -110,6 +111,7 @@ export function Circle(parentGui, properties) {
         onChange: function(centerY) {
             circles.setSelected(circle);
             const success = circle.tryPosition(circle.centerX, centerY);
+            circle.updateOSParameters();
             if (!success) {
                 circle.centerYController.setValueOnly(circle.centerY);
                 alert('Fail: Cannot change position. Maybe there are too many controlled intersections.');
@@ -662,10 +664,10 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     const center1Square = center1X * center1X + center1Y * center1Y;
     const center2X = otherCircle2.centerX;
     const center2Y = otherCircle2.centerY;
-   const center2Square = center2X * center2X + center2Y * center2Y;
+    const center2Square = center2X * center2X + center2Y * center2Y;
     const center3X = otherCircle3.centerX;
     const center3Y = otherCircle3.centerY;
-   const center3Square = center3X * center3X + center3Y * center3Y;
+    const center3Square = center3X * center3X + center3Y * center3Y;
     const center1To2X = center2X - center1X;
     const center1To2Y = center2Y - center1Y;
     const center1To3X = center3X - center1X;
@@ -708,13 +710,13 @@ Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
         } else if (data.y > 0) {
             this.radius = data.y;
         } else {
-              console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
-                  console.log(data.x,data.y);
+            console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has only negative solutions! Intersection:');
+            console.log(data.x, data.y);
             // fail, do not change anything
             return false;
         }
     } else {
-          console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
+        console.error('Circle#adjustThreeIntersections: Quadratic equation for radius has no real solution! Intersection:');
         //console.log(this);
         // fail, do not change anything
         return false;
@@ -1146,7 +1148,7 @@ Circle.prototype.orthoStereo = function(position) {
  * @param{object} event
  */
 Circle.prototype.dragAction = function(event) {
-    if (this.canChange) {
+    if (this.canChange && (this.intersections.length < 3)) {
         let success = this.tryPosition(this.centerX + event.dx, this.centerY + event.dy);
         if (!success && (this.intersections.length === 2)) {
             // dragging fails for a circle with two intersections
@@ -1176,8 +1178,9 @@ Circle.prototype.dragAction = function(event) {
             const flippedX = 2 * mX - this.centerX;
             const flippedY = 2 * mY - this.centerY;
             // try dragging the circle away from its mirrored position
-            this.tryPosition(flippedX + event.dx, flippedY + event.dy);
+            success = this.tryPosition(flippedX + event.dx, flippedY + event.dy);
         }
+        this.updateOSParameters();
         if (!success) {
             alert('Fail: Cannot change position');
         }
@@ -1191,7 +1194,7 @@ Circle.prototype.dragAction = function(event) {
  * @param{object} event
  */
 Circle.prototype.wheelAction = function(event) {
-    if (this.canChange) {
+    if (this.canChange && (this.intersections.length < 3)) {
         const zoomFactor = (event.wheelDelta > 0) ? Circle.zoomFactor : 1 / Circle.zoomFactor;
         const success = this.tryRadius(this.radius * zoomFactor);
         this.updateOSParameters();
