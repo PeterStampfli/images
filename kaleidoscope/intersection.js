@@ -61,7 +61,7 @@ export function Intersection(parentGui, circle1, circle2, n = 3) {
         }
     });
     this.nController.label.onclick = function() {
-            intersection.selectCircles();
+        intersection.selectCircles();
         basic.drawCirclesIntersections();
     };
     this.nController.label.style.cursor = 'pointer';
@@ -97,7 +97,7 @@ Intersection.prototype.updateUI = function() {
  */
 Intersection.prototype.activateUI = function() {
     const circle1Can = this.circle1.canChange && (this.circle1.intersections.length <= 3);
-    const circle2Can = this.circle2.canChange && (this.circle1.intersections.length <= 3);
+    const circle2Can = this.circle2.canChange && (this.circle2.intersections.length <= 3);
     this.nController.setActive(circle1Can || circle2Can);
 };
 
