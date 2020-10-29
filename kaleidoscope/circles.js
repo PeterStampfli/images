@@ -462,6 +462,9 @@ circles.map = function(point) {
     const length = circles.viewCollection.length;
     for (var i = 0; i < length; i++) {
         circles.viewCollection[i].map(point);
+        if (point.valid<0){
+            return;
+        }
     }
     let lastCircleIndex = 255;
     const collectionLength = circles.mapCollection.length;

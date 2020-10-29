@@ -151,7 +151,7 @@ export function Circle(parentGui, properties) {
         property: 'mapType',
         labelText: 'map',
         width: 100,
-        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view', 'ortho-stereographic view'],
+        options: ['inside -> out', 'outside -> in', 'no mapping', 'inverting view', 'logarithmic view', 'ortho-stereographic view', 'ortho-stereo outside view'],
         onChange: function(mapType) {
             circles.setSelected(circle);
             // if map direction changes, try new direction
@@ -198,7 +198,8 @@ export function Circle(parentGui, properties) {
         helpText += '<strong>no mapping:</strong> The circle does nothing. Switch it off and to see what it does. Use it for borders of the Poincare disc.<br>';
         helpText += '<strong>inverting view:</strong> Inverts the kaleidoscopic image. Transforms circles passing through its center into straight lines.<br>';
         helpText += '<strong>logarithmic view:</strong> Transforms pixel position using the complex logarithm before making the kaleidoscopic image. Concentric circles become straight lines.<br>';
-        helpText += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection. The outside of the circle is not changed.<br>';
+        helpText += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection.<br>';
+        helpText += '<strong>ortho-stereo outside view:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image outside the circle is mapped onto the sphere using a stereographic projection.';
         this.mapTypeController.addHelp(helpText);
     }
 
@@ -291,6 +292,12 @@ Circle.prototype.setMapProperties = function(mapType) {
             this.isMapping = false;
             this.isView = true;
             this.map = this.orthoStereo;
+            this.isInTarget = this.noMap;
+            break;
+        case 'ortho-stereo outside view':
+            this.isMapping = false;
+            this.isView = true;
+            this.map = this.orthoStereoOutside;
             this.isInTarget = this.noMap;
             break;
     }
@@ -1126,7 +1133,7 @@ Circle.prototype.exponential = function(position) {
 /**
  * orthographic view of stereographic projection
  * circle center as origin, radius as equator of the prejection sphere
- * projection of the "inside", direct view of the outside
+ * projection of the "inside", hiding the outside
  * @method Circle#orthoStereo
  * @param {object} position - with x, y and valid fields, will be changed
  */
@@ -1138,6 +1145,28 @@ Circle.prototype.orthoStereo = function(position) {
         const factor = this.osFactor / (1 + Math.sqrt(1 - d2 * this.osx2r2));
         position.x = this.centerX + factor * dx;
         position.y = this.centerY + factor * dy;
+    } else {
+        position.valid = -1;
+    }
+};
+
+/**
+ * orthographic view of stereographic projection
+ * circle center as origin, radius as equator of the prejection sphere
+ * projection of the "outside", hiding the inside
+ * @method Circle#orthoStereo
+ * @param {object} position - with x, y and valid fields, will be changed
+ */
+Circle.prototype.orthoStereoOutside = function(position) {
+    const dx = position.x - this.centerX;
+    const dy = position.y - this.centerY;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < this.radius2) {
+        const factor = 1 / (1 - Math.sqrt(1 - d2 / this.radius2));
+        position.x = this.centerX + factor * dx;
+        position.y = this.centerY + factor * dy;
+    } else {
+        position.valid = -1;
     }
 };
 
