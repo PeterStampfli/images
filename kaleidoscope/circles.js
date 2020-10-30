@@ -10,6 +10,7 @@ import {
 import {
     Circle,
     intersections,
+    view,
     basic,
     regions
 } from './modules.js';
@@ -459,7 +460,10 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    const length = circles.viewCollection.length;
+    if (view.isActive){
+view.map(point);
+    }
+        const length = circles.viewCollection.length;
     for (var i = 0; i < length; i++) {
         circles.viewCollection[i].map(point);
         if (point.valid<0){

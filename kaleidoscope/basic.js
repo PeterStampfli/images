@@ -12,6 +12,7 @@ import {
     circles,
     Circle,
     intersections,
+    view,
     presets,
     regions
 } from './modules.js';
@@ -79,13 +80,11 @@ basic.setup = function() {
     map.whatToShowController.addHelp(showHelp);
     map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
     map.imageController.addDragAndDropWindow();
-
-    // new version for regions
+    // GUI's for regions, circles and intersections: you can close them afterwards
     map.makeRegionsGui(gui);
-    // GUI's for circles and intersections: you can close them afterwards
     circles.makeGui(gui);
     intersections.makeGui(gui);
-
+    view.makeGui(gui);
     // setting up the mapping, and its default input image
     map.mapping = function(point) {
         circles.map(point);

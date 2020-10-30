@@ -40,6 +40,11 @@ export {
 from "./intersections.js";
 
 export {
+    view
+}
+from "./view.js";
+
+export {
     basic
 }
 from "./basic.js";

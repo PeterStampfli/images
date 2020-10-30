@@ -17,7 +17,6 @@ import {
  * collection of intersections
  * @namespace intersections
  */
-
 export const intersections = {};
 
 // collecting the circles
