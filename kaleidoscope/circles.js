@@ -234,7 +234,7 @@ circles.makeGui = function(parentGui, args = {}) {
         }
     });
     circles.visibleButton.addHelp('You can hide the circles and intersection symbols to get a neater image.');
-    circles.addCircleButton=circles.gui.add({
+    circles.addCircleButton = circles.gui.add({
         type: 'button',
         buttonText: 'add circle',
         onClick: function() {
@@ -296,13 +296,14 @@ circles.makeGui = function(parentGui, args = {}) {
         buttonText: 'delete selected',
         onClick: function() {
             if (guiUtils.isObject(circles.selected)) {
+                view.deleteCircle(circles.selected);
                 circles.selected.destroy();
                 basic.drawMapChanged();
             }
         }
     });
-    circles.deleteButton.addHelp('Deletes the currently selected circle, which is highlighted yellow. Deletes its controlled intersections.')
-    circles.selectNothingButton=circles.gui.add({
+    circles.deleteButton.addHelp('Deletes the currently selected circle, which is highlighted yellow. Deletes its controlled intersections.');
+    circles.selectNothingButton = circles.gui.add({
         type: 'button',
         buttonText: 'select nothing',
         onClick: function() {
@@ -460,13 +461,13 @@ circles.allInsideOut = function() {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.map = function(point) {
-    if (view.isActive){
-view.map(point);
+    if (view.isActive) {
+        view.map(point);
     }
-        const length = circles.viewCollection.length;
+    const length = circles.viewCollection.length;
     for (var i = 0; i < length; i++) {
         circles.viewCollection[i].map(point);
-        if (point.valid<0){
+        if (point.valid < 0) {
             return;
         }
     }
