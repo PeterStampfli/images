@@ -156,6 +156,7 @@ basic.setup = function() {
         output.drawGrid();
         circles.draw();
         intersections.draw();
+        view.draw();
         if (regions.debug && map.updatingTheMap) {
             regions.drawBoundingRectangle();
             regions.drawCorners();
@@ -258,6 +259,7 @@ basic.drawCirclesIntersections = function() {
     output.drawGrid();
     circles.draw();
     intersections.draw();
+    view.draw();
     if (regions.debug && map.updatingTheMap) {
         regions.drawBoundingRectangle();
         regions.drawCorners();
