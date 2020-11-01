@@ -195,7 +195,7 @@ export function Circle(parentGui, properties) {
     if (circles.collection.length === 0) {
         let helpText = '<strong>outside -> in:</strong> The circle is part of the kaleidoscope. It inverts points lying outside into its inside.<br>';
         helpText += '<strong>inside -> out:</strong> The circle is part of the kaleidoscope. It inverts points lying inside into its outside.<br>';
-        helpText += '<strong>no mapping:</strong> The circle does nothing. Switch it off and to see what it does. Use it for borders of the Poincare disc.<br>';
+        helpText += '<strong>no mapping:</strong> The circle does nothing. Use this to check what the circle does. You can move the circle more rapidly.<br>';
         helpText += '<strong>inverting view:</strong> Inverts the kaleidoscopic image. Transforms circles passing through its center into straight lines.<br>';
         helpText += '<strong>logarithmic view:</strong> Transforms pixel position using the complex logarithm before making the kaleidoscopic image. Concentric circles become straight lines.<br>';
         helpText += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection.<br>';
@@ -768,7 +768,11 @@ Circle.prototype.tryRadius = function(radius) {
         if (success) {
             this.updateUI();
             intersections.activateUI();
-            basic.drawMapChanged();
+            if (this.mapType === 'no mapping') {
+                basic.drawCirclesIntersections();
+            } else {
+                basic.drawMapChanged();
+            }
         }
         return success;
     } else {
@@ -795,11 +799,12 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
                 break;
             case 1:
                 // first try to adjust the radius for the new position
-                if (!this.adjustRadiusOneIntersection(centerX, centerY)) {
+                success = this.adjustRadiusOneIntersection(centerX, centerY);
+                if (!success) {
                     // if it failed, keep radius and adjust distance between the circles
                     this.centerX = centerX;
                     this.centerY = centerY;
-                    this.adjustPositionOneIntersection();
+                    success = this.adjustPositionOneIntersection();
                 }
                 break;
             case 2:
@@ -812,7 +817,11 @@ Circle.prototype.tryPosition = function(centerX, centerY) {
         if (success) {
             this.updateUI();
             intersections.activateUI();
-            basic.drawMapChanged();
+            if (this.mapType === 'no mapping') {
+                basic.drawCirclesIntersections();
+            } else {
+                basic.drawMapChanged();
+            }
         }
         return success;
     } else {

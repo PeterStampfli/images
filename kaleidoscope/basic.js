@@ -100,6 +100,8 @@ basic.setup = function() {
      * @method map.drawMapChanged
      */
     map.drawMapChanged = function() {
+        view.update();
+        circles.finalInversion = circles.allInsideOut();
         circles.categorize();
         map.clearActive(); // clears regions
         map.startDrawing();
@@ -236,7 +238,6 @@ basic.setup = function() {
  * @method basic.drawMapChanged
  */
 basic.drawMapChanged = function() {
-    circles.finalInversion = circles.allInsideOut();
     map.drawMapChanged();
 };
 

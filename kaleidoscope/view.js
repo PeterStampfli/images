@@ -158,6 +158,15 @@ view.deleteCircle = function(circle) {
 };
 
 /**
+* update the view:
+* position of center and radius, message, transform, call when map changes
+* @method view.update
+*/
+view.update=function(){
+console.log('update',view.type);
+};
+
+/**
  * drawing a circle that defines the view
  * with cross mark at center
  * @method view.draw
