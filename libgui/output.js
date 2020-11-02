@@ -26,6 +26,16 @@ output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
 
+// vectors for intermediate results
+const u = {
+    x: 0,
+    y: 0
+};
+const v = {
+    x: 0,
+    y: 0
+};
+
 /**
  * call this when drawing starts
  * @method output.startDrawing
@@ -214,10 +224,8 @@ function autoResizeDraw() {
         }
         // only if the true canvas dimensions change then we need to redraw
         // controllers directly change canvas dimensions
-        if (oldWidth !== newWidth) {
+        if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
             widthController.setValueOnly(newWidth);
-        }
-        if (oldHeight !== newHeight) {
             heightController.setValueOnly(newHeight);
         }
     } else if (autoScaleController.getValue()) {
@@ -254,14 +262,29 @@ function autoResizeDraw() {
     }
     // draw if dimensions changed
     if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
-        oldWidth = output.canvas.width;
-        oldHeight = output.canvas.height;
         // if there is a transform we have to update ...
         if (guiUtils.isDefined(output.coordinateTransform)) {
             // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
-            output.coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
-            output.coordinateTransform.updateTransform();
+            // change prescale to show about the same image part
+            // make center of canvas fixed
+            const coordinateTransform = output.coordinateTransform;
+            // get current center
+            u.x = oldWidth / 2;
+            u.y = oldHeight / 2;
+            coordinateTransform.transform(u);
+            coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
+            coordinateTransform.updateTransform();
+            // get new center
+            v.x = output.canvas.width / 2;
+            v.y = output.canvas.height / 2;
+            coordinateTransform.transform(v);
+            // correction
+            coordinateTransform.shiftX += u.x - v.x;
+            coordinateTransform.shiftY += u.y - v.y;
+            coordinateTransform.updateUI();
         }
+        oldWidth = output.canvas.width;
+        oldHeight = output.canvas.height;
         if (output.isDrawing) {
             output.drawCanvasChanged();
         }
@@ -557,14 +580,23 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     output.canvas.style.cursor = "pointer";
     output.mouseEvents = new MouseEvents(output.canvas);
     const mouseEvents = output.mouseEvents;
-    // vectors for intermediate results
-    const u = {
-        x: 0,
-        y: 0
-    };
-    const v = {
-        x: 0,
-        y: 0
+
+    // make that changing the scale does not change center
+    coordinateTransform.scaleController.callback = function() {
+        const canvas = output.canvas;
+        // get current center
+        u.x = canvas.width / 2;
+        u.y = canvas.height / 2;
+        coordinateTransform.transform(u);
+        coordinateTransform.updateTransform();
+        // get new center
+        v.x = canvas.width / 2;
+        v.y = canvas.height / 2;
+        coordinateTransform.transform(v);
+        coordinateTransform.shiftX += u.x - v.x;
+        coordinateTransform.shiftY += u.y - v.y;
+        coordinateTransform.updateUI();
+        coordinateTransform.onChange();
     };
 
     // switching with ctrl key from coordinate transformation to other actions
@@ -805,10 +837,10 @@ output.addGrid = function(gui) {
             output.drawGridChanged();
         }
     });
-        const lineWidthControllerController = gui.add({
+    const lineWidthControllerController = gui.add({
         type: 'number',
         params: grid,
-        min:0,
+        min: 0,
         property: 'lineWidth',
         labelText: 'linewidth',
         onChange: function() {
@@ -838,7 +870,7 @@ output.drawGrid = function() {
         const xMax = v.x;
         const yMax = v.y;
         // axis
-        output.setLineWidth(3*grid.lineWidth);
+        output.setLineWidth(3 * grid.lineWidth);
         canvasContext.beginPath();
         canvasContext.moveTo(xMin, 0);
         canvasContext.lineTo(xMax, 0);

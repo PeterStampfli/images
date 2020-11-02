@@ -174,7 +174,7 @@ CoordinateTransform.prototype.updateTransform = function() {
         const sinAngleInvTotalScale = sinAngle / this.totalScale;
         const deltaX = cosAngleInvTotalScale * this.shiftX + sinAngleInvTotalScale * this.shiftY;
         const deltaY = -sinAngleInvTotalScale * this.shiftX + cosAngleInvTotalScale * this.shiftY;
-        canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+        canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform, and then setup backwards transform
         canvasContext.translate(-deltaX, -deltaY);
         canvasContext.rotate(-this.angle / 180 * Math.PI);
         canvasContext.scale(1 / this.totalScale, 1 / this.totalScale);
