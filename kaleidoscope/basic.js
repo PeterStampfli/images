@@ -69,11 +69,18 @@ basic.setup = function() {
     map.maxIterationsController.addHelp('Upper limit for the number of inversions. Increase if there are undefined transparent patches of pixels. Decrease if app is lagging too much.');
     map.linewidthController.addHelp('Width in pixels for drawing circles, intersections and the trajectory.');
     map.trajectoryOnOffController.addHelp('Switch on and press the ctrl-button to see a trajectory of the circle inversions, starting at the mouse position. The trajectory line pieces have the same color as the inverting circle. No trajectory is shown if some circles make an inverting, logarithmic or ortho-stereographic view.');
-    let showHelp = '<strong>structure:</strong> Pixels get the color of the region they are mapped into. For odd numbers of inversions the color is darkened. For even numbers it is lightened.<br>';
+     map.addDrawFundamentalRegion();
+    map.addDrawNoImage();
+    map.addDrawIterations();
+    map.gammaController.addHelp('Only pixels with more inversions than the threshold will get color. For large gamma mainly pixels with a number of inversions near the limit get much color. For small gamma pixels near the threshold get more color.');
+    map.addDrawLimitset();
+    map.addDrawIndrasPearls();
+   let showHelp = '<strong>structure:</strong> Pixels get the color of the region they are mapped into. For odd numbers of inversions the color is darkened. For even numbers it is lightened.<br>';
     showHelp += '<strong>image - low quality:</strong> Maps an input image. Fast, but strong aliasing and block pixels may appear.<br>';
     showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and linear pixel interpolation.<br>';
     showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and cubic pixel interpolation.<br>';
     showHelp += '<strong>fundamental region:</strong> Shows the regions where pixels get mapped into as solid grey. Much faster than the other options. Use for setup.<br>';
+    showHelp += '<strong>no image:</strong> Does not show an image. Very fast. Use for setup.<br>';
     showHelp += '<strong>iterations:</strong> Shows pixels that need many inversions in white. Else transparent black.<br>';
     showHelp += '<strong>borders:</strong> Shows pixels that lie at the border of different mapping regions in white. Else transparent black.<br>';
     showHelp += "<strong>Indra's pearls:</strong> Pixels get the color of the last circle that inverted their position. Use for non-intersecting circles.<br>";
@@ -165,12 +172,6 @@ basic.setup = function() {
             regions.drawLines();
         }
     };
-
-    map.addDrawFundamentalRegion();
-    map.addDrawIterations();
-    map.gammaController.addHelp('Only pixels with more inversions than the threshold will get color. For large gamma mainly pixels with a number of inversions near the limit get much color. For small gamma pixels near the threshold get more color.');
-    map.addDrawLimitset();
-    map.addDrawIndrasPearls();
 
     // mouse controls
     // mouse move with ctrl shows objects that can be selected

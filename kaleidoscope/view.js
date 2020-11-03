@@ -39,20 +39,17 @@ view.makeGui = function(parentGui, args = {}) {
         options: ['direct', 'logarithmic'],
         onChange: function() {
             if (view.type === 'direct') {
-                console.log('direcct');
                 view.visibleButton.hide();
                 view.useCircleButton.hide();
-                view.centerXController.hide();
                 view.colorController.hide();
-                view.message.style.display = 'none';
-                view.isActive = false;
+                view.circlesMessage.style.display = 'none';
+                view.centerMessage.style.display = 'none';
             } else {
                 view.visibleButton.show();
                 view.useCircleButton.show();
-                view.centerXController.show();
                 view.colorController.show();
-                view.message.style.display = 'block';
-                view.isActive = true;
+                view.circlesMessage.style.display = 'block';
+                view.centerMessage.style.display = 'block';
             }
             basic.drawMapChanged();
         }
@@ -65,7 +62,6 @@ view.makeGui = function(parentGui, args = {}) {
         type: 'button',
         buttonText: 'use selected circle',
         onClick: function() {
-            console.log('use');
             const circle = circles.selected;
             if (guiUtils.isObject(circle)) {
                 view.deleteCircle(circle);
@@ -74,15 +70,26 @@ view.makeGui = function(parentGui, args = {}) {
                 view.circle1 = circle;
             }
             console.log(view.circle1, view.circle2, view.circle3);
+            basic.drawMapChanged();
+        }
+    });
+    view.deleteCircleButton = view.useCircleButton.add({
+        type: 'button',
+        buttonText: 'remove first circle',
+        onClick: function() {
+            view.deleteCircle(view.circle1);
+            basic.drawMapChanged();
         }
     });
     view.useCircleButton.addHelp('whatever');
     view.useCircleButton.hide();
-    view.message = view.gui.addParagraph('message');
-    view.message.style.display = 'none';
+    view.circlesMessage = view.gui.addParagraph('---');
+    view.circlesMessage.style.display = 'none';
     view.radius = 1;
     view.centerX = 0;
     view.centerY = 0;
+    view.centerMessage = view.gui.addParagraph('---');
+    view.centerMessage.style.display = 'none';
     // for some views we can change the radius, position of center is determined by circles
     BooleanButton.greenRedBackground();
     view.visibleButton = view.gui.add({
@@ -97,28 +104,6 @@ view.makeGui = function(parentGui, args = {}) {
     });
     view.visibleButton.addHelp('You can hide the circle that determines the view to get a neater image.');
     view.visibleButton.hide();
-    view.centerXController = view.gui.add({
-        type: 'number',
-        labelText: 'center: x',
-        initialValue: view.centerX
-    });
-    view.centerXController.setActive(false);
-    view.centerYController = view.centerXController.add({
-        type: 'number',
-        labelText: ' y',
-        initialValue: view.centerY
-    });
-    view.centerYController.setActive(false);
-    view.radiusController = view.centerYController.add({
-        type: 'number',
-        params: view,
-        property: 'radius',
-        min: 0,
-        onChange: function() {
-            basic.drawMapChanged();
-        },
-    });
-    view.centerXController.hide();
     view.color = '#4444bb';
     view.colorController = view.gui.add({
         type: 'color',
@@ -133,7 +118,6 @@ view.makeGui = function(parentGui, args = {}) {
     });
     view.colorController.addHelp('what');
     view.colorController.hide();
-
 };
 
 /**
@@ -158,12 +142,53 @@ view.deleteCircle = function(circle) {
 };
 
 /**
-* update the view:
-* position of center and radius, message, transform, call when map changes
-* @method view.update
-*/
-view.update=function(){
-console.log('update',view.type);
+ * make the center message
+ * @method view.makeCenterMessage
+ * @return String with message
+ */
+view.makeCenterMessage = function() {
+    return 'center x=' + view.centerX.toPrecision(3) + ', y=' + view.centerY.toPrecision(3) + ' and radius=' + view.radius.toPrecision(3);
+};
+
+/**
+ * update the view:
+ * position of center and radius, message, transform, call when map changes
+ * @method view.update
+ */
+view.update = function() {
+    console.log('update', view.type);
+    let circlesMessage = 'No circle in use.';
+    let centerMessage = '';
+    switch (view.type) {
+        case 'direct':
+            view.isActive = false;
+            break;
+        case 'logarithmic':
+            if (guiUtils.isObject(view.circle1)) {
+                circlesMessage = 'Using circle ' + view.circle1.id + '.';
+                view.centerX = view.circle1.centerX;
+                view.centerY = view.circle1.centerY;
+                view.radius = view.circle1.radius;
+                centerMessage = view.makeCenterMessage();
+                view.isActive = true;
+            } else {
+                centerMessage = 'This view needs a reference circle.';
+                view.isActive = false;
+
+            }
+            break;
+    }
+    if (!guiUtils.isObject(view.circle1)) {
+        circlesMessage = 'No circle in use.';
+    } else if (!guiUtils.isObject(view.circle2)) {
+        circlesMessage = 'Using circle ' + view.circle1.id + '.';
+    } else if (!guiUtils.isObject(view.circle3)) {
+        circlesMessage = 'Using circles ' + view.circle1.id + ' and ' + view.circle2.id + '.';
+    } else {
+        circlesMessage = 'Using circles ' + view.circle1.id + ', ' + view.circle2.id + ' and ' + view.circle3.id + '.';
+    }
+    view.circlesMessage.innerText = circlesMessage;
+    view.centerMessage.innerText = centerMessage;
 };
 
 /**
