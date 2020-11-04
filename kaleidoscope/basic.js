@@ -69,13 +69,13 @@ basic.setup = function() {
     map.maxIterationsController.addHelp('Upper limit for the number of inversions. Increase if there are undefined transparent patches of pixels. Decrease if app is lagging too much.');
     map.linewidthController.addHelp('Width in pixels for drawing circles, intersections and the trajectory.');
     map.trajectoryOnOffController.addHelp('Switch on and press the ctrl-button to see a trajectory of the circle inversions, starting at the mouse position. The trajectory line pieces have the same color as the inverting circle. No trajectory is shown if some circles make an inverting, logarithmic or ortho-stereographic view.');
-     map.addDrawFundamentalRegion();
+    map.addDrawFundamentalRegion();
     map.addDrawNoImage();
     map.addDrawIterations();
     map.gammaController.addHelp('Only pixels with more inversions than the threshold will get color. For large gamma mainly pixels with a number of inversions near the limit get much color. For small gamma pixels near the threshold get more color.');
     map.addDrawLimitset();
     map.addDrawIndrasPearls();
-   let showHelp = '<strong>structure:</strong> Pixels get the color of the region they are mapped into. For odd numbers of inversions the color is darkened. For even numbers it is lightened.<br>';
+    let showHelp = '<strong>structure:</strong> Pixels get the color of the region they are mapped into. For odd numbers of inversions the color is darkened. For even numbers it is lightened.<br>';
     showHelp += '<strong>image - low quality:</strong> Maps an input image. Fast, but strong aliasing and block pixels may appear.<br>';
     showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and linear pixel interpolation.<br>';
     showHelp += '<strong>image - high quality:</strong> Maps an input image with anti-aliasing and cubic pixel interpolation.<br>';
@@ -257,7 +257,16 @@ basic.drawImageChanged = function() {
  * @method basic.drawCirclesIntersections
  */
 basic.drawCirclesIntersections = function() {
-    output.pixels.show(); // no new map
+    if (map.draw === map.callDrawNoImage) {
+        // clear screen
+        const context = output.canvasContext;
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, output.canvas.width, output.canvas.height);
+        context.restore();
+    } else {
+        output.pixels.show(); // no new map/image
+    }
     output.drawGrid();
     circles.draw();
     intersections.draw();
