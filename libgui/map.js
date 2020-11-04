@@ -483,43 +483,10 @@ map.makeRegionsGui = function(parentGui, args = {}) {
 };
 
 /**
- * add buttons for controlling a region (onOff and color)
- * @method map.addControls
- */
-map.addControls = function() {
-    const n = map.onOffControllers.length;
-    BooleanButton.greenRedBackground();
-    const onOffController = map.regionsGui.add({
-        type: 'boolean',
-        params: map.showRegion,
-        property: n,
-        labelText: 'region ' + n,
-        onChange: function() {
-            map.drawImageChanged();
-        }
-    });
-    map.onOffControllers.push(onOffController);
-    const colorController = onOffController.add({
-        type: 'color',
-        params: map.basicColor,
-        property: n,
-        labelText: '',
-        onChange: function() {
-            map.makeStructureColors();
-            map.drawImageChanged();
-        }
-    });
-    if (map.colorControllers.length===0){
-        colorController.addHelp('You can switch off pixels that end up in a certain region after the mapping. They will become transparent black and you will see the background color of the canvas. You can choose the color used for pixels related to the region.');
-    }
-    map.colorControllers.push(colorController);
-};
-
-/**
  * create/show the relevant controllers
- * @method map.showControllers
+ * @method map.showRegionControls
  */
-map.showControls = function() {
+map.showRegionControls = function() {
     var i;
     map.regionsGui.hide();
     // determine max index of active regions, including the outside region
@@ -531,8 +498,34 @@ map.showControls = function() {
     }
     let length = maxIndex + 1;
     // add controllers if needed
-    for (i = map.onOffControllers.length; i < length; i++) {
-        map.addControls();
+    const currentNumberOfControllers = map.onOffControllers.length;
+    for (i = currentNumberOfControllers; i < length; i++) {
+        const n = map.onOffControllers.length;
+        BooleanButton.greenRedBackground();
+        const onOffController = map.regionsGui.add({
+            type: 'boolean',
+            params: map.showRegion,
+            property: n,
+            labelText: 'region ' + n,
+            onChange: function() {
+                map.drawImageChanged();
+            }
+        });
+        map.onOffControllers.push(onOffController);
+        const colorController = onOffController.add({
+            type: 'color',
+            params: map.basicColor,
+            property: n,
+            labelText: '',
+            onChange: function() {
+                map.makeStructureColors();
+                map.drawImageChanged();
+            }
+        });
+        if (map.colorControllers.length === 0) {
+            colorController.addHelp('You can switch off pixels that end up in a certain region after the mapping. They will become transparent black and you will see the background color of the canvas. You can choose the color used for pixels related to the region.');
+        }
+        map.colorControllers.push(colorController);
     }
     // show/hide
     length = map.onOffControllers.length;
@@ -754,7 +747,6 @@ map.drawDivergence = function() {
     const white = Pixels.integerOfColor(color);
     const factor = 255.9 / (Math.max(0, map.divergenceSaturation - map.divergenceThreshold) + 0.01);
     const iMaxSize = 1 / map.maxSize;
-    console.log(iMaxSize)
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
@@ -1182,14 +1174,14 @@ map.makeShowingGui = function(parentGui, args = {}) {
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
     map.inputImageLoaded = false;
     // setup image selection
-    map.inputImage='../libgui/dormouse.jpg';
+    map.inputImage = '../libgui/dormouse.jpg';
     map.imageController = gui.add({
         type: 'image',
         params: map,
         property: 'inputImage',
         options: {
             dormouse: '../libgui/dormouse.jpg',
-            'railway station':'../libgui/railway station.jpg'
+            'railway station': '../libgui/railway station.jpg'
         },
         labelText: 'input image',
         onChange: function() {

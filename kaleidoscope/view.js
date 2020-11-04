@@ -54,7 +54,8 @@ view.makeGui = function(parentGui, args = {}) {
             basic.drawMapChanged();
         }
     });
-    view.selectionButton.addHelp('whatever');
+    let selectionHelp = 'Choose between different views:';
+    view.selectionButton.addHelp(selectionHelp);
     view.circle1 = null;
     view.circle2 = null;
     view.circle3 = null;
@@ -81,7 +82,7 @@ view.makeGui = function(parentGui, args = {}) {
             basic.drawMapChanged();
         }
     });
-    view.useCircleButton.addHelp('whatever');
+    view.useCircleButton.addHelp("Makes that the selected circle is used as reference for the view or that it won't be used.");
     view.useCircleButton.hide();
     view.circlesMessage = view.gui.addParagraph('---');
     view.circlesMessage.style.display = 'none';
@@ -102,7 +103,7 @@ view.makeGui = function(parentGui, args = {}) {
             basic.drawCirclesIntersections();
         }
     });
-    view.visibleButton.addHelp('You can hide the circle that determines the view to get a neater image.');
+    view.visibleButton.addHelp('You can hide the circle that defines the view to get a neater image.');
     view.visibleButton.hide();
     view.color = '#4444bb';
     view.colorController = view.gui.add({
@@ -116,7 +117,7 @@ view.makeGui = function(parentGui, args = {}) {
             basic.drawCirclesIntersections();
         }
     });
-    view.colorController.addHelp('what');
+    view.colorController.addHelp("Choose the color for drawing the circle that defines the view.");
     view.colorController.hide();
 };
 

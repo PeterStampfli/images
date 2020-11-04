@@ -127,7 +127,7 @@ basic.setup = function() {
         }
         // now we know which regions are relevant
         // make their controllers visible
-        map.showControls();
+        map.showRegionControls();
         // create colors for structure (regions)
         map.makeStructureColors();
         // draw image, taking into account regions, and new options
