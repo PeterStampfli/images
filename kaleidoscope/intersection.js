@@ -237,38 +237,6 @@ const pos1 = {};
 const pos2 = {};
 
 /**
- * determine the two intersection positions
- * @method Intersection#determinePositions
- * @param {object} pos1 - with x- and y-fields
- * @param {object} pos2 - with x- and y-fields
- */
-Intersection.prototype.determinePositions = function(pos1, pos2) {
-    const center1X = this.circle1.centerX;
-    const center1Y = this.circle1.centerY;
-    const center2X = this.circle2.centerX;
-    const center2Y = this.circle2.centerY;
-    const center1To2X = center2X - center1X;
-    const center1To2Y = center2Y - center1Y;
-    // the actual distances between centers of other circles
-    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
-    // midpoint of the two solutions on the line between the centers of the two circles
-    // distance from center of circle 1 to the midpoint
-    const parallelPosition = 0.5 * (distanceCenter1To2 + (this.circle1.radius2 - this.circle2.radius2) / distanceCenter1To2);
-    let xi = parallelPosition / distanceCenter1To2;
-    const px = center1X + center1To2X * xi;
-    const py = center1Y + center1To2Y * xi;
-    // get the two solutions from the displacement perpendicular to the line
-    // if there are no real solutions we use the midpoint for both
-    const perpSquare = this.circle1.radius2 - parallelPosition * parallelPosition;
-    const perpendicularPosition = Math.sqrt(Math.max(0, perpSquare));
-    xi = perpendicularPosition / distanceCenter1To2;
-    pos1.x = px + center1To2Y * xi;
-    pos1.y = py - center1To2X * xi;
-    pos2.x = px - center1To2Y * xi;
-    pos2.y = py + center1To2X * xi;
-};
-
-/**
  * draw a filled polygon, number of corners given by this.n
  * @method Intersection#drawPolygon
  * @param {object} center - with x- and y-fields
@@ -308,7 +276,7 @@ Intersection.prototype.drawPolygon = function(center, radius) {
  * @param {boolean} highlight - optional, default is 0, not highlighted
  */
 Intersection.prototype.draw = function(highlight = 0) {
-    this.determinePositions(pos1, pos2);
+    this.circle1.determineIntersectionPositions(pos1, pos2,this.circle2);
     const context = output.canvasContext;
     const radius = 7 * map.linewidth;
     if (highlight === 0) {
@@ -342,7 +310,7 @@ Intersection.prototype.draw = function(highlight = 0) {
 Intersection.prototype.isSelected = function(position) {
     let selectionRadius2 = 9 * map.linewidth * output.coordinateTransform.totalScale;
     selectionRadius2 = selectionRadius2 * selectionRadius2;
-    this.determinePositions(pos1, pos2);
+    this.circle1.determineIntersectionPositions(pos1, pos2,this.circle2);
     let dx = position.x - pos1.x;
     let dy = position.y - pos1.y;
     if (dx * dx + dy * dy < selectionRadius2) {

@@ -385,6 +385,41 @@ Circle.prototype.intersectsCircle = function(circle) {
 };
 
 /**
+ * determine the two intersection positions with another circle
+ * if circles do not intersect gives points on the line between the circle centers
+ * @method Circle#determineIntersectionPositions
+ * @param {object} pos1 - with x- and y-fields
+ * @param {object} pos2 - with x- and y-fields
+ * @param {Circle} circle
+ */
+Circle.prototype.determineIntersectionPositions = function(pos1, pos2, circle) {
+    const center1X = this.centerX;
+    const center1Y = this.centerY;
+    const center2X = circle.centerX;
+    const center2Y = circle.centerY;
+    const center1To2X = center2X - center1X;
+    const center1To2Y = center2Y - center1Y;
+    // the actual distances between centers of other circles
+    const distanceCenter1To2 = Math.hypot(center1To2X, center1To2Y);
+    // midpoint of the two solutions on the line between the centers of the two circles
+    // distance from center of circle 1 to the midpoint
+    const parallelPosition = 0.5 * (distanceCenter1To2 + (this.radius2 - circle.radius2) / distanceCenter1To2);
+    let xi = parallelPosition / distanceCenter1To2;
+    const px = center1X + center1To2X * xi;
+    const py = center1Y + center1To2Y * xi;
+    // get the two solutions from the displacement perpendicular to the line
+    // if there are no real solutions we use zero (in case of non-intersecting circles)
+    const perpSquare = this.radius2 - parallelPosition * parallelPosition;
+    const perpendicularPosition = Math.sqrt(Math.max(0, perpSquare));
+    xi = perpendicularPosition / distanceCenter1To2;
+    pos1.x = px + center1To2Y * xi;
+    pos1.y = py - center1To2X * xi;
+    pos2.x = px - center1To2Y * xi;
+    pos2.y = py + center1To2X * xi;
+};
+
+
+/**
  * adjust the radius of a circle with only one intersection
  * use this for a given position of the center
  * return true if successful, false if fails
