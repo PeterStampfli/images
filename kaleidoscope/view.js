@@ -18,6 +18,11 @@ import {
  */
 export const view = {};
 
+// circle intersections as centers for inversion
+const pos1 = {};
+const pos2 = {};
+let pos = pos1;
+
 /**
  * make the gui and add some buttons
  * @method view.makeGui
@@ -36,7 +41,7 @@ view.makeGui = function(parentGui, args = {}) {
         type: 'selection',
         params: view,
         property: 'type',
-        options: ['direct', 'logarithmic'],
+        options: ['direct', 'inversion'],
         onChange: function() {
             if (view.type === 'direct') {
                 view.visibleButton.hide();
@@ -51,10 +56,19 @@ view.makeGui = function(parentGui, args = {}) {
                 view.circlesMessage.style.display = 'block';
                 view.centerMessage.style.display = 'block';
             }
+            if (view.type === 'inversion') {
+                view.radiusController.show();
+                view.switchCenterButton.show();
+            } else {
+                view.radiusController.hide();
+                view.switchCenterButton.hide();
+            }
             basic.drawMapChanged();
         }
     });
-    let selectionHelp = 'Choose between different views:';
+    let selectionHelp = 'Choose between different views:<br>';
+    selectionHelp += '<strong>direct:</strong> Does not transform the kaleiddoscopic image.<br>';
+    selectionHelp += '<strong>inversion:</strong> Inverts at the intersection of two circles.<br>';
     view.selectionButton.addHelp(selectionHelp);
     view.circle1 = null;
     view.circle2 = null;
@@ -92,6 +106,32 @@ view.makeGui = function(parentGui, args = {}) {
     view.centerMessage = view.gui.addParagraph('---');
     view.centerMessage.style.display = 'none';
     // for some views we can change the radius, position of center is determined by circles
+    view.radiusController = view.gui.add({
+        type: 'number',
+        params: view,
+        property: 'radius',
+        onChange: function() {
+            console.log('rad chang');
+            basic.drawMapChanged();
+        }
+    });
+    view.radiusController.addHelp('Here you can adjust the radius of the inverting circle.');
+    view.radiusController.hide();
+    // for inversion there are two centers
+    view.switchCenterButton = view.gui.add({
+        type: 'button',
+        buttonText: 'switch center',
+        onClick: function() {
+            console.log('switch');
+            if (pos === pos1) {
+                pos = pos2;
+            } else {
+                pos = pos1;
+            }
+            basic.drawMapChanged();
+        }
+    });
+    view.switchCenterButton.hide();
     BooleanButton.greenRedBackground();
     view.visibleButton = view.gui.add({
         type: 'boolean',
@@ -153,7 +193,8 @@ view.makeCenterMessage = function() {
 
 /**
  * update the view:
- * position of center and radius, message, transform, call when map changes
+ * position of center and radius, message, transform, 
+ * always call when map changes
  * @method view.update
  */
 view.update = function() {
@@ -164,16 +205,23 @@ view.update = function() {
         case 'direct':
             view.isActive = false;
             break;
-        case 'logarithmic':
-            if (guiUtils.isObject(view.circle1)) {
-                circlesMessage = 'Using circle ' + view.circle1.id + '.';
-                view.centerX = view.circle1.centerX;
-                view.centerY = view.circle1.centerY;
-                view.radius = view.circle1.radius;
-                centerMessage = view.makeCenterMessage();
-                view.isActive = true;
+        case 'inversion':
+            if (guiUtils.isObject(view.circle1) && guiUtils.isObject(view.circle2)) {
+                if (view.circle1.intersectsCircle(view.circle2)) {
+                    view.circle1.determineIntersectionPositions(pos1, pos2, view.circle2);
+                    // pos is either pos1 or pos2
+                    view.centerX = pos.x;
+                    view.centerY = pos.y;
+                    view.radius = view.circle1.radius;
+                    centerMessage = view.makeCenterMessage();
+                    view.isActive = true;
+                } else {
+                    centerMessage = 'Error: The circles do not intersect!';
+                    view.isActive = false;
+                }
+
             } else {
-                centerMessage = 'This view needs a reference circle.';
+                centerMessage = 'This view requires two intersecting circles.';
                 view.isActive = false;
 
             }
@@ -183,7 +231,7 @@ view.update = function() {
         circlesMessage = 'No circle in use.';
     } else if (!guiUtils.isObject(view.circle2)) {
         circlesMessage = 'Using circle ' + view.circle1.id + '.';
-    } else if (!guiUtils.isObject(view.circle3)) {
+    } else if (!guiUtils.isObject(view.circle3) || (view.type === 'inversion')) {
         circlesMessage = 'Using circles ' + view.circle1.id + ' and ' + view.circle2.id + '.';
     } else {
         circlesMessage = 'Using circles ' + view.circle1.id + ', ' + view.circle2.id + ' and ' + view.circle3.id + '.';
