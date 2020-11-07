@@ -693,6 +693,7 @@ Circle.prototype.adjustRadiusTwoIntersections = function(centerX, centerY) {
  * @method Circle#adjustThreeIntersections
  * @param {object} pos1 - with x- and y fields
  * @param {object} pos2 - with x- and y fields
+ * @return boolean, true if ok, false if fail
  */
 Circle.prototype.adjustThreeIntersections = function(pos1, pos2) {
     const intersection1 = this.intersections[0];
