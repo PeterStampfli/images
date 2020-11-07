@@ -23,6 +23,11 @@ const pos1 = {};
 const pos2 = {};
 let pos = pos1;
 
+// text of messages
+    let circlesMessage = 'No circle in use.';
+    let centerMessage = '';
+
+
 /**
  * make the gui and add some buttons
  * @method view.makeGui
@@ -232,9 +237,12 @@ view.updateCenterRadius = function() {
             } else {
                 r2 = (view.centerX - center3X) * (view.centerX - center3X) + (view.centerY - center3Y) * (view.centerY - center3Y) - view.circle3.radius2;
             }
+
+            
             if (r2 > 0.00001) {
                 view.radius = Math.sqrt(r2);
-                view.isActive = true;
+                     centerMessage = view.makeCenterMessage();
+               view.isActive = true;
             } else {
                 centerMessage = 'Fail because the circles intersect at a single point (Euclidean geometry).';
 
@@ -255,8 +263,6 @@ view.updateCenterRadius = function() {
  */
 view.update = function() {
     console.log('update', view.type);
-    let circlesMessage = 'No circle in use.';
-    let centerMessage = '';
     switch (view.type) {
         case 'direct':
             view.isActive = false;
@@ -275,12 +281,15 @@ view.update = function() {
                     centerMessage = 'Error: The circles do not intersect!';
                     view.isActive = false;
                 }
-
             } else {
                 centerMessage = 'This view requires two intersecting circles.';
                 view.isActive = false;
-
             }
+            break;
+        case 'inversion at boundary':
+        console.log('updateinv bo');
+        view.updateCenterRadius();
+
             break;
     }
     if (!guiUtils.isObject(view.circle1)) {
