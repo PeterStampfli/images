@@ -49,7 +49,7 @@ view.makeGui = function(parentGui, args = {}) {
         type: 'selection',
         params: view,
         property: 'type',
-        options: ['direct', 'inversion at intersection', 'inversion at boundary'],
+        options: ['direct', 'inversion at intersection', 'inversion at boundary', 'ortho-stereographic view'],
         onChange: function() {
             if (view.type === 'direct') {
                 view.visibleButton.hide();
@@ -71,6 +71,11 @@ view.makeGui = function(parentGui, args = {}) {
                 view.radiusController.hide();
                 view.switchCenterButton.hide();
             }
+            if (view.type === 'ortho-stereographic view') {
+                view.osInterpolationController.show();
+            } else {
+                view.osInterpolationController.hide();
+            }
             basic.drawMapChanged();
         }
     });
@@ -78,6 +83,7 @@ view.makeGui = function(parentGui, args = {}) {
     selectionHelp += '<strong>direct:</strong> Does not transform the kaleidoscopic image.<br>';
     selectionHelp += '<strong>inversion at intersection:</strong> Inversion at a circle. Its center lies at the intersection of two circles of the kaleidoscope.<br>';
     selectionHelp += '<strong>inversion at boundary:</strong> Inversion at a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope.<br>';
+    selectionHelp += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection. Transforms the Poincare disc model to the Beltrami-Klein model.<br>';
     view.selectionButton.addHelp(selectionHelp);
     view.circle1 = null;
     view.circle2 = null;
@@ -122,7 +128,7 @@ view.makeGui = function(parentGui, args = {}) {
         property: 'radius',
         onChange: function() {
             console.log('rad chang');
-            view.radius2=view.radius*view.radius;
+            view.radius2 = view.radius * view.radius;
             basic.drawMapChanged();
         }
     });
@@ -143,6 +149,26 @@ view.makeGui = function(parentGui, args = {}) {
         }
     });
     view.switchCenterButton.hide();
+
+    view.osInterpolation = 1;
+    view.updateOSParameters();
+    view.osInterpolationController = view.gui.add({
+        type: 'number',
+        params: view,
+        property: 'osInterpolation',
+        min: 0,
+        max: 1,
+        labelText: 'interpolation',
+        usePopup: false,
+        onChange: function() {
+            view.updateOSParameters();
+            basic.drawMapChanged();
+        }
+    });
+    view.osInterpolationController.addHelp('Interpolates between direct view and the ortho-stereographic view.');
+    view.osInterpolationController.createLongRange();
+    view.osInterpolationController.hide();
+
     BooleanButton.greenRedBackground();
     view.visibleButton = view.gui.add({
         type: 'boolean',
@@ -154,6 +180,7 @@ view.makeGui = function(parentGui, args = {}) {
             basic.drawCirclesIntersections();
         }
     });
+
     view.visibleButton.addHelp('You can hide the circle that defines the view to get a neater image.');
     view.visibleButton.hide();
     view.color = '#4444bb';
@@ -170,6 +197,16 @@ view.makeGui = function(parentGui, args = {}) {
     });
     view.colorController.addHelp("Choose the color for drawing the circle that defines the view.");
     view.colorController.hide();
+};
+
+
+/**
+ * calculate parameters for the ortho-stereographic view
+ * @method view#updateOSParameters
+ */
+view.updateOSParameters = function() {
+    view.osFactor = 1 + Math.sqrt(Math.max(0, 1 - view.osInterpolation));
+    view.osx2r2 = view.osInterpolation / view.radius2;
 };
 
 /**
@@ -265,7 +302,6 @@ view.updateCenterRadius = function() {
  * @method view.update
  */
 view.update = function() {
-    console.log('update', view.type);
     switch (view.type) {
         case 'direct':
             view.isActive = false;
@@ -292,16 +328,18 @@ view.update = function() {
             view.map = view.invert;
             break;
         case 'inversion at boundary':
-            console.log('updateinv bo');
             view.updateCenterRadius();
             view.map = view.invert;
+            break;
+        case 'ortho-stereographic view':
+
             break;
     }
     if (!guiUtils.isObject(view.circle1)) {
         circlesMessage = 'No circle in use.';
     } else if (!guiUtils.isObject(view.circle2)) {
         circlesMessage = 'Using circle ' + view.circle1.id + '.';
-    } else if (!guiUtils.isObject(view.circle3) || (view.type === 'inversion')) {
+    } else if (!guiUtils.isObject(view.circle3) || (view.type === 'inversion at intersection')) {
         circlesMessage = 'Using circles ' + view.circle1.id + ' and ' + view.circle2.id + '.';
     } else {
         circlesMessage = 'Using circles ' + view.circle1.id + ', ' + view.circle2.id + ' and ' + view.circle3.id + '.';
@@ -309,6 +347,7 @@ view.update = function() {
     view.circlesMessage.innerText = circlesMessage;
     view.centerMessage.innerText = centerMessage;
     view.radius2 = view.radius * view.radius;
+    view.deleteCircleButton.setActive(guiUtils.isObject(view.circle1));
 };
 
 /**
