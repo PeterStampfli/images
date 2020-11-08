@@ -264,6 +264,7 @@ function autoResizeDraw() {
     if ((oldWidth !== output.canvas.width) || (oldHeight !== output.canvas.height)) {
         // if there is a transform we have to update ...
         if (guiUtils.isDefined(output.coordinateTransform)) {
+
             // prescaling: makes that for square canvas x- and y-axis range from 0 to 1
             // change prescale to show about the same image part
             // make center of canvas fixed
@@ -281,6 +282,7 @@ function autoResizeDraw() {
             // correction
             coordinateTransform.shiftX += u.x - v.x;
             coordinateTransform.shiftY += u.y - v.y;
+            coordinateTransform.updateTransform();
             coordinateTransform.updateUI();
         }
         oldWidth = output.canvas.width;

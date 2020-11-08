@@ -24,9 +24,12 @@ const pos2 = {};
 let pos = pos1;
 
 // text of messages
-    let circlesMessage = 'No circle in use.';
-    let centerMessage = '';
+let circlesMessage = 'No circle in use.';
+let centerMessage = '';
 
+// beware of hitting the circle center
+const epsilon = 0.0001;
+const epsilon2 = epsilon * epsilon;
 
 /**
  * make the gui and add some buttons
@@ -72,8 +75,9 @@ view.makeGui = function(parentGui, args = {}) {
         }
     });
     let selectionHelp = 'Choose between different views:<br>';
-    selectionHelp += '<strong>direct:</strong> Does not transform the kaleiddoscopic image.<br>';
-    selectionHelp += '<strong>inversion at intersection:</strong> Inversion at a circle. Its center lies at the intersection of two circles.<br>';
+    selectionHelp += '<strong>direct:</strong> Does not transform the kaleidoscopic image.<br>';
+    selectionHelp += '<strong>inversion at intersection:</strong> Inversion at a circle. Its center lies at the intersection of two circles of the kaleidoscope.<br>';
+    selectionHelp += '<strong>inversion at boundary:</strong> Inversion at a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope.<br>';
     view.selectionButton.addHelp(selectionHelp);
     view.circle1 = null;
     view.circle2 = null;
@@ -89,7 +93,6 @@ view.makeGui = function(parentGui, args = {}) {
                 view.circle2 = view.circle1;
                 view.circle1 = circle;
             }
-            console.log(view.circle1, view.circle2, view.circle3);
             basic.drawMapChanged();
         }
     });
@@ -106,17 +109,20 @@ view.makeGui = function(parentGui, args = {}) {
     view.circlesMessage = view.gui.addParagraph('---');
     view.circlesMessage.style.display = 'none';
     view.radius = 1;
+    view.radius2 = view.radius * view.radius; // for documentation
     view.centerX = 0;
     view.centerY = 0;
     view.centerMessage = view.gui.addParagraph('---');
     view.centerMessage.style.display = 'none';
-    // for some views we can change the radius, position of center is determined by circles
+    // for inversion at intersection view we can change the radius
+    // only position of center is determined by circles
     view.radiusController = view.gui.add({
         type: 'number',
         params: view,
         property: 'radius',
         onChange: function() {
             console.log('rad chang');
+            view.radius2=view.radius*view.radius;
             basic.drawMapChanged();
         }
     });
@@ -174,17 +180,16 @@ view.makeGui = function(parentGui, args = {}) {
  * @param {Circle} circle
  */
 view.deleteCircle = function(circle) {
-    if (this.circle3 === circle) {
-        this.circle3 = null;
-    } else if (this.circle2 === circle) {
-        this.circle2 = this.circle3;
-        this.circle3 = null;
-    } else if (this.circle1 === circle) {
-        this.circle1 = this.circle2;
-        this.circle2 = this.circle3;
-        this.circle3 = null;
+    if (view.circle3 === circle) {
+        view.circle3 = null;
+    } else if (view.circle2 === circle) {
+        view.circle2 = view.circle3;
+        view.circle3 = null;
+    } else if (view.circle1 === circle) {
+        view.circle1 = view.circle2;
+        view.circle2 = view.circle3;
+        view.circle3 = null;
     }
-    console.log(view.circle1, view.circle2, view.circle3);
 };
 
 /**
@@ -218,7 +223,7 @@ view.updateCenterRadius = function() {
         const center1To2Y = center2Y - center1Y;
         const center1To3X = center3X - center1X;
         const center1To3Y = center3Y - center1Y;
-        // the system of linear equations for the center of this circle
+        // the system of linear equations for the center of the view circle
         const denom = center1To2X * center1To3Y - center1To3X * center1To2Y;
         if (Math.abs(denom) < 0.001 * (Math.abs(center1To2X * center1To3Y) + Math.abs(center1To3X * center1To2Y))) {
             // nearly colinear, fail
@@ -237,15 +242,13 @@ view.updateCenterRadius = function() {
             } else {
                 r2 = (view.centerX - center3X) * (view.centerX - center3X) + (view.centerY - center3Y) * (view.centerY - center3Y) - view.circle3.radius2;
             }
-
-            
+            r2 = Math.abs(r2); // both signs are possible (elliptic vs. hyperbolic geometry)
             if (r2 > 0.00001) {
                 view.radius = Math.sqrt(r2);
-                     centerMessage = view.makeCenterMessage();
-               view.isActive = true;
+                centerMessage = view.makeCenterMessage();
+                view.isActive = true;
             } else {
                 centerMessage = 'Fail because the circles intersect at a single point (Euclidean geometry).';
-
                 view.isActive = false;
             }
         }
@@ -266,6 +269,7 @@ view.update = function() {
     switch (view.type) {
         case 'direct':
             view.isActive = false;
+            view.map = function(position) {};
             break;
         case 'inversion at intersection':
             if (guiUtils.isObject(view.circle1) && guiUtils.isObject(view.circle2)) {
@@ -285,11 +289,12 @@ view.update = function() {
                 centerMessage = 'This view requires two intersecting circles.';
                 view.isActive = false;
             }
+            view.map = view.invert;
             break;
         case 'inversion at boundary':
-        console.log('updateinv bo');
-        view.updateCenterRadius();
-
+            console.log('updateinv bo');
+            view.updateCenterRadius();
+            view.map = view.invert;
             break;
     }
     if (!guiUtils.isObject(view.circle1)) {
@@ -303,11 +308,26 @@ view.update = function() {
     }
     view.circlesMessage.innerText = circlesMessage;
     view.centerMessage.innerText = centerMessage;
+    view.radius2 = view.radius * view.radius;
 };
 
 /**
- * drawing a circle that defines the view
- * with cross mark at center
+ * invert at the circle
+ * @method view.invert
+ * @param {object} position - with x and y fields, will be changed
+ */
+view.invert = function(position) {
+    const dx = position.x - view.centerX;
+    const dy = position.y - view.centerY;
+    const dr2 = dx * dx + dy * dy;
+    const factor = view.radius2 / (dr2 + epsilon2);
+    position.x = view.centerX + factor * dx;
+    position.y = view.centerY + factor * dy;
+};
+
+/**
+ * drawing the circle that defines the view
+ * including cross-hair
  * @method view.draw
  */
 view.draw = function() {
