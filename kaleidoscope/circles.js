@@ -379,6 +379,7 @@ circles.setSelected = function(circle) {
         }
         circles.activateUI();
         intersections.activateUI();
+        view.useCircleButton.setActive(view.circle1 !== circles.selected);
     }
 };
 

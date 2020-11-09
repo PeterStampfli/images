@@ -49,7 +49,7 @@ view.makeGui = function(parentGui, args = {}) {
         type: 'selection',
         params: view,
         property: 'type',
-        options: ['direct', 'inversion at intersection', 'inversion at boundary', 'ortho-stereographic view'],
+        options: ['direct', 'inversion at intersection', 'inversion at boundary', 'ortho-stereographic', 'ortho-stereo outside'],
         onChange: function() {
             if (view.type === 'direct') {
                 view.visibleButton.hide();
@@ -71,7 +71,7 @@ view.makeGui = function(parentGui, args = {}) {
                 view.radiusController.hide();
                 view.switchCenterButton.hide();
             }
-            if (view.type === 'ortho-stereographic view') {
+            if (view.type === 'ortho-stereographic') {
                 view.osInterpolationController.show();
             } else {
                 view.osInterpolationController.hide();
@@ -83,7 +83,8 @@ view.makeGui = function(parentGui, args = {}) {
     selectionHelp += '<strong>direct:</strong> Does not transform the kaleidoscopic image.<br>';
     selectionHelp += '<strong>inversion at intersection:</strong> Inversion at a circle. Its center lies at the intersection of two circles of the kaleidoscope.<br>';
     selectionHelp += '<strong>inversion at boundary:</strong> Inversion at a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope.<br>';
-    selectionHelp += '<strong>ortho-stereographic view:</strong> Shows an orthographic view of a sphere that fits into a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection. Transforms the Poincare disc model to the Beltrami-Klein model.<br>';
+    selectionHelp += '<strong>ortho-stereographic:</strong> Shows an orthographic view of a sphere that fits into a circle. It is the boundary of a Poincare disc or the equator of a sphere as defined by three circles of the kaleidoscope. The kaleidoscopic image inside the circle is mapped onto the sphere using a stereographic projection. Transforms the Poincare disc model to the Beltrami-Klein model.<br>';
+    selectionHelp += '<strong>ortho-stereo outside:</strong> Shows an orthographic view of a sphere that fits into the circle. The kaleidoscopic image outside the circle is mapped onto the sphere using a stereographic projection. The sphere is defined by three circles of the kaleidoscope.';
     view.selectionButton.addHelp(selectionHelp);
     view.circle1 = null;
     view.circle2 = null;
@@ -98,8 +99,9 @@ view.makeGui = function(parentGui, args = {}) {
                 view.circle3 = view.circle2;
                 view.circle2 = view.circle1;
                 view.circle1 = circle;
+                view.useCircleButton.setActive(false);
+                basic.drawMapChanged();
             }
-            basic.drawMapChanged();
         }
     });
     view.deleteCircleButton = view.useCircleButton.add({
@@ -107,6 +109,7 @@ view.makeGui = function(parentGui, args = {}) {
         buttonText: 'remove first circle',
         onClick: function() {
             view.deleteCircle(view.circle1);
+        view.useCircleButton.setActive(view.circle1 !== circles.selected);
             basic.drawMapChanged();
         }
     });
@@ -151,7 +154,6 @@ view.makeGui = function(parentGui, args = {}) {
     view.switchCenterButton.hide();
 
     view.osInterpolation = 1;
-    view.updateOSParameters();
     view.osInterpolationController = view.gui.add({
         type: 'number',
         params: view,
@@ -161,7 +163,6 @@ view.makeGui = function(parentGui, args = {}) {
         labelText: 'interpolation',
         usePopup: false,
         onChange: function() {
-            view.updateOSParameters();
             basic.drawMapChanged();
         }
     });
@@ -197,16 +198,6 @@ view.makeGui = function(parentGui, args = {}) {
     });
     view.colorController.addHelp("Choose the color for drawing the circle that defines the view.");
     view.colorController.hide();
-};
-
-
-/**
- * calculate parameters for the ortho-stereographic view
- * @method view#updateOSParameters
- */
-view.updateOSParameters = function() {
-    view.osFactor = 1 + Math.sqrt(Math.max(0, 1 - view.osInterpolation));
-    view.osx2r2 = view.osInterpolation / view.radius2;
 };
 
 /**
@@ -331,8 +322,13 @@ view.update = function() {
             view.updateCenterRadius();
             view.map = view.invert;
             break;
-        case 'ortho-stereographic view':
-
+        case 'ortho-stereographic':
+            view.updateCenterRadius();
+            view.map = view.orthoStereo;
+            break;
+        case 'ortho-stereo outside':
+            view.updateCenterRadius();
+            view.map = view.orthoStereoOutside;
             break;
     }
     if (!guiUtils.isObject(view.circle1)) {
@@ -347,6 +343,8 @@ view.update = function() {
     view.circlesMessage.innerText = circlesMessage;
     view.centerMessage.innerText = centerMessage;
     view.radius2 = view.radius * view.radius;
+    view.osFactor = 1 + Math.sqrt(Math.max(0, 1 - view.osInterpolation));
+    view.osx2r2 = view.osInterpolation / view.radius2;
     view.deleteCircleButton.setActive(guiUtils.isObject(view.circle1));
 };
 
@@ -362,6 +360,46 @@ view.invert = function(position) {
     const factor = view.radius2 / (dr2 + epsilon2);
     position.x = view.centerX + factor * dx;
     position.y = view.centerY + factor * dy;
+};
+
+/**
+ * orthographic view of stereographic projection
+ * circle center as origin, radius as equator of the prejection sphere
+ * projection of the "inside", hiding the outside
+ * @method view.orthoStereo
+ * @param {object} position - with x, y and valid fields, will be changed
+ */
+view.orthoStereo = function(position) {
+    const dx = position.x - view.centerX;
+    const dy = position.y - view.centerY;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < view.radius2) {
+        const factor = view.osFactor / (1 + Math.sqrt(1 - d2 * view.osx2r2));
+        position.x = view.centerX + factor * dx;
+        position.y = view.centerY + factor * dy;
+    } else {
+        position.valid = -1;
+    }
+};
+
+/**
+ * orthographic view of stereographic projection
+ * circle center as origin, radius as equator of the prejection sphere
+ * projection of the "outside", hiding the inside
+ * @method view.orthoStereo
+ * @param {object} position - with x, y and valid fields, will be changed
+ */
+view.orthoStereoOutside = function(position) {
+    const dx = position.x - view.centerX;
+    const dy = position.y - view.centerY;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < view.radius2) {
+        const factor = 1 / (1 - Math.sqrt(1 - d2 / view.radius2));
+        position.x = view.centerX + factor * dx;
+        position.y = view.centerY + factor * dy;
+    } else {
+        position.valid = -1;
+    }
 };
 
 /**
