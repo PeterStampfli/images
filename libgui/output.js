@@ -658,8 +658,9 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         }
     };
     mouseEvents.moveAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
+        output.setCursorposition(transformedEvent);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlMoveAction(transformedEvent);
         }
     };
@@ -672,8 +673,9 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         }
     };
     mouseEvents.dragAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
+        output.setCursorposition(transformedEvent);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlDragAction(transformedEvent);
         } else {
             v.x = mouseEvents.dx;
@@ -727,6 +729,29 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
             output.drawCanvasChanged();
         }
     };
+};
+
+/**
+ * add a display of cursor position
+ * @method output.addCursorposition
+ * @param {ParamGui} gui - for the UI elements
+ */
+output.addCursorposition = function(gui) {
+    output.cursorMessage = gui.addParagraph('xxxx');
+    if (!guiUtils.isObject(output.coordinateTransform)) {
+        console.error('output.addCursorposition: Ther is no coordinate transform!');
+    }
+};
+
+/**
+ * set the cursor position message
+ * @method output.setCursorposition
+ * @param {object} position - with x- and y- fields
+ */
+output.setCursorposition = function(position) {
+    if (guiUtils.isObject(output.cursorMessage)) {
+        output.cursorMessage.innerText = 'x=' + position.x.toPrecision(3) + ', y=' + position.y.toPrecision(3);
+    }
 };
 
 /**

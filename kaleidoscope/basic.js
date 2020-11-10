@@ -60,6 +60,8 @@ basic.setup = function() {
     // coordinate transform for the output image
     outputGui.addParagraph('<strong>coordinate transform:</strong>');
     output.addCoordinateTransform(outputGui, false);
+    outputGui.addParagraph('<strong>cursor position:</strong>');
+    output.addCursorposition(outputGui);
     output.setInitialCoordinates(0, 0, 3);
     // more  UI
     // the presets: make gui and load
