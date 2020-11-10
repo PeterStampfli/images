@@ -57,11 +57,9 @@ basic.setup = function() {
     output.createPixels();
     output.grid.interval = 0.1;
     output.addGrid(outputGui);
-    // coordinate transform for the output image
-    outputGui.addParagraph('<strong>coordinate transform:</strong>');
     output.addCoordinateTransform(outputGui, false);
-    outputGui.addParagraph('<strong>cursor position:</strong>');
     output.addCursorposition(outputGui);
+    output.addZoomAnimation(outputGui);
     output.setInitialCoordinates(0, 0, 3);
     // more  UI
     // the presets: make gui and load

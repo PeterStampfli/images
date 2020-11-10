@@ -17,14 +17,20 @@ from "./modules.js";
 
 export const output = {};
 
-// doing both canvas and div together simplifies things
-
-output.canvas = false;
-output.canvasContext = false; // 2d-context
-output.pixels = false;
+// a div for output
 output.div = false;
 output.divHeight = 0;
 output.divWidth = 0;
+// the canvas in the output div
+output.canvas = false;
+output.canvasContext = false; // 2d-context
+output.pixels = false;
+
+// zoom animation
+output.animationRunning = false;
+output.animationZoomFactor = 1.01;
+output.animationStep = 0;
+output.animationNSteps = 100;
 
 // vectors for intermediate results
 const u = {
@@ -571,6 +577,7 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
  */
 output.addCoordinateTransform = function(gui, withRotation = false) {
     output.withRotation = withRotation;
+    gui.addParagraph('<strong>coordinate transform:</strong>');
     output.coordinateTransform = gui.addCoordinateTransform(output.canvas, withRotation);
     const coordinateTransform = output.coordinateTransform;
     coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
@@ -584,6 +591,7 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     const mouseEvents = output.mouseEvents;
 
     // make that changing the scale does not change center
+    // running animation
     coordinateTransform.scaleController.callback = function() {
         const canvas = output.canvas;
         // get current center
@@ -598,7 +606,10 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         coordinateTransform.shiftX += u.x - v.x;
         coordinateTransform.shiftY += u.y - v.y;
         coordinateTransform.updateUI();
-        coordinateTransform.onChange();
+        coordinateTransform.onChange(); // if not reprogrammed: calls output.drawCanvasChanged
+        if (output.animationRunning) {
+            console.log('animation step');
+        }
     };
 
     // switching with ctrl key from coordinate transformation to other actions
@@ -732,12 +743,21 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
 };
 
 /**
- * add a display of cursor position
+ * add a zoom animation
+ * @method output.addZoomAnimation
+ * @param {ParamGui} gui - for the UI elements
+ */
+output.addZoomAnimation = function(gui) {
+
+};
+
+/**
+ * add a message paragraph for the cursor position
  * @method output.addCursorposition
  * @param {ParamGui} gui - for the UI elements
  */
 output.addCursorposition = function(gui) {
-    output.cursorMessage = gui.addParagraph('xxxx');
+    output.cursorMessage = gui.addParagraph('');
     if (!guiUtils.isObject(output.coordinateTransform)) {
         console.error('output.addCursorposition: Ther is no coordinate transform!');
     }
@@ -750,7 +770,7 @@ output.addCursorposition = function(gui) {
  */
 output.setCursorposition = function(position) {
     if (guiUtils.isObject(output.cursorMessage)) {
-        output.cursorMessage.innerText = 'x=' + position.x.toPrecision(3) + ', y=' + position.y.toPrecision(3);
+        output.cursorMessage.innerHTML = 'cursor position is &ensp; x=' + position.x.toPrecision(3) + ', y=' + position.y.toPrecision(3);
     }
 };
 
@@ -835,12 +855,12 @@ grid.color = '#000000';
 grid.lineWidth = 1;
 
 output.addGrid = function(gui) {
+    gui.addParagraph('<strong>grid:</strong>');
     BooleanButton.greenRedBackground();
     const onOffController = gui.add({
         type: 'boolean',
         params: grid,
         property: 'on',
-        labelText: '<strong>grid</strong>',
         onChange: function() {
             output.drawGridChanged();
         }
