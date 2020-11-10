@@ -28,9 +28,14 @@ output.pixels = false;
 
 // zoom animation
 output.animationRunning = false;
+output.animationRecording = false;
 output.animationZoomFactor = 1.01;
 output.animationStep = 0;
 output.animationNSteps = 100;
+output.animationFps = 10;
+output.animationScale = 1;
+output.animationStartScale = 1;
+output.animationEndScale = 10;
 
 // vectors for intermediate results
 const u = {
@@ -390,7 +395,8 @@ output.createCanvas = function(gui, folderName) {
             }
             autoResizeDraw();
         }
-    }).addHelp("Sets the canvas dimensions to fit the available space.");
+    });
+    autoResizeController.addHelp("Sets the canvas dimensions to fit the available space.");
 
     autoScaleController = gui.add({
         type: "boolean",
@@ -748,7 +754,69 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
  * @param {ParamGui} gui - for the UI elements
  */
 output.addZoomAnimation = function(gui) {
+    gui.addParagraph('<strong>zoom animation:</strong>');
+    output.animationResetButton = gui.add({
+        type: 'button',
+        buttonText: 'reset',
+        onClick: function() {
+            output.animationRunningButton.setButtonText('run');
+            output.animationStep = 0;
+            output.animationRunning = false;
+        }
+    });
+    output.animationRunningButton = output.animationResetButton.add({
+        type: 'button',
+        buttonText: 'run',
+        onClick: function() {
+            if (output.animationRunning) {
+                // animation is running, thus stop it
+                // button would start it
+                output.animationRunningButton.setButtonText('run');
+                output.animationRunning = false;
+            } else {
+                // animation not running, start it
+                // button would now stop it
+                output.animationRunningButton.setButtonText('stop');
+                output.animationRunning = true;
 
+            }
+        }
+    });
+    BooleanButton.greenRedBackground();
+    output.animationRecordingButton = gui.add({
+        type: 'boolean',
+        labelText: 'recording',
+        params: output,
+        property: 'animationRecording'
+    });
+    output.animationStartScaleController = gui.add({
+        type: 'number',
+        params: output,
+        property: 'animationStartScale',
+        labelText: 'scale at start'
+    });
+    output.animationEndScaleController = output.animationStartScaleController.add({
+        type: 'number',
+        params: output,
+        property: 'animationEndScale',
+        labelText: 'end'
+    });
+    output.animationNStepsController = gui.add({
+        type: 'number',
+        params: output,
+        property: 'animationNSteps',
+        labelText: 'total steps',
+        min: 1,
+        step: 1
+    });
+    output.animationFpsController = output.animationNStepsController.add({
+        type: 'number',
+        params: output,
+        property: 'animationFps',
+        labelText: 'fps',
+        min: 1
+    });
+    output.animationStepMessage = gui.addParagraph('steps done: ' + 0);
 };
 
 /**
@@ -757,9 +825,9 @@ output.addZoomAnimation = function(gui) {
  * @param {ParamGui} gui - for the UI elements
  */
 output.addCursorposition = function(gui) {
-    output.cursorMessage = gui.addParagraph('');
+    output.cursorMessage = gui.addParagraph('cursor position');
     if (!guiUtils.isObject(output.coordinateTransform)) {
-        console.error('output.addCursorposition: Ther is no coordinate transform!');
+        console.error('output.addCursorposition: There is no coordinate transform!');
     }
 };
 
@@ -770,7 +838,7 @@ output.addCursorposition = function(gui) {
  */
 output.setCursorposition = function(position) {
     if (guiUtils.isObject(output.cursorMessage)) {
-        output.cursorMessage.innerHTML = 'cursor position is &ensp; x=' + position.x.toPrecision(3) + ', y=' + position.y.toPrecision(3);
+        output.cursorMessage.innerHTML = 'cursor position is &ensp; x = ' + position.x.toPrecision(3) + ', y = ' + position.y.toPrecision(3);
     }
 };
 

@@ -84,8 +84,7 @@ animation.createUI = function(gui) {
             animation.advanceToTarget(value);
         }
     });
-    // start the animation, disabled visually while doing it
-    // disabled while advancing the frame number
+    // start the animation, becomes stop while advancing the frame number
     startButton = gui.add({
         type: 'button',
         buttonText: 'start',
