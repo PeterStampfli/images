@@ -199,12 +199,14 @@ circles.set = function(input) {
  */
 circles.draw = function() {
     if (circles.visible) {
+        if (circles.drawHighlight){
         if (circles.otherSelected) {
             circles.otherSelected.draw(2);
         }
         if (circles.selected) {
             circles.selected.draw(1);
         }
+    }
         circles.collection.forEach(circle => circle.draw(0));
     }
 };
@@ -234,9 +236,20 @@ circles.makeGui = function(parentGui, args = {}) {
         }
     });
     circles.visibleButton.addHelp('You can hide the circles and intersection symbols to get a neater image.');
+circles.drawHighlight=true;
+    circles.drawHighlightButton = circles.gui.add({
+        type: 'boolean',
+        params: circles,
+        property: 'drawHighlight',
+        labelText: 'highlights',
+        onChange: function() {
+            basic.drawCirclesIntersections();
+        }
+    });
+    circles.drawHighlightButton.addHelp('Hide the highlighting for a better image.')
     circles.addCircleButton = circles.gui.add({
         type: 'button',
-        buttonText: 'add circle',
+        buttonText: 'add a new circle',
         onClick: function() {
             var i;
             // transform data: i => prescale*scale*i+shiftX, j => prescale*scale+shiftY
@@ -293,7 +306,7 @@ circles.makeGui = function(parentGui, args = {}) {
     circles.addCircleButton.addHelp('Adds an additional circle at the left. It is inside->out mapping.');
     circles.deleteButton = circles.gui.add({
         type: 'button',
-        buttonText: 'delete selected',
+        buttonText: 'delete selected circle',
         onClick: function() {
             if (guiUtils.isObject(circles.selected)) {
                 view.deleteCircle(circles.selected);
@@ -303,19 +316,6 @@ circles.makeGui = function(parentGui, args = {}) {
         }
     });
     circles.deleteButton.addHelp('Deletes the currently selected circle, which is highlighted yellow. Deletes its controlled intersections.');
-    circles.selectNothingButton = circles.gui.add({
-        type: 'button',
-        buttonText: 'select nothing',
-        onClick: function() {
-            circles.selected = false;
-            circles.otherSelected = false;
-            intersections.selected = false;
-            circles.activateUI();
-            intersections.activateUI();
-            basic.drawCirclesIntersections();
-        }
-    });
-    circles.selectNothingButton.addHelp('Deselects circles. Use to get rid of highlighting.');
     circles.activateUI();
 };
 
@@ -326,7 +326,6 @@ circles.makeGui = function(parentGui, args = {}) {
  */
 circles.activateUI = function() {
     circles.deleteButton.setActive(guiUtils.isObject(circles.selected));
-    circles.selectNothingButton.setActive(guiUtils.isObject(circles.selected));
     let message = 'Selected: ';
     circles.collection.forEach(circle => circle.canChangeController.label.style.backgroundColor = '#00000000');
     if (guiUtils.isObject(circles.selected)) {
