@@ -748,6 +748,13 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     };
 };
 
+// condition that animation is finished: scale out of interval
+function animationFinished() {
+    let finished = (output.animationScale < Math.min(output.animationStartScale, output.animationEndScale));
+    finished = finished || (output.animationScale > Math.max(output.animationStartScale, output.animationEndScale));
+    return finished;
+}
+
 /**
  * add a zoom animation
  * @method output.addZoomAnimation
@@ -755,29 +762,39 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
  */
 output.addZoomAnimation = function(gui) {
     gui.addParagraph('<strong>zoom animation:</strong>');
+    // set animation to start
     output.animationResetButton = gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
             output.animationRunningButton.setButtonText('run');
-            output.animationStep = 0;
             output.animationRunning = false;
+            output.animationStep = 0;
+            output.animationScale = output.animationStartScale;
         }
     });
+    // run animation: initialize params
     output.animationRunningButton = output.animationResetButton.add({
         type: 'button',
         buttonText: 'run',
         onClick: function() {
             if (output.animationRunning) {
                 // animation is running, thus stop it
-                // button would start it
+                // now pressing button again would start it
                 output.animationRunningButton.setButtonText('run');
                 output.animationRunning = false;
             } else {
                 // animation not running, start it
-                // button would now stop it
+                // pressing button again would now stop it
                 output.animationRunningButton.setButtonText('stop');
                 output.animationRunning = true;
+                if (animationFinished()) {
+                    output.animationStep = 0;
+                    output.animationScale = output.animationStartScale;
+                }
+                // update zoom factor
+                output.animationZoomFactor = Math.exp(Math.log(output.animationEndScale / output.animationStartScale) / (output.animationNSteps - 1));
+                console.log('anim zoom factor', output.animationZoomFactor);
 
             }
         }
