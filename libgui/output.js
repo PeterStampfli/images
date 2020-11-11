@@ -36,6 +36,8 @@ output.animationFps = 10;
 output.animationScale = 1;
 output.animationStartScale = 1;
 output.animationEndScale = 10;
+output.frameNumberDigits = 5;
+
 
 // vectors for intermediate results
 const u = {
@@ -329,22 +331,22 @@ output.createCanvas = function(gui, folderName) {
     }
 
     // the save button and text field for changing the name
-    const saveButton = gui.add({
+    output.saveButton = gui.add({
         type: "button",
         buttonText: "save",
         minLabelWidth: 20,
         onClick: function() {
-            output.saveCanvasAsFile(saveName.getValue(), saveType.getValue());
+            output.saveCanvasAsFile(output.saveName.getValue(), output.saveType.getValue());
         }
     });
-    const saveName = saveButton.add({
+    output.saveName = output.saveButton.add({
         type: "text",
         initialValue: "image",
         labelText: "as",
         textInputWidth: 150,
         minLabelWidth: 20
     });
-    const saveType = saveButton.add({
+    output.saveType = output.saveButton.add({
         type: 'selection',
         options: ['png', 'jpg'],
         initialValue: 'png',
@@ -612,9 +614,18 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         coordinateTransform.shiftX += u.x - v.x;
         coordinateTransform.shiftY += u.y - v.y;
         coordinateTransform.updateUI();
+        coordinateTransform.updateTransform();
         coordinateTransform.onChange(); // if not reprogrammed: calls output.drawCanvasChanged
         if (output.animationRunning) {
-            console.log('animation step');
+            console.log('animation scale', output.coordinateTransform.scale);
+            if (output.animationRecording) {
+                console.log('record frame', makeFrameNumber());
+            }
+            output.animationScale *= output.animationZoomFactor;
+            output.animationStep += 1;
+            if (output.animationRunning && !animationFinished()) {
+                console.log('continue');
+            }
         }
     };
 
@@ -755,6 +766,15 @@ function animationFinished() {
     return finished;
 }
 
+// make frame number with fixed number of digits
+function makeFrameNumber() {
+    let result = output.animationStep.toString(10);
+    while (result.length < output.frameNumberDigits) {
+        result = '0' + result;
+    }
+    return result;
+}
+
 /**
  * add a zoom animation
  * @method output.addZoomAnimation
@@ -771,6 +791,8 @@ output.addZoomAnimation = function(gui) {
             output.animationRunning = false;
             output.animationStep = 0;
             output.animationScale = output.animationStartScale;
+            coordinateTransform.scaleController.setValue(output.animationScale);
+            // control goes to the controllers callback, which does the animation loop
         }
     });
     // run animation: initialize params
@@ -795,6 +817,7 @@ output.addZoomAnimation = function(gui) {
                 // update zoom factor
                 output.animationZoomFactor = Math.exp(Math.log(output.animationEndScale / output.animationStartScale) / (output.animationNSteps - 1));
                 console.log('anim zoom factor', output.animationZoomFactor);
+                output.coordinateTransform.scaleController.setValue(output.animationScale);
 
             }
         }
