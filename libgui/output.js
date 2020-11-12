@@ -601,6 +601,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
     // make that changing the scale does not change center
     // running animation
     coordinateTransform.scaleController.callback = function() {
+        const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
+        const startOfFrame = Date.now();
         const canvas = output.canvas;
         // get current center
         u.x = canvas.width / 2;
@@ -616,15 +618,40 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         coordinateTransform.updateUI();
         coordinateTransform.updateTransform();
         coordinateTransform.onChange(); // if not reprogrammed: calls output.drawCanvasChanged
+        // now the image has been drawn
+        // advance scale and step number, frame numbers begin at 1
+        output.animationScale *= output.animationZoomFactor;
+        output.animationStep += 1;
         if (output.animationRunning) {
-            console.log('animation scale', output.coordinateTransform.scale);
+            console.log('next animation scale', output.coordinateTransform.scale);
             if (output.animationRecording) {
                 console.log('record frame', makeFrameNumber());
+                const name = output.saveName.getValue() + makeFrameNumber();
+                const type = output.saveType.getValue();
+                console.log(name + '.' + type);
+                guiUtils.saveCanvasAsFile(output.canvas, name, type,
+                    function() {
+                        if (!animationFinished()) {
+                            console.log('continue');
+                            const timeUsed = Date.now() - startOfFrame;
+                            // prepare next frame
+                            setTimeout(function() {
+                                requestAnimationFrame(function() {
+                                    output.coordinateTransform.scaleController.setValue(output.animationScale);
+                                });
+                            }, minimumFrameTime - timeUsed);
+                        }
+                    });
             }
-            output.animationScale *= output.animationZoomFactor;
-            output.animationStep += 1;
-            if (output.animationRunning && !animationFinished()) {
+            else if (!animationFinished()) {
                 console.log('continue');
+                const timeUsed = Date.now() - startOfFrame;
+                // prepare next frame
+                setTimeout(function() {
+                    requestAnimationFrame(function() {
+                        output.coordinateTransform.scaleController.setValue(output.animationScale);
+                    });
+                }, minimumFrameTime - timeUsed);
             }
         }
     };
@@ -761,8 +788,8 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
 
 // condition that animation is finished: scale out of interval
 function animationFinished() {
-    let finished = (output.animationScale < Math.min(output.animationStartScale, output.animationEndScale));
-    finished = finished || (output.animationScale > Math.max(output.animationStartScale, output.animationEndScale));
+    let finished = (output.animationScale < Math.min(output.animationStartScale, output.animationEndScale) - 0.00001);
+    finished = finished || (output.animationScale > Math.max(output.animationStartScale, output.animationEndScale) + 0.00001);
     return finished;
 }
 
@@ -835,11 +862,25 @@ output.addZoomAnimation = function(gui) {
         property: 'animationStartScale',
         labelText: 'scale at start'
     });
-    output.animationEndScaleController = output.animationStartScaleController.add({
+    output.animationStartScaleController.add({
+        type: 'button',
+        buttonText: 'current value',
+        onClick: function() {
+            output.animationStartScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
+        }
+    });
+    output.animationEndScaleController = gui.add({
         type: 'number',
         params: output,
         property: 'animationEndScale',
-        labelText: 'end'
+        labelText: 'scale at end'
+    });
+    output.animationEndScaleController.add({
+        type: 'button',
+        buttonText: 'current value',
+        onClick: function() {
+            output.animationEndScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
+        }
     });
     output.animationNStepsController = gui.add({
         type: 'number',
