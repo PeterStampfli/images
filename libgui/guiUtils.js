@@ -408,9 +408,16 @@ guiUtils.topPosition = function(theElement) {
 // saving on a file
 //================================================================================
 
-// save blob to a file using an off-screen a-tag element
+/**
+* save blob to a file using an off-screen a-tag element
+* optional callback
+* @function saveBlobAsFile
+* @param {Blob} blob
+* @param {string} filename - with extension
+* @param {function} callback -optional
+*/
 
-function saveBlobAsFile(blob, filename) {
+function saveBlobAsFile(blob, filename,callback=function(){}) {
     const objURL = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
@@ -420,6 +427,7 @@ function saveBlobAsFile(blob, filename) {
     a.click();
     a.remove();
     URL.revokeObjectURL(objURL);
+    callback();
 }
 
 /**
@@ -428,15 +436,16 @@ function saveBlobAsFile(blob, filename) {
  * @param {canvas} canvas
  * @param {string} filename - without extension
  * @param {string} extension - optional, 'png' or 'jpg', default is 'jpg'
+ * @param {function} callback - optional
  */
-guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg') {
+guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg',callback=function(){}) {
     if (extension === 'png') {
         canvas.toBlob(function(blob) {
-            saveBlobAsFile(blob, filename + '.png');
+            saveBlobAsFile(blob, filename + '.png',callback);
         }, 'image/png');
     } else {
         canvas.toBlob(function(blob) {
-            saveBlobAsFile(blob, filename + '.jpg');
+            saveBlobAsFile(blob, filename + '.jpg',callback);
         }, 'image/jpeg');
     }
 };

@@ -65,8 +65,6 @@ output.startDrawing = function() {
  */
 output.drawCanvasChanged = function() {
     console.error('Please define method output.drawCanvasChanged!');
-    console.log('You can hide this message by using before calling output.createCanvas():');
-    console.log('output.drawCanvasChanged=function(){};');
 };
 
 /**
@@ -191,12 +189,13 @@ output.createDiv = function() {
 /**
  * a function that saves the canvas to file, suitable for animations
  * @method output.saveCanvasAsFile
- * @param{string} filename - without extension
- * @param{string} type - default'png', else use 'jpg' or 'png'
+ * @param {string} filename - without extension
+ * @param {string} type - default'png', else use 'jpg' or 'png'
+ * @param {function} callback - optional
  */
-output.saveCanvasAsFile = function(filename, type = 'png') {
+output.saveCanvasAsFile = function(filename, type = 'png', callback = function() {}) {
     if (output.canvas) {
-        guiUtils.saveCanvasAsFile(output.canvas, filename, type);
+        guiUtils.saveCanvasAsFile(output.canvas, filename, type, callback);
     } else {
         console.error("output.saveCanvasAsFile: there is no canvas!");
     }
@@ -622,17 +621,20 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
         // advance scale and step number, frame numbers begin at 1
         output.animationScale *= output.animationZoomFactor;
         output.animationStep += 1;
+        output.animationStepMessage.innerText = 'steps done: ' + output.animationStep;
         if (output.animationRunning) {
-            console.log('next animation scale', output.coordinateTransform.scale);
+            // see if end reached, then stop
+            if (animationFinished()) {
+                output.animationRunningButton.setButtonText('run');
+                output.animationRunning = false;
+            }
             if (output.animationRecording) {
-                console.log('record frame', makeFrameNumber());
+                // 'download' canvas image and do next step, if animation running
                 const name = output.saveName.getValue() + makeFrameNumber();
                 const type = output.saveType.getValue();
-                console.log(name + '.' + type);
                 guiUtils.saveCanvasAsFile(output.canvas, name, type,
                     function() {
-                        if (!animationFinished()) {
-                            console.log('continue');
+                        if (output.animationRunning) {
                             const timeUsed = Date.now() - startOfFrame;
                             // prepare next frame
                             setTimeout(function() {
@@ -642,16 +644,17 @@ output.addCoordinateTransform = function(gui, withRotation = false) {
                             }, minimumFrameTime - timeUsed);
                         }
                     });
-            }
-            else if (!animationFinished()) {
-                console.log('continue');
+            } else {
+                // do next step if animation running
                 const timeUsed = Date.now() - startOfFrame;
-                // prepare next frame
-                setTimeout(function() {
-                    requestAnimationFrame(function() {
-                        output.coordinateTransform.scaleController.setValue(output.animationScale);
-                    });
-                }, minimumFrameTime - timeUsed);
+                if (output.animationRunning) {
+                    // prepare next frame
+                    setTimeout(function() {
+                        requestAnimationFrame(function() {
+                            output.coordinateTransform.scaleController.setValue(output.animationScale);
+                        });
+                    }, minimumFrameTime - timeUsed);
+                }
             }
         }
     };
@@ -816,10 +819,12 @@ output.addZoomAnimation = function(gui) {
         onClick: function() {
             output.animationRunningButton.setButtonText('run');
             output.animationRunning = false;
+            output.animationRecordingButton.setValue(false);
+            output.animationScale = output.animationStartScale;
+            output.coordinateTransform.scaleController.setValue(output.animationScale);
             output.animationStep = 0;
             output.animationScale = output.animationStartScale;
-            coordinateTransform.scaleController.setValue(output.animationScale);
-            // control goes to the controllers callback, which does the animation loop
+            output.animationStepMessage.innerText = 'steps done: ' + 0;
         }
     });
     // run animation: initialize params
@@ -843,9 +848,7 @@ output.addZoomAnimation = function(gui) {
                 }
                 // update zoom factor
                 output.animationZoomFactor = Math.exp(Math.log(output.animationEndScale / output.animationStartScale) / (output.animationNSteps - 1));
-                console.log('anim zoom factor', output.animationZoomFactor);
                 output.coordinateTransform.scaleController.setValue(output.animationScale);
-
             }
         }
     });
