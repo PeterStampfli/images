@@ -25,7 +25,8 @@ Circle.zoomFactor = 1.04;
 // parameters for drawing, change if you do not like it 
 Circle.highlightColor = '#ffff00';
 Circle.otherHighlightColor = '#ffffff';
-Circle.frozenHighlightColor = '#eeeeee';
+Circle.frozenHighlightColor = '#eeee00';
+Circle.otherFrozenHighlightColor = '#eeeeee';
 
 /**
  * a circle as a building block for kaleidoscopes
@@ -994,7 +995,7 @@ Circle.prototype.draw = function(highlight = 0) {
             if ((this.intersections.length < 3) && (this.canChange)) {
                 context.strokeStyle = Circle.otherHighlightColor;
             } else {
-                context.strokeStyle = Circle.frozenHighlightColor;
+                context.strokeStyle = Circle.otherFrozenHighlightColor;
             }
             break;
     }

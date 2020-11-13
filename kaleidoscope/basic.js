@@ -52,14 +52,13 @@ basic.setup = function() {
     help.addParagraph('"intersections": Add and destroy controlled intersections. Change the order of their dihedral group');
 
     // create an output canvas
-    const outputGui = gui.addFolder('output image');
-    output.createCanvas(outputGui);
+    output.createCanvas(gui);
     output.createPixels();
     output.grid.interval = 0.1;
-    output.addGrid(outputGui);
-    output.addCoordinateTransform(outputGui, false);
-    output.addCursorposition(outputGui);
-    output.addZoomAnimation(outputGui);
+    output.addGrid();
+    output.addCoordinateTransform(false);
+    output.addCursorposition();
+    output.addZoomAnimation();
     output.setInitialCoordinates(0, 0, 3);
     // more  UI
     // the presets: make gui and load

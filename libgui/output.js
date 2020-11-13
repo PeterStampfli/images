@@ -307,16 +307,15 @@ function autoResizeDraw() {
 
 /**
  * create a canvas in the output.div with controllers in a gui
- * makes its own gui folder as an option (initially closed)
- * you can set its width to height ratio to a fixed value in output.setCanvasWidthToHeight
+ * makes its own gui folder (initially closed)
+ * you can set the canvas width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
- * @param {ParamGui} gui - the gui that controls the canvas
- * @param {string|Object} folderName - optional name or arguments/design object for folder, no folder if missing
+ * @param {ParamGui} gui
  */
 var widthController, heightController, sizeController;
 var autoResizeController, autoScaleController, extendCanvasController;
 
-output.createCanvas = function(gui, folderName) {
+output.createCanvas = function(gui) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
         return;
@@ -325,9 +324,8 @@ output.createCanvas = function(gui, folderName) {
     output.canvasBackgroundColor = '#000099';
     output.canvas.style.backgroundColor = output.canvasBackgroundColor;
     output.canvasContext = output.canvas.getContext("2d");
-    if (guiUtils.isDefined(folderName)) {
-        gui = gui.addFolder(folderName);
-    }
+    gui = gui.addFolder('output image');
+    output.canvasGui = gui;
 
     // the save button and text field for changing the name
     output.saveButton = gui.add({
@@ -579,12 +577,12 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
  * ctrl-key allows for other actions, Shift key changes wheel action to rotation
  * change cursor, depending on ctrl-key
  * @method output.addCoordinateTransform
- * @param {ParamGui} gui - for the transform UI elements
  * @param {boolean} withRotation - optional, default is false
  */
-output.addCoordinateTransform = function(gui, withRotation = false) {
+output.addCoordinateTransform = function(withRotation = false) {
     output.withRotation = withRotation;
-    gui.addParagraph('<strong>coordinate transform:</strong>');
+    const gui = output.canvasGui.addFolder('coordinate transform');
+    output.coordinateTransformGui = gui;
     output.coordinateTransform = gui.addCoordinateTransform(output.canvas, withRotation);
     const coordinateTransform = output.coordinateTransform;
     coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
@@ -808,10 +806,9 @@ function makeFrameNumber() {
 /**
  * add a zoom animation
  * @method output.addZoomAnimation
- * @param {ParamGui} gui - for the UI elements
  */
-output.addZoomAnimation = function(gui) {
-    gui.addParagraph('<strong>zoom animation:</strong>');
+output.addZoomAnimation = function() {
+    const gui = output.canvasGui.addFolder('zoom animation');
     // set animation to start
     output.animationResetButton = gui.add({
         type: 'button',
@@ -909,8 +906,10 @@ output.addZoomAnimation = function(gui) {
  * @param {ParamGui} gui - for the UI elements
  */
 output.addCursorposition = function(gui) {
-    output.cursorMessage = gui.addParagraph('cursor position');
-    if (!guiUtils.isObject(output.coordinateTransform)) {
+    output.cursorMessage = output.coordinateTransformGui.addParagraph('cursor position');
+    if (guiUtils.isObject(output.coordinateTransform)) {
+
+    } else {
         console.error('output.addCursorposition: There is no coordinate transform!');
     }
 };
@@ -997,7 +996,6 @@ output.setLineWidth = function(width) {
 /**
  * add a grid to the canvas
  * @method output.addGrid
- * @param {ParamGui} gui
  */
 const grid = {};
 output.grid = grid;
@@ -1006,8 +1004,8 @@ grid.interval = 1;
 grid.color = '#000000';
 grid.lineWidth = 1;
 
-output.addGrid = function(gui) {
-    gui.addParagraph('<strong>grid:</strong>');
+output.addGrid = function() {
+    const gui = output.canvasGui.addFolder('grid');
     BooleanButton.greenRedBackground();
     const onOffController = gui.add({
         type: 'boolean',
