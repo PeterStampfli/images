@@ -141,6 +141,8 @@ map.setOutputDraw = function() {
  * update output canvas parameters and array dimensions
  * make sure that we have output.pixels(output.canvas)
  * update pixels
+ * if the mapping determines the "pixel sizes": set map.needsSizeArrayUpdate = false afterwards
+ * and we need a value for map.maxSize
  * @method map.startDrawing
  */
 map.startDrawing = function() {
