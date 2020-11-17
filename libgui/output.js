@@ -237,7 +237,7 @@ function autoResizeDraw() {
         // only if the true canvas dimensions change then we need to redraw
         // controllers directly change canvas dimensions
         if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
-            widthController.setValueOnly(newWidth);
+            output.canvasWidthController.setValueOnly(newWidth);
             heightController.setValueOnly(newHeight);
         }
     } else if (autoScaleController.getValue()) {
@@ -312,7 +312,7 @@ function autoResizeDraw() {
  * @method output.createCanvas
  * @param {ParamGui} gui
  */
-var widthController, heightController, sizeController;
+var  heightController;
 var autoResizeController, autoScaleController, extendCanvasController;
 
 output.createCanvas = function(gui) {
@@ -351,7 +351,7 @@ output.createCanvas = function(gui) {
         minLabelWidth: 5
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
-    widthController = gui.add({
+    output.canvasWidthController = gui.add({
         type: "number",
         max: 10000,
         step: 1,
@@ -366,8 +366,8 @@ output.createCanvas = function(gui) {
             autoResizeDraw();
         }
     });
-    widthController.hSpace(30);
-    heightController = widthController.add({
+    output.canvasWidthController.hSpace(30);
+    heightController = output.canvasWidthController.add({
         type: "number",
         max: 10000,
         step: 1,
@@ -376,7 +376,7 @@ output.createCanvas = function(gui) {
         onChange: function(value) {
             // called only if value changes, thus draw() always
             if (canvasWidthToHeight > 0.0001) {
-                widthController.setValueOnly(value * canvasWidthToHeight);
+                output.canvasWidthController.setValueOnly(value * canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
             autoResizeDraw();
@@ -471,8 +471,8 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
             // need to change the canvas dimensions
             // if not autoresizing we do not need to set explicitely canvas dimensions 
             if (!autoResizeController.getValue()) {
-                const width = Math.sqrt(widthController.getValue() * heightController.getValue() * canvasWidthToHeight);
-                widthController.setValueOnly(width);
+                const width = Math.sqrt(output.canvasWidthController.getValue() * heightController.getValue() * canvasWidthToHeight);
+                output.canvasWidthController.setValueOnly(width);
                 heightController.setValueOnly(width / canvasWidthToHeight);
             }
         }
@@ -490,7 +490,7 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
 output.setCanvasDimensions = function(width, height = width) {
     autoResizeController.setValueOnly(false);
     autoResizeController.setActive(false);
-    widthController.setValueOnly(width);
+    output.canvasWidthController.setValueOnly(width);
     heightController.setValueOnly(height);
     autoResizeDraw();
 };
@@ -514,7 +514,7 @@ output.firstDrawing = function() {
  * @param {int} stepHorizontal - optional, default is stepHorizontal
  */
 output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = stepVertical) {
-    widthController.setStep(stepVertical); // might resize output.canvas.width
+    output.canvasWidthController.setStep(stepVertical); // might resize output.canvas.width
     heightController.setStep(stepHorizontal);
     autoResizeDraw();
 };
@@ -544,7 +544,7 @@ function makeArgs(buttonDefinition) {
         }
         result.onClick = function() {
             autoResizeController.setValueOnly(false);
-            widthController.setValueOnly(buttonDefinition.width);
+            output.canvasWidthController.setValueOnly(buttonDefinition.width);
             if (canvasWidthToHeight > 0.0001) {
                 heightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
             } else {
