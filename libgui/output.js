@@ -68,7 +68,7 @@ output.drawCanvasChanged = function() {
 
 /**
  * draw output image when grid parameters change
- * kaleidoscopes: the map remains the same, pixels remain the same
+ * kaleidoscopes: the map remains the same, (sub)pixels remain the same
  * output.drawGridChanged=function(){
  *   output.pixels.show();
  *   output.drawGrid();
@@ -570,6 +570,47 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 };
 
 /**
+ * add antialiasing, goes to the output image gui (canvasGui)
+ * create pixel before, add coordinate transform later
+ * @method output.addAntialiasing
+ */
+output.addAntialiasing = function() {
+    if (!guiUtils.isObject(output.pixels)) {
+        console.error('output.addAntialiasing: no output.pixels, call output.createPixels before');
+        return;
+    }
+    const pixels = output.pixels;
+    pixels.hasAntialias=true;
+    pixels.antialiasType = 'none';
+    pixels.antialiasSubpixels = 1;
+    pixels.antialiasSampling = 1;
+    output.canvasGui.add({
+        type: 'selection',
+        params: pixels,
+        property: 'antialiasType',
+        options: ['none'],
+        labelText: 'antialias',
+        onChange: function() {
+            const oldSubpixels = pixels.antialiasSubpixels;
+            switch (pixels.antialiasType) {
+                case 'none':
+                    pixels.antialiasSubpixels = 1;
+                    pixels.antialiasSampling = 1;
+                    break;
+            }
+            if (oldSubpixels===pixels.antialiasSubpixels){
+
+            } else {
+
+            }
+        }
+    });
+
+};
+
+
+
+/**
  * add a coordinate transform to the canvas
  * add mouse events to change the visible part (-> changes transform)
  * ctrl-key allows for other actions, Shift key changes wheel action to rotation
@@ -904,9 +945,8 @@ output.addZoomAnimation = function() {
  * @param {ParamGui} gui - for the UI elements
  */
 output.addCursorposition = function(gui) {
-    output.cursorMessage = output.coordinateTransformGui.addParagraph('cursor position');
     if (guiUtils.isObject(output.coordinateTransform)) {
-
+        output.cursorMessage = output.coordinateTransformGui.addParagraph('cursor position');
     } else {
         console.error('output.addCursorposition: There is no coordinate transform!');
     }

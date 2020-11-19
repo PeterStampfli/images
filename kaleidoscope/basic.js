@@ -53,7 +53,8 @@ basic.setup = function() {
 
     // create an output canvas
     output.createCanvas(gui);
-    output.createPixels();
+   output.createPixels();
+    output.addAntialiasing();
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCoordinateTransform(false);

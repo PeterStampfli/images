@@ -24,8 +24,11 @@ export function Pixels(canvas) {
     this.imageData = null; // changes when canvas dimensions change
     this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
     this.array = null; // UInt32Array with packed rgba for one pixel
-    this.antialias = false;
-    this.width = 0;
+    this.hasAntialias = false;
+     this.antialiasType = 'none';
+    this.antialiasSubpixels = 1;
+    this.antialiasSampling = 1;
+   this.width = 0;
     this.height = 0;
     // only for input image averaging
     this.integralRed = new Uint32Array(1);
@@ -48,7 +51,9 @@ Pixels.prototype.update = function() {
     this.height = canvas.height;
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
-    if (this.antialias) {
+    if (this.hasAntialias) {
+        const size=this.antialiasSubpixels*this.antialiasSubpixels*this.width*this.height;
+        this.array = new Uint32Array(size); // a view of the pixels as an array of 32 bit integers
 
     } else {
         this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
@@ -60,7 +65,7 @@ Pixels.prototype.update = function() {
  * @method Pixels#show
  */
 Pixels.prototype.show = function() {
-    if (this.antialias) {
+    if (this.hasAntialias) {
 
     } else {
     this.canvasContext.putImageData(this.imageData, 0, 0);
