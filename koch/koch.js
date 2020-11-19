@@ -27,14 +27,12 @@ koch.setup = function() {
     help.addParagraph('You can use this gui and other code for your own projects. It is at: <strong>https://github.com/PeterStampfli/paramGui</strong>');
     help.addParagraph('Send bug reports and other comments to: <strong>pestampf@gmail.com</strong>');
     // create an output canvas
-    const outputGui = gui.addFolder('output image');
-    output.createCanvas(outputGui);
-            const canvasContext=output.canvasContext;
+    output.createCanvas(gui);
+    const canvasContext = output.canvasContext;
     // coordinate transform for the output image
-    outputGui.addParagraph('<strong>coordinate transform:</strong>');
-    output.addCoordinateTransform(outputGui, false);
- output.setCanvasWidthToHeight();
-   output.setInitialCoordinates(0, 0, 100);
+    output.addCoordinateTransform(gui, false);
+    output.setCanvasWidthToHeight();
+    output.setInitialCoordinates(0, 0, 100);
     // parameters
     // basic
     koch.corners = 5;
@@ -335,7 +333,7 @@ koch.setup = function() {
                 break;
         }
     }
-output.drawCanvasChanged = draw;
-output.startDrawing();
+    output.drawCanvasChanged = draw;
+    output.startDrawing();
     draw();
 };

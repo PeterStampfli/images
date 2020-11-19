@@ -38,7 +38,6 @@ output.animationStartScale = 1;
 output.animationEndScale = 10;
 output.frameNumberDigits = 5;
 
-
 // vectors for intermediate results
 const u = {
     x: 0,
@@ -238,7 +237,7 @@ function autoResizeDraw() {
         // controllers directly change canvas dimensions
         if ((oldWidth !== newWidth) || (oldHeight !== newHeight)) {
             output.canvasWidthController.setValueOnly(newWidth);
-            heightController.setValueOnly(newHeight);
+            output.canvasHeightController.setValueOnly(newHeight);
         }
     } else if (autoScaleController.getValue()) {
         var scale;
@@ -312,7 +311,6 @@ function autoResizeDraw() {
  * @method output.createCanvas
  * @param {ParamGui} gui
  */
-var  heightController;
 var autoResizeController, autoScaleController, extendCanvasController;
 
 output.createCanvas = function(gui) {
@@ -360,14 +358,14 @@ output.createCanvas = function(gui) {
         onChange: function(value) {
             // called only if value changes, thus draw() always
             if (canvasWidthToHeight > 0.0001) {
-                heightController.setValueOnly(value / canvasWidthToHeight);
+                output.canvasHeightController.setValueOnly(value / canvasWidthToHeight);
             }
             autoResizeController.setValueOnly(false);
             autoResizeDraw();
         }
     });
     output.canvasWidthController.hSpace(30);
-    heightController = output.canvasWidthController.add({
+    output.canvasHeightController = output.canvasWidthController.add({
         type: "number",
         max: 10000,
         step: 1,
@@ -471,9 +469,9 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
             // need to change the canvas dimensions
             // if not autoresizing we do not need to set explicitely canvas dimensions 
             if (!autoResizeController.getValue()) {
-                const width = Math.sqrt(output.canvasWidthController.getValue() * heightController.getValue() * canvasWidthToHeight);
+                const width = Math.sqrt(output.canvasWidthController.getValue() * output.canvasHeightController.getValue() * canvasWidthToHeight);
                 output.canvasWidthController.setValueOnly(width);
-                heightController.setValueOnly(width / canvasWidthToHeight);
+                output.canvasHeightController.setValueOnly(width / canvasWidthToHeight);
             }
         }
         autoResizeDraw();
@@ -491,7 +489,7 @@ output.setCanvasDimensions = function(width, height = width) {
     autoResizeController.setValueOnly(false);
     autoResizeController.setActive(false);
     output.canvasWidthController.setValueOnly(width);
-    heightController.setValueOnly(height);
+    output.canvasHeightController.setValueOnly(height);
     autoResizeDraw();
 };
 
@@ -515,7 +513,7 @@ output.firstDrawing = function() {
  */
 output.setCanvasDimensionsStepsize = function(stepVertical, stepHorizontal = stepVertical) {
     output.canvasWidthController.setStep(stepVertical); // might resize output.canvas.width
-    heightController.setStep(stepHorizontal);
+    output.canvasHeightController.setStep(stepHorizontal);
     autoResizeDraw();
 };
 
@@ -546,9 +544,9 @@ function makeArgs(buttonDefinition) {
             autoResizeController.setValueOnly(false);
             output.canvasWidthController.setValueOnly(buttonDefinition.width);
             if (canvasWidthToHeight > 0.0001) {
-                heightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
+                output.canvasHeightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);
             } else {
-                heightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
+                output.canvasHeightController.setValueOnly(guiUtils.check(buttonDefinition.height, buttonDefinition.width));
             }
             autoResizeDraw();
         };

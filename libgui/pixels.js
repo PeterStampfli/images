@@ -13,6 +13,7 @@ from "./modules.js";
  * reading and writing pixels to a canvas
  * using 32 bit integers instead of 4 bytes, which should be faster
  * with interpolation methods for reading 'pixels' at non-integer 'coordinates'
+ * initially no antialias
  * @constructor Pixels
  * @param {html canvas element} canvas
  */
@@ -23,6 +24,7 @@ export function Pixels(canvas) {
     this.imageData = null; // changes when canvas dimensions change
     this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
     this.array = null; // UInt32Array with packed rgba for one pixel
+    this.antialias = false;
     this.width = 0;
     this.height = 0;
     // only for input image averaging
@@ -46,7 +48,11 @@ Pixels.prototype.update = function() {
     this.height = canvas.height;
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
-    this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    if (this.antialias) {
+
+    } else {
+        this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    }
 };
 
 /**
@@ -54,7 +60,11 @@ Pixels.prototype.update = function() {
  * @method Pixels#show
  */
 Pixels.prototype.show = function() {
+    if (this.antialias) {
+
+    } else {
     this.canvasContext.putImageData(this.imageData, 0, 0);
+}
 };
 
 // setting pixels

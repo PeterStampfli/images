@@ -83,13 +83,13 @@ morph.draw = function(mix = 0.5) {
 };
 
 
-const canvasSize = 400;
+const canvasSize = 512;
 const mixStart = 0.0;
 const fps = 10;
 const mode = 1;
 let frame = 0;
 const filename = 'anim';
-const recording = false;
+const recording = true;
 
 
 // make frame number with fixed number of digits
@@ -105,13 +105,39 @@ morph.animationStep = function() {
     const minimumFrameTime = 1000 / fps - 1000 / 60; // always defined, even without animation
     const startOfFrame = Date.now();
     morph.draw(morph.mix);
-    morph.mix += morph.step;
+    var delta;
+    if (morph.mix<0.05){
+delta=morph.step/8;
+    } else   if (morph.mix<0.1){
+delta=morph.step/3;
+    } else   if (morph.mix<0.2){
+delta=morph.step/1.5;
+    } else   if (morph.mix<0.8){
+delta=morph.step;
+    } else   if (morph.mix<0.9){
+delta=morph.step/1.5;
+    } else   if (morph.mix<0.95){
+delta=morph.step/3;
+    } else   if (morph.mix<1.05){
+delta=morph.step/12
+    } else   if (morph.mix<1.1){
+delta=morph.step/3
+    } else   if (morph.mix<1.2){
+delta=morph.step/1.5
+    } else   if (morph.mix<1.8){
+delta=morph.step;
+    } else   if (morph.mix<1.9){
+delta=morph.step/1.5
+    } else   if (morph.mix<1.95){
+delta=morph.step/3
+    } else {
+        delta=morph.step/8;
+    }
+    morph.mix += delta;
+    morph.mix=Math.round(morph.mix*1000)/1000;
     frame += 1;
-    console.log(filename + makeFrameNumber());
     if (morph.mix <= morph.end + 0.00001) {
         if (recording) {
-
-
             guiUtils.saveCanvasAsFile(output.canvas, filename + makeFrameNumber(), 'jpg',
                 function() {
                     const timeUsed = Date.now() - startOfFrame;
@@ -132,6 +158,9 @@ morph.animationStep = function() {
                 });
             }, minimumFrameTime - timeUsed);
         }
+    }
+    else {
+        console.log(morph.mix,morph.end,frame);
     }
 
 };
@@ -159,5 +188,6 @@ morph.setup = function() {
 
     morph.mix = mixStart;
     morph.draw(morph.mix);
-    morph.animate(0.2, 2);
+    const step = 0.0125;
+    morph.animate(step,2);
 };
