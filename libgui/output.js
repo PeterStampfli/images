@@ -580,7 +580,7 @@ output.addAntialiasing = function() {
         return;
     }
     const pixels = output.pixels;
-    pixels.hasAntialias=true;
+    pixels.hasAntialias = true;
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 1;
@@ -598,31 +598,27 @@ output.addAntialiasing = function() {
                     pixels.antialiasSampling = 1;
                     break;
             }
-            if (oldSubpixels===pixels.antialiasSubpixels){
-
+            if (oldSubpixels === pixels.antialiasSubpixels) {
+                output.drawGridChanged();
             } else {
-
+                output.drawMapChanged();
             }
         }
     });
-
 };
-
-
 
 /**
  * add a coordinate transform to the canvas
  * add mouse events to change the visible part (-> changes transform)
- * ctrl-key allows for other actions, Shift key changes wheel action to rotation
+ * no rotation
+ * ctrl-key allows for other actions
  * change cursor, depending on ctrl-key
  * @method output.addCoordinateTransform
- * @param {boolean} withRotation - optional, default is false
  */
-output.addCoordinateTransform = function(withRotation = false) {
-    output.withRotation = withRotation;
+output.addCoordinateTransform = function() {
     const gui = output.canvasGui.addFolder('coordinate transform');
     output.coordinateTransformGui = gui;
-    output.coordinateTransform = gui.addCoordinateTransform(output.canvas, withRotation);
+    output.coordinateTransform = gui.addCoordinateTransform(output.canvas, false);
     const coordinateTransform = output.coordinateTransform;
     coordinateTransform.setPrescale(1 / Math.sqrt(output.canvas.width * output.canvas.height));
     coordinateTransform.updateTransform();
@@ -808,13 +804,8 @@ output.addCoordinateTransform = function(withRotation = false) {
             v.x = u.x;
             v.y = u.y;
             coordinateTransform.rotateScale(u);
-            if (mouseEvents.shiftPressed && output.withRotation) {
-                const step = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.angleStep : -CoordinateTransform.angleStep;
-                coordinateTransform.angle += step;
-            } else {
-                const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
-                coordinateTransform.scale *= zoomFactor;
-            }
+            const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
+            coordinateTransform.scale *= zoomFactor;
             coordinateTransform.updateTransform();
             coordinateTransform.rotateScale(v);
             coordinateTransform.shiftX += u.x - v.x;

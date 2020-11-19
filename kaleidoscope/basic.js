@@ -53,7 +53,7 @@ basic.setup = function() {
 
     // create an output canvas
     output.createCanvas(gui);
-   output.createPixels();
+    output.createPixels();
     output.addAntialiasing();
     output.grid.interval = 0.1;
     output.addGrid();
@@ -195,11 +195,10 @@ basic.setup = function() {
 
     // mouse down with ctrl selects intersection or circle
     output.mouseCtrlDownAction = function(event) {
-        if (intersections.select(event)) {
-            basic.drawCirclesIntersections();
-        } else if (circles.select(event)) {
-            basic.drawCirclesIntersections();
+        if (!intersections.select(event)) {
+            circles.select(event);
         }
+        basic.drawCirclesIntersections();
         if (map.trajectory) {
             circles.drawTrajectory(event);
         }
@@ -253,7 +252,7 @@ basic.drawImageChanged = function() {
 
 /**
  * drawing
- * use if only the display of circles and intersection changes
+ * use if only the display of circles and intersection changes, or the grid, or sampling
  * @method basic.drawCirclesIntersections
  */
 basic.drawCirclesIntersections = function() {
@@ -276,6 +275,10 @@ basic.drawCirclesIntersections = function() {
         regions.drawCorners();
         regions.drawLines();
     }
+};
+output.drawGridChanged = function() {
+    console.log('output drawGridChngedd');
+    basic.drawCirclesIntersections();
 };
 
 // for drawing the fundamental region

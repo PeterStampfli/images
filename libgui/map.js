@@ -176,16 +176,20 @@ map.make = function() {
         region: 0,
         valid: 1
     };
+    let scale = output.coordinateTransform.totalScale/output.pixels.antialiasSubpixels;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
     let index = 0;
+    let y = shiftY;
     for (var j = 0; j < map.height; j++) {
+        let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            point.x = i;
-            point.y = j;
+            point.x = x;
+            point.y = y;
             point.region = 0;
             point.iterations = 0;
             point.valid = 1;
             point.index = index; // for further work, more data
-            output.coordinateTransform.transform(point);
             map.mapping(point);
             map.xArray[index] = point.x;
             map.yArray[index] = point.y;
@@ -193,7 +197,9 @@ map.make = function() {
             map.iterationsArray[index] = point.iterations;
             map.sizeArray[index] = point.valid;
             index += 1;
+            x += scale;
         }
+        y += scale;
     }
 };
 

@@ -25,10 +25,10 @@ export function Pixels(canvas) {
     this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
     this.array = null; // UInt32Array with packed rgba for one pixel
     this.hasAntialias = false;
-     this.antialiasType = 'none';
+    this.antialiasType = 'none';
     this.antialiasSubpixels = 1;
     this.antialiasSampling = 1;
-   this.width = 0;
+    this.width = 0;
     this.height = 0;
     // only for input image averaging
     this.integralRed = new Uint32Array(1);
@@ -52,7 +52,7 @@ Pixels.prototype.update = function() {
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
     if (this.hasAntialias) {
-        const size=this.antialiasSubpixels*this.antialiasSubpixels*this.width*this.height;
+        const size = this.antialiasSubpixels * this.antialiasSubpixels * this.width * this.height;
         this.array = new Uint32Array(size); // a view of the pixels as an array of 32 bit integers
 
     } else {
@@ -61,15 +61,31 @@ Pixels.prototype.update = function() {
 };
 
 /**
+ * simply copy pixel data in case of no antialiasing
+ * @method Pixels#samplingNone
+ */
+Pixels.prototype.samplingNone = function() {
+    const canvasPixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const dataPixels = this.array;
+    for (var i = canvasPixels.length - 1; i >= 0; i--) {
+        canvasPixels[i] = dataPixels[i];
+    }
+};
+
+/**
  * show the pixel data on the canvas, call after changing the Pixels#array
+ * make sampling if antialias
  * @method Pixels#show
  */
 Pixels.prototype.show = function() {
     if (this.hasAntialias) {
-
-    } else {
-    this.canvasContext.putImageData(this.imageData, 0, 0);
-}
+        switch (this.antialiasType) {
+            case 'none':
+                this.samplingNone();
+                break;
+        }
+    } 
+        this.canvasContext.putImageData(this.imageData, 0, 0);
 };
 
 // setting pixels
