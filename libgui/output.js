@@ -588,7 +588,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none'],
+        options: ['none','2*2 blurring'],
         labelText: 'antialias',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
@@ -597,8 +597,12 @@ output.addAntialiasing = function() {
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 1;
                     break;
+                    case '2*2 blurring':
+                    pixels.antialiasSubpixels = 1;
+                    pixels.antialiasSampling = 2;
+                    break;
             }
-                output.drawMapChanged();
+                output.drawCanvasChanged();
         }
     });
 };

@@ -65,10 +65,56 @@ Pixels.prototype.update = function() {
  * @method Pixels#samplingNone
  */
 Pixels.prototype.samplingNone = function() {
-    const canvasPixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const dataPixels = this.array;
-    for (var i = canvasPixels.length - 1; i >= 0; i--) {
-        canvasPixels[i] = dataPixels[i];
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    for (var i = pixels.length - 1; i >= 0; i--) {
+        pixels[i] = data[i];
+    }
+};
+
+/**
+ * do 2*2 blurring on pixels, no subpixels
+ * @method Pixels#blurring22
+ */
+Pixels.prototype.blurring22 = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    let pixelIndex = 0;
+    let dataIndex = 0;
+    const width = this.width;
+    for (var j = 0; j < this.height; j++) {
+        for (var i = 0; i < this.width; i++) {
+            let baseIndex = dataIndex;
+            // it does not matter if rgba or abgr order as reading and writing do the same
+            let color = data[baseIndex];
+            let r = color >>> 24;
+            let g = (color >>> 16) & 0xff;
+            let b = (color >>> 8) & 0xff;
+            let a = (color) & 0xff;
+            color = data[baseIndex + 1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + width];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + width + 1];
+            r += (color >>> 24);
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            g += 2;
+            r += 2;
+            a += 2;
+            b += 2;
+            pixels[pixelIndex] = (a >>> 2) + ((b << 6) & 0xff00) + ((g << 14) & 0xff0000) + ((r << 22) & 0xff000000);
+            pixelIndex += 1;
+            dataIndex += 1;
+        }
+        dataIndex += 1; // skip extra column
     }
 };
 
@@ -83,9 +129,12 @@ Pixels.prototype.show = function() {
             case 'none':
                 this.samplingNone();
                 break;
+            case '2*2 blurring':
+                this.blurring22();
+                break;
         }
-    } 
-        this.canvasContext.putImageData(this.imageData, 0, 0);
+    }
+    this.canvasContext.putImageData(this.imageData, 0, 0);
 };
 
 // setting pixels

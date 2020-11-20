@@ -38,9 +38,7 @@ const epsilon2 = epsilon * epsilon;
  * @param{Object} args - optional, modifying the gui (keep it closed)
  */
 view.makeGui = function(parentGui, args = {}) {
-    view.gui = parentGui.addFolder('view', args, {
-        closed: false
-    });
+    view.gui = parentGui.addFolder('view', args);
     view.visible = true;
     view.type = 'direct';
     view.isActive = false;

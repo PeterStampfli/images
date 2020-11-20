@@ -163,6 +163,7 @@ map.startDrawing = function() {
         map.iterationsArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
+    console.log('mapdims',map.width,map.height);
 };
 
 /**

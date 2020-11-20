@@ -199,14 +199,14 @@ circles.set = function(input) {
  */
 circles.draw = function() {
     if (circles.visible) {
-        if (circles.drawHighlight){
-        if (circles.otherSelected) {
-            circles.otherSelected.draw(2);
+        if (circles.drawHighlight) {
+            if (circles.otherSelected) {
+                circles.otherSelected.draw(2);
+            }
+            if (circles.selected) {
+                circles.selected.draw(1);
+            }
         }
-        if (circles.selected) {
-            circles.selected.draw(1);
-        }
-    }
         circles.collection.forEach(circle => circle.draw(0));
     }
 };
@@ -236,7 +236,7 @@ circles.makeGui = function(parentGui, args = {}) {
         }
     });
     circles.visibleButton.addHelp('You can hide the circles and intersection symbols to get a neater image.');
-circles.drawHighlight=true;
+    circles.drawHighlight = true;
     circles.drawHighlightButton = circles.gui.add({
         type: 'boolean',
         params: circles,
@@ -246,7 +246,7 @@ circles.drawHighlight=true;
             basic.drawCirclesIntersections();
         }
     });
-    circles.drawHighlightButton.addHelp('Hide the highlighting for a better image.')
+    circles.drawHighlightButton.addHelp('Hide the highlighting for a better image.');
     circles.addCircleButton = circles.gui.add({
         type: 'button',
         buttonText: 'add a new circle',
@@ -515,7 +515,7 @@ circles.map = function(point) {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.drawTrajectory = function(point) {
-    if (circles.viewCollection.length === 0) {
+    if ((circles.viewCollection.length === 0) && (view.type === 'direct')) {
         const context = output.canvasContext;
         output.setLineWidth(map.linewidth);
         context.strokeStyle = 'black';
