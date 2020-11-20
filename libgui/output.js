@@ -598,11 +598,7 @@ output.addAntialiasing = function() {
                     pixels.antialiasSampling = 1;
                     break;
             }
-            if (oldSubpixels === pixels.antialiasSubpixels) {
-                output.drawGridChanged();
-            } else {
                 output.drawMapChanged();
-            }
         }
     });
 };

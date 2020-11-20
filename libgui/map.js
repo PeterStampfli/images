@@ -150,10 +150,12 @@ map.startDrawing = function() {
     map.rangeValid = false;
     output.pixels.update();
     output.isDrawing = true;
-    const canvas = output.canvas;
-    if ((map.width !== canvas.width) || (map.height !== canvas.height)) {
-        map.width = canvas.width;
-        map.height = canvas.height;
+    const pixels = output.pixels;
+    const newMapWidth = (output.canvas.width - 1) * pixels.antialiasSubpixels + pixels.antialiasSampling;
+    const newMapHeight = (output.canvas.height - 1) * pixels.antialiasSubpixels + pixels.antialiasSampling;
+    if ((map.width !== newMapWidth) || (map.height !== newMapHeight)) {
+        map.width = newMapWidth;
+        map.height = newMapHeight;
         const size = map.width * map.height;
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
@@ -176,7 +178,7 @@ map.make = function() {
         region: 0,
         valid: 1
     };
-    let scale = output.coordinateTransform.totalScale/output.pixels.antialiasSubpixels;
+    let scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
     let index = 0;
