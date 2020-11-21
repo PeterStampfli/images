@@ -82,7 +82,9 @@ Pixels.prototype.blurring22 = function() {
     let pixelIndex = 0;
     let dataIndex = 0;
     const width = this.width;
+    const dataWidth = width + 1;
     for (var j = 0; j < this.height; j++) {
+        let dataIndex = j * dataWidth;
         for (var i = 0; i < this.width; i++) {
             let baseIndex = dataIndex;
             // it does not matter if rgba or abgr order as reading and writing do the same
@@ -96,12 +98,12 @@ Pixels.prototype.blurring22 = function() {
             g += (color >>> 16) & 0xff;
             b += (color >>> 8) & 0xff;
             a += (color) & 0xff;
-            color = data[baseIndex + width];
+            color = data[baseIndex + dataWidth];
             r += color >>> 24;
             g += (color >>> 16) & 0xff;
             b += (color >>> 8) & 0xff;
             a += (color) & 0xff;
-            color = data[baseIndex + width + 1];
+            color = data[baseIndex + dataWidth + 1];
             r += (color >>> 24);
             g += (color >>> 16) & 0xff;
             b += (color >>> 8) & 0xff;
@@ -114,7 +116,85 @@ Pixels.prototype.blurring22 = function() {
             pixelIndex += 1;
             dataIndex += 1;
         }
-        dataIndex += 1; // skip extra column
+    }
+};
+
+
+/**
+ * do 3*3 Gauss blurring on pixels, no subpixels
+ * @method Pixels#blurring22
+ */
+Pixels.prototype.gaussBlurr33 = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    let pixelIndex = 0;
+    let dataIndex = 0;
+    const width = this.width;
+    const dataWidth = width + 2;
+    for (var j = 0; j < this.height; j++) {
+        let dataIndex = j * dataWidth;
+        for (var i = 0; i < this.width; i++) {
+            let baseIndex = dataIndex;
+            // it does not matter if rgba or abgr order as reading and writing do the same
+            // the first row: 1 2 1
+            let color = data[baseIndex];
+            let r = color >>> 24;
+            let g = (color >>> 16) & 0xff;
+            let b = (color >>> 8) & 0xff;
+            let a = (color) & 0xff;
+            color = data[baseIndex + 1];
+            r += (color >>> 23) & 0x1fe;
+            g += (color >>> 15) & 0x1fe;
+            b += (color >>> 7) & 0x1fe;
+            a += (color << 1) & 0x1fe;
+            color = data[baseIndex + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            // the second row: 2 4 2
+            baseIndex += dataWidth;
+            color = data[baseIndex];
+            r += (color >>> 23) & 0x1fe;
+            g += (color >>> 15) & 0x1fe;
+            b += (color >>> 7) & 0x1fe;
+            a += (color << 1) & 0x1fe;
+            color = data[baseIndex + 1];
+            r += (color >>> 22) & 0x3fc;
+            g += (color >>> 14) & 0x3fc;
+            b += (color >>> 6) & 0x3fc;
+            a += (color << 2) & 0x3fc;
+            color = data[baseIndex + 2];
+            r += (color >>> 23) & 0x1fe;
+            g += (color >>> 15) & 0x1fe;
+            b += (color >>> 7) & 0x1fe;
+            a += (color << 1) & 0x1fe;
+            // the third row: 1 2 1
+            baseIndex += dataWidth;
+            color = data[baseIndex];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color << 2) & 0xff;
+            color = data[baseIndex + 1];
+            r += (color >>> 23) & 0x1fe;
+            g += (color >>> 15) & 0x1fe;
+            b += (color >>> 7) & 0x1fe;
+            a += (color << 1) & 0x1fe;
+            color = data[baseIndex + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            // rounding
+            g += 8;
+            r += 8;
+            a += 8;
+            b += 8;
+            pixels[pixelIndex] = (a >>> 4) + ((b << 4) & 0xff00) + ((g << 12) & 0xff0000) + ((r << 20) & 0xff000000);
+            pixelIndex += 1;
+            dataIndex += 1;
+        }
     }
 };
 
@@ -126,12 +206,11 @@ Pixels.prototype.subpixels22 = function() {
     const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     const data = this.array;
     let pixelIndex = 0;
-    const dataWidth = 2*this.width;
-   // console.log(this.width,this.height);
+    const dataWidth = 2 * this.width;
     // doing 2*2 subpixel blocks
-    for (var j = 0; j < this.height; j ++) {
-        let dataIndex = 2*j * dataWidth; // top right  corner of first subpixel block
-        for (var i = 0; i < this.width; i ++) {
+    for (var j = 0; j < this.height; j++) {
+        let dataIndex = 2 * j * dataWidth; // top right  corner of first subpixel block
+        for (var i = 0; i < this.width; i++) {
             let baseIndex = dataIndex;
             // it does not matter if rgba or abgr order as reading and writing do the same
             let color = data[baseIndex];
@@ -162,9 +241,130 @@ Pixels.prototype.subpixels22 = function() {
             pixelIndex += 1;
             dataIndex += 2; // go to next block of subpixels
         }
-    //    console.log(pixelIndex,pixels.length);
     }
 };
+
+/**
+ * do 2*2 subpixel sampling with 3*3 Gauss blurr
+ * @method Pixels#subpixels22Blurred
+ */
+Pixels.prototype.subpixels22Blurred = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    let pixelIndex = 0;
+    const dataWidth = 2 * this.width+2;
+    // doing 2*2 subpixel blocks
+    for (var j = 0; j < this.height; j++) {
+        let dataIndex = 2 * j * dataWidth; // top right  corner of first subpixel block
+        for (var i = 0; i < this.width; i++) {
+            let baseIndex = dataIndex;
+            let baseIndex1 = baseIndex + dataWidth;
+            let baseIndex2 = baseIndex1 + dataWidth;
+            let baseIndex3 = baseIndex2 + dataWidth;
+            // it does not matter if rgba or abgr order as reading and writing do the same
+            // doing the center 4 subpix with weight 9/64
+            let color = data[baseIndex1 + 1];
+            let r = color >>> 24;
+            let g = (color >>> 16) & 0xff;
+            let b = (color >>> 8) & 0xff;
+            let a = (color) & 0xff;
+            color = data[baseIndex1 + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex2 + 1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex2 + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            r *= 3;
+            g *= 3;
+            b *= 3;
+            a *= 3;
+            // 8 subpixels around the center with weight 3/64
+            color = data[baseIndex + 1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex1 + 3];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex2 + 3];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex3 + 1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex3 + 2];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            r *= 3;
+            g *= 3;
+            b *= 3;
+            a *= 3;
+            // the corners with weight 1/64
+            color = data[baseIndex];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + 3];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex3];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex3 + 3];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            // rounding
+            g += 32;
+            r += 32;
+            a += 32;
+            b += 32;
+            pixels[pixelIndex] = (a >>> 6) + ((b << 2) & 0xff00) + ((g << 10) & 0xff0000) + ((r << 18) & 0xff000000);
+            pixelIndex += 1;
+            dataIndex += 2; // go to next block of subpixels
+        }
+    }
+};
+
 /**
  * show the pixel data on the canvas, call after changing the Pixels#array
  * make sampling if antialias
@@ -179,9 +379,15 @@ Pixels.prototype.show = function() {
             case '2*2 blurring':
                 this.blurring22();
                 break;
+            case '3*3 Gauss blurr':
+                this.gaussBlurr33();
+                break;
             case '2*2 subpixels':
-            this.subpixels22();
-            break;
+                this.subpixels22();
+                break;
+            case '2*2 subpixels blurred':
+                this.subpixels22Blurred();
+                break;
         }
     }
     this.canvasContext.putImageData(this.imageData, 0, 0);

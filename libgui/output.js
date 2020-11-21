@@ -588,7 +588,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none','2*2 blurring','2*2 subpixels'],
+        options: ['none','2*2 blurring','3*3 Gauss blurr','2*2 subpixels','2*2 subpixels blurred'],
         labelText: 'antialias',
         onChange: function() {
             switch (pixels.antialiasType) {
@@ -600,9 +600,17 @@ output.addAntialiasing = function() {
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 2;
                     break;                  
+                    case '3*3 Gauss blurr':
+                    pixels.antialiasSubpixels = 1;
+                    pixels.antialiasSampling = 3;
+                    break;                  
                      case '2*2 subpixels':
                     pixels.antialiasSubpixels = 2;
                     pixels.antialiasSampling = 2;
+                    break;    
+                                     case '2*2 subpixels blurred':
+                    pixels.antialiasSubpixels = 2;
+                    pixels.antialiasSampling = 4;
                     break;
             }
                 output.drawCanvasChanged();
