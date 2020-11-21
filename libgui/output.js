@@ -588,10 +588,9 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none','2*2 blurring'],
+        options: ['none','2*2 blurring','2*2 subpixels'],
         labelText: 'antialias',
         onChange: function() {
-            const oldSubpixels = pixels.antialiasSubpixels;
             switch (pixels.antialiasType) {
                 case 'none':
                     pixels.antialiasSubpixels = 1;
@@ -599,6 +598,10 @@ output.addAntialiasing = function() {
                     break;
                     case '2*2 blurring':
                     pixels.antialiasSubpixels = 1;
+                    pixels.antialiasSampling = 2;
+                    break;                  
+                     case '2*2 subpixels':
+                    pixels.antialiasSubpixels = 2;
                     pixels.antialiasSampling = 2;
                     break;
             }

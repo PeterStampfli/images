@@ -119,6 +119,53 @@ Pixels.prototype.blurring22 = function() {
 };
 
 /**
+ * do 2*2 subpixel sampling
+ * @method Pixels#subpixels22
+ */
+Pixels.prototype.subpixels22 = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    let pixelIndex = 0;
+    const dataWidth = 2*this.width;
+   // console.log(this.width,this.height);
+    // doing 2*2 subpixel blocks
+    for (var j = 0; j < this.height; j ++) {
+        let dataIndex = 2*j * dataWidth; // top right  corner of first subpixel block
+        for (var i = 0; i < this.width; i ++) {
+            let baseIndex = dataIndex;
+            // it does not matter if rgba or abgr order as reading and writing do the same
+            let color = data[baseIndex];
+            let r = color >>> 24;
+            let g = (color >>> 16) & 0xff;
+            let b = (color >>> 8) & 0xff;
+            let a = (color) & 0xff;
+            color = data[baseIndex + 1];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + dataWidth];
+            r += color >>> 24;
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            color = data[baseIndex + dataWidth + 1];
+            r += (color >>> 24);
+            g += (color >>> 16) & 0xff;
+            b += (color >>> 8) & 0xff;
+            a += (color) & 0xff;
+            g += 2;
+            r += 2;
+            a += 2;
+            b += 2;
+            pixels[pixelIndex] = (a >>> 2) + ((b << 6) & 0xff00) + ((g << 14) & 0xff0000) + ((r << 22) & 0xff000000);
+            pixelIndex += 1;
+            dataIndex += 2; // go to next block of subpixels
+        }
+    //    console.log(pixelIndex,pixels.length);
+    }
+};
+/**
  * show the pixel data on the canvas, call after changing the Pixels#array
  * make sampling if antialias
  * @method Pixels#show
@@ -132,6 +179,9 @@ Pixels.prototype.show = function() {
             case '2*2 blurring':
                 this.blurring22();
                 break;
+            case '2*2 subpixels':
+            this.subpixels22();
+            break;
         }
     }
     this.canvasContext.putImageData(this.imageData, 0, 0);
