@@ -583,37 +583,46 @@ output.addAntialiasing = function() {
     pixels.hasAntialias = true;
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
-    pixels.antialiasSampling = 1;
+    pixels.antialiasSampling = 3;
     output.canvasGui.add({
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none','2*2 blurring','3*3 Gauss blurr','2*2 subpixels','2*2 subpixels blurred'],
+        options: ['none', '2*2 blurring', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5'],
         labelText: 'antialias',
         onChange: function() {
+            const oldSubpixels = pixels.antialiasSubpixels;
             switch (pixels.antialiasType) {
                 case 'none':
                     pixels.antialiasSubpixels = 1;
-                    pixels.antialiasSampling = 1;
+                    pixels.antialiasSampling = 3;
                     break;
-                    case '2*2 blurring':
-                    pixels.antialiasSubpixels = 1;
-                    pixels.antialiasSampling = 2;
-                    break;                  
-                    case '3*3 Gauss blurr':
+                case '2*2 blurring':
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 3;
-                    break;                  
-                     case '2*2 subpixels':
+                    break;
+                case '3*3 Gauss blurr':
+                    pixels.antialiasSubpixels = 1;
+                    pixels.antialiasSampling = 3;
+                    break;
+                case '2*2 subpixels':
                     pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 2;
-                    break;    
-                                     case '2*2 subpixels blurred':
+                    pixels.antialiasSampling = 7;
+                    break;
+                case '2*2 subpixels Gauss 0.5':
                     pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 4;
+                    pixels.antialiasSampling = 7;
+                    break;
+                case '3*3 subpixels':
+                    pixels.antialiasSubpixels = 3;
+                    pixels.antialiasSampling = 5;
                     break;
             }
+            if (oldSubpixels !== pixels.antialiasSubpixels) {
                 output.drawCanvasChanged();
+            } else {
+                output.drawGridChanged();
+            }
         }
     });
 };
