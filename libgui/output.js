@@ -588,7 +588,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5','2*2 subpixels gauss 0.7'],
+        options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5','2*2 subpixels Gauss 0.7'],
         labelText: 'antialias',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
