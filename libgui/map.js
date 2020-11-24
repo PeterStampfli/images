@@ -163,7 +163,6 @@ map.startDrawing = function() {
         map.iterationsArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
-    console.log('mapdims',map.width,map.height);
 };
 
 /**
@@ -184,8 +183,6 @@ map.make = function() {
     let shiftY = output.coordinateTransform.shiftY;
     let index = 0;
     let y = shiftY;
-    console.log('map.make',map.width,map.height)
-    console.log('mapsize',map.xArray.length,map.height*map.width)
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
