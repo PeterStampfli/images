@@ -316,312 +316,8 @@ Pixels.prototype.subpixels22Gauss05 = function() {
             b = Math.round(0.01 * b);
             a = Math.round(0.01 * a);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-           if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
-                        pixelIndex += 1;
-            dataIndex += 2; // go to next block of subpixels
-        }
-    }
-};
-
-/**
- * do 2*2 subpixel sampling with Gauss sqrt(1/2)
- * @method Pixels#subpixels22Gauss07
- */
-Pixels.prototype.subpixels22Gauss07 = function() {
-    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const data = this.array;
-    let pixelIndex = 0;
-    const dataWidth = 2 * this.width + 4;
-    // doing 2*2 subpixel blocks
-    for (var j = 0; j < this.height; j++) {
-        let dataIndex = 2 * j * dataWidth; // top right  corner of first subpixel block
-        for (var i = 0; i < this.width; i++) {
-            // it does not matter if rgba or abgr order as reading and writing do the same
-            // doing the first row: 1 4 8 8 4 1
-            let baseIndex = dataIndex;
-            let color = data[baseIndex]; //1
-            let r = color >>> 24;
-            let g = (color >>> 16) & 0xff;
-            let b = (color >>> 8) & 0xff;
-            let a = (color) & 0xff;
-            color = data[baseIndex + 1]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 2]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 3]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 4]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 5]; //1
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            // the second row: 4 16 32 32 16 4
-            baseIndex += dataWidth;
-            color = data[baseIndex]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 1]; //16
-            r += (color >>> 20) & 0xff0;
-            g += (color >>> 12) & 0xff0;
-            b += (color >>> 4) & 0xff0;
-            a += (color << 4) & 0xff0;
-            color = data[baseIndex + 2]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 3]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 4]; //16
-            r += (color >>> 20) & 0xff0;
-            g += (color >>> 12) & 0xff0;
-            b += (color >>> 4) & 0xff0;
-            a += (color << 4) & 0xff0;
-            color = data[baseIndex + 5]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            // the third row: 8 32 64 64 32 8
-            baseIndex += dataWidth;
-            color = data[baseIndex]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 1]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 2]; //64
-            r += (color >>> 18) & 0x3fc0;
-            g += (color >>> 10) & 0x3fc0;
-            b += (color >>> 2) & 0x3fc0;
-            a += (color << 6) & 0x3fc0;
-            color = data[baseIndex + 3]; //64
-            r += (color >>> 18) & 0x3fc0;
-            g += (color >>> 10) & 0x3fc0;
-            b += (color >>> 2) & 0x3fc0;
-            a += (color << 6) & 0x3fc0;
-            color = data[baseIndex + 4]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 5]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            // the fourth row: 8 32 64 64 32 8
-            baseIndex += dataWidth;
-            color = data[baseIndex]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 1]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 2]; //64
-            r += (color >>> 18) & 0x3fc0;
-            g += (color >>> 10) & 0x3fc0;
-            b += (color >>> 2) & 0x3fc0;
-            a += (color << 6) & 0x3fc0;
-            color = data[baseIndex + 3]; //64
-            r += (color >>> 18) & 0x3fc0;
-            g += (color >>> 10) & 0x3fc0;
-            b += (color >>> 2) & 0x3fc0;
-            a += (color << 6) & 0x3fc0;
-            color = data[baseIndex + 4]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 5]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            // the fifth row: 4 16 32 32 16 4
-            baseIndex += dataWidth;
-            color = data[baseIndex]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 1]; //16
-            r += (color >>> 20) & 0xff0;
-            g += (color >>> 12) & 0xff0;
-            b += (color >>> 4) & 0xff0;
-            a += (color << 4) & 0xff0;
-            color = data[baseIndex + 2]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 3]; //32
-            r += (color >>> 19) & 0x1fe0;
-            g += (color >>> 11) & 0x1fe0;
-            b += (color >>> 3) & 0x1fe0;
-            a += (color << 5) & 0x1fe0;
-            color = data[baseIndex + 4]; //16
-            r += (color >>> 20) & 0xff0;
-            g += (color >>> 12) & 0xff0;
-            b += (color >>> 4) & 0xff0;
-            a += (color << 4) & 0xff0;
-            color = data[baseIndex + 5]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            // doing the sixth row: 1 4 8 8 4 1
-            baseIndex += dataWidth;
-            color = data[baseIndex]; //1
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 1]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 2]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 3]; //8
-            r += (color >>> 21) & 0x7f8;
-            g += (color >>> 13) & 0x7f8;
-            b += (color >>> 5) & 0x7f8;
-            a += (color << 3) & 0x7f8;
-            color = data[baseIndex + 4]; //4
-            r += (color >>> 22) & 0x3fc;
-            g += (color >>> 14) & 0x3fc;
-            b += (color >>> 6) & 0x3fc;
-            a += (color << 2) & 0x3fc;
-            color = data[baseIndex + 5]; //1
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            // norm 0.0014793=1/676, 676=26**2
-            r = Math.round(0.0014793 * r);
-            g = Math.round(0.0014793 * g);
-            b = Math.round(0.0014793 * b);
-            a = Math.round(0.0014793 * a);
-            pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-            if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
-
             pixelIndex += 1;
             dataIndex += 2; // go to next block of subpixels
-        }
-    }
-};
-
-/**
- * do 3*3 subpixel block sampling
- * @method Pixels#subpixels33
- */
-Pixels.prototype.subpixels33 = function() {
-    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const data = this.array;
-    let pixelIndex = 0;
-    const dataWidth = 3 * this.width + 3;
-    // doing 2*2 subpixel blocks
-    for (var j = 0; j < this.height; j++) {
-        let dataIndex = (3 * j + 1) * dataWidth + 1; // top right  corner of first subpixel block
-        for (var i = 0; i < this.width; i++) {
-            let baseIndex = dataIndex;
-            // it does not matter if rgba or abgr order as reading and writing do the same
-            let color = data[baseIndex];
-            let r = color >>> 24;
-            let g = (color >>> 16) & 0xff;
-            let b = (color >>> 8) & 0xff;
-            let a = (color) & 0xff;
-            color = data[baseIndex + 1];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 2];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 1];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 2];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 1];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            color = data[baseIndex + 2];
-            r += color >>> 24;
-            g += (color >>> 16) & 0xff;
-            b += (color >>> 8) & 0xff;
-            a += (color) & 0xff;
-            a = Math.round(0.111111 * a);
-            g = Math.round(0.111111 * g);
-            b = Math.round(0.111111 * b);
-            r = Math.round(0.111111 * r);
-            pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-           if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
-            pixelIndex += 1;
-            dataIndex += 3; // go to next block of subpixels
         }
     }
 };
@@ -637,14 +333,11 @@ Pixels.prototype.subpixelSampling = function(coefficients) {
     const data = this.array;
     let pixelIndex = 0;
     const dataWidth = (this.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
-    const samplingLength=coefficients.length;
-    let coeffSum=0;
-    coefficients.forEach(n=>coeffSum+=n);
-    console.log(coefficients);
-    console.log(coeffSum);
+    const samplingLength = coefficients.length;
+    let coeffSum = 0;
+    coefficients.forEach(n => coeffSum += n);
     const normFactor = 1 / (coeffSum * coeffSum);
     const subpixOffset = Math.floor((this.antialiasSampling - samplingLength) / 2);
-    console.log(subpixOffset);
     for (var j = 0; j < this.height; j++) {
         let dataIndex = (this.antialiasSubpixels * j + subpixOffset) * dataWidth + subpixOffset; // top right corner of first subpixel block of row plus offset of unused subpixels
         for (var i = 0; i < this.width; i++) {
@@ -655,26 +348,23 @@ Pixels.prototype.subpixelSampling = function(coefficients) {
             let bSum = 0;
             let aSum = 0;
             for (var js = 0; js < samplingLength; js++) {
-                let rRow=0;
-                let gRow=0;
-                let bRow=0;
-                let aRow=0;
+                let rRow = 0;
+                let gRow = 0;
+                let bRow = 0;
+                let aRow = 0;
                 for (var is = 0; is < samplingLength; is++) {
                     const color = data[baseIndex + is];
-                    const coeff=coefficients[is];
-                    rRow += coeff*(color >>> 24);
-                    gRow += coeff*((color >>> 16) & 0xff);
-                    bRow += coeff*((color >>> 8) & 0xff);
-                    aRow += coeff*((color) & 0xff);
+                    const coeff = coefficients[is];
+                    rRow += coeff * (color >>> 24);
+                    gRow += coeff * ((color >>> 16) & 0xff);
+                    bRow += coeff * ((color >>> 8) & 0xff);
+                    aRow += coeff * ((color) & 0xff);
                 }
-                    const coeff=coefficients[js];
-rSum+=coeff*rRow;
-gSum+=coeff*gRow;
-bSum+=coeff*bRow;
-aSum+=coeff*aRow;
-
-
-
+                const coeff = coefficients[js];
+                rSum += coeff * rRow;
+                gSum += coeff * gRow;
+                bSum += coeff * bRow;
+                aSum += coeff * aRow;
                 baseIndex += dataWidth; //advance to next row of subpixels
             }
             let a = Math.round(normFactor * aSum);
@@ -682,10 +372,6 @@ aSum+=coeff*aRow;
             let b = Math.round(normFactor * bSum);
             let r = Math.round(normFactor * rSum);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-            if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
             pixelIndex += 1;
             dataIndex += this.antialiasSubpixels; // go to next block of subpixels
         }
@@ -729,251 +415,8 @@ Pixels.prototype.subpixelBlocksampling = function() {
             b = Math.round(normFactor * b);
             r = Math.round(normFactor * r);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-           if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
             pixelIndex += 1;
             dataIndex += nSubpix; // go to next block of subpixels
-        }
-    }
-};
-
-/**
- * do 3*3 subpixel gauss 1/2 sampling
- * @method Pixels#subpixels33Gauss05
- */
-Pixels.prototype.subpixels33Gauss05 = function() {
-    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const data = this.array;
-    let pixelIndex = 0;
-    const dataWidth = 3 * this.width + 3;
-    // doing 2*2 subpixel blocks
-    for (var j = 0; j < this.height; j++) {
-        let dataIndex = 3 * j * dataWidth; // top right  corner of first subpixel block
-        for (var i = 0; i < this.width; i++) {
-            let baseIndex = dataIndex;
-            // it does not matter if rgba or abgr order as reading and writing do the same
-            let color = data[baseIndex];
-            let r = 47 * (color >>> 24);
-            let g = 47 * ((color >>> 16) & 0xff);
-            let b = 47 * ((color >>> 8) & 0xff);
-            let a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            let rSum = 47 * r;
-            let gSum = 47 * g;
-            let bSum = 47 * b;
-            let aSum = 47 * a;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r = 47 * (color >>> 24);
-            g = 47 * ((color >>> 16) & 0xff);
-            b = 47 * ((color >>> 8) & 0xff);
-            a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            rSum += 159 * r;
-            gSum += 159 * g;
-            bSum += 159 * b;
-            aSum += 159 * a;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r = 47 * (color >>> 24);
-            g = 47 * ((color >>> 16) & 0xff);
-            b = 47 * ((color >>> 8) & 0xff);
-            a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            rSum += 294 * r;
-            gSum += 294 * g;
-            bSum += 294 * b;
-            aSum += 294 * a;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r = 47 * (color >>> 24);
-            g = 47 * ((color >>> 16) & 0xff);
-            b = 47 * ((color >>> 8) & 0xff);
-            a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            rSum += 294 * r;
-            gSum += 294 * g;
-            bSum += 294 * b;
-            aSum += 294 * a;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r = 47 * (color >>> 24);
-            g = 47 * ((color >>> 16) & 0xff);
-            b = 47 * ((color >>> 8) & 0xff);
-            a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            rSum += 159 * r;
-            gSum += 159 * g;
-            bSum += 159 * b;
-            aSum += 159 * a;
-            baseIndex += dataWidth;
-            color = data[baseIndex];
-            r = 47 * (color >>> 24);
-            g = 47 * ((color >>> 16) & 0xff);
-            b = 47 * ((color >>> 8) & 0xff);
-            a = 47 * ((color) & 0xff);
-            color = data[baseIndex + 1];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 2];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 3];
-            r += 294 * (color >>> 24);
-            g += 294 * ((color >>> 16) & 0xff);
-            b += 294 * ((color >>> 8) & 0xff);
-            a += 294 * ((color) & 0xff);
-            color = data[baseIndex + 4];
-            r += 159 * (color >>> 24);
-            g += 159 * ((color >>> 16) & 0xff);
-            b += 159 * ((color >>> 8) & 0xff);
-            a += 159 * ((color) & 0xff);
-            color = data[baseIndex + 5];
-            r += 47 * (color >>> 24);
-            g += 47 * ((color >>> 16) & 0xff);
-            b += 47 * ((color >>> 8) & 0xff);
-            a += 47 * ((color) & 0xff);
-            rSum += 47 * r;
-            gSum += 47 * g;
-            bSum += 47 * b;
-            aSum += 47 * a;
-            a = Math.round(0.000001 * aSum);
-            r = Math.round(0.000001 * rSum);
-            g = Math.round(0.000001 * gSum);
-            b = Math.round(0.000001 * bSum);
-            pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-           if (pixelIndex===0){
-                console.log(a,g,b,r)
-                console.log(pixels[0]);
-            }
-            pixelIndex += 1;
-            dataIndex += 3; // go to next block of subpixels
         }
     }
 };
@@ -997,26 +440,21 @@ Pixels.prototype.show = function() {
                 break;
             case '2*2 subpixels Gauss 0.5':
                 this.subpixels22Gauss05();
-                this.subpixelSampling([1,4,4,1]);
                 break;
             case '2*2 subpixels Gauss 0.7':
-                this.subpixels22Gauss07();
-                this.subpixelSampling([1,4,8,8,4,1]);
+                this.subpixelSampling([1, 4, 8, 8, 4, 1]);
                 break;
             case '3*3 subpixels':
-                this.subpixels33();
-                 this.subpixelBlocksampling();
-                 this.subpixelSampling([1,1,1]);
-               break;
+                this.subpixelBlocksampling();
+                break;
             case '3*3 subpixels Gauss 0.5':
-                this.subpixels33Gauss05();
-                this.subpixelSampling([47,159,294,294,159,47]);
+                this.subpixelSampling([47, 159, 294, 294, 159, 47]);
                 break;
             case '4*4 subpixels':
                 this.subpixelBlocksampling();
                 break;
             case '4*4 subpixels Gauss 0.5':
-                this.subpixels44Gauss05();
+
                 break;
         }
     }
