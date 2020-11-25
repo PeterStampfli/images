@@ -316,7 +316,11 @@ Pixels.prototype.subpixels22Gauss05 = function() {
             b = Math.round(0.01 * b);
             a = Math.round(0.01 * a);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-            pixelIndex += 1;
+           if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
+                        pixelIndex += 1;
             dataIndex += 2; // go to next block of subpixels
         }
     }
@@ -534,6 +538,11 @@ Pixels.prototype.subpixels22Gauss07 = function() {
             b = Math.round(0.0014793 * b);
             a = Math.round(0.0014793 * a);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+            if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
+
             pixelIndex += 1;
             dataIndex += 2; // go to next block of subpixels
         }
@@ -607,6 +616,10 @@ Pixels.prototype.subpixels33 = function() {
             b = Math.round(0.111111 * b);
             r = Math.round(0.111111 * r);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+           if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
             pixelIndex += 1;
             dataIndex += 3; // go to next block of subpixels
         }
@@ -615,6 +628,72 @@ Pixels.prototype.subpixels33 = function() {
 
 /**
  * do subpixel block sampling
+ * the data has an additional border of subpixels
+ * @method Pixels#subpixelSampling
+ * @param {array of numbers} coefficients
+ */
+Pixels.prototype.subpixelSampling = function(coefficients) {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const data = this.array;
+    let pixelIndex = 0;
+    const dataWidth = (this.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
+    const samplingLength=coefficients.length;
+    let coeffSum=0;
+    coefficients.forEach(n=>coeffSum+=n);
+    console.log(coefficients);
+    console.log(coeffSum);
+    const normFactor = 1 / (coeffSum * coeffSum);
+    const subpixOffset = Math.floor((this.antialiasSampling - samplingLength) / 2);
+    console.log(subpixOffset);
+    for (var j = 0; j < this.height; j++) {
+        let dataIndex = (this.antialiasSubpixels * j + subpixOffset) * dataWidth + subpixOffset; // top right corner of first subpixel block of row plus offset of unused subpixels
+        for (var i = 0; i < this.width; i++) {
+            let baseIndex = dataIndex;
+            // it does not matter if rgba or abgr order as reading and writing do the same
+            let rSum = 0;
+            let gSum = 0;
+            let bSum = 0;
+            let aSum = 0;
+            for (var js = 0; js < samplingLength; js++) {
+                let rRow=0;
+                let gRow=0;
+                let bRow=0;
+                let aRow=0;
+                for (var is = 0; is < samplingLength; is++) {
+                    const color = data[baseIndex + is];
+                    const coeff=coefficients[is];
+                    rRow += coeff*(color >>> 24);
+                    gRow += coeff*((color >>> 16) & 0xff);
+                    bRow += coeff*((color >>> 8) & 0xff);
+                    aRow += coeff*((color) & 0xff);
+                }
+                    const coeff=coefficients[js];
+rSum+=coeff*rRow;
+gSum+=coeff*gRow;
+bSum+=coeff*bRow;
+aSum+=coeff*aRow;
+
+
+
+                baseIndex += dataWidth; //advance to next row of subpixels
+            }
+            let a = Math.round(normFactor * aSum);
+            let g = Math.round(normFactor * gSum);
+            let b = Math.round(normFactor * bSum);
+            let r = Math.round(normFactor * rSum);
+            pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+            if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
+            pixelIndex += 1;
+            dataIndex += this.antialiasSubpixels; // go to next block of subpixels
+        }
+    }
+};
+
+/**
+ * do subpixel sampling with given coeffficients in an array (Use for Gauss 1/2 ...)
  * the data has an additional border of subpixels
  * @method Pixels#subpixelBlocksampling
  */
@@ -650,6 +729,10 @@ Pixels.prototype.subpixelBlocksampling = function() {
             b = Math.round(normFactor * b);
             r = Math.round(normFactor * r);
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+           if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
             pixelIndex += 1;
             dataIndex += nSubpix; // go to next block of subpixels
         }
@@ -884,10 +967,11 @@ Pixels.prototype.subpixels33Gauss05 = function() {
             r = Math.round(0.000001 * rSum);
             g = Math.round(0.000001 * gSum);
             b = Math.round(0.000001 * bSum);
-            if (pixelIndex === 0) {
-                console.log(a, r, b, g);
-            }
             pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+           if (pixelIndex===0){
+                console.log(a,g,b,r)
+                console.log(pixels[0]);
+            }
             pixelIndex += 1;
             dataIndex += 3; // go to next block of subpixels
         }
@@ -913,15 +997,20 @@ Pixels.prototype.show = function() {
                 break;
             case '2*2 subpixels Gauss 0.5':
                 this.subpixels22Gauss05();
+                this.subpixelSampling([1,4,4,1]);
                 break;
             case '2*2 subpixels Gauss 0.7':
                 this.subpixels22Gauss07();
+                this.subpixelSampling([1,4,8,8,4,1]);
                 break;
             case '3*3 subpixels':
                 this.subpixels33();
-                break;
+                 this.subpixelBlocksampling();
+                 this.subpixelSampling([1,1,1]);
+               break;
             case '3*3 subpixels Gauss 0.5':
                 this.subpixels33Gauss05();
+                this.subpixelSampling([47,159,294,294,159,47]);
                 break;
             case '4*4 subpixels':
                 this.subpixelBlocksampling();
