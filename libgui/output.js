@@ -349,7 +349,22 @@ output.createCanvas = function(gui) {
         minLabelWidth: 5
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
-    output.canvasWidthController = gui.add({
+    // note that changing the background color has no effect on *.jpg images
+    // and without image processing all alpha=0 pixels become opaque black in *.jpg output
+    output.canvasBackgroundColorController = gui.add({
+        type: 'color',
+        params: output,
+        property: 'canvasBackgroundColor',
+        labelText: 'background',
+        onChange: function() {
+            output.canvas.style.backgroundColor = output.canvasBackgroundColor;
+        }
+    }).addHelp('Choose a convenient background color for transparent image parts. Note: They will always be opaque black in saved *.jpg files.');
+
+    // size controllers in an extra folder
+    const sizeGui=gui.addFolder('size');
+
+    output.canvasWidthController = sizeGui.add({
         type: "number",
         max: 10000,
         step: 1,
@@ -382,7 +397,7 @@ output.createCanvas = function(gui) {
     }).addHelp('You can set image sizes in pixels. Values up to 10000 are possible.');
 
     BooleanButton.greenRedBackground();
-    autoResizeController = gui.add({
+    autoResizeController = sizeGui.add({
         type: "boolean",
         labelText: "auto resize canvas",
         initialValue: true,
@@ -395,7 +410,7 @@ output.createCanvas = function(gui) {
     });
     autoResizeController.addHelp("Sets the canvas dimensions to fit the available space.");
 
-    autoScaleController = gui.add({
+    autoScaleController = sizeGui.add({
         type: "boolean",
         labelText: "auto scale canvas image",
         initialValue: false,
@@ -408,7 +423,7 @@ output.createCanvas = function(gui) {
     }).addHelp('Scales the image of the canvas to fit the available space.');
 
     // extending the canvas width
-    extendCanvasController = gui.add({
+    extendCanvasController = sizeGui.add({
         type: 'boolean',
         initialValue: false,
         labelText: 'extend canvas width',
@@ -420,7 +435,7 @@ output.createCanvas = function(gui) {
 
     // extending the browser window to the entire screen
     // the output div andd canvas resize because of the window.onresize event
-    gui.add({
+    sizeGui.add({
         type: 'boolean',
         labelText: 'full screen window',
         initialValue: false,
@@ -432,17 +447,6 @@ output.createCanvas = function(gui) {
             }
         }
     }).addHelp('Switches full screen mode on and off.');
-    // note that changing the background color has no effect on *.jpg images
-    // and all alpha=0 pixels become opaque black in *.jpg output
-    output.canvasBackgroundColorController = gui.add({
-        type: 'color',
-        params: output,
-        property: 'canvasBackgroundColor',
-        labelText: 'background',
-        onChange: function() {
-            output.canvas.style.backgroundColor = output.canvasBackgroundColor;
-        }
-    }).addHelp('Choose a convenient background color for transparent image parts. Note: They will always be opaque black in saved *.jpg files.');
     if (!output.div) {
         output.createDiv();
     }
@@ -562,12 +566,20 @@ function makeArgs(buttonDefinition) {
 
 output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
     // make first button from object, that presumably exists
-    const controller = gui.add(makeArgs(buttonDefinition));
+    const controller = sizeGui.add(makeArgs(buttonDefinition));
     // make more buttons, arguments[2] ...
     for (var i = 2; i < arguments.length; i++) {
         controller.add(makeArgs(arguments[i]));
     }
 };
+
+/**
+* add empty image processing folder
+* @method addImageProcessing
+*/
+output.addImageProcessing=function(){
+    output.imagePocessingGui=output.canvasGui.addFolder('image processing');
+}
 
 /**
  * add antialiasing, goes to the output image gui (canvasGui)
@@ -584,12 +596,13 @@ output.addAntialiasing = function() {
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 3;
-    output.canvasGui.add({
+    const gui=(guiUtils.isObject(output.imagePocessingGui))?output.imagePocessingGui:output.canvasGui;
+    gui.add({
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
         options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5','2*2 subpixels Gauss 0.7','3*3 subpixels','3*3 subpixels Gauss 0.5','4*4 subpixels','4*4 subpixels Gauss 0.5'],
-        labelText: 'antialias',
+        labelText: 'antialiasing',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
             switch (pixels.antialiasType) {

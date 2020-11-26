@@ -54,6 +54,7 @@ basic.setup = function() {
     // create an output canvas
     output.createCanvas(gui);
     output.createPixels();
+    output.addImageProcessing();
     output.addAntialiasing();
     output.grid.interval = 0.1;
     output.addGrid();
