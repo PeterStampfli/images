@@ -335,8 +335,9 @@ ColorInput.stringFromObject = function(obj) {
 };
 
 /**
- * set the red, green and blue fields of a parameter object, and eventually an alpha field
+ * set the red, green and blue fields of a parameter object, and an alpha field
  * depending on a hex color string of form "#rrggbb" or "rrggbbaa"
+ * if no "aa" values then alpha=255
  * @method ColorInput.setObject
  * @param {object} obj
  * @ param {String} color
@@ -347,6 +348,8 @@ ColorInput.setObject = function(obj, color) {
     obj.blue = parseInt(color.substring(5, 7), 16);
     if (color.length === 9) {
         obj.alpha = parseInt(color.substring(7, 9), 16);
+    } else {
+        obj.alpha=255;
     }
 };
 

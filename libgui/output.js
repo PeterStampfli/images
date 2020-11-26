@@ -9,6 +9,7 @@ import {
     guiUtils,
     CoordinateTransform,
     Pixels,
+    ColorInput,
     MouseEvents,
     ParamGui,
     BooleanButton
@@ -319,12 +320,17 @@ output.createCanvas = function(gui) {
         return;
     }
     output.canvas = document.createElement("canvas");
-    output.canvasBackgroundColor = '#000099';
-    output.canvas.style.backgroundColor = output.canvasBackgroundColor;
+    output.backgroundColorString = '#000099';
+    output.backgroundColor = {};
+    ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+    console.log(output.backgroundColor);
+    output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+    console.log(output.backgroundColorInteger.toString(16));
+    output.canvas.style.backgroundColor = output.backgroundColorString;
     output.canvasContext = output.canvas.getContext("2d");
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
-output.imagePocessingGui=gui;  // default
+    output.imagePocessingGui = gui; // default
     // the save button and text field for changing the name
     output.saveButton = gui.add({
         type: "button",
@@ -351,18 +357,22 @@ output.imagePocessingGui=gui;  // default
 
     // note that changing the background color has no effect on *.jpg images
     // and without image processing all alpha=0 pixels become opaque black in *.jpg output
-    output.canvasBackgroundColorController = gui.add({
+    output.backgroundColorController = gui.add({
         type: 'color',
         params: output,
-        property: 'canvasBackgroundColor',
+        property: 'backgroundColorString',
         labelText: 'background',
         onChange: function() {
-            output.canvas.style.backgroundColor = output.canvasBackgroundColor;
+            ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+            console.log(output.backgroundColor);
+            output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+            console.log(output.backgroundColorInteger.toString(16));
+            output.canvas.style.backgroundColor = output.backgroundColorString;
         }
     }).addHelp('Choose a convenient background color for transparent image parts. Note: They will always be opaque black in saved *.jpg files.');
 
     // size controllers in an extra folder
-    const sizeGui=gui.addFolder('size');
+    const sizeGui = gui.addFolder('size');
 
     output.canvasWidthController = sizeGui.add({
         type: "number",
@@ -574,13 +584,13 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 };
 
 /**
-* add empty image processing folder
-* else the usual canvas gui is used for image processing items
-* @method addImageProcessing
-*/
-output.addImageProcessing=function(){
-    output.imagePocessingGui=output.canvasGui.addFolder('image processing');
-}
+ * add empty image processing folder
+ * else the usual canvas gui is used for image processing items
+ * @method addImageProcessing
+ */
+output.addImageProcessing = function() {
+    output.imagePocessingGui = output.canvasGui.addFolder('image processing');
+};
 
 /**
  * add antialiasing, goes to the output image gui (canvasGui)
@@ -601,7 +611,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5','2*2 subpixels Gauss 0.7','3*3 subpixels','3*3 subpixels Gauss 0.5','4*4 subpixels','4*4 subpixels Gauss 0.5'],
+        options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5', '2*2 subpixels Gauss 0.7', '3*3 subpixels', '3*3 subpixels Gauss 0.5', '4*4 subpixels', '4*4 subpixels Gauss 0.5'],
         labelText: 'antialiasing',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
@@ -629,16 +639,16 @@ output.addAntialiasing = function() {
                 case '3*3 subpixels':
                     pixels.antialiasSubpixels = 3;
                     pixels.antialiasSampling = 6;
-                    break;        
-                           case '3*3 subpixels Gauss 0.5':
+                    break;
+                case '3*3 subpixels Gauss 0.5':
                     pixels.antialiasSubpixels = 3;
                     pixels.antialiasSampling = 6;
                     break;
-                                    case '4*4 subpixels':
+                case '4*4 subpixels':
                     pixels.antialiasSubpixels = 4;
                     pixels.antialiasSampling = 8;
-                    break;        
-                           case '4*4 subpixels Gauss 0.5':
+                    break;
+                case '4*4 subpixels Gauss 0.5':
                     pixels.antialiasSubpixels = 4;
                     pixels.antialiasSampling = 8;
                     break;
