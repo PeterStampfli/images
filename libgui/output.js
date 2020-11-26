@@ -324,7 +324,7 @@ output.createCanvas = function(gui) {
     output.canvasContext = output.canvas.getContext("2d");
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
-
+output.imagePocessingGui=gui;  // default
     // the save button and text field for changing the name
     output.saveButton = gui.add({
         type: "button",
@@ -575,6 +575,7 @@ output.makeCanvasSizeButtons = function(gui, buttonDefinition) {
 
 /**
 * add empty image processing folder
+* else the usual canvas gui is used for image processing items
 * @method addImageProcessing
 */
 output.addImageProcessing=function(){
@@ -596,8 +597,7 @@ output.addAntialiasing = function() {
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 3;
-    const gui=(guiUtils.isObject(output.imagePocessingGui))?output.imagePocessingGui:output.canvasGui;
-    gui.add({
+    output.imagePocessingGui.add({
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
