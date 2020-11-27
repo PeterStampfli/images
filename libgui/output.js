@@ -611,7 +611,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', '3*3 Gauss blurr', '2*2 subpixels', '2*2 subpixels Gauss 0.5', '2*2 subpixels Gauss 0.7', '3*3 subpixels', '3*3 subpixels Gauss 0.5', '4*4 subpixels', '4*4 subpixels Gauss 0.5'],
+        options: ['none', 'blurr', '2*2 subpixels', '3*3 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
@@ -620,37 +620,17 @@ output.addAntialiasing = function() {
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 3;
                     break;
-                case '3*3 Gauss blurr':
+                case 'blurr':
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 3;
                     break;
                 case '2*2 subpixels':
                     pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 6;
-                    break;
-                case '2*2 subpixels Gauss 0.5':
-                    pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 6;
-                    break;
-                case '2*2 subpixels Gauss 0.7':
-                    pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 6;
+                    pixels.antialiasSampling = 4;
                     break;
                 case '3*3 subpixels':
                     pixels.antialiasSubpixels = 3;
                     pixels.antialiasSampling = 6;
-                    break;
-                case '3*3 subpixels Gauss 0.5':
-                    pixels.antialiasSubpixels = 3;
-                    pixels.antialiasSampling = 6;
-                    break;
-                case '4*4 subpixels':
-                    pixels.antialiasSubpixels = 4;
-                    pixels.antialiasSampling = 8;
-                    break;
-                case '4*4 subpixels Gauss 0.5':
-                    pixels.antialiasSubpixels = 4;
-                    pixels.antialiasSampling = 8;
                     break;
             }
             if (oldSubpixels !== pixels.antialiasSubpixels) {

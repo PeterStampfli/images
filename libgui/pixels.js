@@ -121,7 +121,7 @@ if (guiUtils.abgrOrder) {
                     for (var is = 0; is < samplingLength; is++) {
                         const color = data[baseIndex + is];
                         const coeff = coefficients[is] * (color >>> 24);
-                        aRow+=coeff;
+                        aRow += coeff;
                         bRow += coeff * ((color >>> 16) & 0xff);
                         gRow += coeff * ((color >>> 8) & 0xff);
                         rRow += coeff * ((color) & 0xff);
@@ -133,7 +133,7 @@ if (guiUtils.abgrOrder) {
                     aSum += coeff * aRow;
                     baseIndex += dataWidth; //advance to next row of subpixels
                 }
-                const normFactor = 1 / aSum;
+                const normFactor = 1 / Math.max(aSum, 0.001);
                 let a = Math.round(basicNorm * aSum);
                 let g = Math.round(normFactor * gSum);
                 let b = Math.round(normFactor * bSum);
@@ -173,7 +173,7 @@ if (guiUtils.abgrOrder) {
                     for (var is = 0; is < samplingLength; is++) {
                         const color = data[baseIndex + is];
                         const coeff = coefficients[is] * ((color) & 0xff);
-                        aRow+=coeff;
+                        aRow += coeff;
                         rRow += coeff * (color >>> 24);
                         gRow += coeff * ((color >>> 16) & 0xff);
                         bRow += coeff * ((color >>> 8) & 0xff);
@@ -185,7 +185,9 @@ if (guiUtils.abgrOrder) {
                     aSum += coeff * aRow;
                     baseIndex += dataWidth; //advance to next row of subpixels
                 }
-                const normFactor = 1 / aSum;
+                // beware of divide by zero: if all alpha=0 then sums are zero
+                // and normFactor irrelevant, as long as not zero
+                const normFactor = 1 / Math.max(aSum, 0.001);
                 let a = Math.round(basicNorm * aSum);
                 let g = Math.round(normFactor * gSum);
                 let b = Math.round(normFactor * bSum);
@@ -193,95 +195,6 @@ if (guiUtils.abgrOrder) {
                 pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
                 pixelIndex += 1;
                 dataIndex += this.antialiasSubpixels; // go to next block of subpixels
-            }
-        }
-    };
-}
-
-/**
- * average pixels as a block
- * do weighted averaging with alpha as weight
- * thus the color of the invisible region is irrelevant and cannot bleed to the visible part
- * the data has additional borders of subpixels
- * @method Pixels#subpixelBlocksampling
- */
-if (guiUtils.abgrOrder) {
-    // abgr order means alpha is the most significant 8 bits
-    Pixels.prototype.subpixelBlocksampling = function() {
-        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const data = this.array;
-        let pixelIndex = 0;
-        const dataWidth = (this.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
-        const nSubpix = this.antialiasSubpixels;
-        const basicNorm = 1 / (nSubpix * nSubpix);
-        const subpixOffset = Math.floor((this.antialiasSampling - nSubpix) / 2);
-        for (var j = 0; j < this.height; j++) {
-            let dataIndex = (nSubpix * j + subpixOffset) * dataWidth + subpixOffset; // top right corner of first subpixel block of row plus offset of unused subpixels
-            for (var i = 0; i < this.width; i++) {
-                let baseIndex = dataIndex;
-                let r = 0;
-                let g = 0;
-                let b = 0;
-                let a = 0;
-                for (var js = 0; js < nSubpix; js++) {
-                    for (var is = 0; is < nSubpix; is++) {
-                        let color = data[baseIndex + is];
-                        const weight = color >>> 24;
-                        a += weight;
-                        b += weight * ((color >>> 16) & 0xff);
-                        g += weight * ((color >>> 8) & 0xff);
-                        r += weight * ((color) & 0xff);
-                    }
-                    baseIndex += dataWidth; //advance to next row of subpixels
-                }
-                const normFactor = 1 / a;
-                a = Math.round(basicNorm * a);
-                g = Math.round(normFactor * g);
-                b = Math.round(normFactor * b);
-                r = Math.round(normFactor * r);
-                pixels[pixelIndex] = r + ((g << 8) & 0xff00) + ((b << 16) & 0xff0000) + ((a << 24) & 0xff000000);
-                pixelIndex += 1;
-                dataIndex += nSubpix; // go to next block of subpixels
-            }
-        }
-    };
-} else {
-    // rgba order: alpha in the least significant 8 bits
-    Pixels.prototype.subpixelBlocksampling = function() {
-        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const data = this.array;
-        let pixelIndex = 0;
-        const dataWidth = (this.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
-        const nSubpix = this.antialiasSubpixels;
-        const basicNorm = 1 / (nSubpix * nSubpix);
-        const subpixOffset = Math.floor((this.antialiasSampling - nSubpix) / 2);
-        for (var j = 0; j < this.height; j++) {
-            let dataIndex = (nSubpix * j + subpixOffset) * dataWidth + subpixOffset; // top right corner of first subpixel block of row plus offset of unused subpixels
-            for (var i = 0; i < this.width; i++) {
-                let baseIndex = dataIndex;
-                let r = 0;
-                let g = 0;
-                let b = 0;
-                let a = 0;
-                for (var js = 0; js < nSubpix; js++) {
-                    for (var is = 0; is < nSubpix; is++) {
-                        let color = data[baseIndex + is];
-                        const weight = (color) & 0xff;
-                        a += weight;
-                        b += weight * ((color >>> 8) & 0xff);
-                        g += weight * ((color >>> 16) & 0xff);
-                        r += weight * ((color >>> 24) & 0xff);
-                    }
-                    baseIndex += dataWidth; //advance to next row of subpixels
-                }
-                const normFactor = 1 / a;
-                a = Math.round(basicNorm * a);
-                g = Math.round(normFactor * g);
-                b = Math.round(normFactor * b);
-                r = Math.round(normFactor * r);
-                pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
-                pixelIndex += 1;
-                dataIndex += nSubpix; // go to next block of subpixels
             }
         }
     };
@@ -298,30 +211,17 @@ Pixels.prototype.show = function() {
             case 'none':
                 this.samplingNone();
                 break;
-            case '3*3 Gauss blurr':
+            case 'blurr':
                 this.subpixelSampling([1, 2, 1]);
                 break;
             case '2*2 subpixels':
-                this.subpixelBlocksampling();
-                break;
-            case '2*2 subpixels Gauss 0.5':
                 this.subpixelSampling([1, 4, 4, 1]);
                 break;
-            case '2*2 subpixels Gauss 0.7':
-                this.subpixelSampling([1, 4, 8, 8, 4, 1]);
-                break;
             case '3*3 subpixels':
-                this.subpixelBlocksampling();
-                break;
-            case '3*3 subpixels Gauss 0.5':
                 this.subpixelSampling([47, 159, 294, 294, 159, 47]);
                 break;
-            case '4*4 subpixels':
-                this.subpixelBlocksampling();
-                break;
-            case '4*4 subpixels Gauss 0.5':
 
-                break;
+
         }
     }
     this.canvasContext.putImageData(this.imageData, 0, 0);
