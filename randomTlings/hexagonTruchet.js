@@ -398,6 +398,7 @@ function hexagon() {
 }
 
 function draw() {
+    output.isDrawing=true;
     var i, j;
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.fillStyle = p.colorBackground;

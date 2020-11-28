@@ -607,11 +607,11 @@ output.addAntialiasing = function() {
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 3;
-    output.imagePocessingGui.add({
+    output.antialiasingController = output.imagePocessingGui.add({
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', 'blurr', '2*2 subpixels', '3*3 subpixels'],
+        options: ['none', 'blur', '2*2 subpixels', '3*3 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
@@ -620,7 +620,7 @@ output.addAntialiasing = function() {
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 3;
                     break;
-                case 'blurr':
+                case 'blur':
                     pixels.antialiasSubpixels = 1;
                     pixels.antialiasSampling = 3;
                     break;
@@ -640,6 +640,11 @@ output.addAntialiasing = function() {
             }
         }
     });
+    let helpText = '<strong>none:</strong> Does no antialiasing.<br>';
+    helpText += '<strong>blurr:</strong> Blurs image pixels using a 3*3 matrix.<br>';
+    helpText += '<strong>2*2 subpixels:</strong> Calculates 2 * 2 subpixels for each output pixel. Downsampling with a Gaussian that is equal to 0.5 at half the pixel size.<br>';
+    helpText += '<strong>3*3 subpixels:</strong> 3*3 subpixels are used.<br>';
+    output.antialiasingController.addHelp(helpText);
 };
 
 /**

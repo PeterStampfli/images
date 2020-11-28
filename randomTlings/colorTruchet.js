@@ -408,6 +408,7 @@ function grid() {
 }
 
 function draw() {
+    output.isDrawing=true;
     var i, j, index;
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);

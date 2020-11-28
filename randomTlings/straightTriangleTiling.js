@@ -186,6 +186,7 @@ if(data[index]===2||data[index]===3||data[index]===4){
 }
 
 function draw() {
+    output.isDrawing=true;
     var i, j;
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.fillStyle = p.colorBackground;

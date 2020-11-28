@@ -211,7 +211,7 @@ Pixels.prototype.show = function() {
             case 'none':
                 this.samplingNone();
                 break;
-            case 'blurr':
+            case 'blur':
                 this.subpixelSampling([1, 2, 1]);
                 break;
             case '2*2 subpixels':

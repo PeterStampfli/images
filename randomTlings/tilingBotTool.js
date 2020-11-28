@@ -67,6 +67,7 @@ gui.add({
 });
 
 function draw() {
+    output.isDrawing = true;
     imageSelector.useImage(function(inputImage) {
         var i;
         output.setCanvasWidthToHeight(inputImage.width / inputImage.height);

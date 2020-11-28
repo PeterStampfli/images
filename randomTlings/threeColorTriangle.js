@@ -26,7 +26,7 @@ output.createCanvas(gui, {
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
-canvas.style.backgroundColor='#888888';
+canvas.style.backgroundColor = '#888888';
 
 const p = {};
 p.nHorizontal = 15; // number of tiles in x-direction
@@ -38,7 +38,7 @@ p.gridLineWidth = 5;
 
 p.grid = false;
 
-const colors=[];
+const colors = [];
 colors.push('#ff0000');
 colors.push('#00ff00');
 colors.push('#0000ff');
@@ -57,7 +57,7 @@ const widthController = {
     type: 'number',
     params: p,
     min: 1,
-    step:1,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -68,7 +68,7 @@ gui.add({
     params: p,
     property: 'nHorizontal',
     min: 1,
-    step:1,
+    step: 1,
     onChange: function() {
         randomData();
         output.setCanvasWidthToHeight(p.nHorizontal / p.nVertical * 2 / Math.sqrt(3));
@@ -89,13 +89,13 @@ gui.add({
 });
 
 gui.add({
-	type:'button',
-	buttonText:'re-random',
-	onClick: function(){
-		randomData();
-		draw();
-	}
-})
+    type: 'button',
+    buttonText: 're-random',
+    onClick: function() {
+        randomData();
+        draw();
+    }
+});
 
 
 const colorController = {
@@ -130,7 +130,7 @@ gui.add({
 
 
 gui.add(colorController, {
-	params:p,
+    params: p,
     property: 'colorGrid'
 });
 
@@ -142,10 +142,10 @@ const data = [];
 
 
 function randomData() {
-    data.length = 2 * (p.nHorizontal+1) * (p.nVertical+1);
+    data.length = 2 * (p.nHorizontal + 1) * (p.nVertical + 1);
     const length = data.length;
     for (var i = 0; i < length; i++) {
-        data[i] = Math.floor(3*Math.random());
+        data[i] = Math.floor(3 * Math.random());
     }
 }
 
@@ -153,71 +153,72 @@ function randomData() {
 
 var tileHeight, tileWidth;
 var index;
-    var i, j;
+var i, j;
 
 
 function triangleUp() {
-	canvasContext.fillStyle=colors[i%3];
-	canvasContext.strokeStyle=colors[i%3];
-	canvasContext.beginPath();
-	canvasContext.moveTo(0,0);
-	if (data[index]===0){
-		canvasContext.lineTo(-tileWidth/4,tileHeight/2);
-	}
-	canvasContext.lineTo(tileWidth/4,tileHeight/2);
-	canvasContext.lineTo(tileWidth/2,0);
-	canvasContext.closePath();
-	canvasContext.fill();
-		canvasContext.fillStyle=colors[(i+1)%3];
-		canvasContext.strokeStyle=colors[(i+1)%3];
-	canvasContext.beginPath();
-	canvasContext.moveTo(0,0);
-	if (data[index]===1){
-		canvasContext.lineTo(tileWidth/4,tileHeight/2);
-	}
-	canvasContext.lineTo(-tileWidth/4,tileHeight/2);
-	canvasContext.lineTo(-tileWidth/2,0);
-	canvasContext.closePath();
-	canvasContext.fill();
-			canvasContext.fillStyle=colors[(i+2)%3];
-			canvasContext.strokeStyle=colors[(i+2)%3];
-	canvasContext.beginPath();
-	canvasContext.moveTo(0,tileHeight);
-	canvasContext.lineTo(-tileWidth/4,tileHeight/2);
-	if (data[index]===2){
-		canvasContext.lineTo(0,0);
-	}
-	canvasContext.lineTo(tileWidth/4,tileHeight/2);
-	canvasContext.closePath();
-	canvasContext.fill();
-index+=1;
+    canvasContext.fillStyle = colors[i % 3];
+    canvasContext.strokeStyle = colors[i % 3];
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    if (data[index] === 0) {
+        canvasContext.lineTo(-tileWidth / 4, tileHeight / 2);
+    }
+    canvasContext.lineTo(tileWidth / 4, tileHeight / 2);
+    canvasContext.lineTo(tileWidth / 2, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.fillStyle = colors[(i + 1) % 3];
+    canvasContext.strokeStyle = colors[(i + 1) % 3];
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    if (data[index] === 1) {
+        canvasContext.lineTo(tileWidth / 4, tileHeight / 2);
+    }
+    canvasContext.lineTo(-tileWidth / 4, tileHeight / 2);
+    canvasContext.lineTo(-tileWidth / 2, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.fillStyle = colors[(i + 2) % 3];
+    canvasContext.strokeStyle = colors[(i + 2) % 3];
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, tileHeight);
+    canvasContext.lineTo(-tileWidth / 4, tileHeight / 2);
+    if (data[index] === 2) {
+        canvasContext.lineTo(0, 0);
+    }
+    canvasContext.lineTo(tileWidth / 4, tileHeight / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    index += 1;
 }
 
 function draw() {
-        canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+    output.isDrawing = true;
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
     tileHeight = canvas.height / p.nVertical;
     tileWidth = canvas.width / p.nHorizontal;
 
-    console.log(tileWidth,tileHeight)
-    console.log(Math.sqrt(3)*tileWidth/2,tileHeight)
-            canvasContext.strokeStyle = p.colorLine;
-            canvasContext.fillStyle = p.colorLine;
+    console.log(tileWidth, tileHeight);
+    console.log(Math.sqrt(3) * tileWidth / 2, tileHeight);
+    canvasContext.strokeStyle = p.colorLine;
+    canvasContext.fillStyle = p.colorLine;
 
 
 
-index=0;
+    index = 0;
     for (j = 0; j <= p.nVertical; j++) {
         const y = j * tileHeight;
 
 
-        for (i = -1; i <= 2*p.nHorizontal; i++) {
+        for (i = -1; i <= 2 * p.nHorizontal; i++) {
             if ((i + j) & 1) {
-               const x=i*tileWidth/2;
-                           canvasContext.setTransform(1, 0, 0, 1, x,y);
-               triangleUp();
-     canvasContext.setTransform(1, 0, 0, -1, x,y);
-               triangleUp();
+                const x = i * tileWidth / 2;
+                canvasContext.setTransform(1, 0, 0, 1, x, y);
+                triangleUp();
+                canvasContext.setTransform(1, 0, 0, -1, x, y);
+                triangleUp();
             }
         }
     }
