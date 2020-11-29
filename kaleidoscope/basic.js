@@ -258,12 +258,7 @@ basic.drawImageChanged = function() {
  */
 basic.drawCirclesIntersections = function() {
     if (map.draw === map.callDrawNoImage) {
-        // clear screen
-        const context = output.canvasContext;
-        context.save();
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, output.canvas.width, output.canvas.height);
-        context.restore();
+        output.clearCanvas();
     } else {
         output.pixels.canvasContext.putImageData(output.pixels.imageData, 0, 0);
     }
@@ -285,12 +280,7 @@ output.drawBackgroundChanged = function() {
     // the background changes: subpixel remain,
     // redo subpixel sampling and alpha update as pixel data changes
     if (map.draw === map.callDrawNoImage) {
-        // clear screen
-        const context = output.canvasContext;
-        context.save();
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, output.canvas.width, output.canvas.height);
-        context.restore();
+        output.clearCanvas();
     } else {
         output.pixels.show(); // no new map/image
     }

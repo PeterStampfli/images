@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 import {
-    guiUtils
+    guiUtils,
+    output
 }
 from "./modules.js";
 
@@ -61,6 +62,74 @@ Pixels.prototype.update = function() {
         this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     }
 };
+
+/**
+ * set color components of all transparent pixels to the values of the background
+ * @method Pixels#backgroundColorTransparent
+ */
+Pixels.prototype.backgroundColorTransparent = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const pixelComponents = this.pixelComponents;
+    output.backgroundColor.alpha = 0;
+    const transparentColor = Pixels.integerOfColor(output.backgroundColor);
+    console.log(transparentColor);
+    const length = pixels.length;
+    let alphaIndex = 3;
+    for (var i = 0; i < length; i++) {
+        if (pixelComponents[alphaIndex] === 0) {
+            pixels[i] = transparentColor;
+        }
+        alphaIndex += 4;
+    }
+};
+
+/**
+ * make an opaque image
+ * merge background color if alpha<255
+ * @method Pixels.opaqueBackground
+ */
+if (guiUtils.abgrOrder) {
+    // abgr order means alpha is the most significant 8 bits
+    Pixels.prototype.opaqueBackground = function() {
+        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+        const backgroundRed = output.backgroundColor.red;
+        const backgroundBlue = output.backgroundColor.blue;
+        const backgroundGreen = output.backgroundColor.green;
+        const i255 = 1 / 255;
+
+
+        const length = pixels.length;
+        for (var i = 0; i < length; i++) {
+            const color = pixels[i];
+            const alpha = (color >>> 24);
+            if (alpha < 255) {
+                const coAlpha = 255 - alpha;
+
+            }
+        }
+    };
+
+} else {
+    Pixels.prototype.opaqueBackground = function() {
+        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+        const backgroundRed = output.backgroundColor.red;
+        const backgroundBlue = output.backgroundColor.blue;
+        const backgroundGreen = output.backgroundColor.green;
+        const i255 = 1 / 255;
+
+
+        const length = pixels.length;
+        for (var i = 0; i < length; i++) {
+            const color = pixels[i];
+            const alpha = (color & 0xff);
+            if (alpha < 255) {
+                const coAlpha = 255 - alpha;
+
+            }
+        }
+    };
+}
+
 
 /**
  * simply copy pixel data in case of no antialiasing
@@ -208,10 +277,10 @@ Pixels.prototype.show = function() {
             case '3*3 subpixels':
                 this.subpixelSampling([47, 159, 294, 294, 159, 47]);
                 break;
-
-
         }
     }
+    this.backgroundColorTransparent();
+    this.opaqueBackground();
     this.canvasContext.putImageData(this.imageData, 0, 0);
 };
 

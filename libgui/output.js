@@ -386,11 +386,14 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
         if (hasTransparencyController) {
             // backgroundcolor and transparency (is true)
             // for only using canvas drawing (no pixels): Do nothing (call output.fillCanvasBackgroundColor does nothing)
+            // using pixels: We do not gain time checking if all pixels are opaque (alpha===255)
+            // set color of all pixels with alpha===0 equal to background color. 
             output.transparency = true;
 
         } else {
             // backgroundcolor and no transparency (is false)
             // for only using canvas drawing (no pixels): Call output.fillCanvasBackgroundColor (fills canvas with opaque background color)
+            // else merge image with background according to alpha, set alpha to 255.
             output.transparency = false;
         }
     } else {
@@ -658,7 +661,7 @@ output.addAntialiasing = function() {
                     pixels.antialiasSampling = 6;
                     break;
             }
-                output.drawCanvasChanged();
+            output.drawCanvasChanged();
         }
     });
     let helpText = '<strong>none:</strong> Does no antialiasing.<br>';
