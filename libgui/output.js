@@ -68,8 +68,17 @@ output.drawCanvasChanged = function() {
 };
 
 /**
- * draw output image when grid parameters change
+ * draw output image when gbackground color changes
  * kaleidoscopes: the map remains the same, (sub)pixels remain the same
+ * @method output.drawBackgroundChanged()
+ */
+output.drawBackgroundChanged = function() {
+    console.error('Please define method output.drawBackgroundChanged!');
+};
+
+/**
+ * draw output image when grid parameters change
+ * kaleidoscopes: the map remains the same, pixels remain the same
  * output.drawGridChanged=function(){
  *   output.pixels.show();
  *   output.drawGrid();
@@ -152,7 +161,7 @@ function rightSpaceLimit() {
  */
 function resizeOutputDiv() {
     var leftOfSpace, widthOfSpace;
-    if (extendCanvasController.getValue()) {
+    if (guiUtils.isObject(extendCanvasController) && extendCanvasController.getValue()) {
         leftOfSpace = 0;
         widthOfSpace = window.innerWidth;
     } else {
@@ -308,25 +317,21 @@ function autoResizeDraw() {
 /**
  * create a canvas in the output.div with controllers in a gui
  * makes its own gui folder (initially closed)
+ * has optional backgroundColorController and transparencyController
  * you can set the canvas width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
  * @param {ParamGui} gui
+ * @param {boolean} hasBackgroundColorController - optional, default is true
+ * @param {boolean} hasTransparencyController - optional, default is true, only present if backgroundColorController exists
  */
 var autoResizeController, autoScaleController, extendCanvasController;
 
-output.createCanvas = function(gui) {
+output.createCanvas = function(gui, hasBackgroundColorController = true, hasTransparencyController = true) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
         return;
     }
     output.canvas = document.createElement("canvas");
-    output.backgroundColorString = '#000099';
-    output.backgroundColor = {};
-    ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-    console.log(output.backgroundColor);
-    output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-    console.log(output.backgroundColorInteger.toString(16));
-    output.canvas.style.backgroundColor = output.backgroundColorString;
     output.canvasContext = output.canvas.getContext("2d");
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
@@ -355,21 +360,44 @@ output.createCanvas = function(gui) {
         minLabelWidth: 5
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
-    // note that changing the background color has no effect on *.jpg images
-    // and without image processing all alpha=0 pixels become opaque black in *.jpg output
-    output.backgroundColorController = gui.add({
-        type: 'color',
-        params: output,
-        property: 'backgroundColorString',
-        labelText: 'background',
-        onChange: function() {
-            ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-            console.log(output.backgroundColor);
-            output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-            console.log(output.backgroundColorInteger.toString(16));
-            output.canvas.style.backgroundColor = output.backgroundColorString;
+    // add background color controller and transparency controller only if needed
+    if (hasBackgroundColorController) {
+        output.backgroundColorString = '#000099';
+        output.backgroundColor = {};
+        ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+        console.log(output.backgroundColor);
+        output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+        console.log(output.backgroundColorInteger.toString(16));
+        output.canvas.style.backgroundColor = output.backgroundColorString;
+        output.backgroundColorController = output.imagePocessingGui.add({
+            type: 'color',
+            params: output,
+            property: 'backgroundColorString',
+            labelText: 'background',
+            onChange: function() {
+                ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+                console.log(output.backgroundColor);
+                output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+                console.log(output.backgroundColorInteger.toString(16));
+                output.canvas.style.backgroundColor = output.backgroundColorString;
+                output.drawBackgroundChanged();
+            }
+        }).addHelp('Choose a convenient background color for transparent image parts.');
+        if (hasTransparencyController) {
+            // backgroundcolor and transparency (is true)
+            // for only using canvas drawing (no pixels): Do nothing (call output.fillCanvasBackgroundColor does nothing)
+            output.transparency = true;
+
+        } else {
+            // backgroundcolor and no transparency (is false)
+            // for only using canvas drawing (no pixels): Call output.fillCanvasBackgroundColor (fills canvas with opaque background color)
+            output.transparency = false;
         }
-    }).addHelp('Choose a convenient background color for transparent image parts. Note: They will always be opaque black in saved *.jpg files.');
+    } else {
+        // no background color and no transparency: nothing to do
+        output.transparency = false;
+        output.backgroundColor = false;
+    }
 
     // size controllers in an extra folder
     const sizeGui = gui.addFolder('size');
@@ -457,6 +485,7 @@ output.createCanvas = function(gui) {
             }
         }
     }).addHelp('Switches full screen mode on and off.');
+
     if (!output.div) {
         output.createDiv();
     }
@@ -606,23 +635,19 @@ output.addAntialiasing = function() {
     pixels.hasAntialias = true;
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
-    pixels.antialiasSampling = 3;
+    pixels.antialiasSampling = 1;
     output.antialiasingController = output.imagePocessingGui.add({
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', 'blur', '2*2 subpixels', '3*3 subpixels'],
+        options: ['none', '2*2 subpixels', '3*3 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
             const oldSubpixels = pixels.antialiasSubpixels;
             switch (pixels.antialiasType) {
                 case 'none':
                     pixels.antialiasSubpixels = 1;
-                    pixels.antialiasSampling = 3;
-                    break;
-                case 'blur':
-                    pixels.antialiasSubpixels = 1;
-                    pixels.antialiasSampling = 3;
+                    pixels.antialiasSampling = 1;
                     break;
                 case '2*2 subpixels':
                     pixels.antialiasSubpixels = 2;
@@ -633,15 +658,10 @@ output.addAntialiasing = function() {
                     pixels.antialiasSampling = 6;
                     break;
             }
-            if (oldSubpixels !== pixels.antialiasSubpixels) {
                 output.drawCanvasChanged();
-            } else {
-                output.drawGridChanged();
-            }
         }
     });
     let helpText = '<strong>none:</strong> Does no antialiasing.<br>';
-    helpText += '<strong>blurr:</strong> Blurs image pixels using a 3*3 matrix.<br>';
     helpText += '<strong>2*2 subpixels:</strong> Calculates 2 * 2 subpixels for each output pixel. Downsampling with a Gaussian that is equal to 0.5 at half the pixel size.<br>';
     helpText += '<strong>3*3 subpixels:</strong> 3*3 subpixels are used.<br>';
     output.antialiasingController.addHelp(helpText);
@@ -1186,4 +1206,15 @@ output.fillCanvas = function(color) {
  */
 output.clearCanvas = function() {
     output.fillCanvas('#00000000');
+};
+
+/**
+ * fill the canvas with background color if not transparent (and a backgroundcolor exists)
+ * preserves the current transform
+ * @method output.fillCanvasBackgroundColor
+ */
+output.fillCanvasBackgroundColor = function() {
+    if (!output.transparency && guiUtils.isObject(output.backgroundColor)) {
+        output.fillCanvas(output.backgroundColorString);
+    }
 };

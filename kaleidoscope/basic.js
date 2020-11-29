@@ -52,7 +52,7 @@ basic.setup = function() {
     help.addParagraph('"intersections": Add and destroy controlled intersections. Change the order of their dihedral group');
 
     // create an output canvas
-    output.createCanvas(gui);
+    output.createCanvas(gui, true);
     output.createPixels();
     output.addImageProcessing();
     output.addAntialiasing();
@@ -265,7 +265,7 @@ basic.drawCirclesIntersections = function() {
         context.clearRect(0, 0, output.canvas.width, output.canvas.height);
         context.restore();
     } else {
-        output.pixels.show(); // no new map/image
+        output.pixels.canvasContext.putImageData(output.pixels.imageData, 0, 0);
     }
     output.drawGrid();
     circles.draw();
@@ -277,9 +277,32 @@ basic.drawCirclesIntersections = function() {
         regions.drawLines();
     }
 };
+// the grid changes: do the same as when display of circles or intersections change
 output.drawGridChanged = function() {
-    console.log('output drawGridChngedd');
     basic.drawCirclesIntersections();
+};
+output.drawBackgroundChanged = function() {
+    // the background changes: subpixel remain,
+    // redo subpixel sampling and alpha update as pixel data changes
+    if (map.draw === map.callDrawNoImage) {
+        // clear screen
+        const context = output.canvasContext;
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, output.canvas.width, output.canvas.height);
+        context.restore();
+    } else {
+        output.pixels.show(); // no new map/image
+    }
+    output.drawGrid();
+    circles.draw();
+    intersections.draw();
+    view.draw();
+    if (regions.debug && map.updatingTheMap) {
+        regions.drawBoundingRectangle();
+        regions.drawCorners();
+        regions.drawLines();
+    }
 };
 
 // for drawing the fundamental region

@@ -57,7 +57,6 @@ Pixels.prototype.update = function() {
         const dataHeight = (canvas.height - 1) * this.antialiasSubpixels + this.antialiasSampling;
         const size = dataWidth * dataHeight;
         this.array = new Uint32Array(size); // a view of the pixels as an array of 32 bit integers
-
     } else {
         this.array = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     }
@@ -70,17 +69,9 @@ Pixels.prototype.update = function() {
 Pixels.prototype.samplingNone = function() {
     const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     const data = this.array;
-    let pixelIndex = 0;
-    let dataIndex = 0;
-    const width = this.width;
-    const dataWidth = width + 2;
-    for (var j = 0; j < this.height; j++) {
-        let dataIndex = (j + 1) * dataWidth + 1;
-        for (var i = 0; i < this.width; i++) {
-            pixels[pixelIndex] = data[dataIndex];
-            pixelIndex += 1;
-            dataIndex += 1;
-        }
+    const length = data.length;
+    for (var index = 0; index < length; index++) {
+        pixels[index] = data[index];
     }
 };
 
@@ -210,9 +201,6 @@ Pixels.prototype.show = function() {
         switch (this.antialiasType) {
             case 'none':
                 this.samplingNone();
-                break;
-            case 'blur':
-                this.subpixelSampling([1, 2, 1]);
                 break;
             case '2*2 subpixels':
                 this.subpixelSampling([1, 4, 4, 1]);
