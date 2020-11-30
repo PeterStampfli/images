@@ -133,7 +133,7 @@ if (guiUtils.abgrOrder) {
                 let g = Math.round(normFactor * gSum);
                 let b = Math.round(normFactor * bSum);
                 let r = Math.round(normFactor * rSum);
-                pixels[pixelIndex] = r + ((g << 8) & 0xff00) + ((b << 16) & 0xff0000) + ((a << 24) & 0xff000000);
+                pixels[pixelIndex] = r | ((g << 8) & 0xff00) | ((b << 16) & 0xff0000) | ((a << 24) & 0xff000000);
                 pixelIndex += 1;
                 dataIndex += this.antialiasSubpixels; // go to next block of subpixels
             }
@@ -187,7 +187,7 @@ if (guiUtils.abgrOrder) {
                 let g = Math.round(normFactor * gSum);
                 let b = Math.round(normFactor * bSum);
                 let r = Math.round(normFactor * rSum);
-                pixels[pixelIndex] = a + ((b << 8) & 0xff00) + ((g << 16) & 0xff0000) + ((r << 24) & 0xff000000);
+                pixels[pixelIndex] = a | ((b << 8) & 0xff00) | ((g << 16) & 0xff0000) | ((r << 24) & 0xff000000);
                 pixelIndex += 1;
                 dataIndex += this.antialiasSubpixels; // go to next block of subpixels
             }
@@ -252,19 +252,22 @@ if (guiUtils.abgrOrder) {
         const backgroundBlue = output.backgroundColor.blue;
         const backgroundGreen = output.backgroundColor.green;
         const i255 = 1 / 255;
-
-
         const length = pixels.length;
         for (var i = 0; i < length; i++) {
             const color = pixels[i];
             const alpha = (color >>> 24);
             if (alpha < 255) {
                 const coAlpha = 255 - alpha;
-
+                let b = (color >>> 16) & 0xff;
+                let g = (color >>> 8) & 0xff;
+                let r = color & 0xff;
+                r = Math.round((alpha * r + backgroundRed * coAlpha) * i255);
+                g = Math.round((alpha * g + backgroundGreen * coAlpha) * i255);
+                b = Math.round((alpha * b + backgroundBlue * coAlpha) * i255);
+                pixels[i] = r | ((g << 8) & 0xff00) | ((b << 16) & 0xff0000) | 0xff000000;
             }
         }
     };
-
 } else {
     Pixels.prototype.opaqueBackground = function() {
         const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
@@ -272,25 +275,29 @@ if (guiUtils.abgrOrder) {
         const backgroundBlue = output.backgroundColor.blue;
         const backgroundGreen = output.backgroundColor.green;
         const i255 = 1 / 255;
-
-
         const length = pixels.length;
         for (var i = 0; i < length; i++) {
             const color = pixels[i];
             const alpha = (color & 0xff);
             if (alpha < 255) {
                 const coAlpha = 255 - alpha;
-
+                let b = (color >>> 8) & 0xff;
+                let g = (color >>> 16) & 0xff;
+                let r = (color >>> 24) & 0xff;
+                r = Math.round((alpha * r + backgroundRed * coAlpha) * i255);
+                g = Math.round((alpha * g + backgroundGreen * coAlpha) * i255);
+                b = Math.round((alpha * b + backgroundBlue * coAlpha) * i255);
+                pixels[i] = 0xff | ((b << 8) & 0xff00) | ((g << 16) & 0xff0000) | ((r << 24) & 0xff000000);
             }
         }
     };
 }
 
 /**
-* put the pixels on the canvas
-* @method Pixels#putOnCanvas
-*/
-Pixels.prototype.putOnCanvas=function(){
+ * put the pixels on the canvas
+ * @method Pixels#putOnCanvas
+ */
+Pixels.prototype.putOnCanvas = function() {
     this.canvasContext.putImageData(this.imageData, 0, 0);
 };
 
@@ -299,8 +306,8 @@ Pixels.prototype.putOnCanvas=function(){
  * @method Pixels#show
  */
 Pixels.prototype.show = function() {
-this.antialias();
-   this.backgroundColorTransparent();
+    this.antialias();
+    this.backgroundColorTransparent();
     this.opaqueBackground();
     this.putOnCanvas();
 };
