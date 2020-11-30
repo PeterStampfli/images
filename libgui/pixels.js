@@ -63,73 +63,8 @@ Pixels.prototype.update = function() {
     }
 };
 
-/**
- * set color components of all transparent pixels to the values of the background
- * @method Pixels#backgroundColorTransparent
- */
-Pixels.prototype.backgroundColorTransparent = function() {
-    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const pixelComponents = this.pixelComponents;
-    output.backgroundColor.alpha = 0;
-    const transparentColor = Pixels.integerOfColor(output.backgroundColor);
-    console.log(transparentColor);
-    const length = pixels.length;
-    let alphaIndex = 3;
-    for (var i = 0; i < length; i++) {
-        if (pixelComponents[alphaIndex] === 0) {
-            pixels[i] = transparentColor;
-        }
-        alphaIndex += 4;
-    }
-};
-
-/**
- * make an opaque image
- * merge background color if alpha<255
- * @method Pixels.opaqueBackground
- */
-if (guiUtils.abgrOrder) {
-    // abgr order means alpha is the most significant 8 bits
-    Pixels.prototype.opaqueBackground = function() {
-        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const backgroundRed = output.backgroundColor.red;
-        const backgroundBlue = output.backgroundColor.blue;
-        const backgroundGreen = output.backgroundColor.green;
-        const i255 = 1 / 255;
-
-
-        const length = pixels.length;
-        for (var i = 0; i < length; i++) {
-            const color = pixels[i];
-            const alpha = (color >>> 24);
-            if (alpha < 255) {
-                const coAlpha = 255 - alpha;
-
-            }
-        }
-    };
-
-} else {
-    Pixels.prototype.opaqueBackground = function() {
-        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const backgroundRed = output.backgroundColor.red;
-        const backgroundBlue = output.backgroundColor.blue;
-        const backgroundGreen = output.backgroundColor.green;
-        const i255 = 1 / 255;
-
-
-        const length = pixels.length;
-        for (var i = 0; i < length; i++) {
-            const color = pixels[i];
-            const alpha = (color & 0xff);
-            if (alpha < 255) {
-                const coAlpha = 255 - alpha;
-
-            }
-        }
-    };
-}
-
+// antialiasing
+//================================================
 
 /**
  * simply copy pixel data in case of no antialiasing
@@ -261,11 +196,10 @@ if (guiUtils.abgrOrder) {
 }
 
 /**
- * show the pixel data on the canvas, call after changing the Pixels#array
  * make sampling if antialias
- * @method Pixels#show
+ * @method Pixels#antialiasSampling
  */
-Pixels.prototype.show = function() {
+Pixels.prototype.antialias = function() {
     if (this.hasAntialias) {
         switch (this.antialiasType) {
             case 'none':
@@ -279,10 +213,98 @@ Pixels.prototype.show = function() {
                 break;
         }
     }
-    this.backgroundColorTransparent();
-    this.opaqueBackground();
+};
+
+//  treating transparency
+//==========================================
+
+
+/**
+ * set color components of all transparent pixels to the values of the background
+ * @method Pixels#backgroundColorTransparent
+ */
+Pixels.prototype.backgroundColorTransparent = function() {
+    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+    const pixelComponents = this.pixelComponents;
+    output.backgroundColor.alpha = 0;
+    const transparentColor = Pixels.integerOfColor(output.backgroundColor);
+    console.log(transparentColor);
+    const length = pixels.length;
+    let alphaIndex = 3;
+    for (var i = 0; i < length; i++) {
+        if (pixelComponents[alphaIndex] === 0) {
+            pixels[i] = transparentColor;
+        }
+        alphaIndex += 4;
+    }
+};
+
+/**
+ * make an opaque image
+ * merge background color if alpha<255
+ * @method Pixels.opaqueBackground
+ */
+if (guiUtils.abgrOrder) {
+    // abgr order means alpha is the most significant 8 bits
+    Pixels.prototype.opaqueBackground = function() {
+        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+        const backgroundRed = output.backgroundColor.red;
+        const backgroundBlue = output.backgroundColor.blue;
+        const backgroundGreen = output.backgroundColor.green;
+        const i255 = 1 / 255;
+
+
+        const length = pixels.length;
+        for (var i = 0; i < length; i++) {
+            const color = pixels[i];
+            const alpha = (color >>> 24);
+            if (alpha < 255) {
+                const coAlpha = 255 - alpha;
+
+            }
+        }
+    };
+
+} else {
+    Pixels.prototype.opaqueBackground = function() {
+        const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
+        const backgroundRed = output.backgroundColor.red;
+        const backgroundBlue = output.backgroundColor.blue;
+        const backgroundGreen = output.backgroundColor.green;
+        const i255 = 1 / 255;
+
+
+        const length = pixels.length;
+        for (var i = 0; i < length; i++) {
+            const color = pixels[i];
+            const alpha = (color & 0xff);
+            if (alpha < 255) {
+                const coAlpha = 255 - alpha;
+
+            }
+        }
+    };
+}
+
+/**
+* put the pixels on the canvas
+* @method Pixels#putOnCanvas
+*/
+Pixels.prototype.putOnCanvas=function(){
     this.canvasContext.putImageData(this.imageData, 0, 0);
 };
+
+/**
+ * show the pixels: make antialias, treat transparency ...
+ * @method Pixels#show
+ */
+Pixels.prototype.show = function() {
+this.antialias();
+   this.backgroundColorTransparent();
+    this.opaqueBackground();
+    this.putOnCanvas();
+};
+
 
 // setting pixels
 //=================================================

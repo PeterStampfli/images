@@ -260,7 +260,7 @@ basic.drawCirclesIntersections = function() {
     if (map.draw === map.callDrawNoImage) {
         output.clearCanvas();
     } else {
-        output.pixels.canvasContext.putImageData(output.pixels.imageData, 0, 0);
+        output.pixels.putOnCanvas();
     }
     output.drawGrid();
     circles.draw();
