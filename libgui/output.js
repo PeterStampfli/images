@@ -365,31 +365,37 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
         output.backgroundColorString = '#000099';
         output.backgroundColor = {};
         ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-        console.log(output.backgroundColor);
         output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-        console.log(output.backgroundColorInteger.toString(16));
         output.canvas.style.backgroundColor = output.backgroundColorString;
-        output.backgroundColorController = output.imagePocessingGui.add({
+        output.backgroundColorController = gui.add({
             type: 'color',
             params: output,
             property: 'backgroundColorString',
             labelText: 'background',
             onChange: function() {
                 ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-                console.log(output.backgroundColor);
                 output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-                console.log(output.backgroundColorInteger.toString(16));
                 output.canvas.style.backgroundColor = output.backgroundColorString;
                 output.drawBackgroundChanged();
             }
-        }).addHelp('Choose a convenient background color for transparent image parts.');
+        }).addHelp('Choose a convenient background color for transparent image parts. Switching transparency off will show the background color in downloaded images.');
         if (hasTransparencyController) {
             // backgroundcolor and transparency (is true)
             // for only using canvas drawing (no pixels): Do nothing (call output.fillCanvasBackgroundColor does nothing)
             // using pixels: We do not gain time checking if all pixels are opaque (alpha===255)
             // set color of all pixels with alpha===0 equal to background color. 
             output.transparency = true;
-
+            BooleanButton.greenRedBackground();
+            output.transparencyController = gui.add({
+                type: 'boolean',
+                params: output,
+                property: 'transparency',
+                onChange: function() {
+                    output.pixels.transparency = output.transparency;
+                    output.drawBackgroundChanged();
+                }
+            });
+            output.transparencyController.addHelp('If transparency is on, then *.png downloads can have transparent parts and *.jpg will show transparent parts in black. If it is off, then both *.png and *.jpg get opaque background color instead of transparency');
         } else {
             // backgroundcolor and no transparency (is false)
             // for only using canvas drawing (no pixels): Call output.fillCanvasBackgroundColor (fills canvas with opaque background color)
@@ -1073,6 +1079,8 @@ output.createPixels = function() {
         return;
     }
     output.pixels = new Pixels(output.canvas);
+    output.pixels.transparency = output.transparency;
+    output.pixels.backgroundColor = output.backgroundColor;
 };
 
 /**
@@ -1219,5 +1227,7 @@ output.clearCanvas = function() {
 output.fillCanvasBackgroundColor = function() {
     if (!output.transparency && guiUtils.isObject(output.backgroundColor)) {
         output.fillCanvas(output.backgroundColorString);
+    } else {
+        output.clearCanvas();
     }
 };

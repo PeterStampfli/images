@@ -258,7 +258,7 @@ basic.drawImageChanged = function() {
  */
 basic.drawCirclesIntersections = function() {
     if (map.draw === map.callDrawNoImage) {
-        output.clearCanvas();
+        output.fillCanvasBackgroundColor();
     } else {
         output.pixels.putOnCanvas();
     }
@@ -280,7 +280,7 @@ output.drawBackgroundChanged = function() {
     // the background changes: subpixel remain,
     // redo subpixel sampling and alpha update as pixel data changes
     if (map.draw === map.callDrawNoImage) {
-        output.clearCanvas();
+        output.fillCanvasBackgroundColor();
     } else {
         output.pixels.show(); // no new map/image
     }

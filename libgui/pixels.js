@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 import {
-    guiUtils,
-    output
+    guiUtils
 }
 from "./modules.js";
 
@@ -226,9 +225,8 @@ Pixels.prototype.antialias = function() {
 Pixels.prototype.backgroundColorTransparent = function() {
     const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
     const pixelComponents = this.pixelComponents;
-    output.backgroundColor.alpha = 0;
-    const transparentColor = Pixels.integerOfColor(output.backgroundColor);
-    console.log(transparentColor);
+    this.backgroundColor.alpha = 0;
+    const transparentColor = Pixels.integerOfColor(this.backgroundColor);
     const length = pixels.length;
     let alphaIndex = 3;
     for (var i = 0; i < length; i++) {
@@ -248,9 +246,9 @@ if (guiUtils.abgrOrder) {
     // abgr order means alpha is the most significant 8 bits
     Pixels.prototype.opaqueBackground = function() {
         const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const backgroundRed = output.backgroundColor.red;
-        const backgroundBlue = output.backgroundColor.blue;
-        const backgroundGreen = output.backgroundColor.green;
+        const backgroundRed = this.backgroundColor.red;
+        const backgroundBlue = this.backgroundColor.blue;
+        const backgroundGreen = this.backgroundColor.green;
         const i255 = 1 / 255;
         const length = pixels.length;
         for (var i = 0; i < length; i++) {
@@ -271,9 +269,9 @@ if (guiUtils.abgrOrder) {
 } else {
     Pixels.prototype.opaqueBackground = function() {
         const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-        const backgroundRed = output.backgroundColor.red;
-        const backgroundBlue = output.backgroundColor.blue;
-        const backgroundGreen = output.backgroundColor.green;
+        const backgroundRed = this.backgroundColor.red;
+        const backgroundBlue = this.backgroundColor.blue;
+        const backgroundGreen = this.backgroundColor.green;
         const i255 = 1 / 255;
         const length = pixels.length;
         for (var i = 0; i < length; i++) {
@@ -294,6 +292,21 @@ if (guiUtils.abgrOrder) {
 }
 
 /**
+ * doing transparency 
+ * depending on existance of backgroundColor and transparency value
+ * @method Pixels.doTransparency
+ */
+Pixels.prototype.doTransparency = function() {
+    if (guiUtils.isObject(this.backgroundColor)) {
+        if (this.transparency) {
+            this.backgroundColorTransparent();
+        } else {
+            this.opaqueBackground();
+        }
+    }
+};
+
+/**
  * put the pixels on the canvas
  * @method Pixels#putOnCanvas
  */
@@ -307,8 +320,7 @@ Pixels.prototype.putOnCanvas = function() {
  */
 Pixels.prototype.show = function() {
     this.antialias();
-    this.backgroundColorTransparent();
-    this.opaqueBackground();
+    this.doTransparency();
     this.putOnCanvas();
 };
 
