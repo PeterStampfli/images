@@ -902,19 +902,6 @@ function animationFinished() {
 // animation
 //===================================================
 
-/**
- * make name for file with frame image, numbered, no file type
- * @method output.makeFrameFileName
- * @return String
- */
-output.makeFrameFileName = function() {
-    let result = output.animationStep.toString(10);
-    while (result.length < output.frameNumberDigits) {
-        result = '0' + result;
-    }
-    result = output.saveName.getValue() + result;
-    return result;
-};
 
 // time when making frame starts
 output.startOfFrame=0;
