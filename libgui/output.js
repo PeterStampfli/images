@@ -27,17 +27,19 @@ output.canvas = false;
 output.canvasContext = false; // 2d-context
 output.pixels = false;
 
-// zoom animation
+// animation
 output.animationRunning = false;
 output.animationRecording = false;
-output.animationZoomFactor = 1.01;
 output.animationStep = 0;
 output.animationNSteps = 100;
 output.animationFps = 10;
+output.frameNumberDigits = 5;
+
+// zoom animation
+output.animationZoomFactor = 1.01;
 output.animationScale = 1;
 output.animationStartScale = 1;
 output.animationEndScale = 10;
-output.frameNumberDigits = 5;
 
 // vectors for intermediate results
 const u = {
@@ -699,11 +701,11 @@ output.addCoordinateTransform = function() {
     output.mouseEvents = new MouseEvents(output.canvas);
     const mouseEvents = output.mouseEvents;
 
-    // make that changing the scale does not change center
-    // running animation
+    // make that changing the scale does not change center, draw image on canvas
     coordinateTransform.scaleController.callback = function() {
-        const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
+
         const startOfFrame = Date.now();
+
         const canvas = output.canvas;
         // get current center
         u.x = canvas.width / 2;
@@ -719,12 +721,16 @@ output.addCoordinateTransform = function() {
         coordinateTransform.updateUI();
         coordinateTransform.updateTransform();
         coordinateTransform.onChange(); // if not reprogrammed: calls output.drawCanvasChanged
+
+
+
         // now the image has been drawn
         // advance scale and step number, frame numbers begin at 1
         output.animationScale *= output.animationZoomFactor;
         output.animationStep += 1;
         output.animationStepMessage.innerText = 'steps done: ' + output.animationStep;
         if (output.animationRunning) {
+            const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
             // see if end reached, then stop
             if (animationFinished()) {
                 output.animationRunningButton.setButtonText('run');
@@ -893,6 +899,29 @@ function animationFinished() {
     return finished;
 }
 
+// animation
+//===================================================
+
+/**
+ * make name for file with frame image, numbered, no file type
+ * @method output.makeFrameFileName
+ * @return String
+ */
+output.makeFrameFileName = function() {
+    let result = output.animationStep.toString(10);
+    while (result.length < output.frameNumberDigits) {
+        result = '0' + result;
+    }
+    result = output.saveName.getValue() + result;
+    return result;
+};
+
+// time when making frame starts
+output.startOfFrame=0;
+
+//        const startOfFrame = Date.now();
+
+
 // make frame number with fixed number of digits
 function makeFrameNumber() {
     let result = output.animationStep.toString(10);
@@ -901,6 +930,53 @@ function makeFrameNumber() {
     }
     return result;
 }
+
+// make animation:
+// controlled by
+
+/*
+
+        // now the image has been drawn
+        // advance scale and step number, frame numbers begin at 1
+        output.animationScale *= output.animationZoomFactor;
+        output.animationStep += 1;
+        output.animationStepMessage.innerText = 'steps done: ' + output.animationStep;
+        if (output.animationRunning) {
+            const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
+            // see if end reached, then stop
+            if (animationFinished()) {
+                output.animationRunningButton.setButtonText('run');
+                output.animationRunning = false;
+            }
+            if (output.animationRecording) {
+                // 'download' canvas image and do next step, if animation running
+                const name = output.saveName.getValue() + makeFrameNumber();
+                const type = output.saveType.getValue();
+                guiUtils.saveCanvasAsFile(output.canvas, name, type,
+                    function() {
+                        if (output.animationRunning) {
+                            const timeUsed = Date.now() - startOfFrame;
+                            // prepare next frame
+                            setTimeout(function() {
+                                requestAnimationFrame(function() {
+                                    output.coordinateTransform.scaleController.setValue(output.animationScale);
+                                });
+                            }, minimumFrameTime - timeUsed);
+                        }
+                    });
+            } else {
+                // do next step if animation running
+                const timeUsed = Date.now() - startOfFrame;
+                if (output.animationRunning) {
+                    // prepare next frame
+                    setTimeout(function() {
+                        requestAnimationFrame(function() {
+                            output.coordinateTransform.scaleController.setValue(output.animationScale);
+                        });
+                    }, minimumFrameTime - timeUsed);
+                }
+            }
+        }*/
 
 /**
  * add a zoom animation
