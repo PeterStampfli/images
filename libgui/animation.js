@@ -14,75 +14,42 @@ from "./modules.js";
 
 export const animation = {};
 
-// controllers
-//=========================
-// defined outside, depending on the thing to animate
-// boolean, switch recording on and of
-animation.recordingController = null;
-// boolean, run or suspend animation
-animation.runningController = null;
-// limiting the animation speed
-animation.fpsController = null;
+animation.frameNumberDigits=5;
+animation.frameNumber=0;
 
 /**
-* set the controllers
-* @method animation.setControllers
-* @param {controller} runningController
-* @param {controller} recordingController
-* @param {controller} fpsController
+* set the thing to animate
+* @method animation.setThing
+* @param {object} thing
 */
-animation.setControllers=function(runningController,recordingController,fpsController){
-animation.runningController=runningController;
-animation.recordingController=recordingController;
-animation.fpsController=fpsController;
+animation.setThing=function(thing){
+	animation.thing=thing;
 };
 
 /**
-* check if animation uses given runningController
-* and thus does the related animation
-* @method animation.usingRunningController
-* @param {controller} runningController
-* @return boolean, true if the runningController is used as such
+* check if given thing is used
+* @method animation.usesThing
+* @param {object} thing
+* @return boolean, true if thing used
 */
-animation.usingRunningController=function(runningController){
- return animation.runningController=runningController;
+animation.usesThing=function(thing){
+	return animation.thing===thing;
 };
 
-// variables
-//==========================
-// number of digits for frame numbers
-animation.frameNumberDigits = 5;
-// the current frame number
-animation.frameNumber = 0;
-
-// functions
-//===================
-// define outside, depening on thing to animate
-// make an image of the thing on the output canvas
-animation.draw=function(){};
-// advance the parameters of the thing
-animation.advance=function(){};
-// return true if animation is finished
-animation.isFinished = function() {
-    return true;
-};
-// make a step number message
-animation.makeMessage=function(){};
-
-/**
-* set the functions
-* @method animation.setFunctions
-* @param {function} draw
-* @param {function} advance
-* @param {function} isFinished
-* @param {function} makeMessage
+/*
+* uses methods:
+* thing.draw() - draws its image on the output canvas
+* thing.advance() - advance the animation of the thing
+* thing.isRunning() - return true if animation of thing runs, not finished or stopped
+* thing.isRecording() - return true if animation should be saved
+* thing.getFps() - returns the frame rate
 */
-animation.setFunctions=function(step,advance,isFinished,makeMessage){
-animation.draw=draw;
-animation.advance=advance;
-animation.isFinished=isFinished;
-animation.makeMessage=makeMessage;
-};
+
+/*
+* has methods:
+* animation.reset() - begin a new animation, frame number === 0
+* animation.run() - run the animation
+*/
 
 //============================================================
 
@@ -92,8 +59,8 @@ animation.makeMessage=makeMessage;
  * @return String
  */
 animation.makeFrameFileName = function() {
-    let result = output.animationStep.toString(10);
-    while (result.length < output.frameNumberDigits) {
+    let result = animation.frameNumber.toString(10);
+    while (result.length < animation.frameNumberDigits) {
         result = '0' + result;
     }
     result = output.saveName.getValue() + result;
@@ -101,9 +68,18 @@ animation.makeFrameFileName = function() {
 };
 
 /**
-* make an animation step
+* reset the animation
+* set frame number to zero, for recording
+*/
+
+/**
+* make an animation, step/run animation
 * use this method initially and as a callback of the timeout/animationframe combination
 * check if animation still running (else do nothing)
+* determine time
 * draw the image on canvas
-
+* advance thing
+* if recording: save image, callback to timeout/animation that has this method as callback
+* if not recording call timeout/animation
+* time delay depend on fps and time used for frame
 */
