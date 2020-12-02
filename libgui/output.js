@@ -12,6 +12,7 @@ import {
     ColorInput,
     MouseEvents,
     ParamGui,
+    animation,
     BooleanButton
 }
 from "./modules.js";
