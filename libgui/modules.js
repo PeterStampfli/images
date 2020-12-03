@@ -140,3 +140,8 @@ export {
     ParamGui
 }
 from "./paramGui.js";
+
+export {
+    pixelPaint
+}
+from "./pixelPaint.js";
