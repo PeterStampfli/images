@@ -50,7 +50,7 @@ Pixels.prototype.update = function() {
     this.height = canvas.height;
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
-    if (this.antialiasType !== 'none'){
+    if (this.antialiasType !== 'none') {
         // 'array' has now data instead of pixels
         const dataWidth = (canvas.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
         const dataHeight = (canvas.height - 1) * this.antialiasSubpixels + this.antialiasSampling;
@@ -185,16 +185,16 @@ if (guiUtils.abgrOrder) {
  * @method Pixels#antialiasSampling
  */
 Pixels.prototype.antialias = function() {
-        switch (this.antialiasType) {
-            case 'none':
-                break;
-            case '2*2 subpixels':
-                this.subpixelSampling([1, 4, 4, 1]);
-                break;
-            case '3*3 subpixels':
-                this.subpixelSampling([47, 159, 294, 294, 159, 47]);
-                break;
-        }
+    switch (this.antialiasType) {
+        case 'none':
+            break;
+        case '2*2 subpixels':
+            this.subpixelSampling([1, 4, 4, 1]);
+            break;
+        case '3*3 subpixels':
+            this.subpixelSampling([47, 159, 294, 294, 159, 47]);
+            break;
+    }
 };
 
 //  treating transparency
@@ -281,10 +281,15 @@ if (guiUtils.abgrOrder) {
  */
 Pixels.prototype.doTransparency = function() {
     if (guiUtils.isObject(this.backgroundColor)) {
-        if (this.transparency) {
-            this.backgroundColorTransparent();
-        } else {
-            this.opaqueBackground();
+        switch (this.transparency) {
+            case 'transparent black':
+                break;
+            case 'transparent background color':
+                this.backgroundColorTransparent();
+                break;
+            case 'opaque':
+                this.opaqueBackground();
+                break;
         }
     }
 };

@@ -71,12 +71,22 @@ output.drawCanvasChanged = function() {
 };
 
 /**
- * draw output image when gbackground color changes
+ * draw output image when background color changes and using antialiasing
  * kaleidoscopes: the map remains the same, (sub)pixels remain the same
  * @method output.drawBackgroundChanged()
  */
 output.drawBackgroundChanged = function() {
     console.error('Please define method output.drawBackgroundChanged!');
+};
+
+/**
+ * redraw output image when background color changes, no antialias
+ * image pixels have to be reconstructed
+ * kaleidoscopes: the map remains the same, 
+ * @method output.drawBackgroundChanged()
+ */
+output.drawImageChanged = function() {
+    console.error('Please define method output.drawImageChanged!');
 };
 
 /**
@@ -379,7 +389,13 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
                 ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
                 output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
                 output.canvas.style.backgroundColor = output.backgroundColorString;
-                output.drawBackgroundChanged();
+                console.log(output.pixels.antialiasType);
+                if (output.pixels.antialiasType === 'none') {
+                    output.drawImageChanged();
+                    console.log('imch')
+                } else {
+                    output.drawBackgroundChanged();
+                }
             }
         }).addHelp('Choose a convenient background color for transparent image parts. Switching transparency off will show the background color in downloaded images.');
         if (hasTransparencyController) {
@@ -387,15 +403,21 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
             // for only using canvas drawing (no pixels): Do nothing (call output.fillCanvasBackgroundColor does nothing)
             // using pixels: We do not gain time checking if all pixels are opaque (alpha===255)
             // set color of all pixels with alpha===0 equal to background color. 
-            output.transparency = true;
-            BooleanButton.greenRedBackground();
+            output.transparency = 'transparent black';
             output.transparencyController = gui.add({
-                type: 'boolean',
+                type: 'selection',
                 params: output,
                 property: 'transparency',
+                options: ['transparent black', 'transparent background color', 'opaque'],
                 onChange: function() {
-                    output.pixels.transparency = output.transparency;
-                    output.drawBackgroundChanged();
+                    if (guiUtils.isObject(output.pixels)) {
+                        output.pixels.transparency = output.transparency;
+                    }
+                    if (output.pixels.antialiasType === 'none') {
+                        output.drawImageChanged();
+                    } else {
+                        output.drawBackgroundChanged();
+                    }
                 }
             });
             output.transparencyController.addHelp('If transparency is on, then *.png downloads can have transparent parts and *.jpg will show transparent parts in black. If it is off, then both *.png and *.jpg get opaque background color instead of transparency');
@@ -403,11 +425,11 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
             // backgroundcolor and no transparency (is false)
             // for only using canvas drawing (no pixels): Call output.fillCanvasBackgroundColor (fills canvas with opaque background color)
             // else merge image with background according to alpha, set alpha to 255.
-            output.transparency = false;
+            output.transparency = 'opaque';
         }
     } else {
         // no background color and no transparency: nothing to do
-        output.transparency = false;
+        output.transparency = 'opaque';
         output.backgroundColor = false;
     }
 
@@ -1291,8 +1313,18 @@ output.clearCanvas = function() {
  * @method output.fillCanvasBackgroundColor
  */
 output.fillCanvasBackgroundColor = function() {
-    if (!output.transparency && guiUtils.isObject(output.backgroundColor)) {
-        output.fillCanvas(output.backgroundColorString);
+    if (guiUtils.isObject(output.backgroundColor)) {
+        switch (output.transparency) {
+            case 'transparent black':
+                output.clearCanvas();
+                break;
+            case 'transparent background color':
+                output.fillCanvas(output.backgroundColorString + '00');
+                break;
+            case 'opaque':
+                output.fillCanvas(output.backgroundColorString);
+                break;
+        }
     } else {
         output.clearCanvas();
     }

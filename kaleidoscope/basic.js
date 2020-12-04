@@ -294,6 +294,9 @@ output.drawBackgroundChanged = function() {
         regions.drawLines();
     }
 };
+output.drawImageChanged = function() {
+    map.drawImageChanged();
+};
 
 // for drawing the fundamental region
 map.isInFundamentalRegion = function(point) {
