@@ -182,9 +182,20 @@ map.make = function() {
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
     let index = 0;
-    let y = shiftY;
+    let offset = 0;
+    switch (output.pixels.antialiasType) {
+        case 'none':
+            break;
+        case '2*2 subpixels':
+            offset = -2 * scale;
+            break;
+        case '3*3 subpixels':
+            offset = -2.5 * scale;
+            break;
+    }
+    let y = shiftY+offset;
     for (var j = 0; j < map.height; j++) {
-        let x = shiftX;
+        let x = shiftX+offset;
         for (var i = 0; i < map.width; i++) {
             point.x = x;
             point.y = y;

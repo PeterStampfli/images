@@ -644,7 +644,6 @@ output.addAntialiasing = function() {
         return;
     }
     const pixels = output.pixels;
-    pixels.hasAntialias = true;
     pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 1;
@@ -655,7 +654,6 @@ output.addAntialiasing = function() {
         options: ['none', '2*2 subpixels', '3*3 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
-            const oldSubpixels = pixels.antialiasSubpixels;
             switch (pixels.antialiasType) {
                 case 'none':
                     pixels.antialiasSubpixels = 1;
@@ -905,7 +903,7 @@ function animationFinished() {
 
 
 // time when making frame starts
-output.startOfFrame=0;
+output.startOfFrame = 0;
 
 //        const startOfFrame = Date.now();
 
@@ -1142,9 +1140,13 @@ output.createPixels = function() {
         console.error("output.createPixels: pixels exists already!");
         return;
     }
-    output.pixels = new Pixels(output.canvas);
-    output.pixels.transparency = output.transparency;
-    output.pixels.backgroundColor = output.backgroundColor;
+    const pixels = new Pixels(output.canvas);
+    output.pixels = pixels;
+    pixels.transparency = output.transparency;
+    pixels.backgroundColor = output.backgroundColor;
+    pixels.antialiasType = 'none';
+    pixels.antialiasSubpixels = 1;
+    pixels.antialiasSampling = 1;
 };
 
 /**

@@ -24,7 +24,6 @@ export function Pixels(canvas) {
     this.imageData = null; // changes when canvas dimensions change
     this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
     this.array = null; // UInt32Array with packed rgba for one pixel
-    this.hasAntialias = false;
     this.antialiasType = 'none';
     this.antialiasSubpixels = 1;
     this.antialiasSampling = 1;
@@ -51,7 +50,7 @@ Pixels.prototype.update = function() {
     this.height = canvas.height;
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
-    if (this.hasAntialias) {
+    if (this.antialiasType !== 'none'){
         // 'array' has now data instead of pixels
         const dataWidth = (canvas.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
         const dataHeight = (canvas.height - 1) * this.antialiasSubpixels + this.antialiasSampling;
@@ -64,19 +63,6 @@ Pixels.prototype.update = function() {
 
 // antialiasing
 //================================================
-
-/**
- * simply copy pixel data in case of no antialiasing
- * @method Pixels#samplingNone
- */
-Pixels.prototype.samplingNone = function() {
-    const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
-    const data = this.array;
-    const length = data.length;
-    for (var index = 0; index < length; index++) {
-        pixels[index] = data[index];
-    }
-};
 
 /**
  * do subpixel sampling with given coeffficients in an array (Use for Gauss 1/2 ...)
@@ -199,10 +185,8 @@ if (guiUtils.abgrOrder) {
  * @method Pixels#antialiasSampling
  */
 Pixels.prototype.antialias = function() {
-    if (this.hasAntialias) {
         switch (this.antialiasType) {
             case 'none':
-                this.samplingNone();
                 break;
             case '2*2 subpixels':
                 this.subpixelSampling([1, 4, 4, 1]);
@@ -211,7 +195,6 @@ Pixels.prototype.antialias = function() {
                 this.subpixelSampling([47, 159, 294, 294, 159, 47]);
                 break;
         }
-    }
 };
 
 //  treating transparency
