@@ -193,9 +193,17 @@ map.make = function() {
             offset = -2.5 * scale;
             break;
     }
-    let y = shiftY+offset;
+    shiftY+=offset;
+    shiftX+=offset;
+    const xArray=map.xArray;
+    const yArray=map.yArray;
+    const regionArray=map.regionArray;
+    const iterationsArray=map.iterationsArray;
+    const sizeArray=map.sizeArray;
+    const mapping=map.mapping;
+    let y = shiftY;
     for (var j = 0; j < map.height; j++) {
-        let x = shiftX+offset;
+        let x = shiftX;
         for (var i = 0; i < map.width; i++) {
             point.x = x;
             point.y = y;
@@ -203,12 +211,12 @@ map.make = function() {
             point.iterations = 0;
             point.valid = 1;
             point.index = index; // for further work, more data
-            map.mapping(point);
-            map.xArray[index] = point.x;
-            map.yArray[index] = point.y;
-            map.regionArray[index] = point.region;
-            map.iterationsArray[index] = point.iterations;
-            map.sizeArray[index] = point.valid;
+            mapping(point);
+            xArray[index] = point.x;
+            yArray[index] = point.y;
+            regionArray[index] = point.region;
+            iterationsArray[index] = point.iterations;
+            sizeArray[index] = point.valid;
             index += 1;
             x += scale;
         }
@@ -573,15 +581,21 @@ map.drawStructure = function() {
         map.controlPixels.show();
     }
     const length = map.width * map.height;
+    const pixelsArray=output.pixels.array;
+    const showRegion=map.showRegion;
+    const sizeArray=map.sizeArray;
+    const structureColors=map.structureColors;
+    const regionArray=map.regionArray;
+    const iterationsArray=map.iterationsArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
-        const region = map.regionArray[index];
-        if (map.showRegion[region] && (map.sizeArray[index] >= 0)) {
+        const region = regionArray[index];
+        if (showRegion[region] && (sizeArray[index] >= 0)) {
             // colors for the target region
-            const colors = map.structureColors[region];
-            output.pixels.array[index] = colors[map.iterationsArray[index]];
+            const colors = structureColors[region];
+            pixelsArray[index] = colors[iterationsArray[index]];
         } else {
-            output.pixels.array[index] = 0; // transparent black
+            pixelsArray[index] = 0; // transparent black
         }
     }
     output.pixels.show();

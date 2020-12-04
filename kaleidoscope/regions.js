@@ -447,10 +447,11 @@ regions.makePolygons = function() {
  * @param {Object} point - with x- and y-fields
  * @return integer, index to regions.polygons, -1 if point is not in a polygon
  */
+const regionsPolygons = regions.polygons;
 regions.getPolygonIndex = function(point) {
-    const length = regions.polygons.length;
+    const length = regionsPolygons.length;
     for (var i = 0; i < length; i++) {
-        if (regions.polygons[i].isInside(point)) {
+        if (regionsPolygons[i].isInside(point)) {
             return i;
         }
     }

@@ -22,7 +22,7 @@ import {
 
 export const circles = {};
 
-// collecting the circles
+// collecting the circles, used for determining regions
 circles.collection = [];
 // a selected circle
 circles.selected = false;
@@ -30,9 +30,9 @@ circles.selected = false;
 circles.otherSelected = false;
 
 // collection of circles with a map
-circles.mapCollection = [];
+const mapCollection = [];
 // collection of circles with a view transform
-circles.viewCollection = [];
+const viewCollection = [];
 
 // ids and colors for circles
 // we have to use id numbers, not indices for the array
@@ -124,15 +124,15 @@ circles.remove = function(circle) {
  * @method circles.categorize
  */
 circles.categorize = function() {
-    circles.mapCollection.length = 0;
-    circles.viewCollection.length = 0;
+    mapCollection.length = 0;
+    viewCollection.length = 0;
     const length = circles.collection.length;
     for (var i = 0; i < length; i++) {
         const circle = circles.collection[i];
         if (circle.isMapping) {
-            circles.mapCollection.push(circle);
+            mapCollection.push(circle);
         } else if (circle.isView) {
-            circles.viewCollection.push(circle);
+            viewCollection.push(circle);
         }
     }
 };
@@ -464,20 +464,20 @@ circles.map = function(point) {
     if (view.isActive) {
         view.map(point);
     }
-    const length = circles.viewCollection.length;
-    for (var i = 0; i < length; i++) {
-        circles.viewCollection[i].map(point);
+    const length = viewCollection.length;
+    for (let i = 0; i < length; i++) {
+        viewCollection[i].map(point);
         if (point.valid < 0) {
             return;
         }
     }
     let lastCircleIndex = 255;
-    const collectionLength = circles.mapCollection.length;
+    const collectionLength = mapCollection.length;
     while (point.iterations <= map.maxIterations) {
         let mapped = false;
         let j = 0;
         while ((j < collectionLength) && (point.iterations <= map.maxIterations)) {
-            if (circles.mapCollection[j].map(point)) {
+            if (mapCollection[j].map(point)) {
                 mapped = true;
                 point.iterations += 1;
                 lastCircleIndex = j;
@@ -486,17 +486,22 @@ circles.map = function(point) {
         }
         if (!mapped) {
             // mapping is a success, we know where the point ends up
-            // determine if it is in a polygon
-            let region = regions.getPolygonIndex(point);
-            if (region < 0) {
-                // not in a polygon, then it is in the outside region, it is always the last region
-                region = regions.polygons.length;
+            // determine if it is in a polygon, the region number is its index
+            // not in a polygon, then it is in the outside region, its number is the length of the region array
+            const regionsPolygons = regions.polygons;
+            const length = regionsPolygons.length;
+            let region = length;
+            for (let i = 0; i < length; i++) {
+                if (regionsPolygons[i].isInside(point)) {
+                    region = i;
+                    break;
+                }
             }
             point.region = region;
             map.activeRegions[region] = true;
             // inversion needed to get a good mapping of input image if all circles map inside out
             if (circles.finalInversion) {
-                circles.mapCollection[0].invert(point);
+                mapCollection[0].invert(point);
             }
             circles.lastCircleIndexArray[point.index] = lastCircleIndex;
             return;
@@ -515,21 +520,21 @@ circles.map = function(point) {
  * @param {object} point - with x,y,structureIndex and valid fields
  */
 circles.drawTrajectory = function(point) {
-    if ((circles.viewCollection.length === 0) && (view.type === 'direct')) {
+    if ((viewCollection.length === 0) && (view.type === 'direct')) {
         const context = output.canvasContext;
         output.setLineWidth(map.linewidth);
         context.strokeStyle = 'black';
         context.beginPath();
         context.arc(point.x, point.y, 2.5 * map.linewidth * output.coordinateTransform.totalScale, 0, 2 * Math.PI);
         context.stroke();
-        const collectionLength = circles.mapCollection.length;
+        const collectionLength = mapCollection.length;
         let mapped = true;
         let iterations = 0;
         while (mapped && (iterations <= map.maxIterations)) {
             mapped = false;
             let j = 0;
             while ((j < collectionLength) && (iterations <= map.maxIterations)) {
-                if (circles.mapCollection[j].drawTrajectory(point)) {
+                if (mapCollection[j].drawTrajectory(point)) {
                     mapped = true;
                     iterations += 1;
                 }
@@ -546,8 +551,8 @@ circles.drawTrajectory = function(point) {
  * @return boolean, true if in target region (inside for outsideIn)
  */
 circles.isInTarget = function(position) {
-    const length = circles.mapCollection.length;
-    const collection = circles.mapCollection;
+    const length = mapCollection.length;
+    const collection = mapCollection;
     for (var i = 0; i < length; i++) {
         if (!collection[i].isInTarget(position)) {
             return false;
