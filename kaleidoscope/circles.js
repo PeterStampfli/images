@@ -472,14 +472,16 @@ circles.map = function(point) {
         }
     }
     let lastCircleIndex = 255;
+    const maxIterations = map.maxIterations;
     const collectionLength = mapCollection.length;
-    while (point.iterations <= map.maxIterations) {
+    let iterations = 0;
+    while (iterations <= maxIterations) {
         let mapped = false;
         let j = 0;
-        while ((j < collectionLength) && (point.iterations <= map.maxIterations)) {
+        while ((j < collectionLength) && (iterations <= maxIterations)) {
             if (mapCollection[j].map(point)) {
                 mapped = true;
-                point.iterations += 1;
+                iterations += 1;
                 lastCircleIndex = j;
             }
             j += 1;
@@ -488,6 +490,7 @@ circles.map = function(point) {
             // mapping is a success, we know where the point ends up
             // determine if it is in a polygon, the region number is its index
             // not in a polygon, then it is in the outside region, its number is the length of the region array
+            point.iterations = iterations;
             const regionsPolygons = regions.polygons;
             const length = regionsPolygons.length;
             let region = length;
