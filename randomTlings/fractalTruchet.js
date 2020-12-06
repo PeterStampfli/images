@@ -6,21 +6,145 @@ import {
 }
 from "../libgui/modules.js";
 
-// the gui
+const truchet = {};
+
+// the gui and the canvas
 //===========================================================
 
 const gui = new ParamGui({
     closed: false
 });
 
-// the tiles
-//=================================
+output.createCanvas(gui, {
+    name: 'canvas control',
+});
+
+// parameters for drawing
+truchet.color1 = '#ff0000'; // fill color
+truchet.color2 = '#0000ff'; // the other fill color
+truchet.lineColor = '#000000';
+truchet.lineWidth = 3;
+truchet.lines = true;
+
+const colorController = {
+    type: 'color',
+    params: truchet,
+    onChange: function() {
+        draw();
+    }
+};
+
+const widthController = {
+    type: 'number',
+    params: truchet,
+    min: 1,
+    onChange: function() {
+        draw();
+    }
+};
+
+gui.add(colorController, {
+    property: 'color1'
+});
+
+gui.add(colorController, {
+    property: 'color2'
+});
+
+gui.add({
+    type: 'boolean',
+    params: truchet,
+    property: 'lines',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add(widthController, {
+    property: 'lineWidth'
+});
+
+gui.add(colorController, {
+    property: 'lineColor'
+});
+
+// parameters for iteration
+truchet.maxGeneration = 0;
 
 const center = {};
 const upRight = {};
 const upLeft = {};
 const downLeft = {};
 const downRight = {};
+
+truchet.upLeftSubstitution = upLeft; // off diagonal, all are possible
+truchet.downLeftSubstitution = center; // on diagonal, only center, downLeft, and upRight
+truchet.upRightSubstitution = downLeft;
+
+gui.add({
+    type: 'number',
+    params: truchet,
+    property: 'maxGeneration',
+    labelText: 'generations',
+    min: 0,
+    step: 1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.addParagraph('substitution rules:');
+
+const upLeftSubstitutionController = gui.add({
+    type: 'selection',
+    params: truchet,
+    property: 'upLeftSubstitution',
+    options: {
+        'center': center,
+        'upRight': upRight,
+        'upLeft': upLeft,
+        'downLeft': downLeft,
+        'downRight': downRight
+    },
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
+upLeftSubstitutionController.add({
+    type: 'selection',
+    params: truchet,
+    property: 'upRightSubstitution',
+    options: {
+        'center': center,
+        'upRight': upRight,
+        'downLeft': downLeft
+    },
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: truchet,
+    property: 'downLeftSubstitution',
+    options: {
+        'center': center,
+        'upRight': upRight,
+        'downLeft': downLeft
+    },
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
+// the tiles
+//=================================
+
 
 // center tile
 center.substitution = [upRight, upLeft, downLeft, downRight];
@@ -31,6 +155,25 @@ center.logSubstitution = function() {
     console.log('center substitution is:');
     console.log(center.substitution[1].name, center.substitution[0].name);
     console.log(center.substitution[2].name, center.substitution[3].name);
+};
+
+center.iterate = function(cornerX, cornerY, size, generation, color) {
+    if (generation >= truchet.maxGeneration) {
+        // draw image
+        console.log('Drawing tile', center.name, 'at', cornerX, cornerY, 'size', size);
+        canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        colorTruchetCross1();
+
+    } else {
+        // corner at bottom left
+        generation += 1;
+        size /= 2;
+        const substitution = center.substitution;
+        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
+        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+    }
 };
 
 // upRight
@@ -44,6 +187,22 @@ upRight.logSubstitution = function() {
     console.log(upRight.substitution[2].name, upRight.substitution[3].name);
 };
 
+upRight.iterate = function(cornerX, cornerY, size, generation, color) {
+    if (generation >= truchet.maxGeneration) {
+        // draw image
+        console.log('Drawing tile', upRight.name, 'at', cornerX, cornerY, 'size', size);
+    } else {
+        // corner at bottom left
+        generation += 1;
+        size /= 2;
+        const substitution = upRight.substitution;
+        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
+        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+    }
+};
+
 // upLeft
 upLeft.substitution = new Array(4);
 upLeft.name = 'upLeft';
@@ -53,6 +212,22 @@ upLeft.logSubstitution = function() {
     console.log('upLeft substitution is:');
     console.log(upLeft.substitution[1].name, upLeft.substitution[0].name);
     console.log(upLeft.substitution[2].name, upLeft.substitution[3].name);
+};
+
+upLeft.iterate = function(cornerX, cornerY, size, generation, color) {
+    if (generation >= truchet.maxGeneration) {
+        // draw image
+        console.log('Drawing tile', upLeft.name, 'at', cornerX, cornerY, 'size', size);
+    } else {
+        // corner at bottom left
+        generation += 1;
+        size /= 2;
+        const substitution = upLeft.substitution;
+        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
+        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+    }
 };
 
 // downLeft
@@ -66,6 +241,22 @@ downLeft.logSubstitution = function() {
     console.log(downLeft.substitution[2].name, downLeft.substitution[3].name);
 };
 
+downLeft.iterate = function(cornerX, cornerY, size, generation, color) {
+    if (generation >= truchet.maxGeneration) {
+        // draw image
+        console.log('Drawing tile', downLeft.name, 'at', cornerX, cornerY, 'size', size);
+    } else {
+        // corner at bottom left
+        generation += 1;
+        size /= 2;
+        const substitution = downLeft.substitution;
+        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
+        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+    }
+};
+
 // downRight
 downRight.substitution = new Array(4);
 downRight.name = 'downRight';
@@ -75,6 +266,22 @@ downRight.logSubstitution = function() {
     console.log('downRight substitution is:');
     console.log(downRight.substitution[1].name, downRight.substitution[0].name);
     console.log(downRight.substitution[2].name, downRight.substitution[3].name);
+};
+
+downRight.iterate = function(cornerX, cornerY, size, generation, color) {
+    if (generation >= truchet.maxGeneration) {
+        // draw image
+        console.log('Drawing tile', downRight.name, 'at', cornerX, cornerY, 'size', size);
+    } else {
+        // corner at bottom left
+        generation += 1;
+        size /= 2;
+        const substitution = downRight.substitution;
+        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
+        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+    }
 };
 
 // rotate substition 90 degrees
@@ -106,10 +313,241 @@ function makeSubstitution(offDiagonal, lowerDiagonal, upperDiagonal) {
     rotateSubstition(downRight, downLeft);
 }
 
+// image pieces
+// on transformed space, for tiles from (0,0) to (100,100)
+//==========================================================
+
+function bottomLeftArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+    canvasContext.stroke();
+}
+
+function bottomRightArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI / 2, Math.PI);
+    canvasContext.stroke();
+}
+
+function topRightArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+    canvasContext.stroke();
+}
+
+function topLeftArc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+    canvasContext.stroke();
+}
+
+function cross() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.stroke();
+}
+
+function bottomLeftQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+    canvasContext.lineTo(0, 0);
+    canvasContext.fill();
+}
+
+function bottomRightQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI / 2, Math.PI);
+    canvasContext.lineTo(100, 0);
+    canvasContext.fill();
+}
+
+function topRightQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+    canvasContext.lineTo(100, 100);
+    canvasContext.fill();
+}
+
+function topLeftQuarterDisc() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+    canvasContext.lineTo(0, 100);
+    canvasContext.fill();
+}
+
+// the spaces between pairs of quarter discs (centered at diagonal opposite corners)
+
+function downDiagonalBent() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.arc(0, 0, 50, 0, Math.PI / 2);
+    canvasContext.lineTo(0, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.arc(100, 100, 50, Math.PI, Math.PI * 1.5);
+    canvasContext.lineTo(100, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function upDiagonalBent() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.arc(100, 0, 50, Math.PI * 0.5, Math.PI);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function upDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function downDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+// putting pieces together to make tiles
+
+// colorTruchet: always draw color1 first
+// the number is for the color of the diagonal
+function colorTruchetUp1() {
+    canvasContext.fillStyle = truchet.color1;
+    upDiagonalBent();
+    canvasContext.fillStyle = truchet.color2;
+    topLeftQuarterDisc();
+    bottomRightQuarterDisc();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        bottomRightArc();
+        topLeftArc();
+    }
+}
+
+function colorTruchetUp2() {
+    canvasContext.fillStyle = truchet.color1;
+    topLeftQuarterDisc();
+    bottomRightQuarterDisc();
+    canvasContext.fillStyle = truchet.color2;
+    upDiagonalBent();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        bottomRightArc();
+        topLeftArc();
+    }
+}
+
+function colorTruchetDown1() {
+    canvasContext.fillStyle = truchet.color1;
+    downDiagonalBent();
+    canvasContext.fillStyle = truchet.color2;
+    topRightQuarterDisc();
+    bottomLeftQuarterDisc();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        bottomLeftArc();
+        topRightArc();
+    }
+}
+
+function colorTruchetDown2() {
+    canvasContext.fillStyle = truchet.color1;
+    topRightQuarterDisc();
+    bottomLeftQuarterDisc();
+    canvasContext.fillStyle = truchet.color2;
+    downDiagonalBent();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        bottomLeftArc();
+        topRightArc();
+    }
+}
+
+function colorTruchetCross1() {
+    canvasContext.fillStyle = truchet.color1;
+    upDiagonalSquares();
+    canvasContext.fillStyle = truchet.color2;
+    downDiagonalSquares();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        cross();
+    }
+}
+
+function colorTruchetCross2() {
+    canvasContext.fillStyle = truchet.color1;
+    downDiagonalSquares();
+    canvasContext.fillStyle = truchet.color2;
+    upDiagonalSquares();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        cross();
+    }
+}
 
 
-makeSubstitution(upLeft, center, downLeft);
-upRight.logSubstitution();
-upLeft.logSubstitution();
-downLeft.logSubstitution();
-downRight.logSubstitution();
+// drawing on square canvas
+//====================================
+
+const canvas = output.canvas;
+const canvasContext = canvas.getContext('2d');
+
+output.setCanvasWidthToHeight();
+
+function draw() {
+    output.isDrawing = true;
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.lineWidth = truchet.lineWidth;
+    makeSubstitution(truchet.upLeftSubstitution, truchet.downLeftSubstitution, truchet.upRightSubstitution);
+    const startSize = canvas.width;
+
+
+
+    center.iterate(0, 0, startSize, 0, 1);
+    upRight.logSubstitution();
+}
+
+
+
+
+//  tests
+
+
+
+
+output.drawCanvasChanged = draw;
+draw();

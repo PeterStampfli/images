@@ -19,10 +19,8 @@ const gui = new ParamGui({
 
 gui.addParagraph('You can use this gui for your own projects. It is at: <strong>https://github.com/PeterStampfli/paramGui</strong>');
 
-output.drawCanvasChanged = function() {};
 output.createCanvas(gui, {
     name: 'canvas control',
-    //  closed: false
 });
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
@@ -281,6 +279,32 @@ function upDiagonalBent() {
     canvasContext.fill();
 }
 
+function upDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(50, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function downDiagonalSquares() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 100);
+    canvasContext.lineTo(0, 50);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 0);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(50, 100);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+// putting pieces together to make tiles
+
 // colorTruchet: always draw color1 first
 // the number is for the color of the diagonal
 function colorTruchetUp1() {
@@ -315,29 +339,6 @@ function colorTruchetDown2() {
     downDiagonalBent();
 }
 
-function upDiagonalSquares() {
-    canvasContext.beginPath();
-    canvasContext.moveTo(0, 0);
-    canvasContext.lineTo(0, 50);
-    canvasContext.lineTo(100, 50);
-    canvasContext.lineTo(100, 100);
-    canvasContext.lineTo(50, 100);
-    canvasContext.lineTo(50, 0);
-    canvasContext.closePath();
-    canvasContext.fill();
-}
-
-function downDiagonalSquares() {
-    canvasContext.beginPath();
-    canvasContext.moveTo(0, 100);
-    canvasContext.lineTo(0, 50);
-    canvasContext.lineTo(100, 50);
-    canvasContext.lineTo(100, 0);
-    canvasContext.lineTo(50, 0);
-    canvasContext.lineTo(50, 100);
-    canvasContext.closePath();
-    canvasContext.fill();
-}
 
 function colorTruchet(i, j, index) {
     let s = i & 1;
