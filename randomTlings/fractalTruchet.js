@@ -145,11 +145,11 @@ gui.add({
 // the tiles
 //=================================
 
-function nextGeneration(substitution,cornerX,cornerY,size,generation){
-	substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 1);
-        substitution[3].iterate(cornerX+size, cornerY, size, generation, 2);
+function nextGeneration(substitution, cornerX, cornerY, size, generation) {
+    substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+    substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+    substitution[2].iterate(cornerX, cornerY, size, generation, 1);
+    substitution[3].iterate(cornerX + size, cornerY, size, generation, 2);
 }
 
 // center tile
@@ -166,16 +166,19 @@ center.logSubstitution = function() {
 center.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-        console.log('Drawing tile', center.name, 'at', cornerX, cornerY, 'size', size);
+       // console.log('Drawing tile', center.name, 'at', cornerX, cornerY, 'size', size);
         canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        colorTruchetCross1();
-
+        if (color === 1) {
+            colorTruchetCross1();
+        } else {
+            colorTruchetCross2();
+        }
     } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
         const substitution = center.substitution;
-        nextGeneration(substitution,cornerX,cornerY,size,generation);
+        nextGeneration(substitution, cornerX, cornerY, size, generation);
     }
 };
 
@@ -193,13 +196,19 @@ upRight.logSubstitution = function() {
 upRight.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-        console.log('Drawing tile', upRight.name, 'at', cornerX, cornerY, 'size', size);
+    //    console.log('Drawing tile', upRight.name, 'at', cornerX, cornerY, 'size', size);
+        canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        if (color === 1) {
+            colorTruchetUp1();
+        } else {
+            colorTruchetUp2();
+        }
     } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
         const substitution = upRight.substitution;
-        nextGeneration(substitution,cornerX,cornerY,size,generation);
+        nextGeneration(substitution, cornerX, cornerY, size, generation);
     }
 };
 
@@ -217,13 +226,19 @@ upLeft.logSubstitution = function() {
 upLeft.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-        console.log('Drawing tile', upLeft.name, 'at', cornerX, cornerY, 'size', size);
-    } else {
+      //  console.log('Drawing tile', upLeft.name, 'at', cornerX, cornerY, 'size', size);
+            canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        if (color === 1) {
+            colorTruchetDown2();
+        } else {
+            colorTruchetDown1();
+        }
+           } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
         const substitution = upLeft.substitution;
-        nextGeneration(substitution,cornerX,cornerY,size,generation);
+        nextGeneration(substitution, cornerX, cornerY, size, generation);
     }
 };
 
@@ -241,13 +256,19 @@ downLeft.logSubstitution = function() {
 downLeft.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-        console.log('Drawing tile', downLeft.name, 'at', cornerX, cornerY, 'size', size);
+   //     console.log('Drawing tile', downLeft.name, 'at', cornerX, cornerY, 'size', size);
+        canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        if (color === 1) {
+            colorTruchetUp1();
+        } else {
+            colorTruchetUp2();
+        }
     } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
         const substitution = downLeft.substitution;
-         nextGeneration(substitution,cornerX,cornerY,size,generation);
+        nextGeneration(substitution, cornerX, cornerY, size, generation);
     }
 };
 
@@ -265,13 +286,19 @@ downRight.logSubstitution = function() {
 downRight.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-        console.log('Drawing tile', downRight.name, 'at', cornerX, cornerY, 'size', size);
+   //     console.log('Drawing tile', downRight.name, 'at', cornerX, cornerY, 'size', size);
+           canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        if (color === 1) {
+            colorTruchetDown2();
+        } else {
+            colorTruchetDown1();
+        }
     } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
         const substitution = downRight.substitution;
-        nextGeneration(substitution,cornerX,cornerY,size,generation);
+        nextGeneration(substitution, cornerX, cornerY, size, generation);
     }
 };
 
@@ -526,10 +553,9 @@ function draw() {
     makeSubstitution(truchet.upLeftSubstitution, truchet.downLeftSubstitution, truchet.upRightSubstitution);
     const startSize = canvas.width;
 
-upLeft.logSubstitution()
 
     center.iterate(0, 0, startSize, 0, 1);
-    
+
 }
 
 
