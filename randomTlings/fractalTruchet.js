@@ -145,6 +145,12 @@ gui.add({
 // the tiles
 //=================================
 
+function nextGeneration(substitution,cornerX,cornerY,size,generation){
+	substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
+        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
+        substitution[2].iterate(cornerX, cornerY, size, generation, 1);
+        substitution[3].iterate(cornerX+size, cornerY, size, generation, 2);
+}
 
 // center tile
 center.substitution = [upRight, upLeft, downLeft, downRight];
@@ -169,10 +175,7 @@ center.iterate = function(cornerX, cornerY, size, generation, color) {
         generation += 1;
         size /= 2;
         const substitution = center.substitution;
-        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
-        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+        nextGeneration(substitution,cornerX,cornerY,size,generation);
     }
 };
 
@@ -196,10 +199,7 @@ upRight.iterate = function(cornerX, cornerY, size, generation, color) {
         generation += 1;
         size /= 2;
         const substitution = upRight.substitution;
-        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
-        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+        nextGeneration(substitution,cornerX,cornerY,size,generation);
     }
 };
 
@@ -223,10 +223,7 @@ upLeft.iterate = function(cornerX, cornerY, size, generation, color) {
         generation += 1;
         size /= 2;
         const substitution = upLeft.substitution;
-        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
-        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+        nextGeneration(substitution,cornerX,cornerY,size,generation);
     }
 };
 
@@ -250,10 +247,7 @@ downLeft.iterate = function(cornerX, cornerY, size, generation, color) {
         generation += 1;
         size /= 2;
         const substitution = downLeft.substitution;
-        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
-        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+         nextGeneration(substitution,cornerX,cornerY,size,generation);
     }
 };
 
@@ -277,10 +271,7 @@ downRight.iterate = function(cornerX, cornerY, size, generation, color) {
         generation += 1;
         size /= 2;
         const substitution = downRight.substitution;
-        substitution[0].iterate(cornerX + size, cornerY + size, size, generation, 1);
-        substitution[1].iterate(cornerX, cornerY + size, size, generation, 2);
-        substitution[2].iterate(cornerX, cornerY, size, generation, 2);
-        substitution[3].iterate(cornerX, cornerY + size, size, generation, 1);
+        nextGeneration(substitution,cornerX,cornerY,size,generation);
     }
 };
 
@@ -535,10 +526,10 @@ function draw() {
     makeSubstitution(truchet.upLeftSubstitution, truchet.downLeftSubstitution, truchet.upRightSubstitution);
     const startSize = canvas.width;
 
-
+upLeft.logSubstitution()
 
     center.iterate(0, 0, startSize, 0, 1);
-    upRight.logSubstitution();
+    
 }
 
 
