@@ -69,7 +69,6 @@ gui.add(colorController, {
 });
 
 // parameters for iteration
-truchet.maxGeneration = 0;
 
 const center = {};
 const upRight = {};
@@ -77,7 +76,11 @@ const upLeft = {};
 const downLeft = {};
 const downRight = {};
 
-truchet.upLeftSubstitution = upLeft; // off diagonal, all are possible
+truchet.maxGeneration = 0;
+truchet.startTile = center;
+truchet.motif = 'original';
+
+truchet.upLeftSubstitution = upRight; // off diagonal, all are possible
 truchet.downLeftSubstitution = center; // on diagonal, only center, downLeft, and upRight
 truchet.upRightSubstitution = downLeft;
 
@@ -88,6 +91,29 @@ gui.add({
     labelText: 'generations',
     min: 0,
     step: 1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: truchet,
+    property: 'startTile',
+    options: {
+        'center': center,
+        'downRight': downRight
+    },
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: truchet,
+    property: 'motif',
+    options: ['original', 'rotated', 'straight','straight rotated','schematic'],
     onChange: function() {
         draw();
     }
@@ -166,12 +192,26 @@ center.logSubstitution = function() {
 center.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-       // console.log('Drawing tile', center.name, 'at', cornerX, cornerY, 'size', size);
+        // console.log('Drawing tile', center.name, 'at', cornerX, cornerY, 'size', size);
         canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        if (color === 1) {
-            colorTruchetCross1();
-        } else {
-            colorTruchetCross2();
+        switch (truchet.motif) {
+            case 'original':
+            case 'rotated':
+            case 'straight':
+            case 'straight rotated':
+                if (color === 1) {
+                    colorTruchetCross1();
+                } else {
+                    colorTruchetCross2();
+                }
+                break;
+            case 'schematic':
+                frame();
+                canvasContext.fillStyle = '#000000';
+                canvasContext.beginPath();
+                canvasContext.arc(50, 50, 20, 0, 2 * Math.PI);
+                canvasContext.fill();
+                break;
         }
     } else {
         // corner at bottom left
@@ -196,12 +236,47 @@ upRight.logSubstitution = function() {
 upRight.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-    //    console.log('Drawing tile', upRight.name, 'at', cornerX, cornerY, 'size', size);
+        //    console.log('Drawing tile', upRight.name, 'at', cornerX, cornerY, 'size', size);
         canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        if (color === 1) {
-            colorTruchetUp1();
-        } else {
-            colorTruchetUp2();
+        switch (truchet.motif) {
+            case 'original':
+                if (color === 1) {
+                    colorTruchetUp1();
+                } else {
+                    colorTruchetUp2();
+                }
+                break;
+            case 'straight':
+                if (color === 1) {
+                    straightUp1();
+                } else {
+                    straightUp2();
+                }
+                break;
+            case 'rotated':
+                if (color === 1) {
+                    colorTruchetDown2();
+                } else {
+                    colorTruchetDown1();
+                }
+                break;
+            case 'straight rotated':
+                if (color === 1) {
+                    straightDown2();
+                } else {
+                    straightDown1();
+                }
+                break;
+            case 'schematic':
+                frame();
+                canvasContext.fillStyle = '#000000';
+                canvasContext.beginPath();
+                canvasContext.moveTo(70, 70);
+                canvasContext.lineTo(30, 70);
+                canvasContext.lineTo(70, 30);
+                canvasContext.closePath();
+                canvasContext.fill();
+                break;
         }
     } else {
         // corner at bottom left
@@ -226,14 +301,49 @@ upLeft.logSubstitution = function() {
 upLeft.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-      //  console.log('Drawing tile', upLeft.name, 'at', cornerX, cornerY, 'size', size);
-            canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        if (color === 1) {
-            colorTruchetDown2();
-        } else {
-            colorTruchetDown1();
+        //  console.log('Drawing tile', upLeft.name, 'at', cornerX, cornerY, 'size', size);
+        canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        switch (truchet.motif) {
+            case 'rotated':
+                if (color === 1) {
+                    colorTruchetUp1();
+                } else {
+                    colorTruchetUp2();
+                }
+                break;
+            case 'straight rotated':
+                if (color === 1) {
+                    straightUp1();
+                } else {
+                    straightUp2();
+                }
+                break;
+            case 'original':
+                if (color === 1) {
+                    colorTruchetDown2();
+                } else {
+                    colorTruchetDown1();
+                }
+                break;
+            case 'straight':
+                if (color === 1) {
+                    straightDown2();
+                } else {
+                    straightDown1();
+                }
+                break;
+            case 'schematic':
+                frame();
+                canvasContext.fillStyle = '#000000';
+                canvasContext.beginPath();
+                canvasContext.moveTo(30, 70);
+                canvasContext.lineTo(30, 30);
+                canvasContext.lineTo(70, 70);
+                canvasContext.closePath();
+                canvasContext.fill();
+                break;
         }
-           } else {
+    } else {
         // corner at bottom left
         generation += 1;
         size /= 2;
@@ -256,12 +366,47 @@ downLeft.logSubstitution = function() {
 downLeft.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-   //     console.log('Drawing tile', downLeft.name, 'at', cornerX, cornerY, 'size', size);
+        //     console.log('Drawing tile', downLeft.name, 'at', cornerX, cornerY, 'size', size);
         canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        if (color === 1) {
-            colorTruchetUp1();
-        } else {
-            colorTruchetUp2();
+        switch (truchet.motif) {
+            case 'original':
+                if (color === 1) {
+                    colorTruchetUp1();
+                } else {
+                    colorTruchetUp2();
+                }
+                break;
+            case 'straight':
+                if (color === 1) {
+                    straightUp1();
+                } else {
+                    straightUp2();
+                }
+                break;
+            case 'rotated':
+                if (color === 1) {
+                    colorTruchetDown2();
+                } else {
+                    colorTruchetDown1();
+                }
+                break;
+            case 'straight rotated':
+                if (color === 1) {
+                    straightDown2();
+                } else {
+                    straightDown1();
+                }
+                break;
+            case 'schematic':
+                frame();
+                canvasContext.fillStyle = '#000000';
+                canvasContext.beginPath();
+                canvasContext.moveTo(30, 30);
+                canvasContext.lineTo(30, 70);
+                canvasContext.lineTo(70, 30);
+                canvasContext.closePath();
+                canvasContext.fill();
+                break;
         }
     } else {
         // corner at bottom left
@@ -286,12 +431,47 @@ downRight.logSubstitution = function() {
 downRight.iterate = function(cornerX, cornerY, size, generation, color) {
     if (generation >= truchet.maxGeneration) {
         // draw image
-   //     console.log('Drawing tile', downRight.name, 'at', cornerX, cornerY, 'size', size);
-           canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
-        if (color === 1) {
-            colorTruchetDown2();
-        } else {
-            colorTruchetDown1();
+        //     console.log('Drawing tile', downRight.name, 'at', cornerX, cornerY, 'size', size);
+        canvasContext.setTransform(size / 100, 0, 0, size / 100, cornerX, cornerY);
+        switch (truchet.motif) {
+            case 'rotated':
+                if (color === 1) {
+                    colorTruchetUp1();
+                } else {
+                    colorTruchetUp2();
+                }
+                break;
+            case 'straight rotated':
+                if (color === 1) {
+                    straightUp1();
+                } else {
+                    straightUp2();
+                }
+                break;
+            case 'original':
+                if (color === 1) {
+                    colorTruchetDown2();
+                } else {
+                    colorTruchetDown1();
+                }
+                break;
+            case 'straight':
+                if (color === 1) {
+                    straightDown2();
+                } else {
+                    straightDown1();
+                }
+                break;
+            case 'schematic':
+                frame();
+                canvasContext.fillStyle = '#000000';
+                canvasContext.beginPath();
+                canvasContext.moveTo(70, 30);
+                canvasContext.lineTo(30, 30);
+                canvasContext.lineTo(70, 70);
+                canvasContext.closePath();
+                canvasContext.fill();
+                break;
         }
     } else {
         // corner at bottom left
@@ -361,6 +541,78 @@ function topLeftArc() {
     canvasContext.moveTo(0, 50);
     canvasContext.arc(0, 100, 50, Math.PI * 1.5, Math.PI * 2);
     canvasContext.stroke();
+}
+
+function upLines() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 100);
+    canvasContext.moveTo(50, 0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.stroke();
+}
+
+function downLines() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.moveTo(50, 100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.stroke();
+}
+
+function upTriangles() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(0, 100);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(100, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function downTriangles() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(0, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.beginPath();
+    canvasContext.moveTo(50, 100);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function upStraight() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(100, 100);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(0, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function downStraight() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 50);
+    canvasContext.lineTo(50, 0);
+    canvasContext.lineTo(100, 0);
+    canvasContext.lineTo(100, 50);
+    canvasContext.lineTo(50, 100);
+    canvasContext.lineTo(0, 100);
+    canvasContext.closePath();
+    canvasContext.fill();
 }
 
 function cross() {
@@ -475,6 +727,17 @@ function colorTruchetUp1() {
     }
 }
 
+function straightUp1(){
+	    canvasContext.fillStyle = truchet.color1;
+    upStraight();
+    canvasContext.fillStyle = truchet.color2;
+    upTriangles();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        upLines();
+    }
+}
+
 function colorTruchetUp2() {
     canvasContext.fillStyle = truchet.color1;
     topLeftQuarterDisc();
@@ -485,6 +748,17 @@ function colorTruchetUp2() {
     if (truchet.lines) {
         bottomRightArc();
         topLeftArc();
+    }
+}
+
+function straightUp2(){
+	    canvasContext.fillStyle = truchet.color1;
+    upTriangles();
+    canvasContext.fillStyle = truchet.color2;
+    upStraight();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        upLines();
     }
 }
 
@@ -501,6 +775,17 @@ function colorTruchetDown1() {
     }
 }
 
+function straightDown1(){
+	    canvasContext.fillStyle = truchet.color1;
+    downStraight();
+    canvasContext.fillStyle = truchet.color2;
+    downTriangles();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        downLines();
+    }
+}
+
 function colorTruchetDown2() {
     canvasContext.fillStyle = truchet.color1;
     topRightQuarterDisc();
@@ -511,6 +796,17 @@ function colorTruchetDown2() {
     if (truchet.lines) {
         bottomLeftArc();
         topRightArc();
+    }
+}
+
+function straightDown2(){
+	    canvasContext.fillStyle = truchet.color1;
+    downTriangles();
+    canvasContext.fillStyle = truchet.color2;
+    downStraight();
+    canvasContext.strokeStyle = truchet.lineColor;
+    if (truchet.lines) {
+        downLines();
     }
 }
 
@@ -536,6 +832,13 @@ function colorTruchetCross2() {
     }
 }
 
+function frame() {
+    canvasContext.fillStyle = '#ffffff';
+    canvasContext.strokeStyle = '#000000';
+    canvasContext.fillRect(0, 0, 100, 100);
+    canvasContext.strokeRect(0, 0, 100, 100);
+}
+
 
 // drawing on square canvas
 //====================================
@@ -547,6 +850,7 @@ output.setCanvasWidthToHeight();
 
 function draw() {
     output.isDrawing = true;
+    canvasContext.lineCap='round';
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
     canvasContext.lineWidth = truchet.lineWidth;
@@ -554,7 +858,7 @@ function draw() {
     const startSize = canvas.width;
 
 
-    center.iterate(0, 0, startSize, 0, 1);
+    truchet.startTile.iterate(0, 0, startSize, 0, 1);
 
 }
 
