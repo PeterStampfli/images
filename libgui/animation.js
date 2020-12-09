@@ -16,6 +16,24 @@ export const animation = {};
 
 animation.frameNumberDigits = 5;
 animation.frameNumber = 0;
+animation.thing = null;
+
+/**
+ * reset the animation
+ * set frame number to one, for recording
+ * set antialiasing, initialize subframes if required
+ * NOTE: Changing thing.antialias has only effect after reset
+ * @method animation.reset
+ */
+animation.reset = function() {
+    animation.frameNumber = 1;
+    animation.antialiasing = !!animation.thing.antialiasing;
+    console.log(animation.antialiasing);
+    animation.subframe0 = null;
+    animation.subframe1 = null;
+    animation.subframe2 = null;
+    animation.subframe3 = null;
+};
 
 /**
  * set the thing to animate
@@ -23,7 +41,10 @@ animation.frameNumber = 0;
  * @param {object} thing
  */
 animation.setThing = function(thing) {
-    animation.thing = thing;
+    if (animation.thing !== thing) {
+        animation.thing = thing;
+        animation.reset();
+    }
 };
 
 /**
@@ -68,15 +89,6 @@ animation.makeFrameFileName = function() {
 };
 
 /**
- * reset the animation
- * set frame number to one, for recording
- * @method animation.reset
- */
-animation.reset = function() {
-    animation.frameNumber = 1;
-};
-
-/**
  * wait to complete frame time and make next frame
  * @method animation.makeNextFrame
  */
@@ -106,10 +118,39 @@ animation.makeNextFrame = function() {
 animation.run = function() {
     if (animation.thing.isRunning()) {
         animation.startOfFrame = Date.now();
-        animation.thing.draw();
-        animation.thing.advance();
+        if (animation.antialiasing) {
+            const canvasContext = output.canvasContext;
+            const width = output.canvas.width;
+            const height = output.canvas.height;
+            // after reset we have to create a new set of subframes
+            if (animation.subframe0 === null) {
+                animation.thing.draw();
+                animation.thing.advance();
+                animation.subframe2 = canvasContext.getImageData(0, 0, width, height);
+                animation.thing.draw();
+                animation.thing.advance();
+                animation.subframe3 = canvasContext.getImageData(0, 0, width, height);
+            }
+            // reusing 2 subframes and calculating new ones
+            animation.subframe0 = animation.subframe2;
+            animation.subframe1 = animation.subframe3;
+            animation.thing.draw();
+            animation.thing.advance();
+            animation.subframe2 = canvasContext.getImageData(0, 0, width, height);
+            animation.thing.draw();
+            animation.thing.advance();
+            animation.subframe3 = canvasContext.getImageData(0, 0, width, height);
+
+            // make gaussion 1 4 4 1 averaging on the subframe data, put result on subframe0.data
+            canvasContext.putImageData(animation.subframe0, 0, 0);
+
+        } else {
+            animation.thing.draw();
+            animation.thing.advance();
+        }
         if (animation.thing.isRecording()) {
             const name = animation.makeFrameFileName();
+            animation.frameNumber += 1;
             const type = output.saveType.getValue();
             guiUtils.saveCanvasAsFile(output.canvas, name, type,
                 function() {
@@ -117,6 +158,7 @@ animation.run = function() {
                 });
 
         } else {
+            animation.frameNumber += 1;
             animation.makeNextFrame();
         }
     }

@@ -32,7 +32,7 @@ const rt2 = Math.sqrt(0.5);
 // time goes from 0 to 2, typically
 // mix=(1-Math.cos(time*Math.PI))/2
 let mix = 0.5;
-let time = 2.5; // time > 2 animation finished
+morph.time = 2.5; // time > 2 animation finished
 
 pixelPaint.color = function(x, y) {
     let wave1 = Math.cos(x) * Math.cos(y);
@@ -49,13 +49,13 @@ pixelPaint.color = function(x, y) {
 morph.startTime = 0;
 morph.endTime = 2; // animation finished for larger time values
 morph.recording = false;
-morph.animationRunning = false;
+morph.running = false;
 morph.animationNSteps = 100;
 morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
 morph.animationFps = 10;
 
 
-animation.usesThing(morph);
+animation.setThing(morph);
 
 morph.getFps = function() {
     return morph.animationFps;
@@ -66,19 +66,20 @@ morph.isRecording = function() {
 };
 
 morph.isRunning = function() {
-    return morph.animationRunning;
+    return morph.running;
 };
 
 morph.draw = function() {
-    mix = (1 - Math.cos(time * Math.PI)) / 2;
+    mix = (1 - Math.cos(morph.time * Math.PI)) / 2;
     pixelPaint.draw();
 };
 
 morph.advance = function() {
-    morph.animationStepMessage.innerText = 'steps done: ' + animation.frameNumber;
+    morph.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
     morph.time += morph.dTime;
     if (morph.time > morph.endTime) {
-        morph.isRunning = false;
+        morph.running = false;
+        morph.runningButton.setButtonText('run');
     }
 };
 
@@ -86,36 +87,50 @@ morph.setup = function() {
     pixelPaint.setup('morphing', false);
     const gui = pixelPaint.gui;
     output.setCanvasWidthToHeight();
-    output.setInitialCoordinates(-1.5 * Math.PI, -1.5 * Math.PI, 8 * Math.PI);
+    output.setInitialCoordinates(-2 * Math.PI, -2 * Math.PI, 8 * Math.PI);
     output.drawCanvasChanged = pixelPaint.draw;
     morph.draw();
     pixelPaint.gui.addParagraph("animation:");
+    morph.antialiasing=false;
+    BooleanButton.greenRedBackground();
+    gui.add({
+        type:'boolean',
+        params:morph,
+        property:'antialiasing'
+    });
+    morph.animationRecordingButton = gui.add({
+        type: 'boolean',
+        labelText: 'recording',
+        params: output,
+        property: 'animationRecording'
+    });
     morph.animationResetButton = gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
-            morph.animationRunning = false;
+            morph.running = false;
             animation.reset();
             morph.time = 0;
             morph.animationStepMessage.innerText = 'steps done: ' + 0;
+            morph.draw();
         }
     });
 
     // run animation: initialize params
-    morph.animationRunningButton = morph.animationResetButton.add({
+    morph.runningButton = morph.animationResetButton.add({
         type: 'button',
         buttonText: 'run',
         onClick: function() {
-            if (morph.animationRunning) {
+            if (morph.running) {
                 // animation is running, thus stop it
                 // now pressing button again would start it
-                morph.animationRunningButton.setButtonText('run');
-                morph.animationRunning = false;
+                morph.runningButton.setButtonText('run');
+                morph.running = false;
             } else {
                 // animation not running, start it
                 // pressing button again would now stop it
-                morph.animationRunningButton.setButtonText('stop');
-                morph.animationRunning = true;
+                morph.runningButton.setButtonText('stop');
+                morph.running = true;
                 if (morph.time > morph.endTime) {
                     animation.reset();
                     morph.time = 0;
@@ -123,18 +138,11 @@ morph.setup = function() {
                 }
                 morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
                 console.log('dTime', morph.dTime);
-                //animation.run();
+                animation.run();
             }
         }
     });
 
-    BooleanButton.greenRedBackground();
-    morph.animationRecordingButton = gui.add({
-        type: 'boolean',
-        labelText: 'recording',
-        params: output,
-        property: 'animationRecording'
-    });
     morph.animationNStepsController = gui.add({
         type: 'number',
         params: morph,
