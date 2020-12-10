@@ -113,7 +113,7 @@ gui.add({
     type: 'selection',
     params: truchet,
     property: 'motif',
-    options: ['original', 'rotated', 'straight','straight rotated','schematic'],
+    options: ['original', 'rotated', 'straight', 'straight rotated', 'simple diagonal', 'simple diagonal rotated', 'schematic'],
     onChange: function() {
         draw();
     }
@@ -212,6 +212,11 @@ center.iterate = function(cornerX, cornerY, size, generation, color) {
                 canvasContext.arc(50, 50, 20, 0, 2 * Math.PI);
                 canvasContext.fill();
                 break;
+            case 'simple diagonal':
+            case 'simple diagonal rotated':
+                simpleUpDiagonal();
+                simpleDownDiagonal();
+                break;
         }
     } else {
         // corner at bottom left
@@ -276,6 +281,12 @@ upRight.iterate = function(cornerX, cornerY, size, generation, color) {
                 canvasContext.lineTo(70, 30);
                 canvasContext.closePath();
                 canvasContext.fill();
+                break;
+            case 'simple diagonal':
+                simpleUpDiagonal();
+                break;
+            case 'simple diagonal rotated':
+                simpleDownDiagonal();
                 break;
         }
     } else {
@@ -342,6 +353,12 @@ upLeft.iterate = function(cornerX, cornerY, size, generation, color) {
                 canvasContext.closePath();
                 canvasContext.fill();
                 break;
+            case 'simple diagonal rotated':
+                simpleUpDiagonal();
+                break;
+            case 'simple diagonal':
+                simpleDownDiagonal();
+                break;
         }
     } else {
         // corner at bottom left
@@ -407,6 +424,12 @@ downLeft.iterate = function(cornerX, cornerY, size, generation, color) {
                 canvasContext.closePath();
                 canvasContext.fill();
                 break;
+            case 'simple diagonal':
+                simpleUpDiagonal();
+                break;
+            case 'simple diagonal rotated':
+                simpleDownDiagonal();
+                break;
         }
     } else {
         // corner at bottom left
@@ -471,6 +494,12 @@ downRight.iterate = function(cornerX, cornerY, size, generation, color) {
                 canvasContext.lineTo(70, 70);
                 canvasContext.closePath();
                 canvasContext.fill();
+                break;
+            case 'simple diagonal rotated':
+                simpleUpDiagonal();
+                break;
+            case 'simple diagonal':
+                simpleDownDiagonal();
                 break;
         }
     } else {
@@ -727,8 +756,8 @@ function colorTruchetUp1() {
     }
 }
 
-function straightUp1(){
-	    canvasContext.fillStyle = truchet.color1;
+function straightUp1() {
+    canvasContext.fillStyle = truchet.color1;
     upStraight();
     canvasContext.fillStyle = truchet.color2;
     upTriangles();
@@ -751,8 +780,8 @@ function colorTruchetUp2() {
     }
 }
 
-function straightUp2(){
-	    canvasContext.fillStyle = truchet.color1;
+function straightUp2() {
+    canvasContext.fillStyle = truchet.color1;
     upTriangles();
     canvasContext.fillStyle = truchet.color2;
     upStraight();
@@ -775,8 +804,8 @@ function colorTruchetDown1() {
     }
 }
 
-function straightDown1(){
-	    canvasContext.fillStyle = truchet.color1;
+function straightDown1() {
+    canvasContext.fillStyle = truchet.color1;
     downStraight();
     canvasContext.fillStyle = truchet.color2;
     downTriangles();
@@ -799,8 +828,8 @@ function colorTruchetDown2() {
     }
 }
 
-function straightDown2(){
-	    canvasContext.fillStyle = truchet.color1;
+function straightDown2() {
+    canvasContext.fillStyle = truchet.color1;
     downTriangles();
     canvasContext.fillStyle = truchet.color2;
     downStraight();
@@ -832,13 +861,28 @@ function colorTruchetCross2() {
     }
 }
 
+function simpleUpDiagonal() {
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, 0);
+    canvasContext.lineTo(100, 100);
+    canvasContext.stroke();
+}
+
+function simpleDownDiagonal() {
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.beginPath();
+    canvasContext.moveTo(100, 0);
+    canvasContext.lineTo(0, 100);
+    canvasContext.stroke();
+}
+
 function frame() {
     canvasContext.fillStyle = '#ffffff';
     canvasContext.strokeStyle = '#000000';
     canvasContext.fillRect(0, 0, 100, 100);
     canvasContext.strokeRect(0, 0, 100, 100);
 }
-
 
 // drawing on square canvas
 //====================================
@@ -850,25 +894,14 @@ output.setCanvasWidthToHeight();
 
 function draw() {
     output.isDrawing = true;
-    canvasContext.lineCap='round';
+    canvasContext.lineCap = 'round';
     canvasContext.setTransform(1, 0, 0, 1, 0, 0);
     canvasContext.clearRect(0, 0, canvas.width, canvas.height);
     canvasContext.lineWidth = truchet.lineWidth;
     makeSubstitution(truchet.upLeftSubstitution, truchet.downLeftSubstitution, truchet.upRightSubstitution);
     const startSize = canvas.width;
-
-
     truchet.startTile.iterate(0, 0, startSize, 0, 1);
-
 }
-
-
-
-
-//  tests
-
-
-
 
 output.drawCanvasChanged = draw;
 draw();

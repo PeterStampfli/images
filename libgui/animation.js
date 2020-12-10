@@ -107,6 +107,64 @@ animation.makeNextFrame = function() {
 };
 
 /**
+ * sampling the subframes for antialiasing, pu reesult in subframe[0]
+ * animation.sampling
+ */
+animation.sampling = function() {
+    var weights, normalize;
+    // setting up weights, twice the number of subframes (Gaussian 1/2 smoothing)
+    switch (animation.antialiasing) {
+        case 2:
+            weights = [1, 4, 4, 1];
+            break;
+                    case 3:
+            weights = [47, 159, 294, 294, 159, 47];
+            break;
+                    case 4:
+            weights = [29,82,166,235,235,166,82,29];
+            break;
+    }
+    console.log(weights);
+    let sum = 0;
+    weights.forEach(w => sum += w);
+    console.log(sum);
+    normalize = 1 / sum;
+    console.log(normalize);
+    const subframePixels = [];
+    const subLength = animation.subframes.length;
+    subframePixels.length = subLength;
+    // get subframe pixel data as array of 32 bit words
+    for (let i = 0; i < subframePixels.length; i++) {
+        subframePixels[i] = new Uint32Array(animation.subframes[i].data.buffer);
+    }
+    const pixelLength = subframePixels[0].length;
+    const subframePixels0 = subframePixels[0];
+    console.log(pixelLength);
+    for (let iPixel = 0; iPixel < pixelLength; iPixel++) {
+        let a = 0;
+        let b = 0;
+        let g = 0;
+        let r = 0;
+        for (let iSub = 0; iSub < subLength; iSub++) {
+            const coeff = weights[iSub];
+            const pixel = subframePixels[iSub][iPixel];
+            a += coeff*(pixel&0xff);
+            r += coeff * (pixel >>> 24);
+            g += coeff * ((pixel >>> 16) & 0xff);
+            b += coeff * ((pixel >>> 8) & 0xff);
+        }
+        a = Math.round(normalize * a);
+        r = Math.round(normalize * r);
+        g = Math.round(normalize * g);
+        b = Math.round(normalize * b);
+        subframePixels0[iPixel] = a | ((b << 8) & 0xff00) | ((g << 16) & 0xff0000) | ((r << 24) & 0xff000000);
+        if (iPixel===0){
+            console.log('argb',a,r,g,b)
+        }
+    }
+};
+
+/**
  * make an animation, step/run animation
  * use this method initially and as a callback of the timeout/animationframe combination
  * check if animation still running (else do nothing)
@@ -131,29 +189,28 @@ animation.run = function() {
                 for (let i = 0; i < animation.antialiasing; i++) {
                     animation.thing.draw();
                     animation.thing.advance();
-                    console.log(i + animation.antialiasing);
                     animation.subframes[i + animation.antialiasing] = canvasContext.getImageData(0, 0, width, height);
                 }
             }
             // shift up subframes and get new ones
-                 for (let i = 0; i < animation.antialiasing; i++) {
-                    console.log(i,i + animation.antialiasing);
-                    animation.subframes[i] = animation.subframes[i + animation.antialiasing] ;
-                }
-                 for (let i = 0; i < animation.antialiasing; i++) {
-                    animation.thing.draw();
-                    animation.thing.advance();
-                    console.log(i + animation.antialiasing);
-                    animation.subframes[i + animation.antialiasing] = canvasContext.getImageData(0, 0, width, height);
-                }
-   
-            // make gaussion 1 4 4 1 averaging on the subframe data, put result on subframe0.data
-            //        canvasContext.putImageData(animation.subframe0, 0, 0);
+            for (let i = 0; i < animation.antialiasing; i++) {
+                animation.subframes[i] = animation.subframes[i + animation.antialiasing];
+            }
+            for (let i = 0; i < animation.antialiasing; i++) {
+                animation.thing.draw();
+                animation.thing.advance();
+                animation.subframes[i + animation.antialiasing] = canvasContext.getImageData(0, 0, width, height);
+            }
+            // make gaussion averaging on the subframe data, put result on subframe0.data
+            animation.sampling();
+            canvasContext.putImageData(animation.subframes[0], 0, 0);
 
         } else {
+            console.log('no antialiasing');
             animation.thing.draw();
             animation.thing.advance();
         }
+        console.log('recor',animation.thing.isRecording());
         if (animation.thing.isRecording()) {
             const name = animation.makeFrameFileName();
             animation.frameNumber += 1;

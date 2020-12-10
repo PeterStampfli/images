@@ -53,7 +53,7 @@ morph.running = false;
 morph.animationNSteps = 100;
 morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
 morph.animationFps = 10;
-morph.antialiasing=1;
+morph.antialiasing = 1;
 
 
 animation.setThing(morph);
@@ -98,24 +98,31 @@ morph.setup = function() {
     pixelPaint.gui.addParagraph("animation:");
     BooleanButton.greenRedBackground();
     gui.add({
-        type:'selection',
-        params:morph,
-        property:'antialiasing',
-        options:{'none':1,'2 subframes':2},
-                onChange: function() {
+        type: 'selection',
+        params: morph,
+        property: 'antialiasing',
+        options: {
+            'none': 1,
+            '2 subframes': 2,
+            '3 subframes': 3,
+            '4 subframes': 4,
+        },
+        onChange: function() {
             morph.running = false;
             animation.reset();
-            morph.time = 0;
-                morph.runningButton.setButtonText('run');
+            morph.runningButton.setButtonText('run');
             morph.animationStepMessage.innerText = 'steps done: ' + 0;
-            morph.draw();
+            if (morph.time !== 0) {
+                morph.time = 0;
+                morph.draw();
+            }
         }
     });
     morph.animationRecordingButton = gui.add({
         type: 'boolean',
         labelText: 'recording',
-        params: output,
-        property: 'animationRecording'
+        params: morph,
+        property: 'recording'
     });
     morph.animationResetButton = gui.add({
         type: 'button',
@@ -123,11 +130,13 @@ morph.setup = function() {
         onClick: function() {
             morph.running = false;
             animation.reset();
-            morph.time = 0;
-                morph.runningButton.setButtonText('run');
+            morph.runningButton.setButtonText('run');
             morph.animationStepMessage.innerText = 'steps done: ' + 0;
-            morph.draw();
-        }
+            if (morph.time !== 0) {
+                morph.time = 0;
+                morph.draw();
+                console.log('redraw)')
+            }        }
     });
 
     // run animation: initialize params
@@ -150,7 +159,7 @@ morph.setup = function() {
                     morph.time = 0;
                     morph.animationStepMessage.innerText = 'steps done: ' + 0;
                 }
-                morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
+                morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps/morph.antialiasing;
                 console.log('dTime', morph.dTime);
                 animation.run();
             }

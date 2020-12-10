@@ -673,7 +673,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', '2*2 subpixels', '3*3 subpixels'],
+        options: ['none', '2*2 subpixels', '3*3 subpixels','4*4 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
             switch (pixels.antialiasType) {
@@ -688,14 +688,19 @@ output.addAntialiasing = function() {
                 case '3*3 subpixels':
                     pixels.antialiasSubpixels = 3;
                     pixels.antialiasSampling = 6;
+                    break;       
+                            case '4*4 subpixels':
+                    pixels.antialiasSubpixels = 4;
+                    pixels.antialiasSampling = 8;
                     break;
             }
             output.drawCanvasChanged();
         }
     });
     let helpText = '<strong>none:</strong> Does no antialiasing.<br>';
-    helpText += '<strong>2*2 subpixels:</strong> Calculates 2 * 2 subpixels for each output pixel. Downsampling with a Gaussian that is equal to 0.5 at half the pixel size.<br>';
-    helpText += '<strong>3*3 subpixels:</strong> 3*3 subpixels are used.<br>';
+    helpText += '<strong>2*2 subpixels:</strong> Calculates 4 subpixels for each output pixel. Downsampling with a Gaussian that is equal to 0.5 at half the pixel size.<br>';
+    helpText += '<strong>3*3 subpixels:</strong> 9 subpixels are used.<br>';
+    helpText += '<strong>4*4 subpixels:</strong> 16 subpixels are used.<br>';
     output.antialiasingController.addHelp(helpText);
 };
 

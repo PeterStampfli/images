@@ -194,6 +194,9 @@ Pixels.prototype.antialias = function() {
         case '3*3 subpixels':
             this.subpixelSampling([47, 159, 294, 294, 159, 47]);
             break;
+                    case '4*4 subpixels':
+            this.subpixelSampling([29,82,166,235,235,166,82,29]);
+            break;
     }
 };
 
