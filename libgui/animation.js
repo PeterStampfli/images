@@ -17,6 +17,7 @@ export const animation = {};
 animation.frameNumberDigits = 5;
 animation.frameNumber = 0;
 animation.thing = null;
+animation.subframes = [];
 
 /**
  * reset the animation
@@ -27,12 +28,13 @@ animation.thing = null;
  */
 animation.reset = function() {
     animation.frameNumber = 1;
-    animation.antialiasing = !!animation.thing.antialiasing;
+    if (guiUtils.isFunction(animation.thing.getAntialiasing)) {
+        animation.antialiasing = animation.thing.getAntialiasing();
+    } else {
+        animation.antialiasing = 1;
+    }
+    animation.subframes.length = 0;
     console.log(animation.antialiasing);
-    animation.subframe0 = null;
-    animation.subframe1 = null;
-    animation.subframe2 = null;
-    animation.subframe3 = null;
 };
 
 /**
@@ -64,6 +66,7 @@ animation.usesThing = function(thing) {
  * thing.isRunning() - return true if animation of thing runs, not finished or stopped
  * thing.isRecording() - return true if animation should be saved
  * thing.getFps() - returns the frame rate
+ * thing.getAntialiasing() - returns number of antialiasing subframes, 1 means no antialiasing
  */
 
 /*
@@ -118,31 +121,34 @@ animation.makeNextFrame = function() {
 animation.run = function() {
     if (animation.thing.isRunning()) {
         animation.startOfFrame = Date.now();
-        if (animation.antialiasing) {
+        if (animation.antialiasing > 1) {
             const canvasContext = output.canvasContext;
             const width = output.canvas.width;
             const height = output.canvas.height;
             // after reset we have to create a new set of subframes
-            if (animation.subframe0 === null) {
-                animation.thing.draw();
-                animation.thing.advance();
-                animation.subframe2 = canvasContext.getImageData(0, 0, width, height);
-                animation.thing.draw();
-                animation.thing.advance();
-                animation.subframe3 = canvasContext.getImageData(0, 0, width, height);
+            if (animation.subframes.length === 0) {
+                animation.subframes.length = 2 * animation.antialiasing;
+                for (let i = 0; i < animation.antialiasing; i++) {
+                    animation.thing.draw();
+                    animation.thing.advance();
+                    console.log(i + animation.antialiasing);
+                    animation.subframes[i + animation.antialiasing] = canvasContext.getImageData(0, 0, width, height);
+                }
             }
-            // reusing 2 subframes and calculating new ones
-            animation.subframe0 = animation.subframe2;
-            animation.subframe1 = animation.subframe3;
-            animation.thing.draw();
-            animation.thing.advance();
-            animation.subframe2 = canvasContext.getImageData(0, 0, width, height);
-            animation.thing.draw();
-            animation.thing.advance();
-            animation.subframe3 = canvasContext.getImageData(0, 0, width, height);
-
+            // shift up subframes and get new ones
+                 for (let i = 0; i < animation.antialiasing; i++) {
+                    console.log(i,i + animation.antialiasing);
+                    animation.subframes[i] = animation.subframes[i + animation.antialiasing] ;
+                }
+                 for (let i = 0; i < animation.antialiasing; i++) {
+                    animation.thing.draw();
+                    animation.thing.advance();
+                    console.log(i + animation.antialiasing);
+                    animation.subframes[i + animation.antialiasing] = canvasContext.getImageData(0, 0, width, height);
+                }
+   
             // make gaussion 1 4 4 1 averaging on the subframe data, put result on subframe0.data
-            canvasContext.putImageData(animation.subframe0, 0, 0);
+            //        canvasContext.putImageData(animation.subframe0, 0, 0);
 
         } else {
             animation.thing.draw();

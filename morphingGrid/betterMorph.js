@@ -53,6 +53,7 @@ morph.running = false;
 morph.animationNSteps = 100;
 morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
 morph.animationFps = 10;
+morph.antialiasing=1;
 
 
 animation.setThing(morph);
@@ -67,6 +68,10 @@ morph.isRecording = function() {
 
 morph.isRunning = function() {
     return morph.running;
+};
+
+morph.getAntialiasing = function() {
+    return morph.antialiasing;
 };
 
 morph.draw = function() {
@@ -91,12 +96,20 @@ morph.setup = function() {
     output.drawCanvasChanged = pixelPaint.draw;
     morph.draw();
     pixelPaint.gui.addParagraph("animation:");
-    morph.antialiasing=false;
     BooleanButton.greenRedBackground();
     gui.add({
-        type:'boolean',
+        type:'selection',
         params:morph,
-        property:'antialiasing'
+        property:'antialiasing',
+        options:{'none':1,'2 subframes':2},
+                onChange: function() {
+            morph.running = false;
+            animation.reset();
+            morph.time = 0;
+                morph.runningButton.setButtonText('run');
+            morph.animationStepMessage.innerText = 'steps done: ' + 0;
+            morph.draw();
+        }
     });
     morph.animationRecordingButton = gui.add({
         type: 'boolean',
@@ -111,6 +124,7 @@ morph.setup = function() {
             morph.running = false;
             animation.reset();
             morph.time = 0;
+                morph.runningButton.setButtonText('run');
             morph.animationStepMessage.innerText = 'steps done: ' + 0;
             morph.draw();
         }
