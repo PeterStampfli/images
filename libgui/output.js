@@ -28,20 +28,6 @@ output.canvas = false;
 output.canvasContext = false; // 2d-context
 output.pixels = false;
 
-// animation
-output.animationRunning = false;
-output.animationRecording = false;
-output.animationStep = 0;
-output.animationNSteps = 100;
-output.animationFps = 10;
-output.frameNumberDigits = 5;
-
-// zoom animation
-output.animationZoomFactor = 1.01;
-output.animationScale = 1;
-output.animationStartScale = 1;
-output.animationEndScale = 10;
-
 // vectors for intermediate results
 const u = {
     x: 0,
@@ -392,7 +378,7 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
                 console.log(output.pixels.antialiasType);
                 if (output.pixels.antialiasType === 'none') {
                     output.drawImageChanged();
-                    console.log('imch')
+                    console.log('imch');
                 } else {
                     output.drawBackgroundChanged();
                 }
@@ -673,7 +659,7 @@ output.addAntialiasing = function() {
         type: 'selection',
         params: pixels,
         property: 'antialiasType',
-        options: ['none', '2*2 subpixels', '3*3 subpixels','4*4 subpixels'],
+        options: ['none', '2*2 subpixels', '3*3 subpixels', '4*4 subpixels'],
         labelText: 'antialiasing',
         onChange: function() {
             switch (pixels.antialiasType) {
@@ -688,8 +674,8 @@ output.addAntialiasing = function() {
                 case '3*3 subpixels':
                     pixels.antialiasSubpixels = 3;
                     pixels.antialiasSampling = 6;
-                    break;       
-                            case '4*4 subpixels':
+                    break;
+                case '4*4 subpixels':
                     pixels.antialiasSubpixels = 4;
                     pixels.antialiasSampling = 8;
                     break;
@@ -728,10 +714,8 @@ output.addCoordinateTransform = function() {
     const mouseEvents = output.mouseEvents;
 
     // make that changing the scale does not change center, draw image on canvas
+    // call this for making zoom animation (keep image center fixed)
     coordinateTransform.scaleController.callback = function() {
-
-        const startOfFrame = Date.now();
-
         const canvas = output.canvas;
         // get current center
         u.x = canvas.width / 2;
@@ -747,50 +731,6 @@ output.addCoordinateTransform = function() {
         coordinateTransform.updateUI();
         coordinateTransform.updateTransform();
         coordinateTransform.onChange(); // if not reprogrammed: calls output.drawCanvasChanged
-
-
-
-        // now the image has been drawn
-        // advance scale and step number, frame numbers begin at 1
-        output.animationScale *= output.animationZoomFactor;
-        output.animationStep += 1;
-        output.animationStepMessage.innerText = 'steps done: ' + output.animationStep;
-        if (output.animationRunning) {
-            const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
-            // see if end reached, then stop
-            if (animationFinished()) {
-                output.animationRunningButton.setButtonText('run');
-                output.animationRunning = false;
-            }
-            if (output.animationRecording) {
-                // 'download' canvas image and do next step, if animation running
-                const name = output.saveName.getValue() + makeFrameNumber();
-                const type = output.saveType.getValue();
-                guiUtils.saveCanvasAsFile(output.canvas, name, type,
-                    function() {
-                        if (output.animationRunning) {
-                            const timeUsed = Date.now() - startOfFrame;
-                            // prepare next frame
-                            setTimeout(function() {
-                                requestAnimationFrame(function() {
-                                    output.coordinateTransform.scaleController.setValue(output.animationScale);
-                                });
-                            }, minimumFrameTime - timeUsed);
-                        }
-                    });
-            } else {
-                // do next step if animation running
-                const timeUsed = Date.now() - startOfFrame;
-                if (output.animationRunning) {
-                    // prepare next frame
-                    setTimeout(function() {
-                        requestAnimationFrame(function() {
-                            output.coordinateTransform.scaleController.setValue(output.animationScale);
-                        });
-                    }, minimumFrameTime - timeUsed);
-                }
-            }
-        }
     };
 
     // switching with ctrl key from coordinate transformation to other actions
@@ -918,6 +858,10 @@ output.addCoordinateTransform = function() {
     };
 };
 
+
+//  zoom animation
+//===================================================
+
 // condition that animation is finished: scale out of interval
 function animationFinished() {
     let finished = (output.animationScale < Math.min(output.animationStartScale, output.animationEndScale) - 0.00001);
@@ -925,9 +869,19 @@ function animationFinished() {
     return finished;
 }
 
-// animation
-//===================================================
 
+
+// animation
+output.animationRunning = false;
+output.animationRecording = false;
+output.animationNSteps = 100;
+output.animationFps = 10;
+
+// zoom animation
+output.animationZoomFactor = 1.01;
+output.animationScale = 1;
+output.animationStartScale = 1;
+output.animationEndScale = 10;
 
 // time when making frame starts
 output.startOfFrame = 0;
