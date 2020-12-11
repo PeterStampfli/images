@@ -320,12 +320,12 @@ function autoResizeDraw() {
  * you can set the canvas width to height ratio to a fixed value in output.setCanvasWidthToHeight
  * @method output.createCanvas
  * @param {ParamGui} gui
- * @param {boolean} hasBackgroundColorController - optional, default is true
- * @param {boolean} hasTransparencyController - optional, default is true, only present if backgroundColorController exists
+ * @param {boolean} hasBackgroundColor - optional, default is true
+ * @param {boolean} hasTransparency - optional, default is true, only present if backgroundColorController exists
  */
 var autoResizeController, autoScaleController, extendCanvasController;
 
-output.createCanvas = function(gui, hasBackgroundColorController = true, hasTransparencyController = true) {
+output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency = true) {
     if (output.canvas) {
         console.error("output.createCanvas: canvas exists already!");
         return;
@@ -360,7 +360,7 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
     // add background color controller and transparency controller only if needed
-    if (hasBackgroundColorController) {
+    if (hasBackgroundColor) {
         output.backgroundColorString = '#000099';
         output.backgroundColor = {};
         ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
@@ -384,7 +384,7 @@ output.createCanvas = function(gui, hasBackgroundColorController = true, hasTran
                 }
             }
         }).addHelp('Choose a convenient background color for transparent image parts. Switching transparency off will show the background color in downloaded images.');
-        if (hasTransparencyController) {
+        if (hasTransparency) {
             // backgroundcolor and transparency (is true)
             // for only using canvas drawing (no pixels): Do nothing (call output.fillCanvasBackgroundColor does nothing)
             // using pixels: We do not gain time checking if all pixels are opaque (alpha===255)
@@ -858,9 +858,51 @@ output.addCoordinateTransform = function() {
     };
 };
 
-
 //  zoom animation
 //===================================================
+
+const zoom = {};
+
+zoom.running = false;
+zoom.recording = false;
+zoom.animationNSteps = 100;
+zoom.animationFps = 10;
+zoom.antialiasing = 1;
+
+zoom.getFps = function() {
+    return zoom.animationFps;
+};
+
+zoom.isRecording = function() {
+    return zoom.recording;
+};
+
+zoom.isRunning = function() {
+    return zoom.running;
+};
+
+zoom.getAntialiasing = function() {
+    return zoom.antialiasing;
+};
+
+zoom.draw = function() {
+    output.coordinateTransform.scaleController.setValue(zoom.scale);
+};
+
+zoom.zoomFactor = 1.01;
+zoom.scale = 1;
+zoom.startScale = 1;
+zoom.endScale = 10;
+
+
+zoom.advance = function() {
+    morph.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
+    zoom.scale *= zoom.zoomFactor;
+    if (morph.time > morph.endTime) {
+        morph.running = false;
+        morph.runningButton.setButtonText('run');
+    }
+};
 
 // condition that animation is finished: scale out of interval
 function animationFinished() {
@@ -871,79 +913,7 @@ function animationFinished() {
 
 
 
-// animation
-output.animationRunning = false;
-output.animationRecording = false;
-output.animationNSteps = 100;
-output.animationFps = 10;
 
-// zoom animation
-output.animationZoomFactor = 1.01;
-output.animationScale = 1;
-output.animationStartScale = 1;
-output.animationEndScale = 10;
-
-// time when making frame starts
-output.startOfFrame = 0;
-
-//        const startOfFrame = Date.now();
-
-
-// make frame number with fixed number of digits
-function makeFrameNumber() {
-    let result = output.animationStep.toString(10);
-    while (result.length < output.frameNumberDigits) {
-        result = '0' + result;
-    }
-    return result;
-}
-
-// make animation:
-// controlled by
-
-/*
-
-        // now the image has been drawn
-        // advance scale and step number, frame numbers begin at 1
-        output.animationScale *= output.animationZoomFactor;
-        output.animationStep += 1;
-        output.animationStepMessage.innerText = 'steps done: ' + output.animationStep;
-        if (output.animationRunning) {
-            const minimumFrameTime = 1000 / output.animationFps - 1000 / 60; // always defined, even without animation
-            // see if end reached, then stop
-            if (animationFinished()) {
-                output.animationRunningButton.setButtonText('run');
-                output.animationRunning = false;
-            }
-            if (output.animationRecording) {
-                // 'download' canvas image and do next step, if animation running
-                const name = output.saveName.getValue() + makeFrameNumber();
-                const type = output.saveType.getValue();
-                guiUtils.saveCanvasAsFile(output.canvas, name, type,
-                    function() {
-                        if (output.animationRunning) {
-                            const timeUsed = Date.now() - startOfFrame;
-                            // prepare next frame
-                            setTimeout(function() {
-                                requestAnimationFrame(function() {
-                                    output.coordinateTransform.scaleController.setValue(output.animationScale);
-                                });
-                            }, minimumFrameTime - timeUsed);
-                        }
-                    });
-            } else {
-                // do next step if animation running
-                const timeUsed = Date.now() - startOfFrame;
-                if (output.animationRunning) {
-                    // prepare next frame
-                    setTimeout(function() {
-                        requestAnimationFrame(function() {
-                            output.coordinateTransform.scaleController.setValue(output.animationScale);
-                        });
-                    }, minimumFrameTime - timeUsed);
-                }
-            }
-        }*/
 
 /**
  * add a zoom animation
