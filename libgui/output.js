@@ -894,26 +894,16 @@ zoom.scale = 1;
 zoom.startScale = 1;
 zoom.endScale = 10;
 
-
 zoom.advance = function() {
-    morph.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
+    zoom.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
     zoom.scale *= zoom.zoomFactor;
-    if (morph.time > morph.endTime) {
-        morph.running = false;
-        morph.runningButton.setButtonText('run');
+    let finished = (zoom.scale < Math.min(zoom.startScale, zoom.endScale) - 0.00001);
+    finished = finished || (zoom.scale > Math.max(zoom.startScale, zoom.endScale) + 0.00001);
+    if (finished) {
+        zoom.running = false;
+        zomm.runningButton.setButtonText('run');
     }
 };
-
-// condition that animation is finished: scale out of interval
-function animationFinished() {
-    let finished = (output.animationScale < Math.min(output.animationStartScale, output.animationEndScale) - 0.00001);
-    finished = finished || (output.animationScale > Math.max(output.animationStartScale, output.animationEndScale) + 0.00001);
-    return finished;
-}
-
-
-
-
 
 /**
  * add a zoom animation
@@ -921,6 +911,29 @@ function animationFinished() {
  */
 output.addZoomAnimation = function() {
     const gui = output.canvasGui.addFolder('zoom animation');
+    zoom.antialiasingController = gui.add({
+        type: 'selection',
+        params: zoom,
+        property: 'antialiasing',
+        options: {
+            'none': 1,
+            '2 subframes': 2,
+            '3 subframes': 3,
+            '4 subframes': 4,
+        },
+        onChange: function() {
+            zoom.running = false;
+            animation.reset();
+            zoom.runningButton.setButtonText('run');
+            zoom.animationStepMessage.innerText = 'steps done: ' + 0;
+            if (Math.abs(zoom.scale - zoom.startScale)) {
+                zoom.scale = zoom.startScale;
+                zoom.draw();
+            }
+        }
+    });
+    zoom.antialiasingController.addHelp('Do antialiasing of the image if there are rapidly moving image parts. Makes an average over several intermediate subframes. For antialiasing jaggies you need to antialias the image.');
+
     // set animation to start
     output.animationResetButton = gui.add({
         type: 'button',
@@ -961,13 +974,17 @@ output.addZoomAnimation = function() {
             }
         }
     });
+
     BooleanButton.greenRedBackground();
-    output.animationRecordingButton = gui.add({
+    zoom.animationRecordingButton = gui.add({
         type: 'boolean',
         labelText: 'recording',
-        params: output,
-        property: 'animationRecording'
+        params: zoom,
+        property: 'recording'
     });
+
+
+
     output.animationStartScaleController = gui.add({
         type: 'number',
         params: output,

@@ -96,7 +96,6 @@ morph.setup = function() {
     output.drawCanvasChanged = pixelPaint.draw;
     morph.draw();
     pixelPaint.gui.addParagraph("animation:");
-    BooleanButton.greenRedBackground();
     gui.add({
         type: 'selection',
         params: morph,
@@ -118,6 +117,7 @@ morph.setup = function() {
             }
         }
     });
+    BooleanButton.greenRedBackground();
     morph.animationRecordingButton = gui.add({
         type: 'boolean',
         labelText: 'recording',
