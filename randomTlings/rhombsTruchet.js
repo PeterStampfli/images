@@ -26,7 +26,7 @@ output.addGrid();
 const rt32 = 0.5 * Math.sqrt(3);
 
 const rhombs = {};
-rhombs.maxGen = 3;
+rhombs.maxGen = 4;
 rhombs.crossFraction = 0.2; // probability for cross designs
 
 function drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
@@ -36,8 +36,43 @@ function drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
     canvasContext.lineTo(leftX, leftY);
     canvasContext.lineTo(bottomX, bottomY);
     canvasContext.closePath();
-    canvasContext.fill();
     canvasContext.stroke();
+}
+
+function rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    canvasContext.beginPath();
+    canvasContext.moveTo(rightX, rightY);
+    canvasContext.lineTo(topX, topY);
+    canvasContext.lineTo(leftX, leftY);
+    canvasContext.lineTo(bottomX, bottomY);
+    canvasContext.closePath();
+    canvasContext.stroke();
+    const centerX=0.5*(topX+bottomX);
+    const centerY=0.5*(topY+bottomY);
+    canvasContext.beginPath();
+    canvasContext.moveTo(0.5*(centerX+bottomX),0.5*(centerY+bottomY));
+    canvasContext.lineTo(0.5*(centerX+rightX),0.5*(centerY+rightY));
+    canvasContext.lineTo(0.5*(centerX+topX),0.5*(centerY+topY));
+    canvasContext.closePath();
+    canvasContext.fill();
+}
+
+function upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    canvasContext.beginPath();
+    canvasContext.moveTo(rightX, rightY);
+    canvasContext.lineTo(topX, topY);
+    canvasContext.lineTo(leftX, leftY);
+    canvasContext.lineTo(bottomX, bottomY);
+    canvasContext.closePath();
+    canvasContext.stroke();
+    const centerX=0.5*(topX+bottomX);
+    const centerY=0.5*(topY+bottomY);
+    canvasContext.beginPath();
+    canvasContext.moveTo(0.5*(centerX+rightX),0.5*(centerY+rightY));
+    canvasContext.lineTo(0.5*(centerX+topX),0.5*(centerY+topY));
+    canvasContext.lineTo(0.5*(centerX+leftX),0.5*(centerY+leftY));
+    canvasContext.closePath();
+    canvasContext.fill();
 }
 
 function drawLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
@@ -49,14 +84,6 @@ function drawLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     const bottomLeftY = 0.5 * (bottomY + leftY);
     const topLeftX = 0.5 * (topX + leftX);
     const topLeftY = 0.5 * (topY + leftY);
-        canvasContext.beginPath();
-    canvasContext.moveTo(rightX, rightY);
-    canvasContext.lineTo(topX, topY);
-    canvasContext.lineTo(leftX, leftY);
-    canvasContext.lineTo(bottomX, bottomY);
-    canvasContext.closePath();
-  //  canvasContext.fill();
-
     if (Math.random()>0.5){
 canvasContext.beginPath();
 canvasContext.moveTo(bottomLeftX,bottomLeftY);
@@ -76,8 +103,6 @@ canvasContext.moveTo(topLeftX,topLeftY);
 canvasContext.lineTo(topRightX,topRightY);
 canvasContext.stroke();
     }
-    
-
 }
 
 function rhomb(gen, bottomX, bottomY, topX, topY) {
@@ -91,7 +116,7 @@ function rhomb(gen, bottomX, bottomY, topX, topY) {
     const leftY = centerY + rt32 * upX;
 
     if (gen >= rhombs.maxGen) {
-       // drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+     //   drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
         drawLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
 
     } else {
@@ -113,10 +138,10 @@ function rhomb(gen, bottomX, bottomY, topX, topY) {
 
 
 function draw() {
-    output.isDrawing = true;
     output.fillCanvasBackgroundColor();
 canvasContext.strokeStyle = 'white';
-canvasContext.fillStyle = output.backgroundColorString;
+canvasContext.fillStyle = 'white';
+
 canvasContext.lineCap = 'round';
 output.setLineWidth(4);
     rhomb(0, -0.5, rt32, 1, 0);
@@ -129,6 +154,5 @@ output.setLineWidth(4);
 
 
 
-output.drawCanvasChanged = draw;
-output.drawGridChanged = draw;
+output.setDrawMethods(draw);
 draw();

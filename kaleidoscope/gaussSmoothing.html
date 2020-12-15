@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> gaussSmoothing</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script>
+	console.log('ok');
+
+	function weights(n){
+		result=[];
+		result.length=2*n;
+		for (var i=-n;i<n;i++){
+			const x=(2*i+1)/n;
+result[i+n]=Math.round(1000*Math.pow(2,-x*x));
+		}
+		return result;
+	}
+
+console.log(weights(2));
+console.log(weights(3));
+console.log(weights(4));
+</script>
+
+</html>

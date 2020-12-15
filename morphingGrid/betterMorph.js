@@ -176,7 +176,7 @@ morph.setup = function() {
     });
     morph.animationFpsController = morph.animationNStepsController.add({
         type: 'number',
-        params: output,
+        params: morph,
         property: 'animationFps',
         labelText: 'fps',
         min: 1

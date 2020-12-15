@@ -24,7 +24,6 @@ export function Pixels(canvas) {
     this.imageData = null; // changes when canvas dimensions change
     this.pixelComponents = null; // UInt8Array with separate r,g,b,a values
     this.array = null; // UInt32Array with packed rgba for one pixel
-    this.antialiasType = 'none';
     this.antialiasSubpixels = 1;
     this.antialiasSampling = 1;
     this.width = 0;
@@ -50,7 +49,8 @@ Pixels.prototype.update = function() {
     this.height = canvas.height;
     this.imageData = this.canvasContext.getImageData(0, 0, canvas.width, canvas.height);
     this.pixelComponents = this.imageData.data;
-    if (this.antialiasType !== 'none') {
+    if (this.antialiasSubpixels !== 1) {
+        // doing real antialias
         // 'array' has now data instead of pixels
         const dataWidth = (canvas.width - 1) * this.antialiasSubpixels + this.antialiasSampling;
         const dataHeight = (canvas.height - 1) * this.antialiasSubpixels + this.antialiasSampling;
@@ -185,18 +185,10 @@ if (guiUtils.abgrOrder) {
  * @method Pixels#antialiasSampling
  */
 Pixels.prototype.antialias = function() {
-    switch (this.antialiasType) {
-        case 'none':
-            break;
-        case '2*2 subpixels':
-            this.subpixelSampling([1, 4, 4, 1]);
-            break;
-        case '3*3 subpixels':
-            this.subpixelSampling([47, 159, 294, 294, 159, 47]);
-            break;
-                    case '4*4 subpixels':
-            this.subpixelSampling([29,82,166,235,235,166,82,29]);
-            break;
+    if (this.antialiasSubpixels!==1){
+        const weights=guiUtils.gaussWeights(this.antialiasSubpixels);
+        console.log(this.antialiasSubpixels,weights);
+        this.subpixelSampling(weights);
     }
 };
 

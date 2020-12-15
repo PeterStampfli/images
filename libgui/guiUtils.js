@@ -409,15 +409,15 @@ guiUtils.topPosition = function(theElement) {
 //================================================================================
 
 /**
-* save blob to a file using an off-screen a-tag element
-* optional callback
-* @function saveBlobAsFile
-* @param {Blob} blob
-* @param {string} filename - with extension
-* @param {function} callback -optional
-*/
+ * save blob to a file using an off-screen a-tag element
+ * optional callback
+ * @function saveBlobAsFile
+ * @param {Blob} blob
+ * @param {string} filename - with extension
+ * @param {function} callback -optional
+ */
 
-function saveBlobAsFile(blob, filename,callback=function(){}) {
+function saveBlobAsFile(blob, filename, callback = function() {}) {
     const objURL = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.style.display = "none";
@@ -438,14 +438,14 @@ function saveBlobAsFile(blob, filename,callback=function(){}) {
  * @param {string} extension - optional, 'png' or 'jpg', default is 'jpg'
  * @param {function} callback - optional
  */
-guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg',callback=function(){}) {
+guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg', callback = function() {}) {
     if (extension === 'png') {
         canvas.toBlob(function(blob) {
-            saveBlobAsFile(blob, filename + '.png',callback);
+            saveBlobAsFile(blob, filename + '.png', callback);
         }, 'image/png');
     } else {
         canvas.toBlob(function(blob) {
-            saveBlobAsFile(blob, filename + '.jpg',callback);
+            saveBlobAsFile(blob, filename + '.jpg', callback);
         }, 'image/jpeg');
     }
 };
@@ -605,3 +605,24 @@ guiUtils.quadraticEquation = function(a, b, c, data) {
     }
     return true;
 };
+
+//-----------------------------------------------------------------
+
+/**
+ * calculate array of weights for gaussian sampling
+ * dividing pixel/timeintervall into n subpixels/subframes
+ * using 2n elements for sampling
+ * weight function f(x)=2**(-4*x*x)
+ * @method guiUtils.gaussWeights
+ * @param {integer} n
+ * @result array of integer weights
+ */
+guiUtils.gaussWeights = function(n) {
+    const result = [];
+    result.length = 2 * n;
+    for (var i = -n; i < n; i++) {
+        const x = (2 * i + 1) / n;
+        result[i + n] = Math.round(1000 * Math.pow(2, -x * x));
+    }
+    return result;
+}

@@ -89,6 +89,23 @@ output.drawGridChanged = function() {
 };
 
 /**
+ * set the drawing routines
+ * and that output now can draw
+ * @method output.setDrawMethods
+ * @param {function} canvasChanged - for when canvas dimensions, and thus mapping changes
+ * @param {function} imageChanged - optional, default is canvasChanged
+ * @param {function} gridChanged - optional, default is canvasChanged
+ * @param {function} backgroundChanged - optional, default is canvasChanged
+ */
+output.setDrawMethods = function(canvasChanged, imageChanged = canvasChanged, backgroundChanged = canvasChanged, gridChanged = canvasChanged) {
+    output.startDrawing();
+    output.drawCanvasChanged = canvasChanged;
+    output.drawImageChanged = imageChanged;
+    output.drawBackgroundChanged = backgroundChanged;
+    output.drawGridChanged = gridChanged;
+};
+
+/**
  * get the limit for free space at the left
  * taking into account all guis at the left side
  * @method leftSpaceLimit
@@ -375,8 +392,8 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
                 ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
                 output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
                 output.canvas.style.backgroundColor = output.backgroundColorString;
-                console.log(output.pixels.antialiasType);
-                if (output.pixels.antialiasType === 'none') {
+                console.log(output.pixels.antialiasSubpixels);
+                if (output.pixels.antialiasSubpixels === 1) {
                     output.drawImageChanged();
                     console.log('imch');
                 } else {
@@ -399,7 +416,7 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
                     if (guiUtils.isObject(output.pixels)) {
                         output.pixels.transparency = output.transparency;
                     }
-                    if (output.pixels.antialiasType === 'none') {
+                    if (output.pixels.antialiasSubpixels === 1) {
                         output.drawImageChanged();
                     } else {
                         output.drawBackgroundChanged();
@@ -652,34 +669,21 @@ output.addAntialiasing = function() {
         return;
     }
     const pixels = output.pixels;
-    pixels.antialiasType = 'none';
     pixels.antialiasSubpixels = 1;
     pixels.antialiasSampling = 1;
     output.antialiasingController = output.imagePocessingGui.add({
         type: 'selection',
         params: pixels,
-        property: 'antialiasType',
-        options: ['none', '2*2 subpixels', '3*3 subpixels', '4*4 subpixels'],
+        property: 'antialiasSubpixels',
+        options: {
+            'none': 1,
+            '2*2 subpixels': 2,
+            '3*3 subpixels': 3,
+            '4*4 subpixels': 4
+        },
         labelText: 'antialiasing',
         onChange: function() {
-            switch (pixels.antialiasType) {
-                case 'none':
-                    pixels.antialiasSubpixels = 1;
-                    pixels.antialiasSampling = 1;
-                    break;
-                case '2*2 subpixels':
-                    pixels.antialiasSubpixels = 2;
-                    pixels.antialiasSampling = 4;
-                    break;
-                case '3*3 subpixels':
-                    pixels.antialiasSubpixels = 3;
-                    pixels.antialiasSampling = 6;
-                    break;
-                case '4*4 subpixels':
-                    pixels.antialiasSubpixels = 4;
-                    pixels.antialiasSampling = 8;
-                    break;
-            }
+            pixels.antialiasSampling = 2 * pixels.antialiasSubpixels;
             output.drawCanvasChanged();
         }
     });
@@ -865,12 +869,12 @@ const zoom = {};
 
 zoom.running = false;
 zoom.recording = false;
-zoom.animationNSteps = 100;
-zoom.animationFps = 10;
+zoom.nSteps = 100;
+zoom.fps = 10;
 zoom.antialiasing = 1;
 
 zoom.getFps = function() {
-    return zoom.animationFps;
+    return zoom.fps;
 };
 
 zoom.isRecording = function() {
@@ -935,7 +939,7 @@ output.addZoomAnimation = function() {
     zoom.antialiasingController.addHelp('Do antialiasing of the image if there are rapidly moving image parts. Makes an average over several intermediate subframes. For antialiasing jaggies you need to antialias the image.');
 
     // set animation to start
-    output.animationResetButton = gui.add({
+    zoom.animationResetButton = gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
@@ -950,26 +954,26 @@ output.addZoomAnimation = function() {
         }
     });
     // run animation: initialize params
-    output.animationRunningButton = output.animationResetButton.add({
+    zoom.animationRunningButton = zoom.animationResetButton.add({
         type: 'button',
         buttonText: 'run',
         onClick: function() {
-            if (output.animationRunning) {
+            if (zoom.running) {
                 // animation is running, thus stop it
                 // now pressing button again would start it
-                output.animationRunningButton.setButtonText('run');
-                output.animationRunning = false;
+                zoom.animationRunningButton.setButtonText('run');
+                zoom.running = false;
             } else {
                 // animation not running, start it
                 // pressing button again would now stop it
-                output.animationRunningButton.setButtonText('stop');
-                output.animationRunning = true;
+                zoom.animationRunningButton.setButtonText('stop');
+                zoom.running = true;
                 if (animationFinished()) {
                     output.animationStep = 0;
-                    output.animationScale = output.animationStartScale;
+                    zoom.scale = zoom.startScale;
                 }
                 // update zoom factor
-                output.animationZoomFactor = Math.exp(Math.log(output.animationEndScale / output.animationStartScale) / (output.animationNSteps - 1));
+                output.animationZoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / (output.animationNSteps - 1));
                 output.coordinateTransform.scaleController.setValue(output.animationScale);
             }
         }
@@ -985,48 +989,47 @@ output.addZoomAnimation = function() {
 
 
 
-    output.animationStartScaleController = gui.add({
+    zoom.startScaleController = gui.add({
         type: 'number',
-        params: output,
-        property: 'animationStartScale',
+        params: zoom,
+        property: 'startScale',
         labelText: 'scale at start'
     });
-    output.animationStartScaleController.add({
+    zoom.startScaleController.add({
         type: 'button',
         buttonText: 'current value',
         onClick: function() {
-            output.animationStartScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
+            zoom.startScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
         }
     });
-    output.animationEndScaleController = gui.add({
+    zoom.endScaleController = gui.add({
         type: 'number',
-        params: output,
-        property: 'animationEndScale',
+        params: zoom,
+        property: 'endScale',
         labelText: 'scale at end'
     });
-    output.animationEndScaleController.add({
+    zoom.endScaleController.add({
         type: 'button',
         buttonText: 'current value',
         onClick: function() {
-            output.animationEndScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
+            zoom.endScaleController.setValueOnly(output.coordinateTransform.scaleController.getValue());
         }
     });
-    output.animationNStepsController = gui.add({
+    zoom.nStepsController = gui.add({
         type: 'number',
-        params: output,
-        property: 'animationNSteps',
+        params: zoom,
+        property: 'nSteps',
         labelText: 'total steps',
         min: 1,
         step: 1
     });
-    output.animationFpsController = output.animationNStepsController.add({
+    zoom.fpsController =zoom.nStepsController.add({
         type: 'number',
-        params: output,
-        property: 'animationFps',
-        labelText: 'fps',
+        params: zoom,
+        property: 'fps',
         min: 1
     });
-    output.animationStepMessage = gui.addParagraph('steps done: ' + 0);
+    zoom.stepMessage = gui.addParagraph('steps done: ' + 0);
 };
 
 /**
@@ -1112,9 +1115,6 @@ output.createPixels = function() {
     output.pixels = pixels;
     pixels.transparency = output.transparency;
     pixels.backgroundColor = output.backgroundColor;
-    pixels.antialiasType = 'none';
-    pixels.antialiasSubpixels = 1;
-    pixels.antialiasSampling = 1;
 };
 
 /**
