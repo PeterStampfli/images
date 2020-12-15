@@ -50,16 +50,16 @@ morph.startTime = 0;
 morph.endTime = 2; // animation finished for larger time values
 morph.recording = false;
 morph.running = false;
-morph.animationNSteps = 100;
-morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps;
-morph.animationFps = 10;
+morph.nSteps = 100;
+morph.dTime = (morph.endTime - morph.startTime) / morph.nSteps;
+morph.fps = 10;
 morph.antialiasing = 1;
 
 
 animation.setThing(morph);
 
 morph.getFps = function() {
-    return morph.animationFps;
+    return morph.fps;
 };
 
 morph.isRecording = function() {
@@ -80,7 +80,7 @@ morph.draw = function() {
 };
 
 morph.advance = function() {
-    morph.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
+    morph.stepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
     morph.time += morph.dTime;
     if (morph.time > morph.endTime) {
         morph.running = false;
@@ -110,7 +110,7 @@ morph.setup = function() {
             morph.running = false;
             animation.reset();
             morph.runningButton.setButtonText('run');
-            morph.animationStepMessage.innerText = 'steps done: ' + 0;
+            morph.stepMessage.innerText = 'steps done: ' + 0;
             if (morph.time !== 0) {
                 morph.time = 0;
                 morph.draw();
@@ -131,12 +131,13 @@ morph.setup = function() {
             morph.running = false;
             animation.reset();
             morph.runningButton.setButtonText('run');
-            morph.animationStepMessage.innerText = 'steps done: ' + 0;
+            morph.stepMessage.innerText = 'steps done: ' + 0;
             if (morph.time !== 0) {
                 morph.time = 0;
                 morph.draw();
-                console.log('redraw)')
-            }        }
+                console.log('redraw');
+            }
+        }
     });
 
     // run animation: initialize params
@@ -157,31 +158,31 @@ morph.setup = function() {
                 if (morph.time > morph.endTime) {
                     animation.reset();
                     morph.time = 0;
-                    morph.animationStepMessage.innerText = 'steps done: ' + 0;
+                    morph.stepMessage.innerText = 'steps done: ' + 0;
                 }
-                morph.dTime = (morph.endTime - morph.startTime) / morph.animationNSteps/morph.antialiasing;
+                morph.dTime = (morph.endTime - morph.startTime) / morph.nSteps / morph.antialiasing;
                 console.log('dTime', morph.dTime);
                 animation.run();
             }
         }
     });
 
-    morph.animationNStepsController = gui.add({
+    morph.nStepsController = gui.add({
         type: 'number',
         params: morph,
-        property: 'animationNSteps',
+        property: 'nSteps',
         labelText: 'total steps',
         min: 1,
         step: 1
     });
-    morph.animationFpsController = morph.animationNStepsController.add({
+    morph.fpsController = morph.nStepsController.add({
         type: 'number',
         params: morph,
-        property: 'animationFps',
+        property: 'fps',
         labelText: 'fps',
         min: 1
     });
-    morph.animationStepMessage = gui.addParagraph('steps done: ' + 0);
+    morph.stepMessage = gui.addParagraph('steps done: ' + 0);
 
 
     console.log(morph.getFps());

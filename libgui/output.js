@@ -929,7 +929,7 @@ output.addZoomAnimation = function() {
             zoom.running = false;
             animation.reset();
             zoom.runningButton.setButtonText('run');
-            zoom.animationStepMessage.innerText = 'steps done: ' + 0;
+            zoom.stepMessage.innerText = 'steps done: ' + 0;
             if (Math.abs(zoom.scale - zoom.startScale)) {
                 zoom.scale = zoom.startScale;
                 zoom.draw();
@@ -939,34 +939,32 @@ output.addZoomAnimation = function() {
     zoom.antialiasingController.addHelp('Do antialiasing of the image if there are rapidly moving image parts. Makes an average over several intermediate subframes. For antialiasing jaggies you need to antialias the image.');
 
     // set animation to start
-    zoom.animationResetButton = gui.add({
+    zoom.resetButton = gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
-            output.animationRunningButton.setButtonText('run');
-            output.animationRunning = false;
-            output.animationRecordingButton.setValue(false);
-            output.animationScale = output.animationStartScale;
-            output.coordinateTransform.scaleController.setValue(output.animationScale);
-            output.animationStep = 0;
-            output.animationScale = output.animationStartScale;
-            output.animationStepMessage.innerText = 'steps done: ' + 0;
+            zoom.runningButton.setButtonText('run');
+            zoom.running = false;
+            zoom.recordingButton.setValue(false);
+            zoom.scale = zoom.startScale;
+            output.coordinateTransform.scaleController.setValue(zoom.scale);
+            zoom.stepMessage.innerText = 'steps done: ' + 0;
         }
     });
     // run animation: initialize params
-    zoom.animationRunningButton = zoom.animationResetButton.add({
+    zoom.runningButton = zoom.resetButton.add({
         type: 'button',
         buttonText: 'run',
         onClick: function() {
             if (zoom.running) {
                 // animation is running, thus stop it
                 // now pressing button again would start it
-                zoom.animationRunningButton.setButtonText('run');
+                zoom.runningButton.setButtonText('run');
                 zoom.running = false;
             } else {
                 // animation not running, start it
                 // pressing button again would now stop it
-                zoom.animationRunningButton.setButtonText('stop');
+                zoom.runningButton.setButtonText('stop');
                 zoom.running = true;
                 if (animationFinished()) {
                     output.animationStep = 0;
@@ -980,15 +978,12 @@ output.addZoomAnimation = function() {
     });
 
     BooleanButton.greenRedBackground();
-    zoom.animationRecordingButton = gui.add({
+    zoom.recordingButton = gui.add({
         type: 'boolean',
         labelText: 'recording',
         params: zoom,
         property: 'recording'
     });
-
-
-
     zoom.startScaleController = gui.add({
         type: 'number',
         params: zoom,
@@ -1023,7 +1018,7 @@ output.addZoomAnimation = function() {
         min: 1,
         step: 1
     });
-    zoom.fpsController =zoom.nStepsController.add({
+    zoom.fpsController = zoom.nStepsController.add({
         type: 'number',
         params: zoom,
         property: 'fps',
