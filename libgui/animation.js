@@ -34,7 +34,6 @@ animation.reset = function() {
         animation.antialiasing = 1;
     }
     animation.subframes.length = 0;
-    console.log(animation.antialiasing);
 };
 
 /**
@@ -107,29 +106,14 @@ animation.makeNextFrame = function() {
 };
 
 /**
- * sampling the subframes for antialiasing, pu reesult in subframe[0]
+ * sampling the subframes for antialiasing, put result in subframe[0]
  * animation.sampling
  */
 animation.sampling = function() {
-    var weights, normalize;
-    // setting up weights, twice the number of subframes (Gaussian 1/2 smoothing)
-    switch (animation.antialiasing) {
-        case 2:
-            weights = [1, 4, 4, 1];
-            break;
-                    case 3:
-            weights = [47, 159, 294, 294, 159, 47];
-            break;
-                    case 4:
-            weights = [29,82,166,235,235,166,82,29];
-            break;
-    }
-    console.log(weights);
+    const weights = guiUtils.gaussWeights(animation.antialiasing);
     let sum = 0;
     weights.forEach(w => sum += w);
-    console.log(sum);
-    normalize = 1 / sum;
-    console.log(normalize);
+    const normalize = 1 / sum;
     const subframePixels = [];
     const subLength = animation.subframes.length;
     subframePixels.length = subLength;
@@ -139,7 +123,6 @@ animation.sampling = function() {
     }
     const pixelLength = subframePixels[0].length;
     const subframePixels0 = subframePixels[0];
-    console.log(pixelLength);
     for (let iPixel = 0; iPixel < pixelLength; iPixel++) {
         let a = 0;
         let b = 0;
@@ -148,7 +131,7 @@ animation.sampling = function() {
         for (let iSub = 0; iSub < subLength; iSub++) {
             const coeff = weights[iSub];
             const pixel = subframePixels[iSub][iPixel];
-            a += coeff*(pixel&0xff);
+            a += coeff * (pixel & 0xff);
             r += coeff * (pixel >>> 24);
             g += coeff * ((pixel >>> 16) & 0xff);
             b += coeff * ((pixel >>> 8) & 0xff);
@@ -158,9 +141,6 @@ animation.sampling = function() {
         g = Math.round(normalize * g);
         b = Math.round(normalize * b);
         subframePixels0[iPixel] = a | ((b << 8) & 0xff00) | ((g << 16) & 0xff0000) | ((r << 24) & 0xff000000);
-        if (iPixel===0){
-            console.log('argb',a,r,g,b)
-        }
     }
 };
 
@@ -180,6 +160,9 @@ animation.run = function() {
     if (animation.thing.isRunning()) {
         animation.startOfFrame = Date.now();
         if (animation.antialiasing > 1) {
+            // antialiasing: copy subframes from the canvas
+            // and sample
+            // put sampled data back to canvas
             const canvasContext = output.canvasContext;
             const width = output.canvas.width;
             const height = output.canvas.height;
@@ -206,11 +189,9 @@ animation.run = function() {
             canvasContext.putImageData(animation.subframes[0], 0, 0);
 
         } else {
-            console.log('no antialiasing');
             animation.thing.draw();
             animation.thing.advance();
         }
-        console.log('recor',animation.thing.isRecording());
         if (animation.thing.isRecording()) {
             const name = animation.makeFrameFileName();
             animation.frameNumber += 1;

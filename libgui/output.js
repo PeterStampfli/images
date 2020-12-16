@@ -901,8 +901,15 @@ zoom.endScale = 10;
 zoom.advance = function() {
     zoom.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
     zoom.scale *= zoom.zoomFactor;
-    let finished = (zoom.scale < Math.min(zoom.startScale, zoom.endScale) - 0.00001);
-    finished = finished || (zoom.scale > Math.max(zoom.startScale, zoom.endScale) + 0.00001);
+    var finished;
+    // we can zoom in or out
+    // and also catch case that start and end scale are same
+    if (zoom.startScale > zoom.endScale) {
+        finished = (zoom.scale < zoom.endScale + 0.00001);
+
+    } else {
+        finished = (zoom.scale > zoom.endScale - 0.00001);
+    }
     if (finished) {
         zoom.running = false;
         zomm.runningButton.setButtonText('run');
@@ -930,7 +937,7 @@ output.addZoomAnimation = function() {
             animation.reset();
             zoom.runningButton.setButtonText('run');
             zoom.stepMessage.innerText = 'steps done: ' + 0;
-            if (Math.abs(zoom.scale - zoom.startScale)) {
+            if (Math.abs(zoom.scale - zoom.startScale) > 0.0001) {
                 zoom.scale = zoom.startScale;
                 zoom.draw();
             }
@@ -943,12 +950,15 @@ output.addZoomAnimation = function() {
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
-            zoom.runningButton.setButtonText('run');
             zoom.running = false;
+            zoom.runningButton.setButtonText('run');
             zoom.recordingButton.setValue(false);
-            zoom.scale = zoom.startScale;
-            output.coordinateTransform.scaleController.setValue(zoom.scale);
             zoom.stepMessage.innerText = 'steps done: ' + 0;
+            // if zoom is not at start: reset scale and redraw
+            if (Math.abs(zoom.scale - zoom.startScale) > 0.0001) {
+                zoom.scale = zoom.startScale;
+                zoom.draw();
+            }
         }
     });
     // run animation: initialize params
@@ -966,13 +976,13 @@ output.addZoomAnimation = function() {
                 // pressing button again would now stop it
                 zoom.runningButton.setButtonText('stop');
                 zoom.running = true;
-                if (animationFinished()) {
+                if ((zoom.scale > zoom.endScale) || (zoom.scale < zoom.startScale)) {
                     output.animationStep = 0;
                     zoom.scale = zoom.startScale;
                 }
                 // update zoom factor
-                output.animationZoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / (output.animationNSteps - 1));
-                output.coordinateTransform.scaleController.setValue(output.animationScale);
+                zoom.zoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / (zoom.nSteps - 1) / zoom.antialiasing);
+                animation.run();
             }
         }
     });

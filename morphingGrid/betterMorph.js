@@ -124,13 +124,14 @@ morph.setup = function() {
         params: morph,
         property: 'recording'
     });
-    morph.animationResetButton = gui.add({
+    morph.resetButton = gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
             morph.running = false;
             animation.reset();
             morph.runningButton.setButtonText('run');
+            morph.recordingButton.setValue(false);
             morph.stepMessage.innerText = 'steps done: ' + 0;
             if (morph.time !== 0) {
                 morph.time = 0;
@@ -141,7 +142,7 @@ morph.setup = function() {
     });
 
     // run animation: initialize params
-    morph.runningButton = morph.animationResetButton.add({
+    morph.runningButton = morph.resetButton.add({
         type: 'button',
         buttonText: 'run',
         onClick: function() {
@@ -161,7 +162,6 @@ morph.setup = function() {
                     morph.stepMessage.innerText = 'steps done: ' + 0;
                 }
                 morph.dTime = (morph.endTime - morph.startTime) / morph.nSteps / morph.antialiasing;
-                console.log('dTime', morph.dTime);
                 animation.run();
             }
         }
@@ -183,8 +183,4 @@ morph.setup = function() {
         min: 1
     });
     morph.stepMessage = gui.addParagraph('steps done: ' + 0);
-
-
-    console.log(morph.getFps());
-    console.log(morph.isRecording());
 };
