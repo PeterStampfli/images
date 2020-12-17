@@ -162,7 +162,7 @@ morph.setup = function() {
                     morph.stepMessage.innerText = 'steps done: ' + 0;
                 }
                 morph.dTime = (morph.endTime - morph.startTime) / morph.nSteps / morph.antialiasing;
-                animation.run();
+                animation.start();
             }
         }
     });

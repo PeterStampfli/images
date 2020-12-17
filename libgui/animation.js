@@ -18,6 +18,7 @@ animation.frameNumberDigits = 5;
 animation.frameNumber = 0;
 animation.thing = null;
 animation.subframes = [];
+animation.isRunning = false; // the pipeline is running, do not create a second one
 
 /**
  * reset the animation
@@ -38,6 +39,7 @@ animation.reset = function() {
 
 /**
  * set the thing to animate
+ * if something else is 'in animation' then reset animation
  * @method animation.setThing
  * @param {object} thing
  */
@@ -49,7 +51,9 @@ animation.setThing = function(thing) {
 };
 
 /**
- * check if given thing is used
+ * check if given thing is used, in case that there are multiple animations
+ * if the new thing is not yet animated: reset animation
+ * drawing, advance: check if thing is still animated, else reset ui
  * @method animation.usesThing
  * @param {object} thing
  * @return boolean, true if thing used
@@ -70,8 +74,8 @@ animation.usesThing = function(thing) {
 
 /*
  * has methods:
- * animation.reset() - begin a new animation, frame number === 0
- * animation.run() - run the animation
+ * animation.reset() - begin a new animation, frame number === 1
+ * animation.start() - start the animation
  */
 
 //============================================================
@@ -91,7 +95,7 @@ animation.makeFrameFileName = function() {
 };
 
 /**
- * wait to complete frame time and make next frame
+ * wait to complete frame time and make next frame using animation.run
  * @method animation.makeNextFrame
  */
 animation.makeNextFrame = function() {
@@ -141,6 +145,18 @@ animation.sampling = function() {
         g = Math.round(normalize * g);
         b = Math.round(normalize * b);
         subframePixels0[iPixel] = a | ((b << 8) & 0xff00) | ((g << 16) & 0xff0000) | ((r << 24) & 0xff000000);
+    }
+};
+
+/**
+ * start animation only if 'pipeline' not already running
+ * use if different animations are possible
+ * @method animation.start
+ */
+animation.start = function() {
+    if (!animation.isRunning) {
+        animation.isRunning = true;
+        animation.run();
     }
 };
 
@@ -205,5 +221,7 @@ animation.run = function() {
             animation.frameNumber += 1;
             animation.makeNextFrame();
         }
+    } else {
+        animation.isRunning = false;
     }
 };

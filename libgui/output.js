@@ -975,6 +975,7 @@ output.addZoomAnimation = function() {
                 // animation not running, start it
                 // pressing button again would now stop it
                 zoom.runningButton.setButtonText('stop');
+                animation.setThing(zoom);
                 zoom.running = true;
                 if ((zoom.scale > zoom.endScale) || (zoom.scale < zoom.startScale)) {
                     output.animationStep = 0;
