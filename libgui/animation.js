@@ -23,7 +23,7 @@ animation.isRunning = false; // the pipeline is running, do not create a second 
 /**
  * reset the animation
  * set frame number to one, for recording
- * set antialiasing, initialize subframes if required
+ * set antialiasing, delete subframes (reset when chnging antialias)
  * NOTE: Changing thing.antialias has only effect after reset
  * @method animation.reset
  */
@@ -118,6 +118,8 @@ animation.sampling = function() {
     let sum = 0;
     weights.forEach(w => sum += w);
     const normalize = 1 / sum;
+    // create the views of the pixels of the subframes
+    // gives only new views of already existing data
     const subframePixels = [];
     const subLength = animation.subframes.length;
     subframePixels.length = subLength;
@@ -183,6 +185,7 @@ animation.run = function() {
             const width = output.canvas.width;
             const height = output.canvas.height;
             // after reset we have to create a new set of subframes
+            console.log(animation.subframes.length);
             if (animation.subframes.length === 0) {
                 animation.subframes.length = 2 * animation.antialiasing;
                 for (let i = 0; i < animation.antialiasing; i++) {

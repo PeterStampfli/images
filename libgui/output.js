@@ -899,20 +899,14 @@ zoom.startScale = 1;
 zoom.endScale = 10;
 
 zoom.advance = function() {
-    zoom.animationStepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
+    zoom.stepMessage.innerHTML = 'steps done: ' + animation.frameNumber;
     zoom.scale *= zoom.zoomFactor;
-    var finished;
-    // we can zoom in or out
-    // and also catch case that start and end scale are same
-    if (zoom.startScale > zoom.endScale) {
-        finished = (zoom.scale < zoom.endScale + 0.00001);
-
-    } else {
-        finished = (zoom.scale > zoom.endScale - 0.00001);
-    }
+    // zoomingin: stop if scale becomes too small
+    // zooming out: stop if scale becomes too large
+    const finished = (zoom.startScale > zoom.endScale) ? (zoom.scale < zoom.endScale) : (zoom.scale > zoom.endScale);
     if (finished) {
         zoom.running = false;
-        zomm.runningButton.setButtonText('run');
+        zoom.runningButton.setButtonText('run');
     }
 };
 
@@ -934,11 +928,17 @@ output.addZoomAnimation = function() {
         },
         onChange: function() {
             zoom.running = false;
+            animation.setThing(zoom);
             animation.reset();
             zoom.runningButton.setButtonText('run');
             zoom.stepMessage.innerText = 'steps done: ' + 0;
+            // if zoom is not at start: reset zoom scale
             if (Math.abs(zoom.scale - zoom.startScale) > 0.0001) {
                 zoom.scale = zoom.startScale;
+            }
+            // if zoom scale and actual scale not the same, redraw with zoom scale
+            const currentScale = output.coordinateTransform.scaleController.getValue();
+            if (Math.abs(zoom.scale - currentScale) > 0.0001) {
                 zoom.draw();
             }
         }
@@ -954,9 +954,15 @@ output.addZoomAnimation = function() {
             zoom.runningButton.setButtonText('run');
             zoom.recordingButton.setValue(false);
             zoom.stepMessage.innerText = 'steps done: ' + 0;
-            // if zoom is not at start: reset scale and redraw
+            animation.setThing(zoom);
+            animation.reset();
+            // if zoom is not at start: reset zoom scale
             if (Math.abs(zoom.scale - zoom.startScale) > 0.0001) {
                 zoom.scale = zoom.startScale;
+            }
+            // if zoom scale and actual scale not the same, redraw with zoom scale
+            const currentScale = output.coordinateTransform.scaleController.getValue();
+            if (Math.abs(zoom.scale - currentScale) > 0.0001) {
                 zoom.draw();
             }
         }
@@ -978,12 +984,12 @@ output.addZoomAnimation = function() {
                 animation.setThing(zoom);
                 zoom.running = true;
                 if ((zoom.scale > zoom.endScale) || (zoom.scale < zoom.startScale)) {
-                    output.animationStep = 0;
+                    animation.reset();
                     zoom.scale = zoom.startScale;
                 }
                 // update zoom factor
-                zoom.zoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / (zoom.nSteps - 1) / zoom.antialiasing);
-                animation.run();
+                zoom.zoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / zoom.nSteps  / zoom.antialiasing);
+                animation.start();
             }
         }
     });
@@ -999,7 +1005,16 @@ output.addZoomAnimation = function() {
         type: 'number',
         params: zoom,
         property: 'startScale',
-        labelText: 'scale at start'
+        labelText: 'scale at start',
+        min: 0.001,
+        onChange: function() {
+            if (Math.abs(zoom.startScale / zoom.endScale - 1) < 0.1) {
+                alert('Zoom animation: Start- and endscale are too close to each other.');
+                zoom.runningButton.setActive(false);
+            } else {
+                zoom.runningButton.setActive(true);
+            }
+        }
     });
     zoom.startScaleController.add({
         type: 'button',
@@ -1012,7 +1027,16 @@ output.addZoomAnimation = function() {
         type: 'number',
         params: zoom,
         property: 'endScale',
-        labelText: 'scale at end'
+        labelText: 'scale at end',
+        min: 0.001,
+        onChange: function() {
+            if (Math.abs(zoom.startScale / zoom.endScale - 1) < 0.1) {
+                alert('Zoom animation: Start- and endscale are too close to each other.');
+                zoom.runningButton.setActive(false);
+            } else {
+                zoom.runningButton.setActive(true);
+            }
+        }
     });
     zoom.endScaleController.add({
         type: 'button',
