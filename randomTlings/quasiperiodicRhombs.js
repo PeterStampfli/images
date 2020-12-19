@@ -41,7 +41,7 @@ const colorController = {
 const widthController = {
     type: 'number',
     params: truchet,
-    min: 1,
+    min: 0.1,
     onChange: function() {
         draw();
     }
@@ -76,7 +76,7 @@ gui.add({
     type: 'selection',
     params: truchet,
     property: 'motif',
-    options: ['schematic', 'lines'],
+    options: ['schematic', 'lines', 'halves'],
     onChange: function() {
         draw();
     }
@@ -103,6 +103,7 @@ gui.add({
 
 function drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
     canvasContext.beginPath();
     canvasContext.moveTo(rightX, rightY);
     canvasContext.lineTo(topX, topY);
@@ -115,6 +116,7 @@ function drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
 function rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     const centerX = 0.5 * (topX + bottomX);
     const centerY = 0.5 * (topY + bottomY);
+    canvasContext.fillStyle = truchet.color1;
     canvasContext.beginPath();
     canvasContext.moveTo(0.5 * (centerX + bottomX), 0.5 * (centerY + bottomY));
     canvasContext.lineTo(0.5 * (centerX + rightX), 0.5 * (centerY + rightY));
@@ -126,6 +128,7 @@ function rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
 function upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     const centerX = 0.5 * (topX + bottomX);
     const centerY = 0.5 * (topY + bottomY);
+    canvasContext.fillStyle = truchet.color1;
     canvasContext.beginPath();
     canvasContext.moveTo(0.5 * (centerX + rightX), 0.5 * (centerY + rightY));
     canvasContext.lineTo(0.5 * (centerX + topX), 0.5 * (centerY + topY));
@@ -135,8 +138,9 @@ function upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
 }
 
 function drawVLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
-     output.setLineWidth(truchet.lineWidth);
-   const bottomRightX = 0.5 * (bottomX + rightX);
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    const bottomRightX = 0.5 * (bottomX + rightX);
     const bottomRightY = 0.5 * (bottomY + rightY);
     const topRightX = 0.5 * (topX + rightX);
     const topRightY = 0.5 * (topY + rightY);
@@ -155,8 +159,9 @@ function drawVLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
 }
 
 function drawHLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
-     output.setLineWidth(truchet.lineWidth);
-   const bottomRightX = 0.5 * (bottomX + rightX);
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    const bottomRightX = 0.5 * (bottomX + rightX);
     const bottomRightY = 0.5 * (bottomY + rightY);
     const topRightX = 0.5 * (topX + rightX);
     const topRightY = 0.5 * (topY + rightY);
@@ -174,6 +179,80 @@ function drawHLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
     canvasContext.stroke();
 }
 
+function drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.color1;
+    canvasContext.beginPath();
+    canvasContext.moveTo(leftX, leftY);
+    canvasContext.lineTo(topX, topY);
+    canvasContext.lineTo(rightX, rightY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
+function drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.color1;
+    canvasContext.beginPath();
+    canvasContext.moveTo(leftX, leftY);
+    canvasContext.lineTo(topX, topY);
+    canvasContext.lineTo(bottomX, bottomY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
+
+function drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.color1;
+    const bottomRightX = 0.5 * (bottomX + rightX);
+    const bottomRightY = 0.5 * (bottomY + rightY);
+    const topRightX = 0.5 * (topX + rightX);
+    const topRightY = 0.5 * (topY + rightY);
+    const bottomLeftX = 0.5 * (bottomX + leftX);
+    const bottomLeftY = 0.5 * (bottomY + leftY);
+    const topLeftX = 0.5 * (topX + leftX);
+    const topLeftY = 0.5 * (topY + leftY);
+    canvasContext.beginPath();
+    canvasContext.moveTo(bottomLeftX, bottomLeftY);
+    canvasContext.lineTo(topLeftX, topLeftY);
+    canvasContext.lineTo(topX, topY);
+    canvasContext.lineTo(topRightX, topRightY);
+    canvasContext.lineTo(bottomRightX, bottomRightY);
+    canvasContext.lineTo(bottomX, bottomY);
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
+function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.color1;
+    const bottomRightX = 0.5 * (bottomX + rightX);
+    const bottomRightY = 0.5 * (bottomY + rightY);
+    const topRightX = 0.5 * (topX + rightX);
+    const topRightY = 0.5 * (topY + rightY);
+    const bottomLeftX = 0.5 * (bottomX + leftX);
+    const bottomLeftY = 0.5 * (bottomY + leftY);
+    const topLeftX = 0.5 * (topX + leftX);
+    const topLeftY = 0.5 * (topY + leftY);
+    canvasContext.beginPath();
+    canvasContext.moveTo(bottomLeftX, bottomLeftY);
+    canvasContext.lineTo(leftX,leftY);
+    canvasContext.lineTo(topLeftX, topLeftY);
+    canvasContext.lineTo(topRightX, topRightY);
+    canvasContext.lineTo(rightX,rightY);
+    canvasContext.lineTo(bottomRightX, bottomRightY);
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
+
 function vRhomb(gen, bottomX, bottomY, topX, topY) {
     const centerX = 0.5 * (bottomX + topX);
     const centerY = 0.5 * (bottomY + topY);
@@ -183,7 +262,6 @@ function vRhomb(gen, bottomX, bottomY, topX, topY) {
     const rightY = centerY - rt32 * upX;
     const leftX = centerX - rt32 * upY;
     const leftY = centerY + rt32 * upX;
-
     if (gen >= rhombs.maxGen) {
         switch (truchet.motif) {
             case 'schematic':
@@ -193,7 +271,11 @@ function vRhomb(gen, bottomX, bottomY, topX, topY) {
             case 'lines':
                 drawVLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
                 break;
+            case 'halves':
+                drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                break;
         }
+        drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
     } else {
         gen += 1;
         vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
@@ -226,7 +308,11 @@ function hRhomb(gen, bottomX, bottomY, topX, topY) {
             case 'lines':
                 drawHLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
                 break;
+            case 'halves':
+                drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                break;
         }
+        drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
     } else {
         gen += 1;
         vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
@@ -255,10 +341,9 @@ function draw() {
     vRhomb(0, 0.5, -0.6, 0.5, 0.6);
     */
     hRhomb(0, -0.5, rt32, -0.5, -rt32);
-        canvasContext.strokeStyle = 'yellow';
 
-    hRhomb(0, -0.5, -rt32, 1,0);
-    hRhomb(0, 1,0, -0.5, rt32);
+    hRhomb(0, -0.5, -rt32, 1, 0);
+    hRhomb(0, 1, 0, -0.5, rt32);
 
 
     output.drawGrid();
