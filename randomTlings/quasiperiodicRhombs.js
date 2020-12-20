@@ -6,6 +6,41 @@ import {
 }
 from "../libgui/modules.js";
 
+/*
+ * check if a polygon is inside the canvas, including margin around polygon
+ * @method isInsideCanvas
+ * @params {number ...} coordinates - x,y coordinate pairs for cornerss of the polygon
+ * @return boolean, true if polygon plus margin touches canvas
+ */
+// relative margin, increase if there are holes
+let polygonMargin = 1.1;
+
+function isInsideCanvas(coordinates) {
+    const length = arguments.length;
+    let maxX = arguments[0];
+    let minX = arguments[0];
+    let maxY = arguments[1];
+    let minY = arguments[1];
+    for (let i = 2; i < length; i += 2) {
+        maxX = Math.max(maxX, arguments[i]);
+        minX = Math.min(minX, arguments[i]);
+        maxY = Math.max(maxY, arguments[i + 1]);
+        minY = Math.min(minX, arguments[i + 1]);
+    }
+    const margin = polygonMargin * Math.max(maxX - minX, maxY - minY);
+    let inside = (maxX + margin > output.coordinateTransform.shiftX);
+    inside = inside && (maxY + margin > output.coordinateTransform.shiftY);
+    const right = output.coordinateTransform.shiftX + output.coordinateTransform.totalScale * output.canvas.width;
+    inside = inside && (minX - margin < right);
+    const top = output.coordinateTransform.shiftY + output.coordinateTransform.totalScale * output.canvas.height;
+    inside = inside && (minY - margin < top);
+    console.log('coords', arguments);
+    console.log('minx,maxx,miny,maxy');
+    console.log('left,right,bottom,top', output.coordinateTransform.shiftX, right, output.coordinateTransform.shiftY, top);
+    console.log(inside);
+    return inside;
+}
+
 const gui = new ParamGui({
     closed: false
 });
@@ -17,6 +52,7 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
+output.addCursorPosition();
 const size = 2;
 output.setInitialCoordinates(0, 0, size);
 output.addGrid();
@@ -76,7 +112,7 @@ gui.add({
     type: 'selection',
     params: truchet,
     property: 'motif',
-    options: ['schematic', 'lines', 'halves'],
+    options: ['schematic', 'lines', 'halves', 'v stripes on vrhombs', 'x'],
     onChange: function() {
         draw();
     }
@@ -243,15 +279,14 @@ function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)
     const topLeftY = 0.5 * (topY + leftY);
     canvasContext.beginPath();
     canvasContext.moveTo(bottomLeftX, bottomLeftY);
-    canvasContext.lineTo(leftX,leftY);
+    canvasContext.lineTo(leftX, leftY);
     canvasContext.lineTo(topLeftX, topLeftY);
     canvasContext.lineTo(topRightX, topRightY);
-    canvasContext.lineTo(rightX,rightY);
+    canvasContext.lineTo(rightX, rightY);
     canvasContext.lineTo(bottomRightX, bottomRightY);
     canvasContext.fill();
     canvasContext.stroke();
 }
-
 
 function vRhomb(gen, bottomX, bottomY, topX, topY) {
     const centerX = 0.5 * (bottomX + topX);
@@ -262,31 +297,36 @@ function vRhomb(gen, bottomX, bottomY, topX, topY) {
     const rightY = centerY - rt32 * upX;
     const leftX = centerX - rt32 * upY;
     const leftY = centerY + rt32 * upX;
-    if (gen >= rhombs.maxGen) {
-        switch (truchet.motif) {
-            case 'schematic':
-                drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
-            case 'lines':
-                drawVLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
-            case 'halves':
-                drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
+    if (isInsideCanvas(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)) {
+        if (gen >= rhombs.maxGen) {
+            switch (truchet.motif) {
+                case 'schematic':
+                    drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+                case 'lines':
+                    drawVLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+                case 'halves':
+                    drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+                case 'v stripes on v rhombs':
+                    drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+            }
+            drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+        } else {
+            gen += 1;
+            vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
+            hRhomb(gen, bottomX + upX, bottomY + upY, leftX - upX, leftY - upY);
+            hRhomb(gen, leftX, leftY, bottomX + upX, bottomY + upY);
+            hRhomb(gen, bottomX + upX, bottomY + upY, rightX, rightY);
+            vRhomb(gen, topX - upX, topY - upY, bottomX + upX, bottomY + upY);
+            vRhomb(gen, topX - upX, topY - upY, rightX, rightY);
+            vRhomb(gen, topX - upX, topY - upY, leftX, leftY);
+            hRhomb(gen, topX - upX, topY - upY, rightX + upX, rightY + upY);
+            vRhomb(gen, topX, topY, topX - upX, topY - upY);
         }
-        drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-    } else {
-        gen += 1;
-        vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
-        hRhomb(gen, bottomX + upX, bottomY + upY, leftX - upX, leftY - upY);
-        hRhomb(gen, leftX, leftY, bottomX + upX, bottomY + upY);
-        hRhomb(gen, bottomX + upX, bottomY + upY, rightX, rightY);
-        vRhomb(gen, topX - upX, topY - upY, bottomX + upX, bottomY + upY);
-        vRhomb(gen, topX - upX, topY - upY, rightX, rightY);
-        vRhomb(gen, topX - upX, topY - upY, leftX, leftY);
-        hRhomb(gen, topX - upX, topY - upY, rightX + upX, rightY + upY);
-        vRhomb(gen, topX, topY, topX - upX, topY - upY);
     }
 }
 
@@ -299,32 +339,33 @@ function hRhomb(gen, bottomX, bottomY, topX, topY) {
     const rightY = centerY - rt32 * upX;
     const leftX = centerX - rt32 * upY;
     const leftY = centerY + rt32 * upX;
-    if (gen >= rhombs.maxGen) {
-        switch (truchet.motif) {
-            case 'schematic':
-                drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
-            case 'lines':
-                drawHLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
-            case 'halves':
-                drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-                break;
+    if (isInsideCanvas(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)) {
+        if (gen >= rhombs.maxGen) {
+            switch (truchet.motif) {
+                case 'schematic':
+                    drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+                case 'lines':
+                    drawHLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+                case 'halves':
+                    drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    break;
+            }
+            // drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+        } else {
+            gen += 1;
+            vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
+            hRhomb(gen, bottomX + upX, bottomY + upY, leftX - upX, leftY - upY);
+            vRhomb(gen, bottomX + upX, bottomY + upY, leftX, leftY);
+            hRhomb(gen, bottomX + upX, bottomY + upY, rightX, rightY);
+            hRhomb(gen, topX - upX, topY - upY, bottomX + upX, bottomY + upY);
+            hRhomb(gen, rightX, rightY, topX - upX, topY - upY);
+            vRhomb(gen, topX - upX, topY - upY, leftX, leftY);
+            hRhomb(gen, topX - upX, topY - upY, rightX + upX, rightY + upY);
+            vRhomb(gen, topX, topY, topX - upX, topY - upY);
         }
-        drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
-    } else {
-        gen += 1;
-        vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
-        hRhomb(gen, bottomX + upX, bottomY + upY, leftX - upX, leftY - upY);
-        vRhomb(gen, bottomX + upX, bottomY + upY, leftX, leftY);
-        hRhomb(gen, bottomX + upX, bottomY + upY, rightX, rightY);
-        hRhomb(gen, topX - upX, topY - upY, bottomX + upX, bottomY + upY);
-        hRhomb(gen, rightX, rightY, topX - upX, topY - upY);
-        vRhomb(gen, topX - upX, topY - upY, leftX, leftY);
-        //  rhomb(gen, topX - upX, topY - upY, leftX + upX, leftY + upY);
-        hRhomb(gen, topX - upX, topY - upY, rightX + upX, rightY + upY);
-        vRhomb(gen, topX, topY, topX - upX, topY - upY);
     }
 }
 

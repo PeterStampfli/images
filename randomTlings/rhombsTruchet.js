@@ -47,12 +47,12 @@ function rightArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) 
     canvasContext.lineTo(bottomX, bottomY);
     canvasContext.closePath();
     canvasContext.stroke();
-    const centerX=0.5*(topX+bottomX);
-    const centerY=0.5*(topY+bottomY);
+    const centerX = 0.5 * (topX + bottomX);
+    const centerY = 0.5 * (topY + bottomY);
     canvasContext.beginPath();
-    canvasContext.moveTo(0.5*(centerX+bottomX),0.5*(centerY+bottomY));
-    canvasContext.lineTo(0.5*(centerX+rightX),0.5*(centerY+rightY));
-    canvasContext.lineTo(0.5*(centerX+topX),0.5*(centerY+topY));
+    canvasContext.moveTo(0.5 * (centerX + bottomX), 0.5 * (centerY + bottomY));
+    canvasContext.lineTo(0.5 * (centerX + rightX), 0.5 * (centerY + rightY));
+    canvasContext.lineTo(0.5 * (centerX + topX), 0.5 * (centerY + topY));
     canvasContext.closePath();
     canvasContext.fill();
 }
@@ -65,12 +65,12 @@ function upArrow(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     canvasContext.lineTo(bottomX, bottomY);
     canvasContext.closePath();
     canvasContext.stroke();
-    const centerX=0.5*(topX+bottomX);
-    const centerY=0.5*(topY+bottomY);
+    const centerX = 0.5 * (topX + bottomX);
+    const centerY = 0.5 * (topY + bottomY);
     canvasContext.beginPath();
-    canvasContext.moveTo(0.5*(centerX+rightX),0.5*(centerY+rightY));
-    canvasContext.lineTo(0.5*(centerX+topX),0.5*(centerY+topY));
-    canvasContext.lineTo(0.5*(centerX+leftX),0.5*(centerY+leftY));
+    canvasContext.moveTo(0.5 * (centerX + rightX), 0.5 * (centerY + rightY));
+    canvasContext.lineTo(0.5 * (centerX + topX), 0.5 * (centerY + topY));
+    canvasContext.lineTo(0.5 * (centerX + leftX), 0.5 * (centerY + leftY));
     canvasContext.closePath();
     canvasContext.fill();
 }
@@ -84,24 +84,24 @@ function drawLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     const bottomLeftY = 0.5 * (bottomY + leftY);
     const topLeftX = 0.5 * (topX + leftX);
     const topLeftY = 0.5 * (topY + leftY);
-    if (Math.random()>0.5){
-canvasContext.beginPath();
-canvasContext.moveTo(bottomLeftX,bottomLeftY);
-canvasContext.lineTo(topLeftX,topLeftY);
-canvasContext.moveTo(bottomX,bottomY);
-canvasContext.lineTo(topX,topY);
-canvasContext.moveTo(bottomRightX,bottomRightY);
-canvasContext.lineTo(topRightX,topRightY);
-canvasContext.stroke();
+    if (Math.random() > 0.5) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(bottomLeftX, bottomLeftY);
+        canvasContext.lineTo(topLeftX, topLeftY);
+        canvasContext.moveTo(bottomX, bottomY);
+        canvasContext.lineTo(topX, topY);
+        canvasContext.moveTo(bottomRightX, bottomRightY);
+        canvasContext.lineTo(topRightX, topRightY);
+        canvasContext.stroke();
     } else {
-canvasContext.beginPath();
-canvasContext.moveTo(bottomLeftX,bottomLeftY);
-canvasContext.lineTo(bottomRightX,bottomRightY);
-canvasContext.moveTo(rightX,rightY);
-canvasContext.lineTo(leftX,leftY);
-canvasContext.moveTo(topLeftX,topLeftY);
-canvasContext.lineTo(topRightX,topRightY);
-canvasContext.stroke();
+        canvasContext.beginPath();
+        canvasContext.moveTo(bottomLeftX, bottomLeftY);
+        canvasContext.lineTo(bottomRightX, bottomRightY);
+        canvasContext.moveTo(rightX, rightY);
+        canvasContext.lineTo(leftX, leftY);
+        canvasContext.moveTo(topLeftX, topLeftY);
+        canvasContext.lineTo(topRightX, topRightY);
+        canvasContext.stroke();
     }
 }
 
@@ -116,20 +116,20 @@ function rhomb(gen, bottomX, bottomY, topX, topY) {
     const leftY = centerY + rt32 * upX;
 
     if (gen >= rhombs.maxGen) {
-     //   drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+        //   drawBorder(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
         drawLines(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
 
     } else {
         gen += 1;
         rhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
         rhomb(gen, leftX - upX, leftY - upY, bottomX + upX, bottomY + upY);
-      //  rhomb(gen, rightX - upX, rightY - upY, bottomX + upX, bottomY + upY);
+        //  rhomb(gen, rightX - upX, rightY - upY, bottomX + upX, bottomY + upY);
         rhomb(gen, leftX, leftY, bottomX + upX, bottomY + upY);
         rhomb(gen, rightX, rightY, bottomX + upX, bottomY + upY);
         rhomb(gen, topX - upX, topY - upY, bottomX + upX, bottomY + upY);
         rhomb(gen, topX - upX, topY - upY, rightX, rightY);
         rhomb(gen, topX - upX, topY - upY, leftX, leftY);
-      //  rhomb(gen, topX - upX, topY - upY, leftX + upX, leftY + upY);
+        //  rhomb(gen, topX - upX, topY - upY, leftX + upX, leftY + upY);
         rhomb(gen, topX - upX, topY - upY, rightX + upX, rightY + upY);
         rhomb(gen, topX - upX, topY - upY, topX, topY);
     }
@@ -139,14 +139,14 @@ function rhomb(gen, bottomX, bottomY, topX, topY) {
 
 function draw() {
     output.fillCanvasBackgroundColor();
-canvasContext.strokeStyle = 'white';
-canvasContext.fillStyle = 'white';
+    canvasContext.strokeStyle = 'white';
+    canvasContext.fillStyle = 'white';
 
-canvasContext.lineCap = 'round';
-output.setLineWidth(4);
+    canvasContext.lineCap = 'round';
+    output.setLineWidth(4);
     rhomb(0, -0.5, rt32, 1, 0);
     rhomb(0, -0.5, -rt32, 1, 0);
-    rhomb(0, -0.5, rt32, -0.5,-rt32);
+    rhomb(0, -0.5, rt32, -0.5, -rt32);
 
 
     output.drawGrid();
