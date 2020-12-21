@@ -41,6 +41,48 @@ function isInsideCanvas(coordinates) {
     return inside;
 }
 
+// overprinting to avoid gaps
+// center for overprinting
+let overCenterX = 0;
+let overCenterY = 0;
+// overprinting factor is truchet.overprint
+
+/**
+ * set center for overprinting
+ * @method setOverCenter
+ * @param {number} x
+ * @param {number} y
+ */
+function setOverCenter(x, y) {
+    overCenterX = x;
+    overCenterY = y;
+}
+
+/**
+ * move path to stretched point 
+ * @method overMoveTo
+ * @param {number} x
+ * @param {number} y
+ */
+function overMoveTo(x, y) {
+    x = truchet.overprint * (x - overCenterX) + overCenterX;
+    y = truchet.overprint * (y - overCenterY) + overCenterY;
+    output.canvasContext.moveTo(x, y);
+}
+
+/**
+ * make line to stretched point 
+ * @method overLineTo
+ * @param {number} x
+ * @param {number} y
+ */
+function overLineTo(x, y) {
+    x = truchet.overprint * (x - overCenterX) + overCenterX;
+    y = truchet.overprint * (y - overCenterY) + overCenterY;
+    output.canvasContext.lineTo(x, y);
+}
+
+
 const gui = new ParamGui({
     closed: false
 });
@@ -52,7 +94,7 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
-output.addCursorPosition();
+output.addCursorposition();
 const size = 2;
 output.setInitialCoordinates(0, 0, size);
 output.addGrid();
@@ -65,6 +107,7 @@ truchet.lineColor = '#000000';
 truchet.lineWidth = 3;
 truchet.lines = true;
 truchet.motif = 'schematic';
+truchet.overprint=1.02;
 
 const colorController = {
     type: 'color',
@@ -82,6 +125,11 @@ const widthController = {
         draw();
     }
 };
+
+
+gui.add(widthController, {
+    property: 'overprint'
+});
 
 gui.add(colorController, {
     property: 'color1'
@@ -112,7 +160,7 @@ gui.add({
     type: 'selection',
     params: truchet,
     property: 'motif',
-    options: ['schematic', 'lines', 'halves', 'v stripes on vrhombs', 'x'],
+    options: ['schematic', 'lines', 'halves', 'v stripes on v rhombs', 'x'],
     onChange: function() {
         draw();
     }
@@ -219,26 +267,32 @@ function drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     output.setLineWidth(truchet.lineWidth);
     canvasContext.strokeStyle = truchet.lineColor;
     canvasContext.fillStyle = truchet.color1;
+    setOverCenter(0.5 * (bottomX + topX), 0.5 * (bottomY + topY));
     canvasContext.beginPath();
-    canvasContext.moveTo(leftX, leftY);
-    canvasContext.lineTo(topX, topY);
-    canvasContext.lineTo(rightX, rightY);
+    overMoveTo(leftX, leftY);
+    overLineTo(topX, topY);
+    overLineTo(rightX, rightY);
     canvasContext.closePath();
     canvasContext.fill();
+    if (truchet.lines){
     canvasContext.stroke();
+}
 }
 
 function drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     output.setLineWidth(truchet.lineWidth);
     canvasContext.strokeStyle = truchet.lineColor;
     canvasContext.fillStyle = truchet.color1;
+    setOverCenter(0.5 * (bottomX + topX), 0.5 * (bottomY + topY));
     canvasContext.beginPath();
-    canvasContext.moveTo(leftX, leftY);
-    canvasContext.lineTo(topX, topY);
-    canvasContext.lineTo(bottomX, bottomY);
+    overMoveTo(leftX, leftY);
+    overLineTo(topX, topY);
+    overLineTo(bottomX, bottomY);
     canvasContext.closePath();
     canvasContext.fill();
+    if (truchet.lines){
     canvasContext.stroke();
+}
 }
 
 
@@ -254,15 +308,18 @@ function drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)
     const bottomLeftY = 0.5 * (bottomY + leftY);
     const topLeftX = 0.5 * (topX + leftX);
     const topLeftY = 0.5 * (topY + leftY);
+    setOverCenter(0.5 * (bottomX + topX), 0.5 * (bottomY + topY));
     canvasContext.beginPath();
-    canvasContext.moveTo(bottomLeftX, bottomLeftY);
-    canvasContext.lineTo(topLeftX, topLeftY);
-    canvasContext.lineTo(topX, topY);
-    canvasContext.lineTo(topRightX, topRightY);
-    canvasContext.lineTo(bottomRightX, bottomRightY);
-    canvasContext.lineTo(bottomX, bottomY);
+    overMoveTo(bottomLeftX, bottomLeftY);
+    overLineTo(topLeftX, topLeftY);
+    overLineTo(topX, topY);
+    overLineTo(topRightX, topRightY);
+    overLineTo(bottomRightX, bottomRightY);
+    overLineTo(bottomX, bottomY);
     canvasContext.fill();
+    if (truchet.lines){
     canvasContext.stroke();
+}
 }
 
 function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
@@ -277,15 +334,18 @@ function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)
     const bottomLeftY = 0.5 * (bottomY + leftY);
     const topLeftX = 0.5 * (topX + leftX);
     const topLeftY = 0.5 * (topY + leftY);
+    setOverCenter(0.5 * (bottomX + topX), 0.5 * (bottomY + topY));
     canvasContext.beginPath();
-    canvasContext.moveTo(bottomLeftX, bottomLeftY);
-    canvasContext.lineTo(leftX, leftY);
-    canvasContext.lineTo(topLeftX, topLeftY);
-    canvasContext.lineTo(topRightX, topRightY);
-    canvasContext.lineTo(rightX, rightY);
-    canvasContext.lineTo(bottomRightX, bottomRightY);
+    overMoveTo(bottomLeftX, bottomLeftY);
+    overLineTo(leftX, leftY);
+    overLineTo(topLeftX, topLeftY);
+    overLineTo(topRightX, topRightY);
+    overLineTo(rightX, rightY);
+    overLineTo(bottomRightX, bottomRightY);
     canvasContext.fill();
+    if (truchet.lines){
     canvasContext.stroke();
+}
 }
 
 function vRhomb(gen, bottomX, bottomY, topX, topY) {
@@ -311,10 +371,9 @@ function vRhomb(gen, bottomX, bottomY, topX, topY) {
                     drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
                     break;
                 case 'v stripes on v rhombs':
-                    drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
+                    drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
                     break;
             }
-            drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY);
         } else {
             gen += 1;
             vRhomb(gen, bottomX, bottomY, bottomX + upX, bottomY + upY);
