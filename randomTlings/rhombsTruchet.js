@@ -143,6 +143,7 @@ function draw() {
     canvasContext.fillStyle = 'white';
 
     canvasContext.lineCap = 'round';
+    canvasContext.lineJoin = 'round';
     output.setLineWidth(4);
     rhomb(0, -0.5, rt32, 1, 0);
     rhomb(0, -0.5, -rt32, 1, 0);

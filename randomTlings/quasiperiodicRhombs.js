@@ -107,7 +107,7 @@ truchet.lineColor = '#000000';
 truchet.lineWidth = 3;
 truchet.lines = true;
 truchet.motif = 'schematic';
-truchet.overprint=1.02;
+truchet.overprint = 1.02;
 
 const colorController = {
     type: 'color',
@@ -274,9 +274,9 @@ function drawHHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     overLineTo(rightX, rightY);
     canvasContext.closePath();
     canvasContext.fill();
-    if (truchet.lines){
-    canvasContext.stroke();
-}
+    if (truchet.lines) {
+        canvasContext.stroke();
+    }
 }
 
 function drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
@@ -290,9 +290,9 @@ function drawVHalf(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
     overLineTo(bottomX, bottomY);
     canvasContext.closePath();
     canvasContext.fill();
-    if (truchet.lines){
-    canvasContext.stroke();
-}
+    if (truchet.lines) {
+        canvasContext.stroke();
+    }
 }
 
 
@@ -317,9 +317,9 @@ function drawVStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)
     overLineTo(bottomRightX, bottomRightY);
     overLineTo(bottomX, bottomY);
     canvasContext.fill();
-    if (truchet.lines){
-    canvasContext.stroke();
-}
+    if (truchet.lines) {
+        canvasContext.stroke();
+    }
 }
 
 function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY) {
@@ -343,9 +343,9 @@ function drawHStripe(bottomX, bottomY, rightX, rightY, topX, topY, leftX, leftY)
     overLineTo(rightX, rightY);
     overLineTo(bottomRightX, bottomRightY);
     canvasContext.fill();
-    if (truchet.lines){
-    canvasContext.stroke();
-}
+    if (truchet.lines) {
+        canvasContext.stroke();
+    }
 }
 
 function vRhomb(gen, bottomX, bottomY, topX, topY) {
