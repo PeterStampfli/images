@@ -83,8 +83,8 @@ function overLineTo(x, y) {
 }
 
 /**
-* linear interpolation for numbers
-*/
+ * linear interpolation for numbers
+ */
 
 
 const gui = new ParamGui({
@@ -101,14 +101,16 @@ output.addCoordinateTransform();
 output.addCursorposition();
 let size = 500;
 output.setInitialCoordinates(0, 0, size);
-size=100;
+
+// size is actually line length of substitution pieces
+size = 100;
 output.addGrid();
 
 // parameters for drawing
 const truchet = {};
-truchet.rhomb = '#ff0000'; 
-truchet.square = '#00ff00'; 
-truchet.triangle = '#ffff00'; 
+truchet.rhomb = '#ff0000';
+truchet.square = '#00ff00';
+truchet.triangle = '#ffff00';
 truchet.lineColor = '#000000';
 truchet.lineWidth = 3;
 
@@ -152,169 +154,411 @@ gui.add(colorController, {
 
 const rt32 = 0.5 * Math.sqrt(3);
 
-const basicX=[];
-basicX.length=15;
+const basicX = [];
+basicX.length = 15;
 
-const basicY=[];
-basicY.length=15;
+const basicY = [];
+basicY.length = 15;
 
-for (let i=0;i<15;i++){
-    basicX[i]=Math.cos(Math.PI*i/6)*size;
-    basicY[i]=Math.sin(Math.PI*i/6)*size;
+for (let i = 0; i < 15; i++) {
+    basicX[i] = Math.cos(Math.PI * i / 6) * size;
+    basicY[i] = Math.sin(Math.PI * i / 6) * size;
 }
 
-const secondX=[];
-const secondY=[];
-secondX.length=14;
-secondY.length=14;
+const secondX = [];
+const secondY = [];
+secondX.length = 14;
+secondY.length = 14;
 
-for (let i=0;i<14;i++){
-secondX[i]=basicX[i]+basicX[i+1];
-secondY[i]=basicY[i]+basicY[i+1];
+for (let i = 0; i < 14; i++) {
+    secondX[i] = basicX[i] + basicX[i + 1];
+    secondY[i] = basicY[i] + basicY[i + 1];
 }
 
-function drawDodecagonRhombs(){
-   const  canvasContext=output.canvasContext;
-       output.setLineWidth(truchet.lineWidth);
+function drawDodecagonRhombs() {
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(truchet.lineWidth);
     canvasContext.lineCap = 'round';
     canvasContext.lineJoin = 'round';
-    canvasContext.fillStyle=truchet.rhomb;
-    canvasContext.strokeStyle=truchet.lineColor;
-for (let i=0;i<12;i++){
-    canvasContext.beginPath();
-canvasContext.moveTo(0,0);
-canvasContext.lineTo(basicX[i],basicY[i]);
-canvasContext.lineTo(secondX[i],secondY[i]);
-canvasContext.lineTo(basicX[i+1],basicY[i+1]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-}
-    canvasContext.fillStyle=truchet.triangle;
-for (let i=0;i<12;i++){
-    canvasContext.beginPath();
-    canvasContext.moveTo(basicX[i+1],basicY[i+1]);
-canvasContext.lineTo(secondX[i],secondY[i]);
-canvasContext.lineTo(secondX[i+1],secondY[i+1]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-}
+    canvasContext.fillStyle = truchet.rhomb;
+    canvasContext.strokeStyle = truchet.lineColor;
+    for (let i = 0; i < 12; i++) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(0, 0);
+        canvasContext.lineTo(basicX[i], basicY[i]);
+        canvasContext.lineTo(secondX[i], secondY[i]);
+        canvasContext.lineTo(basicX[i + 1], basicY[i + 1]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    }
+    canvasContext.fillStyle = truchet.triangle;
+    for (let i = 0; i < 12; i++) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(basicX[i + 1], basicY[i + 1]);
+        canvasContext.lineTo(secondX[i], secondY[i]);
+        canvasContext.lineTo(secondX[i + 1], secondY[i + 1]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    }
 }
 
-function drawSquare(){
-   const  canvasContext=output.canvasContext;
-       output.setLineWidth(truchet.lineWidth);
+function drawSquare() {
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(truchet.lineWidth);
     canvasContext.lineCap = 'round';
     canvasContext.lineJoin = 'round';
-    canvasContext.strokeStyle=truchet.lineColor;
-    canvasContext.fillStyle=truchet.rhomb;
-for (let i=1;i<12;i+=3){
-    canvasContext.beginPath();
-canvasContext.moveTo(0,0);
-canvasContext.lineTo(basicX[i],basicY[i]);
-canvasContext.lineTo(secondX[i],secondY[i]);
-canvasContext.lineTo(basicX[i+1],basicY[i+1]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-}
-    canvasContext.fillStyle=truchet.triangle;
-for (let i=2;i<12;i+=3){
-    canvasContext.beginPath();
-canvasContext.moveTo(0,0);
-canvasContext.lineTo(basicX[i],basicY[i]);
-canvasContext.lineTo(basicX[i+2],basicY[i+2]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-canvasContext.moveTo(basicX[i],basicY[i]);
-canvasContext.lineTo(secondX[i],secondY[i]);
-canvasContext.lineTo(secondX[i-1],secondY[i-1]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-canvasContext.moveTo(basicX[i+2],basicY[i+2]);
-canvasContext.lineTo(secondX[i+1],secondY[i+1]);
-canvasContext.lineTo(secondX[i+2],secondY[i+2]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-}
-    canvasContext.fillStyle=truchet.square;
-for (let i=2;i<12;i+=3){
-    canvasContext.beginPath();
-canvasContext.moveTo(basicX[i],basicY[i]);
-canvasContext.lineTo(secondX[i],secondY[i]);
-canvasContext.lineTo(secondX[i+1],secondY[i+1]);
-canvasContext.lineTo(basicX[i+2],basicY[i+2]);
-canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-}
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.rhomb;
+    for (let i = 1; i < 12; i += 3) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(0, 0);
+        canvasContext.lineTo(basicX[i], basicY[i]);
+        canvasContext.lineTo(secondX[i], secondY[i]);
+        canvasContext.lineTo(basicX[i + 1], basicY[i + 1]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    }
+    canvasContext.fillStyle = truchet.triangle;
+    for (let i = 2; i < 12; i += 3) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(0, 0);
+        canvasContext.lineTo(basicX[i], basicY[i]);
+        canvasContext.lineTo(basicX[i + 2], basicY[i + 2]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+        canvasContext.moveTo(basicX[i], basicY[i]);
+        canvasContext.lineTo(secondX[i], secondY[i]);
+        canvasContext.lineTo(secondX[i - 1], secondY[i - 1]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+        canvasContext.moveTo(basicX[i + 2], basicY[i + 2]);
+        canvasContext.lineTo(secondX[i + 1], secondY[i + 1]);
+        canvasContext.lineTo(secondX[i + 2], secondY[i + 2]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    }
+    canvasContext.fillStyle = truchet.square;
+    for (let i = 2; i < 12; i += 3) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(basicX[i], basicY[i]);
+        canvasContext.lineTo(secondX[i], secondY[i]);
+        canvasContext.lineTo(secondX[i + 1], secondY[i + 1]);
+        canvasContext.lineTo(basicX[i + 2], basicY[i + 2]);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    }
 }
 
-function drawRhomb(){
-    const rt3=Math.sqrt(3);
-    const right=Math.sqrt(0.5)*size;
-      const  canvasContext=output.canvasContext;
-       output.setLineWidth(truchet.lineWidth);
+function drawRhomb() {
+    const rt3 = Math.sqrt(3);
+    const right = Math.sqrt(0.5) * size;
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(truchet.lineWidth);
     canvasContext.lineCap = 'round';
     canvasContext.lineJoin = 'round';
-    canvasContext.strokeStyle=truchet.lineColor;
-    canvasContext.fillStyle=truchet.square;
-     canvasContext.beginPath();
-   canvasContext.moveTo(right,0);
-    canvasContext.lineTo(0,right);
-    canvasContext.lineTo(-right,0);
-    canvasContext.lineTo(0,-right);
-
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.square;
+    canvasContext.beginPath();
+    canvasContext.moveTo(right, 0);
+    canvasContext.lineTo(0, right);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.lineTo(0, -right);
     canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
-
-const bottom=right/Math.tan(Math.PI/12);
-const bottomRightX=right/(1+rt3);
-const bottomRightY=bottom*rt3/(1+rt3);
-   canvasContext.fillStyle=truchet.rhomb;
-     canvasContext.beginPath();
-   canvasContext.moveTo(0,-bottom);
-    canvasContext.lineTo(bottomRightX,-bottomRightY);
-    canvasContext.lineTo(0,-right);
-    canvasContext.lineTo(-bottomRightX,-bottomRightY);
-
+    canvasContext.fill();
+    canvasContext.stroke();
+    const bottom = right / Math.tan(Math.PI / 12);
+    const bottomRightX = right / (1 + rt3);
+    const bottomRightY = bottom * rt3 / (1 + rt3);
+    canvasContext.fillStyle = truchet.rhomb;
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, -bottom);
+    canvasContext.lineTo(bottomRightX, -bottomRightY);
+    canvasContext.lineTo(0, -right);
+    canvasContext.lineTo(-bottomRightX, -bottomRightY);
     canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
- canvasContext.fillStyle=truchet.rhomb;
-     canvasContext.beginPath();
-   canvasContext.moveTo(0,bottom);
-    canvasContext.lineTo(bottomRightX,bottomRightY);
-    canvasContext.lineTo(0,right);
-    canvasContext.lineTo(-bottomRightX,bottomRightY);
-
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.fillStyle = truchet.rhomb;
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, bottom);
+    canvasContext.lineTo(bottomRightX, bottomRightY);
+    canvasContext.lineTo(0, right);
+    canvasContext.lineTo(-bottomRightX, bottomRightY);
     canvasContext.closePath();
-canvasContext.fill();
-canvasContext.stroke();
+    canvasContext.fill();
+    canvasContext.stroke();
+    const rightBottomX = right * (1 + rt32) / (1 + rt3);
+    const rightBottomY = bottom * rt32 / (1 + rt3);
+    const rightRightX = 2 * rightBottomX;
+    const rightRightY = 2 * rightBottomY - right;
+    canvasContext.fillStyle = truchet.triangle;
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, right);
+    canvasContext.lineTo(rightRightX, rightRightY);
+    canvasContext.lineTo(right, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, right);
+    canvasContext.lineTo(rightRightX, rightRightY);
+    canvasContext.lineTo(bottomRightX, bottomRightY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, -right);
+    canvasContext.lineTo(rightRightX, -rightRightY);
+    canvasContext.lineTo(right, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, -right);
+    canvasContext.lineTo(rightRightX, -rightRightY);
+    canvasContext.lineTo(bottomRightX, -bottomRightY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, right);
+    canvasContext.lineTo(-rightRightX, rightRightY);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, right);
+    canvasContext.lineTo(-rightRightX, rightRightY);
+    canvasContext.lineTo(-bottomRightX, bottomRightY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, -right);
+    canvasContext.lineTo(-rightRightX, -rightRightY);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, -right);
+    canvasContext.lineTo(-rightRightX, -rightRightY);
+    canvasContext.lineTo(-bottomRightX, -bottomRightY);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
 
-const rightBottomX=right*(1+rt32)/(1+rt3);
-const rightBottomY=bottom*rt32/(1+rt3);
-const rightRightX=2*rightBottomX;
-const rightRightY=2*rightBottomY-right;
- canvasContext.fillStyle=truchet.rhomb;
+function drawTriangleA() {
+    const rt3 = Math.sqrt(3);
+    const right = (0.5 + rt32) * size;
+    const top = (1.5 + rt32) * size;
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.square;
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(size / 2, -size / 2);
+    canvasContext.lineTo(-size / 2, -size / 2);
+    canvasContext.lineTo(-size / 2, size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, size);
+    canvasContext.lineTo(rt32 * size, top - 0.5 * size);
+    canvasContext.lineTo(0, right);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, size);
+    canvasContext.lineTo(-rt32 * size, top - 0.5 * size);
+    canvasContext.lineTo(0, right);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.fillStyle = truchet.triangle;
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(-size / 2, size / 2);
+    canvasContext.lineTo(0, top - size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, top - size);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(rt32 * size, top - size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(0, top - size);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(-rt32 * size, top - size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, 0);
+    canvasContext.lineTo(size / 2, -size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, 0);
+    canvasContext.lineTo(right, size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.lineTo(-size / 2, -size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.lineTo(-right, size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
 
+
+function drawTriangleB() {
+    const rt3 = Math.sqrt(3);
+    const right = (0.5 + rt32) * size;
+    const top = (1.5 + rt32) * size;
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(truchet.lineWidth);
+    canvasContext.strokeStyle = truchet.lineColor;
+    canvasContext.fillStyle = truchet.square;
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(size / 2, -size / 2);
+    canvasContext.lineTo(-size / 2, -size / 2);
+    canvasContext.lineTo(-size / 2, size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.fillStyle = truchet.triangle;
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(-size / 2, size / 2);
+    canvasContext.lineTo(0, top - size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, 0);
+    canvasContext.lineTo(size / 2, -size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, 0);
+    canvasContext.lineTo(right, size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.lineTo(-size / 2, -size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, 0);
+    canvasContext.lineTo(-right, size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(right, size);
+    canvasContext.lineTo(size / 2, size * 1.5);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-right, size);
+    canvasContext.lineTo(-size / 2, size * 1.5);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.fillStyle = truchet.rhomb;
+    canvasContext.beginPath();
+    canvasContext.moveTo(size / 2, size / 2);
+    canvasContext.lineTo(size / 2, size * 1.5);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(0, top - size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(right, size);
+    canvasContext.lineTo(size / 2, size * 1.5);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(rt32 * size, top - size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-size / 2, size / 2);
+    canvasContext.lineTo(-size / 2, size * 1.5);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(0, top - size);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+    canvasContext.beginPath();
+    canvasContext.moveTo(-right, size);
+    canvasContext.lineTo(-size / 2, size * 1.5);
+    canvasContext.lineTo(0, top);
+    canvasContext.lineTo(-rt32 * size, top - size / 2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
 }
 
 function draw() {
+    output.canvasContext.lineCap = 'round';
+    output.canvasContext.lineJoin = 'round';
     console.log('draw');
     output.fillCanvasBackgroundColor();
+    output.correctYAxis();
 
-//drawDodecagonRhombs();
-//drawSquare();
-drawRhomb();
+    //drawDodecagonRhombs();
+    //drawSquare();
+    // drawRhomb();
+    //  drawTriangleA();
+    drawTriangleB();
 
     output.drawGrid();
 }
-
 output.setDrawMethods(draw);
+output.backgroundColorController.setValue('#ffffff');
+
 draw();

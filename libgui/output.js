@@ -349,6 +349,9 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
     }
     output.canvas = document.createElement("canvas");
     output.canvasContext = output.canvas.getContext("2d");
+    // better defaault for line cap and line join
+    output.canvasContext.lineCap = 'round';
+    output.canvasContext.lineJoin = 'round';
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
     output.imagePocessingGui = gui; // default
@@ -392,7 +395,6 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
                 ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
                 output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
                 output.canvas.style.backgroundColor = output.backgroundColorString;
-                console.log(output.pixels.antialiasSubpixels);
                 if (output.pixels.antialiasSubpixels === 1) {
                     output.drawImageChanged();
                     console.log('imch');
@@ -862,6 +864,17 @@ output.addCoordinateTransform = function() {
     };
 };
 
+/**
+ * invert the y-axis such that it appears with the correct direction
+ * (plus goes up) for canvasContext drawing
+ * @method output.correctYAxis
+ */
+output.correctYAxis = function() {
+    let transform = output.canvasContext.getTransform();
+    transform.d = -Math.abs(transform.d);
+    output.canvasContext.setTransform(transform);
+};
+
 //  zoom animation
 //===================================================
 
@@ -988,7 +1001,7 @@ output.addZoomAnimation = function() {
                     zoom.scale = zoom.startScale;
                 }
                 // update zoom factor
-                zoom.zoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / zoom.nSteps  / zoom.antialiasing);
+                zoom.zoomFactor = Math.exp(Math.log(zoom.endScale / zoom.startScale) / zoom.nSteps / zoom.antialiasing);
                 animation.start();
             }
         }
