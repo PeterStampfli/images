@@ -864,17 +864,6 @@ output.addCoordinateTransform = function() {
     };
 };
 
-/**
- * invert the y-axis such that it appears with the correct direction
- * (plus goes up) for canvasContext drawing
- * @method output.correctYAxis
- */
-output.correctYAxis = function() {
-    let transform = output.canvasContext.getTransform();
-    transform.d = -Math.abs(transform.d);
-    output.canvasContext.setTransform(transform);
-};
-
 //  zoom animation
 //===================================================
 
@@ -1316,5 +1305,136 @@ output.fillCanvasBackgroundColor = function() {
         }
     } else {
         output.clearCanvas();
+    }
+};
+
+//   canvas context drawing
+//==============================================================
+
+/**
+ * invert the y-axis such that it appears with the correct direction
+ * (plus goes up) for canvasContext drawing
+ * @method output.correctYAxis
+ */
+output.correctYAxis = function() {
+    let transform = output.canvasContext.getTransform();
+    transform.d = -Math.abs(transform.d);
+    output.canvasContext.setTransform(transform);
+};
+
+/**
+ * make round line joins and ends
+ * @method output.lineRound
+ */
+output.lineRound = function() {
+    output.canvasContext.lineCap = 'round';
+    output.canvasContext.lineJoin = 'round';
+};
+
+/**
+ * check if a polygon is inside the canvas, including margin around polygon
+ * @method output.isInsideCanvas
+ * @params {number ...} coordinates - x,y coordinate pairs for corners of the polygon
+ * @return boolean, true if polygon plus margin touches canvas
+ */
+// relative margin, increase if there are holes in the resulting image
+output.polygonMargin = 1.1;
+
+output.isInsideCanvas = function(coordinates) {
+    const length = arguments.length;
+    let maxX = arguments[0];
+    let minX = arguments[0];
+    let maxY = arguments[1];
+    let minY = arguments[1];
+    for (let i = 2; i < length; i += 2) {
+        maxX = Math.max(maxX, arguments[i]);
+        minX = Math.min(minX, arguments[i]);
+        maxY = Math.max(maxY, arguments[i + 1]);
+        minY = Math.min(minX, arguments[i + 1]);
+    }
+    const margin = output.polygonMargin * Math.max(maxX - minX, maxY - minY);
+    let inside = (maxX + margin > output.coordinateTransform.shiftX);
+    inside = inside && (maxY + margin > output.coordinateTransform.shiftY);
+    const right = output.coordinateTransform.shiftX + output.coordinateTransform.totalScale * output.canvas.width;
+    inside = inside && (minX - margin < right);
+    const top = output.coordinateTransform.shiftY + output.coordinateTransform.totalScale * output.canvas.height;
+    inside = inside && (minY - margin < top);
+    console.log('coords', arguments);
+    console.log('minx,maxx,miny,maxy');
+    console.log('left,right,bottom,top', output.coordinateTransform.shiftX, right, output.coordinateTransform.shiftY, top);
+    console.log(inside);
+    return inside;
+};
+
+/**
+ * make a polygon path, use for fill and stroke
+ * if necessary, closePath
+ * @method output.makePath
+ * @params {number ...} coordinates - x,y coordinate pairs for corners of the polygon
+ */
+output.makePath = function(coordinates) {
+    const length = arguments.length;
+    output.canvasContext.beginPath();
+    output.canvasContext.moveTo(arguments[0], arguments[1]);
+    for (let i = 2; i < length; i += 2) {
+        output.canvasContext.lineTo(arguments[i], arguments[i + 1]);
+    }
+};
+
+/**
+ * overprinting to fill gaps between polygon shapes due to smoothing
+ * set center for overprinting
+ * @method output.setOverCenter
+ * @param {number} x
+ * @param {number} y
+ */
+// overprinting factor
+output.overprintFactor = 1.02;
+
+// center for overprinting
+let overCenterX = 0;
+let overCenterY = 0;
+
+output.setOverCenter = function(x, y) {
+    overCenterX = x;
+    overCenterY = y;
+};
+
+/**
+ * move path to stretched point 
+ * @method output.overMoveTo
+ * @param {number} x
+ * @param {number} y
+ */
+output.overMoveTo = function(x, y) {
+    x = truchet.overprint * (x - overCenterX) + overCenterX;
+    y = truchet.overprint * (y - overCenterY) + overCenterY;
+    output.canvasContext.moveTo(x, y);
+};
+
+/**
+ * make line to stretched point 
+ * @method output.overLineTo
+ * @param {number} x
+ * @param {number} y
+ */
+output.overLineTo = function(x, y) {
+    x = truchet.overprint * (x - overCenterX) + overCenterX;
+    y = truchet.overprint * (y - overCenterY) + overCenterY;
+    output.canvasContext.lineTo(x, y);
+};
+
+/**
+ * make a stretched polygon path for overprinting, use for fill and stroke
+ * if necessary, closePath
+ * @method output.makeOverPath
+ * @params {number ...} coordinates - x,y coordinate pairs for corners of the polygon
+ */
+output.makeOverPath = function(coordinates) {
+    const length = arguments.length;
+    output.canvasContext.beginPath();
+    output.overMoveTo(arguments[0], arguments[1]);
+    for (let i = 2; i < length; i += 2) {
+        output.overLineTo(arguments[i], arguments[i + 1]);
     }
 };
