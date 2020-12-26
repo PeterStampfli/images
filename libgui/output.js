@@ -1332,15 +1332,15 @@ output.lineRound = function() {
 };
 
 /**
- * check if a polygon is inside the canvas, including margin around polygon
- * @method output.isInsideCanvas
+ * check if a polygon (or parts of it) is in the canvas, including margin around polygon
+ * @method output.isInCanvas
  * @params {number ...} coordinates - x,y coordinate pairs for corners of the polygon
  * @return boolean, true if polygon plus margin touches canvas
  */
 // relative margin, increase if there are holes in the resulting image
-output.polygonMargin = 1.1;
+output.polygonMargin = 0.1;
 
-output.isInsideCanvas = function(coordinates) {
+output.isInCanvas = function(coordinates) {
     const length = arguments.length;
     let maxX = arguments[0];
     let minX = arguments[0];
@@ -1350,19 +1350,15 @@ output.isInsideCanvas = function(coordinates) {
         maxX = Math.max(maxX, arguments[i]);
         minX = Math.min(minX, arguments[i]);
         maxY = Math.max(maxY, arguments[i + 1]);
-        minY = Math.min(minX, arguments[i + 1]);
+        minY = Math.min(minY, arguments[i + 1]);
     }
     const margin = output.polygonMargin * Math.max(maxX - minX, maxY - minY);
-    let inside = (maxX + margin > output.coordinateTransform.shiftX);
-    inside = inside && (maxY + margin > output.coordinateTransform.shiftY);
+    let inside = ((maxX + margin) > output.coordinateTransform.shiftX);
+    inside = inside && ((maxY + margin) > output.coordinateTransform.shiftY);
     const right = output.coordinateTransform.shiftX + output.coordinateTransform.totalScale * output.canvas.width;
-    inside = inside && (minX - margin < right);
+    inside = inside && ((minX - margin) < right);
     const top = output.coordinateTransform.shiftY + output.coordinateTransform.totalScale * output.canvas.height;
-    inside = inside && (minY - margin < top);
-    console.log('coords', arguments);
-    console.log('minx,maxx,miny,maxy');
-    console.log('left,right,bottom,top', output.coordinateTransform.shiftX, right, output.coordinateTransform.shiftY, top);
-    console.log(inside);
+    inside = inside && ((minY - margin) < top);
     return inside;
 };
 
