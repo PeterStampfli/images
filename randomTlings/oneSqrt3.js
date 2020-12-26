@@ -26,18 +26,24 @@ size = 100;
 output.addGrid();
 
 // parameters for drawing
-const truchet = {};
-truchet.rhomb = '#ff0000';
-truchet.square = '#00ff00';
-truchet.triangle = '#ffff00';
-truchet.lineColor = '#000000';
-truchet.lineWidth = 3;
+const tiling = {};
+// colors
+tiling.rhombColor = '#ff0000';
+tiling.squareColor = '#00ff00';
+tiling.triangleColor = '#ffff00';
+tiling.lineColor = '#000000';
+tiling.lineWidth = 3;
 
-truchet.maxGen = 1;
+// tiling
+// triangle A has undetermined triangles
+tiling.freeTriangleA = triangleX;
+// triangle B has undetermined triangles
+tiling.freeTriangleB = triangleX;
+tiling.maxGen = 1;
 
 const colorController = {
     type: 'color',
-    params: truchet,
+    params: tiling,
     onChange: function() {
         draw();
     }
@@ -45,7 +51,7 @@ const colorController = {
 
 const widthController = {
     type: 'number',
-    params: truchet,
+    params: tiling,
     min: 0.1,
     onChange: function() {
         draw();
@@ -53,17 +59,19 @@ const widthController = {
 };
 
 gui.add(colorController, {
-    property: 'rhomb'
+    property: 'rhombColor',
+    labelText: 'rhomb'
 });
 
 gui.add(colorController, {
-    property: 'square'
+    property: 'squareColor',
+    labelText: 'square'
 });
 
 gui.add(colorController, {
-    property: 'triangle'
+    property: 'triangleColor',
+    labelText: 'triangle'
 });
-
 
 gui.add(widthController, {
     property: 'lineWidth'
@@ -92,11 +100,11 @@ function square(gen, blX, blY, trX, trY) {
         output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
         canvasContext.closePath();
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.square;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.squareColor;
             output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
             canvasContext.fill();
-            canvasContext.strokeStyle = truchet.lineColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(brX, brY, trX, trY, tlX, tlY);
             canvasContext.stroke();
         } else {
@@ -141,9 +149,9 @@ function rhomb(gen, bX, bY, tX, tY) {
         output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
         canvasContext.closePath();
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.rhomb;
-            canvasContext.strokeStyle = truchet.lineColor;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.rhombColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
             canvasContext.closePath();
             canvasContext.fill();
@@ -188,14 +196,14 @@ function rhomb(gen, bX, bY, tX, tY) {
 // (mX,mY) is midpoint of base of full triangle. Has 90 degree angle corner
 // (bX,bY) is other point at base. 60 degree angle corner
 // (cX,cY) is top, 30 degree angle corner
-function triangle(gen, mX, mY, bX, bY, cX, cY) {
+function triangleX(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
         canvasContext.strokeStyle = 'blue';
         output.makePath(mX, mY, bX, bY, cX, cY);
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.triangle;
-            canvasContext.strokeStyle = truchet.lineColor;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.triangleColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(mX, mY, bX, bY, cX, cY);
             canvasContext.fill();
             canvasContext.stroke();
@@ -206,18 +214,16 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
             const rightY = 0.732050808 * (bY - mY);
             const upX = -rightY;
             const upY = rightX;
-            gen+=1;
-            const cenX=mX+0.5*(upX+rightX);
-            const cenY=mY+0.5*(upY+rightY)
-            square(gen,mX,mY,cenX,cenY);
-const mcX=cX-upX;
-const mcY=cY-upY;
-triangleA(gen,mX+0.5*upX,mY+0.5*upY,cenX,cenY,mcX,mcY);
-
-// free triangles
-triangleA(gen,mX+0.5*rightX,mY+0.5*rightY,cenX,cenY,bX,bY);
-triangleA(gen,bX-0.433012*rightX+0.75*upX,bY-0.433012*rightY+0.75*upY,cenX,cenY,bX,bY);
-
+            gen += 1;
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+            square(gen, mX, mY, cenX, cenY);
+            const mcX = cX - upX;
+            const mcY = cY - upY;
+            triangleA(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
+            // unknown triangle
+            triangleA(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
+            //   triangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
         }
     }
 }
@@ -227,9 +233,9 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
         canvasContext.strokeStyle = 'blue';
         output.makePath(mX, mY, bX, bY, cX, cY);
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.triangle;
-            canvasContext.strokeStyle = truchet.lineColor;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.triangleColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(mX, mY, bX, bY, cX, cY);
             canvasContext.fill();
             canvasContext.stroke();
@@ -240,22 +246,22 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
             const rightY = 0.732050808 * (bY - mY);
             const upX = -rightY;
             const upY = rightX;
-            gen+=1;
-            const cenX=mX+0.5*(upX+rightX);
-            const cenY=mY+0.5*(upY+rightY)
-            square(gen,mX,mY,cenX,cenY);
-const bcX=0.5*(bX+cX);
-const bcY=0.5*(bY+cY);
-const mcX=cX-upX;
-const mcY=cY-upY;
-triangleA(gen,mX+0.5*upX,mY+0.5*upY,cenX,cenY,mcX,mcY);
-square(gen,bcX,bcY,cenX,cenY);
-square(gen,bcX,bcY,mcX,mcY);
-// 0.433012=sqrt(3)/4
-triangleA(gen,mcX,mcY,cX+0.433012*rightX-0.75*upX,cY+0.433012*rightY-0.75*upY,cX,cY);
-// free triangles
-triangleA(gen,mX+0.5*rightX,mY+0.5*rightY,cenX,cenY,bX,bY);
-triangleA(gen,bX-0.433012*rightX+0.75*upX,bY-0.433012*rightY+0.75*upY,cenX,cenY,bX,bY);
+            gen += 1;
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+            square(gen, mX, mY, cenX, cenY);
+            const bcX = 0.5 * (bX + cX);
+            const bcY = 0.5 * (bY + cY);
+            const mcX = cX - upX;
+            const mcY = cY - upY;
+            triangleA(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
+            square(gen, bcX, bcY, cenX, cenY);
+            square(gen, bcX, bcY, mcX, mcY);
+            // 0.433012=sqrt(3)/4
+            triangleB(gen, mcX, mcY, cX + 0.433012 * rightX - 0.75 * upX, cY + 0.433012 * rightY - 0.75 * upY, cX, cY);
+            // free triangles
+            tiling.freeTriangleA(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
+            tiling.freeTriangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
         }
     }
 }
@@ -265,9 +271,9 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
         canvasContext.strokeStyle = 'blue';
         output.makePath(mX, mY, bX, bY, cX, cY);
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.triangle;
-            canvasContext.strokeStyle = truchet.lineColor;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.triangleColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(mX, mY, bX, bY, cX, cY);
             canvasContext.fill();
             canvasContext.stroke();
@@ -278,18 +284,20 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
             const rightY = 0.732050808 * (bY - mY);
             const upX = -rightY;
             const upY = rightX;
-            gen+=1;
-            const cenX=mX+0.5*(upX+rightX);
-            const cenY=mY+0.5*(upY+rightY)
-            square(gen,mX,mY,cenX,cenY);
-const mcX=cX-upX;
-const mcY=cY-upY;
-triangleA(gen,mX+0.5*upX,mY+0.5*upY,cenX,cenY,mcX,mcY);
-
-// free triangles
-triangleA(gen,mX+0.5*rightX,mY+0.5*rightY,cenX,cenY,bX,bY);
-triangleA(gen,bX-0.433012*rightX+0.75*upX,bY-0.433012*rightY+0.75*upY,cenX,cenY,bX,bY);
-
+            gen += 1;
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+            square(gen, mX, mY, cenX, cenY);
+            rhomb(gen, cX, cY, cenX, cenY);
+            const mcX = cX - upX;
+            const mcY = cY - upY;
+            const bcX = bX - 0.433012 * rightX + 0.75 * upX;
+            const bcY = bY - 0.433012 * rightY + 0.75 * upY;
+            triangleC(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
+            triangleC(gen, bcX, bcY, cenX, cenY, cenX + upX, cenY + upY);
+            // free triangles
+            tiling.freeTriangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
+            tiling.freeTriangleB(gen, bcX, bcY, cenX, cenY, bX, bY);
         }
     }
 }
@@ -299,9 +307,9 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
         canvasContext.strokeStyle = 'blue';
         output.makePath(mX, mY, bX, bY, cX, cY);
         canvasContext.stroke();
-        if (gen >= truchet.maxGen) {
-            canvasContext.fillStyle = truchet.triangle;
-            canvasContext.strokeStyle = truchet.lineColor;
+        if (gen >= tiling.maxGen) {
+            canvasContext.fillStyle = tiling.triangleColor;
+            canvasContext.strokeStyle = tiling.lineColor;
             output.makePath(mX, mY, bX, bY, cX, cY);
             canvasContext.fill();
             canvasContext.stroke();
@@ -312,29 +320,32 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
             const rightY = 0.732050808 * (bY - mY);
             const upX = -rightY;
             const upY = rightX;
-            gen+=1;
-            const cenX=mX+0.5*(upX+rightX);
-            const cenY=mY+0.5*(upY+rightY)
-            square(gen,mX,mY,cenX,cenY);
-const mcX=cX-upX;
-const mcY=cY-upY;
-triangleA(gen,mX+0.5*upX,mY+0.5*upY,cenX,cenY,mcX,mcY);
-
-// free triangles
-triangleA(gen,mX+0.5*rightX,mY+0.5*rightY,cenX,cenY,bX,bY);
-triangleA(gen,bX-0.433012*rightX+0.75*upX,bY-0.433012*rightY+0.75*upY,cenX,cenY,bX,bY);
-
+            gen += 1;
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+            square(gen, mX, mY, cenX, cenY);
+            const mcX = cX - upX;
+            const mcY = cY - upY;
+            // 0.433012=sqrt(3)/4
+            const bcX = cX + 0.433012 * rightX - 0.75 * upX;
+            const bcY = cY + 0.433012 * rightY - 0.75 * upY;
+            rhomb(gen, bX, bY, mcX, mcY);
+            triangleB(gen, bcX, bcY, mcX, mcY, cX, cY);
+            triangleC(gen, bcX, bcY, mcX, mcY, cX + rt32 * rightX - 1.5 * upX, cY + rt32 * rightY - 1.5 * upY);
+            triangleB(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
+            triangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
         }
     }
 }
+
 function draw() {
     output.lineRound();
     output.fillCanvasBackgroundColor();
-      output.correctYAxis();
+    output.correctYAxis();
 
     //  square(0, -100, 0, 100, 100);
     //   rhomb(0, -200, -50, 200, 100);
-    triangleB(0, 0, 0, 100, 0, 0, 100 * rt3);
+    triangleX(0, 0, 0, 100, 0, 0, 100 * rt3);
     output.drawGrid();
 }
 
