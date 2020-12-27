@@ -349,9 +349,7 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
     }
     output.canvas = document.createElement("canvas");
     output.canvasContext = output.canvas.getContext("2d");
-    // better defaault for line cap and line join
-    output.canvasContext.lineCap = 'round';
-    output.canvasContext.lineJoin = 'round';
+output.invertedYAxis=false;
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
     output.imagePocessingGui = gui; // default
@@ -1320,6 +1318,7 @@ output.correctYAxis = function() {
     let transform = output.canvasContext.getTransform();
     transform.d = -Math.abs(transform.d);
     output.canvasContext.setTransform(transform);
+output.invertedYAxis=true;
 };
 
 /**
@@ -1352,6 +1351,13 @@ output.isInCanvas = function(coordinates) {
         maxY = Math.max(maxY, arguments[i + 1]);
         minY = Math.min(minY, arguments[i + 1]);
     }
+    if (output.invertedYAxis){
+        // change sign of limits, exchanges max and min
+const h=minY;
+minY=-maxY;
+maxY=-h;
+    }
+
     const margin = output.polygonMargin * Math.max(maxX - minX, maxY - minY);
     let inside = ((maxX + margin) > output.coordinateTransform.shiftX);
     inside = inside && ((maxY + margin) > output.coordinateTransform.shiftY);
