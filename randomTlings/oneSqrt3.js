@@ -19,11 +19,8 @@ const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
 output.addCursorposition();
-let size = 500;
-output.setInitialCoordinates(0, 0, size);
+output.setInitialCoordinates(0, 0, 210);
 
-// size is actually line length of substitution pieces
-size = 100;
 output.addGrid();
 
 // parameters for drawing
@@ -43,10 +40,11 @@ tiling.hyperBorder = true;
 
 // tiling
 // triangle A has undetermined triangles
-tiling.freeTriangleA = triangleX;
+tiling.freeTriangleA = triangleB;
 // triangle B has undetermined triangles
-tiling.freeTriangleB = triangleX;
+tiling.freeTriangleB = triangleB;
 tiling.maxGen = 1;
+tiling.initial = 'small square';
 
 const colorController = {
     type: 'color',
@@ -136,12 +134,56 @@ gui.add(colorController, {
 gui.addParagraph('<strong>tiling</strong>');
 
 gui.add({
+    type: 'selection',
+    params: tiling,
+    property: 'initial',
+    options: ['small square', 'rhomb', 'triangle A', 'triangle B', 'triangle C', 'big square', 'dodecagon'],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'number',
     params: tiling,
     property: 'maxGen',
     labelText: 'iterations',
     min: 0,
     step: 1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.addParagraph('substitution at 60 degree corner of triangles');
+
+gui.add({
+    type: 'selection',
+    params: tiling,
+    property: 'freeTriangleA',
+    labelText: 'triangleA',
+    options: {
+        undefined: triangleX,
+        'triangle A': triangleA,
+        'triangle B': triangleB,
+        'triangle C': triangleC
+    },
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: tiling,
+    property: 'freeTriangleB',
+    labelText: 'triangleB',
+    options: {
+        undefined: triangleX,
+        'triangle A': triangleA,
+        'triangle B': triangleB,
+        'triangle C': triangleC
+    },
     onChange: function() {
         draw();
     }
@@ -366,7 +408,7 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
             square(gen, bcX, bcY, cenX, cenY);
             square(gen, bcX, bcY, mcX, mcY);
             // 0.433012=sqrt(3)/4
-            triangleB(gen, mcX, mcY, cX + 0.433012 * rightX - 0.75 * upX, cY + 0.433012 * rightY - 0.75 * upY, cX, cY);
+            triangleB(gen, cX + 0.433012 * rightX - 0.75 * upX, cY + 0.433012 * rightY - 0.75 * upY, mcX, mcY, cX, cY);
             // free triangles
             tiling.freeTriangleA(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             tiling.freeTriangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
@@ -481,11 +523,34 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
     }
 }
 
-function initial() {
+function tile() {
+    const s = 200 / rt32;
+    switch (tiling.initial) {
+        case 'small square':
+            square(0, -100, -100, 100, 100);
+            break;
+        case 'rhomb':
+            rhomb(0, 0, -100, 0, 100);
+            break;
+        case 'triangle A':
+            triangleA(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            break;
+        case 'triangle B':
+            triangleB(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            break;
+        case 'triangle C':
+            triangleC(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            break;
+                    case 'big square':
+            square(0, 0,0, 100, 100);
+            square(0, 0,0, 100, -100);
+            square(0, 0,0, -100, 100);
+            square(0, 0,0, -100, -100);
+            break;
+    }
 
-    square(0, -100, 0, 100, 100);
-    //    rhomb(0, -200, -50, 200, 100);
-    //   triangleA(0, 0, 0, 100, 0, 0, 100 * rt3);
+    // ;
+    //    triangleB(0, 0, 0, 100, 0, 0, 100 * rt3);
     //  triangleX(0, 0, 0, 0, 100, 100 * rt3, 0);
     //  triangleC(0,- 100/4, +100*rt32/2, 0, 0,- 100 , 0);
 }
@@ -496,10 +561,10 @@ function draw() {
     output.correctYAxis();
     // either draw borders or some tile-design
     tiling.drawBorders = false;
-    initial();
-    if (tiling.hyperBorder||tiling.border){
-    tiling.drawBorders = true;
-    initial();        
+    tile();
+    if (tiling.hyperBorder || tiling.border) {
+        tiling.drawBorders = true;
+        tile();
     }
     output.drawGrid();
 }

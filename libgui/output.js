@@ -1089,7 +1089,8 @@ output.setCursorposition = function(position) {
 /**
  * change initial coordinate axis ranges:
  * define coordinate values (centerX, centerY) at center of image
- * define range for square canvas, mean value for rectangular canvas
+ * define range for square canvas, minimum value for rectangular canvas
+ * coordintes go from center-range/2 to center+range/2
  * @method output.setInitialCoordinates
  * @param {number} centerX
  * @param {number} centerY
@@ -1097,10 +1098,12 @@ output.setCursorposition = function(position) {
  */
 output.setInitialCoordinates = function(centerX, centerY, range) {
     const coordinateTransform = output.coordinateTransform;
-    const canvasScale = 1 / Math.sqrt(output.canvas.width * output.canvas.height);
+    // scaale for pixels to "unit square"
+    const canvasScale = 1 / Math.min(output.canvas.width,output.canvas.height);
     const shiftX = centerX - 0.5 * output.canvas.width * canvasScale * range;
     const shiftY = centerY - 0.5 * output.canvas.height * canvasScale * range;
-    coordinateTransform.setValues(shiftX, shiftY, range, 0);
+    const scale=canvasScale*range/coordinateTransform.prescale;
+    coordinateTransform.setValues(shiftX, shiftY, scale, 0);
     coordinateTransform.setResetValues();
 };
 

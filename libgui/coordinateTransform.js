@@ -194,9 +194,8 @@ CoordinateTransform.prototype.setPrescale = function(prescale) {
 
 /**
  * set values
- * to make a transformation from the unit square with corner at (0,0)
- * to a square with corners at (x1,y1) and (x2,y2) set 
- * scale=(x2-x1) and shiftX=x1/scale, shiftY=x2/scale
+ * topleft corner at (shiftX,shiftY)
+ * total scale of transform from drawing coordinates to pixels is scale*preScale
  * @method CoordinateTransform#setValues
  * @param {number} shiftX - optional, default=0
  * @param {number} shiftY - optional, default=0
