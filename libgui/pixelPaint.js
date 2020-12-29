@@ -5,7 +5,7 @@ import {
     Pixels,
     output
 
-} from "../libgui/modules.js";
+} from "./modules.js";
 
 /**
  * making pixel based images in a simple way

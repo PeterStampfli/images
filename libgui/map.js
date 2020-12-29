@@ -10,7 +10,7 @@ import {
     BooleanButton,
     ColorInput,
     ParamGui
-} from "../libgui/modules.js";
+} from "./modules.js";
 
 /**
  * organizing the mapping from the output canvas
@@ -1209,14 +1209,14 @@ map.makeShowingGui = function(parentGui, args = {}) {
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
     map.inputImageLoaded = false;
     // setup image selection
-    map.inputImage = '../libgui/dormouse.jpg';
+    map.inputImage = './dormouse.jpg';
     map.imageController = gui.add({
         type: 'image',
         params: map,
         property: 'inputImage',
         options: {
-            dormouse: '../libgui/dormouse.jpg',
-            'railway station': '../libgui/railway station.jpg'
+            dormouse: './dormouse.jpg',
+            'railway station': './railway station.jpg'
         },
         labelText: 'input image',
         onChange: function() {
