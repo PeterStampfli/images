@@ -38,6 +38,8 @@ tiling.hyperBorderColor = '#000000';
 tiling.hyperBorderWidth = 3;
 tiling.hyperBorder = true;
 tiling.decoration = 'solid color';
+tiling.gridWidth = 3;
+tiling.gridColor = '#ff8800';
 
 // tiling
 // triangle A has undetermined triangles
@@ -64,7 +66,27 @@ const widthController = {
     }
 };
 
-gui.addParagraph('<strong>colors of tiles</strong>');
+gui.addParagraph('<strong>appearance of tiles</strong>');
+
+gui.add({
+    type: 'selection',
+    params: tiling,
+    property: 'decoration',
+    options: ['none', 'solid color', 'grid'],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add(colorController, {
+    property: 'gridColor',
+    labelText: 'grid'
+});
+
+gui.add(widthController, {
+    property: 'gridWidth',
+    labelText: 'width of grid'
+});
 
 gui.add(colorController, {
     property: 'rhombColor',
@@ -90,8 +112,6 @@ gui.add(colorController, {
     property: 'triangleCColor',
     labelText: 'triangleC'
 });
-
-gui.addParagraph('<strong>borders of tiles</strong>');
 
 BooleanButton.greenRedBackground();
 const borderController = gui.add({
@@ -133,16 +153,6 @@ gui.add(colorController, {
 });
 
 gui.addParagraph('<strong>tiling</strong>');
-
-gui.add({
-    type: 'selection',
-    params: tiling,
-    property: 'decoration',
-    options: ['none', 'solid color', 'grid'],
-    onChange: function() {
-        draw();
-    }
-});
 
 gui.add({
     type: 'selection',
@@ -223,8 +233,7 @@ function square(gen, blX, blY, trX, trY) {
                 if (tiling.border) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
-                    output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
-                    canvasContext.closePath();
+                    output.makePath(brX, brY, trX, trY, tlX, tlY);
                     canvasContext.stroke();
                 }
             } else {
@@ -233,6 +242,14 @@ function square(gen, blX, blY, trX, trY) {
                         canvasContext.fillStyle = tiling.squareColor;
                         output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
                         canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        output.makePath(blX, blY, tlX, tlY);
+                        canvasContext.stroke();
+                        output.makePath(blX, blY, brX, brY);
+                        canvasContext.stroke();
                         break;
                 }
             }
@@ -258,8 +275,7 @@ function square(gen, blX, blY, trX, trY) {
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
-                canvasContext.closePath();
+                output.makePath(blX,blY,brX, brY, trX, trY, tlX, tlY,blX,blY);
                 canvasContext.stroke();
             }
         }
@@ -296,6 +312,21 @@ function rhomb(gen, bX, bY, tX, tY) {
                         canvasContext.fillStyle = tiling.rhombColor;
                         output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
                         canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        // 1.274519=(1+sqrt(3))*cos(15)-0.5*(1+sqrt(3))/cos(15)
+                        const lowX = cX - 1.2247 * upX;
+                        const lowY = cY - 1.2247 * upY;
+                        const highX = cX + 1.2247 * upX;
+                        const highY = cY + 1.2247 * upY;
+                        output.makePath(0.5 * (bX + lX), 0.5 * (bY + lY), lowX, lowY, 0.5 * (bX + rX), 0.5 * (bY + rY));
+                        canvasContext.stroke();
+                        output.makePath(0.5 * (tX + lX), 0.5 * (tY + lY), highX, highY, 0.5 * (tX + rX), 0.5 * (tY + rY));
+                        canvasContext.stroke();
+                        output.makePath(lowX, lowY, highX, highY);
+                        canvasContext.stroke();
                         break;
                 }
             }
@@ -356,7 +387,6 @@ function triangleX(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
-                    canvasContext.closePath();
                     canvasContext.stroke();
                 }
             } else {}
@@ -398,7 +428,6 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
-                    canvasContext.closePath();
                     canvasContext.stroke();
                 }
             } else {
@@ -407,6 +436,12 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleAColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+                        canvasContext.stroke();
                         break;
                 }
             }
@@ -454,7 +489,6 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
-                    canvasContext.closePath();
                     canvasContext.stroke();
                 }
             } else {
@@ -463,6 +497,12 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleBColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+                        canvasContext.stroke();
                         break;
                 }
             }
@@ -508,7 +548,6 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
-                    canvasContext.closePath();
                     canvasContext.stroke();
                 }
             } else {
@@ -517,6 +556,12 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleCColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+                        canvasContext.stroke();
                         break;
                 }
             }
