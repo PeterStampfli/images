@@ -349,7 +349,7 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
     }
     output.canvas = document.createElement("canvas");
     output.canvasContext = output.canvas.getContext("2d");
-output.invertedYAxis=false;
+    output.invertedYAxis = false;
     gui = gui.addFolder('output image');
     output.canvasGui = gui;
     output.imagePocessingGui = gui; // default
@@ -423,7 +423,10 @@ output.invertedYAxis=false;
                     }
                 }
             });
-            output.transparencyController.addHelp('If transparency is on, then *.png downloads can have transparent parts and *.jpg will show transparent parts in black. If it is off, then both *.png and *.jpg get opaque background color instead of transparency');
+            let transHelp = '<strong>transparent black:</strong> Download of *.png images can have transparent parts with black rgb values, *.jpg shows transparent parts in black.<br>';
+            transHelp += '<strong>transparent background color:</strong> As above, but rgb values of the background color are used.<br>';
+            transHelp += '<strong>opaque:</strong> Both *.png and *.jpg get opaque background color.';
+            output.transparencyController.addHelp(transHelp);
         } else {
             // backgroundcolor and no transparency (is false)
             // for only using canvas drawing (no pixels): Call output.fillCanvasBackgroundColor (fills canvas with opaque background color)
@@ -1099,10 +1102,10 @@ output.setCursorposition = function(position) {
 output.setInitialCoordinates = function(centerX, centerY, range) {
     const coordinateTransform = output.coordinateTransform;
     // scaale for pixels to "unit square"
-    const canvasScale = 1 / Math.min(output.canvas.width,output.canvas.height);
+    const canvasScale = 1 / Math.min(output.canvas.width, output.canvas.height);
     const shiftX = centerX - 0.5 * output.canvas.width * canvasScale * range;
     const shiftY = centerY - 0.5 * output.canvas.height * canvasScale * range;
-    const scale=canvasScale*range/coordinateTransform.prescale;
+    const scale = canvasScale * range / coordinateTransform.prescale;
     coordinateTransform.setValues(shiftX, shiftY, scale, 0);
     coordinateTransform.setResetValues();
 };
@@ -1321,7 +1324,7 @@ output.correctYAxis = function() {
     let transform = output.canvasContext.getTransform();
     transform.d = -Math.abs(transform.d);
     output.canvasContext.setTransform(transform);
-output.invertedYAxis=true;
+    output.invertedYAxis = true;
 };
 
 /**
@@ -1354,11 +1357,11 @@ output.isInCanvas = function(coordinates) {
         maxY = Math.max(maxY, arguments[i + 1]);
         minY = Math.min(minY, arguments[i + 1]);
     }
-    if (output.invertedYAxis){
+    if (output.invertedYAxis) {
         // change sign of limits, exchanges max and min
-const h=minY;
-minY=-maxY;
-maxY=-h;
+        const h = minY;
+        minY = -maxY;
+        maxY = -h;
     }
 
     const margin = output.polygonMargin * Math.max(maxX - minX, maxY - minY);

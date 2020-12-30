@@ -6,7 +6,7 @@ import {
     output,
     BooleanButton
 }
-from "./library/modules.js";
+from "../libgui/modules.js";
 
 const gui = new ParamGui({
     closed: false
@@ -27,14 +27,15 @@ output.addGrid();
 // parameters for drawing
 const tiling = {};
 // colors
-tiling.rhombColor = '#ff0000';
-tiling.squareColor = '#00ff00';
-tiling.triangleAColor = '#aaaaaa';
-tiling.triangleBColor = '#ffff00';
-tiling.triangleCColor = '#0000ff';
+tiling.rhombColor = '#ff0000ff';
+tiling.squareColor = '#00ff00ff';
+tiling.triangleAColor = '#aaaaaaff';
+tiling.triangleBColor = '#ffff00ff';
+tiling.triangleCColor = '#0000ffff';
 tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
 tiling.border = true;
+tiling.subBorder = false;
 tiling.hyperBorderColor = '#000000';
 tiling.hyperBorderWidth = 3;
 tiling.hyperBorder = false;
@@ -75,41 +76,63 @@ gui.add({
     property: 'decoration',
     options: ['none', 'solid color', 'grid'],
     onChange: function() {
+        if (tiling.decoration === 'grid') {
+            gridWidthController.show();
+            gridColorController.show();
+        } else {
+            gridWidthController.hide();
+            gridColorController.hide();
+        }
+        if (tiling.decoration === 'solid color') {
+            rhombColorController.show();
+            squareColorController.show();
+            triangleAColorController.show();
+            triangleBColorController.show();
+            triangleCColorController.show();
+        } else {
+            rhombColorController.hide();
+            squareColorController.hide();
+            triangleAColorController.hide();
+            triangleBColorController.hide();
+            triangleCColorController.hide();
+        }
         draw();
     }
 });
 
-gui.add(colorController, {
+const gridColorController = gui.add(colorController, {
     property: 'gridColor',
     labelText: 'grid'
 });
 
-gui.add(widthController, {
+const gridWidthController = gui.add(widthController, {
     property: 'gridWidth',
     labelText: 'width of grid'
 });
+gridWidthController.hide();
+gridColorController.hide();
 
-gui.add(colorController, {
+const rhombColorController = gui.add(colorController, {
     property: 'rhombColor',
     labelText: 'rhomb'
 });
 
-gui.add(colorController, {
+const squareColorController = gui.add(colorController, {
     property: 'squareColor',
     labelText: 'square'
 });
 
-gui.add(colorController, {
+const triangleAColorController = gui.add(colorController, {
     property: 'triangleAColor',
     labelText: 'triangleA'
 });
 
-gui.add(colorController, {
+const triangleBColorController = gui.add(colorController, {
     property: 'triangleBColor',
     labelText: 'triangleB'
 });
 
-gui.add(colorController, {
+const triangleCColorController = gui.add(colorController, {
     property: 'triangleCColor',
     labelText: 'triangleC'
 });
@@ -132,6 +155,14 @@ borderController.add(widthController, {
 gui.add(colorController, {
     property: 'borderColor',
     labelText: 'color'
+});
+gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'subBorder',
+    onChange: function() {
+        draw();
+    }
 });
 
 const hyperBorderController = gui.add({
@@ -236,6 +267,10 @@ function square(gen, blX, blY, trX, trY) {
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(brX, brY, trX, trY, tlX, tlY);
                     canvasContext.stroke();
+                    if (tiling.subBorder) {
+                        output.makePath(tlX, tlY, blX, blY, brX, brY);
+                        canvasContext.stroke();
+                    }
                 }
             } else {
                 switch (tiling.decoration) {
@@ -276,7 +311,7 @@ function square(gen, blX, blY, trX, trY) {
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(blX,blY,brX, brY, trX, trY, tlX, tlY,blX,blY);
+                output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY, blX, blY);
                 canvasContext.stroke();
             }
         }
@@ -388,6 +423,9 @@ function triangleX(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
+                    if (tiling.subBorder) {
+                        canvasContext.closePath();
+                    }
                     canvasContext.stroke();
                 }
             } else {}
@@ -429,6 +467,9 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
+                    if (tiling.subBorder) {
+                        canvasContext.closePath();
+                    }
                     canvasContext.stroke();
                 }
             } else {
@@ -490,6 +531,9 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
+                    if (tiling.subBorder) {
+                        canvasContext.closePath();
+                    }
                     canvasContext.stroke();
                 }
             } else {
@@ -549,6 +593,9 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
                     output.makePath(mX, mY, bX, bY, cX, cY);
+                    if (tiling.subBorder) {
+                        canvasContext.closePath();
+                    }
                     canvasContext.stroke();
                 }
             } else {
