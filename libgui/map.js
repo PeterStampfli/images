@@ -119,6 +119,7 @@ map.drawImageChangedCheckMapUpdate = function() {
 map.drawMapChanged = function() {
     map.startDrawing();
     map.make();
+        map.makeStructureColors();
     map.drawImageChanged();
 };
 
@@ -129,6 +130,12 @@ map.drawMapChanged = function() {
  */
 map.setOutputDraw = function() {
     output.drawGridChanged = function() {
+        map.drawImageChanged();
+    };
+    output.drawBackgroundChanged = function() {
+        map.drawImageChanged();
+    };
+    output.drawImageChanged = function() {
         map.drawImageChanged();
     };
     output.drawCanvasChanged = function() {
@@ -1102,6 +1109,7 @@ map.loadInputImage = function(callback) {
  */
 map.makeShowingGui = function(parentGui, args = {}) {
     const gui = parentGui.addFolder('showing', args);
+    map.gui=gui;
     map.showingGui = gui;
     if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
         console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
@@ -1153,7 +1161,7 @@ map.makeShowingGui = function(parentGui, args = {}) {
             map.drawImageChanged();
         }
     });
-    // what to we want to see (you can destroy it)
+    // what do we want to see (you can destroy it)
     map.whatToShowController = gui.add({
         type: 'selection',
         params: map,
@@ -1209,14 +1217,14 @@ map.makeShowingGui = function(parentGui, args = {}) {
     map.inputCanvasContext = map.inputCanvas.getContext('2d');
     map.inputImageLoaded = false;
     // setup image selection
-    map.inputImage = './dormouse.jpg';
+    map.inputImage = '../libgui/dormouse.jpg';
     map.imageController = gui.add({
         type: 'image',
         params: map,
         property: 'inputImage',
         options: {
-            dormouse: './dormouse.jpg',
-            'railway station': './railway station.jpg'
+            dormouse: '../libgui/dormouse.jpg',
+            'railway station': '../libgui/railway station.jpg'
         },
         labelText: 'input image',
         onChange: function() {

@@ -51,25 +51,31 @@ basic.setup = function() {
     help.addParagraph('"circles": Add and destroy circles. Change their properties.');
     help.addParagraph('"intersections": Add and destroy controlled intersections. Change the order of their dihedral group');
 
-    // create an output canvas
+    // create an output canvas, with coordinates and pixels
     output.createCanvas(gui, true);
+    output.addCoordinateTransform(false);
+    output.setInitialCoordinates(0, 0, 3);
     output.createPixels();
+    // add options for the output image
     output.addImageProcessing();
     output.addAntialiasing();
     output.grid.interval = 0.1;
     output.addGrid();
-    output.addCoordinateTransform(false);
     output.addCursorposition();
     output.addZoomAnimation();
-    output.setInitialCoordinates(0, 0, 3);
     // more  UI
-    // the presets: make gui and load
+    // the presets: make gui and load 'elementary' presets
+    // loading a preset calls showMapChanged
     presets.makeGui(gui);
+    // set up the map
+    // options of what to show
     map.makeShowingGui(gui);
+    // update controller for maximum number of iterations
     map.maxIterationsController.name('inversions');
     map.maxIterationsController.addHelp('Upper limit for the number of inversions. Increase if there are undefined transparent patches of pixels. Decrease if app is lagging too much.');
     map.linewidthController.addHelp('Width in pixels for drawing circles, intersections and the trajectory.');
     map.trajectoryOnOffController.addHelp('Switch on and press the ctrl-button to see a trajectory of the circle inversions, starting at the mouse position. The trajectory line pieces have the same color as the inverting circle. No trajectory is shown if some circles make an inverting, logarithmic or ortho-stereographic view.');
+    // additional drawing options and help
     map.addDrawFundamentalRegion();
     map.addDrawNoImage();
     map.addDrawIterations();
@@ -87,8 +93,9 @@ basic.setup = function() {
     showHelp += "<strong>Indra's pearls:</strong> Pixels get the color of the last circle that inverted their position. Use for non-intersecting circles.<br>";
     map.whatToShowController.addHelp(showHelp);
     map.darkController.addHelp('Sets contrast between odd and even number of inversions. Use zero to get flat color.');
+// add drag and drop for the input image
     map.imageController.addDragAndDropWindow();
-    // GUI's for regions, circles and intersections: you can close them afterwards
+    // GUI's for regions, circles, intersections and views
     map.makeRegionsGui(gui);
     circles.makeGui(gui);
     intersections.makeGui(gui);
@@ -97,8 +104,8 @@ basic.setup = function() {
     map.mapping = function(point) {
         circles.map(point);
     };
-    map.setOutputDraw(); // links the output drawing routines
-    map.trajectoryColorController.destroy();
+    map.setOutputDraw(); // links the output drawing routines to the map routines
+    map.trajectoryColorController.destroy(); // instead, the trajectory color comes from the color of circles
 
     // a new map means changed circles
     // we have to work out the regions

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <meta charset="utf-8" />
@@ -6,14 +5,28 @@
 <link rel="icon" href="data:,">
 
 <head>
-    <title> adjust to intersections test</title>
+    <title> mask</title>
 </head>
 
 <body>
+
+
 </body>
 
-<script type='module' src="./adjustToIntersectionsTest.js"></script>
 
+<script type='module'>
+import {
+    mask
+} from './mask.js';
 
+import {
+	map
+}
+from "../libgui/modules.js";
+	
+mask.setup();
+
+map.drawMapChanged();
+</script>
 
 </html>
