@@ -358,7 +358,8 @@ if (guiUtils.abgrOrder) {
  * @param {integer} alpha - value for all pixels,optional, default is semiopaque
  */
 Pixels.prototype.setAlpha = function(alpha = 128) {
-    for (var i = this.pixelComponents.length - 1; i > 0; i -= 4) {
+    const length=this.pixelComponents.length;
+    for (var i = length - 1; i > 0; i -= 4) {
         this.pixelComponents[i] = alpha;
     }
 };

@@ -177,7 +177,7 @@ function rightSpaceLimit() {
  */
 function resizeOutputDiv() {
     var leftOfSpace, widthOfSpace;
-    if (guiUtils.isObject(extendCanvasController) && extendCanvasController.getValue()) {
+    if (guiUtils.isObject(output.extendCanvasController) && output.extendCanvasController.getValue()) {
         leftOfSpace = 0;
         widthOfSpace = window.innerWidth;
     } else {
@@ -239,7 +239,7 @@ let oldHeight = 0;
 output.isDrawing = false;
 
 function autoResizeDraw() {
-    if (autoResizeController.getValue()) {
+    if (output.autoResizeController.getValue()) {
         // autoresize: fit canvas into the output.div. thus no scroll bars
         output.canvas.style.width = '';
         output.canvas.style.height = '';
@@ -265,7 +265,7 @@ function autoResizeDraw() {
             output.canvasWidthController.setValueOnly(newWidth);
             output.canvasHeightController.setValueOnly(newHeight);
         }
-    } else if (autoScaleController.getValue()) {
+    } else if (output.autoScaleController.getValue()) {
         var scale;
         if (output.canvas.width / output.canvas.height > output.divWidth / output.divHeight) {
             // the canvas is very wide, its width determines the scale
@@ -340,7 +340,6 @@ function autoResizeDraw() {
  * @param {boolean} hasBackgroundColor - optional, default is true
  * @param {boolean} hasTransparency - optional, default is true, only present if backgroundColorController exists
  */
-var autoResizeController, autoScaleController, extendCanvasController;
 
 output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency = true) {
     if (output.canvas) {
@@ -453,7 +452,7 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
             if (canvasWidthToHeight > 0.0001) {
                 output.canvasHeightController.setValueOnly(value / canvasWidthToHeight);
             }
-            autoResizeController.setValueOnly(false);
+            output.autoResizeController.setValueOnly(false);
             autoResizeDraw();
         }
     });
@@ -469,39 +468,39 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
             if (canvasWidthToHeight > 0.0001) {
                 output.canvasWidthController.setValueOnly(value * canvasWidthToHeight);
             }
-            autoResizeController.setValueOnly(false);
+            output.autoResizeController.setValueOnly(false);
             autoResizeDraw();
         }
     }).addHelp('You can set image sizes in pixels. Values up to 10000 are possible.');
 
     BooleanButton.greenRedBackground();
-    autoResizeController = sizeGui.add({
+    output.autoResizeController = sizeGui.add({
         type: "boolean",
         labelText: "auto resize canvas",
         initialValue: true,
         onChange: function(on) {
             if (on) {
-                autoScaleController.setValueOnly(false);
+                output.autoScaleController.setValueOnly(false);
             }
             autoResizeDraw();
         }
     });
-    autoResizeController.addHelp("Sets the canvas dimensions to fit the available space.");
+    output.autoResizeController.addHelp("Sets the canvas dimensions to fit the available space.");
 
-    autoScaleController = sizeGui.add({
+    output.autoScaleController = sizeGui.add({
         type: "boolean",
         labelText: "auto scale canvas image",
         initialValue: false,
         onChange: function(on) {
             if (on) {
-                autoResizeController.setValueOnly(false);
+                output.autoResizeController.setValueOnly(false);
             }
             autoResizeDraw();
         }
     }).addHelp('Scales the image of the canvas to fit the available space.');
 
     // extending the canvas width
-    extendCanvasController = sizeGui.add({
+    output.extendCanvasController = sizeGui.add({
         type: 'boolean',
         initialValue: false,
         labelText: 'extend canvas width',
@@ -551,7 +550,7 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
         if (ratio > 0.0001) {
             // need to change the canvas dimensions
             // if not autoresizing we do not need to set explicitely canvas dimensions 
-            if (!autoResizeController.getValue()) {
+            if (!output.autoResizeController.getValue()) {
                 const width = Math.sqrt(output.canvasWidthController.getValue() * output.canvasHeightController.getValue() * canvasWidthToHeight);
                 output.canvasWidthController.setValueOnly(width);
                 output.canvasHeightController.setValueOnly(width / canvasWidthToHeight);
@@ -564,13 +563,14 @@ output.setCanvasWidthToHeight = function(ratio = 1) {
 /**
  * set canvas dimensions
  * disactivate the autoresizing
+ * maybe you should set: output.isDrawing=true;
  * @method output.setCanvasDimensions
  * @param {integer} width
  * @param {integer} height - optional, default width
  */
 output.setCanvasDimensions = function(width, height = width) {
-    autoResizeController.setValueOnly(false);
-    autoResizeController.setActive(false);
+    output.autoResizeController.setValueOnly(false);
+    output.autoResizeController.setActive(false);
     output.canvasWidthController.setValueOnly(width);
     output.canvasHeightController.setValueOnly(height);
     autoResizeDraw();
@@ -624,7 +624,7 @@ function makeArgs(buttonDefinition) {
             result.buttonText = 'width: ' + buttonDefinition.width;
         }
         result.onClick = function() {
-            autoResizeController.setValueOnly(false);
+            output.autoResizeController.setValueOnly(false);
             output.canvasWidthController.setValueOnly(buttonDefinition.width);
             if (canvasWidthToHeight > 0.0001) {
                 output.canvasHeightController.setValueOnly(buttonDefinition.width / canvasWidthToHeight);

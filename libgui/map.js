@@ -119,7 +119,7 @@ map.drawImageChangedCheckMapUpdate = function() {
 map.drawMapChanged = function() {
     map.startDrawing();
     map.make();
-        map.makeStructureColors();
+    map.makeStructureColors();
     map.drawImageChanged();
 };
 
@@ -200,14 +200,14 @@ map.make = function() {
             offset = -2.5 * scale;
             break;
     }
-    shiftY+=offset;
-    shiftX+=offset;
-    const xArray=map.xArray;
-    const yArray=map.yArray;
-    const regionArray=map.regionArray;
-    const iterationsArray=map.iterationsArray;
-    const sizeArray=map.sizeArray;
-    const mapping=map.mapping;
+    shiftY += offset;
+    shiftX += offset;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const regionArray = map.regionArray;
+    const iterationsArray = map.iterationsArray;
+    const sizeArray = map.sizeArray;
+    const mapping = map.mapping;
     let y = shiftY;
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
@@ -588,12 +588,12 @@ map.drawStructure = function() {
         map.controlPixels.show();
     }
     const length = map.width * map.height;
-    const pixelsArray=output.pixels.array;
-    const showRegion=map.showRegion;
-    const sizeArray=map.sizeArray;
-    const structureColors=map.structureColors;
-    const regionArray=map.regionArray;
-    const iterationsArray=map.iterationsArray;
+    const pixelsArray = output.pixels.array;
+    const showRegion = map.showRegion;
+    const sizeArray = map.sizeArray;
+    const structureColors = map.structureColors;
+    const regionArray = map.regionArray;
+    const iterationsArray = map.iterationsArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const region = regionArray[index];
@@ -1067,11 +1067,11 @@ map.setupMapImageTransform = function() {
 
 /**
  * load the image with url=map.inputImage
- * call a callback, might be different for loading the test image than for loading further images
+ * put it on control canvas and draw the new image on the output canvas
  * @method map.loadInputImage
  */
 
-map.loadInputImage = function(callback) {
+map.loadInputImage = function() {
     let image = new Image();
 
     image.onload = function() {
@@ -1080,7 +1080,7 @@ map.loadInputImage = function(callback) {
         map.inputCanvas.height = image.height;
         map.inputCanvasContext.drawImage(image, 0, 0);
         map.inputPixels.update();
-        // transform from map to input image
+        // update transform from map to input image
         map.setupMapImageTransform();
         // determine scale from input image to controle image
         // to fit the control image into a square of gui width
@@ -1091,6 +1091,7 @@ map.loadInputImage = function(callback) {
         map.controlCanvasContext.drawImage(image, 0, 0, map.controlCanvas.width, map.controlCanvas.height);
         map.controlPixels.update();
         image = null;
+        // check if map has changed, draw the new output image
         map.drawImageChangedCheckMapUpdate();
     };
 
@@ -1109,7 +1110,7 @@ map.loadInputImage = function(callback) {
  */
 map.makeShowingGui = function(parentGui, args = {}) {
     const gui = parentGui.addFolder('showing', args);
-    map.gui=gui;
+    map.gui = gui;
     map.showingGui = gui;
     if (!(gui.isRoot()) && !(gui.parent && gui.parent.isRoot())) {
         console.error('map.setupInputImage: Because the gui is in a higher level nested folder, the input image will not appear.');
