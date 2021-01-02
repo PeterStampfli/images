@@ -70,39 +70,41 @@ mask.setup = function() {
         map.drawImageChanged();
     };
 
+    mask.threshold = 128;
+    mask.binary=true;
+    mask.inversion=false;
 
-    function alphaFromColorRed(color){
-    	if (color.red>mask.threshold){
-    		return 255;
-    	} else {
-    	return 0;
-    }
-    }
+  BooleanButton.greenRedBackground();
 
-mask.threshold=128;
-mask.alphaFromColor=alphaFromColorRed;
+  gui.add({
+  	type:'boolean',
+  	params:mask,
+  	property:'inversion',
+        onChange: function() {
+            drawAlpha();
+        }
+  })
 
-gui.add({
-type:'selection',
-params:mask,
-property:'alphaFromColor',
-labelText:'alpha',
-options:{red: alphaFromColorRed},
-onChange: function(){
-	map.drawImageChanged()
-}
-});
+  gui.add({
+  	type:'boolean',
+  	params:mask,
+  	property:'binary',
+        onChange: function() {
+            drawAlpha();
+        }
+  })
 
-gui.add({
-	type:'number',
-	params:mask,
-	property:'threshold',
-	min:0,
-	max:255,
-	step:1,
-onChange: function(){
-	map.drawImageChanged()
-}})
+    gui.add({
+        type: 'number',
+        params: mask,
+        property: 'threshold',
+        min: 0,
+        max: 255,
+        step: 1,
+        onChange: function() {
+            drawAlpha();
+        }
+    });
 
     /**
      * what to do when only the image changes (quality, moving, zooming)
@@ -115,38 +117,42 @@ onChange: function(){
             mask.loadMask();
         } else {
             map.draw();
-            const outputPixelsComponents = output.pixels.pixelComponents;
-            const maskPixels = mask.maskPixels;
-            const color = {};
-            const length = outputPixelsComponents.length / 4;
-            let iAlpha = -1;
-            for (let iPixel = 0; iPixel < length; iPixel++) {
-                iAlpha += 4;
-                maskPixels.getColorAtIndex(color,iPixel);
-const alpha=mask.alphaFromColor(color);
-                outputPixelsComponents[iAlpha]=alpha;
-            }
-            output.pixels.show();
+drawAlpha();
         }
     };
+
+    function drawAlpha(){
+    	            const outputPixelsComponents = output.pixels.pixelComponents;
+            const maskPixelsComponents = mask.maskPixels.pixelComponents;
+            const color = {};
+            const length = outputPixelsComponents.length ;
+            for (let iPixel = 0; iPixel < length; iPixel+=4) {
+                let alpha = maskPixelsComponents[iPixel+1];
+                if (mask.inversion){
+                	alpha=255-alpha;
+                }
+                if (mask.binary){
+                	alpha=(alpha>mask.threshold)?255:0;
+                }
+                outputPixelsComponents[iPixel+3] = alpha;
+            }
+            output.pixels.show();
+    }
 
     // loading the currently choosen mask and make the image
     // an invisible canvas for the mask with pixels
     mask.maskCanvas = document.createElement('canvas');
     mask.gui.bodyDiv.appendChild(mask.maskCanvas);
     mask.maskCanvasContext = mask.maskCanvas.getContext('2d');
-    mask.maskCanvas.style.display='none';
+    mask.maskCanvas.style.display = 'none';
     mask.maskCanvas.style.zIndex = '11';
     mask.maskPixels = new Pixels(mask.maskCanvas);
-    console.log(mask.maskPixels);
 
     mask.loadMask = function() {
         mask.maskLoaded = true;
-        console.log('load mask');
         let image = new Image();
 
         image.onload = function() {
-            console.log('mask loaded', mask.mask);
             mask.maskCanvas.width = image.width;
             mask.maskCanvas.height = image.height;
             mask.maskCanvasContext.drawImage(image, 0, 0);
@@ -159,7 +165,6 @@ const alpha=mask.alphaFromColor(color);
         };
 
         image.src = mask.mask;
-
     };
 
     // choosing a mask
