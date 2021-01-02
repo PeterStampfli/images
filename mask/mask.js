@@ -71,28 +71,29 @@ mask.setup = function() {
     };
 
     mask.threshold = 128;
-    mask.binary=true;
-    mask.inversion=false;
+    mask.binary = true;
+    mask.inversion = false;
+    mask.channel = 1;
 
-  BooleanButton.greenRedBackground();
+    BooleanButton.greenRedBackground();
 
-  gui.add({
-  	type:'boolean',
-  	params:mask,
-  	property:'inversion',
+    gui.add({
+        type: 'boolean',
+        params: mask,
+        property: 'inversion',
         onChange: function() {
             drawAlpha();
         }
-  })
+    });
 
-  gui.add({
-  	type:'boolean',
-  	params:mask,
-  	property:'binary',
+    gui.add({
+        type: 'boolean',
+        params: mask,
+        property: 'binary',
         onChange: function() {
             drawAlpha();
         }
-  })
+    });
 
     gui.add({
         type: 'number',
@@ -101,6 +102,21 @@ mask.setup = function() {
         min: 0,
         max: 255,
         step: 1,
+        onChange: function() {
+            drawAlpha();
+        }
+    });
+
+    gui.add({
+        type: 'selection',
+        params: mask,
+        property: 'channel',
+        options: {
+            red: 0,
+            green: 1,
+            blue: 2,
+            alpha: 3
+        },
         onChange: function() {
             drawAlpha();
         }
@@ -117,26 +133,30 @@ mask.setup = function() {
             mask.loadMask();
         } else {
             map.draw();
-drawAlpha();
+            drawAlpha();
         }
     };
 
-    function drawAlpha(){
-    	            const outputPixelsComponents = output.pixels.pixelComponents;
-            const maskPixelsComponents = mask.maskPixels.pixelComponents;
-            const color = {};
-            const length = outputPixelsComponents.length ;
-            for (let iPixel = 0; iPixel < length; iPixel+=4) {
-                let alpha = maskPixelsComponents[iPixel+1];
-                if (mask.inversion){
-                	alpha=255-alpha;
-                }
-                if (mask.binary){
-                	alpha=(alpha>mask.threshold)?255:0;
-                }
-                outputPixelsComponents[iPixel+3] = alpha;
+    function drawAlpha() {
+        const outputPixelsComponents = output.pixels.pixelComponents;
+        const maskPixelsComponents = mask.maskPixels.pixelComponents;
+        const color = {};
+        const length = outputPixelsComponents.length;
+        const channel = mask.channel;
+        const inversion = mask.inversion;
+        const binary = mask.binary;
+        const threshold = mask.threshold;
+        for (let iPixel = 0; iPixel < length; iPixel += 4) {
+            let alpha = maskPixelsComponents[iPixel + channel];
+            if (inversion) {
+                alpha = 255 - alpha;
             }
-            output.pixels.show();
+            if (binary) {
+                alpha = (alpha > threshold) ? 255 : 0;
+            }
+            outputPixelsComponents[iPixel + 3] = alpha;
+        }
+        output.pixels.show();
     }
 
     // loading the currently choosen mask and make the image

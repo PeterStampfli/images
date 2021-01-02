@@ -394,7 +394,6 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
                 output.canvas.style.backgroundColor = output.backgroundColorString;
                 if (output.pixels.antialiasSubpixels === 1) {
                     output.drawImageChanged();
-                    console.log('imch');
                 } else {
                     output.drawBackgroundChanged();
                 }
