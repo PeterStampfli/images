@@ -1,6 +1,5 @@
 /* jshint esversion: 6 */
 
-
 import {
     ParamGui,
     output,
@@ -21,7 +20,6 @@ const canvasContext = canvas.getContext('2d');
 output.addCoordinateTransform();
 output.addCursorposition();
 output.setInitialCoordinates(0, 0, 210);
-
 output.addGrid();
 
 // parameters for drawing
@@ -44,9 +42,8 @@ tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
 
-
 tiling.maxGen = 1;
-tiling.initial = 'triangleR';
+tiling.initial = 'rhomb60';
 
 const colorController = {
     type: 'color',
@@ -132,7 +129,6 @@ const triangleRColorController = gui.add(colorController, {
     labelText: 'triangleR'
 });
 
-
 const triangleLColorController = gui.add(colorController, {
     property: 'triangleLColor',
     labelText: 'triangleL'
@@ -163,7 +159,6 @@ gui.add(colorController, {
     property: 'borderColor',
     labelText: 'color'
 });
-
 
 const hyperBorderController = gui.add({
     type: 'boolean',
@@ -208,8 +203,6 @@ gui.add({
     }
 });
 
-
-
 // tiles of the tiling
 //--------------------
 const rt32 = 0.5 * Math.sqrt(3);
@@ -246,9 +239,9 @@ function square(gen, blX, blY, trX, trY) {
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
-                        output.makePath(blX, blY, tlX, tlY);
+                        output.makePath(0.5*(blX+brX),0.5*(blY+brY),0.5*(tlX+trX),0.5*(tlY+trY));
                         canvasContext.stroke();
-                        output.makePath(blX, blY, brX, brY);
+                        output.makePath(0.5*(blX+tlX),0.5*(blY+tlY),0.5*(brX+trX),0.5*(brY+trY));
                         canvasContext.stroke();
                         break;
                 }
@@ -303,7 +296,7 @@ function rhomb60(gen, bX, bY, tX, tY) {
     // make center and missing corners
     const cX = 0.5 * (bX + tX);
     const cY = 0.5 * (bY + tY);
-    // 4.73205=1/(3+sqrt(3));
+    // 0.211324865=1/(3+sqrt(3));
     const upX = 0.211324865 * (tX - bX);
     const upY = 0.211324865 * (tY - bY);
     const rightX = upY;
@@ -333,13 +326,13 @@ function rhomb60(gen, bX, bY, tX, tY) {
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
                         // 1.274519=(1+sqrt(3))*cos(15)-0.5*(1+sqrt(3))/cos(15)
-                        const lowX = cX - 1.2247 * upX;
-                        const lowY = cY - 1.2247 * upY;
-                        const highX = cX + 1.2247 * upX;
-                        const highY = cY + 1.2247 * upY;
-                        output.makePath(0.5 * (bX + lX), 0.5 * (bY + lY), lowX, lowY, 0.5 * (bX + rX), 0.5 * (bY + rY));
+                        const lowX = 0.3333*(lX+bX+rX);
+                        const lowY = 0.3333*(lY+bY+rY);
+                        const highX = 0.3333*(lX+tX+rX);
+                        const highY = 0.3333*(lY+tY+rY);                        
+                        output.makePath(0.5*(lX+tX),0.5*(lY+tY), highX, highY,0.5*(rX+tX),0.5*(rY+tY));
                         canvasContext.stroke();
-                        output.makePath(0.5 * (tX + lX), 0.5 * (tY + lY), highX, highY, 0.5 * (tX + rX), 0.5 * (tY + rY));
+                        output.makePath(0.5*(lX+bX),0.5*(lY+bY), lowX, lowY,0.5*(rX+bX),0.5*(rY+bY));
                         canvasContext.stroke();
                         output.makePath(lowX, lowY, highX, highY);
                         canvasContext.stroke();
@@ -348,7 +341,24 @@ function rhomb60(gen, bX, bY, tX, tY) {
             }
         } else {
             gen += 1;
-
+            rhomb60(gen,tX,tY,lX+0.5*rightX+rt32*upX,lY+0.5*rightY+rt32*upY);
+            rhomb60(gen,lX,lY,bX-0.5*rightX+rt32*upX,bY-0.5*rightY+rt32*upY);
+            const ntX=tX-upX;
+            const ntY=tY-upY;
+            rhomb30(gen,lX,lY,ntX,ntY);
+            rhomb30(gen,rX,rY,ntX,ntY);
+            const nlX=lX+rt32*rightX-0.5*upX;
+            const nlY=lY+rt32*rightY-0.5*upY;
+            rhomb30(gen,bX,bY,nlX,nlY);
+            rhomb30(gen,ntX,ntY,nlX,nlY);
+            triangleR(gen,lX,lY,nlX,nlY,nlX+upX,nlY+upY);
+            const nrX=rX-rt32*rightX-0.5*upX;
+            const nrY=rY-rt32*rightY-0.5*upY;
+            rhomb30(gen,bX,bY,nrX,nrY);
+            rhomb30(gen,ntX,ntY,nrX,nrY);
+            triangleL(gen,rX,rY,nrX,nrY,nrX+upX,nrY+upY);
+            triangleR(gen,nrX,nrY,nlX,nlY,bX+upX,bY+upY);
+            triangleL(gen,nrX,nrY,nlX,nlY,ntX-upX,ntY-upY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -358,7 +368,6 @@ function rhomb60(gen, bX, bY, tX, tY) {
             }
         }
     }
-
 }
 
 // the 30 degrees rhomb, coordinates of the corners with acute angles
@@ -422,7 +431,6 @@ function rhomb30(gen, bX, bY, tX, tY) {
             square(gen, rX, rY, lX, lY);
             rhomb60(gen, lX, lY, 0.3660254 * lX + 0.6339745 * bX, 0.3660254 * lY + 0.6339745 * bY);
             rhomb60(gen, rX, rY, 0.3660254 * rX + 0.6339745 * tX, 0.3660254 * rY + 0.6339745 * tY);
-
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -437,7 +445,6 @@ function rhomb30(gen, bX, bY, tX, tY) {
 // equilateral triangle
 // a is corner with no rhomb60, b has one, c has two
 // abc winds right or left as seen from center of triangle
-
 function triangleR(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         // make directions
@@ -465,7 +472,11 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
-                        output.makePath(aX, aY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+                        const zX=0.3333*(aX+bX+cX);
+                        const zY=0.3333*(aY+bY+cY);
+                        output.makePath(0.5*(aX+bX),0.5*(aY+bY),zX,zY,0.5*(aX+cX),0.5*(aY+cY));
+                        canvasContext.stroke();
+                        output.makePath(0.5*(cX+bX),0.5*(cY+bY),zX,zY);
                         canvasContext.stroke();
                         break;
                     case 'scheme':
@@ -476,10 +487,8 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
             }
         } else {
             gen += 1;
-
             const nbX = bX - rt32 * rightX + 0.5 * upX;
             const nbY = bY - rt32 * rightY + 0.5 * upY;
-
             const ncX = cX - upX;
             const ncY = cY - upY;
             rhomb30(gen, bX, bY, ncX, ncY);
@@ -498,15 +507,12 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
     }
 }
 
-
-
 // equilateral triangle
 // a is corner with no rhomb60, b has one, c has two
 // abc winds right or left as seen from center of triangle
 // mirror image of triangleR, so 'right' actually points to the left
 // has different triangle at center, different rhombs at border
 // else everything the same
-
 function triangleL(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         // make directions
@@ -534,21 +540,22 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
-                        output.makePath(aX, aY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+                         const zX=0.3333*(aX+bX+cX);
+                        const zY=0.3333*(aY+bY+cY);
+                        output.makePath(0.5*(aX+bX),0.5*(aY+bY),zX,zY,0.5*(aX+cX),0.5*(aY+cY));
                         canvasContext.stroke();
-                        break;
+                        output.makePath(0.5*(cX+bX),0.5*(cY+bY),zX,zY);
+                        canvasContext.stroke();
+                                                break;
                     case 'scheme':
                         canvasContext.fillStyle = tiling.markerColor;
-
                         break;
                 }
             }
         } else {
             gen += 1;
-
             const nbX = bX - rt32 * rightX + 0.5 * upX;
             const nbY = bY - rt32 * rightY + 0.5 * upY;
-
             const ncX = cX - upX;
             const ncY = cY - upY;
             rhomb30(gen, bX, bY, ncX, ncY);
@@ -567,10 +574,6 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
         }
     }
 }
-
-
-
-
 
 const size = 50; //length of side
 
