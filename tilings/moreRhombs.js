@@ -503,7 +503,7 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
 // equilateral triangle
 // a is corner with no rhomb60, b has one, c has two
 // abc winds right or left as seen from center of triangle
-// mirror image of triangleR
+// mirror image of triangleR, so 'right' actually points to the left
 // has different triangle at center, different rhombs at border
 // else everything the same
 
@@ -513,8 +513,8 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
         // 0.366025404 = 1 / (1 + rt3);
         const rightX = 0.366025404 * (bX - aX);
         const rightY = 0.366025404 * (bY - aY);
-        const upX = -rightY;
-        const upY = rightX;
+        const upX = rightY;
+        const upY = -rightX;
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
                 if (tiling.border) {
@@ -554,8 +554,9 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
             rhomb30(gen, bX, bY, ncX, ncY);
             rhomb30(gen, aX, aY, ncX, ncY);
             rhomb30(gen, aX, aY, nbX, nbY);
-            rhomb60(gen, cX, cY, aX + 0.5 * rightX + rt32 * upX, aY + 0.5 * rightY + rt32 * upY);
-            triangleL(gen, ncX, ncY, nbX, nbY, aX + rt32 * rightX + 0.5 * upX, aY + rt32 * rightY + 0.5 * upY);
+            rhomb60(gen, cX, cY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            rhomb60(gen, bX, bY, aX+rightX, aY+rightY);
+            triangleR(gen, ncX, ncY, nbX, nbY, aX + rt32 * rightX + 0.5 * upX, aY + rt32 * rightY + 0.5 * upY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -609,7 +610,7 @@ function tile() {
         case 'triangleR':
             triangleR(0, -100, -100, 100, -100, 0, 200 * rt32 - 100);
             break;
-        case 'triangleR':
+        case 'triangleL':
             triangleL(0, 100, -100, -100, -100, 0, 200 * rt32 - 100);
             break;
         case 'dodecagon':
