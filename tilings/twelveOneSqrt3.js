@@ -710,28 +710,33 @@ for (let i = 0; i < 14; i++) {
 }
 
 function tile() {
-    const s = 200 / rt32;
+    let s = 200;
+    if (tiling.maxGen === 0) {
+        s /= 1 + Math.sqrt(3);
+    }
+    const r = s / Math.sqrt(3);
+    const z = s * Math.cos(Math.PI / 12);
     switch (tiling.initial) {
         case 'small square':
-            square(0, -100, -100, 100, 100);
+            square(0, -s / 4, -s / 4, s / 4, s / 4);
             break;
         case 'rhomb':
-            rhomb(0, 0, -100, 0, 100);
+            rhomb(0, 0, -z, 0, z);
             break;
         case 'triangle A':
-            triangleA(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            triangleA(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             break;
         case 'triangle B':
-            triangleB(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            triangleB(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             break;
         case 'triangle C':
-            triangleC(0, -0.25 * s, -100, 0.25 * s, -100, -0.25 * s, 100);
+            triangleC(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             break;
         case 'big square':
-            square(0, 0, 0, 100, 100);
-            square(0, 0, 0, 100, -100);
-            square(0, 0, 0, -100, 100);
-            square(0, 0, 0, -100, -100);
+            square(0, 0, 0, s / 2, s / 2);
+            square(0, 0, 0, s / 2, -s / 2);
+            square(0, 0, 0, -s / 2, s / 2);
+            square(0, 0, 0, -s / 2, -s / 2);
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
