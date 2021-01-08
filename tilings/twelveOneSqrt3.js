@@ -41,6 +41,9 @@ tiling.subSquare = false;
 tiling.hyperBorderColor = '#000000';
 tiling.hyperBorderWidth = 3;
 tiling.hyperBorder = false;
+tiling.marker = false;
+tiling.markerSize = 0.5;
+tiling.markerColor = '#444444';
 tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
@@ -205,6 +208,26 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
+const markerController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'marker',
+    onChange: function() {
+        draw();
+    }
+});
+
+markerController.add(widthController, {
+    property: 'markerSize',
+    labelText: 'size'
+});
+
+gui.add(colorController, {
+    property: 'markerColor',
+    labelText: 'color'
+});
+
+
 gui.addParagraph('<strong>tiling</strong>');
 
 gui.add({
@@ -280,6 +303,12 @@ function square(gen, blX, blY, trX, trY) {
     const brY = cY - dX;
     const tlX = cX - dY;
     const tlY = cY + dX;
+            // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
+            // 0.732050808 = 2 / (1 + rt3);
+            const upX = 0.732050808 * (tlX - blX);
+            const upY = 0.732050808 * (tlY - blY);
+            const rightX = upY;
+            const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
@@ -292,6 +321,14 @@ function square(gen, blX, blY, trX, trY) {
                         output.makePath(tlX, tlY, blX, blY, brX, brY);
                         canvasContext.stroke();
                     }
+                }
+                if (tiling.marker) {
+                    canvasContext.fillStyle = tiling.markerColor;
+                    const s = tiling.markerSize;
+                    output.makePath(blX, blY, blX + s * rightX, blY + s * rightY, blX + s * upX, blY + s * upY);
+                    canvasContext.fill();
+                    output.makePath(trX, trY, trX - s * rightX, trY - s * rightY, trX - s * upX, trY - s * upY);
+                    canvasContext.fill();
                 }
             } else {
                 switch (tiling.decoration) {
@@ -311,12 +348,6 @@ function square(gen, blX, blY, trX, trY) {
                 }
             }
         } else {
-            // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
-            // 0.732050808 = 2 / (1 + rt3);
-            const upX = 0.732050808 * (tlX - blX);
-            const upY = 0.732050808 * (tlY - blY);
-            const rightX = upY;
-            const rightY = -upX;
             gen += 1;
             cX = brX + 0.5 * (upX - rightX);
             cY = brY + 0.5 * (upY - rightY);
@@ -721,7 +752,7 @@ function tile() {
             square(0, -s / 4, -s / 4, s / 4, s / 4);
             break;
         case 'rhomb':
-            rhomb(0, 0, -z, 0, z);
+            rhomb(0, -z, 0, z,0);
             break;
         case 'triangle A':
             triangleA(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
@@ -759,7 +790,7 @@ function draw() {
     if (tiling.decoration !== 'none') {
         tile();
     }
-    if (tiling.hyperBorder || tiling.border) {
+    if (tiling.hyperBorder || tiling.border || tiling.marker) {
         tiling.drawBorders = true;
         tile();
     }
