@@ -32,7 +32,7 @@ tiling.triangleRColor = '#0000ff';
 tiling.triangleLColor = '#00ffff';
 tiling.marker = true;
 tiling.markerSize = 1;
-tiling.markerColor = '#444444';
+tiling.markerColor = '#888888ff';
 tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
 tiling.border = true;
@@ -640,15 +640,15 @@ function tile() {
     }
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
-   switch (tiling.initial) {
+    switch (tiling.initial) {
         case 'square':
-            square(0, -s/2, -s/2, s/2, s/2);
+            square(0, -s / 2, -s / 2, s / 2, s / 2);
             break;
         case 'rhomb30':
-            rhomb30(0, -z, 0, z,0);
+            rhomb30(0, -z, 0, z, 0);
             break;
         case 'rhomb60':
-            rhomb60(0, 0, -rt32*s, 0, rt32*s);
+            rhomb60(0, -rt32 * s, 0, rt32 * s, 0);
             break;
         case 'triangleR':
             triangleR(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
