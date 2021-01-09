@@ -634,21 +634,27 @@ for (let i = 0; i < 14; i++) {
 
 // make that all sides have the same length, initially, for good substitution rule figures
 function tile() {
-    switch (tiling.initial) {
+    let s = 200;
+    if (tiling.maxGen === 0) {
+        s /= 1 + Math.sqrt(3);
+    }
+    const r = s / Math.sqrt(3);
+    const z = s * Math.cos(Math.PI / 12);
+   switch (tiling.initial) {
         case 'square':
-            square(0, -100, -100, 100, 100);
+            square(0, -s/2, -s/2, s/2, s/2);
             break;
         case 'rhomb30':
-            rhomb30(0, 0, -100, 0, 100);
+            rhomb30(0, -z, 0, z,0);
             break;
         case 'rhomb60':
-            rhomb60(0, 0, -100, 0, 100);
+            rhomb60(0, 0, -rt32*s, 0, rt32*s);
             break;
         case 'triangleR':
-            triangleR(0, -100, -100, 100, -100, 0, 200 * rt32 - 100);
+            triangleR(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
             break;
         case 'triangleL':
-            triangleL(0, 100, -100, -100, -100, 0, 200 * rt32 - 100);
+            triangleL(0, -rt32 * r, -r / 2, 0, r, rt32 * r, -r / 2);
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
