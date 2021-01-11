@@ -41,6 +41,7 @@ tiling.subSquare = false;
 tiling.hyperBorderColor = '#000000';
 tiling.hyperBorderWidth = 3;
 tiling.hyperBorder = false;
+tiling.outline=true;
 tiling.marker = false;
 tiling.markerSize = 0.5;
 tiling.markerColor = '#444444';
@@ -227,6 +228,15 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
+gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'outline',
+    onChange: function() {
+        draw();
+    }
+});
+
 
 gui.addParagraph('<strong>tiling</strong>');
 
@@ -312,6 +322,14 @@ function square(gen, blX, blY, trX, trY) {
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
+                if (tiling.marker) {
+                    canvasContext.fillStyle = tiling.markerColor;
+                    const s = tiling.markerSize;
+                    output.makePath(blX, blY, blX + s * rightX, blY + s * rightY, blX + s * upX, blY + s * upY);
+                    canvasContext.fill();
+                    output.makePath(trX, trY, trX - s * rightX, trY - s * rightY, trX - s * upX, trY - s * upY);
+                    canvasContext.fill();
+                }
                 if (tiling.border) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
@@ -321,14 +339,6 @@ function square(gen, blX, blY, trX, trY) {
                         output.makePath(tlX, tlY, blX, blY, brX, brY);
                         canvasContext.stroke();
                     }
-                }
-                if (tiling.marker) {
-                    canvasContext.fillStyle = tiling.markerColor;
-                    const s = tiling.markerSize;
-                    output.makePath(blX, blY, blX + s * rightX, blY + s * rightY, blX + s * upX, blY + s * upY);
-                    canvasContext.fill();
-                    output.makePath(trX, trY, trX - s * rightX, trY - s * rightY, trX - s * upX, trY - s * upY);
-                    canvasContext.fill();
                 }
             } else {
                 switch (tiling.decoration) {
@@ -360,7 +370,7 @@ function square(gen, blX, blY, trX, trY) {
             triangleB(gen, tlX + 0.5 * rightX, tlY + 0.5 * rightY, cX, cY, trX, trY);
             triangleB(gen, tlX - 0.5 * upX, tlY - 0.5 * upY, cX, cY, blX, blY);
             rhomb(gen, blX, blY, trX, trY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY, blX, blY);
@@ -450,7 +460,7 @@ function rhomb(gen, bX, bY, tX, tY) {
             y = cY - 0.48296 * rightY - 0.83652 * upY;
             triangleA(gen, x, y, bcX, bcY, lX, lY);
             triangleC(gen, x, y, bcX, bcY, cX - 0.25881 * rightX - 1.67303 * upX, cY - 0.25881 * rightY - 1.67303 * upY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
@@ -500,7 +510,7 @@ function triangleX(gen, mX, mY, bX, bY, cX, cY) {
             // unknown triangle
             triangleX(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             //   triangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(mX, mY, bX, bY, cX, cY);
@@ -571,7 +581,7 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
             // free triangles
             tiling.freeTriangleA(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             tiling.freeTriangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(mX, mY, bX, bY, cX, cY);
@@ -638,7 +648,7 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
             // free triangles
             tiling.freeTriangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             tiling.freeTriangleB(gen, bcX, bcY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(mX, mY, bX, bY, cX, cY);
@@ -705,7 +715,7 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
             triangleC(gen, bcX, bcY, mcX, mcY, cX + rt32 * rightX - 1.5 * upX, cY + rt32 * rightY - 1.5 * upY);
             triangleB(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
             triangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
                 output.makePath(mX, mY, bX, bY, cX, cY);
@@ -790,7 +800,7 @@ function draw() {
     if (tiling.decoration !== 'none') {
         tile();
     }
-    if (tiling.hyperBorder || tiling.border || tiling.marker) {
+    if (tiling.hyperBorder || tiling.border || tiling.marker||tiling.outline) {
         tiling.drawBorders = true;
         tile();
     }
