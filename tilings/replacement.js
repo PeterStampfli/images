@@ -82,6 +82,7 @@ function draw() {
     const s = 50;
     const rt3 = Math.sqrt(3);
     const rt32 = rt3 / 2;
+    const delta=70;
 
     let x = 0;
     //=================================
@@ -100,7 +101,7 @@ function draw() {
     canvasContext.fill();
     canvasContext.stroke();
 
-    x = 100;
+    x = delta;
     //=========================================================
     canvasContext.fillStyle = tiling.triangleColor;
     output.makePath(x, (1 + rt3) * s, x + s / 2, (1 + rt32) * s, x - s / 2, (1 + rt32) * s);
@@ -122,7 +123,7 @@ function draw() {
     canvasContext.fill();
     canvasContext.stroke();
 
-    x = -100;
+    x = -delta;
     //=========================================================
     canvasContext.fillStyle = tiling.triangleColor;
     output.makePath(x, 0, x + s / 2, rt32 * s, x - s / 2, rt32 * s);
