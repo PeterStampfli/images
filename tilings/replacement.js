@@ -145,6 +145,11 @@ function draw() {
     canvasContext.stroke();
 
     output.drawGrid();
+
+output.makePath(x,0,0,x,-x,0,0,-x);
+output.addCanvasBorderPath();
+    canvasContext.fill();
+
 }
 
 output.setDrawMethods(draw);

@@ -1362,7 +1362,6 @@ output.isInCanvas = function(coordinates) {
         minY = -maxY;
         maxY = -h;
     }
-
     const margin = output.polygonMargin * Math.max(maxX - minX, maxY - minY);
     let inside = ((maxX + margin) > output.coordinateTransform.shiftX);
     inside = inside && ((maxY + margin) > output.coordinateTransform.shiftY);
@@ -1386,6 +1385,32 @@ output.makePath = function(coordinates) {
     for (let i = 2; i < length; i += 2) {
         output.canvasContext.lineTo(arguments[i], arguments[i + 1]);
     }
+};
+
+/**
+ * add a path around the canvas with a counterclockwise or clockwise path (as seen)
+ * to make a fill around a polygon (has to turn opposite)
+ * might need to use closePath()
+ * does not use the canvas transform
+ * @method output.addCanvasBorderPath
+ * @param {boolean} counterclockwise - optional, default is true
+ */
+output.addCanvasBorderPath = function(counterclockwise = true) {
+    const canvasContext = output.canvasContext;
+    let transform = output.canvasContext.getTransform();
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0);
+    canvasContext.moveTo(0, 0);
+    if (counterclockwise) {
+        canvasContext.lineTo(output.canvas.width, 0);
+        canvasContext.lineTo(output.canvas.width, output.canvas.height);
+        canvasContext.lineTo(0, output.canvas.height);
+    } else {
+        canvasContext.lineTo(0, output.canvas.height);
+        canvasContext.lineTo(output.canvas.width, output.canvas.height);
+        canvasContext.lineTo(output.canvas.width, 0);
+    }
+    canvasContext.lineTo(0, 0);
+    output.canvasContext.setTransform(transform);
 };
 
 /**
