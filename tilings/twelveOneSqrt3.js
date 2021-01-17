@@ -38,10 +38,9 @@ tiling.borderWidth = 2;
 tiling.border = true;
 tiling.subTriangle = false;
 tiling.subSquare = false;
-tiling.hyperBorderColor = '#000000';
-tiling.hyperBorderWidth = 3;
-tiling.hyperBorder = false;
-tiling.outline=true;
+tiling.outlineColor = '#000000';
+tiling.outlineWidth = 3;
+tiling.outline = true;
 tiling.marker = false;
 tiling.markerSize = 0.5;
 tiling.markerColor = '#444444';
@@ -190,22 +189,22 @@ subTriangleController.add({
     }
 });
 
-const hyperBorderController = gui.add({
+const outlineController = gui.add({
     type: 'boolean',
     params: tiling,
-    property: 'hyperBorder',
+    property: 'outline',
     onChange: function() {
         draw();
     }
 });
 
-hyperBorderController.add(widthController, {
-    property: 'hyperBorderWidth',
+outlineController.add(widthController, {
+    property: 'outlineWidth',
     labelText: 'width'
 });
 
 gui.add(colorController, {
-    property: 'hyperBorderColor',
+    property: 'outlineColor',
     labelText: 'color'
 });
 
@@ -227,16 +226,6 @@ gui.add(colorController, {
     property: 'markerColor',
     labelText: 'color'
 });
-
-gui.add({
-    type: 'boolean',
-    params: tiling,
-    property: 'outline',
-    onChange: function() {
-        draw();
-    }
-});
-
 
 gui.addParagraph('<strong>tiling</strong>');
 
@@ -313,12 +302,12 @@ function square(gen, blX, blY, trX, trY) {
     const brY = cY - dX;
     const tlX = cX - dY;
     const tlY = cY + dX;
-            // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
-            // 0.732050808 = 2 / (1 + rt3);
-            const upX = 0.732050808 * (tlX - blX);
-            const upY = 0.732050808 * (tlY - blY);
-            const rightX = upY;
-            const rightY = -upX;
+    // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
+    // 0.732050808 = 2 / (1 + rt3);
+    const upX = 0.732050808 * (tlX - blX);
+    const upY = 0.732050808 * (tlY - blY);
+    const rightX = upY;
+    const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
@@ -370,12 +359,6 @@ function square(gen, blX, blY, trX, trY) {
             triangleB(gen, tlX + 0.5 * rightX, tlY + 0.5 * rightY, cX, cY, trX, trY);
             triangleB(gen, tlX - 0.5 * upX, tlY - 0.5 * upY, cX, cY, blX, blY);
             rhomb(gen, blX, blY, trX, trY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY, blX, blY);
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -460,13 +443,6 @@ function rhomb(gen, bX, bY, tX, tY) {
             y = cY - 0.48296 * rightY - 0.83652 * upY;
             triangleA(gen, x, y, bcX, bcY, lX, lY);
             triangleC(gen, x, y, bcX, bcY, cX - 0.25881 * rightX - 1.67303 * upX, cY - 0.25881 * rightY - 1.67303 * upY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -510,13 +486,6 @@ function triangleX(gen, mX, mY, bX, bY, cX, cY) {
             // unknown triangle
             triangleX(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             //   triangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(mX, mY, bX, bY, cX, cY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -581,13 +550,6 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
             // free triangles
             tiling.freeTriangleA(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             tiling.freeTriangleA(gen, bX - 0.433012 * rightX + 0.75 * upX, bY - 0.433012 * rightY + 0.75 * upY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(mX, mY, bX, bY, cX, cY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -648,13 +610,6 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
             // free triangles
             tiling.freeTriangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
             tiling.freeTriangleB(gen, bcX, bcY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(mX, mY, bX, bY, cX, cY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -715,13 +670,6 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
             triangleC(gen, bcX, bcY, mcX, mcY, cX + rt32 * rightX - 1.5 * upX, cY + rt32 * rightY - 1.5 * upY);
             triangleB(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
             triangleB(gen, mX + 0.5 * rightX, mY + 0.5 * rightY, cenX, cenY, bX, bY);
-            if (tiling.drawBorders && ((tiling.hyperBorder && (gen === tiling.maxGen))||(tiling.outline && (gen === 1)))) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(mX, mY, bX, bY, cX, cY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
         }
     }
 }
@@ -757,27 +705,70 @@ function tile() {
     }
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
+    const w = s * Math.sin(Math.PI / 12);
     switch (tiling.initial) {
         case 'small square':
             square(0, -s / 4, -s / 4, s / 4, s / 4);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(-s / 4, -s / 4, -s / 4, s / 4, s / 4, s / 4, s / 4, -s / 4);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'rhomb':
-            rhomb(0, -z, 0, z,0);
+            rhomb(0, -z, 0, z, 0);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(z, 0, 0, w, -z, 0, 0, -w);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'triangle A':
             triangleA(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(0, -r / 2, rt32 * r, -r / 2, 0, r);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'triangle B':
             triangleB(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(0, -r / 2, rt32 * r, -r / 2, 0, r);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'triangle C':
             triangleC(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(0, -r / 2, rt32 * r, -r / 2, 0, r);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'big square':
             square(0, 0, 0, s / 2, s / 2);
             square(0, 0, 0, s / 2, -s / 2);
             square(0, 0, 0, -s / 2, s / 2);
             square(0, 0, 0, -s / 2, -s / 2);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(-s / 2, -s / 2, -s / 2, s / 2, s / 2, s / 2, s / 2, -s / 2);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
@@ -786,6 +777,17 @@ function tile() {
                 const mY = 0.5 * (secondY[i] + secondY[i + 1]);
                 triangleC(0, mX, mY, secondX[i], secondY[i], basicX[i + 1], basicY[i + 1]);
                 triangleC(0, mX, mY, secondX[i + 1], secondY[i + 1], basicX[i + 1], basicY[i + 1]);
+            }
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                canvasContext.beginPath();
+                canvasContext.moveTo(secondX[0], secondY[0]);
+                for (let i = 1; i < 12; i++) {
+                    canvasContext.lineTo(secondX[i], secondY[i]);
+                }
+                canvasContext.closePath();
+                canvasContext.stroke();
             }
             break;
     }
@@ -800,7 +802,7 @@ function draw() {
     if (tiling.decoration !== 'none') {
         tile();
     }
-    if (tiling.hyperBorder || tiling.border || tiling.marker||tiling.outline) {
+    if (tiling.border) {
         tiling.drawBorders = true;
         tile();
     }
