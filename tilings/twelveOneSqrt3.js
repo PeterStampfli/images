@@ -335,6 +335,12 @@ function square(gen, blX, blY, trX, trY) {
                         canvasContext.fillStyle = tiling.squareColor;
                         output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
                         canvasContext.fill();
+                    if (!tiling.subSquare) {
+                     canvasContext.strokeStyle = tiling.squareColor;
+                    output.setLineWidth(1);
+                       output.makePath(tlX, tlY, blX, blY, brX, brY);
+                        canvasContext.stroke();
+                    }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -523,6 +529,13 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleAColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
+                    if (!tiling.subTriangle) {
+                    canvasContext.strokeStyle = tiling.triangleAColor;
+                    output.setLineWidth(1);
+                    output.makePath(mX, mY, cX, cY);
+                        canvasContext.closePath();
+                    canvasContext.stroke();
+                    }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -587,7 +600,14 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleBColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
-                        break;
+                    if (!tiling.subTriangle) {
+                    canvasContext.strokeStyle = tiling.triangleBColor;
+                    output.setLineWidth(1);
+                    output.makePath(mX, mY, cX, cY);
+                        canvasContext.closePath();
+                     canvasContext.stroke();
+                   }
+                       break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
@@ -648,6 +668,13 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleCColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
+                   if (!tiling.subTriangle) {
+                    canvasContext.strokeStyle = tiling.triangleCColor;
+                    output.setLineWidth(1);
+                    output.makePath(mX, mY, cX, cY);
+                        canvasContext.closePath();
+                    canvasContext.stroke();
+                    }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
