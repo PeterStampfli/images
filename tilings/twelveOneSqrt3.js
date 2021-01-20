@@ -6,6 +6,7 @@ import {
     output,
     BooleanButton
 }
+//from "./library/modules.js";
 from "../libgui/modules.js";
 
 const gui = new ParamGui({
@@ -19,10 +20,7 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
-output.addCursorposition();
 output.setInitialCoordinates(0, 0, 210);
-
-output.addGrid();
 
 // parameters for drawing
 const tiling = {};
@@ -75,11 +73,15 @@ const widthController = {
 
 gui.addParagraph('<strong>appearance of tiles</strong>');
 
-gui.add({
+const decorationController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'decoration',
-    options: ['none', 'solid color', 'scheme', 'grid'],
+    options: {
+        'none': 'none',
+        'solid color': 'solid color',
+        'dual grid': 'grid'
+    },
     onChange: function() {
         if (tiling.decoration === 'grid') {
             gridWidthController.show();
@@ -101,31 +103,32 @@ gui.add({
             triangleBColorController.hide();
             triangleCColorController.hide();
         }
-        if (tiling.decoration === 'scheme') {
-            markerColorController.show();
-        } else {
-            markerColorController.hide();
-        }
         draw();
     }
 });
+let decorationHelp = 'Choose what to draw inside the tiles.<br>';
+decorationHelp += '<strong>None:</strong> Leave tile empty. For drawing only borders of tiles.<br>';
+decorationHelp += '<strong>Solid color:</strong> Fills the tiles with color. For making mosaics.<br>';
+decorationHelp += '<strong>Dual grid:</strong> Draws the dual of the tiling. For creating latticework.<br>';
+decorationController.addHelp(decorationHelp);
 
 const gridColorController = gui.add(colorController, {
     property: 'gridColor',
-    labelText: 'grid'
+    labelText: 'color'
 });
-
 const gridWidthController = gui.add(widthController, {
     property: 'gridWidth',
-    labelText: 'width of grid'
+    labelText: 'width'
 });
 gridWidthController.hide();
 gridColorController.hide();
+gridColorController.addHelp('You can set the color and the width of the dual grid.');
 
 const rhombColorController = gui.add(colorController, {
     property: 'rhombColor',
     labelText: 'rhomb'
 });
+rhombColorController.addHelp('Here you can choose the colors for the different tiles. Use the same color for all triangles to recover equal sided triangles.');
 
 const squareColorController = gui.add(colorController, {
     property: 'squareColor',
@@ -147,12 +150,6 @@ const triangleCColorController = gui.add(colorController, {
     labelText: 'triangleC'
 });
 
-const markerColorController = gui.add(colorController, {
-    property: 'markerColor',
-    labelText: 'marker'
-});
-markerColorController.hide();
-
 BooleanButton.greenRedBackground();
 const borderController = gui.add({
     type: 'boolean',
@@ -162,11 +159,11 @@ const borderController = gui.add({
         draw();
     }
 });
-
 borderController.add(widthController, {
     property: 'borderWidth',
     labelText: 'width'
 });
+borderController.addHelp('Show or hide the borders of the rhombs, squares and equal sided triangles of the tiling. Choose the color and line width.');
 
 gui.add(colorController, {
     property: 'borderColor',
@@ -188,6 +185,7 @@ subTriangleController.add({
         draw();
     }
 });
+subTriangleController.addHelp('Show or hide the subdivisions of the equalsided triangles and squares of the tiling as used in the substitution rule.');
 
 const outlineController = gui.add({
     type: 'boolean',
@@ -197,11 +195,11 @@ const outlineController = gui.add({
         draw();
     }
 });
-
 outlineController.add(widthController, {
     property: 'outlineWidth',
     labelText: 'width'
 });
+outlineController.addHelp('Show or hide the border of the initial tiles. Adjust width and color.');
 
 gui.add(colorController, {
     property: 'outlineColor',
@@ -216,11 +214,11 @@ const markerController = gui.add({
         draw();
     }
 });
-
 markerController.add(widthController, {
     property: 'markerSize',
     labelText: 'size'
 });
+markerController.addHelp('Show or hide markers indicating the correct orientation of substitution rules inside the quater squares.');
 
 gui.add(colorController, {
     property: 'markerColor',
@@ -229,17 +227,26 @@ gui.add(colorController, {
 
 gui.addParagraph('<strong>tiling</strong>');
 
-gui.add({
+const initialController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'initial',
-    options: ['small square', 'rhomb', 'triangle A', 'triangle B', 'triangle C', 'big square', 'dodecagon'],
+    options: {
+        'small square': 'small square',
+        'rhomb': 'rhomb',
+        'grey triangle': 'triangle A',
+        'yellow triangle': 'triangle B',
+        'blue triangle': 'triangle C',
+        'big square': 'big square',
+        'dodecagon': 'dodecagon'
+    },
     onChange: function() {
         draw();
     }
 });
+initialController.addHelp('Choose the initial configuration of tiles. "big square" and "dodecagon" are preferred for getting large symmetric patches of the tiling.');
 
-gui.add({
+const maxGenController = gui.add({
     type: 'number',
     params: tiling,
     property: 'maxGen',
@@ -250,41 +257,41 @@ gui.add({
         draw();
     }
 });
+maxGenController.addHelp('');
 
-gui.addParagraph('substitution at 60 degree corner of triangles');
+gui.addParagraph('<strong>substitution at 60 degree corner of triangles</strong>');
 
-gui.add({
+const freeTriangleAController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'freeTriangleA',
-    labelText: 'triangleA',
+    labelText: 'grey triangle',
     options: {
-        undefined: triangleX,
-        'triangle A': triangleA,
-        'triangle B': triangleB,
-        'triangle C': triangleC
+        //  undefined: triangleX,
+        'grey triangle': triangleA,
+        'yellow triangle': triangleB,
+        'blue triangle': triangleC
     },
     onChange: function() {
         draw();
     }
 });
 
-gui.add({
+const freeTriangleBController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'freeTriangleB',
-    labelText: 'triangleB',
+    labelText: 'yellow triangle',
     options: {
-        undefined: triangleX,
-        'triangle A': triangleA,
-        'triangle B': triangleB,
-        'triangle C': triangleC
+        //   undefined: triangleX,
+        'grey triangle': triangleA,
+        'yellow triangle': triangleB,
+        'blue triangle': triangleC
     },
     onChange: function() {
         draw();
     }
 });
-
 
 // tiles of the tiling
 //--------------------
@@ -335,12 +342,12 @@ function square(gen, blX, blY, trX, trY) {
                         canvasContext.fillStyle = tiling.squareColor;
                         output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
                         canvasContext.fill();
-                    if (!tiling.subSquare) {
-                     canvasContext.strokeStyle = tiling.squareColor;
-                    output.setLineWidth(1);
-                       output.makePath(tlX, tlY, blX, blY, brX, brY);
-                        canvasContext.stroke();
-                    }
+                        if (!tiling.subSquare) {
+                            canvasContext.strokeStyle = tiling.squareColor;
+                            output.setLineWidth(1);
+                            output.makePath(tlX, tlY, blX, blY, brX, brY);
+                            canvasContext.stroke();
+                        }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -529,13 +536,13 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleAColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
-                    if (!tiling.subTriangle) {
-                    canvasContext.strokeStyle = tiling.triangleAColor;
-                    output.setLineWidth(1);
-                    output.makePath(mX, mY, cX, cY);
-                        canvasContext.closePath();
-                    canvasContext.stroke();
-                    }
+                        if (!tiling.subTriangle) {
+                            canvasContext.strokeStyle = tiling.triangleAColor;
+                            output.setLineWidth(1);
+                            output.makePath(mX, mY, cX, cY);
+                            canvasContext.closePath();
+                            canvasContext.stroke();
+                        }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -600,14 +607,14 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleBColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
-                    if (!tiling.subTriangle) {
-                    canvasContext.strokeStyle = tiling.triangleBColor;
-                    output.setLineWidth(1);
-                    output.makePath(mX, mY, cX, cY);
-                        canvasContext.closePath();
-                     canvasContext.stroke();
-                   }
-                       break;
+                        if (!tiling.subTriangle) {
+                            canvasContext.strokeStyle = tiling.triangleBColor;
+                            output.setLineWidth(1);
+                            output.makePath(mX, mY, cX, cY);
+                            canvasContext.closePath();
+                            canvasContext.stroke();
+                        }
+                        break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
@@ -668,13 +675,13 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
                         canvasContext.fillStyle = tiling.triangleCColor;
                         output.makePath(mX, mY, bX, bY, cX, cY);
                         canvasContext.fill();
-                   if (!tiling.subTriangle) {
-                    canvasContext.strokeStyle = tiling.triangleCColor;
-                    output.setLineWidth(1);
-                    output.makePath(mX, mY, cX, cY);
-                        canvasContext.closePath();
-                    canvasContext.stroke();
-                    }
+                        if (!tiling.subTriangle) {
+                            canvasContext.strokeStyle = tiling.triangleCColor;
+                            output.setLineWidth(1);
+                            output.makePath(mX, mY, cX, cY);
+                            canvasContext.closePath();
+                            canvasContext.stroke();
+                        }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -833,7 +840,6 @@ function draw() {
         tiling.drawBorders = true;
         tile();
     }
-    output.drawGrid();
 }
 
 output.setDrawMethods(draw);
