@@ -6,12 +6,22 @@ import {
     output,
     BooleanButton
 }
-//from "./library/modules.js";
-from "../libgui/modules.js";
+from "./library/modules.js";
+//from "../libgui/modules.js";
 
 const gui = new ParamGui({
     closed: false
 });
+
+const help = gui.addFolder('help', {
+    closed: false
+});
+help.addParagraph('You can <strong>zoom the image,</strong> with the mouse wheel if the mouse is on the image.');
+help.addParagraph('You can <strong>move the image</strong> with a mouse drag.');
+help.addParagraph('You can <strong>change numbers</strong> by choosing a digit with the mouse and turning the mouse wheel.');
+help.addParagraph('Alternatively, you can use the <strong>"image controls"</strong> part of the gui.');
+help.addParagraph('Click on the black triangles to open/close parts of the gui.');
+help.addParagraph('Send bug reports and other comments to: <strong>pestampf@gmail.com</strong>');
 
 output.createCanvas(gui, {
     name: 'canvas control',
@@ -257,7 +267,7 @@ const maxGenController = gui.add({
         draw();
     }
 });
-maxGenController.addHelp('');
+maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
 
 gui.addParagraph('<strong>substitution at 60 degree corner of triangles</strong>');
 

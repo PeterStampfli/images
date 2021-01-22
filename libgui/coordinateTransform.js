@@ -284,6 +284,46 @@ CoordinateTransform.prototype.transform = function(v) {
 };
 
 /**
+ * transform the x-component, for coordinate transforms without rotation
+ * CoordinateTransform.x
+ * @parm {number} x
+ * @return number, transformed x
+ */
+CoordinateTransform.prototype.x = function(x) {
+    return this.totalScale * x + this.shiftX;
+};
+
+/**
+ * transform the y-component, for coordinate transforms without rotation
+ * CoordinateTransform.y
+ * @parm {number} y
+ * @return number, transformed y
+ */
+CoordinateTransform.prototype.y = function(y) {
+    return this.totalScale * y + this.shiftY;
+};
+
+/**
+ * inverse transform of the x-component, for coordinate transforms without rotation
+ * CoordinateTransform.inverseX
+ * @parm {number} x
+ * @return number, transformed x
+ */
+CoordinateTransform.prototype.inverseX = function(x) {
+    return ( x - this.shiftX)/this.totalScale ;
+};
+
+/**
+ * inverse transform of the y-component, for coordinate transforms without rotation
+ * CoordinateTransform.inverseY
+ * @parm {number} y
+ * @return number, transformed y
+ */
+CoordinateTransform.prototype.inverseY = function(y) {
+    return ( y - this.shiftY)/this.totalScale ;
+};
+
+/**
  * inverse rotate and scale
  * @method CoordinateTransform#inverseRotateScale
  * @param {Vector2} v
