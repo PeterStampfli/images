@@ -30,7 +30,10 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
-output.setInitialCoordinates(0, 0, 210);
+
+const size = 5;
+
+output.setInitialCoordinates(0, 0, 4*size);
 
 // parameters for drawing
 const tiling = {};
@@ -188,20 +191,6 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
-const markerController = gui.add({
-    type: 'boolean',
-    params: tiling,
-    property: 'marker',
-    onChange: function() {
-        draw();
-    }
-});
-markerController.add(widthController, {
-    property: 'markerSize',
-    labelText: 'size'
-});
-markerController.addHelp('Show or hide markers indicating the correct orientation of substitution rules inside the quater squares.');
-
 gui.add(colorController, {
     property: 'markerColor',
     labelText: 'color'
@@ -217,7 +206,8 @@ const initialController = gui.add({
         'small square': 'small square',
         'rhomb': 'rhomb',
         'triangle': 'triangle',
-        'big square': 'big square',
+        'full square': 'big square',
+        'full triangle':'full triangle',
         'dodecagon': 'dodecagon'
     },
     onChange: function() {
@@ -288,16 +278,16 @@ function square(gen, blX, blY, trX, trY) {
                         if (!tiling.subSquare) {
                             canvasContext.strokeStyle = tiling.squareColor;
                             output.setLineWidth(1);
-                            output.makePath(tlX, tlY, blX, blY, brX, brY);
+                            output.makePath(tlX, tlY, trX, trY, brX, brY);
                             canvasContext.stroke();
                         }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
-                        output.makePath(blX, blY, tlX, tlY);
+                        output.makePath(trX, trY, tlX, tlY);
                         canvasContext.stroke();
-                        output.makePath(blX, blY, brX, brY);
+                        output.makePath(blX, blY, tlX, tlY);
                         canvasContext.stroke();
                         break;
                 }
@@ -348,11 +338,6 @@ function rhomb(gen, bX, bY, tX, tY) {
     const rY = cY + 0.7071 * rightY;
     const lX = cX - 0.7071 * rightX;
     const lY = cY - 0.7071 * rightY;
-    // 0.267949192=1/(2+rt3)
-    rightX = 0.267949192 * (rX - bX);
-    rightY = 0.267949192 * (rY - bY);
-    rightX = upY;
-    rightY = -upX;
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
@@ -389,7 +374,44 @@ function rhomb(gen, bX, bY, tX, tY) {
             }
         } else {
             gen += 1;
-
+     // 0.267949192=1/(2+rt3)
+    rightX = 0.267949192 * (rX - bX);
+    rightY = 0.267949192 * (rY - bY);
+    upX = -rightY;
+    upY = rightX;
+           rhomb(gen,lX,lY,rX,rY);
+            const bbcX=bX+rightX*(1+rt32)+0.5*upX;
+            const bbcY=bY+rightY*(1+rt32)+0.5*upY;
+            const ttcX=tX-rightX*(1+rt32)-0.5*upX;
+            const ttcY=tY-rightY*(1+rt32)-0.5*upY;
+            rhomb(gen,bX,bY,bbcX,bbcY);
+            rhomb(gen,tX,tY,ttcX,ttcY);
+            const bcX=rX-0.5*rightX+rt32*upX;
+            const bcY=rY-0.5*rightY+rt32*upY;
+            const tcX=lX+0.5*rightX-rt32*upX;
+            const tcY=lY+0.5*rightY-rt32*upY;
+            fullSquare(gen,bbcX,bbcY,bcX,bcY);
+            fullSquare(gen,ttcX,ttcY,tcX,tcY);
+            let midX=0.5*(bX+rX);
+            let midY=0.5*(bY+rY);
+triangle(gen,midX,midY,bbcX,bbcY,bX+rightX,bY+rightY);
+triangle(gen,midX,midY,bbcX,bbcY,rX-rightX,rY-rightY);
+fullTriangle(gen,rX,rY,rX-rightX,rY-rightY,bcX,bcY);
+             midX=0.5*(lX+tX);
+             midY=0.5*(lY+tY);
+triangle(gen,midX,midY,ttcX,ttcY,tX-rightX,tY-rightY);
+triangle(gen,midX,midY,ttcX,ttcY,lX+rightX,lY+rightY);
+fullTriangle(gen,lX,lY,lX+rightX,lY+rightY,tcX,tcY);
+             midX=0.5*(lX+bX);
+             midY=0.5*(lY+bY);
+triangle(gen,midX,midY,bbcX,bbcY,bX+rt32*rightX+0.5*upX,bY+rt32*rightY+0.5*upY);
+triangle(gen,midX,midY,bbcX,bbcY,lX-rt32*rightX-0.5*upX,lY-rt32*rightY-0.5*upY);
+fullTriangle(gen,lX,lY,lX-rt32*rightX-0.5*upX,lY-rt32*rightY-0.5*upY,bcX,bcY);
+             midX=0.5*(rX+tX);
+             midY=0.5*(rY+tY);
+triangle(gen,midX,midY,ttcX,ttcY,tX-rt32*rightX-0.5*upX,tY-rt32*rightY-0.5*upY);
+triangle(gen,midX,midY,ttcX,ttcY,rX+rt32*rightX+0.5*upX,rY+rt32*rightY+0.5*upY);
+fullTriangle(gen,rX,rY,rX+rt32*rightX+0.5*upX,rY+rt32*rightY+0.5*upY,tcX,tcY);
         }
     }
 }
@@ -458,12 +480,18 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
         } else {
             gen += 1;
             rhomb(gen,bX,bY,mX+0.5*upX,mY+0.5*upY);
-            const cX=mX+0.5*rightX+(0.5+rt32)*upX;
-            const cY=mY+0.5*rightY+(0.5+rt32)*upY;
-            rhomb(gen,bX,bY,cX,cY);
-            fullTriangle(gen,cX,cY,mX+rightX+0.5*upX,mY+rightY+0.5*upY,mX+0.5*upX,mY+0.5*upY);
-            triangle(gen,cX-0.5*rightX,cY-0.5*rightY,cX,cY,mX+0.5*upX,mY+0.5*upY);
+            const cenX=mX+0.5*rightX+(0.5+rt32)*upX;
+            const cenY=mY+0.5*rightY+(0.5+rt32)*upY;
+            rhomb(gen,bX,bY,cenX,cenY);
+            rhomb(gen,cX,cY,cenX,cenY);
+            fullTriangle(gen,cenX,cenY,mX+rightX+0.5*upX,mY+rightY+0.5*upY,mX+0.5*upX,mY+0.5*upY);
+            triangle(gen,cenX-0.5*rightX,cenY-0.5*rightY,cenX,cenY,mX+0.5*upX,mY+0.5*upY);
+            triangle(gen,cenX-0.5*rightX,cenY-0.5*rightY,cenX,cenY,cX-upX,cY-upY);
             triangle(gen,mX,mY,mX+0.5*upX,mY+0.5*upY,mX+rt32*rightX,mY+rt32*rightY);
+            const midX=0.5*(cX+bX);
+            const midY=0.5*(cY+bY);
+            triangle(gen,midX,midY,cenX,cenY,bX-0.5*rightX+rt32*upX,bY-0.5*rightY+rt32*upY);
+            triangle(gen,midX,midY,cenX,cenY,cX+0.5*rightX-rt32*upX,cY+0.5*rightY-rt32*upY);
         }
     }
 }
@@ -476,8 +504,6 @@ function fullTriangle(gen,aX,aY,bX,bY,cX,cY){
 }
 
 // the dodecagon initial pattern
-
-const size = 50;
 
 const basicX = [];
 basicX.length = 15;
@@ -501,7 +527,7 @@ for (let i = 0; i < 14; i++) {
 }
 
 function tile() {
-    let s = 200;
+    let s = 4*size;
     if (tiling.maxGen === 0) {
         s /= 2 + Math.sqrt(3);
     }
@@ -535,6 +561,16 @@ function tile() {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
                 output.makePath(0, -r / 2, rt32 * r, -r / 2, 0, r);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
+            break;
+        case 'full triangle':
+            fullTriangle(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(-rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
                 canvasContext.closePath();
                 canvasContext.stroke();
             }

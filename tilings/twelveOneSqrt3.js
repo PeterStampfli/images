@@ -248,6 +248,7 @@ const initialController = gui.add({
         'yellow triangle': 'triangle B',
         'blue triangle': 'triangle C',
         'big square': 'big square',
+        'equal sided triangle':'equal sided triangle',
         'dodecagon': 'dodecagon'
     },
     onChange: function() {
@@ -781,6 +782,17 @@ function tile() {
                 canvasContext.stroke();
             }
             break;
+          case  'equal sided triangle':
+            triangleA(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            triangleA(0, 0, -r / 2, -rt32 * r, -r / 2, 0, r);
+            if (tiling.outline) {
+                canvasContext.strokeStyle = tiling.outlineColor;
+                output.setLineWidth(tiling.outlineWidth);
+                output.makePath(- rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
+            break;         
         case 'triangle B':
             triangleB(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             if (tiling.outline) {

@@ -19,8 +19,8 @@ const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
 output.addCursorposition();
-output.setInitialCoordinates(0, 0, 5);
-output.addGrid();
+output.setInitialCoordinates(0, 0, 10);
+output.addGrid()
 
 // parameters for drawing
 const rosette = {};
@@ -115,8 +115,51 @@ function twoSqrt3() {
     canvasContext.stroke();
     output.makePath(0, 0, side * Math.cos(angle), side * Math.sin(angle), side * Math.cos(3 * angle), side * Math.sin(3 * angle), 0, 0);
     canvasContext.stroke();
-    output.makePath(0, 0, 0, side / 2, -side / 2, side / 2, -side / 2, 0, 0, 0);
+    output.makePath(0, 0, 0, side , -side , side , -side , 0, 0, 0);
     canvasContext.stroke();
+}
+
+
+// different tilings
+function mirrors() {
+    const dash=rosette.tileWidth*output.coordinateTransform.totalScale;
+
+    canvasContext.setLineDash([0.5*dash,2*dash]);
+    output.setLineWidth(0.7*rosette.tileWidth);
+        const angle = 2 * Math.PI / rosette.n;
+    const i = 5;
+    const x = px[i];
+    const y = py[i];
+    const side = Math.hypot(x[0], y[0]);
+const rt3=Math.sqrt(3);
+    output.makePath(-side/2,side/2,-side/2, 0);
+    canvasContext.stroke();
+    output.makePath(-side/2,side/2,-side/2, side);
+    canvasContext.stroke();
+    output.makePath(-side/2,side/2,0, side/2);
+    canvasContext.stroke();
+   output.makePath(-side/2,side/2,-side, side/2);
+    canvasContext.stroke();
+    // the triangle
+ /*  output.makePath(side/2/rt3,side/2,0,0);
+    canvasContext.stroke();
+   output.makePath(side/2/rt3,side/2,0,side);
+    canvasContext.stroke();
+   output.makePath(side/2/rt3,side/2,side/2*rt3,side/2);
+    canvasContext.stroke();
+*/
+   output.makePath(side/2/rt3,side/2,0,side/2);
+    canvasContext.stroke();
+   output.makePath(side/2/rt3,side/2,side/4*rt3,side/4);
+    canvasContext.stroke();
+   output.makePath(side/2/rt3,side/2,side/4*rt3,3*side/4);
+    canvasContext.stroke();
+    
+    // the rhomb
+    output.makePath(side,0, side * Math.cos(angle), side * Math.sin(angle));
+    canvasContext.stroke();
+
+        canvasContext.setLineDash([0,0]);
 }
 
 function oneSqrt3() {
@@ -215,6 +258,8 @@ function draw() {
     canvasContext.strokeStyle = rosette.tileColor;
     twoSqrt3();
     //oneSqrt3();
+
+    mirrors();
     output.drawGrid();
 }
 
