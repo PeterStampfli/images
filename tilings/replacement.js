@@ -29,6 +29,9 @@ tiling.rhombColor = '#ff0000';
 tiling.triangleColor = '#ffff00';
 tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
+tiling.outlineColor = '#000000';
+tiling.outlineWidth = 3;
+tiling.outline = true;
 
 const colorController = {
     type: 'color',
@@ -73,6 +76,24 @@ gui.add(colorController, {
 });
 
 
+const outlineController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'outline',
+    onChange: function() {
+        draw();
+    }
+});
+outlineController.add(widthController, {
+    property: 'outlineWidth',
+    labelText: 'width'
+});
+
+gui.add(colorController, {
+    property: 'outlineColor',
+    labelText: 'color'
+});
+
 function draw() {
     output.lineRound();
     output.fillCanvasBackgroundColor();
@@ -82,11 +103,15 @@ function draw() {
     const s = 50;
     const rt3 = Math.sqrt(3);
     const rt32 = rt3 / 2;
-    const delta=70;
+    const delta = 70;
+    let comp=tiling.outlineWidth*output.coordinateTransform.totalScale;
+  comp*=0.75;
 
     let x = 0;
     //=================================
     canvasContext.fillStyle = tiling.triangleColor;
+    canvasContext.strokeStyle = tiling.borderColor;
+    output.setLineWidth(tiling.borderWidth);
     output.makePath(x, (1 + rt3) * s, x + s / 2, (1 + rt32) * s, x - s / 2, (1 + rt32) * s);
     canvasContext.closePath();
     canvasContext.fill();
@@ -100,10 +125,18 @@ function draw() {
     canvasContext.closePath();
     canvasContext.fill();
     canvasContext.stroke();
+    if (tiling.outline) {
+        canvasContext.strokeStyle = tiling.outlineColor;
+        output.setLineWidth(tiling.outlineWidth);
+        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        canvasContext.stroke();
+    }
 
     x = delta;
     //=========================================================
     canvasContext.fillStyle = tiling.triangleColor;
+    canvasContext.strokeStyle = tiling.borderColor;
+    output.setLineWidth(tiling.borderWidth);
     output.makePath(x, (1 + rt3) * s, x + s / 2, (1 + rt32) * s, x - s / 2, (1 + rt32) * s);
     canvasContext.closePath();
     canvasContext.fill();
@@ -112,7 +145,6 @@ function draw() {
     canvasContext.closePath();
     canvasContext.fill();
     canvasContext.stroke();
-
     canvasContext.fillStyle = tiling.rhombColor;
     output.makePath(x, 0, x + s / 2, rt32 * s, x + s / 2, (1 + rt32) * s, x, s);
     canvasContext.closePath();
@@ -122,10 +154,18 @@ function draw() {
     canvasContext.closePath();
     canvasContext.fill();
     canvasContext.stroke();
+    if (tiling.outline) {
+        canvasContext.strokeStyle = tiling.outlineColor;
+        output.setLineWidth(tiling.outlineWidth);
+        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        canvasContext.stroke();
+    }
 
     x = -delta;
     //=========================================================
     canvasContext.fillStyle = tiling.triangleColor;
+    canvasContext.strokeStyle = tiling.borderColor;
+    output.setLineWidth(tiling.borderWidth);
     output.makePath(x, 0, x + s / 2, rt32 * s, x - s / 2, rt32 * s);
     canvasContext.closePath();
     canvasContext.fill();
@@ -144,6 +184,12 @@ function draw() {
     canvasContext.fill();
     canvasContext.stroke();
     output.drawGrid();
+    if (tiling.outline) {
+        canvasContext.strokeStyle = tiling.outlineColor;
+        output.setLineWidth(tiling.outlineWidth);
+        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        canvasContext.stroke();
+    }
 }
 
 output.setDrawMethods(draw);

@@ -25,13 +25,13 @@ output.addGrid()
 // parameters for drawing
 const rosette = {};
 // colors
-rosette.lineColor = '#444444';
+rosette.lineColor = '#000000';
 rosette.lineWidth = 2;
 
 rosette.n = 12;
 rosette.itemax = 10;
 
-rosette.tileColor = '#0000ff';
+rosette.tileColor = '#000000';
 rosette.tileWidth = 4;
 
 const colorController = {

@@ -91,6 +91,10 @@ pixelPaint.fill = function(intColor) {
 pixelPaint.scanTrapeze = function(bottom, bottomLeft, bottomRight, top, topLeft, topRight, action) {
     // transform to canvas (pixel coordinates), and check if visible
     const coordinateTransform = output.coordinateTransform;
+    const totalScale = coordinateTransform.totalScale;
+    const shiftX = coordinateTransform.shiftX;
+    const shiftY = coordinateTransform.shiftY;
+    const width = output.canvas.width;
     bottom = coordinateTransform.inverseY(bottom);
     if (bottom > output.canvas.height) { // visible range goes from 0 ... canvas.height-1
         return;
@@ -99,20 +103,104 @@ pixelPaint.scanTrapeze = function(bottom, bottomLeft, bottomRight, top, topLeft,
     if (top + 1 < 0) {
         return;
     }
+    const eps = 0.001;
+    if (top - bottom < eps) {
+        return;
+    }
     bottomLeft = coordinateTransform.inverseX(bottomLeft);
     bottomRight = coordinateTransform.inverseX(bottomRight);
     topLeft = coordinateTransform.inverseX(topLeft);
     topRight = coordinateTransform.inverseX(topRight);
-    if (Math.min(topLeft, bottomLeft) > output.canvas.width) {
+    const limitLeft = Math.min(topLeft, bottomLeft);
+    if (limitLeft > width) {
         return;
     }
-    if (Math.max(topRight, bottomRight) + 1 < 0) {
+    const limitRight = Math.max(topRight, bottomRight);
+    if (limitRight + 1 < 0) {
         return;
     }
-    // determine y-range
-    const yLow = Math.max(Math.floor(bottom), 0);
-    const yHigh = Math.min(Math.floor(top) + 1, output.canvas.height - 1);
-    // catch case that bottom and top are close
+    // determine slopes
+    const mLeft = (topLeft - bottomLeft) / (top - bottom);
+    const mRight = (topRight - bottomRight) / (top - bottom);
+    // determine j-range
+    const jLow = Math.max(Math.floor(bottom), 0);
+    const jHigh = Math.min(Math.floor(top) + 1, output.canvas.height - 1);
+    // do the lines
+    let y = shiftY + totalScale * jLow;
+    for (let j = jLow; j <= jHigh; j++) {
+        // left and right limits
+        let iLeft = Math.max(limitLeft, bottomLeft + mLeft * (j - bottom));
+        let iRight = Math.min(limitRight, bottomRight + mRight * (j - bottom));
+        if ((iLeft < width) && (iRight >= 0)) {
+            iLeft = Math.max(0, Math.floor(iLeft));
+            iRight = Math.min(width, Math.floor(iRight) + 1);
+            let x = shiftX + totalScale * iLeft;
+            let index = width * j + iLeft;
+            for (let i = iLeft; i <= iRight; i++) {
+                action(x, y, index);
+                x += totalScale;
+                index += 1;
+            }
+        }
+        y += totalScale;
+    }
+};
+
+/**
+ * scan a triangle and call a function for each pixel
+ * action(x,y,index) does something, 
+ * (x,y) are transformed image coordinates, 
+ * index is index of pixel (or similar data)
+ * triangle coordinates are image coordinates
+ * @method pixelPaint.scanTriangle
+ * @param {number} aX
+ * @param {number} aY
+ * @param {number} bX
+ * @param {number} bY
+ * @param {number} cX
+ * @param {number} cY
+ * @param {function} action
+ */
+pixelPaint.scanTriangle = function(aX, aY, bX, bY, cX, cY, action) {
+    // sorting a above b above c
+    if (cY > bY) {
+        let h = bY;
+        bY = cY;
+        cY = h;
+        h = bX;
+        bX = cX;
+        cX = h;
+    }
+    if (bY > aY) {
+        let h = bY;
+        bY = aY;
+        aY = h;
+        h = bX;
+        bX = aX;
+        aX = h;
+    }
+    if (cY > bY) {
+        let h = bY;
+        bY = cY;
+        cY = h;
+        h = bX;
+        bX = cX;
+        cX = h;
+    }
+    console.log(aY, bY, cY);
+    const eps = 0.001;
+    if (aY - cY > eps) {
+        // cut into two trapezes at height of point b
+        let dX = cX + (aX - cX) * (bY - cY) / (aY - cY);
+        // correct ordering
+        if (bX > dX) {
+            let h = bX;
+            bX = dX;
+            dX = h;
+        }
+        pixelPaint.scanTrapeze(cY, cX, cX, bY, bX, dX, action);
+        pixelPaint.scanTrapeze(bY, bX, dX, aY, aX, aX, action);
+    }
 };
 
 /**
