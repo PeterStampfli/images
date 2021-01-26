@@ -56,8 +56,8 @@ tiling.markerColor = '#444444';
 tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
-
-
+// geometry
+tiling.fixedSize=true;
 tiling.maxGen = 1;
 tiling.initial = 'small square';
 
@@ -229,6 +229,18 @@ const maxGenController = gui.add({
 });
 maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
 
+BooleanButton.whiteBackground();
+const fixedSizeController=gui.add({
+type:'boolean',
+params:tiling,
+labelText:'tile size',
+buttonText:['fixed','variable'],
+property:'fixedSize',
+    onChange: function() {
+        draw();
+    }
+});
+fixedSizeController.addHelp('Choose if the basic tiles have fixed size or the total image.');
 
 // tiles of the tiling
 //--------------------
@@ -528,8 +540,8 @@ for (let i = 0; i < 14; i++) {
 
 function tile() {
     let s = 4*size;
-    if (tiling.maxGen === 0) {
-        s /= 2 + Math.sqrt(3);
+    if (tiling.fixedSize) {
+        s *= Math.pow(2 + Math.sqrt(3),tiling.maxGen-2);
     }
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
