@@ -61,7 +61,7 @@ tiling.gridColor = '#ff8800';
 tiling.freeTriangleA = triangleB;
 // triangle B has undetermined triangles
 tiling.freeTriangleB = triangleB;
-tiling.fixedSize=true;
+tiling.fixedSize = true;
 tiling.maxGen = 1;
 tiling.initial = 'small square';
 
@@ -249,7 +249,7 @@ const initialController = gui.add({
         'yellow triangle': 'triangle B',
         'blue triangle': 'triangle C',
         'big square': 'big square',
-        'equal sided triangle':'equal sided triangle',
+        'equal sided triangle': 'equal sided triangle',
         'dodecagon': 'dodecagon'
     },
     onChange: function() {
@@ -272,12 +272,12 @@ const maxGenController = gui.add({
 maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
 
 BooleanButton.whiteBackground();
-const fixedSizeController=gui.add({
-type:'boolean',
-params:tiling,
-labelText:'tile size',
-buttonText:['fixed','variable'],
-property:'fixedSize',
+const fixedSizeController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    labelText: 'tile size',
+    buttonText: ['fixed', 'variable'],
+    property: 'fixedSize',
     onChange: function() {
         draw();
     }
@@ -733,7 +733,6 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
 }
 // the dodecagon initial pattern
 
-const size = 50;
 
 const basicX = [];
 basicX.length = 15;
@@ -741,25 +740,28 @@ basicX.length = 15;
 const basicY = [];
 basicY.length = 15;
 
-for (let i = 0; i < 15; i++) {
-    basicX[i] = Math.cos(Math.PI * i / 6) * size;
-    basicY[i] = Math.sin(Math.PI * i / 6) * size;
-}
-
 const secondX = [];
 const secondY = [];
 secondX.length = 14;
 secondY.length = 14;
 
-for (let i = 0; i < 14; i++) {
-    secondX[i] = basicX[i] + basicX[i + 1];
-    secondY[i] = basicY[i] + basicY[i + 1];
-}
 
 function tile() {
     let s = 200;
     if (tiling.fixedSize) {
-        s *= Math.pow(1 + Math.sqrt(3),tiling.maxGen-2);
+        s *= Math.pow(1 + Math.sqrt(3), tiling.maxGen - 2);
+    }
+
+    const size = s / 4;
+
+    for (let i = 0; i < 15; i++) {
+        basicX[i] = Math.cos(Math.PI * i / 6) * size;
+        basicY[i] = Math.sin(Math.PI * i / 6) * size;
+    }
+
+    for (let i = 0; i < 14; i++) {
+        secondX[i] = basicX[i] + basicX[i + 1];
+        secondY[i] = basicY[i] + basicY[i + 1];
     }
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
@@ -795,17 +797,17 @@ function tile() {
                 canvasContext.stroke();
             }
             break;
-          case  'equal sided triangle':
+        case 'equal sided triangle':
             triangleA(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             triangleA(0, 0, -r / 2, -rt32 * r, -r / 2, 0, r);
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
-                output.makePath(- rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+                output.makePath(-rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
                 canvasContext.closePath();
                 canvasContext.stroke();
             }
-            break;         
+            break;
         case 'triangle B':
             triangleB(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
             if (tiling.outline) {

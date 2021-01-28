@@ -104,8 +104,8 @@ function draw() {
     const rt3 = Math.sqrt(3);
     const rt32 = rt3 / 2;
     const delta = 70;
-    let comp=tiling.outlineWidth*output.coordinateTransform.totalScale;
-  comp*=0.75;
+    let comp = tiling.outlineWidth * output.coordinateTransform.totalScale;
+    comp *= 0.75;
 
     let x = 0;
     //=================================
@@ -126,10 +126,13 @@ function draw() {
     canvasContext.fill();
     canvasContext.stroke();
     if (tiling.outline) {
+        const dash = tiling.outlineWidth * output.coordinateTransform.totalScale;
+        canvasContext.setLineDash([0.5 * dash, 2 * dash]);
         canvasContext.strokeStyle = tiling.outlineColor;
         output.setLineWidth(tiling.outlineWidth);
-        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        output.makePath(x, comp, x, s * (1 + rt3) - comp);
         canvasContext.stroke();
+        canvasContext.setLineDash([]);
     }
 
     x = delta;
@@ -155,10 +158,13 @@ function draw() {
     canvasContext.fill();
     canvasContext.stroke();
     if (tiling.outline) {
+        const dash = tiling.outlineWidth * output.coordinateTransform.totalScale;
+        canvasContext.setLineDash([0.5 * dash, 2 * dash]);
         canvasContext.strokeStyle = tiling.outlineColor;
         output.setLineWidth(tiling.outlineWidth);
-        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        output.makePath(x, comp, x, s * (1 + rt3) - comp);
         canvasContext.stroke();
+        canvasContext.setLineDash([]);
     }
 
     x = -delta;
@@ -185,10 +191,13 @@ function draw() {
     canvasContext.stroke();
     output.drawGrid();
     if (tiling.outline) {
+        const dash = tiling.outlineWidth * output.coordinateTransform.totalScale;
+        canvasContext.setLineDash([0.5 * dash, 2 * dash]);
         canvasContext.strokeStyle = tiling.outlineColor;
         output.setLineWidth(tiling.outlineWidth);
-        output.makePath(x, comp, x, s * (1 + rt3)-comp);
+        output.makePath(x, comp, x, s * (1 + rt3) - comp);
         canvasContext.stroke();
+        canvasContext.setLineDash([]);
     }
 }
 

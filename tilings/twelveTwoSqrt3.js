@@ -33,7 +33,7 @@ output.addCoordinateTransform();
 
 const size = 5;
 
-output.setInitialCoordinates(0, 0, 4*size);
+output.setInitialCoordinates(0, 0, 4 * size);
 
 // parameters for drawing
 const tiling = {};
@@ -46,7 +46,6 @@ tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
 tiling.border = true;
 tiling.subTriangle = false;
-tiling.subSquare = false;
 tiling.outlineColor = '#000000';
 tiling.outlineWidth = 3;
 tiling.outline = true;
@@ -57,9 +56,9 @@ tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
 // geometry
-tiling.fixedSize=true;
+tiling.fixedSize = true;
 tiling.maxGen = 1;
-tiling.initial = 'small square';
+tiling.initial = 'big square';
 
 const colorController = {
     type: 'color',
@@ -203,11 +202,10 @@ const initialController = gui.add({
     params: tiling,
     property: 'initial',
     options: {
-        'small square': 'small square',
         'rhomb': 'rhomb',
         'triangle': 'triangle',
-        'full square': 'big square',
-        'full triangle':'full triangle',
+        'square': 'big square',
+        'equilateral triangle': 'full triangle',
         'dodecagon': 'dodecagon'
     },
     onChange: function() {
@@ -230,12 +228,12 @@ const maxGenController = gui.add({
 maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
 
 BooleanButton.whiteBackground();
-const fixedSizeController=gui.add({
-type:'boolean',
-params:tiling,
-labelText:'tile size',
-buttonText:['fixed','variable'],
-property:'fixedSize',
+const fixedSizeController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    labelText: 'tile size',
+    buttonText: ['fixed', 'variable'],
+    property: 'fixedSize',
     onChange: function() {
         draw();
     }
@@ -285,14 +283,9 @@ function square(gen, blX, blY, trX, trY) {
                 switch (tiling.decoration) {
                     case 'solid color':
                         canvasContext.fillStyle = tiling.squareColor;
-                        output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
+                        // do the full square
+                        output.makePath(blX, blY, 2 * brX - blX, 2 * brY - blY, 2 * trX - blX, 2 * trY - blY, 2 * tlX - blX, 2 * tlY - blY);
                         canvasContext.fill();
-                        if (!tiling.subSquare) {
-                            canvasContext.strokeStyle = tiling.squareColor;
-                            output.setLineWidth(1);
-                            output.makePath(tlX, tlY, trX, trY, brX, brY);
-                            canvasContext.stroke();
-                        }
                         break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
@@ -306,16 +299,16 @@ function square(gen, blX, blY, trX, trY) {
             }
         } else {
             gen += 1;
-            rhomb(gen,blX,blY,brX+0.5*upX,brY+0.5*upY);
-            rhomb(gen,blX,blY,tlX+0.5*rightX,tlY+0.5*rightY);
-            rhomb(gen,blX,blY,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY));
-            square(gen,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY),trX,trY);
-triangle(gen,tlX,tlY,tlX+0.5*rightX,tlY+0.5*rightY,blX+upX,blY+upY);
-triangle(gen,brX,brY,brX+0.5*upX,brY+0.5*upY,blX+rightX,blY+rightY);
-triangle(gen,trX-0.5*upX,trY-0.5*upY,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY),brX+0.5*upX,brY+0.5*upY);
-fullTriangle(gen,brX-rightX+0.5*upX,brY-rightY+0.5*upY,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY),brX+0.5*upX,brY+0.5*upY);
-triangle(gen,trX-0.5*rightX,trY-0.5*rightY,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY),tlX+0.5*rightX,tlY+0.5*rightY);
-fullTriangle(gen,tlX+0.5*rightX-upX,tlY+0.5*rightY-upY,trX-0.5*(rightX+upX),trY-0.5*(rightY+upY),tlX+0.5*rightX,tlY+0.5*rightY);
+            rhomb(gen, blX, blY, brX + 0.5 * upX, brY + 0.5 * upY);
+            rhomb(gen, blX, blY, tlX + 0.5 * rightX, tlY + 0.5 * rightY);
+            rhomb(gen, blX, blY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY));
+            square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
+            triangle(gen, tlX, tlY, tlX + 0.5 * rightX, tlY + 0.5 * rightY, blX + upX, blY + upY);
+            triangle(gen, brX, brY, brX + 0.5 * upX, brY + 0.5 * upY, blX + rightX, blY + rightY);
+            triangle(gen, trX - 0.5 * upX, trY - 0.5 * upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), brX + 0.5 * upX, brY + 0.5 * upY);
+            fullTriangle(gen, brX - rightX + 0.5 * upX, brY - rightY + 0.5 * upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), brX + 0.5 * upX, brY + 0.5 * upY);
+            triangle(gen, trX - 0.5 * rightX, trY - 0.5 * rightY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
+            fullTriangle(gen, tlX + 0.5 * rightX - upX, tlY + 0.5 * rightY - upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
         }
     }
 }
@@ -330,11 +323,11 @@ function fullSquare(gen, blX, blY, trX, trY) {
     const brY = cY - dX;
     const tlX = cX - dY;
     const tlY = cY + dX;
-    square(gen,blX,blY,cX,cY);
-    square(gen,brX,brY,cX,cY);
-    square(gen,tlX,tlY,cX,cY);
-    square(gen,trX,trY,cX,cY);
-    }
+    square(gen, blX, blY, cX, cY);
+    square(gen, brX, brY, cX, cY);
+    square(gen, tlX, tlY, cX, cY);
+    square(gen, trX, trY, cX, cY);
+}
 
 // the rhomb, coordinates of the corners with acute angles
 function rhomb(gen, bX, bY, tX, tY) {
@@ -386,44 +379,44 @@ function rhomb(gen, bX, bY, tX, tY) {
             }
         } else {
             gen += 1;
-     // 0.267949192=1/(2+rt3)
-    rightX = 0.267949192 * (rX - bX);
-    rightY = 0.267949192 * (rY - bY);
-    upX = -rightY;
-    upY = rightX;
-           rhomb(gen,lX,lY,rX,rY);
-            const bbcX=bX+rightX*(1+rt32)+0.5*upX;
-            const bbcY=bY+rightY*(1+rt32)+0.5*upY;
-            const ttcX=tX-rightX*(1+rt32)-0.5*upX;
-            const ttcY=tY-rightY*(1+rt32)-0.5*upY;
-            rhomb(gen,bX,bY,bbcX,bbcY);
-            rhomb(gen,tX,tY,ttcX,ttcY);
-            const bcX=rX-0.5*rightX+rt32*upX;
-            const bcY=rY-0.5*rightY+rt32*upY;
-            const tcX=lX+0.5*rightX-rt32*upX;
-            const tcY=lY+0.5*rightY-rt32*upY;
-            fullSquare(gen,bbcX,bbcY,bcX,bcY);
-            fullSquare(gen,ttcX,ttcY,tcX,tcY);
-            let midX=0.5*(bX+rX);
-            let midY=0.5*(bY+rY);
-triangle(gen,midX,midY,bbcX,bbcY,bX+rightX,bY+rightY);
-triangle(gen,midX,midY,bbcX,bbcY,rX-rightX,rY-rightY);
-fullTriangle(gen,rX,rY,rX-rightX,rY-rightY,bcX,bcY);
-             midX=0.5*(lX+tX);
-             midY=0.5*(lY+tY);
-triangle(gen,midX,midY,ttcX,ttcY,tX-rightX,tY-rightY);
-triangle(gen,midX,midY,ttcX,ttcY,lX+rightX,lY+rightY);
-fullTriangle(gen,lX,lY,lX+rightX,lY+rightY,tcX,tcY);
-             midX=0.5*(lX+bX);
-             midY=0.5*(lY+bY);
-triangle(gen,midX,midY,bbcX,bbcY,bX+rt32*rightX+0.5*upX,bY+rt32*rightY+0.5*upY);
-triangle(gen,midX,midY,bbcX,bbcY,lX-rt32*rightX-0.5*upX,lY-rt32*rightY-0.5*upY);
-fullTriangle(gen,lX,lY,lX-rt32*rightX-0.5*upX,lY-rt32*rightY-0.5*upY,bcX,bcY);
-             midX=0.5*(rX+tX);
-             midY=0.5*(rY+tY);
-triangle(gen,midX,midY,ttcX,ttcY,tX-rt32*rightX-0.5*upX,tY-rt32*rightY-0.5*upY);
-triangle(gen,midX,midY,ttcX,ttcY,rX+rt32*rightX+0.5*upX,rY+rt32*rightY+0.5*upY);
-fullTriangle(gen,rX,rY,rX+rt32*rightX+0.5*upX,rY+rt32*rightY+0.5*upY,tcX,tcY);
+            // 0.267949192=1/(2+rt3)
+            rightX = 0.267949192 * (rX - bX);
+            rightY = 0.267949192 * (rY - bY);
+            upX = -rightY;
+            upY = rightX;
+            rhomb(gen, lX, lY, rX, rY);
+            const bbcX = bX + rightX * (1 + rt32) + 0.5 * upX;
+            const bbcY = bY + rightY * (1 + rt32) + 0.5 * upY;
+            const ttcX = tX - rightX * (1 + rt32) - 0.5 * upX;
+            const ttcY = tY - rightY * (1 + rt32) - 0.5 * upY;
+            rhomb(gen, bX, bY, bbcX, bbcY);
+            rhomb(gen, tX, tY, ttcX, ttcY);
+            const bcX = rX - 0.5 * rightX + rt32 * upX;
+            const bcY = rY - 0.5 * rightY + rt32 * upY;
+            const tcX = lX + 0.5 * rightX - rt32 * upX;
+            const tcY = lY + 0.5 * rightY - rt32 * upY;
+            fullSquare(gen, bbcX, bbcY, bcX, bcY);
+            fullSquare(gen, ttcX, ttcY, tcX, tcY);
+            let midX = 0.5 * (bX + rX);
+            let midY = 0.5 * (bY + rY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rightX, bY + rightY);
+            triangle(gen, midX, midY, bbcX, bbcY, rX - rightX, rY - rightY);
+            fullTriangle(gen, rX, rY, rX - rightX, rY - rightY, bcX, bcY);
+            midX = 0.5 * (lX + tX);
+            midY = 0.5 * (lY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
+            triangle(gen, midX, midY, ttcX, ttcY, lX + rightX, lY + rightY);
+            fullTriangle(gen, lX, lY, lX + rightX, lY + rightY, tcX, tcY);
+            midX = 0.5 * (lX + bX);
+            midY = 0.5 * (lY + bY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rt32 * rightX + 0.5 * upX, bY + rt32 * rightY + 0.5 * upY);
+            triangle(gen, midX, midY, bbcX, bbcY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX, lY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bcX, bcY);
+            midX = 0.5 * (rX + tX);
+            midY = 0.5 * (rY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
+            triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            fullTriangle(gen, rX, rY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY, tcX, tcY);
         }
     }
 }
@@ -491,28 +484,28 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
             }
         } else {
             gen += 1;
-            rhomb(gen,bX,bY,mX+0.5*upX,mY+0.5*upY);
-            const cenX=mX+0.5*rightX+(0.5+rt32)*upX;
-            const cenY=mY+0.5*rightY+(0.5+rt32)*upY;
-            rhomb(gen,bX,bY,cenX,cenY);
-            rhomb(gen,cX,cY,cenX,cenY);
-            fullTriangle(gen,cenX,cenY,mX+rightX+0.5*upX,mY+rightY+0.5*upY,mX+0.5*upX,mY+0.5*upY);
-            triangle(gen,cenX-0.5*rightX,cenY-0.5*rightY,cenX,cenY,mX+0.5*upX,mY+0.5*upY);
-            triangle(gen,cenX-0.5*rightX,cenY-0.5*rightY,cenX,cenY,cX-upX,cY-upY);
-            triangle(gen,mX,mY,mX+0.5*upX,mY+0.5*upY,mX+rt32*rightX,mY+rt32*rightY);
-            const midX=0.5*(cX+bX);
-            const midY=0.5*(cY+bY);
-            triangle(gen,midX,midY,cenX,cenY,bX-0.5*rightX+rt32*upX,bY-0.5*rightY+rt32*upY);
-            triangle(gen,midX,midY,cenX,cenY,cX+0.5*rightX-rt32*upX,cY+0.5*rightY-rt32*upY);
+            rhomb(gen, bX, bY, mX + 0.5 * upX, mY + 0.5 * upY);
+            const cenX = mX + 0.5 * rightX + (0.5 + rt32) * upX;
+            const cenY = mY + 0.5 * rightY + (0.5 + rt32) * upY;
+            rhomb(gen, bX, bY, cenX, cenY);
+            rhomb(gen, cX, cY, cenX, cenY);
+            fullTriangle(gen, cenX, cenY, mX + rightX + 0.5 * upX, mY + rightY + 0.5 * upY, mX + 0.5 * upX, mY + 0.5 * upY);
+            triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, mX + 0.5 * upX, mY + 0.5 * upY);
+            triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, cX - upX, cY - upY);
+            triangle(gen, mX, mY, mX + 0.5 * upX, mY + 0.5 * upY, mX + rt32 * rightX, mY + rt32 * rightY);
+            const midX = 0.5 * (cX + bX);
+            const midY = 0.5 * (cY + bY);
+            triangle(gen, midX, midY, cenX, cenY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            triangle(gen, midX, midY, cenX, cenY, cX + 0.5 * rightX - rt32 * upX, cY + 0.5 * rightY - rt32 * upY);
         }
     }
 }
 
-function fullTriangle(gen,aX,aY,bX,bY,cX,cY){
-    const mX=0.5*(aX+bX);
-    const mY=0.5*(aY+bY);
-    triangle(gen,mX,mY,aX,aY,cX,cY);
-    triangle(gen,mX,mY,bX,bY,cX,cY);
+function fullTriangle(gen, aX, aY, bX, bY, cX, cY) {
+    const mX = 0.5 * (aX + bX);
+    const mY = 0.5 * (aY + bY);
+    triangle(gen, mX, mY, aX, aY, cX, cY);
+    triangle(gen, mX, mY, bX, bY, cX, cY);
 }
 
 // the dodecagon initial pattern
@@ -539,9 +532,9 @@ for (let i = 0; i < 14; i++) {
 }
 
 function tile() {
-    let s = 4*size;
+    let s = 4 * size;
     if (tiling.fixedSize) {
-        s *= Math.pow(2 + Math.sqrt(3),tiling.maxGen-2);
+        s *= Math.pow(2 + Math.sqrt(3), tiling.maxGen - 2);
     }
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
@@ -588,7 +581,7 @@ function tile() {
             }
             break;
         case 'big square':
-            fullSquare(0, -s/2,-s/2, s / 2, s / 2);
+            fullSquare(0, -s / 2, -s / 2, s / 2, s / 2);
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
