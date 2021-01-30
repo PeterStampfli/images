@@ -8,6 +8,10 @@ import {
 }
 from "./library/modules.js";
 //from "../libgui/modules.js";
+import {
+    tiles
+}
+from "./tiles.js";
 
 const gui = new ParamGui({
     closed: false
@@ -27,7 +31,7 @@ output.createCanvas(gui, {
     name: 'canvas control',
 });
 const canvas = output.canvas;
-const canvasContext = canvas.getContext('2d');
+const canvasContext = output.canvasContext ;
 
 output.addCoordinateTransform();
 
@@ -245,7 +249,8 @@ fixedSizeController.addHelp('Choose if the basic tiles have fixed size or the to
 const rt32 = 0.5 * Math.sqrt(3);
 const rt3 = Math.sqrt(3);
 
-// actually the minimum square, center of full square at (trX,trY) is opposite corner
+// actually the minimum square, center of full square at (trX,trY) 
+//  corner at (blX,blY) 
 function square(gen, blX, blY, trX, trY) {
     // make center and missing corners
     let cX = 0.5 * (blX + trX);
@@ -345,38 +350,7 @@ function rhomb(gen, bX, bY, tX, tY) {
     const lY = cY - 0.7071 * rightY;
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
-            if (tiling.drawBorders) {
-                if (tiling.border) {
-                    canvasContext.strokeStyle = tiling.borderColor;
-                    output.setLineWidth(tiling.borderWidth);
-                    output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                    canvasContext.closePath();
-                    canvasContext.stroke();
-                }
-            } else {
-                switch (tiling.decoration) {
-                    case 'solid color':
-                        canvasContext.fillStyle = tiling.rhombColor;
-                        output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                        canvasContext.fill();
-                        break;
-                    case 'grid':
-                        canvasContext.strokeStyle = tiling.gridColor;
-                        output.setLineWidth(tiling.gridWidth);
-                        // 1.274519=(1+sqrt(3))*cos(15)-0.5*(1+sqrt(3))/cos(15)
-                        const lowX = cX - 1.2247 * upX;
-                        const lowY = cY - 1.2247 * upY;
-                        const highX = cX + 1.2247 * upX;
-                        const highY = cY + 1.2247 * upY;
-                        output.makePath(0.5 * (bX + lX), 0.5 * (bY + lY), lowX, lowY, 0.5 * (bX + rX), 0.5 * (bY + rY));
-                        canvasContext.stroke();
-                        output.makePath(0.5 * (tX + lX), 0.5 * (tY + lY), highX, highY, 0.5 * (tX + rX), 0.5 * (tY + rY));
-                        canvasContext.stroke();
-                        output.makePath(lowX, lowY, highX, highY);
-                        canvasContext.stroke();
-                        break;
-                }
-            }
+            tiles.addRhomb30(bX,bY,tX,tY);
         } else {
             gen += 1;
             // 0.267949192=1/(2+rt3)
@@ -619,13 +593,21 @@ function draw() {
     output.correctYAxis();
     // either draw borders or some tile-design
     tiling.drawBorders = false;
+
+    tiles.deleteRhombs30();
     if (tiling.decoration !== 'none') {
         tile();
     }
+    canvasContext.fillStyle='red';
+    tiles.fillRhombs30();
     if (tiling.border) {
         tiling.drawBorders = true;
         tile();
     }
+    canvasContext.strokeStyle='blue';
+    tiles.borderRhombs30();
+    canvasContext.strokeStyle='orange';
+    tiles.gridRhombs30();
 }
 
 output.setDrawMethods(draw);

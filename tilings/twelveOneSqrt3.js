@@ -245,9 +245,9 @@ const initialController = gui.add({
     options: {
         'small square': 'small square',
         'rhomb': 'rhomb',
-        'grey triangle': 'triangle A',
-        'yellow triangle': 'triangle B',
-        'blue triangle': 'triangle C',
+        'triangle A': 'triangle A',
+        'triangle B': 'triangle B',
+        'triangle C': 'triangle C',
         'big square': 'big square',
         'equal sided triangle': 'equal sided triangle',
         'dodecagon': 'dodecagon'
@@ -289,12 +289,12 @@ const freeTriangleAController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'freeTriangleA',
-    labelText: 'grey triangle',
+    labelText: 'triangle A',
     options: {
         //  undefined: triangleX,
-        'grey triangle': triangleA,
-        'yellow triangle': triangleB,
-        'blue triangle': triangleC
+        'triangle A': triangleA,
+        'triangle B': triangleB,
+        'triangle C': triangleC
     },
     onChange: function() {
         draw();
@@ -305,12 +305,12 @@ const freeTriangleBController = gui.add({
     type: 'selection',
     params: tiling,
     property: 'freeTriangleB',
-    labelText: 'yellow triangle',
+    labelText: 'triangle B',
     options: {
         //   undefined: triangleX,
-        'grey triangle': triangleA,
-        'yellow triangle': triangleB,
-        'blue triangle': triangleC
+        'triangle A': triangleA,
+        'triangle B': triangleB,
+        'triangle C': triangleC
     },
     onChange: function() {
         draw();

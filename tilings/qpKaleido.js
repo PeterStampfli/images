@@ -45,30 +45,6 @@ basic.setup = function() {
     map.imageController.addDragAndDropWindow();
     map.setOutputDraw(); // links the output drawing routines to the map routines
 
-    // test
-    map.mapping = function(point) {};
-
-    /**
-     * what to do when the map changes (parameters, canvas size too)
-     * circles might change - we have to determine the regions
-     * @method map.drawMapChanged
-     */
-    map.drawMapChanged = function() {
-        // make pixels
-        map.startDrawing();
-        // make the qp structure
-        // make the map using the qp structure
-        //           map.xArray[index] = point.x;
-        //           map.yArray[index] = point.y;
-        //           map.iterationsArray[index] = 0 or 1;
-        //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
-        //test only
-        map.make();
-
-        // draw image, taking into account regions, and new options
-        map.drawImageChanged();
-    };
-
     /**
      * show structure of the map: color depending on the structure index
      * using the map.colorTable
@@ -111,6 +87,27 @@ basic.setup = function() {
     };
 
     /**
+     * what to do when the map changes (parameters, canvas size too)
+     * circles might change - we have to determine the regions
+     * @method map.drawMapChanged
+     */
+    map.drawMapChanged = function() {
+        // make pixels
+        map.startDrawing();
+        // make the qp structure
+        // make the map using the qp structure
+        //           map.xArray[index] = point.x;
+        //           map.yArray[index] = point.y;
+        //           map.iterationsArray[index] = 0 or 1;
+        //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
+        //test only
+        map.make();
+
+        // draw image, taking into account regions, and new options
+        map.drawImageChanged();
+    };
+
+    /**
      * what to do when only the image changes
      * @method map.drawImageChanged
      */
@@ -120,8 +117,6 @@ basic.setup = function() {
         output.drawGrid();
 
     };
-
-
 };
 
 
