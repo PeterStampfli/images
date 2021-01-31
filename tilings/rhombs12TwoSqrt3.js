@@ -31,7 +31,7 @@ output.createCanvas(gui, {
     name: 'canvas control',
 });
 const canvas = output.canvas;
-const canvasContext = output.canvasContext ;
+const canvasContext = output.canvasContext;
 
 output.addCoordinateTransform();
 
@@ -62,7 +62,8 @@ tiling.gridColor = '#ff8800';
 // geometry
 tiling.fixedSize = true;
 tiling.maxGen = 1;
-tiling.initial = 'big square';
+tiling.initial = 'rhomb';
+tiling.fullRosettes = true;
 
 const colorController = {
     type: 'color',
@@ -194,6 +195,22 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
+
+const markerController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'marker',
+    onChange: function() {
+        draw();
+    }
+});
+markerController.add(widthController, {
+    property: 'markerSize',
+    labelText: 'size'
+});
+markerController.addHelp('Show or hide markers indicating the correct orientation of substitution rules inside the quater squares.');
+
+
 gui.add(colorController, {
     property: 'markerColor',
     labelText: 'color'
@@ -269,7 +286,6 @@ function square(gen, blX, blY, trX, trY) {
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addQuarterSquare(trX,trY,blX,blY);
             if (tiling.drawBorders) {
                 if (tiling.marker) {
                     canvasContext.fillStyle = tiling.markerColor;
@@ -287,7 +303,12 @@ function square(gen, blX, blY, trX, trY) {
                 }
             } else {
                 switch (tiling.decoration) {
-                    
+                    case 'solid color':
+                        canvasContext.fillStyle = tiling.squareColor;
+                        // do the full square
+                        output.makePath(blX, blY, 2 * brX - blX, 2 * brY - blY, 2 * trX - blX, 2 * trY - blY, 2 * tlX - blX, 2 * tlY - blY);
+                        canvasContext.fill();
+                        break;
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
@@ -340,21 +361,43 @@ function rhomb(gen, bX, bY, tX, tY) {
     let upY = 0.378937382 * (cY - bY);
     let rightX = upY;
     let rightY = -upX;
-    const rX = cX + 0.7071 * rightX;
-    const rY = cY + 0.7071 * rightY;
-    const lX = cX - 0.7071 * rightX;
-    const lY = cY - 0.7071 * rightY;
+    let rX = cX + 0.7071 * rightX;
+    let rY = cY + 0.7071 * rightY;
+    let lX = cX - 0.7071 * rightX;
+    let lY = cY - 0.7071 * rightY;
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addRhomb30(bX,bY,tX,tY);
+            tiles.addRhomb30(bX, bY, tX, tY);
         } else {
+            if (tiling.fullRosettes) {
+                let angle = Math.floor(Math.atan2(tY - bY, tX - bX) / Math.PI * 6);
+                if (angle & 1) {
+                    console.log('flip');
+                    let h = lX;
+                    lX = rX;
+                    rX = h;
+                    h = lY;
+                    lY = rY;
+                    rY = h;
+                    h = bX;
+                    bX = tX;
+                    tX = h;
+                    h = bY;
+                    bY = tY;
+                    tY = h;
+                    upX = -upX;
+                    upY = -upY;
+                    rightX = -rightX;
+                    rightY = -rightY;
+                }
+            }
             gen += 1;
             // 0.267949192=1/(2+rt3)
             rightX = 0.267949192 * (rX - bX);
             rightY = 0.267949192 * (rY - bY);
             upX = -rightY;
             upY = rightX;
-            rhomb(gen, lX, lY, rX, rY);
+            rhomb(gen, rX, rY, lX, lY);
             const bbcX = bX + rightX * (1 + rt32) + 0.5 * upX;
             const bbcY = bY + rightY * (1 + rt32) + 0.5 * upY;
             const ttcX = tX - rightX * (1 + rt32) - 0.5 * upX;
@@ -365,13 +408,10 @@ function rhomb(gen, bX, bY, tX, tY) {
             const bcY = rY - 0.5 * rightY + rt32 * upY;
             const tcX = lX + 0.5 * rightX - rt32 * upX;
             const tcY = lY + 0.5 * rightY - rt32 * upY;
-            fullSquare(gen, bbcX, bbcY, bcX, bcY);
-            fullSquare(gen, ttcX, ttcY, tcX, tcY);
             let midX = 0.5 * (bX + rX);
             let midY = 0.5 * (bY + rY);
             triangle(gen, midX, midY, bbcX, bbcY, bX + rightX, bY + rightY);
             triangle(gen, midX, midY, bbcX, bbcY, rX - rightX, rY - rightY);
-            fullTriangle(gen, rX, rY, rX - rightX, rY - rightY, bcX, bcY);
             midX = 0.5 * (lX + tX);
             midY = 0.5 * (lY + tY);
             triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
@@ -386,7 +426,12 @@ function rhomb(gen, bX, bY, tX, tY) {
             midY = 0.5 * (rY + tY);
             triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
             triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
-            fullTriangle(gen, rX, rY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY, tcX, tcY);
+            rhomb(gen, rX, rY, bbcX, bbcY);
+            rhomb(gen, rX, rY, ttcX, ttcY);
+            rhomb(gen, rX, rY, lX + rightX, lY + rightY);
+            rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
+            fullTriangle(gen, ttcX, ttcY, lX + rightX, lY + rightY, lX + rightX - upX, lY + rightY - upY);
         }
     }
 }
@@ -521,11 +566,11 @@ function tile() {
             }
             break;
         case 'rhomb':
-            rhomb(0, -z, 0, z, 0);
+            rhomb(0, -z*Math.cos(Math.PI/12), -z*Math.sin(Math.PI/12), z*Math.cos(Math.PI/12), z*Math.sin(Math.PI/12));
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
-                output.makePath(z, 0, 0, w, -z, 0, 0, -w);
+                output.makePath(-z*Math.cos(Math.PI/12), -z*Math.sin(Math.PI/12), -w*Math.sin(Math.PI/12), w*Math.cos(Math.PI/12),  z*Math.cos(Math.PI/12), z*Math.sin(Math.PI/12), w*Math.sin(Math.PI/12), -w*Math.cos(Math.PI/12));
                 canvasContext.closePath();
                 canvasContext.stroke();
             }
@@ -591,22 +636,22 @@ function draw() {
     tiling.drawBorders = false;
 
     tiles.deleteRhombs30();
-    tiles.deleteQuarterSquares();
     if (tiling.decoration !== 'none') {
         tile();
     }
-    canvasContext.fillStyle='red';
+    canvasContext.fillStyle = 'red';
     tiles.fillRhombs30();
-    canvasContext.fillStyle='green';
-    tiles.fillQuarterSquares();
     if (tiling.border) {
         tiling.drawBorders = true;
         tile();
     }
-    canvasContext.strokeStyle='blue';
+    //  canvasContext.strokeStyle='black';
+                        output.setLineWidth(tiling.borderWidth);
     tiles.borderRhombs30();
-    canvasContext.strokeStyle='orange';
-    tiles.gridRhombs30();
+    canvasContext.strokeStyle = 'orange';
+    //  tiles.gridRhombs30();
+    canvasContext.fillStyle = tiling.markerColor;
+  //   tiles.markerRhombs30(tiling.markerSize);
 }
 
 output.setDrawMethods(draw);
