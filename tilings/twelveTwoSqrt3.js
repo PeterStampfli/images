@@ -598,7 +598,7 @@ function draw() {
     canvasContext.fillStyle='red';
     tiles.fillRhombs30();
     canvasContext.fillStyle='green';
-    tiles.fillQuarterSquares();
+    tiles.fillFullSquares();
     if (tiling.border) {
         tiling.drawBorders = true;
         tile();
@@ -607,6 +607,7 @@ function draw() {
     tiles.borderRhombs30();
     canvasContext.strokeStyle='orange';
     tiles.gridRhombs30();
+    tiles.gridQuarterSquares();
 }
 
 output.setDrawMethods(draw);

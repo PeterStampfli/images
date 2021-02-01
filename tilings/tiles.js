@@ -173,12 +173,11 @@ tiles.markerRhombs30 = function(s) {
         const rX = cX + 0.7071 * rightX;
         const rY = cY + 0.7071 * rightY;
         const lX = cX - 0.7071 * rightX;
-        const lY = cY - 0.7071 * rightY;            
-output.makePath(bX,bY,bX+s*(rX-bX),bY+s*(rY-bY),bX+s*(lX-bX),bY+s*(lY-bY));
+        const lY = cY - 0.7071 * rightY;
+        output.makePath(bX, bY, bX + s * (rX - bX), bY + s * (rY - bY), bX + s * (lX - bX), bY + s * (lY - bY));
         canvasContext.fill();
     }
 };
-
 
 // the quarter squares
 //============================================
@@ -188,7 +187,7 @@ const squareCornerX = [];
 const squareCornerY = [];
 
 /**
- * delete rhombs with 30 degree acute angle
+ * delete quarter squares
  * @method tiles.deleteQuarterSquares
  */
 tiles.deleteQuarterSquares = function() {
@@ -199,20 +198,19 @@ tiles.deleteQuarterSquares = function() {
 };
 
 /**
- * add a rhomb, with coordinates of corners with acute angle
+ * add a quarter square, with 
  * @method tiles.addQuarterSquare
- * @param {number}bottomX
- * @param {number}bottomY
- * @param {number}topX
- * @param {number}topY
+ * @param {number}squareCenterX
+ * @param {number}squareCenterY
+ * @param {number}squareCornerX
+ * @param {number}squareCornerY
  */
-tiles.addQuarterSquare= function(bottomX, bottomY, topX, topY) {
-    squareCenterX.push(bottomX);
-    squareCenterY.push(bottomY);
-    squareCornerX.push(topX);
-    squareCornerY.push(topY);
+tiles.addQuarterSquare = function(centerX, centerY, cornerX, cornerY) {
+    squareCenterX.push(centerX);
+    squareCenterY.push(centerY);
+    squareCornerX.push(cornerX);
+    squareCornerY.push(cornerY);
 };
-
 
 /**
  * fill the quarter square with solid color
@@ -222,26 +220,81 @@ tiles.addQuarterSquare= function(bottomX, bottomY, topX, topY) {
  */
 tiles.fillQuarterSquares = function() {
     const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle=canvasContext.fillStyle;
+    canvasContext.strokeStyle = canvasContext.fillStyle;
     const length = squareCenterY.length;
     for (var i = 0; i < length; i++) {
-        const blX=squareCenterX[i];
-        const blY=squareCenterY[i];
-        const trX=squareCornerX[i];
-        const trY=squareCornerY[i];
+        const blX = squareCenterX[i];
+        const blY = squareCenterY[i];
+        const trX = squareCornerX[i];
+        const trY = squareCornerY[i];
         // make center and missing corners
-     let cX = 0.5 * (blX + trX);
-    let cY = 0.5 * (blY + trY);
-    const dX = trX - cX;
-    const dY = trY - cY;
-    const brX = cX + dY;
-    const brY = cY - dX;
-    const tlX = cX - dY;
-    const tlY = cY + dX;
-        output.makePath(blX,blY,brX,brY,trX,trY,tlX,tlY);
+        let cX = 0.5 * (blX + trX);
+        let cY = 0.5 * (blY + trY);
+        const dX = trX - cX;
+        const dY = trY - cY;
+        const brX = cX + dY;
+        const brY = cY - dX;
+        const tlX = cX - dY;
+        const tlY = cY + dX;
+        output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
         canvasContext.fill();
-        output.makePath(trX,trY,blX,blY,brX,brY);
+        output.makePath(trX, trY, blX, blY, brX, brY);
         canvasContext.stroke();
     }
 };
 
+/**
+ * fill the full square (extended quarter) square with solid color
+ * set fill style before
+ * strokes borders to other quarter squares, set line width
+ * @method tiles.fillFullSquares
+ */
+tiles.fillFullSquares = function() {
+    const canvasContext = output.canvasContext;
+    const length = squareCenterY.length;
+    for (var i = 0; i < length; i++) {
+        const blX = squareCenterX[i];
+        const blY = squareCenterY[i];
+        const trX = squareCornerX[i];
+        const trY = squareCornerY[i];
+        // make center and missing corners
+        let cX = 0.5 * (blX + trX);
+        let cY = 0.5 * (blY + trY);
+        const dX = trX - cX;
+        const dY = trY - cY;
+        const brX = cX + dY;
+        const brY = cY - dX;
+        const tlX = cX - dY;
+        const tlY = cY + dX;
+        output.makePath(2 * blX - trX, 2 * blY - trY, 2 * brX - trX, 2 * brY - trY, trX, trY, 2 * tlX - trX, 2 * tlY - trY);
+        canvasContext.fill();
+    }
+};
+
+/**
+ * draw grid/subtile border for quarter square
+ * set stroke style before
+ * strokes borders to other quarter squares, set line width
+ * @method tiles.gridQuarterSquares
+ */
+tiles.gridQuarterSquares = function() {
+    const canvasContext = output.canvasContext;
+    const length = squareCenterY.length;
+    for (var i = 0; i < length; i++) {
+        const blX = squareCenterX[i];
+        const blY = squareCenterY[i];
+        const trX = squareCornerX[i];
+        const trY = squareCornerY[i];
+        // make center and missing corners
+        let cX = 0.5 * (blX + trX);
+        let cY = 0.5 * (blY + trY);
+        const dX = trX - cX;
+        const dY = trY - cY;
+        const brX = cX + dY;
+        const brY = cY - dX;
+        const tlX = cX - dY;
+        const tlY = cY + dX;
+        output.makePath(tlX, tlY, blX, blY, brX, brY);
+        canvasContext.stroke();
+    }
+};
