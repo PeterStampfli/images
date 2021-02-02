@@ -198,7 +198,7 @@ tiles.deleteQuarterSquares = function() {
 };
 
 /**
- * add a quarter square, with 
+ * add a quarter square
  * @method tiles.addQuarterSquare
  * @param {number}squareCenterX
  * @param {number}squareCenterY
@@ -272,7 +272,7 @@ tiles.fillFullSquares = function() {
 };
 
 /**
- * draw grid/subtile border for quarter square
+ * draw grid or subtile border for quarter square
  * set stroke style before
  * strokes borders to other quarter squares, set line width
  * @method tiles.gridQuarterSquares
@@ -296,5 +296,186 @@ tiles.gridQuarterSquares = function() {
         const tlY = cY + dX;
         output.makePath(tlX, tlY, blX, blY, brX, brY);
         canvasContext.stroke();
+    }
+};
+
+/**
+ * draw (outer) border for quarter square
+ * set stroke style before
+ * strokes borders to other quarter squares, set line width
+ * @method tiles.borderQuarterSquares
+ */
+tiles.borderQuarterSquares = function() {
+    const canvasContext = output.canvasContext;
+    const length = squareCenterY.length;
+    for (var i = 0; i < length; i++) {
+        const blX = squareCenterX[i];
+        const blY = squareCenterY[i];
+        const trX = squareCornerX[i];
+        const trY = squareCornerY[i];
+        // make center and missing corners
+        let cX = 0.5 * (blX + trX);
+        let cY = 0.5 * (blY + trY);
+        const dX = trX - cX;
+        const dY = trY - cY;
+        const brX = cX + dY;
+        const brY = cY - dX;
+        const tlX = cX - dY;
+        const tlY = cY + dX;
+        output.makePath(tlX, tlY, trX, trY, brX, brY);
+        canvasContext.stroke();
+    }
+};
+
+/**
+ * draw marker at center for quarter square
+ * set fill style before
+ * @method tiles.markerQuarterSquares
+ * @param {number}s - relative size
+ */
+tiles.markerQuarterSquares = function(s) {
+    const canvasContext = output.canvasContext;
+    const length = squareCenterY.length;
+    for (var i = 0; i < length; i++) {
+        const blX = squareCenterX[i];
+        const blY = squareCenterY[i];
+        const trX = squareCornerX[i];
+        const trY = squareCornerY[i];
+        // make center and missing corners
+        let cX = 0.5 * (blX + trX);
+        let cY = 0.5 * (blY + trY);
+        const dX = trX - cX;
+        const dY = trY - cY;
+        const brX = cX + dY;
+        const brY = cY - dX;
+        const tlX = cX - dY;
+        const tlY = cY + dX;
+        output.makePath(blX + s * (tlX - blX), blY + s * (tlY - blY), blX, blY, blX + s * (brX - blX), blY + s * (brY - blY));
+        canvasContext.fill();
+    }
+};
+
+// the half triangles
+//============================================
+const halfTriangleMX = [];
+const halfTriangleMY = [];
+const halfTriangleBX = [];
+const halfTriangleBY = [];
+const halfTriangleCX = [];
+const halfTriangleCY = [];
+
+/**
+ * delete half triangles
+ * @method tiles.deleteHalfTriangles
+ */
+tiles.deleteHalfTriangles = function() {
+    halfTriangleMX.length = 0;
+    halfTriangleMY.length = 0;
+    halfTriangleBX.length = 0;
+    halfTriangleBY.length = 0;
+    halfTriangleCX.length = 0;
+    halfTriangleCY.length = 0;
+};
+
+/**
+ * add a half triangle
+ * @method tiles.addHalfTriangle
+ * @param {number}mX
+ * @param {number}mY
+ * @param {number}bX
+ * @param {number}bY
+ * @param {number}cX
+ * @param {number}cY
+ */
+tiles.addHalfTriangle = function(mX, mY, bX, bY, cX, cY) {
+    halfTriangleMX.push(mX);
+    halfTriangleMY.push(mY);
+    halfTriangleBX.push(bX);
+    halfTriangleBY.push(bY);
+    halfTriangleCX.push(cX);
+    halfTriangleCY.push(cY);
+};
+
+/**
+ * fill the half triangle with solid color
+ * set fill style before
+ * strokes borders to other half triangle, set line width
+ * @method tiles.fillQuarterSquares
+ */
+tiles.fillHalfTriangles = function() {
+    const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = canvasContext.fillStyle;
+    const length = halfTriangleMX.length;
+    for (var i = 0; i < length; i++) {
+        const mX = halfTriangleMX[i];
+        const mY = halfTriangleMY[i];
+        const bX = halfTriangleBX[i];
+        const bY = halfTriangleBY[i];
+        const cX = halfTriangleCX[i];
+        const cY = halfTriangleCY[i];
+        output.makePath(mX, mY, bX, bY, cX, cY);
+        canvasContext.fill();
+        output.makePath(mX, mY, cX, cY);
+        canvasContext.stroke();
+    }
+};
+
+/**
+ * draw the grid lines for a half triangle
+ * set stroke style before and set line width
+ * @method tiles.gridHalfTriangles
+ */
+tiles.gridHalfTriangles = function() {
+    const canvasContext = output.canvasContext;
+    const length = halfTriangleMX.length;
+    for (var i = 0; i < length; i++) {
+        const mX = halfTriangleMX[i];
+        const mY = halfTriangleMY[i];
+        const bX = halfTriangleBX[i];
+        const bY = halfTriangleBY[i];
+        const cX = halfTriangleCX[i];
+        const cY = halfTriangleCY[i];
+        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
+         canvasContext.stroke();
+    }
+};
+
+/**
+ * draw the border lines for a half triangle
+ * the lines that are the border of the equilateral triangle
+ * set stroke style before and set line width
+ * @method tiles.borderHalfTriangles
+ */
+tiles.borderHalfTriangles = function() {
+    const canvasContext = output.canvasContext;
+    const length = halfTriangleMX.length;
+    for (var i = 0; i < length; i++) {
+        const mX = halfTriangleMX[i];
+        const mY = halfTriangleMY[i];
+        const bX = halfTriangleBX[i];
+        const bY = halfTriangleBY[i];
+        const cX = halfTriangleCX[i];
+        const cY = halfTriangleCY[i];
+        output.makePath(mX, mY, bX,bY,cX,cY);
+         canvasContext.stroke();
+    }
+};
+
+/**
+ * draw the sub border lines for a half triangle
+ * the lines that separate the halves of equialateral triangles
+ * set stroke style before and set line width
+ * @method tiles.subBorderHalfTriangles
+ */
+tiles.subBorderHalfTriangles = function() {
+    const canvasContext = output.canvasContext;
+    const length = halfTriangleMX.length;
+    for (var i = 0; i < length; i++) {
+        const mX = halfTriangleMX[i];
+        const mY = halfTriangleMY[i];
+        const cX = halfTriangleCX[i];
+        const cY = halfTriangleCY[i];
+        output.makePath(mX, mY,cX,cY);
+         canvasContext.stroke();
     }
 };
