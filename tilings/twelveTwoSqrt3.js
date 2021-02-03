@@ -31,7 +31,7 @@ output.createCanvas(gui, {
     name: 'canvas control',
 });
 const canvas = output.canvas;
-const canvasContext = output.canvasContext ;
+const canvasContext = output.canvasContext;
 
 output.addCoordinateTransform();
 
@@ -53,9 +53,6 @@ tiling.subTriangle = false;
 tiling.outlineColor = '#000000';
 tiling.outlineWidth = 3;
 tiling.outline = true;
-tiling.marker = false;
-tiling.markerSize = 0.5;
-tiling.markerColor = '#444444';
 tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
@@ -194,11 +191,6 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
-gui.add(colorController, {
-    property: 'markerColor',
-    labelText: 'color'
-});
-
 gui.addParagraph('<strong>tiling</strong>');
 
 const initialController = gui.add({
@@ -269,8 +261,7 @@ function square(gen, blX, blY, trX, trY) {
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addQuarterSquare(trX,trY,blX,blY);
-           
+            tiles.addQuarterSquare(trX, trY, blX, blY);
         } else {
             gen += 1;
             rhomb(gen, blX, blY, brX + 0.5 * upX, brY + 0.5 * upY);
@@ -319,7 +310,7 @@ function rhomb(gen, bX, bY, tX, tY) {
     const lY = cY - 0.7071 * rightY;
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addRhomb30(bX,bY,tX,tY);
+            tiles.addRhomb30(bX, bY, tX, tY);
         } else {
             gen += 1;
             // 0.267949192=1/(2+rt3)
@@ -386,40 +377,7 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
         const mcX = cX - upX;
         const mcY = cY - upY;
         if (gen >= tiling.maxGen) {
-            tiles.addHalfTriangle(mX,mY,bX,bY,cX,cY);
-            if (tiling.drawBorders) {
-                if (tiling.border) {
-                    canvasContext.strokeStyle = tiling.borderColor;
-                    output.setLineWidth(tiling.borderWidth);
-                    output.makePath(mX, mY, bX, bY, cX, cY);
-                    if (tiling.subTriangle) {
-                        canvasContext.closePath();
-                    }
-                    canvasContext.stroke();
-                }
-            } else {
-                switch (tiling.decoration) {
-                    case 'solid color':
-                        canvasContext.fillStyle = tiling.triangleColor;
-                        output.makePath(mX, mY, bX, bY, cX, cY);
-                        canvasContext.fill();
-                        if (!tiling.subTriangle) {
-                            canvasContext.strokeStyle = tiling.triangleColor;
-                            output.setLineWidth(1);
-                            output.makePath(mX, mY, cX, cY);
-                            canvasContext.closePath();
-                            canvasContext.stroke();
-                        }
-                        break;
-                    case 'grid':
-                        canvasContext.strokeStyle = tiling.gridColor;
-                        output.setLineWidth(tiling.gridWidth);
-                        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
-                        canvasContext.stroke();
-                        break;
-                    
-                }
-            }
+            tiles.addHalfTriangle(mX, mY, bX, bY, cX, cY);
         } else {
             gen += 1;
             rhomb(gen, bX, bY, mX + 0.5 * upX, mY + 0.5 * upY);
@@ -444,6 +402,32 @@ function fullTriangle(gen, aX, aY, bX, bY, cX, cY) {
     const mY = 0.5 * (aY + bY);
     triangle(gen, mX, mY, aX, aY, cX, cY);
     triangle(gen, mX, mY, bX, bY, cX, cY);
+}
+
+function drawing() {
+    switch (tiling.decoration) {
+        case 'solid color':
+            canvasContext.fillStyle = tiling.triangleColor;
+            tiles.fillHalfTriangles();
+            canvasContext.fillStyle = tiling.rhombColor;
+            tiles.fillRhombs30();
+            canvasContext.fillStyle = tiling.squareColor;
+            tiles.fillQuarterSquares();
+            break;
+        case 'grid':
+            canvasContext.strokeStyle = tiling.gridColor;
+            output.setLineWidth(tiling.gridWidth);
+            tiles.grid();
+            break;
+    }
+    if (tiling.border) {
+        canvasContext.strokeStyle = tiling.borderColor;
+        output.setLineWidth(tiling.borderWidth);
+        tiles.border();
+        if (tiling.subTriangle) {
+            tiles.subBorderHalfTriangles();
+        }
+    }
 }
 
 // the dodecagon initial pattern
@@ -480,6 +464,7 @@ function tile() {
     switch (tiling.initial) {
         case 'small square':
             square(0, -s / 4, -s / 4, s / 4, s / 4);
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -490,6 +475,7 @@ function tile() {
             break;
         case 'rhomb':
             rhomb(0, -z, 0, z, 0);
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -500,6 +486,7 @@ function tile() {
             break;
         case 'triangle':
             triangle(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -510,6 +497,7 @@ function tile() {
             break;
         case 'full triangle':
             fullTriangle(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -520,6 +508,7 @@ function tile() {
             break;
         case 'big square':
             fullSquare(0, -s / 2, -s / 2, s / 2, s / 2);
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -536,6 +525,7 @@ function tile() {
                 triangle(0, mX, mY, secondX[i], secondY[i], basicX[i + 1], basicY[i + 1]);
                 triangle(0, mX, mY, secondX[i + 1], secondY[i + 1], basicX[i + 1], basicY[i + 1]);
             }
+            drawing();
             if (tiling.outline) {
                 canvasContext.strokeStyle = tiling.outlineColor;
                 output.setLineWidth(tiling.outlineWidth);
@@ -555,35 +545,9 @@ function draw() {
     output.lineRound();
     output.fillCanvasBackgroundColor();
     output.correctYAxis();
-    // either draw borders or some tile-design
-    tiling.drawBorders = false;
+    tiles.delete();
+    tile();
 
-    tiles.deleteRhombs30();
-    tiles.deleteQuarterSquares();
-    if (tiling.decoration !== 'none') {
-        tile();
-    }
-    canvasContext.fillStyle='red';
-    tiles.fillRhombs30();
-    canvasContext.fillStyle='green';
-    tiles.fillFullSquares();
-    if (tiling.border) {
-        tiling.drawBorders = true;
-        tile();
-    }
-    canvasContext.strokeStyle='blue';
-    tiles.borderRhombs30();
-    canvasContext.strokeStyle='orange';
-    tiles.gridRhombs30();
-    tiles.gridQuarterSquares();
-    canvasContext.strokeStyle='red';
- //   tiles.borderQuarterSquares();
-    canvasContext.fillStyle='cyan';
-  //  tiles.markerQuarterSquares(2);
-//    tiles.fillHalfTriangles();
-  //  canvasContext.strokeStyle='orange';
-  //  tiles.gridHalfTriangles();
-    tiles.subBorderHalfTriangles();
 }
 
 output.setDrawMethods(draw);

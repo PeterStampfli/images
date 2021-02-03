@@ -436,7 +436,7 @@ tiles.gridHalfTriangles = function() {
         const cX = halfTriangleCX[i];
         const cY = halfTriangleCY[i];
         output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
-         canvasContext.stroke();
+        canvasContext.stroke();
     }
 };
 
@@ -456,8 +456,8 @@ tiles.borderHalfTriangles = function() {
         const bY = halfTriangleBY[i];
         const cX = halfTriangleCX[i];
         const cY = halfTriangleCY[i];
-        output.makePath(mX, mY, bX,bY,cX,cY);
-         canvasContext.stroke();
+        output.makePath(mX, mY, bX, bY, cX, cY);
+        canvasContext.stroke();
     }
 };
 
@@ -475,7 +475,40 @@ tiles.subBorderHalfTriangles = function() {
         const mY = halfTriangleMY[i];
         const cX = halfTriangleCX[i];
         const cY = halfTriangleCY[i];
-        output.makePath(mX, mY,cX,cY);
-         canvasContext.stroke();
+        output.makePath(mX, mY, cX, cY);
+        canvasContext.stroke();
     }
+};
+
+// everything together
+//======================================================
+
+/**
+ * delete all tiles
+ * @method tiles.delete
+ */
+tiles.delete = function() {
+    tiles.deleteRhombs30();
+    tiles.deleteHalfTriangles();
+    tiles.deleteQuarterSquares();
+};
+
+/**
+ * draw grid for all tiles
+ * @method tiles.grid
+ */
+tiles.grid = function() {
+    tiles.gridRhombs30();
+    tiles.gridHalfTriangles();
+    tiles.gridQuarterSquares();
+};
+
+/**
+ * draw border for all tiles
+ * @method tiles.border
+ */
+tiles.border = function() {
+    tiles.borderRhombs30();
+    tiles.borderHalfTriangles();
+    tiles.borderQuarterSquares();
 };
