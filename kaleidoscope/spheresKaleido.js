@@ -13,6 +13,9 @@ import {
  */
 const basic = {};
 
+// the geometry
+basic.platonic = 'ikosahedron';
+
 /**
  * setting up the output, gui and drawing
  * @method basic.setup
@@ -93,8 +96,9 @@ basic.setup = function() {
     map.drawMapChanged = function() {
         // make pixels
         map.startDrawing();
-        // make the qp structure
-        // make the map using the qp structure
+        geometry();
+
+
         //           map.xArray[index] = point.x;
         //           map.yArray[index] = point.y;
         //           map.iterationsArray[index] = 0 or 1;
@@ -116,7 +120,71 @@ basic.setup = function() {
         output.drawGrid();
 
     };
+
+    // choices for geometry
+    gui.add({
+        type: 'selection',
+        params: basic,
+        property: 'platonic',
+        options: ['tetrahedron', 'octahedron', 'ikosahedron'],
+        onChange: function() {
+            console.log(basic.platonic);
+            map.drawMapChanged();
+        }
+    });
 };
+
+function stereographic(point) {
+    const factor = 2 / (1 + point.x * point.x + point.y * point.y);
+    point.x *= factor;
+    point.y *= factor;
+    point.z = 1 - factor;
+}
+
+
+function inverseStereographic(point) {
+    const factor = 1 / (1 - z);
+    point.x *= factor;
+    point.y *= factor;
+}
+
+function inverseNormal(point){};
+
+var alpha, beta, gamma;
+var n2x, n2y, n3x, n3y, n3z;
+
+// the mapping - setup of geometry
+function geometry() {
+    console.log('geo');
+    gamma = Math.PI / 2;
+    beta = Math.PI / 3;
+    switch (basic.platonic) {
+        case 'tetrahedron':
+            alpha = Math.PI / 3;
+            break;
+        case 'octahedron':
+            alpha = Math.PI / 4;
+            break;
+        case 'ikosahedron':
+            alpha = Math.PI / 5;
+            break;
+    }
+    n2x = -Math.cos(alpha);
+    n2y = Math.sin(alpha);
+    const tanPhi = (Math.cos(alpha) - Math.cos(gamma) / Math.cos(beta)) / Math.sin(alpha);
+    const phi = Math.atan(tanPhi);
+    const sinTheta = -Math.cos(beta) / Math.cos(phi);
+    n3x = sinTheta * Math.cos(phi);
+    n3y = sinTheta * Math.sin(phi);
+    n3z = Math.sqrt(1 - sinTheta * sinTheta);
+
+    console.log(n2x, n2y);
+    console.log(n3x, n3y, n3z);
+    console.log(Math.cos(alpha), n2x);
+    console.log(Math.cos(beta), n3x);
+    console.log(Math.cos(gamma), n2x * n3x + n2y * n3y);
+}
+
 
 map.mapping = function(point) {}; // default is identity
 

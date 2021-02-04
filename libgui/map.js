@@ -67,13 +67,10 @@ map.trajectory = false; // switching on and off
 
 /**
  * the mapping function transforms a point argument
- * point.re and point.im have the intial position at call
- * at return they have the final position
- * point.region has the number of a region. Typically, there is no mapping between regions
- * point.iterations has the number of iterations done, or other info
- * point.valid>=0 means that point can be used in display, else make pixel transparent
- * the xArray, yArray, iterationsArray and regionArray have new values, but not the sizeArray
- * results are not normalized
+ * (point.x,point.y) coordinates
+ * point.structureIndex: initially 0, number of iterations
+ * point.region: initially 0, number of region for endpoint (if distinct regions)
+ * point.valid>0 gives image pixels, point.valid<0 makes transparent pixels
  * @method map.mapping
  * @param {object}point
  */
