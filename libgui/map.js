@@ -68,7 +68,7 @@ map.trajectory = false; // switching on and off
 /**
  * the mapping function transforms a point argument
  * (point.x,point.y) coordinates
- * point.structureIndex: initially 0, number of iterations
+ * point.iterations: initially 0, number of iterations
  * point.region: initially 0, number of region for endpoint (if distinct regions)
  * point.valid>0 gives image pixels, point.valid<0 makes transparent pixels
  * @method map.mapping
