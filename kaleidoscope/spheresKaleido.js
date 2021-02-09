@@ -98,12 +98,6 @@ basic.setup = function() {
         map.startDrawing();
         geometry();
 
-
-        //           map.xArray[index] = point.x;
-        //           map.yArray[index] = point.y;
-        //           map.iterationsArray[index] = 0 or 1;
-        //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
-        //test only
         map.make();
 
         // draw image, taking into account regions, and new options
@@ -134,21 +128,75 @@ basic.setup = function() {
     });
 };
 
-function stereographic(point) {
-    const factor = 2 / (1 + point.x * point.x + point.y * point.y);
-    point.x *= factor;
-    point.y *= factor;
-    point.z = 1 - factor;
+// coordinates of point
+var x, y, z, w, valid, iterations;
+
+/**
+ * make the map using the map.mapping(point) function
+ * initialize map before
+ * @method map.make
+ */
+map.make = function() {
+    let scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
+    let index = 0;
+    let offset = 0;
+    switch (output.pixels.antialiasType) {
+        case 'none':
+            break;
+        case '2*2 subpixels':
+            offset = -2 * scale;
+            break;
+        case '3*3 subpixels':
+            offset = -2.5 * scale;
+            break;
+    }
+    shiftY += offset;
+    shiftX += offset;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const regionArray = map.regionArray;
+    const iterationsArray = map.iterationsArray;
+    const sizeArray = map.sizeArray;
+    const mapping = map.mapping;
+    let yy = shiftY;
+    for (var j = 0; j < map.height; j++) {
+        let xx = shiftX;
+        for (var i = 0; i < map.width; i++) {
+            x = xx;
+            y = yy;
+            iterations = 0;
+            valid = 1;
+            mapping();
+            xArray[index] = x;
+            yArray[index] = y;
+            iterationsArray[index] = iterations;
+            sizeArray[index] = valid;
+            index += 1;
+            xx += scale;
+        }
+        yy += scale;
+    }
+};
+
+
+
+function stereographic3d() {
+    const factor = 2 / (1 + x * x + y * y);
+    x *= factor;
+    y *= factor;
+    z = 1 - factor;
 }
 
 
-function inverseStereographic(point) {
+function inverseStereographic3d() {
     const factor = 1 / (1 - z);
-    point.x *= factor;
-    point.y *= factor;
+    x *= factor;
+    y *= factor;
 }
 
-function inverseNormal(point){};
+function inverseNormal() {}
 
 var alpha, beta, gamma;
 var n2x, n2y, n3x, n3y, n3z;

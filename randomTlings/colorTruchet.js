@@ -26,8 +26,8 @@ const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
 const truchet = {};
-truchet.nHorizontal = 15; // number of tiles in x-direction
-truchet.nVertical = 10; // number of tiles in y-direction
+truchet.nHorizontal = 12; // number of tiles in x-direction
+truchet.nVertical = 12; // number of tiles in y-direction
 truchet.color1 = '#ff0000'; // fill color
 truchet.color2 = '#0000ff'; // the other fill color
 truchet.lineColor = '#000000';
@@ -38,6 +38,8 @@ truchet.gridColor = '#aaaa00';
 truchet.gridWidth = 1;
 truchet.p = 0.5; // relative probability of tiles, o.5 gives classical truchet, 0 gives hor. lines
 truchet.squares = 0; // probability for extra tile with squares
+
+truchet.symmetry='d4';
 
 gui.addParagraph("<strong>Truchet's</strong>");
 
@@ -342,12 +344,37 @@ function colorTruchetDown2() {
 
 function colorTruchet(i, j, index) {
     let s = i & 1;
+    let invers=0;
+    switch (truchet.symmetry){
+        case 'd4':
+        if (i>truchet.nHorizontal-1-i){
+           i=truchet.nHorizontal-1-i;
+           invers=1-invers;
+        }
+
+        if (j>truchet.nVertical-1-j){
+           j=truchet.nVertical-1-j;
+           invers=1-invers;
+        }
+        if (i>j){
+            const h=i;
+            i=j;
+            j=h;
+        }
+        break;
+    }
+    index=i+j*truchet.nHorizontal;
+    let dataIndex=data[index];
+    if ((invers===1)&&(dataIndex<2)){
+        dataIndex=1-dataIndex;
+    }
     if (truchet.p > 0.5) {
         s = (i + j) & 1;
     }
-    if (data[index] < 2) {
-        if (data[index] === s) {
-            if ((i + j) & 1) {
+    s=0;
+    if (dataIndex < 2) {
+        if (dataIndex === s) {
+            if (((i + j) & 1)===invers) {
                 colorTruchetUp1();
             } else {
                 colorTruchetUp2();
@@ -358,7 +385,7 @@ function colorTruchet(i, j, index) {
                 topLeftArc();
             }
         } else {
-            if ((i + j) & 1) {
+            if (((i + j) & 1)===invers) {
                 colorTruchetDown2();
             } else {
                 colorTruchetDown1();
@@ -370,7 +397,7 @@ function colorTruchet(i, j, index) {
             }
         }
     } else {
-        if ((i + j) & 1) {
+        if (((i + j) & 1)===invers){
             canvasContext.fillStyle = truchet.color1;
             upDiagonalSquares();
             canvasContext.fillStyle = truchet.color2;
