@@ -88,21 +88,6 @@ basic.setup = function() {
         output.pixels.show();
     };
 
-    /**
-     * what to do when the map changes (parameters, canvas size too)
-     * circles might change - we have to determine the regions
-     * @method map.drawMapChanged
-     */
-    map.drawMapChanged = function() {
-        // make pixels
-        map.startDrawing();
-        geometry();
-
-        map.make();
-
-        // draw image, taking into account regions, and new options
-        map.drawImageChanged();
-    };
 
     /**
      * what to do when only the image changes
@@ -132,6 +117,10 @@ basic.setup = function() {
 var x, y, z, w, valid, inversions;
 // for terminating
 var change = true;
+var maxIte = 20;
+// radius, depending on space
+var r3d, r4d;
+
 // trigonometry
 const rt3 = 1.732050808;
 const pi = Math.PI;
@@ -193,18 +182,48 @@ map.make = function() {
     }
 };
 
+function normalView3dUnitUpper() {
+    const r2 = x * x + y * y;
+    if (r2 > 1) {
+        valid = -1;
+    } else {
+        z = Math.sqrt(1 - r2);
+    }
+}
 
 
-function stereographic3d() {
+function normalView3dUpper() {
+    const r3d2 = r3d * r3d;
+    const r2 = x * x + y * y;
+    if (r2 > r3d2) {
+        valid = -1;
+    } else {
+        z = Math.sqrt(r3d2 - r2);
+    }
+}
+
+function stereographic3dUnit() {
     const factor = 2 / (1 + x * x + y * y);
     x *= factor;
     y *= factor;
     z = 1 - factor;
 }
 
+function stereographic3d() {
+    const factor = 2 / (1 + (x * x + y * y) / (r3d2 * r3d2));
+    x *= factor;
+    y *= factor;
+    z = r3d * (1 - factor);
+}
+
+function inverseStereographic3dUnit() {
+    const factor = 1 / (1 - z);
+    x *= factor;
+    y *= factor;
+}
 
 function inverseStereographic3d() {
-    const factor = 1 / (1 - z);
+    const factor = 1 / (1 - z / r3d);
     x *= factor;
     y *= factor;
 }
@@ -215,23 +234,24 @@ var alpha, beta, gamma;
 var n2x, n2y, n3x, n3y, n3z;
 
 // the mapping - setup of geometry
-var dihedral=d5;
+var dihedral = d5;
+
 function geometry() {
-// setting up the three planes
+    // setting up the three planes
     gamma = pi / 2;
     beta = pi / 3;
     switch (basic.platonic) {
         case 'tetrahedron':
             alpha = pi / 3;
-            dihedral=d3;
+            dihedral = d3;
             break;
         case 'octahedron':
             alpha = pi / 4;
-            dihedral=d4;
+            dihedral = d4;
             break;
         case 'ikosahedron':
             alpha = pi / 5;
-            dihedral=d5;
+            dihedral = d5;
             break;
     }
     n2x = -Math.cos(alpha);
@@ -242,12 +262,6 @@ function geometry() {
     n3x = sinTheta * Math.cos(phi);
     n3y = sinTheta * Math.sin(phi);
     n3z = Math.sqrt(1 - sinTheta * sinTheta);
-
-    console.log(n2x, n2y);
-    console.log(n3x, n3y, n3z);
-    console.log(Math.cos(alpha), n2x);
-    console.log(Math.cos(beta), n3x);
-    console.log(Math.cos(gamma), n2x * n3x + n2y * n3y);
 }
 
 // d_4 symmetry in the (x,y) plane
@@ -270,7 +284,6 @@ function d4() {
         change = true;
     }
 }
-
 
 // d_3 symmetry in the (x,y) plane
 function d3() {
@@ -302,7 +315,6 @@ function d3() {
         }
     }
 }
-
 
 // d_5 symmetry in the (x,y) plane
 function d5() {
@@ -345,9 +357,52 @@ function d5() {
     }
 }
 
-function mapping() {
-    dihedral();
+function thirdMirror() {
+    let d = n3x * x + n3y * y + n3z * z;
+    if (d < 0) {
+        d += d;
+        x -= d * n3x;
+        y -= d * n3y;
+        z -= d * n3z;
+        inversions += 1;
+        change = true;
+    }
 }
+
+function mapping() {
+    r3d = 2;
+    normalView3dUpper();
+
+    if (valid) {
+        dihedral();
+        for (var i = 0; i < maxIte; i++) {
+            change = false;
+            thirdMirror();
+
+            dihedral();
+            if (!change) {
+                break;
+            }
+        }
+    }
+}
+
+
+/**
+ * what to do when the map changes (parameters, canvas size too)
+ * circles might change - we have to determine the regions
+ * @method map.drawMapChanged
+ */
+map.drawMapChanged = function() {
+    // make pixels
+    map.startDrawing();
+    geometry();
+
+    map.make();
+
+    // draw image, taking into account regions, and new options
+    map.drawImageChanged();
+};
 
 basic.setup();
 map.drawMapChanged();
