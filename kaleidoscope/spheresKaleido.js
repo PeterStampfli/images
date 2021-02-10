@@ -76,7 +76,7 @@ basic.setup = function() {
         const iterationsArray = map.iterationsArray;
         for (var index = 0; index < length; index++) {
             if (sizeArray[index] >= 0) {
-                if (iterationsArray[index] === 0) {
+                if ((iterationsArray[index] & 1) === 0) {
                     pixelsArray[index] = colorZero;
                 } else {
                     pixelsArray[index] = colorOne;
@@ -128,9 +128,23 @@ basic.setup = function() {
     });
 };
 
-// coordinates of point
-var x, y, z, w, valid, iterations;
-
+// coordinates of point, and other data
+var x, y, z, w, valid, inversions;
+// for terminating
+var change = true;
+// trigonometry
+const rt3 = 1.732050808;
+const pi = Math.PI;
+const tanPi10 = Math.tan(pi / 10);
+const tan3Pi10 = Math.tan(3 * pi / 10);
+const cosPi5 = Math.cos(pi / 5);
+const sinPi5 = Math.sin(pi / 5);
+const cos2Pi5 = Math.cos(2 * pi / 5);
+const sin2Pi5 = Math.sin(2 * pi / 5);
+const cos3Pi5 = Math.cos(3 * pi / 5);
+const sin3Pi5 = Math.sin(3 * pi / 5);
+const cos4Pi5 = Math.cos(4 * pi / 5);
+const sin4Pi5 = Math.sin(4 * pi / 5);
 /**
  * make the map using the map.mapping(point) function
  * initialize map before
@@ -159,19 +173,18 @@ map.make = function() {
     const regionArray = map.regionArray;
     const iterationsArray = map.iterationsArray;
     const sizeArray = map.sizeArray;
-    const mapping = map.mapping;
     let yy = shiftY;
     for (var j = 0; j < map.height; j++) {
         let xx = shiftX;
         for (var i = 0; i < map.width; i++) {
             x = xx;
             y = yy;
-            iterations = 0;
+            inversions = 0;
             valid = 1;
             mapping();
             xArray[index] = x;
             yArray[index] = y;
-            iterationsArray[index] = iterations;
+            iterationsArray[index] = inversions;
             sizeArray[index] = valid;
             index += 1;
             xx += scale;
@@ -202,19 +215,23 @@ var alpha, beta, gamma;
 var n2x, n2y, n3x, n3y, n3z;
 
 // the mapping - setup of geometry
+var dihedral=d5;
 function geometry() {
-    console.log('geo');
-    gamma = Math.PI / 2;
-    beta = Math.PI / 3;
+// setting up the three planes
+    gamma = pi / 2;
+    beta = pi / 3;
     switch (basic.platonic) {
         case 'tetrahedron':
-            alpha = Math.PI / 3;
+            alpha = pi / 3;
+            dihedral=d3;
             break;
         case 'octahedron':
-            alpha = Math.PI / 4;
+            alpha = pi / 4;
+            dihedral=d4;
             break;
         case 'ikosahedron':
-            alpha = Math.PI / 5;
+            alpha = pi / 5;
+            dihedral=d5;
             break;
     }
     n2x = -Math.cos(alpha);
@@ -233,9 +250,104 @@ function geometry() {
     console.log(Math.cos(gamma), n2x * n3x + n2y * n3y);
 }
 
+// d_4 symmetry in the (x,y) plane
+function d4() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y < 0) {
+        y = -y;
+        inversions += 1;
+        change = true;
+    }
+    if (x > y) {
+        const h = x;
+        x = y;
+        y = h;
+        inversions += 1;
+        change = true;
+    }
+}
 
-map.mapping = function(point) {}; // default is identity
 
+// d_3 symmetry in the (x,y) plane
+function d3() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y > 0) {
+        if (x > rt3 * y) {
+            const h = 0.5 * (rt3 * x - y);
+            x = 0.5 * (x + rt3 * y);
+            y = h;
+            inversions += 1;
+            change = true;
+        }
+    } else {
+        if (x > -rt3 * y) {
+            const h = 0.5 * (rt3 * x - y);
+            x = 0.5 * (x + rt3 * y);
+            y = h;
+            inversions += 1;
+            change = true;
+        } else {
+            const h = 0.5 * (rt3 * x - y);
+            x = -0.5 * (x + rt3 * y);
+            y = h;
+            change = true;
+        }
+    }
+}
+
+
+// d_5 symmetry in the (x,y) plane
+function d5() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y > 0) {
+        if (y < tanPi10 * x) {
+            const h = sin2Pi5 * x + cos2Pi5 * y;
+            x = cos2Pi5 * x - sin2Pi5 * y;
+            y = h;
+            change = true;
+        } else if (y < tan3Pi10 * x) {
+            const h = sin3Pi5 * x - cos3Pi5 * y;
+            x = cos3Pi5 * x + sin3Pi5 * y;
+            y = h;
+            inversions += 1;
+            change = true;
+        }
+    } else {
+        if (y > -tanPi10 * x) {
+            const h = sin2Pi5 * x + cos2Pi5 * y;
+            x = cos2Pi5 * x - sin2Pi5 * y;
+            y = h;
+            change = true;
+        } else if (y > -tan3Pi10 * x) {
+            const h = sinPi5 * x - cosPi5 * y;
+            x = cosPi5 * x + sinPi5 * y;
+            y = h;
+            inversions += 1;
+            change = true;
+        } else {
+            const h = sin4Pi5 * x + cos4Pi5 * y;
+            x = cos4Pi5 * x - sin4Pi5 * y;
+            y = h;
+            change = true;
+        }
+    }
+}
+
+function mapping() {
+    dihedral();
+}
 
 basic.setup();
 map.drawMapChanged();
