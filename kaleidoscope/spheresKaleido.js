@@ -105,7 +105,7 @@ basic.setup = function() {
         type: 'selection',
         params: basic,
         property: 'platonic',
-        options: ['tetrahedron', 'octahedron', 'ikosahedron'],
+        options: ['3 planes','tetrahedron', 'octahedron', 'ikosahedron'],
         onChange: function() {
             console.log(basic.platonic);
             map.drawMapChanged();
@@ -230,8 +230,32 @@ function inverseStereographic3d() {
 
 function inverseNormal() {}
 
+// angles
+// alpha between plane 1 and 2, pi/3, pi/4,pi/5
+// beta between plane 1 and 3, pi/3
+// gamma between 2 and 3, pi/2
 var alpha, beta, gamma;
 var n2x, n2y, n3x, n3y, n3z;
+
+// the fourth element
+// angles
+// sigma1 intersection with plane 1, sigma1=pi/m1
+// sigma2 intersection with plane 2, sigma2=pi/m2
+// sigma3 intersection with plane 3, sigma3=pi/m3
+
+var m1=2;
+var m2=3;
+var m3=5;
+
+// as a plane 
+var n4x,n4y,n4z,n4w;
+
+// as a 3d sphere with radius 1
+var cx,cy,cz;
+// distance of center
+var cd;
+
+const toDeg=180/pi;
 
 // the mapping - setup of geometry
 var dihedral = d5;
@@ -241,6 +265,11 @@ function geometry() {
     gamma = pi / 2;
     beta = pi / 3;
     switch (basic.platonic) {
+        case '3 planes':
+            alpha = pi / 2;
+             beta = pi / 2;
+            dihedral = d2;
+            break;
         case 'tetrahedron':
             alpha = pi / 3;
             dihedral = d3;
@@ -262,6 +291,57 @@ function geometry() {
     n3x = sinTheta * Math.cos(phi);
     n3y = sinTheta * Math.sin(phi);
     n3z = Math.sqrt(1 - sinTheta * sinTheta);
+    // the fourth element
+    let sigma1=pi/m1;
+    let sigma2=pi/m2;
+    let sigma3=pi/m3;
+    // check triangles
+    console.log('basic Triangle',toDeg*alpha,toDeg*beta,toDeg*gamma,toDeg*(alpha+beta+gamma));
+    console.log('angles with fourth',toDeg*sigma1,toDeg*sigma2,toDeg*sigma3);
+    console.log('secondary 1 2',toDeg*alpha,toDeg*sigma1,toDeg*sigma2,toDeg*(alpha+sigma1+sigma2));
+    console.log('secondary 2 3',toDeg*gamma,toDeg*sigma2,toDeg*sigma3,toDeg*(gamma+sigma2+sigma3));
+    console.log('secondary 1 3',toDeg*beta,toDeg*sigma1,toDeg*sigma3,toDeg*(beta+sigma1+sigma3));
+    // the planes
+    console.log('n2',n2x,n2y);
+    console.log('n3',n3x,n3y,n3z);
+
+    // the fourth element as a circle
+    cx=Math.cos(sigma1);
+    cy=(Math.cos(sigma2)+Math.cos(sigma1)*Math.cos(alpha))/Math.sin(alpha);
+cz=(Math.cos(sigma3)-cx*n3x-cy*n3y)/n3z;
+cd=Math.sqrt(cx*cx+cy*cy+cz*cz);
+if (cd>1){
+    console.log('hyperbolic');
+}
+// check
+    console.log('circle center',cx,cy,cz,'d',Math.sqrt(cx*cx+cy*cy+cz*cz));
+
+    // the fourth element as a plane (only if not hyperbolic)
+    n4x=-Math.cos(sigma1);
+    n4y=-(Math.cos(sigma2)+Math.cos(sigma1)*Math.cos(alpha))/Math.sin(alpha);
+    n4z=(-Math.cos(sigma3)-n4y*n3y-n4x*n3x)/n3z;
+const l2=n4x*n4x+n4y*n4y+n4z*n4z;
+    console.log('4th plane normal 3d',n4x,n4y,n4z,'length',Math.sqrt(l2));
+    if (l2<=1){
+n4w=Math.sqrt(1-l2);
+    } else {
+        n4w=0;
+    }
+
+}
+
+// d_2 symmetry in the (x,y) plane
+function d2() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y < 0) {
+        y = -y;
+        inversions += 1;
+        change = true;
+    }
 }
 
 // d_4 symmetry in the (x,y) plane
@@ -370,7 +450,7 @@ function thirdMirror() {
 }
 
 function mapping() {
-    r3d = 2;
+    r3d = 1;
     normalView3dUpper();
 
     if (valid) {
