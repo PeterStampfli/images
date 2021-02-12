@@ -292,7 +292,6 @@ map.inputImageControllersShow = function() {
     map.imageController.show();
 };
 
-
 // show the threshold and gamma controllers, if exist
 map.thresholdGammaControllersShow = function() {
     if (guiUtils.isDefined(map.thresholdController)) {

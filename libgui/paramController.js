@@ -717,7 +717,9 @@ ParamController.prototype.listen = function() {
  * @return this
  */
 ParamController.prototype.hide = function() {
+    if (this.domElement!==null){
     this.domElement.style.display = "none";
+}
     return this;
 };
 
@@ -727,7 +729,9 @@ ParamController.prototype.hide = function() {
  * @return this
  */
 ParamController.prototype.show = function() {
+    if (this.domElement!==null){
     this.domElement.style.display = "block";
+}
     return this;
 };
 
