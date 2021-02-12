@@ -12,6 +12,9 @@ export const geometry = {};
 // the geometry
 geometry.basicTriangle = 'ikosahedron';
 geometry.rotation = 0;
+geometry.d14=2;
+geometry.d24=3;
+geometry.d34=5;
 
 
 
@@ -180,8 +183,8 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
  * @method geometry.setup
  */
 geometry.setup = function() {
-    d23 = 3;
-    d13 = 2;
+    d23 = 2;
+    d13 = 3;
     switch (geometry.basicTriangle) {
         case '3 planes':
             d12 = 2;
@@ -202,17 +205,17 @@ geometry.setup = function() {
     geometry.message23.innerHTML = twoMirrorMessage(2, 3, d23);
     geometry.message123.innerHTML = threeMirrorMessage(1, 2, 3, d12, d13, d23);
     // rotate 1-2-3-1 (ordered)
+    let angle12 = pi / d12;
+    let angle13 = pi / d13;
+    let angle23 = pi / d23;
     for (let i = 0; i < geometry.rotation; i++) {
-        let h = d12;
-        d12 = d23;
-        d23 = d13;
-        d13 = h;
+        let h = angle12;
+        angle12 = angle23;
+        angle23 = angle13;
+        angle13 = h;
     }
     console.log(d12, d13, d23);
     //setting up the first three mirror planes
-    const angle12 = pi / d12;
-    const angle13 = pi / d13;
-    const angle23 = pi / d23;
     n2x = -cos(angle12);
     n2y = sin(angle12);
     n3x = -cos(angle13);
