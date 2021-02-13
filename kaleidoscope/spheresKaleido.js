@@ -74,81 +74,83 @@ geometry.message23 = gui.addParagraph('message');
 geometry.message123 = gui.addParagraph('message');
 
 // the fourth mirror
-gui.addParagraph('<strong>Fourth mirror:</strong> Order of dihedral group with other mirrors')
-const secondaryPlanesController=gui.add({
-    type:'button',
-    buttonText:'3 planes',
-        onChange: function() {
-            d14Controller.setValueOnly(2);
-            d24Controller.setValueOnly(2);
-            d34Controller.setValueOnly(2);
+gui.addParagraph('<strong>Fourth mirror:</strong> Order of dihedral group with other mirrors');
+const secondaryPlanesController = gui.add({
+    type: 'button',
+    buttonText: '3 planes',
+    onChange: function() {
+        d14Controller.setValueOnly(2);
+        d24Controller.setValueOnly(2);
+        d34Controller.setValueOnly(2);
         map.drawMapChanged();
     }
 });
 secondaryPlanesController.add({
-    type:'button',
-    buttonText:'tetrahedron',
-        onChange: function() {
-            d14Controller.setValueOnly(2);
-            d24Controller.setValueOnly(3);
-            d34Controller.setValueOnly(3);
+    type: 'button',
+    buttonText: 'tetrahedron',
+    onChange: function() {
+        d14Controller.setValueOnly(2);
+        d24Controller.setValueOnly(3);
+        d34Controller.setValueOnly(3);
         map.drawMapChanged();
     }
 });
-const secondaryOctahedronController=gui.add({
-    type:'button',
-    buttonText:'octahedron',
-        onChange: function() {
-            d14Controller.setValueOnly(2);
-            d24Controller.setValueOnly(3);
-            d34Controller.setValueOnly(4);
+const secondaryOctahedronController = gui.add({
+    type: 'button',
+    buttonText: 'octahedron',
+    onChange: function() {
+        d14Controller.setValueOnly(2);
+        d24Controller.setValueOnly(3);
+        d34Controller.setValueOnly(4);
         map.drawMapChanged();
     }
 });
 secondaryOctahedronController.add({
-    type:'button',
-    buttonText:'ikosahedron',
-        onChange: function() {
-            d14Controller.setValueOnly(2);
-            d24Controller.setValueOnly(3);
-            d34Controller.setValueOnly(5);
+    type: 'button',
+    buttonText: 'ikosahedron',
+    onChange: function() {
+        d14Controller.setValueOnly(2);
+        d24Controller.setValueOnly(3);
+        d34Controller.setValueOnly(5);
         map.drawMapChanged();
     }
 });
-const d14Controller=gui.add({
-    type:'number',
-    params:geometry,
-    property:'d14',
-    labelText:'mirror 1',
-    min:2,
-    step:1,
+const d14Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd14',
+    labelText: 'mirror 1',
+    min: 2,
+    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
 });
-const d24Controller=gui.add({
-    type:'number',
-    params:geometry,
-    property:'d24',
-    labelText:'mirror 2',
-    min:2,
-    step:1,
+const d24Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd24',
+    labelText: 'mirror 2',
+    min: 2,
+    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
 });
-const d34Controller=gui.add({
-    type:'number',
-    params:geometry,
-    property:'d34',
-    labelText:'mirror 3',
-    min:2,
-    step:1,
+const d34Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd34',
+    labelText: 'mirror 3',
+    min: 2,
+    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
 });
-
+geometry.message124 = gui.addParagraph('message');
+geometry.message134 = gui.addParagraph('message');
+geometry.message234 = gui.addParagraph('message');
 
 //the drawing routines (changing the map object)
 //===========================================
@@ -211,6 +213,7 @@ map.drawImageChanged = function() {
 map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
+
 
     map.make();
     map.drawImageChanged();
