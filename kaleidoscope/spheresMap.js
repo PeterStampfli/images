@@ -25,6 +25,7 @@ const sin = Math.sin;
 const tan = Math.tan;
 const round = Math.round;
 const sqrt = Math.sqrt;
+const abs=Math.abs;
 // trigonometry
 const rt3 = 1.732050808;
 const tanPi10 = Math.tan(pi / 10);
@@ -46,6 +47,16 @@ var n2x, n2y, n3x, n3y, n3z;
 
 // radius of 3d-sphere for sampling 3d mapping
 var r3d = 1;
+
+// the fourth mirror
+// as a sphere of radius 1
+var c4x,c4y,c4z;
+// as a plane in 4dimensions, normal vector
+var n4x,n4y,n4z,n4w;
+// or in 3 dimensions with n4w=0 and going through (0,0,n4h)
+var n4h=1;
+// radius of the hyperbolic world, or radius of the 4d sphere
+var worldRadius;
 
 // dihedral groups
 //==================================================================
@@ -211,6 +222,24 @@ function spherical() {
     while (change);
 }
 
+// the fourth element, in 3d, for euklidic case as plane
+function fourthMirrorPlaneEuklidic() {
+    z-=n4h;
+    let d = n4x * x + n4y * y + n4z * z;
+    if (d < 0) {
+        d += d;
+        x -= d * n3x;
+        y -= d * n3y;
+        z -= d * n3z;
+        inversions += 1;
+        change = true;
+    }
+    z+=n4h;
+}
+
+// fourth element as sphere, inversion insideout, for hyperbolic case
+
+
 // making the geometry
 //=========================================================
 
@@ -223,14 +252,15 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
     let message = 'mirrors ' + n1 + ', ' + n2 + ' and ' + n3 + ': ';
     message += 'd<sub>' + d12 + '</sub>, d<sub>' + d13 + '</sub> and d<sub>' + d23 + '</sub>';
     message += ', angles ' + round(180 / d12) + '<sup>o</sup>, ' + round(180 / d13) + '<sup>o</sup> and ' + round(180 / d23) + '<sup>o</sup><br>';
-    message += '&nbsp; sum of angles ' + sum + '<sup>o</sup>, with ';
+    message += '&nbsp; sum of angles ' + sum + '<sup>o</sup>, ';
     if (sum === 180) {
-        message += 'euklidic geometry';
+        message += 'euklidic';
     } else if (sum < 180) {
-        message += 'hyperbolic geometry';
+        message += 'hyperbolic';
     } else {
-        message += 'spherical geometry';
+        message += 'spherical';
     }
+    message+=' triangle';
     return message;
 }
 
@@ -282,17 +312,70 @@ geometry.setup = function() {
     const angle13 = pi / d13;
     const angle23 = pi / d23;
     console.log('angles', angle12, angle23, angle13);
-    //setting up the first three mirror planes
+    //setting up the first three mirror planes, normal vectors in 3d, unit length
+    // n1=(1,0,0)
+    // n2=(n2x,n2y,0)
+    // intersection angle of planes: n2*n1=-cos(angle12)
     n2x = -cos(angle12);
-    n2y = sin(angle12);
+    // normalize
+    n2y = sqrt(1-n2x*n2x);
+    // n3=(n3x,n3y,n3z)
+    // intersection angle of planes: n3*n1=-cos(angle13)
     n3x = -cos(angle13);
+        // intersection angle of planes: n3*n2=-cos(angle23)
     n3y = (-cos(angle23) - n3x * n2x) / n2y;
+    // normalize
     n3z = sqrt(1 - n3x * n3x - n3y * n3y);
     console.log(n2x, n2y);
     console.log(n3x, n3y, n3z);
     console.log(d12);
     dihedral = dihedrals[d12];
     console.log(dihedral);
+    // the fourth dimension
+    let honeycomb=((1/d12+1/d14+1/d24)<0.99);
+    honeycomb= honeycomb||((1/d13+1/d14+1/d34)<0.99);
+    honeycomb= honeycomb||((1/d23+1/d24+1/d34)<0.99);
+    const angle14=pi/d14;
+    const angle24=pi/d24;
+    const angle34=pi/d34;
+    console.log('honeycomb',honeycomb);
+    // as sphere of radius 1, at c4=(c4x,c4y,c4z)
+    // distance to plane 1: c4*n1=cos(angle14)
+c4x=cos(angle14);
+    // distance to plane 2: c4*n2=cos(angle24)
+c4y=(cos(angle24)-c4x*n2x)/n2y;
+    // distance to plane 3: c4*n3=cos(angle34)
+c4z=(cos(angle34)-c4x*n3x-c4y*n3y)/n3z;
+console.log('spherecenter',c4x,c4y,c4z);
+// distance of sphere center to origin
+const dis2=c4x*c4x+c4y*c4y+c4z*c4z;
+console.log('center distance square',dis2);
+worldRadius=sqrt(abs(dis2-1));
+// for spherical and Euklidic geometry: fourth mirror as a plane
+// n4=(n4x,n4y,n4z,n4w)
+    // intersection angle of planes: n4*ni=-cos(angle1i)
+    n4x=-c4x;
+    n4y=-c4y;
+    n4z=-c4z;
+    // normalize, for spherical geometry
+    n4w=worldRadius;
+    // Euklidic geometry: n4w=0; fourth plane passes through (0,0,n4h)
+if (Math.abs(dis2-1)<0.05){
+    geometry.worldMessage.innerHTML='Euklidic';
+}
+else if (dis2<1){
+    geometry.worldMessage.innerHTML='Sperical, radius '+worldRadius.toFixed(2);
+}
+else {
+    let message='Hyperbolic';
+    if (honeycomb){
+message+=' honeycomb';
+    } else {
+message+=' tiling';
+    }
+    message+=', worldradius '+worldRadius.toFixed(2);
+    geometry.worldMessage.innerHTML=message;
+}
 
 };
 

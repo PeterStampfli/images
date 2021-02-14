@@ -68,10 +68,10 @@ basisController.add({
         map.drawMapChanged();
     }
 });
-geometry.message12 = gui.addParagraph('message');
-geometry.message13 = gui.addParagraph('message');
-geometry.message23 = gui.addParagraph('message');
-geometry.message123 = gui.addParagraph('message');
+geometry.message12 = gui.addParagraph('');
+geometry.message13 = gui.addParagraph('');
+geometry.message23 = gui.addParagraph('');
+geometry.message123 = gui.addParagraph('');
 
 // the fourth mirror
 gui.addParagraph('<strong>Fourth mirror:</strong> Order of dihedral group with other mirrors');
@@ -148,10 +148,10 @@ const d34Controller = gui.add({
         map.drawMapChanged();
     }
 });
-geometry.message124 = gui.addParagraph('message');
-geometry.message134 = gui.addParagraph('message');
-geometry.message234 = gui.addParagraph('message');
-
+geometry.message124 = gui.addParagraph('');
+geometry.message134 = gui.addParagraph('');
+geometry.message234 = gui.addParagraph('');
+geometry.worldMessage=gui.addParagraph('');
 //the drawing routines (changing the map object)
 //===========================================
 
