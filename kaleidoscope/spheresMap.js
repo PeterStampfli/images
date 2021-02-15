@@ -25,7 +25,7 @@ const sin = Math.sin;
 const tan = Math.tan;
 const round = Math.round;
 const sqrt = Math.sqrt;
-const abs=Math.abs;
+const abs = Math.abs;
 // trigonometry
 const rt3 = 1.732050808;
 const tanPi10 = Math.tan(pi / 10);
@@ -45,17 +45,23 @@ var dihedral, dihedrals;
 // basic mirror planes, n1x=1, trivial, making a tiling of the 3d sphere
 var n2x, n2y, n3x, n3y, n3z;
 
-// radius of 3d-sphere for sampling 3d mapping
+// radius of 3d-sphere for sampling 3d mapping, going from 0 to worldRadius
 var r3d = 1;
+// radius of 4d sphere for spherical case
+var r4d = 1;
+// reference value for w-coordinate, for cross-sections of the 4d sphere
+// in units of r4d, going from -1 to +1
+var wRef = 0;
 
 // the fourth mirror
 // as a sphere of radius 1
-var c4x,c4y,c4z;
+var c4x, c4y, c4z;
 // as a plane in 4dimensions, normal vector
-var n4x,n4y,n4z,n4w;
+var n4x, n4y, n4z, n4w;
 // or in 3 dimensions with n4w=0 and going through (0,0,n4h)
-var n4h=1;
+var n4h = 1;
 // radius of the hyperbolic world, or radius of the 4d sphere
+// if using inversion at the fourth element as a 3d sphere
 var worldRadius;
 
 // dihedral groups
@@ -224,7 +230,7 @@ function spherical() {
 
 // the fourth element, in 3d, for euklidic case as plane
 function fourthMirrorPlaneEuklidic() {
-    z-=n4h;
+    z -= n4h;
     let d = n4x * x + n4y * y + n4z * z;
     if (d < 0) {
         d += d;
@@ -234,11 +240,71 @@ function fourthMirrorPlaneEuklidic() {
         inversions += 1;
         change = true;
     }
-    z+=n4h;
+    z += n4h;
 }
 
-// fourth element as sphere, inversion insideout, for hyperbolic case
+// fourth element as sphere, inversion inside->out, for hyperbolic case
+function fourthMirrorSphereInsideOut() {
+    const dx = x - c4x;
+    const dy = y - c4y;
+    const dz = z - c4z;
+    let d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 < 1) {
+        d2 = 1 / d2;
+        x = c4x + dx * d2;
+        y = c4y + dy * d2;
+        z = c4z + dz * d2;
+        inversions += 1;
+        change = true;
+    }
+}
 
+// fourth element as sphere, inversion outside->in, for spherical case
+function fourthMirrorSphereOutsideIn() {
+    const dx = x - c4x;
+    const dy = y - c4y;
+    const dz = z - c4z;
+    let d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 > 1) {
+        d2 = 1 / d2;
+        x = c4x + dx * d2;
+        y = c4y + dy * d2;
+        z = c4z + dz * d2;
+        inversions += 1;
+        change = true;
+    }
+}
+
+// mappings in four dimensions, for spherical tiling
+//=============================================
+// we don't need stereographic projection from 4d to 3d
+// because we can use sphere inversion in 3d instead of the plane mirror in 4d
+
+// mirror images at the fourth plane, part of the 4d spherical tiling
+function fourthMirror() {
+    let d = n4x * x + n4y * y + n4z * z + n4w * w;
+    if (d < 0) {
+        d += d;
+        x -= d * n4x;
+        y -= d * n4y;
+        z -= d * n4z;
+        w -= d * n4w;
+        inversions += 1;
+        change = true;
+    }
+}
+
+// normal view of 3d sphere, resulting from intersecting the 4d sphere with w=wRef
+function normalView4dUpper() {
+    w = wRef;
+    const r3d2 = r4d * r4d - w * w;
+    const r2 = x * x + y * y;
+    if (r2 > r3d2) {
+        valid = -1;
+    } else {
+        z = Math.sqrt(r3d2 - r2);
+    }
+}
 
 // making the geometry
 //=========================================================
@@ -260,7 +326,7 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
     } else {
         message += 'spherical';
     }
-    message+=' triangle';
+    message += ' triangle';
     return message;
 }
 
@@ -318,11 +384,11 @@ geometry.setup = function() {
     // intersection angle of planes: n2*n1=-cos(angle12)
     n2x = -cos(angle12);
     // normalize
-    n2y = sqrt(1-n2x*n2x);
+    n2y = sqrt(1 - n2x * n2x);
     // n3=(n3x,n3y,n3z)
     // intersection angle of planes: n3*n1=-cos(angle13)
     n3x = -cos(angle13);
-        // intersection angle of planes: n3*n2=-cos(angle23)
+    // intersection angle of planes: n3*n2=-cos(angle23)
     n3y = (-cos(angle23) - n3x * n2x) / n2y;
     // normalize
     n3z = sqrt(1 - n3x * n3x - n3y * n3y);
@@ -332,50 +398,48 @@ geometry.setup = function() {
     dihedral = dihedrals[d12];
     console.log(dihedral);
     // the fourth dimension
-    let honeycomb=((1/d12+1/d14+1/d24)<0.99);
-    honeycomb= honeycomb||((1/d13+1/d14+1/d34)<0.99);
-    honeycomb= honeycomb||((1/d23+1/d24+1/d34)<0.99);
-    const angle14=pi/d14;
-    const angle24=pi/d24;
-    const angle34=pi/d34;
-    console.log('honeycomb',honeycomb);
+    let honeycomb = ((1 / d12 + 1 / d14 + 1 / d24) < 0.99);
+    honeycomb = honeycomb || ((1 / d13 + 1 / d14 + 1 / d34) < 0.99);
+    honeycomb = honeycomb || ((1 / d23 + 1 / d24 + 1 / d34) < 0.99);
+    const angle14 = pi / d14;
+    const angle24 = pi / d24;
+    const angle34 = pi / d34;
+    console.log('honeycomb', honeycomb);
     // as sphere of radius 1, at c4=(c4x,c4y,c4z)
     // distance to plane 1: c4*n1=cos(angle14)
-c4x=cos(angle14);
+    c4x = cos(angle14);
     // distance to plane 2: c4*n2=cos(angle24)
-c4y=(cos(angle24)-c4x*n2x)/n2y;
+    c4y = (cos(angle24) - c4x * n2x) / n2y;
     // distance to plane 3: c4*n3=cos(angle34)
-c4z=(cos(angle34)-c4x*n3x-c4y*n3y)/n3z;
-console.log('spherecenter',c4x,c4y,c4z);
-// distance of sphere center to origin
-const dis2=c4x*c4x+c4y*c4y+c4z*c4z;
-console.log('center distance square',dis2);
-worldRadius=sqrt(abs(dis2-1));
-// for spherical and Euklidic geometry: fourth mirror as a plane
-// n4=(n4x,n4y,n4z,n4w)
+    c4z = (cos(angle34) - c4x * n3x - c4y * n3y) / n3z;
+    console.log('spherecenter', c4x, c4y, c4z);
+    // distance of sphere center to origin
+    const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
+    console.log('center distance square', dis2);
+    worldRadius = sqrt(abs(dis2 - 1));
+    // for spherical and Euklidic geometry: fourth mirror as a plane
+    // n4=(n4x,n4y,n4z,n4w)
     // intersection angle of planes: n4*ni=-cos(angle1i)
-    n4x=-c4x;
-    n4y=-c4y;
-    n4z=-c4z;
+    n4x = -c4x;
+    n4y = -c4y;
+    n4z = -c4z;
     // normalize, for spherical geometry
-    n4w=worldRadius;
+    n4w = worldRadius;
     // Euklidic geometry: n4w=0; fourth plane passes through (0,0,n4h)
-if (Math.abs(dis2-1)<0.05){
-    geometry.worldMessage.innerHTML='Euklidic';
-}
-else if (dis2<1){
-    geometry.worldMessage.innerHTML='Sperical, radius '+worldRadius.toFixed(2);
-}
-else {
-    let message='Hyperbolic';
-    if (honeycomb){
-message+=' honeycomb';
+    if (Math.abs(dis2 - 1) < 0.05) {
+        geometry.worldMessage.innerHTML = 'Euklidic';
+    } else if (dis2 < 1) {
+        geometry.worldMessage.innerHTML = 'Sperical, radius ' + worldRadius.toFixed(2);
     } else {
-message+=' tiling';
+        let message = 'Hyperbolic';
+        if (honeycomb) {
+            message += ' honeycomb';
+        } else {
+            message += ' tiling';
+        }
+        message += ', worldradius ' + worldRadius.toFixed(2);
+        geometry.worldMessage.innerHTML = message;
     }
-    message+=', worldradius '+worldRadius.toFixed(2);
-    geometry.worldMessage.innerHTML=message;
-}
 
 };
 
@@ -412,7 +476,7 @@ map.mapping = function(point) {
         spherical();
     }
 
-inverseStereographic3d();
+    inverseStereographic3d();
     // final data
     point.x = x;
     point.y = y;
