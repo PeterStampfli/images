@@ -52,7 +52,7 @@ const basisController = gui.add({
     type: 'selection',
     params: geometry,
     property: 'basicTriangle',
-    labelText: 'basis',
+    labelText: '<strong>basis</strong>',
     options: ['3 planes', 'tetrahedron', 'octahedron', 'ikosahedron'],
     onChange: function() {
         console.log(geometry.basicTriangle);
@@ -68,10 +68,7 @@ basisController.add({
         map.drawMapChanged();
     }
 });
-geometry.message12 = gui.addParagraph('');
-geometry.message13 = gui.addParagraph('');
-geometry.message23 = gui.addParagraph('');
-geometry.message123 = gui.addParagraph('');
+geometry.basisMessage = gui.addParagraph('');
 
 // the fourth mirror
 gui.addParagraph('<strong>Fourth mirror:</strong> Order of dihedral group with other mirrors');
@@ -148,10 +145,129 @@ const d34Controller = gui.add({
         map.drawMapChanged();
     }
 });
-geometry.message124 = gui.addParagraph('');
-geometry.message134 = gui.addParagraph('');
-geometry.message234 = gui.addParagraph('');
-geometry.worldMessage=gui.addParagraph('');
+geometry.fourthMessage = gui.addParagraph('');
+geometry.worldMessage = gui.addParagraph('');
+
+// hyperbolic choices
+//==========================================
+geometry.hyperbolicViewController = gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'hyperbolicView',
+    labelText: 'view',
+    options: ['spherical cross section from above', 'spherical cross section from below', 'spherical cross section, stereographic', 'plane cross section'],
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+// radius controller, in units of worldradius, add button for switching on/off animation
+geometry.hyperbolicRadiusController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'hyperbolicRadius',
+    labelText: 'radius',
+    min: 0,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+// z controller, in units of worldradius, add button for switching on/off animation
+geometry.hyperbolicZController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'hyperbolicZ',
+    labelText: 'z',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+// euklidic choices
+//========================
+geometry.euklidicViewController = gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'euklidicView',
+    labelText: 'view',
+    options: ['spherical cross section from above', 'spherical cross section from below', 'spherical cross section, stereographic', 'plane cross section'],
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+// radius controller, in units of worldradius, add button for switching on/off animation
+geometry.euklidicRadiusController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'euklidicRadius',
+    labelText: 'radius',
+    min: 0,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+// z controller, in units of worldradius, add button for switching on/off animation
+geometry.euklidicZController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'euklidicZ',
+    labelText: 'z',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+// spherical choices
+//=======================================
+geometry.sphericalViewController = gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'sphericalView',
+    labelText: 'view',
+    options: ['hyperplane cross section from above', 'hyperplane cross section from below', 'hyperplane cross section, stereographic', 'plane cross section of stereographic projection'],
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+// w controller, in units of worldradius, add button for switching on/off animation
+geometry.sphericalZController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'euklidicW',
+    labelText: 'w',
+    min: -1,
+    max: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+// z controller, in units of worldradius, add button for switching on/off animation
+geometry.sphericalZController = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'euklidicZ',
+    labelText: 'z',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+//hide all choices that depend on geometry
+//===========================================
+
+geometry.hideChoices = function() {
+    geometry.hyperbolicViewController.hide();
+    geometry.hyperbolicRadiusController.hide();
+    geometry.hyperbolicZController.hide();
+    geometry.euklidicViewController.hide();
+    geometry.euklidicRadiusController.hide();
+    geometry.euklidicZController.hide();
+    geometry.sphericalViewController.hide();
+    geometry.sphericalWController.hide();
+    geometry.sphericalZController.hide();
+};
+
 //the drawing routines (changing the map object)
 //===========================================
 

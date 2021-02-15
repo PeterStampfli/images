@@ -15,6 +15,16 @@ geometry.rotation = 0;
 geometry.d14 = 2;
 geometry.d24 = 3;
 geometry.d34 = 5;
+// the views
+geometry.hyperbolicView = 'spherical cross section from above';
+geometry.hyperbolicRadius = 0.7;
+geometry.hyperbolicZ = 0;
+geometry.euklidicView = 'spherical cross section from above';
+geometry.euklidicRadius = 0.7;
+geometry.euklidicZ = 0;
+geometry.sphericalView = 'hyperplane cross section from above';
+geometry.euklidicW = 0;
+geometry.euklidicZ = 0;
 
 // constants
 const pi = Math.PI;
@@ -47,11 +57,13 @@ var n2x, n2y, n3x, n3y, n3z;
 
 // radius of 3d-sphere for sampling 3d mapping, going from 0 to worldRadius
 var r3d = 1;
-// radius of 4d sphere for spherical case
+// radius of 4d sphere for spherical case, use 3d worldradius for consistency
 var r4d = 1;
 // reference value for w-coordinate, for cross-sections of the 4d sphere
 // in units of r4d, going from -1 to +1
 var wRef = 0;
+// same, for 3d
+var zRef = 1;
 
 // the fourth mirror
 // as a sphere of radius 1
@@ -59,10 +71,11 @@ var c4x, c4y, c4z;
 // as a plane in 4dimensions, normal vector
 var n4x, n4y, n4z, n4w;
 // or in 3 dimensions with n4w=0 and going through (0,0,n4h)
-var n4h = 1;
-// radius of the hyperbolic world, or radius of the 4d sphere
-// if using inversion at the fourth element as a 3d sphere
+var n4h = 0.2;
+// radius of the hyperbolic world, or radius of the 4d sphere, 1 for Euklidic
+// use as unit of length
 var worldRadius;
+
 
 // dihedral groups
 //==================================================================
@@ -356,13 +369,15 @@ geometry.setup = function() {
     let d14 = geometry.d14;
     let d24 = geometry.d24;
     let d34 = geometry.d34;
-    geometry.message12.innerHTML = twoMirrorMessage(1, 2, d12);
-    geometry.message13.innerHTML = twoMirrorMessage(1, 3, d13);
-    geometry.message23.innerHTML = twoMirrorMessage(2, 3, d23);
-    geometry.message123.innerHTML = threeMirrorMessage(1, 2, 3, d12, d13, d23);
-    geometry.message124.innerHTML = threeMirrorMessage(1, 2, 4, d12, d14, d24);
-    geometry.message134.innerHTML = threeMirrorMessage(1, 3, 4, d13, d14, d34);
-    geometry.message234.innerHTML = threeMirrorMessage(2, 3, 4, d23, d24, d34);
+    let basisMessage = twoMirrorMessage(1, 2, d12) + '<br>';
+    basisMessage += twoMirrorMessage(1, 2, d12) + '<br>';
+    basisMessage += twoMirrorMessage(2, 3, d23) + '<br>';
+    basisMessage += threeMirrorMessage(1, 2, 3, d12, d13, d23);
+    geometry.basisMessage.innerHTML = basisMessage;
+    let fourthMessage = threeMirrorMessage(1, 2, 4, d12, d14, d24) + '<br>';
+    fourthMessage += threeMirrorMessage(1, 3, 4, d13, d14, d34) + '<br>';
+    fourthMessage += threeMirrorMessage(2, 3, 4, d23, d24, d34);
+    geometry.fourthMessage.innerHTML = fourthMessage;
     // rotate 1-2-3-1 (ordered)
     for (let i = 0; i < geometry.rotation; i++) {
         let h = d12;
@@ -392,11 +407,7 @@ geometry.setup = function() {
     n3y = (-cos(angle23) - n3x * n2x) / n2y;
     // normalize
     n3z = sqrt(1 - n3x * n3x - n3y * n3y);
-    console.log(n2x, n2y);
-    console.log(n3x, n3y, n3z);
-    console.log(d12);
     dihedral = dihedrals[d12];
-    console.log(dihedral);
     // the fourth dimension
     let honeycomb = ((1 / d12 + 1 / d14 + 1 / d24) < 0.99);
     honeycomb = honeycomb || ((1 / d13 + 1 / d14 + 1 / d34) < 0.99);
@@ -404,7 +415,6 @@ geometry.setup = function() {
     const angle14 = pi / d14;
     const angle24 = pi / d24;
     const angle34 = pi / d34;
-    console.log('honeycomb', honeycomb);
     // as sphere of radius 1, at c4=(c4x,c4y,c4z)
     // distance to plane 1: c4*n1=cos(angle14)
     c4x = cos(angle14);
@@ -417,7 +427,10 @@ geometry.setup = function() {
     const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
     console.log('center distance square', dis2);
     worldRadius = sqrt(abs(dis2 - 1));
-    // for spherical and Euklidic geometry: fourth mirror as a plane
+    // consistency with 3 d calculations
+    r4d = worldRadius;
+    // for spherical geometry: fourth mirror as a 4d plane
+    // for Euklidic geometry: fourth mirror as a 3d plane
     // n4=(n4x,n4y,n4z,n4w)
     // intersection angle of planes: n4*ni=-cos(angle1i)
     n4x = -c4x;
@@ -428,6 +441,7 @@ geometry.setup = function() {
     // Euklidic geometry: n4w=0; fourth plane passes through (0,0,n4h)
     if (Math.abs(dis2 - 1) < 0.05) {
         geometry.worldMessage.innerHTML = 'Euklidic';
+        worldRadius = 1;
     } else if (dis2 < 1) {
         geometry.worldMessage.innerHTML = 'Sperical, radius ' + worldRadius.toFixed(2);
     } else {
@@ -437,9 +451,9 @@ geometry.setup = function() {
         } else {
             message += ' tiling';
         }
-        message += ', worldradius ' + worldRadius.toFixed(2);
-        geometry.worldMessage.innerHTML = message;
+        geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
     }
+    r3d = worldRadius; // for test
 
 };
 
@@ -461,22 +475,24 @@ var change = true;
  */
 map.mapping = function(point) {
     // initial data
-    x = point.x;
-    y = point.y;
+    // r3d=1;
+    // console.log(r3d,unit);
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
     // defaults
     w = 0;
     z = 0;
     valid = 1;
     inversions = 0;
     // mapping
-    //   normalView3dUpper();
+    normalView3dUpper();
     z = -z;
-    stereographic3d();
+    //   stereographic3d();
     if (valid > 0) {
         spherical();
     }
 
-    inverseStereographic3d();
+    //    inverseStereographic3d();
     // final data
     point.x = x;
     point.y = y;
