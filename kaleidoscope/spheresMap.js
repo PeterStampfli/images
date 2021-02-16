@@ -28,6 +28,8 @@ geometry.euklidicW = 0;
 geometry.euklidicZ = 0;
 
 // constants
+const eps=0.001;
+const eps2=eps*eps;
 const pi = Math.PI;
 const toDeg = 180 / pi;
 // abreviations for functions
@@ -58,6 +60,7 @@ var n2x, n2y, n3x, n3y, n3z;
 
 // radius of 3d-sphere for sampling 3d mapping, going from 0 to worldRadius
 var r3d = 1;
+var r3d2 = r3d * r3d;
 // radius of 4d sphere for spherical case, use 3d worldradius for consistency
 var r4d = 1;
 // reference value for w-coordinate, for cross-sections of the 4d sphere
@@ -195,7 +198,6 @@ dihedrals = [null, null, dihedral2, dihedral3, dihedral4, dihedral5];
 
 // normal view of 3d sphere
 function normalView3dUpper() {
-    const r3d2 = r3d * r3d;
     const r2 = x * x + y * y;
     if (r2 > r3d2) {
         valid = -1;
@@ -204,8 +206,9 @@ function normalView3dUpper() {
     }
 }
 
-// stereographic projection in 3d: Center at z=-r3d
-// because spherical maps to z=+r3d
+// stereographic projection in 3d:
+// plane to sphere
+// center at z=-r3d because spherical maps to z=+r3d
 function stereographic3d() {
     const factor = 2 / (1 + (x * x + y * y) / (r3d * r3d));
     x *= factor;
@@ -213,8 +216,31 @@ function stereographic3d() {
     z = r3d * (1 - factor);
 }
 
+// stereographic projection in 3d:
+// sphere to plane
+// center at z=-r3d because spherical maps to z=+r3d
 function inverseStereographic3d() {
     const factor = 1 / (1 + z / r3d);
+    x *= factor;
+    y *= factor;
+}
+
+// normalize a 3d vector
+function normalize(){
+    const r2=x*x+y*y+z*z;
+    if (r2>eps2){
+        const factor=1/Math.sqrt(r2);
+        x*=factor;
+        y*=factor;
+        z*=factor;
+    }
+}
+
+// stereographic projection in 3d:
+// unit sphere to plane
+// center at z=-1 because spherical maps to z=+r3d
+function inverseStereographic3dUnit() {
+    const factor = 1 / (1 + z);
     x *= factor;
     y *= factor;
 }
@@ -393,7 +419,6 @@ geometry.setup = function() {
     const angle12 = pi / d12;
     const angle13 = pi / d13;
     const angle23 = pi / d23;
-    console.log('angles', angle12, angle23, angle13);
     //setting up the first three mirror planes, normal vectors in 3d, unit length
     // n1=(1,0,0)
     // n2=(n2x,n2y,0)
@@ -423,10 +448,8 @@ geometry.setup = function() {
     c4y = (cos(angle24) - c4x * n2x) / n2y;
     // distance to plane 3: c4*n3=cos(angle34)
     c4z = (cos(angle34) - c4x * n3x - c4y * n3y) / n3z;
-    console.log('spherecenter', c4x, c4y, c4z);
     // distance of sphere center to origin
     const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
-    console.log('center distance square', dis2);
     worldRadius = sqrt(abs(dis2 - 1));
     // consistency with 3 d calculations
     r4d = worldRadius;
@@ -482,6 +505,8 @@ geometry.setup = function() {
         switch (geometry.hyperbolicView) {
             case 'spherical cross section from above':
                 geometry.hyperbolicRadiusController.show();
+                r3d = worldRadius * geometry.hyperbolicRadius;
+
                 break;
             case 'spherical cross section from below':
                 geometry.hyperbolicRadiusController.show();
@@ -494,7 +519,7 @@ geometry.setup = function() {
         }
     }
     geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
-
+    r3d2 = r3d * r3d;
 };
 
 // the mapping
@@ -513,11 +538,11 @@ var change = true;
  * @method map.mapping
  * @param {object}point
  */
+
+// hyperbolic, normal view of sphere from above
+//
 map.mapping = function(point) {
-    // initial data
-    // r3d=1;
-    // console.log(r3d,unit);
-    r3d = worldRadius;
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
     // defaults
@@ -525,15 +550,24 @@ map.mapping = function(point) {
     z = 0;
     valid = 1;
     inversions = 0;
+    const maxIterations=map.maxIterations;
     // mapping
     normalView3dUpper();
-    z = -z;
-    //   stereographic3d();
     if (valid > 0) {
-        spherical();
+        if (geometry.useFourthMirror) {
+            let i = 0;
+            do {
+                spherical();
+                change = false;
+                fourthMirrorSphereInsideOut();
+                i += 1;
+            } while (change && (i < maxIterations))
+            normalize();
+            inverseStereographic3dUnit();
+        } else {
+            spherical();
+        }
     }
-
-    //    inverseStereographic3d();
     // final data
     point.x = x;
     point.y = y;

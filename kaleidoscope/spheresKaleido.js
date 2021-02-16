@@ -79,7 +79,8 @@ gui.add({
     property: 'useFourthMirror',
     labelText: '<strong>Fourth mirror</strong>',
     onChange: function() {
-        map.drawImageChanged();
+        console.log('chang')
+        map.drawMapChanged();
     }
 });
 const secondaryPlanesController = gui.add({
