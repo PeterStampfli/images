@@ -4,7 +4,8 @@ import {
     map,
     output,
     ParamGui,
-    Pixels
+    Pixels,
+    BooleanButton
 } from "../libgui/modules.js";
 
 import {
@@ -53,7 +54,7 @@ const basisController = gui.add({
     params: geometry,
     property: 'basicTriangle',
     labelText: '<strong>basis</strong>',
-    options: ['3 planes', 'tetrahedron', 'octahedron', 'ikosahedron'],
+    options: ['orthogonal planes', 'tetrahedron', 'octahedron', 'ikosahedron'],
     onChange: function() {
         console.log(geometry.basicTriangle);
         map.drawMapChanged();
@@ -71,10 +72,20 @@ basisController.add({
 geometry.basisMessage = gui.addParagraph('');
 
 // the fourth mirror
-gui.addParagraph('<strong>Fourth mirror:</strong> Order of dihedral group with other mirrors');
+BooleanButton.greenRedBackground();
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'useFourthMirror',
+    labelText: '<strong>Fourth mirror</strong>',
+    onChange: function() {
+        map.drawImageChanged();
+    }
+});
 const secondaryPlanesController = gui.add({
     type: 'button',
-    buttonText: '3 planes',
+    buttonText: 'orthogonal planes',
+    labelText: 'geometry',
     onChange: function() {
         d14Controller.setValueOnly(2);
         d24Controller.setValueOnly(2);
@@ -112,6 +123,8 @@ secondaryOctahedronController.add({
         map.drawMapChanged();
     }
 });
+gui.addParagraph('Orders of dihedral groups with first three mirrors');
+
 const d14Controller = gui.add({
     type: 'number',
     params: geometry,
@@ -230,7 +243,7 @@ geometry.sphericalViewController = gui.add({
 });
 
 // w controller, in units of worldradius, add button for switching on/off animation
-geometry.sphericalZController = gui.add({
+geometry.sphericalWController = gui.add({
     type: 'number',
     params: geometry,
     property: 'euklidicW',

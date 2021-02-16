@@ -15,6 +15,7 @@ geometry.rotation = 0;
 geometry.d14 = 2;
 geometry.d24 = 3;
 geometry.d34 = 5;
+geometry.useFourthMirror = true;
 // the views
 geometry.hyperbolicView = 'spherical cross section from above';
 geometry.hyperbolicRadius = 0.7;
@@ -348,13 +349,13 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
  * @method geometry.setup
  */
 geometry.setup = function() {
-    var d12;
+    let d12 = 5;
     let d13 = 3;
     let d23 = 2;
     switch (geometry.basicTriangle) {
-        case '3 planes':
+        case 'orthogonal planes':
             d12 = 2;
-            d23 = 2;
+            d13 = 2;
             break;
         case 'tetrahedron':
             d12 = 3;
@@ -439,21 +440,60 @@ geometry.setup = function() {
     // normalize, for spherical geometry
     n4w = worldRadius;
     // Euklidic geometry: n4w=0; fourth plane passes through (0,0,n4h)
+    // doing the different geometries
+    geometry.hideChoices();
+    let message = '';
     if (Math.abs(dis2 - 1) < 0.05) {
-        geometry.worldMessage.innerHTML = 'Euklidic';
+        message = 'Euklidic';
         worldRadius = 1;
-    } else if (dis2 < 1) {
-        geometry.worldMessage.innerHTML = 'Sperical, radius ' + worldRadius.toFixed(2);
-    } else {
-        let message = 'Hyperbolic';
-        if (honeycomb) {
-            message += ' honeycomb';
-        } else {
-            message += ' tiling';
+        geometry.euklidicViewController.show();
+        switch (geometry.euklidicView) {
+            case 'spherical cross section from above':
+                geometry.euklidicRadiusController.show();
+                break;
+            case 'spherical cross section from below':
+                geometry.euklidicRadiusController.show();
+                break;
+            case 'spherical cross section, stereographic':
+                geometry.euklidicRadiusController.show();
+                break;
+            case 'plane cross section':
+                geometry.euklidicZController.show();
         }
-        geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
+    } else if (dis2 < 1) {
+        message = 'Spherical';
+        geometry.sphericalViewController.show();
+        switch (geometry.sphericalView) {
+            case 'hyperplane cross section from above':
+                geometry.sphericalWController.show();
+                break;
+            case 'hyperplane cross section from below':
+                geometry.sphericalWController.show();
+                break;
+            case 'hyperplane cross section, stereographic':
+                geometry.sphericalWController.show();
+                break;
+            case 'plane cross section of stereographic projection':
+                geometry.sphericalZController.show();
+        }
+    } else {
+        message = honeycomb ? 'Hyperbolic honeycomb' : 'Hyperbolic tiling';
+        geometry.hyperbolicViewController.show();
+        switch (geometry.hyperbolicView) {
+            case 'spherical cross section from above':
+                geometry.hyperbolicRadiusController.show();
+                break;
+            case 'spherical cross section from below':
+                geometry.hyperbolicRadiusController.show();
+                break;
+            case 'spherical cross section, stereographic':
+                geometry.hyperbolicRadiusController.show();
+                break;
+            case 'plane cross section':
+                geometry.hyperbolicZController.show();
+        }
     }
-    r3d = worldRadius; // for test
+    geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
 
 };
 
@@ -477,6 +517,7 @@ map.mapping = function(point) {
     // initial data
     // r3d=1;
     // console.log(r3d,unit);
+    r3d = worldRadius;
     x = point.x * worldRadius;
     y = point.y * worldRadius;
     // defaults
