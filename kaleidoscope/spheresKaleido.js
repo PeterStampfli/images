@@ -247,10 +247,10 @@ geometry.sphericalViewController = gui.add({
 geometry.sphericalWController = gui.add({
     type: 'number',
     params: geometry,
-    property: 'euklidicW',
+    property: 'sphericalW',
     labelText: 'w',
     min: -1,
-    max: 1,
+  //  max: 1,
     onChange: function() {
         map.drawMapChanged();
     }
@@ -260,7 +260,7 @@ geometry.sphericalWController = gui.add({
 geometry.sphericalZController = gui.add({
     type: 'number',
     params: geometry,
-    property: 'euklidicZ',
+    property: 'sphericalZ',
     labelText: 'z',
     onChange: function() {
         map.drawMapChanged();

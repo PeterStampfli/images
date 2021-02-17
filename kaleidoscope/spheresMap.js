@@ -24,12 +24,12 @@ geometry.euklidicView = 'spherical cross section from above';
 geometry.euklidicRadius = 0.7;
 geometry.euklidicZ = 0;
 geometry.sphericalView = 'hyperplane cross section from above';
-geometry.euklidicW = 0;
-geometry.euklidicZ = 0;
+geometry.sphericalW = 0;
+geometry.sphericalZ = 0;
 
 // constants
-const eps=0.001;
-const eps2=eps*eps;
+const eps = 0.001;
+const eps2 = eps * eps;
 const pi = Math.PI;
 const toDeg = 180 / pi;
 // abreviations for functions
@@ -226,13 +226,13 @@ function inverseStereographic3d() {
 }
 
 // normalize a 3d vector
-function normalize(){
-    const r2=x*x+y*y+z*z;
-    if (r2>eps2){
-        const factor=1/Math.sqrt(r2);
-        x*=factor;
-        y*=factor;
-        z*=factor;
+function normalize() {
+    const r2 = x * x + y * y + z * z;
+    if (r2 > eps2) {
+        const factor = 1 / Math.sqrt(r2);
+        x *= factor;
+        y *= factor;
+        z *= factor;
     }
 }
 
@@ -306,6 +306,7 @@ function fourthMirrorSphereOutsideIn() {
     const dz = z - c4z;
     let d2 = dx * dx + dy * dy + dz * dz;
     if (d2 > 1) {
+        console.log('change')
         d2 = 1 / d2;
         x = c4x + dx * d2;
         y = c4y + dy * d2;
@@ -489,6 +490,10 @@ geometry.setup = function() {
         switch (geometry.sphericalView) {
             case 'hyperplane cross section from above':
                 geometry.sphericalWController.show();
+                wRef=worldRadius*geometry.sphericalW;
+                r3d=worldRadius*Math.sqrt(1-geometry.sphericalW*geometry.sphericalW);
+r3d=wRef;
+                map.mapping = sphericalHyperplaneCrossAbove;
                 break;
             case 'hyperplane cross section from below':
                 geometry.sphericalWController.show();
@@ -506,18 +511,25 @@ geometry.setup = function() {
             case 'spherical cross section from above':
                 geometry.hyperbolicRadiusController.show();
                 r3d = worldRadius * geometry.hyperbolicRadius;
-
+                map.mapping = hyperbolicSphereCrossAbove;
                 break;
             case 'spherical cross section from below':
                 geometry.hyperbolicRadiusController.show();
+                r3d = worldRadius * geometry.hyperbolicRadius;
+                map.mapping = hyperbolicSphereCrossBelow;
                 break;
             case 'spherical cross section, stereographic':
                 geometry.hyperbolicRadiusController.show();
+                r3d = worldRadius * geometry.hyperbolicRadius;
+                map.mapping = hyperbolicSphereCrossStereographic;
                 break;
             case 'plane cross section':
                 geometry.hyperbolicZController.show();
+                zRef=worldRadius*geometry.hyperbolicZ;
+                map.mapping = hyperbolicPlaneCross;
         }
     }
+    console.log(map.mapping);
     geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
     r3d2 = r3d * r3d;
 };
@@ -539,18 +551,13 @@ var change = true;
  * @param {object}point
  */
 
-// hyperbolic, normal view of sphere from above
-//
-map.mapping = function(point) {
+function hyperbolicSphereCrossAbove(point) {
     // initial data, position in uunits of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
-    // defaults
-    w = 0;
-    z = 0;
     valid = 1;
     inversions = 0;
-    const maxIterations=map.maxIterations;
+    const maxIterations = map.maxIterations;
     // mapping
     normalView3dUpper();
     if (valid > 0) {
@@ -561,16 +568,134 @@ map.mapping = function(point) {
                 change = false;
                 fourthMirrorSphereInsideOut();
                 i += 1;
-            } while (change && (i < maxIterations))
-            normalize();
-            inverseStereographic3dUnit();
+            } while (change && (i < maxIterations));
         } else {
             spherical();
         }
+        normalize();
+        inverseStereographic3dUnit();
     }
     // final data
     point.x = x;
     point.y = y;
     point.iterations = inversions;
     point.valid = valid;
-};
+}
+
+function hyperbolicSphereCrossBelow(point) {
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    // mapping
+    normalView3dUpper();
+    z = -z;
+    if (valid > 0) {
+        if (geometry.useFourthMirror) {
+            let i = 0;
+            do {
+                spherical();
+                change = false;
+                fourthMirrorSphereInsideOut();
+                i += 1;
+            } while (change && (i < maxIterations));
+        } else {
+            spherical();
+        }
+        normalize();
+        inverseStereographic3dUnit();
+    }
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+}
+
+function hyperbolicSphereCrossStereographic(point) {
+    // initial data, position in units of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    // mapping
+    stereographic3d();
+    if (geometry.useFourthMirror) {
+        let i = 0;
+        do {
+            spherical();
+            change = false;
+            fourthMirrorSphereInsideOut();
+            i += 1;
+        } while (change && (i < maxIterations));
+    } else {
+        spherical();
+    }
+    normalize();
+    inverseStereographic3dUnit();
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+}
+
+function hyperbolicPlaneCross(point) {
+    // initial data, position in units of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    z=zRef;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    // mapping
+    if (geometry.useFourthMirror) {
+        let i = 0;
+        do {
+            spherical();
+            change = false;
+            fourthMirrorSphereInsideOut();
+            i += 1;
+        } while (change && (i < maxIterations));
+    } else {
+        spherical();
+    }
+    normalize();
+    inverseStereographic3dUnit();
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+}
+
+function sphericalHyperplaneCrossAbove(point) {
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+  //  w=wRef;
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    // mapping
+    normalView3dUpper();
+    if (valid > 0) {
+        if (geometry.useFourthMirror) {
+            let i = 0;
+            do {
+                spherical();
+                change = false;
+                fourthMirrorSphereOutsideIn();
+                i += 1;
+            } while (change && (i < maxIterations));
+        } else {
+            spherical();
+        }
+        normalize();
+        inverseStereographic3dUnit();
+    }
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+}
