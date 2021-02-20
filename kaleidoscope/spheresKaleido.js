@@ -79,7 +79,6 @@ gui.add({
     property: 'useFourthMirror',
     labelText: '<strong>Fourth mirror</strong>',
     onChange: function() {
-        console.log('chang')
         map.drawMapChanged();
     }
 });
@@ -161,6 +160,65 @@ const d34Controller = gui.add({
 });
 geometry.fourthMessage = gui.addParagraph('');
 geometry.worldMessage = gui.addParagraph('');
+
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'useFifthMirror',
+    labelText: '<strong>Fifth mirror</strong>',
+    onChange: function() {
+        console.log('chang5');
+        map.drawMapChanged();
+    }
+});
+
+gui.addParagraph('Orders of dihedral groups with first four mirrors');
+
+const d15Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd15',
+    labelText: 'mirror 1',
+    min: 2,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+const d25Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd25',
+    labelText: 'mirror 2',
+    min: 2,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+const d35Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd35',
+    labelText: 'mirror 3',
+    min: 2,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+const d45Controller = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'd45',
+    labelText: 'mirror 4',
+    min: 2,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
 
 // hyperbolic choices
 //==========================================
@@ -250,7 +308,7 @@ geometry.sphericalWController = gui.add({
     property: 'sphericalW',
     labelText: 'w',
     min: -1,
-  //  max: 1,
+    //  max: 1,
     onChange: function() {
         map.drawMapChanged();
     }

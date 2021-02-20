@@ -12,10 +12,15 @@ export const geometry = {};
 // the geometry
 geometry.basicTriangle = 'ikosahedron';
 geometry.rotation = 0;
+geometry.useFourthMirror = true;
 geometry.d14 = 2;
 geometry.d24 = 3;
 geometry.d34 = 5;
-geometry.useFourthMirror = true;
+geometry.useFifthMirror = true;
+geometry.d15 = 3;
+geometry.d25 = 3;
+geometry.d35 = 3;
+geometry.d45 = 3;
 // the views
 geometry.hyperbolicView = 'spherical cross section from above';
 geometry.hyperbolicRadius = 0.7;
@@ -63,7 +68,7 @@ var r3d = 1;
 var r3d2 = r3d * r3d;
 // radius of 4d sphere for spherical case, use 3d worldradius for consistency
 var r4d = 1;
-var r4d2=r4d*r4d;
+var r4d2 = r4d * r4d;
 // reference value for w-coordinate, for cross-sections of the 4d sphere
 // in units of r4d, going from -1 to +1
 var wRef = 0;
@@ -244,7 +249,7 @@ function inverseStereographic3dUnit() {
     const factor = 1 / (1 + z);
     x *= factor;
     y *= factor;
-    z=0;
+    z = 0;
 }
 
 // mirror images at the third plane, part of the 3d spherical tiling
@@ -313,7 +318,7 @@ function fourthMirrorSphereOutsideIn() {
         y = c4y + dy * d2;
         z = c4z + dz * d2;
         inversions += 1;
-        valid=-1;
+        valid = -1;
         change = true;
     }
 }
@@ -340,7 +345,7 @@ function fourthMirror() {
 // normal view of 3d sphere, resulting from intersecting the 4d sphere with w=wRef
 function normalView4dUpper() {
     w = wRef;
-    const r2 = x * x + y * y+w*w;
+    const r2 = x * x + y * y + w * w;
     if (r2 > r4d2) {
         valid = -1;
     } else {
@@ -355,8 +360,8 @@ function inverseStereographic4d() {
     const factor = 1 / (1 + w / r4d);
     x *= factor;
     y *= factor;
-    z*=factor;
-    w=0;
+    z *= factor;
+    w = 0;
 }
 
 
@@ -367,6 +372,10 @@ function twoMirrorMessage(n1, n2, d) {
     return 'mirrors ' + n1 + ' and ' + n2 + ': d<sub>' + d + '</sub>, angle ' + round(180 / d) + '<sup>o</sup>';
 }
 
+// message for a vertex of three mirrors
+// and adding up different types
+var nMaterialVertices, nIdealVertices, nHyperIdealVertices;
+
 function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
     const sum = round(180 / d12 + 180 / d13 + 180 / d23);
     let message = 'mirrors ' + n1 + ', ' + n2 + ' and ' + n3 + ': ';
@@ -375,10 +384,13 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
     message += '&nbsp; sum of angles ' + sum + '<sup>o</sup>, ';
     if (sum === 180) {
         message += 'euklidic';
+        nIdealVertices += 1;
     } else if (sum < 180) {
         message += 'hyperbolic';
+        nHyperIdealVertices += 1;
     } else {
         message += 'spherical';
+        nMaterialVertices += 1;
     }
     message += ' triangle';
     return message;
@@ -410,6 +422,9 @@ geometry.setup = function() {
     let d14 = geometry.d14;
     let d24 = geometry.d24;
     let d34 = geometry.d34;
+    nIdealVertices = 0;
+    nMaterialVertices = 0;
+    nHyperIdealVertices = 0;
     let basisMessage = twoMirrorMessage(1, 2, d12) + '<br>';
     basisMessage += twoMirrorMessage(1, 2, d12) + '<br>';
     basisMessage += twoMirrorMessage(2, 3, d23) + '<br>';
@@ -467,8 +482,8 @@ geometry.setup = function() {
     worldRadius = sqrt(abs(dis2 - 1));
     // consistency with 3 d calculations
     r4d = worldRadius;
-    console.log('worldradius',worldRadius);
-    console.log('cen4',c4x,c4y,c4z);
+    console.log('worldradius', worldRadius);
+    console.log('cen4', c4x, c4y, c4z);
     // for spherical geometry: fourth mirror as a 4d plane
     // for Euklidic geometry: fourth mirror as a 3d plane
     // n4=(n4x,n4y,n4z,n4w)
@@ -483,7 +498,7 @@ geometry.setup = function() {
     geometry.hideChoices();
     let message = '';
     if (Math.abs(dis2 - 1) < 0.05) {
-        message = 'Euklidic';
+        message = 'Four mirrors: Euklidic';
         worldRadius = 1;
         geometry.euklidicViewController.show();
         switch (geometry.euklidicView) {
@@ -500,18 +515,18 @@ geometry.setup = function() {
                 geometry.euklidicZController.show();
         }
     } else if (dis2 < 1) {
-        message = 'Spherical';
+        message = 'Four mirrors: Spherical';
         geometry.sphericalViewController.show();
-        r4d=worldRadius;
+        r4d = worldRadius;
         // invert circle position because it is now inverting outside->in
-        c4x=-c4x;
-        c4y=-c4y;
-        c4z=-c4z;
+        c4x = -c4x;
+        c4y = -c4y;
+        c4z = -c4z;
         switch (geometry.sphericalView) {
             case 'hyperplane cross section from above':
                 geometry.sphericalWController.show();
-                wRef=worldRadius*geometry.sphericalW;
-                r3d=worldRadius*Math.sqrt(1-geometry.sphericalW*geometry.sphericalW);
+                wRef = worldRadius * geometry.sphericalW;
+                r3d = worldRadius * Math.sqrt(1 - geometry.sphericalW * geometry.sphericalW);
                 map.mapping = sphericalHyperplaneCrossAbove;
                 break;
             case 'hyperplane cross section from below':
@@ -522,11 +537,20 @@ geometry.setup = function() {
                 break;
             case 'plane cross section of stereographic projection':
                 geometry.sphericalZController.show();
-                zRef=worldRadius*geometry.sphericalZ;
+                zRef = worldRadius * geometry.sphericalZ;
                 map.mapping = sphericalPlaneCross;
         }
     } else {
-        message = honeycomb ? 'Hyperbolic honeycomb' : 'Hyperbolic tiling';
+        message = 'Four mirrors: Hyperbolic with';
+        if (nMaterialVertices > 0) {
+            message += '<br>' + nMaterialVertices + ' material vertices';
+        }
+        if (nIdealVertices > 0) {
+            message += '<br>' + nIdealVertices + ' ideal vertices';
+        }
+        if (nHyperIdealVertices > 0) {
+            message += '<br>' + nHyperIdealVertices + ' hyperideal vertices';
+        }
         geometry.hyperbolicViewController.show();
         switch (geometry.hyperbolicView) {
             case 'spherical cross section from above':
@@ -546,14 +570,14 @@ geometry.setup = function() {
                 break;
             case 'plane cross section':
                 geometry.hyperbolicZController.show();
-                zRef=worldRadius*geometry.hyperbolicZ;
+                zRef = worldRadius * geometry.hyperbolicZ;
                 map.mapping = hyperbolicPlaneCross;
         }
     }
     console.log(map.mapping);
     geometry.worldMessage.innerHTML = '<strong>' + message + '</strong>';
     r3d2 = r3d * r3d;
-    r4d2=r4d*r4d;
+    r4d2 = r4d * r4d;
 };
 
 // the mapping
@@ -667,7 +691,7 @@ function hyperbolicPlaneCross(point) {
     // initial data, position in units of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
-    z=zRef;
+    z = zRef;
     inversions = 0;
     const maxIterations = map.maxIterations;
     // mapping
@@ -695,7 +719,7 @@ function sphericalPlaneCross(point) {
     // initial data, position in units of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
-    z=zRef;
+    z = zRef;
     inversions = 0;
     const maxIterations = map.maxIterations;
     // mapping
@@ -718,12 +742,11 @@ function sphericalPlaneCross(point) {
     point.iterations = inversions;
 }
 
-
 function sphericalHyperplaneCrossAbove(point) {
     // initial data, position in uunits of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
-    w=wRef;
+    w = wRef;
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
