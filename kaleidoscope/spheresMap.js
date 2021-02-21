@@ -1,7 +1,8 @@
 /* jshint esversion: 6 */
 
 import {
-    map
+    map,
+    log
 } from "../libgui/modules.js";
 
 /**
@@ -401,6 +402,7 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
  * @method geometry.setup
  */
 geometry.setup = function() {
+    log();
     let d12 = 5;
     let d13 = 3;
     let d23 = 2;

@@ -5,7 +5,8 @@ import {
     output,
     ParamGui,
     Pixels,
-    BooleanButton
+    BooleanButton,
+    Logger
 } from "../libgui/modules.js";
 
 import {
@@ -15,6 +16,8 @@ import {
 // basic things for screen output and mouse input
 // setting up the gui, messages
 //==============================================================
+
+Logger.spacing = 2;
 
 // setting up the canvas and its gui
 const gui = new ParamGui({

@@ -1,5 +1,6 @@
 /**
  * showing messages in a container div
+ * typically use the function log() that creates a logger and logs
  * @constructor Logger
  * @param {ParamGui} gui - there the logger is
  * @param {dom element} container - a div
@@ -79,10 +80,10 @@ Logger.prototype.destroy = function() {
 };
 
 /**
- * log messages
+ * log messages/create logger
  * first message creates the logger in its own gui
  * @function log
- * @param {string} message
+ * @param {string} message - text to add, no message clears the log
  */
 let logger = false;
 
@@ -97,7 +98,10 @@ export function log(message) {
             closed:false
         }).addLogger();
         logger.container.style.height = "";
-
     }
+    if (arguments.length===0){
+        logger.clear();
+    } else {
     logger.log(message);
+}
 }
