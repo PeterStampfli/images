@@ -239,7 +239,9 @@ tiles.fillQuarterSquares = function() {
         output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
         canvasContext.fill();
         output.makePath(trX, trY, blX, blY, brX, brY);
+        canvasContext.lineCap='butt';
         canvasContext.stroke();
+                canvasContext.lineCap='round';
     }
 };
 

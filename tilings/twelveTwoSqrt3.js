@@ -59,7 +59,7 @@ tiling.gridColor = '#ff8800';
 // geometry
 tiling.fixedSize = true;
 tiling.maxGen = 1;
-tiling.initial = 'big square';
+tiling.initial = 'rhomb';
 
 const colorController = {
     type: 'color',
@@ -200,6 +200,7 @@ const initialController = gui.add({
     options: {
         'rhomb': 'rhomb',
         'triangle': 'triangle',
+        'small square': 'small square',
         'square': 'big square',
         'equilateral triangle': 'full triangle',
         'dodecagon': 'dodecagon'
@@ -241,8 +242,9 @@ fixedSizeController.addHelp('Choose if the basic tiles have fixed size or the to
 const rt32 = 0.5 * Math.sqrt(3);
 const rt3 = Math.sqrt(3);
 
-// actually the minimum square, center of full square at (trX,trY) 
+// actually the quarter square, center of full square at (trX,trY) 
 //  corner at (blX,blY) 
+/*
 function square(gen, blX, blY, trX, trY) {
     // make center and missing corners
     let cX = 0.5 * (blX + trX);
@@ -277,6 +279,49 @@ function square(gen, blX, blY, trX, trY) {
         }
     }
 }
+*/
+
+// actually the quarter square, center of full square at (trX,trY) 
+//  corner at (blX,blY) 
+// the maximal non mirrorsymmetric
+
+function square(gen, blX, blY, trX, trY) {
+    // make center and missing corners
+    let cX = 0.5 * (blX + trX);
+    let cY = 0.5 * (blY + trY);
+    const dX = trX - cX;
+    const dY = trY - cY;
+    const brX = cX + dY;
+    const brY = cY - dX;
+    const tlX = cX - dY;
+    const tlY = cY + dX;
+    // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
+    // 0.535898385 = 2 / (2 + rt3);
+    const upX = 0.535898385 * (tlX - blX);
+    const upY = 0.535898385 * (tlY - blY);
+    const rightX = upY;
+    const rightY = -upX;
+    if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
+        if (gen >= tiling.maxGen) {
+            tiles.addQuarterSquare(trX, trY, blX, blY);
+        } else {
+            gen += 1;
+            square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
+            triangle(gen, tlX, tlY, tlX + 0.5 * rightX, tlY + 0.5 * rightY, blX + upX, blY + upY);
+            triangle(gen, brX, brY, brX + 0.5 * upX, brY + 0.5 * upY, blX + rightX, blY + rightY);
+            triangle(gen, trX - 0.5 * upX, trY - 0.5 * upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), brX + 0.5 * upX, brY + 0.5 * upY);
+            triangle(gen, trX - 0.5 * rightX, trY - 0.5 * rightY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
+            const cX = tlX + 0.5 * rightX;
+            const cY = tlY + 0.5 * rightY;
+            rhomb(gen, cX, cY, blX, blY);
+            rhomb(gen, cX, cY, blX + rightX, blY + rightY);
+            rhomb(gen, cX, cY, brX + 0.5 * upX, brY + 0.5 * upY);
+            fullTriangle(gen, blX, blY, blX + rightX, blY + rightY, cX - upX, cY - upY);
+            fullTriangle(gen, blX + rightX, blY + rightY, blX + rightX + upX, blY + rightY + upY, brX + 0.5 * upX, brY + 0.5 * upY);
+        }
+    }
+}
+
 
 function fullSquare(gen, blX, blY, trX, trY) {
     // make center and missing corners
@@ -295,6 +340,7 @@ function fullSquare(gen, blX, blY, trX, trY) {
 }
 
 // the rhomb, coordinates of the corners with acute angles
+/*
 function rhomb(gen, bX, bY, tX, tY) {
     // make center and missing corners
     const cX = 0.5 * (bX + tX);
@@ -351,6 +397,93 @@ function rhomb(gen, bX, bY, tX, tY) {
             triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
             triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
             fullTriangle(gen, rX, rY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY, tcX, tcY);
+        }
+    }
+}
+*/
+
+// the rhomb, coordinates of the corners with acute angles
+// no square, asymmetric
+function rhomb(gen, bX, bY, tX, tY) {
+    // make center and missing corners
+    const cX = 0.5 * (bX + tX);
+    const cY = 0.5 * (bY + tY);
+    // 0.378937382=tan(Math.PI/12)*sqrt(2);
+    let upX = 0.378937382 * (cX - bX);
+    let upY = 0.378937382 * (cY - bY);
+    let rightX = upY;
+    let rightY = -upX;
+    let rX = cX + 0.7071 * rightX;
+    let rY = cY + 0.7071 * rightY;
+    let lX = cX - 0.7071 * rightX;
+    let lY = cY - 0.7071 * rightY;
+    if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
+        if (gen >= tiling.maxGen) {
+            tiles.addRhomb30(bX, bY, tX, tY);
+        } else {
+            if (tiling.fullRosettes) {
+                let angle = Math.floor(Math.atan2(tY - bY, tX - bX) / Math.PI * 6);
+                if (angle & 1) {
+                    console.log('flip');
+                    let h = lX;
+                    lX = rX;
+                    rX = h;
+                    h = lY;
+                    lY = rY;
+                    rY = h;
+                    h = bX;
+                    bX = tX;
+                    tX = h;
+                    h = bY;
+                    bY = tY;
+                    tY = h;
+                    upX = -upX;
+                    upY = -upY;
+                    rightX = -rightX;
+                    rightY = -rightY;
+                }
+            }
+            gen += 1;
+            // 0.267949192=1/(2+rt3)
+            rightX = 0.267949192 * (rX - bX);
+            rightY = 0.267949192 * (rY - bY);
+            upX = -rightY;
+            upY = rightX;
+            rhomb(gen, rX, rY, lX, lY);
+            const bbcX = bX + rightX * (1 + rt32) + 0.5 * upX;
+            const bbcY = bY + rightY * (1 + rt32) + 0.5 * upY;
+            const ttcX = tX - rightX * (1 + rt32) - 0.5 * upX;
+            const ttcY = tY - rightY * (1 + rt32) - 0.5 * upY;
+            rhomb(gen, bX, bY, bbcX, bbcY);
+            rhomb(gen, tX, tY, ttcX, ttcY);
+            const bcX = rX - 0.5 * rightX + rt32 * upX;
+            const bcY = rY - 0.5 * rightY + rt32 * upY;
+            const tcX = lX + 0.5 * rightX - rt32 * upX;
+            const tcY = lY + 0.5 * rightY - rt32 * upY;
+            let midX = 0.5 * (bX + rX);
+            let midY = 0.5 * (bY + rY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rightX, bY + rightY);
+            triangle(gen, midX, midY, bbcX, bbcY, rX - rightX, rY - rightY);
+            midX = 0.5 * (lX + tX);
+            midY = 0.5 * (lY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
+            triangle(gen, midX, midY, ttcX, ttcY, lX + rightX, lY + rightY);
+            fullTriangle(gen, rX, rY, tcX, tcY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            midX = 0.5 * (lX + bX);
+            midY = 0.5 * (lY + bY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rt32 * rightX + 0.5 * upX, bY + rt32 * rightY + 0.5 * upY);
+            triangle(gen, midX, midY, bbcX, bbcY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX, lY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bcX, bcY);
+            midX = 0.5 * (rX + tX);
+            midY = 0.5 * (rY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
+            triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            rhomb(gen, rX, rY, bbcX, bbcY);
+            rhomb(gen, lX, lY, ttcX, ttcY);
+            rhomb(gen, lX,lY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
+            fullTriangle(gen, ttcX, ttcY,ttcX-rightX, ttcY-rightY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
         }
     }
 }
@@ -438,26 +571,27 @@ basicX.length = 15;
 const basicY = [];
 basicY.length = 15;
 
-for (let i = 0; i < 15; i++) {
-    basicX[i] = Math.cos(Math.PI * i / 6) * size;
-    basicY[i] = Math.sin(Math.PI * i / 6) * size;
-}
 
 const secondX = [];
 const secondY = [];
 secondX.length = 14;
 secondY.length = 14;
 
-for (let i = 0; i < 14; i++) {
-    secondX[i] = basicX[i] + basicX[i + 1];
-    secondY[i] = basicY[i] + basicY[i + 1];
-}
-
 function tile() {
     let s = 4 * size;
     if (tiling.fixedSize) {
         s *= Math.pow(2 + Math.sqrt(3), tiling.maxGen - 2);
     }
+    for (let i = 0; i < 15; i++) {
+        basicX[i] = Math.cos(Math.PI * i / 6) * s;
+        basicY[i] = Math.sin(Math.PI * i / 6) * s;
+    }
+
+    for (let i = 0; i < 14; i++) {
+        secondX[i] = basicX[i] + basicX[i + 1];
+        secondY[i] = basicY[i] + basicY[i + 1];
+    }
+
     const r = s / Math.sqrt(3);
     const z = s * Math.cos(Math.PI / 12);
     const w = s * Math.sin(Math.PI / 12);
