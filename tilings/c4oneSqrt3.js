@@ -25,16 +25,14 @@ output.addGrid();
 // parameters for drawing
 const tiling = {};
 // colors
-tiling.rhomb30Color = '#ff0000';
+tiling.rhombColor = '#ff0000';
 tiling.squareColor = '#00ff00';
 tiling.triangleRColor = '#0000ff';
 tiling.triangleLColor = '#00ffff';
-tiling.marker = true;
-tiling.markerSize = 1;
-tiling.markerColor = '#888888ff';
 tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
 tiling.border = true;
+tiling.subTriangle = true;
 tiling.hyperBorderColor = '#000000';
 tiling.hyperBorderWidth = 3;
 tiling.hyperBorder = false;
@@ -78,12 +76,12 @@ gui.add({
             gridColorController.hide();
         }
         if (tiling.decoration === 'solid color') {
-            rhomb30ColorController.show();
+            rhombColorController.show();
             squareColorController.show();
             triangleRColorController.show();
             triangleLColorController.show();
         } else {
-            rhomb30ColorController.hide();
+            rhombColorController.hide();
             squareColorController.hide();
             triangleRColorController.hide();
             triangleLColorController.hide();
@@ -104,9 +102,9 @@ const gridWidthController = gui.add(widthController, {
 gridWidthController.hide();
 gridColorController.hide();
 
-const rhomb30ColorController = gui.add(colorController, {
-    property: 'rhomb30Color',
-    labelText: 'rhomb30'
+const rhombColorController = gui.add(colorController, {
+    property: 'rhombColor',
+    labelText: 'rhomb'
 });
 
 const squareColorController = gui.add(colorController, {
@@ -123,12 +121,6 @@ const triangleLColorController = gui.add(colorController, {
     property: 'triangleLColor',
     labelText: 'triangleL'
 });
-
-const markerColorController = gui.add(colorController, {
-    property: 'markerColor',
-    labelText: 'marker'
-});
-markerColorController.hide();
 
 BooleanButton.greenRedBackground();
 const borderController = gui.add({
@@ -150,6 +142,15 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
+const subTriangleController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    property: 'subTriangle',
+    onChange: function() {
+        draw();
+    }
+});
+
 const hyperBorderController = gui.add({
     type: 'boolean',
     params: tiling,
@@ -169,32 +170,13 @@ gui.add(colorController, {
     labelText: 'color'
 });
 
-const markerController = gui.add({
-    type: 'boolean',
-    params: tiling,
-    property: 'marker',
-    onChange: function() {
-        draw();
-    }
-});
-
-markerController.add(widthController, {
-    property: 'markerSize',
-    labelText: 'size'
-});
-
-gui.add(colorController, {
-    property: 'markerColor',
-    labelText: 'color'
-});
-
 gui.addParagraph('<strong>tiling</strong>');
 
 gui.add({
     type: 'selection',
     params: tiling,
     property: 'initial',
-    options: ['quarter square', 'rhomb30', 'triangleR', 'triangleL', 'square','dodecagon'],
+    options: ['quarter square', 'rhomb', 'triangleR', 'triangleL', 'square', 'dodecagon'],
     onChange: function() {
         draw();
     }
@@ -245,7 +227,7 @@ function quarterSquare(gen, blX, blY, trX, trY) {
             cX = brX + 0.5 * (upX - rightX);
             cY = brY + 0.5 * (upY - rightY);
 
-            rhomb30(gen, blX, blY, trX, trY);
+            rhomb(gen, blX, blY, trX, trY);
         }
     }
 }
@@ -295,12 +277,11 @@ function square(gen, blX, blY, trX, trY) {
                 }
             }
         } else {
-            gen += 1;
             quarterSquare(gen, cX, cY, blX, blY);
             quarterSquare(gen, cX, cY, brX, brY);
             quarterSquare(gen, cX, cY, tlX, tlY);
             quarterSquare(gen, cX, cY, trX, trY);
-
+            gen += 1;
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -312,7 +293,7 @@ function square(gen, blX, blY, trX, trY) {
 }
 
 // the 30 degrees rhomb, coordinates of the corners with acute angles
-function rhomb30(gen, bX, bY, tX, tY) {
+function rhomb(gen, bX, bY, tX, tY) {
     // make center and missing corners
     const cX = 0.5 * (bX + tX);
     const cY = 0.5 * (bY + tY);
@@ -338,7 +319,7 @@ function rhomb30(gen, bX, bY, tX, tY) {
             } else {
                 switch (tiling.decoration) {
                     case 'solid color':
-                        canvasContext.fillStyle = tiling.rhomb30Color;
+                        canvasContext.fillStyle = tiling.rhombColor;
                         output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
                         canvasContext.fill();
                         break;
@@ -365,8 +346,8 @@ function rhomb30(gen, bX, bY, tX, tY) {
             const bcY = cY - 0.7071 * upY;
             const tcX = cX + 0.7071 * upX;
             const tcY = cY + 0.7071 * upY;
-            rhomb30(gen, bX, bY, bcX, bcY);
-            rhomb30(gen, tX, tY, tcX, tcY);
+            rhomb(gen, bX, bY, bcX, bcY);
+            rhomb(gen, tX, tY, tcX, tcY);
             //   0.3660254=1/(1+sqrt(3))
             //   0.6339745=sqrt(3)/(1+sqrt(3))
             square(gen, rX, rY, lX, lY);
@@ -384,7 +365,7 @@ function rhomb30(gen, bX, bY, tX, tY) {
 
 // third of a triangle, substitution triangles at right
 // base a to b
-// a is corner with rhomb30, b has triangles, c has triangle, apex
+// a is corner with rhomb, b has triangles, c has triangle, apex
 // abc winds right or left as seen from center of triangle
 function triangleR(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
@@ -395,21 +376,16 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
         const upX = -rightY;
         const upY = rightX;
         if (gen >= tiling.maxGen) {
-            if (tiling.marker) {
-                canvasContext.fillStyle = tiling.markerColor;
-                const s = tiling.markerSize;
-                // marker at a for left triangle
-                // right triangle has marker at b
-                output.makePath(aX, aY, aX + s * rightX, aY + s * rightY, aX + s * 0.5 * rightX + s * rt32 * upX, aY + s * 0.5 * rightY + s * rt32 * upY);
-                canvasContext.fill();
-            }
             if (tiling.drawBorders) {
                 if (tiling.border) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
-                    output.makePath(aX, aY, bX, bY, cX, cY);
-                    canvasContext.closePath();
+                    output.makePath(aX, aY, bX, bY);
                     canvasContext.stroke();
+                    if (tiling.subTriangle) {
+                        output.makePath(aX, aY, cX, cY, bX, bY);
+                        canvasContext.stroke();
+                    }
                 }
             } else {
                 switch (tiling.decoration) {
@@ -421,19 +397,14 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
                     case 'grid':
                         canvasContext.strokeStyle = tiling.gridColor;
                         output.setLineWidth(tiling.gridWidth);
-                        const zX = 0.3333 * (aX + bX + cX);
-                        const zY = 0.3333 * (aY + bY + cY);
                         // redo grid
-                        output.makePath(0.5 * (aX + bX), 0.5 * (aY + bY), zX, zY, 0.5 * (aX + cX), 0.5 * (aY + cY));
-                        canvasContext.stroke();
-                        output.makePath(0.5 * (cX + bX), 0.5 * (cY + bY), zX, zY);
+                        output.makePath(0.5 * (aX + bX), 0.5 * (aY + bY), cX, cY);
                         canvasContext.stroke();
                         break;
                 }
             }
         } else {
             gen += 1;
-
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -484,18 +455,18 @@ function tile() {
         case 'square':
             square(0, -s / 2, -s / 2, s / 2, s / 2);
             break;
-        case 'rhomb30':
-            rhomb30(0, -z, 0, z, 0);
+        case 'rhomb':
+            rhomb(0, -z, 0, z, 0);
             break;
         case 'triangleR':
-            triangleR(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+            triangleR(0, -s / 2, 0, s / 2, 0, 0, rt32 / 3 * s);
             break;
         case 'triangleL':
             triangleL(0, -rt32 * r, -r / 2, 0, r, rt32 * r, -r / 2);
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
-                rhomb30(0, 0, 0, secondX[i], secondY[i]);
+                rhomb(0, 0, 0, secondX[i], secondY[i]);
             }
             break;
     }
@@ -510,7 +481,7 @@ function draw() {
     if (tiling.decoration !== 'none') {
         tile();
     }
-    if (tiling.hyperBorder || tiling.border || tiling.marker) {
+    if (tiling.hyperBorder || tiling.border) {
         tiling.drawBorders = true;
         tile();
     }
