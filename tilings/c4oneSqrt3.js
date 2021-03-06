@@ -221,13 +221,19 @@ function quarterSquare(gen, blX, blY, trX, trY) {
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-
         } else {
             gen += 1;
-            cX = brX + 0.5 * (upX - rightX);
-            cY = brY + 0.5 * (upY - rightY);
-
+            cX = blX + rt32 * rightX + 0.5 * upX;
+            cY = blY + rt32 * rightY + 0.5 * upY;
+            triangleL(gen, cX, cY, blX, blY);
+            triangleL(gen, cX - upX, cY - upY, cX, cY);
+            triangleR(gen, blX, blY, cX - upX, cY - upY);
+            triangleR(gen, trX, trY, cX, cY);
+            triangleR(gen, cX, cY, cX + rightX, cY + rightY);
+            triangleL(gen, cX + rightX, cY + rightY, cX, cY);
+            triangleR(gen, cX, cY, trX - rt3 * upX, trY - rt3 * upY);
             rhomb(gen, blX, blY, trX, trY);
+            rhomb(gen, blX - 0.5 * rightX + rt32 * upX, blY - 0.5 * rightY + rt32 * upY, trX, trY);
         }
     }
 }
@@ -348,10 +354,23 @@ function rhomb(gen, bX, bY, tX, tY) {
             const tcY = cY + 0.7071 * upY;
             rhomb(gen, bX, bY, bcX, bcY);
             rhomb(gen, tX, tY, tcX, tcY);
+            square(gen, rX, rY, lX, lY);
             //   0.3660254=1/(1+sqrt(3))
             //   0.6339745=sqrt(3)/(1+sqrt(3))
-            square(gen, rX, rY, lX, lY);
-
+            const brX = 0.3660254 * (rX - bX);
+            const brY = 0.3660254 * (rY - bY);
+            triangleR(gen, bcX, bcY, bX + brX, bY + brY);
+            triangleR(gen, bcX, bcY, bcX + brY, bcY - brX);
+            triangleL(gen, bcX + brY, bcY - brX, bcX, bcY);
+            triangleL(gen, rX, rY, bcX, bcY);
+            triangleL(gen, bcX - brX, bcY - brY, bcX, bcY);
+            triangleL(gen, bcX, bcY, lX, lY);
+            triangleL(gen, tcX, tcY, rX, rY);
+            triangleL(gen, tcX + brX, tcY + brY, tcX, tcY);
+            triangleL(gen, lX, lY, tcX, tcY);
+            triangleR(gen, tcX, tcY, tX - brX, tY - brY);
+            triangleR(gen, tcX, tcY, tcX - brY, tcY + brX);
+            triangleL(gen, tcX - brY, tcY + brX, tcX, tcY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -365,16 +384,18 @@ function rhomb(gen, bX, bY, tX, tY) {
 
 // third of a triangle, substitution triangles at right
 // base a to b
-// a is corner with rhomb, b has triangles, c has triangle, apex
-// abc winds right or left as seen from center of triangle
-function triangleR(gen, aX, aY, bX, bY, cX, cY) {
+// a is corner with rhomb, b has triangles
+function triangleR(gen, aX, aY, bX, bY) {
+    const rightX = 0.366025404 * (bX - aX);
+    const rightY = 0.366025404 * (bY - aY);
+    const upX = -rightY;
+    const upY = rightX;
+    // 0.788675135=(1+rt3)/2/rt3
+    const cX = 0.5 * (aX + bX) + 0.788675135 * upX;
+    const cY = 0.5 * (aY + bY) + 0.788675135 * upY;
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         // make directions
         // 0.366025404 = 1 / (1 + rt3);
-        const rightX = 0.366025404 * (bX - aX);
-        const rightY = 0.366025404 * (bY - aY);
-        const upX = -rightY;
-        const upY = rightX;
         if (gen >= tiling.maxGen) {
             if (tiling.drawBorders) {
                 if (tiling.border) {
@@ -391,6 +412,62 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
                 switch (tiling.decoration) {
                     case 'solid color':
                         canvasContext.fillStyle = tiling.triangleRColor;
+                        output.makePath(aX, aY, bX, bY, cX, cY);
+                        canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        // redo grid
+                        output.makePath(0.5 * (aX + bX), 0.5 * (aY + bY), cX, cY);
+                        canvasContext.stroke();
+                        break;
+                }
+            }
+        } else {
+            gen += 1;
+            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+                canvasContext.strokeStyle = tiling.hyperBorderColor;
+                output.setLineWidth(tiling.hyperBorderWidth);
+                output.makePath(aX, aY, bX, bY, cX, cY);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
+        }
+    }
+}
+
+
+// third of a triangle, substitution triangles at left
+// base a to b
+// a is corner with rhomb, b has triangles
+function triangleL(gen, aX, aY, bX, bY) {
+    const rightX = 0.366025404 * (bX - aX);
+    const rightY = 0.366025404 * (bY - aY);
+    const upX = -rightY;
+    const upY = rightX;
+    // 0.788675135=(1+rt3)/2/rt3
+    const cX = 0.5 * (aX + bX) + 0.788675135 * upX;
+    const cY = 0.5 * (aY + bY) + 0.788675135 * upY;
+    if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
+        // make directions
+        // 0.366025404 = 1 / (1 + rt3);
+        if (gen >= tiling.maxGen) {
+            if (tiling.drawBorders) {
+                if (tiling.border) {
+                    canvasContext.strokeStyle = tiling.borderColor;
+                    output.setLineWidth(tiling.borderWidth);
+                    output.makePath(aX, aY, bX, bY);
+                    canvasContext.stroke();
+                    if (tiling.subTriangle) {
+                        output.makePath(aX, aY, cX, cY, bX, bY);
+                        canvasContext.stroke();
+                    }
+                }
+            } else {
+                switch (tiling.decoration) {
+                    case 'solid color':
+                        canvasContext.fillStyle = tiling.triangleLColor;
                         output.makePath(aX, aY, bX, bY, cX, cY);
                         canvasContext.fill();
                         break;
