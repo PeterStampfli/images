@@ -220,8 +220,7 @@ function quarterSquare(gen, blX, blY, trX, trY) {
     const rightX = upY;
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
-        if (gen >= tiling.maxGen) {
-        } else {
+        if (gen >= tiling.maxGen) {} else {
             gen += 1;
             cX = blX + rt32 * rightX + 0.5 * upX;
             cY = blY + rt32 * rightY + 0.5 * upY;
@@ -426,6 +425,10 @@ function triangleR(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
+            const cbX = bX - rt32 * rightX + 0.5 * upX;
+            const cbY = bY - rt32 * rightY + 0.5 * upY;
+            triangleL(gen, cbX - rightX, cbY - rightY, cbX, cbY);
+            rhomb(gen, aX, aY, cbX, cbY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -436,7 +439,6 @@ function triangleR(gen, aX, aY, bX, bY) {
         }
     }
 }
-
 
 // third of a triangle, substitution triangles at left
 // base a to b
