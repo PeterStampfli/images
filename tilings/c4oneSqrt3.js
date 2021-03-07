@@ -429,6 +429,10 @@ function triangleR(gen, aX, aY, bX, bY) {
             const cbY = bY - rt32 * rightY + 0.5 * upY;
             triangleL(gen, cbX - rightX, cbY - rightY, cbX, cbY);
             rhomb(gen, aX, aY, cbX, cbY);
+            triangleR(gen, cbX, cbY, aX + rightX, aY + rightY);
+            triangleL(gen, cbX - upX, cbY - upY, cbX, cbY);
+            triangleR(gen, cbX, cbY, cbX - upX, cbY - upY);
+            triangleR(gen, bX, bY, cbX, cbY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -484,6 +488,12 @@ function triangleL(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
+            const abX = aX + rt32 * rightX + 0.5 * upX;
+            const abY = aY + rt32 * rightY + 0.5 * upY;
+            triangleR(gen,abX,abY,abX+rightX,abY+rightY);
+            rhomb(gen,abX,abY,bX,bY);
+            triangleL(gen,abX,abY,aX,aY);
+            triangleL(gen,bX-rightX,bY-rightY,abX,abY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -494,7 +504,6 @@ function triangleL(gen, aX, aY, bX, bY) {
         }
     }
 }
-
 
 const size = 50; //length of side
 
@@ -541,7 +550,7 @@ function tile() {
             triangleR(0, -s / 2, 0, s / 2, 0, 0, rt32 / 3 * s);
             break;
         case 'triangleL':
-            triangleL(0, -rt32 * r, -r / 2, 0, r, rt32 * r, -r / 2);
+            triangleL(0, -s / 2, 0, s / 2, 0, 0, rt32 / 3 * s);
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
