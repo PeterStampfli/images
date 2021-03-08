@@ -11,9 +11,7 @@ const gui = new ParamGui({
     closed: false
 });
 
-output.createCanvas(gui, {
-    name: 'canvas control',
-});
+output.createCanvas(gui);
 const canvas = output.canvas;
 const canvasContext = canvas.getContext('2d');
 
