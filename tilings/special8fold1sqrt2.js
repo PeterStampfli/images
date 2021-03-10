@@ -196,8 +196,9 @@ gui.add({
 // tiles of the tiling
 //--------------------
 const rt2 = Math.sqrt(2);
+const irt2 = 1 / rt2;
 const ratio = 1 + rt2;
-    const tan225 = Math.tan(Math.PI / 8);
+const tan225 = Math.tan(Math.PI / 8);
 
 // the triangle is a quarter of a square
 function triangleR(gen, aX, aY, bX, bY) {
@@ -237,8 +238,12 @@ function triangleR(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
-
-
+            const cbX = bX + irt2 * (upX - rightX);
+            const cbY = bY + irt2 * (upY - rightY);
+            triangleL(gen, cbX - rightX, cbY - rightY, cbX, cbY);
+            triangleL(gen, bX, bY, cbX, cbY);
+            triangleL(gen, cbX, cbY, aX + rightX, aY + rightY);
+            rhombR(gen, aX, aY, cbX, cbY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -286,8 +291,12 @@ function triangleL(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
-
-
+            const caX = aX + irt2 * (upX + rightX);
+            const caY = aY + irt2 * (upY + rightY);
+            triangleR(gen, caX, caY, caX + rightX, caY + rightY);
+            triangleR(gen, caX, caY, aX, aY);
+            triangleR(gen, bX - rightX, bY - rightY, caX, caY);
+            rhombL(gen, bX, bY, caX, caY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
