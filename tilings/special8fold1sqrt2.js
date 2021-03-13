@@ -364,8 +364,25 @@ function rhombR(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
-
-
+            const aBottomX = aX + rightX;
+            const aBottomY = aY + rightY;
+            const bottomAX = topX - upX;
+            const bottomAY = topY - upY;
+            triangleR(gen, aX, aY, aBottomX, aBottomY);
+            triangleL(gen, aBottomX, aBottomY, aBottomX + upX, aBottomY + upY);
+            rhombR(gen, topX, topY, aBottomX, aBottomY);
+            triangleL(gen, bottomAX, bottomAY, aBottomX, aBottomY);
+            triangleR(gen, bottomX, bottomY, bottomAX, bottomAY);
+            rhombL(gen, topX, topY, bottomX, bottomY);
+            const topBX = bottomX + upX;
+            const topBY = bottomY + upY;
+            const bTopX = bX - rightX;
+            const bTopY = bY - rightY;
+            triangleR(gen, topX, topY, topBX, topBY);
+            rhombR(gen, bottomX, bottomY, bTopX, bTopY);
+            triangleL(gen, topBX, topBY, bTopX, bTopY);
+            triangleL(gen, bTopX, bTopY, bTopX - upX, bTopY - upY);
+            triangleR(gen, bX, bY, bTopX, bTopY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -433,7 +450,28 @@ function rhombL(gen, aX, aY, bX, bY) {
             }
         } else {
             gen += 1;
+            const bottomAX = topX - upX;
+            const bottomAY = topY - upY;
+            const aBottomX = bottomAX - rightX;
+            const aBottomY = bottomAY - rightY;
+            triangleL(gen, aBottomX, aBottomY, aX, aY);
+            triangleR(gen, bottomX - rightX, bottomY - rightY, aBottomX, aBottomY);
+            rhombL(gen, bottomX, bottomY, aBottomX, aBottomY);
+            triangleR(gen, aBottomX, aBottomY, bottomAX, bottomAY);
+            triangleL(gen,bottomAX, bottomAY,topX,topY);
+            rhombR(gen,topX,topY,bottomX,bottomY);
 
+
+            const topBX = bottomX + upX;
+            const topBY = bottomY + upY;
+            const bTopX = topBX + rightX;
+            const bTopY = topBY + rightY;
+
+            rhombL(gen,topX,topY,bTopX,bTopY);
+            triangleL(gen,topBX,topBY,bottomX,bottomY);
+            triangleR(gen,bTopX,bTopY,topBX,topBY);
+            triangleR(gen,topX+rightX,topY+rightY,bTopX,bTopY);
+            triangleL(gen,bTopX,bTopY,bX,bY);
 
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
