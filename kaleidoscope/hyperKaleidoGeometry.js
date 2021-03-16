@@ -23,8 +23,11 @@ const round = Math.round;
 const sqrt = Math.sqrt;
 const abs = Math.abs;
 
-
-// dihedral groups
+// dihedral groups and mirrors
 geometry.d12=5;
 geometry.d13=3;
 geometry.d23=2;
+geometry.useFourthMirror = true;
+geometry.d14 = 2;
+geometry.d24 = 3;
+geometry.d34 = 5;

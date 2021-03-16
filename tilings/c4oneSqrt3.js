@@ -37,6 +37,7 @@ tiling.hyperBorder = false;
 tiling.decoration = 'solid color';
 tiling.gridWidth = 3;
 tiling.gridColor = '#ff8800';
+tiling.borderMotif = 'right';
 
 tiling.maxGen = 1;
 tiling.initial = 'quarter square';
@@ -84,6 +85,16 @@ gui.add({
             triangleRColorController.hide();
             triangleLColorController.hide();
         }
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: tiling,
+    property: 'borderMotif',
+    options: ['left', 'mid', 'right'],
+    onChange: function() {
         draw();
     }
 });
@@ -226,8 +237,7 @@ function quarterSquare(gen, blX, blY, trX, trY) {
             triangleL(gen, cX - upX, cY - upY, cX, cY);
             triangleR(gen, blX, blY, cX - upX, cY - upY);
             triangleR(gen, trX, trY, cX, cY);
-            triangleR(gen, cX, cY, cX + rightX, cY + rightY);
-            triangleL(gen, cX + rightX, cY + rightY, cX, cY);
+            borderTiles(gen, cX, cY, cX + rightX, cY + rightY);
             triangleR(gen, cX, cY, trX - rt3 * upX, trY - rt3 * upY);
             rhomb(gen, blX, blY, trX, trY);
             rhomb(gen, blX - 0.5 * rightX + rt32 * upX, blY - 0.5 * rightY + rt32 * upY, trX, trY);
@@ -357,8 +367,7 @@ function rhomb(gen, bX, bY, tX, tY) {
             const brX = 0.3660254 * (rX - bX);
             const brY = 0.3660254 * (rY - bY);
             triangleR(gen, bcX, bcY, bX + brX, bY + brY);
-            triangleR(gen, bcX, bcY, bcX + brY, bcY - brX);
-            triangleL(gen, bcX + brY, bcY - brX, bcX, bcY);
+            borderTiles(gen, bcX, bcY, bcX + brY, bcY - brX);
             triangleL(gen, rX, rY, bcX, bcY);
             triangleL(gen, bcX - brX, bcY - brY, bcX, bcY);
             triangleL(gen, bcX, bcY, lX, lY);
@@ -366,8 +375,7 @@ function rhomb(gen, bX, bY, tX, tY) {
             triangleL(gen, tcX + brX, tcY + brY, tcX, tcY);
             triangleL(gen, lX, lY, tcX, tcY);
             triangleR(gen, tcX, tcY, tX - brX, tY - brY);
-            triangleR(gen, tcX, tcY, tcX - brY, tcY + brX);
-            triangleL(gen, tcX - brY, tcY + brX, tcX, tcY);
+            borderTiles(gen, tcX, tcY, tcX - brY, tcY + brX);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -428,8 +436,7 @@ function triangleR(gen, aX, aY, bX, bY) {
             triangleL(gen, cbX - rightX, cbY - rightY, cbX, cbY);
             rhomb(gen, aX, aY, cbX, cbY);
             triangleR(gen, cbX, cbY, aX + rightX, aY + rightY);
-            triangleL(gen, cbX - upX, cbY - upY, cbX, cbY);
-            triangleR(gen, cbX, cbY, cbX - upX, cbY - upY);
+            borderTiles(gen, cbX, cbY, cbX - upX, cbY - upY);
             triangleR(gen, bX, bY, cbX, cbY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
@@ -488,10 +495,10 @@ function triangleL(gen, aX, aY, bX, bY) {
             gen += 1;
             const abX = aX + rt32 * rightX + 0.5 * upX;
             const abY = aY + rt32 * rightY + 0.5 * upY;
-            triangleR(gen,abX,abY,abX+rightX,abY+rightY);
-            rhomb(gen,abX,abY,bX,bY);
-            triangleL(gen,abX,abY,aX,aY);
-            triangleL(gen,bX-rightX,bY-rightY,abX,abY);
+            triangleR(gen, abX, abY, abX + rightX, abY + rightY);
+            rhomb(gen, abX, abY, bX, bY);
+            triangleL(gen, abX, abY, aX, aY);
+            triangleL(gen, bX - rightX, bY - rightY, abX, abY);
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
@@ -501,6 +508,21 @@ function triangleL(gen, aX, aY, bX, bY) {
             }
         }
     }
+}
+
+// different border motifs
+function borderTiles(gen, inX, inY, outX, outY) {
+    switch (tiling.borderMotif) {
+        case 'right':
+            triangleR(gen, inX, inY, outX, outY);
+            triangleL(gen, outX, outY, inX, inY);
+            break;
+        case 'left':
+            triangleL(gen, inX, inY, outX, outY);
+            triangleR(gen, outX, outY, inX, inY);
+            break;
+    }
+
 }
 
 const size = 50; //length of side

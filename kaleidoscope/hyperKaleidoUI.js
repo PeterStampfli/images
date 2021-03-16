@@ -60,7 +60,37 @@ const dihedralControl={
     }
 }
 
-gui.addParagraph('Dihedral groups with first three mirrors');
+gui.addParagraph('<strong>basic three mirrors</strong>');
+controllers.basicTetrahedron=gui.add({
+    type: 'button',
+    buttonText: 'tetrahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(3);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+controllers.basicOctahedron=controllers.basicTetrahedron.add({
+    type: 'button',
+    buttonText: 'octahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(4);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+controllers.basicIkosahedron=controllers.basicOctahedron.add({
+    type: 'button',
+    buttonText: 'ikosahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(5);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
 controllers.d12=gui.add(dihedralControl,{
 	property:'d12',
 	labelText:'order of 1-2'
@@ -72,6 +102,61 @@ controllers.d13=controllers.d12.add(dihedralControl,{
 controllers.d23=controllers.d13.add(dihedralControl,{
 	property:'d23',
 	labelText:'2-3'
+});
+
+// the fourth mirror
+BooleanButton.greenRedBackground();
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'useFourthMirror',
+    labelText: '<strong>fourth mirror</strong>',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllers.secondTetrahedron=gui.add({
+    type: 'button',
+    buttonText: 'tetrahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(3);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+controllers.secondOctahedron=controllers.secondTetrahedron.add({
+    type: 'button',
+    buttonText: 'octahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(4);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+controllers.secondIkosahedron=controllers.secondOctahedron.add({
+    type: 'button',
+    buttonText: 'ikosahedron',
+    onChange: function() {
+        controllers.d12.setValueOnly(5);
+        controllers.d13.setValueOnly(3);
+        controllers.d23.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+
+controllers.d14=gui.add(dihedralControl,{
+	property:'d14',
+	labelText:'order of 1-4'
+});
+controllers.d24=controllers.d14.add(dihedralControl,{
+	property:'d24',
+	labelText:'2-4'
+});
+controllers.d34=controllers.d24.add(dihedralControl,{
+	property:'d34',
+	labelText:'3-4'
 });
 
 //the drawing routines (changing the map object)
