@@ -27,6 +27,7 @@ tiling.rhombColor = '#ff0000';
 tiling.squareColor = '#00ff00';
 tiling.triangleRColor = '#0000ff';
 tiling.triangleLColor = '#00ffff';
+tiling.midColor = '#9900ff';
 tiling.borderColor = '#000000';
 tiling.borderWidth = 2;
 tiling.border = true;
@@ -40,7 +41,7 @@ tiling.gridColor = '#ff8800';
 tiling.borderMotif = 'right';
 
 tiling.maxGen = 1;
-tiling.initial = 'quarter square';
+tiling.initial = 'mid';
 
 const colorController = {
     type: 'color',
@@ -79,11 +80,13 @@ gui.add({
             squareColorController.show();
             triangleRColorController.show();
             triangleLColorController.show();
+            midColorController.show();
         } else {
             rhombColorController.hide();
             squareColorController.hide();
             triangleRColorController.hide();
             triangleLColorController.hide();
+            midColorController.hide();
         }
         draw();
     }
@@ -129,6 +132,11 @@ const triangleRColorController = gui.add(colorController, {
 const triangleLColorController = gui.add(colorController, {
     property: 'triangleLColor',
     labelText: 'triangleL'
+});
+
+const midColorController = gui.add(colorController, {
+    property: 'midColor',
+    labelText: 'mid'
 });
 
 BooleanButton.greenRedBackground();
@@ -185,7 +193,7 @@ gui.add({
     type: 'selection',
     params: tiling,
     property: 'initial',
-    options: ['quarter square', 'rhomb', 'triangleR', 'triangleL', 'square', 'dodecagon'],
+    options: ['quarter square', 'rhomb', 'triangleR', 'triangleL', 'mid', 'square', 'dodecagon'],
     onChange: function() {
         draw();
     }
@@ -510,6 +518,76 @@ function triangleL(gen, aX, aY, bX, bY) {
     }
 }
 
+
+// mid element, two thirds of a rectangle
+// base a to b
+function mid(gen, aX, aY, bX, bY) {
+    const rightX = 0.366025404 * (bX - aX);
+    const rightY = 0.366025404 * (bY - aY);
+    const upX = -rightY;
+    const upY = rightX;
+    // 0.788675135=(1+rt3)/2/rt3
+    const cX = 0.5 * (aX + bX) + 0.788675135 * upX;
+    const cY = 0.5 * (aY + bY) + 0.788675135 * upY;
+    const dX = 0.5 * (aX + bX) - 0.788675135 * upX;
+    const dY = 0.5 * (aY + bY) - 0.788675135 * upY;
+    if (output.isInCanvas(aX, aY, bX, bY, cX, cY, dX, dY)) {
+        // make directions
+        // 0.366025404 = 1 / (1 + rt3);
+        if (gen >= tiling.maxGen) {
+            if (tiling.drawBorders) {
+                if (tiling.border) {
+                    canvasContext.strokeStyle = tiling.borderColor;
+                    output.setLineWidth(tiling.borderWidth);
+                    output.makePath(aX, aY, bX, bY);
+                    canvasContext.stroke();
+                    if (tiling.subTriangle) {
+                        output.makePath(aX, aY, cX, cY, bX, bY, dX, dY, aX, aY);
+                        canvasContext.stroke();
+                    }
+                }
+            } else {
+                switch (tiling.decoration) {
+                    case 'solid color':
+                        canvasContext.fillStyle = tiling.midColor;
+                        output.makePath(aX, aY, dX, dY, bX, bY, cX, cY);
+                        canvasContext.fill();
+                        break;
+                    case 'grid':
+                        canvasContext.strokeStyle = tiling.gridColor;
+                        output.setLineWidth(tiling.gridWidth);
+                        // redo grid
+                        output.makePath(dX, dY, cX, cY);
+                        canvasContext.stroke();
+                        break;
+                }
+            }
+        } else {
+            gen += 1;
+            const acX = aX + rt32 * rightX + 0.5 * upX;
+            const acY = aY + rt32 * rightY + 0.5 * upY;
+            const adX = aX + rt32 * rightX - 0.5 * upX;
+            const adY = aY + rt32 * rightY - 0.5 * upY;
+            triangleL(gen, acX, acY, acX + rightX, acY + rightY);
+            triangleL(gen, acX, acY, aX, aY);
+            triangleL(gen, adX + rightX, adY + rightY, adX, adY);
+            triangleL(gen, adX, adY, acX, acY);
+            triangleR(gen, aX, aY, adX, adY);
+            triangleL(gen, acX + rightX, acY + rightY, adX + rightX, adY + rightY);
+            triangleL(gen, adX + rightX, adY + rightY, bX, bY);
+            triangleR(gen, bX, bY, acX + rightX, acY + rightY);
+            square(gen, adX, adY, acX + rightX, acY + rightY);
+            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+                canvasContext.strokeStyle = tiling.hyperBorderColor;
+                output.setLineWidth(tiling.hyperBorderWidth);
+                output.makePath(aX, aY, bX, bY, cX, cY);
+                canvasContext.closePath();
+                canvasContext.stroke();
+            }
+        }
+    }
+}
+
 // different border motifs
 function borderTiles(gen, inX, inY, outX, outY) {
     switch (tiling.borderMotif) {
@@ -520,6 +598,9 @@ function borderTiles(gen, inX, inY, outX, outY) {
         case 'left':
             triangleL(gen, inX, inY, outX, outY);
             triangleR(gen, outX, outY, inX, inY);
+            break;
+        case 'mid':
+            mid(gen, inX, inY, outX, outY);
             break;
     }
 
@@ -571,6 +652,9 @@ function tile() {
             break;
         case 'triangleL':
             triangleL(0, -s / 2, 0, s / 2, 0, 0, rt32 / 3 * s);
+            break;
+        case 'mid':
+            mid(0, -s / 2, 0, s / 2, 0, 0, rt32 / 3 * s);
             break;
         case 'dodecagon':
             for (let i = 0; i < 12; i++) {
