@@ -13,7 +13,7 @@ import {
     geometry
 } from "./hyperKaleidoGeometry.js";
 
-export const controllers={};
+export const controllers = {};
 
 Logger.spacing = 2;
 
@@ -50,18 +50,18 @@ map.setOutputDraw();
 map.allImageControllersHide();
 
 // the dihedrals
-const dihedralControl={
-	type:'number',
-	params:geometry,
-	    min: 2,
+const dihedralControl = {
+    type: 'number',
+    params: geometry,
+    min: 2,
     step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
-}
+};
 
 gui.addParagraph('<strong>basic three mirrors</strong>');
-controllers.basicTetrahedron=gui.add({
+controllers.basicTetrahedron = gui.add({
     type: 'button',
     buttonText: 'tetrahedron',
     onChange: function() {
@@ -71,7 +71,7 @@ controllers.basicTetrahedron=gui.add({
         map.drawMapChanged();
     }
 });
-controllers.basicOctahedron=controllers.basicTetrahedron.add({
+controllers.basicOctahedron = controllers.basicTetrahedron.add({
     type: 'button',
     buttonText: 'octahedron',
     onChange: function() {
@@ -81,7 +81,7 @@ controllers.basicOctahedron=controllers.basicTetrahedron.add({
         map.drawMapChanged();
     }
 });
-controllers.basicIkosahedron=controllers.basicOctahedron.add({
+controllers.basicIkosahedron = controllers.basicOctahedron.add({
     type: 'button',
     buttonText: 'ikosahedron',
     onChange: function() {
@@ -91,18 +91,21 @@ controllers.basicIkosahedron=controllers.basicOctahedron.add({
         map.drawMapChanged();
     }
 });
-controllers.d12=gui.add(dihedralControl,{
-	property:'d12',
-	labelText:'order of 1-2'
+controllers.d12 = gui.add(dihedralControl, {
+    property: 'd12',
+    labelText: 'order of 1-2'
 });
-controllers.d13=controllers.d12.add(dihedralControl,{
-	property:'d13',
-	labelText:'1-3'
+controllers.d13 = controllers.d12.add(dihedralControl, {
+    property: 'd13',
+    labelText: '1-3'
 });
-controllers.d23=controllers.d13.add(dihedralControl,{
-	property:'d23',
-	labelText:'2-3'
+controllers.d23 = controllers.d13.add(dihedralControl, {
+    property: 'd23',
+    labelText: '2-3'
 });
+controllers.d12.setActive(false);
+controllers.d13.setActive(false);
+controllers.d23.setActive(false);
 
 // the fourth mirror
 BooleanButton.greenRedBackground();
@@ -115,49 +118,135 @@ gui.add({
         map.drawMapChanged();
     }
 });
-controllers.secondTetrahedron=gui.add({
+controllers.secondTetrahedron = gui.add({
     type: 'button',
     buttonText: 'tetrahedron',
     onChange: function() {
-        controllers.d12.setValueOnly(3);
-        controllers.d13.setValueOnly(3);
-        controllers.d23.setValueOnly(2);
+        controllers.d14.setValueOnly(2);
+        controllers.d24.setValueOnly(3);
+        controllers.d34.setValueOnly(3);
         map.drawMapChanged();
     }
 });
-controllers.secondOctahedron=controllers.secondTetrahedron.add({
+controllers.secondOctahedron = controllers.secondTetrahedron.add({
     type: 'button',
     buttonText: 'octahedron',
     onChange: function() {
-        controllers.d12.setValueOnly(4);
-        controllers.d13.setValueOnly(3);
-        controllers.d23.setValueOnly(2);
+        controllers.d14.setValueOnly(2);
+        controllers.d24.setValueOnly(3);
+        controllers.d34.setValueOnly(4);
         map.drawMapChanged();
     }
 });
-controllers.secondIkosahedron=controllers.secondOctahedron.add({
+controllers.secondIkosahedron = controllers.secondOctahedron.add({
     type: 'button',
     buttonText: 'ikosahedron',
     onChange: function() {
-        controllers.d12.setValueOnly(5);
-        controllers.d13.setValueOnly(3);
-        controllers.d23.setValueOnly(2);
+        controllers.d14.setValueOnly(2);
+        controllers.d24.setValueOnly(3);
+        controllers.d34.setValueOnly(5);
         map.drawMapChanged();
     }
 });
 
-controllers.d14=gui.add(dihedralControl,{
-	property:'d14',
-	labelText:'order of 1-4'
+controllers.d14 = gui.add(dihedralControl, {
+    property: 'd14',
+    labelText: 'order of 1-4'
 });
-controllers.d24=controllers.d14.add(dihedralControl,{
-	property:'d24',
-	labelText:'2-4'
+controllers.d24 = controllers.d14.add(dihedralControl, {
+    property: 'd24',
+    labelText: '2-4'
 });
-controllers.d34=controllers.d24.add(dihedralControl,{
-	property:'d34',
-	labelText:'3-4'
+controllers.d34 = controllers.d24.add(dihedralControl, {
+    property: 'd34',
+    labelText: '3-4'
 });
+
+// the fifth mirror
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'useFifthMirror',
+    labelText: '<strong>fifth mirror</strong>',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllers.center = gui.add({
+    type: 'button',
+    buttonText: 'center',
+    onChange: function() {
+        controllers.d15.setValueOnly(2);
+        controllers.d25.setValueOnly(2);
+        controllers.d35.setValueOnly(2);
+        map.drawMapChanged();
+    }
+});
+controllers.touching = controllers.center.add({
+    type: 'button',
+    buttonText: 'touch fourth',
+    onChange: function() {
+        controllers.d45.setValueOnly(100);
+        map.drawMapChanged();
+    }
+});
+
+controllers.d15 = gui.add(dihedralControl, {
+    property: 'd15',
+    labelText: 'order of 1-5'
+});
+controllers.d25 = controllers.d15.add(dihedralControl, {
+    property: 'd25',
+    labelText: '2-5'
+});
+controllers.d35 = controllers.d25.add(dihedralControl, {
+    property: 'd35',
+    labelText: '3-5'
+});
+controllers.d45 = controllers.d35.add(dihedralControl, {
+    property: 'd45',
+    labelText: '4-5'
+});
+
+gui.addParagraph('<strong>display</strong>');
+
+controllers.radius = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'radius',
+    min: 0,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+controllers.xyAngle = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'xyAngle',
+    labelText: 'rotate xy',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllers.xyAngle.cyclic();
+
+controllers.xzAngle = controllers.xyAngle.add({
+    type: 'number',
+    params: geometry,
+    property: 'xzAngle',
+    labelText: 'xz',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllers.xzAngle.cyclic();
 
 //the drawing routines (changing the map object)
 //===========================================
@@ -222,7 +311,7 @@ map.drawMapChanged = function() {
     geometry.setup();
 
 
-    map.make();
+    map.make();     // uses map.mapping(point)
     map.drawImageChanged();
 };
 
