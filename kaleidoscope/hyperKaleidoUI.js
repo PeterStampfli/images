@@ -317,6 +317,7 @@ map.drawMapChanged = function() {
 
 map.drawMapChanged = function() {
     console.log('draw');
+    geometry.setup();
 };
 
 map.drawMapChanged();
