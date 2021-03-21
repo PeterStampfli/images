@@ -23,6 +23,18 @@ const tan = Math.tan;
 const round = Math.round;
 const sqrt = Math.sqrt;
 const abs = Math.abs;
+// trigonometry
+const rt3 = 1.732050808;
+const tanPi10 = Math.tan(pi / 10);
+const tan3Pi10 = Math.tan(3 * pi / 10);
+const cosPi5 = Math.cos(pi / 5);
+const sinPi5 = Math.sin(pi / 5);
+const cos2Pi5 = Math.cos(2 * pi / 5);
+const sin2Pi5 = Math.sin(2 * pi / 5);
+const cos3Pi5 = Math.cos(3 * pi / 5);
+const sin3Pi5 = Math.sin(3 * pi / 5);
+const cos4Pi5 = Math.cos(4 * pi / 5);
+const sin4Pi5 = Math.sin(4 * pi / 5);
 
 // dihedral groups and mirrors
 geometry.d12 = 5;
@@ -53,6 +65,8 @@ var n2x, n2y, n3x, n3y, n3z;
 // radius of the sphere
 var rSphere, rSphere2, worldRadius;
 
+// the fourth mirror as a sphere of radius 1
+var c4x, c4y, c4z;
 
 // first map xy to sphere with normal projection
 // rotate in xy plane
@@ -94,14 +108,19 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
  * @method geometry.setup
  */
 geometry.setup = function() {
-    log();
-    cosXY = cos(fromDeg * angleXY);
-    sinXY = sin(fromDeg * angleXY);
-    cosXZ = cos(fromDeg * angleXZ);
-    sinXZ = sin(fromDeg * angleXZ);
+	log();
+    log('<strong>basic mirrors:</strong>');
+    cosXY = cos(fromDeg * geometry.angleXY);
+    sinXY = sin(fromDeg * geometry.angleXY);
+    cosXZ = cos(fromDeg * geometry.angleXZ);
+    sinXZ = sin(fromDeg * geometry.angleXZ);
+    nIdealVertices = 0;
+    nMaterialVertices = 0;
+    nHyperIdealVertices = 0;
     const d12 = geometry.d12;
     const d13 = geometry.d13;
     const d23 = geometry.d23;
+    dihedral = dihedrals[d12];
     twoMirrorMessage(1, 2, d12);
     twoMirrorMessage(1, 3, d13);
     twoMirrorMessage(2, 3, d23);
@@ -128,10 +147,59 @@ geometry.setup = function() {
 
 
     if (geometry.useFourthMirror) {
+        log('<strong>fourth mirror:</strong>');
         const d14 = geometry.d14;
         const d24 = geometry.d24;
         const d34 = geometry.d34;
+        twoMirrorMessage(1, 4, d14);
+        twoMirrorMessage(2, 4, d24);
+        twoMirrorMessage(3, 4, d34);
+        threeMirrorMessage(1, 2, 4, d12, d14, d24);
+        threeMirrorMessage(1, 3, 4, d13, d14, d34);
+        threeMirrorMessage(2, 3, 4, d23, d24, d34);
+        const angle14 = pi / d14;
+        const angle24 = pi / d24;
+        const angle34 = pi / d34;
+        // as sphere of radius 1, at c4=(c4x,c4y,c4z)
+        // distance to plane 1: c4*n1=cos(angle14)
+        c4x = cos(angle14);
+        // distance to plane 2: c4*n2=cos(angle24)
+        c4y = (cos(angle24) - c4x * n2x) / n2y;
+        // distance to plane 3: c4*n3=cos(angle34)
+        c4z = (cos(angle34) - c4x * n3x - c4y * n3y) / n3z;
+        // distance of sphere center to origin
+        const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
+        worldRadius = sqrt(abs(dis2 - 1));
 
+        if (Math.abs(dis2 - 1) < 0.05) {
+            log('euklidic geometry');
+            worldRadius = 1;
+        } else if (dis2 < 1) {
+            log('spherical geometry');
+
+        } else {
+            log('hyperbolic geometry');
+        }
+        if (nMaterialVertices === 1) {
+            log('1 material vertex');
+        }
+        if (nMaterialVertices > 1) {
+            log(nMaterialVertices + ' material vertices');
+        }
+        if (nIdealVertices === 1) {
+            log('1 ideal vertex');
+        }
+        if (nIdealVertices > 1) {
+            log(nIdealVertices + ' ideal vertices');
+        }
+        if (nHyperIdealVertices === 1) {
+            log('1 hyperideal vertex');
+        }
+        if (nHyperIdealVertices > 1) {
+            log(nHyperIdealVertices + ' hyperideal vertices');
+        }
+
+console.log(nHyperIdealVertices,nIdealVertices,nMaterialVertices)
 
     }
     rSphere = geometry.radius * worldRadius;
@@ -168,6 +236,119 @@ function rotateXZ() {
     y = sinXZ * x + cosXZ * y;
     x = h;
 }
+
+// dihedral mapping in the (x,y) plane
+var dihedral, dihedrals;
+
+// d_2 symmetry in the (x,y) plane
+function dihedral2() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y < 0) {
+        y = -y;
+        inversions += 1;
+        change = true;
+    }
+}
+
+// d_4 symmetry in the (x,y) plane
+function dihedral4() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y < 0) {
+        y = -y;
+        inversions += 1;
+        change = true;
+    }
+    if (x > y) {
+        const h = x;
+        x = y;
+        y = h;
+        inversions += 1;
+        change = true;
+    }
+}
+
+// d_3 symmetry in the (x,y) plane
+function dihedral3() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y > 0) {
+        if (x > rt3 * y) {
+            const h = 0.5 * (rt3 * x - y);
+            x = 0.5 * (x + rt3 * y);
+            y = h;
+            inversions += 1;
+            change = true;
+        }
+    } else {
+        if (x > -rt3 * y) {
+            const h = 0.5 * (rt3 * x - y);
+            x = 0.5 * (x + rt3 * y);
+            y = h;
+            inversions += 1;
+            change = true;
+        } else {
+            const h = 0.5 * (rt3 * x - y);
+            x = -0.5 * (x + rt3 * y);
+            y = h;
+            change = true;
+        }
+    }
+}
+
+// d_5 symmetry in the (x,y) plane
+function dihedral5() {
+    if (x < 0) {
+        x = -x;
+        inversions += 1;
+        change = true;
+    }
+    if (y > 0) {
+        if (y < tanPi10 * x) {
+            const h = sin2Pi5 * x + cos2Pi5 * y;
+            x = cos2Pi5 * x - sin2Pi5 * y;
+            y = h;
+            change = true;
+        } else if (y < tan3Pi10 * x) {
+            const h = sin3Pi5 * x - cos3Pi5 * y;
+            x = cos3Pi5 * x + sin3Pi5 * y;
+            y = h;
+            inversions += 1;
+            change = true;
+        }
+    } else {
+        if (y > -tanPi10 * x) {
+            const h = sin2Pi5 * x + cos2Pi5 * y;
+            x = cos2Pi5 * x - sin2Pi5 * y;
+            y = h;
+            change = true;
+        } else if (y > -tan3Pi10 * x) {
+            const h = sinPi5 * x - cosPi5 * y;
+            x = cosPi5 * x + sinPi5 * y;
+            y = h;
+            inversions += 1;
+            change = true;
+        } else {
+            const h = sin4Pi5 * x + cos4Pi5 * y;
+            x = cos4Pi5 * x - sin4Pi5 * y;
+            y = h;
+            change = true;
+        }
+    }
+}
+
+dihedrals = [null, null, dihedral2, dihedral3, dihedral4, dihedral5];
+
 
 // mirrors - plane mirrors
 
