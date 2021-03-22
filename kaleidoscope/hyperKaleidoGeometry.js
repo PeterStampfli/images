@@ -75,10 +75,6 @@ var c4x, c4y, c4z;
 // normalize vector plus stereographic map to xy plane
 // or normal projection (to xy? plane)
 
-function twoMirrorMessage(n1, n2, d) {
-    log('mirrors ' + n1 + ' and ' + n2 + ': d<sub>' + d + '</sub>, angle ' + round(180 / d) + '<sup>o</sup>');
-}
-
 // message for a vertex of three mirrors
 // and adding up different types
 var nMaterialVertices, nIdealVertices, nHyperIdealVertices;
@@ -121,10 +117,7 @@ geometry.setup = function() {
     const d13 = geometry.d13;
     const d23 = geometry.d23;
     dihedral = dihedrals[d12];
-    twoMirrorMessage(1, 2, d12);
-    twoMirrorMessage(1, 3, d13);
-    twoMirrorMessage(2, 3, d23);
-    threeMirrorMessage(1, 2, 3, d12, d13, d23);
+     threeMirrorMessage(1, 2, 3, d12, d13, d23);
     const angle12 = pi / d12;
     const angle13 = pi / d13;
     const angle23 = pi / d23;
@@ -151,9 +144,6 @@ geometry.setup = function() {
         const d14 = geometry.d14;
         const d24 = geometry.d24;
         const d34 = geometry.d34;
-        twoMirrorMessage(1, 4, d14);
-        twoMirrorMessage(2, 4, d24);
-        twoMirrorMessage(3, 4, d34);
         threeMirrorMessage(1, 2, 4, d12, d14, d24);
         threeMirrorMessage(1, 3, 4, d13, d14, d34);
         threeMirrorMessage(2, 3, 4, d23, d24, d34);

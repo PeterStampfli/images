@@ -329,72 +329,8 @@ function rhomb60(gen, bX, bY, tX, tY) {
     const lX = cX - 1.366025404 * rightX;
     const lY = cY - 1.366025404 * rightY;
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
-        if (gen >= tiling.maxGen) {
-            if (tiling.marker) {
-                canvasContext.fillStyle = tiling.markerColor;
-                const s = tiling.markerSize;
-                output.makePath(bX, bY, bX - s * 0.5 * rightX + s * rt32 * upX, bY - s * 0.5 * rightY + s * rt32 * upY, bX + s * 0.5 * rightX + s * rt32 * upX, bY + s * 0.5 * rightY + s * rt32 * upY);
-                canvasContext.fill();
-            }
-            if (tiling.drawBorders) {
-                if (tiling.border) {
-                    canvasContext.strokeStyle = tiling.borderColor;
-                    output.setLineWidth(tiling.borderWidth);
-                    output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                    canvasContext.closePath();
-                    canvasContext.stroke();
-                }
-            } else {
-                switch (tiling.decoration) {
-                    case 'solid color':
-                        canvasContext.fillStyle = tiling.rhomb60Color;
-                        output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                        canvasContext.fill();
-                        break;
-                    case 'grid':
-                        canvasContext.strokeStyle = tiling.gridColor;
-                        output.setLineWidth(tiling.gridWidth);
-                        // 1.274519=(1+sqrt(3))*cos(15)-0.5*(1+sqrt(3))/cos(15)
-                        const lowX = 0.3333 * (lX + bX + rX);
-                        const lowY = 0.3333 * (lY + bY + rY);
-                        const highX = 0.3333 * (lX + tX + rX);
-                        const highY = 0.3333 * (lY + tY + rY);
-                        output.makePath(0.5 * (lX + tX), 0.5 * (lY + tY), highX, highY, 0.5 * (rX + tX), 0.5 * (rY + tY));
-                        canvasContext.stroke();
-                        output.makePath(0.5 * (lX + bX), 0.5 * (lY + bY), lowX, lowY, 0.5 * (rX + bX), 0.5 * (rY + bY));
-                        canvasContext.stroke();
-                        output.makePath(lowX, lowY, highX, highY);
-                        canvasContext.stroke();
-                        break;
-                }
-            }
-        } else {
-            gen += 1;
-            rhomb60(gen, tX, tY, lX + 0.5 * rightX + rt32 * upX, lY + 0.5 * rightY + rt32 * upY);
-            rhomb60(gen, lX, lY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
-            const ntX = tX - upX;
-            const ntY = tY - upY;
-            rhomb30(gen, lX, lY, ntX, ntY);
-            rhomb30(gen, rX, rY, ntX, ntY);
-            const nlX = lX + rt32 * rightX - 0.5 * upX;
-            const nlY = lY + rt32 * rightY - 0.5 * upY;
-            rhomb30(gen, bX, bY, nlX, nlY);
-            triangleL(gen, lX, lY, nlX + upX, nlY + upY, nlX, nlY);
-            const nrX = rX - rt32 * rightX - 0.5 * upX;
-            const nrY = rY - rt32 * rightY - 0.5 * upY;
-            triangleR(gen,ntX,ntY,nlX+upX,nlY+upY,nrX+upX,nrY+upY);
-            rhomb30(gen, bX, bY, nrX, nrY);
-            square(gen,nrX,nrY,nlX+upX,nlY+upY);
-            triangleL(gen, rX, rY, nrX, nrY, nrX + upX, nrY + upY);
-            triangleR(gen, nrX, nrY, nlX, nlY, bX + upX, bY + upY);
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-                canvasContext.closePath();
-                canvasContext.stroke();
-            }
-        }
+        triangleL(gen,bX,bY,lX,lY,rX,rY);
+        triangleR(gen,lX,lY,rX,rY,tX,tY);
     }
 }
 
