@@ -79,7 +79,7 @@ var c4x, c4y, c4z;
 // and adding up different types
 var nMaterialVertices, nIdealVertices, nHyperIdealVertices;
 
-function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
+function triangle(n1, n2, n3, d12, d13, d23) {
     const sum = round(180 / d12 + 180 / d13 + 180 / d23);
     let message = 'mirrors ' + n1 + ', ' + n2 + ' and ' + n3 + ': ';
     message += 'd<sub>' + d12 + '</sub>, d<sub>' + d13 + '</sub> and d<sub>' + d23 + '</sub>';
@@ -99,12 +99,82 @@ function threeMirrorMessage(n1, n2, n3, d12, d13, d23) {
     log(message);
 }
 
+function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
+    nIdealVertices = 0;
+    nMaterialVertices = 0;
+    nHyperIdealVertices = 0;
+    log('<strong>tetrahedron of planes ' + i1 + ', ' + i2 + ', ' + i3 + ' and ' + i4 +'</strong>');
+    triangle(i1, i2, i3, d12, d13, d23);
+    triangle(i1, i2, i4, d12, d14, d24);
+    triangle(i1, i3, i4, d13, d14, d34);
+    triangle(i2, i3, i4, d23, d24, d34);
+    const angle12 = pi / d12;
+    const angle13 = pi / d13;
+    const angle23 = pi / d23;
+    const angle14 = pi / d14;
+    const angle24 = pi / d24;
+    const angle34 = pi / d34;
+    //setting up the first three mirror planes, normal vectors in 3d, unit length
+    // n1=(1,0,0)
+    // n2=(n2x,n2y,0)
+    // intersection angle of planes: n2*n1=-cos(angle12)
+    n2x = -cos(angle12);
+    // normalize
+    n2y = sqrt(1 - n2x * n2x);
+    // n3=(n3x,n3y,n3z)
+    // intersection angle of planes: n3*n1=-cos(angle13)
+    n3x = -cos(angle13);
+    // intersection angle of planes: n3*n2=-cos(angle23)
+    n3y = (-cos(angle23) - n3x * n2x) / n2y;
+    // normalize
+    n3z = sqrt(1 - n3x * n3x - n3y * n3y);
+    // forth mirror as sphere of radius 1, at c4=(c4x,c4y,c4z)
+    // distance to plane 1: c4*n1=cos(angle14)
+    c4x = cos(angle14);
+    // distance to plane 2: c4*n2=cos(angle24)
+    c4y = (cos(angle24) - c4x * n2x) / n2y;
+    // distance to plane 3: c4*n3=cos(angle34)
+    c4z = (cos(angle34) - c4x * n3x - c4y * n3y) / n3z;
+    // distance of sphere center to origin
+    const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
+    worldRadius = sqrt(abs(dis2 - 1));
+    if (Math.abs(dis2 - 1) < 0.05) {
+        worldRadius = 1;
+        log('euklidic geometry with worldradius '+worldRadius.toPrecision(3));
+    } else if (dis2 < 1) {
+        log('spherical geometry with worldradius '+worldRadius.toPrecision(3));
+    } else {
+        log('hyperbolic geometry with worldradius '+worldRadius.toPrecision(3));
+    }
+    if (nMaterialVertices === 1) {
+        log('1 material vertex');
+    }
+    if (nMaterialVertices > 1) {
+        log(nMaterialVertices + ' material vertices');
+    }
+    if (nIdealVertices === 1) {
+        log('1 ideal vertex');
+    }
+    if (nIdealVertices > 1) {
+        log(nIdealVertices + ' ideal vertices');
+    }
+    if (nHyperIdealVertices === 1) {
+        log('1 hyperideal vertex');
+    }
+    if (nHyperIdealVertices > 1) {
+        log(nHyperIdealVertices + ' hyperideal vertices');
+    }
+
+    console.log(nHyperIdealVertices, nIdealVertices, nMaterialVertices);
+
+}
+
 /**
  * setting up the geometry, including rotation
  * @method geometry.setup
  */
 geometry.setup = function() {
-	log();
+    log();
     log('<strong>basic mirrors:</strong>');
     cosXY = cos(fromDeg * geometry.angleXY);
     sinXY = sin(fromDeg * geometry.angleXY);
@@ -117,7 +187,7 @@ geometry.setup = function() {
     const d13 = geometry.d13;
     const d23 = geometry.d23;
     dihedral = dihedrals[d12];
-     threeMirrorMessage(1, 2, 3, d12, d13, d23);
+    triangle(1, 2, 3, d12, d13, d23);
     const angle12 = pi / d12;
     const angle13 = pi / d13;
     const angle23 = pi / d23;
@@ -144,9 +214,9 @@ geometry.setup = function() {
         const d14 = geometry.d14;
         const d24 = geometry.d24;
         const d34 = geometry.d34;
-        threeMirrorMessage(1, 2, 4, d12, d14, d24);
-        threeMirrorMessage(1, 3, 4, d13, d14, d34);
-        threeMirrorMessage(2, 3, 4, d23, d24, d34);
+        triangle(1, 2, 4, d12, d14, d24);
+        triangle(1, 3, 4, d13, d14, d34);
+        triangle(2, 3, 4, d23, d24, d34);
         const angle14 = pi / d14;
         const angle24 = pi / d24;
         const angle34 = pi / d34;
@@ -189,7 +259,9 @@ geometry.setup = function() {
             log(nHyperIdealVertices + ' hyperideal vertices');
         }
 
-console.log(nHyperIdealVertices,nIdealVertices,nMaterialVertices)
+        console.log(nHyperIdealVertices, nIdealVertices, nMaterialVertices);
+
+        tetrahedron(1,2,3,4,d12,d13,d14,d23,d24,d34);
 
     }
     rSphere = geometry.radius * worldRadius;
