@@ -82,9 +82,7 @@ var nMaterialVertices, nIdealVertices, nHyperIdealVertices;
 function triangle(n1, n2, n3, d12, d13, d23) {
     const sum = round(180 / d12 + 180 / d13 + 180 / d23);
     let message = 'mirrors ' + n1 + ', ' + n2 + ' and ' + n3 + ': ';
-    message += 'd<sub>' + d12 + '</sub>, d<sub>' + d13 + '</sub> and d<sub>' + d23 + '</sub>';
-    message += ', angles ' + round(180 / d12) + '<sup>o</sup>, ' + round(180 / d13) + '<sup>o</sup> and ' + round(180 / d23) + '<sup>o</sup><br>';
-    message += '&nbsp; sum of angles ' + sum + '<sup>o</sup>, ';
+    message += 'd<sub>' + d12 + '</sub>, d<sub>' + d13 + '</sub> and d<sub>' + d23 + '</sub>, ';
     if (sum === 180) {
         message += 'euklidic';
         nIdealVertices += 1;
@@ -95,7 +93,6 @@ function triangle(n1, n2, n3, d12, d13, d23) {
         message += 'spherical';
         nMaterialVertices += 1;
     }
-    message += ' triangle';
     log(message);
 }
 
@@ -103,7 +100,7 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
     nIdealVertices = 0;
     nMaterialVertices = 0;
     nHyperIdealVertices = 0;
-    log('<strong>tetrahedron of planes ' + i1 + ', ' + i2 + ', ' + i3 + ' and ' + i4 +'</strong>');
+    log('<strong>tetrahedron of planes ' + i1 + ', ' + i2 + ', ' + i3 + ' and ' + i4 + '</strong>');
     triangle(i1, i2, i3, d12, d13, d23);
     triangle(i1, i2, i4, d12, d14, d24);
     triangle(i1, i3, i4, d13, d14, d34);
@@ -140,11 +137,11 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
     worldRadius = sqrt(abs(dis2 - 1));
     if (Math.abs(dis2 - 1) < 0.05) {
         worldRadius = 1;
-        log('euklidic geometry with worldradius '+worldRadius.toPrecision(3));
+        log('euklidic geometry with worldradius ' + worldRadius.toPrecision(3));
     } else if (dis2 < 1) {
-        log('spherical geometry with worldradius '+worldRadius.toPrecision(3));
+        log('spherical geometry with worldradius ' + worldRadius.toPrecision(3));
     } else {
-        log('hyperbolic geometry with worldradius '+worldRadius.toPrecision(3));
+        log('hyperbolic geometry with worldradius ' + worldRadius.toPrecision(3));
     }
     if (nMaterialVertices === 1) {
         log('1 material vertex');
@@ -164,9 +161,6 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
     if (nHyperIdealVertices > 1) {
         log(nHyperIdealVertices + ' hyperideal vertices');
     }
-
-    console.log(nHyperIdealVertices, nIdealVertices, nMaterialVertices);
-
 }
 
 /**
@@ -175,22 +169,37 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
  */
 geometry.setup = function() {
     log();
-    log('<strong>basic mirrors:</strong>');
+    // prepare rotations
     cosXY = cos(fromDeg * geometry.angleXY);
     sinXY = sin(fromDeg * geometry.angleXY);
     cosXZ = cos(fromDeg * geometry.angleXZ);
     sinXZ = sin(fromDeg * geometry.angleXZ);
-    nIdealVertices = 0;
-    nMaterialVertices = 0;
-    nHyperIdealVertices = 0;
-    const d12 = geometry.d12;
+    // data for basic three mirrors
+     const d12 = geometry.d12;
     const d13 = geometry.d13;
     const d23 = geometry.d23;
     dihedral = dihedrals[d12];
-    triangle(1, 2, 3, d12, d13, d23);
     const angle12 = pi / d12;
     const angle13 = pi / d13;
     const angle23 = pi / d23;
+    // data for the fourth mirror
+       const d14 = geometry.d14;
+        const d24 = geometry.d24;
+        const d34 = geometry.d34;
+        const angle14 = pi / d14;
+        const angle24 = pi / d24;
+        const angle34 = pi / d34;
+
+
+
+
+   if (!geometry.useFourthMirror) {
+
+    log('<strong>three basic mirrors only:</strong>');
+    nIdealVertices = 0;
+    nMaterialVertices = 0;
+    nHyperIdealVertices = 0;
+    triangle(1, 2, 3, d12, d13, d23);
     //setting up the first three mirror planes, normal vectors in 3d, unit length
     // n1=(1,0,0)
     // n2=(n2x,n2y,0)
@@ -207,63 +216,15 @@ geometry.setup = function() {
     n3z = sqrt(1 - n3x * n3x - n3y * n3y);
     worldRadius = 1;
 
+    } else if (!geometry.useFifthMirror) {
+        log('<strong>using four mirrors:</strong>');
+        tetrahedron(1, 2, 3, 4, d12, d13, d14, d23, d24, d34);
 
-
-    if (geometry.useFourthMirror) {
-        log('<strong>fourth mirror:</strong>');
-        const d14 = geometry.d14;
-        const d24 = geometry.d24;
-        const d34 = geometry.d34;
-        triangle(1, 2, 4, d12, d14, d24);
-        triangle(1, 3, 4, d13, d14, d34);
-        triangle(2, 3, 4, d23, d24, d34);
-        const angle14 = pi / d14;
-        const angle24 = pi / d24;
-        const angle34 = pi / d34;
-        // as sphere of radius 1, at c4=(c4x,c4y,c4z)
-        // distance to plane 1: c4*n1=cos(angle14)
-        c4x = cos(angle14);
-        // distance to plane 2: c4*n2=cos(angle24)
-        c4y = (cos(angle24) - c4x * n2x) / n2y;
-        // distance to plane 3: c4*n3=cos(angle34)
-        c4z = (cos(angle34) - c4x * n3x - c4y * n3y) / n3z;
-        // distance of sphere center to origin
-        const dis2 = c4x * c4x + c4y * c4y + c4z * c4z;
-        worldRadius = sqrt(abs(dis2 - 1));
-
-        if (Math.abs(dis2 - 1) < 0.05) {
-            log('euklidic geometry');
-            worldRadius = 1;
-        } else if (dis2 < 1) {
-            log('spherical geometry');
-
-        } else {
-            log('hyperbolic geometry');
-        }
-        if (nMaterialVertices === 1) {
-            log('1 material vertex');
-        }
-        if (nMaterialVertices > 1) {
-            log(nMaterialVertices + ' material vertices');
-        }
-        if (nIdealVertices === 1) {
-            log('1 ideal vertex');
-        }
-        if (nIdealVertices > 1) {
-            log(nIdealVertices + ' ideal vertices');
-        }
-        if (nHyperIdealVertices === 1) {
-            log('1 hyperideal vertex');
-        }
-        if (nHyperIdealVertices > 1) {
-            log(nHyperIdealVertices + ' hyperideal vertices');
-        }
-
-        console.log(nHyperIdealVertices, nIdealVertices, nMaterialVertices);
-
-        tetrahedron(1,2,3,4,d12,d13,d14,d23,d24,d34);
+    } else {
+        log('<strong>using five mirrors:</strong>');
 
     }
+
     rSphere = geometry.radius * worldRadius;
     rSphere2 = rSphere * rSphere;
 };
