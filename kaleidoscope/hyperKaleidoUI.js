@@ -220,11 +220,10 @@ controllers.radius = gui.add({
     }
 });
 
-controllers.xyAngle = gui.add({
+controllers.alpha = gui.add({
     type: 'number',
     params: geometry,
-    property: 'xyAngle',
-    labelText: 'rotate xy',
+    property: 'alpha',
     min: -180,
     max: 180,
     step: 1,
@@ -232,13 +231,12 @@ controllers.xyAngle = gui.add({
         map.drawMapChanged();
     }
 });
-controllers.xyAngle.cyclic();
+controllers.alpha.cyclic();
 
-controllers.xzAngle = controllers.xyAngle.add({
+controllers.beta = controllers.alpha.add({
     type: 'number',
     params: geometry,
-    property: 'xzAngle',
-    labelText: 'xz',
+    property: 'beta',
     min: -180,
     max: 180,
     step: 1,
@@ -246,7 +244,21 @@ controllers.xzAngle = controllers.xyAngle.add({
         map.drawMapChanged();
     }
 });
-controllers.xzAngle.cyclic();
+controllers.beta.cyclic();
+
+controllers.gamma = controllers.beta.add({
+    type: 'number',
+    params: geometry,
+    property: 'gamma',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllers.gamma.cyclic();
+
 
 //the drawing routines (changing the map object)
 //===========================================
@@ -256,6 +268,12 @@ controllers.xzAngle.cyclic();
  * using the map.colorTable
  * @method map.drawStructure
  */
+const colorBasic = Pixels.integerOfColor({
+    red: 255,
+    green: 255,
+    blue: 0,
+    alpha: 255
+});
 const colorZero = Pixels.integerOfColor({
     red: 255,
     green: 255,
@@ -268,6 +286,7 @@ const colorOne = Pixels.integerOfColor({
     blue: 255,
     alpha: 255
 });
+
 map.drawStructure = function() {
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -280,7 +299,10 @@ map.drawStructure = function() {
     const iterationsArray = map.iterationsArray;
     for (var index = 0; index < length; index++) {
         if (sizeArray[index] >= 0) {
-            if ((iterationsArray[index] & 1) === 0) {
+            const iterations=iterationsArray[index];
+            if (iterations === 0) {
+                pixelsArray[index] = colorBasic;
+            }else if ((iterations & 1) === 0) {
                 pixelsArray[index] = colorZero;
             } else {
                 pixelsArray[index] = colorOne;
@@ -309,15 +331,11 @@ map.drawImageChanged = function() {
 map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
-
-
     map.make();     // uses map.mapping(point)
     map.drawImageChanged();
 };
 
-map.drawMapChanged = function() {
-    console.log('draw');
-    geometry.setup();
-};
+
+
 
 map.drawMapChanged();

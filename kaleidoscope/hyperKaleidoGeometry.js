@@ -40,25 +40,26 @@ const sin4Pi5 = Math.sin(4 * pi / 5);
 geometry.d12 = 5;
 geometry.d13 = 3;
 geometry.d23 = 2;
-geometry.useFourthMirror = true;
+geometry.useFourthMirror = false;
 geometry.d14 = 2;
 geometry.d24 = 3;
 geometry.d34 = 5;
-geometry.useFifthMirror = true;
+geometry.useFifthMirror = false;
 geometry.d15 = 3;
 geometry.d25 = 3;
 geometry.d35 = 3;
 geometry.d45 = 3;
 
 // rotation angles
-geometry.xyAngle = 0;
-geometry.xzAngle = 0;
+geometry.alpha = 0;
+geometry.beta = 0;
+geometry.gamma = 0;
 
 // radius relative to the hyperbolic radius
 geometry.radius = 0.9;
 
-// rotation angles -> transform
-var cosXY, sinXY, cosXZ, sinXZ;
+// Euler angles -> transform
+var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
 
 // mirror planes, n1x=1, trivial
 var n2x, n2y, n3x, n3y, n3z;
@@ -169,13 +170,24 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
  */
 geometry.setup = function() {
     log();
-    // prepare rotations
-    cosXY = cos(fromDeg * geometry.angleXY);
-    sinXY = sin(fromDeg * geometry.angleXY);
-    cosXZ = cos(fromDeg * geometry.angleXZ);
-    sinXZ = sin(fromDeg * geometry.angleXZ);
+    // prepare transformation from Euler angles
+    const c1 = cos(geometry.alpha);
+    const s1 = sin(geometry.alpha);
+    const c2 = cos(geometry.beta);
+    const s2 = sin(geometry.beta);
+    const c3 = cos(geometry.gamma);
+    const s3 = sin(geometry.gamma);
+    txx = c1 * c3 - c2 * s1 * s3;
+    txy = -c1 * s3 - c2 * c3 * s1;
+    txz = s1 * s2;
+    tyx = c3 * s1 + c1 * c2 * s3;
+    tyy = c1 * c2 * c3 - s1 * s3;
+    tyz = -c1 * s2;
+    tzx = s2 * s3;
+    tzy = c3 * s2;
+    tzz = c2;
     // data for basic three mirrors
-     const d12 = geometry.d12;
+    const d12 = geometry.d12;
     const d13 = geometry.d13;
     const d23 = geometry.d23;
     dihedral = dihedrals[d12];
@@ -183,38 +195,39 @@ geometry.setup = function() {
     const angle13 = pi / d13;
     const angle23 = pi / d23;
     // data for the fourth mirror
-       const d14 = geometry.d14;
-        const d24 = geometry.d24;
-        const d34 = geometry.d34;
-        const angle14 = pi / d14;
-        const angle24 = pi / d24;
-        const angle34 = pi / d34;
+    const d14 = geometry.d14;
+    const d24 = geometry.d24;
+    const d34 = geometry.d34;
+    const angle14 = pi / d14;
+    const angle24 = pi / d24;
+    const angle34 = pi / d34;
 
 
 
 
-   if (!geometry.useFourthMirror) {
+    if (!geometry.useFourthMirror) {
 
-    log('<strong>three basic mirrors only:</strong>');
-    nIdealVertices = 0;
-    nMaterialVertices = 0;
-    nHyperIdealVertices = 0;
-    triangle(1, 2, 3, d12, d13, d23);
-    //setting up the first three mirror planes, normal vectors in 3d, unit length
-    // n1=(1,0,0)
-    // n2=(n2x,n2y,0)
-    // intersection angle of planes: n2*n1=-cos(angle12)
-    n2x = -cos(angle12);
-    // normalize
-    n2y = sqrt(1 - n2x * n2x);
-    // n3=(n3x,n3y,n3z)
-    // intersection angle of planes: n3*n1=-cos(angle13)
-    n3x = -cos(angle13);
-    // intersection angle of planes: n3*n2=-cos(angle23)
-    n3y = (-cos(angle23) - n3x * n2x) / n2y;
-    // normalize
-    n3z = sqrt(1 - n3x * n3x - n3y * n3y);
-    worldRadius = 1;
+        log('<strong>three basic mirrors only:</strong>');
+        nIdealVertices = 0;
+        nMaterialVertices = 0;
+        nHyperIdealVertices = 0;
+        triangle(1, 2, 3, d12, d13, d23);
+        //setting up the first three mirror planes, normal vectors in 3d, unit length
+        // n1=(1,0,0)
+        // n2=(n2x,n2y,0)
+        // intersection angle of planes: n2*n1=-cos(angle12)
+        n2x = -cos(angle12);
+        // normalize
+        n2y = sqrt(1 - n2x * n2x);
+        // n3=(n3x,n3y,n3z)
+        // intersection angle of planes: n3*n1=-cos(angle13)
+        n3x = -cos(angle13);
+        // intersection angle of planes: n3*n2=-cos(angle23)
+        n3y = (-cos(angle23) - n3x * n2x) / n2y;
+        // normalize
+        n3z = sqrt(1 - n3x * n3x - n3y * n3y);
+        worldRadius = 1;
+        map.mapping = threeMirrors;
 
     } else if (!geometry.useFifthMirror) {
         log('<strong>using four mirrors:</strong>');
@@ -246,18 +259,34 @@ function normalView() {
     }
 }
 
-
-// rotations
-function rotateXY() {
-    const h = cosXY * x - sinXY * y;
-    y = sinXY * x + cosXY * y;
-    x = h;
+// euler rotations
+function euler() {
+    const newX = txx * x + txy * y + txz * z;
+    const newY = tyx * x + tyy * y + tyz * z;
+    z = tzx * x + tzy * y + tzz * z;
+    x = newX;
+    y = newY;
 }
 
-function rotateXZ() {
-    const h = cosXZ * x - sinXZ * y;
-    y = sinXZ * x + cosXZ * y;
-    x = h;
+// normalize a 3d vector
+function normalize() {
+    const r2 = x * x + y * y + z * z;
+    if (r2 > eps2) {
+        const factor = 1 / Math.sqrt(r2);
+        x *= factor;
+        y *= factor;
+        z *= factor;
+    }
+}
+
+// stereographic projection in 3d:
+// unit sphere to plane
+// center at z=-1 because spherical maps to z=+r3d
+function inverseStereographic3dUnit() {
+    const factor = 1 / (1 + z);
+    x *= factor;
+    y *= factor;
+    z = 0;
 }
 
 // dihedral mapping in the (x,y) plane
@@ -384,7 +413,6 @@ function firstMirror() {
     }
 }
 
-
 // mirror images at the second plane, part of the 3d spherical tiling
 function secondMirror() {
     let d = n2x * x + n2y * y;
@@ -396,7 +424,6 @@ function secondMirror() {
         change = true;
     }
 }
-
 
 // mirror images at the third plane, part of the 3d spherical tiling
 function thirdMirror() {
@@ -410,7 +437,6 @@ function thirdMirror() {
         change = true;
     }
 }
-
 
 // fourth element as sphere, inversion inside->out, for hyperbolic case
 function fourthMirrorSphereInsideOut() {
@@ -426,4 +452,47 @@ function fourthMirrorSphereInsideOut() {
         inversions += 1;
         change = true;
     }
+}
+
+// doing the tiling of the 3d sphere by reflection at three planes
+function spherical() {
+    do {
+        dihedral();
+        change = false;
+        thirdMirror();
+    }
+    while (change);
+}
+
+
+/**
+ * the mapping function transforms a point argument
+ * (point.x,point.y) coordinates
+ * point.iterations: initially 0, number of INVERSIONS
+ * point.region: initially 0, number of region for endpoint (if distinct regions)
+ * point.valid>0 gives image pixels, point.valid<0 makes transparent pixels
+ * @method map.mapping
+ * @param {object}point
+ */
+
+function threeMirrors(point) {
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+
+    normalView();
+    if (valid > 0) {
+        spherical();
+        normalize();
+        inverseStereographic3dUnit();
+    }
+    
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
 }
