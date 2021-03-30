@@ -171,12 +171,12 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
 geometry.setup = function() {
     log();
     // prepare transformation from Euler angles
-    const c1 = cos(geometry.alpha);
-    const s1 = sin(geometry.alpha);
-    const c2 = cos(geometry.beta);
-    const s2 = sin(geometry.beta);
-    const c3 = cos(geometry.gamma);
-    const s3 = sin(geometry.gamma);
+    const c1 = cos(fromDeg*geometry.alpha);
+    const s1 = sin(fromDeg*geometry.alpha);
+    const c2 = cos(fromDeg*geometry.beta);
+    const s2 = sin(fromDeg*geometry.beta);
+    const c3 = cos(fromDeg*geometry.gamma);
+    const s3 = sin(fromDeg*geometry.gamma);
     txx = c1 * c3 - c2 * s1 * s3;
     txy = -c1 * s3 - c2 * c3 * s1;
     txz = s1 * s2;
@@ -353,6 +353,7 @@ function dihedral3() {
             const h = 0.5 * (rt3 * x - y);
             x = -0.5 * (x + rt3 * y);
             y = h;
+            inversions += 2;
             change = true;
         }
     }
@@ -370,6 +371,7 @@ function dihedral5() {
             const h = sin2Pi5 * x + cos2Pi5 * y;
             x = cos2Pi5 * x - sin2Pi5 * y;
             y = h;
+            inversions += 2;
             change = true;
         } else if (y < tan3Pi10 * x) {
             const h = sin3Pi5 * x - cos3Pi5 * y;
@@ -383,7 +385,8 @@ function dihedral5() {
             const h = sin2Pi5 * x + cos2Pi5 * y;
             x = cos2Pi5 * x - sin2Pi5 * y;
             y = h;
-            change = true;
+             inversions += 2;
+           change = true;
         } else if (y > -tan3Pi10 * x) {
             const h = sinPi5 * x - cosPi5 * y;
             x = cosPi5 * x + sinPi5 * y;
@@ -394,7 +397,8 @@ function dihedral5() {
             const h = sin4Pi5 * x + cos4Pi5 * y;
             x = cos4Pi5 * x - sin4Pi5 * y;
             y = h;
-            change = true;
+             inversions += 2;
+           change = true;
         }
     }
 }
@@ -484,6 +488,7 @@ function threeMirrors(point) {
     const maxIterations = map.maxIterations;
 
     normalView();
+    euler();
     if (valid > 0) {
         spherical();
         normalize();
