@@ -79,6 +79,7 @@ var c4x, c4y, c4z;
 // message for a vertex of three mirrors
 // and adding up different types
 var nMaterialVertices, nIdealVertices, nHyperIdealVertices;
+var geometryType;
 
 function triangle(n1, n2, n3, d12, d13, d23) {
     const sum = round(180 / d12 + 180 / d13 + 180 / d23);
@@ -97,15 +98,7 @@ function triangle(n1, n2, n3, d12, d13, d23) {
     log(message);
 }
 
-function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
-    nIdealVertices = 0;
-    nMaterialVertices = 0;
-    nHyperIdealVertices = 0;
-    log('<strong>tetrahedron of planes ' + i1 + ', ' + i2 + ', ' + i3 + ' and ' + i4 + '</strong>');
-    triangle(i1, i2, i3, d12, d13, d23);
-    triangle(i1, i2, i4, d12, d14, d24);
-    triangle(i1, i3, i4, d13, d14, d34);
-    triangle(i2, i3, i4, d23, d24, d34);
+function tetrahedronCalc(d12, d13, d14, d23, d24, d34) {
     const angle12 = pi / d12;
     const angle13 = pi / d13;
     const angle23 = pi / d23;
@@ -138,12 +131,25 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
     worldRadius = sqrt(abs(dis2 - 1));
     if (Math.abs(dis2 - 1) < 0.05) {
         worldRadius = 1;
-        log('euklidic geometry with worldradius ' + worldRadius.toPrecision(3));
+        geometryType = 'euklidic';
     } else if (dis2 < 1) {
-        log('spherical geometry with worldradius ' + worldRadius.toPrecision(3));
+        geometryType = 'spherical';
     } else {
-        log('hyperbolic geometry with worldradius ' + worldRadius.toPrecision(3));
+        geometryType = 'hyperbolic';
     }
+}
+
+function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
+    nIdealVertices = 0;
+    nMaterialVertices = 0;
+    nHyperIdealVertices = 0;
+    log('<strong>tetrahedron of planes ' + i1 + ', ' + i2 + ', ' + i3 + ' and ' + i4 + '</strong>');
+    triangle(i1, i2, i3, d12, d13, d23);
+    triangle(i1, i2, i4, d12, d14, d24);
+    triangle(i1, i3, i4, d13, d14, d34);
+    triangle(i2, i3, i4, d23, d24, d34);
+    tetrahedronCalc(d12, d13, d14, d23, d24, d34);
+    log(geometryType + ' geometry with worldradius ' + worldRadius.toPrecision(3));
     if (nMaterialVertices === 1) {
         log('1 material vertex');
     }
@@ -171,12 +177,12 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
 geometry.setup = function() {
     log();
     // prepare transformation from Euler angles
-    const c1 = cos(fromDeg*geometry.alpha);
-    const s1 = sin(fromDeg*geometry.alpha);
-    const c2 = cos(fromDeg*geometry.beta);
-    const s2 = sin(fromDeg*geometry.beta);
-    const c3 = cos(fromDeg*geometry.gamma);
-    const s3 = sin(fromDeg*geometry.gamma);
+    const c1 = cos(fromDeg * geometry.alpha);
+    const s1 = sin(fromDeg * geometry.alpha);
+    const c2 = cos(fromDeg * geometry.beta);
+    const s2 = sin(fromDeg * geometry.beta);
+    const c3 = cos(fromDeg * geometry.gamma);
+    const s3 = sin(fromDeg * geometry.gamma);
     txx = c1 * c3 - c2 * s1 * s3;
     txy = -c1 * s3 - c2 * c3 * s1;
     txz = s1 * s2;
@@ -201,34 +207,15 @@ geometry.setup = function() {
     const angle14 = pi / d14;
     const angle24 = pi / d24;
     const angle34 = pi / d34;
-
-
-
-
     if (!geometry.useFourthMirror) {
-
         log('<strong>three basic mirrors only:</strong>');
         nIdealVertices = 0;
         nMaterialVertices = 0;
         nHyperIdealVertices = 0;
         triangle(1, 2, 3, d12, d13, d23);
-        //setting up the first three mirror planes, normal vectors in 3d, unit length
-        // n1=(1,0,0)
-        // n2=(n2x,n2y,0)
-        // intersection angle of planes: n2*n1=-cos(angle12)
-        n2x = -cos(angle12);
-        // normalize
-        n2y = sqrt(1 - n2x * n2x);
-        // n3=(n3x,n3y,n3z)
-        // intersection angle of planes: n3*n1=-cos(angle13)
-        n3x = -cos(angle13);
-        // intersection angle of planes: n3*n2=-cos(angle23)
-        n3y = (-cos(angle23) - n3x * n2x) / n2y;
-        // normalize
-        n3z = sqrt(1 - n3x * n3x - n3y * n3y);
+        tetrahedronCalc(d12, d13, d14, d23, d24, d34);
         worldRadius = 1;
         map.mapping = threeMirrors;
-
     } else if (!geometry.useFifthMirror) {
         log('<strong>using four mirrors:</strong>');
         tetrahedron(1, 2, 3, 4, d12, d13, d14, d23, d24, d34);
@@ -237,7 +224,6 @@ geometry.setup = function() {
         log('<strong>using five mirrors:</strong>');
 
     }
-
     rSphere = geometry.radius * worldRadius;
     rSphere2 = rSphere * rSphere;
 };
@@ -385,8 +371,8 @@ function dihedral5() {
             const h = sin2Pi5 * x + cos2Pi5 * y;
             x = cos2Pi5 * x - sin2Pi5 * y;
             y = h;
-             inversions += 2;
-           change = true;
+            inversions += 2;
+            change = true;
         } else if (y > -tan3Pi10 * x) {
             const h = sinPi5 * x - cosPi5 * y;
             x = cosPi5 * x + sinPi5 * y;
@@ -397,8 +383,8 @@ function dihedral5() {
             const h = sin4Pi5 * x + cos4Pi5 * y;
             x = cos4Pi5 * x - sin4Pi5 * y;
             y = h;
-             inversions += 2;
-           change = true;
+            inversions += 2;
+            change = true;
         }
     }
 }
@@ -494,7 +480,7 @@ function threeMirrors(point) {
         normalize();
         inverseStereographic3dUnit();
     }
-    
+
     // final data
     point.x = x;
     point.y = y;
