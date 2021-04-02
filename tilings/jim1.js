@@ -198,7 +198,7 @@ gui.add({
     type: 'selection',
     params: tiling,
     property: 'initial',
-    options: ['quarter square', 'rhomb', 'triangleR', 'triangleL', 'mid','triangleNone', 'square', 'dodecagon'],
+    options: ['quarter square', 'rhomb', 'triangleR', 'triangleL', 'mid', 'triangleNone', 'square', 'dodecagon'],
     onChange: function() {
         draw();
     }
@@ -241,7 +241,7 @@ function quarterSquare(gen, blX, blY, trX, trY) {
     const upY = 0.732050808 * (tlY - blY);
     const rightX = upY;
     const rightY = -upX;
-    if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
+    if (output.isInCanvas(blX-0.5*rightX, blY-0.5*rightY, brX+0.5*rightX, brY+0.5*rightY, trX+0.5*rightX+0.8*upX, trY+0.5*rightY+0.8*upY, tlX-0.5*rightX+0.8*upY, tlY-0.5*rightY+0.8*upY)) {
         if (gen >= tiling.maxGen) {} else {
             gen += 1;
             cX = blX + rt32 * rightX + 0.5 * upX;
@@ -289,45 +289,49 @@ function square(gen, blX, blY, trX, trY) {
     const upY = 0.366025404 * (tlY - blY);
     const rightX = upY;
     const rightY = -upX;
-    if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
-        if (gen >= tiling.maxGen) {
-            if (tiling.drawBorders) {
-                if (tiling.border) {
-                    canvasContext.strokeStyle = tiling.borderColor;
-                    output.setLineWidth(tiling.borderWidth);
-                    output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
-                    canvasContext.closePath();
-                    canvasContext.stroke();
-                }
-            } else {
-                switch (tiling.decoration) {
-                    case 'solid color':
-                        canvasContext.fillStyle = tiling.squareColor;
-                        output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
-                        canvasContext.fill();
-                        break;
-                    case 'grid':
-                        canvasContext.strokeStyle = tiling.gridColor;
-                        output.setLineWidth(tiling.gridWidth);
-                        output.makePath(0.5 * (blX + brX), 0.5 * (blY + brY), 0.5 * (tlX + trX), 0.5 * (tlY + trY));
-                        canvasContext.stroke();
-                        output.makePath(0.5 * (blX + tlX), 0.5 * (blY + tlY), 0.5 * (brX + trX), 0.5 * (brY + trY));
-                        canvasContext.stroke();
-                        break;
-                }
-            }
-        } else {
-            quarterSquare(gen, cX, cY, blX, blY);
-            quarterSquare(gen, cX, cY, brX, brY);
-            quarterSquare(gen, cX, cY, tlX, tlY);
-            quarterSquare(gen, cX, cY, trX, trY);
-            gen += 1;
-            if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
-                canvasContext.strokeStyle = tiling.hyperBorderColor;
-                output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY, blX, blY);
+    if (gen >= tiling.maxGen) {
+        if (tiling.drawBorders) {
+            if (tiling.border) {
+                canvasContext.strokeStyle = tiling.borderColor;
+                output.setLineWidth(tiling.borderWidth);
+                output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
+                canvasContext.closePath();
                 canvasContext.stroke();
             }
+        } else {
+            switch (tiling.decoration) {
+                case 'solid color':
+                    canvasContext.fillStyle = tiling.squareColor;
+                    output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
+                    canvasContext.fill();
+                    break;
+                case 'grid':
+                    canvasContext.strokeStyle = tiling.gridColor;
+                    output.setLineWidth(tiling.gridWidth);
+                    output.makePath(0.5 * (blX + brX), 0.5 * (blY + brY), 0.5 * (tlX + trX), 0.5 * (tlY + trY));
+                    canvasContext.stroke();
+                    output.makePath(0.5 * (blX + tlX), 0.5 * (blY + tlY), 0.5 * (brX + trX), 0.5 * (brY + trY));
+                    canvasContext.stroke();
+                    break;
+            }
+        }
+        if (tiling.maxGen === 0) {
+            triangleNone(gen, tlX, tlY, trX, trY);
+            triangleNone(gen, trX, trY, brX, brY);
+            triangleNone(gen, brX, brY, blX, blY);
+            triangleNone(gen, blX, blY, tlX, tlY);
+        }
+    } else {
+        quarterSquare(gen, cX, cY, blX, blY);
+        quarterSquare(gen, cX, cY, brX, brY);
+        quarterSquare(gen, cX, cY, tlX, tlY);
+        quarterSquare(gen, cX, cY, trX, trY);
+        gen += 1;
+        if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
+            canvasContext.strokeStyle = tiling.hyperBorderColor;
+            output.setLineWidth(tiling.hyperBorderWidth);
+            output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY, blX, blY);
+            canvasContext.stroke();
         }
     }
 }
@@ -614,10 +618,12 @@ function mid(gen, aX, aY, bX, bY) {
                 if (tiling.border) {
                     canvasContext.strokeStyle = tiling.borderColor;
                     output.setLineWidth(tiling.borderWidth);
-                    output.makePath(aX, aY, bX, bY);
-                    canvasContext.stroke();
+
                     if (tiling.subTriangle) {
                         output.makePath(aX, aY, cX, cY, bX, bY, dX, dY, aX, aY);
+                        canvasContext.stroke();
+                    } else {
+                        output.makePath(aX, aY, bX, bY);
                         canvasContext.stroke();
                     }
                 }
@@ -655,7 +661,7 @@ function mid(gen, aX, aY, bX, bY) {
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(aX, aY, bX, bY, cX, cY);
+                output.makePath(aX, aY, cX, cY, bX, bY, dX, dY);
                 canvasContext.closePath();
                 canvasContext.stroke();
             }

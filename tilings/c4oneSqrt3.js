@@ -580,7 +580,7 @@ function mid(gen, aX, aY, bX, bY) {
             if (tiling.drawBorders && tiling.hyperBorder && (gen === tiling.maxGen)) {
                 canvasContext.strokeStyle = tiling.hyperBorderColor;
                 output.setLineWidth(tiling.hyperBorderWidth);
-                output.makePath(aX, aY, bX, bY, cX, cY);
+                output.makePath(aX, aY, cX, cY,bX,bY,dX,dY);
                 canvasContext.closePath();
                 canvasContext.stroke();
             }
