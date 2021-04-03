@@ -28,7 +28,7 @@ const rosette = {};
 rosette.lineColor = '#000000';
 rosette.lineWidth = 2;
 
-rosette.n = 8;
+rosette.n = 12;
 rosette.itemax = 10;
 
 rosette.tileColor = '#000000';
@@ -293,8 +293,8 @@ function draw() {
             canvasContext.stroke();
         }
     }
- //   triangles();
-       squares();
+    triangles();
+ //      squares();
     canvasContext.strokeStyle = "#cccccc";
     output.setLineWidth(0.4*rosette.tileWidth);
   //  mirrors();
@@ -303,12 +303,12 @@ function draw() {
     canvasContext.strokeStyle = rosette.tileColor;
     twoSqrt3();
   //  oneSqrt3();
-  //  extra();
+    extra();
 const dash=rosette.tileWidth*output.coordinateTransform.totalScale;
 
     canvasContext.setLineDash([0.5*dash,2*dash]);
     output.setLineWidth(0.7*rosette.tileWidth);
-  //  mirrors();
+    mirrors();
     output.drawGrid();
 }
 

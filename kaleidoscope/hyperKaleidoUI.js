@@ -220,6 +220,16 @@ controllers.radius = gui.add({
     }
 });
 
+controllers.radius.add({
+    type:'boolean',
+    params:geometry,
+    property:'constantRadius',
+    labelText:'constant',
+        onChange: function() {
+        map.drawMapChanged();
+    }
+})
+
 controllers.alpha = gui.add({
     type: 'number',
     params: geometry,

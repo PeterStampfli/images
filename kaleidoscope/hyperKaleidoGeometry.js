@@ -50,13 +50,14 @@ geometry.d25 = 3;
 geometry.d35 = 3;
 geometry.d45 = 3;
 
+// radius relative to the hyperbolic radius
+geometry.radius = 0.9;
+geometry.constantRadius = true;
+
 // rotation angles
 geometry.alpha = 0;
 geometry.beta = 0;
 geometry.gamma = 0;
-
-// radius relative to the hyperbolic radius
-geometry.radius = 0.9;
 
 // Euler angles -> transform
 var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
@@ -68,6 +69,9 @@ var rSphere, rSphere2, worldRadius;
 
 // the fourth mirror as a sphere of radius 1
 var c4x, c4y, c4z;
+
+// for euklidean geometry we have to do n initial inversion
+var initialInversion = false;
 
 // first map xy to sphere with normal projection
 // rotate in xy plane
@@ -219,6 +223,8 @@ geometry.setup = function() {
     } else if (!geometry.useFifthMirror) {
         log('<strong>using four mirrors:</strong>');
         tetrahedron(1, 2, 3, 4, d12, d13, d14, d23, d24, d34);
+        initialInversion = (geometryType === 'euklidic');
+        map.mapping = fourMirrors;
 
     } else {
         log('<strong>using five mirrors:</strong>');
@@ -472,7 +478,6 @@ function threeMirrors(point) {
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-
     normalView();
     euler();
     if (valid > 0) {
@@ -480,7 +485,42 @@ function threeMirrors(point) {
         normalize();
         inverseStereographic3dUnit();
     }
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+}
 
+function fourMirrors(point) {
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    if (geometry.constantRadius) {
+        x *= geometry.radius;
+        y *= geometry.radius;
+    }
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    normalView();
+    euler();
+    if (valid > 0) {
+        if (initialInversion) {
+            const ir2 = 1 / (x * x + y * y);
+            x *= ir2;
+            y *= ir2;
+        }
+        let i = 0;
+        do {
+            spherical();
+            change = false;
+            fourthMirrorSphereInsideOut();
+            i += 1;
+        } while (change && (i < maxIterations));
+        normalize();
+        inverseStereographic3dUnit();
+    }
     // final data
     point.x = x;
     point.y = y;
