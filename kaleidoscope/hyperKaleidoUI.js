@@ -214,17 +214,25 @@ controllers.radius = gui.add({
     type: 'number',
     params: geometry,
     property: 'radius',
-    min: 0,
     onChange: function() {
         map.drawMapChanged();
     }
 });
 
-controllers.radius.add({
+controllers.constantRadius=controllers.radius.add({
     type:'boolean',
     params:geometry,
     property:'constantRadius',
     labelText:'constant',
+        onChange: function() {
+        map.drawMapChanged();
+    }
+})
+
+controllers.planar=controllers.radius.add({
+    type:'boolean',
+    params:geometry,
+    property:'planar',
         onChange: function() {
         map.drawMapChanged();
     }

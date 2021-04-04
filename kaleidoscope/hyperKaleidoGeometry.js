@@ -40,11 +40,11 @@ const sin4Pi5 = Math.sin(4 * pi / 5);
 geometry.d12 = 5;
 geometry.d13 = 3;
 geometry.d23 = 2;
-geometry.useFourthMirror = false;
+geometry.useFourthMirror = true;
 geometry.d14 = 2;
 geometry.d24 = 3;
 geometry.d34 = 5;
-geometry.useFifthMirror = false;
+geometry.useFifthMirror = true;
 geometry.d15 = 3;
 geometry.d25 = 3;
 geometry.d35 = 3;
@@ -53,6 +53,7 @@ geometry.d45 = 3;
 // radius relative to the hyperbolic radius
 geometry.radius = 0.9;
 geometry.constantRadius = true;
+geometry.planar = false;
 
 // rotation angles
 geometry.alpha = 0;
@@ -69,6 +70,8 @@ var rSphere, rSphere2, worldRadius;
 
 // the fourth mirror as a sphere of radius 1
 var c4x, c4y, c4z;
+// the fifth mirror as a sphere of radius r5
+var r5, r5sq, c5x, c5y, c5z;
 
 // for euklidean geometry we have to do n initial inversion
 var initialInversion = false;
@@ -175,6 +178,38 @@ function tetrahedron(i1, i2, i3, i4, d12, d13, d14, d23, d24, d34) {
 }
 
 /**
+ * solve quadratic equation ax**2+bx+c=0
+ * only for real solutions
+ * solutions are in Fast.xLow and Fast.xHigh
+ * @method quadraticEquation
+ * @param {float} a - has to be diffferent from zero, check before !!!
+ * @param {float} b
+ * @param {float} c
+ * @param {Vector2} data - x and y fields are the lower and higher solutions, data.x < data.y
+ * @return {boolean} true if there are real solutions
+ */
+function quadraticEquation(a, b, c) {
+    const rootArg = b * b - 4 * a * c;
+    if (rootArg < 0) {
+        data.x = 0;
+        data.y = 0;
+        return false;
+    }
+    if (b > 0) {
+        data.x = 0.5 * (-b - Math.sqrt(rootArg)) / a;
+        data.y = c / a / data.x;
+    } else {
+        data.y = 0.5 * (-b + Math.sqrt(rootArg)) / a;
+        data.x = c / a / data.y;
+    }
+    //   console.log(a * data.x * data.x + b * data.x + c);
+    //   console.log(a * data.y * data.y + b * data.y + c);
+    return true;
+}
+
+const data = {};
+
+/**
  * setting up the geometry, including rotation
  * @method geometry.setup
  */
@@ -208,9 +243,6 @@ geometry.setup = function() {
     const d14 = geometry.d14;
     const d24 = geometry.d24;
     const d34 = geometry.d34;
-    const angle14 = pi / d14;
-    const angle24 = pi / d24;
-    const angle34 = pi / d34;
     if (!geometry.useFourthMirror) {
         log('<strong>three basic mirrors only:</strong>');
         nIdealVertices = 0;
@@ -225,10 +257,58 @@ geometry.setup = function() {
         tetrahedron(1, 2, 3, 4, d12, d13, d14, d23, d24, d34);
         initialInversion = (geometryType === 'euklidic');
         map.mapping = fourMirrors;
-
     } else {
         log('<strong>using five mirrors:</strong>');
-
+        const d15 = geometry.d15;
+        const d25 = geometry.d25;
+        const d35 = geometry.d35;
+        const d45 = geometry.d45;
+        const angle45 = pi / d45;
+        tetrahedron(1, 2, 3, 4, d12, d13, d14, d23, d24, d34);
+        tetrahedron(1, 2, 3, 5, d12, d13, d15, d23, d25, d35);
+        c5x = c4x;
+        c5y = c4y;
+        c5z = c4z;
+        tetrahedron(1, 2, 4, 5, d12, d14, d15, d24, d25, d45);
+        tetrahedron(1, 3, 4, 5, d13, d14, d15, d34, d35, d45);
+        tetrahedron(2, 3, 4, 5, d23, d24, d25, d34, d35, d45);
+        tetrahedronCalc(d12, d13, d14, d23, d24, d34);
+        const c5sq = c5x * c5x + c5y * c5y + c5z * c5z;
+        const c4sq = c4x * c4x + c4y * c4y + c4z * c4z;
+        const c4c5 = c4x * c5x + c4y * c5y + c4z * c5z;
+        const a = c5sq - 1;
+        const b = -2 * (c4c5 + cos(angle45));
+        const c = c4sq - 1;
+        if (abs(c) < 0.05) {
+            // euklidic base
+            if (abs(a) < 0.05) {
+                log('double euklidic, no solution');
+                r5 = 0;
+            } else {
+                r5 = -c / b;
+            }
+        } else if (c > 0) {
+            // hyperbolic base
+            if (abs(a) < 0.05) {
+                r5 = -c / b;
+            } else {
+                quadraticEquation(a, b, c);
+                r5 = data.x; // take the smaller solution
+            }
+        } else {
+            // spherical base
+            if (abs(a) < 0.05) {
+                r5 = -c / b;
+            } else {
+                quadraticEquation(a, b, c);
+                r5 = data.y; // take the larger solution
+            }
+        }
+        // update fifth mirror (center of sphere)
+        c5x *= r5;
+        c5y *= r5;
+        c5z *= r5;
+        r5sq = r5 * r5;
     }
     rSphere = geometry.radius * worldRadius;
     rSphere2 = rSphere * rSphere;
@@ -434,7 +514,7 @@ function thirdMirror() {
     }
 }
 
-// fourth element as sphere, inversion inside->out, for hyperbolic case
+// fourth element as sphere, inversion inside->out
 function fourthMirrorSphereInsideOut() {
     const dx = x - c4x;
     const dy = y - c4y;
@@ -478,8 +558,12 @@ function threeMirrors(point) {
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-    normalView();
-    euler();
+    if (geometry.planar) {
+        z = rSphere;
+    } else {
+        normalView();
+        euler();
+    }
     if (valid > 0) {
         spherical();
         normalize();
@@ -503,8 +587,12 @@ function fourMirrors(point) {
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-    normalView();
-    euler();
+    if (geometry.planar) {
+        z = rSphere;
+    } else {
+        normalView();
+        euler();
+    }
     if (valid > 0) {
         if (initialInversion) {
             const ir2 = 1 / (x * x + y * y);
