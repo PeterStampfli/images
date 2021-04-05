@@ -110,12 +110,15 @@ function twoSqrt3() {
     const i = 5;
     const x = px[i];
     const y = py[i];
-    const side = Math.hypot(x[0], y[0]);
+    let side = Math.hypot(x[0], y[0]);
     output.makePath(0, 0, side, 0, side * (1 + Math.cos(angle)), side * Math.sin(angle), side * Math.cos(angle), side * Math.sin(angle), 0, 0);
     canvasContext.stroke();
     output.makePath(0, 0, side * Math.cos(angle), side * Math.sin(angle), side * Math.cos(3 * angle), side * Math.sin(3 * angle), 0, 0);
-    canvasContext.stroke();
+ //   canvasContext.stroke();
     output.makePath(0, 0, 0, side, -side, side, -side, 0, 0, 0);
+    canvasContext.stroke();
+    side*=(2+Math.sqrt(2))/(1+Math.sqrt(2));
+    output.makePath(0, 0, side, 0, side * (1 + Math.cos(angle)), -side * Math.sin(angle), side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
     canvasContext.stroke();
 }
 
@@ -228,8 +231,9 @@ function triangles() {
 }
 
 function squares() {
-    const d = 2 + Math.sqrt(3);
+    const d = 1 + Math.sqrt(2);
     const angle = 2 * Math.PI / rosette.n;
+        output.setLineWidth(rosette.lineWidth*0.5);
     for (let i = 0; i <= rosette.n; i++) {
         const s = Math.cos(angle * i);
         const c = Math.sin(angle * i);
@@ -302,11 +306,11 @@ function draw() {
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.tileColor;
     twoSqrt3();
-    //  oneSqrt3();
+   //   oneSqrt3();
     //  extra();
     const dash = rosette.tileWidth * output.coordinateTransform.totalScale;
 
-    canvasContext.setLineDash([0.5 * dash, 2 * dash]);
+  //  canvasContext.setLineDash([0.5 * dash, 2 * dash]);
     output.setLineWidth(0.7 * rosette.tileWidth);
     //  mirrors();
     output.drawGrid();

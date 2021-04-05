@@ -309,6 +309,7 @@ geometry.setup = function() {
         c5y *= r5;
         c5z *= r5;
         r5sq = r5 * r5;
+        map.mapping = fiveMirrors;
     }
     rSphere = geometry.radius * worldRadius;
     rSphere2 = rSphere * rSphere;
@@ -320,6 +321,7 @@ geometry.setup = function() {
 var x, y, z, valid, inversions;
 // for terminating
 var change = true;
+var change3 = true;
 
 // normal view of 3d sphere
 function normalView() {
@@ -477,7 +479,6 @@ function dihedral5() {
 
 dihedrals = [null, null, dihedral2, dihedral3, dihedral4, dihedral5];
 
-
 // mirrors - plane mirrors
 
 // mirror images at the first plane, part of the 3d spherical tiling
@@ -510,7 +511,9 @@ function thirdMirror() {
         y -= d * n3y;
         z -= d * n3z;
         inversions += 1;
-        change = true;
+        change3 = true;
+    } else {
+        change3 = false;
     }
 }
 
@@ -530,16 +533,30 @@ function fourthMirrorSphereInsideOut() {
     }
 }
 
+// fifth element as sphere, inversion inside->out
+function fifthMirrorSphereInsideOut() {
+    const dx = x - c5x;
+    const dy = y - c5y;
+    const dz = z - c5z;
+    let d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 < r5sq) {
+        d2 = r5sq / d2;
+        x = c5x + dx * d2;
+        y = c5y + dy * d2;
+        z = c5z + dz * d2;
+        inversions += 1;
+        change = true;
+    }
+}
+
 // doing the tiling of the 3d sphere by reflection at three planes
 function spherical() {
     do {
         dihedral();
-        change = false;
         thirdMirror();
     }
-    while (change);
+    while (change3);
 }
-
 
 /**
  * the mapping function transforms a point argument
@@ -606,8 +623,60 @@ function fourMirrors(point) {
             fourthMirrorSphereInsideOut();
             i += 1;
         } while (change && (i < maxIterations));
-        normalize();
-        inverseStereographic3dUnit();
+        if (change) {
+            valid = -1;
+        } else {
+            normalize();
+            inverseStereographic3dUnit();
+        }
+    }
+    // final data
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+}
+
+function fiveMirrors(point) {
+    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    x = point.x * worldRadius;
+    y = point.y * worldRadius;
+    if (geometry.constantRadius) {
+        x *= geometry.radius;
+        y *= geometry.radius;
+    }
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    if (geometry.planar) {
+        z = rSphere;
+    } else {
+        normalView();
+        euler();
+    }
+    if (valid > 0) {
+        if (initialInversion) {
+            const ir2 = 1 / (x * x + y * y);
+            x *= ir2;
+            y *= ir2;
+        }
+        let i = 0;
+        do {
+            spherical();
+            change = false;
+            fourthMirrorSphereInsideOut();
+            if (change) {
+                spherical();
+            }
+            fifthMirrorSphereInsideOut();
+            i += 1;
+        } while (change && (i < maxIterations));
+        if (change) {
+            valid = -1;
+        } else {
+            normalize();
+            inverseStereographic3dUnit();
+        }
     }
     // final data
     point.x = x;
