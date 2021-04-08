@@ -452,15 +452,17 @@ guiUtils.saveCanvasAsFile = function(canvas, filename, extension = 'jpg', callba
 
 /**
  * save a (text) string as a file
+ * for a new line use '/r/n'  (cariage return and new line)
  * @method guiUtils.saveTextAsFile
  * @param {String} text
- * @param {String} filename - without extension (will be .txt)
+ * @param {String} filename - without extension 
+ * @param {String} extension - optional, default is 'txt', use empty string if filename has extension
  */
-guiUtils.saveTextAsFile = function(text, filename) {
+guiUtils.saveTextAsFile = function(text, filename, extension = 'txt') {
     const blob = new Blob([text], {
         type: 'text/plain'
     });
-    saveBlobAsFile(blob, filename + '.txt');
+    saveBlobAsFile(blob, filename + extension);
 };
 
 // check byte order of the machine
@@ -625,4 +627,4 @@ guiUtils.gaussWeights = function(n) {
         result[i + n] = Math.round(1000 * Math.pow(2, -x * x));
     }
     return result;
-}
+};

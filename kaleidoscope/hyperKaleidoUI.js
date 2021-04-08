@@ -210,33 +210,24 @@ controllers.d45 = controllers.d35.add(dihedralControl, {
 
 gui.addParagraph('<strong>display</strong>');
 
+controllers.view=gui.add({
+    type:'selection',
+    params:geometry,
+    property:'view',
+    options:['sphere','normalized sphere','sphere stereographic','plane','inverted plane'],
+     onChange: function() {
+        map.drawMapChanged();
+    }   
+})
 controllers.radius = gui.add({
     type: 'number',
     params: geometry,
     property: 'radius',
+    labelText:'radius or z',
     onChange: function() {
         map.drawMapChanged();
     }
 });
-
-controllers.constantRadius=controllers.radius.add({
-    type:'boolean',
-    params:geometry,
-    property:'constantRadius',
-    labelText:'constant',
-        onChange: function() {
-        map.drawMapChanged();
-    }
-})
-
-controllers.planar=controllers.radius.add({
-    type:'boolean',
-    params:geometry,
-    property:'planar',
-        onChange: function() {
-        map.drawMapChanged();
-    }
-})
 
 controllers.alpha = gui.add({
     type: 'number',

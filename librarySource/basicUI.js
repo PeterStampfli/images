@@ -207,6 +207,49 @@ basicUI = {};
     // about the output image
 
     Make.createSaveImagePng("saveOutputImage", "kaleidoscope");
+
+    // saving the map data
+    if (DOM.idExists("saveMapData")) {
+        Make.saveMapButton = new Button('saveMapData');
+        Make.saveMapButton.onClick = function() {
+            console.log('save map data precision ' + Make.saveMapPrecision.getValue());
+            console.log(Make.map.width, Make.map.height);
+            const precision = Make.saveMapPrecision.getValue();
+            const height = Make.map.height;
+            const width = Make.map.width;
+            const lowerLeft = {};
+            const upperRight = {};
+            Make.map.getOutputRange(lowerLeft, upperRight);
+            console.log(lowerLeft, upperRight);
+            let mapData = '%%MatrixMarket matrix array complex general\r\n';
+            mapData += '% kaleidoscope with:\r\n';
+            mapData += '% symmetry center ' + parameters.setKButton.getValue() + '\r\n';
+            mapData += '% symmetry left ' + parameters.setMButton.getValue() + '\r\n';
+            mapData += '% symmetry right ' + parameters.setNButton.getValue() + '\r\n';
+            switch (basicKaleidoscope.geometry) {
+                case basicKaleidoscope.elliptic:
+                    mapData += "% elliptic geometry\r\n";
+                    mapData += '% view ' + projection.ellipticView + '\r\n';
+                    break;
+                case basicKaleidoscope.euclidic:
+                    mapData += "% Euklidic geometry\r\n";
+                    mapData += '% view ' + projection.euclidicView + '\r\n';
+                    break;
+                case basicKaleidoscope.hyperbolic:
+                    mapData += "% hyperbolic geometry\r\n";
+                    mapData += '% view ' + projection.hyperbolicView + '\r\n';
+                    break;
+            }
+            mapData += '% tiling ' + parameters.tiling + '\r\n';
+            mapData += '% map width ' + width + '\r\n';
+            mapData += '% map height ' + height + '\r\n';
+
+            console.log(mapData);
+        };
+        Make.saveMapPrecision = new NumberButton('precision');
+        Make.saveMapPrecision.setRange(2, 6);
+        Make.saveMapPrecision.setValue(4);
+    }
     basicUI.showSelect = false;
     DOM.style("#convergenceStyle", "display", "none");
     DOM.displayNone("imageControlDiv");

@@ -1,6 +1,7 @@
 /* jshint esversion:6 */
 
 // create the UI elements and their interactions
+var parameters = {};
 
 function creation() {
     "use strict";
@@ -87,26 +88,31 @@ function creation() {
 
     //choosing the symmetries, and set initial values
     let setKButton = NumberButton.create("k");
+    parameters.setKButton = setKButton;
     setKButton.setRange(2, 10000);
     setKButton.setValue(5);
     setKButton.onChange = Make.updateNewMap;
 
     let setMButton = NumberButton.createInfinity("m");
+    parameters.setMButton = setMButton;
     setMButton.setRange(2, 10000);
     setMButton.setValue(2);
     setMButton.onChange = Make.updateNewMap;
 
     let setNButton = NumberButton.createInfinity("n");
+    parameters.setNButton = setNButton;
     setNButton.setRange(2, 10000);
     setNButton.setValue(3);
     setNButton.onChange = Make.updateNewMap;
 
     // the different tilings
 
+parameters.tiling='regular';
     // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
     function changeTiling(newTiling) {
         if (newTiling != tiling) {
             tiling = newTiling;
+            parameters.tiling=tiling;
             Make.updateNewMap();
         }
     }
@@ -136,6 +142,7 @@ function creation() {
     // for elliptic geometry
 
     let ellipticProjectionSelect = new Select("selectEllipticProjection");
+    parameters.ellipticProjectionSelect = ellipticProjectionSelect;
     ellipticProjectionSelect.addOption("orthographic", projection.ellipticNormal);
     ellipticProjectionSelect.addOption("stereographic", projection.ellipticStereographic);
     ellipticProjectionSelect.addOption("gonomic", projection.ellipticGonomic);
@@ -148,6 +155,7 @@ function creation() {
 
     // for euklidic geometry
     let euclidicProjectionSelect = new Select("selectEuclidicProjection");
+    parameters.euclidicProjectionSelect = euclidicProjectionSelect;
     euclidicProjectionSelect.addOption("direct", projection.euclidicNormal);
     euclidicProjectionSelect.addOption("inverted", projection.euclidicInverted);
     euclidicProjectionSelect.addOption("single spiral", projection.euclidicSingleSpiral);
@@ -157,6 +165,7 @@ function creation() {
 
     // for hyperbolic geometry
     let hyperbolicProjectionSelect = new Select("selectHyperbolicProjection");
+    parameters.hyperbolicProjectionSelect = hyperbolicProjectionSelect;
     hyperbolicProjectionSelect.addOption("Poincaré disc", projection.hyperbolicPoincareDisc);
     hyperbolicProjectionSelect.addOption("Beltrami-Klein disc", projection.hyperbolicKleinDisc);
     hyperbolicProjectionSelect.addOption("Poincaré plane", projection.hyperbolicPoincarePlane);

@@ -62,6 +62,7 @@ projection = {};
     // making the projections
     // elliptic
     projection.ellipticStereographic = function() {
+        projection.ellipticView = 'stereographic';
         projection.ellipticMap = projection.identityMap;
         projection.ellipticDiscRadius = -1;
         Make.updateNewMap();
@@ -71,7 +72,7 @@ projection = {};
     let ellipticWorldradius2 = basicKaleidoscope.worldRadiusElliptic * basicKaleidoscope.worldRadiusElliptic;
     let iEllipticWorldradius2 = 1 / ellipticWorldradius2;
 
-
+    projection.ellipticView = 'orthographic';
     projection.ellipticNormalMap = function(position) {
         let r2worldRadius2 = (position.x * position.x + position.y * position.y) * iEllipticWorldradius2;
         let rt = (1 - r2worldRadius2);
@@ -86,6 +87,7 @@ projection = {};
     };
 
     projection.ellipticNormal = function() {
+        projection.ellipticView = 'orthographic';
         projection.ellipticDiscRadius = basicKaleidoscope.worldRadiusElliptic;
         projection.ellipticMap = projection.ellipticNormalMap;
         Make.updateNewMap();
@@ -108,6 +110,7 @@ projection = {};
     };
 
     projection.ellipticNormalStereo = function() {
+        projection.ellipticView = 'ortho/stereographic';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = projection.ellipticNormalStereoMap;
         Make.updateNewMap();
@@ -127,12 +130,14 @@ projection = {};
     };
 
     projection.ellipticStereographicEquator = function() {
+        projection.ellipticView = 'stereographic with equator';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = projection.ellipticStereographicEquatorMap;
         Make.updateNewMap();
     };
 
     projection.ellipticGonomic = function() {
+        projection.ellipticView = 'gonomic';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
             let r2worldRadius2 = Math.hypot(position.x, position.y) * iEllipticWorldradius2;
@@ -145,6 +150,7 @@ projection = {};
     };
 
     projection.ellipticMercator = function() {
+        projection.ellipticView = 'Mercator';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
             Fast.cosSin(position.x, v);
@@ -157,6 +163,7 @@ projection = {};
     };
 
     projection.ellipticGonomicCylinder = function() {
+        projection.ellipticView = 'gonomic cylinder';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = function(position) {
             Fast.cosSin(position.x, v);
@@ -170,13 +177,15 @@ projection = {};
 
     // euclidic
     // the usual straight view
-
+    projection.euclidicView = 'direct';
     projection.euclidicNormal = function() {
+        projection.euclidicView = 'direct';
         projection.euclidicMap = projection.identityMap;
         projection.euclidicDiscRadius = -1;
         Make.updateNewMap();
     };
     projection.euclidicInverted = function() {
+        projection.euclidicView = 'inverted';
         projection.euclidicMap = function(position) {
             position.scale(ellipticWorldradius2 / position.length2());
             return 1;
@@ -285,6 +294,7 @@ projection = {};
     };
 
     projection.euclidicSingleSpiral = function() {
+        projection.euclidicView = 'single spiral';
         spiralNumber1 = 6;
         spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
@@ -293,6 +303,7 @@ projection = {};
     };
 
     projection.euclidicDoubleSpiral = function() {
+        projection.euclidicView = 'double spiral';
         spiralNumber1 = 6;
         spiralNumber2 = 1;
         projection.euclidicDiscRadius = -1;
@@ -308,6 +319,7 @@ projection = {};
 
 
     projection.euclidicDisc = function() {
+        projection.euclidicView = 'disc';
         projection.euclidicDiscRadius = basicKaleidoscope.worldRadiusElliptic;
         const ir = 1 / basicKaleidoscope.worldRadiusElliptic;
         const base = 1;
@@ -321,8 +333,9 @@ projection = {};
 
 
     //hyperbolic
-
+    projection.hyperbolicView = 'Poincaré disc';
     projection.hyperbolicPoincareDisc = function() {
+        projection.hyperbolicView = 'Poincaré disc';
         projection.hyperbolicMap = projection.identityMap;
         projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
         Make.updateNewMap();
@@ -341,6 +354,7 @@ projection = {};
     }
 
     projection.hyperbolicKleinDisc = function() {
+        projection.hyperbolicView = 'Beltrami-Klein disc';
         projection.hyperbolicMap = kleinPoincare;
         projection.hyperbolicDiscRadius = basicKaleidoscope.worldRadiusHyperbolic;
         Make.updateNewMap();
@@ -386,6 +400,7 @@ projection = {};
     }
 
     projection.hyperbolicPoincarePlane = function() {
+        projection.hyperbolicView = 'Poincaré plane';
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = halfplaneDisc;
         Make.updateNewMap();
@@ -411,12 +426,14 @@ projection = {};
     }
 
     projection.hyperbolicBulatovBand = function() {
+        projection.hyperbolicView = 'Bulatov band';
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = bandDisc;
         Make.updateNewMap();
     };
 
     projection.hyperbolicGans = function() {
+        projection.hyperbolicView = 'Gans model';
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = function(position) {
             let mapFactor = 1 / (1 + Math.sqrt(1 + (position.x * position.x + position.y * position.y) * iHyperbolicWorldradius2));
@@ -428,6 +445,7 @@ projection = {};
     };
 
     projection.hyperbolicMercator = function() {
+        projection.hyperbolicView = 'Mercator';
         projection.hyperbolicDiscRadius = -1;
         projection.hyperbolicMap = function(position) {
             position.y = basicKaleidoscope.worldRadiusHyperbolic - position.y;
@@ -445,12 +463,14 @@ projection = {};
     };
 
     projection.ellipticQuincuncial = function() {
+        projection.ellipticView = 'quincuncial tiled';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = quincuncial;
         Make.updateNewMap();
     };
 
     projection.ellipticQuincuncialSingle = function() {
+        projection.ellipticView = 'quincuncinal single';
         projection.ellipticDiscRadius = -1;
         projection.ellipticMap = quincuncialSingle;
         Make.updateNewMap();

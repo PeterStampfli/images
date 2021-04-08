@@ -50,10 +50,9 @@ geometry.d25 = 3;
 geometry.d35 = 3;
 geometry.d45 = 3;
 
+geometry.view = 'normalized sphere';
 // radius relative to the hyperbolic radius
 geometry.radius = 0.9;
-geometry.constantRadius = true;
-geometry.planar = false;
 
 // rotation angles
 geometry.alpha = 0;
@@ -208,6 +207,8 @@ function quadraticEquation(a, b, c) {
 }
 
 const data = {};
+// view transforms (x,y) ->(x,y,z), sets valid=-1 if fails
+var view;
 
 /**
  * setting up the geometry, including rotation
@@ -243,6 +244,44 @@ geometry.setup = function() {
     const d14 = geometry.d14;
     const d24 = geometry.d24;
     const d34 = geometry.d34;
+    // the views
+    switch (geometry.view){
+        case 'sphere':
+            console.log('sphere');
+            view = normalView;
+            break;
+        case 'normalized sphere':
+            console.log('norm sphere');
+            view = function() {
+                x *= geometry.radius;
+                y *= geometry.radius;
+                normalView();
+            };
+            break;
+        case 'sphere stereographic':
+            console.log('sphere ster');
+            view = function() {
+                x *= geometry.radius;
+                y *= geometry.radius;
+                stereographic();
+            };
+            break;
+        case 'plane':
+            console.log('plane');
+            view = function() {
+                z = rSphere;
+            };
+            break;
+        case 'inverted plane':
+            console.log('plane inv');
+            view = function() {
+                z = rSphere;
+                const factor = 1 / (x * x + y * y);
+                y *= factor;
+                x *= factor;
+            };
+            break;
+    }
     if (!geometry.useFourthMirror) {
         log('<strong>three basic mirrors only:</strong>');
         nIdealVertices = 0;
@@ -273,6 +312,7 @@ geometry.setup = function() {
         tetrahedron(1, 3, 4, 5, d13, d14, d15, d34, d35, d45);
         tetrahedron(2, 3, 4, 5, d23, d24, d25, d34, d35, d45);
         tetrahedronCalc(d12, d13, d14, d23, d24, d34);
+        initialInversion = (geometryType === 'euklidic');
         const c5sq = c5x * c5x + c5y * c5y + c5z * c5z;
         const c4sq = c4x * c4x + c4y * c4y + c4z * c4z;
         const c4c5 = c4x * c5x + c4y * c5y + c4z * c5z;
@@ -331,6 +371,16 @@ function normalView() {
     } else {
         z = Math.sqrt(rSphere2 - r2);
     }
+}
+
+// stereographic projection in 3d:
+// plane to  unit sphere
+// center at z=-r3d because spherical maps to z=+r3d
+function stereographic() {
+    const factor = 2 / (1 + (x * x + y * y) / rSphere2);
+    x *= factor;
+    y *= factor;
+    z = rSphere * (1 - factor);
 }
 
 // euler rotations
@@ -575,13 +625,9 @@ function threeMirrors(point) {
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-    if (geometry.planar) {
-        z = rSphere;
-    } else {
-        normalView();
-        euler();
-    }
+    view();
     if (valid > 0) {
+        euler();
         spherical();
         normalize();
         inverseStereographic3dUnit();
@@ -604,17 +650,15 @@ function fourMirrors(point) {
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-    if (geometry.planar) {
-        z = rSphere;
-    } else {
-        normalView();
-        euler();
-    }
+    view();
     if (valid > 0) {
+        euler();
         if (initialInversion) {
-            const ir2 = 1 / (x * x + y * y);
+            // euklidean case
+            const ir2 = 1 / (x * x + y * y + z * z);
             x *= ir2;
             y *= ir2;
+            z *= ir2;
         }
         let i = 0;
         do {
@@ -641,21 +685,14 @@ function fiveMirrors(point) {
     // initial data, position in uunits of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
-    if (geometry.constantRadius) {
-        x *= geometry.radius;
-        y *= geometry.radius;
-    }
     valid = 1;
     inversions = 0;
     const maxIterations = map.maxIterations;
-    if (geometry.planar) {
-        z = rSphere;
-    } else {
-        normalView();
-        euler();
-    }
+    view();
     if (valid > 0) {
+        euler();
         if (initialInversion) {
+            // for euklidean case, inverting sphere (mirror 4) passes through origin
             const ir2 = 1 / (x * x + y * y);
             x *= ir2;
             y *= ir2;

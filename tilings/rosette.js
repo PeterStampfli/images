@@ -294,19 +294,19 @@ function draw() {
         }
     }
     //   triangles();
-    squares();
+  //  squares();
     canvasContext.strokeStyle = "#cccccc";
     output.setLineWidth(0.4 * rosette.tileWidth);
     //  mirrors();
 
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.tileColor;
-    twoSqrt3();
+   // twoSqrt3();
     //  oneSqrt3();
     //  extra();
     const dash = rosette.tileWidth * output.coordinateTransform.totalScale;
 
-    canvasContext.setLineDash([0.5 * dash, 2 * dash]);
+   // canvasContext.setLineDash([0.5 * dash, 2 * dash]);
     output.setLineWidth(0.7 * rosette.tileWidth);
     //  mirrors();
     output.drawGrid();
