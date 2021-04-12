@@ -13,7 +13,6 @@
 
 basicKaleidoscope = {};
 
-
 (function() {
     "use strict";
 
@@ -61,7 +60,6 @@ basicKaleidoscope = {};
     // elliptic geometry fills the entire plane, no cutoff at disc for negative radius
     basicKaleidoscope.ellipticDiscRadius = -1;
 
-
     // setup
     //==================================================================
 
@@ -95,10 +93,12 @@ basicKaleidoscope = {};
         basicKaleidoscope.calculateWorldRadius();
         let factor = newRadius / basicKaleidoscope.worldRadius;
         basicKaleidoscope.circle.scale(factor);
+        basicKaleidoscope.xMax *= factor;
+        basicKaleidoscope.yMax *= factor;
+        console.log('worldradius old,new,scale', basicKaleidoscope.worldRadius, newRadius, factor);
         Fast.scale(basicKaleidoscope.circles, factor);
         basicKaleidoscope.calculateWorldRadius();
     };
-
 
     /**
      * adjust the intersection point at x-axis to make it given value, and recalculate the worldradius
@@ -151,6 +151,11 @@ basicKaleidoscope = {};
             basicKaleidoscope.map = basicKaleidoscope.mapElliptic;
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents(-(cosAlpha * cosGamma + cosBeta) / sinGamma, -cosAlpha);
+            // check ranges
+            const x = -(cosAlpha * cosGamma + cosBeta) / sinGamma;
+            const y = -cosAlpha;
+            basicKaleidoscope.yMax = y - Math.cos(Math.PI / k + Math.PI / n);
+            basicKaleidoscope.xMax = Math.max(x + Math.sin(Math.PI / k + Math.PI / n), x + sinAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusElliptic);
             projection.elliptic();
@@ -174,6 +179,11 @@ basicKaleidoscope = {};
             basicKaleidoscope.map = basicKaleidoscope.mapHyperbolic;
             basicKaleidoscope.circle.setRadius(1);
             basicKaleidoscope.circle.center.setComponents((cosAlpha * cosGamma + cosBeta) / sinGamma, cosAlpha);
+            // check ranges
+            const x = (cosAlpha * cosGamma + cosBeta) / sinGamma;
+            const y = cosAlpha;
+            basicKaleidoscope.yMax = y + Math.cos(Math.PI / k + Math.PI / n);
+            basicKaleidoscope.xMax = Math.max(x - Math.sin(Math.PI / k + Math.PI / n), x - sinAlpha);
             dihedral.generateCircles(basicKaleidoscope.circle, basicKaleidoscope.circles);
             basicKaleidoscope.adjustWorldRadius(basicKaleidoscope.worldRadiusHyperbolic);
             projection.hyperbolic();
@@ -207,7 +217,6 @@ basicKaleidoscope = {};
 
     //-----------------------------------------------------------------
 
-
     // the mappings (as building blocks)
     // the number of reflections
     basicKaleidoscope.reflections = 0;
@@ -234,7 +243,6 @@ basicKaleidoscope = {};
         return -1;
     };
 
-
     /**
      * maps a vector into the polygon, for euclidic geometry
      * sets basicKaleidoscope.reflections to the number of iterations
@@ -254,7 +262,6 @@ basicKaleidoscope = {};
         }
         return -1;
     };
-
 
     /**
      * maps a vector into the polygon, for hyperbolic geometry

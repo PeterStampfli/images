@@ -107,12 +107,12 @@ function creation() {
 
     // the different tilings
 
-parameters.tiling='regular';
+    parameters.tiling = 'regular';
     // upon changing the tiling we have to recalculate it, without resetting the third map to input pixels
     function changeTiling(newTiling) {
         if (newTiling != tiling) {
             tiling = newTiling;
-            parameters.tiling=tiling;
+            parameters.tiling = tiling;
             Make.updateNewMap();
         }
     }
@@ -174,85 +174,109 @@ parameters.tiling='regular';
     hyperbolicProjectionSelect.addOption("Mercator", projection.hyperbolicMercator);
 }
 
-
-
-    // saving the map data
-    if (DOM.idExists("saveMapData")) {
-        Make.saveMapButton = new Button('saveMapData');
-        Make.saveMapButton.onClick = function() {
-            const precision = Make.saveMapPrecision.getValue();
-            const height = Make.map.height;
-            const width = Make.map.width;
-            const lowerLeft = {};
-            const upperRight = {};
-            Make.map.getOutputRange(lowerLeft, upperRight);
-            const shiftX = -lowerLeft.x;
-            const shiftY = -lowerLeft.y;
-            const factor = Math.pow(10, precision) / (Math.max(upperRight.x - lowerLeft.x, upperRight.y - lowerLeft.y));
-            const xArray = Make.map.xArray;
-            const yArray = Make.map.yArray;
-            const lyapunovArray = Make.map.lyapunovArray;
-            let mapData = '%%MatrixMarket matrix array complex general\r\n';
-            mapData += '\r\n';
-            mapData += '% triangle kaleidoscope with:\r\n';
-            mapData += '% symmetry center: ' + parameters.setKButton.getValue() + '\r\n';
-            mapData += '% symmetry left: ' + parameters.setMButton.getValue() + '\r\n';
-            mapData += '% symmetry right: ' + parameters.setNButton.getValue() + '\r\n';
-            switch (basicKaleidoscope.geometry) {
-                case basicKaleidoscope.elliptic:
-                    mapData += "% elliptic geometry\r\n";
-                    mapData += '% view: ' + projection.ellipticView + '\r\n';
-                    break;
-                case basicKaleidoscope.euclidic:
-                    mapData += "% Euklidic geometry\r\n";
-                    mapData += '% view: ' + projection.euclidicView + '\r\n';
-                    break;
-                case basicKaleidoscope.hyperbolic:
-                    mapData += "% hyperbolic geometry\r\n";
-                    mapData += '% view: ' + projection.hyperbolicView + '\r\n';
-                    break;
-            }
-            mapData += '% tiling: ' + parameters.tiling + '\r\n';
-            mapData += '% map width: ' + width + '\r\n';
-            mapData += '% map height: ' + height + '\r\n';
-            mapData += '% an array of the results of the kaleidoscope mapping\r\n';
-            mapData += '% for each pixel a pair of (x,y) coordinates\r\n';
-            mapData += '% the x-coordinate is the real part, the y-coordinate the imaginary part\r\n';
-            mapData += '% coordinate values are between 0 and 1\r\n';
-            mapData += '% to save space "0." is not written\r\n';
-            mapData += '% precision: ' + precision + ' digits\r\n';
-            mapData += '% thus 0.123456 appears as ' + Math.round(Math.pow(10, precision) * 0.123456) + '\r\n';
-            mapData += '% so divide numbers by ' + Math.pow(10, precision) + '\r\n';
-            mapData += '% pixels with a x-coordinate of -1 have no valid map result and should be transparent\r\n';
-            mapData += '\r\n';
-            mapData += height + ' ' + width + '\r\n';
-            mapData += '\r\n';
-            for (var i = 0; i < width; i++) {
-                for (var j = 0; j < height; j++) {
-                    const index = i + j * width;
-                    if (lyapunovArray[index] < 0) {
-                        mapData += '-1 0\r\n';
-                    } else mapData += Math.round(factor * (xArray[index] + shiftX)) + ' ' + Math.round(factor * (yArray[index] + shiftY)) + '\r\n';
-                }
-            }
-            const blob = new Blob([mapData], {
-                type: 'text/plain'
-            });
-            const filename = 'mapData.txt';
-            const objURL = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.style.display = "none";
-            document.body.appendChild(a);
-            a.href = objURL;
-            a.download = filename;
-            a.click();
-            a.remove();
-            URL.revokeObjectURL(objURL);
-        };
-        Make.saveMapPrecision = new NumberButton('precision');
-        Make.saveMapPrecision.setRange(2, 6);
-        Make.saveMapPrecision.setValue(4);
+/**
+ * get the range of the nonlinear mapping, compare with calculated 
+ * (if the mapping or its parameters change, not after scale or shift in 1st map)
+ * @method Make.getMapOutputRange
+ */
+Make.getMapOutputRange = function() {
+    Make.map.getOutputRange(Make.lowerLeft, Make.upperRight);
+    if (basicKaleidoscope.geometry === basicKaleidoscope.hyperbolic) {
+        console.log('hyperbolic');
+        console.log('sampled range min', Make.lowerLeft.x, Make.lowerLeft.y);
+        console.log('sampled range max', Make.upperRight.x, Make.upperRight.y);
+        console.log('calc max', basicKaleidoscope.xMax, basicKaleidoscope.yMax);
+    } else if (basicKaleidoscope.geometry === basicKaleidoscope.elliptic) {
+        console.log('elliptic');
+        console.log('sampled range min', Make.lowerLeft.x, Make.lowerLeft.y);
+        console.log('sampled range max', Make.upperRight.x, Make.upperRight.y);
+        console.log('calc max', basicKaleidoscope.xMax, basicKaleidoscope.yMax);
+    } else if (basicKaleidoscope.geometry === basicKaleidoscope.euclidic) {
+        console.log('euklidic');
     }
+};
+
+// saving the map data
+if (DOM.idExists("saveMapData")) {
+    Make.saveMapButton = new Button('saveMapData');
+    Make.saveMapButton.onClick = function() {
+        const precision = Make.saveMapPrecision.getValue();
+        const height = Make.map.height;
+        const width = Make.map.width;
+        const lowerLeft = {};
+        const upperRight = {};
+        Make.map.getOutputRange(lowerLeft, upperRight);
+        if (basicKaleidoscope.geometry === basicKaleidoscope.hyperbolic) {
+            console.log('hyperbolic');
+            console.log('sampled range', lowerLeft, upperRight);
+        }
+        const shiftX = -lowerLeft.x;
+        const shiftY = -lowerLeft.y;
+        const factor = Math.pow(10, precision) / (Math.max(upperRight.x - lowerLeft.x, upperRight.y - lowerLeft.y));
+        const xArray = Make.map.xArray;
+        const yArray = Make.map.yArray;
+        const lyapunovArray = Make.map.lyapunovArray;
+        let mapData = '%%MatrixMarket matrix array complex general\r\n';
+        mapData += '\r\n';
+        mapData += '% generated by sphericalKaleidoscopeApp.html\r\n';
+        mapData += '% symmetry center: ' + parameters.setKButton.getValue() + '\r\n';
+        mapData += '% symmetry left: ' + parameters.setMButton.getValue() + '\r\n';
+        mapData += '% symmetry right: ' + parameters.setNButton.getValue() + '\r\n';
+        switch (basicKaleidoscope.geometry) {
+            case basicKaleidoscope.elliptic:
+                mapData += "% elliptic geometry\r\n";
+                mapData += '% view: ' + projection.ellipticView + '\r\n';
+                break;
+            case basicKaleidoscope.euclidic:
+                mapData += "% Euklidic geometry\r\n";
+                mapData += '% view: ' + projection.euclidicView + '\r\n';
+                break;
+            case basicKaleidoscope.hyperbolic:
+                mapData += "% hyperbolic geometry\r\n";
+                mapData += '% view: ' + projection.hyperbolicView + '\r\n';
+                break;
+        }
+        mapData += '% tiling: ' + parameters.tiling + '\r\n';
+        mapData += '% map width: ' + width + '\r\n';
+        mapData += '% map height: ' + height + '\r\n';
+        mapData += '% an array of the results of the kaleidoscope mapping\r\n';
+        mapData += '% for each pixel a pair of (x,y) coordinates\r\n';
+        mapData += '% the x-coordinate is the real part, the y-coordinate the imaginary part\r\n';
+        mapData += '% coordinate values are between 0 and 1\r\n';
+        mapData += '% to save space "0." is not written\r\n';
+        mapData += '% precision: ' + precision + ' digits\r\n';
+        mapData += '% thus 0.123456 appears as ' + Math.round(Math.pow(10, precision) * 0.123456) + '\r\n';
+        mapData += '% so divide numbers by ' + Math.pow(10, precision) + '\r\n';
+        mapData += '% pixels with a x-coordinate of -1 have no valid map result and should be transparent\r\n';
+        mapData += '\r\n';
+        mapData += height + ' ' + width + '\r\n';
+        mapData += '\r\n';
+        for (var i = 0; i < width; i++) {
+            for (var j = 0; j < height; j++) {
+                const index = i + j * width;
+                if (lyapunovArray[index] < 0) {
+                    mapData += '-1 0\r\n';
+                } else mapData += Math.round(factor * (xArray[index] + shiftX)) + ' ' + Math.round(factor * (yArray[index] + shiftY)) + '\r\n';
+            }
+        }
+        const blob = new Blob([mapData], {
+            type: 'text/plain'
+        });
+        const filename = 'mapData.txt';
+        const objURL = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.href = objURL;
+        a.download = filename;
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objURL);
+    };
+    Make.saveMapPrecision = new NumberButton('precision');
+    Make.saveMapPrecision.setRange(2, 6);
+    Make.saveMapPrecision.setValue(4);
+}
 
 window.onload = function() {
     "use strict";
