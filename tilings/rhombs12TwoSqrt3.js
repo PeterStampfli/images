@@ -639,7 +639,7 @@ function draw() {
     if (tiling.decoration !== 'none') {
         tile();
     }
-    canvasContext.fillStyle = 'red';
+    canvasContext.fillStyle = tiling.rhombColor;
     tiles.fillRhombs30();
     if (tiling.border) {
         tiling.drawBorders = true;

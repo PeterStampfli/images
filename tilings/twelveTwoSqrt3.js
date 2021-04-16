@@ -59,7 +59,7 @@ tiling.gridColor = '#ff8800';
 // geometry
 tiling.fixedSize = true;
 tiling.maxGen = 1;
-tiling.initial = 'rhomb';
+tiling.initial = 'triangle';
 
 const colorController = {
     type: 'color',
@@ -303,7 +303,7 @@ function square(gen, blX, blY, trX, trY) {
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addQuarterSquare(trX, trY, blX, blY);
+            tiles.addQuarterSquare(trX,trY, blX, blY);
         } else {
             gen += 1;
             square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
@@ -493,6 +493,7 @@ function rhomb(gen, bX, bY, tX, tY) {
 // (bX,bY) is other point at base. 60 degree angle corner
 // (cX,cY) is top, 30 degree angle corner
 
+/*
 function triangle(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
         // make directions
@@ -526,6 +527,49 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
             const midY = 0.5 * (cY + bY);
             triangle(gen, midX, midY, cenX, cenY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
             triangle(gen, midX, midY, cenX, cenY, cX + 0.5 * rightX - rt32 * upX, cY + 0.5 * rightY - rt32 * upY);
+        }
+    }
+}
+*/
+
+function triangle(gen, mX, mY, bX, bY, cX, cY) {
+    if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
+        // make directions
+        // attention: mirror images
+        // 0.535898385 = 2 / (2 + rt3);
+        const rightX = 0.535898385 * (bX - mX);
+        const rightY = 0.535898385 * (bY - mY);
+        // 0.309401077=1/(1.5+sqrt(3))
+        const upX = 0.309401077 * (cX - mX);
+        const upY = 0.309401077 * (cY - mY);
+        const cenX = mX + 0.5 * (upX + rightX);
+        const cenY = mY + 0.5 * (upY + rightY);
+        const bcX = 0.5 * (bX + cX);
+        const bcY = 0.5 * (bY + cY);
+        const mcX = cX - upX;
+        const mcY = cY - upY;
+        if (gen >= tiling.maxGen) {
+            tiles.addHalfTriangle(mX, mY, bX, bY, cX, cY);
+        } else {
+            gen += 1;
+        //    rhomb(gen, bX, bY, mX + 0.5 * upX, mY + 0.5 * upY);
+            const cenX = mX + 0.5 * rightX + (0.5 + rt32) * upX;
+            const cenY = mY + 0.5 * rightY + (0.5 + rt32) * upY;
+        //    rhomb(gen, bX, bY, cenX, cenY);
+        //    rhomb(gen, cX, cY, cenX, cenY);
+        //    fullTriangle(gen, cenX, cenY, mX + rightX + 0.5 * upX, mY + rightY + 0.5 * upY, mX + 0.5 * upX, mY + 0.5 * upY);
+            triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, mX + 0.5 * upX, mY + 0.5 * upY);
+         //   triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, cX - upX, cY - upY);
+            triangle(gen, mX, mY, mX + 0.5 * upX, mY + 0.5 * upY, mX + rt32 * rightX, mY + rt32 * rightY);
+            const midX = 0.5 * (cX + bX);
+            const midY = 0.5 * (cY + bY);
+            fullTriangle(gen,bX-rightX,bY-rightY,bX,bY,bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            triangle(gen, midX, midY, cenX, cenY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            triangle(gen, midX, midY, cenX, cenY, cX + 0.5 * rightX - rt32 * upX, cY + 0.5 * rightY - rt32 * upY);
+ fullSquare(gen,mX+0.5*upX,mY+0.5*upY,bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+triangle(gen,cX-rt32*upX,cY-rt32*upY,cX-rt32*upX+0.5*rightX,cY-rt32*upY+0.5*rightY,cX,cY);
+square(gen,cenX,cenY,cX-rt32*upX-0.5*upX,cY-rt32*upY-0.5*upY);
+square(gen,cX-rt32*upX+0.5*rightX,cY-rt32*upY+0.5*rightY,cX-rt32*upX-0.5*upX,cY-rt32*upY-0.5*upY);
         }
     }
 }
