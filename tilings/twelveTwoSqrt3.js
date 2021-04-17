@@ -59,7 +59,7 @@ tiling.gridColor = '#ff8800';
 // geometry
 tiling.fixedSize = true;
 tiling.maxGen = 1;
-tiling.initial = 'triangle';
+tiling.initial = 'small square';
 
 const colorController = {
     type: 'color',
@@ -284,7 +284,7 @@ function square(gen, blX, blY, trX, trY) {
 // actually the quarter square, center of full square at (trX,trY) 
 //  corner at (blX,blY) 
 // the maximal non mirrorsymmetric
-
+/*
 function square(gen, blX, blY, trX, trY) {
     // make center and missing corners
     let cX = 0.5 * (blX + trX);
@@ -318,6 +318,91 @@ function square(gen, blX, blY, trX, trY) {
             rhomb(gen, cX, cY, brX + 0.5 * upX, brY + 0.5 * upY);
             fullTriangle(gen, blX, blY, blX + rightX, blY + rightY, cX - upX, cY - upY);
             fullTriangle(gen, blX + rightX, blY + rightY, blX + rightX + upX, blY + rightY + upY, brX + 0.5 * upX, brY + 0.5 * upY);
+        }
+    }
+}
+*/
+
+// actually the quarter square, center of full square at (trX,trY) 
+//  corner at (blX,blY) 
+// the maximal non mirrorsymmetric
+/*
+function square(gen, blX, blY, trX, trY) {
+    // make center and missing corners
+    let cX = 0.5 * (blX + trX);
+    let cY = 0.5 * (blY + trY);
+    const dX = trX - cX;
+    const dY = trY - cY;
+    const brX = cX + dY;
+    const brY = cY - dX;
+    const tlX = cX - dY;
+    const tlY = cY + dX;
+    // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
+    // 0.535898385 = 2 / (2 + rt3);
+    const upX = 0.535898385 * (tlX - blX);
+    const upY = 0.535898385 * (tlY - blY);
+    const rightX = upY;
+    const rightY = -upX;
+    if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
+        if (gen >= tiling.maxGen) {
+            tiles.addQuarterSquare(trX, trY, blX, blY);
+        } else {
+            gen += 1;
+            square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
+            triangle(gen, tlX, tlY, tlX + 0.5 * rightX, tlY + 0.5 * rightY, blX + upX, blY + upY);
+            triangle(gen, brX, brY, brX + 0.5 * upX, brY + 0.5 * upY, blX + rightX, blY + rightY);
+            triangle(gen, trX - 0.5 * upX, trY - 0.5 * upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), brX + 0.5 * upX, brY + 0.5 * upY);
+            triangle(gen, trX - 0.5 * rightX, trY - 0.5 * rightY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
+            const cX = tlX + 0.5 * rightX;
+            const cY = tlY + 0.5 * rightY;
+         //   rhomb(gen, cX, cY, blX, blY);
+         //   rhomb(gen, cX, cY, blX + rightX, blY + rightY);
+            rhomb(gen, cX, cY, brX + 0.5 * upX, brY + 0.5 * upY);
+         //   fullTriangle(gen, blX, blY, blX + rightX, blY + rightY, cX - upX, cY - upY);
+            fullTriangle(gen, blX + rightX, blY + rightY, blX + rightX + upX, blY + rightY + upY, brX + 0.5 * upX, brY + 0.5 * upY);
+            fullTriangle(gen, blX+upX,blY+upY,blX+upX+rightX,blY+upY+rightY,tlX+0.5*rightX,tlY+0.5*rightY);
+            fullSquare(gen, blX,blY,blX+upX+rightX,blY+upY+rightY);
+        }
+    }
+}
+*/
+function square(gen, blX, blY, trX, trY) {
+    // make center and missing corners
+    let cX = 0.5 * (blX + trX);
+    let cY = 0.5 * (blY + trY);
+    const dX = trX - cX;
+    const dY = trY - cY;
+    const brX = cX + dY;
+    const brY = cY - dX;
+    const tlX = cX - dY;
+    const tlY = cY + dX;
+    // substitution: determine "right" and "up" directions. Vectorlength=side length of new tiles
+    // 0.535898385 = 2 / (2 + rt3);
+    const upX = 0.535898385 * (tlX - blX);
+    const upY = 0.535898385 * (tlY - blY);
+    const rightX = upY;
+    const rightY = -upX;
+    if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
+        if (gen >= tiling.maxGen) {
+            tiles.addQuarterSquare(trX, trY, blX, blY);
+        } else {
+            gen += 1;
+            square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
+            triangle(gen, tlX, tlY, tlX + 0.5 * rightX, tlY + 0.5 * rightY, blX + upX, blY + upY);
+            triangle(gen, brX, brY, brX + 0.5 * upX, brY + 0.5 * upY, blX + rightX, blY + rightY);
+            triangle(gen, trX - 0.5 * upX, trY - 0.5 * upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), brX + 0.5 * upX, brY + 0.5 * upY);
+            triangle(gen, trX - 0.5 * rightX, trY - 0.5 * rightY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
+            const cX = brX-rightX+0.5*upX;
+            const cY = brY-rightY+0.5*upY;
+         //   rhomb(gen, cX, cY, blX, blY);
+         //   rhomb(gen, cX, cY, blX + rightX, blY + rightY);
+          //  rhomb(gen, cX, cY, brX + 0.5 * upX, brY + 0.5 * upY);
+         //   fullTriangle(gen, blX, blY, blX + rightX, blY + rightY, cX - upX, cY - upY);
+          //  fullTriangle(gen, blX + rightX, blY + rightY, blX + rightX + upX, blY + rightY + upY, brX + 0.5 * upX, brY + 0.5 * upY);
+         rhomb(gen,blX,blY,brX+0.5*upX,brY+0.5*upY);
+fullTriangle(gen,blX,blY,cX,cY,blX+upX,blY+upY);
+fullSquare(gen,cX,cY,tlX+0.5*rightX,tlY+0.5*rightY);
+fullTriangle(gen,cX,cY,cX+rightX,cY+rightY,trX-0.5*upX-0.5*rightX,trY-0.5*upY-0.5*rightY);
         }
     }
 }
