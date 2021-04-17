@@ -57,6 +57,7 @@ projection = {};
         projection.worldradius = basicKaleidoscope.worldRadiusHyperbolic;
         projection.map = projection.hyperbolicMap;
         Make.map.discRadius = projection.hyperbolicDiscRadius;
+        // Make.map.discRadius = -1;
     };
 
     // making the projections
@@ -316,8 +317,6 @@ projection = {};
         Make.updateNewMap();
     };
 
-
-
     projection.euclidicDisc = function() {
         projection.euclidicView = 'disc';
         projection.euclidicDiscRadius = basicKaleidoscope.worldRadiusElliptic;
@@ -330,7 +329,6 @@ projection = {};
         };
         Make.updateNewMap();
     };
-
 
     //hyperbolic
     projection.hyperbolicView = 'Poincaré disc';

@@ -277,6 +277,13 @@ basicKaleidoscope = {};
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (circles[basicKaleidoscope.sectorIndex].invertInsideOut(position) < 0) {
                     basicKaleidoscope.reflections = iter;
+                    const r2 = position.x * position.x + position.y * position.y;
+                    // check if point outside the poincare disc. If yes: Invert at border.
+                    if (r2 > basicKaleidoscope.worldRadius2) {
+                        const factor = basicKaleidoscope.worldRadius2 / r2;
+                        position.x *= factor;
+                        position.y *= factor;
+                    }
                     return 1;
                 }
             }

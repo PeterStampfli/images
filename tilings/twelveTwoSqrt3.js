@@ -303,7 +303,7 @@ function square(gen, blX, blY, trX, trY) {
     const rightY = -upX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.addQuarterSquare(trX,trY, blX, blY);
+            tiles.addQuarterSquare(trX, trY, blX, blY);
         } else {
             gen += 1;
             square(gen, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), trX, trY);
@@ -468,7 +468,7 @@ function rhomb(gen, bX, bY, tX, tY) {
             midY = 0.5 * (lY + tY);
             triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
             triangle(gen, midX, midY, ttcX, ttcY, lX + rightX, lY + rightY);
-            fullTriangle(gen, rX, rY, tcX, tcY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            fullTriangle(gen, rX, rY, tcX, tcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
             midX = 0.5 * (lX + bX);
             midY = 0.5 * (lY + bY);
             triangle(gen, midX, midY, bbcX, bbcY, bX + rt32 * rightX + 0.5 * upX, bY + rt32 * rightY + 0.5 * upY);
@@ -480,10 +480,10 @@ function rhomb(gen, bX, bY, tX, tY) {
             triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
             rhomb(gen, rX, rY, bbcX, bbcY);
             rhomb(gen, lX, lY, ttcX, ttcY);
-            rhomb(gen, lX,lY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            rhomb(gen, lX, lY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
             rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
             fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
-            fullTriangle(gen, ttcX, ttcY,ttcX-rightX, ttcY-rightY,rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            fullTriangle(gen, ttcX, ttcY, ttcX - rightX, ttcY - rightY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
         }
     }
 }
@@ -552,24 +552,24 @@ function triangle(gen, mX, mY, bX, bY, cX, cY) {
             tiles.addHalfTriangle(mX, mY, bX, bY, cX, cY);
         } else {
             gen += 1;
-        //    rhomb(gen, bX, bY, mX + 0.5 * upX, mY + 0.5 * upY);
+            //    rhomb(gen, bX, bY, mX + 0.5 * upX, mY + 0.5 * upY);
             const cenX = mX + 0.5 * rightX + (0.5 + rt32) * upX;
             const cenY = mY + 0.5 * rightY + (0.5 + rt32) * upY;
-        //    rhomb(gen, bX, bY, cenX, cenY);
-        //    rhomb(gen, cX, cY, cenX, cenY);
-        //    fullTriangle(gen, cenX, cenY, mX + rightX + 0.5 * upX, mY + rightY + 0.5 * upY, mX + 0.5 * upX, mY + 0.5 * upY);
+            //    rhomb(gen, bX, bY, cenX, cenY);
+            //    rhomb(gen, cX, cY, cenX, cenY);
+            //    fullTriangle(gen, cenX, cenY, mX + rightX + 0.5 * upX, mY + rightY + 0.5 * upY, mX + 0.5 * upX, mY + 0.5 * upY);
             triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, mX + 0.5 * upX, mY + 0.5 * upY);
-         //   triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, cX - upX, cY - upY);
+            //   triangle(gen, cenX - 0.5 * rightX, cenY - 0.5 * rightY, cenX, cenY, cX - upX, cY - upY);
             triangle(gen, mX, mY, mX + 0.5 * upX, mY + 0.5 * upY, mX + rt32 * rightX, mY + rt32 * rightY);
             const midX = 0.5 * (cX + bX);
             const midY = 0.5 * (cY + bY);
-            fullTriangle(gen,bX-rightX,bY-rightY,bX,bY,bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            fullTriangle(gen, bX - rightX, bY - rightY, bX, bY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
             triangle(gen, midX, midY, cenX, cenY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
             triangle(gen, midX, midY, cenX, cenY, cX + 0.5 * rightX - rt32 * upX, cY + 0.5 * rightY - rt32 * upY);
- fullSquare(gen,mX+0.5*upX,mY+0.5*upY,bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
-triangle(gen,cX-rt32*upX,cY-rt32*upY,cX-rt32*upX+0.5*rightX,cY-rt32*upY+0.5*rightY,cX,cY);
-square(gen,cenX,cenY,cX-rt32*upX-0.5*upX,cY-rt32*upY-0.5*upY);
-square(gen,cX-rt32*upX+0.5*rightX,cY-rt32*upY+0.5*rightY,cX-rt32*upX-0.5*upX,cY-rt32*upY-0.5*upY);
+            fullSquare(gen, mX + 0.5 * upX, mY + 0.5 * upY, bX - 0.5 * rightX + rt32 * upX, bY - 0.5 * rightY + rt32 * upY);
+            triangle(gen, cX - rt32 * upX, cY - rt32 * upY, cX - rt32 * upX + 0.5 * rightX, cY - rt32 * upY + 0.5 * rightY, cX, cY);
+            square(gen, cenX, cenY, cX - rt32 * upX - 0.5 * upX, cY - rt32 * upY - 0.5 * upY);
+            square(gen, cX - rt32 * upX + 0.5 * rightX, cY - rt32 * upY + 0.5 * rightY, cX - rt32 * upX - 0.5 * upX, cY - rt32 * upY - 0.5 * upY);
         }
     }
 }

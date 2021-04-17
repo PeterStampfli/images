@@ -37,7 +37,7 @@ threeMirrorsKaleidoscope = {};
      * set lyapunov (if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed)
      * and number of reflections
      * @method threeMirrorsKaleidoscope.map
-     * @param {Vector2} v - the vector to map, x-component will be number of reflections
+     * @param {Vector2} position - the position
      * @param {Object} furtherResults - with fields reflections and lyapunov
      */
     threeMirrorsKaleidoscope.map = function(position, furtherResults) {
