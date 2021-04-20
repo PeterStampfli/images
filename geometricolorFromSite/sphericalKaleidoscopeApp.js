@@ -2,6 +2,7 @@
 
 // create the UI elements and their interactions
 var parameters = {};
+parameters.initialN=3;
 
 function creation() {
     "use strict";
@@ -102,7 +103,7 @@ function creation() {
     let setNButton = NumberButton.createInfinity("n");
     parameters.setNButton = setNButton;
     setNButton.setRange(2, 10000);
-    setNButton.setValue(3);
+    setNButton.setValue(parameters.initialN);
     setNButton.onChange = Make.updateNewMap;
 
     // the different tilings
@@ -122,19 +123,22 @@ function creation() {
     tilingSelect.addOption("regular",
         function() {
             setNButton.setRange(2, 10000);
+            setKButton.setRange(2, 10000);
             changeTiling("regular");
         });
 
     tilingSelect.addOption("uniform truncated",
         function() {
             setNButton.setRange(3, 10000);
+            setKButton.setRange(2, 10000);
             changeTiling("uniformTruncated");
         });
 
     tilingSelect.addOption("rectified",
         function() {
             setNButton.setRange(3, 10000);
-            changeTiling("rectified");
+             setKButton.setRange(3, 10000);
+           changeTiling("rectified");
         });
 
     // the projections (depending on space geometry)

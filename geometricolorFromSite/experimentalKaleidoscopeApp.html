@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+
+<head>
+    <title>kaleidoscopeApp</title>
+</head>
+
+<body>
+<noscript><h1>Please enable javascript!!!</h1></noscript>
+
+
+<div id="text">  
+    <p>
+        <button id=help>help</button>
+        <button id=home>home</button>
+    </p>
+    
+        <p>
+        <strong>Input image:</strong>
+        <button id="openInputImage">open</button>
+        <span id="inputImageName"></span>
+    </p>
+
+    <p>    
+        <strong>Showing:</strong>
+        <select id="show">
+        </select>
+    </p>
+       
+    <p>
+        <strong>Choose rotational symmetries:</strong>
+        <table>
+            <tr>
+            <td>center</td> <td><span id="k"></span>
+            </tr>
+            <tr>
+            <td>left</td> <td><span id="m"></span>
+            </tr>
+            <tr>
+            <td>right</td>
+            <td><span id="n"></span>
+            </tr>
+        </table>
+    </p>
+     
+    <p>
+    sum of angles = <span id="sum"></span> 
+    </p>   
+
+    <p>
+        <strong>range:</strong>
+        <input id="range"></input>
+    </p>
+  
+  
+    <p>
+        <strong>Tiling:</strong>
+        <select id="tiling">
+        </select>
+    </p>
+    
+    <div id="ellipticDiv">
+        <p>
+            <strong>View:</strong>
+            <select id="selectEllipticProjection">
+            </select>
+        </p>
+    </div>
+   
+    <div id="euclidicDiv">
+        <p>
+            <strong>View:</strong>
+            <select id="selectEuclidicProjection">
+            </select>
+        </p>
+    </div>
+   
+    <div id="hyperbolicDiv">
+        <p>
+            <strong>View:</strong>
+            <select id="selectHyperbolicProjection">
+            </select>
+        </p>
+    </div>
+    
+    <p>
+        <strong>Output image:</strong>
+        <button id="saveOutputImage">save</button>
+    </p>
+    
+    <p>
+        <strong>Map data:</strong>
+        <button id="saveMapData">save</button>
+         Precision:
+        <input id="precision"></input>
+   </p>
+    <p>
+        <strong>Output image size:</strong>
+        <input id="size"></input>
+    </p>
+
+    <p>
+        <strong>Quality:</strong>
+        <select id="quality">
+        </select>
+    </p>
+    
+</div>
+
+</body>
+
+<script src="../librarySource/fastFun.js"></script>
+<script src="../librarySource/rotation.js"></script>
+
+<script src="../librarySource/vector2.js"></script>
+<script src="../librarySource/select.js"></script>
+<script src="../librarySource/linearTransform.js"></script>
+<script src="../librarySource/keyboardEvents.js"></script>
+<script src="../librarySource/color.js"></script>
+<script src="../librarySource/mouseEvents.js"></script>
+<script src="../librarySource/touchEvents.js"></script>
+<script src="../librarySource/circle.js"></script>
+<script src="../librarySource/line.js"></script>
+<script src="../librarySource/button.js"></script>
+<script src="../librarySource/numberButton.js"></script>
+<script src="../librarySource/fileSaver.js"></script>
+<script src="../librarySource/pixelCanvas.js"></script>
+
+<script src="../librarySource/vectorMap.js"></script>
+
+
+<script src="../librarySource/outputImage.js"></script>
+<script src="../librarySource/controlImage.js"></script>
+<script src="../librarySource/arrowController.js"></script>
+<script src="../librarySource/dihedral.js"></script>
+<script src="../librarySource/basicKaleidoscope.js"></script>
+<script src="../librarySource/cutCornersKaleidoscope.js"></script>
+<script src="../librarySource/cutSidesKaleidoscope.js"></script>
+<script src="../librarySource/threeMirrorsKaleidoscope.js"></script>
+<script src="../librarySource/make.js"></script>
+<script src="../librarySource/dom.js"></script>
+<script src="../librarySource/draw.js"></script>
+<script src="../librarySource/bigDiv.js"></script>
+
+<script src="../librarySource/projection.js"></script>
+<script src="../librarySource/basicUI.js"></script>
+
+
+<script src="sphericalKaleidoscopeApp.js"></script>
+<script src="experimentalKaleidoscopeApp.js"></script>
+
+
+</html>

@@ -17,7 +17,7 @@ basicKaleidoscope = {};
     "use strict";
 
     const big = 100;
-    const maxIterations = 100;
+     basicKaleidoscope.maxIterations = 100;
 
     // parameters that determine the image size
     //  access from outside to be able to change values. defaults:
@@ -232,7 +232,7 @@ basicKaleidoscope = {};
      */
     basicKaleidoscope.mapElliptic = function(position) {
         if (projection.map(position) > 0) {
-            for (var iter = 0; iter < maxIterations; iter++) {
+            for (var iter = 0; iter < basicKaleidoscope.maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (circles[basicKaleidoscope.sectorIndex].invertOutsideIn(position) < 0) {
                     basicKaleidoscope.reflections = iter;
@@ -252,7 +252,7 @@ basicKaleidoscope = {};
      */
     basicKaleidoscope.mapEuclidic = function(position) {
         if (projection.map(position) > 0) {
-            for (var iter = 0; iter < maxIterations; iter++) {
+            for (var iter = 0; iter < basicKaleidoscope.maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (lines[basicKaleidoscope.sectorIndex].mirrorLeftToRight(position) < 0) {
                     basicKaleidoscope.reflections = iter;
@@ -273,7 +273,7 @@ basicKaleidoscope = {};
      */
     basicKaleidoscope.mapHyperbolic = function(position) {
         if (projection.map(position) > 0) {
-            for (var iter = 0; iter < maxIterations; iter++) {
+            for (var iter = 0; iter < basicKaleidoscope.maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (circles[basicKaleidoscope.sectorIndex].invertInsideOut(position) < 0) {
                     basicKaleidoscope.reflections = iter;
