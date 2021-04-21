@@ -14,3 +14,12 @@ Make.rangeController.onChange = function() {
     basicKaleidoscope.maxIterations = Make.rangeController.getValue();
     Make.updateNewMap();
 };
+
+    Make.initializeExtras=function(){
+    parameters.tilingSelect.addOption("polygons",
+        function() {
+             parameters.setNButton.setRange(2, 10000);
+            parameters.setKButton.setRange(3, 10000);
+            parameters.changeTiling("polygons");
+        });
+};

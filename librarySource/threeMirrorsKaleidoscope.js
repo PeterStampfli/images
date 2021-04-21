@@ -42,10 +42,12 @@ threeMirrorsKaleidoscope = {};
      */
     threeMirrorsKaleidoscope.map = function(position, furtherResults) {
         let lyapunov = basicMap(position);
-        if (lyapunov >= 0) {
+        if ((lyapunov >= 0)&&(parameters.triangles)) {
             dihedral.mapOfSector(basicKaleidoscope.sectorIndex, position);
-        }
         furtherResults.reflections = basicKaleidoscope.reflections + Dihedral.reflections;
+        } else {
+                    furtherResults.reflections = basicKaleidoscope.reflections;
+        }
         furtherResults.lyapunov = lyapunov;
     };
 

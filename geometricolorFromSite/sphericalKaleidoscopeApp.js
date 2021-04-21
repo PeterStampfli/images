@@ -2,7 +2,10 @@
 
 // create the UI elements and their interactions
 var parameters = {};
-parameters.initialN=3;
+parameters.initialN = 3;
+parameters.triangles = true;
+Make.initializeExtras = function() {};
+
 
 function creation() {
     "use strict";
@@ -57,13 +60,20 @@ function creation() {
         sum.innerHTML = "" + Math.round(180 * (1 / k + 1 / m + 1 / n)) + "<sup>o</sup>";
         switch (tiling) {
             case "regular":
+                parameters.triangles = true;
                 threeMirrorsKaleidoscope.setKMN(k, m, n);
                 break;
             case "uniformTruncated":
+                parameters.triangles = true;
                 cutCornersKaleidoscope.setKMN(k, m, n);
                 break;
             case "rectified":
+                parameters.triangles = true;
                 cutSidesKaleidoscope.setKMN(k, m, n);
+                break;
+            case "polygons":
+                parameters.triangles = false;
+                threeMirrorsKaleidoscope.setKMN(k, m, n);
                 break;
             default:
                 console.log("nosuch tiling: " + tiling);
@@ -117,8 +127,10 @@ function creation() {
             Make.updateNewMap();
         }
     }
+    parameters.changeTiling = changeTiling;
 
     let tilingSelect = new Select("tiling");
+    parameters.tilingSelect = tilingSelect;
 
     tilingSelect.addOption("regular",
         function() {
@@ -137,8 +149,8 @@ function creation() {
     tilingSelect.addOption("rectified",
         function() {
             setNButton.setRange(3, 10000);
-             setKButton.setRange(3, 10000);
-           changeTiling("rectified");
+            setKButton.setRange(3, 10000);
+            changeTiling("rectified");
         });
 
     // the projections (depending on space geometry)
@@ -176,6 +188,7 @@ function creation() {
     hyperbolicProjectionSelect.addOption("Bulatov band", projection.hyperbolicBulatovBand);
     hyperbolicProjectionSelect.addOption("Gans model", projection.hyperbolicGans);
     hyperbolicProjectionSelect.addOption("Mercator", projection.hyperbolicMercator);
+    Make.initializeExtras();
 }
 
 /**
@@ -185,6 +198,7 @@ function creation() {
  */
 Make.getMapOutputRange = function() {
     Make.map.getOutputRange(Make.lowerLeft, Make.upperRight);
+    /*
     if (basicKaleidoscope.geometry === basicKaleidoscope.hyperbolic) {
         console.log('hyperbolic');
         console.log('sampled range min', Make.lowerLeft.x, Make.lowerLeft.y);
@@ -198,6 +212,7 @@ Make.getMapOutputRange = function() {
     } else if (basicKaleidoscope.geometry === basicKaleidoscope.euclidic) {
         console.log('euklidic');
     }
+    */
 };
 
 // saving the map data
