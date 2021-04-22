@@ -20,7 +20,7 @@ const basic = {};
 basic.setup = function() {
     // base gui
     const gui = new ParamGui({
-        name: 'kaleidoBuilder',
+        name: 'quasiperiodic kaleidoscope',
         closed: false
     });
     basic.gui = gui;
