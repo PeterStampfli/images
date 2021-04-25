@@ -365,4 +365,23 @@ function NumberButton(idName, idPlus, idMinus, idMin, idMax) {
         return numberButton;
     };
 
+    /**
+     * create an number button with up and down buttons
+     * Attention: set font sizes afterwards
+     * @method NumberButton.createPlusMinus
+     * @param {String} idSpan - id of the span conatining the number button
+     * @return NumberButton
+     */
+    NumberButton.createPlusMinus = function(idSpan) {
+        const inputId = DOM.createId();
+        DOM.create("input", inputId, "#" + idSpan);
+        DOM.addSpace(idSpan);
+        const dnId = DOM.createButton(idSpan, "-");
+        DOM.addSpace(idSpan);
+        const upId = DOM.createButton(idSpan, "+");
+        DOM.style("#" + upId + ",#" + dnId , "borderRadius", "1000px");
+        let numberButton = new NumberButton(inputId, upId, dnId);
+        return numberButton;
+    };
+
 }());

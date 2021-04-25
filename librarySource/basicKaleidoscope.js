@@ -18,6 +18,7 @@ basicKaleidoscope = {};
 
     const big = 100;
      basicKaleidoscope.maxIterations = 100;
+     basicKaleidoscope.minIterations=0;
 
     // parameters that determine the image size
     //  access from outside to be able to change values. defaults:
@@ -276,6 +277,9 @@ basicKaleidoscope = {};
             for (var iter = 0; iter < basicKaleidoscope.maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (circles[basicKaleidoscope.sectorIndex].invertInsideOut(position) < 0) {
+                    if (iter<basicKaleidoscope.minIterations){
+                        return -1;
+                    }
                     basicKaleidoscope.reflections = iter;
                     const r2 = position.x * position.x + position.y * position.y;
                     // check if point outside the poincare disc. If yes: Invert at border.

@@ -5,13 +5,24 @@
 
 parameters.initialN = 4;
 basicKaleidoscope.maxIterations=3;
+basicKaleidoscope.minIterations=1;
 
-Make.rangeController = new NumberButton('range');
+Make.rangeController =  NumberButton.createPlusMinus('range');
 Make.rangeController.setRange(1, 200);
 Make.rangeController.setValue(basicKaleidoscope.maxIterations);
 
 Make.rangeController.onChange = function() {
     basicKaleidoscope.maxIterations = Make.rangeController.getValue();
+    Make.updateNewMap();
+};
+
+
+Make.rangeMinController = NumberButton.createPlusMinus('rangeMin');
+Make.rangeMinController.setRange(0, 200);
+Make.rangeMinController.setValue(basicKaleidoscope.minIterations);
+
+Make.rangeMinController.onChange = function() {
+    basicKaleidoscope.minIterations = Make.rangeMinController.getValue();
     Make.updateNewMap();
 };
 
