@@ -7,10 +7,13 @@ and calls main.setup
 */
 
 import {
-    main
+    main,
+    Lines,
+    Areas
 }
-from "./main.js";
+from "./modules.js";
 
+const areas=new Areas({color:'#ff0000'});
 
 /**
 * setting up the tiling user interface
@@ -18,6 +21,7 @@ from "./main.js";
 */
 main.setupTilingUI=function(){
 	console.log('tiling.js setup UI');
+	areas.makeUI('test');
 };
 
 /**
@@ -29,5 +33,8 @@ console.log('tiling.js make tiling');
 }
 
 
-
 main.setup();
+
+
+areas.add(-1,0,0.5,0.2,1,0.9);
+areas.draw();

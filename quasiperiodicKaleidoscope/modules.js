@@ -28,3 +28,8 @@ export {
     main
 }
 from "./main.js";
+
+export {
+    Lines,Areas
+}
+from "./lines.js";

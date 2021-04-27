@@ -1375,14 +1375,22 @@ output.isInCanvas = function(coordinates) {
  * make a polygon path, use for fill and stroke
  * if necessary, closePath
  * @method output.makePath
- * @params {number ...} coordinates - x,y coordinate pairs for corners of the polygon
+ * @params {number ...} coordinates - list of x,y coordinate pairs for corners of the polygon, or array
  */
 output.makePath = function(coordinates) {
-    const length = arguments.length;
     output.canvasContext.beginPath();
-    output.canvasContext.moveTo(arguments[0], arguments[1]);
-    for (let i = 2; i < length; i += 2) {
-        output.canvasContext.lineTo(arguments[i], arguments[i + 1]);
+    var length = arguments.length;
+    if (length === 1) {
+        length = coordinates.length;
+        output.canvasContext.moveTo(coordinates[0], coordinates[1]);
+        for (let i = 2; i < length; i += 2) {
+            output.canvasContext.lineTo(coordinates[i], coordinates[i + 1]);
+        }
+    } else {
+        output.canvasContext.moveTo(arguments[0], arguments[1]);
+        for (let i = 2; i < length; i += 2) {
+            output.canvasContext.lineTo(arguments[i], arguments[i + 1]);
+        }
     }
 };
 

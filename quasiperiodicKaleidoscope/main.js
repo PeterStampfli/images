@@ -43,6 +43,9 @@ main.setup = function() {
     // create an output canvas, with coordinates and pixels
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
+    // coordinates: origin (0,0) at center of canvas
+    //  x-axis ranging from -1.5 to 1.5
+    // adjust/size initial tiles to fit
     output.setInitialCoordinates(0, 0, 3);
     output.createPixels();
     // add options for the output image
@@ -64,7 +67,7 @@ main.setup = function() {
     // link the output drawing routines to the map routines
     map.setOutputDraw();
 // the UI for the tiling
-
+main.setupTilingUI();
 
 
     // finally draw image
@@ -157,6 +160,7 @@ map.drawImageChanged = function() {
  * @method main.drawMapChanged
  */
 main.drawMapChanged = function() {
+	console.log('draw tiling/map chnged');
     map.drawMapChanged();
 };
 
@@ -166,5 +170,6 @@ main.drawMapChanged = function() {
  * @method main.drawImageChanged
  */
 main.drawImageChanged = function() {
+	console.log('draw image changed')
     map.drawImageChanged();
 };

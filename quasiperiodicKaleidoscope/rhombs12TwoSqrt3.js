@@ -1,13 +1,13 @@
 /* jshint esversion: 6 */
 
-
 import {
     ParamGui,
     output,
     BooleanButton
 }
-from "./library/modules.js";
-//from "../libgui/modules.js";
+from "../libgui/modules.js";
+//from "./library/modules.js";
+
 import {
     tiles
 }
