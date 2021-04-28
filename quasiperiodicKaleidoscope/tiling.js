@@ -9,11 +9,12 @@ and calls main.setup
 import {
     main,
     Lines,
-    Areas
+    Areas,
+    tiles
 }
 from "./modules.js";
 
-const areas=new Areas({color:'#ff0000'});
+const areas=new Areas({color:'#ff0000',lineWidth:50,overprinting:false});
 
 /**
 * setting up the tiling user interface
@@ -21,7 +22,10 @@ const areas=new Areas({color:'#ff0000'});
 */
 main.setupTilingUI=function(){
 	console.log('tiling.js setup UI');
+	tiles.makeUI(false);
 	areas.makeUI('test');
+	areas.hideUI();
+	areas.showUI()
 };
 
 /**
@@ -37,4 +41,5 @@ main.setup();
 
 
 areas.add(-1,0,0.5,0.2,1,0.9);
+Lines.init();
 areas.draw();
