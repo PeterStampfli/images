@@ -43,3 +43,5 @@ main.setup();
 areas.add(-1,0,0.5,0.2,1,0.9);
 Lines.init();
 areas.draw();
+
+tiles.polygon(true,true,-1,0,0,0,0,1,-1,1);
