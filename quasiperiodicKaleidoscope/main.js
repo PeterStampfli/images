@@ -32,6 +32,14 @@ main.makeTiling = function() {
 };
 
 /**
+ * drawing the tiling
+ * @method main.drawTiling
+ */
+main.drawTiling = function() {
+    console.error('main.drawTiling undefined');
+};
+
+/**
  * setting up (the UI mainly)
  * @method main.setup
  */
@@ -70,8 +78,6 @@ main.setup = function() {
 main.setupTilingUI();
 
 
-    // finally draw image
-    map.drawMapChanged();
 
 };
 
@@ -146,11 +152,10 @@ map.drawMapChanged = function() {
  */
 map.drawImageChanged = function() {
     map.draw();
-    // add tiles borders
+    main.drawTiling();
     output.drawGrid();
 
 };
-
 
 // standardized drawing routines
 

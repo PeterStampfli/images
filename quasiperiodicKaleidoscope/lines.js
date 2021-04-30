@@ -27,9 +27,9 @@ export function Lines(params) {
 
 /**
 * initialize line drawing: round corner and joins
-* @method Lines.init
+* @method Lines.initDrawing
 */
-Lines.init=function(){
+Lines.initDrawing=function(){
 	output.canvasContext.lineJoin='round';
 	output.canvasContext.lineCap='round';
 }
@@ -150,6 +150,7 @@ export function Areas(params) {
     this.color = '#00ff00';
     this.overprinting=true;
     this.lineWidth=1;
+    this.on=true;
     Object.assign(this, params);
     // an array of lines, each line is an array with coordinate pairs
     this.lines = [];
@@ -159,8 +160,9 @@ export function Areas(params) {
  * make the UI for color into main GUI
  * @method Areas#makeUI
  * @param {String} label
+ * @param {Boolean} overprinting - for making an overprinting ui, default is false
  */
-Areas.prototype.makeUI = function(label = 'missing label') {
+Areas.prototype.makeUI = function(label = 'missing label',overprinting=false) {
     this.colorController = main.gui.add({
         type: 'color',
         params: this,
@@ -171,10 +173,18 @@ Areas.prototype.makeUI = function(label = 'missing label') {
         this.onController = main.gui.add({
         type: 'boolean',
         params: this,
+        property: 'on',
+        labelText:'',
+        onChange: main.drawImageChanged
+    });
+        if (overprinting){
+ this.overprintingController = main.gui.add({
+        type: 'boolean',
+        params: this,
         property: 'overprinting',
         onChange: main.drawImageChanged
     });
-    this.onController .add({
+    this.overprintingController .add({
         type: 'number',
         params: this,
         property: 'lineWidth',
@@ -182,6 +192,10 @@ Areas.prototype.makeUI = function(label = 'missing label') {
         min: 0.1,
         onChange: main.drawImageChanged
     });
+        } else {
+        	this.overprinting=false;
+        	this.overprintingController=false;
+        }
 };
 
 /**
@@ -191,6 +205,9 @@ Areas.prototype.makeUI = function(label = 'missing label') {
 Areas.prototype.hideUI=function(){
 	this.onController.hide();
 	this.colorController.hide();
+	if (this.overprintingController){
+		this.overprintingController.hide();
+	}
 }
 
 /**
@@ -200,6 +217,9 @@ Areas.prototype.hideUI=function(){
 Areas.prototype.showUI=function(){
 	this.onController.show();
 	this.colorController.show();
+	if (this.overprintingController){
+		this.overprintingController.show();
+	}
 }
 
 /**
@@ -233,8 +253,10 @@ Areas.prototype.add = function(coordinates) {
  * @method Areas#draw
  */
 Areas.prototype.draw = function() {
+if(this.on){
     const canvasContext = output.canvasContext;
     canvasContext.fillStyle = this.color;
+    output.setLineWidth(this.lineWidth);
     canvasContext.strokeStyle = this.color;
     this.lines.forEach(line => {
         output.makePath(line);
@@ -243,4 +265,5 @@ Areas.prototype.draw = function() {
         	canvasContext.stroke();
         }
     });
+}
 };
