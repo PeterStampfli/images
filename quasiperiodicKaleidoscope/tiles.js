@@ -36,6 +36,12 @@ const grid = new Lines({
     overprinting: false
 });
 
+// outlines as extra
+tiles.outlines = new Lines({
+    color: '#000000',
+    lineWidth: 4
+});
+
 /**
  * make the UI for the elements
  * @method tiles.makeUI
@@ -54,6 +60,14 @@ tiles.makeUI = function(withSubBorders = true, withMarkers = true) {
 };
 
 /**
+ * make the UI for the outlines
+ * @method tiles.makeOutlinesUI
+ */
+tiles.makeOutlinesUI = function() {
+    tiles.outlines.makeUI('outlines');
+};
+
+/**
  * clear the drawables
  * @method tiles.clear
  */
@@ -62,6 +76,7 @@ tiles.clear = function() {
     subBorders.clear();
     markers.clear();
     grid.clear();
+    tiles.outlines.clear();
 };
 
 /**
@@ -73,6 +88,7 @@ tiles.draw = function() {
     subBorders.draw();
     markers.draw();
     grid.draw();
+    tiles.outlines.draw();
 };
 
 // tiles, parameters:

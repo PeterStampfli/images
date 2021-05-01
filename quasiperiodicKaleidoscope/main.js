@@ -10,7 +10,8 @@ import {
     output,
     ParamGui,
     map,
-    Pixels
+    Pixels,
+    ColorInput
 } from "../libgui/modules.js";
 
 export const main = {};
@@ -72,13 +73,22 @@ main.setup = function() {
     map.trajectoryColorController.destroy();
     // add drag and drop for the input image
     map.imageController.addDragAndDropWindow();
+    // add option to draw tiling on (default white) background
+output.backgroundColorController.setValueOnly('#ffffff');
+               ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+                output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+                output.canvas.style.backgroundColor = output.backgroundColorString;
+map.callDrawTiling= function() {
+    map.drawingImage = false;
+    map.allImageControllersHide();
+ //   map.drawIndrasPearls();
+ output.clearCanvas();
+};
+        map.whatToShowController.addOption("tiling", map.callDrawTiling);
     // link the output drawing routines to the map routines
     map.setOutputDraw();
 // the UI for the tiling
 main.setupTilingUI();
-
-
-
 };
 
 // the drawing routines
@@ -124,6 +134,14 @@ map.drawStructure = function() {
     output.pixels.show();
 };
 
+/**
+* determine if tiling to draw
+* @method main.drawingTiling
+* @return boolean, true if drawing tiling with solid colors
+*/
+main.drawingTiling=function(){
+return map.whatToShowController.getValue()===map.callDrawTiling;
+};
 
 /**
  * what to do when the map changes (parameters, canvas size too)
@@ -139,7 +157,9 @@ map.drawMapChanged = function() {
     //           map.yArray[index] = point.y;
     //           map.iterationsArray[index] = 0 or 1;
     //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
-    //test only
+
+main.makeTiling();
+// make map only if required  > image changed
     map.make();
 
     // draw image, taking into account regions, and new options

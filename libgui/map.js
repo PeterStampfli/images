@@ -1104,7 +1104,7 @@ map.loadInputImage = function() {
  * @method map.makeShowingGui
  * @param {ParamGui} parentGui
  */
-map.makeShowingGui = function(parentGui, args = {}) {
+map.makeShowingGui = function(parentGui, args = {closed:false}) {
     const gui = parentGui.addFolder('showing', args);
     map.gui = gui;
     map.showingGui = gui;
