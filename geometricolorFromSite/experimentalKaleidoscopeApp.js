@@ -6,6 +6,18 @@
 parameters.initialN = 4;
 basicKaleidoscope.maxIterations=3;
 basicKaleidoscope.minIterations=1;
+basicKaleidoscope.hasLens=true;
+basicKaleidoscope.lensa=1;
+
+Make.lensController=new NumberButton('lens');
+Make.lensController.setRange(0,10);
+Make.lensController.setStep(0.001);
+Make.lensController.setValue(1);
+Make.lensController.onChange=function(){
+    basicKaleidoscope.lensa=Make.lensController.getValue();
+    Make.updateNewMap();
+};
+
 
 Make.rangeController =  NumberButton.createPlusMinus('range');
 Make.rangeController.setRange(1, 200);
