@@ -12,14 +12,14 @@
 /* jshint esversion:6 */
 
 basicKaleidoscope = {};
-basicKaleidoscope.hasLens=false;
+basicKaleidoscope.hasLens = false;
 
 (function() {
     "use strict";
 
     const big = 100;
-     basicKaleidoscope.maxIterations = 100;
-     basicKaleidoscope.minIterations=0;
+    basicKaleidoscope.maxIterations = 100;
+    basicKaleidoscope.minIterations = 0;
 
     // parameters that determine the image size
     //  access from outside to be able to change values. defaults:
@@ -274,19 +274,24 @@ basicKaleidoscope.hasLens=false;
      * @return float if >0 iteration has converged, lyapunov coefficient, if <0 iteration has failed
      */
     basicKaleidoscope.mapHyperbolic = function(position) {
-        if (basicKaleidoscope.hasLens){
-            const r2=position.x*position.x+position.y*position.y;
-            if (r2<basicKaleidoscope.worldRadius2){
-                const factor=basicKaleidoscope.lensa+(1-basicKaleidoscope.lensa)*Math.sqrt(r2/basicKaleidoscope.worldRadius2);
-                position.x*=factor;
-                position.y*=factor;
+        if (basicKaleidoscope.hasLens) {
+            const r2 = position.x * position.x + position.y * position.y;
+            if (r2 < basicKaleidoscope.worldRadius2) {
+                var factor;
+                if (basicKaleidoscope.lensPositive) {
+                    factor = basicKaleidoscope.lensNorm / (1 + Math.sqrt(1 - basicKaleidoscope.lensAbs * r2 / basicKaleidoscope.worldRadius2));
+                } else {
+                    factor = 1 / (1 - basicKaleidoscope.lensAbs + basicKaleidoscope.lensAbs * Math.sqrt(r2 / basicKaleidoscope.worldRadius2));
+                }
+                position.x *= factor;
+                position.y *= factor;
             }
         }
         if (projection.map(position) > 0) {
             for (var iter = 0; iter < basicKaleidoscope.maxIterations; iter++) {
                 basicKaleidoscope.sectorIndex = dihedral.getSectorIndex(position);
                 if (circles[basicKaleidoscope.sectorIndex].invertInsideOut(position) < 0) {
-                    if (iter<basicKaleidoscope.minIterations){
+                    if (iter < basicKaleidoscope.minIterations) {
                         return -1;
                     }
                     basicKaleidoscope.reflections = iter;
@@ -303,5 +308,4 @@ basicKaleidoscope.hasLens=false;
         }
         return -1;
     };
-
 }());

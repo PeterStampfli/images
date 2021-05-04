@@ -7,14 +7,19 @@ parameters.initialN = 4;
 basicKaleidoscope.maxIterations=3;
 basicKaleidoscope.minIterations=1;
 basicKaleidoscope.hasLens=true;
-basicKaleidoscope.lensa=1;
+basicKaleidoscope.lensAbs=0;
+basicKaleidoscope.lensPositive=false;
+basicKaleidoscope.lensNorm=2;
 
 Make.lensController=new NumberButton('lens');
-Make.lensController.setRange(0,10);
+Make.lensController.setRange(-1,1);
 Make.lensController.setStep(0.001);
-Make.lensController.setValue(1);
+Make.lensController.setValue(0);
 Make.lensController.onChange=function(){
-    basicKaleidoscope.lensa=Make.lensController.getValue();
+    const lensValue=Make.lensController.getValue();
+    basicKaleidoscope.lensAbs=Math.abs(lensValue);
+    basicKaleidoscope.lensPositive=(lensValue>0);
+    basicKaleidoscope.lensNorm=1+Math.sqrt(1-basicKaleidoscope.lensAbs);
     Make.updateNewMap();
 };
 
