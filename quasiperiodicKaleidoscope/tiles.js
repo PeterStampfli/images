@@ -2,7 +2,8 @@
 
 import {
     Lines,
-    Areas
+    Areas,
+    main
 }
 from "./modules.js";
 
@@ -42,29 +43,37 @@ tiles.outlines = new Lines({
     lineWidth: 4
 });
 
+// mirror parts
+tiles.evenReflections = new Areas({
+    color: '#ffff00',
+    overprinting: false
+});
+
+tiles.oddReflections = new Areas({
+    color: '#0000ff',
+    overprinting: false
+});
+
 /**
  * make the UI for the elements
  * @method tiles.makeUI
- * @param {boolean} withSubBorders - optional, default is true
- * @param {boolean} withMarkers - optional, default is true
+ * @param {boolean} withSubBorders
+ * @param {boolean} withMarkers 
+ * @param {boolean} withOutlines 
+ * @param {ParamGui} gui - optional, default is main.gui
  */
-tiles.makeUI = function(withSubBorders = true, withMarkers = true) {
-    grid.makeUI('grid');
-    borders.makeUI('borders');
+tiles.makeUI = function(withSubBorders, withMarkers, withOutlines, gui = main.gui) {
+    grid.makeUI('grid', gui);
+    borders.makeUI('borders', gui);
     if (withSubBorders) {
-        subBorders.makeUI('subBorders');
+        subBorders.makeUI('subBorders', gui);
     }
     if (withMarkers) {
-        markers.makeUI('markers',false);
+        markers.makeUI('markers', false, gui);
     }
-};
-
-/**
- * make the UI for the outlines
- * @method tiles.makeOutlinesUI
- */
-tiles.makeOutlinesUI = function() {
-    tiles.outlines.makeUI('outlines');
+    if (withOutlines) {
+        tiles.outlines.makeUI('outlines', gui);
+    }
 };
 
 /**
@@ -77,6 +86,8 @@ tiles.clear = function() {
     markers.clear();
     grid.clear();
     tiles.outlines.clear();
+    tiles.evenReflections.clear();
+    tiles.oddReflections.clear();
 };
 
 /**
@@ -84,6 +95,7 @@ tiles.clear = function() {
  * @method tiles.draw
  */
 tiles.draw = function() {
+    Lines.initDrawing();
     borders.draw();
     subBorders.draw();
     markers.draw();
@@ -128,7 +140,6 @@ tiles.regularPolygon = function(withMarker, upperImage, coordinates) {
     const factor = 2 / length;
     centerX *= factor;
     centerY *= factor;
-    console.log(centerX, centerY);
     borders.addClosed(corners);
     for (i = 2; i < length; i += 2) {
         grid.addOpen(0.5 * (corners[i] + corners[i - 2]), 0.5 * (corners[i + 1] + corners[i - 1]), centerX, centerY);
@@ -208,6 +219,8 @@ tiles.rhomb30 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
     if (withMarker) {
         markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
     }
+    const centerX = 0.5 * (bx + dx);
+    const centerY = 0.5 * (by + dy);
 };
 
 /**
@@ -237,10 +250,11 @@ tiles.rhomb45 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
     grid.addOpen(0.5 * (ax + bx), 0.5 * (ay + by), aax, aay, 0.5 * (ax + dx), 0.5 * (ay + dy));
     grid.addOpen(0.5 * (cx + bx), 0.5 * (cy + by), ccx, ccy, 0.5 * (cx + dx), 0.5 * (cy + dy));
     grid.addOpen(aax, aay, ccx, ccy);
-
     if (withMarker) {
         markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
     }
+    const centerX = 0.5 * (bx + dx);
+    const centerY = 0.5 * (by + dy);
 };
 
 /**
@@ -270,8 +284,9 @@ tiles.rhomb60 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
     grid.addOpen(0.5 * (ax + bx), 0.5 * (ay + by), aax, aay, 0.5 * (ax + dx), 0.5 * (ay + dy));
     grid.addOpen(0.5 * (cx + bx), 0.5 * (cy + by), ccx, ccy, 0.5 * (cx + dx), 0.5 * (cy + dy));
     grid.addOpen(aax, aay, ccx, ccy);
-
     if (withMarker) {
         markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
     }
+    const centerX = 0.5 * (bx + dx);
+    const centerY = 0.5 * (by + dy);
 };

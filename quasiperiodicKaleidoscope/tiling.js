@@ -10,7 +10,8 @@ and calls main.setup
 
 import {
     map,
-    output
+    output,
+    BooleanButton
 } from "../libgui/modules.js";
 
 import {
@@ -48,15 +49,60 @@ const triangleLAreas = new Areas({
 main.setupTilingUI = function() {
     console.log('tiling.js setup UI');
     const gui = main.gui;
-    gui.addParagraph('<strong>drawing</strong>');
-    tiles.makeUI();
-    tiles.makeOutlinesUI();
-    gui.addParagraph('<strong>tiles</strong>');
-    rhomb30Areas.makeUI('rhomb30');
-    rhomb60Areas.makeUI('rhomb60');
-    squareAreas.makeUI('square');
-    triangleRAreas.makeUI('triangleR');
-    triangleLAreas.makeUI('triangleL');
+    const linesGui = gui.addFolder('lines and markers');
+    tiles.makeUI(true, true, true, linesGui);
+    const tilesGui = gui.addFolder('tiles');
+    rhomb30Areas.makeUI('rhomb30', false, tilesGui);
+    rhomb60Areas.makeUI('rhomb60', false, tilesGui);
+    squareAreas.makeUI('square', false, tilesGui);
+    triangleRAreas.makeUI('triangleR', false, tilesGui);
+    triangleLAreas.makeUI('triangleL', false, tilesGui);
+    BooleanButton.whiteBackground();
+    const mapsGui = gui.addFolder('mappings');
+    tiling.rhomb30UpperImage = true;
+    mapsGui.add({
+        type: 'boolean',
+        params: tiling,
+        property: 'rhomb30UpperImage',
+        labelText: 'rhomb30',
+        buttonText: ['up', 'down'],
+        onChange: function() {
+            main.drawMapChanged();
+        }
+    });
+    tiling.rhomb60UpperImage = true;
+    mapsGui.add({
+        type: 'boolean',
+        params: tiling,
+        property: 'rhomb60UpperImage',
+        labelText: 'rhomb60',
+        buttonText: ['up', 'down'],
+        onChange: function() {
+            main.drawMapChanged();
+        }
+    });
+    tiling.squareUpperImage = true;
+    mapsGui.add({
+        type: 'boolean',
+        params: tiling,
+        property: 'squareUpperImage',
+        labelText: 'square',
+        buttonText: ['up', 'down'],
+        onChange: function() {
+            main.drawMapChanged();
+        }
+    });
+    tiling.triangleUpperImage = true;
+    mapsGui.add({
+        type: 'boolean',
+        params: tiling,
+        property: 'triangleUpperImage',
+        labelText: 'triangle',
+        buttonText: ['up', 'down'],
+        onChange: function() {
+            main.drawMapChanged();
+        }
+    });
     gui.addParagraph('<strong>tiling</strong>');
     gui.add({
         type: 'selection',
@@ -103,14 +149,13 @@ main.makeTiling = function() {
  * @method main.drawTiling
  */
 main.drawTiling = function() {
-    console.log('drawing');
+    console.log('draw tiling');
     Lines.initDrawing();
     rhomb30Areas.draw();
     rhomb60Areas.draw();
     squareAreas.draw();
     triangleRAreas.draw();
     triangleLAreas.draw();
-    tiles.draw();
 };
 
 main.setup();
@@ -135,7 +180,7 @@ function square(gen, blX, blY, trX, trY) {
     const tlY = cY + dX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.regularPolygon(true, false, blX, blY, brX, brY, trX, trY, tlX, tlY);
+            tiles.regularPolygon(true, tiling.squareUpperImage, blX, blY, brX, brY, trX, trY, tlX, tlY);
             squareAreas.add(blX, blY, brX, brY, trX, trY, tlX, tlY);
         } else {
             gen += 1;
@@ -197,7 +242,7 @@ function rhomb60(gen, bX, bY, tX, tY) {
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
             rhomb60Areas.add(bX, bY, rX, rY, tX, tY, lX, lY);
-            tiles.rhomb60(true, false, bX, bY, rX, rY, tX, tY, lX, lY);
+            tiles.rhomb60(true, tiling.rhomb60UpperImage, bX, bY, rX, rY, tX, tY, lX, lY);
         } else {
             gen += 1;
             rhomb60(gen, tX, tY, lX + 0.5 * rightX + rt32 * upX, lY + 0.5 * rightY + rt32 * upY);
@@ -241,7 +286,7 @@ function rhomb30(gen, bX, bY, tX, tY) {
     if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
         if (gen >= tiling.maxGen) {
             rhomb30Areas.add(bX, bY, rX, rY, tX, tY, lX, lY);
-            tiles.rhomb30(false, false, bX, bY, rX, rY, tX, tY, lX, lY);
+            tiles.rhomb30(false, tiling.rhomb30UpperImage, bX, bY, rX, rY, tX, tY, lX, lY);
         } else {
             gen += 1;
             const bcX = cX - 0.7071 * upX;
@@ -269,7 +314,7 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
             triangleRAreas.add(aX, aY, bX, bY, cX, cY);
-            tiles.regularPolygon(true, false, aX, aY, bX, bY, cX, cY);
+            tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
         } else {
             gen += 1;
             // make directions
@@ -304,7 +349,7 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
             triangleLAreas.add(aX, aY, bX, bY, cX, cY);
-            tiles.regularPolygon(true, false, aX, aY, bX, bY, cX, cY);
+            tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
         } else {
             gen += 1;
             // make directions

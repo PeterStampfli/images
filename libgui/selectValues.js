@@ -247,10 +247,20 @@ SelectValues.prototype.setIndex = function(index) {
 /**
  * get the value
  * @method SelectValues#getValue
- * @return integer, the selected index
+ * @return whatever, the selected value
  */
 SelectValues.prototype.getValue = function() {
     const result = this.values[this.select.getIndex()];
+    return result;
+};
+
+/**
+ * get the name
+ * @method SelectValues#getName
+ * @return string, the name of the actualselection
+ */
+SelectValues.prototype.getName = function() {
+    const result = this.names[this.select.getIndex()];
     return result;
 };
 

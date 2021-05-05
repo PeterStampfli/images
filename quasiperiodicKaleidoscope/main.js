@@ -14,6 +14,11 @@ import {
     ColorInput
 } from "../libgui/modules.js";
 
+import {
+    tiles
+}
+from "./modules.js";
+
 export const main = {};
 
 /**
@@ -38,6 +43,16 @@ main.makeTiling = function() {
  */
 main.drawTiling = function() {
     console.error('main.drawTiling undefined');
+};
+
+/**
+ * drawing the reflections
+ * @method main.drawReflections
+ */
+main.drawReflections = function() {
+    console.log('draw reflections');
+    tiles.evenReflections.draw();
+    tiles.oddReflections.draw();
 };
 
 /**
@@ -74,21 +89,26 @@ main.setup = function() {
     // add drag and drop for the input image
     map.imageController.addDragAndDropWindow();
     // add option to draw tiling on (default white) background
-output.backgroundColorController.setValueOnly('#ffffff');
-               ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-                output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-                output.canvas.style.backgroundColor = output.backgroundColorString;
-map.callDrawTiling= function() {
-    map.drawingImage = false;
-    map.allImageControllersHide();
- //   map.drawIndrasPearls();
- output.clearCanvas();
-};
-        map.whatToShowController.addOption("tiling", map.callDrawTiling);
+    output.backgroundColorController.setValueOnly('#ffffff');
+    ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+    output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+    output.canvas.style.backgroundColor = output.backgroundColorString;
+    map.callDrawTiling = function() {
+        map.drawingImage = false;
+        map.allImageControllersHide();
+        output.clearCanvas();
+    };
+    map.whatToShowController.addOption("tiling", map.callDrawTiling);
+    map.callDrawReflections = function() {
+        map.drawingImage = false;
+        map.allImageControllersHide();
+        output.clearCanvas();
+    };
+    map.whatToShowController.addOption("reflections", map.callDrawReflections);
     // link the output drawing routines to the map routines
     map.setOutputDraw();
-// the UI for the tiling
-main.setupTilingUI();
+    // the UI for the tiling
+    main.setupTilingUI();
 };
 
 // the drawing routines
@@ -135,12 +155,21 @@ map.drawStructure = function() {
 };
 
 /**
-* determine if tiling to draw
-* @method main.drawingTiling
-* @return boolean, true if drawing tiling with solid colors
-*/
-main.drawingTiling=function(){
-return map.whatToShowController.getValue()===map.callDrawTiling;
+ * determine if tiling to draw
+ * @method main.drawingTiling
+ * @return boolean, true if drawing tiling with solid colors
+ */
+main.drawingTiling = function() {
+    return map.whatToShowController.getValue() === map.callDrawTiling;
+};
+
+/**
+ * determine if reflections to draw
+ * @method main.drawingReflections
+ * @return boolean, true if drawing reflections with solid colors
+ */
+main.drawingReflections = function() {
+    return map.whatToShowController.getValue() === map.callDrawReflections;
 };
 
 /**
@@ -158,10 +187,9 @@ map.drawMapChanged = function() {
     //           map.iterationsArray[index] = 0 or 1;
     //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
 
-main.makeTiling();
-// make map only if required  > image changed
+    main.makeTiling();
+    // make map only if required  > image changed
     map.make();
-
     // draw image, taking into account regions, and new options
     map.drawImageChanged();
 };
@@ -171,10 +199,17 @@ main.makeTiling();
  * @method map.drawImageChanged
  */
 map.drawImageChanged = function() {
-    map.draw();
-    main.drawTiling();
+    if (main.drawingTiling()) {
+        output.clearCanvas();
+        main.drawTiling();
+    } else if (main.drawingReflections()) {
+        output.clearCanvas();
+        main.drawReflections();
+    } else {
+        map.draw();
+    }
+    tiles.draw();
     output.drawGrid();
-
 };
 
 // standardized drawing routines
@@ -185,7 +220,7 @@ map.drawImageChanged = function() {
  * @method main.drawMapChanged
  */
 main.drawMapChanged = function() {
-	console.log('draw tiling/map chnged');
+    console.log('draw tiling/map chnged');
     map.drawMapChanged();
 };
 
@@ -195,6 +230,6 @@ main.drawMapChanged = function() {
  * @method main.drawImageChanged
  */
 main.drawImageChanged = function() {
-	console.log('draw image changed')
+    console.log('draw image changed');
     map.drawImageChanged();
 };
