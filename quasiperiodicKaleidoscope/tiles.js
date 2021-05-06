@@ -141,13 +141,27 @@ tiles.regularPolygon = function(withMarker, upperImage, coordinates) {
     centerX *= factor;
     centerY *= factor;
     borders.addClosed(corners);
-    for (i = 2; i < length; i += 2) {
-        grid.addOpen(0.5 * (corners[i] + corners[i - 2]), 0.5 * (corners[i + 1] + corners[i - 1]), centerX, centerY);
+    var even, odd, midX, midY;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
     }
-    grid.addOpen(0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]), centerX, centerY);
-    if (withMarker) {
-        markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
-    }
+        for (i = 2; i < length; i += 2) {
+            midX = 0.5 * (corners[i] + corners[i - 2]);
+            midY = 0.5 * (corners[i + 1] + corners[i - 1]);
+            grid.addOpen(midX, midY, centerX, centerY);
+            odd.add(midX,midY,corners[i],corners[i+1],centerX,centerY);
+        }
+        midX = 0.5 * (corners[0] + corners[length - 2]);
+        midY = 0.5 * (corners[1] + corners[length - 1]);
+        grid.addOpen(midX, midY, centerX, centerY);
+        if (withMarker) {
+            markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
+        }
+    
 };
 
 /**
@@ -289,4 +303,29 @@ tiles.rhomb60 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
     }
     const centerX = 0.5 * (bx + dx);
     const centerY = 0.5 * (by + dy);
+};
+
+
+/**
+ * half of an equilateral triangle
+ * with list of corners, begin with 90 degree angle, 60 degree,30 degree
+ * @method tiles.halfTriangle
+ * @param {boolean} withMarker - for consistency, has no effect
+ * @param {boolean} upperImage
+ * @param {number} mx - x-coordinate, corner with 90 degree angle
+ * @param {number} my - y-coordinate 
+ * @param {number} bx - x-coordinate, corner with 60 degree angle
+ * @param {number} by - y-coordinate
+ * @param {number} cx - x-coordinate, corner with 30 degree angle
+ * @param {number} cy - y-coordinate 
+ */
+tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
+    borders.addOpen(mx, my, bx, by, cx, cy);
+    subBorders.addOpen(mx, my, cx, cy);
+    const centerX = 0.33333 * (mx + mx + cx);
+    const centerY = 0.33333 * (my + my + cy);
+    const bcX = 0.5 * (bx + cx);
+    const bcY = 0.5 * (by + cy);
+    grid.addOpen(bcX, bcY, centerX, centerY, mX, mY);
+
 };

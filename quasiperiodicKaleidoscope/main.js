@@ -21,6 +21,8 @@ from "./modules.js";
 
 export const main = {};
 
+main.mapValid = false; // new tiling, but no map
+
 /**
  * setting up the tiling user interface
  * @method main.setupTilingUI
@@ -43,16 +45,6 @@ main.makeTiling = function() {
  */
 main.drawTiling = function() {
     console.error('main.drawTiling undefined');
-};
-
-/**
- * drawing the reflections
- * @method main.drawReflections
- */
-main.drawReflections = function() {
-    console.log('draw reflections');
-    tiles.evenReflections.draw();
-    tiles.oddReflections.draw();
 };
 
 /**
@@ -97,12 +89,15 @@ main.setup = function() {
         map.drawingImage = false;
         map.allImageControllersHide();
         output.clearCanvas();
+        main.drawTiling();
     };
     map.whatToShowController.addOption("tiling", map.callDrawTiling);
     map.callDrawReflections = function() {
         map.drawingImage = false;
         map.allImageControllersHide();
         output.clearCanvas();
+        tiles.evenReflections.draw();
+        tiles.oddReflections.draw();
     };
     map.whatToShowController.addOption("reflections", map.callDrawReflections);
     // link the output drawing routines to the map routines
@@ -188,6 +183,7 @@ map.drawMapChanged = function() {
     //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
 
     main.makeTiling();
+    main.mapValid = false;
     // make map only if required  > image changed
     map.make();
     // draw image, taking into account regions, and new options
@@ -199,16 +195,13 @@ map.drawMapChanged = function() {
  * @method map.drawImageChanged
  */
 map.drawImageChanged = function() {
-    if (main.drawingTiling()) {
-        output.clearCanvas();
-        main.drawTiling();
-    } else if (main.drawingReflections()) {
-        output.clearCanvas();
-        main.drawReflections();
-    } else {
-        map.draw();
+    if (!main.drawingTiling() && !main.drawingReflections() && !main.mapValid) {
+        // calculate map
+        // main.mapValid=true;
     }
-    tiles.draw();
+
+    map.draw(); // includes methods for drawing tiling or reflections
+    tiles.draw(); // drawing borders and so on
     output.drawGrid();
 };
 

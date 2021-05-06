@@ -268,6 +268,7 @@ map.updatingTheMap = true;
 
 // hide all image controllers
 map.allImageControllersHide = function() {
+    console.log('allImageControllersHide');
     map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
