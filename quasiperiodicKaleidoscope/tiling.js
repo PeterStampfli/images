@@ -314,12 +314,12 @@ function triangleR(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
             triangleRAreas.add(aX, aY, bX, bY, cX, cY);
-            const surface=(bX-aX)*(cY-aY)-(bY-aY)*(cX-aX);
-            if (surface>0){
-            tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
-        } else {
-                        tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, cX, cY, bX, bY);
-        }
+            const surface = (bX - aX) * (cY - aY) - (bY - aY) * (cX - aX);
+            if (surface > 0) {
+                tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
+            } else {
+                tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, cX, cY, bX, bY);
+            }
         } else {
             gen += 1;
             // make directions
@@ -354,12 +354,12 @@ function triangleL(gen, aX, aY, bX, bY, cX, cY) {
     if (output.isInCanvas(aX, aY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
             triangleLAreas.add(aX, aY, bX, bY, cX, cY);
-          const surface=(bX-aX)*(cY-aY)-(bY-aY)*(cX-aX);
-            if (surface>0){
-            tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
-        } else {
-                        tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, cX, cY, bX, bY);
-        }
+            const surface = (bX - aX) * (cY - aY) - (bY - aY) * (cX - aX);
+            if (surface > 0) {
+                tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, bX, bY, cX, cY);
+            } else {
+                tiles.regularPolygon(true, tiling.triangleUpperImage, aX, aY, cX, cY, bX, bY);
+            }
         } else {
             gen += 1;
             // make directions

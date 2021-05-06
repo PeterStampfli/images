@@ -149,19 +149,22 @@ tiles.regularPolygon = function(withMarker, upperImage, coordinates) {
         even = tiles.oddReflections;
         odd = tiles.evenReflections;
     }
-        for (i = 2; i < length; i += 2) {
-            midX = 0.5 * (corners[i] + corners[i - 2]);
-            midY = 0.5 * (corners[i + 1] + corners[i - 1]);
-            grid.addOpen(midX, midY, centerX, centerY);
-            odd.add(midX,midY,corners[i],corners[i+1],centerX,centerY);
-        }
-        midX = 0.5 * (corners[0] + corners[length - 2]);
-        midY = 0.5 * (corners[1] + corners[length - 1]);
+    for (i = 2; i < length; i += 2) {
+        midX = 0.5 * (corners[i] + corners[i - 2]);
+        midY = 0.5 * (corners[i + 1] + corners[i - 1]);
         grid.addOpen(midX, midY, centerX, centerY);
-        if (withMarker) {
-            markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
-        }
-    
+        even.add(midX, midY, corners[i], corners[i + 1], centerX, centerY);
+        odd.add(midX, midY, corners[i - 2], corners[i - 1], centerX, centerY);
+    }
+    midX = 0.5 * (corners[0] + corners[length - 2]);
+    midY = 0.5 * (corners[1] + corners[length - 1]);
+    grid.addOpen(midX, midY, centerX, centerY);
+    even.add(midX, midY, corners[0], corners[1], centerX, centerY);
+    odd.add(midX, midY, corners[length - 2], corners[length - 1], centerX, centerY);
+    if (withMarker) {
+        markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
+    }
+
 };
 
 /**
@@ -195,13 +198,66 @@ tiles.partRegularPolygon = function(withMarker, upperImage, coordinates) {
     }
     borders.addOpen(corners);
     subBorders.addOpen(corners[0], corners[1], centerX, centerY, corners[length - 2], corners[length - 1]);
+    var even, odd, midX, midY;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
     for (i = 2; i < length; i += 2) {
-        grid.addOpen(0.5 * (corners[i] + corners[i - 2]), 0.5 * (corners[i + 1] + corners[i - 1]), centerX, centerY);
+        midX = 0.5 * (corners[i] + corners[i - 2]);
+        midY = 0.5 * (corners[i + 1] + corners[i - 1]);
+        grid.addOpen(midX, midY, centerX, centerY);
+        even.add(midX, midY, corners[i], corners[i + 1], centerX, centerY);
+        odd.add(midX, midY, corners[i - 2], corners[i - 1], centerX, centerY);
     }
     if (withMarker) {
         markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + centerX), 0.5 * (corners[1] + centerY));
     }
 };
+
+function rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
+    borders.addClosed(ax, ay, bx, by, cx, cy, dx, dy);
+    const s = 1 - t;
+    const aax = s * ax + t * cx;
+    const aay = s * ay + t * cy;
+    const ccx = t * ax + s * cx;
+    const ccy = t * ay + s * cy;
+    const abx = 0.5 * (ax + bx);
+    const aby = 0.5 * (ay + by);
+    const adx = 0.5 * (ax + dx);
+    const ady = 0.5 * (ay + dy);
+    const bcx = 0.5 * (cx + bx);
+    const bcy = 0.5 * (cy + by);
+    const cdx = 0.5 * (cx + dx);
+    const cdy = 0.5 * (cy + dy);
+    grid.addOpen(abx, aby, aax, aay, adx, ady);
+    grid.addOpen(bcx, bcy, ccx, ccy, cdx, cdy);
+    grid.addOpen(aax, aay, ccx, ccy);
+    if (withMarker) {
+        markers.add(ax, ay, abx, aby, adx, ady);
+    }
+    const centerX = 0.5 * (bx + dx);
+    const centerY = 0.5 * (by + dy);
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
+    even.add(bcx, bcy, cx, cy, ccx, ccy);
+    odd.add(bcx, bcy, bx, by, centerX, centerY, ccx, ccy);
+    even.add(cdx, cdy, dx, dy, centerX, centerY, ccx, ccy);
+    odd.add(cdx, cdy, cx, cy, ccx, ccy);
+    odd.add(adx, ady, dx, dy, centerX, centerY, aax, aay);
+    even.add(adx, ady, ax, ay, aax, aay);
+    odd.add(abx, aby, ax, ay, aax, aay);
+    even.add(abx, aby, bx, by, centerX, centerY, aax, aay);
+}
 
 /**
  * 30 degree rhomb
@@ -219,22 +275,9 @@ tiles.partRegularPolygon = function(withMarker, upperImage, coordinates) {
  * @param {number} dy - y-coordinate, corner with obtuse angle
  */
 tiles.rhomb30 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
-    borders.addClosed(ax, ay, bx, by, cx, cy, dx, dy);
     // 0.26796=0.25/cos(15)**2
     const t = 0.26796;
-    const s = 1 - t;
-    const aax = s * ax + t * cx;
-    const aay = s * ay + t * cy;
-    const ccx = t * ax + s * cx;
-    const ccy = t * ay + s * cy;
-    grid.addOpen(0.5 * (ax + bx), 0.5 * (ay + by), aax, aay, 0.5 * (ax + dx), 0.5 * (ay + dy));
-    grid.addOpen(0.5 * (cx + bx), 0.5 * (cy + by), ccx, ccy, 0.5 * (cx + dx), 0.5 * (cy + dy));
-    grid.addOpen(aax, aay, ccx, ccy);
-    if (withMarker) {
-        markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
-    }
-    const centerX = 0.5 * (bx + dx);
-    const centerY = 0.5 * (by + dy);
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
 };
 
 /**
@@ -253,22 +296,9 @@ tiles.rhomb30 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
  * @param {number} dy - y-coordinate, corner with obtuse angle
  */
 tiles.rhomb45 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
-    borders.addClosed(ax, ay, bx, by, cx, cy, dx, dy);
     // 0.29289=0.25/cos(22.5)**2
     const t = 0.29289;
-    const s = 1 - t;
-    const aax = s * ax + t * cx;
-    const aay = s * ay + t * cy;
-    const ccx = t * ax + s * cx;
-    const ccy = t * ay + s * cy;
-    grid.addOpen(0.5 * (ax + bx), 0.5 * (ay + by), aax, aay, 0.5 * (ax + dx), 0.5 * (ay + dy));
-    grid.addOpen(0.5 * (cx + bx), 0.5 * (cy + by), ccx, ccy, 0.5 * (cx + dx), 0.5 * (cy + dy));
-    grid.addOpen(aax, aay, ccx, ccy);
-    if (withMarker) {
-        markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
-    }
-    const centerX = 0.5 * (bx + dx);
-    const centerY = 0.5 * (by + dy);
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
 };
 
 /**
@@ -287,24 +317,10 @@ tiles.rhomb45 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy)
  * @param {number} dy - y-coordinate, corner with obtuse angle
  */
 tiles.rhomb60 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
-    borders.addClosed(ax, ay, bx, by, cx, cy, dx, dy);
     // 0.3333=0.25/cos(30)**2
     const t = 0.33333;
-    const s = 1 - t;
-    const aax = s * ax + t * cx;
-    const aay = s * ay + t * cy;
-    const ccx = t * ax + s * cx;
-    const ccy = t * ay + s * cy;
-    grid.addOpen(0.5 * (ax + bx), 0.5 * (ay + by), aax, aay, 0.5 * (ax + dx), 0.5 * (ay + dy));
-    grid.addOpen(0.5 * (cx + bx), 0.5 * (cy + by), ccx, ccy, 0.5 * (cx + dx), 0.5 * (cy + dy));
-    grid.addOpen(aax, aay, ccx, ccy);
-    if (withMarker) {
-        markers.add(ax, ay, 0.5 * (ax + bx), 0.5 * (ay + by), 0.5 * (ax + dx), 0.5 * (ay + dy));
-    }
-    const centerX = 0.5 * (bx + dx);
-    const centerY = 0.5 * (by + dy);
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
 };
-
 
 /**
  * half of an equilateral triangle
@@ -327,5 +343,22 @@ tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
     const bcX = 0.5 * (bx + cx);
     const bcY = 0.5 * (by + cy);
     grid.addOpen(bcX, bcY, centerX, centerY, mX, mY);
-
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
+    // take into account mirror images
+    const surface = ((bx - mx) * (cy - my) - (by - my) * (cx - mx));
+    if (surface < 0) {
+        const h = odd;
+        odd = even;
+        even = h;
+    }
+    even.add(mx, my, centerX, centerY, bx, by);
+    odd.add(bcX, bcY, centerX, centerY, bx, by);
+    even.add(bcX, bcY, cx, cy, centerX, centerY);
 };
