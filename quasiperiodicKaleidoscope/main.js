@@ -173,7 +173,7 @@ main.drawingReflections = function() {
  * @method map.drawMapChanged
  */
 map.drawMapChanged = function() {
-    // make pixels
+    // make pixels and map arrays
     map.startDrawing();
     // make the qp structure
     // make the map using the qp structure
@@ -184,8 +184,7 @@ map.drawMapChanged = function() {
 
     main.makeTiling();
     main.mapValid = false;
-    // make map only if required  > image changed
-    map.make();
+ 
     // draw image, taking into account regions, and new options
     map.drawImageChanged();
 };
@@ -197,7 +196,10 @@ map.drawMapChanged = function() {
 map.drawImageChanged = function() {
     if (!main.drawingTiling() && !main.drawingReflections() && !main.mapValid) {
         // calculate map
-        // main.mapValid=true;
+   // make map only if required  > image changed
+             main.mapValid=true;
+             console.log('make map');
+    map.make();
     }
 
     map.draw(); // includes methods for drawing tiling or reflections

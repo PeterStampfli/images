@@ -7,7 +7,7 @@ import {
     output
 } from "../libgui/modules.js";
 
-const test={};
+const test = {};
 
 // drawing the image: constants
 const white = Pixels.integerOfColor({
@@ -29,21 +29,22 @@ const blue = Pixels.integerOfColor({
     alpha: 255
 });
 
-function action(x,y,index){
-        output.pixels.array[index]=blue;
+function action(x, y, index) {
+    output.pixels.array[index] = blue;
 
-if(x<0){
-    output.pixels.array[index]=black;
-}
+    if (x < 0) {
+        output.pixels.array[index] = black;
+       // console.log('bl')
+    }
 }
 
 test.draw = function() {
-    
- pixelPaint.fill(white);
 
-//pixelPaint.scanTrapeze(0,-0.5,1,0.5,-0.7,0.9,action);
+    pixelPaint.fill(white);
 
-pixelPaint.scanTriangle(2,-1,1,0.5,0.5,-0.6,action);
+ //   pixelPaint.scanTrapeze(action,0.1,-0.5,1,0.5,-0.7,0.9);
+
+    pixelPaint.scanConvexPolygon(action,-2, -1, 0, -0.5, 0.5, 1.0,-1,1);
     output.pixels.show();
 
 
@@ -54,10 +55,10 @@ test.setup = function() {
     pixelPaint.setup('test', false);
     const gui = pixelPaint.gui;
     output.addCursorposition();
-    output.setInitialCoordinates(0,0,3);
+    output.setInitialCoordinates(0, 0, 3);
     output.drawCanvasChanged = test.draw;
     test.draw();
-    
+
 };
 
 test.setup();

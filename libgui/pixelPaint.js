@@ -75,62 +75,60 @@ pixelPaint.fill = function(intColor) {
 /**
  * scan a trapeze and call a function for each pixel
  * parallels of trapeze are horizontal
- * action(x,y,index) does something, 
- * (x,y) are transformed image coordinates, 
- * index is index of pixel (or similar data)
+ * action(x,y,index) does something, where (x,y) are image coordinates and index is index of pixel (or map)
  * trapeze coordinates are image coordinates
  * @method pixelPaint.scanTrapeze
- * @param {number} bottom
- * @param {number} bottomLeft
- * @param {number} bottomRight
- * @param {number} top
- * @param {number} topLeft
- * @param {number} topRight
- * @param {function} action
+ * @param {function} action - function(x,y,index)
+ * @param {number} bottomY - y-coordinate of bottom of trapeze
+ * @param {number} bottomLeftX - x-coordinate of left corner at bottom
+ * @param {number} bottomRightX - x-coordinate of right corner at bottom
+ * @param {number} topY - y-coordinate of top of trapeze
+ * @param {number} topLeftX - x-coordinate of left corner at top
+ * @param {number} topRightX - x-coordinate of right corner at top
  */
-pixelPaint.scanTrapeze = function(bottom, bottomLeft, bottomRight, top, topLeft, topRight, action) {
+pixelPaint.scanTrapeze = function(action, bottomY, bottomLeftX, bottomRightX, topY, topLeftX, topRightX) {
     // transform to canvas (pixel coordinates), and check if visible
     const coordinateTransform = output.coordinateTransform;
     const totalScale = coordinateTransform.totalScale;
     const shiftX = coordinateTransform.shiftX;
     const shiftY = coordinateTransform.shiftY;
     const width = output.canvas.width;
-    bottom = coordinateTransform.inverseY(bottom);
-    if (bottom > output.canvas.height) { // visible range goes from 0 ... canvas.height-1
+    bottomY = coordinateTransform.inverseY(bottomY);
+    if (bottomY > output.canvas.height) { // visible range goes from 0 ... canvas.height-1
         return;
     }
-    top = coordinateTransform.inverseY(top);
-    if (top + 1 < 0) {
+    topY = coordinateTransform.inverseY(topY);
+    if (topY + 1 < 0) {
         return;
     }
     const eps = 0.001;
-    if (top - bottom < eps) {
+    if (topY - bottomY < -eps) {
         return;
     }
-    bottomLeft = coordinateTransform.inverseX(bottomLeft);
-    bottomRight = coordinateTransform.inverseX(bottomRight);
-    topLeft = coordinateTransform.inverseX(topLeft);
-    topRight = coordinateTransform.inverseX(topRight);
-    const limitLeft = Math.min(topLeft, bottomLeft);
+    bottomLeftX = coordinateTransform.inverseX(bottomLeftX);
+    bottomRightX = coordinateTransform.inverseX(bottomRightX);
+    topLeftX = coordinateTransform.inverseX(topLeftX);
+    topRightX = coordinateTransform.inverseX(topRightX);
+    const limitLeft = Math.min(topLeftX, bottomLeftX);
     if (limitLeft > width) {
         return;
     }
-    const limitRight = Math.max(topRight, bottomRight);
+    const limitRight = Math.max(topRightX, bottomRightX);
     if (limitRight + 1 < 0) {
         return;
     }
     // determine slopes
-    const mLeft = (topLeft - bottomLeft) / (top - bottom);
-    const mRight = (topRight - bottomRight) / (top - bottom);
+    const mLeft = (topLeftX - bottomLeftX) / (topY - bottomY);
+    const mRight = (topRightX - bottomRightX) / (topY - bottomY);
     // determine j-range
-    const jLow = Math.max(Math.floor(bottom), 0);
-    const jHigh = Math.min(Math.floor(top) + 1, output.canvas.height - 1);
+    const jLow = Math.max(Math.floor(bottomY), 0);
+    const jHigh = Math.min(Math.floor(topY) + 1, output.canvas.height - 1);
     // do the lines
     let y = shiftY + totalScale * jLow;
     for (let j = jLow; j <= jHigh; j++) {
         // left and right limits
-        let iLeft = Math.max(limitLeft, bottomLeft + mLeft * (j - bottom));
-        let iRight = Math.min(limitRight, bottomRight + mRight * (j - bottom));
+        let iLeft = Math.max(limitLeft, bottomLeftX + mLeft * (j - bottomY));
+        let iRight = Math.min(limitRight, bottomRightX + mRight * (j - bottomY));
         if ((iLeft < width) && (iRight >= 0)) {
             iLeft = Math.max(0, Math.floor(iLeft));
             iRight = Math.min(width, Math.floor(iRight) + 1);
@@ -153,15 +151,15 @@ pixelPaint.scanTrapeze = function(bottom, bottomLeft, bottomRight, top, topLeft,
  * index is index of pixel (or similar data)
  * triangle coordinates are image coordinates
  * @method pixelPaint.scanTriangle
+ * @param {function} action - function(x,y,index)
  * @param {number} aX
  * @param {number} aY
  * @param {number} bX
  * @param {number} bY
  * @param {number} cX
  * @param {number} cY
- * @param {function} action
  */
-pixelPaint.scanTriangle = function(aX, aY, bX, bY, cX, cY, action) {
+pixelPaint.scanTriangle = function(action, aX, aY, bX, bY, cX, cY) {
     // sorting a above b above c
     if (cY > bY) {
         let h = bY;
@@ -187,7 +185,6 @@ pixelPaint.scanTriangle = function(aX, aY, bX, bY, cX, cY, action) {
         bX = cX;
         cX = h;
     }
-    console.log(aY, bY, cY);
     const eps = 0.001;
     if (aY - cY > eps) {
         // cut into two trapezes at height of point b
@@ -198,8 +195,30 @@ pixelPaint.scanTriangle = function(aX, aY, bX, bY, cX, cY, action) {
             bX = dX;
             dX = h;
         }
-        pixelPaint.scanTrapeze(cY, cX, cX, bY, bX, dX, action);
-        pixelPaint.scanTrapeze(bY, bX, dX, aY, aX, aX, action);
+        pixelPaint.scanTrapeze(action, cY, cX, cX, bY, bX, dX);
+        pixelPaint.scanTrapeze(action, bY, bX, dX, aY, aX, aX);
+    }
+};
+
+/**
+ * scan a convex polygon and call a function for each pixel
+ * use that the polygon can be tiled into triangles
+ * one of its corners is at first corner of polygon
+ * action(x,y,index) does something, 
+ * (x,y) are transformed image coordinates, 
+ * index is index of pixel (or similar data)
+ * triangle coordinates are image coordinates
+ * @method pixelPaint.scanConvexPolygon
+ * @param {function} action - function(x,y,index)
+ * @param {number...} coordinates
+ */
+pixelPaint.scanConvexPolygon = function(action, coordinates) {
+    // arguments=[action,x1,y1,x2,y2,x3,y3, ...,xn,yn]
+    const length = arguments.length - 1;
+    const ax = arguments[1];
+    const ay = arguments[2];
+    for (var i = 5; i < length; i += 2) {
+        pixelPaint.scanTriangle(action, ax, ay, arguments[i - 2], arguments[i - 1], arguments[i], arguments[i + 1]);
     }
 };
 
