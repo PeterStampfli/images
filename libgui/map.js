@@ -268,7 +268,6 @@ map.updatingTheMap = true;
 
 // hide all image controllers
 map.allImageControllersHide = function() {
-    console.log('allImageControllersHide');
     map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
@@ -398,6 +397,15 @@ map.activeRegions.length = 256;
  */
 map.clearActive = function() {
     map.activeRegions.fill(false);
+};
+
+/**
+* make all map points invalid
+* all elements of sizeArray have negative value -> drawing alpha=0
+* @method map.makeTransparent
+*/
+map.makeTransparent=function(){
+map.sizeArray.fill(-1);
 };
 
 // default: one active region

@@ -153,8 +153,8 @@ export function Areas(params) {
     this.lineWidth = 1;
     this.on = true;
     Object.assign(this, params);
-    // an array of lines, each line is an array with coordinate pairs
-    this.lines = [];
+    // an array of areas, each line is an array with coordinate pairs
+    this.areas = [];
 }
 
 /**
@@ -225,11 +225,11 @@ Areas.prototype.showUI = function() {
 };
 
 /**
- * clear the areas (lines)
+ * clear the areas
  * @method Areas#clear
  */
 Areas.prototype.clear = function() {
-    this.lines.length = 0;
+    this.areas.length = 0;
 };
 
 /**
@@ -247,7 +247,7 @@ Areas.prototype.add = function(coordinates) {
     // going back, close path
     line.push(line[0]);
     line.push(line[1]);
-    this.lines.push(line);
+    this.areas.push(line);
 };
 
 /**
@@ -260,7 +260,7 @@ Areas.prototype.draw = function() {
         canvasContext.fillStyle = this.color;
         output.setLineWidth(this.lineWidth);
         canvasContext.strokeStyle = this.color;
-        this.lines.forEach(line => {
+        this.areas.forEach(line => {
             output.makePath(line);
             canvasContext.fill();
             if (this.overprinting) {

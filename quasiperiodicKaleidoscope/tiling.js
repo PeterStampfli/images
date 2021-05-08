@@ -47,7 +47,6 @@ const triangleLAreas = new Areas({
  * @method main.setupTilingUI
  */
 main.setupTilingUI = function() {
-    console.log('tiling.js setup UI');
     const gui = main.gui;
     const linesGui = gui.addFolder('lines and markers');
     tiles.makeUI(true, true, true, linesGui);

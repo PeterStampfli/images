@@ -210,15 +210,25 @@ pixelPaint.scanTriangle = function(action, aX, aY, bX, bY, cX, cY) {
  * triangle coordinates are image coordinates
  * @method pixelPaint.scanConvexPolygon
  * @param {function} action - function(x,y,index)
- * @param {number...} coordinates
+ * @param {number...||Array of numbers} coordinates
  */
 pixelPaint.scanConvexPolygon = function(action, coordinates) {
-    // arguments=[action,x1,y1,x2,y2,x3,y3, ...,xn,yn]
-    const length = arguments.length - 1;
-    const ax = arguments[1];
-    const ay = arguments[2];
-    for (var i = 5; i < length; i += 2) {
-        pixelPaint.scanTriangle(action, ax, ay, arguments[i - 2], arguments[i - 1], arguments[i], arguments[i + 1]);
+    var i;
+    if (arguments.length > 2) {
+        // arguments=[action,x1,y1,x2,y2,x3,y3, ...,xn,yn]
+        const length = arguments.length - 1;
+        const ax = arguments[1];
+        const ay = arguments[2];
+        for (i = 5; i < length; i += 2) {
+            pixelPaint.scanTriangle(action, ax, ay, arguments[i - 2], arguments[i - 1], arguments[i], arguments[i + 1]);
+        }
+    } else {
+        const length = coordinates.length;
+        const ax = coordinates[0];
+        const ay = coordinates[1];
+        for (i = 4; i < length; i += 2) {
+            pixelPaint.scanTriangle(action, ax, ay, coordinates[i - 2], coordinates[i - 1], coordinates[i], coordinates[i + 1]);
+        }
     }
 };
 

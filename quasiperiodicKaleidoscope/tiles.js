@@ -1,6 +1,11 @@
 /* jshint esversion: 6 */
 
 import {
+    map,
+    pixelPaint
+} from "../libgui/modules.js";
+
+import {
     Lines,
     Areas,
     main
@@ -53,6 +58,38 @@ tiles.oddReflections = new Areas({
     color: '#0000ff',
     overprinting: false
 });
+
+var originX, originY;
+var rightX, rightY, upX, upY;
+
+/**
+ * mapping the even reflections
+ * @method tiles.mapEvenReflections
+ */
+function evenReflectionAction(x, y, index) {
+    map.sizeArray[index] = 1;
+    map.iterationsArray[index] = 0;
+    x -= originX;
+    y -= originY;
+    map.xArray[index] = x * rightX + y * rightY;
+    map.yArray[index] = x * upX + y * upY;
+}
+
+tiles.mapEvenReflections = function() {
+    console.log('evenreflects');
+    tiles.evenReflections.areas.forEach(area => {
+        originX = area[0];
+        originY = area[1];
+        rightX = area[2] - originX;
+        rightY = area[3] - originY;
+        let norm = 1 / Math.sqrt(rightX * rightX + rightY * rightY);
+        rightX *= norm;
+        rightY *= norm;
+        upX = -rightY;
+        upY = rightX;
+        pixelPaint.scanConvexPolygon(evenReflectionAction, area);
+    });
+};
 
 /**
  * make the UI for the elements

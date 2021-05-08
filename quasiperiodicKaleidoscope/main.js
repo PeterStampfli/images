@@ -184,7 +184,7 @@ map.drawMapChanged = function() {
 
     main.makeTiling();
     main.mapValid = false;
- 
+
     // draw image, taking into account regions, and new options
     map.drawImageChanged();
 };
@@ -196,10 +196,13 @@ map.drawMapChanged = function() {
 map.drawImageChanged = function() {
     if (!main.drawingTiling() && !main.drawingReflections() && !main.mapValid) {
         // calculate map
-   // make map only if required  > image changed
-             main.mapValid=true;
-             console.log('make map');
-    map.make();
+        // make map only if required  > image changed
+        main.mapValid = true;
+        console.log('make map');
+        map.make();
+        map.makeTransparent();
+
+        tiles.mapEvenReflections();
     }
 
     map.draw(); // includes methods for drawing tiling or reflections
