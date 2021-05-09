@@ -203,6 +203,7 @@ map.drawImageChanged = function() {
         map.makeTransparent();
 
         tiles.mapEvenReflections();
+        tiles.mapOddReflections();
     }
 
     map.draw(); // includes methods for drawing tiling or reflections

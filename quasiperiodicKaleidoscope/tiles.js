@@ -91,6 +91,36 @@ tiles.mapEvenReflections = function() {
     });
 };
 
+
+/**
+ * mapping the odd reflections
+ * @method tiles.mapOddReflections
+ */
+function oddReflectionAction(x, y, index) {
+    map.sizeArray[index] = 1;
+    map.iterationsArray[index] = 1;
+    x -= originX;
+    y -= originY;
+    map.xArray[index] = x * rightX + y * rightY;
+    map.yArray[index] = -(x * upX + y * upY);
+}
+
+tiles.mapOddReflections = function() {
+    console.log('oddreflects');
+    tiles.oddReflections.areas.forEach(area => {
+        originX = area[0];
+        originY = area[1];
+        rightX = area[2] - originX;
+        rightY = area[3] - originY;
+        let norm = 1 / Math.sqrt(rightX * rightX + rightY * rightY);
+        rightX *= norm;
+        rightY *= norm;
+        upX = -rightY;
+        upY = rightX;
+        pixelPaint.scanConvexPolygon(oddReflectionAction, area);
+    });
+};
+
 /**
  * make the UI for the elements
  * @method tiles.makeUI
