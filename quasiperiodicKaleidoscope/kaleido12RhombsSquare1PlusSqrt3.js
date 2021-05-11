@@ -112,7 +112,6 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
-
     gui.add({
         type: 'number',
         params: tiling,
@@ -124,7 +123,6 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
-
 };
 
 /**
@@ -132,7 +130,6 @@ main.setupTilingUI = function() {
  * @method main.makeTiling
  */
 main.makeTiling = function() {
-    console.log('tiling.js make tiling');
     // first clear things
     rhomb30Areas.clear();
     rhomb60Areas.clear();
@@ -148,7 +145,6 @@ main.makeTiling = function() {
  * @method main.drawTiling
  */
 main.drawTiling = function() {
-    console.log('draw tiling');
     Lines.initDrawing();
     rhomb30Areas.draw();
     rhomb60Areas.draw();

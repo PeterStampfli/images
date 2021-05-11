@@ -56,6 +56,16 @@ main.setup = function() {
         closed: false
     });
     main.gui = gui;
+    const help = gui.addFolder('help', {
+        closed: true
+    });
+    main.helpGui = help;
+    help.addParagraph('You can <strong>zoom the image,</strong> with the mouse wheel if the mouse is on the image.');
+    help.addParagraph('You can <strong>move the image</strong> with a mouse drag.');
+    help.addParagraph('You can <strong>change numbers</strong> by choosing a digit with the mouse and turning the mouse wheel.');
+    help.addParagraph('Alternatively, you can use the <strong>"image controls"</strong> part of the gui.');
+    help.addParagraph('Click on the black triangles to open/close parts of the gui.');
+    help.addParagraph('Send bug reports and other comments to: <strong>pestampf@gmail.com</strong>');
     // create an output canvas, with coordinates and pixels
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
@@ -109,47 +119,6 @@ main.setup = function() {
 // the drawing routines
 
 /**
- * show structure of the map: color depending on the structure index
- * either direct image or mirror image
- * @method map.drawStructure
- */
-const colorZero = Pixels.integerOfColor({
-    red: 255,
-    green: 255,
-    blue: 180,
-    alpha: 255
-});
-const colorOne = Pixels.integerOfColor({
-    red: 180,
-    green: 180,
-    blue: 255,
-    alpha: 255
-});
-map.drawStructure = function() {
-    if (map.inputImageLoaded) {
-        map.controlPixels.setAlpha(map.controlPixelsAlpha);
-        map.controlPixels.show();
-    }
-    const length = map.width * map.height;
-    const pixelsArray = output.pixels.array;
-    const sizeArray = map.sizeArray;
-    const structureColors = map.structureColors;
-    const iterationsArray = map.iterationsArray;
-    for (var index = 0; index < length; index++) {
-        if (sizeArray[index] >= 0) {
-            if (iterationsArray[index] === 0) {
-                pixelsArray[index] = colorZero;
-            } else {
-                pixelsArray[index] = colorOne;
-            }
-        } else {
-            pixelsArray[index] = 0; // transparent black
-        }
-    }
-    output.pixels.show();
-};
-
-/**
  * determine if tiling to draw
  * @method main.drawingTiling
  * @return boolean, true if drawing tiling with solid colors
@@ -173,19 +142,9 @@ main.drawingReflections = function() {
  * @method map.drawMapChanged
  */
 map.drawMapChanged = function() {
-    // make pixels and map arrays
     map.startDrawing();
-    // make the qp structure
-    // make the map using the qp structure
-    //           map.xArray[index] = point.x;
-    //           map.yArray[index] = point.y;
-    //           map.iterationsArray[index] = 0 or 1;
-    //           map.sizeArray[index] > 0 for image points (valid), < 0 transparent
-
     main.makeTiling();
     main.mapValid = false;
-
-    // draw image, taking into account regions, and new options
     map.drawImageChanged();
 };
 
@@ -195,17 +154,15 @@ map.drawMapChanged = function() {
  */
 map.drawImageChanged = function() {
     if (!main.drawingTiling() && !main.drawingReflections() && !main.mapValid) {
-        // calculate map
         // make map only if required  > image changed
         main.mapValid = true;
-        console.log('make map');
         map.make();
         map.makeTransparent();
-
+        map.activeRegions[0] = true;
+        map.makeStructureColors();
         tiles.mapEvenReflections();
         tiles.mapOddReflections();
     }
-
     map.draw(); // includes methods for drawing tiling or reflections
     tiles.draw(); // drawing borders and so on
     output.drawGrid();
@@ -219,7 +176,6 @@ map.drawImageChanged = function() {
  * @method main.drawMapChanged
  */
 main.drawMapChanged = function() {
-    console.log('draw tiling/map chnged');
     map.drawMapChanged();
 };
 

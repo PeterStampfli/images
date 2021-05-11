@@ -11,7 +11,7 @@ from "../libgui/modules.js";
 import {
     tiles
 }
-from "./tiles.js";
+from "./oldTiles.js";
 
 const gui = new ParamGui({
     closed: false

@@ -68,7 +68,8 @@ var rightX, rightY, upX, upY;
  */
 function evenReflectionAction(x, y, index) {
     map.sizeArray[index] = 1;
-    map.iterationsArray[index] = 0;
+    map.iterationsArray[index] = 2;
+    map.regionArray[index]=0;
     x -= originX;
     y -= originY;
     map.xArray[index] = x * rightX + y * rightY;
@@ -76,7 +77,6 @@ function evenReflectionAction(x, y, index) {
 }
 
 tiles.mapEvenReflections = function() {
-    console.log('evenreflects');
     tiles.evenReflections.areas.forEach(area => {
         originX = area[0];
         originY = area[1];
@@ -106,7 +106,6 @@ function oddReflectionAction(x, y, index) {
 }
 
 tiles.mapOddReflections = function() {
-    console.log('oddreflects');
     tiles.oddReflections.areas.forEach(area => {
         originX = area[0];
         originY = area[1];
@@ -231,7 +230,6 @@ tiles.regularPolygon = function(withMarker, upperImage, coordinates) {
     if (withMarker) {
         markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
     }
-
 };
 
 /**
