@@ -324,7 +324,7 @@ squares[1] = function(gen, blX, blY, trX, trY) {
             fullTriangle(gen, tlX + 0.5 * rightX - upX, tlY + 0.5 * rightY - upY, trX - 0.5 * (rightX + upX), trY - 0.5 * (rightY + upY), tlX + 0.5 * rightX, tlY + 0.5 * rightY);
         }
     }
-}
+};
 
 // actually the quarter square, center of full square at (trX,trY) 
 //  corner at (blX,blY) 
@@ -365,7 +365,7 @@ squares[2] = function(gen, blX, blY, trX, trY) {
             fullTriangle(gen, blX + rightX, blY + rightY, blX + rightX + upX, blY + rightY + upY, brX + 0.5 * upX, brY + 0.5 * upY);
         }
     }
-}
+};
 
 
 // actually the quarter square, center of full square at (trX,trY) 
@@ -409,7 +409,7 @@ squares[3] = function(gen, blX, blY, trX, trY) {
             fullSquare(gen, blX, blY, blX + upX + rightX, blY + upY + rightY);
         }
     }
-}
+};
 
 squares[4] = function(gen, blX, blY, trX, trY) {
     // make center and missing corners
@@ -450,7 +450,7 @@ squares[4] = function(gen, blX, blY, trX, trY) {
             fullTriangle(gen, cX, cY, cX + rightX, cY + rightY, trX - 0.5 * upX - 0.5 * rightX, trY - 0.5 * upY - 0.5 * rightY);
         }
     }
-}
+};
 
 
 squares[5] = function(gen, blX, blY, trX, trY) {
@@ -493,7 +493,7 @@ squares[5] = function(gen, blX, blY, trX, trY) {
             rhomb(gen, blX + rightX, blY + rightY, trX + 0.5 * rightX - 0.5 * upX, trY + 0.5 * rightY - 0.5 * upY);
         }
     }
-}
+};
 
 
 square = squares[1];
@@ -575,7 +575,7 @@ rhombs[1] = function(gen, bX, bY, tX, tY) {
             fullTriangle(gen, rX, rY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY, tcX, tcY);
         }
     }
-}
+};
 
 
 // the rhomb, coordinates of the corners with acute angles
@@ -662,7 +662,7 @@ rhombs[2] = function(gen, bX, bY, tX, tY) {
             fullTriangle(gen, ttcX, ttcY, ttcX - rightX, ttcY - rightY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
         }
     }
-}
+};
 
 rhomb = rhombs[1];
 
@@ -706,7 +706,7 @@ triangles[1] = function(gen, mX, mY, bX, bY, cX, cY) {
             triangle(gen, midX, midY, cenX, cenY, cX + 0.5 * rightX - rt32 * upX, cY + 0.5 * rightY - rt32 * upY);
         }
     }
-}
+};
 
 
 triangles[2] = function(gen, mX, mY, bX, bY, cX, cY) {
@@ -749,7 +749,7 @@ triangles[2] = function(gen, mX, mY, bX, bY, cX, cY) {
             square(gen, cX - rt32 * upX + 0.5 * rightX, cY - rt32 * upY + 0.5 * rightY, cX - rt32 * upX - 0.5 * upX, cY - rt32 * upY - 0.5 * upY);
         }
     }
-}
+};
 triangle = triangles[1];
 
 function fullTriangle(gen, aX, aY, bX, bY, cX, cY) {

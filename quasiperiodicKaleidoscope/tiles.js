@@ -427,3 +427,41 @@ tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
     odd.add(bcX, bcY, centerX, centerY, bx, by);
     even.add(bcX, bcY, cx, cy, centerX, centerY);
 };
+
+/**
+ * quarter of a square
+ * with list of corners, begin with middle of one side, corner,middle of other side,center
+ * @method tiles.halfTriangle
+ * @param {boolean} withMarker - marker at center
+ * @param {boolean} upperImage
+ * @param {number} m1x - x-coordinate, middle of one side of the full square
+ * @param {number} m1y - y-coordinate 
+ * @param {number} cornerX - x-coordinate, corner of full square
+ * @param {number} cornerY - y-coordinate
+  * @param {number} m2x - x-coordinate, middle of other side of the full square
+ * @param {number} m2y - y-coordinate 
+* @param {number} centerX - x-coordinate, corner of full square
+ * @param {number} centerY - y-coordinate
+ */
+tiles.quarterSquare = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
+    borders.addOpen(m1x,m1y,cornerX,cornerY,m2x,m2y);
+    subBorders.addOpen(m1x,m1y,centerX,centerY,m2x,m2y);
+    grid.addOpen(m1x,m1y,centerX,centerY,m2x,m2y);
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
+    // take into account mirror images
+    const surface = ((cornerX - m1x) * (m2y - cornerY) - (cornerY - m1y) * (m2x - cornerX));
+    if (surface < 0) {
+        const h = odd;
+        odd = even;
+        even = h;
+    }
+    even.add(m1x, m1y, cornerX,cornerY,centerX, centerY);
+    odd.add(m2x, m2y, cornerX,cornerY,centerX, centerY);
+};
