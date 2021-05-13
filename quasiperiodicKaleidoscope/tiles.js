@@ -27,19 +27,22 @@ export const tiles = {};
 
 const borders = new Lines({
     color: '#000000',
+    on:false,
     lineWidth: 2
 });
 const subBorders = new Lines({
     color: '#0000ff',
+    on:false,
     lineWidth: 2
 });
 const markers = new Areas({
     color: '#88888888',
+    on:false,
     overprinting: false
 });
 const grid = new Lines({
     color: '#ffaa00',
-    overprinting: false
+    on:false,
 });
 
 // outlines as extra
@@ -135,7 +138,7 @@ tiles.makeUI = function(withSubBorders, withMarkers, withOutlines, gui = main.gu
         subBorders.makeUI('subBorders', gui);
     }
     if (withMarkers) {
-        markers.makeUI('markers', false, gui);
+        markers.makeUI('markers', gui);
     }
     if (withOutlines) {
         tiles.outlines.makeUI('outlines', gui);
@@ -407,7 +410,7 @@ tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
     const centerY = 0.33333 * (my + my + cy);
     const bcX = 0.5 * (bx + cx);
     const bcY = 0.5 * (by + cy);
-    grid.addOpen(bcX, bcY, centerX, centerY, mX, mY);
+    grid.addOpen(bcX, bcY, centerX, centerY, mx, my);
     var even, odd;
     if (upperImage) {
         even = tiles.evenReflections;
@@ -423,8 +426,8 @@ tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
         odd = even;
         even = h;
     }
-    even.add(mx, my, centerX, centerY, bx, by);
-    odd.add(bcX, bcY, centerX, centerY, bx, by);
+    even.add(mx, my, bx, by, centerX, centerY);
+    odd.add(bcX, bcY, bx, by, centerX, centerY);
     even.add(bcX, bcY, cx, cy, centerX, centerY);
 };
 

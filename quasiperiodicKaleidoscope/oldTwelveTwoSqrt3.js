@@ -452,7 +452,6 @@ squares[4] = function(gen, blX, blY, trX, trY) {
     }
 };
 
-
 squares[5] = function(gen, blX, blY, trX, trY) {
     // make center and missing corners
     let cX = 0.5 * (blX + trX);
@@ -681,12 +680,12 @@ triangles[1] = function(gen, mX, mY, bX, bY, cX, cY) {
         // 0.309401077=1/(1.5+sqrt(3))
         const upX = 0.309401077 * (cX - mX);
         const upY = 0.309401077 * (cY - mY);
-        const cenX = mX + 0.5 * (upX + rightX);
-        const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = 0.5 * (bX + cX);
-        const bcY = 0.5 * (bY + cY);
-        const mcX = cX - upX;
-        const mcY = cY - upY;
+     //   const cenX = mX + 0.5 * (upX + rightX);
+     //   const cenY = mY + 0.5 * (upY + rightY);
+     //   const bcX = 0.5 * (bX + cX);
+     //   const bcY = 0.5 * (bY + cY);
+      //  const mcX = cX - upX;
+      //  const mcY = cY - upY;
         if (gen >= tiling.maxGen) {
             tiles.addHalfTriangle(mX, mY, bX, bY, cX, cY);
         } else {
@@ -707,7 +706,6 @@ triangles[1] = function(gen, mX, mY, bX, bY, cX, cY) {
         }
     }
 };
-
 
 triangles[2] = function(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {

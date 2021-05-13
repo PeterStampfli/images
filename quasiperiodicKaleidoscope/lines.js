@@ -14,7 +14,7 @@ from "../libgui/modules.js";
 /**
  * object for drawing lines with choosable color and line width
  * @creator Lines
- * @param {object} params - optional, initial color and linewidth
+ * @param {object} params - optional, initial color, linewidth, on
  */
 export function Lines(params) {
     this.color = '#000000';
@@ -145,7 +145,7 @@ Lines.prototype.draw = function() {
  * object for drawing areas with choosable color
  * including overprinting
  * @creator Areas
- * @param {object} params - optional, initial color
+ * @param {object} params - optional, initial color, on, lineWidth, overprinting
  */
 export function Areas(params) {
     this.color = '#00ff00';
@@ -161,10 +161,9 @@ export function Areas(params) {
  * make the UI for color into main GUI
  * @method Areas#makeUI
  * @param {String} label
- * @param {Boolean} overprinting - for making an overprinting ui
  * @param {ParamGui} gui - optional, default is main.gui
  */
-Areas.prototype.makeUI = function(label, overprinting, gui = main.gui) {
+Areas.prototype.makeUI = function(label, gui = main.gui) {
     this.colorController = gui.add({
         type: 'color',
         params: this,
@@ -179,7 +178,7 @@ Areas.prototype.makeUI = function(label, overprinting, gui = main.gui) {
         labelText: '',
         onChange: main.drawImageChanged
     });
-    if (overprinting) {
+    if (this.overprinting) {
         this.overprintingController = gui.add({
             type: 'boolean',
             params: this,
@@ -195,7 +194,6 @@ Areas.prototype.makeUI = function(label, overprinting, gui = main.gui) {
             onChange: main.drawImageChanged
         });
     } else {
-        this.overprinting = false;
         this.overprintingController = false;
     }
 };

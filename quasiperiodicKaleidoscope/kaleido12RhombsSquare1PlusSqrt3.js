@@ -51,11 +51,11 @@ main.setupTilingUI = function() {
     const linesGui = gui.addFolder('lines and markers');
     tiles.makeUI(true, true, true, linesGui);
     const tilesGui = gui.addFolder('tiles');
-    rhomb30Areas.makeUI('rhomb30', false, tilesGui);
-    rhomb60Areas.makeUI('rhomb60', false, tilesGui);
-    squareAreas.makeUI('square', false, tilesGui);
-    triangleRAreas.makeUI('triangleR', false, tilesGui);
-    triangleLAreas.makeUI('triangleL', false, tilesGui);
+    rhomb30Areas.makeUI('rhomb30', tilesGui);
+    rhomb60Areas.makeUI('rhomb60', tilesGui);
+    squareAreas.makeUI('square', tilesGui);
+    triangleRAreas.makeUI('triangleR', tilesGui);
+    triangleLAreas.makeUI('triangleL', tilesGui);
     BooleanButton.whiteBackground();
     const mapsGui = gui.addFolder('mappings');
     tiling.rhomb30UpperImage = true;
