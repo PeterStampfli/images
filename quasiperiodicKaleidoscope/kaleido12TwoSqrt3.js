@@ -25,7 +25,9 @@ from "./modules.js";
 
 const tiling = {};
 tiling.maxGen = 1;
+tiling.maxGen = 0;
 tiling.initial = 'rhomb';
+tiling.initial = 'small square';
 tiling.fixedSize = true;
 
 
@@ -59,7 +61,7 @@ const triangleAreas = new Areas({
 main.setupTilingUI = function() {
     const gui = main.gui;
     const linesGui = gui.addFolder('lines and markers');
-    tiles.makeUI(true, false, true, linesGui);
+    tiles.makeUI(true, true, true, linesGui);
     const tilesGui = gui.addFolder('tiles');
     rhombAreas.makeUI('rhomb', false, tilesGui);
     squareAreas.makeUI('square', false, tilesGui);
@@ -177,10 +179,33 @@ main.setupTilingUI = function() {
     });
 };
 
-
 main.setup();
 // switching to showing the tiling
 map.whatToShowController.setValueOnly("tiling");
+
+/**
+ * making the tiling
+ * @method main.makeTiling
+ */
+main.makeTiling = function() {
+    // first clear things
+    rhombAreas.clear();
+    squareAreas.clear();
+    triangleAreas.clear();
+    tiles.clear();
+    tile();
+};
+
+/**
+ * drawing the tiling
+ * @method main.drawTiling
+ */
+main.drawTiling = function() {
+    Lines.initDrawing();
+    rhombAreas.draw();
+    squareAreas.draw();
+    triangleAreas.draw();
+};
 
 
 // tiles of the tiling
@@ -204,7 +229,7 @@ squares[1] = function(gen, blX, blY, trX, trY) {
     const tlY = cY + dX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.quarterSquare(brX, brY, blX, blY, tlX, tlY, trX, trY);
+            tiles.quarterSquare(true, tiling.squareUpperImage, brX, brY, blX, blY, tlX, tlY, trX, trY);
             squareAreas.add(blX, blY, brX, brY, trX, trY, tlX, tlY);
         } else {
             gen += 1;
@@ -228,6 +253,156 @@ squares[1] = function(gen, blX, blY, trX, trY) {
     }
 };
 
+square = squares[1];
 
+function fullSquare(gen, blX, blY, trX, trY) {
+    // make center and missing corners
+    let cX = 0.5 * (blX + trX);
+    let cY = 0.5 * (blY + trY);
+    const dX = trX - cX;
+    const dY = trY - cY;
+    const brX = cX + dY;
+    const brY = cY - dX;
+    const tlX = cX - dY;
+    const tlY = cY + dX;
+    square(gen, blX, blY, cX, cY);
+    square(gen, brX, brY, cX, cY);
+    square(gen, tlX, tlY, cX, cY);
+    square(gen, trX, trY, cX, cY);
+}
+
+// the rhomb, coordinates of the corners with acute angles
+
+rhombs[1] = function(gen, bX, bY, tX, tY) {
+    // make center and missing corners
+    const cX = 0.5 * (bX + tX);
+    const cY = 0.5 * (bY + tY);
+    // 0.267949192=tan(Math.PI/12);
+    const hX = -0.267949192 * (cY - bY);
+    const hY = 0.267949192 * (cX - bX);
+    const rX = cX - hX;
+    const rY = cY - hY;
+    const lX = cX + hX;
+    const lY = cY + hY;
+    if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
+        if (gen >= tiling.maxGen) {
+            rhombAreas.add(bX, bY, rX, rY, tX, tY, lX, lY);
+            tiles.rhomb30(false, tiling.rhombUpperImage, bX, bY, rX, rY, tX, tY, lX, lY);
+        } else {
+            gen += 1;
+            // 0.267949192=1/(2+rt3)
+            const rightX = 0.267949192 * (rX - bX);
+            const rightY = 0.267949192 * (rY - bY);
+            const upX = -rightY;
+            const upY = rightX;
+            rhomb(gen, lX, lY, rX, rY);
+            const bbcX = bX + rightX * (1 + rt32) + 0.5 * upX;
+            const bbcY = bY + rightY * (1 + rt32) + 0.5 * upY;
+            const ttcX = tX - rightX * (1 + rt32) - 0.5 * upX;
+            const ttcY = tY - rightY * (1 + rt32) - 0.5 * upY;
+            rhomb(gen, bX, bY, bbcX, bbcY);
+            rhomb(gen, tX, tY, ttcX, ttcY);
+            const bcX = rX - 0.5 * rightX + rt32 * upX;
+            const bcY = rY - 0.5 * rightY + rt32 * upY;
+            const tcX = lX + 0.5 * rightX - rt32 * upX;
+            const tcY = lY + 0.5 * rightY - rt32 * upY;
+            fullSquare(gen, bbcX, bbcY, bcX, bcY);
+            fullSquare(gen, ttcX, ttcY, tcX, tcY);
+            let midX = 0.5 * (bX + rX);
+            let midY = 0.5 * (bY + rY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rightX, bY + rightY);
+            triangle(gen, midX, midY, bbcX, bbcY, rX - rightX, rY - rightY);
+            fullTriangle(gen, rX, rY, rX - rightX, rY - rightY, bcX, bcY);
+            midX = 0.5 * (lX + tX);
+            midY = 0.5 * (lY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
+            triangle(gen, midX, midY, ttcX, ttcY, lX + rightX, lY + rightY);
+            fullTriangle(gen, lX, lY, lX + rightX, lY + rightY, tcX, tcY);
+            midX = 0.5 * (lX + bX);
+            midY = 0.5 * (lY + bY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rt32 * rightX + 0.5 * upX, bY + rt32 * rightY + 0.5 * upY);
+            triangle(gen, midX, midY, bbcX, bbcY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX, lY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bcX, bcY);
+            midX = 0.5 * (rX + tX);
+            midY = 0.5 * (rY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
+            triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            fullTriangle(gen, rX, rY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY, tcX, tcY);
+        }
+    }
+};
+
+rhomb = rhombs[1];
+
+
+
+// make the tiling for various initial patterns
+
+const size = 2;
+
+const basicX = [];
+basicX.length = 15;
+
+const basicY = [];
+basicY.length = 15;
+
+const secondX = [];
+const secondY = [];
+secondX.length = 14;
+secondY.length = 14;
+
+
+function tile() {
+    let s = 4 * size;
+    if (tiling.fixedSize) {
+        s *= Math.pow(2 + Math.sqrt(3), tiling.maxGen - 2);
+    }
+    for (let i = 0; i < 15; i++) {
+        basicX[i] = Math.cos(Math.PI * i / 6) * s;
+        basicY[i] = Math.sin(Math.PI * i / 6) * s;
+    }
+
+    for (let i = 0; i < 14; i++) {
+        secondX[i] = basicX[i] + basicX[i + 1];
+        secondY[i] = basicY[i] + basicY[i + 1];
+    }
+
+    const r = s / Math.sqrt(3);
+    const z = s * Math.cos(Math.PI / 12);
+    const w = s * Math.sin(Math.PI / 12);
+    switch (tiling.initial) {
+        case 'small square':
+            square(0, -s / 4, -s / 4, s / 4, s / 4);
+            tiles.outlines.addClosed(-s / 4, -s / 4, -s / 4, s / 4, s / 4, s / 4, s / 4, -s / 4);
+            break;
+        case 'rhomb':
+            rhomb(0, -z, 0, z, 0);
+            const h = Math.tan(Math.PI / 12) * z;
+            tiles.outlines.addClosed(-z, 0, 0, h, z, 0, 0, -h);
+            break;
+        case 'triangle':
+            triangle(0, 0, -r / 2, rt32 * r, -r / 2, 0, r);
+            tiles.outlines.addClosed(0, -r / 2, rt32 * r, -r / 2, 0, r);
+            break;
+        case 'full triangle':
+            fullTriangle(0, -rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+            tiles.outlines.addClosed(-rt32 * r, -r / 2, rt32 * r, -r / 2, 0, r);
+            break;
+        case 'big square':
+            fullSquare(0, -s / 2, -s / 2, s / 2, s / 2);
+            tiles.outlines.addClosed(-s / 2, -s / 2, -s / 2, s / 2, s / 2, s / 2, s / 2, -s / 2);
+            break;
+        case 'dodecagon':
+            for (let i = 0; i < 12; i++) {
+                rhomb(0, 0, 0, secondX[i], secondY[i]);
+                const mX = 0.5 * (secondX[i] + secondX[i + 1]);
+                const mY = 0.5 * (secondY[i] + secondY[i + 1]);
+                triangle(0, mX, mY, secondX[i], secondY[i], basicX[i + 1], basicY[i + 1]);
+                triangle(0, mX, mY, secondX[i + 1], secondY[i + 1], basicX[i + 1], basicY[i + 1]);
+                tiles.outlines.addOpen(secondX[i - 1], secondY[i - 1], secondX[i], secondY[i]);
+            }
+            break;
+    }
+}
 
 main.drawMapChanged();

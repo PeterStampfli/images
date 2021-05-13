@@ -69,7 +69,7 @@ var rightX, rightY, upX, upY;
 function evenReflectionAction(x, y, index) {
     map.sizeArray[index] = 1;
     map.iterationsArray[index] = 2;
-    map.regionArray[index]=0;
+    map.regionArray[index] = 0;
     x -= originX;
     y -= originY;
     map.xArray[index] = x * rightX + y * rightY;
@@ -432,21 +432,22 @@ tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
  * quarter of a square
  * with list of corners, begin with middle of one side, corner,middle of other side,center
  * @method tiles.halfTriangle
- * @param {boolean} withMarker - marker at center
+ * @param {boolean} withMarker - marker at center always on
  * @param {boolean} upperImage
  * @param {number} m1x - x-coordinate, middle of one side of the full square
  * @param {number} m1y - y-coordinate 
  * @param {number} cornerX - x-coordinate, corner of full square
  * @param {number} cornerY - y-coordinate
-  * @param {number} m2x - x-coordinate, middle of other side of the full square
+ * @param {number} m2x - x-coordinate, middle of other side of the full square
  * @param {number} m2y - y-coordinate 
-* @param {number} centerX - x-coordinate, corner of full square
+ * @param {number} centerX - x-coordinate, corner of full square
  * @param {number} centerY - y-coordinate
  */
-tiles.quarterSquare = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
-    borders.addOpen(m1x,m1y,cornerX,cornerY,m2x,m2y);
-    subBorders.addOpen(m1x,m1y,centerX,centerY,m2x,m2y);
-    grid.addOpen(m1x,m1y,centerX,centerY,m2x,m2y);
+tiles.quarterSquare = function(withMarker, upperImage, m1x, m1y, cornerX, cornerY, m2x, m2y, centerX, centerY) {
+    borders.addOpen(m1x, m1y, cornerX, cornerY, m2x, m2y);
+    subBorders.addOpen(m1x, m1y, centerX, centerY, m2x, m2y);
+    grid.addOpen(m1x, m1y, centerX, centerY, m2x, m2y);
+    markers.add(centerX, centerY, 0.5 * (centerX + m1x), 0.5 * (centerY + m1y), 0.5 * (centerX + m2x), 0.5 * (centerY + m2y));
     var even, odd;
     if (upperImage) {
         even = tiles.evenReflections;
@@ -462,6 +463,6 @@ tiles.quarterSquare = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
         odd = even;
         even = h;
     }
-    even.add(m1x, m1y, cornerX,cornerY,centerX, centerY);
-    odd.add(m2x, m2y, cornerX,cornerY,centerX, centerY);
+    even.add(m1x, m1y, cornerX, cornerY, centerX, centerY);
+    odd.add(m2x, m2y, cornerX, cornerY, centerX, centerY);
 };
