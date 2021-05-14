@@ -25,7 +25,6 @@ from "./modules.js";
 const tiling = {};
 tiling.maxGen = 1;
 tiling.initial = 'rhomb';
-tiling.initial = 'small square';
 
 // the different substitution rules
 var square, rhomb, triangle;
@@ -103,7 +102,7 @@ main.setupTilingUI = function() {
         type: 'selection',
         params: tiling,
         property: 'rhomb',
-        options: [1, 2],
+        options: [1, 2, 3],
         onChange: function() {
             rhomb = rhombs[tiling.rhomb];
             main.drawMapChanged();
@@ -477,7 +476,6 @@ rhombs[1] = function(gen, bX, bY, tX, tY) {
     }
 };
 
-// the rhomb, coordinates of the corners with acute angles
 // no square, asymmetric
 rhombs[2] = function(gen, bX, bY, tX, tY) {
     // make center and missing corners
@@ -536,6 +534,90 @@ rhombs[2] = function(gen, bX, bY, tX, tY) {
             rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
             fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
             fullTriangle(gen, ttcX, ttcY, ttcX - rightX, ttcY - rightY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+        }
+    }
+};
+
+// no square, asymmetric
+rhombs[3] = function(gen, bX, bY, tX, tY) {
+    // make center and missing corners
+    const cX = 0.5 * (bX + tX);
+    const cY = 0.5 * (bY + tY);
+    // 0.267949192=tan(Math.PI/12);
+    const hX = -0.267949192 * (cY - bY);
+    const hY = 0.267949192 * (cX - bX);
+    let rX = cX - hX;
+    let rY = cY - hY;
+    let lX = cX + hX;
+    let lY = cY + hY;
+    if (output.isInCanvas(bX, bY, rX, rY, tX, tY, lX, lY)) {
+        if (gen >= tiling.maxGen) {
+            rhombAreas.add(bX, bY, rX, rY, tX, tY, lX, lY);
+            tiles.rhomb30(false, tiling.rhombUpperImage, bX, bY, rX, rY, tX, tY, lX, lY);
+        } else {
+            gen += 1;
+ // 0.267949192=1/(2+rt3)
+            let rightX = 0.267949192 * (rX - bX);
+            let rightY = 0.267949192 * (rY - bY);
+            let upX = -rightY;
+            let upY = rightX;
+            let angle = Math.floor(Math.atan2(tY - bY, tX - bX) / Math.PI * 6);
+            if (angle & 1) {
+                console.log('flip');
+                let h = lX;
+                lX = rX;
+                rX = h;
+                h = lY;
+                lY = rY;
+                rY = h;
+                h = bX;
+                bX = tX;
+                tX = h;
+                h = bY;
+                bY = tY;
+                tY = h;
+                upX = -upX;
+                upY = -upY;
+                rightX = -rightX;
+                rightY = -rightY;
+            }
+
+
+            rhomb(gen, rX, rY, lX, lY);
+            const bbcX = bX + rightX * (1 + rt32) + 0.5 * upX;
+            const bbcY = bY + rightY * (1 + rt32) + 0.5 * upY;
+            const ttcX = tX - rightX * (1 + rt32) - 0.5 * upX;
+            const ttcY = tY - rightY * (1 + rt32) - 0.5 * upY;
+            rhomb(gen, bX, bY, bbcX, bbcY);
+            rhomb(gen, tX, tY, ttcX, ttcY);
+            const bcX = rX - 0.5 * rightX + rt32 * upX;
+            const bcY = rY - 0.5 * rightY + rt32 * upY;
+            const tcX = lX + 0.5 * rightX - rt32 * upX;
+            const tcY = lY + 0.5 * rightY - rt32 * upY;
+            let midX = 0.5 * (bX + rX);
+            let midY = 0.5 * (bY + rY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rightX, bY + rightY);
+            triangle(gen, midX, midY, bbcX, bbcY, rX - rightX, rY - rightY);
+            midX = 0.5 * (lX + tX);
+            midY = 0.5 * (lY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rightX, tY - rightY);
+            triangle(gen, midX, midY, ttcX, ttcY, lX + rightX, lY + rightY);
+            midX = 0.5 * (lX + bX);
+            midY = 0.5 * (lY + bY);
+            triangle(gen, midX, midY, bbcX, bbcY, bX + rt32 * rightX + 0.5 * upX, bY + rt32 * rightY + 0.5 * upY);
+            triangle(gen, midX, midY, bbcX, bbcY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX, lY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bcX, bcY);
+            midX = 0.5 * (rX + tX);
+            midY = 0.5 * (rY + tY);
+            triangle(gen, midX, midY, ttcX, ttcY, tX - rt32 * rightX - 0.5 * upX, tY - rt32 * rightY - 0.5 * upY);
+            triangle(gen, midX, midY, ttcX, ttcY, rX + rt32 * rightX + 0.5 * upX, rY + rt32 * rightY + 0.5 * upY);
+            rhomb(gen, rX, rY, bbcX, bbcY);
+            rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
+            fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
+         rhomb(gen,rX,rY,lX+rightX,lY+rightY);
+         fullTriangle(gen,lX,lY,lX+rightX,lY+rightY,rX+upX,rY+upY);
+         rhomb(gen,rX,rY,ttcX,ttcY);
+         fullTriangle(gen,ttcX,ttcY,lX+rightX,lY+rightY,lX+rightX-upX,lY+rightY-upY);
         }
     }
 };
@@ -626,7 +708,7 @@ function fullTriangle(gen, aX, aY, bX, bY, cX, cY) {
 
 // make the tiling for various initial patterns
 
-const size = 1;
+const size = 0.5;
 
 const basicX = [];
 basicX.length = 15;
