@@ -1,0 +1,403 @@
+
+Hallo!
+
+Here is an outline of the project in detail. Please do not be insulted or annoyed if there is too much low level info. You don’t need to follow this exactly. I am probably missing things and there are mistakes.
+I think we can do without using objects and defining classes. I used this for development, not knowing how to achieve the final result. Using simple global variables is faster and good enough. I am doing something similar now for three-dimensional space in Javascript.
+
+I do not know if you have to define variables in Matlab, how to set values of global variables from the command line and to execute functions. 
+
+This follows essentially "Kaleidoscopes for Non-Euclidean Space"  http://archive.bridgesmathart.org/2018/bridges2018-67.html
+
+It results in something similar to
+http://geometricolor.ch/images/geometricolor/sphericalKaleidoscopeApp.html
+                                                                                                                                                  
+Steps:
+- Setup of the basic arrays and test method.
+- The loop that creates the vector map 
+- The first mirror
+- The second mirror
+- Both mirrors
+- The inverting circle
+- The two mirrors and the circle
+- The hyperbolic case
+- The Euklidic case
+- The spherical case
+- normalized vectormap
+
+Each step involves tests to make sure that all is ok.
+
+Basic setup
+=====================
+- We need several square arrays for the vector map, one element for each pixel, 
+dimension size*size, where size is a variable
+mapX and mapY (float), for the components of the map, this will be the voctormap
+mapValid (boolean), true if the pixel has valid coordinates
+mapStructure (integer), for the number of inversions required to map a point, useful for showing the structure and tests 
+- make a square image (function) showing the mapStructure, a pixel for each element mapStructure[i,j]
+increasing I should go from left to right
+increasing j should go from bottom to top, be careful that this is not inverted
+
+if (mapValid is false) the pixel gets some background color (black? Or transparent, make it a variable)
+else if (mapStructure[i,j] is an even integer) the pixel should have a particular color (yellow?, it should be a variable “evenColor”?), else the pixel has another color (dark green?, a variable, oddColor?)
+
+- test the function that this shows a correct image with some data (it is enough to fill the matrices with constant value, or use mathLab to generate something.
+
+The loop that makes the vector map
+==============================
+- some global variables:
+x,y (float) for coordinates
+isValid (boolean)
+nInversions (integer)
+- a function that makes coordinate values from indices (for simplicity, this is not optimized), something like 
+
+function toCoordinates(i,j){
+h=range/(size-1);
+x=centerX+(i-size/2+0.5)*h;
+y=centerY+(i-size/2+0.5)*h;
+}
+assuming that indices go from 0 to size-1, else use -0.5 instead of +0.5.
+
+range is the width of coordinate values of one axis
+centerX, centerY determine the coordinate values of the center of the image
+- the main loop creating the map:
+
+iterate over the i,j {
+toCoordinates(i,j);
+isValid=true;
+nInversions=0;
+mapping();
+mapX[i,j]=x;
+mapY[i,j]=y;
+mapStructure[i,j]=nInversions;
+mapValid[i,j]=isValid;
+}
+
+where mapping() is a function that transforms (x,y) and changes nInversions and isValid
+
+- define a way  for choosing the value of size (for the matrizes), default value ?
+- define the variables range, centerX,centerY (float)
+- maybe define a function/command that sets default values for all these parameters
+- define a function/command that executes this main loop and updates the structure image
+- test that we can change the parameter values and get an updated result using some simple mapping function, like this
+
+function mapping(){
+nInversions=floor(x+0.5*y);
+}
+
+where floor rounds down the argument to an integer, or
+
+function mapping(){ 
+isValid=(x*x+y*y<0.5);
+}
+
+or whatever.
+
+     
+the first mirror
+============================== 
+Straight mirrors go through the origin (x=y=0). They are best characterized by the normal vector n to the mirror line. The distance of a point p to the mirror line is d=n*p, using the scalar product. If d<0 the point has to be mirrored to make a kaleidoscope. It becomes p'=p+2d n.
+The first mirror is the x-axis. Thus n=(0,1) and the program is particularly simple. 
+The corresponding function should return a boolean. It is true if the point has been mapped, and false else. That's important for combination with other mapping elements.
+The number of inversions has to be updated 
+It might be something like this:
+
+function firstMirror(){
+if (y<0){
+	y=-y;
+	nInversions+=1;
+	return true
+}
+else {
+	return false;
+}
+}
+
+Test: Use firstMirror as mapping in the main loop that creates the map. See if the structure is correct. The image should be cut into two parts. A lower green (odd) and a higher yellow (even) part. Check that changing centerY moves it up or down.
+
+The second mirror
+=========================
+
+The second mirror generates a dihedral group together with the first mirror. The order of the group is a parameter.
+- setup an integer parameter/variable "center" - for the order of the group, maybe use another name
+- the angle between the mirrors is PI/center
+- the normal vectors of both mirrors point to the inside of the wedge between the mirrors
+Thus the normal vector of the second mirror has components (nx,ny)
+nx=sin(PI/center)
+ny=-cos(PI/center)
+-calculate this before the main mapping loop.
+-define a similar function as for the first mirror, something like
+
+function secondMirror(){
+d=nx*x+ny*y;
+if (d<0){
+	x+=2*d*nx;
+	y+=2*d*ny;
+	nInversions+=1;
+	return true;
+}
+else {
+	return false;
+}
+}
+
+
+Test: Use secondMirror as mapping in the main loop that creates the map. See if the structure is correct. The image should be cut into two parts at an angle. Check that the angle changes correctly with the value of "center".
+                                                               
+
+Both mirrors
+====================
+Together, the two mirrors make a dihedral group after multiple reflection. Note that a single mirror alone maps a point at most once. Together, they map multiple times. This requires an iteration.
+
+- define a control variable 
+maxIte (integer) to limit the number of iterations, typical value :100
+
+- define a function that does the two mirrors in a loop, at most maxIte times,
+ the loop terminates if none of the mirror has done a mapping, then set isValid=true as the mapping is ok
+for too many repetitions the mapping fails and set isValid=false
+
+Something like this:
+
+function bothMirrors(){
+mapping=true;
+i=0;
+while((i<maxIte)&& mapping){
+	i+=1;
+	mapping=false;
+	if (firstMirror()){
+		mapping=true;
+	}
+	if (secondMirror()){
+		mapping=true;
+	}
+}
+isValid=!mapping;                      // the operator "!" inverts value of boolean, logical "not"
+}
+
+Be careful with conditions and logical operators. Doing something like
+	mapping=firstMirror() || secondMirror()
+is dangerous.
+
+- Test: Use bothMirror in the mapping loop and check the image.
+The plane should be divided into wedges. Their corners lie at the origin. The color alternates. The parameter "center" determines their numbers.
+                                                                                     
+The inverting circle
+========================
+We can always use a circle that maps its inside to the outside as third mirror.
+- variables (their values will be determined by the required geometry):
+ coordinates of center (cx,cy) and radius r   (all float, maybe you find better names
+- calculate the square of the radius before the main mapping loop
+r2 = r * r;
+- the mapping for the circle might be something like this
+function invertingCircle(){
+// determine position relative to center of circle
+// using local variables cx,cy,d2,factor
+dx=x-cx;
+dy=y-dy;
+// determine distance and see if point is inside
+d2=dx*dx+dy*dy;
+if (d2<r2){
+	// map the point to the outside
+	factor=r2/d2;
+	x=cx+factor*dx;
+	y=cy+factor*dy;
+	nInversions+=1;
+	return true;
+}
+else {
+	return false;
+}
+}
+
+Test: Use invertingCircle as mapping function. Its inside should be green (odd number of inversions) the outside should be yellow (even number). Check that changing cx,cy and r have the expected effect.
+
+ The two mirrors and the circle
+================================
+They will intersect and make a triangle. We need two additional variables that control the intersections between the circle and the straight mirror lines.
+- "right" and "left" (integer)
+- the intersection angle between the circle and the first mirror is pi/right
+- the intersection angle between the circle and the second mirror is pi/left
+- the intersection angle alpha between a circle and a straight line determines the distance d of the
+  center (cx,cy) of the circle to the line with:
+  d=r cos(alpha)
+- note that this distance d is:
+  d=cx*nx+cy*ny;   where (nx,ny) are the components of the normal vector to the line
+- thus the center is at:
+
+cy= r cos(pi/right);
+
+and as d=r cos(pi/left)=cx*nx+cy*ny    where (nx,ny) is the normal vector for the second mirror
+
+cx=(r*cos(pi/left)-cy*ny)/nx;
+
+Test: Check the distance D=sqrt(cx*cx+cy*cy) of the circle center from the origin and the normalized sum of angles: 
+sumAngles=1/center+1/left+1/right
+
+ For spherical geometry, the sum of angles of the triangle is larger than pi (sumAngles>1) and (center,left,right) are permutations of (5,3,2) or (4,3,2) or (3,3,2) it should be D<r. Th origin lies inside the circle.
+
+(Can MathLab draw lines and circles ?)
+
+For Euklidean geometry, the sum of angles is equal to Pi (sumAngles=1)and we have parameters (4,4,2), (6,3,2) (3,3,3). Then D=r. The cirle passes through the origin.
+
+For hyperbolic geometry the sum of angles is less than pi (sumAngles<1) and D>r. The origin lies outside the circle. (try large parameter values)
+
+I hope that I got this right. It is probable that you know this already.
+
+Make a switch for different geometries. Something like:
+
+if (sumAngles>1.01){
+// spherical
+}
+else if (sumAngles>0.99){
+// euklidic
+}
+else {
+// hyperbolic
+}
+
+can MatLab make messages?
+
+
+The mapping: We can do as for two mirrors. Only with one more.
+- precalculate r2,nx,ny,cx,cy
+
+- first possibility: treat them all equal
+
+
+function allMirrors(){
+mapping=true;
+i=0;
+while((i<maxIte)&& mapping){
+	i+=1;
+	mapping=false;
+	if (firstMirror()){
+		mapping=true;
+	}
+	if (secondMirror()){
+		mapping=true;
+	}
+	if (invertingCircle()){
+		mapping=true;
+	}
+}
+isValid=!mapping;                  
+}
+
+
+other possibility: use an inner loop for the two mirrors
+ The inner loop should always converge as long as "center" is finite.  
+
+function allMirrors(){
+mapping=true;
+i=0;
+while((i<maxIte)&& mapping){
+	i+=1;
+	mapping=false;
+	innerMapping=true;
+	while(innerMapping){
+		innerMapping=false;
+		if (firstMirror()){
+			innerMapping=true;
+		}
+		if (secondMirror()){
+			innerMapping=true;
+		}
+	}
+	if (invertingCircle()){
+		mapping=true;
+	}
+}
+isValid=!mapping;                  
+}
+
+I don't know which is faster. I am using  something similar but I didn't check this.     
+
+Test: Look at the images. The entire plane should be tiled. Compare with the results of http://geometricolor.ch/images/geometricolor/sphericalKaleidoscopeApp.html
+
+For spherical   geometry and choosing stereographic  view you should get essentially the same.
+For euklidic  geometry you should get the same for inverted view.     
+For hyperbolic geometry you get the Poincare disc, surrounded by an inverted image.    
+
+We still need to do more to get useful vectormaps        
+
+The hyperbolic case
+===================     
+
+This is the most important case.   
+The inverting circle intersects the boundary of the poincare disc at right angles. The center of the poincare disc lies at the intersection of the straight mirrors. (all three are straight lines in hyperbolic space)                 
+The radius "worldRadius" of the poincare disc is:
+worldRadius*worldRadius=D*D-r*r, where d is the distance of the center of the inverting circle from the origin and r is its radius
+Now, this strongly depends on the parameters left, right and center, which is inconvenient.
+We want always the same worldRadius. We get this by rescaling the circle.
+If "desiredWorldRadius" is given, then define factor
+f=desiredWorldRadius/worldRadius
+and scale cx, cy and r by this factor.              
+
+We only want the tiling inside the poincare disc.   So set isValid=false for points lying outside. We have to check this initially, and also after the mapping (numerical errors can map points close to the boundary into the outside, somtimes close to infinity. This would make that the map cannot be used.
+
+The mapping function is then something like this
+
+function hyperbolicMapping(){
+if (x*x+y*y>desiredWorldRadius ){
+	isValid=false;
+}         
+else {
+	allMirrors();                                                         
+	if (x*x+y*y>desiredWorldRadius ){
+		isValid=false;
+	}  
+}
+} 
+
+Test: We now get the poincare disc without a surrounding tiling.  Changing parameters give different tilings, but the same radius of the poincare disc.                    
+
+The euklidean case
+===============
+
+The mapping makes an inverted image of the usual periodic tiling. We correct this by first inverting the point (x,y) at a circle with radius rEuklid (it's a parameter) centered at the origin.
+
+calculate rEuklid2=rEuklid*rEuklid before the main mapping loop
+
+The mapping function is thus something like this
+                                                                                                       
+
+function euklidicMapping(){
+             factor=rEuklidic2/(x*x+y*y);
+	x*=factor;
+	y*=factor;
+	allMirrors();                                                         
+}      
+
+Test: We now get the usual Eklidean tilings
+
+The spherical case
+====================                                           
+
+ We get a stereographic projection of the tiling of a sphere. The inverting circle is a projection of  a great circle of this sphere. The projection of the equator of the sphere has radius
+rSphere2=rSphere*rSphere=D*D-r*r, similar to the hyperbolic case.
+It might be useful to scale the inverting circle to get always the same value for rSphere.
+
+Note that the inverting circle covers the origin. Thus the points get mapped into a triangle with two of its corners being intersections of the cirle with the straight mirrors and the last corner lies at infinity. (This makes sense considering the Riemann sphere.) To get a usable vectormap we have to invert the points at the projection of the equator.
+Thus
+
+  function sphericalMapping(){
+	allMirrors();  
+	if (isValid){
+	             factor=rSphere2/(x*x+y*y);
+		x*=factor;
+		y*=factor;
+	}                                                       
+}
+
+Test: we get the nearly the same tiling as before       
+
+Now program a suitable switch for these cases. It is bettter to use different mapping loops. Thus the switch has only to be done once for the entire tiling, not repeated for each pixel.  
+
+How to make the vectormap
+===============================
+It is already in mapX and mapY, but may need some adjustments.
+
+Is it useful, that x- and y-coordinates go from 0 to some maximum number "max" ?
+
+That can be easily done using matLabs built in methods.
+             
+                                                                                
