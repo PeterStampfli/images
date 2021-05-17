@@ -100,37 +100,37 @@ main.setupTilingUI = function() {
 
     gui.addParagraph('<strong>substitution at 60 degree corner of triangles</strong>');
 
-const freeTriangleAController = gui.add({
-    type: 'selection',
-    params: tiling,
-    property: 'freeTriangleA',
-    labelText: 'triangle A',
-    options: {
-        //  undefined: triangleX,
-        'triangle A': triangleA,
-        'triangle B': triangleB,
-        'triangle C': triangleC
-    },
-    onChange: function() {
+    const freeTriangleAController = gui.add({
+        type: 'selection',
+        params: tiling,
+        property: 'freeTriangleA',
+        labelText: 'triangle A',
+        options: {
+            //  undefined: triangleX,
+            'triangle A': triangleA,
+            'triangle B': triangleB,
+            'triangle C': triangleC
+        },
+        onChange: function() {
             main.drawMapChanged();
-    }
-});
+        }
+    });
 
-const freeTriangleBController = gui.add({
-    type: 'selection',
-    params: tiling,
-    property: 'freeTriangleB',
-    labelText: 'triangle B',
-    options: {
-        //   undefined: triangleX,
-        'triangle A': triangleA,
-        'triangle B': triangleB,
-        'triangle C': triangleC
-    },
-    onChange: function() {
+    const freeTriangleBController = gui.add({
+        type: 'selection',
+        params: tiling,
+        property: 'freeTriangleB',
+        labelText: 'triangle B',
+        options: {
+            //   undefined: triangleX,
+            'triangle A': triangleA,
+            'triangle B': triangleB,
+            'triangle C': triangleC
+        },
+        onChange: function() {
             main.drawMapChanged();
-    }
-});
+        }
+    });
 
     gui.addParagraph('<strong>tiling</strong>');
     gui.add({
@@ -202,7 +202,6 @@ main.drawTiling = function() {
 const rt32 = 0.5 * Math.sqrt(3);
 const rt3 = Math.sqrt(3);
 
-
 // actually the minimum square, center of full square at (blX,blY), (trX,trY) is opposite corner
 function square(gen, blX, blY, trX, trY) {
     // make center and missing corners
@@ -216,7 +215,7 @@ function square(gen, blX, blY, trX, trY) {
     const tlY = cY + dX;
     if (output.isInCanvas(blX, blY, brX, brY, trX, trY, tlX, tlY)) {
         if (gen >= tiling.maxGen) {
-            tiles.quarterSquare(true, tiling.squareUpperImage, brX, brY, blX, blY, tlX, tlY, trX, trY);
+            tiles.quarterSquare(true, tiling.squareUpperImage, tlX, tlY, trX, trY, brX, brY, blX, blY);
             squareAreas.add(blX, blY, brX, brY, trX, trY, tlX, tlY);
         } else {
             gen += 1;
@@ -240,7 +239,6 @@ function square(gen, blX, blY, trX, trY) {
         }
     }
 }
-
 
 // the rhomb, coordinates of the corners with acute angles
 function rhomb(gen, bX, bY, tX, tY) {
@@ -296,28 +294,27 @@ function rhomb(gen, bX, bY, tX, tY) {
     }
 }
 
-
 function triangleA(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
-             tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
-            triangleAAreas.add(mX, mY, bX, bY, cX, cY);           
+            tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
+            triangleAAreas.add(mX, mY, bX, bY, cX, cY);
         } else {
             gen += 1;
-        // make directions
-        // attention: mirror images
-        // 0.732050808 = 2 / (1 + rt3);
-        const rightX = 0.732050808 * (bX - mX);
-        const rightY = 0.732050808 * (bY - mY);
-        // 0.422649=2/(3+sqrt(3))
-        const upX = 0.422649 * (cX - mX);
-        const upY = 0.422649 * (cY - mY);
-        const cenX = mX + 0.5 * (upX + rightX);
-        const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = 0.5 * (bX + cX);
-        const bcY = 0.5 * (bY + cY);
-        const mcX = cX - upX;
-        const mcY = cY - upY;
+            // make directions
+            // attention: mirror images
+            // 0.732050808 = 2 / (1 + rt3);
+            const rightX = 0.732050808 * (bX - mX);
+            const rightY = 0.732050808 * (bY - mY);
+            // 0.422649=2/(3+sqrt(3))
+            const upX = 0.422649 * (cX - mX);
+            const upY = 0.422649 * (cY - mY);
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+            const bcX = 0.5 * (bX + cX);
+            const bcY = 0.5 * (bY + cY);
+            const mcX = cX - upX;
+            const mcY = cY - upY;
             square(gen, mX, mY, cenX, cenY);
             triangleA(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
             square(gen, bcX, bcY, cenX, cenY);
@@ -334,24 +331,24 @@ function triangleA(gen, mX, mY, bX, bY, cX, cY) {
 function triangleB(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
-             tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
-            triangleBAreas.add(mX, mY, bX, bY, cX, cY);           
+            tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
+            triangleBAreas.add(mX, mY, bX, bY, cX, cY);
         } else {
             gen += 1;
-        // make directions
-        // attention: mirror images
-        // 0.732050808 = 2 / (1 + rt3);
-        const rightX = 0.732050808 * (bX - mX);
-        const rightY = 0.732050808 * (bY - mY);
-        // 0.422649=2/(3+sqrt(3))
-        const upX = 0.422649 * (cX - mX);
-        const upY = 0.422649 * (cY - mY);
-        const cenX = mX + 0.5 * (upX + rightX);
-        const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = 0.5 * (bX + cX);
-        const bcY = 0.5 * (bY + cY);
-        const mcX = cX - upX;
-        const mcY = cY - upY;
+            // make directions
+            // attention: mirror images
+            // 0.732050808 = 2 / (1 + rt3);
+            const rightX = 0.732050808 * (bX - mX);
+            const rightY = 0.732050808 * (bY - mY);
+            // 0.422649=2/(3+sqrt(3))
+            const upX = 0.422649 * (cX - mX);
+            const upY = 0.422649 * (cY - mY);
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+        const bcX = bX - 0.433012 * rightX + 0.75 * upX;
+        const bcY = bY - 0.433012 * rightY + 0.75 * upY;
+            const mcX = cX - upX;
+            const mcY = cY - upY;
             square(gen, mX, mY, cenX, cenY);
             rhomb(gen, cX, cY, cenX, cenY);
             triangleC(gen, mX + 0.5 * upX, mY + 0.5 * upY, cenX, cenY, mcX, mcY);
@@ -366,25 +363,25 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
 function triangleC(gen, mX, mY, bX, bY, cX, cY) {
     if (output.isInCanvas(mX, mY, bX, bY, cX, cY)) {
         if (gen >= tiling.maxGen) {
-             tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
-            triangleCAreas.add(mX, mY, bX, bY, cX, cY);           
+            tiles.halfTriangle(false, tiling.triangleUpperImage, mX, mY, bX, bY, cX, cY);
+            triangleCAreas.add(mX, mY, bX, bY, cX, cY);
         } else {
             gen += 1;
-        // make directions
-        // attention: mirror images
-        // 0.732050808 = 2 / (1 + rt3);
-        const rightX = 0.732050808 * (bX - mX);
-        const rightY = 0.732050808 * (bY - mY);
-        // 0.422649=2/(3+sqrt(3))
-        const upX = 0.422649 * (cX - mX);
-        const upY = 0.422649 * (cY - mY);
-        const cenX = mX + 0.5 * (upX + rightX);
-        const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = 0.5 * (bX + cX);
-        const bcY = 0.5 * (bY + cY);
-        const mcX = cX - upX;
-        const mcY = cY - upY;
-             square(gen, mX, mY, cenX, cenY);
+            // make directions
+            // attention: mirror images
+            // 0.732050808 = 2 / (1 + rt3);
+            const rightX = 0.732050808 * (bX - mX);
+            const rightY = 0.732050808 * (bY - mY);
+            // 0.422649=2/(3+sqrt(3))
+            const upX = 0.422649 * (cX - mX);
+            const upY = 0.422649 * (cY - mY);
+            const cenX = mX + 0.5 * (upX + rightX);
+            const cenY = mY + 0.5 * (upY + rightY);
+        const bcX = cX + 0.433012 * rightX - 0.75 * upX;
+        const bcY = cY + 0.433012 * rightY - 0.75 * upY;
+            const mcX = cX - upX;
+            const mcY = cY - upY;
+            square(gen, mX, mY, cenX, cenY);
             rhomb(gen, bX, bY, mcX, mcY);
             triangleB(gen, bcX, bcY, mcX, mcY, cX, cY);
             triangleC(gen, bcX, bcY, mcX, mcY, cX + rt32 * rightX - 1.5 * upX, cY + rt32 * rightY - 1.5 * upY);
@@ -393,8 +390,6 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
         }
     }
 }
-
-
 
 // make the tiling for various initial patterns
 

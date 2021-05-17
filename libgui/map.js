@@ -460,7 +460,6 @@ map.divergenceSaturation = 0.9;
  * @method map.makeStructureColors
  */
 map.makeStructureColors = function() {
-    console.log(map.dark,map.light)
     for (var index = 0; index < 256; index++) {
         if (map.activeRegions[index]) {
             const basicColor = {};
