@@ -103,7 +103,7 @@ var geometryType;
 // mirror planes, n1x=1, trivial
 var n2x, n2y, n3x, n3y, n3z;
 
-var n3x, n4x,n4y, n4z, n4w;
+var n3x, n4x, n4y, n4z, n4w;
 
 function triangle(n1, n2, n3, d12, d13, d23) {
     const sum = round(180 / d12 + 180 / d13 + 180 / d23);
@@ -192,17 +192,17 @@ function check() {
     n4y = (-cos(angle24) - n4x * n2x) / n2y;
     // intersection angle of planes: n4*n3=-cos(angle34)
     n4z = (-cos(angle34) - n4x * n3x - n4y * n3y) / n3z;
-    let n4w2 = 1 - n4x * n4x - n4y * n4y-n4z*n4z;
+    let n4w2 = 1 - n4x * n4x - n4y * n4y - n4z * n4z;
     log('n4 w-component square ' + n4w2.toPrecision(3));
     if (n4w2 < 0.0001) {
         log("NOT spherical");
         return;
     }
-    n4w=sqrt(n4w2);
-    log('n4: ' + n4x.toPrecision(3) + ', ' + n4y.toPrecision(3) + ', ' + n4z.toPrecision(3)+ ', ' + n4w.toPrecision(3));
-log('d23 cosines: '+cos(angle23).toPrecision(3)+', '+(n3x*n2x+n3y*n2y).toPrecision(3));
-log('d24 cosines: '+cos(angle24).toPrecision(3)+', '+(n4x*n2x+n4y*n2y).toPrecision(3));
-log('d34 cosines: '+cos(angle34).toPrecision(3)+', '+(n4x*n3x+n4y*n3y+n4z*n3z).toPrecision(3));
+    n4w = sqrt(n4w2);
+    log('n4: ' + n4x.toPrecision(3) + ', ' + n4y.toPrecision(3) + ', ' + n4z.toPrecision(3) + ', ' + n4w.toPrecision(3));
+    log('d23 cosines: ' + cos(angle23).toPrecision(3) + ', ' + (n3x * n2x + n3y * n2y).toPrecision(3));
+    log('d24 cosines: ' + cos(angle24).toPrecision(3) + ', ' + (n4x * n2x + n4y * n2y).toPrecision(3));
+    log('d34 cosines: ' + cos(angle34).toPrecision(3) + ', ' + (n4x * n3x + n4y * n3y + n4z * n3z).toPrecision(3));
 }
 
 check();

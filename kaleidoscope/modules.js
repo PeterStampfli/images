@@ -83,3 +83,8 @@ export {
     Fast
 }
 from "./fast.js";
+
+export {
+    matrix
+}
+from "./matrix.js";

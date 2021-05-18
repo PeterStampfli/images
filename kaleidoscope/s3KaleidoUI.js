@@ -97,5 +97,7 @@ gui.add({
                 geometry.d24 = 2;
                 geometry.d34 = 2;
         }
+        geometry.dihedral=geometry.dihedrals[geometry.d12];
+        geometry.check();
     }
 });
