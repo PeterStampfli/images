@@ -682,7 +682,7 @@ function fourMirrors(point) {
 }
 
 function fiveMirrors(point) {
-    // initial data, position in uunits of worldradius (hyperbolic or spherical)
+    // initial data, position in units of worldradius (hyperbolic or spherical)
     x = point.x * worldRadius;
     y = point.y * worldRadius;
     valid = 1;

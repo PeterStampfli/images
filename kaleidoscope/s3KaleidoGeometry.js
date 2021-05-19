@@ -1,9 +1,13 @@
 /* jshint esversion: 6 */
 
 import {
-    matrix,
+	map,
     log
 } from "../libgui/modules.js";
+
+import {
+    matrix
+} from "./modules.js";
 
 /**
  * @namespace geometry
@@ -44,6 +48,12 @@ geometry.d14 = 2;
 geometry.d24 = 2;
 geometry.d34 = 3;
 geometry.tiling = 'ikosahedral 533';
+
+// Euler rotation angles
+geometry.alpha = 0;
+geometry.beta = 0;
+geometry.gamma = 0;
+
 
 // dihedral mapping in the (x,y) plane
 
@@ -208,8 +218,29 @@ geometry.check = function() {
     log('n4: ' + n4x.toPrecision(3) + ', ' + n4y.toPrecision(3) + ', ' + n4z.toPrecision(3) + ', ' + n4w.toPrecision(3));
 };
 
+// setting up geometry and transforms
+var transformMatrix;
+
+geometry.setup = function() {
+transformMatrix=matrix.euler(geometry.alpha,geometry.beta,geometry.gamma);
+matrix.log(transformMatrix);
+};
+
+// views
+var rView2;
+// normal view of 3d sphere
+function normalView() {
+    const r2 = x * x + y * y;
+    if (r2 > rView2) {
+        valid = -1;
+    } else {
+        z = Math.sqrt(rView2 - r2);
+    }
+}
+
 // mappings
 var x, y, z, w;
+var valid, inversions;
 var change, change3, change4;
 
 // mirrors - plane mirrors
@@ -274,3 +305,45 @@ function spherical() {
     }
     while (change3);
 }
+
+/**
+ * apply a matrix on the (x,y,z,w)-vector
+ * as four variables
+ * need to copy directly to using module (scope!)
+ * @method matrix.apply
+ * @param {array of floats} m - has the 4*4 matrix
+ */
+matrix.apply = function(m) {
+    const newX = m[11] * x + m[12] * y + m[13] * z + m[14] * w;
+    const newY = m[21] * x + m[22] * y + m[23] * z + m[24] * w;
+    const newZ = m[31] * x + m[32] * y + m[33] * z + m[34] * w;
+    const newW = m[41] * x + m[42] * y + m[43] * z + m[44] * w;
+    x = newX;
+    y = newY;
+    z = newZ;
+    w = newW;
+};
+
+/**
+ * log the vector x,y,z,w
+ * @method matrix.logVector
+ */
+matrix.logVector = function() {
+    console.log(x, y, z, w);
+};
+
+map.mapping=function(point){
+    x = point.x ;
+    y = point.y ;
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    w=0;
+    rView2=1-w*w;
+
+
+   point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+};

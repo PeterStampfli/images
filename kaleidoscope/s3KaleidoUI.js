@@ -37,7 +37,7 @@ output.addCursorposition();
 map.makeShowingGui(gui, {
     closed: false
 });
-map.lightController.destroy();
+//map.lightController.destroy();
 map.linewidthController.destroy();
 map.trajectoryOnOffController.destroy();
 map.trajectoryColorController.destroy();
@@ -46,8 +46,28 @@ map.imageController.addDragAndDropWindow();
 // link the output drawing routines to the map routines
 map.setOutputDraw();
 
-// for debugging
-map.allImageControllersHide();
+/**
+ * what to do when the map changes (parameters, canvas size too)
+ * circles might change - we have to determine the regions
+ * @method map.drawMapChanged
+ */
+map.drawMapChanged = function() {
+    map.startDrawing();
+    geometry.setup();
+    map.make();     // uses map.mapping(point)
+
+    map.drawImageChanged();
+};
+
+/**
+ * what to do when only the image changes
+ * @method map.drawImageChanged
+ */
+map.drawImageChanged = function() {
+        map.makeStructureColors();
+    map.draw(); // includes methods for drawing tiling or reflections
+    output.drawGrid();
+};
 
 gui.add({
     type: 'selection',
@@ -101,3 +121,47 @@ gui.add({
         geometry.check();
     }
 });
+
+gui.addParagraph('<strong>Euler angles</strong>');
+
+const controllerAlpha = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'alpha',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerAlpha.cyclic();
+
+const controllerBeta = controllerAlpha.add({
+    type: 'number',
+    params: geometry,
+    property: 'beta',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerBeta.cyclic();
+
+const controllerGamma = controllerBeta.add({
+    type: 'number',
+    params: geometry,
+    property: 'gamma',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerGamma.cyclic();
+
+
+map.drawMapChanged();

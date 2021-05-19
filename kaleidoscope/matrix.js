@@ -102,7 +102,6 @@ matrix.projector = function(x, y, z, w) {
     return c;
 };
 
-
 /**
  * make a combination from a scalar and two vectors
  * a matrix that makes m p=s a (b . p)
@@ -121,8 +120,6 @@ matrix.combine = function(s, a, b) {
     }
     return c;
 };
-
-
 
 /**
  * make the transpose of a matrix
@@ -233,11 +230,3 @@ matrix.apply = function(m) {
 matrix.logVector = function() {
     console.log(x, y, z, w);
 };
-
-x = 1;
-y = 2;
-z = 0;
-w = 0;
-const a = matrix.euler(22, 33, 44);
-matrix.log(a);
-matrix.isOrthogonal(a);
