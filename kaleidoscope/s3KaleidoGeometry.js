@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 import {
-	map,
+    map,
     log
 } from "../libgui/modules.js";
 
@@ -48,12 +48,17 @@ geometry.d14 = 2;
 geometry.d24 = 2;
 geometry.d34 = 3;
 geometry.tiling = 'ikosahedral 533';
+geometry.fourthMirror = false;
+geometry.w = 0;
 
 // Euler rotation angles
 geometry.alpha = 0;
 geometry.beta = 0;
 geometry.gamma = 0;
-
+// other rotation angles
+geometry.xi = 0;
+geometry.theta = 0;
+geometry.phi = 0;
 
 // dihedral mapping in the (x,y) plane
 
@@ -222,8 +227,26 @@ geometry.check = function() {
 var transformMatrix;
 
 geometry.setup = function() {
-transformMatrix=matrix.euler(geometry.alpha,geometry.beta,geometry.gamma);
-matrix.log(transformMatrix);
+    const eulerMatrix = matrix.euler(geometry.alpha, geometry.beta, geometry.gamma);
+    const cosPhi = cos(fromDeg * geometry.phi);
+    const sinPhi = sin(fromDeg * geometry.phi);
+    const cosXi = cos(fromDeg * geometry.xi);
+    const sinXi = sin(fromDeg * geometry.xi);
+    const cosTheta = cos(fromDeg * geometry.theta);
+    const sinTheta = sin(fromDeg * geometry.theta);
+    const tProjector = matrix.projector(-sinPhi, cosPhi, 0, 0);
+    matrix.log(tProjector, 't projector');
+    const sProjector = matrix.projector(cosPhi * cosTheta, sinPhi * cosTheta, -sinTheta, 0);
+    matrix.log(sProjector, 'sProjector');
+    transformMatrix = eulerMatrix;
+    //    matrix.log(transformMatrix);
+    dihedral = geometry.dihedral;
+    geometry.check();
+    if (geometry.fourthMirror) {
+        map.mapping = fourMirrorsMapping;
+    } else {
+        map.mapping = threeMirrorsMapping;
+    }
 };
 
 // views
@@ -242,6 +265,7 @@ function normalView() {
 var x, y, z, w;
 var valid, inversions;
 var change, change3, change4;
+var dihedral;
 
 // mirrors - plane mirrors
 
@@ -306,6 +330,17 @@ function spherical() {
     while (change3);
 }
 
+// stereographic projection in 3d:
+// sphere to plane
+// sphere radius from (x,y,z)
+function inverseStereographic3d() {
+    const r = Math.sqrt(x * x + y * y + z * z);
+    const factor = 1 / (1 + z);
+    x *= factor;
+    y *= factor;
+    z = 0;
+}
+
 /**
  * apply a matrix on the (x,y,z,w)-vector
  * as four variables
@@ -332,18 +367,47 @@ matrix.logVector = function() {
     console.log(x, y, z, w);
 };
 
-map.mapping=function(point){
-    x = point.x ;
-    y = point.y ;
+function threeMirrorsMapping(point) {
+    x = point.x;
+    y = point.y;
     valid = 1;
     inversions = 0;
-    const maxIterations = map.maxIterations;
-    w=0;
-    rView2=1-w*w;
-
-
-   point.x = x;
+    w = geometry.w;
+    rView2 = 1 - w * w;
+    normalView();
+    if (valid > 0) {
+        matrix.apply(transformMatrix);
+        spherical();
+        inverseStereographic3d();
+    }
+    point.x = x;
     point.y = y;
     point.iterations = inversions;
     point.valid = valid;
-};
+}
+
+function fourMirrorsMapping(point) {
+    x = point.x;
+    y = point.y;
+    valid = 1;
+    inversions = 0;
+    const maxIterations = map.maxIterations;
+    w = geometry.w;
+    rView2 = 1 - w * w;
+    normalView();
+    if (valid > 0) {
+        matrix.apply(transformMatrix);
+        let ite = 0;
+        do {
+            spherical();
+            fourthMirror();
+            ite += 1;
+        }
+        while (change4 && (ite < maxIterations));
+        inverseStereographic3d();
+    }
+    point.x = x;
+    point.y = y;
+    point.iterations = inversions;
+    point.valid = valid;
+}

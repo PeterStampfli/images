@@ -15,8 +15,12 @@ export const matrix = {};
  * logging the 4*4 matrix part
  * @method matrix.log
  * @param {float array} matrix - 4*4 matrix
+ * @param {String} message - optional
  */
-matrix.log = function(matrix) {
+matrix.log = function(matrix,message) {
+    if (arguments.length>1){
+        console.log(message);
+    }
     console.log(matrix[11], matrix[12], matrix[13], matrix[14]);
     console.log(matrix[21], matrix[22], matrix[23], matrix[24]);
     console.log(matrix[31], matrix[32], matrix[33], matrix[34]);

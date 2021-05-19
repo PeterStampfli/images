@@ -54,7 +54,7 @@ map.setOutputDraw();
 map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
-    map.make();     // uses map.mapping(point)
+    map.make(); // uses map.mapping(point)
 
     map.drawImageChanged();
 };
@@ -64,7 +64,7 @@ map.drawMapChanged = function() {
  * @method map.drawImageChanged
  */
 map.drawImageChanged = function() {
-        map.makeStructureColors();
+    map.makeStructureColors();
     map.draw(); // includes methods for drawing tiling or reflections
     output.drawGrid();
 };
@@ -117,12 +117,31 @@ gui.add({
                 geometry.d24 = 2;
                 geometry.d34 = 2;
         }
-        geometry.dihedral=geometry.dihedrals[geometry.d12];
-        geometry.check();
+        geometry.dihedral = geometry.dihedrals[geometry.d12];
+        map.drawMapChanged();
     }
 });
 
-gui.addParagraph('<strong>Euler angles</strong>');
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'fourthMirror',
+    labelText: 'fourth mirror',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'w',
+    min: -1,
+    max: 1,
+    step: 0.001,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
 
 const controllerAlpha = gui.add({
     type: 'number',
@@ -162,6 +181,46 @@ const controllerGamma = controllerBeta.add({
     }
 });
 controllerGamma.cyclic();
+
+const controllerXi = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'xi',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerXi.cyclic();
+
+const controllerTheta = controllerXi.add({
+    type: 'number',
+    params: geometry,
+    property: 'theta',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerTheta.cyclic();
+
+const controllerPhi = controllerTheta.add({
+    type: 'number',
+    params: geometry,
+    property: 'phi',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerPhi.cyclic();
+
 
 
 map.drawMapChanged();
