@@ -17,8 +17,8 @@ export const matrix = {};
  * @param {float array} matrix - 4*4 matrix
  * @param {String} message - optional
  */
-matrix.log = function(matrix,message) {
-    if (arguments.length>1){
+matrix.log = function(matrix, message) {
+    if (arguments.length > 1) {
         console.log(message);
     }
     console.log(matrix[11], matrix[12], matrix[13], matrix[14]);
@@ -57,16 +57,21 @@ matrix.create = function(components) {
 };
 
 /**
- * add matrices
+ * add matrices, create a new matrix
+ * simple, but not efficient
  * @method matrix.sum
- * @param {float array} b - 4*4 matrix
- * @param {float array} a - 4*4 matrix
- * @return {float array} c - 4*4 matrix, will be sum b+a
+ * @param {list of float array} matrices - 4*4 matrices
+ * @return {float array} c - 4*4 matrix, will be sum of matrices
  */
-matrix.sum = function(b, a) {
+matrix.sum = function(matrices) {
     const c = matrix.create();
+    length = arguments.length;
     for (var i = 0; i < 45; i++) {
-        c[i] = b[i] + a[i];
+        let sum = 0;
+        for (var j = 0; j < length; j++) {
+            sum += arguments[j][i];
+        }
+        c[i] = sum;
     }
     return c;
 };

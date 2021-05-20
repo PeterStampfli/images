@@ -55,7 +55,6 @@ map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
     map.make(); // uses map.mapping(point)
-
     map.drawImageChanged();
 };
 
@@ -127,6 +126,15 @@ gui.add({
     params: geometry,
     property: 'fourthMirror',
     labelText: 'fourth mirror',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+gui.add({
+type:'selection',
+params:geometry,
+property:'view',
+options:['normal','stereographic'],
     onChange: function() {
         map.drawMapChanged();
     }

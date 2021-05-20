@@ -50,6 +50,7 @@ geometry.d34 = 3;
 geometry.tiling = 'ikosahedral 533';
 geometry.fourthMirror = false;
 geometry.w = 0;
+geometry.view='normal';
 
 // Euler rotation angles
 geometry.alpha = 0;
@@ -238,10 +239,21 @@ geometry.setup = function() {
     matrix.log(tProjector, 't projector');
     const sProjector = matrix.projector(cosPhi * cosTheta, sinPhi * cosTheta, -sinTheta, 0);
     matrix.log(sProjector, 'sProjector');
+const uVec=[cosPhi*sinTheta,sinPhi*sinTheta,cosTheta,0];
+const wVec=[0,0,0,1];
+
+
     transformMatrix = eulerMatrix;
     //    matrix.log(transformMatrix);
     dihedral = geometry.dihedral;
     geometry.check();
+        rView2 = 1 - geometry.w * geometry.w;
+        rView=sqrt(rView2);
+        if (geometry.view==='normal'){
+        	view=normalView;
+        } else {
+        	view=stereographic;
+        }
     if (geometry.fourthMirror) {
         map.mapping = fourMirrorsMapping;
     } else {
@@ -250,7 +262,7 @@ geometry.setup = function() {
 };
 
 // views
-var rView2;
+var rView2,rView;
 // normal view of 3d sphere
 function normalView() {
     const r2 = x * x + y * y;
@@ -259,10 +271,21 @@ function normalView() {
     } else {
         z = Math.sqrt(rView2 - r2);
     }
-}
+};
+
+// stereographic projection in 3d:
+// plane to  unit sphere
+// center at z=-r3d because spherical maps to z=+r3d
+function stereographic() {
+    const factor = 2 / (1 + (x * x + y * y) / rView2);
+    x *= factor;
+    y *= factor;
+    z = rView * (1 - factor);
+};
 
 // mappings
 var x, y, z, w;
+var view;
 var valid, inversions;
 var change, change3, change4;
 var dihedral;
@@ -373,8 +396,7 @@ function threeMirrorsMapping(point) {
     valid = 1;
     inversions = 0;
     w = geometry.w;
-    rView2 = 1 - w * w;
-    normalView();
+    view();
     if (valid > 0) {
         matrix.apply(transformMatrix);
         spherical();
@@ -394,7 +416,7 @@ function fourMirrorsMapping(point) {
     const maxIterations = map.maxIterations;
     w = geometry.w;
     rView2 = 1 - w * w;
-    normalView();
+    view();
     if (valid > 0) {
         matrix.apply(transformMatrix);
         let ite = 0;
