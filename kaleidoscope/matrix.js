@@ -116,7 +116,7 @@ matrix.projector = function(x, y, z, w) {
  * a matrix that makes m p=s a (b . p)
  * @method matrix.combine
  * @param {float} s
- * @param {array of float} a - 4-vector
+ * @param {array of float} a - 4-vector, index goes from 0 to 4
  * @param {array of float} b - 4-vector
  * @return {float array} 4*4 matrix
  */
@@ -124,7 +124,7 @@ matrix.combine = function(s, a, b) {
     const c = matrix.create();
     for (var i = 1; i < 5; i++) {
         for (var j = 1; j < 5; j++) {
-            c[10 * i + j] = s * a[i] * b[j];
+            c[10 * i + j] = s * a[i-1] * b[j-1];
         }
     }
     return c;

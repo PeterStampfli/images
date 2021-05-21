@@ -50,7 +50,7 @@ geometry.d34 = 3;
 geometry.tiling = 'ikosahedral 533';
 geometry.fourthMirror = false;
 geometry.w = 0;
-geometry.view='normal';
+geometry.view = 'normal';
 
 // Euler rotation angles
 geometry.alpha = 0;
@@ -181,9 +181,6 @@ geometry.dihedral = geometry.dihedrals[5];
 var n2x, n2y, n3x, n3y, n3z, n4x, n4y, n4z, n4w;
 
 geometry.check = function() {
-    log();
-    log(geometry.d12 + ' ' + geometry.d13 + ' ' + geometry.d23);
-    log(geometry.d14 + ' ' + geometry.d24 + ' ' + geometry.d34);
     const d12 = geometry.d12;
     const d13 = geometry.d13;
     const d23 = geometry.d23;
@@ -203,8 +200,6 @@ geometry.check = function() {
     n2x = -cos(angle12);
     // normalize
     n2y = sqrt(1 - n2x * n2x);
-    log('n1: 1,0,...');
-    log('n2: ' + n2x.toPrecision(3) + ', ' + n2y.toPrecision(3));
     // intersection angle of planes: n3*n1=-cos(angle13)
     n3x = -cos(angle13);
     // intersection angle of planes: n3*n2=-cos(angle23)
@@ -212,7 +207,6 @@ geometry.check = function() {
     // normalize
     let n3z2 = 1 - n3x * n3x - n3y * n3y;
     n3z = sqrt(1 - n3x * n3x - n3y * n3y);
-    log('n3: ' + n3x.toPrecision(3) + ', ' + n3y.toPrecision(3) + ', ' + n3z.toPrecision(3));
     // intersection angle of planes: n4*n1=-cos(angle14)
     n4x = -cos(angle14);
     // intersection angle of planes: n4*n2=-cos(angle24)
@@ -221,7 +215,6 @@ geometry.check = function() {
     n4z = (-cos(angle34) - n4x * n3x - n4y * n3y) / n3z;
     let n4w2 = 1 - n4x * n4x - n4y * n4y - n4z * n4z;
     n4w = sqrt(n4w2);
-    log('n4: ' + n4x.toPrecision(3) + ', ' + n4y.toPrecision(3) + ', ' + n4z.toPrecision(3) + ', ' + n4w.toPrecision(3));
 };
 
 // setting up geometry and transforms
@@ -236,24 +229,34 @@ geometry.setup = function() {
     const cosTheta = cos(fromDeg * geometry.theta);
     const sinTheta = sin(fromDeg * geometry.theta);
     const tProjector = matrix.projector(-sinPhi, cosPhi, 0, 0);
-    matrix.log(tProjector, 't projector');
     const sProjector = matrix.projector(cosPhi * cosTheta, sinPhi * cosTheta, -sinTheta, 0);
-    matrix.log(sProjector, 'sProjector');
-const uVec=[cosPhi*sinTheta,sinPhi*sinTheta,cosTheta,0];
-const wVec=[0,0,0,1];
-
-
+    const uVec = [cosPhi * sinTheta, sinPhi * sinTheta, cosTheta, 0];
+    const wVec = [0, 0, 0, 1];
+    const cosXiUU = matrix.combine(cosXi, uVec, uVec);
+    const msinXiUW = matrix.combine(-sinXi, uVec, wVec);
+    const sinXiWU = matrix.combine(sinXi, wVec, uVec);
+    const cosXiWW = matrix.combine(cosXi, wVec, wVec);
+    const wRotationMatrix = matrix.sum(cosXiUU, msinXiUW, sinXiWU, cosXiWW, tProjector, sProjector);
     transformMatrix = eulerMatrix;
-    //    matrix.log(transformMatrix);
+    transformMatrix = matrix.prod(wRotationMatrix, eulerMatrix);
     dihedral = geometry.dihedral;
     geometry.check();
-        rView2 = 1 - geometry.w * geometry.w;
-        rView=sqrt(rView2);
-        if (geometry.view==='normal'){
-        	view=normalView;
-        } else {
-        	view=stereographic;
-        }
+    rView2 = 1 - geometry.w * geometry.w;
+    rView = sqrt(rView2);
+    switch (geometry.view) {
+        case 'normal':
+            view = normalView;
+            break;
+        case 'stereographic':
+            view = stereographic;
+            break;
+        case 'inner stereographic':
+            view = innerStereographic;
+            break;
+        case 'gonomic':
+            view = gonomic;
+            break;
+    }
     if (geometry.fourthMirror) {
         map.mapping = fourMirrorsMapping;
     } else {
@@ -262,7 +265,7 @@ const wVec=[0,0,0,1];
 };
 
 // views
-var rView2,rView;
+var rView2, rView;
 // normal view of 3d sphere
 function normalView() {
     const r2 = x * x + y * y;
@@ -271,17 +274,41 @@ function normalView() {
     } else {
         z = Math.sqrt(rView2 - r2);
     }
-};
+}
 
 // stereographic projection in 3d:
-// plane to  unit sphere
+// plane to sphere with radius rView
 // center at z=-r3d because spherical maps to z=+r3d
 function stereographic() {
     const factor = 2 / (1 + (x * x + y * y) / rView2);
     x *= factor;
     y *= factor;
     z = rView * (1 - factor);
-};
+}
+
+// inner part of stereographic projection in 3d:
+// plane to sphere with radius rView
+// center at z=-r3d because spherical maps to z=+r3d
+function innerStereographic() {
+    const r2 = x * x + y * y;
+    if (r2 < rView2) {
+        const factor = 2 / (1 + r2 / rView2);
+        x *= factor;
+        y *= factor;
+        z = rView * (1 - factor);
+    } else {
+        valid = -1;
+    }
+}
+
+// gonomic projection in 3d:
+// plane to sphere with radius rView
+function gonomic() {
+    const factor = 1 / sqrt(1 + (x * x + y * y) / rView2);
+    x *= factor;
+    y *= factor;
+    z = rView * (1 - factor);
+}
 
 // mappings
 var x, y, z, w;

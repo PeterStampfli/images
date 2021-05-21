@@ -134,7 +134,7 @@ gui.add({
 type:'selection',
 params:geometry,
 property:'view',
-options:['normal','stereographic'],
+options:['normal','stereographic','inner stereographic'],
     onChange: function() {
         map.drawMapChanged();
     }
