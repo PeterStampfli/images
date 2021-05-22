@@ -42,13 +42,14 @@ const sin4Pi5 = Math.sin(4 * pi / 5);
 
 // dihedral groups and mirrors
 geometry.d12 = 5;
-geometry.d13 = 3;
-geometry.d23 = 2;
+geometry.d13 = 2;
+geometry.d23 = 3;
 geometry.d14 = 2;
 geometry.d24 = 2;
 geometry.d34 = 3;
 geometry.tiling = 'ikosahedral 533';
 geometry.fourthMirror = false;
+geometry.extraMirror = false;
 geometry.w = 0;
 geometry.view = 'normal';
 
@@ -179,6 +180,8 @@ geometry.dihedral = geometry.dihedrals[5];
 
 // mirror planes, n1x=1, trivial
 var n2x, n2y, n3x, n3y, n3z, n4x, n4y, n4z, n4w;
+// extra mirror
+var nExtraX, nExtraY, nExtraZ;
 
 geometry.check = function() {
     const d12 = geometry.d12;
@@ -215,6 +218,17 @@ geometry.check = function() {
     n4z = (-cos(angle34) - n4x * n3x - n4y * n3y) / n3z;
     let n4w2 = 1 - n4x * n4x - n4y * n4y - n4z * n4z;
     n4w = sqrt(n4w2);
+    // extra mirror
+    // n1=(1,0,0); n2=(n2x,n2y,0); n3 has 3 components
+    const c = -n2x / (n2x * n3x + n2y * n3y);
+    nExtraX = 1 + c * n3x;
+    nExtraY = c * n3y;
+    nExtraZ = c * n3z;
+    // normalize
+    let norm = sqrt(nExtraX * nExtraX + nExtraY * nExtraY + nExtraZ * nExtraZ);
+    nExtraX /= norm;
+    nExtraY /= norm;
+    nExtraZ /= norm;
 };
 
 // setting up geometry and transforms
@@ -255,6 +269,9 @@ geometry.setup = function() {
             break;
         case 'gonomic':
             view = gonomic;
+            break;
+        case 'equidistant':
+            view = equidistant;
             break;
     }
     if (geometry.fourthMirror) {
@@ -307,7 +324,22 @@ function gonomic() {
     const factor = 1 / sqrt(1 + (x * x + y * y) / rView2);
     x *= factor;
     y *= factor;
-    z = rView * (1 - factor);
+    z = rView * factor;
+}
+
+// equidistant projection in 3d:
+// plane to sphere with radius rView
+function equidistant() {
+    const d = Math.hypot(x, y);
+    const phi = d / rView;
+    if (Math.abs(phi) < pi) {
+        const factor = rView / (d + 0.000001) * sin(phi);
+        x *= factor;
+        y *= factor;
+        z = rView * cos(phi);
+    } else {
+        valid = -1;
+    }
 }
 
 // mappings
@@ -371,6 +403,23 @@ function fourthMirror() {
     }
 }
 
+
+// mirror images at the extra plane
+function extraMirror() {
+    let d = nExtraX * x + nExtraY * y + nExtraZ * z;
+    if (d > 0) {
+        d += d;
+        x -= d * nExtraX;
+        y -= d * nExtraY;
+        z -= d * nExtraZ;
+        inversions += 1;
+        change3 = true;
+    } else {
+        change3 = false;
+    }
+}
+
+
 // doing the tiling of the 3d sphere by reflection at three planes
 function spherical() {
     do {
@@ -427,6 +476,9 @@ function threeMirrorsMapping(point) {
     if (valid > 0) {
         matrix.apply(transformMatrix);
         spherical();
+        if (geometry.extraMirror) {
+            extraMirror();
+        }
         inverseStereographic3d();
     }
     point.x = x;
@@ -453,6 +505,9 @@ function fourMirrorsMapping(point) {
             ite += 1;
         }
         while (change4 && (ite < maxIterations));
+        if (geometry.extraMirror) {
+            extraMirror();
+        }
         inverseStereographic3d();
     }
     point.x = x;

@@ -131,10 +131,20 @@ gui.add({
     }
 });
 gui.add({
-type:'selection',
-params:geometry,
-property:'view',
-options:['normal','stereographic','inner stereographic'],
+    type: 'boolean',
+    params: geometry,
+    property: 'extraMirror',
+    labelText: 'extra mirror',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'view',
+    options: ['normal', 'stereographic', 'inner stereographic', 'gonomic', 'equidistant'],
     onChange: function() {
         map.drawMapChanged();
     }
