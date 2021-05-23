@@ -24,7 +24,8 @@ from "./modules.js";
 
 const tiling = {};
 tiling.maxGen = 1;
-tiling.initial = 'rhomb';
+tiling.initial = 'dodecagon';
+tiling.fixedSize=false;
 
 // the different substitution rules
 var square, rhomb, triangle;
@@ -132,7 +133,7 @@ main.setupTilingUI = function() {
     });
 
     gui.addParagraph('<strong>tiling</strong>');
-    gui.add({
+const initialController =    gui.add({
         type: 'selection',
         params: tiling,
         property: 'initial',
@@ -148,7 +149,8 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
-    gui.add({
+initialController.addHelp('Choose the initial configuration of tiles. "square" and "dodecagon" are preferred for getting large symmetric patches of the tiling.');
+  const maxGenController =  gui.add({
         type: 'number',
         params: tiling,
         property: 'maxGen',
@@ -159,6 +161,20 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
+maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
+
+BooleanButton.whiteBackground();
+const fixedSizeController = gui.add({
+    type: 'boolean',
+    params: tiling,
+    labelText: 'tile size',
+    buttonText: ['fixed', 'variable'],
+    property: 'fixedSize',
+    onChange: function() {
+            main.drawMapChanged();
+    }
+});
+fixedSizeController.addHelp('Choose if the basic tiles have fixed size with changing image size changes, or the total image has fixed size with changing tile size.');
 };
 
 main.setup();
@@ -708,7 +724,7 @@ function fullTriangle(gen, aX, aY, bX, bY, cX, cY) {
 
 // make the tiling for various initial patterns
 
-const size = 0.5;
+const size = 0.2;
 
 const basicX = [];
 basicX.length = 15;
@@ -721,9 +737,13 @@ const secondY = [];
 secondX.length = 14;
 secondY.length = 14;
 
-
 function tile() {
-    let s = size * Math.pow(2 + Math.sqrt(3), tiling.maxGen);
+    var s;
+    if (tiling.fixedSize) {
+        s = size*Math.pow(2 + Math.sqrt(3), tiling.maxGen);
+    } else{ 
+        s = size * Math.pow(2 + Math.sqrt(3), 1);
+    }
     for (let i = 0; i < 15; i++) {
         basicX[i] = Math.cos(Math.PI * i / 6) * s;
         basicY[i] = Math.sin(Math.PI * i / 6) * s;

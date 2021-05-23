@@ -142,7 +142,6 @@ const rhombColorController = gui.add(colorController, {
     property: 'rhombColor',
     labelText: 'rhomb'
 });
-rhombColorController.addHelp('Here you can choose the colors for the different tiles. Use the same color for all triangles to recover equal sided triangles.');
 
 const squareColorController = gui.add(colorController, {
     property: 'squareColor',

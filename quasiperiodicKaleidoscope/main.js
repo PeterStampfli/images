@@ -102,14 +102,6 @@ main.setup = function() {
         main.drawTiling();
     };
     map.whatToShowController.addOption("tiling", map.callDrawTiling);
-    map.callDrawReflections = function() {
-        map.drawingImage = false;
-        map.allImageControllersHide();
-        output.clearCanvas();
-        tiles.evenReflections.draw();
-        tiles.oddReflections.draw();
-    };
-    map.whatToShowController.addOption("reflections", map.callDrawReflections);
     // link the output drawing routines to the map routines
     map.setOutputDraw();
     // the UI for the tiling
@@ -117,24 +109,6 @@ main.setup = function() {
 };
 
 // the drawing routines
-
-/**
- * determine if tiling to draw
- * @method main.drawingTiling
- * @return boolean, true if drawing tiling with solid colors
- */
-main.drawingTiling = function() {
-    return map.whatToShowController.getValue() === map.callDrawTiling;
-};
-
-/**
- * determine if reflections to draw
- * @method main.drawingReflections
- * @return boolean, true if drawing reflections with solid colors
- */
-main.drawingReflections = function() {
-    return map.whatToShowController.getValue() === map.callDrawReflections;
-};
 
 /**
  * what to do when the map changes (parameters, canvas size too)
@@ -153,18 +127,26 @@ map.drawMapChanged = function() {
  * @method map.drawImageChanged
  */
 map.drawImageChanged = function() {
-    if (!main.drawingTiling() && !main.drawingReflections() && !main.mapValid) {
-        // make map only if required  > image changed
-        main.mapValid = true;
-        map.make();
-        map.makeTransparent();
-        map.activeRegions[0] = true;
-        map.makeStructureColors();
-        tiles.mapEvenReflections();
-        tiles.mapOddReflections();
+    if (map.whatToShowController.getValue() === map.callDrawTiling) {
+        map.draw(); // includes methods for drawing tiling or reflections
+        tiles.draw(); // drawing borders and so on
+    } else {
+        if (!main.mapValid) {
+            // make map only if required  > image changed
+            main.mapValid = true;
+            map.make();
+            map.makeTransparent();
+            map.activeRegions[0] = true;
+            map.makeStructureColors();
+            tiles.mapEvenReflections();
+            tiles.mapOddReflections();
+        }
+        map.draw(); // includes methods for drawing tiling or reflections
+        if (map.whatToShowController.getValue() === map.callDrawStructure) {
+            tiles.draw();
+        }
     }
-    map.draw(); // includes methods for drawing tiling or reflections
-    tiles.draw(); // drawing borders and so on
+    tiles.outlines.draw();
     output.drawGrid();
 };
 

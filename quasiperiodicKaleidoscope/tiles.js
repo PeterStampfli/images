@@ -27,28 +27,28 @@ export const tiles = {};
 
 const borders = new Lines({
     color: '#000000',
-    on:false,
-    lineWidth: 2
+    on: true,
+    lineWidth: 1
 });
 const subBorders = new Lines({
     color: '#0000ff',
-    on:false,
-    lineWidth: 2
+    on: false,
+    lineWidth: 1
 });
 const markers = new Areas({
     color: '#88888888',
-    on:false,
+    on: false,
     overprinting: false
 });
 const grid = new Lines({
     color: '#ffaa00',
-    on:false,
+    on: false,
 });
 
 // outlines as extra
 tiles.outlines = new Lines({
     color: '#000000',
-    lineWidth: 4
+    lineWidth: 3
 });
 
 // mirror parts
@@ -93,7 +93,6 @@ tiles.mapEvenReflections = function() {
         pixelPaint.scanConvexPolygon(evenReflectionAction, area);
     });
 };
-
 
 /**
  * mapping the odd reflections
@@ -169,7 +168,6 @@ tiles.draw = function() {
     subBorders.draw();
     markers.draw();
     grid.draw();
-    tiles.outlines.draw();
 };
 
 // tiles, parameters:

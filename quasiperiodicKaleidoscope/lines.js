@@ -171,7 +171,7 @@ Areas.prototype.makeUI = function(label, gui = main.gui) {
         labelText: label,
         onChange: main.drawImageChanged
     });
-    this.onController = this.colorController.add({
+    this.onController = gui.add({
         type: 'boolean',
         params: this,
         property: 'on',
