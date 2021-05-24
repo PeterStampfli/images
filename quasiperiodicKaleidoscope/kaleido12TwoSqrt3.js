@@ -25,7 +25,7 @@ from "./modules.js";
 const tiling = {};
 tiling.maxGen = 1;
 tiling.initial = 'dodecagon';
-tiling.fixedSize=false;
+tiling.fixedSize = false;
 
 // the different substitution rules
 var square, rhomb, triangle;
@@ -54,6 +54,14 @@ const triangleAreas = new Areas({
  * @method main.setupTilingUI
  */
 main.setupTilingUI = function() {
+    const help = main.helpGui;
+    help.addParagraph('With the <strong>output image</strong> gui you can save the image, change its size and display option. You can zoom and translate it.');
+    help.addParagraph('The <strong>showing</strong> gui determines how the tiling is shown.');
+    help.addParagraph(' Using the <strong>lines and markers</strong> gui you can switch on or off lines of the tiling, change their color and width.');
+    help.addParagraph('The <strong>tiles</strong> changes the color of tiles and can make them transparent.Use overprinting to cover seams between tiles.');
+    help.addParagraph('In <strong>mappings</strong> there are two different choices for mapping the input image on each tile. Tiles sharing a common edge have a local mirror line between them if they use the same choice. The mirror line disappears for different choices and thus larger fragments of the input image appear.');
+    help.addParagraph('<strong>choice for substitution rules</strong> lets you combine different rules to get various tilings. Use to corresponding initial tiling for checking out the rules.');
+    help.addParagraph('Send bug reports to: <strong>pestampf@gmail.com</strong>');
     const gui = main.gui;
     const linesGui = gui.addFolder('lines and markers');
     tiles.makeUI(true, true, true, linesGui);
@@ -97,7 +105,9 @@ main.setupTilingUI = function() {
         }
     });
 
-    const subsGui = gui.addFolder('choice for substitution rules');
+    const subsGui = gui.addFolder('choice for substitution rules', {
+        closed: false
+    });
 
     const rhombController = subsGui.add({
         type: 'selection',
@@ -133,7 +143,7 @@ main.setupTilingUI = function() {
     });
 
     gui.addParagraph('<strong>tiling</strong>');
-const initialController =    gui.add({
+    const initialController = gui.add({
         type: 'selection',
         params: tiling,
         property: 'initial',
@@ -149,8 +159,8 @@ const initialController =    gui.add({
             main.drawMapChanged();
         }
     });
-initialController.addHelp('Choose the initial configuration of tiles. "square" and "dodecagon" are preferred for getting large symmetric patches of the tiling.');
-  const maxGenController =  gui.add({
+    initialController.addHelp('Choose the initial configuration of tiles. "square" and "dodecagon" are preferred for getting large symmetric patches of the tiling.');
+    const maxGenController = gui.add({
         type: 'number',
         params: tiling,
         property: 'maxGen',
@@ -161,20 +171,20 @@ initialController.addHelp('Choose the initial configuration of tiles. "square" a
             main.drawMapChanged();
         }
     });
-maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
+    maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
 
-BooleanButton.whiteBackground();
-const fixedSizeController = gui.add({
-    type: 'boolean',
-    params: tiling,
-    labelText: 'tile size',
-    buttonText: ['fixed', 'variable'],
-    property: 'fixedSize',
-    onChange: function() {
+    BooleanButton.whiteBackground();
+    const fixedSizeController = gui.add({
+        type: 'boolean',
+        params: tiling,
+        labelText: 'tile size',
+        buttonText: ['fixed', 'variable'],
+        property: 'fixedSize',
+        onChange: function() {
             main.drawMapChanged();
-    }
-});
-fixedSizeController.addHelp('Choose if the basic tiles have fixed size with changing image size changes, or the total image has fixed size with changing tile size.');
+        }
+    });
+    fixedSizeController.addHelp('Choose if the basic tiles have fixed size with changing image size changes, or the total image has fixed size with changing tile size.');
 };
 
 main.setup();
@@ -572,7 +582,7 @@ rhombs[3] = function(gen, bX, bY, tX, tY) {
             tiles.rhomb30(false, tiling.rhombUpperImage, bX, bY, rX, rY, tX, tY, lX, lY);
         } else {
             gen += 1;
- // 0.267949192=1/(2+rt3)
+            // 0.267949192=1/(2+rt3)
             let rightX = 0.267949192 * (rX - bX);
             let rightY = 0.267949192 * (rY - bY);
             let upX = -rightY;
@@ -630,10 +640,10 @@ rhombs[3] = function(gen, bX, bY, tX, tY) {
             rhomb(gen, rX, rY, bbcX, bbcY);
             rhomb(gen, rX, rY, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY);
             fullTriangle(gen, lX - rt32 * rightX - 0.5 * upX, lY - rt32 * rightY - 0.5 * upY, bbcX, bbcY, bbcX + rightX, bbcY + rightY);
-         rhomb(gen,rX,rY,lX+rightX,lY+rightY);
-         fullTriangle(gen,lX,lY,lX+rightX,lY+rightY,rX+upX,rY+upY);
-         rhomb(gen,rX,rY,ttcX,ttcY);
-         fullTriangle(gen,ttcX,ttcY,lX+rightX,lY+rightY,lX+rightX-upX,lY+rightY-upY);
+            rhomb(gen, rX, rY, lX + rightX, lY + rightY);
+            fullTriangle(gen, lX, lY, lX + rightX, lY + rightY, rX + upX, rY + upY);
+            rhomb(gen, rX, rY, ttcX, ttcY);
+            fullTriangle(gen, ttcX, ttcY, lX + rightX, lY + rightY, lX + rightX - upX, lY + rightY - upY);
         }
     }
 };
@@ -740,8 +750,8 @@ secondY.length = 14;
 function tile() {
     var s;
     if (tiling.fixedSize) {
-        s = size*Math.pow(2 + Math.sqrt(3), tiling.maxGen);
-    } else{ 
+        s = size * Math.pow(2 + Math.sqrt(3), tiling.maxGen);
+    } else {
         s = size * Math.pow(2 + Math.sqrt(3), 1);
     }
     for (let i = 0; i < 15; i++) {

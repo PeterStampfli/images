@@ -60,12 +60,10 @@ main.setup = function() {
         closed: true
     });
     main.helpGui = help;
-    help.addParagraph('You can <strong>zoom the image,</strong> with the mouse wheel if the mouse is on the image.');
+    help.addParagraph('You can <strong>zoom the image</strong> with the mouse wheel if the mouse is on the image.');
     help.addParagraph('You can <strong>move the image</strong> with a mouse drag.');
-    help.addParagraph('You can <strong>change numbers</strong> by choosing a digit with the mouse and turning the mouse wheel.');
-    help.addParagraph('Alternatively, you can use the <strong>"image controls"</strong> part of the gui.');
+    help.addParagraph('You can <strong>change numbers</strong> by choosing a digit with the mouse and turning the mouse wheel, or by editing the number.');
     help.addParagraph('Click on the black triangles to open/close parts of the gui.');
-    help.addParagraph('Send bug reports and other comments to: <strong>pestampf@gmail.com</strong>');
     // create an output canvas, with coordinates and pixels
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
@@ -74,12 +72,6 @@ main.setup = function() {
     // adjust/size initial tiles to fit
     output.setInitialCoordinates(0, 0, 3);
     output.createPixels();
-    // add options for the output image
-    output.addImageProcessing();
-    output.addAntialiasing();
-    output.grid.interval = 0.1;
-    output.addGrid();
-    output.addCursorposition();
     // options of what to show
     // delete what is not needed
     // adding display options: see kaleidoscope.basic.js indras pearls
@@ -147,7 +139,6 @@ map.drawImageChanged = function() {
         }
     }
     tiles.outlines.draw();
-    output.drawGrid();
 };
 
 // standardized drawing routines

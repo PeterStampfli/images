@@ -1246,7 +1246,7 @@ map.makeShowingGui = function(parentGui, args = {closed:false}) {
             map.drawImageChangedCheckMapUpdate();
         }
     });
-    map.imageController.addHelp('Choose the input image that will be mapped onto the kaleidoscopic structure. You can use your own images (*.jpg and *.png files). Use thee "add images" button or ddrag and drop on the window.');
+    map.imageController.addHelp('Choose the input image that will be mapped onto the kaleidoscopic structure. You can use your own images (*.jpg and *.png files). Use the "add images" button or drag and drop images on the window.');
 
     // setup control canvas
     // a div that contains the control canvas to 
