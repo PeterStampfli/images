@@ -1,516 +1,471 @@
 /* jshint esversion: 6 */
 
 import {
-    output,
-}
+    map,
+    pixelPaint
+} 
 from "./library/modules.js";
+//from "../libgui/modules.js";
+
+import {
+    Lines,
+    Areas,
+    main
+}
+from "./modules.js";
 
 /**
- * collecting tiles and drawing them
+ * making tiles for drawing 
+ * areas, markers, borders, subBorders, scanning
  * @namespace tiles
  */
+
 export const tiles = {};
 
-// speed is important - most simple data structure
-// corner coordinates for each tile as arrays
-// methods for creating (adding) tile, drawing parts, doing other things, destroying
+// the areas are defined externally
+// tiles makes the other elements
+// quasiperiodic tilings: Tile iteration knows all corners to decide if it is visible
+// do not recalculate
 
-// the rhombs with 30 degree acute angle
-//============================================
-const rhomb30BottomX = [];
-const rhomb30BottomY = [];
-const rhomb30TopX = [];
-const rhomb30TopY = [];
+const borders = new Lines({
+    color: '#000000',
+    on: true,
+    lineWidth: 1
+});
+const subBorders = new Lines({
+    color: '#0000ff',
+    on: false,
+    lineWidth: 1
+});
+const markers = new Areas({
+    color: '#88888888',
+    on: false,
+    overprinting: false
+});
+const grid = new Lines({
+    color: '#ffaa00',
+    on: false,
+});
+
+// outlines as extra
+tiles.outlines = new Lines({
+    color: '#000000',
+    lineWidth: 3
+});
+
+// mirror parts
+tiles.evenReflections = new Areas({
+    color: '#ffff00',
+    overprinting: false
+});
+
+tiles.oddReflections = new Areas({
+    color: '#0000ff',
+    overprinting: false
+});
+
+var originX, originY;
+var rightX, rightY, upX, upY;
 
 /**
- * delete rhombs with 30 degree acute angle
- * @method tiles.deleteRhombs30
+ * mapping the even reflections
+ * @method tiles.mapEvenReflections
  */
-tiles.deleteRhombs30 = function() {
-    rhomb30BottomX.length = 0;
-    rhomb30BottomY.length = 0;
-    rhomb30TopX.length = 0;
-    rhomb30TopY.length = 0;
+function evenReflectionAction(x, y, index) {
+    map.sizeArray[index] = 1;
+    map.iterationsArray[index] = 2;
+    map.regionArray[index] = 0;
+    x -= originX;
+    y -= originY;
+    map.xArray[index] = x * rightX + y * rightY;
+    map.yArray[index] = x * upX + y * upY;
+}
+
+tiles.mapEvenReflections = function() {
+    tiles.evenReflections.areas.forEach(area => {
+        originX = area[0];
+        originY = area[1];
+        rightX = area[2] - originX;
+        rightY = area[3] - originY;
+        let norm = 1 / Math.sqrt(rightX * rightX + rightY * rightY);
+        rightX *= norm;
+        rightY *= norm;
+        upX = -rightY;
+        upY = rightX;
+        pixelPaint.scanConvexPolygon(evenReflectionAction, area);
+    });
 };
 
 /**
- * add a rhomb, with coordinates of corners with acute angle
- * @method tiles.addRhomb30
- * @param {number}bottomX
- * @param {number}bottomY
- * @param {number}topX
- * @param {number}topY
+ * mapping the odd reflections
+ * @method tiles.mapOddReflections
  */
-tiles.addRhomb30 = function(bottomX, bottomY, topX, topY) {
-    rhomb30BottomX.push(bottomX);
-    rhomb30BottomY.push(bottomY);
-    rhomb30TopX.push(topX);
-    rhomb30TopY.push(topY);
+function oddReflectionAction(x, y, index) {
+    map.sizeArray[index] = 1;
+    map.iterationsArray[index] = 1;
+    x -= originX;
+    y -= originY;
+    map.xArray[index] = x * rightX + y * rightY;
+    map.yArray[index] = -(x * upX + y * upY);
+}
+
+tiles.mapOddReflections = function() {
+    tiles.oddReflections.areas.forEach(area => {
+        originX = area[0];
+        originY = area[1];
+        rightX = area[2] - originX;
+        rightY = area[3] - originY;
+        let norm = 1 / Math.sqrt(rightX * rightX + rightY * rightY);
+        rightX *= norm;
+        rightY *= norm;
+        upX = -rightY;
+        upY = rightX;
+        pixelPaint.scanConvexPolygon(oddReflectionAction, area);
+    });
 };
 
 /**
- * fill the rhombs with solid color
- * set fill style before
- * @method tiles.fillRhombs30
+ * make the UI for the elements
+ * @method tiles.makeUI
+ * @param {boolean} withSubBorders
+ * @param {boolean} withMarkers 
+ * @param {boolean} withOutlines 
+ * @param {ParamGui} gui - optional, default is main.gui
  */
-tiles.fillRhombs30 = function() {
-    const canvasContext = output.canvasContext;
-    const length = rhomb30TopY.length;
-    for (var i = 0; i < length; i++) {
-        const bX = rhomb30BottomX[i];
-        const bY = rhomb30BottomY[i];
-        const tX = rhomb30TopX[i];
-        const tY = rhomb30TopY[i];
-        // make center and missing corners
-        const cX = 0.5 * (bX + tX);
-        const cY = 0.5 * (bY + tY);
-        // 0.378937382=tan(Math.PI/12)*sqrt(2);
-        let upX = 0.378937382 * (cX - bX);
-        let upY = 0.378937382 * (cY - bY);
-        let rightX = upY;
-        let rightY = -upX;
-        const rX = cX + 0.7071 * rightX;
-        const rY = cY + 0.7071 * rightY;
-        const lX = cX - 0.7071 * rightX;
-        const lY = cY - 0.7071 * rightY;
-        output.makePath(bX, bY, rX, rY, tX, tY, lX, lY);
-        canvasContext.fill();
+tiles.makeUI = function(withSubBorders, withMarkers, withOutlines, gui = main.gui) {
+    grid.makeUI('grid', gui);
+    borders.makeUI('borders', gui);
+    if (withSubBorders) {
+        subBorders.makeUI('subBorders', gui);
+    }
+    if (withMarkers) {
+        markers.makeUI('markers', gui);
+    }
+    if (withOutlines) {
+        tiles.outlines.makeUI('outlines', gui);
     }
 };
 
 /**
- * draw border of rhomb
- * set stroke style  and line width before
- * @method tiles.borderRhombs30
+ * clear the drawables
+ * @method tiles.clear
  */
-tiles.borderRhombs30 = function() {
-    const canvasContext = output.canvasContext;
-    const length = rhomb30TopY.length;
-    for (var i = 0; i < length; i++) {
-        const bX = rhomb30BottomX[i];
-        const bY = rhomb30BottomY[i];
-        const tX = rhomb30TopX[i];
-        const tY = rhomb30TopY[i];
-        // make center and missing corners
-        const cX = 0.5 * (bX + tX);
-        const cY = 0.5 * (bY + tY);
-        // 0.378937382=tan(Math.PI/12)*sqrt(2);
-        let upX = 0.378937382 * (cX - bX);
-        let upY = 0.378937382 * (cY - bY);
-        let rightX = upY;
-        let rightY = -upX;
-        const rX = cX + 0.7071 * rightX;
-        const rY = cY + 0.7071 * rightY;
-        const lX = cX - 0.7071 * rightX;
-        const lY = cY - 0.7071 * rightY;
-        output.makePath(bX, bY, rX, rY, tX, tY, lX, lY, bX, bY);
-        canvasContext.stroke();
+tiles.clear = function() {
+    borders.clear();
+    subBorders.clear();
+    markers.clear();
+    grid.clear();
+    tiles.outlines.clear();
+    tiles.evenReflections.clear();
+    tiles.oddReflections.clear();
+};
+
+/**
+ * draw the drawables
+ * @method tiles.draw
+ */
+tiles.draw = function() {
+    Lines.initDrawing();
+    borders.draw();
+    subBorders.draw();
+    markers.draw();
+    grid.draw();
+};
+
+// tiles, parameters:
+// withMarker, boolean, switch markers on/off
+// upperImage, boolean, if true takes input image from upper half plane
+// coordinates, pairs of floats
+
+/**
+ * make a regular polygon from its corners
+ * grid, border and scan
+ * marker at first corner
+ * @method tiles.regularPolygon
+ * @param {boolean} withMarker
+ * @param {boolean} upperImage
+ * @param {list of numbers|| array} coordinates
+ */
+tiles.regularPolygon = function(withMarker, upperImage, coordinates) {
+    var corners, length, i;
+    if (arguments.length === 3) {
+        corners = coordinates;
+        length = corners.length;
+    } else {
+        corners = [];
+        length = arguments.length - 2;
+        corners.length = length;
+        for (i = 0; i < length; i++) {
+            corners[i] = arguments[i + 2];
+        }
+    }
+    // calculate center
+    let centerX = 0;
+    let centerY = 0;
+    for (i = 0; i < length; i += 2) {
+        centerX += corners[i];
+        centerY += corners[i + 1];
+    }
+    const factor = 2 / length;
+    centerX *= factor;
+    centerY *= factor;
+    borders.addClosed(corners);
+    var even, odd, midX, midY;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
+    for (i = 2; i < length; i += 2) {
+        midX = 0.5 * (corners[i] + corners[i - 2]);
+        midY = 0.5 * (corners[i + 1] + corners[i - 1]);
+        grid.addOpen(midX, midY, centerX, centerY);
+        even.add(midX, midY, corners[i], corners[i + 1], centerX, centerY);
+        odd.add(midX, midY, corners[i - 2], corners[i - 1], centerX, centerY);
+    }
+    midX = 0.5 * (corners[0] + corners[length - 2]);
+    midY = 0.5 * (corners[1] + corners[length - 1]);
+    grid.addOpen(midX, midY, centerX, centerY);
+    even.add(midX, midY, corners[0], corners[1], centerX, centerY);
+    odd.add(midX, midY, corners[length - 2], corners[length - 1], centerX, centerY);
+    if (withMarker) {
+        markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + corners[length - 2]), 0.5 * (corners[1] + corners[length - 1]));
     }
 };
 
 /**
- * draw grid of rhomb
- * set stroke style  and line width before
- * @method tiles.gridRhombs30
+ * make a part of a regular polygon from its corners and the center
+ * grid, border and scan
+ * marker at first corner
+ * @method tiles.partRegularPolygon
+ * @param {boolean} withMarker
+ * @param {boolean} upperImage
+ * @param {list of numbers|| array} coordinates, center comes last
  */
-tiles.gridRhombs30 = function() {
-    const canvasContext = output.canvasContext;
-    const length = rhomb30TopY.length;
-    for (var i = 0; i < length; i++) {
-        const bX = rhomb30BottomX[i];
-        const bY = rhomb30BottomY[i];
-        const tX = rhomb30TopX[i];
-        const tY = rhomb30TopY[i];
-        // make center and missing corners
-        const cX = 0.5 * (bX + tX);
-        const cY = 0.5 * (bY + tY);
-        // 0.378937382=tan(Math.PI/12)*sqrt(2);
-        let upX = 0.378937382 * (cX - bX);
-        let upY = 0.378937382 * (cY - bY);
-        let rightX = upY;
-        let rightY = -upX;
-        const rX = cX + 0.7071 * rightX;
-        const rY = cY + 0.7071 * rightY;
-        const lX = cX - 0.7071 * rightX;
-        const lY = cY - 0.7071 * rightY;
-        // 1.274519=(1+sqrt(3))*cos(15)-0.5*(1+sqrt(3))/cos(15)
-        const lowX = cX - 1.2247 * upX;
-        const lowY = cY - 1.2247 * upY;
-        const highX = cX + 1.2247 * upX;
-        const highY = cY + 1.2247 * upY;
-        output.makePath(0.5 * (bX + lX), 0.5 * (bY + lY), lowX, lowY, 0.5 * (bX + rX), 0.5 * (bY + rY));
-        canvasContext.stroke();
-        output.makePath(0.5 * (tX + lX), 0.5 * (tY + lY), highX, highY, 0.5 * (tX + rX), 0.5 * (tY + rY));
-        canvasContext.stroke();
-        output.makePath(lowX, lowY, highX, highY);
-        canvasContext.stroke();
+tiles.partRegularPolygon = function(withMarker, upperImage, coordinates) {
+    var length, i, centerX, centerY;
+    const corners = [];
+    if (arguments.length === 3) {
+        length = coordinates.length - 2;
+        corners.length = length;
+        for (i = 0; i < length; i++) {
+            corners[i] = coordinates[i];
+            centerX = coordinates[length];
+            centerY = coordinates[length + 1];
+        }
+    } else {
+        length = arguments.length - 4;
+        corners.length = length;
+        for (i = 0; i < length; i++) {
+            corners[i] = arguments[i + 2];
+        }
+        centerX = arguments[length + 2];
+        centerY = arguments[length + 3];
+    }
+    borders.addOpen(corners);
+    subBorders.addOpen(corners[0], corners[1], centerX, centerY, corners[length - 2], corners[length - 1]);
+    var even, odd, midX, midY;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
+    }
+    for (i = 2; i < length; i += 2) {
+        midX = 0.5 * (corners[i] + corners[i - 2]);
+        midY = 0.5 * (corners[i + 1] + corners[i - 1]);
+        grid.addOpen(midX, midY, centerX, centerY);
+        even.add(midX, midY, corners[i], corners[i + 1], centerX, centerY);
+        odd.add(midX, midY, corners[i - 2], corners[i - 1], centerX, centerY);
+    }
+    if (withMarker) {
+        markers.add(corners[0], corners[1], 0.5 * (corners[0] + corners[2]), 0.5 * (corners[1] + corners[3]), 0.5 * (corners[0] + centerX), 0.5 * (corners[1] + centerY));
     }
 };
 
-
-/**
- * draw marker of rhomb at bottom corner
- * set fill style before
- * @method tiles.markerRhombs30
- * @param {number}s - relative size of marker
- */
-tiles.markerRhombs30 = function(s) {
-    const canvasContext = output.canvasContext;
-    const length = rhomb30TopY.length;
-    for (var i = 0; i < length; i++) {
-        const bX = rhomb30BottomX[i];
-        const bY = rhomb30BottomY[i];
-        const tX = rhomb30TopX[i];
-        const tY = rhomb30TopY[i];
-        // make center and missing corners
-        const cX = 0.5 * (bX + tX);
-        const cY = 0.5 * (bY + tY);
-        // 0.378937382=tan(Math.PI/12)*sqrt(2);
-        let upX = 0.378937382 * (cX - bX);
-        let upY = 0.378937382 * (cY - bY);
-        let rightX = upY;
-        let rightY = -upX;
-        const rX = cX + 0.7071 * rightX;
-        const rY = cY + 0.7071 * rightY;
-        const lX = cX - 0.7071 * rightX;
-        const lY = cY - 0.7071 * rightY;
-        output.makePath(bX, bY, bX + s * (rX - bX), bY + s * (rY - bY), bX + s * (lX - bX), bY + s * (lY - bY));
-        canvasContext.fill();
+function rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
+    borders.addClosed(ax, ay, bx, by, cx, cy, dx, dy);
+    const s = 1 - t;
+    const aax = s * ax + t * cx;
+    const aay = s * ay + t * cy;
+    const ccx = t * ax + s * cx;
+    const ccy = t * ay + s * cy;
+    const abx = 0.5 * (ax + bx);
+    const aby = 0.5 * (ay + by);
+    const adx = 0.5 * (ax + dx);
+    const ady = 0.5 * (ay + dy);
+    const bcx = 0.5 * (cx + bx);
+    const bcy = 0.5 * (cy + by);
+    const cdx = 0.5 * (cx + dx);
+    const cdy = 0.5 * (cy + dy);
+    grid.addOpen(abx, aby, aax, aay, adx, ady);
+    grid.addOpen(bcx, bcy, ccx, ccy, cdx, cdy);
+    grid.addOpen(aax, aay, ccx, ccy);
+    if (withMarker) {
+        markers.add(ax, ay, abx, aby, adx, ady);
     }
-};
-
-// the quarter squares
-//============================================
-const squareCenterX = [];
-const squareCenterY = [];
-const squareCornerX = [];
-const squareCornerY = [];
-
-/**
- * delete quarter squares
- * @method tiles.deleteQuarterSquares
- */
-tiles.deleteQuarterSquares = function() {
-    squareCenterX.length = 0;
-    squareCenterY.length = 0;
-    squareCornerX.length = 0;
-    squareCornerY.length = 0;
-};
-
-/**
- * add a quarter square
- * @method tiles.addQuarterSquare
- * @param {number}squareCenterX
- * @param {number}squareCenterY
- * @param {number}squareCornerX
- * @param {number}squareCornerY
- */
-tiles.addQuarterSquare = function(centerX, centerY, cornerX, cornerY) {
-    squareCenterX.push(centerX);
-    squareCenterY.push(centerY);
-    squareCornerX.push(cornerX);
-    squareCornerY.push(cornerY);
-};
-
-/**
- * fill the quarter square with solid color
- * set fill style before
- * strokes borders to other quarter squares, set line width
- * @method tiles.fillQuarterSquares
- */
-tiles.fillQuarterSquares = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = canvasContext.fillStyle;
-    const length = squareCenterY.length;
-    for (var i = 0; i < length; i++) {
-        const blX = squareCenterX[i];
-        const blY = squareCenterY[i];
-        const trX = squareCornerX[i];
-        const trY = squareCornerY[i];
-        // make center and missing corners
-        let cX = 0.5 * (blX + trX);
-        let cY = 0.5 * (blY + trY);
-        const dX = trX - cX;
-        const dY = trY - cY;
-        const brX = cX + dY;
-        const brY = cY - dX;
-        const tlX = cX - dY;
-        const tlY = cY + dX;
-        output.makePath(blX, blY, brX, brY, trX, trY, tlX, tlY);
-        canvasContext.fill();
-        output.makePath(trX, trY, blX, blY, brX, brY);
-        canvasContext.lineCap='butt';
-        canvasContext.stroke();
-                canvasContext.lineCap='round';
+    const centerX = 0.5 * (bx + dx);
+    const centerY = 0.5 * (by + dy);
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
     }
+    even.add(bcx, bcy, cx, cy, ccx, ccy);
+    odd.add(bcx, bcy, bx, by, centerX, centerY, ccx, ccy);
+    even.add(cdx, cdy, dx, dy, centerX, centerY, ccx, ccy);
+    odd.add(cdx, cdy, cx, cy, ccx, ccy);
+    odd.add(adx, ady, dx, dy, centerX, centerY, aax, aay);
+    even.add(adx, ady, ax, ay, aax, aay);
+    odd.add(abx, aby, ax, ay, aax, aay);
+    even.add(abx, aby, bx, by, centerX, centerY, aax, aay);
+}
+
+/**
+ * 30 degree rhomb
+ * with list of corners, begin with acute angle, go counterclockwise (in caalculated space)
+ * @method tiles.rhomb30
+ * @param {boolean} withMarker
+ * @param {boolean} upperImage
+ * @param {number} ax - x-coordinate, corner with acute angle
+ * @param {number} ay - y-coordinate, corner with acute angle 
+ * @param {number} bx - x-coordinate, corner with obtuse angle
+ * @param {number} by - y-coordinate, corner with obtuse angle
+ * @param {number} cx - x-coordinate, corner with acute angle
+ * @param {number} cy - y-coordinate, corner with acute angle 
+ * @param {number} dx - x-coordinate, corner with obtuse angle
+ * @param {number} dy - y-coordinate, corner with obtuse angle
+ */
+tiles.rhomb30 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
+    // 0.26796=0.25/cos(15)**2
+    const t = 0.26796;
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
 };
 
 /**
- * fill the full square (extended quarter) square with solid color
- * set fill style before
- * strokes borders to other quarter squares, set line width
- * @method tiles.fillFullSquares
+ * 45 degree rhomb
+ * with list of corners, begin with acute angle, go counterclockwise (in caalculated space)
+ * @method tiles.rhomb30
+ * @param {boolean} withMarker
+ * @param {boolean} upperImage
+ * @param {number} ax - x-coordinate, corner with acute angle
+ * @param {number} ay - y-coordinate, corner with acute angle 
+ * @param {number} bx - x-coordinate, corner with obtuse angle
+ * @param {number} by - y-coordinate, corner with obtuse angle
+ * @param {number} cx - x-coordinate, corner with acute angle
+ * @param {number} cy - y-coordinate, corner with acute angle 
+ * @param {number} dx - x-coordinate, corner with obtuse angle
+ * @param {number} dy - y-coordinate, corner with obtuse angle
  */
-tiles.fillFullSquares = function() {
-    const canvasContext = output.canvasContext;
-    const length = squareCenterY.length;
-    for (var i = 0; i < length; i++) {
-        const blX = squareCenterX[i];
-        const blY = squareCenterY[i];
-        const trX = squareCornerX[i];
-        const trY = squareCornerY[i];
-        // make center and missing corners
-        let cX = 0.5 * (blX + trX);
-        let cY = 0.5 * (blY + trY);
-        const dX = trX - cX;
-        const dY = trY - cY;
-        const brX = cX + dY;
-        const brY = cY - dX;
-        const tlX = cX - dY;
-        const tlY = cY + dX;
-        output.makePath(2 * blX - trX, 2 * blY - trY, 2 * brX - trX, 2 * brY - trY, trX, trY, 2 * tlX - trX, 2 * tlY - trY);
-        canvasContext.fill();
+tiles.rhomb45 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
+    // 0.29289=0.25/cos(22.5)**2
+    const t = 0.29289;
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
+};
+
+/**
+ * 60 degree rhomb
+ * with list of corners, begin with acute angle, go counterclockwise (in caalculated space)
+ * @method tiles.rhomb30
+ * @param {boolean} withMarker
+ * @param {boolean} upperImage
+ * @param {number} ax - x-coordinate, corner with acute angle
+ * @param {number} ay - y-coordinate, corner with acute angle 
+ * @param {number} bx - x-coordinate, corner with obtuse angle
+ * @param {number} by - y-coordinate, corner with obtuse angle
+ * @param {number} cx - x-coordinate, corner with acute angle
+ * @param {number} cy - y-coordinate, corner with acute angle 
+ * @param {number} dx - x-coordinate, corner with obtuse angle
+ * @param {number} dy - y-coordinate, corner with obtuse angle
+ */
+tiles.rhomb60 = function(withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy) {
+    // 0.3333=0.25/cos(30)**2
+    const t = 0.33333;
+    rhomb(t, withMarker, upperImage, ax, ay, bx, by, cx, cy, dx, dy);
+};
+
+/**
+ * half of an equilateral triangle
+ * with list of corners, begin with 90 degree angle, 60 degree,30 degree
+ * @method tiles.halfTriangle
+ * @param {boolean} withMarker - for consistency, has no effect
+ * @param {boolean} upperImage
+ * @param {number} mx - x-coordinate, corner with 90 degree angle
+ * @param {number} my - y-coordinate 
+ * @param {number} bx - x-coordinate, corner with 60 degree angle
+ * @param {number} by - y-coordinate
+ * @param {number} cx - x-coordinate, corner with 30 degree angle
+ * @param {number} cy - y-coordinate 
+ */
+tiles.halfTriangle = function(withMarker, upperImage, mx, my, bx, by, cx, cy) {
+    borders.addOpen(mx, my, bx, by, cx, cy);
+    subBorders.addOpen(mx, my, cx, cy);
+    const centerX = 0.33333 * (mx + mx + cx);
+    const centerY = 0.33333 * (my + my + cy);
+    const bcX = 0.5 * (bx + cx);
+    const bcY = 0.5 * (by + cy);
+    grid.addOpen(bcX, bcY, centerX, centerY, mx, my);
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
     }
-};
-
-/**
- * draw grid or subtile border for quarter square
- * set stroke style before
- * strokes borders to other quarter squares, set line width
- * @method tiles.gridQuarterSquares
- */
-tiles.gridQuarterSquares = function() {
-    const canvasContext = output.canvasContext;
-    const length = squareCenterY.length;
-    for (var i = 0; i < length; i++) {
-        const blX = squareCenterX[i];
-        const blY = squareCenterY[i];
-        const trX = squareCornerX[i];
-        const trY = squareCornerY[i];
-        // make center and missing corners
-        let cX = 0.5 * (blX + trX);
-        let cY = 0.5 * (blY + trY);
-        const dX = trX - cX;
-        const dY = trY - cY;
-        const brX = cX + dY;
-        const brY = cY - dX;
-        const tlX = cX - dY;
-        const tlY = cY + dX;
-        output.makePath(tlX, tlY, blX, blY, brX, brY);
-        canvasContext.stroke();
+    // take into account mirror images
+    const surface = ((bx - mx) * (cy - my) - (by - my) * (cx - mx));
+    if (surface < 0) {
+        const h = odd;
+        odd = even;
+        even = h;
     }
+    even.add(mx, my, bx, by, centerX, centerY);
+    odd.add(bcX, bcY, bx, by, centerX, centerY);
+    even.add(bcX, bcY, cx, cy, centerX, centerY);
 };
 
 /**
- * draw (outer) border for quarter square
- * set stroke style before
- * strokes borders to other quarter squares, set line width
- * @method tiles.borderQuarterSquares
+ * quarter of a square
+ * with list of corners, begin with middle of one side, corner,middle of other side,center
+ * @method tiles.halfTriangle
+ * @param {boolean} withMarker - marker at center always on
+ * @param {boolean} upperImage
+ * @param {number} m1x - x-coordinate, middle of one side of the full square
+ * @param {number} m1y - y-coordinate 
+ * @param {number} cornerX - x-coordinate, corner of full square
+ * @param {number} cornerY - y-coordinate
+ * @param {number} m2x - x-coordinate, middle of other side of the full square
+ * @param {number} m2y - y-coordinate 
+ * @param {number} centerX - x-coordinate, corner of full square
+ * @param {number} centerY - y-coordinate
  */
-tiles.borderQuarterSquares = function() {
-    const canvasContext = output.canvasContext;
-    const length = squareCenterY.length;
-    for (var i = 0; i < length; i++) {
-        const blX = squareCenterX[i];
-        const blY = squareCenterY[i];
-        const trX = squareCornerX[i];
-        const trY = squareCornerY[i];
-        // make center and missing corners
-        let cX = 0.5 * (blX + trX);
-        let cY = 0.5 * (blY + trY);
-        const dX = trX - cX;
-        const dY = trY - cY;
-        const brX = cX + dY;
-        const brY = cY - dX;
-        const tlX = cX - dY;
-        const tlY = cY + dX;
-        output.makePath(tlX, tlY, trX, trY, brX, brY);
-        canvasContext.stroke();
+tiles.quarterSquare = function(withMarker, upperImage, m1x, m1y, cornerX, cornerY, m2x, m2y, centerX, centerY) {
+    borders.addOpen(m1x, m1y, cornerX, cornerY, m2x, m2y);
+    subBorders.addOpen(m1x, m1y, centerX, centerY, m2x, m2y);
+    grid.addOpen(m1x, m1y, centerX, centerY, m2x, m2y);
+    markers.add(centerX, centerY, 0.5 * (centerX + m1x), 0.5 * (centerY + m1y), 0.5 * (centerX + m2x), 0.5 * (centerY + m2y));
+    var even, odd;
+    if (upperImage) {
+        even = tiles.evenReflections;
+        odd = tiles.oddReflections;
+    } else {
+        even = tiles.oddReflections;
+        odd = tiles.evenReflections;
     }
-};
-
-/**
- * draw marker at center for quarter square
- * set fill style before
- * @method tiles.markerQuarterSquares
- * @param {number}s - relative size
- */
-tiles.markerQuarterSquares = function(s) {
-    const canvasContext = output.canvasContext;
-    const length = squareCenterY.length;
-    for (var i = 0; i < length; i++) {
-        const blX = squareCenterX[i];
-        const blY = squareCenterY[i];
-        const trX = squareCornerX[i];
-        const trY = squareCornerY[i];
-        // make center and missing corners
-        let cX = 0.5 * (blX + trX);
-        let cY = 0.5 * (blY + trY);
-        const dX = trX - cX;
-        const dY = trY - cY;
-        const brX = cX + dY;
-        const brY = cY - dX;
-        const tlX = cX - dY;
-        const tlY = cY + dX;
-        output.makePath(blX + s * (tlX - blX), blY + s * (tlY - blY), blX, blY, blX + s * (brX - blX), blY + s * (brY - blY));
-        canvasContext.fill();
+    // take into account mirror images
+    const surface = ((cornerX - m1x) * (m2y - cornerY) - (cornerY - m1y) * (m2x - cornerX));
+    if (surface < 0) {
+        const h = odd;
+        odd = even;
+        even = h;
     }
-};
-
-// the half triangles
-//============================================
-const halfTriangleMX = [];
-const halfTriangleMY = [];
-const halfTriangleBX = [];
-const halfTriangleBY = [];
-const halfTriangleCX = [];
-const halfTriangleCY = [];
-
-/**
- * delete half triangles
- * @method tiles.deleteHalfTriangles
- */
-tiles.deleteHalfTriangles = function() {
-    halfTriangleMX.length = 0;
-    halfTriangleMY.length = 0;
-    halfTriangleBX.length = 0;
-    halfTriangleBY.length = 0;
-    halfTriangleCX.length = 0;
-    halfTriangleCY.length = 0;
-};
-
-/**
- * add a half triangle
- * @method tiles.addHalfTriangle
- * @param {number}mX
- * @param {number}mY
- * @param {number}bX
- * @param {number}bY
- * @param {number}cX
- * @param {number}cY
- */
-tiles.addHalfTriangle = function(mX, mY, bX, bY, cX, cY) {
-    halfTriangleMX.push(mX);
-    halfTriangleMY.push(mY);
-    halfTriangleBX.push(bX);
-    halfTriangleBY.push(bY);
-    halfTriangleCX.push(cX);
-    halfTriangleCY.push(cY);
-};
-
-/**
- * fill the half triangle with solid color
- * set fill style before
- * strokes borders to other half triangle, set line width
- * @method tiles.fillQuarterSquares
- */
-tiles.fillHalfTriangles = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = canvasContext.fillStyle;
-    const length = halfTriangleMX.length;
-    for (var i = 0; i < length; i++) {
-        const mX = halfTriangleMX[i];
-        const mY = halfTriangleMY[i];
-        const bX = halfTriangleBX[i];
-        const bY = halfTriangleBY[i];
-        const cX = halfTriangleCX[i];
-        const cY = halfTriangleCY[i];
-        output.makePath(mX, mY, bX, bY, cX, cY);
-        canvasContext.fill();
-        output.makePath(mX, mY, cX, cY);
-        canvasContext.stroke();
-    }
-};
-
-/**
- * draw the grid lines for a half triangle
- * set stroke style before and set line width
- * @method tiles.gridHalfTriangles
- */
-tiles.gridHalfTriangles = function() {
-    const canvasContext = output.canvasContext;
-    const length = halfTriangleMX.length;
-    for (var i = 0; i < length; i++) {
-        const mX = halfTriangleMX[i];
-        const mY = halfTriangleMY[i];
-        const bX = halfTriangleBX[i];
-        const bY = halfTriangleBY[i];
-        const cX = halfTriangleCX[i];
-        const cY = halfTriangleCY[i];
-        output.makePath(mX, mY, 0.3333 * (mX + mX + cX), 0.3333 * (mY + mY + cY), 0.5 * (cX + bX), 0.5 * (cY + bY));
-        canvasContext.stroke();
-    }
-};
-
-/**
- * draw the border lines for a half triangle
- * the lines that are the border of the equilateral triangle
- * set stroke style before and set line width
- * @method tiles.borderHalfTriangles
- */
-tiles.borderHalfTriangles = function() {
-    const canvasContext = output.canvasContext;
-    const length = halfTriangleMX.length;
-    for (var i = 0; i < length; i++) {
-        const mX = halfTriangleMX[i];
-        const mY = halfTriangleMY[i];
-        const bX = halfTriangleBX[i];
-        const bY = halfTriangleBY[i];
-        const cX = halfTriangleCX[i];
-        const cY = halfTriangleCY[i];
-        output.makePath(mX, mY, bX, bY, cX, cY);
-        canvasContext.stroke();
-    }
-};
-
-/**
- * draw the sub border lines for a half triangle
- * the lines that separate the halves of equialateral triangles
- * set stroke style before and set line width
- * @method tiles.subBorderHalfTriangles
- */
-tiles.subBorderHalfTriangles = function() {
-    const canvasContext = output.canvasContext;
-    const length = halfTriangleMX.length;
-    for (var i = 0; i < length; i++) {
-        const mX = halfTriangleMX[i];
-        const mY = halfTriangleMY[i];
-        const cX = halfTriangleCX[i];
-        const cY = halfTriangleCY[i];
-        output.makePath(mX, mY, cX, cY);
-        canvasContext.stroke();
-    }
-};
-
-// everything together
-//======================================================
-
-/**
- * delete all tiles
- * @method tiles.delete
- */
-tiles.delete = function() {
-    tiles.deleteRhombs30();
-    tiles.deleteHalfTriangles();
-    tiles.deleteQuarterSquares();
-};
-
-/**
- * draw grid for all tiles
- * @method tiles.grid
- */
-tiles.grid = function() {
-    tiles.gridRhombs30();
-    tiles.gridHalfTriangles();
-    tiles.gridQuarterSquares();
-};
-
-/**
- * draw border for all tiles
- * @method tiles.border
- */
-tiles.border = function() {
-    tiles.borderRhombs30();
-    tiles.borderHalfTriangles();
-    tiles.borderQuarterSquares();
+    even.add(m1x, m1y, cornerX, cornerY, centerX, centerY);
+    odd.add(m2x, m2y, cornerX, cornerY, centerX, centerY);
 };
