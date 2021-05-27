@@ -23,8 +23,10 @@ import {
 from "./modules.js";
 
 const tiling = {};
-tiling.maxGen = 0;
-tiling.initial = 'triangle A';
+tiling.maxGen = 1;
+tiling.initial = 'dodecagon';
+tiling.fixedSize = false;
+
 // tiling
 // triangle A has undetermined triangles, not that functions get hoisted
 tiling.freeTriangleA = triangleB;
@@ -53,7 +55,15 @@ const triangleCAreas = new Areas({
  * @method main.setupTilingUI
  */
 main.setupTilingUI = function() {
-    const gui = main.gui;
+    const help = main.helpGui;
+    help.addParagraph('With the <strong>output image</strong> gui you can save the image, change its size and display option. You can zoom and translate it.');
+    help.addParagraph('The <strong>showing</strong> gui determines how the tiling is shown.');
+    help.addParagraph(' Using the <strong>lines and markers</strong> gui you can switch on or off lines of the tiling, change their color and width.');
+    help.addParagraph('The <strong>tiles</strong> changes the color of tiles and can make them transparent.Use overprinting to cover seams between tiles.');
+    help.addParagraph('In <strong>mappings</strong> there are two different choices for mapping the input image on each tile. Tiles sharing a common edge have a local mirror line between them if they use the same choice. The mirror line disappears for different choices and thus larger fragments of the input image appear.');
+    help.addParagraph('<strong>substitution at 60 degree corner of triangles</strong> lets you combine different rules to get different variants of the tiling. Use to corresponding initial tiling for checking out the rules.');
+    help.addParagraph('Send bug reports to: <strong>pestampf@gmail.com</strong>');
+   const gui = main.gui;
     const linesGui = gui.addFolder('lines and markers');
     tiles.makeUI(true, true, true, linesGui);
     const tilesGui = gui.addFolder('tiles');
@@ -133,7 +143,7 @@ main.setupTilingUI = function() {
     });
 
     gui.addParagraph('<strong>tiling</strong>');
-    gui.add({
+    const initialController = gui.add({
         type: 'selection',
         params: tiling,
         property: 'initial',
@@ -151,7 +161,8 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
-    gui.add({
+    initialController.addHelp('Choose the initial configuration of tiles. "big square" and "dodecagon" are preferred for getting large symmetric patches of the tiling.');
+       const maxGenController = gui.add({
         type: 'number',
         params: tiling,
         property: 'maxGen',
@@ -162,6 +173,20 @@ main.setupTilingUI = function() {
             main.drawMapChanged();
         }
     });
+    maxGenController.addHelp('This is the number of repetitions of the substitution rules. Beware: The program takes as much time as there are visible tiles. If the tiles become too small for large numbers the program seems to freeze. Zoom in to get larger tiles and a reasonable response time.');
+
+    BooleanButton.whiteBackground();
+    const fixedSizeController = gui.add({
+        type: 'boolean',
+        params: tiling,
+        labelText: 'tile size',
+        buttonText: ['fixed', 'variable'],
+        property: 'fixedSize',
+        onChange: function() {
+            main.drawMapChanged();
+        }
+    });
+    fixedSizeController.addHelp('Choose if the basic tiles have fixed size with changing image size changes, or the total image has fixed size with changing tile size.');
 };
 
 main.setup();
@@ -345,8 +370,8 @@ function triangleB(gen, mX, mY, bX, bY, cX, cY) {
             const upY = 0.422649 * (cY - mY);
             const cenX = mX + 0.5 * (upX + rightX);
             const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = bX - 0.433012 * rightX + 0.75 * upX;
-        const bcY = bY - 0.433012 * rightY + 0.75 * upY;
+            const bcX = bX - 0.433012 * rightX + 0.75 * upX;
+            const bcY = bY - 0.433012 * rightY + 0.75 * upY;
             const mcX = cX - upX;
             const mcY = cY - upY;
             square(gen, mX, mY, cenX, cenY);
@@ -377,8 +402,8 @@ function triangleC(gen, mX, mY, bX, bY, cX, cY) {
             const upY = 0.422649 * (cY - mY);
             const cenX = mX + 0.5 * (upX + rightX);
             const cenY = mY + 0.5 * (upY + rightY);
-        const bcX = cX + 0.433012 * rightX - 0.75 * upX;
-        const bcY = cY + 0.433012 * rightY - 0.75 * upY;
+            const bcX = cX + 0.433012 * rightX - 0.75 * upX;
+            const bcY = cY + 0.433012 * rightY - 0.75 * upY;
             const mcX = cX - upX;
             const mcY = cY - upY;
             square(gen, mX, mY, cenX, cenY);
@@ -408,7 +433,12 @@ secondY.length = 14;
 
 
 function tile() {
-    let s = size * Math.pow(2 + Math.sqrt(3), tiling.maxGen);
+    var s;
+    if (tiling.fixedSize) {
+        s = size * Math.pow(1 + Math.sqrt(3), tiling.maxGen);
+    } else {
+        s = size * Math.pow(1 + Math.sqrt(3), 1);
+    }
     for (let i = 0; i < 15; i++) {
         basicX[i] = Math.cos(Math.PI * i / 6) * s;
         basicY[i] = Math.sin(Math.PI * i / 6) * s;
