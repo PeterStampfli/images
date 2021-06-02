@@ -36,6 +36,9 @@ output.addCursorposition();
 map.makeShowingGui(gui, {
     closed: false
 });
+map.makeRegionsGui(gui, {
+    closed: false
+});
 
 map.addDrawDivergence();
 //map.lightController.destroy();
@@ -47,6 +50,75 @@ map.imageController.addDragAndDropWindow();
 // link the output drawing routines to the map routines
 map.setOutputDraw();
 
+gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'view',
+    options: ['normal', 'stereographic', 'plane'],
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'r',
+    labelText: 'r or z',
+    min: 0,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'flipZ',
+    labelText: 'flip z',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+
+const controllerAlpha = gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'alpha',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerAlpha.cyclic();
+
+const controllerBeta = controllerAlpha.add({
+    type: 'number',
+    params: geometry,
+    property: 'beta',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerBeta.cyclic();
+
+const controllerGamma = controllerBeta.add({
+    type: 'number',
+    params: geometry,
+    property: 'gamma',
+    min: -180,
+    max: 180,
+    step: 1,
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+controllerGamma.cyclic();
 /**
  * what to do when the map changes (parameters, canvas size too)
  * circles might change - we have to determine the regions
@@ -56,6 +128,7 @@ map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
     map.make(); // uses map.mapping(point)
+map.showRegionControls();
     map.drawImageChanged();
 };
 
