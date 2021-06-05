@@ -40,7 +40,7 @@ map.makeRegionsGui(gui, {
     closed: false
 });
 
-map.addDrawDivergence();
+map.addDrawIterations();
 //map.lightController.destroy();
 map.linewidthController.destroy();
 map.trajectoryOnOffController.destroy();
@@ -50,26 +50,64 @@ map.imageController.addDragAndDropWindow();
 // link the output drawing routines to the map routines
 map.setOutputDraw();
 
+
 gui.add({
-    type: 'selection',
+    type: 'number',
     params: geometry,
-    property: 'view',
-    options: ['normal', 'stereographic', 'plane'],
+    property: 'nDihedral',
+    min: 2,
+    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
 });
 
 gui.add({
+    type: 'boolean',
+    params: geometry,
+    property: 'mirror5',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: geometry,
+    property: 'view',
+    options: ['normal', 'stereographic', 'xy-plane', 'zx-plane'],
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
+const rController = gui.add({
     type: 'number',
     params: geometry,
     property: 'r',
-    labelText: 'r or z',
+    labelText: 'r',
     min: 0,
     onChange: function() {
         map.drawMapChanged();
     }
 });
+rController.add({
+    type: 'button',
+    buttonText: 'hyperbolic radius',
+    onClick: function() {
+        rController.setValue(geometry.rHyperbolic);
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'offset',
+    onChange: function() {
+        map.drawMapChanged();
+    }
+});
+
 gui.add({
     type: 'boolean',
     params: geometry,
@@ -128,7 +166,7 @@ map.drawMapChanged = function() {
     map.startDrawing();
     geometry.setup();
     map.make(); // uses map.mapping(point)
-map.showRegionControls();
+    map.showRegionControls();
     map.drawImageChanged();
 };
 

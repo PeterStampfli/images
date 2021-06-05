@@ -786,9 +786,9 @@ map.drawDivergence = function() {
     }
     map.sizeArrayUpdate();
     const color = {
-        red: 255,
-        blue: 255,
-        green: 255,
+        red: 128,
+        blue: 128,
+        green: 128,
         alpha: 255
     };
     const white = Pixels.integerOfColor(color);

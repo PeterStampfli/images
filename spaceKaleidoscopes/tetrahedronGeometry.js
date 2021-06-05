@@ -2,17 +2,23 @@
 
 import {
     map,
-    log
+    log,
+    output
 } from "../libgui/modules.js";
 
 /**
  * @namespace geometry
  */
 export const geometry = {};
+geometry.rHyperbolic = Math.sqrt(0.333333);
+console.log('hyperbalic ball radius', geometry.rHyperbolic);
 
-geometry.r = 1;
+geometry.r = geometry.rHyperbolic;
+geometry.offset = 0;
 geometry.flipZ = false;
 geometry.view = 'normal';
+geometry.nDihedral = 100;
+geometry.mirror5 = false;
 
 // Euler rotation angles
 geometry.alpha = 0;
@@ -28,9 +34,18 @@ const fromDeg = 1 / toDeg;
 
 
 geometry.setup = function() {
+    const rInfty = Math.sqrt(2 / 3);
+    const diAngle = Math.PI / geometry.nDihedral;
+    rSphere = rInfty / cos(0.5 * diAngle);
+    rSphere2 = rSphere * rSphere;
+    rInner = 1 - rSphere;
+    rInner2 = rInner * rInner;
+    geometry.rHyperbolic = Math.sqrt(1 - rSphere2);
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
+    cosAlpha = c1;
     const s1 = sin(fromDeg * geometry.alpha);
+    sinAlpha = s1;
     const c2 = cos(fromDeg * geometry.beta);
     const s2 = sin(fromDeg * geometry.beta);
     const c3 = cos(fromDeg * geometry.gamma);
@@ -44,8 +59,7 @@ geometry.setup = function() {
     tzx = s2 * s3;
     tzy = c3 * s2;
     tzz = c2;
-  //  rView = 0.7071 * geometry.r;
-    rView = 1.414 * geometry.r;
+    rView = geometry.r;
     rView2 = rView * rView;
     switch (geometry.view) {
         case 'normal':
@@ -54,14 +68,16 @@ geometry.setup = function() {
         case 'stereographic':
             view = stereographic;
             break;
-        case 'plane':
-            view = plane;
+        case 'xy-plane':
+            view = xyPlane;
+            break;
+        case 'zx-plane':
+            view = zxPlane;
             break;
 
     }
-    //   map.mapping = fourSpheresMapping;
-    map.mapping = octMapping;
-    map.mapping = cubeMapping;
+    map.mapping = tetrahedronMapping;
+
 
 };
 
@@ -74,7 +90,7 @@ var view;
 
 // Euler angles -> transform
 var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
-
+var sinAlpha, cosAlpha;
 
 // views
 var rView2, rView;
@@ -85,6 +101,11 @@ function normalView() {
         valid = -1;
     } else {
         z = Math.sqrt(rView2 - r2);
+        if (geometry.flipZ) {
+            z = -z;
+        }
+        euler();
+        z += geometry.offset;
     }
 }
 
@@ -99,11 +120,17 @@ function stereographic() {
 }
 
 // plane crossection view projection in 3d:
-// plane to sphere with radius rView
-// center at z=-r3d because spherical maps to z=+r3d
-function plane() {
-    const factor = 2 / (1 + (x * x + y * y) / rView2);
-    z = rView;
+// xy plane at z=offset
+function xyPlane() {
+    z = geometry.offset;
+}
+
+// plane crossection view projection in 3d:
+// zx plane at y=offset, rotating around z-axis
+function zxPlane() {
+    z = -y;
+    y = cosAlpha * geometry.offset + sinAlpha * x;
+    x = cosAlpha * x - sinAlpha * geometry.offset;
 }
 
 // euler rotations
@@ -115,14 +142,10 @@ function euler() {
     y = newY;
 }
 
+var rSphere, rSphere2, rInner, rInner2;
 // four inverting spheres
-const rSphere = 0.8165;
-const rSphere2 = rSphere * rSphere;
-const rInner = 1 - rSphere;
-const rInner2 = rInner * rInner;
-const rOuter = 1 + rSphere;
-const rOuter2 = rOuter * rOuter;
-const rBall = 0.5773;
+//const rSphere = 0.8165;
+
 const cx2 = 0.9428;
 const cx34 = -0.4714;
 const cy3 = 0.8165;
@@ -216,21 +239,7 @@ function innerSphere() {
     }
 }
 
-// the sixth outer sphere at (0,0,0)
-function outerSphere() {
-    const d2 = z * z + x * x + y * y;
-    if (d2 > rOuter2) {
-        const factor = rOuter2 / d2;
-        x *= factor;
-        y *= factor;
-        z *= factor;
-        inversions += 1;
-        change = true;
-        region = 6;
-    }
-}
-
-function fourSpheresMapping(point) {
+function tetrahedronMapping(point) {
     x = point.x;
     y = point.y;
     region = point.region;
@@ -239,10 +248,6 @@ function fourSpheresMapping(point) {
     const maxIterations = map.maxIterations;
     view();
     if (valid > 0) {
-        if (geometry.flipZ) {
-            z = -z;
-        }
-        euler();
         let ite = 0;
         do {
             change = false;
@@ -250,13 +255,12 @@ function fourSpheresMapping(point) {
             sphere2();
             sphere3();
             sphere4();
-            innerSphere();
-            outerSphere();
-
+            if (geometry.mirror5) {
+                innerSphere();
+            }
             ite += 1;
         }
         while (change && (ite < maxIterations));
-        //   inverseStereographic3d();
     }
     point.x = x;
     point.y = y;
@@ -265,190 +269,3 @@ function fourSpheresMapping(point) {
     //  point.region=region;
     //         map.activeRegions[region] = true;
 }
-
-// octagonal
-const octInnerRadius2 = 0.0857864;
-
-function octInnerSphere() {
-    const d2 = z * z + x * x + y * y;
-    if (d2 < octInnerRadius2) {
-        const factor = octInnerRadius2 / d2;
-        x *= factor;
-        y *= factor;
-        z *= factor;
-        inversions += 1;
-        change = true;
-    }
-}
-
-// sphere at (0,0,+-1)
-function oct1() {
-    if (z > 0) {
-        const dz = z - 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x *= factor;
-            y *= factor;
-            z = 1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dz = z + 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x *= factor;
-            y *= factor;
-            z = -1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-
-
-// sphere at (0,0,+-1)
-function oct2() {
-    if (y > 0) {
-        const dy = y - 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x *= factor;
-            y = 1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dy = y + 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x *= factor;
-            y = -1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-
-// sphere at (0,0,+-1)
-function oct3() {
-    if (x > 0) {
-        const dx = x - 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x = 1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dx = x + 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < 0.5) {
-            const factor = 0.5 / d2;
-            x = -1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-
-
-function octMapping(point) {
-    x = point.x;
-    y = point.y;
-    region = point.region;
-    valid = 1;
-    inversions = 0;
-    const maxIterations = map.maxIterations;
-    view();
-    if (valid > 0) {
-        if (geometry.flipZ) {
-            z = -z;
-        }
-        euler();
-        let ite = 0;
-        do {
-            change = false;
-            oct1();
-            oct2();
-            oct3();
-octInnerSphere();
-            ite += 1;
-        }
-        while (change && (inversions < maxIterations));
-        //   inverseStereographic3d();
-    }
-    point.x = x;
-    point.y = y;
-    point.iterations = inversions;
-    point.valid = valid;
-    //  point.region=region;
-    //         map.activeRegions[region] = true;
-}
-
-function cubeSphere(){
-    const cx=(x>0)?1:-1;
-    const cy=(y>0)?1:-1;
-    const cz=(z>0)?1:-1;
-    const dx=x-cx;
-    const dy=y-cy;
-    const dz=z-cz;
-    const d2=dx*dx+dy*dy+dz*dz;
-    if (1>d2){
-             const factor = 1 / d2;
-            x = cx + factor * dx;
-            y = cy + factor * dy;
-            z = cz + factor * dz;
-            inversions += 1;
-            change = true;
-    }
-}
-
-
-function cubeMapping(point) {
-    x = point.x;
-    y = point.y;
-    region = point.region;
-    valid = 1;
-    inversions = 0;
-    const maxIterations = map.maxIterations;
-    view();
-    if (valid > 0) {
-        if (geometry.flipZ) {
-            z = -z;
-        }
-        euler();
-        let ite = 0;
-        do {
-            change = false;
-            cubeSphere();
-
-            ite += 1;
-        }
-        while (change && (inversions < maxIterations));
-        //   inverseStereographic3d();
-    }
-    point.x = x;
-    point.y = y;
-    point.iterations = inversions;
-    point.valid = valid;
-    //  point.region=region;
-    //         map.activeRegions[region] = true;
-}
-
-x=0.9
-y=0.9
-z=0.9
-cubeSphere();
-console.log(x,y,z)
