@@ -400,12 +400,12 @@ map.clearActive = function() {
 };
 
 /**
-* make all map points invalid
-* all elements of sizeArray have negative value -> drawing alpha=0
-* @method map.makeTransparent
-*/
-map.makeTransparent=function(){
-map.sizeArray.fill(-1);
+ * make all map points invalid
+ * all elements of sizeArray have negative value -> drawing alpha=0
+ * @method map.makeTransparent
+ */
+map.makeTransparent = function() {
+    map.sizeArray.fill(-1);
 };
 
 // default: one active region
@@ -511,6 +511,11 @@ map.makeIterationsColor = function() {
     for (i = map.maxIterations; i < 256; i++) {
         map.iterationsColor[i] = white;
     }
+    color.red = 0;
+    color.blue = 0;
+    color.green = 0;
+    const black = Pixels.integerOfColor(color);
+    map.iterationsColor[0] = black;
 };
 
 /**
@@ -654,15 +659,24 @@ map.drawIterations = function() {
         green: 255,
         alpha: 255
     });
+    const grey = Pixels.integerOfColor({
+        red: 128,
+        blue: 128,
+        green: 128,
+        alpha: 255
+    });
     const length = map.width * map.height;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const region = map.regionArray[index];
         if (map.showRegion[region]) {
+            const iterations = map.iterationsArray[index];
             if (map.sizeArray[index] >= 0) {
-                output.pixels.array[index] = map.iterationsColor[map.iterationsArray[index]];
-            } else {
+                output.pixels.array[index] = map.iterationsColor[iterations];
+            } else if (iterations > 0) {
                 output.pixels.array[index] = white; // opaque white, pixel presumably belongs to the limit set
+            } else {
+                output.pixels.array[index] = grey;
             }
         } else {
             output.pixels.array[index] = 0; // transparent black
@@ -1113,7 +1127,9 @@ map.loadInputImage = function() {
  * @method map.makeShowingGui
  * @param {ParamGui} parentGui
  */
-map.makeShowingGui = function(parentGui, args = {closed:false}) {
+map.makeShowingGui = function(parentGui, args = {
+    closed: false
+}) {
     const gui = parentGui.addFolder('showing', args);
     map.gui = gui;
     map.showingGui = gui;

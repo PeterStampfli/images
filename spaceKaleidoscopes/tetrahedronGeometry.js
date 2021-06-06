@@ -3,7 +3,8 @@
 import {
     map,
     log,
-    output
+    output,
+    guiUtils
 } from "../libgui/modules.js";
 
 /**
@@ -11,7 +12,6 @@ import {
  */
 export const geometry = {};
 geometry.rHyperbolic = Math.sqrt(0.333333);
-console.log('hyperbalic ball radius', geometry.rHyperbolic);
 
 geometry.r = geometry.rHyperbolic;
 geometry.offset = 0;
@@ -32,13 +32,39 @@ const pi = Math.PI;
 const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
 
+/**
+ * determine circle radius for given distance betwween centers
+ * radius of other circle and order of dihedral group
+ * @method circleRadius
+ * @param {float} distance
+ * @param {float} otherRadius
+ * @param {integer} dihedralOrder
+ * @return float, radius
+ */
+function circleRadius(distance, otherRadius, dihedralOrder) {
+    const solutions = {};
+    const angle = Math.PI / dihedralOrder;
+    const a = 1;
+    const b = 2 * otherRadius * cos(angle);
+    const c = otherRadius * otherRadius - distance * distance;
+    if (c > 0) {
+        console.error('circleRadius: distance smaller than other radius', distance, otherRadius);
+    } else {
+        guiUtils.quadraticEquation(a, b, c, solutions);
+        if (solutions.x > 0) {
+            return solutions.x;
+        } else {
+            return solutions.y;
+        }
+    }
+}
 
 geometry.setup = function() {
     const rInfty = Math.sqrt(2 / 3);
     const diAngle = Math.PI / geometry.nDihedral;
     rSphere = rInfty / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
-    rInner = 1 - rSphere;
+    rInner = circleRadius(1,rSphere,geometry.nDihedral);
     rInner2 = rInner * rInner;
     geometry.rHyperbolic = Math.sqrt(1 - rSphere2);
     // prepare transformation from Euler angles
