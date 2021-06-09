@@ -125,7 +125,6 @@ const controllerAlpha = gui.add({
     property: 'alpha',
     min: -180,
     max: 180,
-    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
@@ -138,7 +137,6 @@ const controllerBeta = controllerAlpha.add({
     property: 'beta',
     min: -180,
     max: 180,
-    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }
@@ -151,7 +149,6 @@ const controllerGamma = controllerBeta.add({
     property: 'gamma',
     min: -180,
     max: 180,
-    step: 1,
     onChange: function() {
         map.drawMapChanged();
     }

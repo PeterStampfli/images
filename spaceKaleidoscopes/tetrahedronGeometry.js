@@ -11,7 +11,7 @@ import {
  * @namespace geometry
  */
 export const geometry = {};
-geometry.rHyperbolic = Math.sqrt(0.333333);
+geometry.rHyperbolic = Math.sqrt(1/3);
 
 geometry.r = geometry.rHyperbolic;
 geometry.offset = 0;
@@ -103,8 +103,6 @@ geometry.setup = function() {
 
     }
     map.mapping = tetrahedronMapping;
-
-
 };
 
 
@@ -215,7 +213,7 @@ function sphere2() {
 
 // sphere at (cx34,cy3,cz234)
 function sphere3() {
-    if (y > 0) {
+    if (y >= 0) {
         const dz = z - cz234;
         const dx = x - cx34;
         const dy = y - cy3;
