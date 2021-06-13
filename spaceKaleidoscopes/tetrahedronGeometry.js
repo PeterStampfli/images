@@ -11,9 +11,9 @@ import {
  * @namespace geometry
  */
 export const geometry = {};
-geometry.rHyperbolic = Math.sqrt(1/3);
+rHyperbolic = Math.sqrt(1 / 3);
 
-geometry.r = geometry.rHyperbolic;
+geometry.r = rHyperbolic;
 geometry.offset = 0;
 geometry.flipZ = false;
 geometry.view = 'normal';
@@ -31,6 +31,8 @@ const sin = Math.sin;
 const pi = Math.PI;
 const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
+
+const rt32 = Math.sqrt(3) / 2;
 
 /**
  * determine circle radius for given distance betwween centers
@@ -64,9 +66,10 @@ geometry.setup = function() {
     const diAngle = Math.PI / geometry.nDihedral;
     rSphere = rInfty / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
-    rInner = circleRadius(1,rSphere,geometry.nDihedral);
+    rInner = circleRadius(1, rSphere, geometry.nDihedral);
     rInner2 = rInner * rInner;
-    geometry.rHyperbolic = Math.sqrt(1 - rSphere2);
+    rHyperbolic2 = 1 - rSphere2;
+    rHyperbolic = Math.sqrt(rHyperbolic2);
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
     cosAlpha = c1;
@@ -115,6 +118,7 @@ var view;
 // Euler angles -> transform
 var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
 var sinAlpha, cosAlpha;
+var rHyperbolic, rHyperbolic2;
 
 // views
 var rView2, rView;
@@ -263,6 +267,34 @@ function innerSphere() {
     }
 }
 
+function findRegion() {
+    if ((geometry.mirror5) && (x * x + y * y + z * z > rHyperbolic2)) {
+        region = 0;
+    } else {
+        const bz = 1.5 * cx2 * z;
+        const d34 = bz - x;
+        const d23 = 0.5 * x + rt32 * y + bz;
+        const d24 = 0.5 * x - rt32 * y + bz;
+        if ((d34 < 0) && (d23 < 0) && (d24 < 0)) {
+            region = 1;
+        } else {
+            const d13 = rt32 * x + 0.5 * y;
+            const d14 = rt32 * x - 0.5 * y;
+            if ((d34 > 0) && (d13 < 0) && (d14 < 0)) {
+                region = 2;
+            } else if ((y > 0) && (d23 >> 0) && (d13 > 0)) {
+                region = 3;
+            } else if ((y < 0) && (d14 >> 0) && (d24 > 0)) {
+                region = 4;
+            } else {
+                region = 5;
+                console.error("findregion-no region for x,y,z", x, y, z);
+                console.log("y,d13,d14,d23,d24,d34", y, d13, d14, d23, d24, d34);
+            }
+        }
+    }
+}
+
 function tetrahedronMapping(point) {
     x = point.x;
     y = point.y;
@@ -286,6 +318,7 @@ function tetrahedronMapping(point) {
         }
         while (change && (ite < maxIterations));
     }
+    //   findRegion();
     point.x = x;
     point.y = y;
     point.iterations = inversions;
@@ -293,3 +326,10 @@ function tetrahedronMapping(point) {
     //  point.region=region;
     //         map.activeRegions[region] = true;
 }
+
+
+x = 0;
+y = -100;
+z = 1;
+findRegion();
+console.log(x, y, z, region);
