@@ -12,6 +12,7 @@ import {
  */
 export const geometry = {};
 rHyperbolic = Math.sqrt(1 / 3);
+geometry.rHyperbolic=rHyperbolic;
 
 geometry.r = rHyperbolic;
 geometry.offset = 0;
@@ -70,6 +71,7 @@ geometry.setup = function() {
     rInner2 = rInner * rInner;
     rHyperbolic2 = 1 - rSphere2;
     rHyperbolic = Math.sqrt(rHyperbolic2);
+geometry.rHyperbolic=rHyperbolic;
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
     cosAlpha = c1;
@@ -275,16 +277,16 @@ function findRegion() {
         const d34 = bz - x;
         const d23 = 0.5 * x + rt32 * y + bz;
         const d24 = 0.5 * x - rt32 * y + bz;
-        if ((d34 < 0) && (d23 < 0) && (d24 < 0)) {
+        if ((d34 <= 0) && (d23 <= 0) && (d24 <= 0)) {
             region = 1;
         } else {
             const d13 = rt32 * x + 0.5 * y;
             const d14 = rt32 * x - 0.5 * y;
-            if ((d34 > 0) && (d13 < 0) && (d14 < 0)) {
+            if ((d34 >= 0) && (d13 <= 0) && (d14 <= 0)) {
                 region = 2;
-            } else if ((y > 0) && (d23 >> 0) && (d13 > 0)) {
+            } else if ((y >= 0) && (d23 >= 0) && (d13 >= 0)) {
                 region = 3;
-            } else if ((y < 0) && (d14 >> 0) && (d24 > 0)) {
+            } else if ((y <= 0) && (d14 >= 0) && (d24 >= 0)) {
                 region = 4;
             } else {
                 region = 5;
@@ -317,19 +319,20 @@ function tetrahedronMapping(point) {
             ite += 1;
         }
         while (change && (ite < maxIterations));
+       findRegion();
     }
-    //   findRegion();
     point.x = x;
     point.y = y;
     point.iterations = inversions;
     point.valid = valid;
-    //  point.region=region;
-    //         map.activeRegions[region] = true;
+      point.region=region;
+             map.activeRegions[region] = true;
 }
 
-
+/*
 x = 0;
 y = -100;
 z = 1;
 findRegion();
 console.log(x, y, z, region);
+*/

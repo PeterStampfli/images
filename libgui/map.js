@@ -492,6 +492,14 @@ map.makeStructureColors = function() {
  * white with variable alpha, depends on maxIterations, gamma, threshold
  * @method map#makeIterationsColor
  */
+const black = Pixels.integerOfColor({
+    red: 0,
+    green: 0,
+    blue: 0,
+    alpha: 255
+});
+map.iterationsColorZero = black;
+
 map.makeIterationsColor = function() {
     var i;
     const color = {};
@@ -511,11 +519,7 @@ map.makeIterationsColor = function() {
     for (i = map.maxIterations; i < 256; i++) {
         map.iterationsColor[i] = white;
     }
-    color.red = 0;
-    color.blue = 0;
-    color.green = 0;
-    const black = Pixels.integerOfColor(color);
-    map.iterationsColor[0] = black;
+    map.iterationsColor[0] = map.iterationsColorZero;
 };
 
 /**

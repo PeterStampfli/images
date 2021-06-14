@@ -32,6 +32,9 @@ output.addAntialiasing();
 output.grid.interval = 0.1;
 output.addGrid();
 output.addCursorposition();
+    // for transparent basic tetrahedron
+       map.iterationsColorZero=0;
+
 // options of what to show
 map.makeShowingGui(gui, {
     closed: false
@@ -41,6 +44,7 @@ map.makeRegionsGui(gui, {
 });
 
 map.addDrawIterations();
+map.addDrawLimitset();
 //map.lightController.destroy();
 map.linewidthController.destroy();
 map.trajectoryOnOffController.destroy();
