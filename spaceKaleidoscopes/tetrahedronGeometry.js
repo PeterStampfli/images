@@ -320,13 +320,17 @@ function tetrahedronMapping(point) {
         }
         while (change && (ite < maxIterations));
        findRegion();
-    }
     point.x = x;
     point.y = y;
     point.iterations = inversions;
     point.valid = valid;
       point.region=region;
              map.activeRegions[region] = true;
+                 } else {
+        point.region=255;
+        point.valid=-1;
+    }
+
 }
 
 /*

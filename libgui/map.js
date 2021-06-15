@@ -721,6 +721,70 @@ map.drawLimitset = function() {
     for (j = 1; j < map.height; j++) {
         index += 1; // skip first pixel of each row
         for (i = 1; i < map.width; i++) {
+            let color = 0;
+            const region = map.regionArray[index];
+            if (region < 255) {
+                if (map.sizeArray[index] < 0) {
+                    color = white;
+                } else {
+                    let otherRegion = map.regionArray[index - 1];
+                    if ((region !== otherRegion) && (otherRegion < 255)) {
+                        color = white;
+                    } else {
+                        otherRegion = map.regionArray[index - map.width];
+                        if ((region !== otherRegion) && (otherRegion < 255)) {
+                        color = white;
+                        } else {
+                            otherRegion = map.regionArray[index - map.width - 1];
+                            if ((region !== otherRegion) && (otherRegion < 255)) {
+                        color = white;
+                            }
+                        }
+                    }
+                }
+            }
+            output.pixels.array[index] = color;
+            index += 1;
+        }
+    }
+    output.pixels.show();
+};
+
+/**
+ * draw border of basic region (no map iterations) of the map as white opaque
+ * pixels that did not do a mapping in a 2x2 array
+ * @method map.drawBasicBorder
+ */
+map.drawBasicBorder = function() {
+    var i, j, index;
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const white = Pixels.integerOfColor({
+        red: 255,
+        blue: 255,
+        green: 255,
+        alpha: 255
+    });
+    // top and left pixels use only single pixel
+    for (i = 0; i < map.width; i++) {
+        if ((map.iterationsArray[i] === 0) && (map.sizeArray[index] > 0)) {
+            output.pixels.array[i] = white; //transparent black
+        } else {
+            output.pixels.array[i] = 0; //transparent black
+        }
+    }
+    index = 0;
+    for (i = 0; i < map.height; i++) {
+        output.pixels.array[index] = 0; //transparent black
+        index += map.width;
+    }
+    index = 0;
+    // for all other pixels
+    for (j = 1; j < map.height; j++) {
+        index += 1; // skip first pixel of each row
+        for (i = 1; i < map.width; i++) {
             if (map.sizeArray[index] < 0) {
                 output.pixels.array[index] = white;
             } else {
