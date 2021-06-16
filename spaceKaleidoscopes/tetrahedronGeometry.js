@@ -146,13 +146,19 @@ function stereographic() {
     const factor = 2 / (1 + (x * x + y * y) / rView2);
     x *= factor;
     y *= factor;
-    z = rView * (1 - factor);
+    z = -rView * (1 - factor);
+        if (geometry.flipZ) {
+            z = -z;
+        }
 }
 
 // plane crossection view projection in 3d:
 // xy plane at z=offset
 function xyPlane() {
     z = geometry.offset;
+        if (geometry.flipZ) {
+            z = -z;
+        }
 }
 
 // plane crossection view projection in 3d:
@@ -161,6 +167,9 @@ function zxPlane() {
     z = -y;
     y = cosAlpha * geometry.offset + sinAlpha * x;
     x = cosAlpha * x - sinAlpha * geometry.offset;
+        if (geometry.flipZ) {
+            z = -z;
+        }
 }
 
 // euler rotations

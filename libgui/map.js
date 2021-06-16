@@ -271,6 +271,7 @@ map.allImageControllersHide = function() {
     map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
+    map.borderColorController.hide();
     if (guiUtils.isDefined(map.thresholdController)) {
         map.thresholdController.hide();
         map.gammaController.hide();
@@ -354,7 +355,14 @@ map.callDrawIterations = function() {
 map.callDrawLimitset = function() {
     map.drawingInputImage = false;
     map.allImageControllersHide();
+    map.borderColorController.show();
     map.drawLimitset();
+};
+map.callDrawIterationsZero = function() {
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.borderColorController.show();
+    map.drawIterationsZero();
 };
 map.callDrawFundamentalRegion = function() {
     map.drawingInputImage = false;
@@ -453,6 +461,8 @@ map.iterationsGamma = 2;
 // parameters for showing divergence, normalized range 0...1
 map.divergenceThreshold = 0.6;
 map.divergenceSaturation = 0.9;
+
+map.borderColor = '#ff0000ff';
 
 /**
  * make structure colors for active regions, from their basic color
@@ -700,12 +710,9 @@ map.drawLimitset = function() {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const white = Pixels.integerOfColor({
-        red: 255,
-        blue: 255,
-        green: 255,
-        alpha: 255
-    });
+    const color = {};
+    ColorInput.setObject(color, map.borderColor);
+    const colorInt = Pixels.integerOfColor(color);
     // top and left pixels are always transparent
     // because they have no neigbors above or at the left
     for (i = 0; i < map.width; i++) {
@@ -725,19 +732,19 @@ map.drawLimitset = function() {
             const region = map.regionArray[index];
             if (region < 255) {
                 if (map.sizeArray[index] < 0) {
-                    color = white;
+                    color = colorInt;
                 } else {
                     let otherRegion = map.regionArray[index - 1];
                     if ((region !== otherRegion) && (otherRegion < 255)) {
-                        color = white;
+                        color = colorInt;
                     } else {
                         otherRegion = map.regionArray[index - map.width];
                         if ((region !== otherRegion) && (otherRegion < 255)) {
-                        color = white;
+                            color = colorInt;
                         } else {
                             otherRegion = map.regionArray[index - map.width - 1];
                             if ((region !== otherRegion) && (otherRegion < 255)) {
-                        color = white;
+                                color = colorInt;
                             }
                         }
                     }
@@ -751,55 +758,33 @@ map.drawLimitset = function() {
 };
 
 /**
- * draw border of basic region (no map iterations) of the map as white opaque
- * pixels that did not do a mapping in a 2x2 array
+ * draw fundamental region (no map iterations) of the map
  * @method map.drawBasicBorder
  */
-map.drawBasicBorder = function() {
-    var i, j, index;
+map.drawIterationsZero = function() {
+    var i, j;
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const white = Pixels.integerOfColor({
-        red: 255,
-        blue: 255,
-        green: 255,
-        alpha: 255
-    });
-    // top and left pixels use only single pixel
-    for (i = 0; i < map.width; i++) {
-        if ((map.iterationsArray[i] === 0) && (map.sizeArray[index] > 0)) {
-            output.pixels.array[i] = white; //transparent black
+    const color = {};
+    ColorInput.setObject(color, map.borderColor);
+    const colorInt = Pixels.integerOfColor(color);
+    const length = map.width * map.height;
+    const pixelsArray = output.pixels.array;
+    const showRegion = map.showRegion;
+    const sizeArray = map.sizeArray;
+    const structureColors = map.structureColors;
+    const regionArray = map.regionArray;
+    const iterationsArray = map.iterationsArray;
+    for (var index = 0; index < length; index++) {
+        // target region, where the pixel has been mapped into
+        const region = regionArray[index];
+        if (showRegion[region] && (sizeArray[index] >= 0) && (iterationsArray[index] === 0)) {
+            // color for pixels with iteration=0
+            pixelsArray[index] = colorInt;
         } else {
-            output.pixels.array[i] = 0; //transparent black
-        }
-    }
-    index = 0;
-    for (i = 0; i < map.height; i++) {
-        output.pixels.array[index] = 0; //transparent black
-        index += map.width;
-    }
-    index = 0;
-    // for all other pixels
-    for (j = 1; j < map.height; j++) {
-        index += 1; // skip first pixel of each row
-        for (i = 1; i < map.width; i++) {
-            if (map.sizeArray[index] < 0) {
-                output.pixels.array[index] = white;
-            } else {
-                const region = map.regionArray[index];
-                if (region !== map.regionArray[index - 1]) {
-                    output.pixels.array[index] = white;
-                } else if (region !== map.regionArray[index - map.width]) {
-                    output.pixels.array[index] = white;
-                } else if (region !== map.regionArray[index - map.width - 1]) {
-                    output.pixels.array[index] = white;
-                } else {
-                    output.pixels.array[index] = 0;
-                }
-            }
-            index += 1;
+            pixelsArray[index] = 0; // transparent black
         }
     }
     output.pixels.show();
@@ -1300,6 +1285,16 @@ map.makeShowingGui = function(parentGui, args = {
         }
     });
     map.darkController.addHelp('Sets contrast between odd and even number of iterations. Use zero to get flat color.');
+
+    map.borderColorController = gui.add({
+        type: 'color',
+        params: map,
+        property: 'borderColor',
+        labelText: 'color',
+        onChange: function() {
+            map.drawImageChanged();
+        }
+    });
     // a hidden canvas for the input image
     map.inputCanvas = document.createElement('canvas'); // has default width and height
     map.inputCanvas.style.display = 'none';
@@ -1531,6 +1526,15 @@ map.addDrawIterations = function() {
  */
 map.addDrawLimitset = function() {
     map.whatToShowController.addOption('borders', map.callDrawLimitset);
+};
+
+/**
+ * add the possibility to draw the basic region from iterations
+ * needs the settingsGui
+ * @method map.addDrawLimitset
+ */
+map.addDrawIterationZero = function() {
+    map.whatToShowController.addOption('iteration zero', map.callDrawIterationsZero);
 };
 
 /**
