@@ -11,8 +11,8 @@ import {
  * @namespace geometry
  */
 export const geometry = {};
-rHyperbolic = Math.sqrt(1 / 3);
-geometry.rHyperbolic=rHyperbolic;
+rHyperbolic = Math.sqrt(1 / 2);
+geometry.rHyperbolic = rHyperbolic;
 
 geometry.r = rHyperbolic;
 geometry.offset = 0;
@@ -34,6 +34,9 @@ const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
 
 const rt32 = Math.sqrt(3) / 2;
+const rt05=Math.sqrt(0.5);
+const rt03=Math.sqrt(1/3);
+const rt06=Math.sqrt(1/6);
 
 /**
  * determine circle radius for given distance betwween centers
@@ -63,15 +66,16 @@ function circleRadius(distance, otherRadius, dihedralOrder) {
 }
 
 geometry.setup = function() {
-    const rInfty = Math.sqrt(2 / 3);
     const diAngle = Math.PI / geometry.nDihedral;
-    rSphere = rInfty / cos(0.5 * diAngle);
+    rSphere = Math.sqrt(0.5) / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
+ /*
     rInner = circleRadius(1, rSphere, geometry.nDihedral);
     rInner2 = rInner * rInner;
+    */
     rHyperbolic2 = 1 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
-geometry.rHyperbolic=rHyperbolic;
+    geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
     cosAlpha = c1;
@@ -104,6 +108,9 @@ geometry.rHyperbolic=rHyperbolic;
             break;
         case 'zx-plane':
             view = zxPlane;
+            break;
+                    case '(1,1,1)-plane':
+            view = diagonalPlane;
             break;
 
     }
@@ -147,18 +154,18 @@ function stereographic() {
     x *= factor;
     y *= factor;
     z = -rView * (1 - factor);
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // plane crossection view projection in 3d:
 // xy plane at z=offset
 function xyPlane() {
     z = geometry.offset;
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // plane crossection view projection in 3d:
@@ -167,9 +174,21 @@ function zxPlane() {
     z = -y;
     y = cosAlpha * geometry.offset + sinAlpha * x;
     x = cosAlpha * x - sinAlpha * geometry.offset;
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
+}
+// plane crossection view projection in 3d:
+// plane perpendicular to (1,1,1) direction
+function diagonalPlane() {
+     const offset = 0.33333*geometry.offset;
+     z=offset+2*rt06*y;
+     const newX=offset+rt05*x-rt06*y;
+     y=offset-rt05*x-rt06*y;
+    x = newX;
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // euler rotations
@@ -191,75 +210,83 @@ const cy3 = 0.8165;
 const cy4 = -0.8165;
 const cz234 = -0.3333;
 
-// sphere at (0,0,1)
-function sphere1() {
+
+// sphere at (0,0,+-1)
+function oct1() {
     if (z > 0) {
         const dz = z - 1;
         const d2 = dz * dz + x * x + y * y;
         if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
+            const factor = rSphere2/d2;
             x *= factor;
             y *= factor;
             z = 1 + factor * dz;
             inversions += 1;
             change = true;
-            region = 1;
         }
-    }
-}
-
-// sphere at (cx2,0,cz234)
-function sphere2() {
-    if (x > 0) {
-        const dz = z - cz234;
-        const dx = x - cx2;
-        const d2 = dz * dz + dx * dx + y * y;
+    } else {
+        const dz = z + 1;
+        const d2 = dz * dz + x * x + y * y;
         if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x = cx2 + factor * dx;
+            const factor = rSphere2/d2;
+            x *= factor;
             y *= factor;
-            z = cz234 + factor * dz;
+            z = -1 + factor * dz;
             inversions += 1;
             change = true;
-            region = 2;
+        }
+    }
+}
+// sphere at (0,0,+-1)
+function oct2() {
+    if (y > 0) {
+        const dy = y - 1;
+        const d2 = z * z + x * x + dy * dy;
+        if (d2 < rSphere2) {
+            const factor = rSphere2/d2;
+            x *= factor;
+            y = 1 + factor * dy;
+            z *= factor;
+            inversions += 1;
+            change = true;
+        }
+    } else {
+        const dy = y + 1;
+        const d2 = z * z + x * x + dy * dy;
+        if (d2 < rSphere2) {
+            const factor = rSphere2/d2;
+            x *= factor;
+            y = -1 + factor * dy;
+            z *= factor;
+            inversions += 1;
+            change = true;
         }
     }
 }
 
-// sphere at (cx34,cy3,cz234)
-function sphere3() {
-    if (y >= 0) {
-        const dz = z - cz234;
-        const dx = x - cx34;
-        const dy = y - cy3;
-        const d2 = dz * dz + dx * dx + dy * dy;
+// sphere at (0,0,+-1)
+function oct3() {
+    if (x > 0) {
+        const dx = x - 1;
+        const d2 = z * z + dx * dx + y * y;
         if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x = cx34 + factor * dx;
-            y = cy3 + factor * dy;
-            z = cz234 + factor * dz;
+            const factor = rSphere2/d2;
+            x = 1 + factor * dx;
+            y *= factor;
+            z *= factor;
             inversions += 1;
             change = true;
-            region = 3;
         }
-    }
-}
-
-// sphere at (cx34,cy4,cz234)
-function sphere4() {
-    if (y < 0) {
-        const dz = z - cz234;
-        const dx = x - cx34;
-        const dy = y - cy4;
-        const d2 = dz * dz + dx * dx + dy * dy;
+    } else {
+        const dx = x + 1;
+        const d2 = z * z + dx * dx + y * y;
         if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x = cx34 + factor * dx;
-            y = cy4 + factor * dy;
-            z = cz234 + factor * dz;
+            const factor = rSphere2/d2;
+            x = -1 + factor * dx;
+            y *= factor;
+            z *= factor;
             inversions += 1;
             change = true;
-            region = 4;
         }
     }
 }
@@ -282,26 +309,15 @@ function findRegion() {
     if ((geometry.mirror5) && (x * x + y * y + z * z > rHyperbolic2)) {
         region = 0;
     } else {
-        const bz = 1.5 * cx2 * z;
-        const d34 = bz - x;
-        const d23 = 0.5 * x + rt32 * y + bz;
-        const d24 = 0.5 * x - rt32 * y + bz;
-        if ((d34 <= 0) && (d23 <= 0) && (d24 <= 0)) {
-            region = 1;
-        } else {
-            const d13 = rt32 * x + 0.5 * y;
-            const d14 = rt32 * x - 0.5 * y;
-            if ((d34 >= 0) && (d13 <= 0) && (d14 <= 0)) {
-                region = 2;
-            } else if ((y >= 0) && (d23 >= 0) && (d13 >= 0)) {
-                region = 3;
-            } else if ((y <= 0) && (d14 >= 0) && (d24 >= 0)) {
-                region = 4;
-            } else {
-                region = 5;
-                console.error("findregion-no region for x,y,z", x, y, z);
-                console.log("y,d13,d14,d23,d24,d34", y, d13, d14, d23, d24, d34);
-            }
+        region=0;
+        if (z>0){
+            region+=4;
+        }
+        if (y>0){
+            region+=2;
+        }
+        if (x>0){
+            region+=1;
         }
     }
 }
@@ -318,26 +334,25 @@ function tetrahedronMapping(point) {
         let ite = 0;
         do {
             change = false;
-            sphere1();
-            sphere2();
-            sphere3();
-            sphere4();
-            if (geometry.mirror5) {
-                innerSphere();
+            oct1();
+            oct2();
+            oct3();
+                        if (geometry.mirror5) {
+             //   innerSphere();
             }
             ite += 1;
         }
         while (change && (ite < maxIterations));
-       findRegion();
-    point.x = x;
-    point.y = y;
-    point.iterations = inversions;
-    point.valid = valid;
-      point.region=region;
-             map.activeRegions[region] = true;
-                 } else {
-        point.region=255;
-        point.valid=-1;
+        findRegion();
+        point.x = x;
+        point.y = y;
+        point.iterations = inversions;
+        point.valid = valid;
+        point.region = region;
+        map.activeRegions[region] = true;
+    } else {
+        point.region = 255;
+        point.valid = -1;
     }
 
 }
@@ -349,3 +364,15 @@ z = 1;
 findRegion();
 console.log(x, y, z, region);
 */
+
+x=0;
+y=0;
+geometry.offset=1;
+
+diagonalPlane();
+console.log(x,y,z);
+
+x=0;
+y=0.66666/2/rt06;
+diagonalPlane();
+console.log(x,y,z);
