@@ -11,7 +11,7 @@ import {
  * @namespace geometry
  */
 export const geometry = {};
-rHyperbolic = Math.sqrt(1 / 2);
+rHyperbolic = Math.sqrt(3 / 2);
 geometry.rHyperbolic = rHyperbolic;
 
 geometry.r = rHyperbolic;
@@ -34,9 +34,9 @@ const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
 
 const rt32 = Math.sqrt(3) / 2;
-const rt05=Math.sqrt(0.5);
-const rt03=Math.sqrt(1/3);
-const rt06=Math.sqrt(1/6);
+const rt05 = Math.sqrt(0.5);
+const rt03 = Math.sqrt(1 / 3);
+const rt06 = Math.sqrt(1 / 6);
 
 /**
  * determine circle radius for given distance betwween centers
@@ -69,11 +69,7 @@ geometry.setup = function() {
     const diAngle = Math.PI / geometry.nDihedral;
     rSphere = Math.sqrt(0.5) / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
- /*
-    rInner = circleRadius(1, rSphere, geometry.nDihedral);
-    rInner2 = rInner * rInner;
-    */
-    rHyperbolic2 = 1 - rSphere2;
+    rHyperbolic2 = 2 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
     geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
@@ -109,14 +105,13 @@ geometry.setup = function() {
         case 'zx-plane':
             view = zxPlane;
             break;
-                    case '(1,1,1)-plane':
+        case '(1,1,1)-plane':
             view = diagonalPlane;
             break;
 
     }
     map.mapping = tetrahedronMapping;
 };
-
 
 // mappings
 var x, y, z;
@@ -157,6 +152,7 @@ function stereographic() {
     if (geometry.flipZ) {
         z = -z;
     }
+    euler();
 }
 
 // plane crossection view projection in 3d:
@@ -181,10 +177,10 @@ function zxPlane() {
 // plane crossection view projection in 3d:
 // plane perpendicular to (1,1,1) direction
 function diagonalPlane() {
-     const offset = 0.33333*geometry.offset;
-     z=offset+2*rt06*y;
-     const newX=offset+rt05*x-rt06*y;
-     y=offset-rt05*x-rt06*y;
+    const offset = 0.33333 * geometry.offset;
+    z = offset + 2 * rt06 * y;
+    const newX = offset + rt05 * x - rt06 * y;
+    y = offset - rt05 * x - rt06 * y;
     x = newX;
     if (geometry.flipZ) {
         z = -z;
@@ -203,82 +199,42 @@ function euler() {
 var rSphere, rSphere2, rInner, rInner2;
 
 // sphere at (0,0,+-1)
-function oct1() {
-    if (z > 0) {
-        const dz = z - 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x *= factor;
-            y *= factor;
-            z = 1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dz = z + 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x *= factor;
-            y *= factor;
-            z = -1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
+function spheres() {
+    var xr, yr, zr;
+    var dx, dy, dz, d2;
+    // spheres z=0; x and y=+-1
+    xr = (x > 0) ? 1 : -1;
+    yr = (y > 0) ? 1 : -1;
+    dx = x - xr;
+    dy = y - yr;
+    d2 = z * z + dx * dx + dy * dy;
+    if (d2 < rSphere2) {
+        const factor = rSphere2 / d2;
+        x = xr + factor * dx;
+        y = yr + factor * dy;
+        z *= factor;
+        inversions += 1;
+        change = true;
     }
-}
-// sphere at (0,0,+-1)
-function oct2() {
-    if (y > 0) {
-        const dy = y - 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x *= factor;
-            y = 1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
+    zr = (z > 0) ? 1 : -1;
+    if (Math.abs(x) > Math.abs(y)) {
+        xr = (x > 0) ? 1 : -1;
+        yr = 0;
     } else {
-        const dy = y + 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x *= factor;
-            y = -1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
+        xr = 0;
+        yr = (y > 0) ? 1 : -1;
     }
-}
-
-// sphere at (0,0,+-1)
-function oct3() {
-    if (x > 0) {
-        const dx = x - 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x = 1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dx = x + 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2/d2;
-            x = -1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
+    dx = x - xr;
+    dy = y - yr;
+    dz = z - zr;
+    d2 = dz * dz + dx * dx + dy * dy;
+    if (d2 < rSphere2) {
+        const factor = rSphere2 / d2;
+        x = xr + factor * dx;
+        y = yr + factor * dy;
+        z = zr + factor * dz;
+        inversions += 1;
+        change = true;
     }
 }
 
@@ -297,19 +253,22 @@ function innerSphere() {
 }
 
 function findRegion() {
-    if ((geometry.mirror5) && (x * x + y * y + z * z > rHyperbolic2)) {
-        region = 0;
-    } else {
-        region=0;
-        if (z>0){
-            region+=4;
-        }
-        if (y>0){
-            region+=2;
-        }
-        if (x>0){
-            region+=1;
-        }
+    region = 0;
+    let ax = Math.abs(x);
+    let ay = Math.abs(y);
+    let az = Math.abs(z);
+    if (ax < ay) {
+        const h = ax;
+        ax = ay;
+        ay = h;
+    }
+    if (ax < az) {
+        const h = ax;
+        ax = az;
+        az = h;
+    }
+    if (ax - ay - az > 0) {
+        region = 1;
     }
 }
 
@@ -325,12 +284,7 @@ function tetrahedronMapping(point) {
         let ite = 0;
         do {
             change = false;
-            oct1();
-            oct2();
-            oct3();
-                        if (geometry.mirror5) {
-             //   innerSphere();
-            }
+            spheres();
             ite += 1;
         }
         while (change && (ite < maxIterations));
