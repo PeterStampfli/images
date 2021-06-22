@@ -11,7 +11,7 @@ import {
  * @namespace geometry
  */
 export const geometry = {};
-rHyperbolic = Math.sqrt(1 / 2);
+rHyperbolic = Math.sqrt(2);
 geometry.rHyperbolic = rHyperbolic;
 
 geometry.r = rHyperbolic;
@@ -67,14 +67,9 @@ function circleRadius(distance, otherRadius, dihedralOrder) {
 
 geometry.setup = function() {
     const diAngle = Math.PI / geometry.nDihedral;
-    rSphere = Math.sqrt(0.5) / cos(0.5 * diAngle);
+    rSphere = 1 / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
-    rInner = circleRadius(1, rSphere, geometry.nDihedral);
-    rInner2 = rInner * rInner;
-    rOuter = circleRadius(1, -rSphere, geometry.nDihedral);
-    rOuter2 = rOuter * rOuter;
-    rHyperbolic2 = 1 - rSphere2;
-    console.log(rSphere,rInner,rOuter);
+    rHyperbolic2 = 3 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
     geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
@@ -158,6 +153,8 @@ function stereographic() {
     if (geometry.flipZ) {
         z = -z;
     }
+    euler();
+    z += geometry.offset;
 }
 
 // plane crossection view projection in 3d:
@@ -201,129 +198,44 @@ function euler() {
     y = newY;
 }
 
-var rSphere, rSphere2, rInner, rInner2,rOuter,rOuter2;
+var rSphere, rSphere2, rInner, rInner2, rOuter, rOuter2;
 
-// sphere at (0,0,+-1)
-function oct1() {
-    if (z > 0) {
-        const dz = z - 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x *= factor;
-            y *= factor;
-            z = 1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dz = z + 1;
-        const d2 = dz * dz + x * x + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x *= factor;
-            y *= factor;
-            z = -1 + factor * dz;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-// sphere at (0,0,+-1)
-function oct2() {
-    if (y > 0) {
-        const dy = y - 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x *= factor;
-            y = 1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dy = y + 1;
-        const d2 = z * z + x * x + dy * dy;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x *= factor;
-            y = -1 + factor * dy;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-
-// sphere at (0,0,+-1)
-function oct3() {
-    if (x > 0) {
-        const dx = x - 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x = 1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    } else {
-        const dx = x + 1;
-        const d2 = z * z + dx * dx + y * y;
-        if (d2 < rSphere2) {
-            const factor = rSphere2 / d2;
-            x = -1 + factor * dx;
-            y *= factor;
-            z *= factor;
-            inversions += 1;
-            change = true;
-        }
-    }
-}
-
-// the fifth smaller sphere at (0,0,0)
-function innerSphere() {
-    const d2 = z * z + x * x + y * y;
-    if (d2 < rInner2) {
-        const factor = rInner2 / d2;
-        x *= factor;
-        y *= factor;
-        z *= factor;
+function cubeSphere() {
+    const cx = (x > 0) ? 1 : -1;
+    const cy = (y > 0) ? 1 : -1;
+    const cz = (z > 0) ? 1 : -1;
+    const dx = x - cx;
+    const dy = y - cy;
+    const dz = z - cz;
+    const d2 = dx * dx + dy * dy + dz * dz;
+    if (rSphere2 > d2) {
+        const factor = rSphere2 / d2;
+        x = cx + factor * dx;
+        y = cy + factor * dy;
+        z = cz + factor * dz;
         inversions += 1;
         change = true;
-        region = 5;
     }
 }
 
 
-// the fifth smaller sphere at (0,0,0)
-function outerSphere() {
-    const d2 = z * z + x * x + y * y;
-    if (d2 > rOuter2) {
-        const factor = rOuter2 / d2;
-        x *= factor;
-        y *= factor;
-        z *= factor;
-        inversions += 1;
-        change = true;
-        region = 5;
-    }
-}
 function findRegion() {
     region = 0;
-    if (z > 0) {
-        region = 1 - region;
-    }
-    if (y > 0) {
-        region = 1 - region;
-    }
-    if (x > 0) {
-        region = 1 - region;
-    }
-    if (x*x+y*y+z*z>rHyperbolic2){
-         region = 1 - region;       
+    const ax = Math.abs(x);
+    const ay = Math.abs(y);
+    const az = Math.abs(z);
+    if (ax > ay) {
+        if (ax > az) {
+            region = 1; // ax> max(ay,az)
+        } else {
+            region = 3; // az>ax>ay
+        }
+    } else {
+        if (az > ay) {
+            region = 3; // az>ay>ax
+        } else {
+            region = 2; // ay>max(az,ax)
+        }
     }
 }
 
@@ -339,13 +251,7 @@ function tetrahedronMapping(point) {
         let ite = 0;
         do {
             change = false;
-            oct1();
-            oct2();
-            oct3();
-            if (geometry.mirror5) {
-                innerSphere();
-                outerSphere();
-            }
+            cubeSphere();
             ite += 1;
         }
         while (change && (ite < maxIterations));

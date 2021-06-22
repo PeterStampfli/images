@@ -7,7 +7,7 @@ import {
 
 import {
     matrix
-} from "./modules.js";
+} from "./matrix.js";
 
 /**
  * @namespace geometry
