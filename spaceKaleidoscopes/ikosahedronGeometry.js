@@ -33,12 +33,6 @@ const pi = Math.PI;
 const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
 
-const rt32 = Math.sqrt(3) / 2;
-const rt05 = Math.sqrt(0.5);
-const rt03 = Math.sqrt(1 / 3);
-const rt06 = Math.sqrt(1 / 6);
-
-
 const ikoCornersX = [];
 const ikoCornersY = [];
 const ikoCornersZ = [];
@@ -73,10 +67,10 @@ function newDodeCorner(i, j, k) {
 }
 
 newDodeCorner(0, 1, 5);
-
 for (let i = 1; i < 5; i++) {
     newDodeCorner(0, i, i + 1);
 }
+
 newDodeCorner(1, 5, 10);
 for (let i = 1; i < 5; i++) {
     newDodeCorner(i, i + 1, 5 + i);
@@ -85,6 +79,7 @@ newDodeCorner(1, 6, 10);
 for (let i = 1; i < 5; i++) {
     newDodeCorner(i + 1, i + 5, i + 6);
 }
+
 newDodeCorner(11, 6, 10);
 for (let i = 1; i < 5; i++) {
     newDodeCorner(11, i + 5, i + 6);
@@ -103,7 +98,6 @@ function dodeDistance2(i, x, y, z) {
     z -= dodeCornersZ[i];
     return x * x + y * y + z * z;
 }
-
 
 /**
  * determine circle radius for given distance betwween centers
@@ -135,17 +129,11 @@ function circleRadius(distance, otherRadius, dihedralOrder) {
 geometry.setup = function() {
     const diAngle = Math.PI / geometry.nDihedral;
     const sphereDistance = Math.sqrt(ikoDistance2(0, ikoCornersX[1], ikoCornersY[1], ikoCornersZ[1]));
-    console.log(sphereDistance);
     const d2 = ikoDistance2(0, 0, 0, 0);
-    console.log(d2);
-    console.log(ikoCornersX);
-    console.log(ikoCornersY);
-    console.log(ikoCornersZ);
     rSphere = 0.5 * sphereDistance / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
     rHyperbolic2 = d2 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
-    console.log(rHyperbolic, "rhy");
     geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
@@ -273,13 +261,11 @@ function euler() {
 
 var rSphere, rSphere2, rInner, rInner2, rOuter, rOuter2;
 
-//function spheres(){}
-
 function spheres() {
     // iko corners at (0,0,+-1)
     // two layers of equal z
     if (z > 0) {
-        const dz = z - 1;
+        let dz = z - 1;
         const d2 = dz * dz + x * x + y * y;
         if (d2 < rSphere2) {
             const factor = rSphere2 / d2;
@@ -290,8 +276,51 @@ function spheres() {
             change = true;
             return;
         }
+
+        let cz = ikoCornersZ[1];
+        dz = z - cz;
+        let dz2 = dz * dz;
+        if (dz2 < rSphere2) {
+            for (let i = 1; i < 6; i++) {
+                const cx = ikoCornersX[i];
+                const cy = ikoCornersY[i];
+                const dx = x - cx;
+                const dy = y - cy;
+                const d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < rSphere2) {
+                    const factor = rSphere2 / d2;
+                    x = cx + factor * dx;
+                    y = cy + factor * dy;
+                    z = cz + factor * dz;
+                    inversions += 1;
+                    change = true;
+                    return;
+                }
+            }
+        }
+        cz = ikoCornersZ[6];
+        dz = z - cz;
+        dz2 = dz * dz;
+        if (dz2 < rSphere2) {
+            for (let i = 6; i < 11; i++) {
+                const cx = ikoCornersX[i];
+                const cy = ikoCornersY[i];
+                const dx = x - cx;
+                const dy = y - cy;
+                const d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < rSphere2) {
+                    const factor = rSphere2 / d2;
+                    x = cx + factor * dx;
+                    y = cy + factor * dy;
+                    z = cz + factor * dz;
+                    inversions += 1;
+                    change = true;
+                    return;
+                }
+            }
+        }
     } else {
-        const dz = z + 1;
+        let dz = z + 1;
         const d2 = dz * dz + x * x + y * y;
         if (d2 < rSphere2) {
             const factor = rSphere2 / d2;
@@ -302,84 +331,95 @@ function spheres() {
             change = true;
             return;
         }
-    }
-
-    let cz = ikoCornersZ[1];
-    let dz = z - cz;
-    let dz2 = dz * dz;
-    if (dz2 < rSphere2) {
-        for (let i = 1; i < 6; i++) {
-            const cx = ikoCornersX[i];
-            const cy = ikoCornersY[i];
-            const dx = x - cx;
-            const dy = y - cy;
-            const d2 = dz2 + dx * dx + dy * dy;
-            if (d2 < rSphere2) {
-                const factor = rSphere2 / d2;
-                x = cx + factor * dx;
-                y = cy + factor * dy;
-                z = cz + factor * dz;
-                inversions += 1;
-                change = true;
-                return;
+        let cz = ikoCornersZ[6];
+        dz = z - cz;
+        let dz2 = dz * dz;
+        if (dz2 < rSphere2) {
+            for (let i = 6; i < 11; i++) {
+                const cx = ikoCornersX[i];
+                const cy = ikoCornersY[i];
+                const dx = x - cx;
+                const dy = y - cy;
+                const d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < rSphere2) {
+                    const factor = rSphere2 / d2;
+                    x = cx + factor * dx;
+                    y = cy + factor * dy;
+                    z = cz + factor * dz;
+                    inversions += 1;
+                    change = true;
+                    return;
+                }
             }
         }
-    }
-
-
-
-    cz = ikoCornersZ[6];
-    dz = z - cz;
-    dz2 = dz * dz;
-    if (dz2 < rSphere2) {
-        for (let i = 6; i < 11; i++) {
-            const cx = ikoCornersX[i];
-            const cy = ikoCornersY[i];
-            const dx = x - cx;
-            const dy = y - cy;
-            const d2 = dz2 + dx * dx + dy * dy;
-            if (d2 < rSphere2) {
-                const factor = rSphere2 / d2;
-                x = cx + factor * dx;
-                y = cy + factor * dy;
-                z = cz + factor * dz;
-                inversions += 1;
-                change = true;
-                return;
+        cz = ikoCornersZ[1];
+        dz = z - cz;
+        dz2 = dz * dz;
+        if (dz2 < rSphere2) {
+            for (let i = 1; i < 6; i++) {
+                const cx = ikoCornersX[i];
+                const cy = ikoCornersY[i];
+                const dx = x - cx;
+                const dy = y - cy;
+                const d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < rSphere2) {
+                    const factor = rSphere2 / d2;
+                    x = cx + factor * dx;
+                    y = cy + factor * dy;
+                    z = cz + factor * dz;
+                    inversions += 1;
+                    change = true;
+                    return;
+                }
             }
         }
     }
 }
 
-const regionOfSide = [0, 1, 0, 2, 1, 2, 2, 1, 0, 0, 0, 0, 2, 2, 1, 2, 1, 0, 1, 0];
+//const regionOfSide = [0, 1, 0, 2, 1, 2, 2, 1, 0, 0, 0, 0, 2, 2, 1, 2, 1, 0, 1, 0];
+const regionOfSide = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 9, 5, 6, 7, 3, 4, 0, 1, 2];
 
 // sides===dodecagon corners
 function findRegion() {
     region = 0;
     var mind2 = 1e10;
     var side = 0;
-
-    for (var i = 0; i < 20; i += 5) {
-        const cz = dodeCornersZ[i];
-        let dz2 = z - cz;
-        dz2 *= dz2;
-        if (dz2 < mind2) {
-            for (var j = i; j < i + 5; j++) {
-                let dx = x - dodeCornersX[j];
-                let dy = y - dodeCornersY[j];
-                let d2 = dz2 + dx * dx + dy * dy;
-                if (d2 < mind2) {
-                    mind2 = d2;
-                    side = j;
+    if (z > 0) {
+        for (let i = 0; i < 20; i += 5) {
+            const cz = dodeCornersZ[i];
+            let dz2 = z - cz;
+            dz2 *= dz2;
+            if (dz2 < mind2) {
+                for (let j = i; j < i + 5; j++) {
+                    let dx = x - dodeCornersX[j];
+                    let dy = y - dodeCornersY[j];
+                    let d2 = dz2 + dx * dx + dy * dy;
+                    if (d2 < mind2) {
+                        mind2 = d2;
+                        side = j;
+                    }
                 }
-
             }
         }
-
+    } else {
+        for (let i = 15; i >= 0; i -= 5) {
+            const cz = dodeCornersZ[i];
+            let dz2 = z - cz;
+            dz2 *= dz2;
+            if (dz2 < mind2) {
+                for (let j = i; j < i + 5; j++) {
+                    let dx = x - dodeCornersX[j];
+                    let dy = y - dodeCornersY[j];
+                    let d2 = dz2 + dx * dx + dy * dy;
+                    if (d2 < mind2) {
+                        mind2 = d2;
+                        side = j;
+                    }
+                }
+            }
+        }
     }
-
     region = regionOfSide[side];
-
 }
 
 function tetrahedronMapping(point) {
@@ -409,5 +449,4 @@ function tetrahedronMapping(point) {
         point.region = 255;
         point.valid = -1;
     }
-
 }

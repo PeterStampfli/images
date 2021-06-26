@@ -33,12 +33,6 @@ const pi = Math.PI;
 const toDeg = 180 / pi;
 const fromDeg = 1 / toDeg;
 
-const rt32 = Math.sqrt(3) / 2;
-const rt05 = Math.sqrt(0.5);
-const rt03 = Math.sqrt(1 / 3);
-const rt06 = Math.sqrt(1 / 6);
-
-
 const ikoCornersX = [];
 const ikoCornersY = [];
 const ikoCornersZ = [];
@@ -104,7 +98,6 @@ function dodeDistance2(i, x, y, z) {
     return x * x + y * y + z * z;
 }
 
-
 /**
  * determine circle radius for given distance betwween centers
  * radius of other circle and order of dihedral group
@@ -135,17 +128,11 @@ function circleRadius(distance, otherRadius, dihedralOrder) {
 geometry.setup = function() {
     const diAngle = Math.PI / geometry.nDihedral;
     const sphereDistance = Math.sqrt(dodeDistance2(0, dodeCornersX[1], dodeCornersY[1], dodeCornersZ[1]));
-    console.log(sphereDistance);
     const d2 = dodeDistance2(0, 0, 0, 0);
-    console.log(d2);
-    console.log(dodeCornersX);
-    console.log(dodeCornersY);
-    console.log(dodeCornersZ);
     rSphere = 0.5 * sphereDistance / cos(0.5 * diAngle);
     rSphere2 = rSphere * rSphere;
     rHyperbolic2 = d2 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
-    console.log(rHyperbolic, "rhy");
     geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
@@ -249,6 +236,7 @@ function zxPlane() {
         z = -z;
     }
 }
+
 // plane crossection view projection in 3d:
 // plane perpendicular to (1,1,1) direction
 function diagonalPlane() {
@@ -273,28 +261,52 @@ function euler() {
 
 var rSphere, rSphere2, rInner, rInner2, rOuter, rOuter2;
 
-//function spheres(){}
-
 function spheres() {
-    for (var i = 0; i < 20; i += 5) {
-        const cz = dodeCornersZ[i];
-        const dz = z - cz;
-        const dz2 = dz * dz;
-        if (dz2 < rSphere2) {
-            for (var j = i; j < i + 5; j++) {
-                const cx = dodeCornersX[j];
-                const cy = dodeCornersY[j];
-                const dx = x - cx;
-                const dy = y - cy;
-                const d2 = dz2 + dx * dx + dy * dy;
-                if (d2 < rSphere2) {
-                    const factor = rSphere2 / d2;
-                    x = cx + factor * dx;
-                    y = cy + factor * dy;
-                    z = cz + factor * dz;
-                    inversions += 1;
-                    change = true;
-                    return;
+    if (z > 0) {
+        for (let i = 0; i < 20; i += 5) {
+            const cz = dodeCornersZ[i];
+            const dz = z - cz;
+            const dz2 = dz * dz;
+            if (dz2 < rSphere2) {
+                for (let j = i; j < i + 5; j++) {
+                    const cx = dodeCornersX[j];
+                    const cy = dodeCornersY[j];
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const d2 = dz2 + dx * dx + dy * dy;
+                    if (d2 < rSphere2) {
+                        const factor = rSphere2 / d2;
+                        x = cx + factor * dx;
+                        y = cy + factor * dy;
+                        z = cz + factor * dz;
+                        inversions += 1;
+                        change = true;
+                        return;
+                    }
+                }
+            }
+        }
+    } else {
+        for (let i = 15; i >= 0; i -= 5) {
+            const cz = dodeCornersZ[i];
+            const dz = z - cz;
+            const dz2 = dz * dz;
+            if (dz2 < rSphere2) {
+                for (let j = i; j < i + 5; j++) {
+                    const cx = dodeCornersX[j];
+                    const cy = dodeCornersY[j];
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const d2 = dz2 + dx * dx + dy * dy;
+                    if (d2 < rSphere2) {
+                        const factor = rSphere2 / d2;
+                        x = cx + factor * dx;
+                        y = cy + factor * dy;
+                        z = cz + factor * dz;
+                        inversions += 1;
+                        change = true;
+                        return;
+                    }
                 }
             }
         }
@@ -314,41 +326,64 @@ function findRegion() {
         let dz = z - 1;
         mind2 = x * x + y * y + dz * dz;
         side = 0;
+        let dz2 = z - ikoCornersZ[1];
+        dz2 *= dz2;
+        if (dz2 < mind2) {
+            for (let i = 1; i < 6; i++) {
+                let dx = x - ikoCornersX[i];
+                let dy = y - ikoCornersY[i];
+                let d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < mind2) {
+                    mind2 = d2;
+                    side = i;
+                }
+            }
+        }
+        dz2 = z - ikoCornersZ[6];
+        dz2 *= dz2;
+        if (dz2 < mind2) {
+            for (let i = 6; i < 11; i++) {
+                let dx = x - ikoCornersX[i];
+                let dy = y - ikoCornersY[i];
+                let d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < mind2) {
+                    mind2 = d2;
+                    side = i;
+                }
+            }
+        }
     } else {
         let dz = z + 1;
         mind2 = x * x + y * y + dz * dz;
         side = 11;
-
-    }
-    let dz2 = z - ikoCornersZ[1];
-    dz2 *= dz2;
-    if (dz2 < mind2) {
-        for (let i = 1; i < 6; i++) {
-            let dx = x - ikoCornersX[i];
-            let dy = y - ikoCornersY[i];
-            let d2 = dz2 + dx * dx + dy * dy;
-            if (d2 < mind2) {
-                mind2 = d2;
-                side = i;
+        let dz2 = z - ikoCornersZ[6];
+        dz2 *= dz2;
+        if (dz2 < mind2) {
+            for (let i = 6; i < 11; i++) {
+                let dx = x - ikoCornersX[i];
+                let dy = y - ikoCornersY[i];
+                let d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < mind2) {
+                    mind2 = d2;
+                    side = i;
+                }
             }
         }
-    }
-    dz2 = z - ikoCornersZ[6];
-    dz2 *= dz2;
-    if (dz2 < mind2) {
-        for (let i = 6; i < 11; i++) {
-            let dx = x - ikoCornersX[i];
-            let dy = y - ikoCornersY[i];
-            let d2 = dz2 + dx * dx + dy * dy;
-            if (d2 < mind2) {
-                mind2 = d2;
-                side = i;
+        dz2 = z - ikoCornersZ[1];
+        dz2 *= dz2;
+        if (dz2 < mind2) {
+            for (let i = 1; i < 6; i++) {
+                let dx = x - ikoCornersX[i];
+                let dy = y - ikoCornersY[i];
+                let d2 = dz2 + dx * dx + dy * dy;
+                if (d2 < mind2) {
+                    mind2 = d2;
+                    side = i;
+                }
             }
         }
     }
     region = regionOfSide[side];
-
-
 }
 
 function tetrahedronMapping(point) {
@@ -378,5 +413,4 @@ function tetrahedronMapping(point) {
         point.region = 255;
         point.valid = -1;
     }
-
 }
