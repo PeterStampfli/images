@@ -1284,6 +1284,16 @@ map.makeShowingGui = function(parentGui, args = {
             map.drawImageChanged();
         }
     });
+    map.darkController.add({
+        type: 'button',
+        buttonText: 'zero',
+        onClick: function() {
+            map.lightController.setValueOnly(0);
+            map.darkController.setValueOnly(0);
+            map.makeStructureColors();
+            map.drawImageChanged();
+        }
+    });
     map.darkController.addHelp('Sets contrast between odd and even number of iterations. Use zero to get flat color.');
 
     map.borderColorController = gui.add({

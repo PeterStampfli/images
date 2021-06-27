@@ -113,7 +113,6 @@ gui.add({
     }
 });
 
-
 const controllerAlpha = gui.add({
     type: 'number',
     params: geometry,
@@ -171,7 +170,5 @@ map.drawImageChanged = function() {
     map.draw(); // includes methods for drawing tiling or reflections
     output.drawGrid();
 };
-
-
 
 map.drawMapChanged();

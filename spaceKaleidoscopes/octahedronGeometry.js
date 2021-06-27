@@ -297,7 +297,6 @@ function innerSphere() {
     }
 }
 
-
 // the fifth smaller sphere at (0,0,0)
 function outerSphere() {
     const d2 = z * z + x * x + y * y;
@@ -311,20 +310,24 @@ function outerSphere() {
         region = 5;
     }
 }
+
+const regionOfSide=[0,1,2,3,3,2,1,0];
+
 function findRegion() {
-    region = 0;
+    let side = 0;
     if (z > 0) {
-        region = 1 - region;
+        side+=4;
     }
     if (y > 0) {
-        region = 1 - region;
+        side+=2;
     }
     if (x > 0) {
-        region = 1 - region;
+        side+=1;
     }
     if (x*x+y*y+z*z>rHyperbolic2){
-         region = 1 - region;       
+      //   region = 1 - region;       
     }
+    region=regionOfSide[side];
 }
 
 function tetrahedronMapping(point) {
@@ -360,5 +363,4 @@ function tetrahedronMapping(point) {
         point.region = 255;
         point.valid = -1;
     }
-
 }

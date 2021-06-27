@@ -4,6 +4,8 @@ import {
     map,
     log,
     output,
+    ColorInput,
+    Pixels,
     guiUtils
 } from "../libgui/modules.js";
 
@@ -12,7 +14,7 @@ import {
  */
 export const geometry = {};
 rHyperbolic = Math.sqrt(1 / 3);
-geometry.rHyperbolic=rHyperbolic;
+geometry.rHyperbolic = rHyperbolic;
 
 geometry.r = rHyperbolic;
 geometry.offset = 0;
@@ -20,6 +22,7 @@ geometry.flipZ = false;
 geometry.view = 'normal';
 geometry.nDihedral = 100;
 geometry.mirror5 = false;
+geometry.surfaceWidth = 0.1;
 
 // Euler rotation angles
 geometry.alpha = 0;
@@ -71,7 +74,7 @@ geometry.setup = function() {
     rInner2 = rInner * rInner;
     rHyperbolic2 = 1 - rSphere2;
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
-geometry.rHyperbolic=rHyperbolic;
+    geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
     const c1 = cos(fromDeg * geometry.alpha);
     cosAlpha = c1;
@@ -105,11 +108,9 @@ geometry.rHyperbolic=rHyperbolic;
         case 'zx-plane':
             view = zxPlane;
             break;
-
     }
     map.mapping = tetrahedronMapping;
 };
-
 
 // mappings
 var x, y, z;
@@ -147,18 +148,18 @@ function stereographic() {
     x *= factor;
     y *= factor;
     z = -rView * (1 - factor);
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // plane crossection view projection in 3d:
 // xy plane at z=offset
 function xyPlane() {
     z = geometry.offset;
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // plane crossection view projection in 3d:
@@ -167,9 +168,9 @@ function zxPlane() {
     z = -y;
     y = cosAlpha * geometry.offset + sinAlpha * x;
     x = cosAlpha * x - sinAlpha * geometry.offset;
-        if (geometry.flipZ) {
-            z = -z;
-        }
+    if (geometry.flipZ) {
+        z = -z;
+    }
 }
 
 // euler rotations
@@ -190,6 +191,11 @@ const cx34 = -0.4714;
 const cy3 = 0.8165;
 const cy4 = -0.8165;
 const cz234 = -0.3333;
+
+// centers of the spheres
+const centersX = [0, cx2, cx34, cx34];
+const centersY = [0, 0, cy3, cy4];
+const centersZ = [1, cz234, cz234, cz234];
 
 // sphere at (0,0,1)
 function sphere1() {
@@ -328,24 +334,87 @@ function tetrahedronMapping(point) {
             ite += 1;
         }
         while (change && (ite < maxIterations));
-       findRegion();
-    point.x = x;
-    point.y = y;
-    point.iterations = inversions;
-    point.valid = valid;
-      point.region=region;
-             map.activeRegions[region] = true;
-                 } else {
-        point.region=255;
-        point.valid=-1;
+        findRegion();
+        point.x = x;
+        point.y = y;
+        point.iterations = inversions;
+        point.valid = valid;
+        point.region = region;
+        map.activeRegions[region] = true;
+    } else {
+        point.region = 255;
+        point.valid = -1;
     }
-
 }
 
-/*
-x = 0;
-y = -100;
-z = 1;
-findRegion();
-console.log(x, y, z, region);
-*/
+// showing the surface width
+geometry.drawSpheresSurface = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.borderColorController.show();
+    map.surfaceWidthController.show();
+    const bordercolor = {};
+    ColorInput.setObject(bordercolor, map.borderColor);
+    const borderColorInt = Pixels.integerOfColor(bordercolor);
+    const pixelsArray = output.pixels.array;
+    const rSpherePlus2 = (rSphere + geometry.surfaceWidth) * (rSphere + geometry.surfaceWidth);
+    const rSphereMinus2 = (rSphere - geometry.surfaceWidth) * (rSphere - geometry.surfaceWidth);
+    const rInnerPlus2 = (rInner + geometry.surfaceWidth) * (rInner + geometry.surfaceWidth);
+    const rInnerMinus2 = (rInner - geometry.surfaceWidth) * (rInner - geometry.surfaceWidth);
+    let scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
+    const centersLength = centersX.length;
+    let index = 0;
+    let offset = 0;
+    switch (output.pixels.antialiasType) {
+        case 'none':
+            break;
+        case '2*2 subpixels':
+            offset = -2 * scale;
+            break;
+        case '3*3 subpixels':
+            offset = -2.5 * scale;
+            break;
+    }
+    shiftY += offset;
+    shiftX += offset;
+    let yBase = shiftY;
+    for (var j = 0; j < map.height; j++) {
+        let xBase = shiftX;
+        for (var i = 0; i < map.width; i++) {
+            x = xBase;
+            y = yBase;
+            valid = 1;
+            let color = 0;
+            view();
+            if (valid > 0) {
+                for (let k = 0; k < centersLength; k++) {
+                    const dx = x - centersX[k];
+                    const dy = y - centersY[k];
+                    const dz = z - centersZ[k];
+                    const d2 = dx * dx + dy * dy + dz * dz;
+                    if ((d2 > rSphereMinus2) && (d2 < rSpherePlus2)) {
+                        color = borderColorInt;
+                        break;
+                    }
+                }
+                if (geometry.mirror5) {
+                    const d2 = x * x + y * y + z * z;
+                    if ((d2 > rInnerMinus2) && (d2 < rInnerPlus2)) {
+                        color = borderColorInt;
+                    }
+                }
+            }
+            pixelsArray[index] = color;
+            index += 1;
+            xBase += scale;
+        }
+        yBase += scale;
+    }
+    output.pixels.show();
+};

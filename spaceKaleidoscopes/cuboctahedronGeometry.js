@@ -252,11 +252,16 @@ function innerSphere() {
     }
 }
 
+const regionOfSide = [0, 1, 2, 3, 4, 5, 6];
+
 function findRegion() {
-    region = 0;
-    let ax = Math.abs(x);
-    let ay = Math.abs(y);
-    let az = Math.abs(z);
+    let side = 0;
+    const aax = Math.abs(x);
+    const aay = Math.abs(y);
+    const aaz = Math.abs(z);
+    let ax = aax;
+    let ay = aay;
+    let az = aaz;
     if (ax < ay) {
         const h = ax;
         ax = ay;
@@ -268,8 +273,35 @@ function findRegion() {
         az = h;
     }
     if (ax - ay - az > 0) {
-        region = 1;
+        // square sides
+        if (aax > aay) {
+            if (aax > aaz) {
+                side = 4; // ax> max(ay,az)
+            } else {
+                side = 6; // az>ax>ay
+            }
+        } else {
+            if (aaz > aay) {
+                side = 6; // az>ay>ax
+            } else {
+                side = 5; // ay>max(az,ax)
+            }
+        }
+
     }
+    else {
+        // octagon sides
+         if (y > 0) {
+        side+=2;
+    }
+    if (x > 0) {
+        side+=1;
+    }   
+       if (z > 0) {
+        side=3-side;
+    }
+    }
+    region = regionOfSide[side];
 }
 
 function tetrahedronMapping(point) {
@@ -299,5 +331,4 @@ function tetrahedronMapping(point) {
         point.region = 255;
         point.valid = -1;
     }
-
 }
