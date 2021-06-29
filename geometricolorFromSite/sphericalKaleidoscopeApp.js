@@ -198,21 +198,6 @@ function creation() {
  */
 Make.getMapOutputRange = function() {
     Make.map.getOutputRange(Make.lowerLeft, Make.upperRight);
-    /*
-    if (basicKaleidoscope.geometry === basicKaleidoscope.hyperbolic) {
-        console.log('hyperbolic');
-        console.log('sampled range min', Make.lowerLeft.x, Make.lowerLeft.y);
-        console.log('sampled range max', Make.upperRight.x, Make.upperRight.y);
-        console.log('calc max', basicKaleidoscope.xMax, basicKaleidoscope.yMax);
-    } else if (basicKaleidoscope.geometry === basicKaleidoscope.elliptic) {
-        console.log('elliptic');
-        console.log('sampled range min', Make.lowerLeft.x, Make.lowerLeft.y);
-        console.log('sampled range max', Make.upperRight.x, Make.upperRight.y);
-        console.log('calc max', basicKaleidoscope.xMax, basicKaleidoscope.yMax);
-    } else if (basicKaleidoscope.geometry === basicKaleidoscope.euclidic) {
-        console.log('euklidic');
-    }
-    */
 };
 
 // saving the map structure

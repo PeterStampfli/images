@@ -40,12 +40,12 @@ map.makeShowingGui(gui, {
     closed: false
 });
 
-map.surfaceWidthController=map.gui.add({
- type:'number',
- params:geometry,
- property:'surfaceWidth',
- min:0,
-     onChange: function() {
+map.surfaceWidthController = map.gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'surfaceWidth',
+    min: 0,
+    onChange: function() {
         map.drawImageChanged();
     }
 });
@@ -57,12 +57,12 @@ map.allImageControllersHide = function() {
     map.inputTransform.hide();
     map.imageController.hide();
     map.borderColorController.hide();
-        map.lightController.hide();
-        map.darkController.hide();
-        map.thresholdController.hide();
-        map.gammaController.hide();
-        map.divergenceThresholdController.hide();
-        map.divergenceSaturationController.hide();
+    map.lightController.hide();
+    map.darkController.hide();
+    map.thresholdController.hide();
+    map.gammaController.hide();
+    map.divergenceThresholdController.hide();
+    map.divergenceSaturationController.hide();
     map.surfaceWidthController.hide();
 };
 
@@ -75,7 +75,7 @@ map.addDrawIterations();
 map.addDrawDivergence();
 map.addDrawLimitset();
 map.addDrawIterationZero();
-    map.whatToShowController.addOption('spheres surface', geometry.drawSpheresSurface);
+map.whatToShowController.addOption('spheres surface', geometry.drawSpheresSurface);
 
 //map.lightController.destroy();
 map.linewidthController.destroy();

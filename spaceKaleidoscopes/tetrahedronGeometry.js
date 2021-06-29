@@ -22,7 +22,7 @@ geometry.flipZ = false;
 geometry.view = 'normal';
 geometry.nDihedral = 100;
 geometry.mirror5 = false;
-geometry.surfaceWidth = 0.1;
+geometry.surfaceWidth = 0.01;
 
 // Euler rotation angles
 geometry.alpha = 0;

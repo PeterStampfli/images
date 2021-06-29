@@ -266,8 +266,6 @@ function OutputImage(idName) {
      * @param {float} xMax - highest value for x-coordinate
      */
     OutputImage.prototype.setCoordinates = function(xMin, yMin, xMax) {
-        console.log("setcoordinates");
-        //  a=b;
         this.cornerX = xMin;
         this.cornerY = yMin;
         if (this.pixelCanvas.width > 1) {

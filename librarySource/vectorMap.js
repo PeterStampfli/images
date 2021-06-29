@@ -199,7 +199,6 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         this.iterationsColors = colors;
     };
 
-
     // histogram of iterations and cumulated histogram
     let iterationsHistogram = new Array(256);
 
@@ -474,7 +473,7 @@ function VectorMap(outputImage, inputTransform, inputImage, controlImage) {
         let structureColorCollection = this.structureColorCollection;
         const length = lyapunovArray.length;
         for (var index = 0; index < length; index++) {
-            if ((lyapunovArray[index] >= -0.001)) {
+            if ((lyapunovArray[index] >= -0.001)&&this.drawSector[colorSectorArray[index]]) {
                 pixel[index] = structureColorCollection[colorSectorArray[index]][reflectionsArray[index]];
             } else {
                 pixel[index] = intColorOff;

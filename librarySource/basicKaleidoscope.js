@@ -97,7 +97,6 @@ basicKaleidoscope.hasLens = false;
         basicKaleidoscope.circle.scale(factor);
         basicKaleidoscope.xMax *= factor;
         basicKaleidoscope.yMax *= factor;
-        console.log('worldradius old,new,scale', basicKaleidoscope.worldRadius, newRadius, factor);
         Fast.scale(basicKaleidoscope.circles, factor);
         basicKaleidoscope.calculateWorldRadius();
     };

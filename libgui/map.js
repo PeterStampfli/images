@@ -392,6 +392,7 @@ map.draw = map.callDrawStructure;
 map.showRegion = [];
 map.showRegion.length = 256;
 map.showRegion.fill(true);
+map.showRegion[255] = false;
 
 // know, which regions are relevant, boolean, true if there is some pixel inside
 // do not renumber regions (we might look at a small part of the image, such as part of the Poincare disc)
@@ -620,7 +621,8 @@ map.drawStructure = function() {
     const iterationsArray = map.iterationsArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
-        const region = regionArray[index];
+        let region = regionArray[index];
+        //  region=0;
         if (showRegion[region] && (sizeArray[index] >= 0)) {
             // colors for the target region
             const colors = structureColors[region];
@@ -945,10 +947,10 @@ map.sizeArrayUpdate = function() {
         const xArray = map.xArray;
         const yArray = map.yArray;
         const sizeArray = map.sizeArray;
-        var xPlusX, x, yPlusX, y;
+        var xPlusX, x, yPlusX, y, sizePlusX, size;
         var index;
         var ax, ay, bx, by;
-        var size;
+        var newSize;
         // use rhomb defined by mapped vectors
         // from point(i,j) to point(i+1,j)
         // from point(i,j) to point(i,j+1)
@@ -958,13 +960,16 @@ map.sizeArrayUpdate = function() {
             index = j * map.width;
             xPlusX = xArray[index];
             yPlusX = yArray[index];
+            sizePlusX = sizeArray[index];
             for (var i = 0; i < widthM; i++) {
                 x = xPlusX;
                 xPlusX = xArray[index + 1];
                 y = yPlusX;
                 yPlusX = yArray[index + 1];
-                // if size <0 then it is an invalid point, do not change that
-                if (sizeArray[index] > 0) {
+                size = sizePlusX;
+                sizePlusX = sizeArray[index + 1];
+                // if size <0 then it is an invalid point, do not change/use that
+                if ((size > 0) && (sizePlusX > 0) && (sizeArray[index + width] > 0)) {
                     // the first side
                     ax = xPlusX - x;
                     ay = yPlusX - y;
@@ -973,22 +978,25 @@ map.sizeArrayUpdate = function() {
                     by = yArray[index + width] - y;
                     // surface results from absolute value of the cross product
                     // the size is its square root
-                    size = Math.sqrt(Math.abs(ax * by - ay * bx));
-                    map.maxSize = Math.max(map.maxSize, size);
-                    sizeArray[index] = size;
+                    newSize = Math.sqrt(Math.abs(ax * by - ay * bx));
+                    map.maxSize = Math.max(map.maxSize, newSize);
+                    sizeArray[index] = newSize;
+                } else {
+                    newSize=-1;
                 }
                 index++;
             }
-            // the last pixel i=map.width-1 in a row copies the value before
-            sizeArray[index] = size;
+            // the last pixel i=map.width-1 in a row copies the value before, if valid
+            if (sizeArray[index > 0]) {
+                sizeArray[index] = newSize;
+            }
         }
         // the top row at j=height-1 copies the lower row
         let indexMax = width * map.height;
         for (index = indexMax - width; index < indexMax; index++) {
-            sizeArray[index] = sizeArray[index - width];
-        }
-        for (index = 0; index < width; index++) {
-            sizeArray[index] = sizeArray[index + width];
+            if (sizeArray[index > 0]) {
+                sizeArray[index] = sizeArray[index - width];
+            }
         }
     }
 };
@@ -1562,7 +1570,7 @@ map.addDrawDivergence = function() {
         min: 0,
         max: 1,
         onChange: function() {
-            map.drawMapChanged();
+            map.drawImageChanged();
         }
     });
     map.divergenceSaturationController = map.divergenceThresholdController.add({
@@ -1573,7 +1581,7 @@ map.addDrawDivergence = function() {
         min: 0,
         max: 1,
         onChange: function() {
-            map.drawMapChanged();
+            map.drawImageChanged();
         }
     });
 };

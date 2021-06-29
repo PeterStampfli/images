@@ -315,7 +315,6 @@ basicUI = {};
         };
 
         basicUI.showSelectAddTwoColorStructure = function() {
-            console.log("add2colstructure");
             basicUI.showSelect.addOption("two color structure",
                 function() {
                     DOM.displayNone("imageControlDiv");
@@ -332,7 +331,6 @@ basicUI = {};
         };
 
         basicUI.showSelectAddImageSector0 = function() {
-            console.log("image sector2");
             basicUI.showSelect.addOption("image sector 0",
                 function() {
                     DOM.display("imageControlDiv");
