@@ -33,19 +33,45 @@ output.grid.interval = 0.1;
 output.addGrid();
 output.addCursorposition();
 
-    // for transparent basic tetrahedron
-       map.iterationsColorZero=0;
+// for transparent basic tetrahedron
+map.iterationsColorZero = 0;
 // options of what to show
 map.makeShowingGui(gui, {
     closed: false
 });
+
+map.surfaceWidthController = map.gui.add({
+    type: 'number',
+    params: geometry,
+    property: 'surfaceWidth',
+    min: 0,
+    onChange: function() {
+        map.drawImageChanged();
+    }
+});
+
+// hide all image controllers
+map.allImageControllersHide = function() {
+    map.controlDiv.style.display = 'none';
+    map.inputTransform.hide();
+    map.imageController.hide();
+    map.borderColorController.hide();
+    map.lightController.hide();
+    map.darkController.hide();
+    map.thresholdController.hide();
+    map.gammaController.hide();
+  //  map.divergenceThresholdController.hide();
+  //  map.divergenceSaturationController.hide();
+    map.surfaceWidthController.hide();
+};
 map.makeRegionsGui(gui, {
     closed: false
 });
 
 map.addDrawIterations();
 map.addDrawLimitset();
-map.addDrawIterationZero(); 
+map.addDrawIterationZero();
+map.whatToShowController.addOption('spheres surface', geometry.drawSpheresSurface);
 //map.lightController.destroy();
 map.linewidthController.destroy();
 map.trajectoryOnOffController.destroy();

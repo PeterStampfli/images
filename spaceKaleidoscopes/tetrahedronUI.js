@@ -50,7 +50,6 @@ map.surfaceWidthController = map.gui.add({
     }
 });
 
-
 // hide all image controllers
 map.allImageControllersHide = function() {
     map.controlDiv.style.display = 'none';
@@ -65,7 +64,6 @@ map.allImageControllersHide = function() {
     map.divergenceSaturationController.hide();
     map.surfaceWidthController.hide();
 };
-
 
 map.makeRegionsGui(gui, {
     closed: false
@@ -85,7 +83,6 @@ map.trajectoryColorController.destroy();
 map.imageController.addDragAndDropWindow();
 // link the output drawing routines to the map routines
 map.setOutputDraw();
-
 
 gui.add({
     type: 'number',
