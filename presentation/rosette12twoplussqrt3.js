@@ -33,6 +33,7 @@ rosette.itemax = 10;
 
 rosette.tileColor = '#000000';
 rosette.tileWidth = 4;
+rosette.substitution = true;
 
 const colorController = {
     type: 'color',
@@ -91,6 +92,15 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'boolean',
+    params: rosette,
+    property: 'substitution',
+    onChange: function() {
+        draw();
+    }
+});
+
 // corners-coordinates
 const px = [];
 const py = [];
@@ -122,12 +132,11 @@ function twoSqrt3() {
 
 // different tilings
 function mirrors() {
-
     const angle = 2 * Math.PI / rosette.n;
     const i = 5;
     const x = px[i];
     const y = py[i];
-    const side = 2+Math.sqrt(3);
+    const side = 2 + Math.sqrt(3);
     const rt3 = Math.sqrt(3);
     output.makePath(-side / 2, side / 2, -side / 2, 0);
     canvasContext.stroke();
@@ -267,8 +276,7 @@ function draw() {
 
     canvasContext.strokeStyle = '#ffffff';
 
-    output.setLineWidth( rosette.lineWidth);
-    mirrors();
+    output.setLineWidth(rosette.lineWidth);
     canvasContext.strokeStyle = '#000000';
     output.setLineWidth(rosette.lineWidth);
     const dash = rosette.lineWidth * output.coordinateTransform.totalScale;
@@ -276,10 +284,12 @@ function draw() {
 
     canvasContext.setLineDash([0.5 * dash, 2 * dash]);
     output.setLineWidth(rosette.lineWidth);
-    mirrors();
+    if (rosette.substitution) {
+        mirrors();
+    }
     canvasContext.setLineDash([]);
-     canvasContext.strokeStyle = rosette.lineColor;
-   for (let i = 0; i <= n; i++) {
+    canvasContext.strokeStyle = rosette.lineColor;
+    for (let i = 0; i <= n; i++) {
         x[i] = Math.cos(angle * i);
         y[i] = Math.sin(angle * i);
         output.makePath(0, 0, x[i], y[i]);
@@ -307,10 +317,6 @@ function draw() {
             canvasContext.stroke();
         }
     }
-
-
-
-
     triangles();
     //      squares();
     canvasContext.strokeStyle = "#cccccc";
@@ -319,9 +325,11 @@ function draw() {
 
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.tileColor;
-    twoSqrt3();
-     // oneSqrt3();
-   //   extra();
+    if (rosette.substitution) {
+        twoSqrt3();
+    }
+    // oneSqrt3();
+    //   extra();
 
     output.drawGrid();
 }
