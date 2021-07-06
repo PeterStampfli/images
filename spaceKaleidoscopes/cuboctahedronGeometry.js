@@ -4,6 +4,8 @@ import {
     map,
     log,
     output,
+    ColorInput,
+    Pixels,
     guiUtils
 } from "../libgui/modules.js";
 
@@ -20,6 +22,7 @@ geometry.flipZ = false;
 geometry.view = 'normal';
 geometry.nDihedral = 100;
 geometry.mirror5 = false;
+geometry.surfaceWidth = 0.003;
 
 // Euler rotation angles
 geometry.alpha = 0;
@@ -287,7 +290,6 @@ function findRegion() {
                 side = 5; // ay>max(az,ax)
             }
         }
-
     }
     else {
         // octagon sides
@@ -332,3 +334,72 @@ function tetrahedronMapping(point) {
         point.valid = -1;
     }
 }
+const centersX = [1, -1, 0, 0, 0, 0];
+const centersY = [0, 0, 1, -1, 0, 0];
+const centersZ = [0, 0, 0, 0, 1, -1];
+
+
+
+// showing the surface width
+geometry.drawSpheresSurface = function() {
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.borderColorController.show();
+    map.surfaceWidthController.show();
+    const bordercolor = {};
+    ColorInput.setObject(bordercolor, map.borderColor);
+    const borderColorInt = Pixels.integerOfColor(bordercolor);
+    const pixelsArray = output.pixels.array;
+    const rSpherePlus2 = (rSphere + geometry.surfaceWidth) * (rSphere + geometry.surfaceWidth);
+    const rSphereMinus2 = (rSphere - geometry.surfaceWidth) * (rSphere - geometry.surfaceWidth);
+    let scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
+    const centersLength = centersX.length;
+    let index = 0;
+    let offset = 0;
+    switch (output.pixels.antialiasType) {
+        case 'none':
+            break;
+        case '2*2 subpixels':
+            offset = -2 * scale;
+            break;
+        case '3*3 subpixels':
+            offset = -2.5 * scale;
+            break;
+    }
+    shiftY += offset;
+    shiftX += offset;
+    let yBase = shiftY;
+    for (var j = 0; j < map.height; j++) {
+        let xBase = shiftX;
+        for (var i = 0; i < map.width; i++) {
+            x = xBase;
+            y = yBase;
+            valid = 1;
+            let color = 0;
+            view();
+            if (valid > 0) {
+                for (let k = 0; k < centersLength; k++) {
+                    const dx = x - centersX[k];
+                    const dy = y - centersY[k];
+                    const dz = z - centersZ[k];
+                    const d2 = dx * dx + dy * dy + dz * dz;
+                    if ((d2 > rSphereMinus2) && (d2 < rSpherePlus2)) {
+                        color = borderColorInt;
+                        break;
+                    }
+                }
+            }
+            pixelsArray[index] = color;
+            index += 1;
+            xBase += scale;
+        }
+        yBase += scale;
+    }
+    output.pixels.show();
+};

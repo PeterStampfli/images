@@ -4,9 +4,9 @@ import {
     map,
     log,
     output,
-     ColorInput,
+    ColorInput,
     Pixels,
-       guiUtils
+    guiUtils
 } from "../libgui/modules.js";
 
 /**
@@ -77,7 +77,7 @@ geometry.setup = function() {
     rOuter = circleRadius(1, -rSphere, geometry.nDihedral);
     rOuter2 = rOuter * rOuter;
     rHyperbolic2 = 1 - rSphere2;
-    console.log(rSphere,rInner,rOuter);
+    console.log(rSphere, rInner, rOuter);
     rHyperbolic = Math.sqrt(Math.abs(rHyperbolic2));
     geometry.rHyperbolic = rHyperbolic;
     // prepare transformation from Euler angles
@@ -204,10 +204,10 @@ function euler() {
     y = newY;
 }
 
-var rSphere, rSphere2, rInner, rInner2,rOuter,rOuter2;
-const centersX=[1,-1,0,0,0,0];
-const centersY=[0,0,1,-1,0,0];
-const centersZ=[0,0,0,0,1,-1];
+var rSphere, rSphere2, rInner, rInner2, rOuter, rOuter2;
+const centersX = [1, -1, 0, 0, 0, 0];
+const centersY = [0, 0, 1, -1, 0, 0];
+const centersZ = [0, 0, 0, 0, 1, -1];
 
 // sphere at (0,0,+-1)
 function oct1() {
@@ -317,23 +317,23 @@ function outerSphere() {
     }
 }
 
-const regionOfSide=[0,1,2,3,3,2,1,0];
+const regionOfSide = [0, 1, 2, 3, 3, 2, 1, 0];
 
 function findRegion() {
     let side = 0;
     if (z > 0) {
-        side+=4;
+        side += 4;
     }
     if (y > 0) {
-        side+=2;
+        side += 2;
     }
     if (x > 0) {
-        side+=1;
+        side += 1;
     }
-    if (x*x+y*y+z*z>rHyperbolic2){
-      //   region = 1 - region;       
+    if (x * x + y * y + z * z > rHyperbolic2) {
+        //   region = 1 - region;       
     }
-    region=regionOfSide[side];
+    region = regionOfSide[side];
 }
 
 function tetrahedronMapping(point) {
@@ -389,6 +389,8 @@ geometry.drawSpheresSurface = function() {
     const rSphereMinus2 = (rSphere - geometry.surfaceWidth) * (rSphere - geometry.surfaceWidth);
     const rInnerPlus2 = (rInner + geometry.surfaceWidth) * (rInner + geometry.surfaceWidth);
     const rInnerMinus2 = (rInner - geometry.surfaceWidth) * (rInner - geometry.surfaceWidth);
+    const rOuterPlus2 = (rOuter + geometry.surfaceWidth) * (rOuter + geometry.surfaceWidth);
+    const rOuterMinus2 = (rOuter - geometry.surfaceWidth) * (rOuter - geometry.surfaceWidth);
     let scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
@@ -430,6 +432,9 @@ geometry.drawSpheresSurface = function() {
                 if (geometry.mirror5) {
                     const d2 = x * x + y * y + z * z;
                     if ((d2 > rInnerMinus2) && (d2 < rInnerPlus2)) {
+                        color = borderColorInt;
+                    }
+                    if ((d2 > rOuterMinus2) && (d2 < rOuterPlus2)) {
                         color = borderColorInt;
                     }
                 }
