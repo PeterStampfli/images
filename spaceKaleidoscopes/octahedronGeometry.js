@@ -317,7 +317,7 @@ function outerSphere() {
     }
 }
 
-const regionOfSide = [0, 1, 2, 3, 3, 2, 1, 0];
+const regionOfSide = [0, 1, 2, 3, 3, 2, 1, 0,4,5,6,7,7,6,5,4];
 
 function findRegion() {
     let side = 0;
@@ -331,7 +331,7 @@ function findRegion() {
         side += 1;
     }
     if (x * x + y * y + z * z > rHyperbolic2) {
-        //   region = 1 - region;       
+        side+=8;       
     }
     region = regionOfSide[side];
 }

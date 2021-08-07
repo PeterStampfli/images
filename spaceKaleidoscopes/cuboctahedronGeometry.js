@@ -334,9 +334,9 @@ function tetrahedronMapping(point) {
         point.valid = -1;
     }
 }
-const centersX = [1, -1, 0, 0, 0, 0];
-const centersY = [0, 0, 1, -1, 0, 0];
-const centersZ = [0, 0, 0, 0, 1, -1];
+const centersX = [1, -1, 0, 0, 0, 0,1,-1,1,-1,1,-1,1,-1];
+const centersY = [0, 0, 1, -1, 0, 0,1,1,-1,-1,1,1,-1,-1];
+const centersZ = [0, 0, 0, 0, 1, -1,1,1,1,1,-1,-1,-1,-1];
 
 
 

@@ -20,7 +20,7 @@ const canvasContext = canvas.getContext('2d');
 output.addCoordinateTransform();
 output.addCursorposition();
 output.setInitialCoordinates(0, 0, 10);
-output.addGrid();
+output.addGrid()
 
 // parameters for drawing
 const rosette = {};
@@ -115,48 +115,48 @@ function twoSqrt3() {
     canvasContext.stroke();
     output.makePath(0, 0, side * Math.cos(angle), side * Math.sin(angle), side * Math.cos(3 * angle), side * Math.sin(3 * angle), 0, 0);
     canvasContext.stroke();
-    output.makePath(0, 0, 0, side, -side, side, -side, 0, 0, 0);
+    output.makePath(0, 0, 0, side , -side , side , -side , 0, 0, 0);
     canvasContext.stroke();
 }
 
 
 // different tilings
 function mirrors() {
-
-    const angle = 2 * Math.PI / rosette.n;
+    
+        const angle = 2 * Math.PI / rosette.n;
     const i = 5;
     const x = px[i];
     const y = py[i];
     const side = Math.hypot(x[0], y[0]);
-    const rt3 = Math.sqrt(3);
-    output.makePath(-side / 2, side / 2, -side / 2, 0);
+const rt3=Math.sqrt(3);
+    output.makePath(-side/2,side/2,-side/2, 0);
     canvasContext.stroke();
-    output.makePath(-side / 2, side / 2, -side / 2, side);
+    output.makePath(-side/2,side/2,-side/2, side);
     canvasContext.stroke();
-    output.makePath(-side / 2, side / 2, 0, side / 2);
+    output.makePath(-side/2,side/2,0, side/2);
     canvasContext.stroke();
-    output.makePath(-side / 2, side / 2, -side, side / 2);
+   output.makePath(-side/2,side/2,-side, side/2);
     canvasContext.stroke();
     // the triangle
-    /*  output.makePath(side/2/rt3,side/2,0,0);
+ /*  output.makePath(side/2/rt3,side/2,0,0);
     canvasContext.stroke();
    output.makePath(side/2/rt3,side/2,0,side);
     canvasContext.stroke();
    output.makePath(side/2/rt3,side/2,side/2*rt3,side/2);
     canvasContext.stroke();
 */
-    output.makePath(side / 2 / rt3, side / 2, 0, side / 2);
+   output.makePath(side/2/rt3,side/2,0,side/2);
     canvasContext.stroke();
-    output.makePath(side / 2 / rt3, side / 2, side / 4 * rt3, side / 4);
+   output.makePath(side/2/rt3,side/2,side/4*rt3,side/4);
     canvasContext.stroke();
-    output.makePath(side / 2 / rt3, side / 2, side / 4 * rt3, 3 * side / 4);
+   output.makePath(side/2/rt3,side/2,side/4*rt3,3*side/4);
     canvasContext.stroke();
-
+    
     // the rhomb
-    output.makePath(side, 0, side * Math.cos(angle), side * Math.sin(angle));
+    output.makePath(side,0, side * Math.cos(angle), side * Math.sin(angle));
     canvasContext.stroke();
 
-    canvasContext.setLineDash([0, 0]);
+        canvasContext.setLineDash([0,0]);
 }
 
 function oneSqrt3() {
@@ -179,32 +179,48 @@ function extra() {
     const x = px[i];
     const y = py[i];
     const side = Math.hypot(x[0], y[0]);
-    /*           output.canvasContext.strokeStyle="#cccccc";
-        output.setLineWidth(0.4*rosette.tileWidth);
-        output.makePath( -side/2 , 0 , -side/2 , -side);
-        canvasContext.stroke();
-            output.makePath( -side ,  -side/2 , 0,-side/2);
-        canvasContext.stroke();
-            output.makePath( side/2/Math.sqrt(3),-side/2,0,0);
-        canvasContext.stroke();
-                output.makePath(0,-side, side/2/Math.sqrt(3),-side/2,side*Math.sqrt(3)/2,-side/2);
-        canvasContext.stroke();
-     output.makePath(side, 0,  side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
-        canvasContext.stroke();
-        */
+/*           output.canvasContext.strokeStyle="#cccccc";
+    output.setLineWidth(0.4*rosette.tileWidth);
+    output.makePath( -side/2 , 0 , -side/2 , -side);
+    canvasContext.stroke();
+        output.makePath( -side ,  -side/2 , 0,-side/2);
+    canvasContext.stroke();
+        output.makePath( side/2/Math.sqrt(3),-side/2,0,0);
+    canvasContext.stroke();
+            output.makePath(0,-side, side/2/Math.sqrt(3),-side/2,side*Math.sqrt(3)/2,-side/2);
+    canvasContext.stroke();
+ output.makePath(side, 0,  side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
+    canvasContext.stroke();
+    */
+       output.canvasContext.strokeStyle="#000000";
     output.setLineWidth(rosette.tileWidth);
 
     output.makePath(0, 0, side, 0, side * (1 + Math.cos(angle)), -side * Math.sin(angle), side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
     canvasContext.stroke();
     output.makePath(0, 0, side * Math.cos(angle), -side * Math.sin(angle), side * Math.cos(3 * angle), -side * Math.sin(3 * angle), 0, 0);
     canvasContext.stroke();
-    output.makePath(0, 0, 0, -side, -side, -side, -side, 0, 0, 0);
+    output.makePath(0, 0, 0, -side , -side , -side , -side , 0, 0, 0);
     canvasContext.stroke();
- 
+    /*
+       const dash=rosette.tileWidth*output.coordinateTransform.totalScale;
 
+    canvasContext.setLineDash([0.5*dash,2*dash]);
+    output.setLineWidth(0.7*rosette.tileWidth);
+    output.makePath( -side/2 , 0 , -side/2 , -side);
+    canvasContext.stroke();
+        output.makePath( -side ,  -side/2 , 0,-side/2);
+    canvasContext.stroke();
+        output.makePath( side/2/Math.sqrt(3),-side/2,0,0);
+    canvasContext.stroke();
+            output.makePath(0,-side, side/2/Math.sqrt(3),-side/2,side*Math.sqrt(3)/2,-side/2);
+    canvasContext.stroke();
+ output.makePath(side, 0,  side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
+    canvasContext.stroke();
+*/
 }
 
 function triangles() {
+    canvasContext.strokeStyle = 'blue';
     for (let i = 0; i < 12; i++) {
         output.makePath(px[2][i], py[2][i], px[2][i + 1], py[2][i + 1]);
         canvasContext.stroke();
@@ -231,51 +247,15 @@ function squares() {
 }
 
 function draw() {
-//    output.correctYAxis();
+    output.correctYAxis();
     output.lineRound();
     output.fillCanvasBackgroundColor();
     output.setLineWidth(rosette.lineWidth);
-    const angle = 2 * Math.PI / rosette.n;
-    const n = rosette.n;
-
-    canvasContext.strokeStyle = '#ffffff';
-    
-const side=1+Math.sqrt(3);
-/*
-    output.setLineWidth(rosette.lineWidth);
-    output.makePath(-side / 2, 0, -side / 2, -side);
-    canvasContext.stroke();
-    output.makePath(-side, -side / 2, 0, -side / 2);
-    canvasContext.stroke();
-    output.makePath(side / 2 / Math.sqrt(3), -side / 2, 0, 0);
-    canvasContext.stroke();
-    output.makePath(0, -side, side / 2 / Math.sqrt(3), -side / 2, side * Math.sqrt(3) / 2, -side / 2);
-    canvasContext.stroke();
-    output.makePath(side, 0, side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
-    canvasContext.stroke();
-    */
-       const dash = rosette.lineWidth * output.coordinateTransform.totalScale;
-
-    canvasContext.strokeStyle = rosette.tileColor;
-    canvasContext.strokeStyle = rosette.tileColor;
-
-    canvasContext.setLineDash([0.5 * dash, 2 * dash]);
-    output.setLineWidth(rosette.lineWidth);
-    output.makePath(-side / 2, 0, -side / 2, -side);
-    canvasContext.stroke();
-    output.makePath(-side, -side / 2, 0, -side / 2);
-    canvasContext.stroke();
-    output.makePath(side / 2 / Math.sqrt(3), -side / 2, 0, 0);
-    canvasContext.stroke();
-    output.makePath(0, -side, side / 2 / Math.sqrt(3), -side / 2, side * Math.sqrt(3) / 2, -side / 2);
-    canvasContext.stroke();
-    output.makePath(side, 0, side * Math.cos(angle), -side * Math.sin(angle), 0, 0);
-    canvasContext.stroke();
-        canvasContext.setLineDash([0, 0]);
-
     canvasContext.strokeStyle = rosette.lineColor;
     px.length = 0;
     py.length = 0;
+    const angle = 2 * Math.PI / rosette.n;
+    const n = rosette.n;
 
     addCorners();
     let x = px[px.length - 1];
@@ -286,7 +266,6 @@ const side=1+Math.sqrt(3);
     addCorners();
     x = px[px.length - 1];
     y = py[py.length - 1];
-
 
     for (let i = 0; i <= n; i++) {
         x[i] = Math.cos(angle * i);
@@ -316,27 +295,44 @@ const side=1+Math.sqrt(3);
             canvasContext.stroke();
         }
     }
-
-
-    canvasContext.strokeStyle = '#000000';
-    output.setLineWidth(rosette.lineWidth);
-
     triangles();
-    //      squares();
+    canvasContext.strokeStyle = "red";
+
+        for (var ite = 0; ite < rosette.itemax; ite++) {
+        addCorners();
+        x = px[px.length - 1];
+        y = py[py.length - 1];
+        const xLast = px[px.length - 2];
+        const yLast = py[py.length - 2];
+        const xLast2 = px[px.length - 3];
+        const yLast2 = py[py.length - 3];
+        for (let i = 0; i < n; i++) {
+            x[i] = xLast[i] + xLast[i + 1] - xLast2[i + 1];
+            y[i] = yLast[i] + yLast[i + 1] - yLast2[i + 1];
+        }
+        if (x[0] * x[0] + y[0] * y[0] < 0.9 * (xLast[0] * xLast[0] + yLast[0] * yLast[0])) {
+            break;
+        }
+        x[n] = x[0];
+        y[n] = y[0];
+        for (let i = 0; i < n; i++) {
+            output.makePath(xLast[i], yLast[i], x[i], y[i], xLast[i + 1], yLast[i + 1]);
+            canvasContext.stroke();
+        }
+    }
+
+ //      squares();
     canvasContext.strokeStyle = "#cccccc";
-    output.setLineWidth(0.4 * rosette.tileWidth);
-    //  mirrors();
+    output.setLineWidth(0.4*rosette.tileWidth);
+  //  mirrors();
 
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.tileColor;
-   // twoSqrt3();
-     // oneSqrt3();
-      extra();
-    
-   // mirrors();
-    output.drawGrid();
-        canvasContext.setLineDash([0, 0]);
+    //twoSqrt3();
+  //  oneSqrt3();
+  //  extra();
 
+    output.drawGrid();
 }
 
 output.setDrawMethods(draw);
