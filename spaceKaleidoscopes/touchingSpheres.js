@@ -6,19 +6,44 @@ const rt3 = Math.sqrt(3);
 // the mapping spheres, 3 dimensions
 //==================================================================
 const mappingRadius = [];
+const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
 const mappingCenterZ = [];
 
-function addMappingCircle(radius, centerX, centerY, centerZ) {
+function addMappingSphere(radius, centerX, centerY, centerZ) {
     mappingRadius.push(radius);
+    mappingRadius2.push(radius*radius);
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
     mappingCenterZ.push(centerZ);
 }
 
-function logMappingCircles() {
-    console.log("mapping circles, index,radius,centerXYZ");
+// add a projected mapping sphere
+// stereographic projection from inversion at a projecting sphere
+// from 3d to 2d and from 4d to 3d
+
+var projectionRadius ,projectionRadius2,projectionCenter;
+
+function setProjection(radius,centerX,centerY,centerZ=0,centerW=0){
+    const d2=centerX*centerX+centerY*centerY+centerZ*centerZ+centerW*centerW;
+    console.log(d2)
+    const hyperbolicRadius=Math.sqrt(d2-radius*radius);
+    projectionCenter=hyperbolicRadius;
+    projectionRadius=Math.sqrt(2)*hyperbolicRadius;
+    projectionRadius2=projectionRadius*projectionRadius;
+    console.log(projectionCenter,projectionRadius)
+}
+
+function add3dTo2dMappingSphere(radius,centerX,centerY,centerZ) {
+const dz= centerZ-projectionCenter;
+const d2= centerX*centerX+centerY*centerY+dz*dz;
+const factor=projectionRadius2/(d2-radius*radius) ;
+addMappingSphere(radius*Math.abs(factor),centerX*factor,centerY*factor,projectionCenter+dz*factor);
+}
+
+function logMappingSpheres() {
+    console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < mappingRadius.length; i++) {
         console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
@@ -33,7 +58,7 @@ const stackCenterX = [];
 const stackCenterY = [];
 const stackCenterZ = [];
 
-function addStackCircle(generation, lastMapping, radius, centerX, centerY, centerZ) {
+function addStackSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
     stackGeneration.push(generation);
     stackLastMapping.push(lastMapping);
     stackRadius.push(radius);
@@ -50,12 +75,12 @@ function initStack() {
     stackCenterY.length = 0;
     stackCenterZ.length = 0;
     for (var i = 0; i < mappingRadius.length; i++) {
-        addStackCircle(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addStackSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
 }
 
-function logStackCircles() {
-    console.log("stack circles, index,generation,lastMapping,radius,centerXYZ");
+function logStackSpheres() {
+    console.log("stack spheres, index,generation,lastMapping,radius,centerXYZ");
     for (var i = 0; i < stackRadius.length; i++) {
         console.log(i, stackGeneration[i], stackLastMapping[i], stackRadius[i], stackCenterX[i], stackCenterY[i], stackCenterZ[i]);
     }
@@ -69,7 +94,7 @@ const resultCenterX = [];
 const resultCenterY = [];
 const resultCenterZ = [];
 
-function addResultCircle(generation, radius, centerX, centerY, centerZ) {
+function addResultSphere(generation, radius, centerX, centerY, centerZ) {
     resultGeneration.push(generation);
     resultRadius.push(radius);
     resultCenterX.push(centerX);
@@ -84,12 +109,12 @@ function initResult() {
     resultCenterY.length = 0;
     resultCenterZ.length = 0;
     for (var i = 0; i < mappingRadius.length; i++) {
-        addResultCircle(0,  mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addResultSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
 }
 
-function logResultCircles() {
-    console.log("result circles, index,generation,radius,centerXYZ");
+function logResultSpheres() {
+    console.log("result spheres, index,generation,radius,centerXYZ");
     for (var i = 0; i < resultRadius.length; i++) {
         console.log(i, resultGeneration[i], resultRadius[i], resultCenterX[i], resultCenterY[i], resultCenterZ[i]);
     }
@@ -99,44 +124,52 @@ function logResultCircles() {
 //===================================
 
 // limits
-let maxGeneration=3;
-let minimumRadius=0.01;
+let maxGeneration = 3;
+let minimumRadius = 0.01;
 
-function createCircles(){
-    const mappingLength=mappingRadius.length;
+function createSpheres() {
+    const mappingLength = mappingRadius.length;
     initStack();
     initResult();
-while (stackRadius.length>0){
-    const circleGeneration=stackGeneration.pop();
-    const circleLastMapping=stackLastMapping.pop();
-    const circleRadius=stackRadius.pop();
-    const circleCenterX=stackCenterX.pop();
-    const circleCenterY=stackCenterY.pop();
-    const circleCenterZ=stackCenterZ.pop();
+    while (stackRadius.length > 0) {
+        const sphereGeneration = stackGeneration.pop();
+        const sphereLastMapping = stackLastMapping.pop();
+        const sphereRadius = stackRadius.pop();
+        const sphereCenterX = stackCenterX.pop();
+        const sphereCenterY = stackCenterY.pop();
+        const sphereCenterZ = stackCenterZ.pop();
 
-    for (var i=0;i<mappingLength;i++){
-        if (i!==circleLastMapping){
-            console.log(i);
+        for (var i = 0; i < mappingLength; i++) {
+            if (i !== sphereLastMapping) {
+                console.log(i);
+            }
         }
     }
-}
 
 }
 
 
 // first test case
-function threeMappingCircles() {
-    addMappingCircle(rt3, 1, 0, 0);
-    addMappingCircle(rt3, -0.5, rt3 / 2, 0);
-    addMappingCircle(rt3, -0.5, -rt3 / 2, 0);
+function threeMappingSpheres() {
+    addMappingSphere(rt3, 1, 0, 0);
+    addMappingSphere(rt3, -0.5, rt3 / 2, 0);
+    addMappingSphere(rt3, -0.5, -rt3 / 2, 0);
 }
 
-threeMappingCircles();
+//threeMappingSpheres();
 
-logMappingCircles();
+setProjection(0.5,1,1,1);
+add3dTo2dMappingSphere(0.5,1,1,1);
+add3dTo2dMappingSphere(0.5,rt3,0,0);
+add3dTo2dMappingSphere(0.5,0,0,rt3);
+add3dTo2dMappingSphere(0.5,1,1,-1);
+add3dTo2dMappingSphere(0.5,-1,1,-1);
 
-createCircles();
 
-logStackCircles();
+logMappingSpheres();
 
-logResultCircles();
+createSpheres();
+
+logStackSpheres();
+
+logResultSpheres();
