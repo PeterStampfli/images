@@ -13,7 +13,7 @@ const mappingCenterZ = [];
 
 function addMappingSphere(radius, centerX, centerY, centerZ) {
     mappingRadius.push(radius);
-    mappingRadius2.push(radius*radius);
+    mappingRadius2.push(radius * radius);
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
     mappingCenterZ.push(centerZ);
@@ -23,23 +23,32 @@ function addMappingSphere(radius, centerX, centerY, centerZ) {
 // stereographic projection from inversion at a projecting sphere
 // from 3d to 2d and from 4d to 3d
 
-var projectionRadius ,projectionRadius2,projectionCenter;
+var projectionRadius, projectionRadius2, projectionCenter;
 
-function setProjection(radius,centerX,centerY,centerZ=0,centerW=0){
-    const d2=centerX*centerX+centerY*centerY+centerZ*centerZ+centerW*centerW;
-    console.log(d2)
-    const hyperbolicRadius=Math.sqrt(d2-radius*radius);
-    projectionCenter=hyperbolicRadius;
-    projectionRadius=Math.sqrt(2)*hyperbolicRadius;
-    projectionRadius2=projectionRadius*projectionRadius;
-    console.log(projectionCenter,projectionRadius)
+function setProjection(radius, centerX, centerY, centerZ = 0, centerW = 0) {
+    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + centerW * centerW;
+    const hyperbolicRadius = Math.sqrt(d2 - radius * radius);
+    projectionCenter = hyperbolicRadius;
+    projectionRadius = Math.sqrt(2) * hyperbolicRadius;
+    projectionRadius2 = projectionRadius * projectionRadius;
 }
 
-function add3dTo2dMappingSphere(radius,centerX,centerY,centerZ) {
-const dz= centerZ-projectionCenter;
-const d2= centerX*centerX+centerY*centerY+dz*dz;
-const factor=projectionRadius2/(d2-radius*radius) ;
-addMappingSphere(radius*Math.abs(factor),centerX*factor,centerY*factor,projectionCenter+dz*factor);
+// typically 3d spheres on a 3d sphere, defining a 3d hyperbolic space
+function add3dTo2dMappingSphere(radius, centerX, centerY, centerZ) {
+    const dz = centerZ - projectionCenter;
+    const d2 = centerX * centerX + centerY * centerY + dz * dz;
+    const factor = projectionRadius2 / (d2 - radius * radius);
+    addMappingSphere(radius * Math.abs(factor), centerX * factor, centerY * factor, projectionCenter + dz * factor);
+}
+
+// typically 4d spheres on a 4d sphere, defining a 4d hyperbolic space
+// projecting to 3d space, for calculating the structure of the surface of the hyperbolic space
+function add4dTo3dMappingSphere(radius, centerX, centerY, centerZ, centerW) {
+    const dw = centerW - projectionCenter;
+    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + dw * dw;
+    const factor = projectionRadius2 / (d2 - radius * radius);
+    console.log('w', projectionCenter + dw * factor);
+    addMappingSphere(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
 }
 
 function logMappingSpheres() {
@@ -132,16 +141,46 @@ function createSpheres() {
     initStack();
     initResult();
     while (stackRadius.length > 0) {
-        const sphereGeneration = stackGeneration.pop();
+        // get a sphere from the stack, and then map it
+        let sphereGeneration = stackGeneration.pop();
         const sphereLastMapping = stackLastMapping.pop();
         const sphereRadius = stackRadius.pop();
+        const sphereRadius2 = sphereRadius * sphereRadius; // probably faster than reading it from memory
         const sphereCenterX = stackCenterX.pop();
         const sphereCenterY = stackCenterY.pop();
         const sphereCenterZ = stackCenterZ.pop();
-
         for (var i = 0; i < mappingLength; i++) {
+            // mapping the sphere makes a new generation
+            sphereGeneration += 1;
+            // map only at spheres that do not contain it
             if (i !== sphereLastMapping) {
                 console.log(i);
+                const mapRadius2 = mappingRadius2[i];
+                const mapX = mappingCenterX[i];
+                const mapY = mappingCenterY[i];
+                const mapZ = mappingCenterZ[i];
+                const dx = sphereCenterX - mapX;
+                const dy = sphereCenterY - mapY;
+                const dz = sphereCenterZ - mapZ;
+                const d2 = dx * dx + dy * dy + dz * dz;
+                const factor = mapRadius2 / (d2 - sphereRadius2); // touching spheres laying outside
+                const newRadius = sphereRadius * factor;
+                const newCenterX = mapX + dx * factor;
+                const newCenterY = mapY + dy * factor;
+                const newCenterZ = mapZ + dz * factor;
+                if ((sphereGeneration < maxGeneration) && (newRadius > minimumRadius)) {
+                    stackGeneration.push(sphereGeneration);
+                    stackLastMapping.push(i);
+                    stackRadius.push(newRadius);
+                    stackCenterX.push(newCenterX);
+                    stackCenterY.push(newCenterY);
+                    stackCenterZ.push(newCenterZ);
+                }
+                resultGeneration.push(sphereGeneration);
+                resultRadius.push(newRadius);
+                resultCenterX.push(newCenterX);
+                resultCenterY.push(newCenterY);
+                resultCenterZ.push(newCenterZ);
             }
         }
     }
@@ -158,13 +197,11 @@ function threeMappingSpheres() {
 
 //threeMappingSpheres();
 
-setProjection(0.5,1,1,1);
-add3dTo2dMappingSphere(0.5,1,1,1);
-add3dTo2dMappingSphere(0.5,rt3,0,0);
-add3dTo2dMappingSphere(0.5,0,0,rt3);
-add3dTo2dMappingSphere(0.5,1,1,-1);
-add3dTo2dMappingSphere(0.5,-1,1,-1);
+setProjection(0.5, 1, 1, 1, 1);
 
+add4dTo3dMappingSphere(0.5, 1, 1, 1, 1);
+add4dTo3dMappingSphere(0.5, 1, 1, 1, -1);
+add4dTo3dMappingSphere(0.5, 2, 0, 0, 0);
 
 logMappingSpheres();
 
