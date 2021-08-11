@@ -1,7 +1,10 @@
 /* jshint esversion: 6 */
 
-const rt3 = Math.sqrt(3);
+export const mappingSpheres = {};
+export const imageSpheres = {};
+export const imagePoints = {};
 
+const rt3 = Math.sqrt(3);
 
 // the mapping spheres, 3 dimensions
 //==================================================================
@@ -10,6 +13,21 @@ const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
 const mappingCenterZ = [];
+// we need them for drawing?
+// drawing routines better fit here
+// but it may be useful for tests
+mappingSpheres.radius = mappingRadius;
+mappingSpheres.centerX = mappingCenterX;
+mappingSpheres.centerY = mappingCenterY;
+mappingSpheres.centerZ = mappingCenterZ;
+
+function clearMapping() {
+    mappingRadius.length = 0;
+    mappingRadius2.length = 0;
+    mappingCenterX.length = 0;
+    mappingCenterY.length = 0;
+    mappingCenterZ.length = 0;
+}
 
 function addMappingSphere(radius, centerX, centerY, centerZ) {
     mappingRadius.push(radius);
@@ -51,12 +69,21 @@ function add4dTo3dMappingSphere(radius, centerX, centerY, centerZ, centerW) {
     addMappingSphere(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
 }
 
-function logMappingSpheres() {
+mappingSpheres.log = function logMappingSpheres() {
     console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < mappingRadius.length; i++) {
         console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
-}
+};
+
+// creating mapping spheres configurations
+//==============================================================
+mappingSpheres.idealTriangle = function() {
+    clearMapping();
+    addMappingSphere(rt3 / 2, 1, 0, 0);
+    addMappingSphere(rt3 / 2, -0.5, rt3 / 2, 0);
+    addMappingSphere(rt3 / 2, -0.5, -rt3 / 2, 0);
+};
 
 // the stack
 //================================================================
@@ -76,16 +103,13 @@ function addStackSphere(generation, lastMapping, radius, centerX, centerY, cente
     stackCenterZ.push(centerZ);
 }
 
-function initStack() {
+function clearStackSpheres() {
     stackGeneration.length = 0;
     stackLastMapping.length = 0;
     stackRadius.length = 0;
     stackCenterX.length = 0;
     stackCenterY.length = 0;
     stackCenterZ.length = 0;
-    for (var i = 0; i < mappingRadius.length; i++) {
-        addStackSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
-    }
 }
 
 function logStackSpheres() {
@@ -95,66 +119,95 @@ function logStackSpheres() {
     }
 }
 
-// the result
+// the resulting image spheres
 //================================================================
-const resultGeneration = [];
-const resultRadius = [];
-const resultCenterX = [];
-const resultCenterY = [];
-const resultCenterZ = [];
+const imageGeneration = [];
+const imageRadius = [];
+const imageCenterX = [];
+const imageCenterY = [];
+const imageCenterZ = [];
+imageSpheres.generation = imageGeneration;
+imageSpheres.radius = imageRadius;
+imageSpheres.centerX = imageCenterX;
+imageSpheres.centerY = imageCenterY;
+imageSpheres.centerZ = imageCenterZ;
 
-function addResultSphere(generation, radius, centerX, centerY, centerZ) {
-    resultGeneration.push(generation);
-    resultRadius.push(radius);
-    resultCenterX.push(centerX);
-    resultCenterY.push(centerY);
-    resultCenterZ.push(centerZ);
+function addImageSphere(generation, radius, centerX, centerY, centerZ) {
+    imageGeneration.push(generation);
+    imageRadius.push(radius);
+    imageCenterX.push(centerX);
+    imageCenterY.push(centerY);
+    imageCenterZ.push(centerZ);
 }
 
-function initResult() {
-    resultGeneration.length = 0;
-    resultRadius.length = 0;
-    resultCenterX.length = 0;
-    resultCenterY.length = 0;
-    resultCenterZ.length = 0;
-    for (var i = 0; i < mappingRadius.length; i++) {
-        addResultSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+function clearImageSpheres() {
+    imageGeneration.length = 0;
+    imageRadius.length = 0;
+    imageCenterX.length = 0;
+    imageCenterY.length = 0;
+    imageCenterZ.length = 0;
+}
+
+imageSpheres.log = function() {
+    console.log("image spheres, generation,radius,centerXYZ");
+    for (var i = 0; i < imageRadius.length; i++) {
+        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i], imageCenterZ[i]);
     }
+};
+
+// the resulting image points (very small spheres)
+//===================================================
+const imagePointX = [];
+const imagePointY = [];
+const imagePointZ = [];
+imagePoints.x = imagePointX;
+imagePoints.y = imagePointY;
+imagePoints.z = imagePointZ;
+
+function clearImagePoints() {
+    imagePointX.length = 0;
+    imagePointY.length = 0;
+    imagePointZ.length = 0;
 }
 
-function logResultSpheres() {
-    console.log("result spheres, index,generation,radius,centerXYZ");
-    for (var i = 0; i < resultRadius.length; i++) {
-        console.log(i, resultGeneration[i], resultRadius[i], resultCenterX[i], resultCenterY[i], resultCenterZ[i]);
+imagePoints.log = function() {
+    console.log("image points, position XYZ");
+    for (var i = 0; i < imagePointX.length; i++) {
+        console.log(i, imagePointX[i], imagePointY[i], imagePointZ[i]);
     }
-}
+};
 
 // creating the images
 //===================================
 
 // limits
-let maxGeneration = 3;
-let minimumRadius = 0.01;
+mappingSpheres.maxGeneration = 3;
+mappingSpheres.minimumRadius = 0.01;
 
-function createSpheres() {
+mappingSpheres.createImages = function createImages() {
+    clearStackSpheres();
+    clearImageSpheres();
+    clearImagePoints();
     const mappingLength = mappingRadius.length;
-    initStack();
-    initResult();
+    for (let i = 0; i < mappingRadius.length; i++) {
+        addStackSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+    }
+    const maxGeneration = mappingSpheres.maxGeneration;
+    const minimumRadius = mappingSpheres.minimumRadius;
     while (stackRadius.length > 0) {
         // get a sphere from the stack, and then map it
-        let sphereGeneration = stackGeneration.pop();
+        // mapping the sphere makes a new generation
+        const sphereGeneration = stackGeneration.pop() + 1;
         const sphereLastMapping = stackLastMapping.pop();
         const sphereRadius = stackRadius.pop();
         const sphereRadius2 = sphereRadius * sphereRadius; // probably faster than reading it from memory
         const sphereCenterX = stackCenterX.pop();
         const sphereCenterY = stackCenterY.pop();
         const sphereCenterZ = stackCenterZ.pop();
-        for (var i = 0; i < mappingLength; i++) {
-            // mapping the sphere makes a new generation
-            sphereGeneration += 1;
+        for (let i = 0; i < mappingLength; i++) {
             // map only at spheres that do not contain it
             if (i !== sphereLastMapping) {
-                console.log(i);
                 const mapRadius2 = mappingRadius2[i];
                 const mapX = mappingCenterX[i];
                 const mapY = mappingCenterY[i];
@@ -176,37 +229,18 @@ function createSpheres() {
                     stackCenterY.push(newCenterY);
                     stackCenterZ.push(newCenterZ);
                 }
-                resultGeneration.push(sphereGeneration);
-                resultRadius.push(newRadius);
-                resultCenterX.push(newCenterX);
-                resultCenterY.push(newCenterY);
-                resultCenterZ.push(newCenterZ);
+                if (newRadius > minimumRadius) {
+                    imageGeneration.push(sphereGeneration);
+                    imageRadius.push(newRadius);
+                    imageCenterX.push(newCenterX);
+                    imageCenterY.push(newCenterY);
+                    imageCenterZ.push(newCenterZ);
+                } else {
+                    imagePointX.push(newCenterX);
+                    imagePointY.push(newCenterY);
+                    imagePointZ.push(newCenterZ);
+                }
             }
         }
     }
-
-}
-
-
-// first test case
-function threeMappingSpheres() {
-    addMappingSphere(rt3, 1, 0, 0);
-    addMappingSphere(rt3, -0.5, rt3 / 2, 0);
-    addMappingSphere(rt3, -0.5, -rt3 / 2, 0);
-}
-
-//threeMappingSpheres();
-
-setProjection(0.5, 1, 1, 1, 1);
-
-add4dTo3dMappingSphere(0.5, 1, 1, 1, 1);
-add4dTo3dMappingSphere(0.5, 1, 1, 1, -1);
-add4dTo3dMappingSphere(0.5, 2, 0, 0, 0);
-
-logMappingSpheres();
-
-createSpheres();
-
-logStackSpheres();
-
-logResultSpheres();
+};
