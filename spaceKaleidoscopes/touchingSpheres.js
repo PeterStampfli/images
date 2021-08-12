@@ -1,4 +1,7 @@
 /* jshint esversion: 6 */
+import {
+    output
+} from "../libgui/modules.js";
 
 export const mappingSpheres = {};
 export const imageSpheres = {};
@@ -29,13 +32,13 @@ function clearMapping() {
     mappingCenterZ.length = 0;
 }
 
-function addMappingSphere(radius, centerX, centerY, centerZ) {
+mappingSpheres.add = function(radius, centerX, centerY, centerZ) {
     mappingRadius.push(radius);
     mappingRadius2.push(radius * radius);
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
     mappingCenterZ.push(centerZ);
-}
+};
 
 // add a projected mapping sphere
 // stereographic projection from inversion at a projecting sphere
@@ -43,36 +46,46 @@ function addMappingSphere(radius, centerX, centerY, centerZ) {
 
 var projectionRadius, projectionRadius2, projectionCenter;
 
-function setProjection(radius, centerX, centerY, centerZ = 0, centerW = 0) {
+mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ = 0, centerW = 0) {
     const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + centerW * centerW;
     const hyperbolicRadius = Math.sqrt(d2 - radius * radius);
     projectionCenter = hyperbolicRadius;
     projectionRadius = Math.sqrt(2) * hyperbolicRadius;
     projectionRadius2 = projectionRadius * projectionRadius;
-}
+};
 
 // typically 3d spheres on a 3d sphere, defining a 3d hyperbolic space
-function add3dTo2dMappingSphere(radius, centerX, centerY, centerZ) {
+mappingSpheres.add3dto2d = function(radius, centerX, centerY, centerZ) {
     const dz = centerZ - projectionCenter;
     const d2 = centerX * centerX + centerY * centerY + dz * dz;
     const factor = projectionRadius2 / (d2 - radius * radius);
-    addMappingSphere(radius * Math.abs(factor), centerX * factor, centerY * factor, projectionCenter + dz * factor);
-}
+    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor, projectionCenter + dz * factor);
+};
 
 // typically 4d spheres on a 4d sphere, defining a 4d hyperbolic space
 // projecting to 3d space, for calculating the structure of the surface of the hyperbolic space
-function add4dTo3dMappingSphere(radius, centerX, centerY, centerZ, centerW) {
+mappingSpheres.add4dto3d = function(radius, centerX, centerY, centerZ, centerW) {
     const dw = centerW - projectionCenter;
     const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + dw * dw;
     const factor = projectionRadius2 / (d2 - radius * radius);
-    console.log('w', projectionCenter + dw * factor);
-    addMappingSphere(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
-}
+    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
+};
 
-mappingSpheres.log = function logMappingSpheres() {
+mappingSpheres.log = function() {
     console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < mappingRadius.length; i++) {
         console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+    }
+};
+
+// for the simple 2d case, or top-down view
+// draw circles for the mapping spheres (not discs)
+mappingSpheres.draw2dCircles = function() {
+    const canvasContext = output.canvasContext;
+    for (var i = 0; i < mappingRadius.length; i++) {
+        canvasContext.beginPath();
+        canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
+        canvasContext.stroke();
     }
 };
 
@@ -80,9 +93,9 @@ mappingSpheres.log = function logMappingSpheres() {
 //==============================================================
 mappingSpheres.idealTriangle = function() {
     clearMapping();
-    addMappingSphere(rt3 / 2, 1, 0, 0);
-    addMappingSphere(rt3 / 2, -0.5, rt3 / 2, 0);
-    addMappingSphere(rt3 / 2, -0.5, -rt3 / 2, 0);
+    mappingSpheres.add(rt3 / 2, 1, 0, 0);
+    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
+    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
 };
 
 // the stack
@@ -180,9 +193,7 @@ imagePoints.log = function() {
 // creating the images
 //===================================
 
-// limits
-mappingSpheres.maxGeneration = 3;
-mappingSpheres.minimumRadius = 0.01;
+
 
 mappingSpheres.createImages = function createImages() {
     clearStackSpheres();
@@ -194,6 +205,7 @@ mappingSpheres.createImages = function createImages() {
         addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
     const maxGeneration = mappingSpheres.maxGeneration;
+    const minGeneration = mappingSpheres.minGeneration;
     const minimumRadius = mappingSpheres.minimumRadius;
     while (stackRadius.length > 0) {
         // get a sphere from the stack, and then map it
@@ -221,7 +233,11 @@ mappingSpheres.createImages = function createImages() {
                 const newCenterX = mapX + dx * factor;
                 const newCenterY = mapY + dy * factor;
                 const newCenterZ = mapZ + dz * factor;
-                if ((sphereGeneration < maxGeneration) && (newRadius > minimumRadius)) {
+                // do always at least the minimum generation independent of radius
+                // do up to maximum generation if radius not small enough
+                // maximum generation is safeguard
+                // minimum generation is for making images
+                if ((sphereGeneration < minGeneration) || ((sphereGeneration < maxGeneration) && (newRadius > minimumRadius))) {
                     stackGeneration.push(sphereGeneration);
                     stackLastMapping.push(i);
                     stackRadius.push(newRadius);
@@ -229,7 +245,7 @@ mappingSpheres.createImages = function createImages() {
                     stackCenterY.push(newCenterY);
                     stackCenterZ.push(newCenterZ);
                 }
-                if (newRadius > minimumRadius) {
+                if ((sphereGeneration < minGeneration) || (newRadius > minimumRadius)) {
                     imageGeneration.push(sphereGeneration);
                     imageRadius.push(newRadius);
                     imageCenterX.push(newCenterX);
