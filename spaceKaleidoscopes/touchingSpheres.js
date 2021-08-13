@@ -82,7 +82,10 @@ mappingSpheres.log = function() {
 // draw circles for the mapping spheres (not discs)
 mappingSpheres.draw2dCircles = function() {
     const canvasContext = output.canvasContext;
-    for (var i = 0; i < mappingRadius.length; i++) {
+    output.setLineWidth(mappingSpheres.lineWidth);
+    canvasContext.strokeStyle = mappingSpheres.color;
+    const length = mappingRadius.length;
+    for (var i = 0; i < length; i++) {
         canvasContext.beginPath();
         canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
         canvasContext.stroke();
@@ -93,44 +96,12 @@ mappingSpheres.draw2dCircles = function() {
 //==============================================================
 mappingSpheres.idealTriangle = function() {
     clearMapping();
-    mappingSpheres.add(rt3 / 2, 1, 0, 0);
-    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
-    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
+    mappingSpheres.add(1, 1, 0, 0);
+    mappingSpheres.add(1, -1, 0, 0);
+ //   mappingSpheres.add(rt3 / 2, 1, 0, 0);
+   // mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
+   // mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
 };
-
-// the stack
-//================================================================
-const stackGeneration = [];
-const stackLastMapping = [];
-const stackRadius = [];
-const stackCenterX = [];
-const stackCenterY = [];
-const stackCenterZ = [];
-
-function addStackSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
-    stackGeneration.push(generation);
-    stackLastMapping.push(lastMapping);
-    stackRadius.push(radius);
-    stackCenterX.push(centerX);
-    stackCenterY.push(centerY);
-    stackCenterZ.push(centerZ);
-}
-
-function clearStackSpheres() {
-    stackGeneration.length = 0;
-    stackLastMapping.length = 0;
-    stackRadius.length = 0;
-    stackCenterX.length = 0;
-    stackCenterY.length = 0;
-    stackCenterZ.length = 0;
-}
-
-function logStackSpheres() {
-    console.log("stack spheres, index,generation,lastMapping,radius,centerXYZ");
-    for (var i = 0; i < stackRadius.length; i++) {
-        console.log(i, stackGeneration[i], stackLastMapping[i], stackRadius[i], stackCenterX[i], stackCenterY[i], stackCenterZ[i]);
-    }
-}
 
 // the resulting image spheres
 //================================================================
@@ -168,6 +139,24 @@ imageSpheres.log = function() {
     }
 };
 
+imageSpheres.draw2dCircles = function() {
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(imageSpheres.lineWidth);
+    canvasContext.strokeStyle = imageSpheres.stroke;
+    canvasContext.fillStyle = imageSpheres.fill;
+    const length = imageRadius.length;
+    const drawGeneration = Math.min(imageSpheres.drawGeneration, mappingSpheres.minGeneration);
+    for (var i = 0; i < length; i++) {
+
+
+
+        canvasContext.beginPath();
+        canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
+        canvasContext.stroke();
+    }
+};
+
+
 // the resulting image points (very small spheres)
 //===================================================
 const imagePointX = [];
@@ -190,73 +179,75 @@ imagePoints.log = function() {
     }
 };
 
+imagePoints.drawDots = function() {
+    const radius = 0.5 * imagePoints.size;
+    const canvasContext = output.canvasContext;
+    canvasContext.fillStyle = imagePoints.color;
+    for (var i = 0; i < imagePointX.length; i++) {
+        canvasContext.beginPath();
+        canvasContext.arc(imagePointX[i], imagePointY[i], radius, 0, 2 * Math.PI);
+        canvasContext.fill();
+    }
+};
+
 // creating the images
 //===================================
 
+var maxGeneration, minGeneration, minimumRadius, mappingLength;
 
-
-mappingSpheres.createImages = function createImages() {
-    clearStackSpheres();
+mappingSpheres.createImages = function() {
     clearImageSpheres();
     clearImagePoints();
-    const mappingLength = mappingRadius.length;
+    mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addStackSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
         addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
-    const maxGeneration = mappingSpheres.maxGeneration;
-    const minGeneration = mappingSpheres.minGeneration;
-    const minimumRadius = mappingSpheres.minimumRadius;
-    while (stackRadius.length > 0) {
-        // get a sphere from the stack, and then map it
-        // mapping the sphere makes a new generation
-        const sphereGeneration = stackGeneration.pop() + 1;
-        const sphereLastMapping = stackLastMapping.pop();
-        const sphereRadius = stackRadius.pop();
-        const sphereRadius2 = sphereRadius * sphereRadius; // probably faster than reading it from memory
-        const sphereCenterX = stackCenterX.pop();
-        const sphereCenterY = stackCenterY.pop();
-        const sphereCenterZ = stackCenterZ.pop();
-        for (let i = 0; i < mappingLength; i++) {
-            // map only at spheres that do not contain it
-            if (i !== sphereLastMapping) {
-                const mapRadius2 = mappingRadius2[i];
-                const mapX = mappingCenterX[i];
-                const mapY = mappingCenterY[i];
-                const mapZ = mappingCenterZ[i];
-                const dx = sphereCenterX - mapX;
-                const dy = sphereCenterY - mapY;
-                const dz = sphereCenterZ - mapZ;
-                const d2 = dx * dx + dy * dy + dz * dz;
-                const factor = mapRadius2 / (d2 - sphereRadius2); // touching spheres laying outside
-                const newRadius = sphereRadius * factor;
-                const newCenterX = mapX + dx * factor;
-                const newCenterY = mapY + dy * factor;
-                const newCenterZ = mapZ + dz * factor;
-                // do always at least the minimum generation independent of radius
-                // do up to maximum generation if radius not small enough
-                // maximum generation is safeguard
-                // minimum generation is for making images
-                if ((sphereGeneration < minGeneration) || ((sphereGeneration < maxGeneration) && (newRadius > minimumRadius))) {
-                    stackGeneration.push(sphereGeneration);
-                    stackLastMapping.push(i);
-                    stackRadius.push(newRadius);
-                    stackCenterX.push(newCenterX);
-                    stackCenterY.push(newCenterY);
-                    stackCenterZ.push(newCenterZ);
-                }
-                if ((sphereGeneration < minGeneration) || (newRadius > minimumRadius)) {
-                    imageGeneration.push(sphereGeneration);
-                    imageRadius.push(newRadius);
-                    imageCenterX.push(newCenterX);
-                    imageCenterY.push(newCenterY);
-                    imageCenterZ.push(newCenterZ);
-                } else {
-                    imagePointX.push(newCenterX);
-                    imagePointY.push(newCenterY);
-                    imagePointZ.push(newCenterZ);
-                }
+    maxGeneration = mappingSpheres.maxGeneration;
+    minGeneration = mappingSpheres.minGeneration;
+    minimumRadius = mappingSpheres.minimumRadius;
+    mappingLength = mappingRadius.length;
+    for (let i = 0; i < mappingLength; i++) {
+        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+    }
+};
+
+function imageOfSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
+    generation += 1;
+    const radius2 = radius * radius;
+    for (let i = 0; i < mappingLength; i++) {
+        // map only at spheres that do not contain it
+        if (i !== lastMapping) {
+            const mapRadius2 = mappingRadius2[i];
+            const mapX = mappingCenterX[i];
+            const mapY = mappingCenterY[i];
+            const mapZ = mappingCenterZ[i];
+            const dx = centerX - mapX;
+            const dy = centerY - mapY;
+            const dz = centerZ - mapZ;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            const factor = mapRadius2 / (d2 - radius2); // touching spheres laying outside
+            const newRadius = radius * factor;
+            const newCenterX = mapX + dx * factor;
+            const newCenterY = mapY + dy * factor;
+            const newCenterZ = mapZ + dz * factor;
+            // do always at least the minimum generation independent of radius, save these image spheres
+            // do up to maximum generation if radius not small enough
+            // maximum generation is safeguard
+            // minimum generation is for making images
+            if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
+            }
+            if (generation < minGeneration) {
+                imageGeneration.push(generation);
+                imageRadius.push(newRadius);
+                imageCenterX.push(newCenterX);
+                imageCenterY.push(newCenterY);
+                imageCenterZ.push(newCenterZ);
+            } else if (newRadius < minimumRadius) {
+                imagePointX.push(newCenterX);
+                imagePointY.push(newCenterY);
+                imagePointZ.push(newCenterZ);
             }
         }
     }
-};
+}
