@@ -98,9 +98,9 @@ mappingSpheres.idealTriangle = function() {
     clearMapping();
     mappingSpheres.add(1, 1, 0, 0);
     mappingSpheres.add(1, -1, 0, 0);
- //   mappingSpheres.add(rt3 / 2, 1, 0, 0);
-   // mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
-   // mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
+    //   mappingSpheres.add(rt3 / 2, 1, 0, 0);
+    // mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
+    // mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
 };
 
 // the resulting image spheres
@@ -147,12 +147,14 @@ imageSpheres.draw2dCircles = function() {
     const length = imageRadius.length;
     const drawGeneration = Math.min(imageSpheres.drawGeneration, mappingSpheres.minGeneration);
     for (var i = 0; i < length; i++) {
+        if (imageGeneration[i] === drawGeneration) {
 
 
-
-        canvasContext.beginPath();
-        canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
-        canvasContext.stroke();
+            canvasContext.beginPath();
+            canvasContext.arc(imageCenterX[i], imageCenterY[i], imageRadius[i], 0, 2 * Math.PI);
+            canvasContext.fill();
+            canvasContext.stroke();
+        }
     }
 };
 
@@ -237,7 +239,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
                 imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
             }
-            if (generation < minGeneration) {
+            if (generation <= minGeneration) {
                 imageGeneration.push(generation);
                 imageRadius.push(newRadius);
                 imageCenterX.push(newCenterX);

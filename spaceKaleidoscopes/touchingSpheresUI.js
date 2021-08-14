@@ -111,9 +111,9 @@ gui.add({
 imageSpheres.draw = true;
 imageSpheres.drawGeneration = 2;
 imageSpheres.stroke = '#000000';
-imageSpheres.lineWidth=2;
+imageSpheres.lineWidth = 2;
 imageSpheres.fill = '#ff0000';
-gui.add({
+const imageSpheresOnOffController = gui.add({
     type: 'boolean',
     params: imageSpheres,
     property: 'draw',
@@ -121,7 +121,8 @@ gui.add({
     onChange: function() {
         draw();
     }
-}).add({
+});
+const imageSpheresDrawGenController = imageSpheresOnOffController.add({
     type: 'number',
     params: imageSpheres,
     property: 'drawGeneration',
@@ -129,6 +130,9 @@ gui.add({
     step: 1,
     labelText: 'generation',
     onChange: function() {
+        if (imageSpheres.drawGeneration > mappingSpheres.minGeneration) {
+            imageSpheresDrawGenController.setValueOnly(mappingSpheres.minGeneration);
+        }
         draw();
     }
 });
@@ -156,7 +160,7 @@ gui.add({
     onChange: function() {
         draw();
     }
-})
+});
 
 imagePoints.draw = true;
 imagePoints.size = 0.02;
@@ -189,6 +193,9 @@ gui.add({
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
+    if (imageSpheres.draw) {
+        imageSpheres.draw2dCircles();
+    }
     if (mappingSpheres.draw) {
         mappingSpheres.draw2dCircles();
     }
