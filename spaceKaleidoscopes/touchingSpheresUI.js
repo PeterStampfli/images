@@ -14,10 +14,6 @@ import {
     imagePoints
 } from "./touchingSpheres.js";
 
-import {
-    tetrahedronSpheres
-} from "./tetrahedronSpheres.js";
-
 export const controllers = {};
 
 // setting up the canvas and its gui
@@ -38,22 +34,28 @@ output.grid.interval = 0.1;
 output.addGrid();
 output.addCursorposition();
 
-// limits
+// structure parameters
+mappingSpheres.config = mappingSpheres.triangle;
 mappingSpheres.maxGeneration = 100;
-mappingSpheres.minGeneration = 3;
-mappingSpheres.minimumRadius = 0.01;
+mappingSpheres.minGeneration = 6;
+mappingSpheres.minimumRadius = 0.001;
 
 gui.add({
-    type: 'number',
+    type: 'selection',
     params: mappingSpheres,
-    property: 'maxGeneration',
-    labelText: 'max gen',
-    min: 1,
-    step: 1,
+    property: 'config',
+    options: {
+        twoSpheres: mappingSpheres.two,
+        triangle:mappingSpheres.triangle,
+        tetrahedron:mappingSpheres.tetrahedron2d,
+    },
     onChange: function() {
+        console.log(mappingSpheres.config)
+        mappingSpheres.createImages();
         draw();
     }
 });
+
 gui.add({
     type: 'number',
     params: mappingSpheres,
@@ -62,6 +64,18 @@ gui.add({
     min: 1,
     step: 1,
     onChange: function() {
+        mappingSpheres.createImages();
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: mappingSpheres,
+    property: 'maxGeneration',
+    labelText: 'max gen',
+    min: 1,
+    step: 1,
+    onChange: function() {
+        mappingSpheres.createImages();
         draw();
     }
 });
@@ -72,6 +86,7 @@ gui.add({
     labelText: 'min radius',
     min: 0,
     onChange: function() {
+        mappingSpheres.createImages();
         draw();
     }
 });
@@ -113,7 +128,7 @@ imageSpheres.drawGeneration = 2;
 imageSpheres.stroke = '#000000';
 imageSpheres.lineWidth = 2;
 imageSpheres.fill = '#ff0000';
-const imageSpheresOnOffController = gui.add({
+imageSpheres.onOffController = gui.add({
     type: 'boolean',
     params: imageSpheres,
     property: 'draw',
@@ -122,7 +137,7 @@ const imageSpheresOnOffController = gui.add({
         draw();
     }
 });
-const imageSpheresDrawGenController = imageSpheresOnOffController.add({
+imageSpheres.drawGenController = imageSpheres.onOffController.add({
     type: 'number',
     params: imageSpheres,
     property: 'drawGeneration',
@@ -130,9 +145,6 @@ const imageSpheresDrawGenController = imageSpheresOnOffController.add({
     step: 1,
     labelText: 'generation',
     onChange: function() {
-        if (imageSpheres.drawGeneration > mappingSpheres.minGeneration) {
-            imageSpheresDrawGenController.setValueOnly(mappingSpheres.minGeneration);
-        }
         draw();
     }
 });
@@ -207,27 +219,8 @@ function draw() {
 output.drawCanvasChanged = draw;
 
 
-mappingSpheres.idealTriangle();
 
 mappingSpheres.createImages();
 
 draw();
 
-/*
-//threeMappingSpheres();
-mappingSpheres.idealTriangle();
-
-//setProjection(0.5, 1, 1, 1, 1);
-
-//add4dTo3dMappingSphere(0.5, 1, 1, 1, 1);
-//add4dTo3dMappingSphere(0.5, 1, 1, 1, -1);
-//add4dTo3dMappingSphere(0.5, 2, 0, 0, 0);
-
-mappingSpheres.log();
-
-mappingSpheres.minimumRadius=0.1
-*/
-
-
-imageSpheres.log();
-//imagePoints.log();

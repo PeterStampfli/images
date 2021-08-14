@@ -94,13 +94,31 @@ mappingSpheres.draw2dCircles = function() {
 
 // creating mapping spheres configurations
 //==============================================================
-mappingSpheres.idealTriangle = function() {
-    clearMapping();
+mappingSpheres.two = function() {
     mappingSpheres.add(1, 1, 0, 0);
     mappingSpheres.add(1, -1, 0, 0);
-    //   mappingSpheres.add(rt3 / 2, 1, 0, 0);
-    // mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
-    // mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
+};
+
+mappingSpheres.triangle = function() {
+    mappingSpheres.add(rt3 / 2, 1, 0, 0);
+    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
+    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
+};
+
+mappingSpheres.tetrahedron2d = function() {
+    // four inverting spheres at the corners of a tetrahedron
+    const rSphere = 0.8165;
+    const cx2 = 0.9428;
+    const cx34 = -0.4714;
+    const cy3 = 0.8165;
+    const cy4 = -0.8165;
+    const cz234 = 0.3333;
+    // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
+    mappingSpheres.setProjection(rSphere, 0, 0, 1);
+    mappingSpheres.add3dto2d(rSphere, 0, 0, -1);
+    mappingSpheres.add3dto2d(rSphere, cx2, 0, cz234);
+    mappingSpheres.add3dto2d(rSphere, cx34, cy3, cz234);
+    mappingSpheres.add3dto2d(rSphere, cx34, cy4, cz234);
 };
 
 // the resulting image spheres
@@ -146,10 +164,9 @@ imageSpheres.draw2dCircles = function() {
     canvasContext.fillStyle = imageSpheres.fill;
     const length = imageRadius.length;
     const drawGeneration = Math.min(imageSpheres.drawGeneration, mappingSpheres.minGeneration);
+    imageSpheres.drawGenController.setValueOnly(drawGeneration);
     for (var i = 0; i < length; i++) {
         if (imageGeneration[i] === drawGeneration) {
-
-
             canvasContext.beginPath();
             canvasContext.arc(imageCenterX[i], imageCenterY[i], imageRadius[i], 0, 2 * Math.PI);
             canvasContext.fill();
@@ -157,7 +174,6 @@ imageSpheres.draw2dCircles = function() {
         }
     }
 };
-
 
 // the resulting image points (very small spheres)
 //===================================================
@@ -200,6 +216,8 @@ var maxGeneration, minGeneration, minimumRadius, mappingLength;
 mappingSpheres.createImages = function() {
     clearImageSpheres();
     clearImagePoints();
+    clearMapping();
+    mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
         addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
@@ -228,7 +246,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             const dz = centerZ - mapZ;
             const d2 = dx * dx + dy * dy + dz * dz;
             const factor = mapRadius2 / (d2 - radius2); // touching spheres laying outside
-            const newRadius = radius * factor;
+            const newRadius = radius * Math.abs(factor); // touching surrounding spheres
             const newCenterX = mapX + dx * factor;
             const newCenterY = mapY + dy * factor;
             const newCenterZ = mapZ + dz * factor;
@@ -245,7 +263,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
                 imageCenterX.push(newCenterX);
                 imageCenterY.push(newCenterY);
                 imageCenterZ.push(newCenterZ);
-            } else if (newRadius < minimumRadius) {
+            } else if ((newRadius < minimumRadius) || (generation === maxGeneration)) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
                 imagePointZ.push(newCenterZ);
