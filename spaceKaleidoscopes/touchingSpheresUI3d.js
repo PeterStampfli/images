@@ -12,13 +12,13 @@ import {
     mappingSpheres,
     imageSpheres,
     imagePoints
-} from "./touchingSpheres.js";
+} from "./touchingSpheres3d.js";
 
 export const controllers = {};
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
-    name: 'touching spheres',
+    name: 'touching spheres in three dimensions',
     closed: false
 });
 
@@ -38,7 +38,7 @@ output.addCursorposition();
 mappingSpheres.config = mappingSpheres.triangle;
 mappingSpheres.maxGeneration = 100;
 mappingSpheres.minGeneration = 6;
-mappingSpheres.minimumRadius = 0.01;
+mappingSpheres.minimumRadius = 0.001;
 
 gui.add({
     type: 'selection',
@@ -46,8 +46,8 @@ gui.add({
     property: 'config',
     options: {
         twoSpheres: mappingSpheres.two,
-        triangle:mappingSpheres.triangle,
-        tetrahedron:mappingSpheres.tetrahedron2d,
+        triangle: mappingSpheres.triangle,
+        tetrahedron: mappingSpheres.tetrahedron2d,
     },
     onChange: function() {
         create();
@@ -84,6 +84,29 @@ gui.add({
     property: 'minimumRadius',
     labelText: 'min radius',
     min: 0,
+    onChange: function() {
+        create();
+        draw();
+    }
+});
+
+imagePoints.generate = false;
+imagePoints.gens = 4;
+gui.add({
+    type: 'boolean',
+    params: imagePoints,
+    property: 'generate',
+    labelText: 'points gen',
+    onChange: function() {
+        create();
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: imagePoints,
+    property: 'gens',
+    min: 1,
+    step: 1,
     onChange: function() {
         create();
         draw();
@@ -174,7 +197,7 @@ gui.add({
 });
 
 imagePoints.draw = true;
-imagePoints.size = 0.1;
+imagePoints.size = 0.02;
 imagePoints.color = '#ffff00';
 gui.add({
     type: 'boolean',
@@ -201,9 +224,11 @@ gui.add({
     }
 });
 
-function create(){
+function create() {
     mappingSpheres.createImageSpheres();
-    mappingSpheres.createImagePoints();
+    if (imagePoints.generate) {
+        mappingSpheres.createImagePoints();
+    }
 }
 
 function draw() {
@@ -227,4 +252,3 @@ output.drawCanvasChanged = draw;
 create();
 
 draw();
-

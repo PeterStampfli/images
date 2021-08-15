@@ -265,7 +265,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
                 imageCenterX.push(newCenterX);
                 imageCenterY.push(newCenterY);
                 imageCenterZ.push(newCenterZ);
-            } else if ((newRadius < minimumRadius) || (generation === maxGeneration)) {
+            } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
                 imagePointZ.push(newCenterZ);
@@ -313,14 +313,33 @@ mappingSpheres.createImagePoints = function() {
                         const newPointY = centerYK + factor * dy;
                         imagePointX.push(newPointX);
                         imagePointY.push(newPointY);
-
+                        moreImagePoints(imagePoints.gens, k, newPointX, newPointY);
                     }
-
                 }
             }
-
-
         }
     }
-
 };
+
+function moreImagePoints(gens, lastMapping, pointX, pointY) {
+    gens -= 1;
+    mappingLength = mappingRadius.length;
+    for (let k = 0; k < mappingLength; k++) {
+        if (lastMapping !== k) {
+            const centerXK = mappingCenterX[k];
+            const centerYK = mappingCenterY[k];
+            const dx = pointX - centerXK;
+            const dy = pointY - centerYK;
+            const d2 = dx * dx + dy * dy;
+            const radiusK = mappingRadius[k];
+            const factor = radiusK * radiusK / d2;
+            const newPointX = centerXK + factor * dx;
+            const newPointY = centerYK + factor * dy;
+            imagePointX.push(newPointX);
+            imagePointY.push(newPointY);
+            if (gens > 0) {
+                moreImagePoints(gens, k, newPointX, newPointY);
+            }
+        }
+    }
+}
