@@ -38,7 +38,7 @@ output.addCursorposition();
 mappingSpheres.config = mappingSpheres.triangle;
 mappingSpheres.maxGeneration = 100;
 mappingSpheres.minGeneration = 6;
-mappingSpheres.minimumRadius = 0.001;
+mappingSpheres.minimumRadius = 0.01;
 
 gui.add({
     type: 'selection',
@@ -50,8 +50,7 @@ gui.add({
         tetrahedron:mappingSpheres.tetrahedron2d,
     },
     onChange: function() {
-        console.log(mappingSpheres.config)
-        mappingSpheres.createImages();
+        create();
         draw();
     }
 });
@@ -64,7 +63,7 @@ gui.add({
     min: 1,
     step: 1,
     onChange: function() {
-        mappingSpheres.createImages();
+        create();
         draw();
     }
 }).add({
@@ -75,7 +74,7 @@ gui.add({
     min: 1,
     step: 1,
     onChange: function() {
-        mappingSpheres.createImages();
+        create();
         draw();
     }
 });
@@ -86,7 +85,7 @@ gui.add({
     labelText: 'min radius',
     min: 0,
     onChange: function() {
-        mappingSpheres.createImages();
+        create();
         draw();
     }
 });
@@ -175,7 +174,7 @@ gui.add({
 });
 
 imagePoints.draw = true;
-imagePoints.size = 0.02;
+imagePoints.size = 0.1;
 imagePoints.color = '#ffff00';
 gui.add({
     type: 'boolean',
@@ -202,6 +201,11 @@ gui.add({
     }
 });
 
+function create(){
+    mappingSpheres.createImageSpheres();
+    mappingSpheres.createImagePoints();
+}
+
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
@@ -220,7 +224,7 @@ output.drawCanvasChanged = draw;
 
 
 
-mappingSpheres.createImages();
+create();
 
 draw();
 
