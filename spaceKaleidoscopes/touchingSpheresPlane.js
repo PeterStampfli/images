@@ -236,7 +236,7 @@ imagePoints.drawPixels = function() {
                 }
                 break;
             case 4:
-                i = Math.round(i) + 2;
+                i = Math.round(i) + 1;
                 j = Math.round(j) + 1;
                 if ((i >= 3) && (i < width) && (j >= 3) && (j < height)) {
                     let index = i + j * width;
@@ -303,13 +303,6 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY) {
             const newRadius = radius * Math.abs(factor); // touching surrounding spheres
             const newCenterX = mapX + dx * factor;
             const newCenterY = mapY + dy * factor;
-            // do always at least the minimum generation independent of radius, save these image spheres
-            // do up to maximum generation if radius not small enough
-            // maximum generation is safeguard
-            // minimum generation is for making images
-            if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
-                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY);
-            }
             if (generation <= minGeneration) {
                 imageGeneration.push(generation);
                 imageRadius.push(newRadius);
@@ -318,6 +311,13 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY) {
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
+            }
+            // do always at least the minimum generation independent of radius, save these image spheres
+            // do up to maximum generation if radius not small enough
+            // maximum generation is safeguard
+            // minimum generation is for making images
+            if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY);
             }
         }
     }
