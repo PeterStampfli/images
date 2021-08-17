@@ -61,7 +61,7 @@ mappingSpheres.add3dto2d = function(radius, centerX, centerY, centerZ) {
 };
 
 mappingSpheres.log = function() {
-    console.log("mapping spheres, index,radius,centerXYZ");
+    console.log("mapping spheres, index,radius,centerXY");
     for (var i = 0; i < mappingRadius.length; i++) {
         console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
@@ -121,7 +121,7 @@ imageSpheres.radius = imageRadius;
 imageSpheres.centerX = imageCenterX;
 imageSpheres.centerY = imageCenterY;
 
-function addImageSphere(generation, radius, centerX, centerY, centerZ) {
+function addImageSphere(generation, radius, centerX, centerY) {
     imageGeneration.push(generation);
     imageRadius.push(radius);
     imageCenterX.push(centerX);
@@ -136,7 +136,7 @@ function clearImageSpheres() {
 }
 
 imageSpheres.log = function() {
-    console.log("image spheres, generation,radius,centerXYZ");
+    console.log("image spheres, generation,radius,centerXY");
     for (var i = 0; i < imageRadius.length; i++) {
         console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i]);
     }

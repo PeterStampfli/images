@@ -11,31 +11,35 @@ export const imagePoints = {};
 
 const rt3 = Math.sqrt(3);
 
-// the mapping spheres, 2 dimensions
+// the mapping spheres, 3 dimensions
 //==================================================================
 const mappingRadius = [];
 const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
+const mappingCenterZ = [];
 // we need them for drawing?
 // drawing routines better fit here
 // but it may be useful for tests
 mappingSpheres.radius = mappingRadius;
 mappingSpheres.centerX = mappingCenterX;
 mappingSpheres.centerY = mappingCenterY;
+mappingSpheres.centerZ = mappingCenterZ;
 
 function clearMapping() {
     mappingRadius.length = 0;
     mappingRadius2.length = 0;
     mappingCenterX.length = 0;
     mappingCenterY.length = 0;
+    mappingCenterZ.length = 0;
 }
 
-mappingSpheres.add = function(radius, centerX, centerY) {
+mappingSpheres.add = function(radius, centerX, centerY, centerZ = 0) {
     mappingRadius.push(radius);
     mappingRadius2.push(radius * radius);
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
+    mappingCenterZ.push(centerZ);
 };
 
 // add a projected mapping sphere
@@ -44,26 +48,27 @@ mappingSpheres.add = function(radius, centerX, centerY) {
 
 var projectionRadius, projectionRadius2, projectionCenter;
 
-mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ) {
-    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ;
+mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ, centerW = 0) {
+    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + centerW * centerW;
     const hyperbolicRadius = Math.sqrt(d2 - radius * radius);
     projectionCenter = hyperbolicRadius;
     projectionRadius = Math.sqrt(2) * hyperbolicRadius;
     projectionRadius2 = projectionRadius * projectionRadius;
 };
 
-// typically 3d spheres on a 3d sphere, defining a 3d hyperbolic space
-mappingSpheres.add3dto2d = function(radius, centerX, centerY, centerZ) {
-    const dz = centerZ - projectionCenter;
-    const d2 = centerX * centerX + centerY * centerY + dz * dz;
+// typically 4d spheres on a 4d sphere, defining a 4d hyperbolic space
+// projecting to 3d space, for calculating the structure of the surface of the hyperbolic space
+mappingSpheres.add4dto3d = function(radius, centerX, centerY, centerZ, centerW) {
+    const dw = centerW - projectionCenter;
+    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + dw * dw;
     const factor = projectionRadius2 / (d2 - radius * radius);
-    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor);
+    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
 };
 
 mappingSpheres.log = function() {
     console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < mappingRadius.length; i++) {
-        console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
+        console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
 };
 
@@ -126,6 +131,7 @@ function addImageSphere(generation, radius, centerX, centerY, centerZ) {
     imageRadius.push(radius);
     imageCenterX.push(centerX);
     imageCenterY.push(centerY);
+    imageCenterZ.push(centerZ);
 }
 
 function clearImageSpheres() {
@@ -133,12 +139,13 @@ function clearImageSpheres() {
     imageRadius.length = 0;
     imageCenterX.length = 0;
     imageCenterY.length = 0;
+    imageCenterZ.length = 0;
 }
 
 imageSpheres.log = function() {
     console.log("image spheres, generation,radius,centerXYZ");
     for (var i = 0; i < imageRadius.length; i++) {
-        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i]);
+        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i], imageCenterZ[i]);
     }
 };
 
@@ -164,18 +171,21 @@ imageSpheres.draw2dCircles = function() {
 //===================================================
 const imagePointX = [];
 const imagePointY = [];
+const imagePointZ = [];
 imagePoints.x = imagePointX;
 imagePoints.y = imagePointY;
+imagePoints.z = imagePointZ;
 
 function clearImagePoints() {
     imagePointX.length = 0;
     imagePointY.length = 0;
+    imagePointZ.length = 0;
 }
 
 imagePoints.log = function() {
     console.log("image points, position XYZ");
     for (var i = 0; i < imagePointX.length; i++) {
-        console.log(i, imagePointX[i], imagePointY[i]);
+        console.log(i, imagePointX[i], imagePointY[i],imagePointZ[i]);
     }
 };
 
@@ -276,18 +286,18 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
+        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
+        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
 };
 
-function imageOfSphere(generation, lastMapping, radius, centerX, centerY) {
+function imageOfSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
     generation += 1;
     const radius2 = radius * radius;
     for (let i = 0; i < mappingLength; i++) {
@@ -296,28 +306,33 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY) {
             const mapRadius2 = mappingRadius2[i];
             const mapX = mappingCenterX[i];
             const mapY = mappingCenterY[i];
+            const mapZ = mappingCenterZ[i];
             const dx = centerX - mapX;
             const dy = centerY - mapY;
-            const d2 = dx * dx + dy * dy;
+            const dz = centerZ - mapZ;
+            const d2 = dx * dx + dy * dy + dz * dz;
             const factor = mapRadius2 / (d2 - radius2); // touching spheres laying outside
             const newRadius = radius * Math.abs(factor); // touching surrounding spheres
             const newCenterX = mapX + dx * factor;
             const newCenterY = mapY + dy * factor;
+            const newCenterZ = mapZ + dz * factor;
             // do always at least the minimum generation independent of radius, save these image spheres
             // do up to maximum generation if radius not small enough
             // maximum generation is safeguard
             // minimum generation is for making images
             if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
-                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY);
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY,newCenterZ);
             }
             if (generation <= minGeneration) {
                 imageGeneration.push(generation);
                 imageRadius.push(newRadius);
                 imageCenterX.push(newCenterX);
                 imageCenterY.push(newCenterY);
+                imageCenterZ.push(newCenterZ);
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
+                imagePointZ.push(newCenterZ);
             }
         }
     }
