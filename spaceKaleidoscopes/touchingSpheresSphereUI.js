@@ -12,13 +12,11 @@ import {
     mappingSpheres,
     imageSpheres,
     imagePoints
-} from "./touchingSpheres2d.js";
-
-export const controllers = {};
+} from "./touchingSpheresPlane.js";
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
-    name: 'touching spheres in two dimensions',
+    name: 'touching spheres on a 3d spherical surface',
     closed: false
 });
 
@@ -27,12 +25,6 @@ output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
 output.setInitialCoordinates(0, 0, 3);
 output.createPixels();
-// add options for the output image
-output.addImageProcessing();
-output.addAntialiasing();
-output.grid.interval = 0.1;
-output.addGrid();
-output.addCursorposition();
 
 // structure parameters
 mappingSpheres.config = mappingSpheres.triangle;
@@ -84,29 +76,6 @@ gui.add({
     property: 'minimumRadius',
     labelText: 'min radius',
     min: 0,
-    onChange: function() {
-        create();
-        draw();
-    }
-});
-
-imagePoints.generate = false;
-imagePoints.gens = 4;
-gui.add({
-    type: 'boolean',
-    params: imagePoints,
-    property: 'generate',
-    labelText: 'points gen',
-    onChange: function() {
-        create();
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: imagePoints,
-    property: 'gens',
-    min: 1,
-    step: 1,
     onChange: function() {
         create();
         draw();
@@ -197,8 +166,8 @@ gui.add({
 });
 
 imagePoints.draw = true;
-imagePoints.size = 0.02;
 imagePoints.color = '#ffff00';
+imagePoints.pixelSize = 2;
 gui.add({
     type: 'boolean',
     params: imagePoints,
@@ -218,17 +187,20 @@ gui.add({
 }).add({
     type: 'number',
     params: imagePoints,
-    property: 'size',
+    property: 'pixelSize',
+    min: 1,
+    step: 1,
+    max: 4,
+    labelText: 'size',
     onChange: function() {
         draw();
     }
 });
 
+var timeStart;
+
 function create() {
     mappingSpheres.createImageSpheres();
-    if (imagePoints.generate) {
-        mappingSpheres.createImagePoints();
-    }
 }
 
 function draw() {
@@ -241,7 +213,7 @@ function draw() {
         mappingSpheres.draw2dCircles();
     }
     if (imagePoints.draw) {
-        imagePoints.drawDots();
+        imagePoints.drawPixels();
     }
 }
 

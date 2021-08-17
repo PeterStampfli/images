@@ -25,12 +25,7 @@ output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
 output.setInitialCoordinates(0, 0, 3);
 output.createPixels();
-// add options for the output image
-output.addImageProcessing();
-output.addAntialiasing();
-output.grid.interval = 0.1;
-output.addGrid();
-output.addCursorposition();
+
 
 // for transparent basic tetrahedron
 map.iterationsColorZero = 0;

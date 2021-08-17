@@ -1,6 +1,8 @@
 /* jshint esversion: 6 */
 import {
-    output
+    output,
+    Pixels,
+    ColorInput
 } from "../libgui/modules.js";
 
 export const mappingSpheres = {};
@@ -9,35 +11,31 @@ export const imagePoints = {};
 
 const rt3 = Math.sqrt(3);
 
-// the mapping spheres, 3 dimensions
+// the mapping spheres, 2 dimensions
 //==================================================================
 const mappingRadius = [];
 const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
-const mappingCenterZ = [];
 // we need them for drawing?
 // drawing routines better fit here
 // but it may be useful for tests
 mappingSpheres.radius = mappingRadius;
 mappingSpheres.centerX = mappingCenterX;
 mappingSpheres.centerY = mappingCenterY;
-mappingSpheres.centerZ = mappingCenterZ;
 
 function clearMapping() {
     mappingRadius.length = 0;
     mappingRadius2.length = 0;
     mappingCenterX.length = 0;
     mappingCenterY.length = 0;
-    mappingCenterZ.length = 0;
 }
 
-mappingSpheres.add = function(radius, centerX, centerY, centerZ) {
+mappingSpheres.add = function(radius, centerX, centerY) {
     mappingRadius.push(radius);
     mappingRadius2.push(radius * radius);
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
-    mappingCenterZ.push(centerZ);
 };
 
 // add a projected mapping sphere
@@ -46,8 +44,8 @@ mappingSpheres.add = function(radius, centerX, centerY, centerZ) {
 
 var projectionRadius, projectionRadius2, projectionCenter;
 
-mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ = 0, centerW = 0) {
-    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + centerW * centerW;
+mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ) {
+    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ;
     const hyperbolicRadius = Math.sqrt(d2 - radius * radius);
     projectionCenter = hyperbolicRadius;
     projectionRadius = Math.sqrt(2) * hyperbolicRadius;
@@ -59,22 +57,13 @@ mappingSpheres.add3dto2d = function(radius, centerX, centerY, centerZ) {
     const dz = centerZ - projectionCenter;
     const d2 = centerX * centerX + centerY * centerY + dz * dz;
     const factor = projectionRadius2 / (d2 - radius * radius);
-    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor, projectionCenter + dz * factor);
-};
-
-// typically 4d spheres on a 4d sphere, defining a 4d hyperbolic space
-// projecting to 3d space, for calculating the structure of the surface of the hyperbolic space
-mappingSpheres.add4dto3d = function(radius, centerX, centerY, centerZ, centerW) {
-    const dw = centerW - projectionCenter;
-    const d2 = centerX * centerX + centerY * centerY + centerZ * centerZ + dw * dw;
-    const factor = projectionRadius2 / (d2 - radius * radius);
-    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor, centerZ * factor);
+    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor);
 };
 
 mappingSpheres.log = function() {
     console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < mappingRadius.length; i++) {
-        console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        console.log(i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
 };
 
@@ -95,14 +84,14 @@ mappingSpheres.draw2dCircles = function() {
 // creating mapping spheres configurations
 //==============================================================
 mappingSpheres.two = function() {
-    mappingSpheres.add(1, 1, 0, 0);
-    mappingSpheres.add(1, -1, 0, 0);
+    mappingSpheres.add(1, 1, 0);
+    mappingSpheres.add(1, -1, 0);
 };
 
 mappingSpheres.triangle = function() {
-    mappingSpheres.add(rt3 / 2, 1, 0, 0);
-    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2, 0);
-    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2, 0);
+    mappingSpheres.add(rt3 / 2, 1, 0);
+    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2);
+    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2);
 };
 
 mappingSpheres.tetrahedron2d = function() {
@@ -127,19 +116,16 @@ const imageGeneration = [];
 const imageRadius = [];
 const imageCenterX = [];
 const imageCenterY = [];
-const imageCenterZ = [];
 imageSpheres.generation = imageGeneration;
 imageSpheres.radius = imageRadius;
 imageSpheres.centerX = imageCenterX;
 imageSpheres.centerY = imageCenterY;
-imageSpheres.centerZ = imageCenterZ;
 
 function addImageSphere(generation, radius, centerX, centerY, centerZ) {
     imageGeneration.push(generation);
     imageRadius.push(radius);
     imageCenterX.push(centerX);
     imageCenterY.push(centerY);
-    imageCenterZ.push(centerZ);
 }
 
 function clearImageSpheres() {
@@ -147,13 +133,12 @@ function clearImageSpheres() {
     imageRadius.length = 0;
     imageCenterX.length = 0;
     imageCenterY.length = 0;
-    imageCenterZ.length = 0;
 }
 
 imageSpheres.log = function() {
     console.log("image spheres, generation,radius,centerXYZ");
     for (var i = 0; i < imageRadius.length; i++) {
-        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i], imageCenterZ[i]);
+        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i]);
     }
 };
 
@@ -179,33 +164,102 @@ imageSpheres.draw2dCircles = function() {
 //===================================================
 const imagePointX = [];
 const imagePointY = [];
-const imagePointZ = [];
 imagePoints.x = imagePointX;
 imagePoints.y = imagePointY;
-imagePoints.z = imagePointZ;
 
 function clearImagePoints() {
     imagePointX.length = 0;
     imagePointY.length = 0;
-    imagePointZ.length = 0;
 }
 
 imagePoints.log = function() {
     console.log("image points, position XYZ");
     for (var i = 0; i < imagePointX.length; i++) {
-        console.log(i, imagePointX[i], imagePointY[i], imagePointZ[i]);
+        console.log(i, imagePointX[i], imagePointY[i]);
     }
 };
 
-imagePoints.drawDots = function() {
-    const radius = 0.5 * imagePoints.size;
-    const canvasContext = output.canvasContext;
-    canvasContext.fillStyle = imagePoints.color;
-    for (var i = 0; i < imagePointX.length; i++) {
-        canvasContext.beginPath();
-        canvasContext.arc(imagePointX[i], imagePointY[i], radius, 0, 2 * Math.PI);
-        canvasContext.fill();
+imagePoints.drawPixels = function() {
+    const imagePointsColor = {};
+    ColorInput.setObject(imagePointsColor, imagePoints.color);
+    let intColor = Pixels.integerOfColor(imagePointsColor);
+    output.pixels.update();
+    const pixelsArray = output.pixels.array;
+    const scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    const invScale = 1 / scale;
+    const shiftX = output.coordinateTransform.shiftX;
+    const shiftY = output.coordinateTransform.shiftY;
+    // (x,y)=scale*(i,j)+(shiftX,shiftY)
+    const width = output.canvas.width;
+    const height = output.canvas.height;
+    const pixelSize = imagePoints.pixelSize;
+    const length = imagePointX.length;
+    for (let k = 0; k < length; k++) {
+        let i = invScale * (imagePointX[k] - shiftX);
+        let j = invScale * (imagePointY[k] - shiftY);
+        switch (pixelSize) {
+            case 1:
+                i = Math.floor(i);
+                j = Math.floor(j);
+                if ((i >= 0) && (i < width) && (j >= 0) && (j < height)) {
+                    pixelsArray[i + j * width] = intColor;
+                }
+                break;
+            case 2:
+                i = Math.round(i);
+                j = Math.round(j);
+                if ((i > 0) && (i < width) && (j > 0) && (j < height)) {
+                    let index = i + j * width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    index -= width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                }
+                break;
+            case 3:
+                i = Math.floor(i) + 1;
+                j = Math.floor(j) + 1;
+                if ((i >= 2) && (i < width) && (j >= 2) && (j < height)) {
+                    let index = i + j * width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                    index -= width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                    index -= width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                }
+                break;
+            case 4:
+                i = Math.round(i) + 2;
+                j = Math.round(j) + 1;
+                if ((i >= 3) && (i < width) && (j >= 3) && (j < height)) {
+                    let index = i + j * width;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                    index -= width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                    pixelsArray[index - 3] = intColor;
+                    index -= width;
+                    pixelsArray[index] = intColor;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                    pixelsArray[index - 3] = intColor;
+                    index -= width;
+                    pixelsArray[index - 1] = intColor;
+                    pixelsArray[index - 2] = intColor;
+                }
+                break;
+        }
     }
+    output.pixels.show();
 };
 
 // creating the images
@@ -222,18 +276,18 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
 };
 
-function imageOfSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
+function imageOfSphere(generation, lastMapping, radius, centerX, centerY) {
     generation += 1;
     const radius2 = radius * radius;
     for (let i = 0; i < mappingLength; i++) {
@@ -242,103 +296,28 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             const mapRadius2 = mappingRadius2[i];
             const mapX = mappingCenterX[i];
             const mapY = mappingCenterY[i];
-            const mapZ = mappingCenterZ[i];
             const dx = centerX - mapX;
             const dy = centerY - mapY;
-            const dz = centerZ - mapZ;
-            const d2 = dx * dx + dy * dy + dz * dz;
+            const d2 = dx * dx + dy * dy;
             const factor = mapRadius2 / (d2 - radius2); // touching spheres laying outside
             const newRadius = radius * Math.abs(factor); // touching surrounding spheres
             const newCenterX = mapX + dx * factor;
             const newCenterY = mapY + dy * factor;
-            const newCenterZ = mapZ + dz * factor;
             // do always at least the minimum generation independent of radius, save these image spheres
             // do up to maximum generation if radius not small enough
             // maximum generation is safeguard
             // minimum generation is for making images
             if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
-                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY);
             }
             if (generation <= minGeneration) {
                 imageGeneration.push(generation);
                 imageRadius.push(newRadius);
                 imageCenterX.push(newCenterX);
                 imageCenterY.push(newCenterY);
-                imageCenterZ.push(newCenterZ);
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
-                imagePointZ.push(newCenterZ);
-            }
-        }
-    }
-}
-
-// making the limit set from points where the spheres touch
-
-mappingSpheres.createImagePoints = function() {
-    const eps = 0.01;
-    clearImagePoints();
-    clearMapping();
-    mappingSpheres.config();
-    mappingLength = mappingRadius.length;
-    for (let i = 1; i < mappingLength; i++) {
-        const radiusI = mappingRadius[i];
-        const centerXI = mappingCenterX[i];
-        const centerYI = mappingCenterY[i];
-        for (let j = 0; j < i; j++) {
-            // check if spheres touch
-            const dx = mappingCenterX[j] - centerXI;
-            const dy = mappingCenterY[j] - centerYI;
-            const d2 = dx * dx + dy * dy;
-            const radiusJ = mappingRadius[j];
-            if (Math.abs(d2 - (radiusI + radiusJ) * (radiusI + radiusJ)) < eps) {
-                const d = Math.sqrt(d2);
-                const h = 0.5 * (radiusI + d - radiusJ) / d;
-                const pointX = centerXI + h * dx;
-                const pointY = centerYI + h * dy;
-                imagePointX.push(pointX);
-                imagePointY.push(pointY);
-                for (let k = 0; k < mappingLength; k++) {
-                    if ((i !== k) && (j !== k)) {
-                        console.log(i, j, k);
-                        const centerXK = mappingCenterX[k];
-                        const centerYK = mappingCenterY[k];
-                        const dx = pointX - centerXK;
-                        const dy = pointY - centerYK;
-                        const d2 = dx * dx + dy * dy;
-                        const radiusK = mappingRadius[k];
-                        const factor = radiusK * radiusK / d2;
-                        const newPointX = centerXK + factor * dx;
-                        const newPointY = centerYK + factor * dy;
-                        imagePointX.push(newPointX);
-                        imagePointY.push(newPointY);
-                        moreImagePoints(imagePoints.gens, k, newPointX, newPointY);
-                    }
-                }
-            }
-        }
-    }
-};
-
-function moreImagePoints(gens, lastMapping, pointX, pointY) {
-    gens -= 1;
-    mappingLength = mappingRadius.length;
-    for (let k = 0; k < mappingLength; k++) {
-        if (lastMapping !== k) {
-            const centerXK = mappingCenterX[k];
-            const centerYK = mappingCenterY[k];
-            const dx = pointX - centerXK;
-            const dy = pointY - centerYK;
-            const d2 = dx * dx + dy * dy;
-            const radiusK = mappingRadius[k];
-            const factor = radiusK * radiusK / d2;
-            const newPointX = centerXK + factor * dx;
-            const newPointY = centerYK + factor * dy;
-            imagePointX.push(newPointX);
-            imagePointY.push(newPointY);
-            if (gens > 0) {
-                moreImagePoints(gens, k, newPointX, newPointY);
             }
         }
     }
