@@ -37,7 +37,8 @@ gui.add({
     params: mappingSpheres,
     property: 'config',
     options: {
-        twoSpheres: mappingSpheres.two,
+        one: mappingSpheres.one,
+        two: mappingSpheres.two,
         triangle: mappingSpheres.triangle,
         tetrahedron: mappingSpheres.tetrahedron2d,
     },

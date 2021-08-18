@@ -17,12 +17,6 @@ const mappingRadius = [];
 const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
-// we need them for drawing?
-// drawing routines better fit here
-// but it may be useful for tests
-mappingSpheres.radius = mappingRadius;
-mappingSpheres.centerX = mappingCenterX;
-mappingSpheres.centerY = mappingCenterY;
 
 function clearMapping() {
     mappingRadius.length = 0;
@@ -83,6 +77,10 @@ mappingSpheres.draw2dCircles = function() {
 
 // creating mapping spheres configurations
 //==============================================================
+mappingSpheres.one = function() {
+    mappingSpheres.add(1, 0, 0);
+};
+
 mappingSpheres.two = function() {
     mappingSpheres.add(1, 1, 0);
     mappingSpheres.add(1, -1, 0);
@@ -116,10 +114,6 @@ const imageGeneration = [];
 const imageRadius = [];
 const imageCenterX = [];
 const imageCenterY = [];
-imageSpheres.generation = imageGeneration;
-imageSpheres.radius = imageRadius;
-imageSpheres.centerX = imageCenterX;
-imageSpheres.centerY = imageCenterY;
 
 function addImageSphere(generation, radius, centerX, centerY) {
     imageGeneration.push(generation);
@@ -164,8 +158,6 @@ imageSpheres.draw2dCircles = function() {
 //===================================================
 const imagePointX = [];
 const imagePointY = [];
-imagePoints.x = imagePointX;
-imagePoints.y = imagePointY;
 
 function clearImagePoints() {
     imagePointX.length = 0;

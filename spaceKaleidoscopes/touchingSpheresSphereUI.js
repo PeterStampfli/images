@@ -12,7 +12,7 @@ import {
     mappingSpheres,
     imageSpheres,
     imagePoints
-} from "./touchingSpheresPlane.js";
+} from "./touchingSpheresSphere.js";
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
@@ -27,7 +27,7 @@ output.setInitialCoordinates(0, 0, 3);
 output.createPixels();
 
 // structure parameters
-mappingSpheres.config = mappingSpheres.triangle;
+mappingSpheres.config = mappingSpheres.tetrahedron2d;
 mappingSpheres.maxGeneration = 100;
 mappingSpheres.minGeneration = 6;
 mappingSpheres.minimumRadius = 0.001;
@@ -37,9 +37,8 @@ gui.add({
     params: mappingSpheres,
     property: 'config',
     options: {
-        twoSpheres: mappingSpheres.two,
-        triangle: mappingSpheres.triangle,
-        tetrahedron: mappingSpheres.tetrahedron2d,
+        tetrahedron2d: mappingSpheres.tetrahedron2d,
+        tetrahedron: mappingSpheres.tetrahedron
     },
     onChange: function() {
         create();

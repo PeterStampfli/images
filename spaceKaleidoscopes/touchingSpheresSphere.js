@@ -18,13 +18,6 @@ const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
 const mappingCenterZ = [];
-// we need them for drawing?
-// drawing routines better fit here
-// but it may be useful for tests
-mappingSpheres.radius = mappingRadius;
-mappingSpheres.centerX = mappingCenterX;
-mappingSpheres.centerY = mappingCenterY;
-mappingSpheres.centerZ = mappingCenterZ;
 
 function clearMapping() {
     mappingRadius.length = 0;
@@ -54,6 +47,14 @@ mappingSpheres.setProjection = function(radius, centerX, centerY, centerZ, cente
     projectionCenter = hyperbolicRadius;
     projectionRadius = Math.sqrt(2) * hyperbolicRadius;
     projectionRadius2 = projectionRadius * projectionRadius;
+};
+
+// typically 3d spheres on a 3d sphere, defining a 3d hyperbolic space
+mappingSpheres.add3dto2d = function(radius, centerX, centerY, centerZ) {
+    const dz = centerZ - projectionCenter;
+    const d2 = centerX * centerX + centerY * centerY + dz * dz;
+    const factor = projectionRadius2 / (d2 - radius * radius);
+    mappingSpheres.add(radius * Math.abs(factor), centerX * factor, centerY * factor);
 };
 
 // typically 4d spheres on a 4d sphere, defining a 4d hyperbolic space
@@ -88,18 +89,24 @@ mappingSpheres.draw2dCircles = function() {
 
 // creating mapping spheres configurations
 //==============================================================
-mappingSpheres.two = function() {
-    mappingSpheres.add(1, 1, 0);
-    mappingSpheres.add(1, -1, 0);
-};
-
-mappingSpheres.triangle = function() {
-    mappingSpheres.add(rt3 / 2, 1, 0);
-    mappingSpheres.add(rt3 / 2, -0.5, rt3 / 2);
-    mappingSpheres.add(rt3 / 2, -0.5, -rt3 / 2);
-};
 
 mappingSpheres.tetrahedron2d = function() {
+    // four inverting spheres at the corners of a tetrahedron
+    const rSphere = 0.8165;
+    const cx2 = 0.9428;
+    const cx34 = -0.4714;
+    const cy3 = 0.8165;
+    const cy4 = -0.8165;
+    const cz234 = 0.3333;
+    // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
+    mappingSpheres.setProjection(rSphere, 0, 0, 1);
+    mappingSpheres.add3dto2d(rSphere, 0, 0, -1);
+    mappingSpheres.add3dto2d(rSphere, cx2, 0, cz234);
+    mappingSpheres.add3dto2d(rSphere, cx34, cy3, cz234);
+    mappingSpheres.add3dto2d(rSphere, cx34, cy4, cz234);
+};
+
+mappingSpheres.tetrahedron = function() {
     // four inverting spheres at the corners of a tetrahedron
     const rSphere = 0.8165;
     const cx2 = 0.9428;
@@ -121,10 +128,7 @@ const imageGeneration = [];
 const imageRadius = [];
 const imageCenterX = [];
 const imageCenterY = [];
-imageSpheres.generation = imageGeneration;
-imageSpheres.radius = imageRadius;
-imageSpheres.centerX = imageCenterX;
-imageSpheres.centerY = imageCenterY;
+const imageCenterZ = [];
 
 function addImageSphere(generation, radius, centerX, centerY, centerZ) {
     imageGeneration.push(generation);
