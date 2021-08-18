@@ -9,9 +9,11 @@ import {
 } from "../libgui/modules.js";
 
 import {
+    poincareSphere,
     mappingSpheres,
     imageSpheres,
-    imagePoints
+    imagePoints,
+    eulerAngles
 } from "./touchingSpheresSphere.js";
 
 // setting up the canvas and its gui
@@ -23,11 +25,11 @@ const gui = new ParamGui({
 // create an output canvas, with coordinates and pixels
 output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
-output.setInitialCoordinates(0, 0, 3);
+output.setInitialCoordinates(0, 0, 2);
 output.createPixels();
 
 // structure parameters
-mappingSpheres.config = mappingSpheres.tetrahedron2d;
+mappingSpheres.config = mappingSpheres.tetrahedron;
 mappingSpheres.maxGeneration = 100;
 mappingSpheres.minGeneration = 6;
 mappingSpheres.minimumRadius = 0.001;
@@ -37,7 +39,6 @@ gui.add({
     params: mappingSpheres,
     property: 'config',
     options: {
-        tetrahedron2d: mappingSpheres.tetrahedron2d,
         tetrahedron: mappingSpheres.tetrahedron
     },
     onChange: function() {
@@ -81,7 +82,28 @@ gui.add({
     }
 });
 
-// display
+poincareSphere.draw = true;
+poincareSphere.color = '#888888';
+
+gui.add({
+    type: 'boolean',
+    params: poincareSphere,
+    property: 'draw',
+    labelText: 'poincare',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'color',
+    params: poincareSphere,
+    property: 'color',
+    onChange: function() {
+        draw();
+    }
+});
+
 mappingSpheres.draw = true;
 mappingSpheres.color = '#ffffff';
 mappingSpheres.lineWidth = 2;
@@ -165,21 +187,14 @@ gui.add({
 });
 
 imagePoints.draw = true;
-imagePoints.color = '#ffff00';
+imagePoints.colorFront = '#ffff00';
+imagePoints.colorBack = '#00ffff';
 imagePoints.pixelSize = 2;
 gui.add({
     type: 'boolean',
     params: imagePoints,
     property: 'draw',
     labelText: 'points',
-    onChange: function() {
-        draw();
-    }
-});
-gui.add({
-    type: 'color',
-    params: imagePoints,
-    property: 'color',
     onChange: function() {
         draw();
     }
@@ -196,6 +211,26 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'color',
+    params: imagePoints,
+    property: 'colorFront',
+    labelText: 'front',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'color',
+    params: imagePoints,
+    property: 'colorBack',
+    labelText: 'back',
+    onChange: function() {
+        draw();
+    }
+});
+
 var timeStart;
 
 function create() {
@@ -205,13 +240,19 @@ function create() {
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
+    if (poincareSphere.draw) {
+        poincareSphere.drawDisc();
+    }
     if (imageSpheres.draw) {
+        imageSpheres.copy();
         imageSpheres.draw2dCircles();
     }
     if (mappingSpheres.draw) {
+        mappingSpheres.copy();
         mappingSpheres.draw2dCircles();
     }
     if (imagePoints.draw) {
+        imagePoints.copy();
         imagePoints.drawPixels();
     }
 }
