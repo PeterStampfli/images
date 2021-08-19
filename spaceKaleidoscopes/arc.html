@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="icon" href="data:,">
+
+<head>
+    <title>ar c</title>
+</head>
+
+<body>
+    <noscript><h1>Please enable javascript!!!</h1></noscript>
+
+ <canvas id="myCanvas" width="300" height="300"></canvas>
+
+</body>
+
+<script>
+
+var c = document.getElementById("myCanvas");
+var canvasContext = c.getContext("2d");
+canvasContext.beginPath();
+canvasContext.arc(150,150,100,0,2*Math.PI)
+
+grd = canvasContext.createRadialGradient(100, 100, 0,100, 100, 150);
+grd.addColorStop(0, "#ffbbbb");
+grd.addColorStop(0.8, "red");
+grd.addColorStop(1, "#bb0000");
+canvasContext.fillStyle=grd;
+canvasContext.fill()
+
+</script>
+
+</html>

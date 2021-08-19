@@ -13,7 +13,8 @@ import {
     mappingSpheres,
     imageSpheres,
     imagePoints,
-    eulerAngles
+    eulerAngles,
+    view
 } from "./touchingSpheresSphere.js";
 
 // setting up the canvas and its gui
@@ -123,6 +124,45 @@ const controllerGamma = controllerBeta.add({
     }
 });
 controllerGamma.cyclic();
+
+view.pointsTransform = view.normal;
+view.spheresTransform = view.normal;
+view.name = 'normal';
+view.interpolation=1;
+
+gui.add({
+    type: 'selection',
+    params: view,
+    property: 'name',
+    labelText: 'view',
+    options: ['normal','stereographic'],
+    onChange: function() {
+        switch (view.name) {
+            case 'normal':
+                console.log('normal');
+                view.pointsTransform = view.normal;
+                view.spheresTransform = view.normal;
+                break;
+                   case 'stereographic':
+                console.log('stereographic');
+                view.pointsTransform = view.stereographicPoints;
+                view.spheresTransform = view.stereographicSpheres;
+                break;
+        }
+        draw();
+    }
+}).add({
+    type:'number',
+    params:view,
+    property:'interpolation',
+    min:0.001,
+    max:1,
+    step:0.001,
+    labelText: 'x',
+    onChange: function() {
+        draw();
+    }
+});
 
 gui.addParagraph("<strong>Display</strong>");
 
@@ -285,19 +325,28 @@ function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
     eulerAngles.updateCoefficients();
+    view.setup();
     if (poincareSphere.draw) {
         poincareSphere.drawDisc();
     }
     if (imageSpheres.draw) {
         imageSpheres.copy();
+        imageSpheres.rotate();
+        imageSpheres.transform();
+        imageSpheres.zSort();
         imageSpheres.draw2dCircles();
     }
     if (mappingSpheres.draw) {
         mappingSpheres.copy();
+        mappingSpheres.rotate();
+        mappingSpheres.transform();
+        mappingSpheres.zSort();
         mappingSpheres.draw2dCircles();
     }
     if (imagePoints.draw) {
         imagePoints.copy();
+        imagePoints.rotate();
+        imagePoints.transform();
         imagePoints.drawPixels();
     }
 }

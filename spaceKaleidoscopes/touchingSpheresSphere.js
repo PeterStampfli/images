@@ -10,6 +10,7 @@ export const mappingSpheres = {};
 export const imageSpheres = {};
 export const imagePoints = {};
 export const eulerAngles = {};
+export const view = {};
 
 const rt3 = Math.sqrt(3);
 
@@ -97,6 +98,18 @@ mappingSpheres.copy = function() {
     }
 };
 
+mappingSpheres.rotate = function() {
+    rotate(mapSpheresDisplay);
+};
+
+mappingSpheres.transform = function() {
+    view.spheresTransform(mapSpheresDisplay);
+};
+
+mappingSpheres.zSort = function() {
+    zSort(mapSpheresDisplay);
+};
+
 // for the simple 2d case, or top-down view
 // draw circles for the mapping spheres (not discs)
 mappingSpheres.draw2dCircles = function() {
@@ -107,7 +120,7 @@ mappingSpheres.draw2dCircles = function() {
     for (var i = 0; i < length; i++) {
         const data = mapSpheresDisplay[i];
         canvasContext.beginPath();
-        canvasContext.arc(data[0], data[1], data[3], 0, 2 * Math.PI);
+        canvasContext.arc(data[0], data[1], Math.abs(data[3]), 0, 2 * Math.PI);
         canvasContext.stroke();
     }
 };
@@ -183,6 +196,18 @@ imageSpheres.copy = function() {
     }
 };
 
+imageSpheres.rotate = function() {
+    rotate(imageSpheresDisplay);
+};
+
+imageSpheres.transform = function() {
+    view.spheresTransform(imageSpheresDisplay);
+};
+
+imageSpheres.zSort = function() {
+    zSort(imageSpheresDisplay);
+};
+
 imageSpheres.draw2dCircles = function() {
     const canvasContext = output.canvasContext;
     output.setLineWidth(imageSpheres.lineWidth);
@@ -191,9 +216,12 @@ imageSpheres.draw2dCircles = function() {
     const length = imageSpheresDisplay.length;
     for (var i = 0; i < length; i++) {
         const data = imageSpheresDisplay[i];
+        const radius=data[3];
         canvasContext.beginPath();
-        canvasContext.arc(data[0], data[1], data[3], 0, 2 * Math.PI);
-        canvasContext.fill();
+        canvasContext.arc(data[0], data[1], Math.abs(data[3]), 0, 2 * Math.PI);
+        if (radius>0){
+            canvasContext.fill();
+        }
         canvasContext.stroke();
     }
 };
@@ -232,7 +260,15 @@ imagePoints.copy = function() {
     }
 };
 
-var width, height, invScale, shiftX, shiftY, pixelSize, intColor, pixelsArray,data;
+imagePoints.rotate = function() {
+    rotate(pointsDisplay);
+};
+
+imagePoints.transform = function() {
+    view.pointsTransform(pointsDisplay);
+};
+
+var width, height, invScale, shiftX, shiftY, pixelSize, intColor, pixelsArray, data;
 
 function drawPoint(k) {
     let i = invScale * (data[0] - shiftX);
@@ -400,6 +436,8 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
 //  image transforms/views
 //================================
 
+// rotating
+
 const fromDeg = Math.PI / 180;
 
 var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
@@ -422,10 +460,72 @@ eulerAngles.updateCoefficients = function() {
     tzz = c2;
 };
 
+function rotate(things) {
+    const length = things.length;
+    for (let i = 0; i < length; i++) {
+        const thing = things[i];
+        const x = thing[0];
+        const y = thing[1];
+        const z = thing[2];
+        thing[0] = txx * x + txy * y + txz * z;
+        thing[1] = tyx * x + tyy * y + tyz * z;
+        thing[2] = tzx * x + tzy * y + tzz * z;
+    }
+}
+
 function eulerRotation() {
     const newX = txx * x + txy * y + txz * z;
     const newY = tyx * x + tyy * y + tyz * z;
     z = tzx * x + tzy * y + tzz * z;
     x = newX;
     y = newY;
+}
+
+// view (transforms)
+
+view.normal = function(things) {};
+
+var viewCenter,viewRadius2;
+
+view.setup=function(){
+ viewCenter=hyperbolicRadius/view.interpolation/view.interpolation;
+ viewRadius2=viewCenter*viewCenter+hyperbolicRadius*hyperbolicRadius;
+};
+
+view.stereographicSpheres = function(things) {
+    const length = things.length;
+    for (let i = 0; i < length; i++) {
+        const thing = things[i];
+        const x = thing[0];
+        const y = thing[1];
+        const z = thing[2];
+        const radius = thing[3];
+        const dz = z - viewCenter;
+        const d2 = x*x + y*y + dz * dz;
+        const factor = viewRadius2 / (d2 - radius * radius);
+        thing[0] = factor * x;
+        thing[1] = factor * y;
+        // we do not change z, is not shown
+        thing[3] = factor * radius;
+    }
+};
+view.stereographicPoints = function(things) {
+    const length = things.length;
+    for (let i = 0; i < length; i++) {
+        const thing = things[i];
+        const x = thing[0];
+        const y = thing[1];
+        const z = thing[2];
+        const dz = z - viewCenter;
+        const d2 = x*x + y*y + dz * dz;
+        const factor = viewRadius2 / d2;
+        thing[0] = factor * x;
+        thing[1] = factor * y;
+        // we do not change z, is not shown
+    }
+};
+
+// sorting for top down view
+function zSort(things) {
+    things.sort((one, two) => one[2] - two[2]);
 }
