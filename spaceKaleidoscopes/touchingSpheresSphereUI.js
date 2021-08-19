@@ -82,6 +82,50 @@ gui.add({
     }
 });
 
+gui.addParagraph("<strong>View</strong> - Euler angles");
+
+eulerAngles.alpha = 0;
+eulerAngles.beta = 0;
+eulerAngles.gamma = 0;
+
+const controllerAlpha = gui.add({
+    type: 'number',
+    params: eulerAngles,
+    property: 'alpha',
+    min: -180,
+    max: 180,
+    onChange: function() {
+        draw();
+    }
+});
+controllerAlpha.cyclic();
+
+const controllerBeta = controllerAlpha.add({
+    type: 'number',
+    params: eulerAngles,
+    property: 'beta',
+    min: -180,
+    max: 180,
+    onChange: function() {
+        draw();
+    }
+});
+controllerBeta.cyclic();
+
+const controllerGamma = controllerBeta.add({
+    type: 'number',
+    params: eulerAngles,
+    property: 'gamma',
+    min: -180,
+    max: 180,
+    onChange: function() {
+        draw();
+    }
+});
+controllerGamma.cyclic();
+
+gui.addParagraph("<strong>Display</strong>");
+
 poincareSphere.draw = true;
 poincareSphere.color = '#888888';
 
@@ -240,6 +284,7 @@ function create() {
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
+    eulerAngles.updateCoefficients();
     if (poincareSphere.draw) {
         poincareSphere.drawDisc();
     }

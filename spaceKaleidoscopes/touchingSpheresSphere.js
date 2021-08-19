@@ -5,7 +5,7 @@ import {
     ColorInput
 } from "../libgui/modules.js";
 
-export const poincareSphere={};
+export const poincareSphere = {};
 export const mappingSpheres = {};
 export const imageSpheres = {};
 export const imagePoints = {};
@@ -18,12 +18,12 @@ const rt3 = Math.sqrt(3);
 // set the hyperbolic radius with mappingSpheres.setProjection
 var hyperbolicRadius;
 
-poincareSphere.drawDisc=function(){
-        const canvasContext = output.canvasContext;
+poincareSphere.drawDisc = function() {
+    const canvasContext = output.canvasContext;
     canvasContext.fillStyle = poincareSphere.color;
-        canvasContext.beginPath();
-        canvasContext.arc(0,0,hyperbolicRadius, 0, 2 * Math.PI);
-        canvasContext.fill();
+    canvasContext.beginPath();
+    canvasContext.arc(0, 0, hyperbolicRadius, 0, 2 * Math.PI);
+    canvasContext.fill();
 };
 
 // the mapping spheres, 3 dimensions
@@ -315,19 +315,19 @@ imagePoints.drawPixels = function() {
     const length = imagePointX.length;
     ColorInput.setObject(imagePointsColor, imagePoints.colorBack);
     intColor = Pixels.integerOfColor(imagePointsColor);
-        for (let k = 0; k < length; k++) {
-        data=pointsDisplay[k];
-        if (data[2]<0){
-        drawPoint(k);
-    }
+    for (let k = 0; k < length; k++) {
+        data = pointsDisplay[k];
+        if (data[2] < 0) {
+            drawPoint(k);
+        }
     }
     ColorInput.setObject(imagePointsColor, imagePoints.colorFront);
     intColor = Pixels.integerOfColor(imagePointsColor);
-        for (let k = 0; k < length; k++) {
-        data=pointsDisplay[k];
-        if (data[2]>=0){
-        drawPoint(k);
-    }
+    for (let k = 0; k < length; k++) {
+        data = pointsDisplay[k];
+        if (data[2] >= 0) {
+            drawPoint(k);
+        }
     }
     output.pixels.show();
 };
@@ -397,4 +397,35 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
     }
 }
 
-// copying the spheres and the points
+//  image transforms/views
+//================================
+
+const fromDeg = Math.PI / 180;
+
+var txx, txy, txz, tyx, tyy, tyz, tzx, tzy, tzz;
+
+eulerAngles.updateCoefficients = function() {
+    const c1 = Math.cos(fromDeg * eulerAngles.alpha);
+    const s1 = Math.sin(fromDeg * eulerAngles.alpha);
+    const c2 = Math.cos(fromDeg * eulerAngles.beta);
+    const s2 = Math.sin(fromDeg * eulerAngles.beta);
+    const c3 = Math.cos(fromDeg * eulerAngles.gamma);
+    const s3 = Math.sin(fromDeg * eulerAngles.gamma);
+    txx = c1 * c3 - c2 * s1 * s3;
+    txy = -c1 * s3 - c2 * c3 * s1;
+    txz = s1 * s2;
+    tyx = c3 * s1 + c1 * c2 * s3;
+    tyy = c1 * c2 * c3 - s1 * s3;
+    tyz = -c1 * s2;
+    tzx = s2 * s3;
+    tzy = c3 * s2;
+    tzz = c2;
+};
+
+function eulerRotation() {
+    const newX = txx * x + txy * y + txz * z;
+    const newY = tyx * x + tyy * y + tyz * z;
+    z = tzx * x + tzy * y + tzz * z;
+    x = newX;
+    y = newY;
+}
