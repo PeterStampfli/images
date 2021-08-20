@@ -128,51 +128,55 @@ controllerGamma.cyclic();
 view.pointsTransform = view.normal;
 view.spheresTransform = view.normal;
 view.name = 'normal';
-view.interpolation=1;
+view.interpolation = 1;
 
 gui.add({
     type: 'selection',
     params: view,
     property: 'name',
     labelText: 'view',
-    options: ['normal','stereographic'],
+    options: ['normal', 'stereographic'],
     onChange: function() {
         switch (view.name) {
             case 'normal':
-                console.log('normal');
+                viewInterpolation.hide();
                 view.pointsTransform = view.normal;
                 view.spheresTransform = view.normal;
                 break;
-                   case 'stereographic':
-                console.log('stereographic');
+            case 'stereographic':
+                viewInterpolation.show();
                 view.pointsTransform = view.stereographicPoints;
                 view.spheresTransform = view.stereographicSpheres;
                 break;
         }
         draw();
     }
-}).add({
-    type:'number',
-    params:view,
-    property:'interpolation',
-    min:0.001,
-    max:1,
-    step:0.001,
+});
+
+const viewInterpolation = gui.add({
+    type: 'number',
+    params: view,
+    property: 'interpolation',
+    min: 0.001,
+    max: 1,
+    step: 0.001,
     labelText: 'x',
     onChange: function() {
         draw();
     }
 });
+viewInterpolation.hide();
 
 gui.addParagraph("<strong>Display</strong>");
 
-poincareSphere.draw = true;
+poincareSphere.draw = 'disc';
 poincareSphere.color = '#888888';
-
+poincareSphere.lineWidth=2;
 gui.add({
-    type: 'boolean',
+    type: 'selection',
     params: poincareSphere,
     property: 'draw',
+    options:['none','disc','circle','sphere','bubble'],
     labelText: 'poincare',
     onChange: function() {
         draw();
@@ -183,6 +187,14 @@ gui.add({
     type: 'color',
     params: poincareSphere,
     property: 'color',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: poincareSphere,
+    property: 'lineWidth',
+    labelText: 'width',
     onChange: function() {
         draw();
     }
@@ -270,46 +282,55 @@ gui.add({
     }
 });
 
-imagePoints.draw = true;
+imagePoints.drawFront = true;
+imagePoints.drawBack = true;
 imagePoints.colorFront = '#ffff00';
 imagePoints.colorBack = '#00ffff';
 imagePoints.pixelSize = 2;
 gui.add({
-    type: 'boolean',
-    params: imagePoints,
-    property: 'draw',
-    labelText: 'points',
-    onChange: function() {
-        draw();
-    }
-}).add({
     type: 'number',
     params: imagePoints,
     property: 'pixelSize',
     min: 1,
     step: 1,
     max: 4,
-    labelText: 'size',
+    labelText: 'point size',
     onChange: function() {
         draw();
     }
 });
 
 gui.add({
-    type: 'color',
+    type: 'boolean',
     params: imagePoints,
-    property: 'colorFront',
+    property: 'drawFront',
     labelText: 'front',
     onChange: function() {
         draw();
     }
+}).add({
+    type: 'color',
+    params: imagePoints,
+    property: 'colorFront',
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
 });
 
 gui.add({
+    type: 'boolean',
+    params: imagePoints,
+    property: 'drawBack',
+    labelText: 'back',
+    onChange: function() {
+        draw();
+    }
+}).add({
     type: 'color',
     params: imagePoints,
     property: 'colorBack',
-    labelText: 'back',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -326,9 +347,7 @@ function draw() {
     output.fillCanvas('#00000000');
     eulerAngles.updateCoefficients();
     view.setup();
-    if (poincareSphere.draw) {
-        poincareSphere.drawDisc();
-    }
+        poincareSphere.drawThing();
     if (imageSpheres.draw) {
         imageSpheres.copy();
         imageSpheres.rotate();
@@ -343,7 +362,7 @@ function draw() {
         mappingSpheres.zSort();
         mappingSpheres.draw2dCircles();
     }
-    if (imagePoints.draw) {
+    if (imagePoints.drawFront || imagePoints.drawBack) {
         imagePoints.copy();
         imagePoints.rotate();
         imagePoints.transform();

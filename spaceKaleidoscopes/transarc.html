@@ -40,6 +40,7 @@
 } from "../libgui/modules.js";
 
 
+
  const baseColor='#aaaaaa';
  const baseColorObject={};
  ColorInput.setObject(baseColorObject,baseColor);
@@ -62,18 +63,27 @@ const darkColor=ColorInput.stringFromObject(darkColorObject);
  console.log(darkColor);
 
 const x=150;
-const y=100;
+const y=150;
 const r=100;
 
 var c = document.getElementById("myCanvas");
 var canvasContext = c.getContext("2d");
+
+canvasContext.fillStyle='blue';
+canvasContext.fillRect(0,0,300,300);
+
 canvasContext.beginPath();
 canvasContext.arc(x,y,r,0,2*Math.PI)
 
-const grd = canvasContext.createRadialGradient(x-0.5*r, y-0.5*r, r*0.1,x-0.5*r, y-0.5*r, r*1.5);
-grd.addColorStop(0, lightColor);
-grd.addColorStop(0.8, baseColor);
-grd.addColorStop(1, darkColor);
+let grd = canvasContext.createRadialGradient(x, y, r*0.8,x, y, r);
+grd.addColorStop(0, '#ffffff00');
+grd.addColorStop(0.9, '#ffffffff');
+grd.addColorStop(1, '#ffffffff');
+canvasContext.fillStyle=grd;
+canvasContext.fill()
+grd = canvasContext.createRadialGradient(x-0.5*r, y-0.5*r, 0,x-0.5*r, y-0.5*r, r);
+grd.addColorStop(0, '#ffffffff');
+grd.addColorStop(1, '#ffffff00');
 canvasContext.fillStyle=grd;
 canvasContext.fill()
 

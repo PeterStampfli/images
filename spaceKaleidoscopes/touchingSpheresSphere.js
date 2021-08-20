@@ -13,18 +13,102 @@ export const eulerAngles = {};
 export const view = {};
 
 const rt3 = Math.sqrt(3);
+const colorObject = {};
+const lightness = 0.75;
+const darkness = 0.5;
+
+// drawing spheres
+//=================================
+
+function drawDisc(x, y, radius, color) {
+    const canvasContext = output.canvasContext;
+    canvasContext.fillStyle = color;
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.fill();
+}
+
+function drawCircle(x, y, radius, color, lineWidth) {
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(lineWidth);
+    canvasContext.strokeStyle = color;
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.stroke();
+}
+
+function drawDiscCircle(x, y, radius, colorDisc, colorCircle, lineWidth) {
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(lineWidth);
+    canvasContext.strokeStyle = colorCircle;
+    canvasContext.fillStyle = colorDisc;
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.stroke();
+}
+
+function drawSphere(x, y, radius, color) {
+    const canvasContext = output.canvasContext;
+    ColorInput.setObject(colorObject, color);
+    colorObject.red = Math.floor(colorObject.red * (1 - lightness) + 255.9 * lightness);
+    colorObject.green = Math.floor(colorObject.green * (1 - lightness) + 255.9 * lightness);
+    colorObject.blue = Math.floor(colorObject.blue * (1 - lightness) + 255.9 * lightness);
+    const lightColor = ColorInput.stringFromObject(colorObject);
+    ColorInput.setObject(colorObject, color);
+    colorObject.red = Math.floor(colorObject.red * (1 - darkness));
+    colorObject.green = Math.floor(colorObject.green * (1 - darkness));
+    colorObject.blue = Math.floor(colorObject.blue * (1 - darkness));
+    const darkColor = ColorInput.stringFromObject(colorObject);
+    const grd = canvasContext.createRadialGradient(x - 0.5 * radius, y - 0.5 * radius, radius * 0.1, x - 0.5 * radius, y - 0.5 * radius, radius * 1.5);
+    grd.addColorStop(0, lightColor);
+    grd.addColorStop(0.8, color);
+    grd.addColorStop(1, darkColor);
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.fillStyle = grd;
+    canvasContext.fill();
+}
+
+function drawBubble(x, y, radius, color) {
+    const canvasContext = output.canvasContext;
+    ColorInput.setObject(colorObject, color);
+    colorObject.alpha = 0;
+    const transparentColor = ColorInput.stringFromObject(colorObject);
+    let grd = canvasContext.createRadialGradient(x, y, radius * 0.8, x, y, radius);
+    grd.addColorStop(0, transparentColor);
+    grd.addColorStop(0.9, color);
+    grd.addColorStop(1, color);
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.fillStyle = grd;
+    canvasContext.fill();
+    grd = canvasContext.createRadialGradient(x - 0.5 * radius, y - 0.5 * radius, 0, x - 0.5 * radius, y - 0.5 * radius, radius);
+    grd.addColorStop(0, color);
+    grd.addColorStop(1, transparentColor);
+    canvasContext.fillStyle = grd;
+    canvasContext.fill();
+}
 
 //  drawing the poincare sphere for reference
 //==========================================================
 // set the hyperbolic radius with mappingSpheres.setProjection
 var hyperbolicRadius;
 
-poincareSphere.drawDisc = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.fillStyle = poincareSphere.color;
-    canvasContext.beginPath();
-    canvasContext.arc(0, 0, hyperbolicRadius, 0, 2 * Math.PI);
-    canvasContext.fill();
+poincareSphere.drawThing = function() {
+    switch (poincareSphere.draw) {
+        case 'disc':
+            drawDisc(0, 0, hyperbolicRadius, poincareSphere.color);
+            break;
+        case 'circle':
+            drawCircle(0, 0, hyperbolicRadius, poincareSphere.color, poincareSphere.lineWidth);
+            break;
+        case 'sphere':
+            drawSphere(0, 0, hyperbolicRadius, poincareSphere.color);
+            break;
+        case 'bubble':
+            drawBubble(0, 0, hyperbolicRadius, poincareSphere.color);
+            break;
+    }
 };
 
 // the mapping spheres, 3 dimensions
@@ -34,6 +118,11 @@ const mappingRadius2 = [];
 const mappingCenterX = [];
 const mappingCenterY = [];
 const mappingCenterZ = [];
+const mappingImageGeneration = []; // collecting the image spheres inside the mapping sphere
+const mappingImageCenterX = [];
+const mappingImageCenterY = [];
+const mappingImageCenterZ = [];
+const mappingImageRadius = [];
 // for display: an array of Float32Arrays, [x,y,z,radius]
 // take only required generation
 // sorting: a.sort((one,two)=>one[2]-two[2])  for the z-component
@@ -45,6 +134,11 @@ function clearMapping() {
     mappingCenterX.length = 0;
     mappingCenterY.length = 0;
     mappingCenterZ.length = 0;
+    mappingImageGeneration.length = 0;
+    mappingImageCenterX.length = 0;
+    mappingImageCenterY.length = 0;
+    mappingImageCenterZ.length = 0;
+    mappingImageRadius.length = 0;
 }
 
 mappingSpheres.add = function(radius, centerX, centerY, centerZ = 0) {
@@ -53,6 +147,11 @@ mappingSpheres.add = function(radius, centerX, centerY, centerZ = 0) {
     mappingCenterX.push(centerX);
     mappingCenterY.push(centerY);
     mappingCenterZ.push(centerZ);
+    mappingImageGeneration.push([]);
+    mappingImageCenterX.push([]);
+    mappingImageCenterY.push([]);
+    mappingImageCenterZ.push([]);
+    mappingImageRadius.push([]);
 };
 
 // add a projected mapping sphere
@@ -89,11 +188,13 @@ mappingSpheres.copy = function() {
     mapSpheresDisplay.length = 0;
     const length = mappingRadius.length;
     for (var i = 0; i < length; i++) {
-        const data = new Float32Array(4);
+        const data = [];
+        data.length=5;
         data[0] = mappingCenterX[i];
         data[1] = mappingCenterY[i];
         data[2] = mappingCenterZ[i];
         data[3] = mappingRadius[i];
+        data[4]=i;
         mapSpheresDisplay.push(data);
     }
 };
@@ -156,12 +257,17 @@ const imageCenterZ = [];
 // sorting: a.sort((one,two)=>one[2]-two[2])  for the z-component
 const imageSpheresDisplay = [];
 
-function addImageSphere(generation, radius, centerX, centerY, centerZ) {
+function addImageSphere(generation, mappingSphere, radius, centerX, centerY, centerZ) {
     imageGeneration.push(generation);
     imageRadius.push(radius);
     imageCenterX.push(centerX);
     imageCenterY.push(centerY);
     imageCenterZ.push(centerZ);
+            mappingImageGeneration[mappingSphere].push(generation);
+            mappingImageRadius[mappingSphere].push(radius);
+            mappingImageCenterX[mappingSphere].push(centerX);
+            mappingImageCenterY[mappingSphere].push(centerY);
+            mappingImageCenterZ[mappingSphere].push(centerZ);
 }
 
 function clearImageSpheres() {
@@ -170,6 +276,14 @@ function clearImageSpheres() {
     imageCenterX.length = 0;
     imageCenterY.length = 0;
     imageCenterZ.length = 0;
+    const length = mappingRadius.length;
+    for (var i = 0; i < length; i++) {
+        mappingImageGeneration[i].length = 0;
+        mappingImageCenterX[i].length = 0;
+        mappingImageCenterY[i].length = 0;
+        mappingImageCenterZ[i].length = 0;
+        mappingImageRadius[i].length = 0;
+    }
 }
 
 imageSpheres.log = function() {
@@ -216,10 +330,10 @@ imageSpheres.draw2dCircles = function() {
     const length = imageSpheresDisplay.length;
     for (var i = 0; i < length; i++) {
         const data = imageSpheresDisplay[i];
-        const radius=data[3];
+        const radius = data[3];
         canvasContext.beginPath();
         canvasContext.arc(data[0], data[1], Math.abs(data[3]), 0, 2 * Math.PI);
-        if (radius>0){
+        if (radius > 0) {
             canvasContext.fill();
         }
         canvasContext.stroke();
@@ -349,20 +463,24 @@ imagePoints.drawPixels = function() {
     height = output.canvas.height;
     pixelSize = imagePoints.pixelSize;
     const length = imagePointX.length;
-    ColorInput.setObject(imagePointsColor, imagePoints.colorBack);
-    intColor = Pixels.integerOfColor(imagePointsColor);
-    for (let k = 0; k < length; k++) {
-        data = pointsDisplay[k];
-        if (data[2] < 0) {
-            drawPoint(k);
+    if (imagePoints.drawBack) {
+        ColorInput.setObject(imagePointsColor, imagePoints.colorBack);
+        intColor = Pixels.integerOfColor(imagePointsColor);
+        for (let k = 0; k < length; k++) {
+            data = pointsDisplay[k];
+            if (data[2] < 0) {
+                drawPoint(k);
+            }
         }
     }
-    ColorInput.setObject(imagePointsColor, imagePoints.colorFront);
-    intColor = Pixels.integerOfColor(imagePointsColor);
-    for (let k = 0; k < length; k++) {
-        data = pointsDisplay[k];
-        if (data[2] >= 0) {
-            drawPoint(k);
+    if (imagePoints.drawFront) {
+        ColorInput.setObject(imagePointsColor, imagePoints.colorFront);
+        intColor = Pixels.integerOfColor(imagePointsColor);
+        for (let k = 0; k < length; k++) {
+            data = pointsDisplay[k];
+            if (data[2] >= 0) {
+                drawPoint(k);
+            }
         }
     }
     output.pixels.show();
@@ -382,7 +500,7 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(0, i,mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
@@ -413,11 +531,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             const newCenterY = mapY + dy * factor;
             const newCenterZ = mapZ + dz * factor;
             if (generation <= minGeneration) {
-                imageGeneration.push(generation);
-                imageRadius.push(newRadius);
-                imageCenterX.push(newCenterX);
-                imageCenterY.push(newCenterY);
-                imageCenterZ.push(newCenterZ);
+                addImageSphere(generation,i,newRadius,newCenterX,newCenterY,newCenterZ);  
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
@@ -485,11 +599,11 @@ function eulerRotation() {
 
 view.normal = function(things) {};
 
-var viewCenter,viewRadius2;
+var viewCenter, viewRadius2;
 
-view.setup=function(){
- viewCenter=hyperbolicRadius/view.interpolation/view.interpolation;
- viewRadius2=viewCenter*viewCenter+hyperbolicRadius*hyperbolicRadius;
+view.setup = function() {
+    viewCenter = hyperbolicRadius / view.interpolation / view.interpolation;
+    viewRadius2 = viewCenter * viewCenter + hyperbolicRadius * hyperbolicRadius;
 };
 
 view.stereographicSpheres = function(things) {
@@ -501,7 +615,7 @@ view.stereographicSpheres = function(things) {
         const z = thing[2];
         const radius = thing[3];
         const dz = z - viewCenter;
-        const d2 = x*x + y*y + dz * dz;
+        const d2 = x * x + y * y + dz * dz;
         const factor = viewRadius2 / (d2 - radius * radius);
         thing[0] = factor * x;
         thing[1] = factor * y;
@@ -517,7 +631,7 @@ view.stereographicPoints = function(things) {
         const y = thing[1];
         const z = thing[2];
         const dz = z - viewCenter;
-        const d2 = x*x + y*y + dz * dz;
+        const d2 = x * x + y * y + dz * dz;
         const factor = viewRadius2 / d2;
         thing[0] = factor * x;
         thing[1] = factor * y;
