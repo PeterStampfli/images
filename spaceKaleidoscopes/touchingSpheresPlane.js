@@ -66,12 +66,16 @@ mappingSpheres.log = function() {
 mappingSpheres.draw2dCircles = function() {
     const canvasContext = output.canvasContext;
     output.setLineWidth(mappingSpheres.lineWidth);
-    canvasContext.strokeStyle = mappingSpheres.color;
+    canvasContext.strokeStyle = mappingSpheres.strokeColor;
+    canvasContext.fillStyle = mappingSpheres.fillColor;
     const length = mappingRadius.length;
     for (var i = 0; i < length; i++) {
         canvasContext.beginPath();
         canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
-        canvasContext.stroke();
+        canvasContext.fill();
+        if (mappingSpheres.stroke) {
+            canvasContext.stroke();
+        }
     }
 };
 
@@ -139,8 +143,8 @@ imageSpheres.log = function() {
 imageSpheres.draw2dCircles = function() {
     const canvasContext = output.canvasContext;
     output.setLineWidth(imageSpheres.lineWidth);
-    canvasContext.strokeStyle = imageSpheres.stroke;
-    canvasContext.fillStyle = imageSpheres.fill;
+    canvasContext.strokeStyle = imageSpheres.strokeColor;
+    canvasContext.fillStyle = imageSpheres.fillColor;
     const length = imageRadius.length;
     const drawGeneration = Math.min(imageSpheres.drawGeneration, mappingSpheres.minGeneration);
     imageSpheres.drawGenController.setValueOnly(drawGeneration);
@@ -149,7 +153,9 @@ imageSpheres.draw2dCircles = function() {
             canvasContext.beginPath();
             canvasContext.arc(imageCenterX[i], imageCenterY[i], imageRadius[i], 0, 2 * Math.PI);
             canvasContext.fill();
-            canvasContext.stroke();
+            if (imageSpheres.stroke) {
+                canvasContext.stroke();
+            }
         }
     }
 };
@@ -172,8 +178,14 @@ imagePoints.log = function() {
 };
 
 imagePoints.drawPixels = function() {
+    var color;
+    if (imageSpheres.stroke) {
+        color = imageSpheres.strokeColor;
+    } else {
+        color = imageSpheres.fillColor;
+    }
     const imagePointsColor = {};
-    ColorInput.setObject(imagePointsColor, imagePoints.color);
+    ColorInput.setObject(imagePointsColor, color);
     let intColor = Pixels.integerOfColor(imagePointsColor);
     output.pixels.update();
     const pixelsArray = output.pixels.array;

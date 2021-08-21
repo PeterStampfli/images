@@ -83,29 +83,55 @@ gui.add({
     }
 });
 
-// display
-mappingSpheres.draw = true;
-mappingSpheres.color = '#ffffff';
+const display = {};
+display.show = 'image spheres';
+
+gui.add({
+    type: 'selection',
+    params: display,
+    property: 'show',
+    options: ['mapping spheres', 'image spheres', 'points'],
+    labelText: 'display',
+    onChange: function() {
+        create();
+        draw();
+    }
+});
+
+gui.addParagraph('mapping spheres');
+mappingSpheres.stroke = true;
+mappingSpheres.fillColor = '#aaaaaa';
+mappingSpheres.strokeColor = '#ffffff';
 mappingSpheres.lineWidth = 2;
 
 gui.add({
-    type: 'boolean',
+    type: 'color',
     params: mappingSpheres,
-    property: 'draw',
-    labelText: 'mapping',
+    property: 'fillColor',
+    labelText: 'fill',
     onChange: function() {
         draw();
     }
 });
 
 gui.add({
-    type: 'color',
+    type: 'boolean',
     params: mappingSpheres,
-    property: 'color',
+    property: 'stroke',
     onChange: function() {
         draw();
     }
 }).add({
+    type: 'color',
+    params: mappingSpheres,
+    property: 'strokeColor',
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'number',
     params: mappingSpheres,
     property: 'lineWidth',
@@ -115,27 +141,20 @@ gui.add({
     }
 });
 
-imageSpheres.draw = true;
+gui.addParagraph('image spheres');
+imageSpheres.stroke = true;
 imageSpheres.drawGeneration = 2;
-imageSpheres.stroke = '#000000';
+imageSpheres.strokeColor = '#000000';
 imageSpheres.lineWidth = 2;
-imageSpheres.fill = '#ff0000';
-imageSpheres.onOffController = gui.add({
-    type: 'boolean',
-    params: imageSpheres,
-    property: 'draw',
-    labelText: 'spheres',
-    onChange: function() {
-        draw();
-    }
-});
-imageSpheres.drawGenController = imageSpheres.onOffController.add({
+imageSpheres.fillColor = '#ff0000';
+
+imageSpheres.drawGenController = gui.add({
     type: 'number',
     params: imageSpheres,
     property: 'drawGeneration',
     min: 0,
     step: 1,
-    labelText: 'generation',
+    labelText: 'gen',
     onChange: function() {
         draw();
     }
@@ -143,12 +162,32 @@ imageSpheres.drawGenController = imageSpheres.onOffController.add({
 
 gui.add({
     type: 'color',
+    params: imageSpheres,
+    property: 'fillColor',
+    labelText: 'fill',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
     params: imageSpheres,
     property: 'stroke',
     onChange: function() {
         draw();
     }
 }).add({
+    type: 'color',
+    params: imageSpheres,
+    property: 'strokeColor',
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'number',
     params: imageSpheres,
     property: 'lineWidth',
@@ -157,48 +196,21 @@ gui.add({
         draw();
     }
 });
-gui.add({
-    type: 'color',
-    params: imageSpheres,
-    property: 'fill',
-    onChange: function() {
-        draw();
-    }
-});
 
-imagePoints.draw = true;
-imagePoints.color = '#ffff00';
 imagePoints.pixelSize = 2;
+
 gui.add({
-    type: 'boolean',
-    params: imagePoints,
-    property: 'draw',
-    labelText: 'points',
-    onChange: function() {
-        draw();
-    }
-});
-gui.add({
-    type: 'color',
-    params: imagePoints,
-    property: 'color',
-    onChange: function() {
-        draw();
-    }
-}).add({
     type: 'number',
     params: imagePoints,
     property: 'pixelSize',
     min: 1,
     step: 1,
     max: 4,
-    labelText: 'size',
+    labelText: 'point size',
     onChange: function() {
         draw();
     }
 });
-
-var timeStart;
 
 function create() {
     mappingSpheres.createImageSpheres();
@@ -207,20 +219,22 @@ function create() {
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
-    if (imageSpheres.draw) {
-        imageSpheres.draw2dCircles();
-    }
-    if (mappingSpheres.draw) {
-        mappingSpheres.draw2dCircles();
-    }
-    if (imagePoints.draw) {
-        imagePoints.drawPixels();
+    switch (display.show) {
+        case 'mapping spheres':
+            mappingSpheres.draw2dCircles();
+            break;
+        case 'image spheres':
+            mappingSpheres.draw2dCircles();
+            imageSpheres.draw2dCircles();
+            break;
+        case 'points':
+            mappingSpheres.draw2dCircles();
+            imagePoints.drawPixels();
+            break;
     }
 }
 
 output.drawCanvasChanged = draw;
-
-
 
 create();
 

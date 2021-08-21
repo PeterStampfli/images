@@ -1,6 +1,5 @@
 /* jshint esversion: 6 */
 
-
 import {
     map,
     output,
@@ -44,6 +43,7 @@ gui.add({
     },
     onChange: function() {
         create();
+        transformSort();
         draw();
     }
 });
@@ -57,6 +57,7 @@ gui.add({
     step: 1,
     onChange: function() {
         create();
+        transformSort();
         draw();
     }
 }).add({
@@ -68,6 +69,7 @@ gui.add({
     step: 1,
     onChange: function() {
         create();
+        transformSort();
         draw();
     }
 });
@@ -79,6 +81,7 @@ gui.add({
     min: 0,
     onChange: function() {
         create();
+        transformSort();
         draw();
     }
 });
@@ -96,6 +99,7 @@ const controllerAlpha = gui.add({
     min: -180,
     max: 180,
     onChange: function() {
+        transformSort();
         draw();
     }
 });
@@ -108,6 +112,7 @@ const controllerBeta = controllerAlpha.add({
     min: -180,
     max: 180,
     onChange: function() {
+        transformSort();
         draw();
     }
 });
@@ -120,6 +125,7 @@ const controllerGamma = controllerBeta.add({
     min: -180,
     max: 180,
     onChange: function() {
+        transformSort();
         draw();
     }
 });
@@ -149,6 +155,7 @@ gui.add({
                 view.spheresTransform = view.stereographicSpheres;
                 break;
         }
+        transformSort();
         draw();
     }
 });
@@ -162,6 +169,7 @@ const viewInterpolation = gui.add({
     step: 0.001,
     labelText: 'x',
     onChange: function() {
+        transformSort();
         draw();
     }
 });
@@ -169,24 +177,14 @@ viewInterpolation.hide();
 
 gui.addParagraph("<strong>Display</strong>");
 
-poincareSphere.draw = 'disc';
 poincareSphere.color = '#888888';
-poincareSphere.lineWidth=2;
-gui.add({
-    type: 'selection',
-    params: poincareSphere,
-    property: 'draw',
-    options:['none','disc','circle','sphere','bubble'],
-    labelText: 'poincare',
-    onChange: function() {
-        draw();
-    }
-});
+poincareSphere.lineWidth = 2;
 
 gui.add({
     type: 'color',
     params: poincareSphere,
     property: 'color',
+    labelText: 'poinc sphere',
     onChange: function() {
         draw();
     }
@@ -200,36 +198,18 @@ gui.add({
     }
 });
 
-mappingSpheres.draw = true;
-mappingSpheres.color = '#ffffff';
-mappingSpheres.lineWidth = 2;
-
-gui.add({
-    type: 'boolean',
-    params: mappingSpheres,
-    property: 'draw',
-    labelText: 'mapping',
-    onChange: function() {
-        draw();
-    }
-});
-
+mappingSpheres.color = '#aaaaaa';
 gui.add({
     type: 'color',
     params: mappingSpheres,
     property: 'color',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: mappingSpheres,
-    property: 'lineWidth',
-    labelText: 'width',
+    labelText: 'mapp spheres',
     onChange: function() {
         draw();
     }
 });
+
+gui.addParagraph('image spheres');
 
 imageSpheres.draw = true;
 imageSpheres.drawGeneration = 2;
@@ -253,6 +233,7 @@ imageSpheres.drawGenController = imageSpheres.onOffController.add({
     step: 1,
     labelText: 'generation',
     onChange: function() {
+        transformSort();
         draw();
     }
 });
@@ -336,38 +317,37 @@ gui.add({
     }
 });
 
-var timeStart;
-
 function create() {
     mappingSpheres.createImageSpheres();
+}
+
+function transformSort(){
+    eulerAngles.updateCoefficients();
+    view.setup();
+    imageSpheres.copy();
+    imageSpheres.rotate();
+    imageSpheres.transform();
+    imageSpheres.zSort();
+    mappingSpheres.copy();
+    mappingSpheres.rotate();
+    mappingSpheres.transform();
+    mappingSpheres.zSort();
+    imagePoints.copy();
+    imagePoints.rotate();
+    imagePoints.transform();
 }
 
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
-    eulerAngles.updateCoefficients();
-    view.setup();
-        poincareSphere.drawThing();
-    if (imageSpheres.draw) {
-        imageSpheres.copy();
-        imageSpheres.rotate();
-        imageSpheres.transform();
-        imageSpheres.zSort();
-        imageSpheres.draw2dCircles();
-    }
-    if (mappingSpheres.draw) {
-        mappingSpheres.copy();
-        mappingSpheres.rotate();
-        mappingSpheres.transform();
-        mappingSpheres.zSort();
-        mappingSpheres.draw2dCircles();
-    }
-    if (imagePoints.drawFront || imagePoints.drawBack) {
-        imagePoints.copy();
-        imagePoints.rotate();
-        imagePoints.transform();
-        imagePoints.drawPixels();
-    }
+    poincareSphere.drawLowerBubble();
+    //poincareSphere.drawSphere();
+
+    //  imageSpheres.draw2dCircles();
+
+    mappingSpheres.drawSpheres();
+
+    //  imagePoints.drawPixels();
 }
 
 output.drawCanvasChanged = draw;
@@ -375,5 +355,7 @@ output.drawCanvasChanged = draw;
 
 
 create();
+
+transformSort();
 
 draw();

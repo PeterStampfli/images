@@ -69,7 +69,7 @@ function drawSphere(x, y, radius, color) {
     canvasContext.fill();
 }
 
-function drawBubble(x, y, radius, color) {
+function drawUpperBubble(x, y, radius, color) {
     const canvasContext = output.canvasContext;
     ColorInput.setObject(colorObject, color);
     colorObject.alpha = 0;
@@ -89,26 +89,47 @@ function drawBubble(x, y, radius, color) {
     canvasContext.fill();
 }
 
+function drawLowerBubble(x, y, radius, color) {
+    const canvasContext = output.canvasContext;
+    ColorInput.setObject(colorObject, color);
+    colorObject.alpha = 0;
+    let transparentColor = ColorInput.stringFromObject(colorObject);
+    let grd = canvasContext.createRadialGradient(x, y, radius * 0.9, x, y, radius);
+    grd.addColorStop(0, transparentColor);
+    grd.addColorStop(0.9, color);
+    grd.addColorStop(1, color);
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.fillStyle = grd;
+    canvasContext.fill();
+    colorObject.alpha = 200;
+    color = ColorInput.stringFromObject(colorObject);
+    grd = canvasContext.createRadialGradient(x + 0.5 * radius, y + 0.5 * radius, 0, x + 0.5 * radius, y + 0.5 * radius, 0.8 * radius);
+    grd.addColorStop(0, color);
+    grd.addColorStop(1, transparentColor);
+    canvasContext.fillStyle = grd;
+    canvasContext.fill();
+}
+
 //  drawing the poincare sphere for reference
 //==========================================================
 // set the hyperbolic radius with mappingSpheres.setProjection
 var hyperbolicRadius;
 
-poincareSphere.drawThing = function() {
-    switch (poincareSphere.draw) {
-        case 'disc':
-            drawDisc(0, 0, hyperbolicRadius, poincareSphere.color);
-            break;
-        case 'circle':
-            drawCircle(0, 0, hyperbolicRadius, poincareSphere.color, poincareSphere.lineWidth);
-            break;
-        case 'sphere':
-            drawSphere(0, 0, hyperbolicRadius, poincareSphere.color);
-            break;
-        case 'bubble':
-            drawBubble(0, 0, hyperbolicRadius, poincareSphere.color);
-            break;
-    }
+poincareSphere.drawCircle = function() {
+    drawCircle(0, 0, hyperbolicRadius, poincareSphere.color, poincareSphere.lineWidth);
+};
+
+poincareSphere.drawSphere = function() {
+    drawSphere(0, 0, hyperbolicRadius, poincareSphere.color);
+};
+
+poincareSphere.drawUpperBubble = function() {
+    drawUpperBubble(0, 0, hyperbolicRadius, poincareSphere.color);
+};
+
+poincareSphere.drawLowerBubble = function() {
+    drawLowerBubble(0, 0, hyperbolicRadius, poincareSphere.color);
 };
 
 // the mapping spheres, 3 dimensions
@@ -189,12 +210,12 @@ mappingSpheres.copy = function() {
     const length = mappingRadius.length;
     for (var i = 0; i < length; i++) {
         const data = [];
-        data.length=5;
+        data.length = 5;
         data[0] = mappingCenterX[i];
         data[1] = mappingCenterY[i];
         data[2] = mappingCenterZ[i];
         data[3] = mappingRadius[i];
-        data[4]=i;
+        data[4] = i;
         mapSpheresDisplay.push(data);
     }
 };
@@ -213,16 +234,16 @@ mappingSpheres.zSort = function() {
 
 // for the simple 2d case, or top-down view
 // draw circles for the mapping spheres (not discs)
-mappingSpheres.draw2dCircles = function() {
-    const canvasContext = output.canvasContext;
-    output.setLineWidth(mappingSpheres.lineWidth);
-    canvasContext.strokeStyle = mappingSpheres.color;
+mappingSpheres.drawSpheres = function() {
     const length = mapSpheresDisplay.length;
     for (var i = 0; i < length; i++) {
         const data = mapSpheresDisplay[i];
-        canvasContext.beginPath();
-        canvasContext.arc(data[0], data[1], Math.abs(data[3]), 0, 2 * Math.PI);
-        canvasContext.stroke();
+        const radius = data[3];
+        if (radius > 0) {
+            drawSphere(data[0], data[1], data[3], mappingSpheres.color);
+        } else {
+            drawCircle(data[0], data[1], -data[3], mappingSpheres.color);
+        }
     }
 };
 
@@ -263,11 +284,11 @@ function addImageSphere(generation, mappingSphere, radius, centerX, centerY, cen
     imageCenterX.push(centerX);
     imageCenterY.push(centerY);
     imageCenterZ.push(centerZ);
-            mappingImageGeneration[mappingSphere].push(generation);
-            mappingImageRadius[mappingSphere].push(radius);
-            mappingImageCenterX[mappingSphere].push(centerX);
-            mappingImageCenterY[mappingSphere].push(centerY);
-            mappingImageCenterZ[mappingSphere].push(centerZ);
+    mappingImageGeneration[mappingSphere].push(generation);
+    mappingImageRadius[mappingSphere].push(radius);
+    mappingImageCenterX[mappingSphere].push(centerX);
+    mappingImageCenterY[mappingSphere].push(centerY);
+    mappingImageCenterZ[mappingSphere].push(centerZ);
 }
 
 function clearImageSpheres() {
@@ -500,7 +521,7 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, i,mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
@@ -531,7 +552,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             const newCenterY = mapY + dy * factor;
             const newCenterZ = mapZ + dz * factor;
             if (generation <= minGeneration) {
-                addImageSphere(generation,i,newRadius,newCenterX,newCenterY,newCenterZ);  
+                addImageSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
