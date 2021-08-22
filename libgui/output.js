@@ -376,23 +376,25 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
         minLabelWidth: 5
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
+output.setBackground=function(){
+            ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+        output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
+        output.canvas.style.backgroundColor = output.backgroundColorString;
+}
+
     // add background color controller and transparency controller only if needed
     if (hasBackgroundColor) {
         output.backgroundColorString = '#000099';
         output.backgroundColor = {};
-        ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-        output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-        output.canvas.style.backgroundColor = output.backgroundColorString;
+      output.setBackground();
         output.backgroundColorController = gui.add({
             type: 'color',
             params: output,
             property: 'backgroundColorString',
             labelText: 'background',
             onChange: function() {
-                ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
-                output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
-                output.canvas.style.backgroundColor = output.backgroundColorString;
-                if (output.pixels.antialiasSubpixels === 1) {
+                output.setBackground();
+                                if (output.pixels.antialiasSubpixels === 1) {
                     output.drawImageChanged();
                 } else {
                     output.drawBackgroundChanged();
@@ -1268,14 +1270,35 @@ output.drawGrid = function() {
  * @param {String} color - hex color string
  */
 output.fillCanvas = function(color) {
-    const transform = output.canvasContext.getTransform();
-    output.canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-    output.canvasContext.fillStyle = color;
-    output.canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
+    const canvasContext = output.canvasContext;
+    const transform = canvasContext.getTransform();
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    canvasContext.fillStyle = color;
+    canvasContext.clearRect(0, 0, output.canvas.width, output.canvas.height);
     if (color !== '#00000000') {
         output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
     }
-    output.canvasContext.setTransform(transform);
+    canvasContext.setTransform(transform);
+};
+
+/**
+ * write some text in sans-serif
+ * preserves the current transform, changes fill style
+ * @method output.write
+ * @param {String} text
+ * @param {float} x - position
+ * @param {float} y
+ * @param {integer} size - in px
+ * @param {String} color - hex color string
+ */
+output.write = function(text, x, y, size, color) {
+    const canvasContext = output.canvasContext;
+    const transform = canvasContext.getTransform();
+    canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+    canvasContext.fillStyle = color;
+    canvasContext.font = size + 'px  freeSans,sans-serif';
+    canvasContext.fillText(text, x, y);
+    canvasContext.setTransform(transform);
 };
 
 /**

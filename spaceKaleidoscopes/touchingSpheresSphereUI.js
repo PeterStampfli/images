@@ -27,6 +27,8 @@ output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
 output.setInitialCoordinates(0, 0, 2);
 output.createPixels();
+output.backgroundColorController.setValueOnly('#0000aa');
+output.setBackground();
 
 // structure parameters
 mappingSpheres.config = mappingSpheres.tetrahedron;
@@ -86,7 +88,7 @@ gui.add({
     }
 });
 
-gui.addParagraph("<strong>View</strong> - Euler angles");
+gui.addParagraph("Euler angles");
 
 eulerAngles.alpha = 0;
 eulerAngles.beta = 0;
@@ -175,7 +177,20 @@ const viewInterpolation = gui.add({
 });
 viewInterpolation.hide();
 
-gui.addParagraph("<strong>Display</strong>");
+const display = {};
+display.show = 'points on solid sphere';
+
+gui.add({
+    type: 'selection',
+    params: display,
+    property: 'show',
+    options: ['mapping spheres', 'points on solid sphere', 'points on bubble', 'points with circle'],
+    labelText: 'display',
+    onChange: function() {
+        create();
+        draw();
+    }
+});
 
 poincareSphere.color = '#888888';
 poincareSphere.lineWidth = 2;
@@ -203,70 +218,37 @@ gui.add({
     type: 'color',
     params: mappingSpheres,
     property: 'color',
-    labelText: 'mapp spheres',
+    labelText: 'map sphere',
     onChange: function() {
         draw();
     }
 });
 
-gui.addParagraph('image spheres');
-
-imageSpheres.draw = true;
 imageSpheres.drawGeneration = 2;
-imageSpheres.stroke = '#000000';
-imageSpheres.lineWidth = 2;
-imageSpheres.fill = '#ff0000';
-imageSpheres.onOffController = gui.add({
-    type: 'boolean',
+imageSpheres.color = '#ff0000';
+
+const imageSpheresFillController = gui.add({
+    type: 'color',
     params: imageSpheres,
-    property: 'draw',
-    labelText: 'spheres',
+    property: 'color',
+    labelText: 'img sphere',
     onChange: function() {
         draw();
     }
 });
-imageSpheres.drawGenController = imageSpheres.onOffController.add({
+imageSpheres.drawGenController = imageSpheresFillController.add({
     type: 'number',
     params: imageSpheres,
     property: 'drawGeneration',
     min: 0,
     step: 1,
-    labelText: 'generation',
+    labelText: 'show iters',
     onChange: function() {
         transformSort();
         draw();
     }
 });
 
-gui.add({
-    type: 'color',
-    params: imageSpheres,
-    property: 'stroke',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: imageSpheres,
-    property: 'lineWidth',
-    labelText: 'width',
-    onChange: function() {
-        draw();
-    }
-});
-gui.add({
-    type: 'color',
-    params: imageSpheres,
-    property: 'fill',
-    onChange: function() {
-        draw();
-    }
-});
-
-imagePoints.drawFront = true;
-imagePoints.drawBack = true;
-imagePoints.colorFront = '#ffff00';
-imagePoints.colorBack = '#00ffff';
 imagePoints.pixelSize = 2;
 gui.add({
     type: 'number',
@@ -281,47 +263,11 @@ gui.add({
     }
 });
 
-gui.add({
-    type: 'boolean',
-    params: imagePoints,
-    property: 'drawFront',
-    labelText: 'front',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'color',
-    params: imagePoints,
-    property: 'colorFront',
-    labelText: '',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: imagePoints,
-    property: 'drawBack',
-    labelText: 'back',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'color',
-    params: imagePoints,
-    property: 'colorBack',
-    labelText: '',
-    onChange: function() {
-        draw();
-    }
-});
-
 function create() {
     mappingSpheres.createImageSpheres();
 }
 
-function transformSort(){
+function transformSort() {
     eulerAngles.updateCoefficients();
     view.setup();
     imageSpheres.copy();
@@ -340,19 +286,37 @@ function transformSort(){
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
-    poincareSphere.drawLowerBubble();
+    switch (display.show) {
+        case 'mapping spheres':
+            mappingSpheres.drawSpheres();
+            break;
+        case 'points on solid sphere':
+            poincareSphere.drawSphere();
+            imagePoints.drawUpper();
+            break;
+        case 'points on bubble':
+            imagePoints.drawLower();
+            poincareSphere.drawLowerBubble();
+            poincareSphere.drawUpperBubble();
+            imagePoints.drawUpper();
+            break;
+        case 'points with circle':
+            poincareSphere.drawCircle();
+            imagePoints.drawLower();
+            imagePoints.drawUpper();
+            break;
+    }
     //poincareSphere.drawSphere();
 
     //  imageSpheres.draw2dCircles();
 
-    mappingSpheres.drawSpheres();
+    output.write('Iterations: ' + imageSpheres.drawGeneration, 10, 40, 36, '#ffffff');
 
     //  imagePoints.drawPixels();
 }
 
 output.drawCanvasChanged = draw;
-
-
+output.drawImageChanged = draw;
 
 create();
 

@@ -471,7 +471,7 @@ function drawPoint(k) {
     }
 }
 
-imagePoints.drawPixels = function() {
+imagePoints.drawLower = function() {
     const imagePointsColor = {};
     output.pixels.update();
     pixelsArray = output.pixels.array;
@@ -484,29 +484,41 @@ imagePoints.drawPixels = function() {
     height = output.canvas.height;
     pixelSize = imagePoints.pixelSize;
     const length = imagePointX.length;
-    if (imagePoints.drawBack) {
-        ColorInput.setObject(imagePointsColor, imagePoints.colorBack);
-        intColor = Pixels.integerOfColor(imagePointsColor);
-        for (let k = 0; k < length; k++) {
-            data = pointsDisplay[k];
-            if (data[2] < 0) {
-                drawPoint(k);
-            }
+    ColorInput.setObject(imagePointsColor, imageSpheres.color);
+    intColor = Pixels.integerOfColor(imagePointsColor);
+    for (let k = 0; k < length; k++) {
+        data = pointsDisplay[k];
+        if (data[2] < 0) {
+            drawPoint(k);
         }
     }
-    if (imagePoints.drawFront) {
-        ColorInput.setObject(imagePointsColor, imagePoints.colorFront);
-        intColor = Pixels.integerOfColor(imagePointsColor);
-        for (let k = 0; k < length; k++) {
-            data = pointsDisplay[k];
-            if (data[2] >= 0) {
-                drawPoint(k);
-            }
+
+    output.pixels.show();
+};
+
+imagePoints.drawUpper = function() {
+    const imagePointsColor = {};
+    output.pixels.update();
+    pixelsArray = output.pixels.array;
+    const scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    invScale = 1 / scale;
+    shiftX = output.coordinateTransform.shiftX;
+    shiftY = output.coordinateTransform.shiftY;
+    // (x,y)=scale*(i,j)+(shiftX,shiftY)
+    width = output.canvas.width;
+    height = output.canvas.height;
+    pixelSize = imagePoints.pixelSize;
+    const length = imagePointX.length;
+    ColorInput.setObject(imagePointsColor, imageSpheres.color);
+    intColor = Pixels.integerOfColor(imagePointsColor);
+    for (let k = 0; k < length; k++) {
+        data = pointsDisplay[k];
+        if (data[2] >= 0) {
+            drawPoint(k);
         }
     }
     output.pixels.show();
 };
-
 // creating the images
 //===================================
 
@@ -521,14 +533,14 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
     }
 };
 

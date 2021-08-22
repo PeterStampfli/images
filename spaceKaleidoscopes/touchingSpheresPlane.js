@@ -280,14 +280,14 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(0, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
+        addImageSphere(1, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(0, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
+        imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i]);
     }
 };
 

@@ -25,6 +25,8 @@ output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
 output.setInitialCoordinates(0, 0, 3);
 output.createPixels();
+output.backgroundColorController.setValueOnly('#0000aa');
+output.setBackground();
 
 // structure parameters
 mappingSpheres.config = mappingSpheres.triangle;
@@ -101,7 +103,7 @@ gui.add({
 gui.addParagraph('mapping spheres');
 mappingSpheres.stroke = true;
 mappingSpheres.fillColor = '#aaaaaa';
-mappingSpheres.strokeColor = '#ffffff';
+mappingSpheres.strokeColor = '#000000';
 mappingSpheres.lineWidth = 2;
 
 gui.add({
@@ -152,7 +154,7 @@ imageSpheres.drawGenController = gui.add({
     type: 'number',
     params: imageSpheres,
     property: 'drawGeneration',
-    min: 0,
+    min: 1,
     step: 1,
     labelText: 'gen',
     onChange: function() {
@@ -226,6 +228,7 @@ function draw() {
         case 'image spheres':
             mappingSpheres.draw2dCircles();
             imageSpheres.draw2dCircles();
+            output.write('Iterations: ' + imageSpheres.drawGeneration, 10, 40, 36, '#ffffff');
             break;
         case 'points':
             mappingSpheres.draw2dCircles();
@@ -235,6 +238,7 @@ function draw() {
 }
 
 output.drawCanvasChanged = draw;
+output.drawImageChanged = draw;
 
 create();
 
