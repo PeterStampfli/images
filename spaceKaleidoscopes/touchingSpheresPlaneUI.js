@@ -11,7 +11,8 @@ import {
 import {
     mappingSpheres,
     imageSpheres,
-    imagePoints
+    imagePoints,
+    switches
 } from "./touchingSpheresPlane.js";
 
 // setting up the canvas and its gui
@@ -87,6 +88,7 @@ gui.add({
 
 const display = {};
 display.show = 'image spheres';
+display.lineWidth=2;
 
 gui.add({
     type: 'selection',
@@ -100,55 +102,74 @@ gui.add({
     }
 });
 
-gui.addParagraph('mapping spheres');
-mappingSpheres.stroke = true;
+gui.add({
+    type: 'number',
+    params: display,
+    property: 'lineWidth',
+    labelText: 'line width',
+    onChange: function() {
+        draw();
+    }
+});
+
 mappingSpheres.fillColor = '#aaaaaa';
-mappingSpheres.strokeColor = '#000000';
-mappingSpheres.lineWidth = 2;
 
 gui.add({
     type: 'color',
     params: mappingSpheres,
     property: 'fillColor',
-    labelText: 'fill',
+    labelText: 'map spheres',
     onChange: function() {
         draw();
     }
 });
 
+switches[0]=true;
+switches[1]=true;
+switches[2]=true;
+switches[3]=true;
+
 gui.add({
-    type: 'boolean',
-    params: mappingSpheres,
-    property: 'stroke',
+    type:'boolean',
+    params:switches,
+    property:0,
+    labelText:'switches',
     onChange: function() {
+        create();
         draw();
     }
 }).add({
-    type: 'color',
-    params: mappingSpheres,
-    property: 'strokeColor',
-    labelText: '',
+    type:'boolean',
+    params:switches,
+    property:1,
+    labelText:'',
     onChange: function() {
+        create();
+        draw();
+    }
+}).add({
+    type:'boolean',
+    params:switches,
+    property:2,
+    labelText:'',
+    onChange: function() {
+        create();
+        draw();
+    }
+}).add({
+    type:'boolean',
+    params:switches,
+    property:3,
+    labelText:'',
+    onChange: function() {
+        create();
         draw();
     }
 });
 
-gui.add({
-    type: 'number',
-    params: mappingSpheres,
-    property: 'lineWidth',
-    labelText: 'width',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.addParagraph('image spheres');
-imageSpheres.stroke = true;
 imageSpheres.drawGeneration = 2;
-imageSpheres.strokeColor = '#000000';
-imageSpheres.lineWidth = 2;
 imageSpheres.fillColor = '#ff0000';
+imageSpheres.useSpecialColors=true;
 
 imageSpheres.drawGenController = gui.add({
     type: 'number',
@@ -156,7 +177,7 @@ imageSpheres.drawGenController = gui.add({
     property: 'drawGeneration',
     min: 1,
     step: 1,
-    labelText: 'gen',
+    labelText: 'iterations',
     onChange: function() {
         draw();
     }
@@ -166,34 +187,15 @@ gui.add({
     type: 'color',
     params: imageSpheres,
     property: 'fillColor',
-    labelText: 'fill',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: imageSpheres,
-    property: 'stroke',
+    labelText: 'img spheres',
     onChange: function() {
         draw();
     }
 }).add({
-    type: 'color',
+    type: 'boolean',
     params: imageSpheres,
-    property: 'strokeColor',
-    labelText: '',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'number',
-    params: imageSpheres,
-    property: 'lineWidth',
-    labelText: 'width',
+    property: 'useSpecialColors',
+    labelText: 'multi',
     onChange: function() {
         draw();
     }
@@ -221,6 +223,8 @@ function create() {
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
+    output.setLineWidth(display.lineWidth);
+    output.canvasContext.strokeStyle='#000000';
     switch (display.show) {
         case 'mapping spheres':
             mappingSpheres.draw2dCircles();
