@@ -18,7 +18,8 @@ import {
 // setting up the canvas and its gui
 const gui = new ParamGui({
     name: 'touching spheres in two dimensions',
-    closed: false
+    closed: false,
+    booleanButtonWidth: 40
 });
 
 // create an output canvas, with coordinates and pixels
@@ -88,13 +89,13 @@ gui.add({
 
 const display = {};
 display.show = 'image spheres';
-display.lineWidth=2;
+display.lineWidth = 2;
 
 gui.add({
     type: 'selection',
     params: display,
     property: 'show',
-    options: ['mapping spheres', 'image spheres', 'points'],
+    options: ['mapping spheres', 'image spheres', 'points', 'points only'],
     labelText: 'display',
     onChange: function() {
         create();
@@ -124,43 +125,43 @@ gui.add({
     }
 });
 
-switches[0]=true;
-switches[1]=true;
-switches[2]=true;
-switches[3]=true;
+switches[0] = true;
+switches[1] = true;
+switches[2] = true;
+switches[3] = true;
 
 gui.add({
-    type:'boolean',
-    params:switches,
-    property:0,
-    labelText:'switches',
+    type: 'boolean',
+    params: switches,
+    property: 0,
+    labelText: 'switches',
     onChange: function() {
         create();
         draw();
     }
 }).add({
-    type:'boolean',
-    params:switches,
-    property:1,
-    labelText:'',
+    type: 'boolean',
+    params: switches,
+    property: 1,
+    labelText: '',
     onChange: function() {
         create();
         draw();
     }
 }).add({
-    type:'boolean',
-    params:switches,
-    property:2,
-    labelText:'',
+    type: 'boolean',
+    params: switches,
+    property: 2,
+    labelText: '',
     onChange: function() {
         create();
         draw();
     }
 }).add({
-    type:'boolean',
-    params:switches,
-    property:3,
-    labelText:'',
+    type: 'boolean',
+    params: switches,
+    property: 3,
+    labelText: '',
     onChange: function() {
         create();
         draw();
@@ -169,7 +170,7 @@ gui.add({
 
 imageSpheres.drawGeneration = 2;
 imageSpheres.fillColor = '#ff0000';
-imageSpheres.useSpecialColors=true;
+imageSpheres.useSpecialColors = true;
 
 imageSpheres.drawGenController = gui.add({
     type: 'number',
@@ -224,7 +225,7 @@ function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
-    output.canvasContext.strokeStyle='#000000';
+    output.canvasContext.strokeStyle = '#000000';
     switch (display.show) {
         case 'mapping spheres':
             mappingSpheres.draw2dCircles();
@@ -236,6 +237,9 @@ function draw() {
             break;
         case 'points':
             mappingSpheres.draw2dCircles();
+            imagePoints.drawPixels();
+            break;
+        case 'points only':
             imagePoints.drawPixels();
             break;
     }

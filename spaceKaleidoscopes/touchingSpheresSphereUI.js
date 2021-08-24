@@ -13,13 +13,15 @@ import {
     imageSpheres,
     imagePoints,
     eulerAngles,
-    view
+    view,
+    switches
 } from "./touchingSpheresSphere.js";
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
     name: 'touching spheres on a 3d spherical surface',
-    closed: false
+    closed: false,
+    booleanButtonWidth: 40
 });
 
 // create an output canvas, with coordinates and pixels
@@ -179,15 +181,26 @@ viewInterpolation.hide();
 
 const display = {};
 display.show = 'points on solid sphere';
+display.lineWidth = 2;
 
 gui.add({
     type: 'selection',
     params: display,
     property: 'show',
-    options: ['mapping spheres', 'points on solid sphere', 'points on bubble', 'points with circle'],
+    options: ['mapping spheres', 'points on solid sphere', 'points on bubble', 'points with circle', 'nix'],
     labelText: 'display',
     onChange: function() {
         create();
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: display,
+    property: 'lineWidth',
+    labelText: 'line width',
+    onChange: function() {
         draw();
     }
 });
@@ -203,14 +216,6 @@ gui.add({
     onChange: function() {
         draw();
     }
-}).add({
-    type: 'number',
-    params: poincareSphere,
-    property: 'lineWidth',
-    labelText: 'width',
-    onChange: function() {
-        draw();
-    }
 });
 
 mappingSpheres.color = '#aaaaaa';
@@ -218,16 +223,88 @@ gui.add({
     type: 'color',
     params: mappingSpheres,
     property: 'color',
-    labelText: 'map sphere',
+    labelText: 'map spheres',
     onChange: function() {
+        draw();
+    }
+});
+
+switches[0] = true;
+switches[1] = true;
+switches[2] = true;
+switches[3] = true;
+switches[4] = true;
+
+gui.add({
+    type: 'boolean',
+    params: switches,
+    property: 0,
+    labelText: 'switches',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: switches,
+    property: 1,
+    labelText: '',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: switches,
+    property: 2,
+    labelText: '',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: switches,
+    property: 3,
+    labelText: '',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: switches,
+    property: 4,
+    labelText: '',
+    onChange: function() {
+        create();
+        transformSort();
         draw();
     }
 });
 
 imageSpheres.drawGeneration = 2;
 imageSpheres.color = '#ff0000';
+imageSpheres.useSpecialColors = true;
 
-const imageSpheresFillController = gui.add({
+imageSpheres.drawGenController = gui.add({
+    type: 'number',
+    params: imageSpheres,
+    property: 'drawGeneration',
+    min: 1,
+    step: 1,
+    labelText: 'iterations',
+    onChange: function() {
+        transformSort();
+        draw();
+    }
+});
+
+gui.add({
     type: 'color',
     params: imageSpheres,
     property: 'color',
@@ -235,19 +312,17 @@ const imageSpheresFillController = gui.add({
     onChange: function() {
         draw();
     }
-});
-imageSpheres.drawGenController = imageSpheresFillController.add({
-    type: 'number',
+}).add({
+    type: 'boolean',
     params: imageSpheres,
-    property: 'drawGeneration',
-    min: 0,
-    step: 1,
-    labelText: 'show iters',
+    property: 'useSpecialColors',
+    labelText: 'multi',
     onChange: function() {
-        transformSort();
         draw();
     }
 });
+
+
 
 imagePoints.pixelSize = 2;
 gui.add({
@@ -286,6 +361,8 @@ function transformSort() {
 function draw() {
     output.startDrawing();
     output.fillCanvas('#00000000');
+    output.setLineWidth(display.lineWidth);
+    output.canvasContext.strokeStyle = '#000000';
     switch (display.show) {
         case 'mapping spheres':
             mappingSpheres.drawSpheres();
@@ -308,7 +385,7 @@ function draw() {
     }
     //poincareSphere.drawSphere();
 
-    //  imageSpheres.draw2dCircles();
+    imageSpheres.draw2dCircles();
 
     output.write('Iterations: ' + imageSpheres.drawGeneration, 10, 40, 36, '#ffffff');
 

@@ -11,8 +11,10 @@ export const imageSpheres = {};
 export const imagePoints = {};
 export const eulerAngles = {};
 export const view = {};
+export const switches = [];
 
 const rt3 = Math.sqrt(3);
+const colors = ['#ff0000', '#ffff00', '#00ff00', '#ff8800', '#ff00ff'];
 const colorObject = {};
 const lightness = 0.75;
 const darkness = 0.5;
@@ -28,19 +30,15 @@ function drawDisc(x, y, radius, color) {
     canvasContext.fill();
 }
 
-function drawCircle(x, y, radius, color, lineWidth) {
+function drawCircle(x, y, radius) {
     const canvasContext = output.canvasContext;
-    output.setLineWidth(lineWidth);
-    canvasContext.strokeStyle = color;
     canvasContext.beginPath();
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
     canvasContext.stroke();
 }
 
-function drawDiscCircle(x, y, radius, colorDisc, colorCircle, lineWidth) {
+function drawDiscCircle(x, y, radius, colorDisc) {
     const canvasContext = output.canvasContext;
-    output.setLineWidth(lineWidth);
-    canvasContext.strokeStyle = colorCircle;
     canvasContext.fillStyle = colorDisc;
     canvasContext.beginPath();
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
@@ -117,7 +115,7 @@ function drawLowerBubble(x, y, radius, color) {
 var hyperbolicRadius;
 
 poincareSphere.drawCircle = function() {
-    drawCircle(0, 0, hyperbolicRadius, poincareSphere.color, poincareSphere.lineWidth);
+    drawCircle(0, 0, hyperbolicRadius, poincareSphere.color);
 };
 
 poincareSphere.drawSphere = function() {
@@ -235,16 +233,22 @@ mappingSpheres.zSort = function() {
 // for the simple 2d case, or top-down view
 // draw circles for the mapping spheres (not discs)
 mappingSpheres.drawSpheres = function() {
+    const canvasContext = output.canvasContext;
     const length = mapSpheresDisplay.length;
     for (var i = 0; i < length; i++) {
         const data = mapSpheresDisplay[i];
         const radius = data[3];
-        if (radius > 0) {
+        if ((radius > 0) && ((i > 4) || (switches[i]))) {
             drawSphere(data[0], data[1], data[3], mappingSpheres.color);
-        } else {
-            drawCircle(data[0], data[1], -data[3], mappingSpheres.color);
+        } else if (!imageSpheres.useSpecialColors) {
+            drawCircle(data[0], data[1], Math.abs(data[3]));
+        }
+        if (imageSpheres.useSpecialColors) {
+            canvasContext.strokeStyle = colors[i % 5];
+            drawCircle(data[0], data[1], Math.abs(data[3]));
         }
     }
+    canvasContext.strokeStyle = '#000000';
 };
 
 // creating mapping spheres configurations
@@ -273,17 +277,19 @@ const imageRadius = [];
 const imageCenterX = [];
 const imageCenterY = [];
 const imageCenterZ = [];
+const imageOrigin = [];
 // for display: an array of Float32Arrays, [x,y,z,radius]
 // take only required generation
 // sorting: a.sort((one,two)=>one[2]-two[2])  for the z-component
 const imageSpheresDisplay = [];
 
-function addImageSphere(generation, mappingSphere, radius, centerX, centerY, centerZ) {
+function addImageSphere(generation, mappingSphere, radius, centerX, centerY, centerZ, origin) {
     imageGeneration.push(generation);
     imageRadius.push(radius);
     imageCenterX.push(centerX);
     imageCenterY.push(centerY);
     imageCenterZ.push(centerZ);
+    imageOrigin.push(origin);
     mappingImageGeneration[mappingSphere].push(generation);
     mappingImageRadius[mappingSphere].push(radius);
     mappingImageCenterX[mappingSphere].push(centerX);
@@ -297,6 +303,7 @@ function clearImageSpheres() {
     imageCenterX.length = 0;
     imageCenterY.length = 0;
     imageCenterZ.length = 0;
+    imageOrigin.length = 0;
     const length = mappingRadius.length;
     for (var i = 0; i < length; i++) {
         mappingImageGeneration[i].length = 0;
@@ -321,11 +328,12 @@ imageSpheres.copy = function() {
     const length = imageRadius.length;
     for (var i = 0; i < length; i++) {
         if (imageGeneration[i] === drawGeneration) {
-            const data = new Float32Array(4);
+            const data = new Float32Array(5);
             data[0] = imageCenterX[i];
             data[1] = imageCenterY[i];
             data[2] = imageCenterZ[i];
             data[3] = imageRadius[i];
+            data[4] = imageOrigin[i];
             imageSpheresDisplay.push(data);
         }
     }
@@ -345,16 +353,19 @@ imageSpheres.zSort = function() {
 
 imageSpheres.draw2dCircles = function() {
     const canvasContext = output.canvasContext;
-    output.setLineWidth(imageSpheres.lineWidth);
-    canvasContext.strokeStyle = imageSpheres.stroke;
-    canvasContext.fillStyle = imageSpheres.fill;
+    canvasContext.strokeStyle = '#000000';
+    canvasContext.fillStyle = imageSpheres.color;
     const length = imageSpheresDisplay.length;
     for (var i = 0; i < length; i++) {
         const data = imageSpheresDisplay[i];
         const radius = data[3];
+        const imageOrigin = Math.round(data[4]);
         canvasContext.beginPath();
         canvasContext.arc(data[0], data[1], Math.abs(data[3]), 0, 2 * Math.PI);
         if (radius > 0) {
+            if (imageSpheres.useSpecialColors) {
+                canvasContext.fillStyle = colors[imageOrigin % 5];
+            }
             canvasContext.fill();
         }
         canvasContext.stroke();
@@ -533,23 +544,25 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        addImageSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i], i);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i]);
+        if ((i > 4) || (switches[i])) {
+            imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], mappingCenterZ[i], i);
+        }
     }
 };
 
-function imageOfSphere(generation, lastMapping, radius, centerX, centerY, centerZ) {
+function imageOfSphere(generation, lastMapping, radius, centerX, centerY, centerZ, origin) {
     generation += 1;
     const radius2 = radius * radius;
     for (let i = 0; i < mappingLength; i++) {
         // map only at spheres that do not contain it
-        if (i !== lastMapping) {
+        if ((i !== lastMapping) && ((i > 4) || (switches[i]))) {
             const mapRadius2 = mappingRadius2[i];
             const mapX = mappingCenterX[i];
             const mapY = mappingCenterY[i];
@@ -564,7 +577,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             const newCenterY = mapY + dy * factor;
             const newCenterZ = mapZ + dz * factor;
             if (generation <= minGeneration) {
-                addImageSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
+                addImageSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ, origin);
             } else if (newRadius < minimumRadius) {
                 imagePointX.push(newCenterX);
                 imagePointY.push(newCenterY);
@@ -574,7 +587,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY, center
             // maximum generation is safeguard
             // minimum generation is for making images
             if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
-                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ);
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, newCenterZ, origin);
             }
         }
     }

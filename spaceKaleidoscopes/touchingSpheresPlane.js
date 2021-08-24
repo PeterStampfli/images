@@ -8,11 +8,11 @@ import {
 export const mappingSpheres = {};
 export const imageSpheres = {};
 export const imagePoints = {};
-export const switches=[];
+export const switches = [];
 
 const rt3 = Math.sqrt(3);
 
-const colors=['#ff0000','#ffff00','#00ff00','#ff8800'];
+const colors = ['#ff0000', '#ffff00', '#00ff00', '#ff8800'];
 
 // the mapping spheres, 2 dimensions
 //==================================================================
@@ -78,15 +78,15 @@ mappingSpheres.draw2dCircles = function() {
     for (var i = 0; i < length; i++) {
         canvasContext.beginPath();
         canvasContext.arc(mappingCenterX[i], mappingCenterY[i], mappingRadius[i], 0, 2 * Math.PI);
-        canvasContext.fill();
-        if (imageSpheres.useSpecialColors){
-canvasContext.strokeStyle=colors[i];
+        if ((i > 3) || (switches[i])) {
+            canvasContext.fill();
         }
-
-            canvasContext.stroke();
-        
+        if (imageSpheres.useSpecialColors) {
+            canvasContext.strokeStyle = colors[i & 3];
+        }
+        canvasContext.stroke();
     }
-    canvasContext.strokeStyle='#000000';
+    canvasContext.strokeStyle = '#000000';
 };
 
 // creating mapping spheres configurations
@@ -130,7 +130,7 @@ const imageCenterX = [];
 const imageCenterY = [];
 const imageOrigin = [];
 
-function addImageSphere(generation, radius, centerX, centerY,origin) {
+function addImageSphere(generation, radius, centerX, centerY, origin) {
     imageGeneration.push(generation);
     imageRadius.push(radius);
     imageCenterX.push(centerX);
@@ -149,7 +149,7 @@ function clearImageSpheres() {
 imageSpheres.log = function() {
     console.log("image spheres, generation,radius,centerXY");
     for (var i = 0; i < imageRadius.length; i++) {
-        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i],imageOrigin[i]);
+        console.log(i, imageGeneration[i], imageRadius[i], imageCenterX[i], imageCenterY[i], imageOrigin[i]);
     }
 };
 
@@ -163,11 +163,11 @@ imageSpheres.draw2dCircles = function() {
         if (imageGeneration[i] === drawGeneration) {
             canvasContext.beginPath();
             canvasContext.arc(imageCenterX[i], imageCenterY[i], imageRadius[i], 0, 2 * Math.PI);
-            if (imageSpheres.useSpecialColors){
-                canvasContext.fillStyle=colors[imageOrigin[i]&3];
+            if (imageSpheres.useSpecialColors) {
+                canvasContext.fillStyle = colors[imageOrigin[i] & 3];
             }
             canvasContext.fill();
-                canvasContext.stroke();
+            canvasContext.stroke();
         }
     }
 };
@@ -277,7 +277,7 @@ imagePoints.drawPixels = function() {
 
 var maxGeneration, minGeneration, minimumRadius, mappingLength;
 
-// using images of the mapping spheress
+// using images of the mapping spheres
 
 mappingSpheres.createImageSpheres = function() {
     clearImageSpheres();
@@ -286,23 +286,25 @@ mappingSpheres.createImageSpheres = function() {
     mappingSpheres.config();
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingRadius.length; i++) {
-        addImageSphere(1, mappingRadius[i], mappingCenterX[i], mappingCenterY[i],i);
+        addImageSphere(1, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], i);
     }
     maxGeneration = mappingSpheres.maxGeneration;
     minGeneration = mappingSpheres.minGeneration;
     minimumRadius = mappingSpheres.minimumRadius;
     mappingLength = mappingRadius.length;
     for (let i = 0; i < mappingLength; i++) {
-        imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i],i);
+        if ((i > 3) || (switches[i])) {
+            imageOfSphere(1, i, mappingRadius[i], mappingCenterX[i], mappingCenterY[i], i);
+        }
     }
 };
 
-function imageOfSphere(generation, lastMapping, radius, centerX, centerY,origin) {
+function imageOfSphere(generation, lastMapping, radius, centerX, centerY, origin) {
     generation += 1;
     const radius2 = radius * radius;
     for (let i = 0; i < mappingLength; i++) {
-        // map only at spheres that do not contain it
-        if (i !== lastMapping) {
+        // map only at spheres that do not contain it, and that are switched on
+        if ((i !== lastMapping) && ((i > 3) || (switches[i]))) {
             const mapRadius2 = mappingRadius2[i];
             const mapX = mappingCenterX[i];
             const mapY = mappingCenterY[i];
@@ -328,7 +330,7 @@ function imageOfSphere(generation, lastMapping, radius, centerX, centerY,origin)
             // maximum generation is safeguard
             // minimum generation is for making images
             if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minimumRadius))) {
-                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY,origin);
+                imageOfSphere(generation, i, newRadius, newCenterX, newCenterY, origin);
             }
         }
     }
