@@ -106,6 +106,35 @@ basics.drawLowerBubble = function(x, y, radius, color) {
     canvasContext.fill();
 };
 
+//  copy static coordinates for rotating
+//=====================================
+
+// points as arrays of arrays: copy array content fitting points,viewPoints
+basics.copyCoordinatesPoints = function(viewPoints, points) {
+    const length = points.length;
+    for (let i = 0; i < length; i++) {
+        const point = points[i];
+        const viewPoint = viewPoints[i];
+        viewPoint[0] = point[0];
+        viewPoint[1] = point[1];
+        viewPoint[2] = point[2];
+    }
+};
+
+// spheres with components: copy components (x,y,z,radius) 
+// to "view" components (viewX,viewY,viewZ,viewRadius)
+basics.copyCoordinatesSpheres = function(spheres) {
+    const length = spheres.length;
+    for (let i = 0; i < length; i++) {
+        const sphere = spheres[i];
+        sphere.viewX = sphere.x;
+        sphere.viewY = sphere.y;
+        sphere.viewZ = sphere.z;
+        sphere.viewRadius = sphere.radius;
+    }
+};
+
+
 // rotating arrays of objects and arrays of coordinate-arrays (points)
 //============================================
 
@@ -132,30 +161,30 @@ basics.updateEulerAngles = function() {
 };
 
 // rotate points that are vectors=arrays of three components
-basics.rotatePoints = function(things) {
-    const length = things.length;
+basics.rotatePoints = function(points) {
+    const length = points.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const x = thing[0];
-        const y = thing[1];
-        const z = thing[2];
-        thing[0] = txx * x + txy * y + txz * z;
-        thing[1] = tyx * x + tyy * y + tyz * z;
-        thing[2] = tzx * x + tzy * y + tzz * z;
+        const point = points[i];
+        const x = point[0];
+        const y = point[1];
+        const z = point[2];
+        point[0] = txx * x + txy * y + txz * z;
+        point[1] = tyx * x + tyy * y + tyz * z;
+        point[2] = tzx * x + tzy * y + tzz * z;
     }
 };
 
 // rotate spheres = objects with x,y,z coordinate fields
-basics.rotateSpheres = function(things) {
-    const length = things.length;
+basics.rotateSpheres = function(spheres) {
+    const length = spheres.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const x = thing.x;
-        const y = thing.y;
-        const z = thing.z;
-        thing.x = txx * x + txy * y + txz * z;
-        thing.y = tyx * x + tyy * y + tyz * z;
-        thing.z = tzx * x + tzy * y + tzz * z;
+        const sphere = spheres[i];
+        const x = sphere.viewX;
+        const y = sphere.viewY;
+        const z = sphere.viewZ;
+        sphere.viewX = txx * x + txy * y + txz * z;
+        sphere.viewY = tyx * x + tyy * y + tyz * z;
+        sphere.viewZ = tzx * x + tzy * y + tzz * z;
     }
 };
 
@@ -163,62 +192,64 @@ basics.rotateSpheres = function(things) {
 //=========================================
 
 // sorting points as arrays
-basics.zSortPoints = function(things) {
-    things.sort((one, two) => one[2] - two[2]);
+basics.viewZSortPoints = function(points) {
+    points.sort((one, two) => one[2] - two[2]);
 };
 
 // sorting objects = spheres
-basics.zSortSpheres = function(things) {
-    things.sort((one, two) => one.z - two.z);
+basics.viewZSortSpheres = function(spheres) {
+    spheres.sort((one, two) => one.viewZ - two.viewZ);
 };
 
 // view-projection, normal or stereographic
-// needs hyperbolic radius aand view interpolation parameter
+// needs hyperbolic radius and view interpolation parameter
 //===========================================
 
-basic.normalView = function(things) {};
+basics.view = 'normal';
 
-basic.viewInterpolation = 1;
-basic.hyperbolicRadius = 1;
+basics.normalView = function(things) {};
 
-var viewCenter, viewRadius2;
+basics.viewInterpolation = 1;
+basics.hyperbolicRadius = 1;
 
-basic.setupView = function() {
-    viewCenter = basic.hyperbolicRadius / view.interpolation / view.interpolation;
-    viewRadius2 = viewCenter * viewCenter + basic.hyperbolicRadius * basic.hyperbolicRadius;
+var stereographicCenter, stereographicRadius2;
+
+basics.setupView = function() {
+    stereographicCenter = basics.hyperbolicRadius / view.interpolation / view.interpolation;
+    stereographicRadius2 = stereographicCenter * stereographicCenter + basics.hyperbolicRadius * basics.hyperbolicRadius;
 };
 
 // spheres are objects
-basic.stereographicViewSpheres = function(things) {
-    const length = things.length;
+basics.stereographicViewSpheres = function(spheres) {
+    const length = spheres.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const x = thing.x;
-        const y = thing.y;
-        const dz = thing.z - viewCenter;
-        const radius = thing.radius;
+        const sphere = spheres[i];
+        const x = sphere.viewX;
+        const y = sphere.viewY;
+        const dz = sphere.viewZ - stereographicCenter;
+        const viewRadius = sphere.viewRadius;
         const d2 = x * x + y * y + dz * dz;
-        const factor = viewRadius2 / (d2 - radius * radius);
-        thing.x = factor * x;
-        thing.y = factor * y;
-        thing.z = viewCenter + factor * dz;
-        thing.radius = factor * radius;
+        const factor = stereographicRadius2 / (d2 - viewRadius * viewRadius);
+        sphere.viewX = factor * x;
+        sphere.viewY = factor * y;
+        sphere.viewZ = stereographicCenter + factor * dz;
+        sphere.viewRadius = factor * viewRadius;
     }
 };
 
-// points are arrays
-basic.stereographicViewPoints = function(things) {
-    const length = things.length;
+// (view)points are arrays
+basics.stereographicViewPoints = function(points) {
+    const length = points.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const x = thing[0];
-        const y = thing[1];
-        const dz = thing[2] - viewCenter;
+        const point = points[i];
+        const x = point[0];
+        const y = point[1];
+        const dz = point[2] - stereographicCenter;
         const d2 = x * x + y * y + dz * dz;
-        const factor = viewRadius2 / d2;
-        thing[0] = factor * x;
-        thing[1] = factor * y;
-        thing[2] = viewCenter + factor * dz;
+        const factor = stereographicRadius2 / d2;
+        point[0] = factor * x;
+        point[1] = factor * y;
+        point[2] = stereographicCenter + factor * dz;
     }
 };
 
@@ -234,24 +265,24 @@ basics.setupTilt = function() {
 };
 
 // spheres are objects
-basics.tiltSpheres = function(things) {
-    const length = things.length;
+basics.tiltSpheres = function(spheres) {
+    const length = spheres.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const y = thing.y;
-        const z = thing.z;
-        thing.y = tiltCos * y - tiltSin * z;
-        thing.z = tiltSin * y + tiltcos * z;
+        const sphere = spheres[i];
+        const y = sphere.viewY;
+        const z = sphere.viewZ;
+        sphere.viewY = tiltCos * y - tiltSin * z;
+        sphere.viewZ = tiltSin * y + tiltcos * z;
     }
 };
 
-basics.tiltPoints = function(things) {
-    const length = things.length;
+basics.tiltPoints = function(points) {
+    const length = points.length;
     for (let i = 0; i < length; i++) {
-        const thing = things[i];
-        const y = thing[1];
-        const z = thing[2];
-        thing[1] = tiltCos * y - tiltSin * z;
-        thing[2] = tiltSin * y + tiltcos * z;
+        const point = points[i];
+        const y = point[1];
+        const z = point[2];
+        point[1] = tiltCos * y - tiltSin * z;
+        point[2] = tiltSin * y + tiltcos * z;
     }
 };
