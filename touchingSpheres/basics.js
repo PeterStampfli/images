@@ -207,8 +207,6 @@ basics.viewZSortSpheres = function(spheres) {
 
 basics.view = 'normal';
 
-basics.normalView = function(things) {};
-
 basics.viewInterpolation = 1;
 basics.hyperbolicRadius = 1;
 

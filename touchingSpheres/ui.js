@@ -198,13 +198,11 @@ gui.add({
         switch (basics.view) {
             case 'normal':
                 viewInterpolation.hide();
-                basics.viewPoints = basics.normalView;
-                basics.viewSpheres = basics.normalView;
+                tiltController.hide();
                 break;
             case 'stereographic':
                 viewInterpolation.show();
-                basics.viewPoints = basics.stereographicViewPoints;
-                basics.viewSpheres = basics.stereographicViewSpheres;
+                tiltController.show();
                 break;
         }
         transformSort();
@@ -227,7 +225,7 @@ const viewInterpolation = gui.add({
 });
 viewInterpolation.hide();
 
-gui.add({
+const tiltController = gui.add({
     type: 'number',
     params: basics,
     property: 'tiltAngle',
@@ -239,6 +237,7 @@ gui.add({
         draw();
     }
 }).cyclic();
+tiltController.hide();
 
 const display = {};
 display.show = 'points on solid sphere';
@@ -278,7 +277,12 @@ gui.add({
     }
 });
 
-function create() {}
+function create() {
+    mapping.spheres.length = 0;
+    mapping.config();
+    mapping.createImages();
+    mapping.logSpheres();
+}
 
 function transformSort() {}
 
@@ -288,11 +292,12 @@ function draw() {
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
 
-        poincare.drawSphere();
+    poincare.drawSphere();
 }
 
 output.drawCanvasChanged = draw;
 output.drawImageChanged = draw;
 
-
+create();
+transformSort();
 draw();
