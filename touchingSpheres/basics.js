@@ -255,26 +255,32 @@ basics.stereographicViewPoints = function(points) {
 //==========================================
 
 basics.tiltAngle = 0;
-var tiltCos, tiltSin;
+basics.rotationAngle=0;
+var tiltCos, tiltSin, rotationCos,rotationSin;
 
-basics.setupTilt = function() {
+basics.setupTiltRotation = function() {
     tiltCos = Math.cos(basics.tiltAngle);
-    tiltSin = Math.sin(basics.tiltAngle);
+    tiltSin = Math.sin(basics.tiltAngle);  
+      rotationCos = Math.cos(basics.rotationAngle);
+    rotationSin = Math.sin(basics.rotationAngle);
 };
 
 // spheres are objects
-basics.tiltSpheres = function(spheres) {
+basics.tiltRotateSpheres = function(spheres) {
     const length = spheres.length;
     for (let i = 0; i < length; i++) {
         const sphere = spheres[i];
-        const y = sphere.viewY;
+        const x=sphere.viewX;
+        let y = sphere.viewY;
         const z = sphere.viewZ;
+        sphere.viewX=rotationCos*x-rotationSin*y;
+        y=rotationSin*x+rotationCos*y;
         sphere.viewY = tiltCos * y - tiltSin * z;
-        sphere.viewZ = tiltSin * y + tiltcos * z;
+        sphere.viewZ = tiltSin * y + tiltCos * z;
     }
 };
 
-basics.tiltPoints = function(points) {
+basics.tiltRotatePoints = function(points) {
     const length = points.length;
     for (let i = 0; i < length; i++) {
         const point = points[i];

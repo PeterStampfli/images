@@ -47,11 +47,13 @@ viewRadius (of the sphere as visible)
 mapping.maxGeneration = 100;
 mapping.minGeneration = 6; // minimum number for creating image spheres
 mapping.minRadius = 0.001; // critical radius for terminating and writing a point
+mapping.additionalPoints = 1; // create more points with mapping
+mapping.useTouchingPoints = true; // points where circles touch belong to the limit set
 
 function addMappingSphere(radius, x, y, z = 0) {
     const sphere = {};
     sphere.radius = radius;
-    sphere.radius = radius * radius;
+    sphere.radius2 = radius * radius;
     sphere.x = x;
     sphere.y = y;
     sphere.z = z;
@@ -146,7 +148,7 @@ mapping.tetrahedron = function() {
     addMappingSphere(rSphere, cx34, cy4, cz234);
 };
 
-// creating the images
+// creating the images (spheres and points)
 //===================================
 
 var maxGeneration, minGeneration, minRadius, mappingLength;
@@ -171,35 +173,157 @@ function imagesOfSphere(generation, lastMappingIndex, radius, x, y, z, color) {
     const radius2 = radius * radius;
     for (let i = 0; i < mappingLength; i++) {
         // map only at spheres that do not contain it
-        if (i !== lastMappingIndex) {
-            const mappingSphere = mapping.spheres[i];
-            if (mappingSphere.on) {
-                const mapRadius2 = mappingSphere.radius2;
-                const mapX = mappingSphere.x;
-                const mapY = mappingSphere.y;
-                const mapZ = mappingSphere.z;
-                const dx = x - mapX;
-                const dy = y - mapY;
-                const dz = z - mapZ;
-                const d2 = dx * dx + dy * dy + dz * dz;
-                const factor = mapRadius2 / (d2 - radius2);
-                const newRadius = radius * factor;
-                const newX = mapX + dx * factor;
-                const newY = mapY + dy * factor;
-                const newZ = mapZ + dz * factor;
-                if (generation <= minGeneration) {
-                    addImageSphere(mappingSphere, generation, newRadius, newX, newY, newZ, color);
-                } else if (newRadius < minRadius) {
-                    addPoint(mappingSphere, newX, newY, newZ);
-                }
-                // do always at least the minimum generation independent of radius, save these image spheres
-                // do up to maximum generation if radius not small enough
-                // maximum generation is safeguard
-                // minimum generation is for making images
-                if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minRadius))) {
-                    imagesOfSphere(generation, i, newRadius, newX, newY, newZ, color);
-                }
+        if (i === lastMappingIndex) {
+            continue;
+        }
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const mapX = mappingSphere.x;
+            const mapY = mappingSphere.y;
+            const mapZ = mappingSphere.z;
+            const dx = x - mapX;
+            const dy = y - mapY;
+            const dz = z - mapZ;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            const factor = mappingSphere.radius2 / (d2 - radius2);
+            const newRadius = radius * factor;
+            const newX = mapX + dx * factor;
+            const newY = mapY + dy * factor;
+            const newZ = mapZ + dz * factor;
+            if (generation <= minGeneration) {
+                addImageSphere(mappingSphere, generation, newRadius, newX, newY, newZ, color);
+            }
+            if (newRadius < minRadius) {
+                addPoint(mappingSphere, newX, newY, newZ);
+                moreImagePoints(0, i, newX, newY, newZ);
+            }
+            // do always at least the minimum generation independent of radius, save these image spheres
+            // do up to maximum generation if radius not small enough
+            // maximum generation is safeguard
+            // minimum generation is for making images
+            if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minRadius))) {
+                imagesOfSphere(generation, i, newRadius, newX, newY, newZ, color);
             }
         }
     }
 }
+
+function moreImagePoints(iterations, lastMappingIndex, x, y, z) {
+    if (iterations < mapping.additionalPoints) {
+        iterations += 1;
+        for (let i = 0; i < mappingLength; i++) {
+            // map only at spheres that do not contain it
+            if (i === lastMappingIndex) {
+                continue;
+            }
+            const mappingSphere = mapping.spheres[i];
+            if (!mappingSphere.on) {
+                continue;
+            }
+            const mapX = mappingSphere.x;
+            const mapY = mappingSphere.y;
+            const mapZ = mappingSphere.z;
+            const dx = x - mapX;
+            const dy = y - mapY;
+            const dz = z - mapZ;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            const factor = mappingSphere.radius2 / d2;
+            const newX = mapX + dx * factor;
+            const newY = mapY + dy * factor;
+            const newZ = mapZ + dz * factor;
+            addPoint(mappingSphere, newX, newY, newZ);
+            moreImagePoints(iterations, i, newX, newY, newZ);
+        }
+    }
+}
+
+// using the touching points of spheres
+//======================================
+
+mapping.createTouchingPoints = function() {
+    if (!mapping.useTouchingPoints) {
+        return;
+    }
+    const eps = 0.01;
+    mappingLength = mapping.spheres.length;
+    for (let i = 1; i < mappingLength; i++) {
+        const mappingSphereI = mapping.spheres[i];
+        if (!mappingSphereI.on) {
+            continue;
+        }
+        const radiusI = mappingSphereI.radius;
+        const xI = mappingSphereI.x;
+        const yI = mappingSphereI.y;
+        const zI = mappingSphereI.z;
+        for (let j = 0; j < i; j++) {
+            const mappingSphereJ = mapping.spheres[j];
+            if (!mappingSphereJ.on) {
+                continue;
+            }
+            const radiusJ = mappingSphereJ.radius;
+            const dx = mappingSphereJ.x - mappingSphereI.x;
+            const dy = mappingSphereJ.y - mappingSphereI.y;
+            const dz = mappingSphereJ.z - mappingSphereI.z;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            if (Math.abs(d2 - (radiusI + radiusJ) * (radiusI + radiusJ)) < eps) {
+                const h = radiusI / (radiusI + radiusJ);
+                const x = xI + h * dx;
+                const y = yI + h * dy;
+                const z = zI + h * dz;
+                addPoint(mappingSphereI, x, y, z);
+                if (mapping.additionalPoints === 0) {
+                    continue;
+                }
+                for (let k = 0; k < mappingLength; k++) {
+                    if ((i === k) || (j === k)) {
+                        continue;
+                    }
+                    const mappingSphereK = mapping.spheres[k];
+                    if (!mappingSphereK.on) {
+                        continue;
+                    }
+                    const mapX = mappingSphereK.x;
+                    const mapY = mappingSphereK.y;
+                    const mapZ = mappingSphereK.z;
+                    const dx = x - mapX;
+                    const dy = y - mapY;
+                    const dz = z - mapZ;
+                    const d2 = dx * dx + dy * dy + dz * dz;
+                    const factor = mappingSphereK.radius2 / d2;
+                    const newX = mapX + dx * factor;
+                    const newY = mapY + dy * factor;
+                    const newZ = mapZ + dz * factor;
+                    addPoint(mappingSphereK, newX, newY, newZ);
+                    moreImagePoints(1, k, newX, newY, newZ);
+                }
+            }
+        }
+    }
+};
+
+// transforming the images
+//============================
+mapping.transformImages = function() {
+    basics.setupTiltRotation();
+    basics.copyCoordinatesSpheres(mapping.spheres);
+    basics.rotateSpheres(mapping.spheres);
+    if (basics.view !== 'normal') {
+        basics.stereographicViewSpheres(mapping.spheres);
+    }
+    basics.tiltRotateSpheres(mapping.spheres);
+    basics.viewZSortSpheres(mapping.spheres);
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const imageSpheres = mappingSphere.imageSpheres;
+            const viewPoints = mappingSphere.viewPoints;
+            basics.copyCoordinatesSpheres(imageSpheres);
+            basics.rotateSpheres(imageSpheres);
+
+
+
+
+        }
+    }
+};

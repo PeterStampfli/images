@@ -79,8 +79,20 @@ gui.add({
     type: 'number',
     params: mapping,
     property: 'minRadius',
-    labelText: 'min radius',
+    labelText: 'point radius',
     min: 0,
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: mapping,
+    property: 'additionalPoints',
+    labelText: 'morePoints',
+    min: 0,
+    step: 1,
     onChange: function() {
         create();
         transformSort();
@@ -88,6 +100,17 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'useTouchingPoints',
+    labelText: 'touch points',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+});
 
 gui.add({
     type: 'boolean',
@@ -198,11 +221,9 @@ gui.add({
         switch (basics.view) {
             case 'normal':
                 viewInterpolation.hide();
-                tiltController.hide();
                 break;
             case 'stereographic':
                 viewInterpolation.show();
-                tiltController.show();
                 break;
         }
         transformSort();
@@ -237,7 +258,18 @@ const tiltController = gui.add({
         draw();
     }
 }).cyclic();
-tiltController.hide();
+tiltController.add({
+    type: 'number',
+    params: basics,
+    property: 'rotationAngle',
+    labelText: 'rotation',
+    min: -180,
+    max: 180,
+    onChange: function() {
+        transformSort();
+        draw();
+    }
+}).cyclic();
 
 const display = {};
 display.show = 'points on solid sphere';
@@ -281,10 +313,14 @@ function create() {
     mapping.spheres.length = 0;
     mapping.config();
     mapping.createImages();
+    mapping.createTouchingPoints();
     mapping.logSpheres();
 }
 
-function transformSort() {}
+function transformSort() {
+    mapping.transformImages();
+
+}
 
 function draw() {
     output.startDrawing();
