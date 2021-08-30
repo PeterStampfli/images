@@ -116,7 +116,7 @@ mapping.logSpheresGeometry = function() {
     const length = mapping.spheres.length;
     console.log("mapping spheres, index,radius,centerXYZ");
     for (var i = 0; i < length; i++) {
-        sphere = mapping.spheres[i];
+        const sphere = mapping.spheres[i];
         console.log(i, sphere.radius, sphere.x, sphere.y, sphere.z);
     }
 };
@@ -192,16 +192,14 @@ function imagesOfSphere(generation, lastMappingIndex, radius, x, y, z, color) {
             const newZ = mapZ + dz * factor;
             if (generation <= minGeneration) {
                 addImageSphere(mappingSphere, generation, newRadius, newX, newY, newZ, color);
-            }
-            if (newRadius < minRadius) {
+                if (newRadius < minRadius) {
+                    addPoint(mappingSphere, newX, newY, newZ);
+                    moreImagePoints(0, i, newX, newY, newZ);
+                }
+            } else if (newRadius < minRadius) {
                 addPoint(mappingSphere, newX, newY, newZ);
                 moreImagePoints(0, i, newX, newY, newZ);
-            }
-            // do always at least the minimum generation independent of radius, save these image spheres
-            // do up to maximum generation if radius not small enough
-            // maximum generation is safeguard
-            // minimum generation is for making images
-            if ((generation < minGeneration) || ((generation < maxGeneration) && (newRadius > minRadius))) {
+            } else if (generation < minGeneration) {
                 imagesOfSphere(generation, i, newRadius, newX, newY, newZ, color);
             }
         }
@@ -301,29 +299,89 @@ mapping.createTouchingPoints = function() {
     }
 };
 
-// transforming the images
+// transforming the mapping spheres, image spheres and points, and making z-sort
 //============================
-mapping.transformImages = function() {
+
+mapping.sortPoints = false;
+
+mapping.transformSortImages = function() {
+    basics.updateEulerAngles();
     basics.setupTiltRotation();
+    basics.setupStereographicView();
     basics.copyCoordinatesSpheres(mapping.spheres);
     basics.rotateSpheres(mapping.spheres);
     if (basics.view !== 'normal') {
         basics.stereographicViewSpheres(mapping.spheres);
     }
     basics.tiltRotateSpheres(mapping.spheres);
-    basics.viewZSortSpheres(mapping.spheres);
+    basics.zSortSpheres(mapping.spheres);
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
             const imageSpheres = mappingSphere.imageSpheres;
-            const viewPoints = mappingSphere.viewPoints;
             basics.copyCoordinatesSpheres(imageSpheres);
             basics.rotateSpheres(imageSpheres);
+            if (basics.view !== 'normal') {
+                basics.stereographicViewSpheres(imageSpheres);
+            }
+            basics.tiltRotateSpheres(imageSpheres);
+            basics.zSortSpheres(imageSpheres);
+            const viewPoints = mappingSphere.viewPoints;
+            basics.copyCoordinatesPoints(viewPoints, mappingSphere.points);
+            basics.rotatePoints(viewPoints);
+            if (basics.view !== 'normal') {
+                basics.stereographicViewPoints(viewPoints);
+            }
+            basics.tiltRotatePoints(viewPoints);
+            if (mapping.sortPoints) {
+                basics.zSortPoints(viewPoints);
+            }
+        }
+    }
+};
 
+//  showing things
+//=============================================
 
+mapping.color = '#aaaaaa';
 
+mapping.drawImageSphereGen = 2;
+mapping.imageSphereColor = '#ff0000';
+mapping.specialColor = true;
 
+// showing mapping spheres
+// if special color: draw circle in special color
+// else draw circle in black around disc or nothing around bubble/sphere
+
+mapping.spheresAsSpheres = function() {
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            basics.drawSphere(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            if (mapping.specialColor) {
+                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+            }
+        } else {
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+        }
+    }
+};
+
+mapping.spheresAsDiscs = function() {
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            basics.drawDisc(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            if (mapping.specialColor) {
+                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+            } else {
+                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius);
+            }
+        } else {
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
         }
     }
 };

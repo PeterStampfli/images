@@ -164,6 +164,17 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'sortPoints',
+    labelText: 'z-sort pts',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+});
 
 //===========
 
@@ -309,26 +320,69 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'color',
+    params: mapping,
+    property: 'color',
+    labelText: 'map spheres',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'color',
+    params: mapping,
+    property: 'imageSphereColor',
+    labelText: 'img spheres',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: mapping,
+    property: 'specialColor',
+    labelText: 'multi',
+    onChange: function() {
+        draw();
+    }
+});
+
+mapping.drawGenController = gui.add({
+    type: 'number',
+    params: mapping,
+    property: 'drawImageSphereGen',
+    min: 1,
+    step: 1,
+    labelText: 'of iteration',
+    onChange: function() {
+        draw();
+    }
+});
+
+
 function create() {
     mapping.spheres.length = 0;
     mapping.config();
     mapping.createImages();
     mapping.createTouchingPoints();
-    mapping.logSpheres();
 }
 
 function transformSort() {
-    mapping.transformImages();
-
+    mapping.transformSortImages();
 }
 
 function draw() {
+    if (mapping.minGeneration < mapping.drawImageSphereGen) {
+        mapping.drawGenController.setValueOnly(mapping.minGeneration);
+    }
     output.startDrawing();
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
 
-    poincare.drawSphere();
+    // poincare.drawCircle();
+    mapping.spheresAsDiscs();
 }
 
 output.drawCanvasChanged = draw;

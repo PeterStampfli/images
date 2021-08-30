@@ -27,11 +27,13 @@ basics.drawDisc = function(x, y, radius, color) {
     canvasContext.fill();
 };
 
-basics.drawCircle = function(x, y, radius) {
+basics.drawCircle = function(x, y, radius, color = '#000000') {
     const canvasContext = output.canvasContext;
     canvasContext.beginPath();
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    output.canvasContext.strokeStyle = color;
     canvasContext.stroke();
+    output.canvasContext.strokeStyle = '#000000';
 };
 
 basics.drawDiscCircle = function(x, y, radius, colorDisc) {
@@ -192,12 +194,12 @@ basics.rotateSpheres = function(spheres) {
 //=========================================
 
 // sorting points as arrays
-basics.viewZSortPoints = function(points) {
+basics.zSortPoints = function(points) {
     points.sort((one, two) => one[2] - two[2]);
 };
 
 // sorting objects = spheres
-basics.viewZSortSpheres = function(spheres) {
+basics.zSortSpheres = function(spheres) {
     spheres.sort((one, two) => one.viewZ - two.viewZ);
 };
 
@@ -212,8 +214,8 @@ basics.hyperbolicRadius = 1;
 
 var stereographicCenter, stereographicRadius2;
 
-basics.setupView = function() {
-    stereographicCenter = basics.hyperbolicRadius / view.interpolation / view.interpolation;
+basics.setupStereographicView = function() {
+    stereographicCenter = basics.hyperbolicRadius / basics.viewInterpolation / basics.viewInterpolation;
     stereographicRadius2 = stereographicCenter * stereographicCenter + basics.hyperbolicRadius * basics.hyperbolicRadius;
 };
 
@@ -251,18 +253,18 @@ basics.stereographicViewPoints = function(points) {
     }
 };
 
-// tilt
+// tilt and rotate
 //==========================================
 
 basics.tiltAngle = 0;
-basics.rotationAngle=0;
-var tiltCos, tiltSin, rotationCos,rotationSin;
+basics.rotationAngle = 0;
+var tiltCos, tiltSin, rotationCos, rotationSin;
 
 basics.setupTiltRotation = function() {
-    tiltCos = Math.cos(basics.tiltAngle);
-    tiltSin = Math.sin(basics.tiltAngle);  
-      rotationCos = Math.cos(basics.rotationAngle);
-    rotationSin = Math.sin(basics.rotationAngle);
+    tiltCos = Math.cos(fromDeg * basics.tiltAngle);
+    tiltSin = Math.sin(fromDeg * basics.tiltAngle);
+    rotationCos = Math.cos(fromDeg * basics.rotationAngle);
+    rotationSin = Math.sin(fromDeg * basics.rotationAngle);
 };
 
 // spheres are objects
@@ -270,11 +272,11 @@ basics.tiltRotateSpheres = function(spheres) {
     const length = spheres.length;
     for (let i = 0; i < length; i++) {
         const sphere = spheres[i];
-        const x=sphere.viewX;
+        const x = sphere.viewX;
         let y = sphere.viewY;
         const z = sphere.viewZ;
-        sphere.viewX=rotationCos*x-rotationSin*y;
-        y=rotationSin*x+rotationCos*y;
+        sphere.viewX = rotationCos * x - rotationSin * y;
+        y = rotationSin * x + rotationCos * y;
         sphere.viewY = tiltCos * y - tiltSin * z;
         sphere.viewZ = tiltSin * y + tiltCos * z;
     }
@@ -287,6 +289,6 @@ basics.tiltRotatePoints = function(points) {
         const y = point[1];
         const z = point[2];
         point[1] = tiltCos * y - tiltSin * z;
-        point[2] = tiltSin * y + tiltcos * z;
+        point[2] = tiltSin * y + tiltCos * z;
     }
 };
