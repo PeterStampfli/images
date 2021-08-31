@@ -283,17 +283,21 @@ tiltController.add({
 }).cyclic();
 
 const display = {};
-display.show = 'points on solid sphere';
+display.show = 'test';
 display.lineWidth = 2;
+display.textColor = '#ffffff';
 
 gui.add({
     type: 'selection',
     params: display,
     property: 'show',
-    options: ['mapping spheres', 'points on solid sphere', 'points on bubble', 'points with circle', 'nix'],
+    options: [
+        'mapping spheres',
+        'mapping discs',
+        'test'
+    ],
     labelText: 'display',
     onChange: function() {
-        create();
         draw();
     }
 });
@@ -308,7 +312,15 @@ gui.add({
     }
 });
 
-//==============
+gui.add({
+    type: 'color',
+    params: display,
+    property: 'textColor',
+    labelText: 'text',
+    onChange: function() {
+        draw();
+    }
+});
 
 gui.add({
     type: 'color',
@@ -359,6 +371,29 @@ mapping.drawGenController = gui.add({
         draw();
     }
 });
+mapping.drawGenController.add({
+    type: 'number',
+    params: basics,
+    property: 'alphaBubble',
+    min: 1,
+    step: 1,
+    max: 255,
+    labelText: 'alpha',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: basics,
+    property: 'alphaBubbleBack',
+    min: 0,
+    step: 1,
+    max: 255,
+    labelText: 'back',
+    onChange: function() {
+        draw();
+    }
+});
 
 
 function create() {
@@ -370,6 +405,11 @@ function create() {
 
 function transformSort() {
     mapping.transformSortImages();
+    // mapping.logSpheres();
+}
+
+function writeIterations() {
+    output.write('Iterations: ' + mapping.drawImageSphereGen, 10, 40, 36, display.textColor);
 }
 
 function draw() {
@@ -380,9 +420,22 @@ function draw() {
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
+    switch (display.show) {
+        case 'mapping spheres':
+            mapping.drawSpheres();
+            break;
+        case 'mapping discs':
+            mapping.drawSpheresAsDiscs();
+            break;
 
+
+        case 'test':
+            mapping.drawImageSpheres();
+            break;
+    }
     // poincare.drawCircle();
-    mapping.spheresAsDiscs();
+    // mapping.drawSpheresAsDiscs();
+    //writeIterations();
 }
 
 output.drawCanvasChanged = draw;

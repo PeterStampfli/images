@@ -196,10 +196,11 @@ function imagesOfSphere(generation, lastMappingIndex, radius, x, y, z, color) {
                     addPoint(mappingSphere, newX, newY, newZ);
                     moreImagePoints(0, i, newX, newY, newZ);
                 }
+                imagesOfSphere(generation, i, newRadius, newX, newY, newZ, color);
             } else if (newRadius < minRadius) {
                 addPoint(mappingSphere, newX, newY, newZ);
                 moreImagePoints(0, i, newX, newY, newZ);
-            } else if (generation < minGeneration) {
+            } else if (generation < maxGeneration) {
                 imagesOfSphere(generation, i, newRadius, newX, newY, newZ, color);
             }
         }
@@ -354,7 +355,7 @@ mapping.specialColor = true;
 // if special color: draw circle in special color
 // else draw circle in black around disc or nothing around bubble/sphere
 
-mapping.spheresAsSpheres = function() {
+mapping.drawSpheres = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
@@ -369,7 +370,7 @@ mapping.spheresAsSpheres = function() {
     }
 };
 
-mapping.spheresAsDiscs = function() {
+mapping.drawSpheresAsDiscs = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
@@ -382,6 +383,27 @@ mapping.spheresAsDiscs = function() {
             }
         } else {
             basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+        }
+    }
+};
+
+mapping.drawImageSpheres = function() {
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const length = mappingSphere.imageSpheres.length;
+            basics.drawLowerBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            for (let j = 0; j < length; j++) {
+                const imageSphere = mappingSphere.imageSpheres[j];
+                if (imageSphere.generation !== mapping.drawImageSphereGen) {
+                    continue;
+                }
+                const color=(mapping.specialColor)?imageSphere.color:mapping.imageSphereColor;
+                basics.drawSphere(imageSphere.viewX,imageSphere.viewY,imageSphere.viewRadius,color);
+            }
+            basics.drawUpperBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+
         }
     }
 };

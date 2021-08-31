@@ -98,7 +98,6 @@ gui.add({
     options: ['mapping spheres', 'image spheres', 'points', 'points only'],
     labelText: 'display',
     onChange: function() {
-        create();
         draw();
     }
 });

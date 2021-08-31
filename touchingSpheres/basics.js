@@ -19,6 +19,9 @@ const colorObject = {};
 const lightness = 0.75;
 const darkness = 0.5;
 
+basics.alphaBubble = 200;
+basics.alphaBubbleBack = 100;
+
 basics.drawDisc = function(x, y, radius, color) {
     const canvasContext = output.canvasContext;
     canvasContext.fillStyle = color;
@@ -71,6 +74,8 @@ basics.drawUpperBubble = function(x, y, radius, color) {
     ColorInput.setObject(colorObject, color);
     colorObject.alpha = 0;
     const transparentColor = ColorInput.stringFromObject(colorObject);
+    colorObject.alpha = basics.alphaBubble;
+    color = ColorInput.stringFromObject(colorObject);
     let grd = canvasContext.createRadialGradient(x, y, radius * 0.8, x, y, radius);
     grd.addColorStop(0, transparentColor);
     grd.addColorStop(0.9, color);
@@ -89,8 +94,10 @@ basics.drawUpperBubble = function(x, y, radius, color) {
 basics.drawLowerBubble = function(x, y, radius, color) {
     const canvasContext = output.canvasContext;
     ColorInput.setObject(colorObject, color);
-    colorObject.alpha = 0;
+    colorObject.alpha = basics.alphaBubbleBack;
     let transparentColor = ColorInput.stringFromObject(colorObject);
+    colorObject.alpha = basics.alphaBubble;
+    color = ColorInput.stringFromObject(colorObject);
     let grd = canvasContext.createRadialGradient(x, y, radius * 0.9, x, y, radius);
     grd.addColorStop(0, transparentColor);
     grd.addColorStop(0.9, color);
@@ -99,8 +106,10 @@ basics.drawLowerBubble = function(x, y, radius, color) {
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
     canvasContext.fillStyle = grd;
     canvasContext.fill();
-    colorObject.alpha = 200;
+    colorObject.alpha = Math.floor(0.8 * basics.alphaBubble);
     color = ColorInput.stringFromObject(colorObject);
+    colorObject.alpha = 0;
+    transparentColor = ColorInput.stringFromObject(colorObject);
     grd = canvasContext.createRadialGradient(x + 0.5 * radius, y + 0.5 * radius, 0, x + 0.5 * radius, y + 0.5 * radius, 0.8 * radius);
     grd.addColorStop(0, color);
     grd.addColorStop(1, transparentColor);
@@ -232,7 +241,7 @@ basics.stereographicViewSpheres = function(spheres) {
         const factor = stereographicRadius2 / (d2 - viewRadius * viewRadius);
         sphere.viewX = factor * x;
         sphere.viewY = factor * y;
-        sphere.viewZ = stereographicCenter + factor * dz;
+        sphere.viewZ = -(stereographicCenter + factor * dz); // compensate for mirroring at (x,y) plane in limit to normal view
         sphere.viewRadius = factor * viewRadius;
     }
 };
