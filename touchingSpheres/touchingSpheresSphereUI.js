@@ -385,9 +385,9 @@ function draw() {
     }
     //poincareSphere.drawSphere();
 
-    imageSpheres.draw2dCircles();
+  //  imageSpheres.draw2dCircles();
 
-    output.write('Iterations: ' + imageSpheres.drawGeneration, 10, 40, 36, '#ffffff');
+    //output.write('Iterations: ' + imageSpheres.drawGeneration, 10, 40, 36, '#ffffff');
 
     //  imagePoints.drawPixels();
 }

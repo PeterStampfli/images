@@ -1,6 +1,11 @@
 /* jshint esversion: 6 */
 
 import {
+    Pixels,
+    ColorInput
+} from "../libgui/modules.js";
+
+import {
     basics
 } from "./basics.js";
 export const mapping = {};
@@ -47,7 +52,7 @@ viewRadius (of the sphere as visible)
 mapping.maxGeneration = 100;
 mapping.minGeneration = 6; // minimum number for creating image spheres
 mapping.minRadius = 0.001; // critical radius for terminating and writing a point
-mapping.additionalPoints = 1; // create more points with mapping
+mapping.additionalPoints = 0; // create more points with mapping
 mapping.useTouchingPoints = true; // points where circles touch belong to the limit set
 
 function addMappingSphere(radius, x, y, z = 0) {
@@ -346,10 +351,11 @@ mapping.transformSortImages = function() {
 //=============================================
 
 mapping.color = '#aaaaaa';
-
 mapping.drawImageSphereGen = 2;
 mapping.imageSphereColor = '#ff0000';
 mapping.specialColor = true;
+mapping.pointColorFront = '#ff0000';
+mapping.pointColorBack = '#cc4444';
 
 // showing mapping spheres
 // if special color: draw circle in special color
@@ -360,9 +366,14 @@ mapping.drawSpheres = function() {
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
-            basics.drawSphere(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
-            if (mapping.specialColor) {
-                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+            if (mappingSphere.viewRadius > 0) {
+                basics.drawSphere(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+                if (mapping.specialColor) {
+                    basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+                }
+            } else {
+                const color = (mapping.specialColor) ? mappingSphere.color : mapping.color;
+                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, color);
             }
         } else {
             basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
@@ -375,11 +386,46 @@ mapping.drawSpheresAsDiscs = function() {
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
-            basics.drawDisc(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
-            if (mapping.specialColor) {
-                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+            if (mappingSphere.viewRadius > 0) {
+                basics.drawDisc(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            }
+            const color = (mapping.specialColor) ? mappingSphere.color : '#000000';
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, color);
+        } else {
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+        }
+    }
+};
+
+mapping.drawImageSpheresMappingBubbles = function() {
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const length = mappingSphere.imageSpheres.length;
+            if (mappingSphere.viewRadius > 0) {
+                basics.drawLowerBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            }
+            for (let j = 0; j < length; j++) {
+                const imageSphere = mappingSphere.imageSpheres[j];
+                if (imageSphere.generation !== mapping.drawImageSphereGen) {
+                    continue;
+                }
+                const color = (mapping.specialColor) ? imageSphere.color : mapping.imageSphereColor;
+                if (imageSphere.viewRadius > 0) {
+                    basics.drawSphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                } else {
+                    basics.drawCircle(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                }
+            }
+            if (mappingSphere.viewRadius > 0) {
+                basics.drawUpperBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+                if (mapping.specialColor) {
+                    basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mappingSphere.color);
+                }
             } else {
-                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius);
+                const color = (mapping.specialColor) ? imageSphere.color : mapping.imageSphereColor;
+                basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, color);
             }
         } else {
             basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
@@ -387,23 +433,94 @@ mapping.drawSpheresAsDiscs = function() {
     }
 };
 
-mapping.drawImageSpheres = function() {
+mapping.drawImageSpheresOnly = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
             const length = mappingSphere.imageSpheres.length;
-            basics.drawLowerBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
             for (let j = 0; j < length; j++) {
                 const imageSphere = mappingSphere.imageSpheres[j];
                 if (imageSphere.generation !== mapping.drawImageSphereGen) {
                     continue;
                 }
-                const color=(mapping.specialColor)?imageSphere.color:mapping.imageSphereColor;
-                basics.drawSphere(imageSphere.viewX,imageSphere.viewY,imageSphere.viewRadius,color);
+                const color = (mapping.specialColor) ? imageSphere.color : mapping.imageSphereColor;
+                if (imageSphere.viewRadius > 0) {
+                    basics.drawSphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                } else {
+                    basics.drawCircle(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                }
             }
-            basics.drawUpperBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+        }
+    }
+};
 
+mapping.drawImageSpheresAsDiscs = function() {
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const length = mappingSphere.imageSpheres.length;
+            if (mappingSphere.viewRadius > 0) {
+                basics.drawDisc(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+            }
+            const color = (mapping.specialColor) ? mappingSphere.color : '#000000';
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, color);
+            for (let j = 0; j < length; j++) {
+                const imageSphere = mappingSphere.imageSpheres[j];
+                if (imageSphere.generation !== mapping.drawImageSphereGen) {
+                    continue;
+                }
+                const color = (mapping.specialColor) ? imageSphere.color : mapping.imageSphereColor;
+                if (imageSphere.viewRadius > 0) {
+                    basics.drawDisc(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                    basics.drawCircle(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, '#000000');
+                } else {
+                    basics.drawCircle(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
+                }
+            }
+        } else {
+            basics.drawCircle(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
+        }
+    }
+};
+
+mapping.drawPointsInFront = function() {
+    const imagePointsColor = {};
+    ColorInput.setObject(imagePointsColor, mapping.pointColorFront);
+   const intColor = Pixels.integerOfColor(imagePointsColor);
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const points = mappingSphere.viewPoints;
+            const length = points.length;
+            for (let j = 0; j < length; j++) {
+                const point = points[j];
+                if (point[2] >= 0) {
+                    basics.drawPoint(point,intColor);
+                }
+            }
+        }
+    }
+};
+
+mapping.drawPointsInBack = function() {
+    const imagePointsColor = {};
+    ColorInput.setObject(imagePointsColor, mapping.pointColorBack);
+   const intColor = Pixels.integerOfColor(imagePointsColor);
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const points = mappingSphere.viewPoints;
+            const length = points.length;
+            for (let j = 0; j < length; j++) {
+                const point = points[j];
+                if (point[2] < 0) {
+                    basics.drawPoint(point,intColor);
+                }
+            }
         }
     }
 };

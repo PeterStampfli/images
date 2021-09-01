@@ -33,7 +33,7 @@ basics.drawDisc = function(x, y, radius, color) {
 basics.drawCircle = function(x, y, radius, color = '#000000') {
     const canvasContext = output.canvasContext;
     canvasContext.beginPath();
-    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    canvasContext.arc(x, y, Math.abs(radius), 0, 2 * Math.PI);
     output.canvasContext.strokeStyle = color;
     canvasContext.stroke();
     output.canvasContext.strokeStyle = '#000000';
@@ -116,6 +116,93 @@ basics.drawLowerBubble = function(x, y, radius, color) {
     canvasContext.fillStyle = grd;
     canvasContext.fill();
 };
+
+// drawing points
+//===================================================
+
+basics.pointSize=2;
+var width, height, invScale, shiftX, shiftY, pointSize, pixelsArray, data;
+
+basics.startDrawingPoints=function(){
+    output.pixels.update();
+    pixelsArray = output.pixels.array;
+    const scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
+    invScale = 1 / scale;
+    shiftX = output.coordinateTransform.shiftX;
+    shiftY = output.coordinateTransform.shiftY;
+    // (x,y)=scale*(i,j)+(shiftX,shiftY)
+    width = output.canvas.width;
+    height = output.canvas.height;
+    pointSize=basics.pointSize;
+};
+
+// end: output.pixels.show();
+
+basics.drawPoint=function(point,intColor) {
+    let i = invScale * (point[0] - shiftX);
+    let j = invScale * (point[1] - shiftY);
+    switch (pointSize) {
+        case 1:
+            i = Math.floor(i);
+            j = Math.floor(j);
+            if ((i >= 0) && (i < width) && (j >= 0) && (j < height)) {
+                pixelsArray[i + j * width] = intColor;
+            }
+            break;
+        case 2:
+            i = Math.round(i);
+            j = Math.round(j);
+            if ((i > 0) && (i < width) && (j > 0) && (j < height)) {
+                let index = i + j * width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                index -= width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+            }
+            break;
+        case 3:
+            i = Math.floor(i) + 1;
+            j = Math.floor(j) + 1;
+            if ((i >= 2) && (i < width) && (j >= 2) && (j < height)) {
+                let index = i + j * width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+                index -= width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+                index -= width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+            }
+            break;
+        case 4:
+            i = Math.round(i) + 1;
+            j = Math.round(j) + 1;
+            if ((i >= 3) && (i < width) && (j >= 3) && (j < height)) {
+                let index = i + j * width;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+                index -= width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+                pixelsArray[index - 3] = intColor;
+                index -= width;
+                pixelsArray[index] = intColor;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+                pixelsArray[index - 3] = intColor;
+                index -= width;
+                pixelsArray[index - 1] = intColor;
+                pixelsArray[index - 2] = intColor;
+            }
+            break;
+    }
+}
 
 //  copy static coordinates for rotating
 //=====================================

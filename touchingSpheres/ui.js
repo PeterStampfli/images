@@ -176,8 +176,6 @@ gui.add({
     }
 });
 
-//===========
-
 basics.alpha = 0;
 basics.beta = 0;
 basics.gamma = 0;
@@ -221,7 +219,6 @@ const controllerGamma = controllerBeta.add({
     }
 });
 controllerGamma.cyclic();
-
 
 gui.add({
     type: 'selection',
@@ -286,6 +283,7 @@ const display = {};
 display.show = 'test';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
+display.textOn = true;
 
 gui.add({
     type: 'selection',
@@ -294,6 +292,9 @@ gui.add({
     options: [
         'mapping spheres',
         'mapping discs',
+        'image spheres and mapping bubbles',
+        'image spheres only',
+        'image and mapping spheres as discs',
         'test'
     ],
     labelText: 'display',
@@ -317,6 +318,14 @@ gui.add({
     params: display,
     property: 'textColor',
     labelText: 'text',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: display,
+    property: 'textOn',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -395,6 +404,38 @@ mapping.drawGenController.add({
     }
 });
 
+gui.add({
+    type: 'number',
+    params: basics,
+    property: 'pointSize',
+    min: 1,
+    step: 1,
+    max: 4,
+    labelText: 'point size',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type:'color',
+    params:mapping,
+    property:'pointColorFront',
+    labelText:'point front',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type:'color',
+    params:mapping,
+    property:'pointColorBack',
+    labelText:'point back',
+    onChange: function() {
+        draw();
+    }
+});
 
 function create() {
     mapping.spheres.length = 0;
@@ -409,7 +450,9 @@ function transformSort() {
 }
 
 function writeIterations() {
-    output.write('Iterations: ' + mapping.drawImageSphereGen, 10, 40, 36, display.textColor);
+    if (display.textOn) {
+        output.write('Iterations: ' + mapping.drawImageSphereGen, 10, 40, 36, display.textColor);
+    }
 }
 
 function draw() {
@@ -427,15 +470,27 @@ function draw() {
         case 'mapping discs':
             mapping.drawSpheresAsDiscs();
             break;
-
-
+        case 'image spheres and mapping bubbles':
+            mapping.drawImageSpheresMappingBubbles();
+            writeIterations();
+            break;
+        case 'image spheres only':
+            mapping.drawImageSpheresOnly();
+            writeIterations();
+            break;
+        case 'image and mapping spheres as discs':
+            mapping.drawImageSpheresAsDiscs();
+            writeIterations();
+            break;
         case 'test':
-            mapping.drawImageSpheres();
+            basics.startDrawingPoints();
+            mapping.drawPointsInBack();
+            mapping.drawPointsInFront();
+            output.pixels.show();
             break;
     }
     // poincare.drawCircle();
     // mapping.drawSpheresAsDiscs();
-    //writeIterations();
 }
 
 output.drawCanvasChanged = draw;
