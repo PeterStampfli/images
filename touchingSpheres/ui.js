@@ -8,12 +8,9 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    basics
-} from "./basics.js";
-
-import {
+    basics,
     poincare
-} from "./poincare.js";
+} from "./basics.js";
 
 import {
     mapping
@@ -86,18 +83,6 @@ gui.add({
         transformSort();
         draw();
     }
-}).add({
-    type: 'number',
-    params: mapping,
-    property: 'additionalPoints',
-    labelText: 'morePoints',
-    min: 0,
-    step: 1,
-    onChange: function() {
-        create();
-        transformSort();
-        draw();
-    }
 });
 
 gui.add({
@@ -105,6 +90,19 @@ gui.add({
     params: mapping,
     property: 'useTouchingPoints',
     labelText: 'touch points',
+    onChange: function() {
+        create();
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: mapping,
+    property: 'additionalPoints',
+    labelText: 'morePoints',
+    min: 0,
+    step: 1,
+    max: 4,
     onChange: function() {
         create();
         transformSort();
@@ -295,6 +293,8 @@ gui.add({
         'image spheres and mapping bubbles',
         'image spheres only',
         'image and mapping spheres as discs',
+        'points on poincare sphere',
+        'points on poincare bubble',
         'test'
     ],
     labelText: 'display',
@@ -351,43 +351,27 @@ gui.add({
     }
 });
 
-gui.add({
-    type: 'color',
-    params: mapping,
-    property: 'imageSphereColor',
-    labelText: 'img spheres',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'boolean',
-    params: mapping,
-    property: 'specialColor',
-    labelText: 'multi',
-    onChange: function() {
-        draw();
-    }
-});
-
 mapping.drawGenController = gui.add({
     type: 'number',
     params: mapping,
     property: 'drawImageSphereGen',
     min: 1,
     step: 1,
-    labelText: 'of iteration',
+    labelText: 'image of ite',
     onChange: function() {
         draw();
     }
 });
-mapping.drawGenController.add({
+
+
+gui.add({
     type: 'number',
     params: basics,
     property: 'alphaBubble',
     min: 1,
     step: 1,
     max: 255,
-    labelText: 'alpha',
+    labelText: 'alpha front',
     onChange: function() {
         draw();
     }
@@ -405,6 +389,44 @@ mapping.drawGenController.add({
 });
 
 gui.add({
+    type: 'color',
+    params: mapping,
+    property: 'colorFront',
+    labelText: 'front',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'color',
+    params: mapping,
+    property: 'colorBack',
+    labelText: 'back',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: mapping,
+    property: 'colorInterpolation',
+    labelText: 'interpolation',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'specialColor',
+    labelText: 'special colors',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'number',
     params: basics,
     property: 'pointSize',
@@ -412,26 +434,6 @@ gui.add({
     step: 1,
     max: 4,
     labelText: 'point size',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type:'color',
-    params:mapping,
-    property:'pointColorFront',
-    labelText:'point front',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type:'color',
-    params:mapping,
-    property:'pointColorBack',
-    labelText:'point back',
     onChange: function() {
         draw();
     }
@@ -482,11 +484,27 @@ function draw() {
             mapping.drawImageSpheresAsDiscs();
             writeIterations();
             break;
-        case 'test':
+        case 'points on poincare sphere':
+            poincare.drawSphere();
             basics.startDrawingPoints();
-            mapping.drawPointsInBack();
             mapping.drawPointsInFront();
             output.pixels.show();
+            break;
+        case 'points on poincare bubble':
+            basics.startDrawingPoints();
+            mapping.drawPointsInBack();
+            output.pixels.show();
+            poincare.drawLowerBubble();
+            poincare.drawUpperBubble();
+            basics.startDrawingPoints();
+            mapping.drawPointsInFront();
+            output.pixels.show();
+            break;
+        case 'test':
+            basics.startDrawingPoints();
+            mapping.drawPointsInFrontInterpolatedColor();
+            output.pixels.show();
+
             break;
     }
     // poincare.drawCircle();
