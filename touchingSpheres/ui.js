@@ -282,6 +282,7 @@ display.show = 'test';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
 display.textOn = true;
+display.equalColors = false;
 
 gui.add({
     type: 'selection',
@@ -291,10 +292,11 @@ gui.add({
         'mapping spheres',
         'mapping discs',
         'image spheres and mapping bubbles',
-        'image spheres only',
         'image and mapping spheres as discs',
+        'image spheres only',
         'points on poincare sphere',
         'points on poincare bubble',
+        'points in mapping bubbles',
         'test'
     ],
     labelText: 'display',
@@ -351,19 +353,6 @@ gui.add({
     }
 });
 
-mapping.drawGenController = gui.add({
-    type: 'number',
-    params: mapping,
-    property: 'drawImageSphereGen',
-    min: 1,
-    step: 1,
-    labelText: 'image of ite',
-    onChange: function() {
-        draw();
-    }
-});
-
-
 gui.add({
     type: 'number',
     params: basics,
@@ -382,13 +371,25 @@ gui.add({
     min: 0,
     step: 1,
     max: 255,
-    labelText: 'back',
+    labelText: 'minimum back',
     onChange: function() {
         draw();
     }
 });
 
-gui.add({
+mapping.drawGenController = gui.add({
+    type: 'number',
+    params: mapping,
+    property: 'drawImageSphereGen',
+    min: 1,
+    step: 1,
+    labelText: 'image of ite',
+    onChange: function() {
+        draw();
+    }
+});
+
+const frontColorController = gui.add({
     type: 'color',
     params: mapping,
     property: 'colorFront',
@@ -397,8 +398,17 @@ gui.add({
         draw();
     }
 });
+const interpolationController = frontColorController.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'colorInterpolation',
+    labelText: 'interpolation',
+    onChange: function() {
+        draw();
+    }
+});
 
-gui.add({
+const backColorController = gui.add({
     type: 'color',
     params: mapping,
     property: 'colorBack',
@@ -406,11 +416,13 @@ gui.add({
     onChange: function() {
         draw();
     }
-}).add({
+});
+
+backColorController.add({
     type: 'boolean',
-    params: mapping,
-    property: 'colorInterpolation',
-    labelText: 'interpolation',
+    params: display,
+    property: 'equalColors',
+    labelText: 'same as front',
     onChange: function() {
         draw();
     }
@@ -461,6 +473,10 @@ function draw() {
     if (mapping.minGeneration < mapping.drawImageSphereGen) {
         mapping.drawGenController.setValueOnly(mapping.minGeneration);
     }
+    if (display.equalColors) {
+        backColorController.setValueOnly(mapping.colorFront);
+        interpolationController.setValueOnly(false);
+    }
     output.startDrawing();
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
@@ -500,11 +516,14 @@ function draw() {
             mapping.drawPointsInFront();
             output.pixels.show();
             break;
+        case 'points in mapping bubbles':
+            mapping.drawPointsMappingBubbles();
+            break;
         case 'test':
             basics.startDrawingPoints();
-            mapping.drawPointsInFrontInterpolatedColor();
-            output.pixels.show();
 
+            mapping.drawPointsInFrontOutside();
+            output.pixels.show();
             break;
     }
     // poincare.drawCircle();

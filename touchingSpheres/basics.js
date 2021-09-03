@@ -368,7 +368,7 @@ basics.stereographicViewPoints = function(points) {
         const factor = stereographicRadius2 / d2;
         point[0] = factor * x;
         point[1] = factor * y;
-        point[2] = stereographicCenter + factor * dz;
+        point[2] = -(stereographicCenter + factor * dz);
     }
 };
 
