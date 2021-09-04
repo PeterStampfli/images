@@ -278,7 +278,7 @@ tiltController.add({
 }).cyclic();
 
 const display = {};
-display.show = 'test';
+display.show = 'mapping bubbles';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
 display.textOn = true;
@@ -290,6 +290,7 @@ gui.add({
     property: 'show',
     options: [
         'mapping spheres',
+        'mapping bubbles',
         'mapping discs',
         'image spheres and mapping bubbles',
         'image and mapping spheres as discs',
@@ -297,7 +298,7 @@ gui.add({
         'points on poincare sphere',
         'points on poincare bubble',
         'points in mapping bubbles',
-        'test'
+        'points only'
     ],
     labelText: 'display',
     onChange: function() {
@@ -367,11 +368,22 @@ gui.add({
 }).add({
     type: 'number',
     params: basics,
+    property: 'alphaBubbleFront',
+    min: 0,
+    step: 1,
+    max: 255,
+    labelText: 'min front',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: basics,
     property: 'alphaBubbleBack',
     min: 0,
     step: 1,
     max: 255,
-    labelText: 'minimum back',
+    labelText: 'back',
     onChange: function() {
         draw();
     }
@@ -394,15 +406,6 @@ const frontColorController = gui.add({
     params: mapping,
     property: 'colorFront',
     labelText: 'front',
-    onChange: function() {
-        draw();
-    }
-});
-const interpolationController = frontColorController.add({
-    type: 'boolean',
-    params: mapping,
-    property: 'colorInterpolation',
-    labelText: 'interpolation',
     onChange: function() {
         draw();
     }
@@ -475,7 +478,6 @@ function draw() {
     }
     if (display.equalColors) {
         backColorController.setValueOnly(mapping.colorFront);
-        interpolationController.setValueOnly(false);
     }
     output.startDrawing();
     output.fillCanvas('#00000000');
@@ -484,6 +486,9 @@ function draw() {
     switch (display.show) {
         case 'mapping spheres':
             mapping.drawSpheres();
+            break;
+        case 'mapping bubbles':
+            mapping.drawBubbles();
             break;
         case 'mapping discs':
             mapping.drawSpheresAsDiscs();
@@ -501,33 +506,36 @@ function draw() {
             writeIterations();
             break;
         case 'points on poincare sphere':
+            basics.startDrawingPoints();
+            mapping.drawPointsInBackOutside();
+            output.pixels.show();
             poincare.drawSphere();
             basics.startDrawingPoints();
-            mapping.drawPointsInFront();
+            mapping.drawPointsInFrontOutside();
             output.pixels.show();
             break;
         case 'points on poincare bubble':
             basics.startDrawingPoints();
-            mapping.drawPointsInBack();
+            mapping.drawPointsInBackOutside();
             output.pixels.show();
             poincare.drawLowerBubble();
+            basics.startDrawingPoints();
+            mapping.drawPointsInside();
+            output.pixels.show();
             poincare.drawUpperBubble();
             basics.startDrawingPoints();
-            mapping.drawPointsInFront();
+            mapping.drawPointsInFrontOutside();
             output.pixels.show();
             break;
         case 'points in mapping bubbles':
             mapping.drawPointsMappingBubbles();
             break;
-        case 'test':
+        case 'points only':
             basics.startDrawingPoints();
-
-            mapping.drawPointsInFrontOutside();
+            mapping.drawAllPoints();
             output.pixels.show();
             break;
     }
-    // poincare.drawCircle();
-    // mapping.drawSpheresAsDiscs();
 }
 
 output.drawCanvasChanged = draw;

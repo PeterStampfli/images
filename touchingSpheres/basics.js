@@ -21,6 +21,7 @@ const darkness = 0.5;
 
 basics.alphaBubble = 200;
 basics.alphaBubbleBack = 100;
+basics.alphaBubbleFront = 50;
 
 basics.drawDisc = function(x, y, radius, color) {
     const canvasContext = output.canvasContext;
@@ -72,8 +73,8 @@ basics.drawSphere = function(x, y, radius, color) {
 basics.drawUpperBubble = function(x, y, radius, color) {
     const canvasContext = output.canvasContext;
     ColorInput.setObject(colorObject, color);
-    colorObject.alpha = 0;
-    const transparentColor = ColorInput.stringFromObject(colorObject);
+    colorObject.alpha = basics.alphaBubbleFront;
+    let transparentColor = ColorInput.stringFromObject(colorObject);
     colorObject.alpha = basics.alphaBubble;
     color = ColorInput.stringFromObject(colorObject);
     let grd = canvasContext.createRadialGradient(x, y, radius * 0.8, x, y, radius);
@@ -84,6 +85,8 @@ basics.drawUpperBubble = function(x, y, radius, color) {
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
     canvasContext.fillStyle = grd;
     canvasContext.fill();
+    colorObject.alpha = 0;
+    transparentColor = ColorInput.stringFromObject(colorObject);
     grd = canvasContext.createRadialGradient(x - 0.5 * radius, y - 0.5 * radius, 0, x - 0.5 * radius, y - 0.5 * radius, radius);
     grd.addColorStop(0, color);
     grd.addColorStop(1, transparentColor);
@@ -143,10 +146,10 @@ poincare.drawLowerBubble = function() {
 // drawing points
 //===================================================
 
-basics.pointSize=2;
+basics.pointSize = 2;
 var width, height, invScale, shiftX, shiftY, pointSize, pixelsArray, data;
 
-basics.startDrawingPoints=function(){
+basics.startDrawingPoints = function() {
     output.pixels.update();
     pixelsArray = output.pixels.array;
     const scale = output.coordinateTransform.totalScale / output.pixels.antialiasSubpixels;
@@ -156,12 +159,12 @@ basics.startDrawingPoints=function(){
     // (x,y)=scale*(i,j)+(shiftX,shiftY)
     width = output.canvas.width;
     height = output.canvas.height;
-    pointSize=basics.pointSize;
+    pointSize = basics.pointSize;
 };
 
 // end: output.pixels.show();
 
-basics.drawPoint=function(point,intColor) {
+basics.drawPoint = function(point, intColor) {
     let i = invScale * (point[0] - shiftX);
     let j = invScale * (point[1] - shiftY);
     switch (pointSize) {
@@ -225,7 +228,7 @@ basics.drawPoint=function(point,intColor) {
             }
             break;
     }
-}
+};
 
 //  copy static coordinates for rotating
 //=====================================
