@@ -98,7 +98,7 @@ gui.add({
 }).add({
     type: 'number',
     params: mapping,
-    property: 'additionalPoints',
+    property: 'additionalPointsIterations',
     labelText: 'morePoints',
     min: 0,
     step: 1,
@@ -222,10 +222,13 @@ gui.add({
     type: 'selection',
     params: basics,
     property: 'view',
-    options: ['normal', 'stereographic'],
+    options: ['normal', 'stereographic', 'both for points'],
     onChange: function() {
         switch (basics.view) {
             case 'normal':
+                viewInterpolation.hide();
+                break;
+            case 'both for points':
                 viewInterpolation.hide();
                 break;
             case 'stereographic':
@@ -278,7 +281,7 @@ tiltController.add({
 }).cyclic();
 
 const display = {};
-display.show = 'mapping bubbles';
+display.show = 'points on poincare sphere';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
 display.textOn = true;
@@ -454,6 +457,38 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'equatorOn',
+    labelText: 'equator',
+    onChange: function() {
+        transformSort();
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: mapping,
+    property: 'equatorNPoints',
+    labelText: 'points',
+    min: 10,
+    step: 1,
+    onChange: function() {
+        transformSort();
+        draw();
+    }
+});
+
+gui.add({
+    type: 'color',
+    params: mapping,
+    property: 'equatorColor',
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
+});
+
 function create() {
     mapping.spheres.length = 0;
     mapping.config();
@@ -463,6 +498,9 @@ function create() {
 
 function transformSort() {
     mapping.transformSortImages();
+    if (mapping.equatorOn&&(basics.view !== 'normal')) {
+        mapping.createEquator();
+    }
     // mapping.logSpheres();
 }
 
@@ -483,6 +521,12 @@ function draw() {
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
+
+    if (mapping.equatorOn&&(basics.view !== 'normal')) {
+basics.startDrawingPoints();
+        mapping.showEquator();
+            output.pixels.show();
+    }
     switch (display.show) {
         case 'mapping spheres':
             mapping.drawSpheres();
@@ -507,24 +551,25 @@ function draw() {
             break;
         case 'points on poincare sphere':
             basics.startDrawingPoints();
-            mapping.drawPointsInBackOutside();
+            mapping.drawAdditionalPointsInBack();
+            mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawSphere();
             basics.startDrawingPoints();
-            mapping.drawPointsInFrontOutside();
+            mapping.drawAdditionalPointsInFront();
+            mapping.drawPointsInFront();
             output.pixels.show();
             break;
         case 'points on poincare bubble':
             basics.startDrawingPoints();
-            mapping.drawPointsInBackOutside();
+            mapping.drawAdditionalPointsInBack();
+            mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawLowerBubble();
-            basics.startDrawingPoints();
-            mapping.drawPointsInside();
-            output.pixels.show();
             poincare.drawUpperBubble();
             basics.startDrawingPoints();
-            mapping.drawPointsInFrontOutside();
+            mapping.drawAdditionalPointsInFront();
+            mapping.drawPointsInFront();
             output.pixels.show();
             break;
         case 'points in mapping bubbles':
@@ -532,7 +577,10 @@ function draw() {
             break;
         case 'points only':
             basics.startDrawingPoints();
-            mapping.drawAllPoints();
+            mapping.drawAdditionalPointsInBack();
+            mapping.drawPointsInBack();
+            mapping.drawPointsInFront();
+            mapping.drawAdditionalPointsInFront();
             output.pixels.show();
             break;
     }
