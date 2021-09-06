@@ -342,7 +342,7 @@ mapping.transformSortImages = function() {
             basics.rotatePoints(viewPoints);
             if (basics.view === 'stereographic') {
                 basics.stereographicViewPoints(viewPoints);
-            } else if (basics.view === 'both for points') {
+            } else if (basics.view === 'both (for points only)') {
                 basics.bothViewsPoints(mapping.additionalViewPoints, viewPoints);
             }
             basics.tiltRotatePoints(viewPoints);
@@ -351,7 +351,7 @@ mapping.transformSortImages = function() {
             }
         }
     }
-    if (basics.view === 'both for points') {
+    if (basics.view === 'both (for points only)') {
         basics.tiltRotatePoints(mapping.additionalViewPoints);
     }
 };
@@ -677,38 +677,65 @@ mapping.drawAdditionalPointsInFront = function() {
 mapping.equatorOn = true;
 mapping.equatorColor = '#aaaa00';
 mapping.equatorNPoints = 100;
-mapping.equator = [];
+const equator = [];
+
+function addEquatorPoint(x,y,z){
+const point = new Float32Array(3);
+        point[0] = x;
+        point[1] = y;
+        point[2] = z;
+equator.push(point);
+}
 
 mapping.createEquator = function() {
     const nPoints = mapping.equatorNPoints;
     const deltaAngle = 2 * Math.PI / nPoints;
     const hyperbolicRadius = basics.hyperbolicRadius;
-    mapping.equator.length = 0;
+    const r2=4*hyperbolicRadius*hyperbolicRadius;
+    const rt05=Math.sqrt(0.5);
+    equator.length = 0;
     let angle = 0;
     for (var i = 0; i < nPoints; i++) {
         let point = new Float32Array(3);
-        point[0] = 2 * Math.cos(angle) * hyperbolicRadius;
-        point[1] = 2 * Math.sin(angle) * hyperbolicRadius;
-        point[2] = -hyperbolicRadius;
-        mapping.equator.push(point);
-        point = new Float32Array(3);
-        point[0] = Math.cos(angle) * hyperbolicRadius;
-        point[1] = Math.sin(angle) * hyperbolicRadius;
-        point[2] = 0;
-        mapping.equator.push(point);
+        let x=Math.cos(angle) * hyperbolicRadius;
+        const y= Math.sin(angle) * hyperbolicRadius;
+        addEquatorPoint(x,y,0);
+addEquatorPoint(rt05*x,rt05*x,y);
+addEquatorPoint(rt05*x,-rt05*x,y);
+       addEquatorPoint(2*x,2*y,-hyperbolicRadius);
+const dz=y-hyperbolicRadius;
+const factor=r2/(x*x+dz*dz);
+const z=hyperbolicRadius+dz*factor;
+x*=factor;
+addEquatorPoint(rt05*x,rt05*x,z);
+addEquatorPoint(rt05*x,-rt05*x,z);
         angle+=deltaAngle;
     }
-    basics.tiltRotatePoints(mapping.equator);
+    basics.tiltRotatePoints(equator);
 };
 
-mapping.showEquator = function() {
+mapping.drawEquatorBack = function() {
     const color = {};
     ColorInput.setObject(color, mapping.equatorColor);
-
     const intColor = Pixels.integerOfColor(color);
-    const points = mapping.equator;
-    const length = points.length;
+    const length = equator.length;
     for (var i = 0; i < length; i++) {
-        basics.drawPoint(points[i], intColor);
+        const point=equator[i];
+        if (point[2]<0){
+        basics.drawPoint(point, intColor);
+    }
+    }
+};
+
+mapping.drawEquatorFront = function() {
+    const color = {};
+    ColorInput.setObject(color, mapping.equatorColor);
+    const intColor = Pixels.integerOfColor(color);
+    const length = equator.length;
+    for (var i = 0; i < length; i++) {
+        const point=equator[i];
+        if (point[2]>=0){
+        basics.drawPoint(point, intColor);
+    }
     }
 };

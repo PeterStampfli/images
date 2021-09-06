@@ -222,7 +222,7 @@ gui.add({
     type: 'selection',
     params: basics,
     property: 'view',
-    options: ['normal', 'stereographic', 'both for points'],
+    options: ['normal', 'stereographic', 'both (for points only)'],
     onChange: function() {
         switch (basics.view) {
             case 'normal':
@@ -498,7 +498,7 @@ function create() {
 
 function transformSort() {
     mapping.transformSortImages();
-    if (mapping.equatorOn&&(basics.view !== 'normal')) {
+    if (mapping.equatorOn && (basics.view !== 'normal')) {
         mapping.createEquator();
     }
     // mapping.logSpheres();
@@ -522,11 +522,7 @@ function draw() {
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
 
-    if (mapping.equatorOn&&(basics.view !== 'normal')) {
-basics.startDrawingPoints();
-        mapping.showEquator();
-            output.pixels.show();
-    }
+
     switch (display.show) {
         case 'mapping spheres':
             mapping.drawSpheres();
@@ -551,12 +547,18 @@ basics.startDrawingPoints();
             break;
         case 'points on poincare sphere':
             basics.startDrawingPoints();
-            mapping.drawAdditionalPointsInBack();
+    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
+        mapping.drawEquatorBack();
+    }
+                mapping.drawAdditionalPointsInBack();
             mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawSphere();
             basics.startDrawingPoints();
-            mapping.drawAdditionalPointsInFront();
+    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
+        mapping.drawEquatorFront();
+    }
+                mapping.drawAdditionalPointsInFront();
             mapping.drawPointsInFront();
             output.pixels.show();
             break;

@@ -335,19 +335,19 @@ basics.viewInterpolation = 1;
 basics.hyperbolicRadius = 1;
 
 basics.setupStereographicView = function() {
-    const x=basics.viewInterpolation*basics.viewInterpolation;
-    stereographicCenter = basics.hyperbolicRadius /x;
-    stereographicRadius2 = stereographicCenter * stereographicCenter + 3*basics.hyperbolicRadius * basics.hyperbolicRadius;
-    stereographicOffset=-2*basics.hyperbolicRadius*x;
+    const x = basics.viewInterpolation * basics.viewInterpolation;
+    stereographicCenter = basics.hyperbolicRadius / x;
+    stereographicRadius2 = stereographicCenter * stereographicCenter + 3 * basics.hyperbolicRadius * basics.hyperbolicRadius;
+    stereographicOffset = -2 * basics.hyperbolicRadius * x;
 };
 
 // spheres are objects
 basics.stereographicViewSpheres = function(spheres) {
-  const x=basics.viewInterpolation*basics.viewInterpolation;
-    const stereographicCenter = basics.hyperbolicRadius /x;
-    let stereographicRadius2 = stereographicCenter +basics.hyperbolicRadius;
-    stereographicRadius2*=stereographicRadius2;
-    const stereographicOffset=-2*basics.hyperbolicRadius;   
+    const x = basics.viewInterpolation * basics.viewInterpolation;
+    const stereographicCenter = basics.hyperbolicRadius / x;
+    let stereographicRadius2 = stereographicCenter + basics.hyperbolicRadius;
+    stereographicRadius2 *= stereographicRadius2;
+    const stereographicOffset = -2 * basics.hyperbolicRadius;
     const length = spheres.length;
     for (let i = 0; i < length; i++) {
         const sphere = spheres[i];
@@ -359,18 +359,18 @@ basics.stereographicViewSpheres = function(spheres) {
         const factor = stereographicRadius2 / (d2 - viewRadius * viewRadius);
         sphere.viewX = factor * x;
         sphere.viewY = factor * y;
-        sphere.viewZ = stereographicOffset-(stereographicCenter + factor * dz); // compensate for mirroring at (x,y) plane in limit to normal view
+        sphere.viewZ = stereographicOffset - (stereographicCenter + factor * dz); // compensate for mirroring at (x,y) plane in limit to normal view
         sphere.viewRadius = factor * viewRadius;
     }
 };
 
 // (view)points are arrays
 basics.stereographicViewPoints = function(points) {
-    const x=basics.viewInterpolation*basics.viewInterpolation;
-    const stereographicCenter = basics.hyperbolicRadius /x;
-    let stereographicRadius2 = stereographicCenter +basics.hyperbolicRadius;
-    stereographicRadius2*=stereographicRadius2;
-    const stereographicOffset=-2*basics.hyperbolicRadius;    
+    const x = basics.viewInterpolation * basics.viewInterpolation;
+    const stereographicCenter = basics.hyperbolicRadius / x;
+    let stereographicRadius2 = stereographicCenter + basics.hyperbolicRadius;
+    stereographicRadius2 *= stereographicRadius2;
+    const stereographicOffset = -2 * basics.hyperbolicRadius;
     const length = points.length;
     for (let i = 0; i < length; i++) {
         const point = points[i];
@@ -381,14 +381,14 @@ basics.stereographicViewPoints = function(points) {
         const factor = stereographicRadius2 / d2;
         point[0] = factor * x;
         point[1] = factor * y;
-        point[2] = stereographicOffset-(stereographicCenter + factor * dz);
+        point[2] = stereographicOffset - (stereographicCenter + factor * dz);
     }
 };
 
 // (view)points are arrays
-basics.bothViewsPoints = function(additionalPoints,points) {
-    const stereographicCenter=basics.hyperbolicRadius;
-    const stereographicRadius2=4*stereographicCenter*stereographicCenter;
+basics.bothViewsPoints = function(additionalPoints, points) {
+    const stereographicCenter = basics.hyperbolicRadius;
+    const stereographicRadius2 = 4 * stereographicCenter * stereographicCenter;
     const length = points.length;
     for (let i = 0; i < length; i++) {
         const point = points[i];
@@ -397,7 +397,7 @@ basics.bothViewsPoints = function(additionalPoints,points) {
         const dz = point[2] - stereographicCenter;
         const d2 = x * x + y * y + dz * dz;
         const factor = stereographicRadius2 / d2;
-        const newPoint=new Float32Array(3);
+        const newPoint = new Float32Array(3);
         newPoint[0] = factor * x;
         newPoint[1] = factor * y;
         newPoint[2] = stereographicCenter + factor * dz;
@@ -438,8 +438,11 @@ basics.tiltRotatePoints = function(points) {
     const length = points.length;
     for (let i = 0; i < length; i++) {
         const point = points[i];
-        const y = point[1];
+        const x = point[0];
+        let y = point[1];
         const z = point[2];
+        point[0] = rotationCos * x - rotationSin * y;
+        y = rotationSin * x + rotationCos * y;
         point[1] = tiltCos * y - tiltSin * z;
         point[2] = tiltSin * y + tiltCos * z;
     }
