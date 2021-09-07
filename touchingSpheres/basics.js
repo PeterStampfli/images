@@ -386,22 +386,22 @@ basics.stereographicViewPoints = function(points) {
 };
 
 // (view)points are arrays
-basics.bothViewsPoints = function(additionalPoints, points) {
+basics.bothViewsPoints = function(stereographicPoints, points) {
     const stereographicCenter = basics.hyperbolicRadius;
     const stereographicRadius2 = 4 * stereographicCenter * stereographicCenter;
     const length = points.length;
     for (let i = 0; i < length; i++) {
         const point = points[i];
+        const stereographicPoint=stereographicPoints[i];
         const x = point[0];
         const y = point[1];
         const dz = point[2] - stereographicCenter;
         const d2 = x * x + y * y + dz * dz;
         const factor = stereographicRadius2 / d2;
         const newPoint = new Float32Array(3);
-        newPoint[0] = factor * x;
-        newPoint[1] = factor * y;
-        newPoint[2] = stereographicCenter + factor * dz;
-        additionalPoints.push(newPoint);
+        stereographicPoint[0] = factor * x;
+        stereographicPoint[1] = factor * y;
+        stereographicPoint[2] = stereographicCenter + factor * dz;
     }
 };
 

@@ -34,6 +34,7 @@ viewRadius (of the sphere as visible)
 imageSpheres (Array of image sphere objects)
 points (Array of Float32Array(3) for coordinates of limit points in fixed coordinates)
 viewPoints (Array of Float32Array(3) for coordinates of transformed points as shown)
+stereographicPoints (Array of Float32Array(3) for coordinates of transformed points in stereographic projection as shown)
 */
 
 /* image spheres have these fields
@@ -55,35 +56,35 @@ mapping.minGeneration = 6; // minimum number for creating image spheres
 mapping.minRadius = 0.001; // critical radius for terminating and writing a point
 mapping.additionalPointsIterations = 0; // create more points with mapping
 mapping.useTouchingPoints = true; // points where circles touch belong to the limit set
-mapping.additionalViewPoints = []; //(Array of Float32Array(3) for coordinates of additional transformed stereographic points as shown)
 
 function addMappingSphere(radius, x, y, z = 0) {
-    const sphere = {};
-    sphere.radius = radius;
-    sphere.radius2 = radius * radius;
-    sphere.x = x;
-    sphere.y = y;
-    sphere.z = z;
+    const mappingSphere = {};
+    mappingSphere.radius = radius;
+    mappingSphere.radius2 = radius * radius;
+    mappingSphere.x = x;
+    mappingSphere.y = y;
+    mappingSphere.z = z;
     const index = mapping.spheres.length;
-    sphere.color = colors[index % colors.length];
-    sphere.on = (index < mapping.on.length) ? mapping.on[index] : true;
-    sphere.imageSpheres = [];
-    sphere.points = [];
-    sphere.viewPoints = [];
-    mapping.spheres.push(sphere);
+    mappingSphere.color = colors[index % colors.length];
+    mappingSphere.on = (index < mapping.on.length) ? mapping.on[index] : true;
+    mappingSphere.imageSpheres = [];
+    mappingSphere.points = [];
+    mappingSphere.viewPoints = [];
+    mappingSphere.stereographicPoints = [];
+    mapping.spheres.push(mappingSphere);
 }
 
 var color;
 
 function addImageSphere(mappingSphere, generation, radius, x, y, z) {
-    const sphere = {};
-    sphere.generation = generation;
-    sphere.color = color;
-    sphere.radius = radius;
-    sphere.x = x;
-    sphere.y = y;
-    sphere.z = z;
-    mappingSphere.imageSpheres.push(sphere);
+    const imageSphere = {};
+    imageSphere.generation = generation;
+    imageSphere.color = color;
+    imageSphere.radius = radius;
+    imageSphere.x = x;
+    imageSphere.y = y;
+    imageSphere.z = z;
+    mappingSphere.imageSpheres.push(imageSphere);
 }
 
 function addPoint(mappingSphere, x, y, z) {
@@ -93,6 +94,7 @@ function addPoint(mappingSphere, x, y, z) {
     point[2] = z;
     mappingSphere.points.push(point);
     mappingSphere.viewPoints.push(new Float32Array(3));
+    mappingSphere.stereographicPoints.push(new Float32Array(3));
 }
 
 // determine hyperbolic radius and projection from 4d to 3d
@@ -315,7 +317,6 @@ mapping.createTouchingPoints = function() {
 mapping.sortPoints = false;
 
 mapping.transformSortImages = function() {
-    mapping.additionalViewPoints.length = 0;
     basics.updateEulerAngles();
     basics.setupTiltRotation();
     basics.copyCoordinatesSpheres(mapping.spheres);
@@ -343,16 +344,14 @@ mapping.transformSortImages = function() {
             if (basics.view === 'stereographic') {
                 basics.stereographicViewPoints(viewPoints);
             } else if (basics.view === 'both (for points only)') {
-                basics.bothViewsPoints(mapping.additionalViewPoints, viewPoints);
+                basics.bothViewsPoints(mappingSphere.stereographicPoints, viewPoints);
+                basics.tiltRotatePoints(mappingSphere.stereographicPoints);
             }
             basics.tiltRotatePoints(viewPoints);
             if (mapping.sortPoints) {
                 basics.zSortPoints(viewPoints);
             }
         }
-    }
-    if (basics.view === 'both (for points only)') {
-        basics.tiltRotatePoints(mapping.additionalViewPoints);
     }
 };
 
@@ -641,34 +640,52 @@ mapping.drawPointsInBack = function() {
     }
 };
 
-mapping.drawAdditionalPointsInBack = function() {
+mapping.drawStereographicPointsInBack = function() {
+    if (basics.view === 'both (for points only)'){
     var intColor;
     setupColorInterpolation();
-    const points = mapping.additionalViewPoints;
-    length = points.length;
-    for (let i = 0; i < length; i++) {
-        const point = points[i];
-        const z = point[2];
-        if (z < 0) {
-            const intColor = interpolateColorInteger(z);
-            basics.drawPoint(point, intColor);
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const points = mappingSphere.viewPoints;
+            const stereographicPoints = mappingSphere.stereographicPoints;
+            const length = points.length;
+            for (let j = 0; j < length; j++) {
+                const stereographicPoint=stereographicPoints[j];
+                if (stereographicPoint[2] < 0) {
+                                    const point = points[j];
+                   const intColor = interpolateColorInteger(point[2]);
+                    basics.drawPoint(stereographicPoint, intColor);
+                }
+            }
         }
     }
+}
 };
 
-mapping.drawAdditionalPointsInFront = function() {
-    var intColor;
+mapping.drawStereographicPointsInFront = function() {
+     if (basics.view === 'both (for points only)'){
+   var intColor;
     setupColorInterpolation();
-    const points = mapping.additionalViewPoints;
-    length = points.length;
-    for (let i = 0; i < length; i++) {
-        const point = points[i];
-        const z = point[2];
-        if (z >= 0) {
-            const intColor = interpolateColorInteger(z);
-            basics.drawPoint(point, intColor);
+    mappingLength = mapping.spheres.length;
+    for (let i = 0; i < mappingLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const points = mappingSphere.viewPoints;
+            const stereographicPoints = mappingSphere.stereographicPoints;
+            const length = points.length;
+            for (let j = 0; j < length; j++) {
+                const stereographicPoint=stereographicPoints[j];
+                if (stereographicPoint[2] >= 0) {
+                                    const point = points[j];
+                   const intColor = interpolateColorInteger(point[2]);
+                    basics.drawPoint(stereographicPoint, intColor);
+                }
+            }
         }
     }
+}
 };
 
 // equator for stereographic projection
@@ -676,66 +693,70 @@ mapping.drawAdditionalPointsInFront = function() {
 
 mapping.equatorOn = true;
 mapping.equatorColor = '#aaaa00';
-mapping.equatorNPoints = 100;
+mapping.equatorNPoints = 500;
 const equator = [];
 
-function addEquatorPoint(x,y,z){
-const point = new Float32Array(3);
-        point[0] = x;
-        point[1] = y;
-        point[2] = z;
-equator.push(point);
+function addEquatorPoint(x, y, z) {
+    const point = new Float32Array(3);
+    point[0] = x;
+    point[1] = y;
+    point[2] = z;
+    equator.push(point);
 }
 
 mapping.createEquator = function() {
     const nPoints = mapping.equatorNPoints;
     const deltaAngle = 2 * Math.PI / nPoints;
     const hyperbolicRadius = basics.hyperbolicRadius;
-    const r2=4*hyperbolicRadius*hyperbolicRadius;
-    const rt05=Math.sqrt(0.5);
+    const r2 = 4 * hyperbolicRadius * hyperbolicRadius;
+    const rt05 = Math.sqrt(0.5);
     equator.length = 0;
     let angle = 0;
     for (var i = 0; i < nPoints; i++) {
         let point = new Float32Array(3);
-        let x=Math.cos(angle) * hyperbolicRadius;
-        const y= Math.sin(angle) * hyperbolicRadius;
-        addEquatorPoint(x,y,0);
-addEquatorPoint(rt05*x,rt05*x,y);
-addEquatorPoint(rt05*x,-rt05*x,y);
-       addEquatorPoint(2*x,2*y,-hyperbolicRadius);
-const dz=y-hyperbolicRadius;
-const factor=r2/(x*x+dz*dz);
-const z=hyperbolicRadius+dz*factor;
-x*=factor;
-addEquatorPoint(rt05*x,rt05*x,z);
-addEquatorPoint(rt05*x,-rt05*x,z);
-        angle+=deltaAngle;
+        let x = Math.cos(angle) * hyperbolicRadius;
+        const y = Math.sin(angle) * hyperbolicRadius;
+        addEquatorPoint(x, y, 0);
+        addEquatorPoint(rt05 * x, rt05 * x, y);
+        addEquatorPoint(rt05 * x, -rt05 * x, y);
+        addEquatorPoint(2 * x, 2 * y, -hyperbolicRadius);
+        const dz = y - hyperbolicRadius;
+        const factor = r2 / (x * x + dz * dz);
+        const z = hyperbolicRadius + dz * factor;
+        x *= factor;
+        addEquatorPoint(rt05 * x, rt05 * x, z);
+        addEquatorPoint(rt05 * x, -rt05 * x, z);
+        angle += deltaAngle;
     }
     basics.tiltRotatePoints(equator);
 };
 
 mapping.drawEquatorBack = function() {
+            if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
     const color = {};
     ColorInput.setObject(color, mapping.equatorColor);
     const intColor = Pixels.integerOfColor(color);
     const length = equator.length;
     for (var i = 0; i < length; i++) {
-        const point=equator[i];
-        if (point[2]<0){
-        basics.drawPoint(point, intColor);
+        const point = equator[i];
+        if (point[2] < 0) {
+            basics.drawPoint(point, intColor);
+        }
     }
-    }
+}
 };
 
 mapping.drawEquatorFront = function() {
+            if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
     const color = {};
     ColorInput.setObject(color, mapping.equatorColor);
     const intColor = Pixels.integerOfColor(color);
     const length = equator.length;
     for (var i = 0; i < length; i++) {
-        const point=equator[i];
-        if (point[2]>=0){
-        basics.drawPoint(point, intColor);
+        const point = equator[i];
+        if (point[2] >= 0) {
+            basics.drawPoint(point, intColor);
+        }
     }
-    }
+}
 };

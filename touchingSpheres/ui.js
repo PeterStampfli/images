@@ -218,28 +218,6 @@ const controllerGamma = controllerBeta.add({
 });
 controllerGamma.cyclic();
 
-gui.add({
-    type: 'selection',
-    params: basics,
-    property: 'view',
-    options: ['normal', 'stereographic', 'both (for points only)'],
-    onChange: function() {
-        switch (basics.view) {
-            case 'normal':
-                viewInterpolation.hide();
-                break;
-            case 'both for points':
-                viewInterpolation.hide();
-                break;
-            case 'stereographic':
-                viewInterpolation.show();
-                break;
-        }
-        transformSort();
-        draw();
-    }
-});
-
 const viewInterpolation = gui.add({
     type: 'number',
     params: basics,
@@ -305,6 +283,28 @@ gui.add({
     ],
     labelText: 'display',
     onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: basics,
+    property: 'view',
+    options: ['normal', 'stereographic', 'both (for points only)'],
+    onChange: function() {
+        switch (basics.view) {
+            case 'normal':
+                viewInterpolation.hide();
+                break;
+            case 'both for points':
+                viewInterpolation.hide();
+                break;
+            case 'stereographic':
+                viewInterpolation.show();
+                break;
+        }
+        transformSort();
         draw();
     }
 });
@@ -547,30 +547,28 @@ function draw() {
             break;
         case 'points on poincare sphere':
             basics.startDrawingPoints();
-    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
-        mapping.drawEquatorBack();
-    }
-                mapping.drawAdditionalPointsInBack();
+                mapping.drawEquatorBack();
+            mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawSphere();
             basics.startDrawingPoints();
-    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
-        mapping.drawEquatorFront();
-    }
-                mapping.drawAdditionalPointsInFront();
+                mapping.drawEquatorFront();
+            mapping.drawStereographicPointsInFront();
             mapping.drawPointsInFront();
             output.pixels.show();
             break;
         case 'points on poincare bubble':
             basics.startDrawingPoints();
-            mapping.drawAdditionalPointsInBack();
+                mapping.drawEquatorBack();
+            mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawLowerBubble();
             poincare.drawUpperBubble();
             basics.startDrawingPoints();
-            mapping.drawAdditionalPointsInFront();
+                mapping.drawEquatorFront();
+            mapping.drawStereographicPointsInFront();
             mapping.drawPointsInFront();
             output.pixels.show();
             break;
@@ -579,10 +577,12 @@ function draw() {
             break;
         case 'points only':
             basics.startDrawingPoints();
-            mapping.drawAdditionalPointsInBack();
+                mapping.drawEquatorBack();
+            mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
+                mapping.drawEquatorFront();
             mapping.drawPointsInFront();
-            mapping.drawAdditionalPointsInFront();
+            mapping.drawStereographicPointsInFront();
             output.pixels.show();
             break;
     }
