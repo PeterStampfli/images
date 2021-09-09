@@ -15,6 +15,9 @@ import {
 import {
     mapping
 } from "./mapping.js";
+import {
+    animation
+} from "./animation.js";
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
@@ -258,12 +261,42 @@ tiltController.add({
     }
 }).cyclic();
 
+
 const display = {};
 display.show = 'points on poincare sphere';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
 display.textOn = true;
 display.equalColors = false;
+
+gui.add({
+    type: "boolean",
+    params: animation,
+    property: 'isRecording',
+    labelText: 'anim record'
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'startFrameNumber',
+    min: 0,
+    step: 1,
+    labelText: 'start number'
+});
+gui.add({
+    type: 'number',
+    params: animation,
+    property: 'smoothing',
+    min: 1,
+    step: 1,
+    max: 4
+}).add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'stop',
+    onClick: function() {
+        animation.isRunning = false;
+    }
+});
 
 gui.add({
     type: 'selection',
@@ -403,6 +436,17 @@ mapping.drawGenController = gui.add({
         draw();
     }
 });
+mapping.drawGenController.add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'animate',
+    onClick: function() {
+        console.log('starta');
+        mapping.drawGenController.setValueOnly(1);
+        animation.frameTime=400;
+        animation.start(animation.imageSphereGenerations);
+    }
+});
 
 const frontColorController = gui.add({
     type: 'color',
@@ -521,8 +565,6 @@ function draw() {
     output.fillCanvas('#00000000');
     output.setLineWidth(display.lineWidth);
     output.canvasContext.strokeStyle = '#000000';
-
-
     switch (display.show) {
         case 'mapping spheres':
             mapping.drawSpheres();
@@ -547,27 +589,27 @@ function draw() {
             break;
         case 'points on poincare sphere':
             basics.startDrawingPoints();
-                mapping.drawEquatorBack();
+            mapping.drawEquatorBack();
             mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawSphere();
             basics.startDrawingPoints();
-                mapping.drawEquatorFront();
+            mapping.drawEquatorFront();
             mapping.drawStereographicPointsInFront();
             mapping.drawPointsInFront();
             output.pixels.show();
             break;
         case 'points on poincare bubble':
             basics.startDrawingPoints();
-                mapping.drawEquatorBack();
+            mapping.drawEquatorBack();
             mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
             output.pixels.show();
             poincare.drawLowerBubble();
             poincare.drawUpperBubble();
             basics.startDrawingPoints();
-                mapping.drawEquatorFront();
+            mapping.drawEquatorFront();
             mapping.drawStereographicPointsInFront();
             mapping.drawPointsInFront();
             output.pixels.show();
@@ -577,16 +619,20 @@ function draw() {
             break;
         case 'points only':
             basics.startDrawingPoints();
-                mapping.drawEquatorBack();
+            mapping.drawEquatorBack();
             mapping.drawStereographicPointsInBack();
             mapping.drawPointsInBack();
-                mapping.drawEquatorFront();
+            mapping.drawEquatorFront();
             mapping.drawPointsInFront();
             mapping.drawStereographicPointsInFront();
             output.pixels.show();
             break;
     }
 }
+
+display.create=create;
+display.transformSort=transformSort;
+display.draw=draw;
 
 output.drawCanvasChanged = draw;
 output.drawImageChanged = draw;

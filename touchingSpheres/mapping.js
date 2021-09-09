@@ -641,51 +641,51 @@ mapping.drawPointsInBack = function() {
 };
 
 mapping.drawStereographicPointsInBack = function() {
-    if (basics.view === 'both (for points only)'){
-    var intColor;
-    setupColorInterpolation();
-    mappingLength = mapping.spheres.length;
-    for (let i = 0; i < mappingLength; i++) {
-        const mappingSphere = mapping.spheres[i];
-        if (mappingSphere.on) {
-            const points = mappingSphere.viewPoints;
-            const stereographicPoints = mappingSphere.stereographicPoints;
-            const length = points.length;
-            for (let j = 0; j < length; j++) {
-                const stereographicPoint=stereographicPoints[j];
-                if (stereographicPoint[2] < 0) {
-                                    const point = points[j];
-                   const intColor = interpolateColorInteger(point[2]);
-                    basics.drawPoint(stereographicPoint, intColor);
+    if (basics.view === 'both (for points only)') {
+        var intColor;
+        setupColorInterpolation();
+        mappingLength = mapping.spheres.length;
+        for (let i = 0; i < mappingLength; i++) {
+            const mappingSphere = mapping.spheres[i];
+            if (mappingSphere.on) {
+                const points = mappingSphere.viewPoints;
+                const stereographicPoints = mappingSphere.stereographicPoints;
+                const length = points.length;
+                for (let j = 0; j < length; j++) {
+                    const stereographicPoint = stereographicPoints[j];
+                    if (stereographicPoint[2] < 0) {
+                        const point = points[j];
+                        const intColor = interpolateColorInteger(point[2]);
+                        basics.drawPoint(stereographicPoint, intColor);
+                    }
                 }
             }
         }
     }
-}
 };
 
 mapping.drawStereographicPointsInFront = function() {
-     if (basics.view === 'both (for points only)'){
-   var intColor;
-    setupColorInterpolation();
-    mappingLength = mapping.spheres.length;
-    for (let i = 0; i < mappingLength; i++) {
-        const mappingSphere = mapping.spheres[i];
-        if (mappingSphere.on) {
-            const points = mappingSphere.viewPoints;
-            const stereographicPoints = mappingSphere.stereographicPoints;
-            const length = points.length;
-            for (let j = 0; j < length; j++) {
-                const stereographicPoint=stereographicPoints[j];
-                if (stereographicPoint[2] >= 0) {
-                                    const point = points[j];
-                   const intColor = interpolateColorInteger(point[2]);
-                    basics.drawPoint(stereographicPoint, intColor);
+    if (basics.view === 'both (for points only)') {
+        var intColor;
+        setupColorInterpolation();
+        mappingLength = mapping.spheres.length;
+        for (let i = 0; i < mappingLength; i++) {
+            const mappingSphere = mapping.spheres[i];
+            if (mappingSphere.on) {
+                const points = mappingSphere.viewPoints;
+                const stereographicPoints = mappingSphere.stereographicPoints;
+                const length = points.length;
+                for (let j = 0; j < length; j++) {
+                    const stereographicPoint = stereographicPoints[j];
+                    if (stereographicPoint[2] >= 0) {
+                        const point = points[j];
+                        const intColor = interpolateColorInteger(point[2]);
+                        basics.drawPoint(stereographicPoint, intColor);
+                    }
                 }
             }
         }
     }
-}
 };
 
 // equator for stereographic projection
@@ -732,31 +732,31 @@ mapping.createEquator = function() {
 };
 
 mapping.drawEquatorBack = function() {
-            if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
-    const color = {};
-    ColorInput.setObject(color, mapping.equatorColor);
-    const intColor = Pixels.integerOfColor(color);
-    const length = equator.length;
-    for (var i = 0; i < length; i++) {
-        const point = equator[i];
-        if (point[2] < 0) {
-            basics.drawPoint(point, intColor);
+    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
+        const color = {};
+        ColorInput.setObject(color, mapping.equatorColor);
+        const intColor = Pixels.integerOfColor(color);
+        const length = equator.length;
+        for (var i = 0; i < length; i++) {
+            const point = equator[i];
+            if (point[2] < 0) {
+                basics.drawPoint(point, intColor);
+            }
         }
     }
-}
 };
 
 mapping.drawEquatorFront = function() {
-            if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
-    const color = {};
-    ColorInput.setObject(color, mapping.equatorColor);
-    const intColor = Pixels.integerOfColor(color);
-    const length = equator.length;
-    for (var i = 0; i < length; i++) {
-        const point = equator[i];
-        if (point[2] >= 0) {
-            basics.drawPoint(point, intColor);
+    if (mapping.equatorOn && (basics.view === 'both (for points only)')) {
+        const color = {};
+        ColorInput.setObject(color, mapping.equatorColor);
+        const intColor = Pixels.integerOfColor(color);
+        const length = equator.length;
+        for (var i = 0; i < length; i++) {
+            const point = equator[i];
+            if (point[2] >= 0) {
+                basics.drawPoint(point, intColor);
+            }
         }
     }
-}
 };
