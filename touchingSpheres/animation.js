@@ -107,17 +107,19 @@ animation.viewInterpolation = function() {
 };
 
 animation.tiltSteps = 50;
+animation.tiltEnd=180;
 
 animation.tilt = function() {
-    basics.tiltController.setValueOnly(basics.tiltAngle + 360 / (animation.tiltSteps - 1));
+    basics.tiltController.setValueOnly(basics.tiltAngle + animation.deltaTilt);
     display.transformSort();
     display.draw();
 };
 
 animation.rotationSteps = 50;
+animation.rotationEnd=180;
 
 animation.rotation = function() {
-    basics.rotationController.setValueOnly(basics.rotationAngle + 360 / (animation.rotationSteps - 1));
+    basics.rotationController.setValueOnly(basics.rotationAngle + animation.deltaRotation);
     display.transformSort();
     display.draw();
 };

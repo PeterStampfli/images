@@ -267,11 +267,12 @@ basics.tiltController = gui.add({
 basics.tiltController.add({
     type: 'button',
     labelText: '',
-    buttonText: 'animate',
+    buttonText: 'anim',
     onClick: function() {
         animation.frameTime = 50;
         animation.stepsToDo = animation.tiltSteps;
-        basics.tiltAngle -= 360 / (animation.tiltSteps - 1);
+        animation.deltaTilt=(animation.tiltEnd-basics.tiltAngle)/(animation.tiltSteps-1);
+        basics.tiltAngle -= animation.deltaTilt;
         animation.start(animation.tilt);
     }
 }).add({
@@ -279,7 +280,14 @@ basics.tiltController.add({
     params: animation,
     property: 'tiltSteps',
     min: 10,
+    step:1,
     labelText: 'steps'
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'tiltEnd',
+    step:1,
+    labelText: 'to'
 });
 
 basics.rotationController = gui.add({
@@ -298,11 +306,12 @@ basics.rotationController = gui.add({
 basics.rotationController.add({
     type: 'button',
     labelText: '',
-    buttonText: 'animate',
+    buttonText: 'anim',
     onClick: function() {
         animation.frameTime = 50;
         animation.stepsToDo = animation.rotationSteps;
-        basics.rotationAngle -= 360 / (animation.rotationSteps - 1);
+        animation.deltaRotation=(animation.rotationEnd-basics.rotationAngle)/(animation.rotationSteps-1);
+        basics.rotationAngle -= animation.deltaRotation;
         animation.start(animation.rotation);
     }
 }).add({
@@ -310,7 +319,14 @@ basics.rotationController.add({
     params: animation,
     property: 'rotationSteps',
     min: 10,
+    step:1,
     labelText: 'steps'
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'rotationEnd',
+    step:1,
+    labelText: 'to'
 });
 
 export const display = {};
