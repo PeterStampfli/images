@@ -10,6 +10,14 @@ import {
     mapping
 } from './mapping.js';
 
+import {
+    display
+} from './ui.js';
+
+import {
+    basics
+} from './basics.js';
+
 export const animation = {};
 
 animation.frameNumber = 1;
@@ -25,14 +33,15 @@ animation.canvas.style.display = 'none';
 animation.canvasContext = animation.canvas.getContext("2d");
 
 function record(callback = function() {}) {
+    animation.canvasContext.fillStyle = output.backgroundColorString;
+    animation.canvasContext.fillRect(0, 0, animation.canvas.width, animation.canvas.height);
     animation.canvasContext.drawImage(output.canvas, 0, 0, animation.canvas.width, animation.canvas.height);
+    const type = output.saveType.getValue();
     let filename = animation.frameNumber.toString(10);
     while (filename.length < animation.frameNumberDigits) {
         filename = '0' + filename;
     }
     filename = output.saveName.getValue() + filename;
-    const type = output.saveType.getValue();
-    console.log(filename, type);
     guiUtils.saveCanvasAsFile(animation.canvas, filename, type, callback);
     animation.frameNumber += 1;
     callback();
@@ -49,9 +58,10 @@ function dummy() {
 // in both cases: goes to next frame
 
 function step() {
-    console.log('step');
     if (animation.isRunning) {
         animation.startOfFrame = Date.now();
+        animation.stepsToDo -= 1;
+        animation.isRunning = (animation.stepsToDo > 0);
         animation.drawFrame();
         if (animation.isRecording) {
             record(nextFrame);
@@ -64,7 +74,6 @@ function step() {
 // next frame: setup time delay and animation frame request
 
 function nextFrame() {
-    console.log('nextframe');
     if (animation.isRunning) {
         const timeUsed = Date.now() - animation.startOfFrame;
         setTimeout(function() {
@@ -82,17 +91,33 @@ animation.start = function(drawFrame = dummy) {
     step();
 };
 
-var counter = 10;
-
 animation.imageSphereGenerations = function() {
-    let generation=mapping.drawGenController.getValue();
-    console.log(generation);
-    if (counter < 0) {
-        animation.isRunning = false;
-    } else {
-        counter -= 1;
-    }
-    console.log(animation.isRunning, counter);
-// mapping.minGeneration
-// mapping.drawGenController
+    let generation = mapping.drawGenController.getValue();
+    display.draw();
+    generation += 1;
+    mapping.drawGenController.setValueOnly(generation);
+};
+
+animation.viewInterpolationSteps = 50;
+
+animation.viewInterpolation = function() {
+    display.transformSort();
+    display.draw();
+    mapping.viewInterpolationController.setValueOnly(basics.viewInterpolation + 1 / (animation.viewInterpolationSteps - 1));
+};
+
+animation.tiltSteps = 50;
+
+animation.tilt = function() {
+    basics.tiltController.setValueOnly(basics.tiltAngle + 360 / (animation.tiltSteps - 1));
+    display.transformSort();
+    display.draw();
+};
+
+animation.rotationSteps = 50;
+
+animation.rotation = function() {
+    basics.rotationController.setValueOnly(basics.rotationAngle + 360 / (animation.rotationSteps - 1));
+    display.transformSort();
+    display.draw();
 };

@@ -33,6 +33,36 @@ output.setInitialCoordinates(0, 0, 2);
 output.createPixels();
 output.backgroundColorController.setValueOnly('#0000aa');
 output.setBackground();
+output.saveType.setValueOnly('jpg');
+
+gui.add({
+    type: "boolean",
+    params: animation,
+    property: 'isRecording',
+    labelText: 'anim record'
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'startFrameNumber',
+    min: 0,
+    step: 1,
+    labelText: 'start number'
+});
+gui.add({
+    type: 'number',
+    params: animation,
+    property: 'smoothing',
+    min: 1,
+    step: 1,
+    max: 4
+}).add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'stop animation',
+    onClick: function() {
+        animation.isRunning = false;
+    }
+});
 
 mapping.config = mapping.tetrahedron;
 
@@ -221,22 +251,7 @@ const controllerGamma = controllerBeta.add({
 });
 controllerGamma.cyclic();
 
-const viewInterpolation = gui.add({
-    type: 'number',
-    params: basics,
-    property: 'viewInterpolation',
-    min: 0.001,
-    max: 1,
-    step: 0.001,
-    labelText: 'x',
-    onChange: function() {
-        transformSort();
-        draw();
-    }
-});
-viewInterpolation.hide();
-
-const tiltController = gui.add({
+basics.tiltController = gui.add({
     type: 'number',
     params: basics,
     property: 'tiltAngle',
@@ -248,7 +263,26 @@ const tiltController = gui.add({
         draw();
     }
 }).cyclic();
-tiltController.add({
+
+basics.tiltController.add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'animate',
+    onClick: function() {
+        animation.frameTime = 50;
+        animation.stepsToDo = animation.tiltSteps;
+        basics.tiltAngle -= 360 / (animation.tiltSteps - 1);
+        animation.start(animation.tilt);
+    }
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'tiltSteps',
+    min: 10,
+    labelText: 'steps'
+});
+
+basics.rotationController = gui.add({
     type: 'number',
     params: basics,
     property: 'rotationAngle',
@@ -261,42 +295,30 @@ tiltController.add({
     }
 }).cyclic();
 
+basics.rotationController.add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'animate',
+    onClick: function() {
+        animation.frameTime = 50;
+        animation.stepsToDo = animation.rotationSteps;
+        basics.rotationAngle -= 360 / (animation.rotationSteps - 1);
+        animation.start(animation.rotation);
+    }
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'rotationSteps',
+    min: 10,
+    labelText: 'steps'
+});
 
-const display = {};
+export const display = {};
 display.show = 'points on poincare sphere';
 display.lineWidth = 2;
 display.textColor = '#ffffff';
 display.textOn = true;
 display.equalColors = false;
-
-gui.add({
-    type: "boolean",
-    params: animation,
-    property: 'isRecording',
-    labelText: 'anim record'
-}).add({
-    type: 'number',
-    params: animation,
-    property: 'startFrameNumber',
-    min: 0,
-    step: 1,
-    labelText: 'start number'
-});
-gui.add({
-    type: 'number',
-    params: animation,
-    property: 'smoothing',
-    min: 1,
-    step: 1,
-    max: 4
-}).add({
-    type: 'button',
-    labelText: '',
-    buttonText: 'stop',
-    onClick: function() {
-        animation.isRunning = false;
-    }
-});
 
 gui.add({
     type: 'selection',
@@ -328,18 +350,55 @@ gui.add({
     onChange: function() {
         switch (basics.view) {
             case 'normal':
-                viewInterpolation.hide();
+                mapping.viewInterpolationController.hide();
                 break;
             case 'both for points':
-                viewInterpolation.hide();
+                mapping.viewInterpolationController.hide();
                 break;
             case 'stereographic':
-                viewInterpolation.show();
+                mapping.viewInterpolationController.show();
                 break;
         }
         transformSort();
         draw();
     }
+});
+
+mapping.viewInterpolationController = gui.add({
+    type: 'number',
+    params: basics,
+    property: 'viewInterpolation',
+    min: 0.001,
+    max: 1,
+    step: 0.001,
+    labelText: 'x',
+    onChange: function() {
+        transformSort();
+        draw();
+    }
+});
+mapping.viewInterpolationController.hide();
+
+mapping.viewInterpolationController.add({
+    type: 'button',
+    labelText: '',
+    buttonText: 'animate',
+    onClick: function() {
+        if (animation.viewInterpolationSteps >= 0) {
+            animation.viewInterpolationSteps = Math.max(10, animation.viewInterpolationSteps);
+            mapping.viewInterpolationController.setValueOnly(0);
+        } else {
+            mapping.viewInterpolationController.setValueOnly(1);
+        }
+        animation.frameTime = 50;
+        animation.stepsToDo = Math.abs(animation.viewInterpolationSteps);
+        animation.start(animation.viewInterpolation);
+    }
+}).add({
+    type: 'number',
+    params: animation,
+    property: 'viewInterpolationSteps',
+    labelText: 'steps'
 });
 
 gui.add({
@@ -441,9 +500,9 @@ mapping.drawGenController.add({
     labelText: '',
     buttonText: 'animate',
     onClick: function() {
-        console.log('starta');
         mapping.drawGenController.setValueOnly(1);
-        animation.frameTime=400;
+        animation.frameTime = 400;
+        animation.stepsToDo = mapping.minGeneration;
         animation.start(animation.imageSphereGenerations);
     }
 });
@@ -630,9 +689,9 @@ function draw() {
     }
 }
 
-display.create=create;
-display.transformSort=transformSort;
-display.draw=draw;
+display.create = create;
+display.transformSort = transformSort;
+display.draw = draw;
 
 output.drawCanvasChanged = draw;
 output.drawImageChanged = draw;

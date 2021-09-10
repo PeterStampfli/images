@@ -376,17 +376,17 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
         minLabelWidth: 5
     }).addHelp('You can save the image as a *.png or *.jpg file to your download folder. Transparent parts become opaque black for *.jpg files. Give it a better file name than "image".');
 
-output.setBackground=function(){
-            ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
+    output.setBackground = function() {
+        ColorInput.setObject(output.backgroundColor, output.backgroundColorString);
         output.backgroundColorInteger = Pixels.integerOfColor(output.backgroundColor);
         output.canvas.style.backgroundColor = output.backgroundColorString;
-}
+    };
 
     // add background color controller and transparency controller only if needed
     if (hasBackgroundColor) {
         output.backgroundColorString = '#000099';
         output.backgroundColor = {};
-      output.setBackground();
+        output.setBackground();
         output.backgroundColorController = gui.add({
             type: 'color',
             params: output,
@@ -394,7 +394,7 @@ output.setBackground=function(){
             labelText: 'background',
             onChange: function() {
                 output.setBackground();
-                                if (output.pixels.antialiasSubpixels === 1) {
+                if (output.pixels.antialiasSubpixels === 1) {
                     output.drawImageChanged();
                 } else {
                     output.drawBackgroundChanged();

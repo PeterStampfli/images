@@ -523,8 +523,6 @@ mapping.drawImageSpheresAsDiscs = function() {
                 }
                 if (specialColor) {
                     imageColor = imageSphere.color;
-                } else {
-                    imageColor = interpolateColorString(imageSphere.viewZ);
                 }
                 if (imageSphere.viewRadius > 0) {
                     basics.drawDisc(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, imageColor);
