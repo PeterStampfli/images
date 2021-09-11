@@ -159,6 +159,35 @@ mapping.tetrahedron = function() {
     addMappingSphere(rSphere, cx34, cy4, cz234);
 };
 
+mapping.fourSimplex = function() {
+    // four inverting spheres at the corners of a tetrahedron
+    const rSphere = 0.8165;
+    const cx2 = 0.9428;
+    const cx34 = -0.4714;
+    const cy3 = 0.8165;
+    const cy4 = -0.8165;
+    const cz234 = 0.3333;
+    // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
+    setupHyperbolicSpace(rSphere, 0, 0, 1);
+    addMappingSphere(rSphere, 0, 0, -1);
+    addMappingSphere(1-rSphere, 0, 0, 0);
+    addMappingSphere(rSphere, cx2, 0, cz234);
+    addMappingSphere(rSphere, cx34, cy3, cz234);
+    addMappingSphere(rSphere, cx34, cy4, cz234);
+};
+
+mapping.cube=function(){
+setupHyperbolicSpace(1,1,1,1);
+addMappingSphere(1,1,1,1);
+addMappingSphere(1,1,1,-1);
+addMappingSphere(1,1,-1,1);
+addMappingSphere(1,1,-1,-1);
+addMappingSphere(1,-1,1,1);
+addMappingSphere(1,-1,1,-1);
+addMappingSphere(1,-1,-1,1);
+addMappingSphere(1,-1,-1,-1);
+};
+
 // creating the images (spheres and points)
 //===================================
 

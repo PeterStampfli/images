@@ -71,7 +71,9 @@ gui.add({
     params: mapping,
     property: 'config',
     options: {
-        tetrahedron: mapping.tetrahedron
+        tetrahedron: mapping.tetrahedron,
+        '4-Simplex': mapping.fourSimplex,
+        cube:mapping.cube
     },
     onChange: function() {
         create();
@@ -271,7 +273,7 @@ basics.tiltController.add({
     onClick: function() {
         animation.frameTime = 50;
         animation.stepsToDo = animation.tiltSteps;
-        animation.deltaTilt=(animation.tiltEnd-basics.tiltAngle)/(animation.tiltSteps-1);
+        animation.deltaTilt = (animation.tiltEnd - basics.tiltAngle) / (animation.tiltSteps - 1);
         basics.tiltAngle -= animation.deltaTilt;
         animation.start(animation.tilt);
     }
@@ -280,13 +282,13 @@ basics.tiltController.add({
     params: animation,
     property: 'tiltSteps',
     min: 10,
-    step:1,
+    step: 1,
     labelText: 'steps'
 }).add({
     type: 'number',
     params: animation,
     property: 'tiltEnd',
-    step:1,
+    step: 1,
     labelText: 'to'
 });
 
@@ -310,7 +312,7 @@ basics.rotationController.add({
     onClick: function() {
         animation.frameTime = 50;
         animation.stepsToDo = animation.rotationSteps;
-        animation.deltaRotation=(animation.rotationEnd-basics.rotationAngle)/(animation.rotationSteps-1);
+        animation.deltaRotation = (animation.rotationEnd - basics.rotationAngle) / (animation.rotationSteps - 1);
         basics.rotationAngle -= animation.deltaRotation;
         animation.start(animation.rotation);
     }
@@ -319,13 +321,13 @@ basics.rotationController.add({
     params: animation,
     property: 'rotationSteps',
     min: 10,
-    step:1,
+    step: 1,
     labelText: 'steps'
 }).add({
     type: 'number',
     params: animation,
     property: 'rotationEnd',
-    step:1,
+    step: 1,
     labelText: 'to'
 });
 
