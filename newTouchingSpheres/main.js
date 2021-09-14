@@ -8,7 +8,8 @@ import {
 	ui,
 	draw,
 	poincare,
-	mappingSpheres
+	mapping,
+    view
 } from './modules.js';
 
 export const main={};
@@ -20,7 +21,7 @@ ui.setup();
 
 output.createCanvas(ui.gui, true);
 output.addCoordinateTransform(false);
-output.setInitialCoordinates(0, 0, 2);
+output.setInitialCoordinates(0, 0, 5);
 output.createPixels();
 output.backgroundColorController.setValueOnly('#0000aa');
 output.setBackground();
@@ -28,12 +29,13 @@ output.saveType.setValueOnly('jpg');
 
 
 main.create=function() {
-mappingSpheres.tetrahedron();
-mappingSpheres.log();
+mapping.tetrahedron();
+//mapping.logSpheres();
 }
 
 main.transformSort=function() {
- 
+ view.update();
+ view.transform(mapping.spheres);
 }
 
 main.textOn = true;
@@ -55,7 +57,7 @@ main.draw=function() {
     output.canvasContext.lineCap = 'round';
 
     main.writeIterations(33);
-    poincare.drawSphere();
+    mapping.drawSpheres();
 }
 
 output.drawCanvasChanged = main.draw;

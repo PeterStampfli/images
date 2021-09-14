@@ -39,5 +39,9 @@ poincare
 } from "./poincare.js";
 
 export{
-    mappingSpheres
-} from "./mappingSpheres.js";
+    mapping
+} from "./mapping.js";
+
+export{
+    view
+} from "./view.js";

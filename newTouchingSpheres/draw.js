@@ -38,6 +38,9 @@ draw.circle = function(x, y, radius, color) {
 };
 
 draw.sphere = function(x, y, radius, color) {
+    if (radius<0){
+draw.circle(x,y,-radius,color);
+    } else {
     const canvasContext = output.canvasContext;
     ColorInput.setObject(colorObject, color);
     colorObject.red = Math.floor(colorObject.red * (1 - draw.lightness) + 255.9 * draw.lightness);
@@ -57,6 +60,7 @@ draw.sphere = function(x, y, radius, color) {
     canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
     canvasContext.fillStyle = grd;
     canvasContext.fill();
+}
 };
 
 draw.upperBubble = function(x, y, radius, color) {
