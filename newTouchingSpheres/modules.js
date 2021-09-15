@@ -45,3 +45,7 @@ export{
 export{
     view
 } from "./view.js";
+
+export{
+    color
+} from "./color.js";
