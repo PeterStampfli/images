@@ -14,8 +14,8 @@ mapping.color = '#666666';
 mapping.spheres = [];
 mapping.on = [true, true, true, true, true];
 
-mapping.doGenerations = 5;
-mapping.drawGeneration =2;
+mapping.doGenerations = 2;
+mapping.drawGeneration = 1;
 
 // initialize: clear spheres and using a sample mapping sphere
 // determine hyperbolic radius and projection from 4d to 3d
@@ -100,7 +100,7 @@ mapping.tetrahedron = function() {
     add(rSphere, cx34, cy4, cz234);
 };
 
-mapping.config=mapping.tetrahedron;
+mapping.config = mapping.tetrahedron;
 
 // create the image spheres
 //===========================================
@@ -115,6 +115,9 @@ mapping.initializeImageSpheres = function() {
             imageSphere.y = mappingSphere.y;
             imageSphere.z = mappingSphere.z;
             imageSphere.radius = mappingSphere.radius;
+            // index to the mapping sphere, for making images of lines
+            // index is easier for debugging
+            imageSphere.liesInside = i;
             imageSphere.viewX = mappingSphere.x;
             imageSphere.viewY = mappingSphere.y;
             imageSphere.viewZ = mappingSphere.z;
@@ -128,13 +131,12 @@ mapping.initializeImageSpheres = function() {
     }
 };
 
-
 mapping.makeImageSphereGeneration = function(generation) {
     const mappingSpheresLength = mapping.spheres.length;
     for (let i = 0; i < mappingSpheresLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
-            // make the image sspheres of this mapping sphere for the given generation
+            // make the image spheres of this mapping sphere for the given generation
             const mapX = mappingSphere.x;
             const mapY = mappingSphere.y;
             const mapZ = mappingSphere.z;
@@ -155,10 +157,13 @@ mapping.makeImageSphereGeneration = function(generation) {
                         const oldImageSphere = oldImageSpheres[k];
                         const mappedImageSphere = {};
                         mappedImageSpheres.push(mappedImageSphere);
+                        // the original parent image sphere gets reference to its image
                         oldImageSphere.nextGeneration[k] = mappedImageSphere;
-                        mappedImageSphere.nextGeneration = [];
                         // has references to its next generation images
+                        mappedImageSphere.nextGeneration = [];
                         mappedImageSphere.nextGeneration.length = mappingSpheresLength;
+                        // where it is inside
+                        mappedImageSphere.liesInside = i;
                         const radius = oldImageSphere.radius;
                         const dx = oldImageSphere.x - mapX;
                         const dy = oldImageSphere.y - mapY;
@@ -175,10 +180,129 @@ mapping.makeImageSphereGeneration = function(generation) {
     }
 };
 
+mapping.initializeLines = function() {
+    const eps = 0.01;
+    const mappingSpheresLength = mapping.spheres.length;
+    for (let i = 0; i < mappingSpheresLength; i++) {
+        const mappingSphereI = mapping.spheres[i];
+        if (!mappingSphereI.on) {
+            continue;
+        }
+        const imageSpheresI = mappingSphereI.imageSpheres[1];
+        const imageSphereI = imageSpheresI[0];
+        const mappingSphereILines = [];
+        mappingSphereI.lines[1] = mappingSphereILines;
+        const radiusI = mappingSphereI.radius;
+        const xI = mappingSphereI.x;
+        const yI = mappingSphereI.y;
+        const zI = mappingSphereI.z;
+        for (let j = 0; j < i; j++) {
+            const mappingSphereJ = mapping.spheres[j];
+            if (!mappingSphereJ.on) {
+                continue;
+            }
+            const radiusJ = mappingSphereJ.radius;
+            const xJ = mappingSphereJ.x;
+            const yJ = mappingSphereJ.y;
+            const zJ = mappingSphereJ.z;
+            const dx = xJ - xI;
+            const dy = yJ - yI;
+            const dz = zJ - zI;
+            const d2 = dx * dx + dy * dy + dz * dz;
+            if (Math.abs(d2 - (radiusI + radiusJ) * (radiusI + radiusJ)) < eps) {
+                // a line connects two image spheres, we need refernces to these spheres
+                // touching spheres, we get a bridging line, 
+                // it belongs to the mapping sphere I the first end point
+                // the second end (image sphere) belongs to the other mapping sphere
+                // normal (non-bridging) lines have both ends (image spheres) in the same mapping sphere
+                const imageSpheresJ = mappingSphereJ.imageSpheres[1];
+                const imageSphereJ = imageSpheresJ[0];
+                const line = {};
+                line.end1 = imageSphereI;
+                line.end2 = imageSphereJ;
+                // for sorting and coloring
+                line.x = 0.5 * (xI + xJ);
+                line.viewX = line.x;
+                line.y = 0.5 * (yI + yJ);
+                line.viewY = line.y;
+                line.z = 0.5 * (zI + zJ);
+                line.viewZ = line.z;
+                mappingSphereILines.push(line);
+            }
+        }
+    }
+};
+
+mapping.makeLineGeneration = function(generation) {
+    const mappingSpheresLength = mapping.spheres.length;
+    for (let i = 0; i < mappingSpheresLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const mappedLines = [];
+            mappingSphere.lines[generation] = mappedLines;
+            // make lines for this mapping sphere using the mapped image spheres
+            for (let j = 0; j < mappingSpheresLength; j++) {
+                const otherMappingSphere = mapping.spheres[j];
+                if (otherMappingSphere.on) {
+                    // mapping the line of the previous generation
+                    const oldLines = otherMappingSphere.lines[generation - 1];
+                    const oldLinesLength = oldLines.length;
+                    for (let k = 0; k < oldLinesLength; k++) {
+                        const oldLine = oldLines[k];
+                        const end2 = oldLine.end2;
+                        const end2LiesInside = end2.liesInside;
+                        if (i === j) {
+                            // mapping lines that belong to the mapping sphere:
+                            // only those bridging to another mapping sphere
+                            // the first end should be inside, the second end outside
+                            // the image of the line connects the image of the second end as mapped by the mapping sphere
+                            // with the first end as mapped by the mapping sphere that contains the second end
+                            console.log('same', i, 'ends', oldLine.end1.liesInside, end2LiesInside);
+                            if (end2LiesInside !== i) {
+                                const end1 = oldLine.end1;
+                                const mappedLine = {};
+                                mappedLines.push(mappedLine);
+                                if (end1.liesInside === i) {
+                                    // a bridging line, going out from the mapping sphere
+                                    console.log('bridge from to', i, end2LiesInside);
+
+                                } else {
+                                    console.log('err');
+                                }
+                            }
+                        } else {
+                            // mapping lines of other mapping spheres
+                            // only those that have not their second end in the mapping
+                            // the first end is always outside the mapping sphere
+                            // test if second end too lies outside the mapping sphere
+                            // if second end lies inside the mapping sphere, then we have a bridge that is already done
+                            // the image of the line connects the two ends as mapped by the mapping sphere
+                            console.log('diff', i, j, 'ends', oldLine.end1.liesInside, end2LiesInside);
+                            if (end2LiesInside !== i) {
+                                console.log('line outside', i);
+                            } else {
+                                console.log('do not repeat bridge', i, j);
+                                if (j !== oldLine.end1.liesInside) {
+                                    console.log("errrrrr')");
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+};
+
 mapping.generate = function() {
     mapping.initializeImageSpheres();
+    mapping.initializeLines();
     for (let generation = 2; generation <= mapping.doGenerations; generation++) {
         mapping.makeImageSphereGeneration(generation);
+    }
+    for (let generation = 2; generation <= mapping.doGenerations; generation++) {
+        mapping.makeLineGeneration(generation);
     }
 };
 
@@ -190,21 +314,26 @@ mapping.viewTransform = function() {
     const length = mapping.spheres.length;
     for (let i = 0; i < length; i++) {
         const mappingSphere = mapping.spheres[i];
-        if (mappingSphere.on){
-        const imageSpheres = mappingSphere.imageSpheres;
-        const imageSpheresLength = imageSpheres.length;
-        // 0 is empty
-        for (let j = 1; j < imageSpheresLength; j++) {
-            view.transform(imageSpheres[j]);
+        if (mappingSphere.on) {
+            const imageSpheres = mappingSphere.imageSpheres;
+            const imageSpheresLength = imageSpheres.length;
+            // generation 0 is empty
+            for (let j = 1; j < imageSpheresLength; j++) {
+                view.transform(imageSpheres[j]);
+            }
+            const lines = mappingSphere.lines;
+            const linesLength = lines.length;
+            for (let j = 1; j < linesLength; j++) {
+                view.transform(lines[j]);
+            }
         }
-    }
     }
 };
 
-mapping.checkDrawGeneration=function(){
-if (mapping.drawGeneration>mapping.doGenerations){
-    ui.drawGenerationController.setValueOnly(mapping.doGenerations);
-}
+mapping.checkDrawGeneration = function() {
+    if (mapping.drawGeneration > mapping.doGenerations) {
+        ui.drawGenerationController.setValueOnly(mapping.doGenerations);
+    }
 };
 
 mapping.drawSpheres = function() {
@@ -215,20 +344,38 @@ mapping.drawDiscs = function() {
     mapping.spheres.forEach(sphere => draw.disc(sphere.viewX, sphere.viewY, sphere.viewRadius, mapping.color));
 };
 
-// draw image spheres as given by mapping.drawGeneration (=>ui)
+// draw image spheres generation given by mapping.drawGeneration (=>ui)
 mapping.drawImageSpheres = function() {
     const mappingSpheresLength = mapping.spheres.length;
     for (let i = 0; i < mappingSpheresLength; i++) {
         const mappingSphere = mapping.spheres[i];
-        if (mappingSphere.on){
-        const imageSpheres = mappingSphere.imageSpheres[mapping.drawGeneration];
-        const imageSpheresLength = imageSpheres.length;
-        // 0 is empty
-        for (let j = 0; j < imageSpheresLength; j++) {
-            const imageSphere = imageSpheres[j];
-            const sphereColor = color.interpolation(imageSphere.viewZ);
-            draw.sphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, sphereColor);
+        if (mappingSphere.on) {
+            const imageSpheres = mappingSphere.imageSpheres[mapping.drawGeneration];
+            const imageSpheresLength = imageSpheres.length;
+            for (let j = 0; j < imageSpheresLength; j++) {
+                const imageSphere = imageSpheres[j];
+                const sphereColor = color.interpolation(imageSphere.viewZ);
+                draw.sphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, sphereColor);
+            }
         }
     }
+};
+
+// draw lines generation given by mapping.drawGeneration (=>ui)
+mapping.drawLines = function() {
+    const mappingSpheresLength = mapping.spheres.length;
+    for (let i = 0; i < mappingSpheresLength; i++) {
+        const mappingSphere = mapping.spheres[i];
+        if (mappingSphere.on) {
+            const lines = mappingSphere.lines[mapping.drawGeneration];
+            const linesLength = lines.length;
+            for (let j = 0; j < linesLength; j++) {
+                const line = lines[j];
+                const end1 = line.end1;
+                const end2 = line.end2;
+                const lineColor = color.interpolation(line.viewZ);
+                draw.line(end1.viewX, end1.viewY, end2.viewX, end2.viewY, lineColor);
+            }
+        }
     }
 };

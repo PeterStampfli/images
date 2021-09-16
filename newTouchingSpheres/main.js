@@ -59,6 +59,7 @@ main.draw = function() {
     color.setupInterpolation();
     main.writeIterations(mapping.drawGeneration);
     mapping.drawImageSpheres();
+    mapping.drawLines();
 };
 
 output.drawCanvasChanged = main.draw;

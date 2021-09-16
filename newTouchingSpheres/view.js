@@ -1,5 +1,4 @@
 /* jshint esversion: 6 */
-
 import {
     poincare
 } from './modules.js';

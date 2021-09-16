@@ -37,30 +37,40 @@ draw.circle = function(x, y, radius, color) {
     canvasContext.stroke();
 };
 
-draw.sphere = function(x, y, radius, color) {
-    if (radius<0){
-draw.circle(x,y,-radius,color);
-    } else {
+draw.line = function(x1, y1, x2, y2, color) {
     const canvasContext = output.canvasContext;
-    ColorInput.setObject(colorObject, color);
-    colorObject.red = Math.floor(colorObject.red * (1 - draw.lightness) + 255.9 * draw.lightness);
-    colorObject.green = Math.floor(colorObject.green * (1 - draw.lightness) + 255.9 * draw.lightness);
-    colorObject.blue = Math.floor(colorObject.blue * (1 - draw.lightness) + 255.9 * draw.lightness);
-    const lightColor = ColorInput.stringFromObject(colorObject);
-    ColorInput.setObject(colorObject, color);
-    colorObject.red = Math.floor(colorObject.red * (1 - draw.darkness));
-    colorObject.green = Math.floor(colorObject.green * (1 - draw.darkness));
-    colorObject.blue = Math.floor(colorObject.blue * (1 - draw.darkness));
-    const darkColor = ColorInput.stringFromObject(colorObject);
-    const grd = canvasContext.createRadialGradient(x - 0.5 * radius, y - 0.5 * radius, radius * 0.1, x - 0.5 * radius, y - 0.5 * radius, radius * 1.5);
-    grd.addColorStop(0, lightColor);
-    grd.addColorStop(0.8, color);
-    grd.addColorStop(1, darkColor);
+    canvasContext.fillStyle = color;
+    canvasContext.strokeStyle = color;
     canvasContext.beginPath();
-    canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
-    canvasContext.fillStyle = grd;
-    canvasContext.fill();
-}
+    canvasContext.moveTo(x1, y1);
+    canvasContext.lineTo(x2, y2);
+    canvasContext.stroke();
+};
+
+draw.sphere = function(x, y, radius, color) {
+    if (radius < 0) {
+        draw.circle(x, y, -radius, color);
+    } else {
+        const canvasContext = output.canvasContext;
+        ColorInput.setObject(colorObject, color);
+        colorObject.red = Math.floor(colorObject.red * (1 - draw.lightness) + 255.9 * draw.lightness);
+        colorObject.green = Math.floor(colorObject.green * (1 - draw.lightness) + 255.9 * draw.lightness);
+        colorObject.blue = Math.floor(colorObject.blue * (1 - draw.lightness) + 255.9 * draw.lightness);
+        const lightColor = ColorInput.stringFromObject(colorObject);
+        ColorInput.setObject(colorObject, color);
+        colorObject.red = Math.floor(colorObject.red * (1 - draw.darkness));
+        colorObject.green = Math.floor(colorObject.green * (1 - draw.darkness));
+        colorObject.blue = Math.floor(colorObject.blue * (1 - draw.darkness));
+        const darkColor = ColorInput.stringFromObject(colorObject);
+        const grd = canvasContext.createRadialGradient(x - 0.5 * radius, y - 0.5 * radius, radius * 0.1, x - 0.5 * radius, y - 0.5 * radius, radius * 1.5);
+        grd.addColorStop(0, lightColor);
+        grd.addColorStop(0.8, color);
+        grd.addColorStop(1, darkColor);
+        canvasContext.beginPath();
+        canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+        canvasContext.fillStyle = grd;
+        canvasContext.fill();
+    }
 };
 
 draw.upperBubble = function(x, y, radius, color) {
