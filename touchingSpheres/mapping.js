@@ -88,13 +88,14 @@ function addImageSphere(mappingSphere, generation, radius, x, y, z) {
 }
 
 function addPoint(mappingSphere, x, y, z) {
-    const point = new Float32Array(3);
+    const point = new Float32Array(4);
     point[0] = x;
     point[1] = y;
     point[2] = z;
+    point[3]=interpolateColorInteger(point);
     mappingSphere.points.push(point);
-    mappingSphere.viewPoints.push(new Float32Array(3));
-    mappingSphere.stereographicPoints.push(new Float32Array(3));
+    mappingSphere.viewPoints.push(new Float32Array(4));
+    mappingSphere.stereographicPoints.push(new Float32Array(4));
 }
 
 // determine hyperbolic radius and projection from 4d to 3d
@@ -413,14 +414,16 @@ function setupColorInterpolation() {
     blueDelta = 0.5 * (blueFront - blueBack) / basics.hyperbolicRadius;
 }
 
-function interpolateColorInteger(z) {
+function interpolateColorInteger(point) {
+    const z=point[2];
     imagePointsColor.red = Math.min(255, Math.max(0, Math.round(redMean + z * redDelta)));
     imagePointsColor.green = Math.min(255, Math.max(0, Math.round(greenMean + z * greenDelta)));
     imagePointsColor.blue = Math.min(255, Math.max(0, Math.round(blueMean + z * blueDelta)));
     return Pixels.integerOfColor(imagePointsColor);
 }
 
-function interpolateColorString(z) {
+function interpolateColorString(sphere) {
+    const z=sphere.z;
     imagePointsColor.red = Math.min(255, Math.max(0, Math.round(redMean + z * redDelta)));
     imagePointsColor.green = Math.min(255, Math.max(0, Math.round(greenMean + z * greenDelta)));
     imagePointsColor.blue = Math.min(255, Math.max(0, Math.round(blueMean + z * blueDelta)));
@@ -508,7 +511,7 @@ mapping.drawImageSpheresMappingBubbles = function() {
                 if (specialColor) {
                     color = imageSphere.color;
                 } else {
-                    color = interpolateColorString(imageSphere.viewZ);
+                    color = interpolateColorString(imageSphere);
                 }
                 if (imageSphere.viewRadius > 0) {
                     basics.drawSphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
@@ -583,7 +586,7 @@ mapping.drawImageSpheresOnly = function() {
                 if (specialColor) {
                     color = imageSphere.color;
                 } else {
-                    color = interpolateColorString(imageSphere.viewZ);
+                    color = interpolateColorString(imageSphere);
                 }
                 if (imageSphere.viewRadius > 0) {
                     basics.drawSphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, color);
@@ -605,12 +608,13 @@ mapping.drawPointsMappingBubbles = function() {
                 basics.drawLowerBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
             }
             basics.startDrawingPoints();
-            const points = mappingSphere.viewPoints;
-            const length = points.length;
+            const viewPoints = mappingSphere.viewPoints;
+            const points = mappingSphere.points;
+            const length = viewPoints.length;
             for (let j = 0; j < length; j++) {
-                const point = points[j];
-                const intColor = interpolateColorInteger(point[2]);
-                basics.drawPoint(point, intColor);
+                const viewPoint = viewPoints[j];
+                const intColor = interpolateColorInteger(points[j]);
+                basics.drawPoint(viewPoint, intColor);
             }
             output.pixels.show();
             if (mappingSphere.viewRadius > 0) {
@@ -632,14 +636,15 @@ mapping.drawPointsInFront = function() {
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
-            const points = mappingSphere.viewPoints;
-            const length = points.length;
+            const viewPoints = mappingSphere.viewPoints;
+            const points = mappingSphere.points;
+            const length = viewPoints.length;
             for (let j = 0; j < length; j++) {
-                const point = points[j];
-                const z = point[2];
+                const viewPoint = viewPoints[j];
+                const z = viewPoint[2];
                 if (z >= 0) {
-                    const intColor = interpolateColorInteger(z);
-                    basics.drawPoint(point, intColor);
+                    const intColor = interpolateColorInteger(points[j]);
+                    basics.drawPoint(viewPoint, intColor);
                 }
             }
         }
@@ -653,14 +658,15 @@ mapping.drawPointsInBack = function() {
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
         if (mappingSphere.on) {
-            const points = mappingSphere.viewPoints;
-            const length = points.length;
+            const viewPoints = mappingSphere.viewPoints;
+            const points = mappingSphere.points;
+            const length = viewPoints.length;
             for (let j = 0; j < length; j++) {
-                const point = points[j];
-                const z = point[2];
+                const viewPoint = viewPoints[j];
+                const z = viewPoint[2];
                 if (z < 0) {
-                    const intColor = interpolateColorInteger(z);
-                    basics.drawPoint(point, intColor);
+                    const intColor = interpolateColorInteger(points[j]);
+                    basics.drawPoint(viewPoint, intColor);
                 }
             }
         }
@@ -675,14 +681,14 @@ mapping.drawStereographicPointsInBack = function() {
         for (let i = 0; i < mappingLength; i++) {
             const mappingSphere = mapping.spheres[i];
             if (mappingSphere.on) {
-                const points = mappingSphere.viewPoints;
+                const points = mappingSphere.points;
                 const stereographicPoints = mappingSphere.stereographicPoints;
                 const length = points.length;
                 for (let j = 0; j < length; j++) {
                     const stereographicPoint = stereographicPoints[j];
                     if (stereographicPoint[2] < 0) {
                         const point = points[j];
-                        const intColor = interpolateColorInteger(point[2]);
+                        const intColor = interpolateColorInteger(points[j]);
                         basics.drawPoint(stereographicPoint, intColor);
                     }
                 }
@@ -699,14 +705,14 @@ mapping.drawStereographicPointsInFront = function() {
         for (let i = 0; i < mappingLength; i++) {
             const mappingSphere = mapping.spheres[i];
             if (mappingSphere.on) {
-                const points = mappingSphere.viewPoints;
+                const points = mappingSphere.points;
                 const stereographicPoints = mappingSphere.stereographicPoints;
                 const length = points.length;
                 for (let j = 0; j < length; j++) {
                     const stereographicPoint = stereographicPoints[j];
                     if (stereographicPoint[2] >= 0) {
                         const point = points[j];
-                        const intColor = interpolateColorInteger(point[2]);
+                        const intColor = interpolateColorInteger(points[j]);
                         basics.drawPoint(stereographicPoint, intColor);
                     }
                 }

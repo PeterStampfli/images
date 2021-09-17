@@ -242,6 +242,7 @@ basics.copyCoordinatesPoints = function(viewPoints, points) {
         viewPoint[0] = point[0];
         viewPoint[1] = point[1];
         viewPoint[2] = point[2];
+        viewPoint[3]=point[3];
     }
 };
 
@@ -398,10 +399,10 @@ basics.bothViewsPoints = function(stereographicPoints, points) {
         const dz = point[2] - stereographicCenter;
         const d2 = x * x + y * y + dz * dz;
         const factor = stereographicRadius2 / d2;
-        const newPoint = new Float32Array(3);
         stereographicPoint[0] = factor * x;
         stereographicPoint[1] = factor * y;
         stereographicPoint[2] = stereographicCenter + factor * dz;
+        stereographicPoint[3]=point[3];
     }
 };
 
