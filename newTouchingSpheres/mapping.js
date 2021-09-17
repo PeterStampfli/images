@@ -133,8 +133,8 @@ mapping.initializeImageSpheres = function() {
 
 mapping.makeImageSphereGeneration = function(generation) {
     const mappingSpheresLength = mapping.spheres.length;
-    for (let i = 0; i < mappingSpheresLength; i++) {
-        const mappingSphere = mapping.spheres[i];
+    for (let mappingSphereIndex = 0; mappingSphereIndex < mappingSpheresLength; mappingSphereIndex++) {
+        const mappingSphere = mapping.spheres[mappingSphereIndex];
         if (mappingSphere.on) {
             // make the image spheres of this mapping sphere for the given generation
             const mapX = mappingSphere.x;
@@ -143,27 +143,28 @@ mapping.makeImageSphereGeneration = function(generation) {
             const mapRadius2 = mappingSphere.radius2;
             const mappedImageSpheres = [];
             mappingSphere.imageSpheres[generation] = mappedImageSpheres;
-            for (let j = 0; j < mappingSpheresLength; j++) {
-                if (i === j) {
+            for (let otherMappingSphereSphereIndex = 0; otherMappingSphereSphereIndex < mappingSpheresLength; otherMappingSphereSphereIndex++) {
+                if (mappingSphereIndex === otherMappingSphereSphereIndex) {
                     continue;
                 }
-                const otherMappingSphere = mapping.spheres[j];
+                const otherMappingSphere = mapping.spheres[otherMappingSphereSphereIndex];
                 if (otherMappingSphere.on) {
                     // map image spheres of the other mapping sphere
                     const oldImageSpheres = otherMappingSphere.imageSpheres[generation - 1];
                     const oldImageSpheresLength = oldImageSpheres.length;
-                    for (let k = 0; k < oldImageSpheresLength; k++) {
+                    for (let oldImageSphereIndex = 0; oldImageSphereIndex < oldImageSpheresLength; oldImageSphereIndex++) {
                         //map the sphere and make a new image sphere
-                        const oldImageSphere = oldImageSpheres[k];
+                        const oldImageSphere = oldImageSpheres[oldImageSphereIndex];
                         const mappedImageSphere = {};
                         mappedImageSpheres.push(mappedImageSphere);
                         // the original parent image sphere gets reference to its image
-                        oldImageSphere.nextGeneration[k] = mappedImageSphere;
+                        // indexed by the sphere that did the mapping
+                        oldImageSphere.nextGeneration[mappingSphereIndex] = mappedImageSphere;
                         // has references to its next generation images
                         mappedImageSphere.nextGeneration = [];
                         mappedImageSphere.nextGeneration.length = mappingSpheresLength;
                         // where it is inside
-                        mappedImageSphere.liesInside = i;
+                        mappedImageSphere.liesInside = mappingSphereIndex;
                         const radius = oldImageSphere.radius;
                         const dx = oldImageSphere.x - mapX;
                         const dy = oldImageSphere.y - mapY;
@@ -235,55 +236,77 @@ mapping.initializeLines = function() {
 
 mapping.makeLineGeneration = function(generation) {
     const mappingSpheresLength = mapping.spheres.length;
-    for (let i = 0; i < mappingSpheresLength; i++) {
-        const mappingSphere = mapping.spheres[i];
+    for (let mappingSphereIndex = 0; mappingSphereIndex < mappingSpheresLength; mappingSphereIndex++) {
+        const mappingSphere = mapping.spheres[mappingSphereIndex];
         if (mappingSphere.on) {
             const mappedLines = [];
             mappingSphere.lines[generation] = mappedLines;
             // make lines for this mapping sphere using the mapped image spheres
-            for (let j = 0; j < mappingSpheresLength; j++) {
-                const otherMappingSphere = mapping.spheres[j];
+            for (let otherMappingSphereIndex = 0; otherMappingSphereIndex < mappingSpheresLength; otherMappingSphereIndex++) {
+                const otherMappingSphere = mapping.spheres[otherMappingSphereIndex];
                 if (otherMappingSphere.on) {
                     // mapping the line of the previous generation
                     const oldLines = otherMappingSphere.lines[generation - 1];
                     const oldLinesLength = oldLines.length;
-                    for (let k = 0; k < oldLinesLength; k++) {
-                        const oldLine = oldLines[k];
-                        const end2 = oldLine.end2;
-                        const end2LiesInside = end2.liesInside;
-                        if (i === j) {
+                    for (let oldLineIndex = 0; oldLineIndex < oldLinesLength; oldLineIndex++) {
+                        const oldLine = oldLines[oldLineIndex];
+                        const oldEnd2 = oldLine.end2;
+                        const oldEnd2LiesInside = oldEnd2.liesInside;
+                        if (mappingSphereIndex === otherMappingSphereIndex) {
                             // mapping lines that belong to the mapping sphere:
                             // only those bridging to another mapping sphere
                             // the first end should be inside, the second end outside
                             // the image of the line connects the image of the second end as mapped by the mapping sphere
-                            // with the first end as mapped by the mapping sphere that contains the second end
-                            console.log('same', i, 'ends', oldLine.end1.liesInside, end2LiesInside);
-                            if (end2LiesInside !== i) {
-                                const end1 = oldLine.end1;
-                                const mappedLine = {};
-                                mappedLines.push(mappedLine);
-                                if (end1.liesInside === i) {
+                            // with the first end as mapped by the other mapping sphere that contains the second end
+                            console.log('same', mappingSphereIndex, 'ends', oldLine.end1.liesInside, oldEnd2LiesInside);
+                            if (oldEnd2LiesInside !== mappingSphereIndex) {
+                                const oldEnd1 = oldLine.end1;
+                                if (oldEnd1.liesInside === mappingSphereIndex) {
                                     // a bridging line, going out from the mapping sphere
-                                    console.log('bridge from to', i, end2LiesInside);
-
+                                    console.log('bridge from to', mappingSphereIndex, oldEnd2LiesInside);
+                                    const mappedLine = {};
+                                    mappedLines.push(mappedLine);
+                                    const mappedEnd1 = oldEnd1.nextGeneration[oldEnd2LiesInside];
+                                    mappedLine.end1 = mappedEnd1;
+                                    const mappedEnd2 = oldEnd2.nextGeneration[mappingSphereIndex];
+                                    mappedLine.end2 = mappedEnd2;
+                                    mappedLine.x = 0.5 * (mappedEnd1.x + mappedEnd2.x);
+                                    mappedLine.viewX = mappedLine.x;
+                                    mappedLine.y = 0.5 * (mappedEnd1.y + mappedEnd2.y);
+                                    mappedLine.viewY = mappedLine.y;
+                                    mappedLine.z = 0.5 * (mappedEnd1.z + mappedEnd2.z);
+                                    mappedLine.viewZ = mappedLine.z;
                                 } else {
-                                    console.log('err');
+                                    console.log('error end1 of old line does not lie inside mapping sphere');
                                 }
                             }
                         } else {
                             // mapping lines of other mapping spheres
                             // only those that have not their second end in the mapping
-                            // the first end is always outside the mapping sphere
+                            // the first end is always inside the other mapping sphere
                             // test if second end too lies outside the mapping sphere
                             // if second end lies inside the mapping sphere, then we have a bridge that is already done
                             // the image of the line connects the two ends as mapped by the mapping sphere
-                            console.log('diff', i, j, 'ends', oldLine.end1.liesInside, end2LiesInside);
-                            if (end2LiesInside !== i) {
-                                console.log('line outside', i);
+                            console.log('diff map sp', mappingSphereIndex, otherMappingSphereIndex, 'ends', oldLine.end1.liesInside, oldEnd2LiesInside);
+                            if (oldEnd2LiesInside !== mappingSphereIndex) {
+                                console.log('line outside', mappingSphereIndex);
+                                const mappedLine = {};
+                                mappedLines.push(mappedLine);
+                                const oldEnd1 = oldLine.end1;
+                                const mappedEnd1 = oldEnd1.nextGeneration[mappingSphereIndex];
+                                mappedLine.end1 = mappedEnd1;
+                                const mappedEnd2 = oldEnd2.nextGeneration[mappingSphereIndex];
+                                mappedLine.end2 = mappedEnd2;
+                                mappedLine.x = 0.5 * (mappedEnd1.x + mappedEnd2.x);
+                                mappedLine.viewX = mappedLine.x;
+                                mappedLine.y = 0.5 * (mappedEnd1.y + mappedEnd2.y);
+                                mappedLine.viewY = mappedLine.y;
+                                mappedLine.z = 0.5 * (mappedEnd1.z + mappedEnd2.z);
+                                mappedLine.viewZ = mappedLine.z;
                             } else {
-                                console.log('do not repeat bridge', i, j);
-                                if (j !== oldLine.end1.liesInside) {
-                                    console.log("errrrrr')");
+                                console.log('do not repeat bridge', mappingSphereIndex, otherMappingSphereIndex);
+                                if (otherMappingSphereIndex !== oldLine.end1.liesInside) {
+                                    console.log("errrrrr old end1 does not lie inside the other mapping sphere");
                                 }
                             }
                         }
@@ -354,7 +377,7 @@ mapping.drawImageSpheres = function() {
             const imageSpheresLength = imageSpheres.length;
             for (let j = 0; j < imageSpheresLength; j++) {
                 const imageSphere = imageSpheres[j];
-                const sphereColor = color.interpolation(imageSphere.viewZ);
+                const sphereColor = color.interpolation(imageSphere);
                 draw.sphere(imageSphere.viewX, imageSphere.viewY, imageSphere.viewRadius, sphereColor);
             }
         }
@@ -369,11 +392,12 @@ mapping.drawLines = function() {
         if (mappingSphere.on) {
             const lines = mappingSphere.lines[mapping.drawGeneration];
             const linesLength = lines.length;
+            console.log(mapping.drawGeneration, i, linesLength);
             for (let j = 0; j < linesLength; j++) {
                 const line = lines[j];
                 const end1 = line.end1;
                 const end2 = line.end2;
-                const lineColor = color.interpolation(line.viewZ);
+                const lineColor = color.interpolation(line);
                 draw.line(end1.viewX, end1.viewY, end2.viewX, end2.viewY, lineColor);
             }
         }

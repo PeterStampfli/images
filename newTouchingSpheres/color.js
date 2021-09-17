@@ -41,14 +41,15 @@ color.setupInterpolation = function() {
     deltaBlueBack = (blueBack - blueCenter) / poincare.radius;
 };
 
-color.interpolation = function(z) {
+color.interpolation = function(thing) {
+    let z = thing.viewZ;
     if (z > 0) {
-        z=Math.min(z,poincare.radius);
+        z = Math.min(z, poincare.radius);
         colorObject.red = Math.min(255, Math.max(0, Math.round(redCenter + z * deltaRedFront)));
         colorObject.green = Math.min(255, Math.max(0, Math.round(greenCenter + z * deltaGreenFront)));
         colorObject.blue = Math.min(255, Math.max(0, Math.round(blueCenter + z * deltaBlueFront)));
     } else {
-        z=Math.max(z,-poincare.radius);
+        z = Math.max(z, -poincare.radius);
         colorObject.red = Math.min(255, Math.max(0, Math.round(redCenter - z * deltaRedBack)));
         colorObject.green = Math.min(255, Math.max(0, Math.round(greenCenter - z * deltaGreenBack)));
         colorObject.blue = Math.min(255, Math.max(0, Math.round(blueCenter - z * deltaBlueBack)));
