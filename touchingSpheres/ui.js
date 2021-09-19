@@ -71,9 +71,12 @@ gui.add({
     params: mapping,
     property: 'config',
     options: {
+        triangle: mapping.triangle,
         tetrahedron: mapping.tetrahedron,
         '4-Simplex': mapping.fourSimplex,
-        cube:mapping.cube
+        octagon:mapping.octagon,
+        '4-crosspolytope':mapping.fourCrossPolytope,
+        cube: mapping.cube
     },
     onChange: function() {
         create();
@@ -352,6 +355,7 @@ gui.add({
         'points on poincare sphere',
         'points on poincare bubble',
         'points in mapping bubbles',
+        'points in mapping discs',
         'points only'
     ],
     labelText: 'display',
@@ -556,10 +560,28 @@ backColorController.add({
 });
 
 gui.add({
+    type: 'number',
+    params: mapping,
+    property: 'colorScale',
+    labelText: 'scale',
+    min: 0,
+    onChange: function() {
+        draw();
+    }
+}).add({
     type: 'boolean',
     params: mapping,
     property: 'specialColor',
     labelText: 'special colors',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: mapping,
+    property: 'drawAll',
     onChange: function() {
         draw();
     }
@@ -693,6 +715,14 @@ function draw() {
             break;
         case 'points in mapping bubbles':
             mapping.drawPointsMappingBubbles();
+            break;
+        case 'points in mapping discs':
+            mapping.drawSpheresAsDiscs();
+            basics.startDrawingPoints();
+            mapping.drawPointsInBack();
+            mapping.drawEquatorFront();
+            mapping.drawPointsInFront();
+            output.pixels.show();
             break;
         case 'points only':
             basics.startDrawingPoints();

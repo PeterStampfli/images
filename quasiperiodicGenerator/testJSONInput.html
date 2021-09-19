@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="icon" href="data:,">
+
+<head>
+    <title>test json input</title>
+</head>
+
+<body>
+    <noscript><h1>Please enable javascript!!!</h1></noscript>
+
+</body>
+
+<script type='module'>
+
+import {
+    map,
+    output,
+    ParamGui,
+    Pixels
+} from "../libgui/modules.js";
+
+const gui = new ParamGui({
+    name: 'test',
+    closed: false,
+    booleanButtonWidth: 40
+});
+
+const controller=gui.add({
+    type:'button',
+    buttonText:'file',
+    onClick: function(){
+        console.log('hhh')
+    }
+
+})
+console.log(controller)
+
+controller.uiElement.asFileInput('.txt');
+controller.uiElement.onFileInput=function(files){
+    console.log(files)
+    file=files[0];
+    loadDefinitionFile(files[0])
+}
+
+const fileReader = new FileReader();
+var file;
+
+    // load next file only if it is a *.txt file and not yet in the options
+    // if in options and selection not updated, then set selected value
+    function loadDefinitionFile(file) {
+        fileReader.readAsText(file);
+                    return;
+    }
+
+    fileReader.onload = function() {
+        // we know that the file is a *.txt file and that the name is not yet in the options
+
+        const result = fileReader.result;
+        try {
+            const theObject = JSON.parse(result); 
+            console.log(theObject)
+        } catch (err) {
+            alert('JSON syntax error in: ' + file.name);
+        }
+    };
+
+       const fileInput = document.createElement("input");
+document.body.appendChild(fileInput);
+fileInput.setAttribute('type','file');
+fileInput.setAttribute('accept','txt');
+
+fileInput.onchange=function(files){
+    console.log(files);
+}
+
+</script>
+
+</html>

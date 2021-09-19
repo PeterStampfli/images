@@ -71,6 +71,7 @@ function addMappingSphere(radius, x, y, z = 0) {
     mappingSphere.points = [];
     mappingSphere.viewPoints = [];
     mappingSphere.stereographicPoints = [];
+    mappingSphere.drawAlways = (mapping.spheres.length === 0);
     mapping.spheres.push(mappingSphere);
 }
 
@@ -88,11 +89,10 @@ function addImageSphere(mappingSphere, generation, radius, x, y, z) {
 }
 
 function addPoint(mappingSphere, x, y, z) {
-    const point = new Float32Array(4);
+    const point = new Float32Array(3);
     point[0] = x;
     point[1] = y;
     point[2] = z;
-    point[3]=interpolateColorInteger(point);
     mappingSphere.points.push(point);
     mappingSphere.viewPoints.push(new Float32Array(4));
     mappingSphere.stereographicPoints.push(new Float32Array(4));
@@ -144,6 +144,21 @@ mapping.logSpheres = function() {
 // various configurations
 //============================================
 
+mapping.triangle = function() {
+    // four inverting spheres at the corners of a tetrahedron
+    const rSphere = 0.8165;
+    const cx2 = 0.9428;
+    const cx34 = -0.4714;
+    const cy3 = 0.8165;
+    const cy4 = -0.8165;
+    const cz234 = 0.3333;
+    // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
+    setupHyperbolicSpace(rSphere, 0, 0, 1);
+    addMappingSphere(rSphere, cx2, 0, cz234);
+    addMappingSphere(rSphere, cx34, cy3, cz234);
+    addMappingSphere(rSphere, cx34, cy4, cz234);
+};
+
 mapping.tetrahedron = function() {
     // four inverting spheres at the corners of a tetrahedron
     const rSphere = 0.8165;
@@ -160,6 +175,35 @@ mapping.tetrahedron = function() {
     addMappingSphere(rSphere, cx34, cy4, cz234);
 };
 
+mapping.fourCrossPolytope = function() {
+    // four inverting spheres at the corners of a tetrahedron
+    let rSphere = 0.8165;
+    let cx2 = 0.9428;
+    let cx34 = -0.4714;
+    let cy3 = 0.8165;
+    let cy4 = -0.8165;
+    let cz234 = 0.3333;
+    // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
+    setupHyperbolicSpace(rSphere, 0, 0, 1);
+    addMappingSphere(rSphere, 0, 0, -1);
+    addMappingSphere(rSphere, cx2, 0, cz234);
+    addMappingSphere(rSphere, cx34, cy3, cz234);
+    addMappingSphere(rSphere, cx34, cy4, cz234);
+    let red=3-Math.sqrt(8);
+    console.log(red);
+    rSphere*=red;
+    red=-red;
+    cx2*=red;
+    cx34*=red;
+    cy3*=red;
+    cy4*=red;
+    cz234*=red;
+     addMappingSphere(rSphere, 0, 0, -red);
+    addMappingSphere(rSphere, cx2, 0, cz234);
+    addMappingSphere(rSphere, cx34, cy3, cz234);
+    addMappingSphere(rSphere, cx34, cy4, cz234);
+};
+
 mapping.fourSimplex = function() {
     // four inverting spheres at the corners of a tetrahedron
     const rSphere = 0.8165;
@@ -170,23 +214,34 @@ mapping.fourSimplex = function() {
     const cz234 = 0.3333;
     // (0,0,-1),(cx2,0,cz234),(cx34,cy3,cz234),(cx34,cy4,cz234)
     setupHyperbolicSpace(rSphere, 0, 0, 1);
+    addMappingSphere(1 - rSphere, 0, 0, 0);
     addMappingSphere(rSphere, 0, 0, -1);
-    addMappingSphere(1-rSphere, 0, 0, 0);
     addMappingSphere(rSphere, cx2, 0, cz234);
     addMappingSphere(rSphere, cx34, cy3, cz234);
     addMappingSphere(rSphere, cx34, cy4, cz234);
 };
 
-mapping.cube=function(){
-setupHyperbolicSpace(1,1,1,1);
-addMappingSphere(1,1,1,1);
-addMappingSphere(1,1,1,-1);
-addMappingSphere(1,1,-1,1);
-addMappingSphere(1,1,-1,-1);
-addMappingSphere(1,-1,1,1);
-addMappingSphere(1,-1,1,-1);
-addMappingSphere(1,-1,-1,1);
-addMappingSphere(1,-1,-1,-1);
+mapping.cube = function() {
+    setupHyperbolicSpace(1, 1, 1, 1);
+    addMappingSphere(1, 1, 1, 1);
+    addMappingSphere(1, 1, 1, -1);
+    addMappingSphere(1, 1, -1, 1);
+    addMappingSphere(1, 1, -1, -1);
+    addMappingSphere(1, -1, 1, 1);
+    addMappingSphere(1, -1, 1, -1);
+    addMappingSphere(1, -1, -1, 1);
+    addMappingSphere(1, -1, -1, -1);
+};
+
+mapping.octagon = function() {
+    const r=Math.sqrt(0.5);
+    setupHyperbolicSpace(r, 0,0, 1);
+    addMappingSphere(r,0, 1,0);
+    addMappingSphere(r,0, -1,0);
+    addMappingSphere(r,1,0,0);
+    addMappingSphere(r, -1,0,0);
+    addMappingSphere(r,0,0, 1);
+    addMappingSphere(r,0,0, -1);    
 };
 
 // creating the images (spheres and points)
@@ -304,6 +359,7 @@ mapping.createTouchingPoints = function() {
             const dz = mappingSphereJ.z - mappingSphereI.z;
             const d2 = dx * dx + dy * dy + dz * dz;
             if (Math.abs(d2 - (radiusI + radiusJ) * (radiusI + radiusJ)) < eps) {
+                console.log('touching:',i,j);
                 const h = radiusI / (radiusI + radiusJ);
                 const x = xI + h * dx;
                 const y = yI + h * dy;
@@ -393,6 +449,8 @@ mapping.drawImageSphereGen = 2;
 mapping.colorFront = '#ff0000';
 mapping.colorBack = '#000000';
 mapping.specialColor = true;
+mapping.drawAll = true;
+mapping.colorScale = 1;
 
 var redMean, greenMean, blueMean, redDelta, greenDelta, blueDelta;
 var imagePointsColor = {};
@@ -414,8 +472,8 @@ function setupColorInterpolation() {
     blueDelta = 0.5 * (blueFront - blueBack) / basics.hyperbolicRadius;
 }
 
-function interpolateColorInteger(point) {
-    const z=point[2];
+function interpolateColorInteger(z) {
+    z /= mapping.colorScale;
     imagePointsColor.red = Math.min(255, Math.max(0, Math.round(redMean + z * redDelta)));
     imagePointsColor.green = Math.min(255, Math.max(0, Math.round(greenMean + z * greenDelta)));
     imagePointsColor.blue = Math.min(255, Math.max(0, Math.round(blueMean + z * blueDelta)));
@@ -423,7 +481,7 @@ function interpolateColorInteger(point) {
 }
 
 function interpolateColorString(sphere) {
-    const z=sphere.z;
+    const z = sphere.z / mapping.colorScale;
     imagePointsColor.red = Math.min(255, Math.max(0, Math.round(redMean + z * redDelta)));
     imagePointsColor.green = Math.min(255, Math.max(0, Math.round(greenMean + z * greenDelta)));
     imagePointsColor.blue = Math.min(255, Math.max(0, Math.round(blueMean + z * blueDelta)));
@@ -498,6 +556,9 @@ mapping.drawImageSpheresMappingBubbles = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             const length = mappingSphere.imageSpheres.length;
             if (mappingSphere.viewRadius > 0) {
@@ -541,6 +602,9 @@ mapping.drawImageSpheresAsDiscs = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             const length = mappingSphere.imageSpheres.length;
             if (mappingSphere.viewRadius > 0) {
@@ -576,6 +640,9 @@ mapping.drawImageSpheresOnly = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             const length = mappingSphere.imageSpheres.length;
             for (let j = 0; j < length; j++) {
@@ -603,6 +670,9 @@ mapping.drawPointsMappingBubbles = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             if (mappingSphere.viewRadius > 0) {
                 basics.drawLowerBubble(mappingSphere.viewX, mappingSphere.viewY, mappingSphere.viewRadius, mapping.color);
@@ -613,8 +683,7 @@ mapping.drawPointsMappingBubbles = function() {
             const length = viewPoints.length;
             for (let j = 0; j < length; j++) {
                 const viewPoint = viewPoints[j];
-                const intColor = interpolateColorInteger(points[j]);
-                basics.drawPoint(viewPoint, intColor);
+                basics.drawPoint(viewPoint, interpolateColorInteger(viewPoint[3]));
             }
             output.pixels.show();
             if (mappingSphere.viewRadius > 0) {
@@ -635,6 +704,9 @@ mapping.drawPointsInFront = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             const viewPoints = mappingSphere.viewPoints;
             const points = mappingSphere.points;
@@ -643,8 +715,8 @@ mapping.drawPointsInFront = function() {
                 const viewPoint = viewPoints[j];
                 const z = viewPoint[2];
                 if (z >= 0) {
-                    const intColor = interpolateColorInteger(points[j]);
-                    basics.drawPoint(viewPoint, intColor);
+                    // basics.drawPoint(viewPoint, viewPoint[3]);
+                    basics.drawPoint(viewPoint, interpolateColorInteger(viewPoint[3]));
                 }
             }
         }
@@ -657,6 +729,9 @@ mapping.drawPointsInBack = function() {
     mappingLength = mapping.spheres.length;
     for (let i = 0; i < mappingLength; i++) {
         const mappingSphere = mapping.spheres[i];
+        if (!mapping.drawAll && !mappingSphere.drawAlways) {
+            continue;
+        }
         if (mappingSphere.on) {
             const viewPoints = mappingSphere.viewPoints;
             const points = mappingSphere.points;
@@ -665,8 +740,7 @@ mapping.drawPointsInBack = function() {
                 const viewPoint = viewPoints[j];
                 const z = viewPoint[2];
                 if (z < 0) {
-                    const intColor = interpolateColorInteger(points[j]);
-                    basics.drawPoint(viewPoint, intColor);
+                    basics.drawPoint(viewPoint, interpolateColorInteger(viewPoint[3]));
                 }
             }
         }
@@ -680,16 +754,16 @@ mapping.drawStereographicPointsInBack = function() {
         mappingLength = mapping.spheres.length;
         for (let i = 0; i < mappingLength; i++) {
             const mappingSphere = mapping.spheres[i];
+            if (!mapping.drawAll && !mappingSphere.drawAlways) {
+                continue;
+            }
             if (mappingSphere.on) {
-                const points = mappingSphere.points;
                 const stereographicPoints = mappingSphere.stereographicPoints;
-                const length = points.length;
+                const length = stereographicPoints.length;
                 for (let j = 0; j < length; j++) {
                     const stereographicPoint = stereographicPoints[j];
                     if (stereographicPoint[2] < 0) {
-                        const point = points[j];
-                        const intColor = interpolateColorInteger(points[j]);
-                        basics.drawPoint(stereographicPoint, intColor);
+                        basics.drawPoint(stereographicPoint, interpolateColorInteger(stereographicPoint[3]));
                     }
                 }
             }
@@ -704,16 +778,18 @@ mapping.drawStereographicPointsInFront = function() {
         mappingLength = mapping.spheres.length;
         for (let i = 0; i < mappingLength; i++) {
             const mappingSphere = mapping.spheres[i];
+            if (!mapping.drawAll && !mappingSphere.drawAlways) {
+                continue;
+            }
             if (mappingSphere.on) {
                 const points = mappingSphere.points;
                 const stereographicPoints = mappingSphere.stereographicPoints;
-                const length = points.length;
+                const length = stereographicPoints.length;
                 for (let j = 0; j < length; j++) {
                     const stereographicPoint = stereographicPoints[j];
                     if (stereographicPoint[2] >= 0) {
                         const point = points[j];
-                        const intColor = interpolateColorInteger(points[j]);
-                        basics.drawPoint(stereographicPoint, intColor);
+                        basics.drawPoint(stereographicPoint, interpolateColorInteger(stereographicPoint[3]));
                     }
                 }
             }
