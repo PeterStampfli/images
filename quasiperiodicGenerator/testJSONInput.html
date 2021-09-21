@@ -23,7 +23,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    readJSON
+    readJSON,
+    builder
 } from "./modules.js";
 
 const gui = new ParamGui({
@@ -32,7 +33,13 @@ const gui = new ParamGui({
     booleanButtonWidth: 40
 });
 
-readJSON.makeButton(gui, function(){console.log(readJSON.result);});
+builder.init(gui);
+
+readJSON.makeButton(gui, 
+    function(){
+        console.log(readJSON.result);
+        builder.setup(readJSON.result);
+    });
 
 
 
