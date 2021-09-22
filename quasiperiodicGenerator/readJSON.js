@@ -14,10 +14,11 @@ fileReader.onload = function() {
     const result = fileReader.result;
     try {
         readJSON.result = JSON.parse(result);
-        theAction();
     } catch (err) {
         alert('JSON syntax error in: ' + file.name+'\n\ncheck with https://jsonchecker.com/');
+return;
     }
+        theAction();
 };
 
 readJSON.makeButton = function(gui, action) {

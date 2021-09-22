@@ -6,11 +6,10 @@
     "order": 8,
     "inflation": 2.414,
 
-"initialConfigurations":"define as tiles, no difference except that they do not appear in substitutions",
+
     "tiles": {
         "rhomb": {
             "shape": [
-                [0],
                 [1],
                 [1, 1],
                 [0, 1]
@@ -47,7 +46,6 @@
         },
         "RSquare": {
             "shape": [
-                [0],
                 [1],
                 [1, 0, 1]
             ],
@@ -75,7 +73,6 @@
         },
         "LSquare": {
             "shape": [
-                [0],
                 [1],
                 [1, 0, 1]
             ],
