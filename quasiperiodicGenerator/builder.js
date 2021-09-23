@@ -4,6 +4,10 @@ import {
     output
 } from "../libgui/modules.js";
 
+import {
+    main
+} from './modules.js';
+
 export const builder = {};
 
 var gui = {};
@@ -68,7 +72,11 @@ builder.setup = function(definition) {
         params: builder,
         property: 'initialTile',
         options: tileNames,
-        labelText: 'initial'
+        labelText: 'initial',
+        onChange:function(){
+            main.create();
+            main.draw();
+        }
     });
 };
 

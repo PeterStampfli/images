@@ -36,3 +36,7 @@ export {
 export {
     ui
 }from './ui.js';
+
+export {
+    examples
+}from './examples.js';

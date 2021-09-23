@@ -7,6 +7,7 @@ import {
 import {
     ui,
     builder,
+    examples,
     readJSON
 } from './modules.js';
 
@@ -22,7 +23,6 @@ output.backgroundColorController.setValueOnly('#999999');
 output.setBackground();
 output.saveType.setValueOnly('jpg');
 
-builder.init(ui.gui);
 
 readJSON.makeButton(ui.gui,
     function() {
@@ -32,8 +32,12 @@ readJSON.makeButton(ui.gui,
         main.draw();
     });
 
+builder.init(ui.gui);
+
+examples.init(ui.gui);
 
 main.create = function() {
+builder.setup(examples.current);
 
 
 };
@@ -54,3 +58,7 @@ main.draw = function() {
 
 output.drawCanvasChanged = main.draw;
 output.drawImageChanged = main.draw;
+
+console.log(examples.ammannBeenker);
+main.create();
+main.draw();
