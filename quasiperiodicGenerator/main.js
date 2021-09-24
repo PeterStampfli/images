@@ -23,11 +23,9 @@ output.backgroundColorController.setValueOnly('#999999');
 output.setBackground();
 output.saveType.setValueOnly('jpg');
 
-
 readJSON.makeButton(ui.gui,
     function() {
-        console.log(readJSON.result);
-        builder.setup(readJSON.result);
+        examples.add(readJSON.name, readJSON.result);
         main.create();
         main.draw();
     });
@@ -37,13 +35,12 @@ builder.init(ui.gui);
 examples.init(ui.gui);
 
 main.create = function() {
-builder.setup(examples.current);
+    builder.setup(examples.current);
 
 
 };
 
 main.lineWidth = 2;
-
 
 main.draw = function() {
     output.startDrawing();
@@ -59,6 +56,5 @@ main.draw = function() {
 output.drawCanvasChanged = main.draw;
 output.drawImageChanged = main.draw;
 
-console.log(examples.ammannBeenker);
 main.create();
 main.draw();

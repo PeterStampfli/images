@@ -1,0 +1,22 @@
+{
+    "comment": "",
+    "name": "",
+    
+    "order": 8,
+    "inflation": 2.414,
+
+    "tiles": {
+        "name_of_tile_to_define": {
+            "shape": [
+                [1],
+                [1, 1],
+                [0, 1]
+            ],
+            "substitution": [{
+                "name": "other_tile_name",
+                "orientation": 0,
+                "origin": [0]
+            }]
+        }
+    }
+}

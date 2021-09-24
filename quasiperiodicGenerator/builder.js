@@ -43,13 +43,11 @@ builder.setup = function(definition) {
     }
     tiles = definition.tiles;
     colorControllers.forEach(controller => controller.destroy());
+    colorControllers.length = 0;
     if (initialTileController) {
         initialTileController.destroy();
     }
-
     tileNames = Object.keys(tiles);
-    console.log(tileNames);
-
     const tileNamesLength = tileNames.length;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
@@ -73,7 +71,7 @@ builder.setup = function(definition) {
         property: 'initialTile',
         options: tileNames,
         labelText: 'initial',
-        onChange:function(){
+        onChange: function() {
             main.create();
             main.draw();
         }
@@ -88,7 +86,6 @@ builder.setup = function(definition) {
 
 builder.drawTile = function(name, originX, originY, size, orientation) {
     const tile = tiles[name];
-    console.log(tile);
     const shape = tile.shape;
     const canvasContext = output.canvasContext;
     canvasContext.fillStyle = tile.color;
@@ -103,16 +100,12 @@ builder.drawTile = function(name, originX, originY, size, orientation) {
         for (let j = 0; j < vectorLength; j++) {
             const direction = (orientation + j) % order;
             const amplitude = vector[j];
-            console.log(direction);
             x += amplitude * basisX[direction];
             y += amplitude * basisY[direction];
-            console.log(x, y);
-
         }
         x = size * x + originX;
         y = size * y + originY;
         canvasContext.lineTo(x, y);
-        console.log('line', x, y);
     }
     canvasContext.closePath();
     canvasContext.fill();

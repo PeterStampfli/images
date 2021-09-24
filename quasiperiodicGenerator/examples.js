@@ -1,6 +1,10 @@
 /* jshint esversion: 6 */
 
 import {
+    guiUtils
+} from "../libgui/modules.js";
+
+import {
     main
 } from './modules.js';
 
@@ -12,15 +16,56 @@ examples.init = function(gui) {
         type: 'selection',
         params: examples,
         property: 'current',
-        options:{'Ammann-Beenker Tiling':examples.ammannBeenker},
+        options: {
+            template: examples.template,
+            'Ammann-Beenker Tiling': examples.ammannBeenker
+        },
         onChange: function() {
-console.log(examples.current);
+            console.log(examples.current);
+            main.create();
+            main.draw();
+        }
+    });
+    examples.selectionController.add({
+        type: 'button',
+        buttonText: 'download',
+        onClick: function() {
+            const name = examples.selectionController.uiElement.getName();
+            const text = JSON.stringify(examples.selectionController.getValue(), null, 2);
+            guiUtils.saveTextAsFile(text, name);
         }
     });
 };
 
+examples.add = function(name, object) {
+    examples.selectionController.uiElement.addOption(name, object);
+    examples.selectionController.setValueOnly(object);
+};
 
 //==============================================
+
+examples.template = {
+    "comment": "",
+    "name": "",
+
+    "order": 8,
+    "inflation": 2.414,
+
+    "tiles": {
+        "name_of_tile_to_define": {
+            "shape": [
+                [1],
+                [1, 1],
+                [0, 1]
+            ],
+            "substitution": [{
+                "name": "other_tile_name",
+                "orientation": 0,
+                "origin": [0]
+            }]
+        }
+    }
+};
 
 examples.ammannBeenker = {
     "comment": "this is a comment, you can add more such fields, they have no effect",
@@ -29,7 +74,6 @@ examples.ammannBeenker = {
 
     "order": 8,
     "inflation": 2.414,
-
 
     "tiles": {
         "rhomb": {

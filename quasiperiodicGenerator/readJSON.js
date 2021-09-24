@@ -5,6 +5,7 @@
 export const readJSON = {};
 
 readJSON.result = {};
+readJSON.name='';
 var theAction = function() {};
 
 const fileReader = new FileReader();
@@ -18,6 +19,7 @@ fileReader.onload = function() {
         alert('JSON syntax error in: ' + file.name+'\n\ncheck with https://jsonchecker.com/');
 return;
     }
+    readJSON.name=file.name.split('.')[0];
         theAction();
 };
 
