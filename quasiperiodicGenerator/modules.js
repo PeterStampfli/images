@@ -34,9 +34,5 @@ export {
 }from './main.js';
 
 export {
-    ui
-}from './ui.js';
-
-export {
     examples
 }from './examples.js';

@@ -1,11 +1,11 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    output,
+    ParamGui
 } from "../libgui/modules.js";
 
 import {
-    ui,
     builder,
     examples,
     readJSON
@@ -13,9 +13,14 @@ import {
 
 export const main = {};
 
-ui.setup();
-
-output.createCanvas(ui.gui, true);
+// setting up the canvas and its gui
+const gui = new ParamGui({
+    name: 'quasiperiodic tilings + fractals',
+    closed: false,
+    booleanButtonWidth: 40
+});
+main.gui = gui;
+output.createCanvas(gui, true);
 output.addCoordinateTransform(false);
 output.setInitialCoordinates(0, 0, 3);
 output.createPixels();
@@ -23,20 +28,25 @@ output.backgroundColorController.setValueOnly('#999999');
 output.setBackground();
 output.saveType.setValueOnly('jpg');
 
-readJSON.makeButton(ui.gui,
+builder.init(gui);
+
+readJSON.makeButton(gui,
     function() {
         examples.add(readJSON.name, readJSON.result);
+        main.newStructure();
         main.create();
         main.draw();
     });
 
-builder.init(ui.gui);
+examples.init(gui);
 
-examples.init(ui.gui);
-
-main.create = function() {
+main.newStructure = function() {
     builder.setup(examples.current);
 
+};
+
+main.create = function() {
+    builder.create();
 
 };
 
@@ -49,12 +59,23 @@ main.draw = function() {
     output.canvasContext.strokeStyle = '#000000';
     output.canvasContext.lineCap = 'round';
 
-    builder.drawTile(builder.initialTile, 0, 0, 1, 0);
+    if (builder.showGeneration > builder.maxGeneration) {
+        builder.showGenController.setValueOnly(builder.maxGeneration);
+    }
+
+    builder.drawTile({
+        name: builder.initialTile,
+        originX: 0,
+        originY: 0,
+        size: 1,
+        orientation: 0
+    });
 
 };
 
 output.drawCanvasChanged = main.draw;
 output.drawImageChanged = main.draw;
+main.newStructure();
 
 main.create();
 main.draw();

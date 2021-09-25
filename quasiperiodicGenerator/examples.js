@@ -22,6 +22,7 @@ examples.init = function(gui) {
         },
         onChange: function() {
             console.log(examples.current);
+            main.newStructure();
             main.create();
             main.draw();
         }
