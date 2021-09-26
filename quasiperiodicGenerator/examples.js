@@ -78,6 +78,7 @@ examples.ammannBeenker = {
 
     "tiles": {
         "rhomb": {
+            color: '#0000ff',
             "shape": [
                 [1],
                 [1, 1],
@@ -86,11 +87,12 @@ examples.ammannBeenker = {
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 0,
-                "origin": [0]
+                "origin": [0],
+                size: 1
             }, {
                 "name": "rhomb",
                 "orientation": 0,
-                "origin": [1, 1, 1]
+                "origin": [1, 1, 1, -1]
             }, {
                 "name": "rhomb",
                 "orientation": 6,
@@ -124,7 +126,7 @@ examples.ammannBeenker = {
                 "origin": [0]
             }, {
                 "name": "rhomb",
-                "orientation": 3,
+                "orientation": 2,
                 "origin": [1, 1, 0, -1]
             }, {
                 "name": "LSquare",
@@ -132,12 +134,12 @@ examples.ammannBeenker = {
                 "origin": [0, 1]
             }, {
                 "name": "RSquare",
-                "orientation": 5,
-                "origin": [1, 1]
+                "orientation": 3,
+                "origin": [1, 1, 0, -1]
             }, {
-                "name": "LSquare",
-                "orientation": 7,
-                "origin": [1, 1, 1]
+                "name": "RSquare",
+                "orientation": 5,
+                "origin": [1, 2, 1]
             }]
         },
         "LSquare": {
@@ -156,13 +158,13 @@ examples.ammannBeenker = {
             }, {
                 "name": "LSquare",
                 "orientation": 3,
-                "origin": [1, 0, -1]
+                "origin": [0, 1, 0, -1]
             }, {
                 "name": "RSquare",
                 "orientation": 0,
                 "origin": [0, 1]
             }, {
-                "name": "RSquare",
+                "name": "LSquare",
                 "orientation": 5,
                 "origin": [1, 2]
             }]

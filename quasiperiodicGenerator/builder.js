@@ -10,8 +10,8 @@ import {
 
 export const builder = {};
 
-builder.maxGeneration = 3;
-builder.showGeneration = 0;
+builder.maxGeneration = 1;
+builder.drawGeneration = 0;
 builder.minSize = 0.1;
 
 var gui = {};
@@ -43,11 +43,11 @@ builder.init = function(guiP) {
             main.draw();
         }
     });
-    builder.showGenController = gui.add({
+    builder.drawGenController = gui.add({
         type: 'number',
         params: builder,
-        property: 'showGeneration',
-        labelText: 'show gen',
+        property: 'drawGeneration',
+        labelText: 'draw gen',
         min: 0,
         step: 1,
         onChange: function() {
@@ -102,6 +102,14 @@ builder.setup = function(definition) {
             onChange: function() {}
         });
         colorControllers.push(colorController);
+        const substitutions = tile.substitution;
+        const substitutionsLength = substitutions.length;
+        for (let subsIndex = 0; subsIndex < substitutionsLength; subsIndex++) {
+            const substitution = substitutions[subsIndex];
+            if (!substitution.size) {
+                substitution.size = 1;
+            }
+        }
     }
     builder.initialTile = tileNames[0];
     initialTileController = gui.add({
@@ -133,27 +141,50 @@ builder.create = function() {
     }];
     generations[0] = generation0;
     for (let genIndex = 1; genIndex <= builder.maxGeneration; genIndex++) {
-        console.log(genIndex);
         const oldGeneration = generations[genIndex - 1];
         const newGeneration = [];
         generations[genIndex] = newGeneration;
         const oldGenerationLength = oldGeneration.length;
         for (let tileIndex = 0; tileIndex < oldGenerationLength; tileIndex++) {
-            const tileInfo = oldGeneration[tileIndex];
-            console.log(tileInfo);
-            const originX = tileInfo.originX;
-            const originY = tileInfo.originY;
-            const size = tileInfo.size;
-            const orientation = tileInfo.orientation;
-            const substitution = tiles[tileInfo.name].substitution;
-            console.log(substitution);
-            const substitutionLength = substitution.length;
-            for (let subsIndex = 0; subsIndex < substitutionLength; subsIndex++) {
+            const oldTileInfo = oldGeneration[tileIndex];
+            let oldOriginX = oldTileInfo.originX;
+            let oldOriginY = oldTileInfo.originY;
+            if (main.inflate) {
+                oldOriginX *= inflation;
+                oldOriginY *= inflation;
+            }
+            let newSize = oldTileInfo.size;
+            if (!main.inflate) {
+                newSize /= inflation;
+            }
+            if (newSize < builder.minSize) {
+                continue;
+            }
+            const oldOrientation = oldTileInfo.orientation;
+            // substitution does not change
+            const substitutions = tiles[oldTileInfo.name].substitution;
+            const substitutionsLength = substitutions.length;
+            for (let subsIndex = 0; subsIndex < substitutionsLength; subsIndex++) {
                 const newTile = {};
                 newGeneration.push(newTile);
-
-
-
+                const substitution = substitutions[subsIndex];
+                newTile.name = substitution.name;
+                newTile.size = newSize * substitution.size;
+                newTile.orientation = oldOrientation + substitution.orientation;
+                const vector = substitution.origin;
+                let newOriginX = 0;
+                let newOriginY = 0;
+                const vectorLength = vector.length;
+                for (let j = 0; j < vectorLength; j++) {
+                    const direction = (oldOrientation + j) % order;
+                    const amplitude = vector[j];
+                    newOriginX += amplitude * basisX[direction];
+                    newOriginY += amplitude * basisY[direction];
+                }
+                newOriginX = newSize * newOriginX + oldOriginX;
+                newOriginY = newSize * newOriginY + oldOriginY;
+                newTile.originX = newOriginX;
+                newTile.originY = newOriginY;
             }
         }
     }
@@ -191,5 +222,15 @@ builder.drawTile = function(tileInfo) {
         canvasContext.lineTo(x, y);
     }
     canvasContext.closePath();
-    canvasContext.fill();
+    if (main.drawFill) {
+        canvasContext.fill();
+    }
+    if (main.drawStroke) {
+        canvasContext.stroke();
+    }
+};
+
+builder.draw = function() {
+    const tiles = generations[builder.drawGeneration];
+    tiles.forEach(tile => builder.drawTile(tile));
 };
