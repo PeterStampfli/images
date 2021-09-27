@@ -31,7 +31,7 @@ var initialTileController;
 
 builder.init = function(guiP) {
     gui = guiP;
-    gui.add({
+    builder.maxGenerationController=gui.add({
         type: 'number',
         params: builder,
         property: 'maxGeneration',
@@ -55,7 +55,7 @@ builder.init = function(guiP) {
             main.draw();
         }
     });
-    gui.add({
+    builder.minSizeController=gui.add({
         type: 'number',
         params: builder,
         property: 'minSize',
@@ -71,6 +71,14 @@ builder.init = function(guiP) {
 builder.setup = function(definition) {
     inflation = definition.inflation;
     order = definition.order;
+    if (definition.maxGeneration){
+        builder.maxGenerationController.setValueOnly(definition.maxGeneration);
+    }
+    if (!definition.minSize){
+        builder.minSizeController.setValueOnly(0);
+    } else {
+        builder.minSizeController.setValueOnly(definition.minSize);
+    }
     basisX.length = order;
     basisY.length = order;
     const dalpha = 2 * Math.PI / order;
@@ -205,7 +213,6 @@ builder.drawTile = function(tileInfo) {
     canvasContext.fillStyle = tile.color;
     const length = shape.length;
     canvasContext.beginPath();
-    canvasContext.moveTo(originX, originY);
     for (let i = 0; i < length; i++) {
         let x = 0;
         let y = 0;
@@ -219,7 +226,12 @@ builder.drawTile = function(tileInfo) {
         }
         x = size * x + originX;
         y = size * y + originY;
+        if (i===0){
+        canvasContext.moveTo(x, y);
+
+        }else {
         canvasContext.lineTo(x, y);
+    }
     }
     canvasContext.closePath();
     if (main.drawFill) {

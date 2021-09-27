@@ -75,11 +75,14 @@ examples.ammannBeenker = {
 
     "order": 8,
     "inflation": 2.414,
+    "minSize": 0,
+    "maxGeneration": 5,
 
     "tiles": {
         "rhomb": {
             color: '#0000ff',
             "shape": [
+                [],
                 [1],
                 [1, 1],
                 [0, 1]
@@ -117,6 +120,7 @@ examples.ammannBeenker = {
         },
         "RSquare": {
             "shape": [
+                [],
                 [1],
                 [1, 0, 1]
             ],
@@ -144,6 +148,7 @@ examples.ammannBeenker = {
         },
         "LSquare": {
             "shape": [
+                [],
                 [1],
                 [1, 0, 1]
             ],
@@ -168,6 +173,61 @@ examples.ammannBeenker = {
                 "orientation": 5,
                 "origin": [1, 2]
             }]
+        },
+        "star": {
+            "color": "#ff8800",
+            "shape": [
+                [1],
+                [1, 1],
+                [0, 1],
+                [0, 1, 1],
+                [0, 0, 1],
+                [0, 0, 1, 1],
+                [0, 0, 0, 1],
+                [0, 0, 0, 1, 1],
+                [-1],
+                [-1, -1],
+                [0, -1],
+                [0, -1, -1],
+                [0, 0, -1],
+                [0, 0, -1, -1],
+                [0, 0, 0, -1],
+                [1, 0, 0 ,- 1]
+            ],
+            "substitution": [{
+                "name": "rhomb",
+                "orientation": 0,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 1,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 2,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 3,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 4,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 5,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 6,
+                "origin": []
+            }, {
+                "name": "rhomb",
+                "orientation": 7,
+                "origin": []
+            }]
         }
+
     }
 };
