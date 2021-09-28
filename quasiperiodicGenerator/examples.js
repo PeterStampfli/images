@@ -16,6 +16,7 @@ examples.init = function(gui) {
         type: 'selection',
         params: examples,
         property: 'current',
+        labelText:'structure',
         options: {
             'Ammann-Beenker Tiling': examples.ammannBeenker,
             'Sierpinsky triangle':examples.sierpinsky,

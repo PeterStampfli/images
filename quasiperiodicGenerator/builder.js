@@ -10,8 +10,8 @@ import {
 
 export const builder = {};
 
-builder.maxGeneration = 1;
-builder.drawGeneration = 0;
+builder.maxGeneration = 4;
+builder.drawGeneration = 2;
 builder.minSize = 0.1;
 
 var gui = {};
@@ -35,7 +35,7 @@ builder.init = function(guiP) {
         type: 'number',
         params: builder,
         property: 'maxGeneration',
-        labelText: 'max gen',
+        labelText: 'highest generation',
         min: 0,
         step: 1,
         onChange: function() {
@@ -47,7 +47,7 @@ builder.init = function(guiP) {
         type: 'number',
         params: builder,
         property: 'drawGeneration',
-        labelText: 'draw gen',
+        labelText: 'draw generation',
         min: 0,
         step: 1,
         onChange: function() {
@@ -59,7 +59,7 @@ builder.init = function(guiP) {
         type: 'number',
         params: builder,
         property: 'minSize',
-        labelText: 'min size',
+        labelText: 'minimum tile size',
         min: 0,
         onChange: function() {
             main.create();
@@ -125,7 +125,7 @@ builder.setup = function(definition) {
         params: builder,
         property: 'initialTile',
         options: tileNames,
-        labelText: 'initial',
+        labelText: 'initial tile',
         onChange: function() {
             main.create();
             main.draw();
