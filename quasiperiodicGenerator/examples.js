@@ -17,11 +17,11 @@ examples.init = function(gui) {
         params: examples,
         property: 'current',
         options: {
-            template: examples.template,
-            'Ammann-Beenker Tiling': examples.ammannBeenker
+            'Ammann-Beenker Tiling': examples.ammannBeenker,
+            'Sierpinsky triangle':examples.sierpinsky,
+            'fractal tree':examples.tree
         },
         onChange: function() {
-            console.log(examples.current);
             main.newStructure();
             main.create();
             main.draw();
@@ -44,29 +44,6 @@ examples.add = function(name, object) {
 };
 
 //==============================================
-
-examples.template = {
-    "comment": "",
-    "name": "",
-
-    "order": 8,
-    "inflation": 2.414,
-
-    "tiles": {
-        "name_of_tile_to_define": {
-            "shape": [
-                [1],
-                [1, 1],
-                [0, 1]
-            ],
-            "substitution": [{
-                "name": "other_tile_name",
-                "orientation": 0,
-                "origin": [0]
-            }]
-        }
-    }
-};
 
 examples.ammannBeenker = {
     "comment": "this is a comment, you can add more such fields, they have no effect",
@@ -231,3 +208,80 @@ examples.ammannBeenker = {
 
     }
 };
+
+examples.sierpinsky={
+    "name": "Sierpinsky triangle",
+    "order": 6,
+    "inflation": 2,
+    "maxGeneration":5,
+    "tiles": {
+        "triangle": {
+            "shape": [
+                [],
+                [1],
+                [0, 1]
+            ],
+            "substitution": [{
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [0]
+            },
+            {
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [1]
+            },
+            {
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [0,1]
+            }]
+        }
+    }
+}
+
+examples.tree={
+    "name": "tree",
+
+    "order": 8,
+    "inflation": 1,
+    "maxGeneration": 8,
+
+    "tiles": {
+        "line": {
+            "shape": [
+                [],
+                [0, 0, 1]
+            ],
+            "substitution": [{
+                    "name": "line",
+                    "orientation": 7,
+                    "origin": [0, 0, 1],
+                    "size": 0.707
+                }, {
+                    "name": "line",
+                    "orientation": 1,
+                    "origin": [0, 0, 1],
+                    "size": 0.707
+                },
+                {
+                    "name": "final",
+                    "orientation": 0,
+                    "origin": []
+                }
+            ]
+        },
+        "final": {
+            "shape": [
+                [],
+                [0, 0, 1]
+            ],
+            "color": "#000000",
+            "substitution": [{
+                "name": "final",
+                "orientation": 0,
+                "origin": []
+            }]
+        }
+    }
+}
