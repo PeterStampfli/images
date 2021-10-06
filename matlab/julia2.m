@@ -15,7 +15,8 @@ for h=1:s
    w=w+sin(real(z));
    z=r*z;
   end
-  I(h,k)=max(-b,min(w,b));
+  I(h,k)=max(0,min(w/b/2+0.5,1));
  end
 end
 imshow(I,[])
+imwrite(I,"bugs.jpg")

@@ -1,22 +1,22 @@
 %matlab
 s=1000;
-I=ones(s,s);
-w=2.2;
+I=zeros(s,s);
+w=2.4;
 d=w/s;
-m=200;
+m=50;
 r=1.4;
-a=-0.225+0.05*i;
-n=6;
+a=0.18+0*i;
+n=3;
 for h=1:s
  for k=1:s
   z=(h-s/2)*d+i*(k-s/2)*d;
   c=0;
   while (abs(z)<r)&(c<m)
    c=c+1;
-   z=z^n+a/z;
+   z=z^n+a/z^(n);
   end
    if (c<m)&(c>0)
-    I(h,k)=min(2,c^0.4);
+    I(h,k)=min(2,c^0.3)-1;
    end
  end
 end

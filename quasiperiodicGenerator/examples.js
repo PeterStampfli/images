@@ -16,11 +16,11 @@ examples.init = function(gui) {
         type: 'selection',
         params: examples,
         property: 'current',
-        labelText:'structure',
+        labelText: 'structure',
         options: {
             'Ammann-Beenker Tiling': examples.ammannBeenker,
-            'Sierpinsky triangle':examples.sierpinsky,
-            'fractal tree':examples.tree
+            'Sierpinsky triangle': examples.sierpinsky,
+            'fractal tree': examples.tree
         },
         onChange: function() {
             main.newStructure();
@@ -56,23 +56,22 @@ examples.ammannBeenker = {
     "minSize": 0,
     "maxGeneration": 5,
 
+    "range":2,
+
     "tiles": {
         "rhomb": {
-            color: '#0000ff',
+            "color": '#0000ff',
             "shape": [
                 [],
                 [1],
                 [1, 1],
                 [0, 1]
             ],
+            "angle": 1,
             "substitution": [{
                 "name": "rhomb",
-                "orientation": 0,
-                "origin": [0],
-                size: 1
             }, {
                 "name": "rhomb",
-                "orientation": 0,
                 "origin": [1, 1, 1, -1]
             }, {
                 "name": "rhomb",
@@ -102,6 +101,11 @@ examples.ammannBeenker = {
                 [1],
                 [1, 0, 1]
             ],
+            "border": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 0,
@@ -126,6 +130,11 @@ examples.ammannBeenker = {
         },
         "LSquare": {
             "shape": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],
+            "border": [
                 [],
                 [1],
                 [1, 0, 1]
@@ -170,51 +179,40 @@ examples.ammannBeenker = {
                 [0, 0, -1],
                 [0, 0, -1, -1],
                 [0, 0, 0, -1],
-                [1, 0, 0 ,- 1]
+                [1, 0, 0, -1]
             ],
             "substitution": [{
                 "name": "rhomb",
-                "orientation": 0,
-                "origin": []
             }, {
                 "name": "rhomb",
-                "orientation": 1,
-                "origin": []
             }, {
                 "name": "rhomb",
-                "orientation": 2,
-                "origin": []
             }, {
                 "name": "rhomb",
                 "orientation": 3,
-                "origin": []
             }, {
                 "name": "rhomb",
                 "orientation": 4,
-                "origin": []
             }, {
                 "name": "rhomb",
                 "orientation": 5,
-                "origin": []
             }, {
                 "name": "rhomb",
                 "orientation": 6,
-                "origin": []
             }, {
                 "name": "rhomb",
                 "orientation": 7,
-                "origin": []
             }]
         }
 
     }
 };
 
-examples.sierpinsky={
+examples.sierpinsky = {
     "name": "Sierpinsky triangle",
     "order": 6,
     "inflation": 2,
-    "maxGeneration":5,
+    "maxGeneration": 5,
     "tiles": {
         "triangle": {
             "shape": [
@@ -226,22 +224,22 @@ examples.sierpinsky={
                 "name": "triangle",
                 "orientation": 0,
                 "origin": [0]
-            },
-            {
+            }, {
                 "name": "triangle",
                 "orientation": 0,
                 "origin": [1]
-            },
-            {
+            }, {
                 "name": "triangle",
                 "orientation": 0,
-                "origin": [0,1]
+                "origin": [0, 1]
             }]
         }
     }
-}
+};
 
-examples.tree={
+examples.tree = {
+    "center": [0, -2],
+    "range": 5,
     "name": "tree",
 
     "order": 8,
@@ -255,22 +253,20 @@ examples.tree={
                 [0, 0, 1]
             ],
             "substitution": [{
-                    "name": "line",
-                    "orientation": 7,
-                    "origin": [0, 0, 1],
-                    "size": 0.707
-                }, {
-                    "name": "line",
-                    "orientation": 1,
-                    "origin": [0, 0, 1],
-                    "size": 0.707
-                },
-                {
-                    "name": "final",
-                    "orientation": 0,
-                    "origin": []
-                }
-            ]
+                "name": "line",
+                "orientation": 7,
+                "origin": [0, 0, 1],
+                "size": 0.707
+            }, {
+                "name": "line",
+                "orientation": 1,
+                "origin": [0, 0, 1],
+                "size": 0.707
+            }, {
+                "name": "final",
+                "orientation": 0,
+                "origin": []
+            }]
         },
         "final": {
             "shape": [
@@ -285,4 +281,4 @@ examples.tree={
             }]
         }
     }
-}
+};
