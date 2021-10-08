@@ -9,6 +9,7 @@ for ix=1:s
         im(ix,iy,1)=r;  
         im(ix,iy,2)=g;
         im(ix,iy,3)=b;
+        im(ix,iy,:)=[r,g,b];
     end
 end
 imshow(im)

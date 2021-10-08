@@ -1,0 +1,9 @@
+function a=polygonToCircle_setCircle(centerX,centerY,radius)
+% set center and radius of circle
+% polygonToCircle is a struct with all data for polygon to circle
+% conversion
+global polygonToCircle;
+
+
+end
+
