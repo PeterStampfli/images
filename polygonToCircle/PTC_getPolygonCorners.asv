@@ -1,0 +1,10 @@
+function [cornersX,cornersY] = PTC_getPolygonCorners()
+% return corners of polygon defined in PTC
+% first corner is repeated at end for easy plot
+global PTC;
+n=PTC.polygonNCorners;
+cornersX=[1:(n+1)];
+cornersY=[1:(n+1)];
+
+end
+
