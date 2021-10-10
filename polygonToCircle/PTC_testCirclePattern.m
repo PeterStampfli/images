@@ -1,4 +1,4 @@
-function PTC_testCirclePattern()
+% PTC_testCirclePattern
 s=1000;
 im=zeros(s,s,3);
 for ix=1:s
@@ -13,4 +13,3 @@ for ix=1:s
     end
 end
 imshow(im)
-end

@@ -2,14 +2,13 @@
 s=1000;
 I=zeros(s,s);
 w=2.4;
-d=w/s;
 m=50;
 r=1.4;
 a=-0.22+0*i;
 n=4;
 for h=1:s
  for k=1:s
-  z=(h-s/2)*d+i*(k-s/2)*d;
+  z=((h-s/2)+i*(k-s/2))*w/s;
   c=0;
   while (abs(z)<r)&(c<m)
    c=c+1;

@@ -9,6 +9,13 @@ PTC.polygonCenterX=centerX;
 PTC.polygonCenterY=centerY;
 PTC.polygonRadius=radius;
 % calculate important constants for efficiency
-
+PTC.piN=pi/nCorners;
+PTC.cosPiN=cos(pi/nCorners);
+PTC.sinPiN=sin(pi/nCorners);
+PTC.cos2PiNM=[1:nCorners];
+PTC.sin2PiNM=[1:nCorners];
+dAngle=2*pi/nCorners;
+PTC.cos2PiNM(:)=cos(dAngle*PTC.cos2PiNM(:));
+PTC.sin2PiNM(:)=sin(dAngle*PTC.sin2PiNM(:));
 end
 
