@@ -1,0 +1,24 @@
+function [xOut,yOut,isInside] = PTC_circleOfOval(xIn,yIn)
+%transform oval coordinates to circle coordinates
+%checking if point lies inside the oval
+height2=0.5*PTC_ovalHeight;
+width=PTC_ovalWidth;
+if (xIn<height2)
+    yIn=yIn-height2;
+    xIn=xIn-height2;
+    phi=atan2(yIn,xIn);
+    r=sqrt(xIn*xIn+yIn*yIn)/height2+pi*(0.5+k);
+elseif (xIn>width-height2)
+    yIn=yIn-height2;
+    xIn=xIn-width+height2;
+    phi=atan2(yIn,xIn);
+    r=sqrt(xIn*xIn+yIn*yIn)/height2;
+    
+        
+elseif (y>height2)
+    phi=0.5*pi+(width-xIn)*2/height2-2;
+    r=y-height2;
+else
+    end
+end
+
