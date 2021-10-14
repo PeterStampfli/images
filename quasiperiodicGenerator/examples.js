@@ -180,7 +180,7 @@ examples.ammannBeenker = {
                 [0, 0, 0, -1],
                 [1, 0, 0, -1]
             ],
-            "substitution": [{
+            "composition": [{
                 "name": "rhomb",
             }, {
                 "name": "rhomb",
