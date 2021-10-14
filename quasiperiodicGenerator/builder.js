@@ -12,7 +12,8 @@ export const builder = {};
 
 builder.maxGeneration = 4;
 builder.drawGeneration = 2;
-builder.minSize = 0.1;
+builder.drawing = 'last only';
+builder.minSize = 0;
 
 var gui = {};
 
@@ -51,7 +52,15 @@ builder.init = function(guiP) {
         min: 0,
         step: 1,
         onChange: function() {
-            main.create();
+            main.draw();
+        }
+    });
+    builder.drawGenController.add({
+        type: 'selection',
+        params: builder,
+        property: 'drawing',
+        options: ['last only', 'lower in back', 'lower in front'],
+        onChange: function() {
             main.draw();
         }
     });
@@ -147,21 +156,30 @@ builder.setup = function(definition) {
 //============================================
 
 var generations = [];
+var currentGeneration;
+var initialTile;
+
+function addTile(tile) {
+    // change for composition
+    generations[currentGeneration].push(tile);
+}
 
 builder.create = function() {
     generations.length = builder.maxGeneration + 1;
-    const generation0 = [{
+    generations[0] = [];
+    currentGeneration = 0;
+    const tile = {
         name: builder.initialTile,
         originX: 0,
         originY: 0,
         size: 1,
         orientation: 0
-    }];
-    generations[0] = generation0;
-    for (let genIndex = 1; genIndex <= builder.maxGeneration; genIndex++) {
-        const oldGeneration = generations[genIndex - 1];
-        const newGeneration = [];
-        generations[genIndex] = newGeneration;
+    };
+    addTile(tile);
+    initialTile = tile;
+    for (currentGeneration = 1; currentGeneration <= builder.maxGeneration; currentGeneration++) {
+        const oldGeneration = generations[currentGeneration - 1];
+        generations[currentGeneration] = [];
         const oldGenerationLength = oldGeneration.length;
         for (let tileIndex = 0; tileIndex < oldGenerationLength; tileIndex++) {
             const oldTileInfo = oldGeneration[tileIndex];
@@ -191,7 +209,6 @@ builder.create = function() {
             // do each substitution          
             for (let subsIndex = 0; subsIndex < substitutionsLength; subsIndex++) {
                 const newTile = {};
-                newGeneration.push(newTile);
                 const substitution = substitutions[subsIndex];
                 newTile.name = substitution.name;
                 // substitutions may have reduced/different sizes
@@ -232,6 +249,7 @@ builder.create = function() {
                 if (newTileInfo.angle) {
                     newOrientation += newTileInfo.angle;
                 }
+                addTile(newTile);
             }
         }
     }
@@ -309,21 +327,38 @@ builder.drawTile = function(tileInfo) {
     }
 };
 
-builder.draw = function() {
-    const tilesToDraw = generations[builder.drawGeneration];
+function drawGeneration(generation) {
+    const tilesToDraw = generations[generation];
     tilesToDraw.forEach(tile => builder.drawTile(tile));
-    if (main.drawStroke) {
+}
+
+builder.draw = function() {
+    switch (builder.drawing) {
+        case 'last only':
+            drawGeneration(builder.drawGeneration);
+            break;
+        case 'lower in back':
+            for (let i = 0; i <= builder.drawGeneration; i++) {
+                drawGeneration(i);
+            }
+            break;
+        case 'lower in front':
+            for (let i = builder.drawGeneration; i >= 0; i--) {
+                drawGeneration(i);
+            }
+            break;
+    }
+    if (main.drawInitialStroke) {
         // draw  border of initial shape
-        const tileInfo = generations[0][0];
-        const tile = tiles[tileInfo.name];
+        const tile = tiles[initialTile.name];
         const shape = tile.shape;
-        const originX = tileInfo.originX;
-        const originY = tileInfo.originY;
-        let size = tileInfo.size;
+        const originX = initialTile.originX;
+        const originY = initialTile.originY;
+        let size = initialTile.size;
         if (main.inflate) {
             size *= Math.pow(inflation, builder.drawGeneration);
         }
-        const orientation = tileInfo.orientation;
+        const orientation = initialTile.orientation;
         const canvasContext = output.canvasContext;
         const length = shape.length;
         canvasContext.beginPath();

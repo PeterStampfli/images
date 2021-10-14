@@ -53,10 +53,9 @@ examples.ammannBeenker = {
 
     "order": 8,
     "inflation": 2.414,
-    "minSize": 0,
     "maxGeneration": 5,
 
-    "range":2,
+    "range": 2,
 
     "tiles": {
         "rhomb": {
@@ -262,23 +261,7 @@ examples.tree = {
                 "orientation": 1,
                 "origin": [0, 0, 1],
                 "size": 0.707
-            }, {
-                "name": "final",
-                "orientation": 0,
-                "origin": []
             }]
         },
-        "final": {
-            "shape": [
-                [],
-                [0, 0, 1]
-            ],
-            "color": "#000000",
-            "substitution": [{
-                "name": "final",
-                "orientation": 0,
-                "origin": []
-            }]
-        }
     }
 };

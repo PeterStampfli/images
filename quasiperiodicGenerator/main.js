@@ -15,6 +15,7 @@ export const main = {};
 
 main.drawFill = true;
 main.drawStroke = true;
+main.drawInitialStroke = true;
 main.lineWidth = 2;
 main.lineColor = '#000000';
 main.inflate = false;
@@ -45,7 +46,6 @@ gui.add({
     }
 });
 
-
 gui.add({
     type: 'boolean',
     params: main,
@@ -59,6 +59,14 @@ gui.add({
     params: main,
     property: 'drawStroke',
     labelText: 'stroke',
+    onChange: function() {
+        main.draw();
+    }
+}).add({
+    type: 'boolean',
+    params: main,
+    property: 'drawInitialStroke',
+    labelText: 'initial',
     onChange: function() {
         main.draw();
     }
