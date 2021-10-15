@@ -1,6 +1,7 @@
-function  ok = PTC_isInsidePolygon(x,y)
-% return true if point (x,y) is inside the polygon
-% use for test of rotations
+function [xOut,yOut] = PTC_polygonToCircle(x,y)
+% transform polygon coordinates (x,y) to circle coordinates [xOut,yOut]
+% if coordinates (x,y) do not lie inside polygon then output gets very
+% large negative values
 global PTC;
 % transform center to origin, corners at distance 1 from center
 x=(x-PTC.polygonCenterX)/PTC.polygonRadius;
@@ -20,6 +21,11 @@ if (m>0)
     x=h;
 end
 % test if inside polygon
-ok=(y>-PTC.cosPiN);
+if(y<-PTC.cosPiN)
+    xOut=-100000;
+    yOut=-100000;
+else
+    xOut=0;
+    yOut=0;
 end
 

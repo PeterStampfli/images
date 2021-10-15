@@ -7,6 +7,54 @@ import {
 import {
     main
 } from './modules.js';
+export const readJSON = {};
+
+// reading JSON files
+//=====================================================================
+
+readJSON.result = {};
+readJSON.name = '';
+var theAction = function() {};
+
+const fileReader = new FileReader();
+var file;
+
+fileReader.onload = function() {
+    const result = fileReader.result;
+    try {
+        readJSON.result = JSON.parse(result);
+    } catch (err) {
+        alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
+        return;
+    }
+    readJSON.name = file.name.split('.')[0];
+    readJSON.reloadButton.show();
+    theAction();
+};
+
+readJSON.makeButton = function(gui, action) {
+    theAction = action;
+    readJSON.openButton = gui.add({
+        type: 'button',
+        buttonText: 'open file with structure data'
+    });
+    readJSON.openButton.uiElement.asFileInput('.txt');
+    readJSON.openButton.uiElement.onFileInput = function(files) {
+        file = files[0];
+        fileReader.readAsText(file);
+    };
+    readJSON.reloadButton = gui.add({
+        type: 'button',
+        buttonText: 'reload',
+        onClick: function() {
+            fileReader.readAsText(file);
+        }
+    });
+    readJSON.reloadButton.hide();
+};
+
+// built in examples, loading others, and selecting them
+//==========================================================
 
 export const examples = {};
 
@@ -40,7 +88,14 @@ examples.init = function(gui) {
 };
 
 examples.add = function(name, object) {
-    examples.selectionController.uiElement.addOption(name, object);
+    // uiElement is SelectValues object
+    const selectValues = examples.selectionController.uiElement;
+    const index = selectValues.findIndex(name);
+    if (index < 0) {
+        selectValues.addOption(name, object);
+    } else {
+        selectValues.values[index] = object;
+    }
     examples.selectionController.setValueOnly(object);
 };
 

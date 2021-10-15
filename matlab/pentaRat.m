@@ -3,9 +3,9 @@
 s=1000;
 I=ones(s,s,3);
 w=2.2;
-for k=1:s
-    for h=1:s
-        z=((k-s/2)-i*(h-90-s/2))*w/s;
+for h=1:s
+    for k=1:s
+        z=((k-s/2)-i*(h-30-s/2))*w/s;
         for r=1:6
             z=z^5-0.65*i-0.0001/z^5+0.0001;
         end

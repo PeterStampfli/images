@@ -20,11 +20,6 @@
 // do not create globals without good cause
 
 export {
-    readJSON
-}
-from "./readJSON.js";
-
-export {
     builder
 }
 from "./builder.js";
@@ -34,5 +29,6 @@ export {
 }from './main.js';
 
 export {
-    examples
+    examples,
+    readJSON
 }from './examples.js';
