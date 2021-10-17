@@ -4,7 +4,7 @@ function [R,G,B] = PTC_circlePattern(x,y)
 % color components are of type double (default) in the range [0,1]
 global PTC;
 radial=5;
-tangential=10;
+tangential=12;
 x=x-PTC.circleCenterX;
 y=y-PTC.circleCenterY;
 r=sqrt(x*x+y*y);
@@ -16,6 +16,16 @@ if (r>PTC.circleRadius)
 else
     B=phi/pi+1;
     G=sin(radial*pi*r/PTC.circleRadius)^4;
+    if (G>0.5)
+        G=1;
+    else
+        G=0;
+    end
     R=sin(tangential*phi)^4;
+    if (R>0.5)
+        R=1;
+    else
+        R=0;
+    end
 end
 end

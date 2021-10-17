@@ -12,6 +12,7 @@ PTC.polygonRadius=radius;
 PTC.piN=pi/nCorners;
 PTC.cosPiN=cos(pi/nCorners);
 PTC.sinPiN=sin(pi/nCorners);
+PTC.tanPiN=tan(pi/nCorners);
 PTC.cos2PiNM=[1:nCorners];
 PTC.sin2PiNM=[1:nCorners];
 dAngle=2*pi/nCorners;

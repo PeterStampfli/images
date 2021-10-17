@@ -1,6 +1,7 @@
 % PTC_testCirclePattern
 s=1000;
 im=zeros(s,s,3);
+PTC_setCircle(0,0,1);
 for ix=1:s
     for iy=1:s
         x=2*ix/s-1;
@@ -13,3 +14,4 @@ for ix=1:s
     end
 end
 imshow(im)
+imwrite(im,"circlePattern.jpg")
