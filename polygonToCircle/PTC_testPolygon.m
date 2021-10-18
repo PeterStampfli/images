@@ -1,11 +1,11 @@
 function PTC_testPolygon(nCorners)
 % test polygon to circle conversion
-s=1000;
-PTC_setCircle(s/2,s/2,s/2);
-PTC_setPolygon(nCorners,s/2,s/2,s/2);
-im=zeros(s,s,3);
-for ix=1:s
-    for iy=1:s
+width=400;
+PTC_setCircle(0,0,1);
+height=PTC_fitPolygon(nCorners,width);
+im=zeros(height,width,3);
+for ix=1:width
+    for iy=1:height
         [x,y]=PTC_polygonToCircle(ix,iy);
         if (x>-10000)
         [r,g,b]=PTC_circlePattern(x,y);            
@@ -20,6 +20,6 @@ for ix=1:s
     end
 end
 imshow(im);
-imwrite(im,"testPolygon.jpg")
+%imwrite(im,"testPolygon.jpg")
 end
 
