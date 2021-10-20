@@ -16,6 +16,9 @@ export const main = {};
 main.drawFill = true;
 main.drawStroke = true;
 main.drawInitialStroke = true;
+main.markerSize = 0.1;
+main.drawMarker = true;
+main.markerColor = '#444444aa';
 main.lineWidth = 2;
 main.lineColor = '#000000';
 main.inflate = false;
@@ -71,6 +74,39 @@ gui.add({
         main.draw();
     }
 });
+
+gui.add({
+    type: 'color',
+    params: main,
+    property: 'markerColor',
+    labelText: 'marker',
+    onChange: function() {
+        main.draw();
+    }
+});
+
+main.markerSizeController = gui.add({
+    type: 'number',
+    params: main,
+    property: 'markerSize',
+    min: 0,
+    step: 0.1,
+    labelText: 'size',
+    onChange: function() {
+        main.draw();
+    }
+});
+
+main.markerSizeController.add({
+    type: 'boolean',
+    params: main,
+    property: 'drawMarker',
+    labelText: '',
+    onChange: function() {
+        main.draw();
+    }
+});
+
 gui.add({
     type: 'color',
     params: main,

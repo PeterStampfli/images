@@ -90,6 +90,12 @@ builder.setup = function(definition) {
         range = definition.range;
     }
     output.setInitialCoordinates(centerX, centerY, range);
+    //
+    if (definition.markerSize) {
+        main.markerSizeController.setValueOnly(definition.markerSize);
+    } else {
+        main.markerSizeController.setValueOnly(0.1);
+    }
     // definition of tiling
     inflation = definition.inflation;
     order = definition.order;
@@ -386,6 +392,28 @@ builder.drawTile = function(tileInfo) {
             }
         }
         canvasContext.stroke();
+    }
+    if (main.drawMarker && tile.marker) {
+        // a dot at given position:
+        const marker = tile.marker;
+        const length = marker.length;
+        let x = 0;
+        let y = 0;
+        for (let j = 0; j < length; j++) {
+            const direction = (orientation + j) % order;
+            const amplitude = marker[j];
+            x += amplitude * basisX[direction];
+            y += amplitude * basisY[direction];
+        }
+        x = size * x + originX;
+        y = size * y + originY;
+
+        canvasContext.beginPath();
+        canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
+
+        canvasContext.fillStyle = main.markerColor;
+        canvasContext.fill();
+
     }
 };
 

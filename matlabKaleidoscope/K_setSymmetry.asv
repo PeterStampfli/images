@@ -41,15 +41,12 @@ else
     if (K.geometry==0)
         % elliptic geometry: flip circle center
         % renormalize to get equator radius of 1
-        factor=1/sqrt(1-centerX*centerX-centerY*centerY);
-        K.centerX=-factor*centerX;
-        K.centerY=-factor*centerY;
     else
-        % hyperbolic geometry: renormalize for poincare radius=1
-        factor=1/sqrt(centerX*centerX+centerY*centerY-1);
-        K.centerX=factor*centerX;
-        K.centerY=factor*centerY;
+        % hyperbolic geometry
+        
     end
 end
+
+
 end
 
