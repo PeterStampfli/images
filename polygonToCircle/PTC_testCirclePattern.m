@@ -14,4 +14,4 @@ for ix=1:s
     end
 end
 imshow(im)
-imwrite(im,"circlePattern.jpg")
+%imwrite(im,"circlePattern.jpg")
