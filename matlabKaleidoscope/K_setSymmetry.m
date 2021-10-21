@@ -5,15 +5,17 @@ function  K_setSymmetry(k,n,m)
 % between circle and x-axis mirror: alpha=pi/n
 % between circle and diagonal mirror: beta=pi/m
 global K;
+K.maxIterations=100;
 K.k=k;
 K.gamma=pi/k;
 K.alpha=pi/n;
 K.beta=pi/m;
 % the different symmetries
 angleSum=1/k+1/n+1/m;
-if (angleSum<0.999)
+angleSum
+if (angleSum>1.001)
     K.geometry=0;
-elseif (angleSum<1.0001)
+elseif (angleSum>0.999)
     K.geometry=1;
 else
     K.geometry=2;
@@ -38,17 +40,22 @@ else
     % calculation of center for circle radius=1
     centerY=cos(K.alpha);
     centerX=centerY/tan(K.gamma)+cos(K.beta)/sin(K.gamma);
+    centerX
+    centerY
     if (K.geometry==0)
         % elliptic geometry: flip circle center
         % renormalize to get equator radius of 1
         factor=1/sqrt(1-centerX*centerX-centerY*centerY);
-        K.centerX=-factor*centerX;
-        K.centerY=-factor*centerY;
+        K.circleCenterX=-factor*centerX;
+        K.circleCenterY=-factor*centerY;
+        K.circleRadius2=factor*factor;
     else
         % hyperbolic geometry: renormalize for poincare radius=1
         factor=1/sqrt(centerX*centerX+centerY*centerY-1);
-        K.centerX=factor*centerX;
-        K.centerY=factor*centerY;
+        factor
+        K.circleCenterX=factor*centerX;
+        K.circleCenterY=factor*centerY;
+        K.circleRadius2=factor*factor;
     end
 end
 end
