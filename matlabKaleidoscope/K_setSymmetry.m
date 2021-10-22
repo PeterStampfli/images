@@ -12,7 +12,6 @@ K.alpha=pi/n;
 K.beta=pi/m;
 % the different symmetries
 angleSum=1/k+1/n+1/m;
-angleSum
 if (angleSum>1.001)
     K.geometry=0;
 elseif (angleSum>0.999)
@@ -40,8 +39,6 @@ else
     % calculation of center for circle radius=1
     centerY=cos(K.alpha);
     centerX=centerY/tan(K.gamma)+cos(K.beta)/sin(K.gamma);
-    centerX
-    centerY
     if (K.geometry==0)
         % elliptic geometry: flip circle center
         % renormalize to get equator radius of 1
