@@ -407,13 +407,10 @@ builder.drawTile = function(tileInfo) {
         }
         x = size * x + originX;
         y = size * y + originY;
-
         canvasContext.beginPath();
         canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
-
         canvasContext.fillStyle = main.markerColor;
         canvasContext.fill();
-
     }
 };
 
@@ -423,6 +420,8 @@ function drawGeneration(generation) {
 }
 
 builder.draw = function() {
+    output.setLineWidth(main.lineWidth);
+    output.canvasContext.strokeStyle = main.lineColor;
     switch (builder.drawing) {
         case 'last only':
             drawGeneration(builder.drawGeneration);
@@ -440,6 +439,8 @@ builder.draw = function() {
     }
     if (main.drawInitialStroke) {
         // draw  border of initial shape
+        output.setLineWidth(main.outlineWidth);
+        output.canvasContext.strokeStyle = main.outlineColor;
         const tile = tiles[initialTile.name];
         const shape = tile.shape;
         const originX = initialTile.originX;

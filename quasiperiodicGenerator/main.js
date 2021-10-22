@@ -22,6 +22,8 @@ main.markerColor = '#444444aa';
 main.lineWidth = 2;
 main.lineColor = '#000000';
 main.inflate = false;
+main.outlineWidth = 3;
+main.outlineColor = '#444444';
 
 // setting up the canvas and its gui
 const gui = new ParamGui({
@@ -57,24 +59,39 @@ gui.add({
     onChange: function() {
         main.draw();
     }
-}).add({
-    type: 'boolean',
+});
+
+// stroke
+gui.add({
+    type: 'color',
     params: main,
-    property: 'drawStroke',
+    property: 'lineColor',
     labelText: 'stroke',
+    onChange: function() {
+        main.draw();
+    }
+});
+gui.add({
+    type: 'number',
+    params: main,
+    property: 'lineWidth',
+    min: 0.5,
+    step: 0.1,
+    labelText: 'width',
     onChange: function() {
         main.draw();
     }
 }).add({
     type: 'boolean',
     params: main,
-    property: 'drawInitialStroke',
-    labelText: 'initial',
+    property: 'drawStroke',
+    labelText: '',
     onChange: function() {
         main.draw();
     }
 });
 
+// marker
 gui.add({
     type: 'color',
     params: main,
@@ -107,21 +124,31 @@ main.markerSizeController.add({
     }
 });
 
+// outline
 gui.add({
     type: 'color',
     params: main,
-    property: 'lineColor',
-    labelText: 'line',
+    property: 'outlineColor',
+    labelText: 'outline',
+    onChange: function() {
+        main.draw();
+    }
+});
+gui.add({
+    type: 'number',
+    params: main,
+    property: 'outlineWidth',
+    min: 0.5,
+    step: 0.1,
+    labelText: 'width',
     onChange: function() {
         main.draw();
     }
 }).add({
-    type: 'number',
+    type: 'boolean',
     params: main,
-    property: 'lineWidth',
-    min: 0.5,
-    step: 0.1,
-    labelText: 'width',
+    property: 'drawInitialStroke',
+    labelText: '',
     onChange: function() {
         main.draw();
     }
@@ -149,8 +176,6 @@ main.draw = function() {
     output.correctYAxis();
     output.startDrawing();
     output.fillCanvas('#00000000');
-    output.setLineWidth(main.lineWidth);
-    output.canvasContext.strokeStyle = main.lineColor;
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
     if (builder.drawGeneration > builder.maxGeneration) {
