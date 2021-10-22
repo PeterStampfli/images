@@ -8,6 +8,9 @@
 **/*.jpg
 **/*.pdf
 
+#matlab
+**/*.asv
+
 # directories
 node_modules
 library
