@@ -110,7 +110,7 @@ examples.ammannBeenker = {
     "inflation": 2.414,
     "maxGeneration": 5,
 
-    "markerSize":0.2,
+    "markerSize": 0.2,
 
     "range": 2,
 
@@ -124,7 +124,7 @@ examples.ammannBeenker = {
                 [0, 1]
             ],
             "angle": 1,
-            "marker":[0.2,0.2],
+            "marker": [0.2, 0.2],
             "substitution": [{
                 "name": "rhomb",
             }, {
@@ -302,6 +302,8 @@ examples.tree = {
     "order": 8,
     "inflation": 1,
     "maxGeneration": 8,
+    "fill": false,
+    "outline": false,
 
     "tiles": {
         "line": {

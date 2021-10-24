@@ -90,7 +90,28 @@ builder.setup = function(definition) {
         range = definition.range;
     }
     output.setInitialCoordinates(centerX, centerY, range);
-    //
+    // ui elements (on demand)
+    let fill = true;
+    if (typeof(definition.fill) != "undefined") {
+        fill = definition.fill;
+    }
+    main.drawFillController.setValueOnly(fill);
+    if (fill) {
+        main.drawFillController.show();
+    } else {
+        main.drawFillController.hide();
+    }
+    let outline = true;
+    if (typeof(definition.outline) != "undefined") {
+        outline = definition.outline;
+    }
+    if (outline) {
+        main.outlineColorController.show();
+        main.outlineSizeController.show();
+    } else {
+        main.outlineColorController.hide();
+        main.outlineSizeController.hide();
+    }
     if (definition.markerSize) {
         main.markerSizeController.setValueOnly(definition.markerSize);
     } else {
@@ -124,20 +145,33 @@ builder.setup = function(definition) {
     }
     tileNames = Object.keys(tiles);
     const tileNamesLength = tileNames.length;
+    let hasMarker = false;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
         const tile = tiles[tileName];
-        if (!tile.color) {
-            tile.color = initialColors[i % initialColors.length];
+        if (tile.marker) {
+            hasMarker = true;
         }
-        const colorController = gui.add({
-            type: 'color',
-            params: tile,
-            property: 'color',
-            labelText: tileName,
-            onChange: function() {}
-        });
-        colorControllers.push(colorController);
+        if (fill) {
+            if (!tile.color) {
+                tile.color = initialColors[i % initialColors.length];
+            }
+            const colorController = gui.add({
+                type: 'color',
+                params: tile,
+                property: 'color',
+                labelText: tileName,
+                onChange: function() {}
+            });
+            colorControllers.push(colorController);
+        }
+    }
+    if (hasMarker) {
+        main.markerColorController.show();
+        main.markerSizeController.show();
+    } else {
+        main.markerColorController.hide();
+        main.markerSizeController.hide();
     }
     builder.initialTile = tileNames[0];
     initialTileController = gui.add({

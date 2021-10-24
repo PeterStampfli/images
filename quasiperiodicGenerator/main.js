@@ -51,7 +51,7 @@ gui.add({
     }
 });
 
-gui.add({
+main.drawFillController = gui.add({
     type: 'boolean',
     params: main,
     property: 'drawFill',
@@ -92,7 +92,7 @@ gui.add({
 });
 
 // marker
-gui.add({
+main.markerColorController = gui.add({
     type: 'color',
     params: main,
     property: 'markerColor',
@@ -125,7 +125,7 @@ main.markerSizeController.add({
 });
 
 // outline
-gui.add({
+main.outlineColorController = gui.add({
     type: 'color',
     params: main,
     property: 'outlineColor',
@@ -134,7 +134,7 @@ gui.add({
         main.draw();
     }
 });
-gui.add({
+main.outlineSizeController = gui.add({
     type: 'number',
     params: main,
     property: 'outlineWidth',
