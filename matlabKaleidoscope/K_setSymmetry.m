@@ -49,7 +49,6 @@ else
     else
         % hyperbolic geometry: renormalize for poincare radius=1
         factor=1/sqrt(centerX*centerX+centerY*centerY-1);
-        factor
         K.circleCenterX=factor*centerX;
         K.circleCenterY=factor*centerY;
         K.circleRadius2=factor*factor;
