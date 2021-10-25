@@ -144,7 +144,8 @@ main.outlineSizeController = gui.add({
     onChange: function() {
         main.draw();
     }
-}).add({
+});
+main.OutlineOnOffController=main.outlineSizeController.add({
     type: 'boolean',
     params: main,
     property: 'drawInitialStroke',

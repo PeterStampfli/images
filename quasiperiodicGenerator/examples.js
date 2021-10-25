@@ -109,6 +109,7 @@ examples.ammannBeenker = {
     "order": 8,
     "inflation": 2.414,
     "maxGeneration": 5,
+    "initial":"star",
 
     "markerSize": 0.2,
 

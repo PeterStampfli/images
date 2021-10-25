@@ -105,6 +105,7 @@ builder.setup = function(definition) {
     if (typeof(definition.outline) != "undefined") {
         outline = definition.outline;
     }
+    main.OutlineOnOffController.setValueOnly(outline);
     if (outline) {
         main.outlineColorController.show();
         main.outlineSizeController.show();
@@ -173,7 +174,13 @@ builder.setup = function(definition) {
         main.markerColorController.hide();
         main.markerSizeController.hide();
     }
-    builder.initialTile = tileNames[0];
+    let initialTile = tileNames[0];
+    if (definition.initial) {
+        if (tileNames.indexOf(definition.initial) >= 0) {
+            initialTile = definition.initial;
+        }
+    }
+    builder.initialTile = initialTile;
     initialTileController = gui.add({
         type: 'selection',
         params: builder,
