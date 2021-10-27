@@ -20,6 +20,7 @@ const fileReader = new FileReader();
 var file;
 
 fileReader.onload = function() {
+    readJSON.name = file.name.split('.')[0];
     const result = fileReader.result;
     try {
         readJSON.result = JSON.parse(result);
@@ -27,8 +28,6 @@ fileReader.onload = function() {
         alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
         return;
     }
-    readJSON.name = file.name.split('.')[0];
-    readJSON.reloadButton.show();
     theAction();
 };
 
@@ -38,19 +37,11 @@ readJSON.makeButton = function(gui, action) {
         type: 'button',
         buttonText: 'open file with structure data'
     });
-    readJSON.openButton.uiElement.asFileInput('.txt');
+    readJSON.openButton.uiElement.asFileInput('.txt,.json');
     readJSON.openButton.uiElement.onFileInput = function(files) {
         file = files[0];
         fileReader.readAsText(file);
     };
-    readJSON.reloadButton = gui.add({
-        type: 'button',
-        buttonText: 'reload',
-        onClick: function() {
-            fileReader.readAsText(file);
-        }
-    });
-    readJSON.reloadButton.hide();
 };
 
 // built in examples, loading others, and selecting them
@@ -104,16 +95,15 @@ examples.add = function(name, object) {
 examples.ammannBeenker = {
     "comment": "this is a comment, you can add more such fields, they have no effect",
     "name": "ammann-beenker",
-    "attention": "this is only an mock-up, not yet tested",
 
     "order": 8,
     "inflation": 2.414,
     "maxGeneration": 5,
-    "initial":"star",
+    "initial": "star",
 
     "markerSize": 0.2,
 
-    "range": 2,
+    "imageRange": 2,
 
     "tiles": {
         "rhomb": {
@@ -296,16 +286,16 @@ examples.sierpinsky = {
 };
 
 examples.tree = {
-    "center": [0, -2],
-    "range": 5,
+    "imageCenter": [0, 2],
+    "imageRange": 5,
     "name": "tree",
 
     "order": 8,
-    "inflation": 1,
     "maxGeneration": 8,
+    "drawGeneration": 5,
     "fill": false,
     "outline": false,
-
+    "drawing": "lower in back",
     "tiles": {
         "line": {
             "shape": [

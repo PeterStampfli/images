@@ -55,7 +55,7 @@ builder.init = function(guiP) {
             main.draw();
         }
     });
-    builder.drawGenController.add({
+    builder.drawingController = builder.drawGenController.add({
         type: 'selection',
         params: builder,
         property: 'drawing',
@@ -82,17 +82,28 @@ builder.setup = function(definition) {
     let centerX = 0;
     let centerY = 0;
     let range = 3;
-    if (definition.center) {
-        centerX = definition.center[0];
-        centerY = definition.center[1];
+    if ('imageCenter' in definition) {
+        centerX = definition.imageCenter[0];
+        centerY = definition.imageCenter[1];
     }
-    if (definition.range) {
-        range = definition.range;
+    if ('imageRange' in definition) {
+        range = definition.imageRange;
     }
-    output.setInitialCoordinates(centerX, centerY, range);
+    // drawing controlls
+    if ('drawGeneration' in definition) {
+        builder.drawGenController.setValueOnly(definition.drawGeneration);
+    } else {
+        builder.drawGenController.setValueOnly(2);
+    }
+    let drawing = 'last only';
+    if ('drawing' in definition) {
+        drawing = definition.drawing;
+    }
+    builder.drawingController.setValueOnly(drawing);
+    output.setInitialCoordinates(-centerX, -centerY, range);
     // ui elements (on demand)
     let fill = true;
-    if (typeof(definition.fill) != "undefined") {
+    if ('fill' in definition) {
         fill = definition.fill;
     }
     main.drawFillController.setValueOnly(fill);
@@ -102,7 +113,7 @@ builder.setup = function(definition) {
         main.drawFillController.hide();
     }
     let outline = true;
-    if (typeof(definition.outline) != "undefined") {
+    if ('outline' in definition) {
         outline = definition.outline;
     }
     main.OutlineOnOffController.setValueOnly(outline);
@@ -113,36 +124,55 @@ builder.setup = function(definition) {
         main.outlineColorController.hide();
         main.outlineSizeController.hide();
     }
-    if (definition.markerSize) {
+    if ('markerSize' in definition) {
         main.markerSizeController.setValueOnly(definition.markerSize);
     } else {
         main.markerSizeController.setValueOnly(0.1);
     }
     // definition of tiling
-    inflation = definition.inflation;
-    order = definition.order;
-    if (definition.maxGeneration) {
-        builder.maxGenerationController.setValueOnly(definition.maxGeneration);
+    inflation = 1;
+    if ('inflation' in definition) {
+        inflation = definition.inflation;
     }
-    if (definition.minSize) {
+    let maxGeneration = 4;
+    if ('maxGeneration' in definition) {
+        maxGeneration = definition.maxGeneration;
+    }
+    builder.maxGenerationController.setValueOnly(maxGeneration);
+    if ('minSize' in definition) {
         builder.minSizeController.setValueOnly(definition.minSize);
+        builder.minSizeController.show();
     } else {
         builder.minSizeController.setValueOnly(0);
+        builder.minSizeController.hide();
+    }
+    order = 5;
+    if ('order' in definition) {
+        order = definition.order;
     }
     basisX.length = order;
     basisY.length = order;
     const dalpha = 2 * Math.PI / order;
     let alpha = 0;
+    if ('rotation' in definition) {
+        alpha = Math.PI * definition.rotation;
+    }
     for (let i = 0; i < order; i++) {
         basisX[i] = Math.cos(alpha);
         basisY[i] = Math.sin(alpha);
         alpha += dalpha;
     }
-    tiles = definition.tiles;
     colorControllers.forEach(controller => controller.destroy());
     colorControllers.length = 0;
     if (initialTileController) {
         initialTileController.destroy();
+    }
+    if ('tiles' in definition) {
+        tiles = definition.tiles;
+    } else {
+        tiles = {
+            none: {}
+        };
     }
     tileNames = Object.keys(tiles);
     const tileNamesLength = tileNames.length;
@@ -154,7 +184,7 @@ builder.setup = function(definition) {
             hasMarker = true;
         }
         if (fill) {
-            if (!tile.color) {
+            if (!('color' in tile)) {
                 tile.color = initialColors[i % initialColors.length];
             }
             const colorController = gui.add({
@@ -175,7 +205,7 @@ builder.setup = function(definition) {
         main.markerSizeController.hide();
     }
     let initialTile = tileNames[0];
-    if (definition.initial) {
+    if ('initial' in definition) {
         if (tileNames.indexOf(definition.initial) >= 0) {
             initialTile = definition.initial;
         }
@@ -202,12 +232,10 @@ var currentGeneration;
 var initialTile;
 
 function addTile(tile) {
-    const composition = tiles[tile.name].composition;
-    if (composition) {
+    if ('composition' in tiles[tile.name]) {
+        const composition = tiles[tile.name].composition;
         // decompose the tile
-        console.log('tile with compostion');
-        console.log(tile);
-        // get info of the old tile
+        // get info of the composed tile
         let oldOriginX = tile.originX;
         let oldOriginY = tile.originY;
         let oldSize = tile.size;
@@ -305,13 +333,13 @@ builder.create = function() {
             }
             // for each substitution (tile) get orientation and origin
             // if no origin is given use origin of previous substitution tile
-            const oldOrientation = oldTileInfo.orientation;
-            const substitution = tiles[oldTileInfo.name].substitution;
-            if (substitution) {
+            if ('substitution' in tiles[oldTileInfo.name]) {
+                const substitution = tiles[oldTileInfo.name].substitution;
                 // default origin is same as old tile origin
                 let newOriginX = oldOriginX;
                 let newOriginY = oldOriginY;
                 // default orientation is same as mother tile
+                const oldOrientation = oldTileInfo.orientation;
                 let newOrientation = oldOrientation;
                 // do each tile of the substitution          
                 const substitutionLength = substitution.length;
@@ -320,14 +348,14 @@ builder.create = function() {
                     const newTileDef = substitution[subsIndex];
                     newTile.name = newTileDef.name;
                     // the new tiles may have reduced/different sizes (fractals)
-                    if (newTileDef.size) {
+                    if ('size' in newTileDef) {
                         newTile.size = oldSize * newTileDef.size;
                     } else {
                         newTile.size = oldSize;
                     }
                     // update origin for children if an origin is given
                     // and reset orientation to relative zero
-                    if (newTileDef.origin) {
+                    if ('origin' in newTileDef) {
                         newOrientation = oldOrientation;
                         const vector = newTileDef.origin;
                         newOriginX = 0;
@@ -348,7 +376,7 @@ builder.create = function() {
                     // the orientation
                     // newTileDef gives orientation: reset orientation
                     // else use predicted value
-                    if (newTileDef.orientation) {
+                    if ('orientation' in newTileDef) {
                         newOrientation = oldOrientation + newTileDef.orientation;
                     }
                     newTile.orientation = newOrientation;
@@ -372,86 +400,89 @@ builder.create = function() {
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tileInfo) {
-    const tile = tiles[tileInfo.name];
-    const shape = tile.shape;
-    const originX = tileInfo.originX;
-    const originY = tileInfo.originY;
-    const size = tileInfo.size;
-    const orientation = tileInfo.orientation;
-    const canvasContext = output.canvasContext;
-    canvasContext.fillStyle = tile.color;
-    const length = shape.length;
-    canvasContext.beginPath();
-    for (let i = 0; i < length; i++) {
-        let x = 0;
-        let y = 0;
-        const vector = shape[i];
-        const vectorLength = vector.length;
-        for (let j = 0; j < vectorLength; j++) {
-            const direction = (orientation + j) % order;
-            const amplitude = vector[j];
-            x += amplitude * basisX[direction];
-            y += amplitude * basisY[direction];
-        }
-        x = size * x + originX;
-        y = size * y + originY;
-        if (i === 0) {
-            canvasContext.moveTo(x, y);
+    if ('shape' in tiles[tileInfo.name]) {
+        const tile = tiles[tileInfo.name];
+        const shape = tile.shape;
+        const originX = tileInfo.originX;
+        const originY = tileInfo.originY;
+        const size = tileInfo.size;
+        const orientation = tileInfo.orientation;
+        const canvasContext = output.canvasContext;
+        canvasContext.fillStyle = tile.color;
+        const length = shape.length;
+        canvasContext.beginPath();
+        for (let i = 0; i < length; i++) {
+            let x = 0;
+            let y = 0;
+            const vector = shape[i];
+            const vectorLength = vector.length;
+            for (let j = 0; j < vectorLength; j++) {
+                const direction = (orientation + j) % order;
+                const amplitude = vector[j];
+                x += amplitude * basisX[direction];
+                y += amplitude * basisY[direction];
+            }
+            x = size * x + originX;
+            y = size * y + originY;
+            if (i === 0) {
+                canvasContext.moveTo(x, y);
 
-        } else {
-            canvasContext.lineTo(x, y);
-        }
-    }
-    canvasContext.closePath();
-    if (main.drawFill) {
-        canvasContext.fill();
-    }
-    if (main.drawStroke) {
-        if (tile.border) {
-            const border = tile.border;
-            const length = border.length;
-            canvasContext.beginPath();
-            for (let i = 0; i < length; i++) {
-                let x = 0;
-                let y = 0;
-                const vector = border[i];
-                const vectorLength = vector.length;
-                for (let j = 0; j < vectorLength; j++) {
-                    const direction = (orientation + j) % order;
-                    const amplitude = vector[j];
-                    x += amplitude * basisX[direction];
-                    y += amplitude * basisY[direction];
-                }
-                x = size * x + originX;
-                y = size * y + originY;
-                if (i === 0) {
-                    canvasContext.moveTo(x, y);
-
-                } else {
-                    canvasContext.lineTo(x, y);
-                }
+            } else {
+                canvasContext.lineTo(x, y);
             }
         }
-        canvasContext.stroke();
-    }
-    if (main.drawMarker && tile.marker) {
-        // a dot at given position:
-        const marker = tile.marker;
-        const length = marker.length;
-        let x = 0;
-        let y = 0;
-        for (let j = 0; j < length; j++) {
-            const direction = (orientation + j) % order;
-            const amplitude = marker[j];
-            x += amplitude * basisX[direction];
-            y += amplitude * basisY[direction];
+        canvasContext.closePath();
+        if (main.drawFill) {
+            canvasContext.fill();
         }
-        x = size * x + originX;
-        y = size * y + originY;
-        canvasContext.beginPath();
-        canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
-        canvasContext.fillStyle = main.markerColor;
-        canvasContext.fill();
+        if (main.drawStroke) {
+            // if an explicite border is given then change the path
+            if ('border' in tile) {
+                const border = tile.border;
+                const length = border.length;
+                canvasContext.beginPath();
+                for (let i = 0; i < length; i++) {
+                    let x = 0;
+                    let y = 0;
+                    const vector = border[i];
+                    const vectorLength = vector.length;
+                    for (let j = 0; j < vectorLength; j++) {
+                        const direction = (orientation + j) % order;
+                        const amplitude = vector[j];
+                        x += amplitude * basisX[direction];
+                        y += amplitude * basisY[direction];
+                    }
+                    x = size * x + originX;
+                    y = size * y + originY;
+                    if (i === 0) {
+                        canvasContext.moveTo(x, y);
+
+                    } else {
+                        canvasContext.lineTo(x, y);
+                    }
+                }
+            }
+            canvasContext.stroke();
+        }
+        if (main.drawMarker && tile.marker) {
+            // make a dot at given position:
+            const marker = tile.marker;
+            const length = marker.length;
+            let x = 0;
+            let y = 0;
+            for (let j = 0; j < length; j++) {
+                const direction = (orientation + j) % order;
+                const amplitude = marker[j];
+                x += amplitude * basisX[direction];
+                y += amplitude * basisY[direction];
+            }
+            x = size * x + originX;
+            y = size * y + originY;
+            canvasContext.beginPath();
+            canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
+            canvasContext.fillStyle = main.markerColor;
+            canvasContext.fill();
+        }
     }
 };
 
@@ -478,7 +509,7 @@ builder.draw = function() {
             }
             break;
     }
-    if (main.drawInitialStroke) {
+    if (main.drawInitialStroke && ('shape' in tiles[initialTile.name])) {
         // draw  border of initial shape
         output.setLineWidth(main.outlineWidth);
         output.canvasContext.strokeStyle = main.outlineColor;

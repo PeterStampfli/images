@@ -145,7 +145,7 @@ main.outlineSizeController = gui.add({
         main.draw();
     }
 });
-main.OutlineOnOffController=main.outlineSizeController.add({
+main.OutlineOnOffController = main.outlineSizeController.add({
     type: 'boolean',
     params: main,
     property: 'drawInitialStroke',
@@ -157,7 +157,11 @@ main.OutlineOnOffController=main.outlineSizeController.add({
 
 readJSON.makeButton(gui,
     function() {
-        examples.add(readJSON.name, readJSON.result);
+        let name = readJSON.name;
+        if ('name' in readJSON.result) {
+            name = readJSON.result.name;
+        }
+        examples.add(name, readJSON.result);
         main.newStructure();
         main.create();
         main.draw();

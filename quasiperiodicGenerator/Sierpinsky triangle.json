@@ -1,0 +1,41 @@
+{
+    "name": "Sierpinsky triangle",
+    "order": 6,
+    "inflation": 2,
+    "maxGeneration": 5,
+    "tiles": {
+        "triangle": {
+            "shape": [
+                [],
+                [
+                    1
+                ],
+                [
+                    0,
+                    1
+                ]
+            ],
+            "substitution": [{
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [
+                    0
+                ]
+            }, {
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [
+                    1
+                ]
+            }, {
+                "name": "triangle",
+                "orientation": 0,
+                "origin": [
+                    0,
+                    1
+                ]
+            }],
+            "color": "#00ff00"
+        }
+    }
+}

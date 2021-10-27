@@ -1,0 +1,22 @@
+{
+    "name": "seven white",
+
+    "order": 14,
+    "inflation": 5.04892,
+    "maxGeneration": 5,
+    "drawGeneration": 0,
+
+    "rotation": 0.071428,
+
+    "tiles": {
+        "a1right": {
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 1]
+            ],
+            "color": "#ff0088"
+        }
+    }
+
+}
