@@ -248,20 +248,20 @@ function addTile(tile) {
         // do each tile of the substitution          
         const compositionLength = composition.length;
         for (let compIndex = 0; compIndex < compositionLength; compIndex++) {
-            const newTile = {};
-            const newTileDef = composition[compIndex];
-            newTile.name = newTileDef.name;
+            const additionalTile = {};
+            const definitionAdditionalTile = composition[compIndex];
+            additionalTile.name = definitionAdditionalTile.name;
             // the new tiles may have reduced/different sizes (fractals)
-            if (newTileDef.size) {
-                newTile.size = oldSize * newTileDef.size;
+            if (definitionAdditionalTile.size) {
+                additionalTile.size = oldSize * definitionAdditionalTile.size;
             } else {
-                newTile.size = oldSize;
+                additionalTile.size = oldSize;
             }
             // update origin for children if an origin is given
             // and reset orientation to relative zero
-            if (newTileDef.origin) {
+            if (definitionAdditionalTile.origin) {
                 newOrientation = oldOrientation;
-                const vector = newTileDef.origin;
+                const vector = definitionAdditionalTile.origin;
                 newOriginX = 0;
                 newOriginY = 0;
                 const vectorLength = vector.length;
@@ -275,21 +275,21 @@ function addTile(tile) {
                 newOriginY = oldSize * newOriginY + oldOriginY;
             }
             // set origin of new child tile
-            newTile.originX = newOriginX;
-            newTile.originY = newOriginY;
+            additionalTile.originX = newOriginX;
+            additionalTile.originY = newOriginY;
             // the orientation
-            // newTileDef gives orientation: reset orientation
+            // definitionAdditionalTile gives orientation: reset orientation
             // else use predicted value
-            if (newTileDef.orientation) {
-                newOrientation = oldOrientation + newTileDef.orientation;
+            if (definitionAdditionalTile.orientation) {
+                newOrientation = oldOrientation + definitionAdditionalTile.orientation;
             }
-            newTile.orientation = newOrientation;
+            additionalTile.orientation = newOrientation;
             // tile has angle: update orientation for next tile
-            const newTileInfo = tiles[newTile.name];
-            if (newTileInfo.angle) {
-                newOrientation += newTileInfo.angle;
+            const infoAdditionalTile = tiles[additionalTile.name];
+            if (infoAdditionalTile.angle) {
+                newOrientation += infoAdditionalTile.angle;
             }
-            addTile(newTile);
+            addTile(additionalTile);
         }
     } else {
         generations[currentGeneration].push(tile);
@@ -344,20 +344,20 @@ builder.create = function() {
                 // do each tile of the substitution          
                 const substitutionLength = substitution.length;
                 for (let subsIndex = 0; subsIndex < substitutionLength; subsIndex++) {
-                    const newTile = {};
-                    const newTileDef = substitution[subsIndex];
-                    newTile.name = newTileDef.name;
+                    const additionalTile = {};
+                    const definitionAdditionalTile = substitution[subsIndex];
+                    additionalTile.name = definitionAdditionalTile.name;
                     // the new tiles may have reduced/different sizes (fractals)
-                    if ('size' in newTileDef) {
-                        newTile.size = oldSize * newTileDef.size;
+                    if ('size' in definitionAdditionalTile) {
+                        additionalTile.size = oldSize * definitionAdditionalTile.size;
                     } else {
-                        newTile.size = oldSize;
+                        additionalTile.size = oldSize;
                     }
                     // update origin for children if an origin is given
                     // and reset orientation to relative zero
-                    if ('origin' in newTileDef) {
+                    if ('origin' in definitionAdditionalTile) {
                         newOrientation = oldOrientation;
-                        const vector = newTileDef.origin;
+                        const vector = definitionAdditionalTile.origin;
                         newOriginX = 0;
                         newOriginY = 0;
                         const vectorLength = vector.length;
@@ -371,21 +371,21 @@ builder.create = function() {
                         newOriginY = oldSize * newOriginY + oldOriginY;
                     }
                     // set origin of new child tile
-                    newTile.originX = newOriginX;
-                    newTile.originY = newOriginY;
+                    additionalTile.originX = newOriginX;
+                    additionalTile.originY = newOriginY;
                     // the orientation
-                    // newTileDef gives orientation: reset orientation
+                    // definitionAdditionalTile gives orientation: reset orientation
                     // else use predicted value
-                    if ('orientation' in newTileDef) {
-                        newOrientation = oldOrientation + newTileDef.orientation;
+                    if ('orientation' in definitionAdditionalTile) {
+                        newOrientation = oldOrientation + definitionAdditionalTile.orientation;
                     }
-                    newTile.orientation = newOrientation;
+                    additionalTile.orientation = newOrientation;
                     // tile has angle: update orientation for next tile
-                    const newTileInfo = tiles[newTile.name];
-                    if (newTileInfo.angle) {
-                        newOrientation += newTileInfo.angle;
+                    const infoAdditionalTile = tiles[additionalTile.name];
+                    if ('angle' in infoAdditionalTile) {
+                        newOrientation += infoAdditionalTile.angle;
                     }
-                    addTile(newTile);
+                    addTile(additionalTile);
                 }
             }
         }
@@ -438,7 +438,10 @@ builder.drawTile = function(tileInfo) {
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in tile) {
-                const border = tile.border;
+                let border = tile.border;
+                if (border.length === 0) {
+                    border = tile.shape;
+                }
                 const length = border.length;
                 canvasContext.beginPath();
                 for (let i = 0; i < length; i++) {

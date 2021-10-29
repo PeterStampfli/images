@@ -31,6 +31,10 @@ fileReader.onload = function() {
     theAction();
 };
 
+fileReader.onerror = function() {
+    alert("Failed to read file!\n\n" + reader.error);
+};
+
 readJSON.makeButton = function(gui, action) {
     theAction = action;
     readJSON.openButton = gui.add({
