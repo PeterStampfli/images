@@ -14,6 +14,7 @@ builder.maxGeneration = 4;
 builder.drawGeneration = 2;
 builder.drawing = 'last only';
 builder.minSize = 0;
+builder.tileColors = null;
 
 var gui = {};
 
@@ -25,8 +26,6 @@ var tiles = {};
 var tileNames = [];
 
 const initialColors = ['#ff0000', '#ffff00', '#00ff00', '#0000ff', '#aa00aa'];
-
-const colorControllers = [];
 
 var initialTileController;
 
@@ -162,8 +161,6 @@ builder.setup = function(definition) {
         basisY[i] = Math.sin(alpha);
         alpha += dalpha;
     }
-    colorControllers.forEach(controller => controller.destroy());
-    colorControllers.length = 0;
     if (initialTileController) {
         initialTileController.destroy();
     }
@@ -176,34 +173,6 @@ builder.setup = function(definition) {
     }
     tileNames = Object.keys(tiles);
     const tileNamesLength = tileNames.length;
-    let hasMarker = false;
-    for (let i = 0; i < tileNamesLength; i++) {
-        const tileName = tileNames[i];
-        const tile = tiles[tileName];
-        if (tile.marker) {
-            hasMarker = true;
-        }
-        if (fill) {
-            if (!('color' in tile)) {
-                tile.color = initialColors[i % initialColors.length];
-            }
-            const colorController = gui.add({
-                type: 'color',
-                params: tile,
-                property: 'color',
-                labelText: tileName,
-                onChange: function() {}
-            });
-            colorControllers.push(colorController);
-        }
-    }
-    if (hasMarker) {
-        main.markerColorController.show();
-        main.markerSizeController.show();
-    } else {
-        main.markerColorController.hide();
-        main.markerSizeController.hide();
-    }
     let initialTile = tileNames[0];
     if ('initial' in definition) {
         if (tileNames.indexOf(definition.initial) >= 0) {
@@ -222,6 +191,40 @@ builder.setup = function(definition) {
             main.draw();
         }
     });
+    if (builder.tileColors !== null) {
+        gui.remove(builder.tileColors);
+        builder.tileColors = null;
+    }
+    if (fill) {
+        builder.tileColors = gui.addFolder('colors of tiles');
+    }
+    let hasMarker = false;
+    for (let i = 0; i < tileNamesLength; i++) {
+        const tileName = tileNames[i];
+        const tile = tiles[tileName];
+        if (tile.marker) {
+            hasMarker = true;
+        }
+        if (fill) {
+            if (!('color' in tile)) {
+                tile.color = initialColors[i % initialColors.length];
+            }
+            builder.tileColors.add({
+                type: 'color',
+                params: tile,
+                property: 'color',
+                labelText: tileName,
+                onChange: function() {}
+            });
+        }
+    }
+    if (hasMarker) {
+        main.markerColorController.show();
+        main.markerSizeController.show();
+    } else {
+        main.markerColorController.hide();
+        main.markerSizeController.hide();
+    }
 };
 
 //  making the structure

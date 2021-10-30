@@ -107,7 +107,7 @@ main.markerSizeController = gui.add({
     params: main,
     property: 'markerSize',
     min: 0,
-    step: 0.1,
+    step: 0.01,
     labelText: 'size',
     onChange: function() {
         main.draw();
@@ -168,6 +168,10 @@ readJSON.makeButton(gui,
     });
 
 examples.init(gui);
+
+main.tileColors=gui.addFolder('colors of tiles');
+
+gui.remove(main.tileColors);
 
 main.newStructure = function() {
     builder.setup(examples.current);
