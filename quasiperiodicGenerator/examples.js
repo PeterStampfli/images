@@ -48,6 +48,13 @@ readJSON.makeButton = function(gui, action) {
     };
 };
 
+document.addEventListener('keyup', function(event){
+    console.log(event.key);
+    if (event.key==='o'){
+        readJSON.openButton.uiElement.onClick();
+    }
+}, false);
+
 // built in examples, loading others, and selecting them
 //==========================================================
 
@@ -107,7 +114,7 @@ examples.ammannBeenker = {
 
     "markerSize": 0.2,
 
-    "imageRange": 2,
+    "range": 2,
 
     "tiles": {
         "rhomb": {
@@ -290,8 +297,8 @@ examples.sierpinsky = {
 };
 
 examples.tree = {
-    "imageCenter": [0, 2],
-    "imageRange": 5,
+    "center": [0, 2],
+    "range": 5,
     "name": "tree",
 
     "order": 8,

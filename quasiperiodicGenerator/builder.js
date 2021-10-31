@@ -81,12 +81,12 @@ builder.setup = function(definition) {
     let centerX = 0;
     let centerY = 0;
     let range = 3;
-    if ('imageCenter' in definition) {
-        centerX = definition.imageCenter[0];
-        centerY = definition.imageCenter[1];
+    if ('center' in definition) {
+        centerX = definition.center[0];
+        centerY = definition.center[1];
     }
-    if ('imageRange' in definition) {
-        range = definition.imageRange;
+    if ('range' in definition) {
+        range = definition.range;
     }
     // drawing controlls
     if ('drawGeneration' in definition) {
@@ -99,7 +99,7 @@ builder.setup = function(definition) {
         drawing = definition.drawing;
     }
     builder.drawingController.setValueOnly(drawing);
-    output.setInitialCoordinates(-centerX, -centerY, range);
+    output.setInitialCoordinates(centerX, -centerY, range);
     // ui elements (on demand)
     let fill = true;
     if ('fill' in definition) {
@@ -283,8 +283,8 @@ function addTile(tile) {
             // the orientation
             // definitionAdditionalTile gives orientation: reset orientation
             // else use predicted value
-            if (definitionAdditionalTile.orientation) {
-                newOrientation = oldOrientation + definitionAdditionalTile.orientation;
+            if ('orientation' in definitionAdditionalTile) {
+                newOrientation = (oldOrientation + order+definitionAdditionalTile.orientation%order)%order;
             }
             additionalTile.orientation = newOrientation;
             // tile has angle: update orientation for next tile
@@ -380,7 +380,7 @@ builder.create = function() {
                     // definitionAdditionalTile gives orientation: reset orientation
                     // else use predicted value
                     if ('orientation' in definitionAdditionalTile) {
-                        newOrientation = oldOrientation + definitionAdditionalTile.orientation;
+                        newOrientation = (oldOrientation + order+definitionAdditionalTile.orientation%order)%order;
                     }
                     additionalTile.orientation = newOrientation;
                     // tile has angle: update orientation for next tile
@@ -441,7 +441,9 @@ builder.drawTile = function(tileInfo) {
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in tile) {
-                let border = tile.border;
+     canvasContext.strokeStyle = tile.color;
+            canvasContext.stroke();
+               let border = tile.border;
                 if (border.length === 0) {
                     border = tile.shape;
                 }
@@ -468,6 +470,7 @@ builder.drawTile = function(tileInfo) {
                     }
                 }
             }
+    canvasContext.strokeStyle = main.lineColor;
             canvasContext.stroke();
         }
         if (main.drawMarker && tile.marker) {
@@ -499,7 +502,7 @@ function drawGeneration(generation) {
 
 builder.draw = function() {
     output.setLineWidth(main.lineWidth);
-    output.canvasContext.strokeStyle = main.lineColor;
+        const canvasContext = output.canvasContext;
     switch (builder.drawing) {
         case 'last only':
             drawGeneration(builder.drawGeneration);
@@ -518,7 +521,7 @@ builder.draw = function() {
     if (main.drawInitialStroke && ('shape' in tiles[initialTile.name])) {
         // draw  border of initial shape
         output.setLineWidth(main.outlineWidth);
-        output.canvasContext.strokeStyle = main.outlineColor;
+        canvasContext.strokeStyle = main.outlineColor;
         const tile = tiles[initialTile.name];
         const shape = tile.shape;
         const originX = initialTile.originX;
@@ -528,7 +531,6 @@ builder.draw = function() {
             size *= Math.pow(inflation, builder.drawGeneration);
         }
         const orientation = initialTile.orientation;
-        const canvasContext = output.canvasContext;
         const length = shape.length;
         canvasContext.beginPath();
         for (let i = 0; i < length; i++) {

@@ -1,12 +1,15 @@
 {
     "name": "sevenfold tiling #5",
 
+    "range": 1,
+    "center": [0.2, 0],
+
     "order": 14,
     "inflation": 5.04892,
     "maxGeneration": 5,
-    "drawGeneration": 0,
+    "drawGeneration": 1,
 
-    "initial": "a1Left",
+    "initial": "a2Right",
 
     "rotation": 0,
 
@@ -20,7 +23,39 @@
             "angle": 3,
             "border": [],
             "color": "#ff0000",
-            "marker": [0, 0, 0, 0.15]
+            "marker": [0, 0, 0, 0.15],
+            "substitution": [{
+                "name": "b2"
+            }, {
+                "name": "b2Right"
+            }, {
+                "name": "c1Left",
+                "origin": [1]
+            }, {
+                "name": "c1",
+                "origin": [0, 0, 1]
+            }, {
+                "name": "a2Right",
+                "origin": [0, 0, 1, 0, 1]
+            }, {
+                "name": "c1Right",
+                "origin": [1, 0, 1, 0, 1],
+                "orientation": -3
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 1],
+                "orientation": -6
+            }, {
+                "name": "b1Left",
+                "origin": [2, 1, 1, 0, 0, -1],
+                "orientation": 6
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1Right",
+                "origin": [1, 1, 1, 0, 0, -1, -1],
+                "orientation": 6
+            }]
         },
         "a1Left": {
             "shape": [
@@ -31,7 +66,41 @@
             "angle": 3,
             "border": [],
             "color": "#ff0000",
-            "marker": [0.15]
+            "marker": [0.15],
+            "substitution": [{
+                "name": "b2Left"
+            }, {
+                "name": "b2"
+            }, {
+                "name": "a2Left",
+                "origin": [0, 1, 0, 0, 0, 0, -1]
+            }, {
+                "name": "c1",
+                "origin": [0, 1],
+                "orientation": -1
+            }, {
+                "name": "c1Right",
+                "origin": [0, 0, 0, 1],
+                "orientation": 1
+            }, {
+                "name": "c1Left",
+                "origin": [0, 1, 0, 1, 0, 0, -1],
+                "orientation": 4
+            }, {
+                "name": "c1",
+                "origin": [0, 1, 1, 1],
+                "orientation": 5
+            }, {
+                "name": "a1",
+                "origin": [0, 1, 1, 2, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "b1Right"
+            }, {
+                "name": "b1Left",
+                "origin": [0, 1, 1, 1, 1, 1],
+                "orientation": 10
+            }]
         },
         "a1": {
             "shape": [
@@ -41,20 +110,66 @@
                 [0, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 6,
-            "border": [],
             "color": "#ff0000",
-            "marker": [0, 0, 0, 0.15]
+            "marker": [0, 0, 0, 0.15],
+            "composition": [{
+                "name": "a1Right"
+            }, {
+                "name": "a1Left"
+            }]
         },
         "a2Right": {
             "shape": [
                 [],
                 [1],
-                [1, 0, 0, 0, 0, 0, 15]
+                [1, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 3,
             "border": [],
-            "color": "#888888",
-            "marker": [0, 0, 0, 0.15]
+            "color": "#555555",
+            "marker": [0, 0, 0, 0.15],
+            "substitution": [{
+                "name": "a1",
+                "origin": [0, 1],
+                "orientation": 8
+            }, {
+                "name": "b1Left",
+                "origin": [1]
+            }, {
+                "name": "c2Left",
+                "origin": [0, 1, 0, 0, 0, 1],
+                "orientation": 10
+            }, {
+                "name": "c2",
+                "origin": [0, 1, 0, 1],
+                "orientation": 10
+            }, {
+                "name": "b3",
+                "origin": [0, 1, 0, 1, 0, 1],
+                "orientation": 10
+            }, {
+                "name": "b3Right"
+            }, {
+                "name": "a1Right",
+                "origin": [1, 1, 0, 1],
+                "orientation": 10
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 1],
+                "orientation": 9
+            }, {
+                "name": "c1Right",
+                "origin": [1, 1, 1, 0, 0, -1, -1],
+                "orientation": 5
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 1],
+                "orientation": 9
+            }, {
+                "name": "b2Left",
+                "origin": [2, 1, 1, 0, 0, -1, -1],
+                "orientation": 6
+            }]
         },
         "a2Left": {
             "shape": [
@@ -64,7 +179,7 @@
             ],
             "angle": 3,
             "border": [],
-            "color": "#888888",
+            "color": "#555555",
             "marker": [0.15]
         },
         "a2": {
@@ -75,8 +190,7 @@
                 [0, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 6,
-            "border": [],
-            "color": "#888888",
+            "color": "#555555",
             "marker": [0, 0, 0, 0.15]
         },
         "b1Right": {
@@ -109,7 +223,6 @@
                 [0, 0, 1]
             ],
             "angle": 2,
-            "border": [],
             "color": "#ffff00",
             "marker": [0, 0.3]
         },
@@ -143,7 +256,6 @@
                 [0, 0, 1]
             ],
             "angle": 2,
-            "border": [],
             "color": "#ff8800",
             "marker": [0, 0.3]
         },
@@ -177,7 +289,6 @@
                 [0, 0, 1]
             ],
             "angle": 2,
-            "border": [],
             "color": "#ffffff",
             "marker": [0, 0.3]
         },
@@ -211,7 +322,6 @@
                 [0, 0, 0, 0, 1]
             ],
             "angle": 4,
-            "border": [],
             "color": "#00ff00",
             "marker": [0, 0, 0.2]
         },
@@ -245,7 +355,6 @@
                 [0, 0, 0, 0, 1]
             ],
             "angle": 4,
-            "border": [],
             "color": "#0000ff",
             "marker": [0, 0, 0.2]
         }
