@@ -48,9 +48,8 @@ readJSON.makeButton = function(gui, action) {
     };
 };
 
-document.addEventListener('keyup', function(event){
-    console.log(event.key);
-    if (event.key==='o'){
+document.addEventListener('keyup', function(event) {
+    if (event.key === '=') {
         readJSON.openButton.uiElement.onClick();
     }
 }, false);
