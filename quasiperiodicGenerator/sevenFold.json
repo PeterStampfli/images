@@ -9,7 +9,7 @@
     "maxGeneration": 5,
     "drawGeneration": 1,
 
-    "initial": "b2Left",
+    "initial": "b3Right",
 
     "rotation": 0,
 
@@ -442,11 +442,15 @@
                 "name": "c1Left",
                 "origin": [1, 2, 1, 2, 0, 0, -2],
                 "orientation": 8
-            },{"name":"c1"}, {
+            }, {
+                "name": "c1"
+            }, {
                 "name": "b1Left",
                 "origin": [2, 2, 2, 2, 0, 0, -2],
                 "orientation": 8
-            },{"name":"a1"}, {
+            }, {
+                "name": "a1"
+            }, {
                 "name": "b1Right",
                 "origin": [2, 3, 1, 2, 0, 0, -2],
                 "orientation": 8
@@ -461,7 +465,63 @@
             "angle": 1,
             "border": [],
             "color": "#ff8800",
-            "marker": [0.3]
+            "marker": [0.3],
+            "substitution": [{
+                "name": "b3Right"
+            }, {
+                "name": "c2Left",
+                "origin": [1]
+            }, {
+                "name": "a1Right",
+                "origin": [1, 0, 1],
+                "orientation": -2
+            }, {
+                "name": "c1",
+                "origin": [1, 0, 1, 0, 1, -1],
+                "orientation": -3
+            }, {
+                "name": "c1",
+                "origin": [2, 1, 1, 0, 1, -1],
+                "orientation": 7
+            }, {
+                "name": "b2Left",
+                "origin": [2, 1, 2, 0, 1, -1],
+                "orientation": 8
+            }, {
+                "name": "b2"
+            }, {
+                "name": "b2"
+            }, {
+                "name": "c1",
+                "origin": [2, 1, 2, 0, 0, -1],
+                "orientation": 9
+            }, {
+                "name": "c1Right",
+                "origin": [2, 1, 2, 0, 1, -1, -1],
+                "orientation": 11
+            }, {
+                "name": "b1Left",
+                "origin": [2, 0, 1, 0, 0, -1]
+            }, {
+                "name": "a1",
+                "origin": [1, 1, 1, 0, 0, -1],
+                "orientation": 8
+            }, {
+                "name": "c1",
+                "origin": [2, 1, 2, 0, 0, -2, -1],
+                "orientation": 1
+            }, {
+                "name": "c1Right"
+            }, {
+                "name": "a1",
+                "origin": [2, 2, 2, 0, 0, -2, -2]
+            }, {
+                "name": "b1Right"
+            }, {
+                "name": "b1Left",
+                "origin": [3, 2, 2, 0, 0, -2, -1],
+                "orientation": 6
+            }]
         },
         "b2": {
             "shape": [
@@ -472,7 +532,12 @@
             ],
             "angle": 2,
             "color": "#ff8800",
-            "marker": [0, 0.3]
+            "marker": [0, 0.3],
+            "composition": [{
+                "name": "b2Right"
+            }, {
+                "name": "b2Left"
+            }]
         },
         "b3Right": {
             "shape": [
@@ -483,7 +548,32 @@
             "angle": 1,
             "border": [],
             "color": "#ffffff",
-            "marker": [0, 0.3]
+            "marker": [0, 0.3],
+            "substitution": [{
+"name":"b1Left"
+            },{"name":"c2Left",
+            "origin":[0,1,0,1,0,0,-1],
+        "orientation":8},{"name":"c2"},{"name":"b2Right"},{"name":"a1",
+            "origin":[1,1,1,0,0,0,-1],
+        "orientation":3},{"name":"c2Right",
+            "origin":[1,1,1,0,0,-1,-1],
+        "orientation":5},{"name":"b3Left",
+            "origin":[2,1,1,0,0,-1,-1],
+        "orientation":2},{"name":"b3"},{"name":"b3"},{"name":"c2",
+            "origin":[2,1,1,0,0,0,-1],
+        "orientation":3},{"name":"a1",
+            "origin":[2,1,1,1,0,0,-1],
+        "orientation":1},{"name":"c2",
+            "origin":[2,1,1,1,0,-1,-1],
+        "orientation":1},{"name":"a1Left",
+            "origin":[2,2,1,1,0,-1,-1],
+        "orientation":2},{"name":"b1Right",
+            "origin":[1,2,1,1,0,0,-1]},{"name":"c1",
+            "origin":[2,2,2,1,0,0,-1],
+        "orientation":9},{"name":"c1Right"},{"name":"b2Right",
+            "origin":[2,3,2,2,0,0,-2],
+        "orientation":8}
+    ]
         },
         "b3Left": {
             "shape": [
