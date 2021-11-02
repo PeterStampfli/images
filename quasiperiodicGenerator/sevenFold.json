@@ -6,10 +6,10 @@
 
     "order": 14,
     "inflation": 5.04892,
-    "maxGeneration": 5,
-    "drawGeneration": 1,
+    "maxGeneration": 3,
+    "drawGeneration": 0,
 
-    "initial": "c1Right",
+    "initial": "c1Left",
 
     "rotation": 0,
 
@@ -785,6 +785,57 @@
                 "name": "c1",
                 "origin": [1, 1, 1],
                 "orientation": 4
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 1],
+                "orientation": -2
+            }, {
+                "name": "b1Left",
+                "origin": [1, 1, 1, 1, 1],
+                "orientation": 9
+            }, {
+                "name": "a1",
+                "origin": [1, 1, 2, 0, 1],
+                "orientation": 3
+            }, {
+                "name": "b1"
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1",
+                "origin": [1, 1, 2, 1],
+                "orientation": 10
+            }, {
+                "name": "a1",
+                "origin": [1, 1, 2, 1, 1, -1],
+                "orientation": 5
+            }, {
+                "name": "b1Right"
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 2, 1, 0, -1, -1],
+                "orientation": 6
+            }, {
+                "name": "b1Left",
+                "origin": [1, 0, 1, 0, 0, -1]
+            }, {
+                "name": "c1"
+            }, {
+                "name": "c1",
+                "origin": [1, 1, 1, 0, 0, -1, -1],
+                "orientation": 2
+            }, {
+                "name": "c1Right",
+                "origin": [1, 1, 2, 0, 0, -2, -1],
+                "orientation": 5
+            }, {
+                "name": "c1Left",
+                "origin": [2, 1, 2, 0, 0, -1, -1],
+                "orientation": 5
+            }, {
+                "name": "b2",
+                "origin": [2, 1, 2, 0, 0, -2, -1],
+                "orientation": 5
             }]
         },
         "c1": {
@@ -796,7 +847,12 @@
             ],
             "angle": 4,
             "color": "#00ff00",
-            "marker": [0, 0, 0.2]
+            "marker": [0, 0, 0.2],
+            "composition": [{
+                "name": "c1Right"
+            }, {
+                "name": "c1Left"
+            }]
         },
         "c2Right": {
             "shape": [

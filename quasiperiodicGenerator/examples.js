@@ -28,6 +28,7 @@ fileReader.onload = function() {
         alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
         return;
     }
+    console.log("fileread");
     theAction();
 };
 

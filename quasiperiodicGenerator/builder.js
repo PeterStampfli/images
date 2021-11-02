@@ -77,6 +77,8 @@ builder.init = function(guiP) {
 };
 
 builder.setup = function(definition) {
+    console.log("buildersetup");
+
     // initial canvas 
     let centerX = 0;
     let centerY = 0;
@@ -149,14 +151,14 @@ builder.setup = function(definition) {
     if ('order' in definition) {
         order = definition.order;
     }
-    basisX.length = order;
-    basisY.length = order;
+    basisX.length = 2 * order;
+    basisY.length = basisX.length;
     const dalpha = 2 * Math.PI / order;
     let alpha = 0;
     if ('rotation' in definition) {
         alpha = Math.PI * definition.rotation;
     }
-    for (let i = 0; i < order; i++) {
+    for (let i = 0; i < basisX.length; i++) {
         basisX[i] = Math.cos(alpha);
         basisY[i] = Math.sin(alpha);
         alpha += dalpha;
@@ -214,7 +216,7 @@ builder.setup = function(definition) {
                 params: tile,
                 property: 'color',
                 labelText: tileName,
-                onChange: function() {}
+                onChange: main.draw
             });
         }
     }
@@ -261,7 +263,7 @@ function addTile(tile) {
                 additionalTile.size = oldSize;
             }
             // update origin for children if an origin is given
-            // and reset orientation to relative zero
+            // and reset orientation to orientation of mother tile
             if (definitionAdditionalTile.origin) {
                 newOrientation = oldOrientation;
                 const vector = definitionAdditionalTile.origin;
@@ -284,7 +286,7 @@ function addTile(tile) {
             // definitionAdditionalTile gives orientation: reset orientation
             // else use predicted value
             if ('orientation' in definitionAdditionalTile) {
-                newOrientation = (oldOrientation + order+definitionAdditionalTile.orientation%order)%order;
+                newOrientation = (oldOrientation + order + definitionAdditionalTile.orientation) % order;
             }
             additionalTile.orientation = newOrientation;
             // tile has angle: update orientation for next tile
@@ -300,6 +302,7 @@ function addTile(tile) {
 }
 
 builder.create = function() {
+    console.log("create");
     // initialization with base tile
     generations.length = builder.maxGeneration + 1;
     generations[0] = [];
@@ -380,7 +383,7 @@ builder.create = function() {
                     // definitionAdditionalTile gives orientation: reset orientation
                     // else use predicted value
                     if ('orientation' in definitionAdditionalTile) {
-                        newOrientation = (oldOrientation + order+definitionAdditionalTile.orientation%order)%order;
+                        newOrientation = (oldOrientation + order + definitionAdditionalTile.orientation) % order;
                     }
                     additionalTile.orientation = newOrientation;
                     // tile has angle: update orientation for next tile
@@ -403,6 +406,7 @@ builder.create = function() {
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tileInfo) {
+    console.log("draw");
     if ('shape' in tiles[tileInfo.name]) {
         const tile = tiles[tileInfo.name];
         const shape = tile.shape;
@@ -441,9 +445,9 @@ builder.drawTile = function(tileInfo) {
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in tile) {
-     canvasContext.strokeStyle = tile.color;
-            canvasContext.stroke();
-               let border = tile.border;
+                canvasContext.strokeStyle = tile.color;
+                canvasContext.stroke();
+                let border = tile.border;
                 if (border.length === 0) {
                     border = tile.shape;
                 }
@@ -470,7 +474,7 @@ builder.drawTile = function(tileInfo) {
                     }
                 }
             }
-    canvasContext.strokeStyle = main.lineColor;
+            canvasContext.strokeStyle = main.lineColor;
             canvasContext.stroke();
         }
         if (main.drawMarker && tile.marker) {
@@ -502,7 +506,7 @@ function drawGeneration(generation) {
 
 builder.draw = function() {
     output.setLineWidth(main.lineWidth);
-        const canvasContext = output.canvasContext;
+    const canvasContext = output.canvasContext;
     switch (builder.drawing) {
         case 'last only':
             drawGeneration(builder.drawGeneration);
