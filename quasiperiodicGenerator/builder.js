@@ -237,64 +237,65 @@ var currentGeneration;
 var initialTile;
 
 function addTile(tile) {
+    tile.orientation%=order;
     if ('composition' in tiles[tile.name]) {
         const composition = tiles[tile.name].composition;
         // decompose the tile
         // get info of the composed tile
-        let oldOriginX = tile.originX;
-        let oldOriginY = tile.originY;
-        let oldSize = tile.size;
-        const oldOrientation = tile.orientation;
-        // default origin is same as old tile origin
-        let newOriginX = oldOriginX;
-        let newOriginY = oldOriginY;
+        const parentOriginX = tile.originX;
+        const parentOriginY = tile.originY;
+        const parentSize = tile.size;
+        const parentOrientation = tile.orientation;
+        // default origin is same as parent tile origin
+        let childOriginX = parentOriginX;
+        let childOriginY = parentOriginY;
         // default orientation is same as mother tile
-        let newOrientation = oldOrientation;
+        let childOrientation = parentOrientation;
         // do each tile of the substitution          
         const compositionLength = composition.length;
         for (let compIndex = 0; compIndex < compositionLength; compIndex++) {
-            const additionalTile = {};
-            const definitionAdditionalTile = composition[compIndex];
-            additionalTile.name = definitionAdditionalTile.name;
-            // the new tiles may have reduced/different sizes (fractals)
-            if (definitionAdditionalTile.size) {
-                additionalTile.size = oldSize * definitionAdditionalTile.size;
+            const childTile = {};
+            const definitionChildTile = composition[compIndex];
+            childTile.name = definitionChildTile.name;
+            // the child tiles may have reduced/different sizes (fractals)
+            if (definitionChildTile.size) {
+                childTile.size = parentSize * definitionChildTile.size;
             } else {
-                additionalTile.size = oldSize;
+                childTile.size = parentSize;
             }
             // update origin for children if an origin is given
             // and reset orientation to orientation of mother tile
-            if (definitionAdditionalTile.origin) {
-                newOrientation = oldOrientation;
-                const vector = definitionAdditionalTile.origin;
-                newOriginX = 0;
-                newOriginY = 0;
+            if (definitionChildTile.origin) {
+                childOrientation = parentOrientation;
+                const vector = definitionChildTile.origin;
+                childOriginX = 0;
+                childOriginY = 0;
                 const vectorLength = vector.length;
                 for (let j = 0; j < vectorLength; j++) {
-                    const direction = (oldOrientation + j) % order;
+                    const direction = parentOrientation + j;
                     const amplitude = vector[j];
-                    newOriginX += amplitude * basisX[direction];
-                    newOriginY += amplitude * basisY[direction];
+                    childOriginX += amplitude * basisX[direction];
+                    childOriginY += amplitude * basisY[direction];
                 }
-                newOriginX = oldSize * newOriginX + oldOriginX;
-                newOriginY = oldSize * newOriginY + oldOriginY;
+                childOriginX = parentSize * childOriginX + parentOriginX;
+                childOriginY = parentSize * childOriginY + parentOriginY;
             }
-            // set origin of new child tile
-            additionalTile.originX = newOriginX;
-            additionalTile.originY = newOriginY;
+            // set origin of child tile
+            childTile.originX = childOriginX;
+            childTile.originY = childOriginY;
             // the orientation
-            // definitionAdditionalTile gives orientation: reset orientation
+            // definitionChildTile gives orientation: reset orientation
             // else use predicted value
-            if ('orientation' in definitionAdditionalTile) {
-                newOrientation = (oldOrientation + order + definitionAdditionalTile.orientation) % order;
+            if ('orientation' in definitionChildTile) {
+                childOrientation = parentOrientation + order + definitionChildTile.orientation;
             }
-            additionalTile.orientation = newOrientation;
+            childTile.orientation = childOrientation;
             // tile has angle: update orientation for next tile
-            const infoAdditionalTile = tiles[additionalTile.name];
-            if (infoAdditionalTile.angle) {
-                newOrientation += infoAdditionalTile.angle;
+            const infoChildTile = tiles[childTile.name];
+            if (infoChildTile.angle) {
+                childOrientation += infoChildTile.angle;
             }
-            addTile(additionalTile);
+            addTile(childTile);
         }
     } else {
         generations[currentGeneration].push(tile);
@@ -317,6 +318,7 @@ builder.create = function() {
     addTile(tile);
     initialTile = tile;
     // repeat substitutions
+    const noInflate=!main.inflate;
     for (currentGeneration = 1; currentGeneration <= builder.maxGeneration; currentGeneration++) {
         const oldGeneration = generations[currentGeneration - 1];
         generations[currentGeneration] = [];
@@ -331,7 +333,7 @@ builder.create = function() {
                 oldOriginY *= inflation;
             }
             let oldSize = oldTileInfo.size;
-            if (!main.inflate) {
+            if (noInflate) {
                 oldSize /= inflation;
             }
             if (oldSize < builder.minSize) {
@@ -368,7 +370,7 @@ builder.create = function() {
                         newOriginY = 0;
                         const vectorLength = vector.length;
                         for (let j = 0; j < vectorLength; j++) {
-                            const direction = (oldOrientation + j) % order;
+                            const direction = oldOrientation + j ;
                             const amplitude = vector[j];
                             newOriginX += amplitude * basisX[direction];
                             newOriginY += amplitude * basisY[direction];
@@ -383,7 +385,7 @@ builder.create = function() {
                     // definitionAdditionalTile gives orientation: reset orientation
                     // else use predicted value
                     if ('orientation' in definitionAdditionalTile) {
-                        newOrientation = (oldOrientation + order + definitionAdditionalTile.orientation) % order;
+                        newOrientation = oldOrientation + order + definitionAdditionalTile.orientation ;
                     }
                     additionalTile.orientation = newOrientation;
                     // tile has angle: update orientation for next tile
@@ -424,7 +426,7 @@ builder.drawTile = function(tileInfo) {
             const vector = shape[i];
             const vectorLength = vector.length;
             for (let j = 0; j < vectorLength; j++) {
-                const direction = (orientation + j) % order;
+                const direction = orientation + j;
                 const amplitude = vector[j];
                 x += amplitude * basisX[direction];
                 y += amplitude * basisY[direction];
@@ -459,7 +461,7 @@ builder.drawTile = function(tileInfo) {
                     const vector = border[i];
                     const vectorLength = vector.length;
                     for (let j = 0; j < vectorLength; j++) {
-                        const direction = (orientation + j) % order;
+                        const direction = orientation + j;
                         const amplitude = vector[j];
                         x += amplitude * basisX[direction];
                         y += amplitude * basisY[direction];
@@ -484,7 +486,7 @@ builder.drawTile = function(tileInfo) {
             let x = 0;
             let y = 0;
             for (let j = 0; j < length; j++) {
-                const direction = (orientation + j) % order;
+                const direction = orientation + j;
                 const amplitude = marker[j];
                 x += amplitude * basisX[direction];
                 y += amplitude * basisY[direction];
@@ -543,7 +545,7 @@ builder.draw = function() {
             const vector = shape[i];
             const vectorLength = vector.length;
             for (let j = 0; j < vectorLength; j++) {
-                const direction = (orientation + j) % order;
+                const direction = orientation + j;
                 const amplitude = vector[j];
                 x += amplitude * basisX[direction];
                 y += amplitude * basisY[direction];
