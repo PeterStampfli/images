@@ -1,12 +1,22 @@
-rs=roots(3,1);
-[~,s]=size(rs)
-one=ones(1,s)
-z=2;
-d=1;
+a=1;
+n=3;
+rs=roots(n,a)
+[~,s]=size(rs);
+one=ones(1,s);
 eps=0.01;
+itemax=100;
 
+z=10i;
+iter=0;
+minerr=1;
+while (minerr>eps)&&(iter<itemax)
+iter=iter+1;
+deltas=rs-z;
+z=z+1/sum(one./deltas);
 
-while (d>eps)
-    d=0;
+[minerr,iminerr]=min(abs(deltas));
+
 end
-    
+z
+iminerr
+iter
