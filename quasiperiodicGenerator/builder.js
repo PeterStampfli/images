@@ -77,8 +77,6 @@ builder.init = function(guiP) {
 };
 
 builder.setup = function(definition) {
-    console.log("buildersetup");
-
     // initial canvas 
     let centerX = 0;
     let centerY = 0;
@@ -302,7 +300,6 @@ function addTile(tile, generation) {
 }
 
 builder.create = function() {
-    console.log("create");
     // initialization with base tile
     generations.length = builder.maxGeneration + 1;
     generations[0] = [];
@@ -405,7 +402,6 @@ builder.create = function() {
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tileInfo) {
-    console.log("draw");
     if ('shape' in tiles[tileInfo.name]) {
         const tile = tiles[tileInfo.name];
         const shape = tile.shape;
