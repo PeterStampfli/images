@@ -9,7 +9,7 @@
     "maxGeneration": 3,
     "drawGeneration": 0,
 
-    "initial": "ABStar",
+    "initial": "B1C2Star",
 
     "rotation": 0,
 
@@ -917,11 +917,11 @@
                 "origin": [1, 2, 0, 1, -1, 0, -1],
                 "orientation": 4
             }, {
-                "name": "b1",
+                "name": "b2",
                 "origin": [1, 2, 0, 1, -1, 0, -2],
                 "orientation": 4
             }, {
-                "name": "b1Right"
+                "name": "b2Right"
             }, {
                 "name": "c1Left",
                 "origin": [1, 2, 0, 1, 0, 0, -2],
@@ -1051,51 +1051,177 @@
                 [1, 1, 0, 0, 0, 0, -1]
             ],
             "color": "#00dd00",
-            "composition":[{
-                        "name":"a1",
-                        "origin":[1],
-                        "orientation":1
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,1]},
-                        {
-                        "name":"a1",
-                        "origin":[0,0,1],
-                        "orientation":3
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,0,0,1],"orientation":2},
-                        {
-                        "name":"a1",
-                        "origin":[0,0,0,0,1],
-                        "orientation":5
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,0,0,0,0,1],"orientation":4},
-                        {
-                        "name":"a1",
-                        "origin":[0,0,0,0,0,0,1],
-                        "orientation":7
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[-1],"orientation":6},
-                        {
-                        "name":"a1",
-                        "origin":[0,-1],
-                        "orientation":9
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,0,-1],"orientation":8},
-                        {
-                        "name":"a1",
-                        "origin":[0,0,0,-1],
-                        "orientation":11
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,0,0,0,-1],"orientation":10},
-                        {
-                        "name":"a1",
-                        "origin":[0,0,0,0,0,-1],
-                        "orientation":13
-                        },{"name":"a1"},{"name":"b1"},
-                        {"name":"b1","origin":[0,0,0,0,0,0,-1],"orientation":12}
-                    ]
-
-
+            "composition": [{
+                "name": "a1",
+                "origin": [1],
+                "orientation": 1
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 1]
+            }, {
+                "name": "a1",
+                "origin": [0, 0, 1],
+                "orientation": 3
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 0, 0, 1],
+                "orientation": 2
+            }, {
+                "name": "a1",
+                "origin": [0, 0, 0, 0, 1],
+                "orientation": 5
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 0, 0, 0, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "a1",
+                "origin": [0, 0, 0, 0, 0, 0, 1],
+                "orientation": 7
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [-1],
+                "orientation": 6
+            }, {
+                "name": "a1",
+                "origin": [0, -1],
+                "orientation": 9
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 0, -1],
+                "orientation": 8
+            }, {
+                "name": "a1",
+                "origin": [0, 0, 0, -1],
+                "orientation": 11
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 0, 0, 0, -1],
+                "orientation": 10
+            }, {
+                "name": "a1",
+                "origin": [0, 0, 0, 0, 0, -1],
+                "orientation": 13
+            }, {
+                "name": "a1"
+            }, {
+                "name": "b1"
+            }, {
+                "name": "b1",
+                "origin": [0, 0, 0, 0, 0, 0, -1],
+                "orientation": 12
+            }]
+        },
+        "B2C1Star": {
+            "color": "#000088",
+            "shape": [
+                [1, 0, 1, 0, 0, -1],
+                [1, 0, 1],
+                [1, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1, 0, 1],
+                [0, 0, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 0, 0, 1],
+                [0, -1, 0, -1, 0, 0, 1],
+                [0,-1,0, -1],
+                [0,-1,0, -1, 0, -1],
+                [0,0,0,-1,0, -1],
+                [1,0,0,-1,0, -1],
+                [1,0,0,0,0,-1]
+            ],
+            "composition": [
+                {"name":"b2"},{"name":"b2"},{"name":"b2"},{"name":"b2"},{"name":"b2"},{"name":"b2"},{"name":"b2"},
+                {"name":"c1","origin":[1],"orientation":-2},
+                {"name":"c1","origin":[0,0,1],"orientation":0},
+                                {"name":"c1","origin":[0,0,0,0,1],"orientation":2},
+                                {"name":"c1","origin":[0,0,0,0,0,0,1],"orientation":4},
+                                {"name":"c1","origin":[0,-1],"orientation":6},
+                                {"name":"c1","origin":[0,0,0,-1],"orientation":8},
+                                {"name":"c1","origin":[0,0,0,0,0,-1],"orientation":10}
+            ]
+        },
+        "B3C2Star": {
+            "color": "#000088",
+            "shape": [
+                [1, 0, 1, 0, 0, -1],
+                [1, 0, 1],
+                [1, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1, 0, 1],
+                [0, 0, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 0, 0, 1],
+                [0, -1, 0, -1, 0, 0, 1],
+                [0,-1,0, -1],
+                [0,-1,0, -1, 0, -1],
+                [0,0,0,-1,0, -1],
+                [1,0,0,-1,0, -1],
+                [1,0,0,0,0,-1]
+            ],
+            "composition": [
+                {"name":"b3"},{"name":"b3"},{"name":"b3"},{"name":"b3"},{"name":"b3"},{"name":"b3"},{"name":"b3"},
+                {"name":"c2","origin":[1],"orientation":-2},
+                {"name":"c2","origin":[0,0,1],"orientation":0},
+                                {"name":"c2","origin":[0,0,0,0,1],"orientation":2},
+                                {"name":"c2","origin":[0,0,0,0,0,0,1],"orientation":4},
+                                {"name":"c2","origin":[0,-1],"orientation":6},
+                                {"name":"c2","origin":[0,0,0,-1],"orientation":8},
+                                {"name":"c2","origin":[0,0,0,0,0,-1],"orientation":10}
+            ]
+        },
+        "B1C2Star": {
+            "color": "#000088",
+            "shape": [
+                [1, 0, 1, 0, 0, -1],
+                [1, 0, 1],
+                [1, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1, 0, 1],
+                [0, 0, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 1, 0, 1],
+                [0, -1, 0, 0, 0, 0, 1],
+                [0, -1, 0, -1, 0, 0, 1],
+                [0,-1,0, -1],
+                [0,-1,0, -1, 0, -1],
+                [0,0,0,-1,0, -1],
+                [1,0,0,-1,0, -1],
+                [1,0,0,0,0,-1]
+            ],
+            "composition": [
+                {"name":"b1"},{"name":"b1"},{"name":"b1"},{"name":"b1"},{"name":"b1"},{"name":"b1"},{"name":"b1"},
+                {"name":"c2","origin":[1,0,1,0,0,-1],"orientation":5},
+                {"name":"c2","origin":[1,0,1,0,1],"orientation":7},
+                {"name":"c2","origin":[0,0,1,0,1,0,1],"orientation":9},
+                {"name":"c2","origin":[0,-1,0,0,1,0,1],"orientation":11},
+                {"name":"c2","origin":[0,-1,0,-1,0,0,1],"orientation":-1},
+                {"name":"c2","origin":[0,-1,0,-1,0,-1],"orientation":1},
+                {"name":"c2","origin":[1,0,0,-1,0,-1],"orientation":3}
+            ]
         }
     }
 }

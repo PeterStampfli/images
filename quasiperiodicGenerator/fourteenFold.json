@@ -930,11 +930,11 @@
                 "origin": [1, 2, 0, 1, -1, 0, -1],
                 "orientation": 4
             }, {
-                "name": "b1",
+                "name": "b2",
                 "origin": [1, 2, 0, 1, -1, 0, -2],
                 "orientation": 4
             }, {
-                "name": "b1Right"
+                "name": "b2Right"
             }, {
                 "name": "c1Left",
                 "origin": [1, 2, 0, 1, 0, 0, -2],
