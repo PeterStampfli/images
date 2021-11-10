@@ -26,9 +26,21 @@ from "./builder.js";
 
 export {
     main
-}from './main.js';
+}
+from './main.js';
 
 export {
     examples,
     readJSON
-}from './examples.js';
+}
+from './examples.js';
+
+export {
+    sevenFold
+}
+from './sevenFold.js';
+
+export {
+    fourteenFold
+}
+from './fourteenFold.js';

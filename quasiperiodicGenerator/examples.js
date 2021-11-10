@@ -5,7 +5,9 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    main
+    main,
+    sevenFold,
+    fourteenFold
 } from './modules.js';
 export const readJSON = {};
 
@@ -60,7 +62,7 @@ document.addEventListener('keyup', function(event) {
 export const examples = {};
 
 examples.init = function(gui) {
-    examples.current = examples.ammannBeenker;
+    examples.current = sevenFold;
     examples.selectionController = gui.add({
         type: 'selection',
         params: examples,
@@ -69,7 +71,9 @@ examples.init = function(gui) {
         options: {
             'Ammann-Beenker Tiling': examples.ammannBeenker,
             'Sierpinsky triangle': examples.sierpinsky,
-            'fractal tree': examples.tree
+            'fractal tree': examples.tree,
+            "Theo's seven-fold": sevenFold,
+            "Theo's fourteen-fold": fourteenFold
         },
         onChange: function() {
             main.newStructure();
