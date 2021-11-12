@@ -41,7 +41,8 @@ else
     centerX=centerY/tan(K.gamma)+cos(K.beta)/sin(K.gamma);
     if (K.geometry==0)
         % elliptic geometry: flip circle center
-        % renormalize to get equator radius of 1
+        % renormalize to get equator radius of 1 in stereographic
+        % projection
         factor=1/sqrt(1-centerX*centerX-centerY*centerY);
         K.circleCenterX=-factor*centerX;
         K.circleCenterY=-factor*centerY;
