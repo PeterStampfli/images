@@ -10,6 +10,7 @@
 
 #matlab
 **/*.asv
+**/*.mexa64
 
 # directories
 node_modules
