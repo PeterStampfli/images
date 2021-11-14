@@ -22,10 +22,31 @@ void mexFunction( int nlhs, mxArray *plhs[],
 {
     double *output, *input;
     int action;
+    /* check for proper number of arguments (else crash)*/
+    if(nrhs!=2) {
+        mexErrMsgIdAndTxt("gutenTag:nrhs","Two inputs required.");
+    }
+    if(nlhs!=1) {
+        mexErrMsgIdAndTxt("gutenTag:nlhs","One output required.");
+    }
+       /* make sure the first input argument is scalar */
+    if(   mxGetNumberOfElements(prhs[0])!=1 ) {
+        mexErrMsgIdAndTxt("gutenTag:notScalar","Input action must be a scalar.");
+    }
     action = (int) mxGetScalar(prhs[0]);
-    input=  mxGetDoubles(prhs[1]);   // use -R2018a
-    plhs[0]=mxCreateNumericMatrix(1,3,mxDOUBLE_CLASS,mxREAL);
-    output= mxGetDoubles(plhs[0]);
+      
+    #if MX_HAS_INTERLEAVED_COMPLEX
+    input = mxGetDoubles(prhs[1]);
+    #else
+    input = mxGetPr(prhs[1]);
+    #endif
 
-   doSomething(output,action,input);
+    plhs[0]=mxCreateNumericMatrix(1,3,mxDOUBLE_CLASS,mxREAL);
+
+    #if MX_HAS_INTERLEAVED_COMPLEX
+    output = mxGetDoubles(plhs[0]);
+    #else
+    output = mxGetPr(plhs[0]);
+    #endif
+    doSomething(output,action,input);
 }
