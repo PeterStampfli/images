@@ -38,8 +38,8 @@ switch action
         % initialization, setting up the geometry
         maxIterations = 100;
         k = input(1);
-        n = input(2);
-        m = input(3);
+        m = input(2);
+        n = input(3);
         % different geometries
         elliptic = 0;
         euklidic = 1;
@@ -97,12 +97,12 @@ switch action
         inverted = input(3);
         % if already invalid due to some failing projection: do nothing
         if (inverted < 0)
-            output = [x, y, -1];
+            output = [x, y, -1000];
             return;
         end
         % invalid if outside of poincare disc for hyperbolic kaleidoscope
         if (geometry == hyperbolic) && (x * x + y * y > 1)
-            output = [x, y, -1];
+            output = [x, y, -1000];
             return;
         end
         % make dihedral map to put point in first sector and be able to use
@@ -192,7 +192,7 @@ switch action
                 end
             end
             % fail after doing maximum repetitions
-            output = [x, y, -1];
+            output = [x, y, -1000];
         end
     otherwise
         % unknown/illegal action
