@@ -39,4 +39,4 @@ mex arrayProduct.c -R2018a
 % -Wall   warnings ,lint
 
 % set current folder
-% cd /home/peter/images/matlabKaleidoscope
+ cd /home/peter/images/matlabKaleidoscope
