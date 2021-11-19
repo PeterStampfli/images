@@ -29,10 +29,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, j, k, index, nXnY;
     float dx, dy, dxdy, x, y;
     float *output;
-    /* do variable inputs*/
+    static mwSize dims[3];
+    /* check that output is possible*/
     if (nlhs != 1) {
-        mexErrMsgIdAndTxt("createIdentityMap:nlhs","One output array required.");
+        mexErrMsgIdAndTxt("createIdentityMap:nlhs","One output array for the map required.");
     }
+    /* do variable inputs*/
     if (nrhs >= 1){
         nPixels = (float) mxGetScalar(prhs[0]);
     } else {
@@ -69,8 +71,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     dy /= nY;
     /* create array*/
     /* attention: row first - corresponds to y dimension*/
-    mwSize dims[3] = {nY, nX, 3};
-    plhs[0]=mxCreateNumericArray(3, dims,mxSINGLE_CLASS,mxREAL);
+    dims[0] = nY;
+    dims[1] = nX;
+    dims[2] = 3;
+    plhs[0]=mxCreateNumericArray(3, dims, mxSINGLE_CLASS, mxREAL);
 #if MX_HAS_INTERLEAVED_COMPLEX
     output = mxGetSingles(plhs[0]);
 #else
