@@ -40,7 +40,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     } else {
         nPixels = 1.0f;
     }
-    nPixels *= 1000000;
+    nPixels *= 1000000f;
     if (nrhs >= 2){
         xMin = (float) mxGetScalar(prhs[1]);
     } else {
