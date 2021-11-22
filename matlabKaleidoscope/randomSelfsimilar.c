@@ -30,18 +30,22 @@
 #include <complex.h>
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
+#define PI 3.14159f
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     float nPixels, xMin, xMax, yMin, yMax;
-    int nPoints;
-    int nX, nY;
+    int nPoints, iter;
+    int nX, nY, nXnY;
     float dx, dy, dxdy;
     float *image;
     double *region;
     double *start;
-    complex startZ;
+    float complex startZ, z;
+    int nMaps, index;
+    double *mapData;
+    float complex centers[10], factors[10];
     /* check that output is possible*/
     if (nlhs != 1) {
         mexErrMsgIdAndTxt("randomSelfsimilar:nlhs","One output matrix for the image required.");
@@ -73,6 +77,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     dxdy = dx / dy;
     nX = (int) sqrt(nPixels * dxdy);
     nY = (int) sqrt(nPixels / dxdy);
+    nXnY = nX * nY;
     dx /= nX;
     dy /= nY;
     /* create array*/
@@ -93,4 +98,36 @@ void mexFunction( int nlhs, mxArray *plhs[],
     start = (double *) mxGetPr(plhs[3]);
 #endif
     startZ = start[0] + start[1] * I;
+    /* read the mappings*/
+    nMaps = nrhs - 4;
+      if (nMaps > 10) {
+                mexErrMsgIdAndTxt("randomSelfsimilar:nMaps","Maximum of 10 maps exceeded.");
+    } 
+    for (index=0; index < nMaps; index++){
+     if (mxGetNumberOfElements(prhs[index+4]) != 4) {
+                mexErrMsgIdAndTxt("randomSelfsimilar:map","A map has to have 4 parameters.");
+    } 
+#if MX_HAS_INTERLEAVED_COMPLEX
+    mapData = mxGetDoubles(plhs[index +4]);
+#else
+    mapData = (double *) mxGetPr(plhs[index + 4]);
+#endif
+    centers[index] = ((float) mapData[0]) + ((float) mapData[1]) * I;
+        factors[index] = ((float) mapData[3]) * (cos(0.5f * PI * ((float) mapData[2])) + sin(0.5f * PI *((float) mapData[2])) * I);
+    }
+    /* initialization? */
+    for (index = 0; index < nXnY; index++){
+        image[index] = 0;
+    }
+    /* doing the mappings*/
+    z = startZ;
+    for (iter = 0; iter < nPoints; iter++){
+        int mapIndex = rand() % nMaps;
+        float complex center = centers[mapIndex];
+        z = center + factors[mapIndex] * (z - center);
+        int j = (creal(z)-xMin)/dx;
+        if ((j<0) || (j >= nX)){
+            continue;
+        }
+    }
 }

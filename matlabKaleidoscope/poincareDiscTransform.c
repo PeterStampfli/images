@@ -186,7 +186,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
-                        continue;
                     }
                     break;
                 case elliptic:
@@ -205,7 +204,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
-                        continue;
                     }
                     break;
                 case euklidic:
@@ -222,9 +220,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
-                        continue;
                     }
                     break;
+            }
+            if (!fail){
+                break;
             }
             /* dihedral symmetry, if no mapping we have finished*/
             rotation = ((int) floorf(0.5f * (atan2f(y, x) / gamma + 1) + k)) % k;
@@ -251,7 +251,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     map[index] = y;
                     map[index + nXnY2] = inverted;
                     fail = false;
-                    continue;
+                    break;
                 }
             }
         }
