@@ -43,8 +43,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int k,m,n;
     enum geometryType {elliptic, euklidic, hyperbolic};
     enum geometryType geometry;
-    float alpha, beta , gamma;
-    float sines[100],cosines[100];
+    float alpha, beta ,gamma, iGamma2, kPlus05;
+    float sines[200],cosines[200];
     float mirrorX, mirrorNormalX, mirrorNormalY;
     float circleCenterX, circleCenterY, circleRadius2;
     /* check for proper number of arguments (else crash)*/
@@ -75,6 +75,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     m = (int) mxGetScalar(prhs[2]);
     n = (int) mxGetScalar(prhs[3]);
     gamma = PI / k;
+    iGamma2 = 0.5f / gamma;
+    kPlus05 = k + 0.5f;
     alpha = PI / n;
     beta = PI / m;
     float angleSum;
@@ -94,7 +96,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     float dAngle;
     dAngle = 2.0f * PI / k;
-    for (int i = 0; i < k; i++){
+    int k2 = 2 * k;
+    for (int i = 0; i < k2; i++){
         sines[i] = sinf(i*dAngle);
         cosines[i] = cosf(i*dAngle);
     }
@@ -131,7 +134,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
             mirrorNormalY = cosf(alpha);
             break;
     }
-    
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -144,7 +146,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         if (inverted < -0.1f) {
             continue;
         }
-        x = map[index+nXnY];
+        x = map[index + nXnY];
         y = map[index];
         /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
         if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
@@ -153,8 +155,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
         /* make dihedral map to put point in first sector*/
         /* and thus be able to use inversion/mirror as first step in iterated mapping*/
-        int rotation = ((int) floorf(0.5f * (atan2f(y, x) / gamma + 1) + k)) % k;
-        if (rotation > 0){
+        int rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
+        if (rotation != k){
             float cosine = cosines[rotation];
             float sine = sines[rotation];
             float h = cosine * x + sine * y;
@@ -182,7 +184,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         y = circleCenterY + factor * dy;
                     }
                     else {
-                        map[index+nXnY] = x;
+                        map[index + nXnY] = x;
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
@@ -200,7 +202,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         x = circleCenterX + factor * dx;
                         y = circleCenterY + factor * dy;
                     } else {
-                        map[index+nXnY] = x;
+                        map[index + nXnY] = x;
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
@@ -216,7 +218,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         x = x - d * mirrorNormalX;
                         y = y - d * mirrorNormalY;
                     } else {
-                        map[index+nXnY] = x;
+                        map[index + nXnY] = x;
                         map[index] = y;
                         map[index + nXnY2] = inverted;
                         fail = false;
@@ -227,8 +229,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 break;
             }
             /* dihedral symmetry, if no mapping we have finished*/
-            rotation = ((int) floorf(0.5f * (atan2f(y, x) / gamma + 1) + k)) % k;
-            if (rotation > 0){
+        rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
+            if (rotation != k){
                 /* we have a rotation and can't return*/
                 float cosine = cosines[rotation];
                 float sine = sines[rotation];
@@ -247,7 +249,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     inverted = 1 - inverted;
                 } else {
                     /* no mapping, it's finished*/
-                    map[index+nXnY] = x;
+                    map[index + nXnY] = x;
                     map[index] = y;
                     map[index + nXnY2] = inverted;
                     fail = false;

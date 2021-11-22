@@ -1,12 +1,12 @@
-function testPoincareDiscMapping(k, n, m)
-tic;
+function testPoincareDiscMapping(k, m, n)
 %test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 %shows pattern of inversions
 poincareDiscMapping(0, [k, n, m]);
-s = 200;
+s = 1000;
 width = 1;
 im = zeros(s, s);
+tic;
 for iy = 1:s
     y = width * (2 * iy / s - 1);
     for ix = 1:s
