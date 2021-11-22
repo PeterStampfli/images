@@ -167,7 +167,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             y = -y;
             inverted = 1 - inverted;
         }
-        bool fail = true;
+        bool success = false;
         for (int iter = 0; iter < MAXITERATIONS; iter++){
             float dx, dy, d2, d, factor;
             switch (geometry){
@@ -184,10 +184,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         y = circleCenterY + factor * dy;
                     }
                     else {
-                        map[index + nXnY] = x;
-                        map[index] = y;
-                        map[index + nXnY2] = inverted;
-                        fail = false;
+                        success = true;
                     }
                     break;
                 case elliptic:
@@ -202,10 +199,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         x = circleCenterX + factor * dx;
                         y = circleCenterY + factor * dy;
                     } else {
-                        map[index + nXnY] = x;
-                        map[index] = y;
-                        map[index + nXnY2] = inverted;
-                        fail = false;
+                        success = true;
                     }
                     break;
                 case euklidic:
@@ -218,18 +212,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
                         x = x - d * mirrorNormalX;
                         y = y - d * mirrorNormalY;
                     } else {
-                        map[index + nXnY] = x;
-                        map[index] = y;
-                        map[index + nXnY2] = inverted;
-                        fail = false;
+                        success = true;
                     }
                     break;
             }
-            if (!fail){
+            if (success){
                 break;
             }
             /* dihedral symmetry, if no mapping we have finished*/
-        rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
+            rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
             if (rotation != k){
                 /* we have a rotation and can't return*/
                 float cosine = cosines[rotation];
@@ -249,16 +240,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     inverted = 1 - inverted;
                 } else {
                     /* no mapping, it's finished*/
-                    map[index + nXnY] = x;
-                    map[index] = y;
-                    map[index + nXnY2] = inverted;
-                    fail = false;
+                    success = true;
                     break;
                 }
             }
         }
         /* fail after doing maximum repetitions*/
-        if (fail) {
+        if (success) {
+            map[index + nXnY] = x;
+            map[index] = y;
+            map[index + nXnY2] = inverted;
+        } else {
             map[index + nXnY2] = -1;
         }
     }
