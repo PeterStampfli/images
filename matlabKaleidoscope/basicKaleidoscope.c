@@ -1,5 +1,5 @@
 /*==========================================================
- * Maps the tiled Poincare disc into the basic hyperbolic
+ * BasicKaleidoscope: Maps the tiled Poincare disc into the basic hyperbolic
  * triangle, does also elliptic and euklidic geometry
  *
  * Input:
