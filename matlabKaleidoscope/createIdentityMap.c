@@ -5,6 +5,8 @@
  *
  * (c-indices, starting with 0, row index first)
  *
+ * inverts the y-axis for correct display of images
+ *
  * depending on:
  * mPixels - number of (mega)pixels, in units of 1'000'000, default = 1
  * xMin - lower value of x-coordinates, default = -1
@@ -28,7 +30,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float nPixels, xMin, xMax, yMin, yMax;
     int nX, nY, j, k, index, nXnY;
     float dx, dy, dxdy, x, y;
-    float *output;
+    float *map;
     static mwSize dims[3];
     /* check that output is possible*/
     if (nlhs != 1) {
@@ -71,27 +73,28 @@ void mexFunction( int nlhs, mxArray *plhs[],
     dy /= nY;
     /* create array*/
     /* attention: row first - corresponds to y dimension*/
-    dims[0] = nY;
-    dims[1] = nX;
-    dims[2] = 3;
+    dims[0] = (mwSize) nY;
+    dims[1] = (mwSize) nX;
+    dims[2] = (mwSize) 3;
     plhs[0]=mxCreateNumericArray(3, dims, mxSINGLE_CLASS, mxREAL);
 #if MX_HAS_INTERLEAVED_COMPLEX
-    output = mxGetSingles(plhs[0]);
+    map = mxGetSingles(plhs[0]);
 #else
-    output = (float *) mxGetPr(plhs[0]);
+    map = (float *) mxGetPr(plhs[0]);
 #endif
     /* make the array*/
     nXnY = nX * nY;
     index = 0;
+    /* beware of row first indexing order, the inner loop chnges the y-value*/
     x = xMin + 0.5f * dx;
     for (j = 0; j < nX; j++){
-        y = yMin + 0.5f * dy;
+        y = yMax - 0.5f * dy;
         for (k = 0; k < nY; k++){
-            output[index] = x;
-            output[index + nXnY] = y;
-            output[index + 2 * nXnY] = 0;
+            map[index] = x;
+            map[index + nXnY] = y;
+            map[index + 2 * nXnY] = 0;
             index+=1;
-            y += dy;
+            y -= dy;
         }
         x += dx;
     }

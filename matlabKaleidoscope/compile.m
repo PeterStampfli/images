@@ -9,6 +9,7 @@ cd /home/peter/images/matlabKaleidoscope
 % https://gcc.gnu.org/onlinedocs/gcc-3.4.6/gcc/Optimize-Options.html
 mex createIdentityMap.c
 mex basicKaleidoscope.c
+mex poincarePlaneToDisc.c
 mex createStructureImage.c
 % takes some time, if ok shows 3 times:
 % Building with 'gcc'.

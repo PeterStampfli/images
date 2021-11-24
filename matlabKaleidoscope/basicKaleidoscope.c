@@ -146,8 +146,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         if (inverted < -0.1f) {
             continue;
         }
-        x = map[index + nXnY];
-        y = map[index];
+        x = map[index];
+        y = map[index + nXnY];
         /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
         if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
             map[index + nXnY2] = -1;
@@ -247,9 +247,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
         /* fail after doing maximum repetitions*/
         if (success) {
-            map[index + nXnY] = x;
-            map[index] = y;
-            map[index + nXnY2] = inverted;
+            /* be safe: do not get points outside the poincare disc*/
+            if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
+                map[index + nXnY2] = -1;
+            } else {
+                map[index] = x;
+                map[index + nXnY] = y;
+                map[index + nXnY2] = inverted;
+            }
         } else {
             map[index + nXnY2] = -1;
         }

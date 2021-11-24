@@ -1,11 +1,9 @@
 /*==========================================================
- * transform a map
+ * poincarePlaneToDisc: projection of upper half plane to interiour of unit circle
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * and more parameters, depending on the transform
- *
- * modifies the map, returns nothing as it is a procedure
+ * for hyperbolic kaleidoscope set yMin = 0 as lower half-plane is empty
  *
  *========================================================*/
 
@@ -51,17 +49,23 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
     for (index = 0; index < nXnY; index++){
-        inverted = map[index + nXnY2];
         /* do only transform if pixel is valid*/
-        if (inverted < -0.1f) {
+        if (map[index + nXnY2] < -0.1f) {
             continue;
         }
-        x = map[index];
         y = map[index + nXnY];
-        /* do some transformation*/
-        
+        /* only upper half-plane*/
+        if (y > 0){
+            x = map[index];
+            /* Cayley transform, no singularity for y>0*/
+            float r2 = x * x + y * y;
+            float base = 1 / (r2 + 2 * y + 1);
+            y = -2 * x * base;
+            x = (r2 - 1) * base;
+        } else {
+            map[index + nXnY2] = -1;
+        }
         map[index] = x;
         map[index + nXnY] = y;
-        map[index + nXnY2] = inverted;
-    }
+   }
 }
