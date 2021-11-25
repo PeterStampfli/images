@@ -29,7 +29,7 @@
 #include <stdbool.h>
 #define PI 3.14159f
 #define MAXITERATIONS 100
-#define FAIL -1000
+#define INVALID -1000
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
 
@@ -150,7 +150,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
         y = map[index + nXnY];
         /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
         if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
-            map[index + nXnY2] = -1;
+            map[index] = INVALID;
+            map[index + nXnY] = INVALID;
+            map[index + nXnY2] = INVALID;
             continue;
         }
         /* make dihedral map to put point in first sector*/
@@ -256,7 +258,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 map[index + nXnY2] = inverted;
             }
         } else {
-            map[index + nXnY2] = -1;
+            map[index] = INVALID;
+            map[index + nXnY] = INVALID;
+            map[index + nXnY2] = INVALID;       
         }
     }
 }

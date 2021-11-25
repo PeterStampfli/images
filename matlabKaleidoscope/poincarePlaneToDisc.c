@@ -11,6 +11,7 @@
 #include <math.h>
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
+#define INVALID -1000
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
@@ -62,10 +63,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
             float base = 1 / (r2 + 2 * y + 1);
             y = -2 * x * base;
             x = (r2 - 1) * base;
+            map[index] = x;
+            map[index + nXnY] = y;
         } else {
-            map[index + nXnY2] = -1;
+            map[index] = INVALID;
+            map[index + nXnY] = INVALID;
+            map[index + nXnY2] = INVALID;
         }
-        map[index] = x;
-        map[index + nXnY] = y;
-   }
+    }
 }

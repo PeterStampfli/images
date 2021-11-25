@@ -11,6 +11,7 @@ mex createIdentityMap.c
 mex basicKaleidoscope.c
 mex poincarePlaneToDisc.c
 mex createStructureImage.c
+mex getRangeMap.c
 % takes some time, if ok shows 3 times:
 % Building with 'gcc'.
 % MEX completed successfully.
