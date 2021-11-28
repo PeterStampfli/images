@@ -7,7 +7,7 @@
 % >>compile;
 % >>testBasicKaleidoscope(5,4,2);
 
-function testRangeKaleidoscope(k, m, n)
+function [outMap,xMin, xMax, yMin, yMax]=testRangeKaleidoscope(k, m, n)
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 % shows pattern of inversions
@@ -15,12 +15,12 @@ function testRangeKaleidoscope(k, m, n)
 s = 1000;
 mPix=s*s/1e6;
 map=createIdentityMap(mPix);
-basicKaleidoscope(map,k,m,n);
-[xMin, xMax, yMin, yMax] = getRangeMap(map);
+outMap = basicKaleidoscope(map,k,m,n);
+[xMin, xMax, yMin, yMax] = getRangeMap(outMap);
 xMin
 xMax
 yMin
 yMax
-im=createStructureImage(map);
+im=createStructureImage(outMap);
 imshow(im)
 end

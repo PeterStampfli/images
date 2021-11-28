@@ -6,9 +6,9 @@
 % createIdentityMap.c, basicKaleidoscope.c and createStructureImage.c
 % do
 % >>compile;
-% >>testBasicKaleidoscope(5,4,2);
+% >>  map = testBasicKaleidoscope(5,4,2);
 
-function testBasicKaleidoscope(k, m, n)
+function outMap = testBasicKaleidoscope(k, m, n)
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 % shows pattern of inversions
@@ -17,8 +17,8 @@ s = 1000;
 mPix=s*s/1e6;
 map=createIdentityMap(mPix);
 tic;
-basicKaleidoscope(map,k,m,n);
+outMap = basicKaleidoscope(map,k,m,n);
 toc;
-im=createStructureImage(map);
+im=createStructureImage(outMap);
 imshow(im)
 end
