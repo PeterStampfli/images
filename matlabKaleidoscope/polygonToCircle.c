@@ -1,0 +1,117 @@
+/* PTC_polygonToCircle*/
+
+/*==========================================================
+ * transform a map
+ * regular polygon with nCorners,
+ * the corners are on circle with radius 1, center at origin
+ * is mapped to unit circle
+ *
+ * Input: the map has for each pixel (h,k):
+ * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ *
+ * and number of corners
+ *
+ * modifies the map, returns nothing if used as a procedure
+ * transform(map, ...);
+ * does not change the map and returns a modified map if used as  a function
+ * newMap = transform(map, ....);
+ *
+ *========================================================*/
+
+#include "mex.h"
+#include <math.h>
+#include <stdbool.h>
+#define PI 3.14159f
+#define PRINTI(n) printf(#n " = %d\n", n)
+#define PRINTF(n) printf(#n " = %f\n", n)
+#define INVALID -1000
+
+void mexFunction( int nlhs, mxArray *plhs[],
+        int nrhs, const mxArray *prhs[])
+{
+    const mwSize *dims;
+    int nX, nY, nXnY, nXnY2, index;
+    float inverted, x, y;
+    float *inMap, *outMap;
+    bool returnsMap = false;
+    int nCorners;
+    float sines[200],cosines[200];
+    /* check for proper number of arguments (else crash)*/
+    /* checking for presence of a map*/
+    if(nrhs != 2) {
+        mexErrMsgIdAndTxt("polygonToCircle:nrhs","A map input and number of corners required.");
+    }
+    /* check number of dimensions of the map*/
+    if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
+        mexErrMsgIdAndTxt("transformMap:mapDims","The map has to have three dimensions.");
+    }
+    dims = mxGetDimensions(prhs[0]);
+    if(dims[2] != 3) {
+        mexErrMsgIdAndTxt("transformMap:map3rdDimension","The map's third dimension has to be three.");
+    }
+    /* check that no or one output is expected*/
+    if (nlhs > 1) {
+        mexErrMsgIdAndTxt("transformMap:nlhs","Has zero or one return parameter.");
+    }
+    /* get the map*/
+#if MX_HAS_INTERLEAVED_COMPLEX
+    inMap = mxGetSingles(prhs[0]);
+#else
+    inMap = (float *) mxGetPr(prhs[0]);
+#endif
+    if (nlhs == 0){
+        outMap = inMap;
+    } else {
+        /* create output map*/
+        returnsMap = true;
+        plhs[0]=mxCreateNumericArray(3, dims, mxSINGLE_CLASS, mxREAL);
+#if MX_HAS_INTERLEAVED_COMPLEX
+        outMap = mxGetSingles(plhs[0]);
+#else
+        outMap = (float *) mxGetPr(plhs[0]);
+#endif
+    }
+    /* prepare things*/
+    nCorners = (int) mxGetScalar(prhs[1]);
+    float dAngle, piN;
+    float cosPiN, sinPiN, tanPiN;
+    piN=PI/nCorners;
+    cosPiN=cosf(piN);
+    sinPiN=sinf(piN);
+    tanPiN=tanf(piN);
+    /* the rotations of the dihedral group, order k*/
+    if (nCorners > 100){
+        mexErrMsgIdAndTxt("poincareDiscMapping:nCorners","Initialization, nCorners has to be smaller or equal to 100.");
+    }
+    dAngle = 2.0f * PI / nCorners;
+    int nCorners2 = 2 * nCorners;
+    for (int i = 0; i < nCorners2; i++){
+        sines[i] = sinf(i*dAngle);
+        cosines[i] = cosf(i*dAngle);
+    }
+    /* do the map*/
+    /* row first order*/
+    nX = dims[1];
+    nY = dims[0];
+    nXnY = nX * nY;
+    nXnY2 = 2 * nXnY;
+    for (index = 0; index < nXnY; index++){
+        inverted = inMap[index + nXnY2];
+        /* do only transform if pixel is valid*/
+        if (inverted < -0.1f) {
+            if (returnsMap){
+                /* set element only if new output map*/
+                outMap[index] = INVALID;
+                outMap[index + nXnY] = INVALID;
+                outMap[index + nXnY2] = INVALID;           }
+            continue;
+        }
+        x = inMap[index];
+        y = inMap[index + nXnY];
+        /* do some transformation*/
+        
+        outMap[index] = x;
+        outMap[index + nXnY] = y;
+        outMap[index + nXnY2] = inverted;
+    }
+}
