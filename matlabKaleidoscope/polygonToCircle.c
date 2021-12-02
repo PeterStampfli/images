@@ -1,15 +1,16 @@
 /* PTC_polygonToCircle*/
 
 /*==========================================================
- * transform a map
  * regular polygon with nCorners,
  * the corners are on circle with radius 1, center at origin
- * is mapped to unit circle
+ * is mapped to unit circle, or a multiple
  *
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
  * and number of corners
+ * and winding number, optional, default is 1
+ * mapping goes to circle times winding number
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -35,12 +36,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float *inMap, *outMap;
     bool returnsMap = false;
     int nCorners;
+    float winding;
     float sines[200],cosines[200];
     float dAngle, piNCorners, i2PINCorners;
     float cosPiNCorners, sinPiNCorners, tanPiNCorners;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs != 2) {
+    if(nrhs < 2) {
         mexErrMsgIdAndTxt("polygonToCircle:nrhs","A map input and number of corners required.");
     }
     /* check number of dimensions of the map*/
@@ -75,9 +77,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     /* prepare things*/
     nCorners = (int) mxGetScalar(prhs[1]);
+    if (nrhs > 2){
+        winding = (float) mxGetScalar(prhs[2]);
+    } else {
+        winding = 1;
+    }
     if (nCorners < 3){
-         mexErrMsgIdAndTxt("polygonToCircle:nCorners","The number of corners has to be larger than 2.");
-   }
+        mexErrMsgIdAndTxt("polygonToCircle:nCorners","The number of corners has to be larger than 2.");
+    }
     piNCorners = PI/nCorners;
     i2PiNCorners = 0.5 / piNCorners;
     cosPiNCorners = cosf(piNCorners);
@@ -108,16 +115,16 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;      
+                outMap[index + nXnY2] = INVALID;
             }
             continue;
         }
         x = inMap[index];
         y = inMap[index + nXnY];
-/* first find rotation by multiples of 2PI/nCorners such that */
+        /* first find rotation by multiples of 2PI/nCorners such that */
         /* the point is inside a sector at angles of +/- PI/nCorners to the negative y-axis*/
         /* this sector is defined by limiting angles -PI/2-PI/nCorners and -PI/2+PI/nCorners
-        /* the angle of point (x,y) to the lower limiting y-axis is atan2(y,x) + PI/2 + PI/nCorners + 2 PI */
+         * /* the angle of point (x,y) to the lower limiting y-axis is atan2(y,x) + PI/2 + PI/nCorners + 2 PI */
         /* with a range of 3PI/2 + PI/nCorners ... 7PI/2 + PI/nCorners */
         /* dividing by 2PI/nCorners gives the index m to the rotation "matrices", rounding down */
         /* m=atan2(y,x)*(nCorners/2PI) + 0.5 +nCorners*(5/4) */
