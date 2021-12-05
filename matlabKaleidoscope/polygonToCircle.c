@@ -38,8 +38,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nCorners;
     float winding;
     float sines[200],cosines[200];
-    float dAngle, piNCorners, i2PINCorners;
-    float cosPiNCorners, sinPiNCorners, tanPiNCorners;
+    float dAngle, piDivNCorners, pi2DivNCorners, nCornersDiv2Pi,nCornersPlus;
+    float cosPiDivNCorners, sinPiDivNCorners, tanPiDivNCorners;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
@@ -85,11 +85,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (nCorners < 3){
         mexErrMsgIdAndTxt("polygonToCircle:nCorners","The number of corners has to be larger than 2.");
     }
-    piNCorners = PI/nCorners;
-    i2PiNCorners = 0.5 / piNCorners;
-    cosPiNCorners = cosf(piNCorners);
-    sinPiNCorners = sinf(piNCorners);
-    tanPiNCorners = tanf(piNCorners);
+    piDivNCorners = PI/nCorners;
+    pi2DivNCorners = PI/nCorners;
+    nCornersDiv2Pi = 0.5 * nCorners / PI;
+    nCornersPlus = 0.5 + nCorners * 1.25f;
+    cosPiDivNCorners = cosf(piDivNCorners);
+    sinPiDivNCorners = sinf(piDivNCorners);
+    tanPiDivNCorners = tanf(piDivNCorners);
     /* the rotations of the dihedral group, order k*/
     if (nCorners > 100){
         mexErrMsgIdAndTxt("poincareDiscMapping:nCorners","Initialization, nCorners has to be smaller or equal to 100.");
@@ -123,11 +125,37 @@ void mexFunction( int nlhs, mxArray *plhs[],
         y = inMap[index + nXnY];
         /* first find rotation by multiples of 2PI/nCorners such that */
         /* the point is inside a sector at angles of +/- PI/nCorners to the negative y-axis*/
-        /* this sector is defined by limiting angles -PI/2-PI/nCorners and -PI/2+PI/nCorners
-         * /* the angle of point (x,y) to the lower limiting y-axis is atan2(y,x) + PI/2 + PI/nCorners + 2 PI */
+        /* this sector is defined by limiting angles -PI/2-PI/nCorners and -PI/2+PI/nCorners*/
+        /* the angle of point (x,y) to the lower limiting y-axis is atan2(y,x) + PI/2 + PI/nCorners + 2 PI */
         /* with a range of 3PI/2 + PI/nCorners ... 7PI/2 + PI/nCorners */
         /* dividing by 2PI/nCorners gives the index m to the rotation "matrices", rounding down */
         /* m=atan2(y,x)*(nCorners/2PI) + 0.5 +nCorners*(5/4) */
+        int m = (int) floorf(atan2f(y,x) * nCornersDiv2Pi + nCornersPlus);
+        /* rotate to sector -pi/2-pi/n<angle<-pi/2+pi/n*/
+        if (rotation != nCorners){
+            float cosine = cosines[m];
+            float sine = sines[m];
+            float h = cosine * x + sine * y;
+            y = -sine * x + cosine * y;
+            x = h;
+        }
+        /* the side of the polygon to its center has a distance of*/
+        /* cos(PI/nCorners) as corners have a distance of unit to the center*/
+        /* test if point is inside polygon, else set invalid*/
+         if (y < -cosPiDivNCorners) {
+            if (returnsMap){
+                /* set element only if new output map*/
+                outMap[index] = INVALID;
+                outMap[index + nXnY] = INVALID;
+                outMap[index + nXnY2] = INVALID;
+            }
+            continue;
+        }
+        /* y defines the radial position*/
+        float r = - y / cosPiDivNCorners;
+        /* x defines the angular position*/
+        /* in addition, we have to undo the rotation by m*(2PI/nCorners)
+        
         
         outMap[index] = x;
         outMap[index + nXnY] = y;
