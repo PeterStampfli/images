@@ -26,7 +26,7 @@ fileReader.onload = function() {
     const result = fileReader.result;
     try {
         readJSON.result = JSON.parse(result);
-    } catch (err) {
+    } catch (err) { 
         alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
         return;
     }
@@ -50,6 +50,7 @@ readJSON.makeButton = function(gui, action) {
     };
 };
 
+// use "=" to (re)load definition
 document.addEventListener('keyup', function(event) {
     if (event.key === '=') {
         readJSON.openButton.uiElement.onClick();

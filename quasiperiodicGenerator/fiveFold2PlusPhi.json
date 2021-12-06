@@ -1,0 +1,131 @@
+{
+    "name": "fivefold 2 + phi",
+
+    "range": 6,
+    "center": [0, 0],
+
+    "order": 10,
+    "inflation": 3.618,
+    "maxGeneration": 3,
+
+    "drawGeneration": 0,
+
+    "initial": "pentagon",
+
+    "tiles": {
+        "AHalf": {
+            "shape": [
+                [1],
+                [],
+                [0, 1]
+            ],
+            "angle": 1,
+            "border": [],
+            "color": "#ff0000",
+            "substitution": []
+        },
+        "A": {
+            "shape": [
+                [1],
+                [],
+                [0, 1],
+                [1, 1],
+                [1]
+            ],
+            "angle": 1,
+            "border": [],
+            "color": "#ff0000",
+            "composition": [{
+                "name": "AHalf"
+            }, {
+                "name": "AHalf",
+                "origin": [1, 1],
+                "orientation": 5
+            }]
+        },
+        "BHalf": {
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],
+            "angle": 1,
+            "border": [],
+            "color": "#0000ff",
+            "substitution": []
+        },
+        "B": {
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1],
+                [0, 0, 1]
+            ],
+            "angle": 2,
+            "color": "#0000ff",
+            "composition": [{
+                "name": "BHalf"
+            }, {
+                "name": "BHalf",
+                "origin": [1, 0, 1],
+                "orientation": 5
+            }]
+        },
+        "pentagon": {
+            "shape": [
+                [],
+                [0, 0, 1],
+                [0, 1, 1],
+                [0, 1, 1, 0, -1],
+                [0, 1, 1, -1, -1]
+            ],
+            "border": [],
+            "color": "#ff8800",
+            "substitution": []
+        },
+        "decagon": {
+            "shape": [
+                [1, 0, 1],
+                [1, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1],
+                [0, -1, 1, 0, 1],
+                [0, -1, 0, 0, 1],
+                [0, -1, 0, -1, 1],
+                [0, -1, 0, -1, 0],
+                [1, -1, 0, -1, 0],
+                [1, 0, 0, -1, 0],
+                [1, 0, 1, -1, 0]
+            ],
+            "color": "#ff00ff",
+            "composition": [{
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "A",
+                "origin": [1, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "A",
+                "orientation": -3
+            }, {
+                "name": "A",
+                "origin": [0, -1, 0, 0, 1],
+                "orientation": 1
+            }, {
+                "name": "A",
+                "orientation": -2
+            }, {
+                "name": "A",
+                "origin": [1, 0, 0, -1],
+                "orientation": 5
+            }]
+        }
+    }
+}

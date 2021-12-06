@@ -440,8 +440,12 @@ builder.drawTile = function(tileInfo) {
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in tile) {
+                // overprinting to join halves, only if fill
+                if (main.drawFill){
+    output.setLineWidth(1);
                 canvasContext.strokeStyle = tile.color;
                 canvasContext.stroke();
+            }
                 let border = tile.border;
                 if (border.length === 0) {
                     border = tile.shape;
@@ -469,7 +473,8 @@ builder.drawTile = function(tileInfo) {
                     }
                 }
             }
-            canvasContext.strokeStyle = main.lineColor;
+            output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = main.lineColor;
             canvasContext.stroke();
         }
         if (main.drawMarker && tile.marker) {
@@ -519,8 +524,6 @@ builder.draw = function() {
     }
     if (main.drawInitialStroke && ('shape' in tiles[initialTile.name])) {
         // draw  border of initial shape
-        output.setLineWidth(main.outlineWidth);
-        canvasContext.strokeStyle = main.outlineColor;
         const tile = tiles[initialTile.name];
         const shape = tile.shape;
         const originX = initialTile.originX;
@@ -553,6 +556,8 @@ builder.draw = function() {
             }
         }
         canvasContext.closePath();
+        output.setLineWidth(main.outlineWidth);
+        canvasContext.strokeStyle = main.outlineColor;
         canvasContext.stroke();
     }
 };
