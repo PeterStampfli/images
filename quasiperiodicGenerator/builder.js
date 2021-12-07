@@ -436,16 +436,15 @@ builder.drawTile = function(tileInfo) {
         canvasContext.closePath();
         if (main.drawFill) {
             canvasContext.fill();
+                // overprinting to join halves, only if fill
+                // need explicit overprinting, do first
+   output.setLineWidth(2);
+                canvasContext.strokeStyle = tile.color;
+                canvasContext.stroke();
         }
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in tile) {
-                // overprinting to join halves, only if fill
-                if (main.drawFill){
-    output.setLineWidth(1);
-                canvasContext.strokeStyle = tile.color;
-                canvasContext.stroke();
-            }
                 let border = tile.border;
                 if (border.length === 0) {
                     border = tile.shape;
