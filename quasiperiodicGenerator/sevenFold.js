@@ -22,6 +22,10 @@ export const sevenFold = {
                 [1],
                 [1, 0, 0, 0, 0, 0, 1]
             ],
+           "overprint": [
+                [],
+                [1, 0, 0, 0, 0, 0, 1]
+            ],
             "angle": 3,
             "border": [],
             "color": "#ff0000",
@@ -63,6 +67,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 0, 0, 1],
+                [0, 0, 0, 1, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 0, 1, -1]
             ],
             "angle": 3,
@@ -125,6 +132,9 @@ export const sevenFold = {
                 [],
                 [1],
                 [1, 0, 0, 0, 0, 0, 1]
+            ], "overprint": [
+                [],
+                [1, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 3,
             "border": [],
@@ -177,6 +187,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 0, 0, 1],
+                [0, 0, 0, 1, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 0, 1, -1]
             ],
             "angle": 3,
@@ -243,6 +256,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [1],
+                [1, 0, 1]
+            ],      "overprint": [
+                [],
                 [1, 0, 1]
             ],
             "angle": 1,
@@ -312,6 +328,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -396,6 +415,9 @@ export const sevenFold = {
                 [],
                 [1],
                 [1, 0, 1]
+            ],"overprint": [
+                [],
+                [1, 0, 1]
             ],
             "angle": 1,
             "border": [],
@@ -462,6 +484,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -546,6 +571,9 @@ export const sevenFold = {
                 [],
                 [1],
                 [1, 0, 1]
+            ], "overprint": [
+                [],
+                [1, 0, 1]
             ],
             "angle": 1,
             "border": [],
@@ -612,6 +640,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ],"overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -695,6 +726,9 @@ export const sevenFold = {
                 [],
                 [1],
                 [1, 0, 0, 0, 1]
+            ],"overprint": [
+                [],
+                [1, 0, 0, 0, 1]
             ],
             "angle": 2,
             "border": [],
@@ -769,6 +803,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 0, 1],
+                [0, 0, 1, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 1, 0, 0, -1]
             ],
             "angle": 2,
@@ -861,6 +898,9 @@ export const sevenFold = {
                 [],
                 [1],
                 [1, 0, 0, 0, 1]
+            ], "overprint": [
+                [],
+                [1, 0, 0, 0, 1]
             ],
             "angle": 2,
             "border": [],
@@ -934,6 +974,9 @@ export const sevenFold = {
             "shape": [
                 [],
                 [0, 0, 1],
+                [0, 0, 1, 0, 0, -1]
+            ],"overprint": [
+                [],
                 [0, 0, 1, 0, 0, -1]
             ],
             "angle": 2,

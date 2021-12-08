@@ -21,6 +21,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 0, 0, 0, 0, 1]
+            ],"overprint": [
+                [],
+                [1, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 3,
             "border": [],
@@ -63,6 +66,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 0, 0, 1],
+                [0, 0, 0, 1, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 0, 1, -1]
             ],
             "angle": 3,
@@ -127,6 +133,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 0, 0, 0, 0, 1]
+            ], "overprint": [
+                [],
+                [1, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 3,
             "border": [],
@@ -179,6 +188,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 0, 0, 1],
+                [0, 0, 0, 1, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 0, 1, -1]
             ],
             "angle": 3,
@@ -243,6 +255,10 @@ export const fourteenFold ={
         },
         "b1Right": {
             "shape": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],  "overprint": [
                 [],
                 [1],
                 [1, 0, 1]
@@ -314,6 +330,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -400,6 +419,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 1]
+            ], "overprint": [
+                [],
+                [1, 0, 1]
             ],
             "angle": 1,
             "border": [],
@@ -466,6 +488,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -553,6 +578,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 1]
+            ],  "overprint": [
+                [],
+                [1, 0, 1]
             ],
             "angle": 1,
             "border": [],
@@ -619,6 +647,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 1],
+                [0, 1, 0, 0, 0, 0, -1]
+            ],"overprint": [
+                [],
                 [0, 1, 0, 0, 0, 0, -1]
             ],
             "angle": 1,
@@ -702,6 +733,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 0, 0, 1]
+            ],"overprint": [
+                [],
+                [1, 0, 0, 0, 1]
             ],
             "angle": 2,
             "border": [],
@@ -778,6 +812,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 0, 1],
+                [0, 0, 1, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 1, 0, 0, -1]
             ],
             "angle": 2,
@@ -874,6 +911,9 @@ export const fourteenFold ={
                 [],
                 [1],
                 [1, 0, 0, 0, 1]
+            ],  "overprint": [
+                [],
+                [1, 0, 0, 0, 1]
             ],
             "angle": 2,
             "border": [],
@@ -947,6 +987,9 @@ export const fourteenFold ={
             "shape": [
                 [],
                 [0, 0, 1],
+                [0, 0, 1, 0, 0, -1]
+            ], "overprint": [
+                [],
                 [0, 0, 1, 0, 0, -1]
             ],
             "angle": 2,

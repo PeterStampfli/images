@@ -11,7 +11,7 @@ import {
 export const builder = {};
 
 builder.maxGeneration = 4;
-builder.drawGeneration = 2;
+builder.drawGeneration = 1;
 builder.drawing = 'last only';
 builder.minSize = 0;
 builder.tileColors = null;
@@ -398,12 +398,50 @@ builder.create = function() {
 // drawing the structure
 //=======================================
 
+// draw overprinting lines to join halves
+builder.drawOverprint = function(tileInfo) {
+    const tile = tiles[tileInfo.name];
+    if ('overprint' in tile) {
+        // overprinting to join halves, only if fill
+        // need explicit overprinting, do first
+        const canvasContext = output.canvasContext;
+        canvasContext.strokeStyle = tile.color;
+        const overprint = tile.overprint;
+        const originX = tileInfo.originX;
+        const originY = tileInfo.originY;
+        const size = tileInfo.size;
+        const orientation = tileInfo.orientation;
+        const length = overprint.length;
+        canvasContext.beginPath();
+        for (let i = 0; i < length; i++) {
+            let x = 0;
+            let y = 0;
+            const vector = overprint[i];
+            const vectorLength = vector.length;
+            for (let j = 0; j < vectorLength; j++) {
+                const direction = orientation + j;
+                const amplitude = vector[j];
+                x += amplitude * basisX[direction];
+                y += amplitude * basisY[direction];
+            }
+            x = size * x + originX;
+            y = size * y + originY;
+            if (i === 0) {
+                canvasContext.moveTo(x, y);
+            } else {
+                canvasContext.lineTo(x, y);
+            }
+        }
+        canvasContext.stroke();
+    }
+};
+
 // fill the shape and draw its outline
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tileInfo) {
-    if ('shape' in tiles[tileInfo.name]) {
-        const tile = tiles[tileInfo.name];
+    const tile = tiles[tileInfo.name];
+    if ('shape' in tile) {
         const shape = tile.shape;
         const originX = tileInfo.originX;
         const originY = tileInfo.originY;
@@ -412,6 +450,7 @@ builder.drawTile = function(tileInfo) {
         const canvasContext = output.canvasContext;
         canvasContext.fillStyle = tile.color;
         const length = shape.length;
+        // make path for fill (and stroke)
         canvasContext.beginPath();
         for (let i = 0; i < length; i++) {
             let x = 0;
@@ -428,7 +467,6 @@ builder.drawTile = function(tileInfo) {
             y = size * y + originY;
             if (i === 0) {
                 canvasContext.moveTo(x, y);
-
             } else {
                 canvasContext.lineTo(x, y);
             }
@@ -436,11 +474,6 @@ builder.drawTile = function(tileInfo) {
         canvasContext.closePath();
         if (main.drawFill) {
             canvasContext.fill();
-                // overprinting to join halves, only if fill
-                // need explicit overprinting, do first
-   output.setLineWidth(2);
-                canvasContext.strokeStyle = tile.color;
-                canvasContext.stroke();
         }
         if (main.drawStroke) {
             // if an explicite border is given then change the path
@@ -466,14 +499,11 @@ builder.drawTile = function(tileInfo) {
                     y = size * y + originY;
                     if (i === 0) {
                         canvasContext.moveTo(x, y);
-
                     } else {
                         canvasContext.lineTo(x, y);
                     }
                 }
             }
-            output.setLineWidth(main.lineWidth);
-    canvasContext.strokeStyle = main.lineColor;
             canvasContext.stroke();
         }
         if (main.drawMarker && tile.marker) {
@@ -499,7 +529,15 @@ builder.drawTile = function(tileInfo) {
 };
 
 function drawGeneration(generation) {
+    const canvasContext = output.canvasContext;
     const tilesToDraw = generations[generation];
+   if (main.drawFill) {
+        output.setLineWidth(1);
+        tilesToDraw.forEach(tile => builder.drawOverprint(tile));
+    }
+    output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = main.lineColor;
+
     tilesToDraw.forEach(tile => builder.drawTile(tile));
 }
 
@@ -521,6 +559,7 @@ builder.draw = function() {
             }
             break;
     }
+    // drawing the outline around initial configuration, particularly for subs rules
     if (main.drawInitialStroke && ('shape' in tiles[initialTile.name])) {
         // draw  border of initial shape
         const tile = tiles[initialTile.name];

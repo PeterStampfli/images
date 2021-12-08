@@ -63,7 +63,7 @@ document.addEventListener('keyup', function(event) {
 export const examples = {};
 
 examples.init = function(gui) {
-    examples.current = sevenFold;
+    examples.current = examples.ammannBeenker;
     examples.selectionController = gui.add({
         type: 'selection',
         params: examples,
@@ -114,6 +114,7 @@ examples.ammannBeenker = {
     "order": 8,
     "inflation": 2.414,
     "maxGeneration": 5,
+    "drawGeneration":1,
     "initial": "star",
 
     "markerSize": 0.2,
@@ -164,11 +165,8 @@ examples.ammannBeenker = {
                 [1],
                 [1, 0, 1]
             ],
-            "border": [
-                [],
-                [1],
-                [1, 0, 1]
-            ],
+            "border": [ ],
+            "overprint":[[],[1,0,1]],
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 0,
@@ -197,11 +195,8 @@ examples.ammannBeenker = {
                 [1],
                 [1, 0, 1]
             ],
-            "border": [
-                [],
-                [1],
-                [1, 0, 1]
-            ],
+            "border": [     ],
+                        "overprint":[[],[1,0,1]],
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 7,

@@ -39,7 +39,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float winding;
     float sines[200],cosines[200];
     float dAngle, piDivNCorners, pi2DivNCorners, nCornersDiv2Pi,nCornersPlus;
-    float cosPiDivNCorners, sinPiDivNCorners, tanPiDivNCorners;
+    float cosPiDivNCorners, sinPiDivNCorners, tanPiDivNCorners, piNDivTanPiNCorners;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
@@ -92,6 +92,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     cosPiDivNCorners = cosf(piDivNCorners);
     sinPiDivNCorners = sinf(piDivNCorners);
     tanPiDivNCorners = tanf(piDivNCorners);
+    piNDivTanPiNCorners = piDivNCorners / tanPiDivNCorners;
     /* the rotations of the dihedral group, order k*/
     if (nCorners > 100){
         mexErrMsgIdAndTxt("poincareDiscMapping:nCorners","Initialization, nCorners has to be smaller or equal to 100.");
@@ -132,7 +133,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         /* m=atan2(y,x)*(nCorners/2PI) + 0.5 +nCorners*(5/4) */
         int m = (int) floorf(atan2f(y,x) * nCornersDiv2Pi + nCornersPlus);
         /* rotate to sector -pi/2-pi/n<angle<-pi/2+pi/n*/
-        if (rotation != nCorners){
+       m=2;
+        if (m != nCorners){
             float cosine = cosines[m];
             float sine = sines[m];
             float h = cosine * x + sine * y;
@@ -143,22 +145,26 @@ void mexFunction( int nlhs, mxArray *plhs[],
         /* cos(PI/nCorners) as corners have a distance of unit to the center*/
         /* test if point is inside polygon, else set invalid*/
          if (y < -cosPiDivNCorners) {
-            if (returnsMap){
-                /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
                 outMap[index + nXnY2] = INVALID;
-            }
             continue;
         }
         /* y defines the radial position*/
         float r = - y / cosPiDivNCorners;
+        r=sqrtf(x*x+y*y);
         /* x defines the angular position*/
-        /* in addition, we have to undo the rotation by m*(2PI/nCorners)
-        
-        
-        outMap[index] = x;
-        outMap[index + nXnY] = y;
+        /* the angle is proportional to x*/
+        /* for each side of the polygon it varies by 2pi/nCorners*/
+        /* if x/y=tan(pi/N) then the contribution is pi/N*/
+        /* in addition, we have to undo the rotation by m*(2PI/nCorners)*/
+        /* that depends on the side m of the polygon*/
+        /* note that the reference angle is -pi/2*/
+        /* the winding number multiplies the angle*/
+        float phi = - 0.5 * PI + m * pi2DivNCorners - x / y * piNDivTanPiNCorners;
+        phi = atan2f(y,x)+ m * pi2DivNCorners;
+        outMap[index] = cos(phi)*r;
+        outMap[index + nXnY] = sin(phi)*r;
         outMap[index + nXnY2] = inverted;
     }
 }

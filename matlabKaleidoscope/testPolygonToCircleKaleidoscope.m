@@ -17,7 +17,7 @@ winding = 1;
 
 s = 1000;
 mPix=s*s/1e6;
-map=createIdentityMap(mPix,-1,1,0,2);
+map=createIdentityMap(mPix,-1,1,-1,1);
 polygonToCircle(map, nCorners, winding);
 basicKaleidoscope(map,k,m,n);
 im=createStructureImage(map);
