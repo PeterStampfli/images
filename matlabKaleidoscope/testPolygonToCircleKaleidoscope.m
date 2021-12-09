@@ -12,7 +12,7 @@ function testPolygonToCircleKaleidoscope(k, m, n)
 % depending on symmetry parameters k, n and m
 % shows pattern of inversions
 
-nCorners = 5;
+nCorners = 4;
 winding = 1;
 
 s = 1000;
