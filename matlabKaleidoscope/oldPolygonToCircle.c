@@ -1,5 +1,3 @@
-/* PTC_polygonToCircle*/
-
 /*==========================================================
  * regular polygon with nCorners,
  * the corners are on circle with radius 1, center at origin

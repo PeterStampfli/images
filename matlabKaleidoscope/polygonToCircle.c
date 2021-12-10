@@ -5,12 +5,20 @@
  * one side of polygon is parallel to x-axis and lies below it (y<0)
  * is mapped to unit circle
  *
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * Input:
+ * input map
+ *  the map has for each pixel (h,k):
+ *  map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * and number of corners
- * and winding number, optional, default is 1
- * mapping goes to circle times winding number
+ * number of corners of the regular polygon
+ *
+ * optional parameters:
+ *  offset, default is 0
+ *  an additional angle, rotates the kaleidoscopic pattern
+ *  typical values: 0 or pi/nCorners (has effect of exchanging m and n)
+ *  winding number, default is 1
+ *  mapping goes from polygon to circle times winding number
+ *  typical values: 1, 0.5 maps polygon to half circle, 2
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -36,12 +44,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float *inMap, *outMap;
     bool returnsMap = false;
     int nCorners;
+    float offset, winding;
     float sines[200],cosines[200];
     float nCornersPlus05, dAngle, iDAngle;
+    float piDivNCorners, cosPiDivNCorners, piDivNCornersDivTan;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
-        mexErrMsgIdAndTxt("polygonToCircle:nrhs","A map input and number of corners required.");
+        mexErrMsgIdAndTxt("polygonToCircle:nrhs","At least map input and number of corners required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -78,17 +88,27 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (nCorners < 3){
         mexErrMsgIdAndTxt("polygonToCircle:nCorners","The number of corners has to be larger than 2.");
     }
-        nCornersPlus05 = nCorners + 0.5f;
-     dAngle = 2.0f * PI / nCorners;
-     iDAngle = 1.0f / dAngle;
+    if (nrhs >= 3){
+        offset = (float) mxGetScalar(prhs[2]);
+    } else {
+        offset = 0;
+    }
+    if (nrhs >= 4){
+        winding = (float) mxGetScalar(prhs[3]);
+    } else {
+        winding = 1;
+    }
+    nCornersPlus05 = nCorners + 0.5f;
+    dAngle = 2.0f * PI / nCorners;
+    iDAngle = 1.0f / dAngle;
+    piDivNCorners = PI/nCorners;
+    cosPiDivNCorners = cosf(piDivNCorners);
+    piDivNCornersDivTan = piDivNCorners / tanf(piDivNCorners);
     int nCorners2 = 2 * nCorners;
     for (int i = 0; i < nCorners2; i++){
         sines[i] = sinf(i*dAngle);
         cosines[i] = cosf(i*dAngle);
     }
-    
-    
-    
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -115,7 +135,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         /* rotate to sector: - pi/nCorners < angle(x,y) < pi/nCorners*/
         /* find multiple of ratation by 2pi/nCorners*/
         /* y=0,x>0 goes to effectively 0*/
-        
         int rotation = (int) floorf(atan2f(y, x) * iDAngle + nCornersPlus05);
         if (rotation != nCorners){
             float cosine = cosines[rotation];
@@ -124,17 +143,25 @@ void mexFunction( int nlhs, mxArray *plhs[],
             y = -sine * x + cosine * y;
             x = h;
         }
-        
-        
-        float r=sqrtf(x*x+y*y);
-        float phi=atan2f(y,x)+rotation*dAngle;
-        
-        y=sinf(phi)*r;
-        x=cosf(phi)*r;
-        
-        /* rotate back 90 degrees, x=y, y=-x*/
-        outMap[index] = y;
-        outMap[index + nXnY] = -x;
+        /* the relevant polygon side lies at x=cos(pi/nCorners), corner points with distance 1 to center*/
+        /* limiting the valid range for x*/
+        if (x > cosPiDivNCorners) {
+            outMap[index] = INVALID;
+            outMap[index + nXnY] = INVALID;
+            outMap[index + nXnY2] = INVALID;
+            continue;
+        }
+        /* map x in [0, cosPiDivNCorners] to radius in [0, 1]*/
+        float r=x/cosPiDivNCorners;
+        /* each side of the polygon corresponds to an angle of range dAngle=2pi/nCorners*/
+        /* we have to undo the rotation by amount rotation*dAngle*/
+        /* an additional angle corresponding to y in [-x*tan(pi/N),is in [-pi/nCorners, +pi/nCorners]*/
+        float phi= offset + winding * (y / x * piDivNCornersDivTan +rotation*dAngle);
+        /* alternatively: phi=atan2f(y,x)+rotation*dAngle;*/
+        /* note that the sector [-pi/nCorners, +pi/nCorners] is also used in the kaleidoscope*/
+        /* for k = nCorners*/
+        outMap[index] = cosf(phi)*r;
+        outMap[index + nXnY] = sinf(phi)*r;
         outMap[index + nXnY2] = inverted;
     }
 }
