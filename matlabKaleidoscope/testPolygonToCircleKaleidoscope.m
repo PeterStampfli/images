@@ -18,7 +18,7 @@ angle=pi/1000000;
 
 s = 1000;
 mPix=s*s/1e6;
-[xMin, xMax, yMin, yMax] = getPolygonRange(nCorners)
+[xMin, xMax, yMin, yMax] = getRangePolygon(nCorners);
 map=createIdentityMap(mPix,xMin, xMax, yMin, yMax);
 polygonToCircle(map, nCorners, angle, winding);
 basicKaleidoscope(map,k,m,n);

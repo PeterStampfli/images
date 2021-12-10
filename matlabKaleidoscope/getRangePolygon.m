@@ -1,4 +1,4 @@
-function [xMin, xMax, yMin, yMax] = getPolygonRange(n)
+function [xMin, xMax, yMin, yMax] = getRangePolygon(n)
 % return range of (x,y) values for regular polygon with n corners
 % radius 1, center at origin
 % symmetric with respect to y-axis

@@ -6,6 +6,8 @@
  *
  * [cells, sums] = createCells(size);
  *
+ * size must be odd
+ *
  *  cd /home/peter/images/cellularAutomaton
  *========================================================*/
 
@@ -18,12 +20,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     mwSize size;
-        /* check for size parameter*/
+    /* check for size parameter*/
     if (nrhs != 1) {
         mexErrMsgIdAndTxt("createCells:nrhs","Size parameter required.");
     }
     size = (mwSize) mxGetScalar(prhs[0]);
-      /* check that output is possible*/
+    if (size % 2 != 1) {
+        mexErrMsgIdAndTxt("createCells:size","Size must be odd number.");
+    }
+    /* check that output is possible*/
     if (nlhs != 2) {
         mexErrMsgIdAndTxt("createCells:nlhs","Two output arrays for cells and sums required.");
     }
