@@ -97,7 +97,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         x = inMap[index];
         y = inMap[index + nXnY];
         phi = offset + power * atan2f(y,x);
-        r = expf(power * logf(x * x + y * y));
+        r = expf(power05 * logf(x * x + y * y));
         outMap[index] = cosf(phi) * r;
         outMap[index + nXnY] = sinf(phi) * r;
         outMap[index + nXnY2] = inverted;

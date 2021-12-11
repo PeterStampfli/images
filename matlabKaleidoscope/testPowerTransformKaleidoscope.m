@@ -15,9 +15,10 @@ function outMap = testPowerTransformKaleidoscope(k, m, n)
 
 s = 1000;
 mPix=s*s/1e6;
+power = 0.5;
 offset=pi/4;
 map=createIdentityMap(mPix);
-powerTransformMap(map, 0.5, offset);
+powerTransformMap(map,power, offset);
 outMap = basicKaleidoscope(map,k,m,n);
 im=createStructureImage(outMap);
 imshow(im)
