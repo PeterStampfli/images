@@ -29,7 +29,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 {
     const mwSize *dims;
     const mxDouble *values;
-    int size, sizeSq, *cells;
+    int size, center, *cells;
     int nValues, v1, v2, v3, v4, v5, v6;
     int index;
     if(nrhs < 2) {
@@ -41,12 +41,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     dims = mxGetDimensions(prhs[0]);
     size = dims[0];
-    sizeSq = size * size;
-     dims = mxGetDimensions(prhs[1]);
-     /* attention to matlab row first order*/
-     PRINTI(dims[0]);
-     PRINTI(dims[1]);
-     nValues = dims[1];
+    dims = mxGetDimensions(prhs[1]);
+    /* attention to matlab row first order*/
+    nValues = dims[1];
     /* get the cell array and the values vector*/
 #if MX_HAS_INTERLEAVED_COMPLEX
     cells = mxGetInt32s(prhs[0]);
@@ -55,6 +52,33 @@ void mexFunction( int nlhs, mxArray *plhs[],
     cells = (int *) mxGetPr(prhs[0]);
     values = (mxDouble *) mxGetPr(prhs[1]);
 #endif
-
-  
+    v1 = (nValues >= 1)? values[0] : 0;
+    v2 = (nValues >= 2)? values[1] : 0;
+    v3 = (nValues >= 3)? values[2] : 0;
+    v4 = (nValues >= 4)? values[3] : 0;
+    v5 = (nValues >= 5)? values[4] : 0;
+    v6 = (nValues >= 6)? values[5] : 0;
+    center = (size - 1) / 2;
+    center = center + center * size;
+    cells[center] = v1;
+    cells[center + 1] = v2;
+    cells[center - 1] = v2;
+    cells[center + size] = v2;
+    cells[center - size] = v2;
+    cells[center + 1 + size] = v3;
+    cells[center + 1 - size] = v3;
+    cells[center - 1 + size] = v3;
+    cells[center - 1 - size] = v3;
+    cells[center + 2] = v4;
+    cells[center - 2] = v4;
+    cells[center + 2 * size] = v4;
+    cells[center - 2 * size] = v4;
+    cells[center + 2 * size - 1] = v5;
+    cells[center - 2 * size + 1] = v5;
+    cells[center + 2 + size] = v5;
+    cells[center - 2 - size] = v5;
+    cells[center + 2 * size + 1] = v6;
+    cells[center - 2 * size - 1] = v6;
+    cells[center + 2 - size] = v6;
+    cells[center - 2 + size] = v6;
 }

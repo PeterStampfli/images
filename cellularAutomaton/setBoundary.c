@@ -28,7 +28,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int inner, outer;
     int index, end;
     if(nrhs == 0) {
-        mexErrMsgIdAndTxt("setBoundary:nrhs","A cell array input required.");
+        mexErrMsgIdAndTxt("setBoundary:nrhs","At least a cell array input required.");
     }
     /* check number of dimensions of the map (array)*/
     if(mxGetNumberOfDimensions(prhs[0]) != 2 ) {
@@ -70,10 +70,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     for (index = 2 * size-2; index <= end; index += size){
         cells[index] = inner;
     }
-    end = size - 1;
-    for (index = 0; index <= end; index++){
-        cells[index] = outer;
-    }
+    /* outer*/
     end = size - 1;
     for (index = 0; index <= end; index++){
         cells[index] = outer;
