@@ -24,7 +24,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 {
     const mwSize *dims;
     int cellSize, imageSize, *cells, *image;
-    int center, i, j, jImageSize, jCellSize;
+    int center, i, j, jImageSize, jCellSize, iCell;
     float scale;
     if(nrhs < 2) {
         mexErrMsgIdAndTxt("nearestNeighbourImage:nrhs","A cell array and an image array input required.");
@@ -50,10 +50,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif
     for (j = 0; j < imageSize; j++){
         jImageSize = j * imageSize;
-        jCellSize = cellsize * (2 + (int) floor(j * scale));
+        jCellSize = cellSize * (2 + (int) floor(j * scale));
         for (i = 0; i < imageSize; i++){
-            iCell = 2 + ((int) floor(i * scale);
-            
+            iCell = 2 + ((int) floor(i * scale));
+            image[jImageSize + i] = cells[jCellSize + iCell];
         }
     }
 }

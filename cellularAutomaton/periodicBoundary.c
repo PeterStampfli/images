@@ -22,11 +22,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int index, end;
     int shift, shiftSize;
     if(nrhs == 0) {
-        mexErrMsgIdAndTxt("setBoundary:nrhs","A cell array input required.");
+        mexErrMsgIdAndTxt("periodicBoundary:nrhs","A cell array input required.");
     }
     /* check number of dimensions of the map (array)*/
     if(mxGetNumberOfDimensions(prhs[0]) != 2 ) {
-        mexErrMsgIdAndTxt("setBoundary:dims","The cell array has to have two dimensions.");
+        mexErrMsgIdAndTxt("periodicBoundary:dims","The cell array has to have two dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     size = dims[0];

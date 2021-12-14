@@ -16,7 +16,7 @@
  *
  * missing values default to 0
  *
- *
+ * the the sum array
  *
  *  cd /home/peter/images/cellularAutomaton
  *========================================================*/

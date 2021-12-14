@@ -8,17 +8,22 @@
 % >>compile;
 % >>  map = testBasicKaleidoscope(5,4,2);
 
-function outMap = testBasicKaleidoscope(k, m, n)
-% test of the basic kaleidoscope
+function outMap = testTransformedKaleidoscope(k, m, n, a)
+% test of the basic kaleidoscope and bulatov band projection
 % depending on symmetry paraameters k, n and m
+% intrerpolation a in [0,1]
 % shows pattern of inversions
 
-s = 700;
+s = 1000;
 mPix=s*s/1e6;
-map=createIdentityMap(mPix);
-tic;
+if (a <= 1)
+width=min(3,getBulatovWidth(a));
+map=createIdentityMap(mPix,-width,width,-1,1);
+else
+map=createIdentityMap(mPix,-3,3,0,4/a);
+end
+bulatovBandMap(map, a);
 outMap = basicKaleidoscope(map,k,m,n);
-toc;
 im=createStructureImage(outMap);
 imshow(im)
 end

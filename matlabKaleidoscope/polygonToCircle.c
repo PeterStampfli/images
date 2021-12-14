@@ -91,12 +91,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (nrhs >= 3){
         offset = (float) mxGetScalar(prhs[2]);
     } else {
-        offset = 0;
+        offset = 0.0f;
     }
     if (nrhs >= 4){
         winding = (float) mxGetScalar(prhs[3]);
     } else {
-        winding = 1;
+        winding = 1.0f;
     }
     nCornersPlus05 = nCorners + 0.5f;
     dAngle = 2.0f * PI / nCorners;
