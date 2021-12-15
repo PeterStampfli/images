@@ -16,8 +16,8 @@ function outMap = testTransformedKaleidoscope(k, m, n)
 s = 1000;
 mPix=s*s/1e6;
 map=createIdentityMap(mPix);
-transformMap(map, 0.5);
+complexTransformMap(map, 0.5);
 outMap = basicKaleidoscope(map,k,m,n);
 im=createStructureImage(outMap);
-imshow(im);
+imshow(im)
 end
