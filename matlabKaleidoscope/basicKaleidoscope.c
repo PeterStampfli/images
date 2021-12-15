@@ -90,8 +90,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     k = (int) mxGetScalar(prhs[1]);
     m = (int) mxGetScalar(prhs[2]);
     n = (int) mxGetScalar(prhs[3]);
-    if (nrhs >= 4){
-        maxIterations = (int) mxGetScalar(prhs[3]);
+    if (nrhs >= 5){
+        maxIterations = (int) mxGetScalar(prhs[4]);
     } else {
         maxIterations = 100;
     }
