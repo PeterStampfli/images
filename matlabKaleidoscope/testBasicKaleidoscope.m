@@ -8,17 +8,18 @@
 % >>compile;
 % >>  map = testBasicKaleidoscope(5,4,2);
 
-function outMap = testBasicKaleidoscope(k, m, n)
+function outMap = testBasicKaleidoscope(k, m, n, range)
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
+% and range (number of iterations)
 % shows pattern of inversions
 
 s = 700;
-mPix=s*s/1e6;
-map=createIdentityMap(mPix);
+mPix = s * s / 1e6;
+map = createIdentityMap(mPix);
 tic;
-outMap = basicKaleidoscope(map,k,m,n);
+outMap = basicKaleidoscope(map, k, m, n, range);
 toc;
-im=createStructureImage(outMap);
+im = createStructureImage(outMap);
 imshow(im)
 end

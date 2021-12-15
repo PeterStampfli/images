@@ -17,6 +17,8 @@
  *  the radius of the poincare disc is equal to 1
  *  the radius of the equator in stereographic projection is equal to 1
  *
+ * optional parameter: range (number of iterations)
+ *
  * returns nothing and modifies the map argument if used as a procedure:
  *   basicKaleidoscope(map, k, m, n);
  *
@@ -29,7 +31,6 @@
 #include <math.h>
 #include <stdbool.h>
 #define PI 3.14159f
-#define MAXITERATIONS 100
 #define INVALID -10000
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
@@ -38,6 +39,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     const mwSize *dims;
+    int maxIterations;
     int nX, nY, nXnY, nXnY2, index;
     float inverted, x, y;
     float *inMap, *outMap;
@@ -51,7 +53,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float circleCenterX, circleCenterY, circleRadius2;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs != 4) {
+    if(nrhs < 4) {
         mexErrMsgIdAndTxt("basicKaleidoscope:nrhs","A map input plus 3 geometry params required.");
     }
     /* check number of dimensions of the map (array)*/
@@ -88,6 +90,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     k = (int) mxGetScalar(prhs[1]);
     m = (int) mxGetScalar(prhs[2]);
     n = (int) mxGetScalar(prhs[3]);
+    if (nrhs >= 4){
+        maxIterations = (int) mxGetScalar(prhs[3]);
+    } else {
+        maxIterations = 100;
+    }
     gamma = PI / k;
     iGamma2 = 0.5f / gamma;
     kPlus05 = k + 0.5f;
@@ -189,7 +196,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             inverted = 1 - inverted;
         }
         bool success = false;
-        for (int iter = 0; iter < MAXITERATIONS; iter++){
+        for (int iter = 0; iter < maxIterations; iter++){
             float dx, dy, d2, d, factor;
             switch (geometry){
                 case hyperbolic:
