@@ -2,10 +2,13 @@
 % make greyscale
 
 nStates=4;
-center=[1,2];
+% only different for interpolation
+nColors=nStates;
+imageFactor=(nColors-1)/(nStates-1);
+center=[1,0];
 weights=[1,1,1];
 
-map = makeGreyscaleMap(nStates);
+map = makeGreyscaleMap(nColors);
 cells(:,:)=0;
 makeCenter(cells,center);
 table = sawtoothTable(nStates,weights);

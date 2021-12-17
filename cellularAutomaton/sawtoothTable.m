@@ -1,3 +1,4 @@
+% sawtooth:  going from o to nstates-1, repeating this
 function table = sawtoothTable(nStates,weights)
 %make a transition table
 %sawtooth shape

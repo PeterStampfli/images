@@ -1,4 +1,4 @@
-function map = makeGreyscaleMap(nStates)
+function map = greyscaleMap(nStates)
 % make a grey-scale color map
 % as nStates,3 matrix of rgb-doubles in [0,1]
 map = zeros(nStates, 3);

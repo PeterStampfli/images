@@ -70,12 +70,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         jSize = j * size;
         for (i = 2; i < sizeM2; i++){
             center = i + jSize;
-            PRINTI(i);
-            PRINTI(j);
-            PRINTI(center);
-            
             sum = v1 * cells[center];
-            PRINTI(sum);
             if (v2 > 0){
                 sum += v2 * (cells[center + 1] + cells[center - 1] + cells[center + size] + cells[center - size]);
             }

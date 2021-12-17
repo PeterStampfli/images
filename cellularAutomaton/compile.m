@@ -4,3 +4,4 @@ mex periodicBoundary.c;
 mex makeSum.c;
 mex makeTransition.c;
 mex nearestNeighborImage.c;
+mex linearInterpolatedImage.c;

@@ -17,7 +17,7 @@ function outMap = testTransformedKaleidoscope(k, m, n, a)
 s = 1000;
 mPix=s*s/1e6;
 if (a <= 1)
-width=min(3,getBulatovWidth(a));
+width=min(6,getBulatovWidth(a));
 map=createIdentityMap(mPix,-width,width,-1,1);
 else
 map=createIdentityMap(mPix,-3,3,0,4/a);
