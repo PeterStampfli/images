@@ -9,7 +9,7 @@
  * optional:
  * outer, default=0
  * value for cells at outer border
- * inner, default=outer
+ * inner, default=0
  * value for cells at inner border
  *
  *  cd /home/peter/images/cellularAutomaton
@@ -51,7 +51,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (nrhs >= 3){
         inner = (int) mxGetScalar(prhs[2]);
     } else {
-        inner = outer;
+        inner = 0;
     }
     /* doing the inner boundary*/
     end = 2 * size - 2;

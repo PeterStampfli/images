@@ -74,6 +74,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         jImageSize = j * imageSize;
         dy = j * scale + offset;
         jCell = (int) floorf(dy);
+        dy -= jCell;
         jCellSize = cellSize * jCell;
         jMCellSize = jCellSize - cellSize;
         j1CellSize = jCellSize + cellSize;
@@ -82,15 +83,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         ky = kernel(dy);
         ky1 = kernel(1 - dy);
         ky2 = kernel(2 - dy);
-        dy -= jCell;
         for (i = 0; i < imageSize; i++){
             dx = i * scale + offset;
             iCell = (int) floorf(dx);
+            dx -= iCell;
             cellIndex = jCellSize + iCell;
             cellIndexM = jMCellSize + iCell;
             cellIndex1 = j1CellSize + iCell;
             cellIndex2 = j2CellSize + iCell;
-            dx -= iCell;
             kx = kernel(1 + dx);
             sum = kx * (kym * cells[cellIndexM - 1] + ky * cells[cellIndex - 1] + ky1 * cells[cellIndex1 - 1] + ky2 * cells[cellIndex2 - 1]);
             kx = kernel(dx);
