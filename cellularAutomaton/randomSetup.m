@@ -9,9 +9,7 @@ global image colorMap;
 global interpolation boundary;
 
 % choose random number of cells in each direction, including border
-nCellsChoices = [15, 20, 40, 80];
-[~, nChoices] = size(nCellsChoices);
-nCells = nCellsChoices(randi(nChoices));
+nCells = randomChoice([15, 20, 40, 80]);
 % make it odd
 nCells = 2 * floor(nCells/2) + 5;
 % create cells and sums array
@@ -62,4 +60,7 @@ switch (colorMapChoice)
     otherwise
         colorMap = greyScaleMap(nStates);
 end
+
+pause('on');
+
 end

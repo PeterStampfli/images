@@ -123,7 +123,7 @@ examples.ammannBeenker = {
 
     "tiles": {
         "rhomb": {
-            "color": '#0000ff',
+            "color": "#0000ff",
             "shape": [
                 [],
                 [1],
@@ -133,7 +133,7 @@ examples.ammannBeenker = {
             "angle": 1,
             "marker": [0.2, 0.2],
             "substitution": [{
-                "name": "rhomb",
+                "name": "rhomb"
             }, {
                 "name": "rhomb",
                 "origin": [1, 1, 1, -1]
@@ -240,29 +240,28 @@ examples.ammannBeenker = {
                 [1, 0, 0, -1]
             ],
             "composition": [{
-                "name": "rhomb",
+                "name": "rhomb"
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "rhomb"
             }, {
                 "name": "rhomb",
+                "orientation": 3
             }, {
                 "name": "rhomb",
+                "orientation": 4
             }, {
                 "name": "rhomb",
-                "orientation": 3,
+                "orientation": 5
             }, {
                 "name": "rhomb",
-                "orientation": 4,
+                "orientation": 6
             }, {
                 "name": "rhomb",
-                "orientation": 5,
-            }, {
-                "name": "rhomb",
-                "orientation": 6,
-            }, {
-                "name": "rhomb",
-                "orientation": 7,
+                "orientation": 7
             }]
         }
-
     }
 };
 
@@ -323,6 +322,6 @@ examples.tree = {
                 "origin": [0, 0, 1],
                 "size": 0.707
             }]
-        },
+        }
     }
 };
