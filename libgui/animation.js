@@ -38,6 +38,18 @@ animation.reset = function() {
 };
 
 /**
+ * start animation only if 'pipeline' not already running
+ * use if different animations are possible
+ * @method animation.start
+ */
+animation.start = function() {
+    if (!animation.isRunning) {
+        animation.isRunning = true;
+        animation.run();
+    }
+};
+
+/**
  * set the thing to animate
  * if something else is 'in animation' then reset animation
  * @method animation.setThing
@@ -151,18 +163,6 @@ animation.sampling = function() {
 };
 
 /**
- * start animation only if 'pipeline' not already running
- * use if different animations are possible
- * @method animation.start
- */
-animation.start = function() {
-    if (!animation.isRunning) {
-        animation.isRunning = true;
-        animation.run();
-    }
-};
-
-/**
  * make an animation, step/run animation
  * use this method initially and as a callback of the timeout/animationframe combination
  * check if animation still running (else do nothing)
@@ -219,7 +219,6 @@ animation.run = function() {
                 function() {
                     animation.makeNextFrame();
                 });
-
         } else {
             animation.frameNumber += 1;
             animation.makeNextFrame();

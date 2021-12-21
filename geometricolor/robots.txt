@@ -1,2 +1,0 @@
-Sitemap: http://geometricolor.ch/sitemap.txt
-User-agent: *
