@@ -9,8 +9,13 @@ import {
 // export everything from here, eliminate modules.js
 export const main = {};
 export const runner = {};
+
 // automaton does the interesting thing
-export const automaton = {};
+// methods: setup, draww, reset, step
+
+import {
+   automaton
+} from "./automaton.js";
 
 main.setup = function() {
 // gui and output canvas
@@ -159,20 +164,3 @@ runner.waitForNextStep = function() {
 };
 
 //==================================================
-
-automaton.draw = function() {
-    output.startDrawing();
-    output.canvasContext.fillStyle = '#8899ff';
-    output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
-};
-
-automaton.step = function() {
-    console.log('automaton steps');
-};
-
-automaton.reset = function() {
-    console.log('automaton resets');
-};
-
-// automaton.setup() redefines methods draw, reset, and step
-// for logging: automaton.logger = gui.addLogger();
