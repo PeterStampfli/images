@@ -33,7 +33,7 @@ main.setup = function() {
     output.setCanvasWidthToHeight();
     // create output.pixels
     output.createPixels();
-    output.drawCanvasChanged = main.draw;
+    output.drawCanvasChanged = automaton.draw;
 // setup the runner and its interface
     runner.recording = false;
     gui.add({
