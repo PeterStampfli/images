@@ -175,7 +175,9 @@ function initialState(config) {
     extend(cells, size2);
     cells.fill(0);
     extend(prevCells, size2);
+    prevCells.fill(0);
     extend(sums, size2);
+    sums.fill(0);
     let center = (size - 1) / 2;
     center = center + center * size;
     cells[center] = config[0];
@@ -242,6 +244,8 @@ function setBoundary(outer = 0, inner = 0) {
 }
 
 function periodicBoundary() {
+    const shift = size - 4;
+    const shiftSize = shift * size;
     /*up and down*/
     /*first row*/
     let end = size - 3;
@@ -284,6 +288,90 @@ function periodicBoundary() {
         cells[index] = cells[index - shift];
     }
 }
+//===========================================
+// sum using given weights
+
+function makeSum() {
+    const w0 = weights[0];
+    const w1 = weights[1];
+    const w2 = weights[2];
+    const w3 = weights[3];
+    const w4 = weights[4];
+    const w5 = weights[5];
+    const sizeM2 = size - 2;
+    for (let j = 2; j < sizeM2; j++) {
+        const jSize = j * size;
+        for (let i = 2; i < sizeM2; i++) {
+            const center = i + jSize;
+            let sum = w0 * cells[center];
+            if (w1 > 0) {
+                sum += w1 * (cells[center + 1] + cells[center - 1] + cells[center + size] + cells[center - size]);
+            }
+            if (w2 > 0) {
+                sum += w2 * (cells[center + 1 + size] + cells[center + 1 - size] + cells[center - 1 + size] + cells[center - 1 - size]);
+            }
+            if (w3 > 0) {
+                sum += w3 * (cells[center + 2] + cells[center - 2] + cells[center + 2 * size] + cells[center - 2 * size]);
+            }
+            if (w4 > 0) {
+                sum += w4 * (cells[center + 2 * size - 1] + cells[center - 2 * size + 1] + cells[center + 2 + size] + cells[center - 2 - size]);
+            }
+            if (w5 > 0) {
+                sum += w5 * (cells[center + 2 * size + 1] + cells[center - 2 * size - 1] + cells[center + 2 - size] + cells[center - 2 + size]);
+            }
+            sums[center] = sum;
+        }
+    }
+}
+
+//===========================================
+// making the image
+
+function nearestImage() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = width;
+    const scale = (size - 4) / width;
+    let imageIndex = 0;
+    for (var j = 0; j < height; j++) {
+        const jCellSize = size * Math.floor(2 + j * scale);
+        for (var i = 0; i < width; i++) {
+            const iCell = 2 + Math.floor(i * scale);
+            pixels.array[imageIndex] = colors[cells[jCellSize + iCell]];
+            imageIndex += 1;
+        }
+    }
+    output.pixels.show();
+}
+
+function linearImage() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = width;
+    const scale = (size - 4) / width; // inverse of size of a cell in pixels
+    const offset = (3 + scale) / 2;
+    let imageIndex = 0;
+    for (var j = 0; j < height; j++) {
+        const y = scale * j + offset;
+        const jCell = Math.floor(y);
+        const jCellSize = size * jCell;
+        const jPlusCellSize = size + cellSize;
+        const dy = y - jCell;
+        const dyPlus = 1 - dy;
+
+
+        for (var i = 0; i < width; i++) {
+            const iCell = 2 + Math.floor(i * scale);
+            pixels.array[imageIndex] = colors[cells[jCellSize + iCell]];
+            imageIndex += 1;
+        }
+    }
+    output.pixels.show();
+}
 
 //=======================================
 // the basic cellular automaton
@@ -295,6 +383,7 @@ const transitionTable = [];
 var weights = [10];
 var nStates = 10;
 var size = 11; // including border
+var boundary = -1; // periodic
 const colors = []; // integer colors
 
 
@@ -305,7 +394,7 @@ automaton.draw = function() {
     output.canvasContext.fillStyle = '#8899ff';
     output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
 
-    colorTest();
+    linearImage();
 };
 
 automaton.step = function() {
@@ -338,27 +427,51 @@ const boundaries = [-1, -1, 0, 0, 1]; // < 0 is periodic
 
 const nStatesOptions = [4, 8, 12, 20, 40];
 
-const transitionTableGenerators = [sawTooth, triangle];
+const sawToothProbability = 0.6;
 
 const colorGenerators = [greys, randomBlue, randomRedGreen, redYellowWhite, bordeaux];
 
 // reset, and a new random setup
 automaton.reset = function() {
+    logger.clear();
     size = Math.floor(randomChoice(sizes) / 2) * 2 + 1;
     nStates = randomChoice(nStatesOptions);
+    nStates = 3;
     size = 9;
+    logger.log(nStates + ' states, ' + (size - 4) * (size - 4) + ' cells');
+    // initial configuration of cells including boundary
     const initialConfig = randomChoice(configs);
     initialConfig[0] = randomChoice(centerCells);
-    console.log(initialConfig);
+    logger.log('initial configuration ' + initialConfig);
     initialState(initialConfig);
-    setBoundary(randomChoice(initialBorders), 0);
-    logArray(cells);
+    const initialBorder = randomChoice(initialBorders);
+    logger.log('initial border ' + initialBorder);
+    setBoundary(initialBorder, 0);
+    // making the sum
     weights = randomChoice(configs);
     weights[0] = randomChoice(centerCells);
-    const transitionTableGenerator = randomChoice(transitionTableGenerators);
-    transitionTableGenerator();
+    logger.log('weights ' + weights);
+    // transition
+    if (Math.random() < sawToothProbability) {
+        logger.log('sawtooth table');
+        sawTooth();
+    } else {
+        logger.log('triangle table');
+        triangle();
+    }
+    // imaging
     const colorGenerator = randomChoice(colorGenerators);
     colorGenerator();
+    // imposing boundary before new sum
+    initialState([1, 0, 0, 0, 0, 0]);
+    makeSum();
+    for (let i = 0; i < size * size; i++) {
+        cells[i] = sums[i];
+    }
+    periodicBoundary();
+    logArray(cells);
+
+
 };
 
 automaton.setup = function() {

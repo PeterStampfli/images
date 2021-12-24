@@ -35,7 +35,7 @@ Logger.spacing = 5;
  * @method Logger#log
  * @param {string} message - may include html
  */
-Logger.prototype.log = function(message) {
+Logger.prototype.log = function(message='') {
     const paragraph = document.createElement("p");
     paragraph.innerHTML = message;
     if (this.container.firstChild) {
