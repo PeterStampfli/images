@@ -359,14 +359,18 @@ function linearImage() {
         const y = scale * j + offset;
         const jCell = Math.floor(y);
         const jCellSize = size * jCell;
-        const jPlusCellSize = size + cellSize;
+        const jPlusCellSize = jCellSize + size;
         const dy = y - jCell;
         const dyPlus = 1 - dy;
-
-
         for (var i = 0; i < width; i++) {
-            const iCell = 2 + Math.floor(i * scale);
-            pixels.array[imageIndex] = colors[cells[jCellSize + iCell]];
+            const x = i * scale + offset;
+            const iCell = Math.floor(x);
+            const iCellPlus = iCell + 1;
+            const dx = x - iCell;
+            const dxPlus = 1 - dx;
+            let sum = dyPlus * (dxPlus * cells[jCellSize + iCell] + dx * cells[jCellSize + iCellPlus]);
+            sum += dy * (dxPlus * cells[jPlusCellSize + iCell] + dx * cells[jPlusCellSize + iCellPlus]);
+            pixels.array[imageIndex] = colors[Math.round(sum)];
             imageIndex += 1;
         }
     }
@@ -447,10 +451,16 @@ automaton.reset = function() {
     const initialBorder = randomChoice(initialBorders);
     logger.log('initial border ' + initialBorder);
     setBoundary(initialBorder, 0);
-    // making the sum
+    // making the sum, set border
     weights = randomChoice(configs);
     weights[0] = randomChoice(centerCells);
     logger.log('weights ' + weights);
+    boundary=randomChoice(boundaries);
+    if (boundary<0){
+        logger.log('periodic boundary');
+    } else {
+        logger.log('boundary: outer '+boundary+' (inner=0)');
+    }
     // transition
     if (Math.random() < sawToothProbability) {
         logger.log('sawtooth table');
@@ -462,6 +472,9 @@ automaton.reset = function() {
     // imaging
     const colorGenerator = randomChoice(colorGenerators);
     colorGenerator();
+
+//image
+
     // imposing boundary before new sum
     initialState([1, 0, 0, 0, 0, 0]);
     makeSum();
