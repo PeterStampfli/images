@@ -379,7 +379,6 @@ RealNumber.prototype.determineVisibleDigits = function(value) {
 
 // quantize with respect to offset
 RealNumber.prototype.quantize = function(x) {
-    console.log('offset'+this.offset)
     x -= this.offset;
     x = Math.round(x / this.step) * this.step;
     x += this.offset;
@@ -453,11 +452,8 @@ RealNumber.prototype.getValue = function() {
  * @param {number} value 
  */
 RealNumber.prototype.setValue = function(value) {
-    console.log(value);
     if (guiUtils.isNumber(value)) {
         value = this.quantizeClamp(value);
-            console.log(value);
-
         this.determineVisibleDigits(value);
         this.setInputRangeIndicator(value);
         this.lastValue = value;

@@ -34,7 +34,7 @@ output.oddCanvasSize=true;
     output.setCanvasWidthToHeight();
     // create output.pixels
     output.createPixels();
-    output.drawCanvasChanged = automaton.draw;
+    output.drawCanvasChanged = runner.reset;
 // setup the runner and its interface
     runner.recording = false;
     gui.add({
@@ -110,9 +110,7 @@ output.oddCanvasSize=true;
             }
         }
     });
-    if ('setup' in automaton) {
-        automaton.setup();
-    }
+            automaton.setup();
     runner.reset();
 };
 

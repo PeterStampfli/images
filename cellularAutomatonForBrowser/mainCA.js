@@ -109,9 +109,7 @@ main.setup = function() {
             }
         }
     });
-    if ('setup' in automaton) {
         automaton.setup();
-    }
     runner.reset();
 };
 
