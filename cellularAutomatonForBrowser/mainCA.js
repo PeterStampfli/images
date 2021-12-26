@@ -15,7 +15,7 @@ export const runner = {};
 
 import {
    automaton
-} from "./automaton.js";
+} from "./automatonCA.js";
 
 main.setup = function() {
 // gui and output canvas
@@ -162,5 +162,3 @@ runner.waitForNextStep = function() {
         }, remainingTime);
     }
 };
-
-//==================================================

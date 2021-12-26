@@ -27,6 +27,8 @@ output.divWidth = 0;
 output.canvas = false;
 output.canvasContext = false; // 2d-context
 output.pixels = false;
+//  for canvas of odd dimensions set to true
+output.oddCanvasSize=false;
 
 // vectors for intermediate results
 const u = {
@@ -442,10 +444,20 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
     // size controllers in an extra folder
     const sizeGui = gui.addFolder('size');
 
+    var minValue,stepValue;
+    if (output.oddCanvasSize){
+minValue=1;
+stepValue=2;
+        } else {
+            minValue=2;
+stepValue=1;
+        }
+
     output.canvasWidthController = sizeGui.add({
         type: "number",
         max: 10000,
-        step: 1,
+        step: stepValue,
+        min: minValue,
         params: output.canvas,
         property: "width",
         onChange: function(value) {
@@ -461,7 +473,8 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
     output.canvasHeightController = output.canvasWidthController.add({
         type: "number",
         max: 10000,
-        step: 1,
+       step: stepValue,
+        min: minValue,
         params: output.canvas,
         property: "height",
         onChange: function(value) {

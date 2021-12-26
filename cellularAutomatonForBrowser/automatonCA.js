@@ -7,7 +7,7 @@ import {
 
 import {
     main
-} from './main.js';
+} from './mainCA.js';
 
 export const automaton = {};
 
