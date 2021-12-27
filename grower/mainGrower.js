@@ -10,24 +10,27 @@ import {
 export const main = {};
 export const runner = {};
 
+runner.stepTime = 2;
+runner.stepsMax = 100;
+
 // automaton does the interesting thing
 // methods: setup, draww, reset, step
 
 import {
-   automaton
+    automaton
 } from "./automatonGrower.js";
 
 main.setup = function() {
-// gui and output canvas
+    // gui and output canvas
     const gui = new ParamGui({
         name: 'grower',
         closed: false,
         booleanButtonWidth: 40
     });
-    main.gui=gui;
+    main.gui = gui;
     BooleanButton.greenRedBackground();
     // no background color, no transparency
-output.oddCanvasSize=true;
+    output.oddCanvasSize = true;
     output.createCanvas(gui, false, false);
     output.saveType.setValue('jpg');
     // square image
@@ -35,7 +38,7 @@ output.oddCanvasSize=true;
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = runner.reset;
-// setup the runner and its interface
+    // setup the runner and its interface
     runner.recording = false;
     gui.add({
         type: 'boolean',
@@ -43,9 +46,7 @@ output.oddCanvasSize=true;
         property: 'recording'
     });
     runner.stepNumberDigits = 5;
-    runner.stepTime = 2;
     runner.step = 0;
-    runner.stepsMax = 100;
     runner.autoRun = false;
     runner.stepMessage = gui.addParagraph('steps done: ' + 0);
     gui.add({
@@ -110,7 +111,7 @@ output.oddCanvasSize=true;
             }
         }
     });
-            automaton.setup();
+    automaton.setup();
     runner.reset();
 };
 

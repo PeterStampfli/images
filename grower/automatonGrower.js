@@ -29,22 +29,40 @@ function extend(space, minLength) {
     }
 }
 
-function maxArray(a){
-    const length=a.length;
-    let result=a[0];
-    for (let i=1;i<length;i++){
-        result=Math.max(result,a[i]);
+// of elements larger than zero
+// not all cells<0 (?)
+function maxArray(a) {
+    const length = a.length;
+    let result = a[0];
+    for (let i = 1; i < length; i++) {
+        result = Math.max(result, a[i]);
     }
     return result;
 }
 
-function minArray(a){
-    const length=a.length;
-    let result=a[0];
-    for (let i=1;i<length;i++){
-        result=Math.min(result,a[i]);
+function minArray(a) {
+    const length = a.length;
+    let result = 100000;
+    for (let i = 1; i < length; i++) {
+        const element = a[i];
+        if (element > 0) {
+            result = Math.min(result, a[i]);
+        }
     }
     return result;
+}
+
+// log array of size*size elements
+function logArray(array) {
+    let index = 0;
+    for (let j = 0; j < size; j++) {
+        let message = j + ' : ';
+        for (let i = 0; i < size; i++) {
+            message += ' ' + array[index];
+            index += 1;
+        }
+        console.log(message);
+    }
 }
 
 
@@ -54,7 +72,12 @@ const color = {};
 color.alpha = 255;
 const colors = [];
 colors.length = 255;
-const colorMover=Pixels.integerOfColor({red:255,green:0,blue:0,alpha:255});
+const colorForMover = Pixels.integerOfColor({
+    red: 255,
+    green: 0,
+    blue: 0,
+    alpha: 255
+});
 
 
 function greys() {
@@ -66,12 +89,197 @@ function greys() {
     }
 }
 
+//============================================
+// doing the cell tables
+
+// find index, return -1 if out of bounds and not periodic
+function getIndex(i, j) {
+    if (periodic) {
+        if (i < 0) {
+            i = i + size;
+        }
+        if (i >= size) {
+            i = i - size;
+        }
+        if (j < 0) {
+            j = j + size;
+        }
+        if (j >= size) {
+            j = j - size;
+        }
+    } else {
+        if ((i < 0) || (i >= size) || (j < 0) || (j >= size)) {
+            return -1;
+        }
+    }
+    return j * size + i;
+}
+
+function copyCells() {
+    const length = size * size;
+    console.log(length + ' ?');
+    for (let index = 0; index < length; index++) {
+        cells[index] = newCells[index];
+    }
+}
+
+function showCells() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = width;
+    const scale = 1 / trueMagnification;
+    let imageIndex = 0;
+    for (var j = 0; j < height; j++) {
+        const jCellSize = size * Math.floor(j * scale);
+        for (var i = 0; i < width; i++) {
+            const iCell = Math.floor(i * scale);
+            const cell = cells[jCellSize + iCell];
+            if (cell < 0) {
+                pixels.array[imageIndex] = colorForMover;
+            } else {
+                pixels.array[imageIndex] = colors[cell];
+            }
+            imageIndex += 1;
+        }
+    }
+    output.pixels.show();
+}
+
+//======================================================
+
+function initial4() {
+    const center = (size + 1) * Math.floor(size / 2);
+    cells[center + 1] = -right;
+    cells[center + size] = -up;
+    cells[center - 1] = -left;
+    cells[center - size] = -down;
+}
+
+function initial8() {
+    const center = (size + 1) * Math.floor(size / 2);
+    cells[center + 1] = -right;
+    cells[center + 1 + size] = -upRight;
+    cells[center + size] = -up;
+    cells[center - 1 + size] = -upLeft;
+    cells[center - 1] = -left;
+    cells[center - 1 - size] = -downLeft;
+    cells[center - size] = -down;
+    cells[center + 1 - size] = -downRight;
+}
+
+// try to place a moving thing on cell (i,j)
+// success if cell empty
+function trySimpleMove(thing, i, j) {
+    console.log(i, j);
+    const newIndex = getIndex(i, j);
+    console.log(newIndex);
+    if ((newIndex >= 0) && (cells[newIndex] === 0)) {
+        console.log(thing);
+        newCells[newIndex] = thing;
+    }
+    logArray(newCells);
+}
+
+// simple move
+// copy static cells
+// move moving, disappear in case of collision
+// leave trail of given value staticCell
+function simpleMove() {
+    axisSteps += 1;
+    if (diagonalSteps < 0.707 * axisSteps) {
+        doDiagonal = true;
+        diagonalSteps += 1;
+    } else {
+        doDiagonal = false;
+    }
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                switch (-element % 10) {
+                    case right:
+                        trySimpleMove(element, i + 1, j);
+                        newCells[index] = trailCell;
+                        break;
+                    case up:
+                        trySimpleMove(element, i, j + 1);
+                        newCells[index] = trailCell;
+                        break;
+                    case left:
+                        trySimpleMove(element, i - 1, j);
+                        newCells[index] = trailCell;
+                        break;
+                    case down:
+                        trySimpleMove(element, i, j - 1);
+                        newCells[index] = trailCell;
+                        break;
+                    case upRight:
+                        if (doDiagonal) {
+                            trySimpleMove(element, i + 1, j + 1);
+                            newCells[index] = trailCell;
+                        }
+                        break;
+                    case upLeft:
+                        if (doDiagonal) {
+                            trySimpleMove(element, i - 1, j + 1);
+                            newCells[index] = trailCell;
+                        }
+                        break;
+                    case downLeft:
+                        if (doDiagonal) {
+                            trySimpleMove(element, i - 1, j - 1);
+                            newCells[index] = trailCell;
+                        }
+                        break;
+                    case downRight:
+                        if (doDiagonal) {
+                            trySimpleMove(element, i + 1, j - 1);
+                            newCells[index] = trailCell;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+}
+
 
 //=========================================
 
+// cells<0 are moving
+// cells>0 are static images
+
+// directions: 1 right, 2 up right, 3 up, 4 up left, 5 left, 6 down left, 7 down, 8 down right
+const right = 1;
+const upRight = 2;
+const up = 3;
+const upLeft = 4;
+const left = 5;
+const downLeft = 6;
+const down = 7;
+const downRight = 8;
+
+
+// cell -1 moves right, etc. , stopps at collisions
+
 const cells = [];
+const newCells = [];
 var size;
 var trueMagnification;
+var periodic = false;
+var trailCell = 128;
+var axisSteps, diagonalSteps;
+
+automaton.magnification = 50;
 
 // drawing: canvas might have been resized
 automaton.draw = function() {
@@ -79,38 +287,49 @@ automaton.draw = function() {
     output.startDrawing();
     output.canvasContext.fillStyle = '#8888ff';
     output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
-
-    greys();
+    showCells();
 };
 
 automaton.step = function() {
     console.log('automaton steps');
-
+    logArray(cells);
+    simpleMove();
+    logArray(newCells);
+    copyCells();
 };
 
 // reset, and a new random setup
 automaton.reset = function() {
     logger.clear();
     console.log('automaton resets');
-    size = output.canvas.width/automaton.magnification;
-    size=2*Math.floor(size/2)+1;
-    trueMagnification=output.canvas.width/size;                    // show block pixels, round down
-    console.log('size '+size);
+    size = output.canvas.width / automaton.magnification;
+    size = 2 * Math.floor(size / 2) + 1;
+    trueMagnification = output.canvas.width / size; // show block pixels, round down
+    console.log('size ' + size);
     extend(cells, size * size);
+    cells.fill(0);
+    extend(newCells, size * size);
+    axisSteps = 0;
+    diagonalSteps = 0;
+
+
+
+    greys();
+
+    initial4();
 
 };
 
-automaton.magnification=5;
 
 automaton.setup = function() {
     console.log('automaton setup');
     main.gui.add({
-        type:'number',
-        params:automaton,
-        property:'magnification',
-        step:1,
-        min:1,
-        onChange: function(){
+        type: 'number',
+        params: automaton,
+        property: 'magnification',
+        step: 1,
+        min: 1,
+        onChange: function() {
             automaton.reset();
         }
     });
