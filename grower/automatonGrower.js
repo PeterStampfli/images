@@ -65,6 +65,38 @@ function logArray(array) {
     }
 }
 
+//==========================================
+// action choices
+const actions = [];
+const actionWeights = [];
+var actionSum = 0;
+
+function clearActions() {
+    actionSum = 0;
+    actions.length = 0;
+    actionWeights.length = 0;
+}
+
+function addAction(action, weight) {
+    actionSum += weight;
+    actions.push(action);
+    actionWeights.push(weight);
+}
+
+function randomAction() {
+    let choice = actionSum * Math.random();
+    const length = actions.length - 1;
+    for (let i = 0; i < length; i++) {
+        choice -= actionWeights[i];
+        if (choice < 0) {
+            const action = actions[i];
+            action();
+            return;
+        }
+    }
+    const action = actions[length];
+    action();
+}
 
 //=======================================
 // color tables as integer colors
@@ -78,7 +110,6 @@ const colorForMover = Pixels.integerOfColor({
     blue: 0,
     alpha: 255
 });
-
 
 function greys() {
     for (let i = 0; i < 255; i++) {
@@ -117,7 +148,6 @@ function getIndex(i, j) {
 
 function copyCells() {
     const length = size * size;
-    console.log(length + ' ?');
     for (let index = 0; index < length; index++) {
         cells[index] = newCells[index];
     }
@@ -172,14 +202,10 @@ function initial8() {
 // try to place a moving thing on cell (i,j)
 // success if cell empty
 function trySimpleMove(thing, i, j) {
-    console.log(i, j);
     const newIndex = getIndex(i, j);
-    console.log(newIndex);
     if ((newIndex >= 0) && (cells[newIndex] === 0)) {
-        console.log(thing);
         newCells[newIndex] = thing;
     }
-    logArray(newCells);
 }
 
 // simple move
@@ -188,11 +214,10 @@ function trySimpleMove(thing, i, j) {
 // leave trail of given value staticCell
 function simpleMove() {
     axisSteps += 1;
+    let doDiagonal = false;
     if (diagonalSteps < 0.707 * axisSteps) {
         doDiagonal = true;
         diagonalSteps += 1;
-    } else {
-        doDiagonal = false;
     }
     newCells.fill(0);
     for (let j = 0; j < size; j++) {
@@ -252,7 +277,6 @@ function simpleMove() {
     }
 }
 
-
 //=========================================
 
 // cells<0 are moving
@@ -267,9 +291,6 @@ const left = 5;
 const downLeft = 6;
 const down = 7;
 const downRight = 8;
-
-
-// cell -1 moves right, etc. , stopps at collisions
 
 const cells = [];
 const newCells = [];
@@ -292,9 +313,7 @@ automaton.draw = function() {
 
 automaton.step = function() {
     console.log('automaton steps');
-    logArray(cells);
-    simpleMove();
-    logArray(newCells);
+    randomAction();
     copyCells();
 };
 
@@ -305,21 +324,19 @@ automaton.reset = function() {
     size = output.canvas.width / automaton.magnification;
     size = 2 * Math.floor(size / 2) + 1;
     trueMagnification = output.canvas.width / size; // show block pixels, round down
-    console.log('size ' + size);
     extend(cells, size * size);
     cells.fill(0);
     extend(newCells, size * size);
     axisSteps = 0;
     diagonalSteps = 0;
-
-
+    clearActions();
+    addAction(simpleMove);
 
     greys();
 
     initial4();
 
 };
-
 
 automaton.setup = function() {
     console.log('automaton setup');
