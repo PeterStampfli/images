@@ -277,12 +277,76 @@ function simpleMove() {
     }
 }
 
+// create
+function spawn90() {
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                newCells[index] = trailCell;
+                switch (-element % 10) {
+                    case right:
+                        trySimpleMove(element, i + 1, j);
+                        trySimpleMove(-down - 10, i, j - 1);
+                        trySimpleMove(-up - 20, i, j + 1);
+                        break;
+                    case up:
+                        trySimpleMove(element, i, j + 1);
+                        trySimpleMove(-right - 10, i + 1, j);
+                        trySimpleMove(-left - 20, i - 1, j);
+                        break;
+                    case left:
+                        trySimpleMove(element, i - 1, j);
+                        trySimpleMove(-up - 10, i, j + 1);
+                        trySimpleMove(-down - 20, i, j - 1);
+                        break;
+                    case down:
+                        trySimpleMove(element, i, j - 1);
+                        trySimpleMove(-left - 10, i - 1, j);
+                        trySimpleMove(-right - 20, i + 1, j);
+                        break;
+                    case upRight:
+                        trySimpleMove(element, i + 1, j + 1);
+                        trySimpleMove(-downRight - 10, i + 1, j);
+                        trySimpleMove(-upLeft - 20, i, j + 1);
+                        break;
+                    case upLeft:
+                        trySimpleMove(element, i - 1, j + 1);
+                        trySimpleMove(-upRight - 10, i, j + 1);
+                        trySimpleMove(-downLeft - 20, i - 1, j);
+                        break;
+                    case downLeft:
+                        trySimpleMove(element, i - 1, j - 1);
+                        trySimpleMove(-upLeft - 10, i - 1, j);
+                        trySimpleMove(-downRight - 20, i, j - 1);
+                        break;
+                    case downRight:
+                        trySimpleMove(element, i + 1, j - 1);
+                        trySimpleMove(-downLeft - 10, i, j - 1);
+                        trySimpleMove(-upRight - 20, i + 1, j);
+                        break;
+                }
+            }
+        }
+    }
+}
+
 //=========================================
 
 // cells<0 are moving
 // cells>0 are static images
 
 // directions: 1 right, 2 up right, 3 up, 4 up left, 5 left, 6 down left, 7 down, 8 down right
+
+// -1x goes to the right at obstacle, -2x goes to the left
+
 const right = 1;
 const upRight = 2;
 const up = 3;
@@ -300,7 +364,7 @@ var periodic = false;
 var trailCell = 128;
 var axisSteps, diagonalSteps;
 
-automaton.magnification = 50;
+automaton.magnification = 10;
 
 // drawing: canvas might have been resized
 automaton.draw = function() {
@@ -330,7 +394,8 @@ automaton.reset = function() {
     axisSteps = 0;
     diagonalSteps = 0;
     clearActions();
-    addAction(simpleMove);
+    addAction(simpleMove, 1);
+    addAction(spawn90, 0.3);
 
     greys();
 

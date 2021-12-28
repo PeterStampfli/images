@@ -8,7 +8,7 @@
 % >>compile;
 % >>  map = testBasicKaleidoscope(5,4,2);
 
-function outMap = testBulatovBandKaleidoscope(k, m, n, a)
+function outMap = testBulatovBandComplexKaleidoscope(k, m, n, a)
 % test of the basic kaleidoscope and bulatov band projection
 % depending on symmetry paraameters k, n and m
 % interpolation a in [0,1]

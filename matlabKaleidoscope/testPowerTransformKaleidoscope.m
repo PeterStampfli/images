@@ -18,7 +18,9 @@ mPix=s*s/1e6;
 power = 0.5;
 offset=pi/4;
 map=createIdentityMap(mPix);
+tic();
 powerTransformMap(map,power, offset);
+toc();
 outMap = basicKaleidoscope(map,k,m,n);
 im=createStructureImage(outMap);
 imshow(im)
