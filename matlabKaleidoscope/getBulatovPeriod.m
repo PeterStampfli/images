@@ -23,11 +23,11 @@ center = cos(beta) / sin(gamma);
 radius = 1 / sqrt(center*center-1);
 center = radius * center;
 if (mod(k, 2) == 0)
-    period = 4 / pi * atanh(center-radius);
+    period = 8 / pi * atanh(center-radius);
 else
     % intersection of circle with oblique line
     angle = pi * (0.5 - 1 / k - 1 / m);
     a = sqrt(center*center+radius*radius-2*center*radius*cos(angle));
-    period = 4 / pi * (atanh(center-radius) + atanh(a));
+    period = 8 / pi * (atanh(center-radius) + atanh(a));
 end
 end

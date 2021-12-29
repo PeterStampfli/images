@@ -6,7 +6,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    main
+    main,
+    runner
 } from './mainGrower.js';
 
 export const automaton = {};
@@ -179,6 +180,17 @@ function showCells() {
 
 //======================================================
 
+function initial1() {
+    const center = Math.floor(size / 2);
+    cells[center] = -up;
+}
+
+function initial2() {
+    const center = (size + 1) * Math.floor(size / 2);
+    cells[center + size] = -up;
+    cells[center - size] = -down;
+}
+
 function initial4() {
     const center = (size + 1) * Math.floor(size / 2);
     cells[center + 1] = -right;
@@ -199,11 +211,137 @@ function initial8() {
     cells[center + 1 - size] = -downRight;
 }
 
+// test if there are moving cells
+function hasMoving() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        if (cells[index] < 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// number of neighboring moving things
+function neighborsMoving(i, j) {
+    let sum = 0;
+    let index = getIndex(i + 1, j);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j + 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j + 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j + 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j - 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j - 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j - 1);
+    if ((index >= 0) && (cells[index] < 0)) {
+        sum += 1;
+    }
+    return sum;
+}
+
+// calculate number of static neighbors
+function neighborsStatic(i, j) {
+    let sum = 0;
+    let index = getIndex(i + 1, j);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j + 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j + 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j + 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j - 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j - 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j - 1);
+    if ((index >= 0) && (cells[index] > 0)) {
+        sum += 1;
+    }
+    return sum;
+}
+
+// calculate number of empty neighbors
+function neighborsEmpty(i, j) {
+    let sum = 0;
+    let index = getIndex(i + 1, j);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j + 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j + 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j + 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i - 1, j - 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i, j - 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    index = getIndex(i + 1, j - 1);
+    if ((index >= 0) && (cells[index] === 0)) {
+        sum += 1;
+    }
+    return sum;
+}
+
 // try to place a moving thing on cell (i,j)
-// success if cell empty
+// success if cell empty and surrounded by not more than one moving cell
+// (to save symmetry, avoid collision)
 function trySimpleMove(thing, i, j) {
     const newIndex = getIndex(i, j);
-    if ((newIndex >= 0) && (cells[newIndex] === 0)) {
+    if ((newIndex >= 0) && (cells[newIndex] === 0) && (neighborsMoving(i, j) <= 1)) {
         newCells[newIndex] = thing;
     }
 }
@@ -338,6 +476,106 @@ function spawn90() {
     }
 }
 
+// rotate direction of move
+function rotate90() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element < 0) {
+            if (-element % 10 >= 7) {
+                element += 6;
+            } else {
+                element -= 2;
+            }
+        }
+        newCells[index] = element;
+    }
+}
+
+// strong color change
+function lighten() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element > 0) {
+            element = Math.max(1, Math.min(255, element + lightenValue));
+        }
+        newCells[index] = element;
+    }
+}
+
+// create new static cells at places near occupied cell
+function expand() {
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element != 0) {
+                newCells[index] = element;
+            } else {
+                if ((neighborsMoving(i, j) === 0) && (neighborsStatic(i, j) > 0)) {
+                    newCells[index] = expanCell;
+                } else {
+                    newCells[index] = 0;
+                }
+            }
+        }
+    }
+}
+
+// delete static cells in contact with empty cells
+function shrink() {
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element <= 0) {
+                newCells[index] = element;
+            } else {
+                if (neighborsEmpty(i, j) > 0) {
+                    newCells[index] = 0;
+                } else {
+                    newCells[index] = element;
+                }
+            }
+        }
+    }
+}
+
+// smoothing: delete static cells with less than 4
+function smooth() {
+    console.log('smooth');
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element <= 0) {
+                newCells[index] = element;
+            } else {
+                if (neighborsEmpty(i, j) > 4) {
+                    newCells[index] = 0;
+                } else {
+                    newCells[index] = element;
+                }
+            }
+        }
+    }
+}
+
+// change value of static cells, as part of the evolution step
+function age() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        const element = cells[index];
+        if (element > 0) {
+            cells[index] = Math.max(1, Math.min(255, element + ageStep));
+        }
+    }
+}
+
 //=========================================
 
 // cells<0 are moving
@@ -360,15 +598,21 @@ const cells = [];
 const newCells = [];
 var size;
 var trueMagnification;
-var periodic = false;
-var trailCell = 128;
 var axisSteps, diagonalSteps;
+// parameters
+var periodic = false;
+// value for static cells in trail of moving things
+var trailCell = 128;
+// value for expanding static cells
+var expanCell = 200;
+// value for ageing
+var ageStep = 5;
+var lightenValue = 50;
 
 automaton.magnification = 10;
 
 // drawing: canvas might have been resized
 automaton.draw = function() {
-    console.log('automaton draws');
     output.startDrawing();
     output.canvasContext.fillStyle = '#8888ff';
     output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
@@ -377,8 +621,13 @@ automaton.draw = function() {
 
 automaton.step = function() {
     console.log('automaton steps');
-    randomAction();
-    copyCells();
+    if (hasMoving()) {
+        age();
+        randomAction();
+        copyCells();
+    } else {
+        automaton.reset();
+    }
 };
 
 // reset, and a new random setup
@@ -396,6 +645,11 @@ automaton.reset = function() {
     clearActions();
     addAction(simpleMove, 1);
     addAction(spawn90, 0.3);
+    //addAction(expand, 0.2);
+    //   addAction(shrink, 0.2);
+    //  addAction(smooth, 0.2);
+    //  addAction(rotate90, 0.2);
+    addAction(lighten, 0.2);
 
     greys();
 
