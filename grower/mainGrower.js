@@ -3,7 +3,8 @@
 import {
     output,
     ParamGui,
-    BooleanButton
+    BooleanButton,
+    guiUtils
 } from "../libgui/modules.js";
 
 // export everything from here, eliminate modules.js
@@ -32,6 +33,8 @@ main.setup = function() {
     // no background color, no transparency
     output.oddCanvasSize = true;
     output.createCanvas(gui, false, false);
+    output.div.style.backgroundColor = '#88ff00';
+    output.extendCanvasController.setValue(true);
     output.saveType.setValue('jpg');
     // square image
     output.setCanvasWidthToHeight();
@@ -117,6 +120,7 @@ main.setup = function() {
 
 runner.reset = function() {
     runner.step = 0;
+    runner.stepMessage.innerHTML = 'steps done: ' + runner.step;
     automaton.reset();
     automaton.draw();
 };
@@ -137,9 +141,9 @@ runner.makeStep = function() {
     if (runner.recording) {
         let name = runner.step.toString(10);
         while (name.length < runner.stepNumberDigits) {
-            name = '0' + result;
+            name = '0' + name;
         }
-        name = output.saveName.getValue() + result;
+        name = output.saveName.getValue() + name;
         const type = output.saveType.getValue();
         guiUtils.saveCanvasAsFile(output.canvas, name, type,
             function() {

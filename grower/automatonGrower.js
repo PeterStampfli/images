@@ -2,7 +2,8 @@
 
 import {
     output,
-    Pixels
+    Pixels,
+    guiUtils
 } from "../libgui/modules.js";
 
 import {
@@ -86,6 +87,7 @@ function addAction(action, weight) {
 
 function randomAction() {
     let choice = actionSum * Math.random();
+    console.log(actionSum,choice);
     const length = actions.length - 1;
     for (let i = 0; i < length; i++) {
         choice -= actionWeights[i];
@@ -104,21 +106,52 @@ function randomAction() {
 const color = {};
 color.alpha = 255;
 const colors = [];
-colors.length = 255;
+colors.length = 256;
 const colorForMover = Pixels.integerOfColor({
+    red: 255,
+    green: 255,
+    blue: 0,
+    alpha: 255
+});
+const colorForMoverLeft = Pixels.integerOfColor({
     red: 255,
     green: 0,
     blue: 0,
     alpha: 255
 });
+const colorForMoverRight = Pixels.integerOfColor({
+    red: 0,
+    green: 255,
+    blue: 0,
+    alpha: 255
+});
 
 function greys() {
-    for (let i = 0; i < 255; i++) {
+    for (let i = 0; i < 256; i++) {
         color.red = i;
         color.blue = i;
         color.green = i;
         colors[i] = Pixels.integerOfColor(color);
     }
+}
+
+function colorTest() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = output.canvas.height;
+    const blockSize = Math.floor(width / 20) + 1;
+    let index = 0;
+    for (var j = 0; j < height; j++) {
+        const colorIndexBase = Math.floor(j / blockSize) * Math.floor(width / blockSize);
+        for (var i = 0; i < width; i++) {
+            const colorIndex = (colorIndexBase + Math.floor(i / blockSize)) % 256;
+            pixels.array[index] = colors[colorIndex];
+            index += 1;
+        }
+    }
+    output.pixels.show();
 }
 
 //============================================
@@ -167,7 +200,11 @@ function showCells() {
         for (var i = 0; i < width; i++) {
             const iCell = Math.floor(i * scale);
             const cell = cells[jCellSize + iCell];
-            if (cell < 0) {
+            if (cell < -20) {
+                pixels.array[imageIndex] = colorForMoverLeft;
+            } else if (cell < -10) {
+                pixels.array[imageIndex] = colorForMoverRight;
+            } else if (cell < 0) {
                 pixels.array[imageIndex] = colorForMover;
             } else {
                 pixels.array[imageIndex] = colors[cell];
@@ -199,16 +236,17 @@ function initial4() {
     cells[center - size] = -down;
 }
 
-function initial8() {
+function initial4Diagonal() {
     const center = (size + 1) * Math.floor(size / 2);
-    cells[center + 1] = -right;
     cells[center + 1 + size] = -upRight;
-    cells[center + size] = -up;
     cells[center - 1 + size] = -upLeft;
-    cells[center - 1] = -left;
     cells[center - 1 - size] = -downLeft;
-    cells[center - size] = -down;
     cells[center + 1 - size] = -downRight;
+}
+
+function initial8() {
+    initial4();
+    initial4Diagonal();
 }
 
 // test if there are moving cells
@@ -336,14 +374,29 @@ function neighborsEmpty(i, j) {
     return sum;
 }
 
-// try to place a moving thing on cell (i,j)
+// try to create a moving thing on cell (i,j)
 // success if cell empty and surrounded by not more than one moving cell
 // (to save symmetry, avoid collision)
-function trySimpleMove(thing, i, j) {
+function trySimpleCreate(thing, i, j) {
     const newIndex = getIndex(i, j);
     if ((newIndex >= 0) && (cells[newIndex] === 0) && (neighborsMoving(i, j) <= 1)) {
+        console.log('newplae '+newCells[newIndex])
         newCells[newIndex] = thing;
+        return true;
     }
+    return false;
+}
+
+// try to place a moving thing on cell (i,j)
+// success if cell empty 
+// return true if success
+function trySimpleMove(thing, i, j) {
+    const newIndex = getIndex(i, j);
+    if ((newIndex >= 0) && (cells[newIndex] === 0)) {
+        newCells[newIndex] = thing;
+        return true;
+    }
+    return false;
 }
 
 // simple move
@@ -389,24 +442,32 @@ function simpleMove() {
                         if (doDiagonal) {
                             trySimpleMove(element, i + 1, j + 1);
                             newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
                         }
                         break;
                     case upLeft:
                         if (doDiagonal) {
                             trySimpleMove(element, i - 1, j + 1);
                             newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
                         }
                         break;
                     case downLeft:
                         if (doDiagonal) {
                             trySimpleMove(element, i - 1, j - 1);
                             newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
                         }
                         break;
                     case downRight:
                         if (doDiagonal) {
                             trySimpleMove(element, i + 1, j - 1);
                             newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
                         }
                         break;
                 }
@@ -431,50 +492,272 @@ function spawn90() {
                 newCells[index] = trailCell;
                 switch (-element % 10) {
                     case right:
-                        trySimpleMove(element, i + 1, j);
-                        trySimpleMove(-down - 10, i, j - 1);
-                        trySimpleMove(-up - 20, i, j + 1);
+                        trySimpleCreate(element, i + 1, j);
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-up - 20, i, j + 1);
                         break;
                     case up:
-                        trySimpleMove(element, i, j + 1);
-                        trySimpleMove(-right - 10, i + 1, j);
-                        trySimpleMove(-left - 20, i - 1, j);
+                        trySimpleCreate(element, i, j + 1);
+                        trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-left - 20, i - 1, j);
                         break;
                     case left:
-                        trySimpleMove(element, i - 1, j);
-                        trySimpleMove(-up - 10, i, j + 1);
-                        trySimpleMove(-down - 20, i, j - 1);
+                        trySimpleCreate(element, i - 1, j);
+                        trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-down - 20, i, j - 1);
                         break;
                     case down:
-                        trySimpleMove(element, i, j - 1);
-                        trySimpleMove(-left - 10, i - 1, j);
-                        trySimpleMove(-right - 20, i + 1, j);
+                        trySimpleCreate(element, i, j - 1);
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-right - 20, i + 1, j);
                         break;
                     case upRight:
-                        trySimpleMove(element, i + 1, j + 1);
-                        trySimpleMove(-downRight - 10, i + 1, j);
-                        trySimpleMove(-upLeft - 20, i, j + 1);
+                        trySimpleCreate(element, i + 1, j + 1);
+                        trySimpleCreate(-downRight - 10, i + 1, j);
+                        trySimpleCreate(-upLeft - 20, i, j + 1);
                         break;
                     case upLeft:
-                        trySimpleMove(element, i - 1, j + 1);
-                        trySimpleMove(-upRight - 10, i, j + 1);
-                        trySimpleMove(-downLeft - 20, i - 1, j);
+                        trySimpleCreate(element, i - 1, j + 1);
+                        trySimpleCreate(-upRight - 10, i, j + 1);
+                        trySimpleCreate(-downLeft - 20, i - 1, j);
                         break;
                     case downLeft:
-                        trySimpleMove(element, i - 1, j - 1);
-                        trySimpleMove(-upLeft - 10, i - 1, j);
-                        trySimpleMove(-downRight - 20, i, j - 1);
+                        trySimpleCreate(element, i - 1, j - 1);
+                        trySimpleCreate(-upLeft - 10, i - 1, j);
+                        trySimpleCreate(-downRight - 20, i, j - 1);
                         break;
                     case downRight:
-                        trySimpleMove(element, i + 1, j - 1);
-                        trySimpleMove(-downLeft - 10, i, j - 1);
-                        trySimpleMove(-upRight - 20, i + 1, j);
+                        trySimpleCreate(element, i + 1, j - 1);
+                        trySimpleCreate(-downLeft - 10, i, j - 1);
+                        trySimpleCreate(-upRight - 20, i + 1, j);
                         break;
                 }
             }
         }
     }
 }
+
+function spawn45() {
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                newCells[index] = trailCell;
+                switch (-element % 10) {
+                    case right:
+                        trySimpleCreate(element, i + 1, j);
+                        trySimpleCreate(-downRight - 10, i, j - 1);
+                        trySimpleCreate(-upRight - 20, i, j + 1);
+                        break;
+                    case up:
+                        trySimpleCreate(element, i, j + 1);
+                        trySimpleCreate(-upRight - 10, i + 1, j);
+                        trySimpleCreate(-upLeft - 20, i - 1, j);
+                        break;
+                    case left:
+                        trySimpleCreate(element, i - 1, j);
+                        trySimpleCreate(-upLeft - 10, i, j + 1);
+                        trySimpleCreate(-downLeft - 20, i, j - 1);
+                        break;
+                    case down:
+                        trySimpleCreate(element, i, j - 1);
+                        trySimpleCreate(-downLeft - 10, i - 1, j);
+                        trySimpleCreate(-downRight - 20, i + 1, j);
+                        break;
+                    case upRight:
+                        trySimpleCreate(element, i + 1, j + 1);
+                        trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-up - 20, i, j + 1);
+                        break;
+                    case upLeft:
+                        trySimpleCreate(element, i - 1, j + 1);
+                        trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-left - 20, i - 1, j);
+                        break;
+                    case downLeft:
+                        trySimpleCreate(element, i - 1, j - 1);
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-down - 20, i, j - 1);
+                        break;
+                    case downRight:
+                        trySimpleCreate(element, i + 1, j - 1);
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-right - 20, i + 1, j);
+                        break;
+                }
+            }
+        }
+    }
+}
+
+function spawn9045() {
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                newCells[index] = trailCell;
+                switch (-element % 10) {
+                    case right:
+                        trySimpleCreate(element, i + 1, j);
+                        trySimpleCreate(-downRight - 10, i+1, j - 1);
+                        trySimpleCreate(-upRight - 20, i+1, j + 1); 
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-up - 20, i, j + 1);
+                        break;
+                    case up:
+                        trySimpleCreate(element, i, j + 1);
+                        trySimpleCreate(-upRight - 10, i + 1, j+1);
+                        trySimpleCreate(-upLeft - 20, i - 1, j+1);
+                         trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-left - 20, i - 1, j);
+                        break;
+                    case left:
+                        trySimpleCreate(element, i - 1, j);
+                        trySimpleCreate(-upLeft - 10, i-1, j + 1);
+                        trySimpleCreate(-downLeft - 20, i-1, j - 1);
+                         trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-down - 20, i, j - 1);
+                        break;
+                    case down:
+                        trySimpleCreate(element, i, j - 1);
+                        trySimpleCreate(-downLeft - 10, i - 1, j-1);
+                        trySimpleCreate(-downRight - 20, i + 1, j-1); 
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-right - 20, i + 1, j);
+                        break;
+                    case upRight:
+                        trySimpleCreate(element, i + 1, j + 1);
+                        trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-up - 20, i, j + 1);
+                        trySimpleCreate(-downRight - 10, i + 1, j-1);
+                        trySimpleCreate(-upLeft - 20, i-1, j + 1);
+                        break;
+                    case upLeft:
+                        trySimpleCreate(element, i - 1, j + 1);
+                        trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-left - 20, i - 1, j);
+                        trySimpleCreate(-upRight - 10, i+1, j + 1);
+                        trySimpleCreate(-downLeft - 20, i - 1, j-1);
+                        break;
+                    case downLeft:
+                        trySimpleCreate(element, i - 1, j - 1);
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-down - 20, i, j - 1);
+                        trySimpleCreate(-upLeft - 10, i - 1, j+1);
+                        trySimpleCreate(-downRight - 20, i+1, j - 1);
+                        break;
+                    case downRight:
+                        trySimpleCreate(element, i + 1, j - 1);
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-right - 20, i + 1, j);
+                        trySimpleCreate(-downLeft - 10, i-1, j - 1);
+                        trySimpleCreate(-upRight - 20, i + 1, j+1);
+                        break;
+                }
+            }
+        }
+    }
+}
+
+function spawn1359045() {
+    console.log('spawn')
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                newCells[index] = trailCell;
+                switch (-element % 10) {
+                    case right:
+                        trySimpleCreate(element, i + 1, j);
+                        trySimpleCreate(-downRight - 10, i+1, j - 1);
+                        trySimpleCreate(-upRight - 20, i+1, j + 1); 
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-up - 20, i, j + 1);
+                        trySimpleCreate(-downLeft - 10, i-1, j - 1);
+                        trySimpleCreate(-upLeft - 20, i-1, j + 1);
+                        break;
+                    case up:
+                        trySimpleCreate(element, i, j + 1);
+                        trySimpleCreate(-upRight - 10, i + 1, j+1);
+                        trySimpleCreate(-upLeft - 20, i - 1, j+1);
+                         trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-left - 20, i - 1, j);
+                         trySimpleCreate(-downRight - 10, i + 1, j-1);
+                        trySimpleCreate(-downLeft - 20, i - 1, j-1);
+                        break;
+                    case left:
+                        trySimpleCreate(element, i - 1, j);
+                        trySimpleCreate(-upLeft - 10, i-1, j + 1);
+                        trySimpleCreate(-downLeft - 20, i-1, j - 1);
+                         trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-down - 20, i, j - 1);
+                         trySimpleCreate(-upRight - 10, i+1, j + 1);
+                        trySimpleCreate(-downRight - 20, i+1, j - 1);
+                        break;
+                    case down:
+                        trySimpleCreate(element, i, j - 1);
+                        trySimpleCreate(-downLeft - 10, i - 1, j-1);
+                        trySimpleCreate(-downRight - 20, i + 1, j-1); 
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-right - 20, i + 1, j);
+                        trySimpleCreate(-upLeft - 10, i - 1, j+1);
+                        trySimpleCreate(-upRight - 20, i + 1, j+1);
+                        break;
+                    case upRight:
+                        trySimpleCreate(element, i + 1, j + 1);
+                        trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-up - 20, i, j + 1);
+                        trySimpleCreate(-downRight - 10, i + 1, j-1);
+                        trySimpleCreate(-upLeft - 20, i-1, j + 1);
+                        break;
+                    case upLeft:
+                        trySimpleCreate(element, i - 1, j + 1);
+                        trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-left - 20, i - 1, j);
+                        trySimpleCreate(-upRight - 10, i+1, j + 1);
+                        trySimpleCreate(-downLeft - 20, i - 1, j-1);
+                        break;
+                    case downLeft:
+                        trySimpleCreate(element, i - 1, j - 1);
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-down - 20, i, j - 1);
+                        trySimpleCreate(-upLeft - 10, i - 1, j+1);
+                        trySimpleCreate(-downRight - 20, i+1, j - 1);
+                        break;
+                    case downRight:
+                        trySimpleCreate(element, i + 1, j - 1);
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-right - 20, i + 1, j);
+                        trySimpleCreate(-downLeft - 10, i-1, j - 1);
+                        trySimpleCreate(-upRight - 20, i + 1, j+1);
+                        break;
+                }
+            }
+        }
+    }
+}
+
 
 // rotate direction of move
 function rotate90() {
@@ -492,6 +775,51 @@ function rotate90() {
     }
 }
 
+function rotateMinus90() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element < 0) {
+            if (-element % 10 <= 2) {
+                element -= 6;
+            } else {
+                element += 2;
+            }
+        }
+        newCells[index] = element;
+    }
+}
+
+function rotate45() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element < 0) {
+            if (-element % 10 >= 8) {
+                element += 7;
+            } else {
+                element -= 1;
+            }
+        }
+        newCells[index] = element;
+    }
+}
+
+function rotateMinus45() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element < 0) {
+            if (-element % 10 === 1) {
+                element -= 7;
+            } else {
+                element += 1;
+            }
+        }
+        newCells[index] = element;
+    }
+}
+
 // strong color change
 function lighten() {
     const length = size * size;
@@ -499,6 +827,17 @@ function lighten() {
         let element = cells[index];
         if (element > 0) {
             element = Math.max(1, Math.min(255, element + lightenValue));
+        }
+        newCells[index] = element;
+    }
+}
+
+function darken() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        let element = cells[index];
+        if (element > 0) {
+            element = Math.max(1, Math.min(255, element - darkenValue));
         }
         newCells[index] = element;
     }
@@ -544,7 +883,7 @@ function shrink() {
     }
 }
 
-// smoothing: delete static cells with less than 4
+// smoothing: delete static cells with less than 4 neighbors
 function smooth() {
     console.log('smooth');
     for (let j = 0; j < size; j++) {
@@ -608,15 +947,17 @@ var expanCell = 200;
 // value for ageing
 var ageStep = 5;
 var lightenValue = 50;
+var darkenValue = 30;
 
 automaton.magnification = 10;
+automaton.saveLast = false;
 
 // drawing: canvas might have been resized
 automaton.draw = function() {
     output.startDrawing();
-    output.canvasContext.fillStyle = '#8888ff';
-    output.canvasContext.fillRect(0, 0, output.canvas.width, output.canvas.height);
-    showCells();
+     showCells();
+
+   // colorTest();
 };
 
 automaton.step = function() {
@@ -626,14 +967,23 @@ automaton.step = function() {
         randomAction();
         copyCells();
     } else {
-        automaton.reset();
+        if (!runner.recording && automaton.saveLast) {
+            const name = output.saveName.getValue();
+            const type = output.saveType.getValue();
+            guiUtils.saveCanvasAsFile(output.canvas, name, type,
+                function() {
+                    runner.reset();
+                });
+        } else {
+            runner.reset();
+        }
     }
 };
 
 // reset, and a new random setup
 automaton.reset = function() {
     logger.clear();
-    console.log('automaton resets');
+    console.log('automaton resetsxxxxxxxxxxx');
     size = output.canvas.width / automaton.magnification;
     size = 2 * Math.floor(size / 2) + 1;
     trueMagnification = output.canvas.width / size; // show block pixels, round down
@@ -644,12 +994,14 @@ automaton.reset = function() {
     diagonalSteps = 0;
     clearActions();
     addAction(simpleMove, 1);
-    addAction(spawn90, 0.3);
-    //addAction(expand, 0.2);
+       addAction(spawn1359045, 0.2);
+      // addAction(spawn45, 0.3);
+    //   addAction(expand, 0.2);
     //   addAction(shrink, 0.2);
     //  addAction(smooth, 0.2);
     //  addAction(rotate90, 0.2);
-    addAction(lighten, 0.2);
+    //addAction(rotateMinus90, 0.4);
+    //   addAction(darken, 0.4);
 
     greys();
 
@@ -668,6 +1020,11 @@ automaton.setup = function() {
         onChange: function() {
             automaton.reset();
         }
+    }).add({
+        type: 'boolean',
+        params: automaton,
+        property: 'saveLast',
+        labelText: 'save last image'
     });
     logger = main.gui.addLogger();
 };
