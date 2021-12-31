@@ -33,7 +33,8 @@ main.setup = function() {
     // no background color, no transparency
     output.oddCanvasSize = true;
     output.createCanvas(gui, false, false);
-    output.div.style.backgroundColor = '#88ff00';
+    output.div.style.backgroundColor = '#444444';
+   // output.div.style.backgroundColor = '#88ff00';
     output.extendCanvasController.setValue(true);
     output.saveType.setValue('jpg');
     // square image
