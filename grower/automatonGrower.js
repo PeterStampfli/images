@@ -74,6 +74,146 @@ function copyPositiveCellsToNewCells() {
     }
 }
 
+// test if there are moving cells
+function hasMoving() {
+    const length = size * size;
+    for (let index = 0; index < length; index++) {
+        if (cells[index] < 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// find index, return -1 if out of cell array or in border
+// for all (i,j) with valid index>=0 there are valid neighbors
+function getIndexInsideBorder(i, j) {
+    if ((i < 2) || (i >= size - 2) || (j < 2) || (j >= size - 2)) {
+        return -1;
+    }
+    return j * size + i;
+}
+
+// find index, return -1 if out of cell array
+// for all (i,j) with valid index>=0 there are valid neighbors
+function getIndexOnArray(i, j) {
+    if ((i < 0) || (i >= size) || (j < 0) || (j >= size )) {
+        return -1;
+    }
+    return j * size + i;
+}
+
+// number of neighboring moving things
+function neighborsMoving(i, j) {
+    let sum = 0;
+    const index = getIndexInsideBorder(i, j);
+    if (index >= 0) {
+        if (cells[index + 1] < 0) {
+            sum += 1;
+        }
+        if (cells[index - 1] < 0) {
+            sum += 1;
+        }
+        if (cells[index + size] < 0) {
+            sum += 1;
+        }
+        if (cells[index - size] < 0) {
+            sum += 1;
+        }
+        if (cells[index + size + 1] < 0) {
+            sum += 1;
+        }
+        if (cells[index - size + 1] < 0) {
+            sum += 1;
+        }
+        if (cells[index + size - 1] < 0) {
+            sum += 1;
+        }
+        if (cells[index - size - 1] < 0) {
+            sum += 1;
+        }
+    }
+    return sum;
+}
+
+// number of neighboring static cells > 0
+function neighborsStatic(i, j) {
+    let sum = 0;
+    const index = getIndexInsideBorder(i, j);
+    if (index >= 0) {
+        if (cells[index + 1] > 0) {
+            sum += 1;
+        }
+        if (cells[index - 1] > 0) {
+            sum += 1;
+        }
+        if (cells[index + size] > 0) {
+            sum += 1;
+        }
+        if (cells[index - size] > 0) {
+            sum += 1;
+        }
+        if (cells[index + size + 1] > 0) {
+            sum += 1;
+        }
+        if (cells[index - size + 1] > 0) {
+            sum += 1;
+        }
+        if (cells[index + size - 1] > 0) {
+            sum += 1;
+        }
+        if (cells[index - size - 1] > 0) {
+            sum += 1;
+        }
+    }
+    return sum;
+}
+
+// number of empty neighboring cells
+function neighborsEmpty(i, j) {
+    let sum = 0;
+    const index = getIndexInsideBorder(i, j);
+    if (index >= 0) {
+        if (cells[index + 1] === 0) {
+            sum += 1;
+        }
+        if (cells[index - 1] === 0) {
+            sum += 1;
+        }
+        if (cells[index + size] === 0) {
+            sum += 1;
+        }
+        if (cells[index - size] === 0) {
+            sum += 1;
+        }
+        if (cells[index + size + 1] === 0) {
+            sum += 1;
+        }
+        if (cells[index - size + 1] === 0) {
+            sum += 1;
+        }
+        if (cells[index + size - 1] === 0) {
+            sum += 1;
+        }
+        if (cells[index - size - 1] === 0) {
+            sum += 1;
+        }
+    }
+    return sum;
+}
+
+// try to create a moving thing on cell (i,j)
+// success if cell empty and surrounded by not more than one moving cell
+// (to save symmetry, avoid collision)
+function trySimpleCreate(thing, i, j) {
+    const newIndex = getIndex(i, j);
+    if ((newIndex >= 0) && (cells[newIndex] === 0) && (neighborsMoving(i, j) <= 1)) {
+        newCells[newIndex] = thing;
+        return true;
+    }
+    return false;
+}
+
 //=================================
 
 // one to one image pixels and cells
@@ -182,7 +322,6 @@ function linearImage() {
     }
     output.pixels.show();
 }
-
 
 /*
  * the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
