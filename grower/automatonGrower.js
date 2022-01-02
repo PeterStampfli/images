@@ -256,7 +256,7 @@ function simpleMove() {
         doDiagonal = true;
         diagonalSteps += 1;
     }
-        console.log('simplemove diag step '+doDiagonal);
+    console.log('simplemove diag step ' + doDiagonal);
     newCells.fill(0);
     for (let j = 0; j < size; j++) {
         const jSize = j * size;
@@ -313,6 +313,288 @@ function simpleMove() {
                     case downRight:
                         if (doDiagonal) {
                             trySimpleCreate(element, i + 1, j - 1);
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+}
+
+// avoiding move
+// copy static cells
+// move moving, try to turn 90 degrees at collision
+// leave trail of given value staticCell
+function moveTurn90() {
+    axisSteps += 1;
+    let doDiagonal = false;
+    if (diagonalSteps < 0.707 * axisSteps) {
+        doDiagonal = true;
+        diagonalSteps += 1;
+    }
+    console.log('move turn 90, diag step ' + doDiagonal);
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                // do not overwrite moving things
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                switch (-element % 10) {
+                    case right:
+                        if (!trySimpleCreate(element, i + 1, j)) {
+                            if (element < -20) {
+                                trySimpleCreate(-20 - up, i, j + 1);
+                            } else {
+                                trySimpleCreate(-10 - down, i, j - 1);
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case up:
+                        if (!trySimpleCreate(element, i, j + 1)) {
+                            if (element < -20) {
+                                trySimpleCreate(-20 - left, i - 1, j);
+                            } else {
+                                trySimpleCreate(-10 - right, i + 1, j);
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case left:
+                        if (!trySimpleCreate(element, i - 1, j)) {
+                            if (element < -20) {
+                                trySimpleCreate(-20 - down, i, j - 1);
+                            } else {
+                                trySimpleCreate(-10 - up, i, j + 1);
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case down:
+                        if (!trySimpleCreate(element, i, j - 1)) {
+                            if (element < -20) {
+                                trySimpleCreate(-20 - right, i + 1, j);
+                            } else {
+                                trySimpleCreate(-10 - left, i - 1, j);
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case upRight:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i + 1, j + 1)) {
+                                if (element < -20) {
+                                    trySimpleCreate(-20 - upLeft, i - 1, j + 1);
+                                } else {
+                                    trySimpleCreate(-10 - downRight, i + 1, j - 1);
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case upLeft:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i - 1, j + 1)) {
+                                if (element < -20) {
+                                    trySimpleCreate(-20 - downLeft, i - 1, j - 1);
+                                } else {
+                                    trySimpleCreate(-10 - upRight, i + 1, j + 1);
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case downLeft:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i - 1, j - 1)) {
+                                if (element < -20) {
+                                    trySimpleCreate(-20 - downRight, i + 1, j - 1);
+                                } else {
+                                    trySimpleCreate(-10 - upLeft, i - 1, j + 1);
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case downRight:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i + 1, j - 1)) {
+                                if (element < -20) {
+                                    trySimpleCreate(-20 - upRight, i + 1, j + 1);
+                                } else {
+                                    trySimpleCreate(-10 - downLeft, i - 1, j - 1);
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                }
+            }
+        }
+    }
+}
+
+function moveTurn9045() {
+    axisSteps += 1;
+    let doDiagonal = false;
+    if (diagonalSteps < 0.707 * axisSteps) {
+        doDiagonal = true;
+        diagonalSteps += 1;
+    }
+    console.log('move turn 90, diag step ' + doDiagonal);
+    newCells.fill(0);
+    for (let j = 0; j < size; j++) {
+        const jSize = j * size;
+        for (let i = 0; i < size; i++) {
+            const index = i + jSize;
+            const element = cells[index];
+            if (element >= 0) {
+                // do not overwrite moving things
+                if (element > 0) {
+                    newCells[index] = element;
+                }
+            } else {
+                switch (-element % 10) {
+                    case right:
+                        if (!trySimpleCreate(element, i + 1, j)) {
+                            if (element < -20) {
+                                if (!trySimpleCreate(-20 - upRight, i + 1, j + 1)) {
+                                    trySimpleCreate(-20 - up, i, j + 1);
+                                }
+                            } else {
+                                if (!trySimpleCreate(-10 - downRight, i + 1, j - 1)) {
+                                    trySimpleCreate(-10 - down, i, j - 1);
+                                }
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case up:
+                        if (!trySimpleCreate(element, i, j + 1)) {
+                            if (element < -20) {
+                                if (!trySimpleCreate(-20 - upLeft, i - 1, j + 1)) {
+                                    trySimpleCreate(-20 - left, i - 1, j);
+                                }
+                            } else {
+                                if (!trySimpleCreate(-10 - upRight, i + 1, j + 1)) {
+                                    trySimpleCreate(-10 - right, i + 1, j);
+                                }
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case left:
+                        if (!trySimpleCreate(element, i - 1, j)) {
+                            if (element < -20) {
+                                if (!trySimpleCreate(-20 - downLeft, i - 1, j - 1)) {
+                                    trySimpleCreate(-20 - down, i, j - 1);
+                                }
+                            } else {
+                                if (!trySimpleCreate(-10 - upLeft, i - 1, j + 1)) {
+                                    trySimpleCreate(-10 - up, i, j + 1);
+                                }
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case down:
+                        if (!trySimpleCreate(element, i, j - 1)) {
+                            if (element < -20) {
+                                if (!trySimpleCreate(-20 - downRight, i + 1, j - 1)) {
+                                    trySimpleCreate(-20 - right, i + 1, j);
+                                }
+                            } else {
+                                if (!trySimpleCreate(-10 - downLeft, i - 1, j - 1)) {
+                                    trySimpleCreate(-10 - left, i - 1, j);
+                                }
+                            }
+                        }
+                        newCells[index] = trailCell;
+                        break;
+                    case upRight:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i + 1, j + 1)) {
+                                if (element < -20) {
+                                    if (!trySimpleCreate(-20 - up, i, j + 1)) {
+                                        trySimpleCreate(-20 - upLeft, i - 1, j + 1);
+                                    }
+                                } else {
+                                    if (!trySimpleCreate(-10 - right, i + 1, j)) {
+                                        trySimpleCreate(-10 - downRight, i + 1, j - 1);
+                                    }
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case upLeft:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i - 1, j + 1)) {
+                                if (element < -20) {
+                                    if (!trySimpleCreate(-20 - left, i - 1, j)) {
+                                        trySimpleCreate(-20 - downLeft, i - 1, j - 1);
+                                    }
+                                } else {
+                                    if (!trySimpleCreate(-10 - up, i, j + 1)) {
+                                        trySimpleCreate(-10 - upRight, i + 1, j + 1);
+                                    }
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case downLeft:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i - 1, j - 1)) {
+                                if (element < -20) {
+                                    if (!trySimpleCreate(-20 - down, i, j - 1)) {
+                                        trySimpleCreate(-20 - downRight, i + 1, j - 1);
+                                    }
+                                } else {
+                                    if (!trySimpleCreate(-10 - left, i - 1, j)) {
+                                        trySimpleCreate(-10 - upLeft, i - 1, j - 1);
+                                    }
+                                }
+                            }
+                            newCells[index] = trailCell;
+                        } else {
+                            newCells[index] = element;
+                        }
+                        break;
+                    case downRight:
+                        if (doDiagonal) {
+                            if (!trySimpleCreate(element, i + 1, j - 1)) {
+                                if (element < -20) {
+                                    if (!trySimpleCreate(-20 - right, i + 1, j)) {
+                                        trySimpleCreate(-20 - upRight, i + 1, j + 1);
+                                    }
+                                } else {
+                                    if (!trySimpleCreate(-10 - down, i, j - 1)) {
+                                        trySimpleCreate(-10 - downLeft, i - 1, j - 1);
+                                    }
+                                }
+                            }
                             newCells[index] = trailCell;
                         } else {
                             newCells[index] = element;
@@ -525,7 +807,7 @@ function spawn9045() {
 }
 
 function spawn1359045() {
-    console.log('spawn')
+    console.log('spawn');
     newCells.fill(0);
     for (let j = 0; j < size; j++) {
         const jSize = j * size;
@@ -581,8 +863,8 @@ function spawn1359045() {
                         trySimpleCreate(-up - 20, i, j + 1);
                         trySimpleCreate(-downRight - 10, i + 1, j - 1);
                         trySimpleCreate(-upLeft - 20, i - 1, j + 1);
-                        trySimpleCreate(-down -10, i , j - 1);
-                        trySimpleCreate(-left -20, i - 1, j );
+                        trySimpleCreate(-down - 10, i, j - 1);
+                        trySimpleCreate(-left - 20, i - 1, j);
                         break;
                     case upLeft:
                         trySimpleCreate(element, i - 1, j + 1);
@@ -590,8 +872,8 @@ function spawn1359045() {
                         trySimpleCreate(-left - 20, i - 1, j);
                         trySimpleCreate(-upRight - 10, i + 1, j + 1);
                         trySimpleCreate(-downLeft - 20, i - 1, j - 1);
-                       trySimpleCreate(-right - 10, i + 1, j );
-                        trySimpleCreate(-down - 20, i , j - 1);
+                        trySimpleCreate(-right - 10, i + 1, j);
+                        trySimpleCreate(-down - 20, i, j - 1);
                         break;
                     case downLeft:
                         trySimpleCreate(element, i - 1, j - 1);
@@ -599,8 +881,8 @@ function spawn1359045() {
                         trySimpleCreate(-down - 20, i, j - 1);
                         trySimpleCreate(-upLeft - 10, i - 1, j + 1);
                         trySimpleCreate(-downRight - 20, i + 1, j - 1);
-                       trySimpleCreate(-up - 10, i , j + 1);
-                        trySimpleCreate(-right - 20, i + 1, j );
+                        trySimpleCreate(-up - 10, i, j + 1);
+                        trySimpleCreate(-right - 20, i + 1, j);
                         break;
                     case downRight:
                         trySimpleCreate(element, i + 1, j - 1);
@@ -608,8 +890,8 @@ function spawn1359045() {
                         trySimpleCreate(-right - 20, i + 1, j);
                         trySimpleCreate(-downLeft - 10, i - 1, j - 1);
                         trySimpleCreate(-upRight - 20, i + 1, j + 1);
-                        trySimpleCreate(-left - 10, i - 1, j );
-                        trySimpleCreate(-up - 20, i , j + 1);
+                        trySimpleCreate(-left - 10, i - 1, j);
+                        trySimpleCreate(-up - 20, i, j + 1);
                         break;
                 }
             }
@@ -635,8 +917,8 @@ function rotate90() {
 }
 
 function rotateMinus90() {
-     console.log('rotateMinus90');
-   const length = size * size;
+    console.log('rotateMinus90');
+    const length = size * size;
     for (let index = 0; index < length; index++) {
         let element = cells[index];
         if (element < 0) {
@@ -651,8 +933,8 @@ function rotateMinus90() {
 }
 
 function rotate45() {
-     console.log('rotate45');
-   const length = size * size;
+    console.log('rotate45');
+    const length = size * size;
     for (let index = 0; index < length; index++) {
         let element = cells[index];
         if (element < 0) {
@@ -1035,12 +1317,57 @@ const colorForMoverRight = Pixels.integerOfColor({
     alpha: 255
 });
 
+function clampf(x) {
+    return Math.max(0, Math.min(255, Math.round(x)));
+}
+
 function greys() {
     for (let i = 0; i < 256; i++) {
+        const j = invertColors ? 255 - i : i;
         color.red = i;
         color.blue = i;
         color.green = i;
-        colors[i] = Pixels.integerOfColor(color);
+        colors[j] = Pixels.integerOfColor(color);
+    }
+}
+
+function ice() {
+    for (let i = 0; i < 256; i++) {
+        const j = invertColors ? 255 - i : i;
+        color.red = clampf(3 * (i - 170));
+        color.blue = clampf(3 * i);
+        color.green = clampf(3 * (i - 85));
+        colors[j] = Pixels.integerOfColor(color);
+    }
+}
+
+function blueGreenYellow() {
+    for (let i = 0; i < 256; i++) {
+        const j = invertColors ? 255 - i : i;
+        color.red = clampf(3 * (i - 170));
+        color.blue = (i < 85) ? clampf(3 * i) : clampf(1.5 * (255 - i));
+        color.green = clampf(3 * (i - 85));
+        colors[j] = Pixels.integerOfColor(color);
+    }
+}
+
+function blueRedYellow() {
+    for (let i = 0; i < 256; i++) {
+        const j = invertColors ? 255 - i : i;
+        color.green = clampf(3 * (i - 170));
+        color.blue = (i < 85) ? clampf(4 * i) : clampf(1.5 * (255 - i));
+        color.red = clampf(3 * (i - 60));
+        colors[j] = Pixels.integerOfColor(color);
+    }
+}
+
+function redYellowWhite() {
+    for (let i = 0; i < 256; i++) {
+        const j = invertColors ? 255 - i : i;
+        color.red = clampf(3 * i);
+        color.blue = clampf(3 * (i - 170));
+        color.green = clampf(3 * (i - 85));
+        colors[j] = Pixels.integerOfColor(color);
     }
 }
 
@@ -1099,6 +1426,7 @@ var expanCell = 200;
 var ageStep = 5;
 var lightenValue = 50;
 var darkenValue = 30;
+var invertColors = true;
 
 automaton.magnification = 5;
 automaton.saveLast = false;
@@ -1108,7 +1436,7 @@ automaton.draw = function() {
     output.startDrawing();
     nearestImage();
 
-    //colorTest();
+    // colorTest();
 };
 
 automaton.step = function() {
@@ -1146,21 +1474,26 @@ automaton.reset = function() {
     axisSteps = 0;
     diagonalSteps = 0;
     clearActions();
-    addAction(simpleMove, 1);
+    addAction(moveTurn9045, 1);
+  //  addAction(moveTurn90, 1);
+    //   addAction(simpleMove, 1);
     //   addAction(spawn1359045, 0.15);
-     //addAction(spawn45, 0.2);
+    //addAction(spawn45, 0.2);
     // addAction(spawn9045, 0.2);
-     // addAction(spawn90, 0.2);
-       addAction(expand, 0.3);
-      // addAction(shrink, 0.2);
-      addAction(smooth, 0.3);
-      addAction(rotate90, 0.05);
+    addAction(spawn90, 0.2);
+    //   addAction(expand, 0.3);
+    // addAction(shrink, 0.2);
+    //  addAction(smooth, 0.3);
+    //  addAction(rotate90, 0.05);
     //addAction(rotateMinus90, 0.4);
     //   addAction(darken, 0.4);
-
     greys();
+    ice();
+    blueGreenYellow();
+    redYellowWhite();
+    blueRedYellow();
 
-    initial4Diagonal();
+    initial4();
 
 
 };
