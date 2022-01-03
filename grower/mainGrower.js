@@ -34,7 +34,7 @@ main.setup = function() {
     output.oddCanvasSize = true;
     output.createCanvas(gui, false, false);
     output.div.style.backgroundColor = '#444444';
-   // output.div.style.backgroundColor = '#88ff00';
+    // output.div.style.backgroundColor = '#88ff00';
     output.extendCanvasController.setValue(true);
     output.saveType.setValue('jpg');
     // square image
@@ -162,7 +162,9 @@ runner.waitForNextStep = function() {
         const remainingTime = Math.max(0, 1000 * runner.stepTime - timeUsed);
         setTimeout(function() {
             requestAnimationFrame(function() {
-                runner.makeStep();
+                if (runner.running) {
+                    runner.makeStep();
+                }
             });
         }, remainingTime);
     }

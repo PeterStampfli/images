@@ -14,17 +14,17 @@ export const runner = {};
 // methods: setup, draww, reset, step
 
 import {
-   automaton
+    automaton
 } from "./automatonCA.js";
 
 main.setup = function() {
-// gui and output canvas
+    // gui and output canvas
     const gui = new ParamGui({
         name: 'cellular automaton',
         closed: false,
         booleanButtonWidth: 40
     });
-    main.gui=gui;
+    main.gui = gui;
     BooleanButton.greenRedBackground();
     // no background color, no transparency
     output.createCanvas(gui, false, false);
@@ -34,7 +34,7 @@ main.setup = function() {
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = automaton.draw;
-// setup the runner and its interface
+    // setup the runner and its interface
     runner.recording = false;
     gui.add({
         type: 'boolean',
@@ -109,7 +109,7 @@ main.setup = function() {
             }
         }
     });
-        automaton.setup();
+    automaton.setup();
     runner.reset();
 };
 
@@ -155,7 +155,9 @@ runner.waitForNextStep = function() {
         const remainingTime = Math.max(0, 1000 * runner.stepTime - timeUsed);
         setTimeout(function() {
             requestAnimationFrame(function() {
-                runner.makeStep();
+                if (runner.running) {
+                    runner.makeStep();
+                }
             });
         }, remainingTime);
     }

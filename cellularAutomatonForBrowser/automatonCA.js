@@ -292,6 +292,11 @@ function periodicBoundary() {
 // sum using given weights
 
 function makeSum() {
+    var cm12, c02, c12;
+    var cm21, cm11, c01, c11, c21;
+    var cm20, cm10, c00, c10, c20;
+    var cm2m1, cm1m1, c0m1, c1m1, c2m1;
+    var cm1m2, c0m2, c1m2;
     const w0 = weights[0];
     const w1 = weights[1];
     const w2 = weights[2];
@@ -300,25 +305,54 @@ function makeSum() {
     const w5 = weights[5];
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
-        const jSize = j * size;
+        let center = j * size + 1;
+        let index = center + size;
+        c02 = cells[index + size];
+        c12 = cells[index + size + 1];
+        cm11 = cells[index - 1];
+        c01 = cells[index];
+        c11 = cells[index + 1];
+        c21 = cells[index + 2];
+        cm10 = cells[center - 1];
+        c00 = cells[center];
+        c10 = cells[center + 1];
+        c20 = cells[center + 2];
+        index = center - size;
+        cm1m1 = cells[index - 1];
+        c0m1 = cells[index];
+        c1m1 = cells[index + 1];
+        c2m1 = cells[index + 2];
+        c0m2 = cells[index - size];
+        c1m2 = cells[index - size + 1];
         for (let i = 2; i < sizeM2; i++) {
-            const center = i + jSize;
-            let sum = w0 * cells[center];
-            if (w1 > 0) {
-                sum += w1 * (cells[center + 1] + cells[center - 1] + cells[center + size] + cells[center - size]);
-            }
-            if (w2 > 0) {
-                sum += w2 * (cells[center + 1 + size] + cells[center + 1 - size] + cells[center - 1 + size] + cells[center - 1 - size]);
-            }
-            if (w3 > 0) {
-                sum += w3 * (cells[center + 2] + cells[center - 2] + cells[center + 2 * size] + cells[center - 2 * size]);
-            }
-            if (w4 > 0) {
-                sum += w4 * (cells[center + 2 * size - 1] + cells[center - 2 * size + 1] + cells[center + 2 + size] + cells[center - 2 - size]);
-            }
-            if (w5 > 0) {
-                sum += w5 * (cells[center + 2 * size + 1] + cells[center - 2 * size - 1] + cells[center + 2 - size] + cells[center - 2 + size]);
-            }
+            center += 1;
+            cm12 = c02;
+            c02 = c12;
+            c12 = cells[center + 1 + 2 * size];
+            cm21 = cm11;
+            cm11 = c01;
+            c01 = c11;
+            c11 = c21;
+            c21 = cells[center + 2 + size];
+            cm20 = cm10;
+            cm10 = c00;
+            c00 = c10;
+            c10 = c20;
+            c20 = cells[center + 2];
+            cm2m1 = cm1m1;
+            cm1m1 = c0m1;
+            c0m1 = c1m1;
+            c1m1 = c2m1;
+            c2m1 = cells[center + 2 - size];
+            cm1m2 = c0m2;
+            c0m2 = c1m2;
+            c1m2 = cells[center + 1 - 2 * size];
+            let sum = w0 * c00;
+            sum += w1 * (c01 + cm10 + c10 + c0m1);
+            sum += w2 * (c11 + cm11 + c1m1 + cm1m1);
+            sum += w3 * (c02 + cm20 + c20 + c0m2);
+            sum += w4 * (cm12 + cm2m1 + c1m2 + c21);
+            sum += w5 * (c12 + c2m1 + cm1m2 + cm21);
             sums[center] = sum;
         }
     }
@@ -333,7 +367,7 @@ function irreversibleTransition() {
         const jSize = j * size;
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
-            cells[index] = table[sums[index]];
+            cells[index] = transitionTable[sums[index]];
         }
     }
 }
@@ -345,7 +379,7 @@ function reversibleTransition() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             const rememberState = cells[index];
-            cells[index] = (prevCells[index] + table[sums[index]]) % nStates;
+            cells[index] = (prevCells[index] + transitionTable[sums[index]]) % nStates;
             prevCells[index] = rememberState;
         }
     }
@@ -476,18 +510,15 @@ var transition = irreversibleTransition;
 
 // drawing: canvas might have been resized
 automaton.draw = function() {
-    output.startDrawing();
     periodicBoundary();
     imager();
 };
 
 automaton.step = function() {
-    console.log('automaton steps');
-    console.log(boundary);
     if (boundary > 0) {
-        console.log('set ' + boundary);
         setBoundary(boundary);
     }
+    makeSum();
     transition();
 };
 
@@ -530,9 +561,7 @@ automaton.reset = function() {
     logger.clear();
     size = Math.floor(randomChoice(sizes) / 2) * 2 + 1;
     nStates = randomChoice(nStatesOptions);
-    nStates = 3;
-    size = 9;
-    logger.log(nStates + ' states, ' + (size - 4) * (size - 4) + ' cells');
+    logger.log(nStates + ' states, ' + (size - 4) + ' cells size');
     // initial configuration of cells including boundary
     const initialConfig = randomChoice(configs);
     initialConfig[0] = randomChoice(centerCells);
