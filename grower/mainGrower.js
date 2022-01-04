@@ -11,7 +11,7 @@ import {
 export const main = {};
 export const runner = {};
 
-runner.stepTime = 2;
+runner.stepTime = 0.1;
 runner.stepsMax = 100;
 
 // automaton does the interesting thing
@@ -58,8 +58,7 @@ main.setup = function() {
         params: runner,
         property: 'stepTime',
         labelText: 'time per step',
-        min: 0,
-        step: 0.1
+        min: 0
     }).add({
         type: 'number',
         params: runner,

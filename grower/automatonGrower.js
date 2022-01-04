@@ -458,7 +458,7 @@ function moveTurn9045() {
         doDiagonal = true;
         diagonalSteps += 1;
     }
-    console.log('move turn 90, diag step ' + doDiagonal);
+    console.log('move turn 9045, diag step ' + doDiagonal);
     newCells.fill(0);
     for (let j = 0; j < size; j++) {
         const jSize = j * size;
@@ -1053,6 +1053,12 @@ function smooth() {
     }
 }
 
+function randomColor(){
+    console.log('random color');
+    trailCell=Math.floor(255.9*Math.random());
+    expanCell=trailCell;
+}
+
 //=================================
 
 // one to one image pixels and cells
@@ -1428,7 +1434,7 @@ var lightenValue = 50;
 var darkenValue = 30;
 var invertColors = true;
 
-automaton.magnification = 5;
+automaton.magnification = 1;
 automaton.saveLast = false;
 
 // drawing: canvas might have been resized
@@ -1442,7 +1448,6 @@ automaton.draw = function() {
 automaton.step = function() {
     if (hasMoving()) {
         clearBorder();
-        age();
         randomAction();
         copyNewCellsToCells();
     } else {
@@ -1464,6 +1469,7 @@ automaton.reset = function() {
     logger.clear();
     // determine active cells size
     size = output.canvas.width / automaton.magnification;
+    // make odd size
     size = 2 * Math.floor(size / 2) + 1;
     trueMagnification = output.canvas.width / size; // show block pixels, round down
     // add double border
@@ -1480,13 +1486,17 @@ automaton.reset = function() {
     //   addAction(spawn1359045, 0.15);
     //addAction(spawn45, 0.2);
     // addAction(spawn9045, 0.2);
-    addAction(spawn90, 0.2);
-    //   addAction(expand, 0.3);
-    // addAction(shrink, 0.2);
+    addAction(spawn90, 0.05);
+       addAction(expand, 0.02);
+       addAction(smooth,0.02);
+     //addAction(shrink, 0.02);
     //  addAction(smooth, 0.3);
     //  addAction(rotate90, 0.05);
     //addAction(rotateMinus90, 0.4);
-    //   addAction(darken, 0.4);
+     //  addAction(darken, 0.005);
+     //  addAction(lighten, 0.003);
+     addAction(randomColor,0.02);
+    // addAction(age,0.02);
     greys();
     ice();
     blueGreenYellow();

@@ -48,9 +48,9 @@ const color = {};
 color.alpha = 255;
 
 function greys() {
-    extend(colors, nStates);
-    for (let i = 0; i < nStates; i++) {
-        const grey = Math.floor(i / (nStates - 1) * 255.9);
+    extend(colors, nColors);
+    for (let i = 0; i < nColors; i++) {
+        const grey = Math.floor(i / (nColors - 1) * 255.9);
         color.red = grey;
         color.blue = grey;
         color.green = grey;
@@ -59,10 +59,10 @@ function greys() {
 }
 
 function redYellowWhite() {
-    extend(colors, nStates);
-    const first = Math.floor(nStates * 0.33);
-    const second = Math.floor(nStates * 0.66);
-    for (let i = 0; i < nStates; i++) {
+    extend(colors, nColors);
+    const first = Math.floor(nColors * 0.33);
+    const second = Math.floor(nColors * 0.66);
+    for (let i = 0; i < nColors; i++) {
         if (i < first) {
             color.red = Math.floor(i / first * 255.9);
             color.blue = 0;
@@ -74,16 +74,16 @@ function redYellowWhite() {
         } else {
             color.red = 255;
             color.green = 255;
-            color.blue = Math.floor((i - second + 1) / (nStates - second + 1) * 255.9);
+            color.blue = Math.floor((i - second + 1) / (nColors - second + 1) * 255.9);
         }
         colors[i] = Pixels.integerOfColor(color);
     }
 }
 
 function randomBlue() {
-    extend(colors, nStates);
-    for (let i = 0; i < nStates; i++) {
-        const grey = Math.floor(i / (nStates - 1) * 255.9);
+    extend(colors, nColors);
+    for (let i = 0; i < nColors; i++) {
+        const grey = Math.floor(i / (nColors - 1) * 255.9);
         color.red = Math.floor(Math.random() * 255.9);
         color.green = 255 - color.red;
         color.blue = grey;
@@ -92,9 +92,9 @@ function randomBlue() {
 }
 
 function randomRedGreen() {
-    extend(colors, nStates);
-    for (let i = 0; i < nStates; i++) {
-        const grey = Math.floor(i / (nStates - 1) * 255.9);
+    extend(colors, nColors);
+    for (let i = 0; i < nColors; i++) {
+        const grey = Math.floor(i / (nColors - 1) * 255.9);
         color.red = grey;
         color.green = 255 - color.red;
         color.blue = Math.floor(Math.random() * 255.9);
@@ -103,9 +103,9 @@ function randomRedGreen() {
 }
 
 function bordeaux() {
-    extend(colors, nStates);
-    for (let i = 0; i < nStates; i++) {
-        const grey = Math.floor(i / (nStates - 1) * 255.9);
+    extend(colors, nColors);
+    for (let i = 0; i < nColors; i++) {
+        const grey = Math.floor(i / (nColors - 1) * 255.9);
         color.red = Math.min(255, 510 - 2 * grey);
         color.green = Math.max(0, 255 - 2 * grey);
         color.blue = Math.max(0, Math.floor(255 - grey * grey / 100));
@@ -124,7 +124,7 @@ function colorTest() {
     for (var j = 0; j < height; j++) {
         const colorIndexBase = Math.floor(j / blockSize) * Math.floor(width / blockSize);
         for (var i = 0; i < width; i++) {
-            const colorIndex = (colorIndexBase + Math.floor(i / blockSize)) % nStates;
+            const colorIndex = (colorIndexBase + Math.floor(i / blockSize)) % nColors;
             pixels.array[index] = colors[colorIndex];
             index += 1;
         }
@@ -395,12 +395,14 @@ function nearestImage() {
     const width = output.canvas.width;
     const height = width;
     const scale = (size - 4) / width;
+    const factor=nColors/nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const jCellSize = size * Math.floor(2 + j * scale);
         for (var i = 0; i < width; i++) {
             const iCell = 2 + Math.floor(i * scale);
-            pixels.array[imageIndex] = colors[cells[jCellSize + iCell]];
+            const colorIndex=Math.floor(factor*cells[jCellSize + iCell]);
+            pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
     }
@@ -415,6 +417,7 @@ function linearImage() {
     const height = width;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
+    const factor=nColors/nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const y = scale * j + offset;
@@ -431,7 +434,8 @@ function linearImage() {
             const dxPlus = 1 - dx;
             let sum = dyPlus * (dxPlus * cells[jCellSize + iCell] + dx * cells[jCellSize + iCellPlus]);
             sum += dy * (dxPlus * cells[jPlusCellSize + iCell] + dx * cells[jPlusCellSize + iCellPlus]);
-            pixels.array[imageIndex] = colors[Math.round(sum)];
+            const colorIndex=Math.floor(factor*Math.round(sum));
+            pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
     }
@@ -457,6 +461,7 @@ function cubicImage() {
     const height = width;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
+    const factor=nColors/nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const y = scale * j + offset;
@@ -486,7 +491,8 @@ function cubicImage() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            pixels.array[imageIndex] = colors[Math.round(sum)];
+            const colorIndex=Math.floor(factor*Math.round(sum));
+            pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
     }
@@ -502,6 +508,7 @@ const sums = [];
 const transitionTable = [];
 var weights = [10];
 var nStates = 10;
+var nColors=5;
 var size = 11; // including border
 var boundary = -1; // periodic
 const colors = []; // integer colors
