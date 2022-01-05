@@ -31,7 +31,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float complex z;
-    float *inMap, *outMap, a, piA2, iTanPiA4, exp2x, base;
+    float *inMap, *outMap;
+    float period;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -69,23 +70,44 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif
     }
     // get other parameters
-   /* get geometry parameters*/
+    /* get geometry parameters*/
     k = (int) mxGetScalar(prhs[1]);
     m = (int) mxGetScalar(prhs[2]);
-    n = (int) mxGetScalar(prhs[3]);   
+    n = (int) mxGetScalar(prhs[3]);
     // repetitions
-    repeats = (int) mxGetScalar(prhs[4]); 
+    repeats = (int) mxGetScalar(prhs[4]);
     if (n!=2){
-    mexErrMsgIdAndTxt("bulatovRingMap:n","Geometry parameter n has to be equal to zero.");
+        mexErrMsgIdAndTxt("bulatovRingMap:n","Geometry parameter n has to be equal to zero.");
     }
     if (repeats<=0){
-    mexErrMsgIdAndTxt("bulatovRingMap:repeats","repeats has to be a positive integer.");
+        mexErrMsgIdAndTxt("bulatovRingMap:repeats","repeats has to be a positive integer.");
     }
-    // determine period of bulatov band   
+    // determine period of bulatov band
+    // geometry
+    float gamma = PI / k;
+    float alpha = PI / n;
+    float beta = PI / m;
+    float angleSum = 1.0f / k + 1.0f / n + 1.0f / m;
+    if (angleSum > 0.999){
+        mexErrMsgIdAndTxt("getBulatovPeriod: angleSum","Geometry has to be hyperbolic, it isn't.");
+    }
+    //assuming circle r=1, circle is on x-axis
+    float center = cosf(beta) / sinf(gamma);
+    // renormalize to poincare radius 1 (devide by poincare radius)
+    // gives radius and center of inverting circle
+    float radius = 1 / sqrtf(center*center-1);
+    center *= radius;
+ if ((k % 2) == 0){
+    period = 8 / PI * atanhf(center-radius);
+ } else {
+    // intersection of circle with oblique line
+    float angle = PI * (0.5 - 1.0f / k - 1.0f / m);
+    float a = sqrtf(center*center+radius*radius-2*center*radius*cosf(angle));
+    period = 8 / PI * (atanhf(center-radius) + atanhf(a));
+ }   
+    
 
-        
-    piA2 = PI * a / 2;
-    iTanPiA4 = 1.0f / tanf(PI * a / 4);
+    
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -104,8 +126,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             continue;
         }
-        z = piA2 * inMap[index]+ piA2 * inMap[index + nXnY] * I;
-        z = iTanPiA4 * tanh(z);
+        z = inMap[index]+ inMap[index + nXnY] * I;
         outMap[index] = crealf(z);
         outMap[index + nXnY] = cimagf(z);
         outMap[index + nXnY2] = inverted;
