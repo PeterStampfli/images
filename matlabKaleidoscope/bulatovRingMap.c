@@ -1,17 +1,23 @@
 /*==========================================================
- * generalized Bulatov band transform
+ * Bulatov ring transform
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
  * additional input parameter:
  *  k, m, n  for the geometry
  *  repetitions - how many periods appear in the ring/order of the dihedral group
+ *
+ * NOTE: n has to be equal to 2
+ * NOTE: k and m cannot both be odd numbers
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
  * does not change the map and returns a modified map if used as  a function
  * newMap = transform(map, ....);
  *
- *========================================================*/
+ *========================================================
+ */
+
+// cd /home/peter/images/matlabKaleidoscope
 
 #include "mex.h"
 #include <math.h>
@@ -32,7 +38,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float inverted;
     float complex z;
     float *inMap, *outMap;
-    float period;
+    float period, pi4, a;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -79,6 +85,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (n!=2){
         mexErrMsgIdAndTxt("bulatovRingMap:n","Geometry parameter n has to be equal to zero.");
     }
+    if ((k % 2 == 1) && (m % 2 == 1)){
+        mexErrMsgIdAndTxt("bulatovRingMap:odds","k and m should not both be odd.");
+    }
     if (repeats<=0){
         mexErrMsgIdAndTxt("bulatovRingMap:repeats","repeats has to be a positive integer.");
     }
@@ -97,17 +106,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
     // gives radius and center of inverting circle
     float radius = 1 / sqrtf(center*center-1);
     center *= radius;
- if ((k % 2) == 0){
-    period = 8 / PI * atanhf(center-radius);
- } else {
-    // intersection of circle with oblique line
-    float angle = PI * (0.5 - 1.0f / k - 1.0f / m);
-    float a = sqrtf(center*center+radius*radius-2*center*radius*cosf(angle));
-    period = 8 / PI * (atanhf(center-radius) + atanhf(a));
- }   
-    
-
-    
+    if ((k % 2) == 0){
+        period = 8 / PI * atanhf(center-radius);
+    } else {
+        // intersection of circle with oblique line
+        float angle = PI * (0.5 - 1.0f / k - 1.0f / m);
+        float a = sqrtf(center*center+radius*radius-2*center*radius*cosf(angle));
+        period = 8 / PI * (atanhf(center-radius) + atanhf(a));
+    }
+    PRINTF(center);
+    PRINTF(radius);
+    PRINTF(period);
+    pi4 = PI / 4;
+    a = repeats / 2.0f / PI;
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -126,7 +137,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             continue;
         }
-        z = inMap[index]+ inMap[index + nXnY] * I;
+        float x = inMap[index];
+        float y = inMap[index + nXnY];
+        float r2 = x * x + y * y;
+        float aPhi = a * atan2f(y, x);
+        aPhi -= floorf(aPhi);        
+        x = period * aPhi;
+        y = period * a * 0.5 * logf(r2)+1;
+        if (fabsf(y) <= 1.0f){
+            z = tanh(pi4 * (x + I * y));
+        } else {
+            inverted=-1;
+        }
         outMap[index] = crealf(z);
         outMap[index + nXnY] = cimagf(z);
         outMap[index + nXnY2] = inverted;
