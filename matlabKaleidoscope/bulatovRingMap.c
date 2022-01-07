@@ -114,9 +114,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         float a = sqrtf(center*center+radius*radius-2*center*radius*cosf(angle));
         period = 8 / PI * (atanhf(center-radius) + atanhf(a));
     }
-    PRINTF(center);
-    PRINTF(radius);
-    PRINTF(period);
     pi4 = PI / 4;
     a = repeats / 2.0f / PI;
     /* do the map*/
