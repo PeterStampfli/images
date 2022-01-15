@@ -11,7 +11,7 @@ import {
 export const builder = {};
 
 builder.maxGeneration = 4;
-builder.drawGeneration = 1;
+builder.drawGeneration = 2;
 builder.drawing = 'last only';
 builder.minSize = 0;
 builder.tileColors = null;

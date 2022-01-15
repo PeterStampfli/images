@@ -17,9 +17,9 @@ main.drawFill = true;
 main.drawStroke = true;
 main.drawInitialStroke = true;
 main.markerSize = 0.1;
-main.drawMarker = true;
-main.markerColor = '#444444aa';
-main.lineWidth = 2;
+main.drawMarker = false;
+main.markerColor = '#444444';
+main.lineWidth = 1;
 main.lineColor = '#000000';
 main.inflate = false;
 main.outlineWidth = 3;
@@ -168,6 +168,8 @@ readJSON.makeButton(gui,
     });
 
 examples.init(gui);
+
+examples.selectionController.setValueOnly("Theo's seven-fold");
 
 main.tileColors=gui.addFolder('colors of tiles');
 

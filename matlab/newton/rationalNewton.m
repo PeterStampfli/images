@@ -1,13 +1,13 @@
 colors=[1,0,0; 0,1,0; 0,0,1; 1,1,0; 0 1 1; 1 0 1; 0 1 1];
 
-rs=[roots(3,1) roots(3,1.2)]
-ps=[];
+rs=[roots(3,1) ];
+ps=[roots(3,-0.5)];
 [~,dim]=size(rs);
 [~,dimps]=size(ps);
 eps=0.05;
 itemax=100;
 
-nPixels=200;
+nPixels=800;
 image=ones(nPixels,nPixels,3);
 width=4;
 centerX=-0;

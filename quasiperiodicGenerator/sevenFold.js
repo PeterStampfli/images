@@ -3,13 +3,13 @@
 export const sevenFold = {
     "name": "sevenfold tiling #5",
 
-    "range": 6,
-    "center": [0, 0],
+    "range": 1.7,
+    "center": [0.4, 0.3],
 
     "order": 14,
     "inflation": 5.04892,
     "maxGeneration": 3,
-    "drawGeneration": 1,
+    "drawGeneration": 2,
 
     "initial": "ABStar",
 
@@ -28,7 +28,7 @@ export const sevenFold = {
             ],
             "angle": 3,
             "border": [],
-            "color": "#ff0000",
+            "color": "#ee0000",
             "marker": [0, 0, 0, 0.15],
             "substitution": [{
                 "name": "b2"
@@ -74,7 +74,7 @@ export const sevenFold = {
             ],
             "angle": 3,
             "border": [],
-            "color": "#ff0000",
+            "color": "#ee0000",
             "marker": [0.15],
             "substitution": [{
                 "name": "b2Left"
@@ -119,7 +119,7 @@ export const sevenFold = {
                 [0, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 6,
-            "color": "#ff0000",
+            "color": "#ee0000",
             "marker": [0, 0, 0, 0.15],
             "composition": [{
                 "name": "a1Right"
@@ -138,7 +138,7 @@ export const sevenFold = {
             ],
             "angle": 3,
             "border": [],
-            "color": "#555555",
+            "color": "#ff8888",
             "marker": [0, 0, 0, 0.15],
             "substitution": [{
                 "name": "a1",
@@ -194,7 +194,7 @@ export const sevenFold = {
             ],
             "angle": 3,
             "border": [],
-            "color": "#555555",
+            "color": "#ff8888",
             "marker": [0.15],
             "substitution": [{
                 "name": "a1",
@@ -244,7 +244,7 @@ export const sevenFold = {
                 [0, 0, 0, 0, 0, 0, 1]
             ],
             "angle": 6,
-            "color": "#555555",
+            "color": "#ff8888",
             "marker": [0, 0, 0, 0.15],
             "composition": [{
                 "name": "a2Right"
@@ -263,7 +263,7 @@ export const sevenFold = {
             ],
             "angle": 1,
             "border": [],
-            "color": "#ffff00",
+            "color": "#eeee00",
             "marker": [0, 0.3],
             "substitution": [{
                 "name": "b2Right"
@@ -335,7 +335,7 @@ export const sevenFold = {
             ],
             "angle": 1,
             "border": [],
-            "color": "#ffff00",
+            "color": "#eeee00",
             "marker": [0.3],
             "substitution": [{
                 "name": "b2Left"
@@ -402,7 +402,7 @@ export const sevenFold = {
                 [0, 0, 1]
             ],
             "angle": 2,
-            "color": "#ffff00",
+            "color": "#eeee00",
             "marker": [0, 0.3],
             "composition": [{
                 "name": "b1Right"
@@ -421,7 +421,7 @@ export const sevenFold = {
             ],
             "angle": 1,
             "border": [],
-            "color": "#ff8800",
+            "color": "#ffff88",
             "marker": [0, 0.3],
             "substitution": [{
                 "name": "b3Left"
@@ -491,7 +491,7 @@ export const sevenFold = {
             ],
             "angle": 1,
             "border": [],
-            "color": "#ff8800",
+            "color": "#ffff88",
             "marker": [0.3],
             "substitution": [{
                 "name": "b3Right"
@@ -558,7 +558,7 @@ export const sevenFold = {
                 [0, 0, 1]
             ],
             "angle": 2,
-            "color": "#ff8800",
+            "color": "#ffff88",
             "marker": [0, 0.3],
             "composition": [{
                 "name": "b2Right"
@@ -732,7 +732,7 @@ export const sevenFold = {
             ],
             "angle": 2,
             "border": [],
-            "color": "#00ff00",
+            "color": "#0000ee",
             "marker": [0, 0, 0.2],
             "substitution": [{
                 "name": "b2"
@@ -810,7 +810,7 @@ export const sevenFold = {
             ],
             "angle": 2,
             "border": [],
-            "color": "#00ff00",
+            "color": "#0000ee",
             "marker": [0.2],
             "substitution": [{
                 "name": "b2"
@@ -885,7 +885,7 @@ export const sevenFold = {
                 [0, 0, 0, 0, 1]
             ],
             "angle": 4,
-            "color": "#00ff00",
+            "color": "#0000ee",
             "marker": [0, 0, 0.2],
             "composition": [{
                 "name": "c1Right"
@@ -904,7 +904,7 @@ export const sevenFold = {
             ],
             "angle": 2,
             "border": [],
-            "color": "#0000ff",
+            "color": "#8888ff",
             "marker": [0, 0, 0.2],
             "substitution": [{
                 "name": "b3Left"
@@ -981,7 +981,7 @@ export const sevenFold = {
             ],
             "angle": 2,
             "border": [],
-            "color": "#0000ff",
+            "color": "#8888ff",
             "marker": [0.2],
             "substitution": [{
                     "name": "b3Left"
@@ -1056,7 +1056,7 @@ export const sevenFold = {
                 [0, 0, 0, 0, 1]
             ],
             "angle": 4,
-            "color": "#0000ff",
+            "color": "#8888ff",
             "marker": [0, 0, 0.2],
             "composition": [{
                 "name": "c2Right"

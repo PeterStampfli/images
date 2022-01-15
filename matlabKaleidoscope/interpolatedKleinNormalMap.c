@@ -3,9 +3,15 @@
  * or normal view from stereographic projection (elliptic geometry)
  * NOT for euklidic geometry
  *
+ * WITH INTERPOLATION
+ *
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
+ * and interpolation parameter z
+ * z=0 gives poincare disc/stereographic projection
+ * z=1 gives klein disc/normal projection
+ * z<0 goes "opposite", giving something fancy
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -27,12 +33,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     const mwSize *dims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted, x, y;
+    float z, k;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs == 0) {
-        mexErrMsgIdAndTxt("transformMap:nrhs","A map input required.");
+    if(nrhs < 2) {
+        mexErrMsgIdAndTxt("interpolatedKleinNormalMap:nrhs","A map input and an interpolation parameter required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -64,6 +71,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
+    z = (float) mxGetScalar(prhs[1]);
+    if (z > 1) {
+        mexErrMsgIdAndTxt("transformMap:nlhs","Interpolation parameter has to be smaller or equal 1.");
+    }
+    k = 1 + sqrtf(1-z);
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -86,7 +98,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         /* worldradius == 1*/
         float factor = x * x + y * y;
         if (factor < 1){
-            factor = 1 / (1 + sqrtf(1 - factor));
+            factor = k / (1 + sqrtf(1 - z * factor));
             x *= factor;
             y *= factor;
         } else {
