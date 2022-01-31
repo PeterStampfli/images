@@ -1,6 +1,11 @@
 /* jshint esversion: 6 */
 
 export {
-    ui
+    utils
 }
-from "./ui.js";
+from "./utils.js";
+
+export {
+    colors
+}
+from "./colors.js";

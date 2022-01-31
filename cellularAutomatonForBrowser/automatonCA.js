@@ -152,6 +152,15 @@ function sawTooth() {
     }
 }
 
+
+function slowTooth() {
+    const maxSum = nStates * (4 * sumOf(weights) - 3 * weights[0]);
+    extend(transitionTable, maxSum + 1);
+    for (let i = 0; i <= maxSum; i++) {
+        transitionTable[i] = Math.floor(i/2) % nStates;
+    }
+}
+
 function triangle() {
     const maxSum = nStates * (4 * sumOf(weights) - 3 * weights[0]);
     extend(transitionTable, maxSum + 1);
@@ -395,13 +404,13 @@ function nearestImage() {
     const width = output.canvas.width;
     const height = width;
     const scale = (size - 4) / width;
-    const factor=nColors/nStates;
+    const factor = nColors / nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const jCellSize = size * Math.floor(2 + j * scale);
         for (var i = 0; i < width; i++) {
             const iCell = 2 + Math.floor(i * scale);
-            const colorIndex=Math.floor(factor*cells[jCellSize + iCell]);
+            const colorIndex = Math.floor(factor * cells[jCellSize + iCell]);
             pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
@@ -417,7 +426,7 @@ function linearImage() {
     const height = width;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
-    const factor=nColors/nStates;
+    const factor = nColors / nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const y = scale * j + offset;
@@ -434,7 +443,7 @@ function linearImage() {
             const dxPlus = 1 - dx;
             let sum = dyPlus * (dxPlus * cells[jCellSize + iCell] + dx * cells[jCellSize + iCellPlus]);
             sum += dy * (dxPlus * cells[jPlusCellSize + iCell] + dx * cells[jPlusCellSize + iCellPlus]);
-            const colorIndex=Math.floor(factor*Math.round(sum));
+            const colorIndex = Math.floor(factor * Math.round(sum));
             pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
@@ -461,7 +470,7 @@ function cubicImage() {
     const height = width;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
-    const factor=nColors/nStates;
+    const factor = nColors / nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const y = scale * j + offset;
@@ -491,7 +500,7 @@ function cubicImage() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            const colorIndex=Math.floor(factor*Math.round(sum));
+            const colorIndex = Math.floor(factor * Math.round(sum));
             pixels.array[imageIndex] = colors[colorIndex];
             imageIndex += 1;
         }
@@ -508,7 +517,7 @@ const sums = [];
 const transitionTable = [];
 var weights = [10];
 var nStates = 10;
-var nColors=5;
+var nColors = 5;
 var size = 11; // including border
 var boundary = -1; // periodic
 const colors = []; // integer colors
@@ -567,35 +576,63 @@ const colorGenerators = [1, 2, 3, 4, 5]; //greys, randomBlue, randomRedGreen, re
 automaton.reset = function() {
     logger.clear();
     size = Math.floor(randomChoice(sizes) / 2) * 2 + 1;
+
+size=101;
+
     nStates = randomChoice(nStatesOptions);
+
+nStates=6;
+
     logger.log(nStates + ' states, ' + (size - 4) + ' cells size');
     // initial configuration of cells including boundary
-    const initialConfig = randomChoice(configs);
+    let initialConfig = randomChoice(configs);
     initialConfig[0] = randomChoice(centerCells);
+
+    initialConfig = [2, 1, 0, 0, 0, 0];
+
     logger.log('initial configuration ' + initialConfig);
     initialState(initialConfig);
-    const initialBorder = randomChoice(initialBorders);
+    let initialBorder = randomChoice(initialBorders);
+
+initialBorder=0;
+
     logger.log('initial border ' + initialBorder);
     setBoundary(initialBorder, 0);
     // making the sum, set border
     weights = randomChoice(configs);
     weights[0] = randomChoice(centerCells);
+
+    weights = [1, 1, 0, 0, 0, 0];
+
     logger.log('weights ' + weights);
     boundary = randomChoice(boundaries);
+
+boundary=0;
+
     if (boundary < 0) {
         logger.log('periodic boundary');
     } else {
         logger.log('boundary: outer ' + boundary + ' (inner=0)');
     }
     // transition
-    if (Math.random() < sawToothProbability) {
+    let t=Math.random();
+
+t=-1;
+
+    if (t < sawToothProbability) {
         logger.log('sawtooth table');
         sawTooth();
     } else {
         logger.log('triangle table');
         triangle();
     }
-    if (Math.random() < reversibleProbability) {
+
+  //  slowTooth();
+    t=Math.random();
+
+t=2;
+
+    if (t < reversibleProbability) {
         logger.log('reversible');
         transition = irreversibleTransition;
     } else {
@@ -639,6 +676,17 @@ automaton.reset = function() {
             logger.log('image: cubic interpolation');
             break;
     }
+    // test
+ /*   imager = cubicImage;
+    greys();
+    initialConfig = [1, 0, 0, 0, 0, 0, 0, 0, 0];
+    setBoundary();
+    initialState(initialConfig);
+    weights = [1, 1, 1, 0, 0, 0];
+    boundary = -1;
+    nStates = 2;
+    size = 101;
+*/
 };
 
 automaton.setup = function() {
