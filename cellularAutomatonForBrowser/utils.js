@@ -54,13 +54,13 @@ utils.setSize = function(size) {
     size = utils.makeOdd(size);
     utils.size = size;
     const size2 = size * size;
-    extend(utils.cells, size2);
+    utils.extend(utils.cells, size2);
     utils.cells.fill(0);
-    extend(utils.prevCells, size2);
+    utils.extend(utils.prevCells, size2);
     utils.prevCells.fill(0);
-    extend(utils.sums, size2);
+    utils.extend(utils.sums, size2);
     utils.sums.fill(0);
-    extend(utils.cellsView, size2);
+    utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
     // initialize limits (region grows only)
 };
@@ -151,7 +151,7 @@ function cubicImage() {
     const width = output.canvas.width;
     const height = width;
     const size = 5 + 2 * utils.viewHalf;
- const cells=utils.view;
+    const cells = utils.view;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
     const factor = nColors / nStates;
@@ -194,9 +194,233 @@ function cubicImage() {
 
 //==========================================
 // initialization
+// initial state
 
+// configuration for square lattice
+
+//      5 3 4
+//    4 2 1 2 5
+//    3 1 0 1 3
+//    5 2 1 2 4
+//      4 3 5
+
+function initialStateSquare(config) {
+    const size = utils.size;
+    const cells = utils.cells;
+    let center = (size - 1) / 2;
+    center = center + center * size;
+    cells[center] = config[0];
+    cells[center + 1] = config[1];
+    cells[center - 1] = config[1];
+    cells[center + size] = config[1];
+    cells[center - size] = config[1];
+    cells[center + 1 + size] = config[2];
+    cells[center + 1 - size] = config[2];
+    cells[center - 1 + size] = config[2];
+    cells[center - 1 - size] = config[2];
+    cells[center + 2] = config[3];
+    cells[center - 2] = config[3];
+    cells[center + 2 * size] = config[3];
+    cells[center - 2 * size] = config[3];
+    cells[center + 2 * size - 1] = config[4];
+    cells[center - 2 * size + 1] = config[4];
+    cells[center + 2 + size] = config[4];
+    cells[center - 2 - size] = config[4];
+    cells[center + 2 * size + 1] = config[5];
+    cells[center - 2 * size - 1] = config[5];
+    cells[center + 2 - size] = config[5];
+    cells[center - 2 + size] = config[5];
+    utils.prevCells[center] = 1;
+}
+
+// configuration for hexagonal lattice
+// unshifted
+
+//      6 4 5
+//     3 2 1 3
+//    5 1 0 2 6
+//     4 2 1 4
+//      6 3 5
+
+// shifted
+//        6 4 5
+//      3 2 1 3
+//    5 1 0 2 6
+//    4 2 1 4
+//    6 3 5
+
+function initialStateHexagon(config) {
+    const size = utils.size;
+    const cells = utils.cells;
+    let center = (size - 1) / 2;
+    center = center + center * size;
+    cells[center] = config[0];
+    cells[center - 1] = config[1];
+    cells[center + 1 + size] = config[1];
+    cells[center - size] = config[1];
+    cells[center + 1] = config[2];
+    cells[center + size] = config[2];
+    cells[center - 1 - size] = config[2];
+    cells[center - 1 + size] = config[3];
+    cells[center + 2 + size] = config[3];
+    cells[center - 1 - 2 * size] = config[3];
+    cells[center + 1 + 2 * size] = config[4];
+    cells[center + 1 - size] = config[4];
+    cells[center - 2 - size] = config[4];
+    cells[center - 2 * size] = config[5];
+    cells[center - 2] = config[5];
+    cells[center + 2 + 2 * size] = config[5];
+    cells[center - 2 - 2 * size] = config[6];
+    cells[center + 2] = config[6];
+    cells[center + 2 * size] = config[6];
+    utils.prevCells[center] = 1;
+}
 //===========================================
 // sums
+//      5 3 4
+//    4 2 1 2 5
+//    3 1 0 1 3
+//    5 2 1 2 4
+//      4 3 5
+
+function makeSumSquare(weights) {
+    const cells = utils.cells;
+    const sums = utils.sums;
+    var cm12, c02, c12;
+    var cm21, cm11, c01, c11, c21;
+    var cm20, cm10, c00, c10, c20;
+    var cm2m1, cm1m1, c0m1, c1m1, c2m1;
+    var cm1m2, c0m2, c1m2;
+    const w0 = weights[0];
+    const w1 = weights[1];
+    const w2 = weights[2];
+    const w3 = weights[3];
+    const w4 = weights[4];
+    const w5 = weights[5];
+    const sizeM2 = size - 2;
+    for (let j = 2; j < sizeM2; j++) {
+        let center = j * size + 1;
+        c02 = cells[center + 2 * size];
+        c12 = cells[center + 2 * size + 1];
+        cm11 = cells[center + size - 1];
+        c01 = cells[center + size];
+        c11 = cells[center + size + 1];
+        c21 = cells[center + size + 2];
+        cm10 = cells[center - 1];
+        c00 = cells[center];
+        c10 = cells[center + 1];
+        c20 = cells[center + 2];
+        cm1m1 = cells[center - size - 1];
+        c0m1 = cells[center - size];
+        c1m1 = cells[center - size + 1];
+        c2m1 = cells[center - size + 2];
+        c0m2 = cells[center - 2 * size];
+        c1m2 = cells[center - 2 * size + 1];
+        for (let i = 2; i < sizeM2; i++) {
+            center += 1;
+            cm12 = c02;
+            c02 = c12;
+            c12 = cells[center + 1 + 2 * size];
+            cm21 = cm11;
+            cm11 = c01;
+            c01 = c11;
+            c11 = c21;
+            c21 = cells[center + 2 + size];
+            cm20 = cm10;
+            cm10 = c00;
+            c00 = c10;
+            c10 = c20;
+            c20 = cells[center + 2];
+            cm2m1 = cm1m1;
+            cm1m1 = c0m1;
+            c0m1 = c1m1;
+            c1m1 = c2m1;
+            c2m1 = cells[center + 2 - size];
+            cm1m2 = c0m2;
+            c0m2 = c1m2;
+            c1m2 = cells[center + 1 - 2 * size];
+            let sum = w0 * c00;
+            sum += w1 * (c01 + cm10 + c10 + c0m1);
+            sum += w2 * (c11 + cm11 + c1m1 + cm1m1);
+            sum += w3 * (c02 + cm20 + c20 + c0m2);
+            sum += w4 * (cm12 + cm2m1 + c1m2 + c21);
+            sum += w5 * (c12 + c2m1 + cm1m2 + cm21);
+            sums[center] = sum;
+        }
+    }
+}
+
+// shifted
+//        6 4 5
+//      3 2 1 3
+//    5 1 0 2 6
+//    4 2 1 4
+//    6 3 5
+function makeSumHexagon(weights) {
+    const cells = utils.cells;
+    const sums = utils.sums;
+    var c02, c12, c22;
+    var cm11, c01, c11, c21;
+    var cm20, cm10, c00, c10, c20;
+    var cm2m1, cm1m1, c0m1, c1m1;
+    var cm2m2, cm1m2, c0m2;
+    const w0 = weights[0];
+    const w1 = weights[1];
+    const w2 = weights[2];
+    const w3 = weights[3];
+    const w4 = weights[4];
+    const w5 = weights[5];
+    const w6 = weights[6];
+    const sizeM2 = size - 2;
+    for (let j = 2; j < sizeM2; j++) {
+        let center = j * size + 1;
+        c12 = cells[center + 2 * size + 1];
+        c22 = cells[center + 2 * size + 2];
+        c01 = cells[center + size];
+        c11 = cells[center + size + 1];
+        c21 = cells[center + size + 2];
+        cm10 = cells[center - 1];
+        c00 = cells[center];
+        c10 = cells[center + 1];
+        c20 = cells[center + 2];
+        cm1m1 = cells[center - size - 1];
+        c0m1 = cells[center - size];
+        c1m1 = cells[center - size + 1];
+        cm1m2 = cells[center - 2 * size - 1];
+        c0m2 = cells[center - 2 * size];
+        for (let i = 2; i < sizeM2; i++) {
+            center += 1;
+            c02 = c12;
+            c12 = c22;
+            c22 = cells[center + 2 + 2 * size];
+            cm11 = c01;
+            c01 = c11;
+            c11 = c21;
+            c21 = cells[center + 2 + size];
+            cm20 = cm10;
+            cm10 = c00;
+            c00 = c10;
+            c10 = c20;
+            c20 = cells[center + 2];
+            cm2m1 = cm1m1;
+            cm1m1 = c0m1;
+            c0m1 = c1m1;
+            c1m1 = cells[center + 1 - size];
+            cm2m2 = cm1m2;
+            cm1m2 = c0m2;
+            c0m2 = cells[center - 2 * size];
+            let sum = w0 * c00;
+            sum += w1 * (cm10 + c11 + c0m1);
+            sum += w2 * (c10 + c01 + cm1m1);
+            sum += w3 * (ccm11 + c21 + cm1m2);
+            sum += w4 * (c12 + cm2m1 + c1m1);
+            sum += w5 * (c22 + cm20 + c0m2);
+            sum += w6 * (c02 + c20 + cm2m2);
+            sums[center] = sum;
+        }
+    }
+}
+
 
 //============================================
 // making the transitions

@@ -6,7 +6,7 @@
 <link rel="icon" href="data:,">
 
 <head>
-    <title>cellular automaton</title>
+    <title>test</title>
 </head>
 
 <body>
@@ -17,11 +17,12 @@
 
 <script type='module'>
 import {
-     main
-} from './mainCA.js';
+     utils
+} from './modules.js';
 	
-main.setup();
-
+console.log('test');
+console.log(utils.randomChoice([1,2,3]));
+utils.setSize(99);
 
 </script>
 
