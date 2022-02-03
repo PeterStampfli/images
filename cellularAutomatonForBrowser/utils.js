@@ -28,12 +28,10 @@ utils.logArray = function(array, size = 0) {
     if (size <= 0) {
         size = utils.size;
     }
-    let index = 0;
-    for (let j = 0; j < size; j++) {
+    for (let j = size - 1; j >= 0; j--) {
         let message = j + ' : ';
         for (let i = 0; i < size; i++) {
-            message += ' ' + array[index];
-            index += 1;
+            message += ' ' + array[i + j * size];
         }
         console.log(message);
     }
@@ -120,17 +118,19 @@ utils.getViewHalf = function() {
 
 // make reduced view matrix
 utils.makeView = function() {
+    const size = utils.size;
     const viewSize = 5 + 2 * utils.viewHalf;
+    utils.viewSize = viewSize;
     utils.extend(utils.view, viewSize * viewSize);
-    utils.view.fill(0);
-    const center = Math.floor(utils.size / 2);
-    // diagonal shift between the two centers
-    const shift = (center - 2 - utils.viewHalf) * (viewSize + 1);
-    // without upper,lower border 
-    const top = (viewSize - 2) * viewSize;
-    for (let index = 2 * viewSize; index < top; index++) {
-        utils.view[index] = utils.cellsView[index + shift];
+    // shift between the two centers
+    const shift = Math.floor(size / 2) - Math.floor(viewSize / 2);
+    console.log('shift ' + shift);
+    for (let j = 0; j < viewSize; j++) {
+        for (let i = 0; i < viewSize; i++) {
+            utils.view[i + j * viewSize] = utils.cellsView[i + shift + (j + shift) * size];
+        }
     }
+
 };
 
 /*
@@ -144,7 +144,7 @@ function kernel(x) { // Mitchell-Netrovali, B=C=0.333333, 0<x<2
     return ((2 - 0.388888 * x) * x - 3.33333) * x + 1.777777;
 }
 
-function cubicImage() {
+utils.cubicImage = function() {
     output.startDrawing();
     output.pixels.update();
     const pixels = output.pixels;
@@ -190,7 +190,7 @@ function cubicImage() {
         }
     }
     output.pixels.show();
-}
+};
 
 //==========================================
 // initialization
@@ -204,7 +204,7 @@ function cubicImage() {
 //    5 2 1 2 4
 //      4 3 5
 
-function initialStateSquare(config) {
+utils.initialStateSquare = function(config) {
     const size = utils.size;
     const cells = utils.cells;
     let center = (size - 1) / 2;
@@ -231,7 +231,7 @@ function initialStateSquare(config) {
     cells[center + 2 - size] = config[5];
     cells[center - 2 + size] = config[5];
     utils.prevCells[center] = 1;
-}
+};
 
 // configuration for hexagonal lattice
 // unshifted
@@ -249,7 +249,7 @@ function initialStateSquare(config) {
 //    4 2 1 4
 //    6 3 5
 
-function initialStateHexagon(config) {
+utils.initialStateHexagon = function(config) {
     const size = utils.size;
     const cells = utils.cells;
     let center = (size - 1) / 2;
@@ -274,7 +274,7 @@ function initialStateHexagon(config) {
     cells[center + 2] = config[6];
     cells[center + 2 * size] = config[6];
     utils.prevCells[center] = 1;
-}
+};
 //===========================================
 // sums
 //      5 3 4
@@ -283,9 +283,10 @@ function initialStateHexagon(config) {
 //    5 2 1 2 4
 //      4 3 5
 
-function makeSumSquare(weights) {
+utils.makeSumSquare = function(weights) {
     const cells = utils.cells;
     const sums = utils.sums;
+    const size = utils.size;
     var cm12, c02, c12;
     var cm21, cm11, c01, c11, c21;
     var cm20, cm10, c00, c10, c20;
@@ -348,7 +349,7 @@ function makeSumSquare(weights) {
             sums[center] = sum;
         }
     }
-}
+};
 
 // shifted
 //        6 4 5
@@ -356,21 +357,23 @@ function makeSumSquare(weights) {
 //    5 1 0 2 6
 //    4 2 1 4
 //    6 3 5
-function makeSumHexagon(weights) {
+utils.makeSumHexagon = function(weights) {
     const cells = utils.cells;
     const sums = utils.sums;
+    const size = utils.size;
     var c02, c12, c22;
     var cm11, c01, c11, c21;
     var cm20, cm10, c00, c10, c20;
     var cm2m1, cm1m1, c0m1, c1m1;
     var cm2m2, cm1m2, c0m2;
+    //inverted
     const w0 = weights[0];
-    const w1 = weights[1];
-    const w2 = weights[2];
-    const w3 = weights[3];
-    const w4 = weights[4];
-    const w5 = weights[5];
-    const w6 = weights[6];
+    const w1 = weights[2];
+    const w2 = weights[1];
+    const w3 = weights[4];
+    const w4 = weights[3];
+    const w5 = weights[6];
+    const w6 = weights[5];
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
@@ -412,14 +415,14 @@ function makeSumHexagon(weights) {
             let sum = w0 * c00;
             sum += w1 * (cm10 + c11 + c0m1);
             sum += w2 * (c10 + c01 + cm1m1);
-            sum += w3 * (ccm11 + c21 + cm1m2);
+            sum += w3 * (cm11 + c21 + cm1m2);
             sum += w4 * (c12 + cm2m1 + c1m1);
             sum += w5 * (c22 + cm20 + c0m2);
             sum += w6 * (c02 + c20 + cm2m2);
             sums[center] = sum;
         }
     }
-}
+};
 
 
 //============================================

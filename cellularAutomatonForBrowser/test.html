@@ -20,9 +20,21 @@ import {
      utils
 } from './modules.js';
 	
-console.log('test');
-console.log(utils.randomChoice([1,2,3]));
-utils.setSize(99);
+
+utils.setSize(9);
+utils.initialStateSquare([1,0,0,0,0,0,0])
+utils.initialStateHexagon([9,1,2,0,0,0,0])
+utils.makeSumHexagon([9,1,2,3,4,5,6])
+utils.logArray(utils.cells);
+utils.setViewLimits(0,6);
+utils.copyCellsViewHexagon();
+console.log('==========')
+utils.logArray(utils.cellsView);
+utils.getViewHalf();
+console.log(utils.cellsFull);
+console.log(utils.viewHalf);
+utils.makeView();
+utils.logArray(utils.view,5+2*utils.viewHalf);
 
 </script>
 
