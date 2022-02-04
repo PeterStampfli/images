@@ -38,7 +38,7 @@ main.setup = function() {
 function draw(){
     colors.setN(20);
 
-    colors.greys();
+    colors.invertedGreys();
 
     colors.test();
 }

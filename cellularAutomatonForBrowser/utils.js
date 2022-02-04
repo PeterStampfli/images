@@ -1,5 +1,13 @@
 /* jshint esversion: 6 */
 
+import {
+    output
+} from "../libgui/modules.js";
+
+import {
+    colors
+}from "./modules.js";
+
 export const utils = {};
 
 //=====================================
@@ -43,6 +51,7 @@ utils.logArray = function(array, size = 0) {
 //  cells, sums, prevSums, cellsView, view
 utils.cells = [];
 utils.prevCells = [];
+utils.sumCells=[];
 utils.sums = [];
 utils.cellsView = [];
 utils.view = [];
@@ -54,6 +63,8 @@ utils.setSize = function(size) {
     const size2 = size * size;
     utils.extend(utils.cells, size2);
     utils.cells.fill(0);
+    utils.extend(utils.sumCells, size2);
+    utils.sumCells.fill(0);
     utils.extend(utils.prevCells, size2);
     utils.prevCells.fill(0);
     utils.extend(utils.sums, size2);
@@ -81,6 +92,14 @@ utils.copyCellsViewSquare = function() {
     }
 };
 
+// copy the sum time average
+utils.copySumCellsViewSquare = function() {
+    const size2 = utils.size * utils.size;
+    for (let i = 0; i < size2; i++) {
+        utils.cellsView[i] = utils.sumCells[i];
+    }
+};
+
 // copy for hexagon symmetry with shift
 utils.copyCellsViewHexagon = function() {
     const size = utils.size;
@@ -95,6 +114,24 @@ utils.copyCellsViewHexagon = function() {
         }
     }
 };
+
+// time average
+utils.copySumCellsViewHexagon = function() {
+    const size = utils.size;
+    const center = Math.floor(utils.size / 2);
+    for (let j = 0; j < size; j++) {
+        const left = 2 + Math.floor(Math.abs(center - j) / 2);
+        const right = left + size - 2 - Math.abs(center - j);
+        const shift = Math.floor((j - center) / 2);
+        const jSize = j * size;
+        for (let i = left; i < right; i++) {
+            utils.cellsView[i + jSize] = utils.sumCells[i + jSize + shift];
+        }
+    }
+};
+
+// switching
+utils.copyCellsView=utils.copyCellsViewSquare;
 
 // determine limits of nonzero cells (view)
 // suppose that image only grows
@@ -124,14 +161,81 @@ utils.makeView = function() {
     utils.extend(utils.view, viewSize * viewSize);
     // shift between the two centers
     const shift = Math.floor(size / 2) - Math.floor(viewSize / 2);
-    console.log('shift ' + shift);
     for (let j = 0; j < viewSize; j++) {
         for (let i = 0; i < viewSize; i++) {
             utils.view[i + j * viewSize] = utils.cellsView[i + shift + (j + shift) * size];
         }
     }
-
 };
+
+// normalize view matrix
+utils.normalizeView = function() {
+    const length=utils.viewSize *utils.viewSize;
+    let maxi=1;
+    for (let i=0;i<length;i++){
+        maxi=Math.max(maxi,utils.view[i]);
+    }
+    const factor=0.99/maxi;
+        for (let i=0;i<length;i++){
+        utils.view[i]*=factor;
+    }
+};
+
+utils.nearestImage=function() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = width;
+    const size = 5 + 2 * utils.viewHalf;
+    const cells = utils.view;
+    const scale = (size - 4) / width;
+    let imageIndex = 0;
+    for (var j = 0; j < height; j++) {
+        const jCellSize = size * Math.floor(2 + j * scale);
+        for (var i = 0; i < width; i++) {
+            const iCell = 2 + Math.floor(i * scale);
+            const colorIndex = Math.floor(colors.n * cells[jCellSize + iCell]);
+            pixels.array[imageIndex] = colors.table[colorIndex];
+            imageIndex += 1;
+        }
+    }
+    output.pixels.show();
+}
+
+utils.linearImage=function() {
+    output.startDrawing();
+    output.pixels.update();
+    const pixels = output.pixels;
+    const width = output.canvas.width;
+    const height = width;
+    const size = 5 + 2 * utils.viewHalf;
+    const cells = utils.view;
+    const scale = (size - 4) / width; // inverse of size of a cell in pixels
+    const offset = (3 + scale) / 2;
+    let imageIndex = 0;
+    for (var j = 0; j < height; j++) {
+        const y = scale * j + offset;
+        const jCell = Math.floor(y);
+        const jCellSize = size * jCell;
+        const jPlusCellSize = jCellSize + size;
+        const dy = y - jCell;
+        const dyPlus = 1 - dy;
+        for (var i = 0; i < width; i++) {
+            const x = i * scale + offset;
+            const iCell = Math.floor(x);
+            const iCellPlus = iCell + 1;
+            const dx = x - iCell;
+            const dxPlus = 1 - dx;
+            let sum = dyPlus * (dxPlus * cells[jCellSize + iCell] + dx * cells[jCellSize + iCellPlus]);
+            sum += dy * (dxPlus * cells[jPlusCellSize + iCell] + dx * cells[jPlusCellSize + iCellPlus]);
+            const colorIndex = Math.floor(colors.n * sum);
+            pixels.array[imageIndex] = colors.table[colorIndex];
+            imageIndex += 1;
+        }
+    }
+    output.pixels.show();
+}
 
 /*
  * the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
@@ -154,7 +258,6 @@ utils.cubicImage = function() {
     const cells = utils.view;
     const scale = (size - 4) / width; // inverse of size of a cell in pixels
     const offset = (3 + scale) / 2;
-    const factor = nColors / nStates;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const y = scale * j + offset;
@@ -184,13 +287,15 @@ utils.cubicImage = function() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            const colorIndex = Math.floor(factor * Math.round(sum));
-            pixels.array[imageIndex] = colors[colorIndex];
+            const colorIndex = Math.max(Math.floor(colors.n * sum),0);
+            pixels.array[imageIndex] = colors.table[colorIndex];
             imageIndex += 1;
         }
     }
     output.pixels.show();
 };
+
+utils.image=utils.cubicImage;
 
 //==========================================
 // initialization
@@ -455,6 +560,8 @@ utils.triangleTable = function(sum) {
     return value;
 };
 
+// make transition and sum cells (for time-average)
+
 utils.transitionTable = utils.triangleTable;
 
 utils.irreversibleTransition = function() {
@@ -465,6 +572,7 @@ utils.irreversibleTransition = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             utils.cells[index] = utils.transitionTable(utils.sums[index]);
+            utils.sumCells[index]+=utils.cells[index];
         }
     }
 };
@@ -478,6 +586,7 @@ utils.reversibleTransition = function() {
             const index = i + jSize;
             const rememberState = utils.cells[index];
             utils.cells[index] = (utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            utils.sumCells[index]+=utils.cells[index];
             utils.prevCells[index] = rememberState;
         }
     }

@@ -6,8 +6,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
-	utils
-}from "./modules.js";
+    utils
+} from "./modules.js";
 
 export const colors = {};
 
@@ -28,6 +28,19 @@ colors.greys = function() {
     utils.extend(colors.table, nColors);
     for (let i = 0; i < nColors; i++) {
         const grey = Math.floor(i / (nColors - 1) * 255.9);
+        color.red = grey;
+        color.blue = grey;
+        color.green = grey;
+        colors.table[i] = Pixels.integerOfColor(color);
+    }
+};
+
+
+colors.invertedGreys = function() {
+    const nColors = colors.n;
+    utils.extend(colors.table, nColors);
+    for (let i = 0; i < nColors; i++) {
+        const grey = Math.floor((nColors - 1 - i) / (nColors - 1) * 255.9);
         color.red = grey;
         color.blue = grey;
         color.green = grey;
@@ -100,7 +113,7 @@ colors.bordeaux = function() {
 colors.test = function() {
     output.startDrawing();
     output.pixels.update();
-    const nColors=colors.n;
+    const nColors = colors.n;
     const pixels = output.pixels;
     const width = output.canvas.width;
     const height = output.canvas.height;
