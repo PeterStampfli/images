@@ -23,6 +23,17 @@ colors.setN = function(n) {
     colors.n = n;
 };
 
+// make x=0...1 from i=0...number of colors -1
+
+function x(i) {
+    return i / (colors.n - 1);
+}
+
+// make color component 0...255 from x=0...1 with clamping and rounding down to integer
+function c(x) {
+    return Math.max(0, Math.min(255, Math.floor(x * 255.9)));
+}
+
 colors.greys = function() {
     const nColors = colors.n;
     utils.extend(colors.table, nColors);

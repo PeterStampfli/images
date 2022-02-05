@@ -201,7 +201,7 @@ utils.nearestImage=function() {
         }
     }
     output.pixels.show();
-}
+};
 
 utils.linearImage=function() {
     output.startDrawing();
@@ -235,7 +235,7 @@ utils.linearImage=function() {
         }
     }
     output.pixels.show();
-}
+};
 
 /*
  * the interpolation kernel: linear interpolation is much slower, the arrow function form is slightly slower
@@ -577,7 +577,7 @@ utils.irreversibleTransition = function() {
     }
 };
 
-utils.reversibleTransition = function() {
+utils.reversibleTransitionAdditive = function() {
     const size = utils.size;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
@@ -586,6 +586,21 @@ utils.reversibleTransition = function() {
             const index = i + jSize;
             const rememberState = utils.cells[index];
             utils.cells[index] = (utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            utils.sumCells[index]+=utils.cells[index];
+            utils.prevCells[index] = rememberState;
+        }
+    }
+};
+
+utils.reversibleTransitionSubtractive = function() {
+    const size = utils.size;
+    const sizeM2 = size - 2;
+    for (let j = 2; j < sizeM2; j++) {
+        const jSize = j * size;
+        for (let i = 2; i < sizeM2; i++) {
+            const index = i + jSize;
+            const rememberState = utils.cells[index];
+            utils.cells[index] = (utils.nStates-utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
             utils.sumCells[index]+=utils.cells[index];
             utils.prevCells[index] = rememberState;
         }
