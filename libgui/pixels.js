@@ -185,9 +185,9 @@ if (guiUtils.abgrOrder) {
  * @method Pixels#antialiasSampling
  */
 Pixels.prototype.antialias = function() {
-    if (this.antialiasSubpixels!==1){
-        const weights=guiUtils.gaussWeights(this.antialiasSubpixels);
-        console.log(this.antialiasSubpixels,weights);
+    if (this.antialiasSubpixels !== 1) {
+        const weights = guiUtils.gaussWeights(this.antialiasSubpixels);
+        console.log(this.antialiasSubpixels, weights);
         this.subpixelSampling(weights);
     }
 };
@@ -358,7 +358,7 @@ if (guiUtils.abgrOrder) {
  * @param {integer} alpha - value for all pixels,optional, default is semiopaque
  */
 Pixels.prototype.setAlpha = function(alpha = 128) {
-    const length=this.pixelComponents.length;
+    const length = this.pixelComponents.length;
     for (var i = length - 1; i > 0; i -= 4) {
         this.pixelComponents[i] = alpha;
     }
@@ -384,6 +384,29 @@ Pixels.prototype.setOpaque = function(x, y) {
 
 // 32 bit integer form from 
 // integerColorValue = pixels.array[index]
+
+
+/**
+ * color of integer
+ * @method Pixels.colorOfInteger
+ * @param {Color} color 
+ * @param {integer} 
+ */
+if (guiUtils.abgrOrder) {
+    Pixels.colorOfInteger = function(color, integer) {
+        color.red = integer & 0xff;
+        color.green = (integer >>> 8) & 0xff;
+        color.blue = (integer >>> 16) & 0xff;
+        color.alpha = 255;
+    };
+} else {
+    Pixels.colorOfInteger = function(color, integer) {
+        color.alpha = 255;
+        color.blue = (integer >>> 8) & 0xff;
+        color.green = (integer >>> 16) & 0xff;
+        color.red = (integer >>> 24) & 0xff;
+    };
+}
 
 /**
  * get color of pixel at given index, assumes that index is in range

@@ -36,9 +36,10 @@ main.setup = function() {
 };
 
 function draw(){
-    colors.setN(20);
+    colors.setN(12);
 
-    colors.invertedGreys();
+    colors.blueCyanWhite();
+    colors.complement();
 
     colors.test();
 }

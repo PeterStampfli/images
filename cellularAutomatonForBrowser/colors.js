@@ -23,14 +23,45 @@ colors.setN = function(n) {
     colors.n = n;
 };
 
+// put the last color in front "solarized"
+colors.solarize=function(){
+ const last = colors.table[colors.n-1];
+ for (var i=colors.n-1;i>0;i--){
+colors.table[i]=colors.table[i-1];
+ }
+ colors.table[0]=last;
+};
+
+// invert the color
+colors.invert=function(){
+    const center=Math.floor(colors.n/2-0.5);
+ for (let i=0;i<=center;i++){
+    const h=colors.table[i];
+    colors.table[i]=colors.table[colors.n-1-i];
+    colors.table[colors.n-1-i]=h;
+    console.log(i)
+ }
+};
+
+colors.complement=function(){
+    const nColors = colors.n;
+ for (let i = 0; i < nColors; i++) {
+        Pixels.colorOfInteger(color,colors.table[i]);
+        color.red=255-color.red;
+        color.green=255-color.green;
+        color.blue=255-color.blue;
+        colors.table[i] = Pixels.integerOfColor(color);
+    }
+};
+
 // make x=0...1 from i=0...number of colors -1
 
-function x(i) {
+function xFun(i) {
     return i / (colors.n - 1);
 }
 
 // make color component 0...255 from x=0...1 with clamping and rounding down to integer
-function c(x) {
+function cFun(x) {
     return Math.max(0, Math.min(255, Math.floor(x * 255.9)));
 }
 
@@ -38,27 +69,13 @@ colors.greys = function() {
     const nColors = colors.n;
     utils.extend(colors.table, nColors);
     for (let i = 0; i < nColors; i++) {
-        const grey = Math.floor(i / (nColors - 1) * 255.9);
+        const grey = cFun(xFun(i));
         color.red = grey;
         color.blue = grey;
         color.green = grey;
         colors.table[i] = Pixels.integerOfColor(color);
     }
 };
-
-
-colors.invertedGreys = function() {
-    const nColors = colors.n;
-    utils.extend(colors.table, nColors);
-    for (let i = 0; i < nColors; i++) {
-        const grey = Math.floor((nColors - 1 - i) / (nColors - 1) * 255.9);
-        color.red = grey;
-        color.blue = grey;
-        color.green = grey;
-        colors.table[i] = Pixels.integerOfColor(color);
-    }
-};
-
 
 colors.redYellowWhite = function() {
     const nColors = colors.n;
@@ -66,19 +83,24 @@ colors.redYellowWhite = function() {
     const first = Math.floor(nColors * 0.33);
     const second = Math.floor(nColors * 0.66);
     for (let i = 0; i < nColors; i++) {
-        if (i < first) {
-            color.red = Math.floor(i / first * 255.9);
-            color.blue = 0;
-            color.green = 0;
-        } else if (i < second) {
-            color.red = 255;
-            color.green = Math.floor((i - first + 1) / (second - first + 1) * 255.9);
-            color.blue = 0;
-        } else {
-            color.red = 255;
-            color.green = 255;
-            color.blue = Math.floor((i - second + 1) / (nColors - second + 1) * 255.9);
-        }
+        const x=3*xFun(i);
+        color.red=cFun(x);
+        color.green=cFun(x-1);
+        color.blue=cFun(x-2);
+        colors.table[i] = Pixels.integerOfColor(color);
+    }
+};
+
+colors.blueCyanWhite = function() {
+    const nColors = colors.n;
+    utils.extend(colors.table, nColors);
+    const first = Math.floor(nColors * 0.33);
+    const second = Math.floor(nColors * 0.66);
+    for (let i = 0; i < nColors; i++) {
+        const x=3*xFun(i);
+        color.blue=cFun(x);
+        color.red=cFun(x-1);
+        color.green=cFun(x-2);
         colors.table[i] = Pixels.integerOfColor(color);
     }
 };
