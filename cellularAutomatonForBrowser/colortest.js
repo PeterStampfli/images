@@ -12,7 +12,8 @@ export const main = {};
 
 
 import {
-    colors
+    colors,
+    utils
 } from "./modules.js";
 
 main.setup = function() {
@@ -33,6 +34,7 @@ main.setup = function() {
     output.createPixels();
     output.drawCanvasChanged = draw;
     draw();
+    console.log(utils.center(4));
 };
 
 function draw(){
@@ -40,6 +42,8 @@ function draw(){
 
     colors.blueCyanWhite();
     colors.complement();
+    colors.rotate();
+    colors.exchange();
 
     colors.test();
 }

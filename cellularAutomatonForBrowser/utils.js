@@ -6,7 +6,7 @@ import {
 
 import {
     colors
-}from "./modules.js";
+} from "./modules.js";
 
 export const utils = {};
 
@@ -51,7 +51,7 @@ utils.logArray = function(array, size = 0) {
 //  cells, sums, prevSums, cellsView, view
 utils.cells = [];
 utils.prevCells = [];
-utils.sumCells=[];
+utils.sumCells = [];
 utils.sums = [];
 utils.cellsView = [];
 utils.view = [];
@@ -131,7 +131,7 @@ utils.copySumCellsViewHexagon = function() {
 };
 
 // switching
-utils.copyCellsView=utils.copyCellsViewSquare;
+utils.copyCellsView = utils.copyCellsViewSquare;
 
 // determine limits of nonzero cells (view)
 // suppose that image only grows
@@ -170,18 +170,18 @@ utils.makeView = function() {
 
 // normalize view matrix
 utils.normalizeView = function() {
-    const length=utils.viewSize *utils.viewSize;
-    let maxi=1;
-    for (let i=0;i<length;i++){
-        maxi=Math.max(maxi,utils.view[i]);
+    const length = utils.viewSize * utils.viewSize;
+    let maxi = 1;
+    for (let i = 0; i < length; i++) {
+        maxi = Math.max(maxi, utils.view[i]);
     }
-    const factor=0.99/maxi;
-        for (let i=0;i<length;i++){
-        utils.view[i]*=factor;
+    const factor = 0.99 / maxi;
+    for (let i = 0; i < length; i++) {
+        utils.view[i] *= factor;
     }
 };
 
-utils.nearestImage=function() {
+utils.nearestImage = function() {
     output.startDrawing();
     output.pixels.update();
     const pixels = output.pixels;
@@ -203,7 +203,7 @@ utils.nearestImage=function() {
     output.pixels.show();
 };
 
-utils.linearImage=function() {
+utils.linearImage = function() {
     output.startDrawing();
     output.pixels.update();
     const pixels = output.pixels;
@@ -287,7 +287,7 @@ utils.cubicImage = function() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            const colorIndex = Math.max(Math.floor(colors.n * sum),0);
+            const colorIndex = Math.max(Math.floor(colors.n * sum), 0);
             pixels.array[imageIndex] = colors.table[colorIndex];
             imageIndex += 1;
         }
@@ -295,7 +295,7 @@ utils.cubicImage = function() {
     output.pixels.show();
 };
 
-utils.image=utils.cubicImage;
+utils.image = utils.cubicImage;
 
 //==========================================
 // initialization
@@ -529,12 +529,19 @@ utils.makeSumHexagon = function(weights) {
     }
 };
 
+//==================================
+// configurations
+utils.center = function(c) {
+    return [c, 0, 0, 0, 0, 0, 0];
+};
+
 
 //============================================
 // making the transitions
 
 // transition tables, needs number of states
 utils.nStates = 16;
+utils.trianglePeriod = 40;
 
 utils.setNStates = function(n) {
     utils.nStates = n;
@@ -572,7 +579,7 @@ utils.irreversibleTransition = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             utils.cells[index] = utils.transitionTable(utils.sums[index]);
-            utils.sumCells[index]+=utils.cells[index];
+            utils.sumCells[index] += utils.cells[index];
         }
     }
 };
@@ -586,7 +593,7 @@ utils.reversibleTransitionAdditive = function() {
             const index = i + jSize;
             const rememberState = utils.cells[index];
             utils.cells[index] = (utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
-            utils.sumCells[index]+=utils.cells[index];
+            utils.sumCells[index] += utils.cells[index];
             utils.prevCells[index] = rememberState;
         }
     }
@@ -600,9 +607,75 @@ utils.reversibleTransitionSubtractive = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             const rememberState = utils.cells[index];
-            utils.cells[index] = (utils.nStates-utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
-            utils.sumCells[index]+=utils.cells[index];
+            utils.cells[index] = (utils.nStates - utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            utils.sumCells[index] += utils.cells[index];
             utils.prevCells[index] = rememberState;
         }
     }
 };
+
+utils.transition = utils.irreversibleTransition;
+
+//  how to run things
+//===============================================================
+
+// transitions
+//=============================
+
+//utils.transitionTable = utils.triangleTable;
+//utils.sawToothTable
+//utils.slowToothTable
+//utils.triangleTable
+
+//utils.transition=utils.irreversibleTransition;
+//utils.reversibleTransitionAdditive
+//utils.reversibleTransitionSubtractive
+//utils.irreversibleTransition
+
+// image
+//====================
+//utils.image = utils.cubicImage;
+//utils.linearImage
+//utils. nearestImage
+
+// hexagon - square
+//====================================
+// (set config for start)
+//utils.initialState=utils.initialStateSquare
+//utils.initialStateSquare = function(config)
+//utils.initialStateHexagon = function(config)
+
+// (set config for weights)
+//utils.makeSum=makeSumSquare
+//utils.makeSumSquare = function(weights) 
+//utils.makeSumHexagon = function(weights) 
+
+//utils.copyCellsView=utils.copyCellsViewSquare;
+//utils.copyCellsViewHexagon
+//utils.copyCellsViewSquare
+// average
+//utils.copySumCellsViewHexagon
+//utils.copySumCellsViewSquare
+
+// initialization
+//====================================================
+//utils.setSize(size);
+//colors.setN(n<size);
+//utils.setViewLimits(mini, maxi);     maxi< size   (size/2?)
+//utils.setNStates(n);
+//utils.initialState(config);
+
+// step
+//===============
+
+//utils.makeSum
+//utils.transition           (set transitiontable)
+//utils.copyCellsView
+//utils.getViewHalf
+//utils.makeView
+//utils.normalizeView
+//utils.image
+
+// stop
+//==========
+//  utils.cellsFull===true
