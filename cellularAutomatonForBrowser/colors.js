@@ -123,8 +123,8 @@ colors.blueCyanWhite = function() {
     for (let i = 0; i < nColors; i++) {
         const x = 3 * xFun(i);
         color.blue = cFun(x);
-        color.red = cFun(x - 1);
-        color.green = cFun(x - 2);
+        color.green = cFun(x - 1);
+        color.red = cFun(x - 2);
         colors.table[i] = Pixels.integerOfColor(color);
     }
 };
@@ -163,6 +163,24 @@ colors.bordeaux = function() {
         color.blue = Math.max(0, Math.floor(255 - grey * grey / 100));
         colors.table[i] = Pixels.integerOfColor(color);
     }
+};
+
+// random color table
+const generators=[colors.greys, colors.redYellowWhite,colors.blueCyanWhite,colors.randomBlue,colors.randomRedGreen,colors.bordeaux];
+
+colors.random=function(nColors){
+colors.setN(nColors);
+const generator=utils.randomChoice(generators);
+generator();
+if (Math.random()>0.5){
+    colors.invert();
+}
+if (Math.random()>0.5){
+    colors.solarize();
+}
+if (Math.random()>0.8){
+    colors.complement();
+}
 };
 
 // test the color table

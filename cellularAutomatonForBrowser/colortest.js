@@ -38,12 +38,8 @@ main.setup = function() {
 };
 
 function draw(){
-    colors.setN(12);
 
-    colors.blueCyanWhite();
-    colors.complement();
-    colors.rotate();
-    colors.exchange();
+    colors.random(20);
 
     colors.test();
 }

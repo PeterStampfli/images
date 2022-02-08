@@ -55,9 +55,12 @@ utils.sumCells = [];
 utils.sums = [];
 utils.cellsView = [];
 utils.view = [];
+utils.weights = [];
 
-// initialization
+// initialization, add weights later
 utils.setSize = function(size) {
+    utils.iteration = 0;
+    utils.weights.length = 0;
     size = utils.makeOdd(size);
     utils.size = size;
     const size2 = size * size;
@@ -530,9 +533,51 @@ utils.makeSumHexagon = function(weights) {
 };
 
 //==================================
-// configurations
+// configurations square lattice
 utils.center = function(c) {
     return [c, 0, 0, 0, 0, 0, 0];
+};
+
+utils.neumann = function(c, f) {
+    return [c, f, 0, 0, 0, 0, 0];
+};
+
+utils.moore = function(c, f) {
+    return [c, f, f, 0, 0, 0, 0];
+};
+
+utils.cross = function(c, f) {
+    return [c, f, 0, f, 0, 0, 0];
+};
+
+utils.rotateSquare = function(c, f) {
+    return [c, f, 0, 0, f, 0, 0];
+};
+
+utils.rotateCross = function(c, f) {
+    return [c, f, 0, f, f, 0, 0];
+};
+
+// configurations hexagon/triangle lattice
+
+utils.hexagon = function(c, f) {
+    return [c, f, f, 0, 0, 0, 0];
+};
+
+utils.bigHexagon = function(c, f) {
+    return [c, f, f, f, f, 0, 0];
+};
+
+utils.rotateHexagon = function(c, f) {
+    return [c, 0, 0, f, 0, f, 0];
+};
+
+utils.triangle = function(c, f) {
+    return [c, f, 0, 0, 0, 0, 0];
+};
+
+utils.bigTriangle = function(c, f) {
+    return [c, f, f, f, 0, 0, 0];
 };
 
 
@@ -568,6 +613,9 @@ utils.triangleTable = function(sum) {
 };
 
 // make transition and sum cells (for time-average)
+// to get more structure: sum modulo maxAverage
+utils.maxAverage = 1000;
+
 
 utils.transitionTable = utils.triangleTable;
 
@@ -579,7 +627,7 @@ utils.irreversibleTransition = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             utils.cells[index] = utils.transitionTable(utils.sums[index]);
-            utils.sumCells[index] += utils.cells[index];
+            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
         }
     }
 };
@@ -593,7 +641,7 @@ utils.reversibleTransitionAdditive = function() {
             const index = i + jSize;
             const rememberState = utils.cells[index];
             utils.cells[index] = (utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
-            utils.sumCells[index] += utils.cells[index];
+            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
             utils.prevCells[index] = rememberState;
         }
     }
@@ -608,7 +656,7 @@ utils.reversibleTransitionSubtractive = function() {
             const index = i + jSize;
             const rememberState = utils.cells[index];
             utils.cells[index] = (utils.nStates - utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
-            utils.sumCells[index] += utils.cells[index];
+            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
             utils.prevCells[index] = rememberState;
         }
     }
@@ -654,28 +702,79 @@ utils.transition = utils.irreversibleTransition;
 //utils.copyCellsViewHexagon
 //utils.copyCellsViewSquare
 // average
+//utils.maxAverage=....;
 //utils.copySumCellsViewHexagon
 //utils.copySumCellsViewSquare
+
+utils.squareLattice = function(average = false) {
+    utils.initialState = utils.initialStateSquare;
+    utils.makeSum = utils.makeSumSquare;
+    if (average) {
+        utils.copyCellsView = utils.copySumCellsViewSquare;
+    } else {
+        utils.copyCellsView = utils.copyCellsViewSquare;
+    }
+};
+
+utils.hexagonLattice = function(average = false) {
+    utils.initialState = utils.initialStateHexagon;
+    utils.makeSum = utils.makeSumHexagon;
+    if (average) {
+        utils.copyCellsView = utils.copySumCellsViewHexagon;
+    } else {
+        utils.copyCellsView = utils.copyCellsViewHexagon;
+    }
+};
+
 
 // initialization
 //====================================================
 //utils.setSize(size);
+// add weights
 //colors.setN(n<size);
 //utils.setViewLimits(mini, maxi);     maxi< size   (size/2?)
 //utils.setNStates(n);
 //utils.initialState(config);
+//utils.maxAverage=....;
 
-// step
+// complete sample setup
+utils.setupNeumann = function() {
+    const size = 100;
+    const nColors = 4;
+    const nStates = 4;
+    const average = false;
+    const maxAverage = 20;
+    const minView = 4;
+    const maxView = 40;
+    const initConfig = utils.center();
+    utils.transitionTable = utils.sawToothTable;
+    utils.transition = utils.irreversibleTransition;
+    utils.image = utils.cubicImage;
+    utils.weights.push(utils.neumann(1, 1));
+    utils.setSize(size);
+    colors.random(nColors);
+    utils.setViewLimits(minView, maxView);
+    utils.squareLattice(average);
+    utils.initialState(initConfig);
+};
+
+// step (universal)
 //===============
 
-//utils.makeSum
-//utils.transition           (set transitiontable)
-//utils.copyCellsView
-//utils.getViewHalf
-//utils.makeView
-//utils.normalizeView
-//utils.image
+utils.step = function() {
+    const actualWeights = utils.weights[utils.iteration % utils.weights.length];
+    utils.iteration += 1;
+    utils.makeSum(actualWeights);
+    utils.transition();
+    utils.copyCellsView();
+    utils.getViewHalf();
+    utils.makeView();
+    utils.normalizeView();
+    utils.image();
+};
 
 // stop
 //==========
 //  utils.cellsFull===true
+
+// stepping is universal, choose things in the initialization
