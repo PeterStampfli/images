@@ -74,7 +74,7 @@ utils.setSize = function(size) {
     utils.sums.fill(0);
     utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
-    // initialize limits (region grows only)
+    utils.cellsFull=false;
 };
 
 //=====================================================
@@ -152,7 +152,7 @@ utils.getViewHalf = function() {
             index += 1;
         }
     }
-    utils.cellsFull = (utils.viewHalf > center - 2);
+    utils.cellsFull = (utils.viewHalf >= center - 2);
     utils.viewHalf = Math.min(utils.viewHalf, utils.viewHalfMax);
 };
 
@@ -738,25 +738,7 @@ utils.hexagonLattice = function(average = false) {
 //utils.maxAverage=....;
 
 // complete sample setup
-utils.setupNeumann = function() {
-    const size = 100;
-    const nColors = 4;
-    const nStates = 4;
-    const average = false;
-    const maxAverage = 20;
-    const minView = 4;
-    const maxView = 40;
-    const initConfig = utils.center();
-    utils.transitionTable = utils.sawToothTable;
-    utils.transition = utils.irreversibleTransition;
-    utils.image = utils.cubicImage;
-    utils.weights.push(utils.neumann(1, 1));
-    utils.setSize(size);
-    colors.random(nColors);
-    utils.setViewLimits(minView, maxView);
-    utils.squareLattice(average);
-    utils.initialState(initConfig);
-};
+// see setups.js
 
 // step (universal)
 //===============
@@ -766,6 +748,9 @@ utils.step = function() {
     utils.iteration += 1;
     utils.makeSum(actualWeights);
     utils.transition();
+};
+
+utils.draw = function() {
     utils.copyCellsView();
     utils.getViewHalf();
     utils.makeView();

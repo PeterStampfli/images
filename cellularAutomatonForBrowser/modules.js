@@ -9,3 +9,14 @@ export {
     colors
 }
 from "./colors.js";
+
+export {
+    main
+}
+from "./newCA.js";
+
+export {
+    setups
+}
+from "./setups.js";
+
