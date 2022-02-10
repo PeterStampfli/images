@@ -17,6 +17,10 @@ export const utils = {};
 utils.makeOdd = function(n) {
     return Math.floor(n / 2) * 2 + 1;
 };
+// forcing even number
+utils.makeEven = function(n) {
+    return Math.floor(n / 2) * 2;
+};
 
 // choose from a random array
 utils.randomChoice = function(options) {
@@ -72,9 +76,10 @@ utils.setSize = function(size) {
     utils.prevCells.fill(0);
     utils.extend(utils.sums, size2);
     utils.sums.fill(0);
+    utils.cellsViewSize = size;
     utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
-    utils.cellsFull=false;
+    utils.cellsFull = false;
 };
 
 //=====================================================
@@ -82,8 +87,8 @@ utils.setSize = function(size) {
 // center-viewHalf ... center+viewHalf
 
 utils.setViewLimits = function(mini, maxi) {
-    utils.viewHalfMax = Math.floor(maxi / 2);
-    utils.viewHalf = Math.floor(mini / 2);
+    utils.viewMaxSize = maxi;
+    utils.viewMinSize = mini;
 };
 
 // copy cells to cell view
@@ -106,7 +111,7 @@ utils.copySumCellsViewSquare = function() {
 // copy for hexagon symmetry with shift
 utils.copyCellsViewHexagon = function() {
     const size = utils.size;
-    const center = Math.floor(utils.size / 2);
+    const center = Math.floor(size / 2);
     for (let j = 0; j < size; j++) {
         const left = 2 + Math.floor(Math.abs(center - j) / 2);
         const right = left + size - 2 - Math.abs(center - j);
@@ -116,6 +121,32 @@ utils.copyCellsViewHexagon = function() {
             utils.cellsView[i + jSize] = utils.cells[i + jSize + shift];
         }
     }
+};
+
+
+// copy for hexagon symmetry with shift
+utils.copyCellsViewHexagonImproved = function() {
+    const size = utils.size;
+    utils.logArray(utils.cells);
+    const cellsViewSize = 2 * (size - 2);
+    utils.cellsViewSize=cellsViewSize;
+    console.log(cellsViewSize);
+    utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
+    utils.cellsView.fill(0);
+    const center = Math.floor(size / 2);
+    for (let j = 0; j < cellsViewSize; j++) {
+        const jSuper = 1 + Math.floor(j / 2);
+        const shift = jSuper - center;
+        const jSize = j * cellsViewSize;
+        const jSuperSize = jSuper * size;
+        for (let i = 0; i < cellsViewSize; i++) {
+            const iSuper = 1 + Math.floor((i + shift) / 2);
+            if ((i >= 0) && (i < cellsViewSize)) {
+                utils.cellsView[i + jSize] = utils.cells[iSuper + jSuperSize];
+            }
+        }
+    }
+    utils.logArray(utils.cellsView, cellsViewSize);
 };
 
 // time average
@@ -141,24 +172,40 @@ utils.copyCellsView = utils.copyCellsViewSquare;
 // limit and symmetrize
 // determine stop
 utils.getViewHalf = function() {
-    const size = utils.size;
-    const center = Math.floor(utils.size / 2);
+    const size = utils.cellsViewSize;
+    console.log(size);
+    const center = Math.floor(size / 2);
     let index = 0;
+    let low = size;
+    let high = 0;
     for (let j = 0; j < size; j++) {
         for (let i = 0; i < size; i++) {
             if (utils.cellsView[index] > 0) {
-                utils.viewHalf = Math.max(utils.viewHalf, Math.abs(i - center), Math.abs(j - center));
+                console.log(i, j)
+                low = Math.min(low, i, j);
+                high = Math.max(high, i, j);
             }
             index += 1;
         }
     }
-    utils.cellsFull = (utils.viewHalf >= center - 2);
-    utils.viewHalf = Math.min(utils.viewHalf, utils.viewHalfMax);
+
+    console.log(high, low);
+
+    utils.cellsFull = (low<2)||(high>size-3);
+
+    if (size&1){    // odd
+
+    } else {
+
+    }
+
+
+
 };
 
 // make reduced view matrix
 utils.makeView = function() {
-    const size = utils.size;
+    const size = utils.cellsViewSize;
     const viewSize = 5 + 2 * utils.viewHalf;
     utils.viewSize = viewSize;
     utils.extend(utils.view, viewSize * viewSize);
@@ -182,6 +229,7 @@ utils.normalizeView = function() {
     for (let i = 0; i < length; i++) {
         utils.view[i] *= factor;
     }
+    utils.logArray(utils.view, utils.viewSize);
 };
 
 utils.nearestImage = function() {
@@ -722,8 +770,10 @@ utils.hexagonLattice = function(average = false) {
     if (average) {
         utils.copyCellsView = utils.copySumCellsViewHexagon;
     } else {
-        utils.copyCellsView = utils.copyCellsViewHexagon;
+        //  utils.copyCellsView = utils.copyCellsViewHexagon;
+        utils.copyCellsView = utils.copyCellsViewHexagonImproved;
     }
+
 };
 
 

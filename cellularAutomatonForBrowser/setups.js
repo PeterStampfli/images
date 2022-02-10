@@ -10,7 +10,7 @@ export const setups={};
 
 setups.reset=function(){
 
-setups.neumann();
+setups.hexagon();
 
 };
 
@@ -25,6 +25,7 @@ setups.neumann = function() {
     const maxView = 50;
     const initConfig = utils.center(1);
     utils.setSize(size);
+    utils.setNStates(nStates);
     colors.random(nColors);
     utils.transitionTable = utils.sawToothTable;
     utils.transition = utils.irreversibleTransition;
@@ -32,5 +33,26 @@ setups.neumann = function() {
     utils.weights.push(utils.neumann(1, 1));
     utils.setViewLimits(minView, maxView);
     utils.squareLattice(average);
+    utils.initialState(initConfig);
+};
+
+setups.hexagon = function() {
+    const size = 9;
+    const nColors = 8;
+    const nStates = 2;
+    const average = false;
+    const maxAverage = 20;
+    const minView = 4;
+    const maxView = 150;
+    const initConfig = utils.center(1);
+    utils.setSize(size);
+    utils.setNStates(nStates);
+    colors.random(nColors);
+    utils.transitionTable = utils.sawToothTable;
+    utils.transition = utils.irreversibleTransition;
+    utils.image = utils.nearestImage;
+    utils.weights.push(utils.hexagon(0, 1));
+    utils.setViewLimits(minView, maxView);
+    utils.hexagonLattice(average);
     utils.initialState(initConfig);
 };
