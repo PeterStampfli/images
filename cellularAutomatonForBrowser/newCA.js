@@ -122,6 +122,7 @@ runner.makeStep = function() {
         } else {
             runner.running = false;
         }
+        return;
     }
     // do the step
     runner.stepStart = Date.now();

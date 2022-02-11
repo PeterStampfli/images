@@ -38,7 +38,7 @@ utils.extend = function(space, minLength) {
 // log array of size*size elements
 utils.logArray = function(array, size = 0) {
     if (size <= 0) {
-        size = utils.size;
+        size = utils.cellSize;
     }
     for (let j = size - 1; j >= 0; j--) {
         let message = j + ' : ';
@@ -61,12 +61,14 @@ utils.cellsView = [];
 utils.view = [];
 utils.weights = [];
 
-// initialization, add weights later
+// initialization of variables 
+// set size of arrays, and fill with 0
+// size is full array of cells, including a double border of fixed zero cells
 utils.setSize = function(size) {
     utils.iteration = 0;
     utils.weights.length = 0;
     size = utils.makeOdd(size);
-    utils.size = size;
+    utils.cellSize = size;
     const size2 = size * size;
     utils.extend(utils.cells, size2);
     utils.cells.fill(0);
@@ -83,8 +85,9 @@ utils.setSize = function(size) {
 };
 
 //=====================================================
-// adapted microscopic view
-// center-viewHalf ... center+viewHalf
+// the size of the view can change, within limits
+// to show a nearly full screen initially
+// the visible part only increases
 
 utils.setViewLimits = function(mini, maxi) {
     utils.viewMaxSize = maxi;
@@ -94,7 +97,7 @@ utils.setViewLimits = function(mini, maxi) {
 // copy cells to cell view
 // simple copy for square lattice
 utils.copyCellsViewSquare = function() {
-    const size2 = utils.size * utils.size;
+    const size2 = utils.cellSize * utils.cellSize;
     for (let i = 0; i < size2; i++) {
         utils.cellsView[i] = utils.cells[i];
     }
@@ -102,7 +105,7 @@ utils.copyCellsViewSquare = function() {
 
 // copy the sum time average
 utils.copySumCellsViewSquare = function() {
-    const size2 = utils.size * utils.size;
+    const size2 = utils.cellSize * utils.cellSize;
     for (let i = 0; i < size2; i++) {
         utils.cellsView[i] = utils.sumCells[i];
     }
@@ -110,7 +113,7 @@ utils.copySumCellsViewSquare = function() {
 
 // copy for hexagon symmetry with shift
 utils.copyCellsViewHexagon = function() {
-    const size = utils.size;
+    const size = utils.cellSize;
     const center = Math.floor(size / 2);
     for (let j = 0; j < size; j++) {
         const left = 2 + Math.floor(Math.abs(center - j) / 2);
@@ -125,11 +128,13 @@ utils.copyCellsViewHexagon = function() {
 
 
 // copy for hexagon symmetry with shift
+// each (automaton) cell is represented by 4 view cells
+// to get a more accurate representation
 utils.copyCellsViewHexagonImproved = function() {
-    const size = utils.size;
+    const size = utils.cellSize;
     utils.logArray(utils.cells);
     const cellsViewSize = 2 * (size - 2);
-    utils.cellsViewSize=cellsViewSize;
+    utils.cellsViewSize = cellsViewSize;
     console.log(cellsViewSize);
     utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
     utils.cellsView.fill(0);
@@ -151,8 +156,8 @@ utils.copyCellsViewHexagonImproved = function() {
 
 // time average
 utils.copySumCellsViewHexagon = function() {
-    const size = utils.size;
-    const center = Math.floor(utils.size / 2);
+    const size = utils.cellSize;
+    const center = Math.floor(utils.cellSize / 2);
     for (let j = 0; j < size; j++) {
         const left = 2 + Math.floor(Math.abs(center - j) / 2);
         const right = left + size - 2 - Math.abs(center - j);
@@ -173,7 +178,7 @@ utils.copyCellsView = utils.copyCellsViewSquare;
 // determine stop
 utils.getViewHalf = function() {
     const size = utils.cellsViewSize;
-    console.log(size);
+    console.log('size cellsview ' + size);
     const center = Math.floor(size / 2);
     let index = 0;
     let low = size;
@@ -181,7 +186,6 @@ utils.getViewHalf = function() {
     for (let j = 0; j < size; j++) {
         for (let i = 0; i < size; i++) {
             if (utils.cellsView[index] > 0) {
-                console.log(i, j)
                 low = Math.min(low, i, j);
                 high = Math.max(high, i, j);
             }
@@ -189,16 +193,24 @@ utils.getViewHalf = function() {
         }
     }
 
-    console.log(high, low);
+    console.log('high low', high, low);
 
-    utils.cellsFull = (low<2)||(high>size-3);
+    // size of visible cells in limits
+    let viewSize = high - low + 1;
+    console.log('viewsize ' + viewSize);
+    viewSize = Math.min(Math.max(viewSize, utils.viewMinSize), utils.viewMaxSize);
 
-    if (size&1){    // odd
-
+    if (size & 1) { // odd
+        viewSize = utils.makeOdd(viewSize);
     } else {
-
+        viewSize = utils.makeEven(viewSize);
     }
+    console.log('viewsize adj ' + viewSize);
 
+
+    utils.viewMinSize = viewSize;
+    // total size with double border
+    utils.viewSize = viewSize + 4;
 
 
 };
@@ -206,11 +218,11 @@ utils.getViewHalf = function() {
 // make reduced view matrix
 utils.makeView = function() {
     const size = utils.cellsViewSize;
-    const viewSize = 5 + 2 * utils.viewHalf;
-    utils.viewSize = viewSize;
+    const viewSize = utils.viewSize;
     utils.extend(utils.view, viewSize * viewSize);
     // shift between the two centers
-    const shift = Math.floor(size / 2) - Math.floor(viewSize / 2);
+    const shift = (size - viewSize) / 2;
+    console.log('shift ' + shift);
     for (let j = 0; j < viewSize; j++) {
         for (let i = 0; i < viewSize; i++) {
             utils.view[i + j * viewSize] = utils.cellsView[i + shift + (j + shift) * size];
@@ -233,12 +245,13 @@ utils.normalizeView = function() {
 };
 
 utils.nearestImage = function() {
+    console.log('nearestImage');
     output.startDrawing();
     output.pixels.update();
     const pixels = output.pixels;
     const width = output.canvas.width;
     const height = width;
-    const size = 5 + 2 * utils.viewHalf;
+    const size = utils.viewSize;
     const cells = utils.view;
     const scale = (size - 4) / width;
     let imageIndex = 0;
@@ -361,7 +374,7 @@ utils.image = utils.cubicImage;
 //      4 3 5
 
 utils.initialStateSquare = function(config) {
-    const size = utils.size;
+    const size = utils.cellSize;
     const cells = utils.cells;
     let center = (size - 1) / 2;
     center = center + center * size;
@@ -406,7 +419,7 @@ utils.initialStateSquare = function(config) {
 //    6 3 5
 
 utils.initialStateHexagon = function(config) {
-    const size = utils.size;
+    const size = utils.cellSize;
     const cells = utils.cells;
     let center = (size - 1) / 2;
     center = center + center * size;
@@ -442,7 +455,7 @@ utils.initialStateHexagon = function(config) {
 utils.makeSumSquare = function(weights) {
     const cells = utils.cells;
     const sums = utils.sums;
-    const size = utils.size;
+    const size = utils.cellSize;
     var cm12, c02, c12;
     var cm21, cm11, c01, c11, c21;
     var cm20, cm10, c00, c10, c20;
@@ -516,7 +529,7 @@ utils.makeSumSquare = function(weights) {
 utils.makeSumHexagon = function(weights) {
     const cells = utils.cells;
     const sums = utils.sums;
-    const size = utils.size;
+    const size = utils.cellSize;
     var c02, c12, c22;
     var cm11, c01, c11, c21;
     var cm20, cm10, c00, c10, c20;
@@ -668,7 +681,7 @@ utils.maxAverage = 1000;
 utils.transitionTable = utils.triangleTable;
 
 utils.irreversibleTransition = function() {
-    const size = utils.size;
+    const size = utils.cellSize;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         const jSize = j * size;
@@ -681,7 +694,7 @@ utils.irreversibleTransition = function() {
 };
 
 utils.reversibleTransitionAdditive = function() {
-    const size = utils.size;
+    const size = utils.cellSize;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         const jSize = j * size;
@@ -696,7 +709,7 @@ utils.reversibleTransitionAdditive = function() {
 };
 
 utils.reversibleTransitionSubtractive = function() {
-    const size = utils.size;
+    const size = utils.cellSize;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         const jSize = j * size;
@@ -711,6 +724,25 @@ utils.reversibleTransitionSubtractive = function() {
 };
 
 utils.transition = utils.irreversibleTransition;
+
+// see if non-zero cells are in the border
+// or next to the border. Then no more steps should be done
+utils.checkBorder = function() {
+    console.log('checkb');
+    utils.cellsFull = false;
+    const size = utils.cellSize;
+    for (let i = 0; i < size; i++) {
+        let full = (utils.cells[i] > 0) || (utils.cells[i + size] > 0) || (utils.cells[i + (size - 1) * size] > 0) || (utils.cells[i + (size - 2) * size] > 0);
+        full = full || (utils.cells[i * size] > 0) || (utils.cells[i * size + 1] > 0) || (utils.cells[i * size + size - 1] > 0) || (utils.cells[i * size + size - 2] > 0);
+        if (full) {
+            utils.cellsFull = true;
+            console.log('ceellsfu at ' + i);
+            return;
+        }
+
+    }
+
+};
 
 //  how to run things
 //===============================================================
@@ -798,6 +830,7 @@ utils.step = function() {
     utils.iteration += 1;
     utils.makeSum(actualWeights);
     utils.transition();
+    utils.checkBorder();
 };
 
 utils.draw = function() {
