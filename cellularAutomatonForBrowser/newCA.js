@@ -113,16 +113,16 @@ runner.reset = function() {
 };
 
 runner.makeStep = function() {
-    // restart for automatic runs if image reaches border
-    // (and continue running)
-    if (utils.cellsFull) {
-        console.log('cellsfull');
+    // if image reaches border
+    // restart for automatic runs (and continue running)
+    // stop running for simple run
+    if (utils.stop) {
         if (runner.autoRun) {
             runner.reset();
         } else {
             runner.running = false;
-        }
         return;
+        }
     }
     // do the step
     runner.stepStart = Date.now();

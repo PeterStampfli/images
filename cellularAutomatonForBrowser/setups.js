@@ -19,7 +19,7 @@ setups.neumann = function() {
     const size = 100;
     const nColors = 4;
     const nStates = 8;
-    const average = true;
+    const average = false;
     const maxAverage = 20;
     const minView = 4;
     const maxView = 50;
@@ -29,7 +29,7 @@ setups.neumann = function() {
     colors.random(nColors);
     utils.transitionTable = utils.sawToothTable;
     utils.transition = utils.irreversibleTransition;
-    utils.image = utils.cubicImage;
+    utils.image = utils.linearImage;
     utils.weights.push(utils.neumann(1, 1));
     utils.setViewLimits(minView, maxView);
     utils.squareLattice(average);
@@ -37,9 +37,9 @@ setups.neumann = function() {
 };
 
 setups.hexagon = function() {
-    const size = 9;
-    const nColors = 8;
-    const nStates = 2;
+    const size = 100;
+    const nColors = 3;
+    const nStates = 3;
     const average = false;
     const maxAverage = 20;
     const minView = 4;
@@ -49,9 +49,9 @@ setups.hexagon = function() {
     utils.setNStates(nStates);
     colors.random(nColors);
     utils.transitionTable = utils.sawToothTable;
-    utils.transition = utils.irreversibleTransition;
-    utils.image = utils.nearestImage;
-    utils.weights.push(utils.hexagon(0, 1));
+    utils.transition = utils.reversibleTransitionAdditive;
+    utils.image = utils.cubicImage;
+    utils.weights.push(utils.hexagon(2, 1));
     utils.setViewLimits(minView, maxView);
     utils.hexagonLattice(average);
     utils.initialState(initConfig);
