@@ -111,27 +111,10 @@ utils.copySumCellsViewSquare = function() {
 };
 
 // copy for hexagon symmetry with shift
-utils.copyCellsViewHexagon = function() {
-    const size = utils.cellSize;
-    const center = Math.floor(size / 2);
-    for (let j = 0; j < size; j++) {
-        const left = 2 + Math.floor(Math.abs(center - j) / 2);
-        const right = left + size - 2 - Math.abs(center - j);
-        const shift = Math.floor((j - center) / 2);
-        const jSize = j * size;
-        for (let i = left; i < right; i++) {
-            utils.cellsView[i + jSize] = utils.cells[i + jSize + shift];
-        }
-    }
-};
-
-
-// copy for hexagon symmetry with shift
 // each (automaton) cell is represented by 4 view cells
 // to get a more accurate representation
 // we need zero borders of 2 cells width plus a buffer border because of shifts
-
-utils.copyCellsViewHexagonImproved = function() {
+utils.copyCellsViewHexagon = function() {
     const size = utils.cellSize;
     // double content plus 2 times 3 border
     const cellsViewSize = 2 * (size - 4)+6;
@@ -157,17 +140,28 @@ utils.copyCellsViewHexagonImproved = function() {
 // time average
 utils.copySumCellsViewHexagon = function() {
     const size = utils.cellSize;
-    const center = Math.floor(utils.cellSize / 2);
-    for (let j = 0; j < size; j++) {
-        const left = 2 + Math.floor(Math.abs(center - j) / 2);
-        const right = left + size - 2 - Math.abs(center - j);
-        const shift = Math.floor((j - center) / 2);
-        const jSize = j * size;
-        for (let i = left; i < right; i++) {
-            utils.cellsView[i + jSize] = utils.sumCells[i + jSize + shift];
+    // double content plus 2 times 3 border
+    const cellsViewSize = 2 * (size - 4)+6;
+    utils.cellsViewSize = cellsViewSize;
+    utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
+    utils.cellsView.fill(0);
+    const cellsViewSizeM2=cellsViewSize-2;
+    const center = Math.floor(size / 2);
+    for (let j = 2; j < cellsViewSizeM2; j++) {
+        const jSuper = Math.floor((j +1)/ 2);
+        const shift = jSuper - center;
+        const jSize = j * cellsViewSize;
+        const jSuperSize = jSuper * size;
+        for (let i = 2; i < cellsViewSizeM2; i++) {
+            const iSuper = Math.floor((i +1+ shift) / 2);
+            if ((iSuper >= 0) && (iSuper < size)) {
+                utils.cellsView[i + jSize] = utils.sumCells[iSuper + jSuperSize];
+            }
         }
     }
 };
+
+
 
 // switching
 utils.copyCellsView = utils.copyCellsViewSquare;
@@ -662,7 +656,7 @@ utils.slowToothTable = function(sum) {
 // triangle table
 utils.triangleTable = function(sum) {
     let value = sum % utils.trianglePeriod;
-    if (value >= nStates) {
+    if (value >= utils.nStates) {
         value = utils.trianglePeriod - value;
     }
     return value;
@@ -794,7 +788,7 @@ utils.hexagonLattice = function(average = false) {
         utils.copyCellsView = utils.copySumCellsViewHexagon;
     } else {
         //  utils.copyCellsView = utils.copyCellsViewHexagon;
-        utils.copyCellsView = utils.copyCellsViewHexagonImproved;
+        utils.copyCellsView = utils.copyCellsViewHexagon;
     }
 
 };
