@@ -8,7 +8,8 @@ import {
 
 import {
     utils,
-    setups
+    setups,
+    colors
 } from "./modules.js";
 
 // export everything from here, eliminate modules.js
@@ -41,12 +42,18 @@ main.setup = function() {
         type: 'boolean',
         params: runner,
         property: 'recording'
+    }).add({
+        type: "button",
+        buttonText: "save this frame",
+        minLabelWidth: 20,
+        onClick: function() {
+            output.saveCanvasAsFile(output.saveName.getValue(), output.saveType.getValue());
+        }
     });
     runner.stepNumberDigits = 5;
     runner.stepTime = 1;
     runner.step = 0;
-    runner.autoRun = false;
-    runner.stepMessage = gui.addParagraph('steps done: ' + 0);
+     runner.stepMessage = gui.addParagraph('steps done: ' + 0);
     gui.add({
         type: 'number',
         params: runner,
@@ -54,13 +61,11 @@ main.setup = function() {
         labelText: 'time per step',
         min: 0,
         step: 0.1
-    });
-    gui.add({
+    }).add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
             runner.running = false;
-            runner.autoRun = false;
             runner.reset();
         }
     }).add({
@@ -68,13 +73,11 @@ main.setup = function() {
         buttonText: 'stop',
         onClick: function() {
             runner.running = false;
-            runner.autoRun = false;
         }
     }).add({
         type: 'button',
         buttonText: 'step',
         onClick: function() {
-            runner.autoRun = false;
             if (!runner.running) {
                 runner.makeStep();
             } else {
@@ -85,29 +88,51 @@ main.setup = function() {
         type: 'button',
         buttonText: 'run',
         onClick: function() {
-            runner.autoRun = false;
-            if (!runner.running) {
-                runner.running = true;
-                runner.makeStep();
-            }
-        }
-    }).add({
-        type: 'button',
-        buttonText: 'auto run',
-        onClick: function() {
-            runner.autoRun = true;
             if (!runner.running) {
                 runner.running = true;
                 runner.makeStep();
             }
         }
     });
-    main.logger = main.gui.addLogger();
+    const sizeController=gui.add({
+        type:'number',
+        params:utils,
+        property:'size',
+        min:5,
+        step:2,
+        onChange: function(){
+            console.log(utils.size,output.canvas.width);
+            if (utils.size>output.canvas.width){
+                if (output.canvas.width&1){
+                sizeController.setValueOnly(output.canvas.width);
+            } else {
+                sizeController.setValueOnly(output.canvas.width-1);                
+            }
+            }
+        }
+    });
+    sizeController.add({
+        type:'number',
+        params:utils,
+        property:'nStates',
+        labelText:'states',
+        min:2,
+        step:1
+    }).add({
+        type:'number',
+        params:utils,
+        property:'colors',
+        min:2,
+        step:1
+    });
     runner.reset();
 };
 
 runner.reset = function() {
     runner.step = 0;
+        utils.setSize();
+    utils.trianglePeriod = 2 * utils.nStates - 2;
+    colors.random(utils.colors);
     setups.reset();
     utils.draw();
 };
@@ -117,12 +142,8 @@ runner.makeStep = function() {
     // restart for automatic runs (and continue running)
     // stop running for simple run
     if (utils.stop) {
-        if (runner.autoRun) {
-            runner.reset();
-        } else {
             runner.running = false;
         return;
-        }
     }
     // do the step
     runner.stepStart = Date.now();

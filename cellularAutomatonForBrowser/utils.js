@@ -52,6 +52,7 @@ utils.logArray = function(array, size = 0) {
 //===================================================
 // the cell and other arrays
 //  cells, sums, prevSums, cellsView, view
+utils.size=201;
 utils.cells = [];
 utils.prevCells = [];
 utils.sumCells = [];
@@ -63,7 +64,8 @@ utils.weights = [];
 // initialization of variables 
 // set size of arrays, and fill with 0
 // size is full array of cells, including a double border of fixed zero cells
-utils.setSize = function(size) {
+utils.setSize = function() {
+    let size=utils.size;
     utils.iteration = 0;
     utils.weights.length = 0;
     size = utils.makeOdd(size);
@@ -80,18 +82,11 @@ utils.setSize = function(size) {
     utils.cellsViewSize = size;
     utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
+        utils.viewMinSize = 4;
     utils.stop = false;
 };
 
 //=====================================================
-// the size of the view can change, within limits
-// to show a nearly full screen initially
-// the visible part only increases
-
-utils.setViewLimits = function(mini, maxi) {
-    utils.viewMaxSize = maxi;
-    utils.viewMinSize = mini;
-};
 
 // copy cells to cell view
 // simple copy for square lattice
@@ -187,7 +182,7 @@ utils.getViewHalf = function() {
     }
     // size of visible cells in limits
     let viewSize = high - low + 1;
-    viewSize = Math.min(Math.max(viewSize, utils.viewMinSize), utils.viewMaxSize);
+    viewSize = Math.max(viewSize, utils.viewMinSize);
     if (size & 1) { // odd
         viewSize = utils.makeOdd(viewSize);
     } else {
@@ -331,7 +326,7 @@ utils.cubicImage = function() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            const colorIndex = Math.max(Math.floor(colors.n * sum), 0);
+            const colorIndex = Math.min(Math.max(Math.floor(colors.n * sum), 0),colors.n-1);
             pixels.array[imageIndex] = colors.table[colorIndex];
             imageIndex += 1;
         }
@@ -635,13 +630,11 @@ utils.bigTriangle = function(c, f) {
 // without the double border, that remains always cleared
 
 // transition tables, needs number of states
-utils.nStates = 16;
+utils.colors=4;
+utils.nStates = 4;
 utils.trianglePeriod = 40;
 
-utils.setNStates = function(n) {
-    utils.nStates = n;
-    utils.trianglePeriod = 2 * n - 2;
-};
+
 
 // sawtooth table
 utils.sawToothTable = function(sum) {
@@ -811,6 +804,7 @@ utils.hexagonLattice = function(average = false) {
 //===============
 
 utils.step = function() {
+    console.log('nStat',utils.nStates);
     const actualWeights = utils.weights[utils.iteration % utils.weights.length];
     utils.iteration += 1;
     utils.makeSum(actualWeights);

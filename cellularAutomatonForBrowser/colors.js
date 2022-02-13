@@ -169,6 +169,7 @@ colors.bordeaux = function() {
 const generators=[colors.greys, colors.redYellowWhite,colors.blueCyanWhite,colors.randomBlue,colors.randomRedGreen,colors.bordeaux];
 
 colors.random=function(nColors){
+    console.log('color',nColors)
 colors.setN(nColors);
 const generator=utils.randomChoice(generators);
 generator();
