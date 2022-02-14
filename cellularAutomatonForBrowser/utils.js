@@ -52,7 +52,7 @@ utils.logArray = function(array, size = 0) {
 //===================================================
 // the cell and other arrays
 //  cells, sums, prevSums, cellsView, view
-utils.size=201;
+utils.size = 201;
 utils.cells = [];
 utils.prevCells = [];
 utils.sumCells = [];
@@ -65,7 +65,7 @@ utils.weights = [];
 // set size of arrays, and fill with 0
 // size is full array of cells, including a double border of fixed zero cells
 utils.setSize = function() {
-    let size=utils.size;
+    let size = utils.size;
     utils.iteration = 0;
     utils.weights.length = 0;
     size = utils.makeOdd(size);
@@ -82,7 +82,7 @@ utils.setSize = function() {
     utils.cellsViewSize = size;
     utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
-        utils.viewMinSize = 4;
+    utils.viewMinSize = 4;
     utils.stop = false;
 };
 
@@ -112,19 +112,19 @@ utils.copySumCellsViewSquare = function() {
 utils.copyCellsViewHexagon = function() {
     const size = utils.cellSize;
     // double content plus 2 times 3 border
-    const cellsViewSize = 2 * (size - 4)+6;
+    const cellsViewSize = 2 * (size - 4) + 6;
     utils.cellsViewSize = cellsViewSize;
     utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
     utils.cellsView.fill(0);
-    const cellsViewSizeM2=cellsViewSize-2;
+    const cellsViewSizeM2 = cellsViewSize - 2;
     const center = Math.floor(size / 2);
     for (let j = 2; j < cellsViewSizeM2; j++) {
-        const jSuper = Math.floor((j +1)/ 2);
+        const jSuper = Math.floor((j + 1) / 2);
         const shift = jSuper - center;
         const jSize = j * cellsViewSize;
         const jSuperSize = jSuper * size;
         for (let i = 2; i < cellsViewSizeM2; i++) {
-            const iSuper = Math.floor((i +1+ shift) / 2);
+            const iSuper = Math.floor((i + 1 + shift) / 2);
             if ((iSuper >= 0) && (iSuper < size)) {
                 utils.cellsView[i + jSize] = utils.cells[iSuper + jSuperSize];
             }
@@ -136,27 +136,25 @@ utils.copyCellsViewHexagon = function() {
 utils.copySumCellsViewHexagon = function() {
     const size = utils.cellSize;
     // double content plus 2 times 3 border
-    const cellsViewSize = 2 * (size - 4)+6;
+    const cellsViewSize = 2 * (size - 4) + 6;
     utils.cellsViewSize = cellsViewSize;
     utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
     utils.cellsView.fill(0);
-    const cellsViewSizeM2=cellsViewSize-2;
+    const cellsViewSizeM2 = cellsViewSize - 2;
     const center = Math.floor(size / 2);
     for (let j = 2; j < cellsViewSizeM2; j++) {
-        const jSuper = Math.floor((j +1)/ 2);
+        const jSuper = Math.floor((j + 1) / 2);
         const shift = jSuper - center;
         const jSize = j * cellsViewSize;
         const jSuperSize = jSuper * size;
         for (let i = 2; i < cellsViewSizeM2; i++) {
-            const iSuper = Math.floor((i +1+ shift) / 2);
+            const iSuper = Math.floor((i + 1 + shift) / 2);
             if ((iSuper >= 0) && (iSuper < size)) {
                 utils.cellsView[i + jSize] = utils.sumCells[iSuper + jSuperSize];
             }
         }
     }
 };
-
-
 
 // switching
 utils.copyCellsView = utils.copyCellsViewSquare;
@@ -326,7 +324,7 @@ utils.cubicImage = function() {
             sum += kx * (kym * cells[cellIndexM + 1] + ky * cells[cellIndex + 1] + ky1 * cells[cellIndex1 + 1] + ky2 * cells[cellIndex2 + 1]);
             kx = kernel(2 - dx);
             sum += kx * (kym * cells[cellIndexM + 2] + ky * cells[cellIndex + 2] + ky1 * cells[cellIndex1 + 2] + ky2 * cells[cellIndex2 + 2]);
-            const colorIndex = Math.min(Math.max(Math.floor(colors.n * sum), 0),colors.n-1);
+            const colorIndex = Math.min(Math.max(Math.floor(colors.n * sum), 0), colors.n - 1);
             pixels.array[imageIndex] = colors.table[colorIndex];
             imageIndex += 1;
         }
@@ -630,7 +628,7 @@ utils.bigTriangle = function(c, f) {
 // without the double border, that remains always cleared
 
 // transition tables, needs number of states
-utils.colors=4;
+utils.colors = 4;
 utils.nStates = 4;
 utils.trianglePeriod = 40;
 
@@ -657,10 +655,10 @@ utils.triangleTable = function(sum) {
 
 // make transition and sum cells (for time-average)
 // to get more structure: sum modulo maxAverage
-utils.maxAverage = 1000;
+utils.maxAverage = 10;
+utils.average = false;
 
-
-utils.transitionTable = utils.triangleTable;
+utils.transitionTable = utils.sawToothTable;
 
 utils.irreversibleTransition = function() {
     const size = utils.cellSize;
@@ -783,8 +781,8 @@ utils.hexagonLattice = function(average = false) {
         //  utils.copyCellsView = utils.copyCellsViewHexagon;
         utils.copyCellsView = utils.copyCellsViewHexagon;
     }
-
 };
+utils.lattice = utils.squareLattice;
 
 
 // initialization
@@ -804,7 +802,7 @@ utils.hexagonLattice = function(average = false) {
 //===============
 
 utils.step = function() {
-    console.log('nStat',utils.nStates);
+    console.log('nStat', utils.nStates);
     const actualWeights = utils.weights[utils.iteration % utils.weights.length];
     utils.iteration += 1;
     utils.makeSum(actualWeights);

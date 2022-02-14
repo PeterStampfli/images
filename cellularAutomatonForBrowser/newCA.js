@@ -36,6 +36,7 @@ main.setup = function() {
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = utils.draw;
+    colors.draw = utils.draw;
     // setup the runner and its interface
     runner.recording = false;
     gui.add({
@@ -53,7 +54,7 @@ main.setup = function() {
     runner.stepNumberDigits = 5;
     runner.stepTime = 1;
     runner.step = 0;
-     runner.stepMessage = gui.addParagraph('steps done: ' + 0);
+    runner.stepMessage = gui.addParagraph('steps done: ' + 0);
     gui.add({
         type: 'number',
         params: runner,
@@ -94,45 +95,101 @@ main.setup = function() {
             }
         }
     });
-    const sizeController=gui.add({
-        type:'number',
-        params:utils,
-        property:'size',
-        min:5,
-        step:2,
-        onChange: function(){
-            console.log(utils.size,output.canvas.width);
-            if (utils.size>output.canvas.width){
-                if (output.canvas.width&1){
-                sizeController.setValueOnly(output.canvas.width);
-            } else {
-                sizeController.setValueOnly(output.canvas.width-1);                
-            }
+    colors.makeGui(gui);
+    gui.add({
+        type: 'selection',
+        params: utils,
+        property: 'image',
+        options: {
+            'nearest image': utils.nearestImage,
+            'linear interpolation': utils.linearImage,
+            'cubic interpolation': utils.cubicImage
+        },
+        onChange: function() {
+            utils.draw();
+        }
+    });
+    gui.add({
+        type: 'selection',
+        params: utils,
+        property: 'transition',
+        options: {
+            irreversible: utils.irreversibleTransition,
+            'reversible additive': utils.reversibleTransitionAdditive,
+            'reversible subtractive': utils.reversibleTransitionSubtractive
+        }
+    });
+    gui.add({
+        type: 'selection',
+        params: utils,
+        property: 'transitionTable',
+        options: {
+            'saw tooth': utils.sawToothTable,
+            'triangle': utils.triangleTable,
+            'slow saw tooth': utils.slowToothTable
+        }
+    });
+    gui.add({
+        type: 'boolean',
+        params: utils,
+        property: 'average',
+    }).add({
+        type: 'number',
+        params: utils,
+        property: 'maxAverage',
+        labelText: 'limit',
+        min: 2,
+        step: 1
+    });
+    const sizeController = gui.add({
+        type: 'number',
+        params: utils,
+        property: 'size',
+        min: 5,
+        step: 2,
+        onChange: function() {
+            console.log(utils.size, output.canvas.width);
+            if (utils.size > output.canvas.width) {
+                if (output.canvas.width & 1) {
+                    sizeController.setValueOnly(output.canvas.width);
+                } else {
+                    sizeController.setValueOnly(output.canvas.width - 1);
+                }
             }
         }
     });
     sizeController.add({
-        type:'number',
-        params:utils,
-        property:'nStates',
-        labelText:'states',
-        min:2,
-        step:1
-    }).add({
-        type:'number',
-        params:utils,
-        property:'colors',
-        min:2,
-        step:1
+        type: 'number',
+        params: utils,
+        property: 'nStates',
+        labelText: 'states',
+        min: 2,
+        step: 1
+    });
+    gui.add({
+        type: 'selection',
+        params: utils,
+        property: 'lattice',
+        options: {
+            square: utils.squareLattice,
+            hexagonal: utils.hexagonLattice
+        }
     });
     runner.reset();
 };
 
 runner.reset = function() {
     runner.step = 0;
-        utils.setSize();
+    utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
     colors.random(utils.colors);
+    utils.lattice(utils.average);
+    if (utils.lattice === utils.squareLattice) {
+        console.log('squarelatt');
+    } else {
+        console.log('hexagla');
+    }
+
     setups.reset();
     utils.draw();
 };
@@ -142,7 +199,7 @@ runner.makeStep = function() {
     // restart for automatic runs (and continue running)
     // stop running for simple run
     if (utils.stop) {
-            runner.running = false;
+        runner.running = false;
         return;
     }
     // do the step

@@ -33,8 +33,12 @@ main.setup = function() {
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = draw;
+
+
+    colors.makeGui(gui);
+    colors.draw=colors.test;
+
     draw();
-    console.log(utils.center(4));
 };
 
 function draw(){
