@@ -131,12 +131,12 @@ colors.blueCyanYellowWhite = function() {
     const second = Math.floor(nColors * 0.66);
     for (let i = 0; i < nColors; i++) {
         const x = 4 * xFun(i);
-        color.red = cFun(x-2);
+        color.red = cFun(x - 2);
         color.green = cFun(x - 1);
-        if (x>3){
-                    color.blue = cFun(x - 3);
+        if (x > 3) {
+            color.blue = cFun(x - 3);
         } else {
-                                color.blue = cFun(Math.min(x,3-x));
+            color.blue = cFun(Math.min(x, 3 - x));
         }
         colors.table[i] = Pixels.integerOfColor(color);
     }
@@ -195,9 +195,9 @@ colors.bordeaux = function() {
 //========================================================
 // interface
 
-const generators = [colors.greys, colors.redYellowWhite, colors.blueCyanWhite,colors.blueCyanYellowWhite, colors.randomBlue, colors.randomRedGreen, colors.bordeaux];
+const generators = [colors.greys, colors.redYellowWhite, colors.blueCyanWhite, colors.blueCyanYellowWhite, colors.randomBlue, colors.randomRedGreen, colors.bordeaux];
 
-var generatorSelector, complementSwitch,invertSwitch,solarizeSwitch;
+var generatorSelector, complementSwitch, invertSwitch, solarizeSwitch;
 
 colors.makeGui = function(gui) {
     colors.generator = colors.greys;
@@ -224,7 +224,7 @@ colors.makeGui = function(gui) {
         type: 'number',
         params: utils,
         property: 'colors',
-        labelText:'numbers',
+        labelText: 'numbers',
         min: 2,
         step: 1,
         onChange: function() {
@@ -254,7 +254,7 @@ colors.makeGui = function(gui) {
             colors.makeTable();
             colors.draw();
         }
-    }); 
+    });
     colors.doSolarize = false;
     solarizeSwitch = complementSwitch.add({
         type: 'boolean',
@@ -274,18 +274,18 @@ colors.random = function(nColors) {
     complementSwitch.setValueOnly(ranBool());
     invertSwitch.setValueOnly(ranBool());
     solarizeSwitch.setValueOnly(ranBool());
-    colors.makeTable();   
+    colors.makeTable();
 };
 
 colors.makeTable = function() {
     colors.generator();
-    if (colors.doComplement){
+    if (colors.doComplement) {
         colors.complement();
     }
-   if (colors.doInvert){
+    if (colors.doInvert) {
         colors.invert();
     }
-   if (colors.doSolarize){
+    if (colors.doSolarize) {
         colors.solarize();
     }
 };

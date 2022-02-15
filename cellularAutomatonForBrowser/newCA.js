@@ -8,7 +8,6 @@ import {
 
 import {
     utils,
-    setups,
     colors
 } from "./modules.js";
 
@@ -17,7 +16,11 @@ export const main = {};
 export const runner = {};
 
 // automaton does the interesting thing
-// methods: setup, draww, reset, step
+// methods: setup, draw, reset, step
+
+var configuration;
+var initConfig = [1, 0, 0, 0, 0, 0, 0];
+var weights = [1, 1, 1, 0, 0, 0, 0];
 
 main.setup = function() {
     // gui and output canvas
@@ -175,6 +178,85 @@ main.setup = function() {
             hexagonal: utils.hexagonLattice
         }
     });
+    configuration = gui.addParagraph('configuration');
+    gui.add({
+        type: 'number',
+        params: initConfig,
+        property: 0,
+        labelText: 'initial&emsp;&emsp; 0',
+        step: 1,
+    }).add({
+        type: 'number',
+        params: initConfig,
+        property: 1,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: initConfig,
+        property: 2,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: initConfig,
+        property: 3,
+        step: 1,
+    });
+    gui.add({
+        type: 'number',
+        params: initConfig,
+        property: 4,
+        labelText: '&emsp;&emsp;&emsp;&emsp; 4',
+        step: 1,
+    }).add({
+        type: 'number',
+        params: initConfig,
+        property: 5,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: initConfig,
+        property: 6,
+        step: 1,
+    });
+    gui.add({
+        type: 'number',
+        params: weights,
+        property: 0,
+        labelText: 'weights&emsp; 0',
+        step: 1,
+    }).add({
+        type: 'number',
+        params: weights,
+        property: 1,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: weights,
+        property: 2,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: weights,
+        property: 3,
+        step: 1,
+    });
+    gui.add({
+        type: 'number',
+        params: weights,
+        property: 4,
+        labelText: '&emsp;&emsp;&emsp;&emsp; 4',
+        step: 1,
+    }).add({
+        type: 'number',
+        params: weights,
+        property: 5,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: weights,
+        property: 6,
+        step: 1,
+    });
     runner.reset();
 };
 
@@ -186,11 +268,17 @@ runner.reset = function() {
     utils.lattice(utils.average);
     if (utils.lattice === utils.squareLattice) {
         console.log('squarelatt');
+        configuration.innerHTML = '6 5 3 4 6<br>4 2 1 2 5<br>3 1 0 1 3<br>5 2 1 2 4<br>6 4 3 5 6';
     } else {
         console.log('hexagla');
+        configuration.innerHTML = '&ensp; 6 4 5<br>&nbsp;3 2 1 3<br>5 1 0 2 6<br>&nbsp;4 2 1 4<br>&ensp; 6 3 5';
     }
+    utils.initialState(initConfig);
+    utils.weights.length = 0;
+    console.log(initConfig);
+    console.log(weights);
+    utils.weights.push(weights);
 
-    setups.reset();
     utils.draw();
 };
 

@@ -36,12 +36,12 @@ main.setup = function() {
 
 
     colors.makeGui(gui);
-    colors.draw=colors.test;
+    colors.draw = colors.test;
 
     draw();
 };
 
-function draw(){
+function draw() {
 
     colors.random(20);
 

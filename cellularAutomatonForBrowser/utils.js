@@ -67,7 +67,6 @@ utils.weights = [];
 utils.setSize = function() {
     let size = utils.size;
     utils.iteration = 0;
-    utils.weights.length = 0;
     size = utils.makeOdd(size);
     utils.cellSize = size;
     const size2 = size * size;
@@ -372,6 +371,10 @@ utils.initialStateSquare = function(config) {
     cells[center - 2 * size - 1] = config[5];
     cells[center + 2 - size] = config[5];
     cells[center - 2 + size] = config[5];
+    cells[center + 2 * size + 2] = config[6];
+    cells[center - 2 * size - 2] = config[6];
+    cells[center + 2 - 2 * size] = config[6];
+    cells[center - 2 + 2 * size] = config[6];
     utils.prevCells[center] = 1;
 };
 
@@ -434,22 +437,25 @@ utils.makeSumSquare = function(weights) {
     const cells = utils.cells;
     const sums = utils.sums;
     const size = utils.cellSize;
-    var cm12, c02, c12;
+    var cm22, cm12, c02, c12, c22;
     var cm21, cm11, c01, c11, c21;
     var cm20, cm10, c00, c10, c20;
     var cm2m1, cm1m1, c0m1, c1m1, c2m1;
-    var cm1m2, c0m2, c1m2;
+    var cm2m2, cm1m2, c0m2, c1m2, c2m2;
     const w0 = weights[0];
     const w1 = weights[1];
     const w2 = weights[2];
     const w3 = weights[3];
     const w4 = weights[4];
     const w5 = weights[5];
+    const w6 = weights[6];
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
+        cm12 = cells[center + 2 * size - 1];
         c02 = cells[center + 2 * size];
         c12 = cells[center + 2 * size + 1];
+        c22 = cells[center + 2 * size + 2];
         cm11 = cells[center + size - 1];
         c01 = cells[center + size];
         c11 = cells[center + size + 1];
@@ -462,13 +468,17 @@ utils.makeSumSquare = function(weights) {
         c0m1 = cells[center - size];
         c1m1 = cells[center - size + 1];
         c2m1 = cells[center - size + 2];
+        cm1m2 = cells[center - 2 * size - 1];
         c0m2 = cells[center - 2 * size];
         c1m2 = cells[center - 2 * size + 1];
+        c2m2 = cells[center - 2 * size + 2];
         for (let i = 2; i < sizeM2; i++) {
             center += 1;
+            cm22 = cm12;
             cm12 = c02;
             c02 = c12;
-            c12 = cells[center + 1 + 2 * size];
+            c12 = c22;
+            c22 = cells[center + 2 + 2 * size];
             cm21 = cm11;
             cm11 = c01;
             c01 = c11;
@@ -484,16 +494,19 @@ utils.makeSumSquare = function(weights) {
             c0m1 = c1m1;
             c1m1 = c2m1;
             c2m1 = cells[center + 2 - size];
+            cm2m2 = cm1m2;
             cm1m2 = c0m2;
             c0m2 = c1m2;
-            c1m2 = cells[center + 1 - 2 * size];
+            c1m2 = c2m2;
+            c2m2 = cells[center + 2 - 2 * size];
             let sum = w0 * c00;
             sum += w1 * (c01 + cm10 + c10 + c0m1);
             sum += w2 * (c11 + cm11 + c1m1 + cm1m1);
             sum += w3 * (c02 + cm20 + c20 + c0m2);
             sum += w4 * (cm12 + cm2m1 + c1m2 + c21);
             sum += w5 * (c12 + c2m1 + cm1m2 + cm21);
-            sums[center] = sum;
+            sum += w6 * (c22 + c2m2 + cm2m2 + cm22);
+            sums[center] = Math.abs(sum);
         }
     }
 };
@@ -568,7 +581,7 @@ utils.makeSumHexagon = function(weights) {
             sum += w4 * (c12 + cm2m1 + c1m1);
             sum += w5 * (c22 + cm20 + c0m2);
             sum += w6 * (c02 + c20 + cm2m2);
-            sums[center] = sum;
+            sums[center] = Math.abs(sum);
         }
     }
 };

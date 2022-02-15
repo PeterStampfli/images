@@ -14,9 +14,3 @@ export {
     main
 }
 from "./newCA.js";
-
-export {
-    setups
-}
-from "./setups.js";
-
