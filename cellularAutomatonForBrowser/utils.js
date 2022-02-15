@@ -815,7 +815,6 @@ utils.lattice = utils.squareLattice;
 //===============
 
 utils.step = function() {
-    console.log('nStat', utils.nStates);
     const actualWeights = utils.weights[utils.iteration % utils.weights.length];
     utils.iteration += 1;
     utils.makeSum(actualWeights);

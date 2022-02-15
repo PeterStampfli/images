@@ -148,10 +148,9 @@ main.setup = function() {
         type: 'number',
         params: utils,
         property: 'size',
-        min: 5,
+        min: 9,
         step: 2,
         onChange: function() {
-            console.log(utils.size, output.canvas.width);
             if (utils.size > output.canvas.width) {
                 if (output.canvas.width & 1) {
                     sizeController.setValueOnly(output.canvas.width);
@@ -159,6 +158,8 @@ main.setup = function() {
                     sizeController.setValueOnly(output.canvas.width - 1);
                 }
             }
+            runner.running = false;
+            runner.reset();
         }
     });
     sizeController.add({
@@ -167,7 +168,11 @@ main.setup = function() {
         property: 'nStates',
         labelText: 'states',
         min: 2,
-        step: 1
+        step: 1,
+        onChange: function() {
+            runner.running = false;
+            runner.reset();
+        }
     });
     gui.add({
         type: 'selection',
@@ -176,6 +181,10 @@ main.setup = function() {
         options: {
             square: utils.squareLattice,
             hexagonal: utils.hexagonLattice
+        },
+        onChange: function() {
+            runner.running = false;
+            runner.reset();
         }
     });
     configuration = gui.addParagraph('configuration');
@@ -267,18 +276,13 @@ runner.reset = function() {
     colors.random(utils.colors);
     utils.lattice(utils.average);
     if (utils.lattice === utils.squareLattice) {
-        console.log('squarelatt');
         configuration.innerHTML = '6 5 3 4 6<br>4 2 1 2 5<br>3 1 0 1 3<br>5 2 1 2 4<br>6 4 3 5 6';
     } else {
-        console.log('hexagla');
         configuration.innerHTML = '&ensp; 6 4 5<br>&nbsp;3 2 1 3<br>5 1 0 2 6<br>&nbsp;4 2 1 4<br>&ensp; 6 3 5';
     }
     utils.initialState(initConfig);
     utils.weights.length = 0;
-    console.log(initConfig);
-    console.log(weights);
     utils.weights.push(weights);
-
     utils.draw();
 };
 
