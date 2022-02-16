@@ -673,20 +673,9 @@ utils.average = false;
 
 utils.transitionTable = utils.sawToothTable;
 
-utils.irreversibleTransition = function() {
-    const size = utils.cellSize;
-    const sizeM2 = size - 2;
-    for (let j = 2; j < sizeM2; j++) {
-        const jSize = j * size;
-        for (let i = 2; i < sizeM2; i++) {
-            const index = i + jSize;
-            utils.cells[index] = utils.transitionTable(utils.sums[index]);
-            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
-        }
-    }
-};
+utils.reversible=0;
 
-utils.reversibleTransitionAdditive = function() {
+utils.transition = function() {
     const size = utils.cellSize;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
@@ -694,29 +683,12 @@ utils.reversibleTransitionAdditive = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             const rememberState = utils.cells[index];
-            utils.cells[index] = (utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            utils.cells[index] = (utils.reversible*utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
             utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
             utils.prevCells[index] = rememberState;
         }
     }
 };
-
-utils.reversibleTransitionSubtractive = function() {
-    const size = utils.cellSize;
-    const sizeM2 = size - 2;
-    for (let j = 2; j < sizeM2; j++) {
-        const jSize = j * size;
-        for (let i = 2; i < sizeM2; i++) {
-            const index = i + jSize;
-            const rememberState = utils.cells[index];
-            utils.cells[index] = (utils.nStates - utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
-            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
-            utils.prevCells[index] = rememberState;
-        }
-    }
-};
-
-utils.transition = utils.irreversibleTransition;
 
 // see if non-zero cells are next to the border (third rows or columns)
 // Then no more steps should be done

@@ -299,7 +299,6 @@ colors.makeTable = function() {
     for (let i = 0; i < colors.n; i++) {
         rawColors[i] = {};
         Pixels.colorOfInteger(color, colors.table[i]);
-        console.log(color);
         pureColor.red=color.red;
         pureColor.blue=color.blue;
         pureColor.green=color.green;

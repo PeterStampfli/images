@@ -112,14 +112,10 @@ main.setup = function() {
         }
     });
     gui.add({
-        type: 'selection',
+        type: 'number',
         params: utils,
-        property: 'transition',
-        options: {
-            irreversible: utils.irreversibleTransition,
-            'reversible additive': utils.reversibleTransitionAdditive,
-            'reversible subtractive': utils.reversibleTransitionSubtractive
-        }
+        property: 'reversible',
+        step:1
     }).add({
         type: 'selection',
         params: utils,
@@ -268,6 +264,7 @@ main.setup = function() {
         step: 1,
     });
         colors.makeGui(gui);
+    colors.random(utils.colors);
     runner.reset();
 };
 
@@ -275,7 +272,6 @@ runner.reset = function() {
     runner.step = 0;
     utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
-    colors.random(utils.colors);
     utils.lattice(utils.average);
     if (utils.lattice === utils.squareLattice) {
         configuration.innerHTML = '6 5 3 4 6<br>4 2 1 2 5<br>3 1 0 1 3<br>5 2 1 2 4<br>6 4 3 5 6';
