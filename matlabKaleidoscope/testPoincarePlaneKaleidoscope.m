@@ -14,7 +14,7 @@ function testPoincarePlaneKaleidoscope(k, m, n)
 
 s = 1000;
 mPix=s*s/1e6;
-map=createIdentityMap(mPix,-1,1,0,2);
+map=createIdentityMap(mPix,-2,2,0,2);
 poincarePlaneToDisc(map);
 basicKaleidoscope(map,k,m,n);
 im=createStructureImage(map);

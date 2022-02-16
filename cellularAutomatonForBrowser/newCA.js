@@ -98,7 +98,6 @@ main.setup = function() {
             }
         }
     });
-    colors.makeGui(gui);
     gui.add({
         type: 'selection',
         params: utils,
@@ -121,17 +120,18 @@ main.setup = function() {
             'reversible additive': utils.reversibleTransitionAdditive,
             'reversible subtractive': utils.reversibleTransitionSubtractive
         }
-    });
-    gui.add({
+    }).add({
         type: 'selection',
         params: utils,
         property: 'transitionTable',
+        labelText:'',
         options: {
             'saw tooth': utils.sawToothTable,
             'triangle': utils.triangleTable,
             'slow saw tooth': utils.slowToothTable
         }
     });
+    /*
     gui.add({
         type: 'boolean',
         params: utils,
@@ -144,6 +144,7 @@ main.setup = function() {
         min: 2,
         step: 1
     });
+    */
     const sizeController = gui.add({
         type: 'number',
         params: utils,
@@ -173,8 +174,7 @@ main.setup = function() {
             runner.running = false;
             runner.reset();
         }
-    });
-    gui.add({
+    }).add({
         type: 'selection',
         params: utils,
         property: 'lattice',
@@ -182,6 +182,7 @@ main.setup = function() {
             square: utils.squareLattice,
             hexagonal: utils.hexagonLattice
         },
+        labelText:'',
         onChange: function() {
             runner.running = false;
             runner.reset();
@@ -266,6 +267,7 @@ main.setup = function() {
         property: 6,
         step: 1,
     });
+        colors.makeGui(gui);
     runner.reset();
 };
 

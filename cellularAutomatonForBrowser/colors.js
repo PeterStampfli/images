@@ -2,7 +2,8 @@
 
 import {
     output,
-    Pixels
+    Pixels,
+    ColorInput
 } from "../libgui/modules.js";
 
 import {
@@ -198,8 +199,10 @@ colors.bordeaux = function() {
 const generators = [colors.greys, colors.redYellowWhite, colors.blueCyanWhite, colors.blueCyanYellowWhite, colors.randomBlue, colors.randomRedGreen, colors.bordeaux];
 
 var generatorSelector, complementSwitch, invertSwitch, solarizeSwitch;
+var colorControllers = [];
 
 colors.makeGui = function(gui) {
+    colors.gui = gui;
     colors.generator = colors.greys;
     generatorSelector = gui.add({
         type: 'selection',
@@ -277,6 +280,7 @@ colors.random = function(nColors) {
     colors.makeTable();
 };
 
+var rawColors = [];
 colors.makeTable = function() {
     colors.generator();
     if (colors.doComplement) {
@@ -288,6 +292,34 @@ colors.makeTable = function() {
     if (colors.doSolarize) {
         colors.solarize();
     }
+    colorControllers.forEach(controller => controller.destroy());
+    colorControllers.length = colors.n;
+    rawColors.length = colors.n;
+    let pureColor={};
+    for (let i = 0; i < colors.n; i++) {
+        rawColors[i] = {};
+        Pixels.colorOfInteger(color, colors.table[i]);
+        console.log(color);
+        pureColor.red=color.red;
+        pureColor.blue=color.blue;
+        pureColor.green=color.green;
+        rawColors[i] = ColorInput.stringFromObject(pureColor);
+        colorControllers[i] = colors.gui.add({
+            type: 'color',
+            params: rawColors,
+            property: i,
+            onChange: function(colorString) {
+                console.log(colorString);
+                ColorInput.setObject(color,colorString);
+                console.log(color);
+                console.log(i,colors.table[i])
+                colors.table[i] = Pixels.integerOfColor(color);
+                console.log(i,colors.table[i])
+            colors.draw();
+            }
+        });
+    }
+
 };
 
 // test the color table
