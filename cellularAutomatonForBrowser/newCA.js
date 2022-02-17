@@ -57,15 +57,23 @@ main.setup = function() {
     runner.stepNumberDigits = 5;
     runner.stepTime = 1;
     runner.step = 0;
-    runner.stepMessage = gui.addParagraph('steps done: ' + 0);
-    gui.add({
+    runner.stepsDone = 0;
+    runner.stepsToDo = 0;
+    runner.stepsDoneController = gui.add({
+        type: 'number',
+        params: runner,
+        property: 'stepsDone',
+        labelText: 'steps',
+    });
+    runner.stepsDoneController.add({
         type: 'number',
         params: runner,
         property: 'stepTime',
         labelText: 'time per step',
         min: 0,
         step: 0.1
-    }).add({
+    });
+    gui.add({
         type: 'button',
         buttonText: 'reset',
         onClick: function() {
@@ -82,11 +90,16 @@ main.setup = function() {
         type: 'button',
         buttonText: 'step',
         onClick: function() {
-            if (!runner.running) {
-                runner.makeStep();
-            } else {
-                runner.running = false;
-            }
+            runner.running = false;
+            runner.makeStep();
+        }
+    }).add({
+        type: 'button',
+        buttonText: '10 steps',
+        onClick: function() {
+            runner.running = false;
+            runner.stepsToDo = 10;
+            runner.makeStep();
         }
     }).add({
         type: 'button',
@@ -115,12 +128,12 @@ main.setup = function() {
         type: 'number',
         params: utils,
         property: 'reversible',
-        step:1
+        step: 1
     }).add({
         type: 'selection',
         params: utils,
         property: 'transitionTable',
-        labelText:'',
+        labelText: '',
         options: {
             'saw tooth': utils.sawToothTable,
             'triangle': utils.triangleTable,
@@ -178,7 +191,7 @@ main.setup = function() {
             square: utils.squareLattice,
             hexagonal: utils.hexagonLattice
         },
-        labelText:'',
+        labelText: '',
         onChange: function() {
             runner.running = false;
             runner.reset();
@@ -263,7 +276,7 @@ main.setup = function() {
         property: 6,
         step: 1,
     });
-        colors.makeGui(gui);
+    colors.makeGui(gui);
     colors.random(utils.colors);
     runner.reset();
 };
@@ -290,12 +303,14 @@ runner.makeStep = function() {
     // stop running for simple run
     if (utils.stop) {
         runner.running = false;
+        runner.stepsToDo = 0;
         return;
     }
     // do the step
     runner.stepStart = Date.now();
     runner.step += 1;
-    runner.stepMessage.innerHTML = 'steps done: ' + runner.step;
+    runner.stepsToDo -= 1;
+    runner.stepsDoneController.setValueOnly(runner.step);
     utils.step();
     utils.draw();
     // write image, if recording, and go to next step, if running
@@ -327,5 +342,10 @@ runner.waitForNextStep = function() {
                 }
             });
         }, remainingTime);
+    }
+    if (runner.stepsToDo > 0) {
+        requestAnimationFrame(function() {
+            runner.makeStep();
+        });
     }
 };

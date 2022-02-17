@@ -424,7 +424,6 @@ utils.initialStateHexagon = function(config) {
 // sums
 // without the double border of zero cells
 
-
 // weights for square lattice
 
 //      5 3 4
@@ -587,55 +586,7 @@ utils.makeSumHexagon = function(weights) {
 };
 
 //==================================
-// configurations square lattice
-utils.center = function(c) {
-    return [c, 0, 0, 0, 0, 0, 0];
-};
 
-utils.neumann = function(c, f) {
-    return [c, f, 0, 0, 0, 0, 0];
-};
-
-utils.moore = function(c, f) {
-    return [c, f, f, 0, 0, 0, 0];
-};
-
-utils.cross = function(c, f) {
-    return [c, f, 0, f, 0, 0, 0];
-};
-
-utils.rotateSquare = function(c, f) {
-    return [c, f, 0, 0, f, 0, 0];
-};
-
-utils.rotateCross = function(c, f) {
-    return [c, f, 0, f, f, 0, 0];
-};
-
-// configurations hexagon/triangle lattice
-
-utils.hexagon = function(c, f) {
-    return [c, f, f, 0, 0, 0, 0];
-};
-
-utils.bigHexagon = function(c, f) {
-    return [c, f, f, f, f, 0, 0];
-};
-
-utils.rotateHexagon = function(c, f) {
-    return [c, 0, 0, f, 0, f, 0];
-};
-
-utils.triangle = function(c, f) {
-    return [c, f, 0, 0, 0, 0, 0];
-};
-
-utils.bigTriangle = function(c, f) {
-    return [c, f, f, f, 0, 0, 0];
-};
-
-
-//============================================
 // making the transitions
 
 // without the double border, that remains always cleared
@@ -644,8 +595,6 @@ utils.bigTriangle = function(c, f) {
 utils.colors = 4;
 utils.nStates = 4;
 utils.trianglePeriod = 40;
-
-
 
 // sawtooth table
 utils.sawToothTable = function(sum) {
