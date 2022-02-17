@@ -295,30 +295,26 @@ colors.makeTable = function() {
     colorControllers.forEach(controller => controller.destroy());
     colorControllers.length = colors.n;
     rawColors.length = colors.n;
-    let pureColor={};
-    for (let i = 0; i < colors.n; i++) {
+    let pureColor = {};
+    for (let i = 1; i < colors.n; i++) {
         rawColors[i] = {};
         Pixels.colorOfInteger(color, colors.table[i]);
-        pureColor.red=color.red;
-        pureColor.blue=color.blue;
-        pureColor.green=color.green;
+        pureColor.red = color.red;
+        pureColor.blue = color.blue;
+        pureColor.green = color.green;
         rawColors[i] = ColorInput.stringFromObject(pureColor);
         colorControllers[i] = colors.gui.add({
             type: 'color',
             params: rawColors,
             property: i,
             onChange: function(colorString) {
-                console.log(colorString);
-                ColorInput.setObject(color,colorString);
-                console.log(color);
-                console.log(i,colors.table[i])
+                ColorInput.setObject(color, colorString);
                 colors.table[i] = Pixels.integerOfColor(color);
-                console.log(i,colors.table[i])
-            colors.draw();
+                colors.draw();
             }
         });
     }
-
+    colors.table[0] = 0;
 };
 
 // test the color table

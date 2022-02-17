@@ -155,6 +155,27 @@ utils.copySumCellsViewHexagon = function() {
     }
 };
 
+
+// improved copy for hexagon symmetry with shift
+// each (automaton) cell is represented by 30 view cells
+// to get a more accurate representation
+// we need zero borders of 2 cells width plus a buffer border because of shifts
+utils.copyCellsViewImprovedHexagon = function() {
+    const size = utils.cellSize;
+    // double content plus 2 times 3 border
+    const cellsViewSize = 2 * (size - 4) + 6;
+    utils.cellsViewSize = cellsViewSize;
+    utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
+    utils.cellsView.fill(0);
+
+};
+
+utils.copySumCellsViewImprovedHexagon = function() {
+
+
+};
+
+
 // switching
 utils.copyCellsView = utils.copyCellsViewSquare;
 
@@ -622,7 +643,7 @@ utils.average = false;
 
 utils.transitionTable = utils.sawToothTable;
 
-utils.reversible=0;
+utils.reversible = 0;
 
 utils.transition = function() {
     const size = utils.cellSize;
@@ -632,7 +653,7 @@ utils.transition = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             const rememberState = utils.cells[index];
-            utils.cells[index] = (utils.reversible*utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            utils.cells[index] = (utils.reversible * utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
             utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
             utils.prevCells[index] = rememberState;
         }
@@ -714,6 +735,18 @@ utils.hexagonLattice = function(average = false) {
     } else {
         //  utils.copyCellsView = utils.copyCellsViewHexagon;
         utils.copyCellsView = utils.copyCellsViewHexagon;
+    }
+};
+
+utils.improvedHexagonLattice = function(average = false) {
+    console.log('improved hex');
+    utils.initialState = utils.initialStateHexagon;
+    utils.makeSum = utils.makeSumHexagon;
+    if (average) {
+        utils.copyCellsView = utils.copySumCellsViewImprovedHexagon;
+    } else {
+        //  utils.copyCellsView = utils.copyCellsViewHexagon;
+        utils.copyCellsView = utils.copyCellsViewImprovedHexagon;
     }
 };
 utils.lattice = utils.squareLattice;

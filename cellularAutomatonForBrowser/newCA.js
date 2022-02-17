@@ -32,13 +32,16 @@ main.setup = function() {
     main.gui = gui;
     BooleanButton.greenRedBackground();
     // no background color, no transparency
-    output.createCanvas(gui, false, false);
+    output.createCanvas(gui, true, true);
+    output.backgroundColorController.setValueOnly('#000000');
+    output.setBackground();
     output.saveType.setValue('jpg');
     // square image
     output.setCanvasWidthToHeight();
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = utils.draw;
+    output.drawImageChanged = utils.draw;
     colors.draw = utils.draw;
     // setup the runner and its interface
     runner.recording = false;
@@ -189,7 +192,8 @@ main.setup = function() {
         property: 'lattice',
         options: {
             square: utils.squareLattice,
-            hexagonal: utils.hexagonLattice
+            hexagonal: utils.hexagonLattice,
+            'improved hexa': utils.improvedHexagonLattice
         },
         labelText: '',
         onChange: function() {
@@ -283,6 +287,7 @@ main.setup = function() {
 
 runner.reset = function() {
     runner.step = 0;
+    runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
     utils.lattice(utils.average);
@@ -312,19 +317,23 @@ runner.makeStep = function() {
     runner.stepsToDo -= 1;
     runner.stepsDoneController.setValueOnly(runner.step);
     utils.step();
-    utils.draw();
-    // write image, if recording, and go to next step, if running
-    if (runner.recording) {
-        let name = runner.step.toString(10);
-        while (name.length < runner.stepNumberDigits) {
-            name = '0' + result;
+    if (runner.stepsToDo <= 0) {
+        utils.draw();
+        // write image, if recording, and go to next step, if running
+        if (runner.recording) {
+            let name = runner.step.toString(10);
+            while (name.length < runner.stepNumberDigits) {
+                name = '0' + result;
+            }
+            name = output.saveName.getValue() + result;
+            const type = output.saveType.getValue();
+            guiUtils.saveCanvasAsFile(output.canvas, name, type,
+                function() {
+                    runner.waitForNextStep();
+                });
+        } else {
+            runner.waitForNextStep();
         }
-        name = output.saveName.getValue() + result;
-        const type = output.saveType.getValue();
-        guiUtils.saveCanvasAsFile(output.canvas, name, type,
-            function() {
-                runner.waitForNextStep();
-            });
     } else {
         runner.waitForNextStep();
     }
