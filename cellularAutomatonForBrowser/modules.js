@@ -9,8 +9,3 @@ export {
     colors
 }
 from "./colors.js";
-
-export {
-    main
-}
-from "./newCA.js";

@@ -6,7 +6,7 @@ import {
 
 import {
     colors
-} from "./modules.js";
+} from "./colors.js";
 
 export const utils = {};
 
@@ -81,7 +81,7 @@ utils.setSize = function() {
     utils.cellsViewSize = size;
     utils.extend(utils.cellsView, size2);
     utils.cellsView.fill(0);
-    utils.viewMinSize = 4;
+    utils.viewMinSize = 5;
     utils.stop = false;
 };
 
@@ -155,25 +155,132 @@ utils.copySumCellsViewHexagon = function() {
     }
 };
 
-
 // improved copy for hexagon symmetry with shift
-// each (automaton) cell is represented by 30 view cells
+// each (automaton) cell is represented by 6*5=30 view cells
 // to get a more accurate representation
 // we need zero borders of 2 cells width plus a buffer border because of shifts
 utils.copyCellsViewImprovedHexagon = function() {
+    console.log('improved');
     const size = utils.cellSize;
-    // double content plus 2 times 3 border
-    const cellsViewSize = 2 * (size - 4) + 6;
+    // six times content plus 2 times 2 border
+    const cellsViewSize = 6 * (size - 4) + 4;
+    console.log('size,viewsize', size, cellsViewSize);
     utils.cellsViewSize = cellsViewSize;
     utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
     utils.cellsView.fill(0);
+    const cellsView = utils.cellsView;
+    const cellsCenter = Math.floor(size / 2);
+    const verticalOffset = Math.floor((cellsViewSize - 5 * (size-4))/2);
+    console.log('verticalOffset', verticalOffset);
+    for (let jCell = 2; jCell < size - 2; jCell++) {
+        const offset = jCell - cellsCenter;
+        // the border!
+        const left = Math.max(2, 2 + offset);
+        const right = Math.min(size - 2, size - 2 + offset);
+        console.log('j,offset,left,right', jCell, offset, left, right);
+        const jImage = 5 * (jCell-2) + verticalOffset+2;
+        console.log("jCell,jImage", jCell, jImage);
+        const jCellSize = jCell * size;
+        const jImageSize = jImage * cellsViewSize;
+        for (let iCell = left; iCell < right; iCell++) {
+            const cell = utils.cells[iCell + jCellSize];
+            //  console.log('iCell,value',iCell,cell);
+            // offset also includes double border of zeros plus going to 'center' of hhexagon
+            const iImage = 6 * (iCell - 2) + 5 - 3 * offset;
+            //   console.log('iIamge,jImage',iImage,jImage,cellsViewSize)
+            const indexBase = iImage + jImageSize;
+            for (let i = -2; i < 2; i++) {
+                cellsView[indexBase + i] = cell;
+                cellsView[indexBase + i + cellsViewSize] = cell;
+                cellsView[indexBase + i + 2 * cellsViewSize] = cell;
+                cellsView[indexBase + i - cellsViewSize] = cell;
+                cellsView[indexBase + i - 2 * cellsViewSize] = cell;
+            }
+            cellsView[indexBase - 3 * cellsViewSize] = cell;
+            cellsView[indexBase - 1 - 3 * cellsViewSize] = cell;
+            cellsView[indexBase + 3 * cellsViewSize] = cell;
+            cellsView[indexBase - 1 + 3 * cellsViewSize] = cell;
+            cellsView[indexBase - 1 + 3 * cellsViewSize] = cell;
+            cellsView[indexBase - 3] = cell;
+            cellsView[indexBase - 3 + cellsViewSize] = cell;
+            cellsView[indexBase - 3 - cellsViewSize] = cell;
+            cellsView[indexBase + 2] = cell;
+            cellsView[indexBase + 2 + cellsViewSize] = cell;
+            cellsView[indexBase + 2 - cellsViewSize] = cell;
+        }
+    }
+    utils.logArray(utils.cellsView, utils.cellsViewSize);
+    utils.logArray(utils.cells);
+};
+
+utils.copySumCellsViewImprovedHexagon = function() {};
+
+// improved copy for hexagon symmetry with shift
+// each (automaton) cell is represented by 8*7=56 view cells
+// to get a more accurate representation
+// we need zero borders of 2 cells width plus a buffer border because of shifts
+utils.copyCellsViewUltimateHexagon = function() {
+    console.log('ultimate');
+    const size = utils.cellSize;
+    // six times content plus 2 times 2 border
+    const cellsViewSize = 8 * (size - 4) + 4;
+    console.log('size,viewsize', size, cellsViewSize);
+    utils.cellsViewSize = cellsViewSize;
+    utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
+    utils.cellsView.fill(0);
+    const cellsView = utils.cellsView;
+    const cellsCenter = Math.floor(size / 2);
+    const verticalOffset = Math.floor((cellsViewSize-7*(size-4))/2);
+    console.log('verticalOffset', verticalOffset);
+    for (let jCell = 2; jCell < size - 2; jCell++) {
+        const offset = jCell - cellsCenter;
+        // the border!
+        const left = Math.max(2, 2 + offset);
+        const right = Math.min(size - 2, size - 2 + offset);
+        console.log('j,offset,left,right', jCell, offset, left, right);
+        const jImage = 7 * (jCell-2) + verticalOffset+2;
+        console.log("jCell,jImage", jCell, jImage);
+        const jCellSize = jCell * size;
+        const jImageSize = jImage * cellsViewSize;
+        for (let iCell = left; iCell < right; iCell++) {
+            const cell = utils.cells[iCell + jCellSize];
+            //  console.log('iCell,value',iCell,cell);
+            const iImage = 8 * (iCell - 2) + 5 - 4 * offset;
+            //   console.log('iIamge,jImage',iImage,jImage,cellsViewSize)
+            const indexBase = iImage + jImageSize;
+            for (let i = -2; i < 4; i++) {
+                cellsView[indexBase + i] = cell;
+                cellsView[indexBase + i + cellsViewSize] = cell;
+                cellsView[indexBase + i + 2 * cellsViewSize] = cell;
+                cellsView[indexBase + i + 3 * cellsViewSize] = cell;
+                cellsView[indexBase + i - cellsViewSize] = cell;
+                cellsView[indexBase + i - 2 * cellsViewSize] = cell;
+                cellsView[indexBase + i - 3 * cellsViewSize] = cell;
+            }
+            cellsView[indexBase  - 4 * cellsViewSize] = cell;
+            cellsView[indexBase +1 - 4 * cellsViewSize] = cell;
+           cellsView[indexBase  + 4 * cellsViewSize] = cell;
+            cellsView[indexBase +1 + 4 * cellsViewSize] = cell;
+            cellsView[indexBase -3 + 2 * cellsViewSize] = cell;
+            cellsView[indexBase -3 + cellsViewSize] = cell;
+            cellsView[indexBase -3 ] = cell;
+            cellsView[indexBase -3 -cellsViewSize] = cell;
+            cellsView[indexBase -3 - 2 * cellsViewSize] = cell;
+             cellsView[indexBase +4 + 2 * cellsViewSize] = cell;
+            cellsView[indexBase +4 + cellsViewSize] = cell;
+            cellsView[indexBase +4 ] = cell;
+            cellsView[indexBase +4 -cellsViewSize] = cell;
+            cellsView[indexBase +4 - 2 * cellsViewSize] = cell;
+
+
+        }
+
+    }
+    //   utils.logArray(utils.cellsView, utils.cellsViewSize);
+    //  utils.logArray(utils.cells);
 
 };
 
-utils.copySumCellsViewImprovedHexagon = function() {
-
-
-};
 
 
 // switching
@@ -207,8 +314,10 @@ utils.getViewHalf = function() {
         viewSize = utils.makeEven(viewSize);
     }
     utils.viewMinSize = viewSize;
-    // total size with double border
-    utils.viewSize = viewSize + 4;
+    // total size with double border, limit size
+    utils.viewSize = Math.min(viewSize + 4, utils.cellsViewSize);
+    // the corner
+    utils.bottomLeftView = Math.max(0, Math.min(utils.cellsViewSize - utils.viewSize, low - 2));
 };
 
 // make reduced view matrix
@@ -217,7 +326,7 @@ utils.makeView = function() {
     const viewSize = utils.viewSize;
     utils.extend(utils.view, viewSize * viewSize);
     // shift between the two centers
-    const shift = (size - viewSize) / 2;
+    const shift = utils.bottomLeftView;
     for (let j = 0; j < viewSize; j++) {
         for (let i = 0; i < viewSize; i++) {
             utils.view[i + j * viewSize] = utils.cellsView[i + shift + (j + shift) * size];
@@ -739,9 +848,9 @@ utils.hexagonLattice = function(average = false) {
 };
 
 utils.improvedHexagonLattice = function(average = false) {
-    console.log('improved hex');
     utils.initialState = utils.initialStateHexagon;
     utils.makeSum = utils.makeSumHexagon;
+
     if (average) {
         utils.copyCellsView = utils.copySumCellsViewImprovedHexagon;
     } else {

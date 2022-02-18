@@ -8,7 +8,7 @@ import {
 
 import {
     utils
-} from "./modules.js";
+} from "./utils.js";
 
 export const colors = {};
 

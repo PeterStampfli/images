@@ -188,19 +188,19 @@ main.setup = function() {
             runner.reset();
         }
     });
+    utils.copyCellsView = utils.copyCellsViewUltimateHexagon;
     latticeController = statesController.add({
         type: 'selection',
         params: utils,
-        property: 'lattice',
+        property: 'copyCellsView',
         options: {
-            square: utils.squareLattice,
-            hexagonal: utils.hexagonLattice,
-            'improved hexa': utils.improvedHexagonLattice
+            4: utils.copyCellsViewHexagon,
+            6: utils.copyCellsViewImprovedHexagon,
+            8: utils.copyCellsViewUltimateHexagon
         },
-        labelText: '',
+        labelText: 'super',
         onChange: function() {
-            runner.running = false;
-            runner.reset();
+                        utils.draw();
         }
     });
     configuration = gui.addParagraph('configuration');
@@ -291,19 +291,15 @@ runner.reset = function() {
 
     imageController.setValueOnly('nearest image');
     sizeController.setValueOnly(9);
-    latticeController.setValueOnly('improved hexa');
 
 
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
-    utils.lattice(utils.average);
-    if (utils.lattice === utils.squareLattice) {
-        configuration.innerHTML = '6 5 3 4 6<br>4 2 1 2 5<br>3 1 0 1 3<br>5 2 1 2 4<br>6 4 3 5 6';
-    } else {
+    utils.initialState = utils.initialStateHexagon;
+    utils.makeSum = utils.makeSumHexagon;
         configuration.innerHTML = '&ensp; 6 4 5<br>&nbsp;3 2 1 3<br>5 1 0 2 6<br>&nbsp;4 2 1 4<br>&ensp; 6 3 5';
-    }
     utils.initialState(initConfig);
     utils.weights.length = 0;
     utils.weights.push(weights);
