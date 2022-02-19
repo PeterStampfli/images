@@ -20,7 +20,8 @@ export const runner = {};
 
 var configuration;
 var initConfig = [1, 0, 0, 0, 0, 0, 0];
-var weights = [1, 1, 1, 0, 0, 0, 0];
+var weights = [1, 1, 0, 0, 0, 0, 0];
+var more = [1, 1, 0, 0, 0, 0, 0];
 var sizeController, imageController, latticeController, statesController;
 
 main.setup = function() {
@@ -226,23 +227,7 @@ main.setup = function() {
         property: 3,
         step: 1,
     });
-    gui.add({
-        type: 'number',
-        params: initConfig,
-        property: 4,
-        labelText: '&emsp;&emsp;&emsp;&emsp; 4',
-        step: 1,
-    }).add({
-        type: 'number',
-        params: initConfig,
-        property: 5,
-        step: 1,
-    }).add({
-        type: 'number',
-        params: initConfig,
-        property: 6,
-        step: 1,
-    });
+    
     gui.add({
         type: 'number',
         params: weights,
@@ -264,22 +249,27 @@ main.setup = function() {
         params: weights,
         property: 3,
         step: 1,
-    });
+    });    
     gui.add({
         type: 'number',
-        params: weights,
-        property: 4,
-        labelText: '&emsp;&emsp;&emsp;&emsp; 4',
+        params: more,
+        property: 0,
+        labelText: 'more&emsp;&emsp; 0',
         step: 1,
     }).add({
         type: 'number',
-        params: weights,
-        property: 5,
+        params: more,
+        property: 1,
         step: 1,
     }).add({
         type: 'number',
-        params: weights,
-        property: 6,
+        params: more,
+        property: 2,
+        step: 1,
+    }).add({
+        type: 'number',
+        params: more,
+        property: 3,
         step: 1,
     });
     colors.makeGui(gui);
@@ -288,21 +278,19 @@ main.setup = function() {
 };
 
 runner.reset = function() {
-
     imageController.setValueOnly('nearest image');
     sizeController.setValueOnly(9);
-
-
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
     utils.initialState = utils.initialStateHexagon;
     utils.makeSum = utils.makeSumHexagon;
-        configuration.innerHTML = '&ensp; 6 4 5<br>&nbsp;3 2 1 3<br>5 1 0 2 6<br>&nbsp;4 2 1 4<br>&ensp; 6 3 5';
+        configuration.innerHTML = '&ensp; 3 2 3<br>&nbsp;2 1 1 2<br>3 1 0 1 3<br>&nbsp;2 1 1 2<br>&ensp; 3 2 3';
     utils.initialState(initConfig);
     utils.weights.length = 0;
     utils.weights.push(weights);
+    utils.weights.push(more);
     utils.draw();
 };
 

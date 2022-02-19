@@ -170,7 +170,7 @@ utils.copyCellsViewImprovedHexagon = function() {
     utils.cellsView.fill(0);
     const cellsView = utils.cellsView;
     const cellsCenter = Math.floor(size / 2);
-    const verticalOffset = Math.floor((cellsViewSize - 5 * (size-4))/2);
+    const verticalOffset = Math.floor((cellsViewSize - 5 * (size - 4)) / 2);
     console.log('verticalOffset', verticalOffset);
     for (let jCell = 2; jCell < size - 2; jCell++) {
         const offset = jCell - cellsCenter;
@@ -178,7 +178,7 @@ utils.copyCellsViewImprovedHexagon = function() {
         const left = Math.max(2, 2 + offset);
         const right = Math.min(size - 2, size - 2 + offset);
         console.log('j,offset,left,right', jCell, offset, left, right);
-        const jImage = 5 * (jCell-2) + verticalOffset+2;
+        const jImage = 5 * (jCell - 2) + verticalOffset + 2;
         console.log("jCell,jImage", jCell, jImage);
         const jCellSize = jCell * size;
         const jImageSize = jImage * cellsViewSize;
@@ -220,33 +220,26 @@ utils.copySumCellsViewImprovedHexagon = function() {};
 // to get a more accurate representation
 // we need zero borders of 2 cells width plus a buffer border because of shifts
 utils.copyCellsViewUltimateHexagon = function() {
-    console.log('ultimate');
     const size = utils.cellSize;
     // six times content plus 2 times 2 border
     const cellsViewSize = 8 * (size - 4) + 4;
-    console.log('size,viewsize', size, cellsViewSize);
     utils.cellsViewSize = cellsViewSize;
     utils.extend(utils.cellsView, cellsViewSize * cellsViewSize);
     utils.cellsView.fill(0);
     const cellsView = utils.cellsView;
     const cellsCenter = Math.floor(size / 2);
-    const verticalOffset = Math.floor((cellsViewSize-7*(size-4))/2);
-    console.log('verticalOffset', verticalOffset);
+    const verticalOffset = Math.floor((cellsViewSize - 7 * (size - 4)) / 2);
     for (let jCell = 2; jCell < size - 2; jCell++) {
         const offset = jCell - cellsCenter;
         // the border!
         const left = Math.max(2, 2 + offset);
         const right = Math.min(size - 2, size - 2 + offset);
-        console.log('j,offset,left,right', jCell, offset, left, right);
-        const jImage = 7 * (jCell-2) + verticalOffset+2;
-        console.log("jCell,jImage", jCell, jImage);
+        const jImage = 7 * (jCell - 2) + verticalOffset + 2;
         const jCellSize = jCell * size;
         const jImageSize = jImage * cellsViewSize;
         for (let iCell = left; iCell < right; iCell++) {
             const cell = utils.cells[iCell + jCellSize];
-            //  console.log('iCell,value',iCell,cell);
             const iImage = 8 * (iCell - 2) + 5 - 4 * offset;
-            //   console.log('iIamge,jImage',iImage,jImage,cellsViewSize)
             const indexBase = iImage + jImageSize;
             for (let i = -2; i < 4; i++) {
                 cellsView[indexBase + i] = cell;
@@ -257,67 +250,51 @@ utils.copyCellsViewUltimateHexagon = function() {
                 cellsView[indexBase + i - 2 * cellsViewSize] = cell;
                 cellsView[indexBase + i - 3 * cellsViewSize] = cell;
             }
-            cellsView[indexBase  - 4 * cellsViewSize] = cell;
-            cellsView[indexBase +1 - 4 * cellsViewSize] = cell;
-           cellsView[indexBase  + 4 * cellsViewSize] = cell;
-            cellsView[indexBase +1 + 4 * cellsViewSize] = cell;
-            cellsView[indexBase -3 + 2 * cellsViewSize] = cell;
-            cellsView[indexBase -3 + cellsViewSize] = cell;
-            cellsView[indexBase -3 ] = cell;
-            cellsView[indexBase -3 -cellsViewSize] = cell;
-            cellsView[indexBase -3 - 2 * cellsViewSize] = cell;
-             cellsView[indexBase +4 + 2 * cellsViewSize] = cell;
-            cellsView[indexBase +4 + cellsViewSize] = cell;
-            cellsView[indexBase +4 ] = cell;
-            cellsView[indexBase +4 -cellsViewSize] = cell;
-            cellsView[indexBase +4 - 2 * cellsViewSize] = cell;
-
-
+            cellsView[indexBase - 4 * cellsViewSize] = cell;
+            cellsView[indexBase + 1 - 4 * cellsViewSize] = cell;
+            cellsView[indexBase + 4 * cellsViewSize] = cell;
+            cellsView[indexBase + 1 + 4 * cellsViewSize] = cell;
+            cellsView[indexBase - 3 + 2 * cellsViewSize] = cell;
+            cellsView[indexBase - 3 + cellsViewSize] = cell;
+            cellsView[indexBase - 3] = cell;
+            cellsView[indexBase - 3 - cellsViewSize] = cell;
+            cellsView[indexBase - 3 - 2 * cellsViewSize] = cell;
+            cellsView[indexBase + 4 + 2 * cellsViewSize] = cell;
+            cellsView[indexBase + 4 + cellsViewSize] = cell;
+            cellsView[indexBase + 4] = cell;
+            cellsView[indexBase + 4 - cellsViewSize] = cell;
+            cellsView[indexBase + 4 - 2 * cellsViewSize] = cell;
         }
-
     }
-    //   utils.logArray(utils.cellsView, utils.cellsViewSize);
-    //  utils.logArray(utils.cells);
-
 };
-
-
 
 // switching
 utils.copyCellsView = utils.copyCellsViewSquare;
 
 // determine limits of nonzero cells (view)
-// suppose that image only grows
-// limit and symmetrize
-// determine stop
-utils.getViewHalf = function() {
+utils.getViewLimits = function() {
     const size = utils.cellsViewSize;
-    const center = Math.floor(size / 2);
     let index = 0;
-    let low = size;
-    let high = 0;
+    let bottom = size;
+    let top = 0;
+    let left = size;
+    let right = 0;
     for (let j = 0; j < size; j++) {
         for (let i = 0; i < size; i++) {
             if (utils.cellsView[index] > 0) {
-                low = Math.min(low, i, j);
-                high = Math.max(high, i, j);
+                bottom = Math.min(bottom, j);
+                top = Math.max(top, j);
+                left = Math.min(left, i);
+                right = Math.max(right, i);
             }
             index += 1;
         }
     }
-    // size of visible cells in limits
-    let viewSize = high - low + 1;
-    viewSize = Math.max(viewSize, utils.viewMinSize);
-    if (size & 1) { // odd
-        viewSize = utils.makeOdd(viewSize);
-    } else {
-        viewSize = utils.makeEven(viewSize);
-    }
-    utils.viewMinSize = viewSize;
-    // total size with double border, limit size
-    utils.viewSize = Math.min(viewSize + 4, utils.cellsViewSize);
-    // the corner
-    utils.bottomLeftView = Math.max(0, Math.min(utils.cellsViewSize - utils.viewSize, low - 2));
+    utils.top = top;
+    utils.bottom = bottom;
+    utils.left = left;
+    utils.right = right;
+    utils.viewSize = 6 + Math.max(top - bottom + 1, right - left + 1);
 };
 
 // make reduced view matrix
@@ -325,11 +302,16 @@ utils.makeView = function() {
     const size = utils.cellsViewSize;
     const viewSize = utils.viewSize;
     utils.extend(utils.view, viewSize * viewSize);
-    // shift between the two centers
-    const shift = utils.bottomLeftView;
-    for (let j = 0; j < viewSize; j++) {
-        for (let i = 0; i < viewSize; i++) {
-            utils.view[i + j * viewSize] = utils.cellsView[i + shift + (j + shift) * size];
+    utils.view.fill(0);
+    const xBorder = Math.floor((viewSize - (utils.right - utils.left + 1)) / 2);
+    const yBorder = Math.floor((viewSize - (utils.top - utils.bottom + 1)) / 2);
+    const xOffset = xBorder - utils.left;
+    const yOffset = yBorder - utils.bottom;
+    for (let j = utils.bottom; j <= utils.top; j++) {
+        const jOffsetViewSize = (j + yOffset) * viewSize;
+        const jSize = j * size;
+        for (let i = utils.left; i <= utils.right; i++) {
+            utils.view[jOffsetViewSize + i + xOffset] = utils.cellsView[jSize + i];
         }
     }
 };
@@ -527,27 +509,34 @@ utils.initialStateSquare = function(config) {
 utils.initialStateHexagon = function(config) {
     const size = utils.cellSize;
     const cells = utils.cells;
+    const c0=config[0];
+    const c1=config[1];
+    const c2=config[1];
+    const c3=config[2];
+    const c4=config[2];
+    const c5=config[3];
+    const c6=config[3];
     let center = (size - 1) / 2;
     center = center + center * size;
-    cells[center] = config[0];
-    cells[center - 1] = config[1];
-    cells[center + 1 + size] = config[1];
-    cells[center - size] = config[1];
-    cells[center + 1] = config[2];
-    cells[center + size] = config[2];
-    cells[center - 1 - size] = config[2];
-    cells[center - 1 + size] = config[3];
-    cells[center + 2 + size] = config[3];
-    cells[center - 1 - 2 * size] = config[3];
-    cells[center + 1 + 2 * size] = config[4];
-    cells[center + 1 - size] = config[4];
-    cells[center - 2 - size] = config[4];
-    cells[center - 2 * size] = config[5];
-    cells[center - 2] = config[5];
-    cells[center + 2 + 2 * size] = config[5];
-    cells[center - 2 - 2 * size] = config[6];
-    cells[center + 2] = config[6];
-    cells[center + 2 * size] = config[6];
+    cells[center] = c0;
+    cells[center - 1] = c1;
+    cells[center + 1 + size] = c1;
+    cells[center - size] = c1;
+    cells[center + 1] = c2;
+    cells[center + size] = c2;
+    cells[center - 1 - size] = c2;
+    cells[center - 1 + size] = c3;
+    cells[center + 2 + size] = c3;
+    cells[center - 1 - 2 * size] = c3;
+    cells[center + 1 + 2 * size] = c4;
+    cells[center + 1 - size] = c4;
+    cells[center - 2 - size] = c4;
+    cells[center - 2 * size] = c5;
+    cells[center - 2] = c5;
+    cells[center + 2 + 2 * size] = c5;
+    cells[center - 2 - 2 * size] = c6;
+    cells[center + 2] = c6;
+    cells[center + 2 * size] = c6;
     utils.prevCells[center] = 1;
 };
 //===========================================
@@ -573,11 +562,12 @@ utils.makeSumSquare = function(weights) {
     var cm2m2, cm1m2, c0m2, c1m2, c2m2;
     const w0 = weights[0];
     const w1 = weights[1];
-    const w2 = weights[2];
-    const w3 = weights[3];
-    const w4 = weights[4];
-    const w5 = weights[5];
-    const w6 = weights[6];
+    const w2 = weights[1];
+    const w3 = weights[2];
+    const w4 = weights[2];
+    const w5 = weights[3];
+    const w6 = weights[3];
+    console.log(weights)
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
@@ -658,14 +648,13 @@ utils.makeSumHexagon = function(weights) {
     var cm2m1, cm1m1, c0m1, c1m1;
     var cm2m2, cm1m2, c0m2;
     //inverted
-    const w0 = weights[0];
-    const w1 = weights[2];
+   const w0 = weights[0];
+    const w1 = weights[1];
     const w2 = weights[1];
-    const w3 = weights[4];
-    const w4 = weights[3];
-    const w5 = weights[6];
-    const w6 = weights[5];
-    const sizeM2 = size - 2;
+    const w3 = weights[2];
+    const w4 = weights[2];
+    const w5 = weights[3];
+    const w6 = weights[3];    const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
         c12 = cells[center + 2 * size + 1];
@@ -887,7 +876,7 @@ utils.step = function() {
 
 utils.draw = function() {
     utils.copyCellsView();
-    utils.getViewHalf();
+    utils.getViewLimits();
     utils.makeView();
     utils.normalizeView();
     utils.image();
