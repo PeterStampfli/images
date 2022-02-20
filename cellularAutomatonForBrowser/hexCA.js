@@ -249,7 +249,14 @@ main.setup = function() {
         params: weights,
         property: 3,
         step: 1,
-    });    
+    });  
+
+     utils.useMore=false;
+     gui.add({
+        type: 'boolean',
+        params: utils,
+        property: 'useMore'
+    }) ;
     gui.add({
         type: 'number',
         params: more,
@@ -278,8 +285,8 @@ main.setup = function() {
 };
 
 runner.reset = function() {
-    imageController.setValueOnly('nearest image');
-    sizeController.setValueOnly(9);
+ //   imageController.setValueOnly('nearest image');
+  //  sizeController.setValueOnly(9);
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
@@ -290,7 +297,9 @@ runner.reset = function() {
     utils.initialState(initConfig);
     utils.weights.length = 0;
     utils.weights.push(weights);
+    if (utils.useMore){
     utils.weights.push(more);
+}
     utils.draw();
 };
 

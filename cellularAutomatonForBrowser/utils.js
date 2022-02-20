@@ -562,11 +562,11 @@ utils.makeSumSquare = function(weights) {
     var cm2m2, cm1m2, c0m2, c1m2, c2m2;
     const w0 = weights[0];
     const w1 = weights[1];
-    const w2 = weights[1];
-    const w3 = weights[2];
-    const w4 = weights[2];
-    const w5 = weights[3];
-    const w6 = weights[3];
+    const w2 = weights[2];
+    const w3 = weights[3];
+    const w4 = weights[4];
+    const w5 = weights[5];
+    const w6 = weights[6];
     console.log(weights)
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
