@@ -3,8 +3,7 @@
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * and a real and imaginary part of complex number c
- * calculates z^2+c
+ * and a real y-value for the position of the mirror
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -28,14 +27,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     const mwSize *dims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
-    float complex z, c;
+    float y, yMirror;
     float reC, imC;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs <3) {
-        mexErrMsgIdAndTxt("transformMap:nrhs","A map input required and real and imaginary part of c.");
+    if(nrhs <2) {
+        mexErrMsgIdAndTxt("transformMap:nrhs","A map input required and y-position of mirror.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -67,10 +66,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    reC= (float) mxGetScalar(prhs[1]);
-    imC= (float) mxGetScalar(prhs[2]);
-    c = reC + I * imC;
-
+    yMirror= (float) mxGetScalar(prhs[1]);
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -88,13 +84,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 outMap[index + nXnY2] = INVALID;           }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        /* do some transformation of z */
-        /*=========================*/
-        z = z * z +c;
         
-        outMap[index] = crealf(z);
-        outMap[index + nXnY] = cimagf(z);
+        y = inMap[index + nXnY];
+        if (y > yMirror){
+            y = 2 * yMirror - y;
+        }
+        outMap[index] = inMap[index];
+        outMap[index + nXnY] = y;
         outMap[index + nXnY2] = inverted;
     }
 }
