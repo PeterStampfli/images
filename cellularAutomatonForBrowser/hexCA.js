@@ -19,6 +19,7 @@ export const runner = {};
 // methods: setup, draw, reset, step
 
 var configuration;
+var prev = [1, 0, 0, 0, 0, 0, 0];
 var initConfig = [1, 0, 0, 0, 0, 0, 0];
 var weights = [1, 1, 0, 0, 0, 0, 0];
 var more = [1, 1, 0, 0, 0, 0, 0];
@@ -116,6 +117,7 @@ main.setup = function() {
             }
         }
     });
+    /*
     imageController = gui.add({
         type: 'selection',
         params: utils,
@@ -129,18 +131,28 @@ main.setup = function() {
             utils.draw();
         }
     });
+    */
+    utils.reversibleSum=true;
     gui.add({
         type: 'number',
         params: utils,
         property: 'reversible',
         step: 1
     }).add({
+        type: 'boolean',
+        params: utils,
+        property: 'reversibleSum',
+        labelText:'use sum'
+    });
+
+    gui.add({
         type: 'selection',
         params: utils,
         property: 'transitionTable',
         labelText: '',
         options: {
             'saw tooth': utils.sawToothTable,
+            'inverse saw tooth': utils.inverseSawToothTable,
             'triangle': utils.triangleTable,
             'slow saw tooth': utils.slowToothTable
         }
@@ -201,33 +213,79 @@ main.setup = function() {
         },
         labelText: 'super',
         onChange: function() {
-                        utils.draw();
+            utils.draw();
         }
     });
     configuration = gui.addParagraph('configuration');
+    gui.add({
+        type: 'number',
+        params: prev,
+        property: 0,
+        labelText: 'previ&emsp;&emsp; 0',
+        step: 1,
+        onChange:function(){
+            runner.reset();
+        }
+    }).add({
+        type: 'number',
+        params: prev,
+        property: 1,
+        step: 1,
+        onChange:function(){
+            runner.reset();
+        }
+    }).add({
+        type: 'number',
+        params: prev,
+        property: 2,
+        step: 1,
+        onChange:function(){
+            runner.reset();
+        }
+    }).add({
+        type: 'number',
+        params: prev,
+        property: 3,
+        step: 1,
+        onChange:function(){
+            runner.reset();
+        }
+    });
     gui.add({
         type: 'number',
         params: initConfig,
         property: 0,
         labelText: 'initial&emsp;&emsp; 0',
         step: 1,
+        onChange:function(){
+            runner.reset();
+        }
     }).add({
         type: 'number',
         params: initConfig,
         property: 1,
         step: 1,
+        onChange:function(){
+            runner.reset();
+        }
     }).add({
         type: 'number',
         params: initConfig,
         property: 2,
         step: 1,
+        onChange:function(){
+            runner.reset();
+        }
     }).add({
         type: 'number',
         params: initConfig,
         property: 3,
         step: 1,
+        onChange:function(){
+            runner.reset();
+        }
     });
-    
+
     gui.add({
         type: 'number',
         params: weights,
@@ -249,20 +307,34 @@ main.setup = function() {
         params: weights,
         property: 3,
         step: 1,
-    });  
+    });
 
-     utils.useMore=false;
-     gui.add({
+    utils.useMore = false;
+    utils.useMoreController = gui.add({
         type: 'boolean',
         params: utils,
-        property: 'useMore'
-    }) ;
+        property: 'useMore',
+        onChange: function() {
+            utils.weights.length = 0;
+            utils.weights.push(weights);
+            if (utils.useMore) {
+                utils.weights.push(more);
+            }
+        }
+    });
     gui.add({
         type: 'number',
         params: more,
         property: 0,
         labelText: 'more&emsp;&emsp; 0',
         step: 1,
+        onChange: function() {
+            utils.useMoreController.setValueOnly(true);
+            if (utils.weights.length === 1) {
+                console.log('addmore');
+                utils.weights.push(more);
+            }
+        }
     }).add({
         type: 'number',
         params: more,
@@ -285,21 +357,22 @@ main.setup = function() {
 };
 
 runner.reset = function() {
- //   imageController.setValueOnly('nearest image');
-  //  sizeController.setValueOnly(9);
+    utils.image=utils.nearestImage;
+//    imageController.setValueOnly('nearest image');
+    //  sizeController.setValueOnly(9);
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
     utils.trianglePeriod = 2 * utils.nStates - 2;
-    utils.initialState = utils.initialStateHexagon;
     utils.makeSum = utils.makeSumHexagon;
-        configuration.innerHTML = '&ensp; 3 2 3<br>&nbsp;2 1 1 2<br>3 1 0 1 3<br>&nbsp;2 1 1 2<br>&ensp; 3 2 3';
-    utils.initialState(initConfig);
+    configuration.innerHTML = '&ensp; 3 2 3<br>&nbsp;2 1 1 2<br>3 1 0 1 3<br>&nbsp;2 1 1 2<br>&ensp; 3 2 3';
+    utils.initialStateHexagon(initConfig);
+    utils.prevStateHexagon(prev);
     utils.weights.length = 0;
     utils.weights.push(weights);
-    if (utils.useMore){
-    utils.weights.push(more);
-}
+    if (utils.useMore) {
+        utils.weights.push(more);
+    }
     utils.draw();
 };
 

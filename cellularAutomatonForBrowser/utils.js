@@ -509,13 +509,13 @@ utils.initialStateSquare = function(config) {
 utils.initialStateHexagon = function(config) {
     const size = utils.cellSize;
     const cells = utils.cells;
-    const c0=config[0];
-    const c1=config[1];
-    const c2=config[1];
-    const c3=config[2];
-    const c4=config[2];
-    const c5=config[3];
-    const c6=config[3];
+    const c0 = config[0];
+    const c1 = config[1];
+    const c2 = config[1];
+    const c3 = config[2];
+    const c4 = config[2];
+    const c5 = config[3];
+    const c6 = config[3];
     let center = (size - 1) / 2;
     center = center + center * size;
     cells[center] = c0;
@@ -538,6 +538,40 @@ utils.initialStateHexagon = function(config) {
     cells[center + 2] = c6;
     cells[center + 2 * size] = c6;
     utils.prevCells[center] = 1;
+};
+
+
+utils.prevStateHexagon = function(config) {
+    const size = utils.cellSize;
+    const cells = utils.prevCells;
+    const c0 = config[0];
+    const c1 = config[1];
+    const c2 = config[1];
+    const c3 = config[2];
+    const c4 = config[2];
+    const c5 = config[3];
+    const c6 = config[3];
+    let center = (size - 1) / 2;
+    center = center + center * size;
+    cells[center] = c0;
+    cells[center - 1] = c1;
+    cells[center + 1 + size] = c1;
+    cells[center - size] = c1;
+    cells[center + 1] = c2;
+    cells[center + size] = c2;
+    cells[center - 1 - size] = c2;
+    cells[center - 1 + size] = c3;
+    cells[center + 2 + size] = c3;
+    cells[center - 1 - 2 * size] = c3;
+    cells[center + 1 + 2 * size] = c4;
+    cells[center + 1 - size] = c4;
+    cells[center - 2 - size] = c4;
+    cells[center - 2 * size] = c5;
+    cells[center - 2] = c5;
+    cells[center + 2 + 2 * size] = c5;
+    cells[center - 2 - 2 * size] = c6;
+    cells[center + 2] = c6;
+    cells[center + 2 * size] = c6;
 };
 //===========================================
 // sums
@@ -567,7 +601,6 @@ utils.makeSumSquare = function(weights) {
     const w4 = weights[4];
     const w5 = weights[5];
     const w6 = weights[6];
-    console.log(weights)
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
@@ -648,13 +681,14 @@ utils.makeSumHexagon = function(weights) {
     var cm2m1, cm1m1, c0m1, c1m1;
     var cm2m2, cm1m2, c0m2;
     //inverted
-   const w0 = weights[0];
+    const w0 = weights[0];
     const w1 = weights[1];
     const w2 = weights[1];
     const w3 = weights[2];
     const w4 = weights[2];
     const w5 = weights[3];
-    const w6 = weights[3];    const sizeM2 = size - 2;
+    const w6 = weights[3];
+    const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         let center = j * size + 1;
         c12 = cells[center + 2 * size + 1];
@@ -719,6 +753,12 @@ utils.trianglePeriod = 40;
 utils.sawToothTable = function(sum) {
     return sum % utils.nStates;
 };
+// inverse sawtooth table
+utils.inverseSawToothTable = function(sum) {
+    sum = sum % utils.nStates;
+    return (sum === 0) ? 0 : utils.nStates - sum;
+
+};
 
 // slow sawtooth table
 utils.slowToothTable = function(sum) {
@@ -751,7 +791,13 @@ utils.transition = function() {
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
             const rememberState = utils.cells[index];
-            utils.cells[index] = (utils.reversible * utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            if (utils.reversibleSum) {
+                utils.cells[index] = (utils.reversible * utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            } else {
+                const prev = (utils.reversible * utils.prevCells[index]) % utils.nStates;
+                const trans = utils.transitionTable(utils.sums[index]);
+                utils.cells[index] = prev ^ trans;
+            }
             utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
             utils.prevCells[index] = rememberState;
         }
