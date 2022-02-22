@@ -38,9 +38,12 @@ main.setup = function() {
     output.createCanvas(gui, true, true);
     output.backgroundColorController.setValueOnly('#000000');
     output.setBackground();
-    output.saveType.setValue('jpg');
+    output.saveType.setValue('png');
     // square image
     output.setCanvasWidthToHeight();
+    output.canvasWidthController.setValueOnly(3000);
+    output.canvasHeightController.setValueOnly(3000);
+    output.autoScaleController.setValue(true);
     // create output.pixels
     output.createPixels();
     output.drawCanvasChanged = utils.draw;
@@ -132,7 +135,7 @@ main.setup = function() {
         }
     });
     */
-    utils.reversibleSum=true;
+    utils.reversibleSum = true;
     gui.add({
         type: 'number',
         params: utils,
@@ -142,7 +145,7 @@ main.setup = function() {
         type: 'boolean',
         params: utils,
         property: 'reversibleSum',
-        labelText:'use sum'
+        labelText: 'use sum'
     });
 
     gui.add({
@@ -198,6 +201,10 @@ main.setup = function() {
         step: 1,
         onChange: function() {
             runner.running = false;
+            colors.nController.setValueOnly(utils.nStates);
+            colors.setN(utils.colors);
+            colors.makeTable();
+            utils.draw();
             runner.reset();
         }
     });
@@ -223,7 +230,7 @@ main.setup = function() {
         property: 0,
         labelText: 'previ&emsp;&emsp; 0',
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -231,7 +238,7 @@ main.setup = function() {
         params: prev,
         property: 1,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -239,7 +246,7 @@ main.setup = function() {
         params: prev,
         property: 2,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -247,7 +254,7 @@ main.setup = function() {
         params: prev,
         property: 3,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     });
@@ -257,7 +264,7 @@ main.setup = function() {
         property: 0,
         labelText: 'initial&emsp;&emsp; 0',
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -265,7 +272,7 @@ main.setup = function() {
         params: initConfig,
         property: 1,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -273,7 +280,7 @@ main.setup = function() {
         params: initConfig,
         property: 2,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     }).add({
@@ -281,7 +288,7 @@ main.setup = function() {
         params: initConfig,
         property: 3,
         step: 1,
-        onChange:function(){
+        onChange: function() {
             runner.reset();
         }
     });
@@ -357,9 +364,9 @@ main.setup = function() {
 };
 
 runner.reset = function() {
-    utils.image=utils.nearestImage;
-//    imageController.setValueOnly('nearest image');
-    //  sizeController.setValueOnly(9);
+    utils.image = utils.nearestImage;
+    //    imageController.setValueOnly('nearest image');
+    sizeController.setValueOnly(401);
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();

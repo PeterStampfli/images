@@ -223,7 +223,7 @@ colors.makeGui = function(gui) {
             colors.draw();
         }
     });
-    generatorSelector.add({
+    colors.nController=generatorSelector.add({
         type: 'number',
         params: utils,
         property: 'colors',
