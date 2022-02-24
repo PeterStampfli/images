@@ -784,22 +784,28 @@ utils.transitionTable = utils.sawToothTable;
 utils.reversible = 0;
 
 utils.transition = function() {
+    const cells=utils.cells;
     const size = utils.cellSize;
+    const reversible=utils.reversible;
+    const reversibleSum=utils.reversibleSum;
+    const prevCells=utils.prevCells;
+    const transitionTable=utils.transitionTable;
+    const sums=utils.sums;
+    const nStates=utils.nStates;
     const sizeM2 = size - 2;
     for (let j = 2; j < sizeM2; j++) {
         const jSize = j * size;
         for (let i = 2; i < sizeM2; i++) {
             const index = i + jSize;
-            const rememberState = utils.cells[index];
-            if (utils.reversibleSum) {
-                utils.cells[index] = (utils.reversible * utils.prevCells[index] + utils.transitionTable(utils.sums[index])) % utils.nStates;
+            const rememberState = cells[index];
+            if (reversibleSum) {
+                cells[index] = (reversible * prevCells[index] + transitionTable(sums[index])) % nStates;
             } else {
-                const prev = (utils.reversible * utils.prevCells[index]) % utils.nStates;
-                const trans = utils.transitionTable(utils.sums[index]);
-                utils.cells[index] = prev ^ trans;
+                const prev = (reversible * prevCells[index]) % nStates;
+                const trans = transitionTable(sums[index]);
+                cells[index] = prev ^ trans;
             }
-            utils.sumCells[index] = (utils.sumCells[index] + utils.cells[index]) % utils.maxAverage;
-            utils.prevCells[index] = rememberState;
+            prevCells[index] = rememberState;
         }
     }
 };

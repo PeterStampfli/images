@@ -360,13 +360,13 @@ main.setup = function() {
     });
     colors.makeGui(gui);
     colors.random(utils.colors);
+    sizeController.setValueOnly(401);
     runner.reset();
 };
 
 runner.reset = function() {
     utils.image = utils.nearestImage;
     //    imageController.setValueOnly('nearest image');
-    sizeController.setValueOnly(401);
     runner.step = 0;
     runner.stepsDoneController.setValueOnly(0);
     utils.setSize();
