@@ -345,13 +345,14 @@ utils.nearestImage = function() {
     const size = utils.viewSize;
     const cells = utils.view;
     const colorsTable=colors.table;
+    const colorsN=colors.n;
     const scale = (size - 4) / width;
     let imageIndex = 0;
     for (var j = 0; j < height; j++) {
         const jCellSize = size * Math.floor(2 + j * scale);
         for (var i = 0; i < width; i++) {
             const iCell = 2 + Math.floor(i * scale);
-            const colorIndex = Math.floor(colors.n * cells[jCellSize + iCell]);
+            const colorIndex = Math.floor(colorsN * cells[jCellSize + iCell]);
             pixels.array[imageIndex] = colorsTable[colorIndex];
             imageIndex += 1;
         }

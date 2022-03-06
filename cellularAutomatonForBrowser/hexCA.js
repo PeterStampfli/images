@@ -91,12 +91,6 @@ main.setup = function() {
         }
     }).add({
         type: 'button',
-        buttonText: 'stop',
-        onClick: function() {
-            runner.running = false;
-        }
-    }).add({
-        type: 'button',
         buttonText: 'step',
         onClick: function() {
             runner.running = false;
@@ -112,12 +106,19 @@ main.setup = function() {
         }
     }).add({
         type: 'button',
-        buttonText: 'run',
+        buttonText: '100',
         onClick: function() {
-            if (!runner.running) {
-                runner.running = true;
-                runner.makeStep();
-            }
+            runner.running = false;
+            runner.stepsToDo = 100;
+            runner.makeStep();
+        }
+    }).add({
+        type: 'button',
+        buttonText: '300',
+        onClick: function() {
+            runner.running = false;
+            runner.stepsToDo = 300;
+            runner.makeStep();
         }
     });
     /*
