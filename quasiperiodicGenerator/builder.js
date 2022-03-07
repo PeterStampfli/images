@@ -43,6 +43,7 @@ builder.init = function(guiP) {
             main.draw();
         }
     });
+    builder.maxGenerationController.addHelp('Number of iterations or highest generation, that gets calculated. You can only show generations lower or equal to this. Attention: Computing time increases exponentially');
     builder.drawGenController = gui.add({
         type: 'number',
         params: builder,
@@ -63,6 +64,7 @@ builder.init = function(guiP) {
             main.draw();
         }
     });
+    builder.drawingController.addHelp('Choose the generation to show. You can choose to display only that one (for tilings), or to display also earlier generations (for some fractals, such as the "fractal tree", that include earlier generations.)');
     builder.minSizeController = gui.add({
         type: 'number',
         params: builder,
@@ -191,6 +193,7 @@ builder.setup = function(definition) {
             main.draw();
         }
     });
+    initialTileController.addHelp('Choose the initial tile or configuration used in the substitution');
     if (builder.tileColors !== null) {
         gui.remove(builder.tileColors);
         builder.tileColors = null;
@@ -531,7 +534,7 @@ builder.drawTile = function(tileInfo) {
 function drawGeneration(generation) {
     const canvasContext = output.canvasContext;
     const tilesToDraw = generations[generation];
-   if (main.drawFill) {
+    if (main.drawFill) {
         output.setLineWidth(1);
         tilesToDraw.forEach(tile => builder.drawOverprint(tile));
     }

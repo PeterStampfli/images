@@ -15,6 +15,10 @@ import {
 } from "./parallelLines.js";
 
 import {
+    Grid
+} from "./grid.js";
+
+import {
     Intersection
 } from "./intersection.js";
 
@@ -49,18 +53,16 @@ function draw(){
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    const line=new Line(0,1);
-    const otherLine=new Line(Math.PI/2,1);
-    console.log(line);
-    line.draw();
-    otherLine.draw();
-    console.log(otherLine);
-    const inter=new Intersection(line,otherLine);
-    console.log(inter);
-    inter.draw();
-    const lines=ParallelLines.createSymmetricBundle(Math.PI/4,3);
-    lines.draw();
-    line.addIntersection(otherLine);
-    console.log(line);
-
+    const grid=Grid.createBasic(5);
+    grid.makeIntersections();
+    grid.drawLines();
+    grid.shiftIntersections(1,1);
+    grid.drawIntersections();
+    grid.sortIntersections();
+console.log(grid.sumIntersectionsX());
+console.log(grid.numberOfIntersections());
+const line=grid.getFirstLine();
+line.intersections[10].set(2,3);
+console.log(line.intersections[10])
+console.log(line.indexAdjustedIntersection())
 }

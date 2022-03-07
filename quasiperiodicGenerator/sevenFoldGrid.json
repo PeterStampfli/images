@@ -9,7 +9,7 @@
     "maxGeneration": 3,
     "drawGeneration": 0,
 
-    "initial": "c1Left",
+    "initial": "ABStar",
 
     "rotation": 0,
 

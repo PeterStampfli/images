@@ -26,7 +26,7 @@ fileReader.onload = function() {
     const result = fileReader.result;
     try {
         readJSON.result = JSON.parse(result);
-    } catch (err) { 
+    } catch (err) {
         alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
         return;
     }
@@ -43,6 +43,7 @@ readJSON.makeButton = function(gui, action) {
         type: 'button',
         buttonText: 'open file with structure data'
     });
+    readJSON.openButton.addHelp('Open a *.json or *.txt file with data for a tiling or fractal. Keyboard shortcut with the "=" - key.');
     readJSON.openButton.uiElement.asFileInput('.txt,.json');
     readJSON.openButton.uiElement.onFileInput = function(files) {
         file = files[0];
@@ -90,7 +91,7 @@ examples.init = function(gui) {
             const text = JSON.stringify(examples.selectionController.getValue(), null, 2);
             guiUtils.saveTextAsFile(text, name);
         }
-    });
+    }).addHelp('Choose the tiling or fractal among some examples and the definitions you have opened. You can download the choosen data.');
 };
 
 examples.add = function(name, object) {
@@ -114,7 +115,7 @@ examples.ammannBeenker = {
     "order": 8,
     "inflation": 2.414,
     "maxGeneration": 5,
-    "drawGeneration":1,
+    "drawGeneration": 1,
     "initial": "star",
 
     "markerSize": 0.2,
@@ -165,8 +166,11 @@ examples.ammannBeenker = {
                 [1],
                 [1, 0, 1]
             ],
-            "border": [ ],
-            "overprint":[[],[1,0,1]],
+            "border": [],
+            "overprint": [
+                [],
+                [1, 0, 1]
+            ],
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 0,
@@ -195,8 +199,11 @@ examples.ammannBeenker = {
                 [1],
                 [1, 0, 1]
             ],
-            "border": [     ],
-                        "overprint":[[],[1,0,1]],
+            "border": [],
+            "overprint": [
+                [],
+                [1, 0, 1]
+            ],
             "substitution": [{
                 "name": "rhomb",
                 "orientation": 7,

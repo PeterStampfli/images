@@ -49,7 +49,7 @@ gui.add({
         main.create();
         main.draw();
     }
-});
+}).addHelp('If off, then the image size does not change, tiles become smaller for higher generations. If on, then the tile size stays constant and the image size increases for higher generations.');
 
 main.drawFillController = gui.add({
     type: 'boolean',
@@ -60,6 +60,7 @@ main.drawFillController = gui.add({
         main.draw();
     }
 });
+main.drawFillController.addHelp('Switches the area color of tiles on and off. You can choose the "color of tiles" in the submenue at the bottom.');
 
 // stroke
 gui.add({
@@ -70,7 +71,7 @@ gui.add({
     onChange: function() {
         main.draw();
     }
-});
+}).addHelp('Choose the color of the surrounding lines of tiles.');
 gui.add({
     type: 'number',
     params: main,
@@ -89,7 +90,7 @@ gui.add({
     onChange: function() {
         main.draw();
     }
-});
+}).addHelp('You can switch the surrounding line of tiles on and off. You can set its width in pixel.');
 
 // marker
 main.markerColorController = gui.add({
@@ -101,6 +102,7 @@ main.markerColorController = gui.add({
         main.draw();
     }
 });
+main.markerColorController.addHelp('Markers define the orientation of tiles. Particularly for asymmetric inflation rules. Here you can choose the color.');
 
 main.markerSizeController = gui.add({
     type: 'number',
@@ -123,6 +125,7 @@ main.markerSizeController.add({
         main.draw();
     }
 });
+main.markerSizeController.addHelp('Switch markers off or on and choose their size.');
 
 // outline
 main.outlineColorController = gui.add({
@@ -134,6 +137,7 @@ main.outlineColorController = gui.add({
         main.draw();
     }
 });
+main.outlineColorController.addHelp('Choose the color for the outline of the initial tile shape.');
 main.outlineSizeController = gui.add({
     type: 'number',
     params: main,
@@ -154,6 +158,7 @@ main.OutlineOnOffController = main.outlineSizeController.add({
         main.draw();
     }
 });
+main.OutlineOnOffController.addHelp('Switch the outline of initial shape on or off, and choose size, in pixels.');
 
 readJSON.makeButton(gui,
     function() {
@@ -171,7 +176,7 @@ examples.init(gui);
 
 examples.selectionController.setValueOnly("Theo's seven-fold");
 
-main.tileColors=gui.addFolder('colors of tiles');
+main.tileColors = gui.addFolder('colors of tiles');
 
 gui.remove(main.tileColors);
 
