@@ -26,9 +26,9 @@ export const Intersection = function(line1, line2) {
     this.y = t1 * sin1 + line1.d * cos1;
 };
 
-Intersection.size = 0.1;
+Intersection.size = 0.1; // side length of rhombus
 Intersection.notAdjustedColor = '#ff0000';
-Intersection.adjustedColor = '#00ff00';
+Intersection.adjustedColor = '#008800';
 Intersection.lineWidth = 1;
 
 Intersection.prototype.draw = function() {
@@ -59,6 +59,20 @@ Intersection.prototype.otherLine = function(line) {
         return this.line2;
     } else {
         return this.line1;
+    }
+};
+
+// get side of intersection's rhomus, that is not perpedicular to the line
+// heading forward
+// returns vector as two-component array
+Intersection.prototype.getRhombusSide = function(line) {
+    const otherLine = this.otherLine(line);
+    let dx = -Intersection.size * otherLine.sinAlpha;
+    let dy = Intersection.size * otherLine.cosAlpha;
+    if (line.forward(dx,dy)) {
+        return [dx, dy];
+    } else {
+        return [-dx, -dy];
     }
 };
 

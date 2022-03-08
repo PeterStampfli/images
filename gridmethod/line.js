@@ -49,16 +49,15 @@ Line.prototype.drawIntersections = function() {
     this.intersections.forEach(intersection => intersection.draw());
 };
 
-Line.forward = function(dx, dy) {
-    if (Math.abs(dx) > Math.abs(dy)) {
-        return (dx > 0);
-    } else {
-        return (dy > 0);
-    }
+// check if a given distance (vector) goes forward along the line
+// depends on its direction!!
+Line.prototype.forward = function(dx, dy) {
+    return (this.cosAlpha * dx + this.sinAlpha * dy) > 0;
 };
 
 Line.prototype.sortIntersections = function() {
-    this.intersections.sort((first, second) => Line.forward(first.x - second.x, first.y - second.y));
+    const thisLine = this;
+    this.intersections.sort((first, second) => thisLine.forward(first.x - second.x, first.y - second.y));
 };
 
 Line.prototype.sumIntersectionsX = function() {
@@ -80,6 +79,41 @@ Line.prototype.shiftIntersections = function(dx, dy) {
 // dualization
 
 // get index of first adjusted intersection
-Line.prototype.indexAdjustedIntersection=function(){
-    return this.intersections.findIndex(intersection=>intersection.adjusted);
-}
+Line.prototype.indexAdjustedIntersection = function() {
+    return this.intersections.findIndex(intersection => intersection.adjusted);
+};
+
+Line.prototype.adjust = function() {
+    const foundAdjustedIndex = this.indexAdjustedIntersection();
+    console.log(foundAdjustedIndex);
+    console.log(this)
+    const foundAdjustedIntersection = this.intersections[foundAdjustedIndex];
+    const foundAdjustedSide = foundAdjustedIntersection.getRhombusSide(this);
+    let lastSide = foundAdjustedSide;
+    let lastCenterX = foundAdjustedIntersection.x;
+    let lastCenterY = foundAdjustedIntersection.y;
+    for (let i = foundAdjustedIndex; i >= 0; i--) {
+        const intersectionI = this.intersections[i];
+        let newSide = intersectionI.getRhombusSide(this);
+        let newCenterX = lastCenterX - 0.5 * (lastSide[0] + newSide[0]);
+        let newCenterY = lastCenterY - 0.5 * (lastSide[1] + newSide[1]);
+        intersectionI.set(newCenterX, newCenterY);
+        lastSide = newSide;
+        lastCenterX = newCenterX;
+        lastCenterY = newCenterY;
+    }
+     lastSide = foundAdjustedSide;
+     lastCenterX = foundAdjustedIntersection.x;
+     lastCenterY = foundAdjustedIntersection.y; 
+       const length=this.intersections.length;
+        for (let i = foundAdjustedIndex+1; i <length; i++) {
+        const intersectionI = this.intersections[i];
+        let newSide = intersectionI.getRhombusSide(this);
+        let newCenterX = lastCenterX + 0.5 * (lastSide[0] + newSide[0]);
+        let newCenterY = lastCenterY + 0.5 * (lastSide[1] + newSide[1]);
+        intersectionI.set(newCenterX, newCenterY);
+        lastSide = newSide;
+        lastCenterX = newCenterX;
+        lastCenterY = newCenterY;
+    }
+};

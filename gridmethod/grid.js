@@ -38,10 +38,8 @@ Grid.prototype.drawIntersections = function() {
 Grid.prototype.makeIntersections = function() {
     const length = this.parallelLines.length;
     for (let i = 0; i < length; i++) {
-        for (let j = 1; j < length; j++) {
-            if (i !== j) {
+        for (let j = i+1; j < length; j++) {
                 this.parallelLines[i].makeIntersections(this.parallelLines[j]);
-            }
         }
     }
 };
@@ -71,6 +69,14 @@ Grid.prototype.numberOfIntersections = function() {
 
 Grid.prototype.shiftIntersections = function(dx,dy) {
     this.parallelLines.forEach(lines => lines.shiftIntersections(dx,dy));
+};
+
+// finally: cenetering the tiling
+Grid.prototype.center=function(){
+const sumX=this.sumIntersectionsX();
+const sumY=this.sumIntersectionsY();
+const n=this.numberOfIntersections();
+this.shiftIntersections(-sumX/n,-sumY/n);
 };
 
 //for dualization, where to begin, assuming that there are no empty sets of parallel lines

@@ -53,16 +53,18 @@ function draw(){
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    const grid=Grid.createBasic(5);
+    const grid=Grid.createBasic(5,1);
     grid.makeIntersections();
-    grid.drawLines();
-    grid.shiftIntersections(1,1);
-    grid.drawIntersections();
-    grid.sortIntersections();
-console.log(grid.sumIntersectionsX());
-console.log(grid.numberOfIntersections());
 const line=grid.getFirstLine();
-line.intersections[10].set(2,3);
-console.log(line.intersections[10])
-console.log(line.indexAdjustedIntersection())
+    grid.sortIntersections();
+line.intersections[0].set(0,0);
+    line.adjust();
+
+  //  grid.parallelLines[1].adjust();
+
+    grid.drawLines();
+     grid.drawIntersections();
+
+
+
 }

@@ -64,3 +64,7 @@ ParallelLines.prototype.numberOfIntersections = function() {
 ParallelLines.prototype.shiftIntersections = function(dx,dy) {
     this.lines.forEach(line => line.shiftIntersections(dx,dy));
 };
+
+ParallelLines.prototype.adjust = function() {
+    this.lines.forEach(line => line.adjust());
+};
