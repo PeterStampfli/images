@@ -2,9 +2,9 @@
 
 import {
     output,
-    ParamGui
+    ParamGui,
+    BooleanButton
 } from "../libgui/modules.js";
-
 
 import {
     Line
@@ -22,8 +22,21 @@ import {
     Intersection
 } from "./intersection.js";
 
-
 export const main = {};
+main.drawLines = true;
+
+main.nLines = 3;
+main.offset = 0;
+main.nFold = 5;
+
+main.tile = true;
+main.lineColor = '#000000';
+main.lineWidth = 1;
+
+main.rhombusSize = 0.1; // side length of rhombus
+main.rhombusColor = '#008800';
+main.rhombusLineWidth = 1;
+
 
 main.setup = function() {
     // gui and output canvas
@@ -33,6 +46,7 @@ main.setup = function() {
         booleanButtonWidth: 40
     });
     main.gui = gui;
+    BooleanButton.greenRedBackground();
     // no background color, no transparency
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
@@ -40,31 +54,81 @@ main.setup = function() {
     output.backgroundColorController.setValueOnly('#999999');
     output.setBackground();
     output.saveType.setValueOnly('jpg');
-
     output.drawCanvasChanged = draw;
     output.drawImageChanged = draw;
 
+    gui.add({
+        type:'number',
+        params:main,
+        property:'lineWidth',
+        labelText:'grid line',
+        min:0,
+         onChange: function() {
+            draw();
+        }      
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'drawLines',
+        labelText: '',
+        onChange: function() {
+            draw();
+        }
+    });
+
+    gui.add({
+        type:'color',
+        params:main,
+        property:'lineColor',
+        labelText:'',
+         onChange: function() {
+            draw();
+        }       
+    });
+
+//gui.add
+gui.add({
+        type: 'boolean',
+        params: main,
+        property: 'tile',
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
+
+gui.add({
+    type:'number',
+    params:main,
+    property:'nFold',
+    labelText:'symmetry',
+    step:1,
+    min:3,
+    onChange: function() {
+            create();
+            draw();
+        }
+})
+
+    create();
     draw();
 };
 
-function draw(){
+var grid;
+
+function create() {
+    grid = Grid.createBasic();
+    grid.makeTiling();
+}
+
+function draw() {
     output.correctYAxis();
     output.startDrawing();
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    const grid=Grid.createBasic(5,1);
-    grid.makeIntersections();
-const line=grid.getFirstLine();
-    grid.sortIntersections();
-line.intersections[0].set(0,0);
-    line.adjust();
-
-  //  grid.parallelLines[1].adjust();
-
-    grid.drawLines();
-     grid.drawIntersections();
-
-
-
+    if (main.drawLines) {
+        grid.drawLines();
+    }
+    grid.drawIntersections();
 }

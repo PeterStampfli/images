@@ -8,6 +8,10 @@ import {
     Intersection
 } from "./intersection.js";
 
+import {
+    main
+} from "./gridmethod.js";
+
 /*
  * gridline
  * inclination angle is alpha
@@ -21,28 +25,24 @@ export const Line = function(alpha, d) {
     this.intersections = [];
 };
 
-Line.displayRadius = 2;
-Line.color = '#000000';
-Line.width = 1;
+Line.displayRadius = 1000;
 
 Line.prototype.draw = function() {
-    output.setLineWidth(Line.width);
+    output.setLineWidth(main.lineWidth);
     const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = Line.color;
+    canvasContext.strokeStyle = main.lineColor;
     canvasContext.beginPath();
     canvasContext.moveTo(Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
     canvasContext.lineTo(-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, -Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
     canvasContext.stroke();
 };
 
-// add intersections with bundle of parallel lines
-// not parallel to this line
-Line.prototype.addIntersection = function(line) {
-    this.intersections.push(new Intersection(this, line));
-};
-
 Line.prototype.addIntersections = function(parallelLines) {
-    parallelLines.lines.forEach(line => this.addIntersection(line));
+    parallelLines.lines.forEach(otherLine => {
+        const intersection=new Intersection(this, otherLine);
+        this.intersections.push(intersection);
+        otherLine.intersections.push(intersection);
+    });
 };
 
 Line.prototype.drawIntersections = function() {
@@ -85,14 +85,12 @@ Line.prototype.indexAdjustedIntersection = function() {
 
 Line.prototype.adjust = function() {
     const foundAdjustedIndex = this.indexAdjustedIntersection();
-    console.log(foundAdjustedIndex);
-    console.log(this)
     const foundAdjustedIntersection = this.intersections[foundAdjustedIndex];
     const foundAdjustedSide = foundAdjustedIntersection.getRhombusSide(this);
     let lastSide = foundAdjustedSide;
     let lastCenterX = foundAdjustedIntersection.x;
     let lastCenterY = foundAdjustedIntersection.y;
-    for (let i = foundAdjustedIndex; i >= 0; i--) {
+    for (let i = foundAdjustedIndex-1; i >= 0; i--) {
         const intersectionI = this.intersections[i];
         let newSide = intersectionI.getRhombusSide(this);
         let newCenterX = lastCenterX - 0.5 * (lastSide[0] + newSide[0]);
@@ -102,11 +100,11 @@ Line.prototype.adjust = function() {
         lastCenterX = newCenterX;
         lastCenterY = newCenterY;
     }
-     lastSide = foundAdjustedSide;
-     lastCenterX = foundAdjustedIntersection.x;
-     lastCenterY = foundAdjustedIntersection.y; 
-       const length=this.intersections.length;
-        for (let i = foundAdjustedIndex+1; i <length; i++) {
+    lastSide = foundAdjustedSide;
+    lastCenterX = foundAdjustedIntersection.x;
+    lastCenterY = foundAdjustedIntersection.y;
+    const length = this.intersections.length;
+    for (let i = foundAdjustedIndex + 1; i < length; i++) {
         const intersectionI = this.intersections[i];
         let newSide = intersectionI.getRhombusSide(this);
         let newCenterX = lastCenterX + 0.5 * (lastSide[0] + newSide[0]);

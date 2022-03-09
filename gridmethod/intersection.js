@@ -4,6 +4,10 @@ import {
     output
 } from "../libgui/modules.js";
 
+import {
+    main
+} from "./gridmethod.js";
+
 /**
  * intersection between two grid lines
  * line1 & line2
@@ -26,24 +30,15 @@ export const Intersection = function(line1, line2) {
     this.y = t1 * sin1 + line1.d * cos1;
 };
 
-Intersection.size = 0.1; // side length of rhombus
-Intersection.notAdjustedColor = '#ff0000';
-Intersection.adjustedColor = '#008800';
-Intersection.lineWidth = 1;
-
 Intersection.prototype.draw = function() {
-    output.setLineWidth(Intersection.width);
+    output.setLineWidth(main.rhombusLineWidth);
     const canvasContext = output.canvasContext;
-    const size = Intersection.size * 0.5;
+    const size = main.rhombusSize * 0.5;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
     const dx2 = -size * this.line2.sinAlpha;
     const dy2 = size * this.line2.cosAlpha;
-    if (this.adjusted) {
-        canvasContext.strokeStyle = Intersection.adjustedColor;
-    } else {
-        canvasContext.strokeStyle = Intersection.notAdjustedColor;
-    }
+        canvasContext.strokeStyle = main.rhombusColor;
     canvasContext.beginPath();
     canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
     canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
@@ -67,8 +62,8 @@ Intersection.prototype.otherLine = function(line) {
 // returns vector as two-component array
 Intersection.prototype.getRhombusSide = function(line) {
     const otherLine = this.otherLine(line);
-    let dx = -Intersection.size * otherLine.sinAlpha;
-    let dy = Intersection.size * otherLine.cosAlpha;
+    let dx = -main.rhombusSize * otherLine.sinAlpha;
+    let dy = main.rhombusSize * otherLine.cosAlpha;
     if (line.forward(dx,dy)) {
         return [dx, dy];
     } else {

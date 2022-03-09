@@ -4,6 +4,10 @@ import {
     ParallelLines
 } from "./parallelLines.js";
 
+import {
+    main
+} from "./gridmethod.js";
+
 /**
  * a grid made of bundles of gridlines
  */
@@ -11,17 +15,18 @@ export const Grid = function() {
     this.parallelLines = [];
 };
 
-// a basic grid for n-fold symmetry
+// a basic grid for n-fold symmetry, given offset from symmetric case
+// distance between lines equal to one
 
-Grid.createBasic = function(nFold, nLines = 10) {
+Grid.createBasic = function() {
     const grid = new Grid();
-    if (nFold & 1) {
-        for (let i = 0; i < nFold; i++) {
-            grid.parallelLines.push(ParallelLines.createSymmetricBundle(i * Math.PI * 2 / nFold, nLines));
+    if (main.nFold & 1) {
+        for (let i = 0; i < main.nFold; i++) {
+            grid.parallelLines.push(ParallelLines.createBasicBundle(i * Math.PI * 2 / main.nFold, main.offset, main.nLines));
         }
     } else {
-        for (let i = 0; i < nFold / 2; i++) {
-            grid.parallelLines.push(ParallelLines.createSymmetricBundle(i * Math.PI * 2 / nFold, nLines));
+        for (let i = 0; i < main.nFold / 2; i++) {
+            grid.parallelLines.push(ParallelLines.createBasicBundle(i * Math.PI * 2 / main.nFold, main.offset, main.nLines));
         }
     }
     return grid;
@@ -38,8 +43,8 @@ Grid.prototype.drawIntersections = function() {
 Grid.prototype.makeIntersections = function() {
     const length = this.parallelLines.length;
     for (let i = 0; i < length; i++) {
-        for (let j = i+1; j < length; j++) {
-                this.parallelLines[i].makeIntersections(this.parallelLines[j]);
+        for (let j = i + 1; j < length; j++) {
+            this.parallelLines[i].makeIntersections(this.parallelLines[j]);
         }
     }
 };
@@ -67,19 +72,35 @@ Grid.prototype.numberOfIntersections = function() {
     return sum;
 };
 
-Grid.prototype.shiftIntersections = function(dx,dy) {
-    this.parallelLines.forEach(lines => lines.shiftIntersections(dx,dy));
+Grid.prototype.shiftIntersections = function(dx, dy) {
+    // compensation for double shift
+    this.parallelLines.forEach(lines => lines.shiftIntersections(dx / 2, dy / 2));
 };
 
-// finally: cenetering the tiling
-Grid.prototype.center=function(){
-const sumX=this.sumIntersectionsX();
-const sumY=this.sumIntersectionsY();
-const n=this.numberOfIntersections();
-this.shiftIntersections(-sumX/n,-sumY/n);
+// finally: centering the tiling
+Grid.prototype.center = function() {
+    const sumX = this.sumIntersectionsX();
+    const sumY = this.sumIntersectionsY();
+    const n = this.numberOfIntersections();
+    this.shiftIntersections(-sumX / n, -sumY / n);
 };
 
-//for dualization, where to begin, assuming that there are no empty sets of parallel lines
-Grid.prototype.getFirstLine=function(){
-    return this.parallelLines[0].lines[0];
-}
+// make the tiling from an existing grid
+Grid.prototype.makeTiling = function() {
+    this.makeIntersections();
+    if (main.tile) {
+        this.sortIntersections();
+        // start with the first line of the first bundle
+        const line = this.parallelLines[0].lines[0];
+        // define position of a first rhombus of the tiling
+        line.intersections[0].set(0, 0);
+        // do the first line
+        line.adjust();
+        const length = this.parallelLines.length;
+        for (let i = 1; i < length; i++) {
+            this.parallelLines[i].adjust();
+        }
+        this.center();
+    }
+
+};

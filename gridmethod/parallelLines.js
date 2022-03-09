@@ -24,12 +24,12 @@ ParallelLines.prototype.drawIntersections = function() {
     this.lines.forEach(line => line.drawIntersections());
 };
 
-// symmetric set of lines, unit distance
-ParallelLines.createSymmetricBundle = function(alpha, n) {
+// basic set of lines, unit distance
+ParallelLines.createBasicBundle = function(alpha,offset, n) {
     const lines = new ParallelLines();
     for (let i = 0; i < n; i++) {
-        lines.addLine(alpha, 0.5 + i);
-        lines.addLine(alpha, -0.5 - i);
+        lines.addLine(alpha, 0.5+offset + i);
+        lines.addLine(alpha, -0.5+offset - i);
     }
     return lines;
 };
