@@ -26,7 +26,7 @@ export const main = {};
 main.drawLines = true;
 
 main.nLines = 3;
-main.offset = 0;
+main.offset = 0.5;
 main.nFold = 5;
 
 main.tile = true;
@@ -36,6 +36,7 @@ main.lineWidth = 1;
 main.rhombusSize = 0.1; // side length of rhombus
 main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
+main.drawIntersections = true;
 
 
 main.setup = function() {
@@ -58,14 +59,14 @@ main.setup = function() {
     output.drawImageChanged = draw;
 
     gui.add({
-        type:'number',
-        params:main,
-        property:'lineWidth',
-        labelText:'grid line',
-        min:0,
-         onChange: function() {
+        type: 'number',
+        params: main,
+        property: 'lineWidth',
+        labelText: 'grid line',
+        min: 0,
+        onChange: function() {
             draw();
-        }      
+        }
     }).add({
         type: 'boolean',
         params: main,
@@ -77,38 +78,98 @@ main.setup = function() {
     });
 
     gui.add({
-        type:'color',
-        params:main,
-        property:'lineColor',
-        labelText:'',
-         onChange: function() {
+        type: 'color',
+        params: main,
+        property: 'lineColor',
+        labelText: '',
+        onChange: function() {
             draw();
-        }       
+        }
     });
 
-//gui.add
-gui.add({
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'nFold',
+        labelText: 'symmetry',
+        step: 1,
+        min: 3,
+        onChange: function() {
+            create();
+            draw();
+        }
+    }).add({
+        type:'number',
+        params:main,
+        property:'nLines',
+        labelText:'lines',
+        min:1,
+        step:1,
+       onChange: function() {
+            create();
+            draw();
+        }
+    });
+    gui.add({
+type:'number',
+params:main,
+property:'offset',
+       onChange: function() {
+            create();
+            draw();
+        }
+    });
+
+    gui.add({
         type: 'boolean',
         params: main,
         property: 'tile',
+        labelText: 'make tiling',
         onChange: function() {
             create();
             draw();
         }
     });
 
-gui.add({
-    type:'number',
-    params:main,
-    property:'nFold',
-    labelText:'symmetry',
-    step:1,
-    min:3,
-    onChange: function() {
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'rhombusLineWidth',
+        labelText: 'tiling line',
+        min: 0,
+        onChange: function() {
+            draw();
+        }
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'drawIntersections',
+        labelText: '',
+        onChange: function() {
+            draw();
+        }
+    });
+    gui.add({
+        type: 'color',
+        params: main,
+        property: 'rhombusColor',
+        labelText: '',
+        onChange: function() {
+            draw();
+        }
+    });
+
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'rhombusSize',
+        labelText: 'tile size',
+        onChange: function() {
             create();
             draw();
         }
-})
+    });
+
 
     create();
     draw();
@@ -130,5 +191,7 @@ function draw() {
     if (main.drawLines) {
         grid.drawLines();
     }
-    grid.drawIntersections();
+    if (main.drawIntersections) {
+        grid.drawIntersections();
+    }
 }

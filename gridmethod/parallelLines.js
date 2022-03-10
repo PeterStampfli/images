@@ -28,8 +28,8 @@ ParallelLines.prototype.drawIntersections = function() {
 ParallelLines.createBasicBundle = function(alpha,offset, n) {
     const lines = new ParallelLines();
     for (let i = 0; i < n; i++) {
-        lines.addLine(alpha, 0.5+offset + i);
-        lines.addLine(alpha, -0.5+offset - i);
+        lines.addLine(alpha, offset + i);
+        lines.addLine(alpha, offset-1 - i);
     }
     return lines;
 };
