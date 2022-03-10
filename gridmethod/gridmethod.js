@@ -15,7 +15,7 @@ import {
 } from "./parallelLines.js";
 
 import {
-    Grid
+    grid
 } from "./grid.js";
 
 import {
@@ -23,6 +23,8 @@ import {
 } from "./intersection.js";
 
 export const main = {};
+export const color=[];
+
 main.drawLines = true;
 
 main.nLines = 3;
@@ -37,6 +39,15 @@ main.rhombusSize = 0.1; // side length of rhombus
 main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
 main.drawIntersections = true;
+main.fill=true;
+
+color.push('#000000');
+color.push('#ff0000');
+color.push('#00bb00');
+color.push('#cccc00');
+color.push('#4444ff');
+color.push('#ff00ff');
+color.push('#ffffff');
 
 
 main.setup = function() {
@@ -149,6 +160,7 @@ property:'offset',
             draw();
         }
     });
+
     gui.add({
         type: 'color',
         params: main,
@@ -170,15 +182,41 @@ property:'offset',
         }
     });
 
+    gui.add({
+        type: 'boolean',
+        params: main,
+        property: 'fill',
+        onChange: function() {
+            draw();
+        }
+    });
+    
+    gui.add({
+        type:'color',
+        params:color,
+        property:0,
+        labelText:'colors: 0',
+ onChange: function() {
+            draw();
+        }        
+    })
+      for (let i=1;i<color.length;i++){  
+    gui.add({
+        type:'color',
+        params:color,
+        property:i,
+ onChange: function() {
+            draw();
+        }        
+    });
+}
 
     create();
     draw();
 };
 
-var grid;
-
 function create() {
-    grid = Grid.createBasic();
+    grid.createBasic();
     grid.makeTiling();
 }
 
@@ -188,10 +226,11 @@ function draw() {
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    if (main.drawLines) {
-        grid.drawLines();
-    }
     if (main.drawIntersections) {
         grid.drawIntersections();
     }
+       if (main.drawLines) {
+        grid.drawLines();
+    }
+ 
 }

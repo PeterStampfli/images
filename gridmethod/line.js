@@ -19,6 +19,7 @@ import {
  */
 
 export const Line = function(alpha, d) {
+    this.alpha=alpha;
     this.cosAlpha = Math.cos(alpha);
     this.sinAlpha = Math.sin(alpha);
     this.d = d;
