@@ -27,9 +27,9 @@ export const color=[];
 
 main.drawLines = true;
 
-main.nLines = 3;
-main.offset = 0.5;
-main.nFold = 5;
+main.nLines = 10;
+main.offset = 0.2;
+main.nFold = 7;
 
 main.tile = true;
 main.lineColor = '#000000';
