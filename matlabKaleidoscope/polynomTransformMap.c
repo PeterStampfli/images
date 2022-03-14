@@ -25,7 +25,7 @@
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
-    const mwSize *dims;
+    const mwSize *dims,*aDims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float complex z, w;
@@ -44,7 +44,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
         mexErrMsgIdAndTxt("polynomTransformMap:mapDims","The map has to have three dimensions.");
     }
-    PRINTF(0.1f);
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {   
         mexErrMsgIdAndTxt("polynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
@@ -52,16 +51,16 @@ void mexFunction( int nlhs, mxArray *plhs[],
     for (i=0;i<10;i++){
         a[i]=0;
     }
-    PRINTI(mxGetNumberOfDimensions(prhs[1]) );
-    if(mxGetNumberOfDimensions(prhs[1]) !=2 ) {
-          mexErrMsgIdAndTxt("polynomTransformMap:map3rdDimension","The array for real coefficients has to have 1 dimension.");
+    aDims = mxGetDimensions(prhs[1]);
+    if((mxGetNumberOfDimensions(prhs[1]) !=2)||(aDims[0]!=1)) {
+          mexErrMsgIdAndTxt("polynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
     }
-    dims = mxGetDimensions(prhs[1]);
-    repower=dims[0];
-    PRINTI(dims[0]);
-    PRINTI(dims[1]);
+    repower=aDims[1];
     if (repower>10){
          mexErrMsgIdAndTxt("polynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
+    }
+    if (repower==0){
+         mexErrMsgIdAndTxt("polynomTransformMap: length","The array for real coefficients may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         realA = mxGetDoubles(prhs[1]);
@@ -70,15 +69,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     #endif
     for (i=0;i<repower;i++){
         a[i]= (float) realA[i];
-        PRINTF(a[i]);
     }
-    
     if(nrhs ==3) {
-        if(mxGetNumberOfDimensions(prhs[2]) !=1 ) {
-            mexErrMsgIdAndTxt("polynomTransformMap: Dims","The array for imaginary coefficients has to have 1 dimension.");
+        aDims = mxGetDimensions(prhs[2]);
+        if ((mxGetNumberOfDimensions(prhs[2]) !=2)||(aDims[0]!=1)){
+          mexErrMsgIdAndTxt("polynomTransformMap:dims","The array for imaginary coefficients has to have 1 dimension.");
         }
-        dims = mxGetDimensions(prhs[2]);
-        impower=dims[0];
+        impower=aDims[1];
         if (impower>10){
             mexErrMsgIdAndTxt("polynomTransformMap: length","The array for imaginary coefficients may not have more than 10 values.");       
         }
@@ -89,16 +86,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         #endif
         for (i=0;i<impower;i++){
             a[i] += I * (float) imA[i];
-            PRINTF(a[i]);
         }     
+    } else {
+        impower = 0;
     }
     power = repower;
     if (impower > repower){
         power = impower;
-    }
-    
-    
-    
+    }    
     /* check that no or one output is expected*/
     if (nlhs > 1) {
         mexErrMsgIdAndTxt("transformMap:nlhs","Has zero or one return parameter.");
@@ -121,8 +116,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-   
-
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -143,10 +136,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
         z = inMap[index] + I * inMap[index + nXnY];
         /* do some transformation of z */
         /*=========================*/
-        z = z * z ;
-        
-        outMap[index] = crealf(z);
-        outMap[index + nXnY] = cimagf(z);
+        w =  a[power-1];
+        for (i=power-2;i>=0;i--){
+            w = w * z +a[i];
+        }
+        outMap[index] = crealf(w);
+        outMap[index + nXnY] = cimagf(w);
         outMap[index + nXnY2] = inverted;
     }
 }
