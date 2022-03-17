@@ -15,6 +15,23 @@ export const grid = {};
 
 grid.parallelLines = [];
 
+
+grid.linepositions = [];
+
+// adjust line positions
+// origin plus offset equals mean value of positions
+grid.adjust = function() {
+    const length = grid.linepositions.length;
+    let sum = 0;
+    for (let i = 0; i < length; i++) {
+        sum += grid.linepositions[i];
+    }
+    const shift = main.offset - sum / length;
+    for (let i = 0; i < length; i++) {
+        grid.linepositions[i] += shift;
+    }
+};
+
 // a basic grid for n-fold symmetry, given offset from symmetric case
 // distance between lines equal to one
 
@@ -24,7 +41,7 @@ grid.createBasic = function() {
     grid.dAlpha = Math.PI * 2 / main.nFold;
     if (main.nFold & 1) {
         grid.nDirections = main.nFold;
-        grid.dAlpha/=2;
+        grid.dAlpha /= 2;
     } else {
         grid.nDirections = main.nFold / 2;
     }

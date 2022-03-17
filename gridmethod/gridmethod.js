@@ -23,7 +23,7 @@ import {
 } from "./intersection.js";
 
 export const main = {};
-export const color=[];
+export const color = [];
 
 main.drawLines = true;
 
@@ -39,7 +39,7 @@ main.rhombusSize = 0.1; // side length of rhombus
 main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
 main.drawIntersections = true;
-main.fill=true;
+main.fill = true;
 
 color.push('#000000');
 color.push('#ff0000');
@@ -75,17 +75,13 @@ main.setup = function() {
         property: 'lineWidth',
         labelText: 'grid line',
         min: 0,
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     }).add({
         type: 'boolean',
         params: main,
         property: 'drawLines',
         labelText: '',
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     });
 
     gui.add({
@@ -93,9 +89,7 @@ main.setup = function() {
         params: main,
         property: 'lineColor',
         labelText: '',
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     });
 
     gui.add({
@@ -110,22 +104,22 @@ main.setup = function() {
             draw();
         }
     }).add({
-        type:'number',
-        params:main,
-        property:'nLines',
-        labelText:'lines',
-        min:1,
-        step:1,
-       onChange: function() {
+        type: 'number',
+        params: main,
+        property: 'nLines',
+        labelText: 'lines',
+        min: 1,
+        step: 1,
+        onChange: function() {
             create();
             draw();
         }
     });
     gui.add({
-type:'number',
-params:main,
-property:'offset',
-       onChange: function() {
+        type: 'number',
+        params: main,
+        property: 'offset',
+        onChange: function() {
             create();
             draw();
         }
@@ -148,17 +142,13 @@ property:'offset',
         property: 'rhombusLineWidth',
         labelText: 'tiling line',
         min: 0,
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     }).add({
         type: 'boolean',
         params: main,
         property: 'drawIntersections',
         labelText: '',
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     });
 
     gui.add({
@@ -166,9 +156,7 @@ property:'offset',
         params: main,
         property: 'rhombusColor',
         labelText: '',
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     });
 
     gui.add({
@@ -186,30 +174,24 @@ property:'offset',
         type: 'boolean',
         params: main,
         property: 'fill',
-        onChange: function() {
-            draw();
-        }
+        onChange: draw
     });
-    
+
     gui.add({
-        type:'color',
-        params:color,
-        property:0,
-        labelText:'colors: 0',
- onChange: function() {
-            draw();
-        }        
-    })
-      for (let i=1;i<color.length;i++){  
-    gui.add({
-        type:'color',
-        params:color,
-        property:i,
- onChange: function() {
-            draw();
-        }        
+        type: 'color',
+        params: color,
+        property: 0,
+        labelText: 'colors: 0',
+        onChange: draw
     });
-}
+    for (let i = 1; i < color.length; i++) {
+        gui.add({
+            type: 'color',
+            params: color,
+            property: i,
+            onChange: draw
+        });
+    }
 
     create();
     draw();
@@ -229,8 +211,8 @@ function draw() {
     if (main.drawIntersections) {
         grid.drawIntersections();
     }
-       if (main.drawLines) {
+    if (main.drawLines) {
         grid.drawLines();
     }
- 
+
 }

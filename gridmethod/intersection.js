@@ -60,6 +60,7 @@ Intersection.prototype.draw = function() {
     canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
     canvasContext.closePath();
     if (main.fill){
+        console.log('fill')
         canvasContext.fillStyle=color[this.colorIndex];
         canvasContext.fill();
     }
