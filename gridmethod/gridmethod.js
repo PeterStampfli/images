@@ -27,7 +27,7 @@ export const color = [];
 
 main.drawLines = true;
 
-main.nLines = 10;
+main.nLines = 1;
 main.offset = 0.2;
 main.nFold = 7;
 
@@ -40,6 +40,8 @@ main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
 main.drawIntersections = true;
 main.fill = true;
+main.generations = 2;
+main.spacing=grid.equalSpacedLines;
 
 color.push('#000000');
 color.push('#ff0000');
@@ -103,17 +105,6 @@ main.setup = function() {
             create();
             draw();
         }
-    }).add({
-        type: 'number',
-        params: main,
-        property: 'nLines',
-        labelText: 'lines',
-        min: 1,
-        step: 1,
-        onChange: function() {
-            create();
-            draw();
-        }
     });
     gui.add({
         type: 'number',
@@ -124,6 +115,26 @@ main.setup = function() {
             draw();
         }
     });
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'generations',
+        step:1,
+        min:0,
+        onChange: function() {
+            create();
+            draw();
+        }
+    }).add({
+        type:'selection',
+        params:main,
+        property:'spacing',
+        options:{'equal spaced':grid.equalSpacedLines,trisection:grid.trisection,'golden section':grid.goldenSection},
+         onChange: function() {
+            create();
+            draw();
+        }
+   });
 
     gui.add({
         type: 'boolean',
@@ -198,7 +209,9 @@ main.setup = function() {
 };
 
 function create() {
-    grid.createBasic();
+    main.spacing();
+    grid.adjust();
+    grid.create();
     grid.makeTiling();
 }
 

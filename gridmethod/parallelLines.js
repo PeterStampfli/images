@@ -29,8 +29,15 @@ ParallelLines.createBasicBundle = function(alpha,offset, n) {
     const lines = new ParallelLines();
     for (let i = 0; i < n; i++) {
         lines.addLine(alpha, offset + i);
-        lines.addLine(alpha, offset-1 - i);
+        lines.addLine(alpha, offset - 1 - i);
     }
+    return lines;
+};
+
+// from an array of line positions
+ParallelLines.createBundle = function(alpha, linepositions) {
+    const lines = new ParallelLines();
+    linepositions.forEach(position => lines.addLine(alpha, position));
     return lines;
 };
 
@@ -61,8 +68,8 @@ ParallelLines.prototype.numberOfIntersections = function() {
     return sum;
 };
 
-ParallelLines.prototype.shiftIntersections = function(dx,dy) {
-    this.lines.forEach(line => line.shiftIntersections(dx,dy));
+ParallelLines.prototype.shiftIntersections = function(dx, dy) {
+    this.lines.forEach(line => line.shiftIntersections(dx, dy));
 };
 
 ParallelLines.prototype.adjust = function() {
