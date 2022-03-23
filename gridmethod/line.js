@@ -9,7 +9,8 @@ import {
 } from "./intersection.js";
 
 import {
-    main
+    main,
+    lineColor
 } from "./gridmethod.js";
 
 /*
@@ -18,12 +19,13 @@ import {
  * distance from origin is d
  */
 
-export const Line = function(alpha, d) {
+export const Line = function(alpha, d,number) {
     this.alpha=alpha;
     this.cosAlpha = Math.cos(alpha);
     this.sinAlpha = Math.sin(alpha);
     this.d = d;
     this.intersections = [];
+    this.number=number;
 };
 
 Line.displayRadius = 1000;
@@ -31,7 +33,7 @@ Line.displayRadius = 1000;
 Line.prototype.draw = function() {
     output.setLineWidth(main.lineWidth);
     const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = main.lineColor;
+    canvasContext.strokeStyle = lineColor[this.number];
     canvasContext.beginPath();
     canvasContext.moveTo(Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
     canvasContext.lineTo(-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, -Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);

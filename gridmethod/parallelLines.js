@@ -12,8 +12,8 @@ export const ParallelLines = function() {
     this.lines = [];
 };
 
-ParallelLines.prototype.addLine = function(alpha, d) {
-    this.lines.push(new Line(alpha, d));
+ParallelLines.prototype.addLine = function(alpha, d, number) {
+    this.lines.push(new Line(alpha, d, number));
 };
 
 ParallelLines.prototype.draw = function() {
@@ -25,7 +25,7 @@ ParallelLines.prototype.drawIntersections = function() {
 };
 
 // basic set of lines, unit distance
-ParallelLines.createBasicBundle = function(alpha,offset, n) {
+ParallelLines.createBasicBundle = function(alpha, offset, n) {
     const lines = new ParallelLines();
     for (let i = 0; i < n; i++) {
         lines.addLine(alpha, offset + i);
@@ -37,7 +37,11 @@ ParallelLines.createBasicBundle = function(alpha,offset, n) {
 // from an array of line positions
 ParallelLines.createBundle = function(alpha, linepositions) {
     const lines = new ParallelLines();
-    linepositions.forEach(position => lines.addLine(alpha, position));
+    let number = 0;
+    linepositions.forEach(position => {
+        lines.addLine(alpha, position, number);
+        number = 1 - number;
+    });
     return lines;
 };
 

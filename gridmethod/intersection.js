@@ -5,7 +5,9 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    main,color
+    main,
+    color,
+    lineColor
 } from "./gridmethod.js";
 
 import {
@@ -21,15 +23,15 @@ export const Intersection = function(line1, line2) {
     this.line1 = line1;
     this.line2 = line2;
     // intersection angle, line angles go from 0 to 2*PI
-    let delta=Math.abs(this.line1.alpha-this.line2.alpha);
+    let delta = Math.abs(this.line1.alpha - this.line2.alpha);
     // get sharp angle 0 ...  Pi/2
-    if (delta>Math.PI){
-        delta-=Math.PI;
+    if (delta > Math.PI) {
+        delta -= Math.PI;
     }
-    if (delta>0.5*Math.PI){
-        delta=Math.PI-delta;
+    if (delta > 0.5 * Math.PI) {
+        delta = Math.PI - delta;
     }
-    this.colorIndex=Math.round(delta/grid.dAlpha)%color.length;
+    this.colorIndex = Math.round(delta / grid.dAlpha) % color.length;
     // becomes true, when position adjusted with respect to other intersections/rhombs
     this.adjusted = false;
     const sin1 = line1.sinAlpha;
@@ -52,18 +54,31 @@ Intersection.prototype.draw = function() {
     const dy1 = size * this.line1.cosAlpha;
     const dx2 = -size * this.line2.sinAlpha;
     const dy2 = size * this.line2.cosAlpha;
-        canvasContext.strokeStyle = main.rhombusColor;
+    canvasContext.strokeStyle = main.rhombusColor;
     canvasContext.beginPath();
     canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
     canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
     canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
     canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
     canvasContext.closePath();
-    if (main.fill){
-        canvasContext.fillStyle=color[this.colorIndex];
+    if (main.fill) {
+        canvasContext.fillStyle = color[this.colorIndex];
         canvasContext.fill();
     }
     canvasContext.stroke();
+    if (main.drawBentLines) {
+        output.setLineWidth(main.lineWidth);
+        canvasContext.strokeStyle = lineColor[this.line2.number];
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x + dx1, this.y + dy1);
+        canvasContext.lineTo(this.x - dx1, this.y - dy1);
+        canvasContext.stroke();
+         canvasContext.strokeStyle = lineColor[this.line1.number];
+       canvasContext.beginPath();
+        canvasContext.moveTo(this.x + dx2, this.y + dy2);
+        canvasContext.lineTo(this.x - dx2, this.y - dy2);
+        canvasContext.stroke();
+    }
 };
 
 // dualization
@@ -82,7 +97,7 @@ Intersection.prototype.getRhombusSide = function(line) {
     const otherLine = this.otherLine(line);
     let dx = -main.rhombusSize * otherLine.sinAlpha;
     let dy = main.rhombusSize * otherLine.cosAlpha;
-    if (line.forward(dx,dy)) {
+    if (line.forward(dx, dy)) {
         return [dx, dy];
     } else {
         return [-dx, -dy];

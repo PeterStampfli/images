@@ -95,12 +95,10 @@ function phi(generation, position) {
     }
 }
 
-
 grid.goldenSection=function(){
    grid.linepositions.length = 0;
     phi(main.generations, 0);
 };
-
 
 // a basic grid for n-fold symmetry, given offset from symmetric case
 // distance between lines equal to one
@@ -127,8 +125,15 @@ grid.create=function(){
     if (main.nFold & 1) {
         grid.nDirections = main.nFold;
         grid.dAlpha /= 2;
+        grid.nRhombi=(main.nFold-1)/2;
     } else {
         grid.nDirections = main.nFold / 2;
+        if (main.nFold&2){
+        grid.nRhombi=(main.nFold/2-1)/2;
+        } else { 
+            // multiple of 4
+        grid.nRhombi=main.nFold/4;  
+        }  
     }
     for (let i = 0; i < grid.nDirections; i++) {
         grid.parallelLines.push(ParallelLines.createBundle(i * Math.PI * 2 / main.nFold, grid.linepositions));

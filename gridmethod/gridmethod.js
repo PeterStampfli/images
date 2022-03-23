@@ -24,8 +24,10 @@ import {
 
 export const main = {};
 export const color = [];
+export const lineColor=[];
 
-main.drawLines = true;
+main.drawLines = false;
+main.drawBentLines=true;
 
 main.nLines = 1;
 main.offset = 0.2;
@@ -50,6 +52,9 @@ color.push('#cccc00');
 color.push('#4444ff');
 color.push('#ff00ff');
 color.push('#ffffff');
+
+lineColor.push('#0000dd');
+lineColor.push('#880000');
 
 
 main.setup = function() {
@@ -91,6 +96,30 @@ main.setup = function() {
         params: main,
         property: 'lineColor',
         labelText: '',
+        onChange: draw
+    });
+    
+    gui.add({
+        type: 'color',
+        params: lineColor,
+        property: '0',
+        labelText: 'lineColor',
+        onChange: draw
+    });
+
+    gui.add({
+        type: 'color',
+        params: lineColor,
+        property: '1',
+        labelText: 'lineColor',
+        onChange: draw
+    });
+    
+    gui.add({
+        type: 'boolean',
+        params: main,
+        property: 'drawBentLines',
+        labelText: 'bent lines',
         onChange: draw
     });
 
