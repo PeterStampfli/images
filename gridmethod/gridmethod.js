@@ -34,8 +34,9 @@ main.offset = 0.2;
 main.nFold = 7;
 
 main.tile = true;
-main.lineColor = '#000000';
+main.lineBorderColor = '#000000';
 main.lineWidth = 1;
+main.lineBorderWidth=0.5;
 
 main.rhombusSize = 0.1; // side length of rhombus
 main.rhombusColor = '#008800';
@@ -84,18 +85,19 @@ main.setup = function() {
         min: 0,
         onChange: draw
     }).add({
-        type: 'boolean',
+        type: 'number',
         params: main,
-        property: 'drawLines',
-        labelText: '',
+        property: 'lineBorderWidth',
+        labelText: 'border',
+        min: 0,
         onChange: draw
     });
 
     gui.add({
         type: 'color',
         params: main,
-        property: 'lineColor',
-        labelText: '',
+        property: 'lineBorderColor',
+        labelText: 'line border',
         onChange: draw
     });
     
@@ -103,7 +105,7 @@ main.setup = function() {
         type: 'color',
         params: lineColor,
         property: '0',
-        labelText: 'lineColor',
+        labelText: 'lineColor 1',
         onChange: draw
     });
 
@@ -111,7 +113,7 @@ main.setup = function() {
         type: 'color',
         params: lineColor,
         property: '1',
-        labelText: 'lineColor',
+        labelText: 'lineColor 2',
         onChange: draw
     });
     
@@ -120,6 +122,12 @@ main.setup = function() {
         params: main,
         property: 'drawBentLines',
         labelText: 'bent lines',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'drawLines',
+        labelText: 'straight',
         onChange: draw
     });
 
@@ -250,11 +258,13 @@ function draw() {
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    if (main.drawIntersections) {
         grid.drawIntersections();
-    }
     if (main.drawLines) {
         grid.drawLines();
     }
+        if (main.drawBentLines) {
+grid.drawBentBottomBackground();
+grid.drawBentTopBackground();
+}
 
 }

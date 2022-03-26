@@ -22,6 +22,7 @@ import {
 export const Intersection = function(line1, line2) {
     this.line1 = line1;
     this.line2 = line2;
+    this.oneOnTop = false;
     // intersection angle, line angles go from 0 to 2*PI
     let delta = Math.abs(this.line1.alpha - this.line2.alpha);
     // get sharp angle 0 ...  Pi/2
@@ -65,20 +66,111 @@ Intersection.prototype.draw = function() {
         canvasContext.fillStyle = color[this.colorIndex];
         canvasContext.fill();
     }
-    canvasContext.stroke();
+    if (main.drawIntersections) {
+        canvasContext.stroke();
+    }
     if (main.drawBentLines) {
-        output.setLineWidth(main.lineWidth);
-        canvasContext.strokeStyle = lineColor[this.line2.number];
         canvasContext.beginPath();
         canvasContext.moveTo(this.x + dx1, this.y + dy1);
         canvasContext.lineTo(this.x - dx1, this.y - dy1);
+        output.setLineWidth(main.lineWidth);
+        canvasContext.strokeStyle = lineColor[this.line2.number];
         canvasContext.stroke();
-         canvasContext.strokeStyle = lineColor[this.line1.number];
-       canvasContext.beginPath();
+        canvasContext.beginPath();
         canvasContext.moveTo(this.x + dx2, this.y + dy2);
         canvasContext.lineTo(this.x - dx2, this.y - dy2);
+        canvasContext.strokeStyle = lineColor[this.line1.number];
+        output.setLineWidth(main.lineWidth);
         canvasContext.stroke();
     }
+};
+
+Intersection.prototype.drawBentBottomBackground = function() {
+    var line, color;
+    if (this.oneOnTop) {
+        line = this.line2;
+        color = lineColor[this.line1.number];
+    } else {
+        line = this.line1;
+        color = lineColor[this.line2.number];
+    }
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(main.lineWidth + 2 * main.lineBorderWidth);
+    canvasContext.strokeStyle = main.lineBorderColor;
+    canvasContext.stroke();
+    const size = main.rhombusSize * 0.5;
+    const dx = -size * line.sinAlpha;
+    const dy = size * line.cosAlpha;
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.x + dx, this.y + dy);
+    canvasContext.lineTo(this.x - dx, this.y - dy);
+    canvasContext.stroke();
+};
+
+Intersection.prototype.drawBentBottomColor = function() {
+    var line, color;
+    if (this.oneOnTop) {
+        line = this.line2;
+        color = lineColor[this.line1.number];
+    } else {
+        line = this.line1;
+        color = lineColor[this.line2.number];
+    }
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = color;
+    canvasContext.stroke();
+    const size = main.rhombusSize * 0.5;
+    const dx = -size * line.sinAlpha;
+    const dy = size * line.cosAlpha;
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.x + dx, this.y + dy);
+    canvasContext.lineTo(this.x - dx, this.y - dy);
+    canvasContext.stroke();
+};
+
+Intersection.prototype.drawBentTopBackground = function() {
+    var line, color;
+    if (!this.oneOnTop) {
+        line = this.line2;
+        color = lineColor[this.line1.number];
+    } else {
+        line = this.line1;
+        color = lineColor[this.line2.number];
+    }
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(main.lineWidth + 2 * main.lineBorderWidth);
+    canvasContext.strokeStyle = main.lineBorderColor;
+    canvasContext.stroke();
+    const size = main.rhombusSize * 0.5;
+    const dx = -size * line.sinAlpha;
+    const dy = size * line.cosAlpha;
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.x + dx, this.y + dy);
+    canvasContext.lineTo(this.x - dx, this.y - dy);
+    canvasContext.stroke();
+};
+
+Intersection.prototype.drawBentTopColor = function() {
+    var line, color;
+    if (!this.oneOnTop) {
+        line = this.line2;
+        color = lineColor[this.line1.number];
+    } else {
+        line = this.line1;
+        color = lineColor[this.line2.number];
+    }
+    const canvasContext = output.canvasContext;
+    output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = color;
+    canvasContext.stroke();
+    const size = main.rhombusSize * 0.5;
+    const dx = -size * line.sinAlpha;
+    const dy = size * line.cosAlpha;
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.x + dx, this.y + dy);
+    canvasContext.lineTo(this.x - dx, this.y - dy);
+    canvasContext.stroke();
 };
 
 // dualization
@@ -114,4 +206,24 @@ Intersection.prototype.set = function(x, y) {
 Intersection.prototype.shift = function(dx, dy) {
     this.x += dx;
     this.y += dy;
+};
+
+// for weaving
+// is given line on top?
+// either 1 or 2
+Intersection.prototype.isOnTop = function(line) {
+    if (this.line1 === line) {
+        return this.oneOnTop;
+    } else {
+        return !this.oneOnTop;
+    }
+};
+
+// set that given line is (not) on top
+Intersection.prototype.setOnTop = function(line, onTop) {
+    if (this.line1 === line) {
+        this.oneOnTop = onTop;
+    } else {
+        this.oneOnTop = !onTop;
+    }
 };

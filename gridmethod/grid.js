@@ -148,6 +148,14 @@ grid.drawIntersections = function() {
     grid.parallelLines.forEach(lines => lines.drawIntersections());
 };
 
+grid.drawBentBottomBackground = function() {
+    grid.parallelLines.forEach(lines => lines.drawBentBottomBackground());
+};
+
+grid.drawBentTopBackground = function() {
+    grid.parallelLines.forEach(lines => lines.drawBentTopBackground());
+};
+
 grid.makeIntersections = function() {
     const length = grid.parallelLines.length;
     for (let i = 0; i < length; i++) {
@@ -210,5 +218,4 @@ grid.makeTiling = function() {
         }
         grid.center();
     }
-
 };

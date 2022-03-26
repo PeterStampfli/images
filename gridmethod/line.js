@@ -31,13 +31,17 @@ export const Line = function(alpha, d,number) {
 Line.displayRadius = 1000;
 
 Line.prototype.draw = function() {
-    output.setLineWidth(main.lineWidth);
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = lineColor[this.number];
     canvasContext.beginPath();
     canvasContext.moveTo(Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
     canvasContext.lineTo(-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, -Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
-    canvasContext.stroke();
+     output.setLineWidth(main.lineWidth+2*main.lineBorderWidth);
+    canvasContext.strokeStyle = main.lineBorderColor;
+   canvasContext.stroke();
+     output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = lineColor[this.number];
+   canvasContext.stroke();
 };
 
 Line.prototype.addIntersections = function(parallelLines) {
@@ -50,6 +54,14 @@ Line.prototype.addIntersections = function(parallelLines) {
 
 Line.prototype.drawIntersections = function() {
     this.intersections.forEach(intersection => intersection.draw());
+};
+
+Line.prototype.drawBentBottomBackground = function() {
+    this.intersections.forEach(intersection => intersection.drawBentBottomBackground());
+};
+
+Line.prototype.drawBentTopBackground = function() {
+    this.intersections.forEach(intersection => intersection.drawBentTopBackground());
 };
 
 // check if a given distance (vector) goes forward along the line

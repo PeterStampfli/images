@@ -24,6 +24,14 @@ ParallelLines.prototype.drawIntersections = function() {
     this.lines.forEach(line => line.drawIntersections());
 };
 
+ParallelLines.prototype.drawBentBottomBackground = function() {
+    this.lines.forEach(line => line.drawBentBottomBackground());
+};
+
+ParallelLines.prototype.drawBentTopBackground = function() {
+    this.lines.forEach(line => line.drawBentTopBackground());
+};
+
 // basic set of lines, unit distance
 ParallelLines.createBasicBundle = function(alpha, offset, n) {
     const lines = new ParallelLines();
