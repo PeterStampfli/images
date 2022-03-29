@@ -19,13 +19,13 @@ import {
  * distance from origin is d
  */
 
-export const Line = function(alpha, d,number) {
-    this.alpha=alpha;
+export const Line = function(alpha, d, number) {
+    this.alpha = alpha;
     this.cosAlpha = Math.cos(alpha);
     this.sinAlpha = Math.sin(alpha);
     this.d = d;
     this.intersections = [];
-    this.number=number;
+    this.number = number;
 };
 
 Line.displayRadius = 1000;
@@ -36,17 +36,17 @@ Line.prototype.draw = function() {
     canvasContext.beginPath();
     canvasContext.moveTo(Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
     canvasContext.lineTo(-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, -Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
-     output.setLineWidth(main.lineWidth+2*main.lineBorderWidth);
+    output.setLineWidth(main.lineWidth + 2 * main.lineBorderWidth);
     canvasContext.strokeStyle = main.lineBorderColor;
-   canvasContext.stroke();
-     output.setLineWidth(main.lineWidth);
+    canvasContext.stroke();
+    output.setLineWidth(main.lineWidth);
     canvasContext.strokeStyle = lineColor[this.number];
-   canvasContext.stroke();
+    canvasContext.stroke();
 };
 
 Line.prototype.addIntersections = function(parallelLines) {
     parallelLines.lines.forEach(otherLine => {
-        const intersection=new Intersection(this, otherLine);
+        const intersection = new Intersection(this, otherLine);
         this.intersections.push(intersection);
         otherLine.intersections.push(intersection);
     });
@@ -56,12 +56,8 @@ Line.prototype.drawIntersections = function() {
     this.intersections.forEach(intersection => intersection.draw());
 };
 
-Line.prototype.drawBentBottomBackground = function() {
-    this.intersections.forEach(intersection => intersection.drawBentBottomBackground());
-};
-
-Line.prototype.drawBentTopBackground = function() {
-    this.intersections.forEach(intersection => intersection.drawBentTopBackground());
+Line.prototype.drawBentLines = function() {
+    this.intersections.forEach(intersection => intersection.drawBentLines());
 };
 
 // check if a given distance (vector) goes forward along the line
@@ -105,7 +101,7 @@ Line.prototype.adjust = function() {
     let lastSide = foundAdjustedSide;
     let lastCenterX = foundAdjustedIntersection.x;
     let lastCenterY = foundAdjustedIntersection.y;
-    for (let i = foundAdjustedIndex-1; i >= 0; i--) {
+    for (let i = foundAdjustedIndex - 1; i >= 0; i--) {
         const intersectionI = this.intersections[i];
         let newSide = intersectionI.getRhombusSide(this);
         let newCenterX = lastCenterX - 0.5 * (lastSide[0] + newSide[0]);

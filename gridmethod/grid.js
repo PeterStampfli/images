@@ -148,12 +148,8 @@ grid.drawIntersections = function() {
     grid.parallelLines.forEach(lines => lines.drawIntersections());
 };
 
-grid.drawBentBottomBackground = function() {
-    grid.parallelLines.forEach(lines => lines.drawBentBottomBackground());
-};
-
-grid.drawBentTopBackground = function() {
-    grid.parallelLines.forEach(lines => lines.drawBentTopBackground());
+grid.drawBentLines = function() {
+    grid.parallelLines.forEach(lines => lines.drawBentLines());
 };
 
 grid.makeIntersections = function() {

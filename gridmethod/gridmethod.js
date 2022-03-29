@@ -24,27 +24,28 @@ import {
 
 export const main = {};
 export const color = [];
-export const lineColor=[];
+export const lineColor = [];
 
 main.drawLines = false;
-main.drawBentLines=true;
+main.drawBentLines = true;
 
 main.nLines = 1;
-main.offset = 0.2;
+main.offset = 0.25;
 main.nFold = 7;
 
 main.tile = true;
 main.lineBorderColor = '#000000';
-main.lineWidth = 1;
-main.lineBorderWidth=0.5;
+main.lineWidth = 8;
+main.lineBorderWidth = 2;
 
-main.rhombusSize = 0.1; // side length of rhombus
+main.rhombusSize = 0.3; // side length of rhombus
 main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
 main.drawIntersections = true;
 main.fill = true;
-main.generations = 2;
-main.spacing=grid.equalSpacedLines;
+main.generations = 1;
+main.spacing = grid.equalSpacedLines;
+main.double = true;
 
 color.push('#000000');
 color.push('#ff0000');
@@ -100,7 +101,7 @@ main.setup = function() {
         labelText: 'line border',
         onChange: draw
     });
-    
+
     gui.add({
         type: 'color',
         params: lineColor,
@@ -116,7 +117,7 @@ main.setup = function() {
         labelText: 'lineColor 2',
         onChange: draw
     });
-    
+
     gui.add({
         type: 'boolean',
         params: main,
@@ -156,22 +157,26 @@ main.setup = function() {
         type: 'number',
         params: main,
         property: 'generations',
-        step:1,
-        min:0,
+        step: 1,
+        min: 0,
         onChange: function() {
             create();
             draw();
         }
     }).add({
-        type:'selection',
-        params:main,
-        property:'spacing',
-        options:{'equal spaced':grid.equalSpacedLines,trisection:grid.trisection,'golden section':grid.goldenSection},
-         onChange: function() {
+        type: 'selection',
+        params: main,
+        property: 'spacing',
+        options: {
+            'equal spaced': grid.equalSpacedLines,
+            trisection: grid.trisection,
+            'golden section': grid.goldenSection
+        },
+        onChange: function() {
             create();
             draw();
         }
-   });
+    });
 
     gui.add({
         type: 'boolean',
@@ -248,6 +253,14 @@ main.setup = function() {
 function create() {
     main.spacing();
     grid.adjust();
+    // double grid for even order
+    if ((main.nFold & 1) === 0) {
+        const length = grid.linepositions.length;
+        for (let i = 0; i < length; i++) {
+            grid.linepositions.push(-grid.linepositions[i]);
+        }
+        grid.linepositions.sort();
+    }
     grid.create();
     grid.makeTiling();
 }
@@ -258,13 +271,11 @@ function draw() {
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-        grid.drawIntersections();
+    grid.drawIntersections();
     if (main.drawLines) {
         grid.drawLines();
     }
         if (main.drawBentLines) {
-grid.drawBentBottomBackground();
-grid.drawBentTopBackground();
+grid.drawBentLines();
 }
-
 }
