@@ -28,6 +28,7 @@ export const lineColor = [];
 
 main.drawLines = false;
 main.drawBentLines = true;
+main.drawArcs=true;
 
 main.nLines = 1;
 main.offset = 0.25;
@@ -129,6 +130,12 @@ main.setup = function() {
         params: main,
         property: 'drawLines',
         labelText: 'straight',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'drawArcs',
+        labelText: 'arcs',
         onChange: draw
     });
 
@@ -277,5 +284,8 @@ function draw() {
     }
         if (main.drawBentLines) {
 grid.drawBentLines();
+}    
+    if (main.drawArcs) {
+grid.drawArcs();
 }
 }

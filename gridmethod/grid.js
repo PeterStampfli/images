@@ -152,6 +152,10 @@ grid.drawBentLines = function() {
     grid.parallelLines.forEach(lines => lines.drawBentLines());
 };
 
+grid.drawArcs = function() {
+    grid.parallelLines.forEach(lines => lines.drawArcs());
+};
+
 grid.makeIntersections = function() {
     const length = grid.parallelLines.length;
     for (let i = 0; i < length; i++) {

@@ -60,6 +60,10 @@ Line.prototype.drawBentLines = function() {
     this.intersections.forEach(intersection => intersection.drawBentLines());
 };
 
+Line.prototype.drawArcs = function() {
+    this.intersections.forEach(intersection => intersection.drawArcs());
+};
+
 // check if a given distance (vector) goes forward along the line
 // depends on its direction!!
 Line.prototype.forward = function(dx, dy) {
@@ -95,25 +99,34 @@ Line.prototype.indexAdjustedIntersection = function() {
 };
 
 Line.prototype.adjust = function() {
+    // search for the first placed (adjusted position) intersection (rhombi)
+    // and get its info
     const foundAdjustedIndex = this.indexAdjustedIntersection();
     const foundAdjustedIntersection = this.intersections[foundAdjustedIndex];
     const foundAdjustedSide = foundAdjustedIntersection.getRhombusSide(this);
+    const foundLineOnTop=foundAdjustedIntersection.isOnTop(this);
+    // adjust all intersections (rhombi) with lower index
     let lastSide = foundAdjustedSide;
     let lastCenterX = foundAdjustedIntersection.x;
     let lastCenterY = foundAdjustedIntersection.y;
+    let lineOnTop=foundLineOnTop;
     for (let i = foundAdjustedIndex - 1; i >= 0; i--) {
         const intersectionI = this.intersections[i];
         let newSide = intersectionI.getRhombusSide(this);
         let newCenterX = lastCenterX - 0.5 * (lastSide[0] + newSide[0]);
         let newCenterY = lastCenterY - 0.5 * (lastSide[1] + newSide[1]);
         intersectionI.set(newCenterX, newCenterY);
+        lineOnTop=!lineOnTop;
+        intersectionI.setOnTop(this,lineOnTop);
         lastSide = newSide;
         lastCenterX = newCenterX;
         lastCenterY = newCenterY;
     }
+        // adjust all intersections (rhombi) with higher index
     lastSide = foundAdjustedSide;
     lastCenterX = foundAdjustedIntersection.x;
     lastCenterY = foundAdjustedIntersection.y;
+    lineOnTop=foundLineOnTop;
     const length = this.intersections.length;
     for (let i = foundAdjustedIndex + 1; i < length; i++) {
         const intersectionI = this.intersections[i];
@@ -121,6 +134,8 @@ Line.prototype.adjust = function() {
         let newCenterX = lastCenterX + 0.5 * (lastSide[0] + newSide[0]);
         let newCenterY = lastCenterY + 0.5 * (lastSide[1] + newSide[1]);
         intersectionI.set(newCenterX, newCenterY);
+        lineOnTop=!lineOnTop;
+        intersectionI.setOnTop(this,lineOnTop);
         lastSide = newSide;
         lastCenterX = newCenterX;
         lastCenterY = newCenterY;

@@ -28,6 +28,10 @@ ParallelLines.prototype.drawBentLines = function() {
     this.lines.forEach(line => line.drawBentLines());
 };
 
+ParallelLines.prototype.drawArcs = function() {
+    this.lines.forEach(line => line.drawArcs());
+};
+
 // basic set of lines, unit distance
 ParallelLines.createBasicBundle = function(alpha, offset, n) {
     const lines = new ParallelLines();
