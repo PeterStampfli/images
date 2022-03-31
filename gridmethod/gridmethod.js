@@ -27,8 +27,8 @@ export const color = [];
 export const lineColor = [];
 
 main.drawLines = false;
-main.drawBentLines = true;
-main.drawArcs=true;
+main.drawBentLines = false;
+main.drawArcs = true;
 
 main.nLines = 1;
 main.offset = 0.25;
@@ -282,10 +282,10 @@ function draw() {
     if (main.drawLines) {
         grid.drawLines();
     }
-        if (main.drawBentLines) {
-grid.drawBentLines();
-}    
+    if (main.drawBentLines) {
+        grid.drawBentLines();
+    }
     if (main.drawArcs) {
-grid.drawArcs();
-}
+        grid.drawArcs();
+    }
 }

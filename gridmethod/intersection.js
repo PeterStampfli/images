@@ -141,23 +141,63 @@ Intersection.prototype.drawBentLine2 = function() {
 };
 
 Intersection.prototype.drawBentLines = function() {
-    if (this.oneOnTop){
-this.drawBentLine2();
-this.drawBentLine1();
+    if (this.oneOnTop) {
+        this.drawBentLine2();
+        this.drawBentLine1();
     } else {
-this.drawBentLine1();
-this.drawBentLine2();
-}
+        this.drawBentLine1();
+        this.drawBentLine2();
+    }
 };
 
-Intersection.prototype.drawArcs=function(){
+function drawArc(x, y, dx1, dy1, dx2, dy2) {
     const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = main.lineBorderColor;
+    let alpha = Math.atan2(dy1, dx1);
+    let beta = Math.atan2(dy2, dx2);
+    if (alpha > beta) {
+        let h = alpha;
+        alpha = beta;
+        beta = h;
+    }
+    if (beta - alpha > Math.PI) {
+        let h = alpha;
+        alpha = beta;
+        beta = h + 2 * Math.PI;
+    }
+    canvasContext.beginPath();
+    canvasContext.arc(x, y, 0.5 * main.rhombusSize, alpha, beta);
+    canvasContext.stroke();
+}
+
+Intersection.prototype.drawArcs = function() {
+    const epsilon = 0.0001;
+    const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = main.lineBorderColor;
+    output.setLineWidth(main.lineWidth);
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
-    const dx2 = -size * this.line2.sinAlpha;
-    const dy2 = size * this.line2.cosAlpha;
-
+    let dx2 = -size * this.line2.sinAlpha;
+    let dy2 = size * this.line2.cosAlpha;
+    const prod = dx1 * dx2 + dy1 * dy2;
+    if (prod < -epsilon) {
+        dx2 = -dx2;
+        dy2 = -dy2;
+    }
+    if (Math.abs(prod) < epsilon) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x + dx1, this.y + dy1);
+        canvasContext.lineTo(this.x - dx1, this.y - dy1);
+        canvasContext.stroke();
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x + dx2, this.y + dy2);
+        canvasContext.lineTo(this.x - dx2, this.y - dy2);
+        canvasContext.stroke();
+    } else {
+        drawArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
+        drawArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
+    }
 };
 
 // dualization
