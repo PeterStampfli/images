@@ -15,7 +15,7 @@ import {
 } from "./grid.js";
 
 const overprint = 1;
-    const epsilon = 0.0001;
+const epsilon = 0.0001;
 
 /**
  * intersection between two grid lines
@@ -52,6 +52,9 @@ export const Intersection = function(line1, line2) {
 };
 
 Intersection.prototype.draw = function() {
+    if (!this.adjusted) {
+        return;
+    }
     output.setLineWidth(main.rhombusLineWidth);
     const canvasContext = output.canvasContext;
     let size = 0.5 * main.rhombusSize;
@@ -192,6 +195,9 @@ function fillArc(x, y, dx1, dy1, dx2, dy2) {
 }
 
 Intersection.prototype.drawArcs = function() {
+    if (!this.adjusted) {
+        return;
+    }
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = main.lineBorderColor;
     output.setLineWidth(main.lineWidth);
@@ -211,8 +217,6 @@ Intersection.prototype.drawArcs = function() {
         canvasContext.fillStyle = lineColor[this.arcBackground];
         canvasContext.strokeStyle = lineColor[this.arcBackground];
         output.setLineWidth(overprint);
-
-
         canvasContext.beginPath();
         canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
         canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
@@ -231,7 +235,14 @@ Intersection.prototype.drawArcs = function() {
             canvasContext.closePath();
             canvasContext.fill();
             canvasContext.stroke();
-
+            canvasContext.beginPath();
+            canvasContext.moveTo(this.x, this.y);
+            canvasContext.lineTo(this.x - dx1, this.y - dy1);
+            canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
+            canvasContext.lineTo(this.x - dx2, this.y - dy2);
+            canvasContext.closePath();
+            canvasContext.fill();
+            canvasContext.stroke();
         } else {
             fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
             fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
@@ -239,7 +250,6 @@ Intersection.prototype.drawArcs = function() {
     }
     output.setLineWidth(main.lineWidth);
     canvasContext.strokeStyle = main.lineBorderColor;
-
     if (Math.abs(prod) < epsilon) {
         canvasContext.beginPath();
         canvasContext.moveTo(this.x + dx1, this.y + dy1);
