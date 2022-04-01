@@ -29,6 +29,7 @@ export const lineColor = [];
 main.drawLines = false;
 main.drawBentLines = false;
 main.drawArcs = true;
+main.arcsFill=true;
 
 main.nLines = 1;
 main.offset = 0.25;
@@ -131,11 +132,18 @@ main.setup = function() {
         property: 'drawLines',
         labelText: 'straight',
         onChange: draw
-    }).add({
+    });
+    gui.add({
         type: 'boolean',
         params: main,
         property: 'drawArcs',
         labelText: 'arcs',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'arcsFill',
+        labelText: 'fill',
         onChange: draw
     });
 

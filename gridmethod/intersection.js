@@ -14,6 +14,9 @@ import {
     grid
 } from "./grid.js";
 
+const overprint = 1;
+    const epsilon = 0.0001;
+
 /**
  * intersection between two grid lines
  * line1 & line2
@@ -23,6 +26,7 @@ export const Intersection = function(line1, line2) {
     this.line1 = line1;
     this.line2 = line2;
     this.oneOnTop = false;
+    this.arcBackground = 0;
     // intersection angle, line angles go from 0 to 2*PI
     let delta = Math.abs(this.line1.alpha - this.line2.alpha);
     // get sharp angle 0 ...  Pi/2
@@ -55,11 +59,6 @@ Intersection.prototype.draw = function() {
     const dy1 = size * this.line1.cosAlpha;
     const dx2 = -size * this.line2.sinAlpha;
     const dy2 = size * this.line2.cosAlpha;
-    size = 0.5 * main.lineWidth * output.coordinateTransform.totalScale;
-    const bx1 = -size * this.line1.sinAlpha;
-    const by1 = size * this.line1.cosAlpha;
-    const bx2 = -size * this.line2.sinAlpha;
-    const by2 = size * this.line2.cosAlpha;
     canvasContext.strokeStyle = main.rhombusColor;
     canvasContext.beginPath();
     canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
@@ -170,8 +169,29 @@ function drawArc(x, y, dx1, dy1, dx2, dy2) {
     canvasContext.stroke();
 }
 
+function fillArc(x, y, dx1, dy1, dx2, dy2) {
+    const canvasContext = output.canvasContext;
+    let alpha = Math.atan2(dy1, dx1);
+    let beta = Math.atan2(dy2, dx2);
+    if (alpha > beta) {
+        let h = alpha;
+        alpha = beta;
+        beta = h;
+    }
+    if (beta - alpha > Math.PI) {
+        let h = alpha;
+        alpha = beta;
+        beta = h + 2 * Math.PI;
+    }
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, y);
+    canvasContext.arc(x, y, 0.5 * main.rhombusSize, alpha, beta);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
 Intersection.prototype.drawArcs = function() {
-    const epsilon = 0.0001;
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = main.lineBorderColor;
     output.setLineWidth(main.lineWidth);
@@ -180,11 +200,46 @@ Intersection.prototype.drawArcs = function() {
     const dy1 = size * this.line1.cosAlpha;
     let dx2 = -size * this.line2.sinAlpha;
     let dy2 = size * this.line2.cosAlpha;
+
     const prod = dx1 * dx2 + dy1 * dy2;
     if (prod < -epsilon) {
         dx2 = -dx2;
         dy2 = -dy2;
     }
+
+    if (main.arcsFill) {
+        canvasContext.fillStyle = lineColor[this.arcBackground];
+        canvasContext.strokeStyle = lineColor[this.arcBackground];
+        output.setLineWidth(overprint);
+
+
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
+        canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
+        canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
+        canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.fillStyle = lineColor[1 - this.arcBackground];
+        canvasContext.strokeStyle = lineColor[1 - this.arcBackground];
+        if (Math.abs(prod) < epsilon) {
+            canvasContext.beginPath();
+            canvasContext.moveTo(this.x, this.y);
+            canvasContext.lineTo(this.x + dx1, this.y + dy1);
+            canvasContext.lineTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
+            canvasContext.lineTo(this.x + dx2, this.y + dy2);
+            canvasContext.closePath();
+            canvasContext.fill();
+            canvasContext.stroke();
+
+        } else {
+            fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
+            fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
+        }
+    }
+    output.setLineWidth(main.lineWidth);
+    canvasContext.strokeStyle = main.lineBorderColor;
+
     if (Math.abs(prod) < epsilon) {
         canvasContext.beginPath();
         canvasContext.moveTo(this.x + dx1, this.y + dy1);

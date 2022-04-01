@@ -13,6 +13,8 @@ import {
     lineColor
 } from "./gridmethod.js";
 
+    const epsilon = 0.0001;
+
 /*
  * gridline
  * inclination angle is alpha
@@ -98,26 +100,56 @@ Line.prototype.indexAdjustedIntersection = function() {
     return this.intersections.findIndex(intersection => intersection.adjusted);
 };
 
+
+// orientation of a rhombus, relative to this line, up>0, down<0
+Line.prototype.orientation=function(intersection){
+    const otherLine=intersection.otherLine(this);
+    let scalarProduct=this.cosAlpha*otherLine.cosAlpha-this.sinAlpha*otherLine.sinAlpha;
+    const vectorProduct=this.cosAlpha*otherLine.sinAlpha-this.sinAlpha*otherLine.cosAlpha;
+    if (Math.abs(scalarProduct)<epsilon){
+scalarProduct=1;
+    }
+    return scalarProduct*vectorProduct;
+}
+
 Line.prototype.adjust = function() {
     // search for the first placed (adjusted position) intersection (rhombi)
     // and get its info
     const foundAdjustedIndex = this.indexAdjustedIntersection();
     const foundAdjustedIntersection = this.intersections[foundAdjustedIndex];
     const foundAdjustedSide = foundAdjustedIntersection.getRhombusSide(this);
+    // for getting crossings correct
     const foundLineOnTop=foundAdjustedIntersection.isOnTop(this);
+    // for truchet colors
+    const foundOrientation=this.orientation(foundAdjustedIntersection);
+    const foundArcBackground=foundAdjustedIntersection.arcBackground;
     // adjust all intersections (rhombi) with lower index
     let lastSide = foundAdjustedSide;
     let lastCenterX = foundAdjustedIntersection.x;
     let lastCenterY = foundAdjustedIntersection.y;
     let lineOnTop=foundLineOnTop;
+    let lastOrientation=foundOrientation;
+    let lastArcBackground=foundArcBackground;
     for (let i = foundAdjustedIndex - 1; i >= 0; i--) {
         const intersectionI = this.intersections[i];
+        // adjust position
         let newSide = intersectionI.getRhombusSide(this);
         let newCenterX = lastCenterX - 0.5 * (lastSide[0] + newSide[0]);
         let newCenterY = lastCenterY - 0.5 * (lastSide[1] + newSide[1]);
         intersectionI.set(newCenterX, newCenterY);
+        // adjust weave
         lineOnTop=!lineOnTop;
         intersectionI.setOnTop(this,lineOnTop);
+        // adjust truchet coloring
+        let newOrientation=this.orientation(intersectionI);
+        let newArcBackground=lastArcBackground;
+        // for same orienation switch background color 0 <-> 1
+if (lastOrientation*newOrientation>0){
+    newArcBackground=1-newArcBackground;
+}
+intersectionI.arcBackground=newArcBackground;
+        lastOrientation=newOrientation;
+        lastArcBackground=newArcBackground;
         lastSide = newSide;
         lastCenterX = newCenterX;
         lastCenterY = newCenterY;
