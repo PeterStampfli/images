@@ -28,8 +28,16 @@ ParallelLines.prototype.drawBentLines = function() {
     this.lines.forEach(line => line.drawBentLines());
 };
 
-ParallelLines.prototype.drawArcs = function() {
-    this.lines.forEach(line => line.drawArcs());
+ParallelLines.prototype.drawLinesTruchet = function() {
+    this.lines.forEach(line => line.drawLinesTruchet());
+};
+
+ParallelLines.prototype.fillBackgroundTruchet = function() {
+    this.lines.forEach(line => line.fillBackgroundTruchet());
+};
+
+ParallelLines.prototype.fillForegroundTruchet = function() {
+    this.lines.forEach(line => line.fillForegroundTruchet());
 };
 
 // basic set of lines, unit distance

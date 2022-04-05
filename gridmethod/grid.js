@@ -152,8 +152,16 @@ grid.drawBentLines = function() {
     grid.parallelLines.forEach(lines => lines.drawBentLines());
 };
 
-grid.drawArcs = function() {
-    grid.parallelLines.forEach(lines => lines.drawArcs());
+grid.drawLinesTruchet = function() {
+    grid.parallelLines.forEach(lines => lines.drawLinesTruchet());
+};
+
+grid.fillBackgroundTruchet = function() {
+    grid.parallelLines.forEach(lines => lines.fillBackgroundTruchet());
+};
+
+grid.fillForegroundTruchet = function() {
+    grid.parallelLines.forEach(lines => lines.fillForegroundTruchet());
 };
 
 grid.makeIntersections = function() {

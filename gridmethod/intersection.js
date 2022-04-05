@@ -14,7 +14,7 @@ import {
     grid
 } from "./grid.js";
 
-const overprint = 1;
+const overprint = 4;
 const epsilon = 0.0001;
 
 /**
@@ -52,9 +52,6 @@ export const Intersection = function(line1, line2) {
 };
 
 Intersection.prototype.draw = function() {
-    if (!this.adjusted) {
-        return;
-    }
     output.setLineWidth(main.rhombusLineWidth);
     const canvasContext = output.canvasContext;
     let size = 0.5 * main.rhombusSize;
@@ -190,14 +187,11 @@ function fillArc(x, y, dx1, dy1, dx2, dy2) {
     canvasContext.moveTo(x, y);
     canvasContext.arc(x, y, 0.5 * main.rhombusSize, alpha, beta);
     canvasContext.closePath();
-    canvasContext.fill();
     canvasContext.stroke();
+    canvasContext.fill();
 }
 
-Intersection.prototype.drawArcs = function() {
-    if (!this.adjusted) {
-        return;
-    }
+Intersection.prototype.drawLinesTruchet = function() {
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = main.lineBorderColor;
     output.setLineWidth(main.lineWidth);
@@ -206,47 +200,10 @@ Intersection.prototype.drawArcs = function() {
     const dy1 = size * this.line1.cosAlpha;
     let dx2 = -size * this.line2.sinAlpha;
     let dy2 = size * this.line2.cosAlpha;
-
     const prod = dx1 * dx2 + dy1 * dy2;
     if (prod < -epsilon) {
         dx2 = -dx2;
         dy2 = -dy2;
-    }
-
-    if (main.arcsFill) {
-        canvasContext.fillStyle = lineColor[this.arcBackground];
-        canvasContext.strokeStyle = lineColor[this.arcBackground];
-        output.setLineWidth(overprint);
-        canvasContext.beginPath();
-        canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
-        canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
-        canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
-        canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
-        canvasContext.closePath();
-        canvasContext.fill();
-        canvasContext.fillStyle = lineColor[1 - this.arcBackground];
-        canvasContext.strokeStyle = lineColor[1 - this.arcBackground];
-        if (Math.abs(prod) < epsilon) {
-            canvasContext.beginPath();
-            canvasContext.moveTo(this.x, this.y);
-            canvasContext.lineTo(this.x + dx1, this.y + dy1);
-            canvasContext.lineTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
-            canvasContext.lineTo(this.x + dx2, this.y + dy2);
-            canvasContext.closePath();
-            canvasContext.fill();
-            canvasContext.stroke();
-            canvasContext.beginPath();
-            canvasContext.moveTo(this.x, this.y);
-            canvasContext.lineTo(this.x - dx1, this.y - dy1);
-            canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
-            canvasContext.lineTo(this.x - dx2, this.y - dy2);
-            canvasContext.closePath();
-            canvasContext.fill();
-            canvasContext.stroke();
-        } else {
-            fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
-            fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
-        }
     }
     output.setLineWidth(main.lineWidth);
     canvasContext.strokeStyle = main.lineBorderColor;
@@ -263,6 +220,73 @@ Intersection.prototype.drawArcs = function() {
         drawArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
         drawArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
     }
+};
+
+Intersection.prototype.fillForegroundTruchet = function() {
+    const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = main.lineBorderColor;
+    output.setLineWidth(main.lineWidth);
+    let size = 0.5 * main.rhombusSize;
+    const dx1 = -size * this.line1.sinAlpha;
+    const dy1 = size * this.line1.cosAlpha;
+    let dx2 = -size * this.line2.sinAlpha;
+    let dy2 = size * this.line2.cosAlpha;
+    const prod = dx1 * dx2 + dy1 * dy2;
+    if (prod < -epsilon) {
+        dx2 = -dx2;
+        dy2 = -dy2;
+    }
+    canvasContext.fillStyle = lineColor[1 - this.arcBackground];
+    canvasContext.strokeStyle = lineColor[1 - this.arcBackground];
+    if (Math.abs(prod) < epsilon) {
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x, this.y);
+        canvasContext.lineTo(this.x + dx1, this.y + dy1);
+        canvasContext.lineTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
+        canvasContext.lineTo(this.x + dx2, this.y + dy2);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+        canvasContext.beginPath();
+        canvasContext.moveTo(this.x, this.y);
+        canvasContext.lineTo(this.x - dx1, this.y - dy1);
+        canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
+        canvasContext.lineTo(this.x - dx2, this.y - dy2);
+        canvasContext.closePath();
+        canvasContext.fill();
+        canvasContext.stroke();
+    } else {
+        fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
+        fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
+    }
+};
+
+Intersection.prototype.fillBackgroundTruchet = function() {
+    const canvasContext = output.canvasContext;
+    canvasContext.strokeStyle = main.lineBorderColor;
+    output.setLineWidth(main.lineWidth);
+    let size = 0.5 * main.rhombusSize;
+    const dx1 = -size * this.line1.sinAlpha;
+    const dy1 = size * this.line1.cosAlpha;
+    let dx2 = -size * this.line2.sinAlpha;
+    let dy2 = size * this.line2.cosAlpha;
+    const prod = dx1 * dx2 + dy1 * dy2;
+    if (prod < -epsilon) {
+        dx2 = -dx2;
+        dy2 = -dy2;
+    }
+    // background
+    canvasContext.fillStyle = lineColor[this.arcBackground];
+    canvasContext.strokeStyle = lineColor[this.arcBackground];
+    output.setLineWidth(overprint);
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
+    canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
+    canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
+    canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
+    canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
 };
 
 // dualization

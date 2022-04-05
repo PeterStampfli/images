@@ -62,8 +62,16 @@ Line.prototype.drawBentLines = function() {
     this.intersections.forEach(intersection => intersection.drawBentLines());
 };
 
-Line.prototype.drawArcs = function() {
-    this.intersections.forEach(intersection => intersection.drawArcs());
+Line.prototype.drawLinesTruchet = function() {
+    this.intersections.forEach(intersection => intersection.drawLinesTruchet());
+};
+
+Line.prototype.fillBackgroundTruchet = function() {
+    this.intersections.forEach(intersection => intersection.fillBackgroundTruchet());
+};
+
+Line.prototype.fillForegroundTruchet = function() {
+    this.intersections.forEach(intersection => intersection.fillForegroundTruchet());
 };
 
 // check if a given distance (vector) goes forward along the line

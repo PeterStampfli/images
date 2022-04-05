@@ -28,8 +28,8 @@ export const lineColor = [];
 
 main.drawLines = false;
 main.drawBentLines = false;
-main.drawArcs = true;
-main.arcsFill=true;
+main.drawArcs = false;
+main.arcsFill=false;
 
 main.nLines = 1;
 main.offset = 0.25;
@@ -60,7 +60,6 @@ color.push('#ffffff');
 lineColor.push('#0000dd');
 lineColor.push('#880000');
 
-
 main.setup = function() {
     // gui and output canvas
     const gui = new ParamGui({
@@ -84,14 +83,14 @@ main.setup = function() {
         type: 'number',
         params: main,
         property: 'lineWidth',
-        labelText: 'grid line',
+        labelText: 'line width',
         min: 0,
         onChange: draw
     }).add({
         type: 'number',
         params: main,
         property: 'lineBorderWidth',
-        labelText: 'border',
+        labelText: 'border width',
         min: 0,
         onChange: draw
     });
@@ -100,7 +99,7 @@ main.setup = function() {
         type: 'color',
         params: main,
         property: 'lineBorderColor',
-        labelText: 'line border',
+        labelText: 'border color',
         onChange: draw
     });
 
@@ -108,7 +107,7 @@ main.setup = function() {
         type: 'color',
         params: lineColor,
         property: '0',
-        labelText: 'lineColor 1',
+        labelText: 'color 1',
         onChange: draw
     });
 
@@ -116,28 +115,22 @@ main.setup = function() {
         type: 'color',
         params: lineColor,
         property: '1',
-        labelText: 'lineColor 2',
+        labelText: 'color 2',
         onChange: draw
     });
 
     gui.add({
         type: 'boolean',
         params: main,
-        property: 'drawBentLines',
-        labelText: 'bent lines',
-        onChange: draw
-    }).add({
-        type: 'boolean',
-        params: main,
         property: 'drawLines',
-        labelText: 'straight',
+        labelText: 'draw lines',
         onChange: draw
     });
     gui.add({
         type: 'boolean',
         params: main,
         property: 'drawArcs',
-        labelText: 'arcs',
+        labelText: 'truchet lines',
         onChange: draw
     }).add({
         type: 'boolean',
@@ -288,12 +281,17 @@ function draw() {
     output.canvasContext.lineJoin = 'round';
     grid.drawIntersections();
     if (main.drawLines) {
+        if (main.tile){
+grid.drawBentLines();
+        } else {
         grid.drawLines();
     }
-    if (main.drawBentLines) {
-        grid.drawBentLines();
     }
-    if (main.drawArcs) {
-        grid.drawArcs();
+    if (main.arcsFill){
+        grid.fillBackgroundTruchet();
+        grid.fillForegroundTruchet();
+    }
+        if (main.drawArcs||main.arcsFill){
+        grid.drawLinesTruchet();
     }
 }
