@@ -29,7 +29,7 @@ export const lineColor = [];
 main.drawLines = false;
 main.drawBentLines = false;
 main.drawArcs = false;
-main.arcsFill=false;
+main.arcsFill = false;
 
 main.nLines = 1;
 main.offset = 0.25;
@@ -279,19 +279,21 @@ function draw() {
     output.fillCanvas('#bbbbbb');
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
-    grid.drawIntersections();
-    if (main.drawLines) {
-        if (main.tile){
-grid.drawBentLines();
+    if (!main.arcsFill) {
+        grid.drawIntersections();
+    }
+    if (main.drawLines && !main.arcsFill) {
+        if (main.tile) {
+            grid.drawBentLines();
         } else {
-        grid.drawLines();
+            grid.drawLines();
+        }
     }
-    }
-    if (main.arcsFill){
+    if (main.arcsFill) {
         grid.fillBackgroundTruchet();
         grid.fillForegroundTruchet();
     }
-        if (main.drawArcs||main.arcsFill){
+    if (main.drawArcs || main.arcsFill) {
         grid.drawLinesTruchet();
     }
 }
