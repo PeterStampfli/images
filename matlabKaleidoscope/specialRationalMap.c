@@ -97,7 +97,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             continue;
         }
         z = inMap[index] + I * inMap[index + nXnY];
-        z = amplitude*(z+1/z);        
+        z = amplitude*(z+1/(z-1)+1/(z+1));        
         outMap[index] = crealf(z);
         outMap[index + nXnY] = cimagf(z);
         outMap[index + nXnY2] = inverted;

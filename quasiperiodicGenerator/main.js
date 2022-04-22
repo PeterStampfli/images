@@ -191,7 +191,7 @@ main.create = function() {
 main.draw = function() {
     output.correctYAxis();
     output.startDrawing();
-    output.fillCanvas('#00000000');
+    output.fillCanvasBackgroundColor();
     output.canvasContext.lineCap = 'round';
     output.canvasContext.lineJoin = 'round';
     if (builder.drawGeneration > builder.maxGeneration) {
@@ -202,6 +202,7 @@ main.draw = function() {
 
 output.drawCanvasChanged = main.draw;
 output.drawImageChanged = main.draw;
+output.drawBackgroundChanged = main.draw;
 main.newStructure();
 
 main.create();

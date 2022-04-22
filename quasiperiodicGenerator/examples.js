@@ -89,7 +89,7 @@ examples.init = function(gui) {
         onClick: function() {
             const name = examples.selectionController.uiElement.getName();
             const text = JSON.stringify(examples.selectionController.getValue(), null, 2);
-            guiUtils.saveTextAsFile(text, name);
+            guiUtils.saveTextAsFile(text, name, 'json');
         }
     }).addHelp('Choose the tiling or fractal among some examples and the definitions you have opened. You can download the choosen data.');
 };

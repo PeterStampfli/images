@@ -15,8 +15,8 @@ function outMap = testSpecialRationalKaleidoscope(k, m, n)
 
 s = 1000;
 mPix=s*s/1e6;
-amplitude = 0.6;
-map=createIdentityMap(mPix,-3,3,-3,3);
+amplitude = 0.28;
+map=createIdentityMap(mPix,-4,4,-4,4);
 tic();
 specialRationalMap(map,amplitude);
 toc();

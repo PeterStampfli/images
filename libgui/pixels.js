@@ -223,6 +223,7 @@ Pixels.prototype.backgroundColorTransparent = function() {
 if (guiUtils.abgrOrder) {
     // abgr order means alpha is the most significant 8 bits
     Pixels.prototype.opaqueBackground = function() {
+        console.log('opaque');
         const pixels = new Uint32Array(this.pixelComponents.buffer); // a view of the pixels as an array of 32 bit integers
         const backgroundRed = this.backgroundColor.red;
         const backgroundBlue = this.backgroundColor.blue;

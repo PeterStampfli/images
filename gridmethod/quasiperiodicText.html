@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<link rel="icon" href="data:,">
+
+<head>
+    <title>quasiperiodic text</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+<script >
+console.log('thatsit')
+
+var string='';
+
+function a(gen){
+    if (gen<1){
+        string+='a';
+    } else {
+        b(gen-1);
+        a(gen-1);
+        a(gen-1);
+        b(gen-1);
+    }
+}
+function b(gen){
+   if (gen<1){
+        string+='B';
+    } else {
+        a(gen-1);
+     //   a(gen-1);
+    }
+}
+
+function doit(gen){
+    string='';
+a(gen);
+console.log(gen+' '+string);
+}
+
+doit(0);
+doit(1);
+doit(2);
+doit(3);
+doit(4);
+doit(5);
+
+</script>
+
+</html>
