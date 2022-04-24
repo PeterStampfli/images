@@ -3,9 +3,8 @@
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * additional parameter: amplitude
- *         z = amplitude*(z+1/(z-1)+1/(z+1));   z=x+i*y     
- *
+ * additional parameter: width, height
+ *      simulates mirrors at x=0, x=width,y=0,y=height   
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -29,26 +28,25 @@ void mexFunction( int nlhs, mxArray *plhs[],
     const mwSize *dims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
-    float complex z;
     float *inMap, *outMap;
-    float r, phi, amplitude, offset;
+    float r, phi, width, height, width2, height2, x, y;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 2) {
-        mexErrMsgIdAndTxt("powerTransformMap:nrhs","A map input and a (scalar) amplitude required.");
+    if(nrhs < 3) {
+        mexErrMsgIdAndTxt("mirrorsMap:nrhs","A map input and (scalar) width and height required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("powerTransformMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("mirrorsMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {
-        mexErrMsgIdAndTxt("powerTransformMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("mirrorsMap:map3rdDimension","The map's third dimension has to be three.");
     }
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("powerTransformMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("mirrorsMap:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -68,12 +66,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    amplitude = (float) mxGetScalar(prhs[1]);
-    if (nrhs >= 3){
-        offset = (float) mxGetScalar(prhs[2]);
-    } else {
-        offset = 0;
-    }
+    width = (float) mxGetScalar(prhs[1]);
+    height = (float) mxGetScalar(prhs[2]);
+    width2 = 2 * width;
+    height2 = 2 * height;
+    
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -92,10 +89,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        z = amplitude*(z+1/(z-1)+1/(z+1));        
-        outMap[index] = crealf(z);
-        outMap[index + nXnY] = cimagf(z);
+        x = fabsf(inMap[index]);
+        x = fmodf(x, width2);
+        if (x > width) {
+            x = width2 - x;
+        }
+        y = fabsf(inMap[index + nXnY]);
+        y = fmodf(y, height2);
+        if (y > height) {
+            y = height2 - y;
+        }
+        
+        outMap[index] = x;
+        outMap[index + nXnY] = y;
         outMap[index + nXnY2] = inverted;
     }
 }

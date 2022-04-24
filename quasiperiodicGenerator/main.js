@@ -38,6 +38,7 @@ output.setInitialCoordinates(0, 0, 3);
 output.backgroundColorController.setValueOnly('#999999');
 output.setBackground();
 output.saveType.setValueOnly('jpg');
+output.transparencyController.setValueOnly('opaque');
 
 builder.init(gui);
 
