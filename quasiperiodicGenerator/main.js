@@ -40,6 +40,14 @@ output.setBackground();
 output.saveType.setValueOnly('jpg');
 output.transparencyController.setValueOnly('opaque');
 
+gui.add({
+    type:"button",
+    buttonText:"--- HELP ---",
+    onClick: function(){
+        window.location="https://geometricolor.wordpress.com/2022/04/16/generating-quasiperiodic-tilings-and-fractals-i-the-browser-app/";
+    }
+});
+
 builder.init(gui);
 
 gui.add({
