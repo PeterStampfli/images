@@ -9,16 +9,23 @@ imshow(im);
 function vm = testPolynomTranformKaleidoscope2(k, m, n)
     s = 1000;
     mPix=s*s/1e6;
-    xMin=-1.5;xMax=1.5;yMax=1.5;yMin=-1.5;
-   % coeffs=[0 1 0 1 0 0 0 0 2 ];
-   % imCos=[0  0.5 0.2];
-   coeffs=[0 1 0 1  ];
-    imCos=[0 0.3];
+    range=3;
+    xMin=-range;xMax=range;yMax=range;yMin=-range;
+    coeffs=[0 1 0 1 0 0 0 0 2 ];
+    coeffs=[0 1 0 10 0 0 0 0 2 ];
+    imCos=[0  0.5 0.2];
+   coeffs=[0 1.2 0.1 0.25  ];
+    imCos=[0 0.12 ];
+    limit=100;
     
     map=createIdentityMap(mPix,xMin,xMax,yMin,yMax);
+     inversionMap(map,limit);
     for p=1:4 
         polynomTransformMap(map,coeffs,imCos); 
-        max(map,[],'all')
+     %   max(map,[],'all')
+   %  rescaleMap(map,limit);
+     blackoutMap(map,limit);
+     inversionMap(map,limit);
     end 
     vm = basicKaleidoscope(map,k,m,n);
 end
