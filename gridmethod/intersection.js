@@ -14,7 +14,6 @@ import {
     grid
 } from "./grid.js";
 
-const overprint = 4;
 const epsilon = 0.0001;
 
 /**
@@ -189,6 +188,12 @@ function fillArc(x, y, dx1, dy1, dx2, dy2) {
     canvasContext.closePath();
     canvasContext.stroke();
     canvasContext.fill();
+
+        canvasContext.beginPath();
+    canvasContext.moveTo(x+dx1, y+dy1);
+    canvasContext.lineTo(x, y);
+    canvasContext.lineTo(x+dx2, y+dy2);
+    canvasContext.stroke();
 }
 
 Intersection.prototype.drawLinesTruchet = function() {
@@ -225,7 +230,7 @@ Intersection.prototype.drawLinesTruchet = function() {
 Intersection.prototype.fillForegroundTruchet = function() {
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.lineWidth);
+    output.setLineWidth(main.overprint);
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
@@ -278,7 +283,7 @@ Intersection.prototype.fillBackgroundTruchet = function() {
     // background
     canvasContext.fillStyle = lineColor[this.arcBackground];
     canvasContext.strokeStyle = lineColor[this.arcBackground];
-    output.setLineWidth(overprint);
+    output.setLineWidth(main.overprint);
     canvasContext.beginPath();
     canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
     canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);

@@ -121,6 +121,13 @@ grid.create = function() {
             grid.nRhombi = main.nFold / 4;
         }
     }
+    const length = main.colorControllers.length;
+    for (let i = 1; i < length; i++) {
+        main.colorControllers[i].hide();
+    }
+    for (let i = 1; i <= grid.nRhombi; i++) {
+        main.colorControllers[i].show();
+    }
     for (let i = 0; i < grid.nDirections; i++) {
         grid.parallelLines.push(ParallelLines.createBundle(i * Math.PI * 2 / main.nFold, grid.linepositions));
     }
