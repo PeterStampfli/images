@@ -52,7 +52,6 @@ ParallelLines.createBasicBundle = function(alpha, offset, n) {
 
 // from an array of line positions
 ParallelLines.createBundle = function(alpha, linepositions) {
-    console.log('lp',linepositions)
     const lines = new ParallelLines();
     let number = 0;
     linepositions.forEach(position => {

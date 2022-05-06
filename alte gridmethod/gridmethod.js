@@ -31,8 +31,8 @@ main.drawBentLines = false;
 main.drawArcs = false;
 main.arcsFill = false;
 
-main.nLines = 15;
-main.offset = 0.0;
+main.nLines = 1;
+main.offset = 0.25;
 main.nFold = 7;
 
 main.tile = true;
@@ -160,13 +160,26 @@ main.setup = function() {
             create();
             draw();
         }
-    }).add({
+    });
+    gui.add({
         type: 'number',
         params: main,
-        property: 'nLines',
-        step: 2,
-        min: 1,
-        labelText: "lines",
+        property: 'generations',
+        step: 1,
+        min: 0,
+        onChange: function() {
+            create();
+            draw();
+        }
+    }).add({
+        type: 'selection',
+        params: main,
+        property: 'spacing',
+        options: {
+            'equal spaced': grid.equalSpacedLines,
+            trisection: grid.trisection,
+            'golden section': grid.goldenSection
+        },
         onChange: function() {
             create();
             draw();
@@ -246,7 +259,8 @@ main.setup = function() {
 };
 
 function create() {
-    grid.spacing();
+    main.spacing();
+    grid.adjust();
     // double grid for even order
     if ((main.nFold & 1) === 0) {
         const length = grid.linepositions.length;
