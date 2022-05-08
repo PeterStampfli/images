@@ -47,11 +47,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     const mwSize *dims;
-    int maxIterations, minIterations;
+    int maxIterations, minIterations, iterations;
     int nX, nY, nXnY, nXnY2, index;
     float inverted, x, y;
     float *inMap, *outMap;
-    bool returnsMap = false;
+    bool returnsMap, success;
     int k,m,n;
     enum geometryType {elliptic, euklidic, hyperbolic};
     enum geometryType geometry;
@@ -83,6 +83,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     inMap = (float *) mxGetPr(prhs[0]);
 #endif
     if (nlhs == 0){
+        returnsMap = false;
         outMap = inMap;
     } else {
         /* create output map*/
@@ -209,8 +210,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
             inverted = 1 - inverted;
         }
         /* repeat inversion and dihedral group until success*/
-        bool success = false;
-        for (int iter = 0; iter < maxIterations; iter++){
+        success = false;
+        iterations = 0;
+        while ((!success) && (iterations < maxIterations)){
             float dx, dy, d2, d, factor;
             switch (geometry){
                 case hyperbolic:
@@ -258,11 +260,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     }
                     break;
             }
-            if (success){
-                /* only success if more than minimum iterations*/
-                success = (iter >= minIterations);
-                break;
-            }
             /* dihedral symmetry, if no mapping we have finished*/
             rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
             if (rotation != k){
@@ -285,12 +282,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 } else {
                     /* no mapping, it's finished*/
                     success = true;
-                    break;
                 }
             }
+            iterations+=1;
         }
         /* fail after doing maximum repetitions or less than minimum iterations*/
-        if (success) {
+        if ((success) && (iterations > minIterations)) {
             /* be safe: do not get points outside the poincare disc*/
             if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
                 outMap[index + nXnY2] = -1;
