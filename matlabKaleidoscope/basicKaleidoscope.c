@@ -2,22 +2,30 @@
  * BasicKaleidoscope: Maps the tiled Poincare disc into the basic hyperbolic
  * triangle, does also elliptic and euklidic geometry
  *
+ * basicKaleidoscope(map, k, m , n);
+ * basicKaleidoscope(map, k, m , n, maxRange);
+ * basicKaleidoscope(map, k, m , n, maxRange, minRange);
+ *
  * Input:
- * first the map. It has for each pixel (h,k):
- *  map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * additional input: 3 integers, k, m ,n. Determine the symmetries and the
- *  basic triangle.
- *  k is order of dihedral symmetry at center, pi/k the angle between the
- *  straight mirror lines (x-axis and oblique line), k<=100 !
- *  m is order of dihedral symmetry arising at the oblique line
- *  and the third side of the triangle (circle or straight line), angle pi/n
- *  n is order of dihedral symmetry arising at x-axis and the third side of
- *  the triangle (circle or straight line), angle pi/n
- *  the radius of the poincare disc is equal to 1
- *  the radius of the equator in stereographic projection is equal to 1
+ * additional input: 3 integers, k, m ,n. 
+ *     Determine the symmetries and the basic triangle.
+ *     k is order of dihedral symmetry at center, pi/k the angle between the
+ *     straight mirror lines (x-axis and oblique line), k<=100 !
+ *     m is order of dihedral symmetry arising at the oblique line
+ *     and the third side of the triangle (circle or straight line), angle pi/n
+ *     n is order of dihedral symmetry arising at x-axis and the third side of
+ *    the triangle (circle or straight line), angle pi/n
  *
- * optional parameter: range (number of iterations)
+ *    the radius of the poincare disc is equal to 1
+ *    the radius of the equator in stereographic projection is equal to 1
+ *
+ * optional parameters: 
+ *    maxRange (maximum number of iterations, default value is 1000)
+ *    minRange (minimum number of iterations, values > 0 make a hole, default is 0)
  *
  * returns nothing and modifies the map argument if used as a procedure:
  *   basicKaleidoscope(map, k, m, n);
@@ -39,7 +47,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     const mwSize *dims;
-    int maxIterations;
+    int maxIterations, minIterations;
     int nX, nY, nXnY, nXnY2, index;
     float inverted, x, y;
     float *inMap, *outMap;
@@ -94,6 +102,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
         maxIterations = (int) mxGetScalar(prhs[4]);
     } else {
         maxIterations = 100;
+    }
+    if (nrhs >= 6){
+        minIterations = (int) mxGetScalar(prhs[5]);
+    } else {
+        minIterations = 0;
     }
     gamma = PI / k;
     iGamma2 = 0.5f / gamma;
@@ -195,6 +208,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             y = -y;
             inverted = 1 - inverted;
         }
+        /* repeat inversion and dihedral group until success*/
         bool success = false;
         for (int iter = 0; iter < maxIterations; iter++){
             float dx, dy, d2, d, factor;
@@ -245,6 +259,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     break;
             }
             if (success){
+                /* only success if more than minimum iterations*/
+                success = (iter >= minIterations);
                 break;
             }
             /* dihedral symmetry, if no mapping we have finished*/
@@ -273,7 +289,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 }
             }
         }
-        /* fail after doing maximum repetitions*/
+        /* fail after doing maximum repetitions or less than minimum iterations*/
         if (success) {
             /* be safe: do not get points outside the poincare disc*/
             if ((geometry == hyperbolic) && (x * x + y * y >= 1)){
