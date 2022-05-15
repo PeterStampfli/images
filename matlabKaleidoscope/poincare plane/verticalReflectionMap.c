@@ -4,6 +4,7 @@
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
  * and a real y-value for the position of the mirror
+ * mirrors the map at the horizontal mirror line from below to line to above 
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);

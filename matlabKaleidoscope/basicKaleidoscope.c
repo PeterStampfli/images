@@ -14,7 +14,7 @@
  * additional input: 3 integers, k, m ,n. 
  *     Determine the symmetries and the basic triangle.
  *     k is order of dihedral symmetry at center, pi/k the angle between the
- *     straight mirror lines (x-axis and oblique line), k<=100 !
+ *     straight mirror lines (x-axis and oblique line), k<=100 ! (enforced)
  *     m is order of dihedral symmetry arising at the oblique line
  *     and the third side of the triangle (circle or straight line), angle pi/n
  *     n is order of dihedral symmetry arising at x-axis and the third side of
@@ -48,7 +48,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 {
     const mwSize *dims;
     int maxIterations, minIterations, iterations;
-    int nX, nY, nXnY, nXnY2, index;
+    int nX, nY, nXnY, nXnY2, nXnY3, index;
     float inverted, x, y;
     float *inMap, *outMap;
     bool returnsMap, success;
@@ -99,6 +99,20 @@ void mexFunction( int nlhs, mxArray *plhs[],
     k = (int) mxGetScalar(prhs[1]);
     m = (int) mxGetScalar(prhs[2]);
     n = (int) mxGetScalar(prhs[3]);
+    /* limit k */
+    if (k > 100){
+        k = 100;
+    }
+    /* catch case that there is no triangle*/
+    if ((k < 2)||(m < 2)||(n<2)){
+        if (returnsMap){
+            nXnY3 = 3 * dims[0] * dims[1];
+            for (index = 0; index < nXnY3; index++){
+                outMap[index] = inMap[index];
+            }
+        }
+        return;
+    }
     if (nrhs >= 5){
         maxIterations = (int) mxGetScalar(prhs[4]);
     } else {
