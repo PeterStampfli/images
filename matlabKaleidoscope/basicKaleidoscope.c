@@ -9,16 +9,21 @@
  * Input:
  * first the map. 
  *     It has for each pixel (h,k):
- *     map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ *     map(h,k,0) = x, map(h,k,1) = y 
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * additional input: 3 integers, k, m ,n. 
+ * additional input: 3 integers, k, m, n. 
  *     Determine the symmetries and the basic triangle.
  *     k is order of dihedral symmetry at center, pi/k the angle between the
  *     straight mirror lines (x-axis and oblique line), k<=100 ! (enforced)
  *     m is order of dihedral symmetry arising at the oblique line
  *     and the third side of the triangle (circle or straight line), angle pi/n
  *     n is order of dihedral symmetry arising at x-axis and the third side of
- *    the triangle (circle or straight line), angle pi/n
+ *     the triangle (circle or straight line), angle pi/n
+ *
+ *    if one or more of the k, m, n are 1 or smaller then the basicKaleidoscope
+ *     does an identity map (because these values do not give a triangle.)
  *
  *    the radius of the poincare disc is equal to 1
  *    the radius of the equator in stereographic projection is equal to 1

@@ -1,15 +1,19 @@
 /*==========================================================
- * scaling a map
+ * scale: Scales a map such that a given input length fits a given output length (default is 1)
+ * scaelfactor = output length / input length
  *
  * scale(map, inLength, outLength);
+ * scale(map, inLength);
  *
  * Input:
  * first the map. 
  *     It has for each pixel (h,k):
- *     map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * additional input: 
- * 2 lengths, inLength, outLength
+ * 2 lengths, inLength, outLength (default is 1)
  * scales the map by factor = outLength / inlength
  * to match the input length to the output length
  *
@@ -40,8 +44,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     bool returnsMap;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 3) {
-        mexErrMsgIdAndTxt("scale:nrhs","A map input plus input length and output length required.");
+    if(nrhs < 2) {
+        mexErrMsgIdAndTxt("scale:nrhs","A map input plus input length and optional output length required.");
     }
     /* check number of dimensions of the map (array)*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -76,7 +80,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     /* get geometry parameters*/
     inLength = (int) mxGetScalar(prhs[1]);
-    outLength = (int) mxGetScalar(prhs[2]);
+    if(nrhs < 3) {
+        outLength = 1;
+    } else {
+        outLength = (int) mxGetScalar(prhs[2]);
+    }
     factor = outLength / inLength;
     /* do the map*/
     /* row first order*/

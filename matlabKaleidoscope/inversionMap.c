@@ -1,7 +1,15 @@
 /*==========================================================
- * transform a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * inversionMap:  if (x,y) outside circle of a given radius limit (x*x+y*y>limit*limit) 
+ *     inverts (x,y) at circle with radius limit (x,y)=(limit*limit/(x*x+y*y))*(x,y)
+ *
+ * inversionMap(map, limit);
+ *
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * additional parameter: limit
  *     if (x,y) outside circle of radius limit (x*x+y*y>limit*limit) 

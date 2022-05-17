@@ -1,9 +1,13 @@
 /*==========================================================
- * rescaleMap: rescales x and y values, such that maximum of their absolute 
- *      values is equal to the given limit
+ * squareBlackoutMap: Sets for pixels lying outside a square with 
+ *  side lenghths 2 * limit and centered at origin the inversion flag to given value.
+ *  Default value = INVALID. These pixels will not be part of the image ("blacked out")
  *
- * rescaleMap(map, limit);
+ *  useful for generating Julia sets
  *
+ * squareBlackoutMap(map, limit);
+ * squareBlackoutMap(map, limit, value);
+ * 
  * Input:
  * first the map. 
  *     It has for each pixel (h,k):
@@ -12,12 +16,12 @@
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * additional parameter: limit
- *      rescales x and y values, such that maximum of their absolute 
- *      values is equal to the limit
+ *      "blacks out" pixels if absolute value of x- or y- coordinate is larger than limit
+ *       by setting the inversion flag to -1000
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
- * does not change the map and returns a modified map if used as  a function
+ * does not change the map and returns a modified map if used as a function
  * newMap = transform(map, ....);
  *
  *========================================================*/
@@ -38,24 +42,24 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, limit, maxi, factor, x, y;
+    float r, phi, limit, value, x, y;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
-        mexErrMsgIdAndTxt("rescaleMap:nrhs","A map input and (scalar) limit required.");
+        mexErrMsgIdAndTxt("squareBlackoutMap:nrhs","A map input and (scalar) limit required. Additional value optional");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("rescaleMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("squareBlackoutMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {
-        mexErrMsgIdAndTxt("rescaleMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("squareBlackoutMap:map3rdDimension","The map's third dimension has to be three.");
     }
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("rescaleMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("squareBlackoutMap:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -76,6 +80,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif
     }
     limit = (float) mxGetScalar(prhs[1]);
+    if(nrhs < 3) {
+        value = INVALID;
+    } else {
+        value = (float) mxGetScalar(prhs[2]);
+    }
         
     /* do the map*/
     /* row first order*/
@@ -83,31 +92,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nY = dims[0];
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
-    
-    /* determine maximum absolute value*/
-    /* initial finite value avoids division by zero*/
-    maxi=0.0001;
 
-    for (index = 0; index < nXnY; index++){
-        inverted = inMap[index + nXnY2];
-        /* do only transform if pixel is valid*/
-        if (inverted < -0.1f) {
-            continue;
-        }
-        x = fabsf(inMap[index]);
- 
-        if (x > maxi) {
-            maxi = x;
-        }
-        y = fabsf(inMap[index + nXnY]);
-
-        if (y > maxi) {
-            maxi=y;
-        }
-    } 
-    /* now rescale*/
-    factor = limit / maxi;
-    
     for (index = 0; index < nXnY; index++){
         inverted = inMap[index + nXnY2];
         /* do only transform if pixel is valid*/
@@ -119,9 +104,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 outMap[index + nXnY2] = INVALID;      
             }
             continue;
-        }        
-        outMap[index] = factor * inMap[index];
-        outMap[index + nXnY] = factor * inMap[index + nXnY];
-        outMap[index + nXnY2] = inverted;
-    }
+        }
+        x = inMap[index];
+        y = inMap[index + nXnY];
+ 
+        if ((fabsf(x) > limit) || (fabsf(y) > limit)) {
+           outMap[index] = INVALID;
+           outMap[index + nXnY] = INVALID;
+           outMap[index + nXnY2] = value;
+        } else {        
+           outMap[index] = x;
+           outMap[index + nXnY] = y;
+           outMap[index + nXnY2] = inverted;
+        }
+    } 
 }

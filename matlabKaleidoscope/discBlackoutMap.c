@@ -1,7 +1,19 @@
 /*==========================================================
- * transform a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * discBlackoutMap: Sets for pixels lying outside a disc with 
+ *  radius limit and centered at origin the inversion flag to given value.
+ *  Default value = INVALID. These pixels will not be part of the image ("blacked out")
+ *
+ *  useful for generating Julia sets
+ *
+ * discBlackoutMap(map, limit);
+ * discBlackoutMap(map, limit, value);
+ * 
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * additional parameter: limit
  *      "blacks out" pixels if absolute value of x- or y- coordinate is larger than limit
@@ -9,7 +21,7 @@
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
- * does not change the map and returns a modified map if used as  a function
+ * does not change the map and returns a modified map if used as a function
  * newMap = transform(map, ....);
  *
  *========================================================*/
@@ -30,24 +42,24 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, limit, x, y;
+    float r, phi, limit, limit2, x, y, value;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
-        mexErrMsgIdAndTxt("rescaleMap:nrhs","A map input and (scalar) limit required.");
+        mexErrMsgIdAndTxt("discBlackoutMap:nrhs","A map input and (scalar) limit required. Additional value optional");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("rescaleMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("discBlackoutMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {
-        mexErrMsgIdAndTxt("rescaleMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("discBlackoutMap:map3rdDimension","The map's third dimension has to be three.");
     }
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("rescaleMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("discBlackoutMap:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -68,7 +80,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif
     }
     limit = (float) mxGetScalar(prhs[1]);
-        
+    limit2 = limit * limit;
+    if(nrhs < 3) {
+        value = INVALID;
+    } else {
+        value = (float) mxGetScalar(prhs[2]);
+    }
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -91,10 +108,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
         x = inMap[index];
         y = inMap[index + nXnY];
  
-        if ((fabsf(x) > limit) || (fabsf(y) > limit)) {
+        if (x * x + y * y > limit2) {
            outMap[index] = INVALID;
            outMap[index + nXnY] = INVALID;
-           outMap[index + nXnY2] = INVALID;
+           outMap[index + nXnY2] = value;
         } else {        
            outMap[index] = x;
            outMap[index + nXnY] = y;
