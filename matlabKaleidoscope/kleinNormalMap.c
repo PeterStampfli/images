@@ -1,14 +1,21 @@
 /*==========================================================
- * transform to get Klein disc from Poincare Disc (hyperbolic geometry)
+ * kleinNormalMap: transform to get Klein disc from Poincare Disc (hyperbolic geometry)
  * or normal view from stereographic projection (elliptic geometry)
  * NOT for euklidic geometry
+ *
+ * use befor calling the basicKaleidoscope
+ *
+ * kleinNormalMap(map);
  *
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
+ * image is limited inside a disc of radius 1 
+ * expands center at origin, contracts border region
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
+ *
  * does not change the map and returns a modified map if used as  a function
  * newMap = transform(map, ....);
  *

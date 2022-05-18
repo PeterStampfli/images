@@ -1,12 +1,16 @@
 /*==========================================================
- * get range of a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
- * in floats
- *
- * return xMin, xMax, yMin, yMax of valid points
- *
+ * getRangeMap: get range of a map, debugging
+ * 
  * [xMin, xMax, yMin, yMax] = getRangeMap(map);
+ *
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
+ *
+ * return xMin, xMax, yMin, yMax of valid points (with map(h,k,2)>=0)
  *
  *========================================================*/
 

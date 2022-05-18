@@ -1,7 +1,13 @@
 /*==========================================================
- * transform a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * mirrorsMap: Makes that the points of map lie inside x=0...width and y=0...height
+ * using vertical and horizontal mirroring at x=0, x=width, y=0, y=height
+ *
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * additional parameter: width, height
  *      simulates mirrors at x=0, x=width,y=0,y=height   

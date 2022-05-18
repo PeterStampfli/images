@@ -1,14 +1,20 @@
 /*==========================================================
- * for the initialization of maps creates an identity map as a single precision array
+ * createIdentityMap: for the initialization of maps creates an identity map as a single precision array
  * for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions % 2, parity)
  *
- * (c-indices, starting with 0, row index first)
- *
+ * (c-indices, starting with 0, row index first, is y-axis)
  * inverts the y-axis for correct display of images
  *
- * depending on:
- * mPixels - number of (mega)pixels, in units of 1'000'000, default = 1
+ * createIdentityMap(mPixels, xMin, xMax, yMin, yMax);
+ * createIdentityMap(mPixels, xMin, xMax, yMin);
+ * createIdentityMap(mPixels, xMin, xMax);
+ * createIdentityMap(mPixels, xMin);
+ * createIdentityMap(mPixels);
+ * createIdentityMap();
+ *
+ * input:
+ * mPixels - number of (mega)pixels (map elements), in units of 1'000'000, default = 1
  * xMin - lower value of x-coordinates, default = -1
  * xMax - upper value of x-coordinates, default = -xMin
  * yMin - lower Value of y-coordinates, default = xMin

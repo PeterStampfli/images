@@ -22,11 +22,11 @@
  *     n is order of dihedral symmetry arising at x-axis and the third side of
  *     the triangle (circle or straight line), angle pi/n
  *
- *    if one or more of the k, m, n are 1 or smaller then the basicKaleidoscope
+ *     if one or more of the k, m, n are 1 or smaller then the basicKaleidoscope
  *     does an identity map (because these values do not give a triangle.)
  *
- *    the radius of the poincare disc is equal to 1
- *    the radius of the equator in stereographic projection is equal to 1
+ *     hyperbolic case: the radius of the Poincare disc is equal to 1
+ *     elliptic case: the radius of the equator in stereographic projection is equal to 1
  *
  * optional parameters: 
  *    maxRange (maximum number of iterations, default value is 1000)

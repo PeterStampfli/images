@@ -1,9 +1,22 @@
 /*==========================================================
- * using complex numbers transform a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * zerosPolynomTransformMap: Transforms a map using a complex polynom
+ * the real and (optional) imaginary components of its coefficients are given
  *
- * real amplitude, and a real and imaginary part of complex polynom zeros a (in default double precision)
+ * zerosPolynomTransformMap(map, amplitude, realPartZeros, imaginaryPartZeros);
+ * zerosPolynomTransformMap(map, amplitude, realPartZeros);
+ *
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
+ *
+ * float amplitude
+ *
+ * and a real and (optional) imaginary part of the zeros of the polynom (in default double precision)
+*
+ * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
  * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n), matlab indexing, n<=9
  *
  * modifies the map, returns nothing if used as a procedure
@@ -38,15 +51,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 4) {
-        mexErrMsgIdAndTxt("polynomTransformMap:nrhs","A map input required, an amplitude and real and imaginary part arrays of zeros.");
+        mexErrMsgIdAndTxt("zerosPolynomTransformMap:nrhs","A map input required, an amplitude and real and imaginary part arrays of zeros.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("polynomTransformMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("zerosPolynomTransformMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {   
-        mexErrMsgIdAndTxt("polynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("zerosPolynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
     }
     for (i=0;i<10;i++){
         a[i]=0;
@@ -58,14 +71,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     aDims = mxGetDimensions(prhs[2]);
     if((mxGetNumberOfDimensions(prhs[2]) !=2)||(aDims[0]!=1)) {
-          mexErrMsgIdAndTxt("polynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
+          mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
     }
     repower=aDims[1];
     if (repower>10){
-         mexErrMsgIdAndTxt("polynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
+         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
     }
     if (repower==0){
-         mexErrMsgIdAndTxt("polynomTransformMap: length","The array for real coefficients may not be empty.");       
+         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real coefficients may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         realA = mxGetDoubles(prhs[2]);
@@ -75,23 +88,27 @@ void mexFunction( int nlhs, mxArray *plhs[],
     for (i=0;i<repower;i++){
         a[i]= (float) realA[i];
     }
-    aDims = mxGetDimensions(prhs[3]);
-    if ((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)){
-       mexErrMsgIdAndTxt("polynomTransformMap:dims","The array for imaginary coefficients has to have 1 dimension.");
-    }
-    impower=aDims[1];
-    if (impower>10){
-        mexErrMsgIdAndTxt("polynomTransformMap: length","The array for imaginary coefficients may not have more than 10 values.");       
-    }
+    /* the optional imaginary part */
+    if(nrhs == 3) {
+        aDims = mxGetDimensions(prhs[3]);
+        if ((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)){
+           mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for imaginary coefficients has to have 1 dimension.");
+        }
+        impower=aDims[1];
+        if (impower>10){
+            mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for imaginary coefficients may not have more than 10 values.");       
+        }
     #if MX_HAS_INTERLEAVED_COMPLEX
-         imA = mxGetDoubles(prhs[3]);
+        imA = mxGetDoubles(prhs[3]);
     #else
-         imA = (double *) mxGetPr(prhs[3]);
+        imA = (double *) mxGetPr(prhs[3]);
     #endif
-    for (i=0;i<impower;i++){
-         a[i] += I * (float) imA[i];
-    }     
-   
+        for (i=0;i<impower;i++){
+             a[i] += I * (float) imA[i];
+        }     
+    }  else {
+        impower = 0;
+    }
     power = repower;
     if (impower > repower){
         power = impower;

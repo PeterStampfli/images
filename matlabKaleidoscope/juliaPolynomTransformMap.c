@@ -1,15 +1,22 @@
 /*==========================================================
- * using complex numbers transform a map
+ * juliaPolynomTransformMap: Repeats transform of map by complex polynom
+ * the real and (optional) imaginary parts of its coefficients are given
+ * futher: maximum number of repetitions and a limit for the map points
  *
  * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients, imaginaryPartCoefficients);
+ * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients);
  *
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
  * float limit
  * int maxIterations
  *
- * and a real and imaginary part of complex polynom coefficients a (in default double precision)
+ * and a real and (optional) imaginary part of complex polynom coefficients a (in default double precision)
  * calculates (((((a_n*z)+a_(n-1))*Z + ....)*Z+a_1), matlab indexing, n<=9
  *
  * if z > limit does nothing
@@ -19,7 +26,7 @@
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
- * does not change the map and returns a modified map if used as  a function
+ * does not change the map and returns a modified map if used as a function
  * newMap = transform(map, ....);
  *
  *========================================================*/

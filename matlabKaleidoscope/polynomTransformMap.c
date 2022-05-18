@@ -1,13 +1,19 @@
 /*==========================================================
- * using complex numbers transform a map
+ * polynomTransformMap: Transforms a map using a complex polynom
+ * the real and (optional) imaginary components of its coefficients are given
  *
  * polynomTransformMap(map, realPartCoefficients, imaginaryPartCoefficients);
  * polynomTransformMap(map, realPartCoefficients);
  *
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * Input:
+ * first the map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * and a real and imaginary part of complex polynom coefficients a (in default double precision)
+ * additional input: 
+ * and a real and imaginary part (optional, default is zero) of complex polynom coefficients a (in default double precision)
  * calculates (((((a_n*z)+a_(n-1))*Z + ....)*Z+a_1), matlab indexing, n<=9
  *
  * modifies the map, returns nothing if used as a procedure
@@ -42,7 +48,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs <2) {
-        mexErrMsgIdAndTxt("polynomTransformMap:nrhs","A map input required and real and imaginary part arrays of coefficients.");
+        mexErrMsgIdAndTxt("polynomTransformMap:nrhs","A map input required and real and (optional) imaginary part arrays of coefficients.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {

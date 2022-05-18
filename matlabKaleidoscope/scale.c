@@ -1,6 +1,6 @@
 /*==========================================================
  * scale: Scales a map such that a given input length fits a given output length (default is 1)
- * scaelfactor = output length / input length
+ * scalefactor = output length / input length
  *
  * scale(map, inLength, outLength);
  * scale(map, inLength);

@@ -1,11 +1,19 @@
 /*==========================================================
- * create an image of the structure of a map
- * Input: the map has for each pixel (h,k):
- * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
+ * createStructureImage: create an image of the structure of a map
+ * for an even number of inversions the pixel's color is black
+ * for an odd number its color is white
+ * pixels that are not part of the image are shown in grey
  *
+ * Input:
+ * The map. 
+ *     It has for each pixel (h,k):
+ *     map(h,k,0) = x, map(h,k,1) = y
+ *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image
+ * 
  * returns the image as a matrix of singles:
- * pixels values are the same ass number of inversions
- * except for invalid pixels (inverted < 0), then pixel gets 0.5 as value
+ * pixels values for image pixels are the same as map(h,k,2), parity=0,1
+ * except for invalid pixels (map(h,k,2) < 0), then pixel gets 0.5 as value
  *
  * use imshow(im) to get the BW image
  *
@@ -23,7 +31,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *image, *map;
-   /* check for proper number of arguments (else crash)*/
+    /* check for proper number of arguments (else crash)*/
     if(nrhs != 1) {
         mexErrMsgIdAndTxt("createStructureImage:nrhs","A map input required.");
     }
@@ -39,7 +47,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (nlhs != 1) {
         mexErrMsgIdAndTxt("createStructureImage:nlhs","One output matrix for the image required.");
     }
-        plhs[0]=mxCreateNumericMatrix(dims[0], dims[1], mxSINGLE_CLASS, mxREAL);
+    plhs[0]=mxCreateNumericMatrix(dims[0], dims[1], mxSINGLE_CLASS, mxREAL);
 #if MX_HAS_INTERLEAVED_COMPLEX
     map = mxGetSingles(prhs[0]);
     image = mxGetSingles(plhs[0]);
