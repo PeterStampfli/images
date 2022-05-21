@@ -1,6 +1,7 @@
 /*==========================================================
  * zerosPolynomTransformMap: Transforms a map using a complex polynom
- * the real and (optional) imaginary components of its coefficients are given
+ * the real and (optional) imaginary components of its zeros are given
+ * and an amplitude factor
  *
  * zerosPolynomTransformMap(map, amplitude, realPartZeros, imaginaryPartZeros);
  * zerosPolynomTransformMap(map, amplitude, realPartZeros);
@@ -15,7 +16,7 @@
  * float amplitude
  *
  * and a real and (optional) imaginary part of the zeros of the polynom (in default double precision)
-*
+ *
  * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
  * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n), matlab indexing, n<=9
  *
@@ -65,20 +66,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
         a[i]=0;
     }
     amplitude = (float) mxGetScalar(prhs[1]);
-
-    
-    
     
     aDims = mxGetDimensions(prhs[2]);
     if((mxGetNumberOfDimensions(prhs[2]) !=2)||(aDims[0]!=1)) {
-          mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
+          mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for real components of zeros has to have 1 dimension.");
     }
     repower=aDims[1];
     if (repower>10){
-         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
+         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real components of zeros may not have more than 10 values.");       
     }
     if (repower==0){
-         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real coefficients may not be empty.");       
+         mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for real components of zeros may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         realA = mxGetDoubles(prhs[2]);
@@ -89,14 +87,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         a[i]= (float) realA[i];
     }
     /* the optional imaginary part */
-    if(nrhs == 3) {
+    if(nrhs == 4) {
         aDims = mxGetDimensions(prhs[3]);
         if ((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)){
-           mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for imaginary coefficients has to have 1 dimension.");
+           mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for imaginary components of zeros has to have 1 dimension.");
         }
         impower=aDims[1];
         if (impower>10){
-            mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for imaginary coefficients may not have more than 10 values.");       
+            mexErrMsgIdAndTxt("zerosPolynomTransformMap: length","The array for imaginary components of zeros may not have more than 10 values.");       
         }
     #if MX_HAS_INTERLEAVED_COMPLEX
         imA = mxGetDoubles(prhs[3]);
@@ -153,14 +151,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
             continue;
         }
         z = inMap[index] + I * inMap[index + nXnY];
-        /* do some transformation of z */
-        /*=========================*/
-        w = 1;
-        for (i=power-1;i>=0;i--){
+        /* calculate polynom w=p(z) with zeros a and amplitude factor*/
+        w = amplitude;
+        for (i = power - 1; i >= 0; i--){
             w = w * (z - a[i]);
         }
-        outMap[index] = amplitude * crealf(w);
-        outMap[index + nXnY] = amplitude * cimagf(w);
+        outMap[index] = crealf(w);
+        outMap[index + nXnY] = cimagf(w);
         outMap[index + nXnY2] = inverted;
     }
 }

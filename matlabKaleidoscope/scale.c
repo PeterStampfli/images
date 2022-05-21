@@ -83,7 +83,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if(nrhs < 3) {
         outLength = 1;
     } else {
-        outLength = (int) mxGetScalar(prhs[2]);
+        outLength = (float) mxGetScalar(prhs[2]);
     }
     factor = outLength / inLength;
     /* do the map*/

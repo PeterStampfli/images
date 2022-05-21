@@ -1,9 +1,10 @@
 /*==========================================================
  * kleinNormalMap: transform to get Klein disc from Poincare Disc (hyperbolic geometry)
  * or normal view from stereographic projection (elliptic geometry)
+ * expands region near center, shrinks region near border of Poincare disc
  * NOT for euklidic geometry
  *
- * use befor calling the basicKaleidoscope
+ * use before calling the basicKaleidoscope
  *
  * kleinNormalMap(map);
  *

@@ -1,6 +1,9 @@
 /*==========================================================
- * BasicKaleidoscope: Maps the tiled Poincare disc into the basic hyperbolic
- * triangle, does also elliptic and euklidic geometry
+ * BasicKaleidoscope: Creates a tiling with a basic triangle and reflections at its sides. 
+ * The triangle's corner angles are integer fractions of 180 degrees.
+ * This makes dihedral groups. Depending on the corner angles we get elliptic, hyperbolic or euclidic geometry.
+ * For hyperbolic geometry we get a Poincare disc representation of the tiling with radius 1.
+ * For elliptic geometry we get a stereographic projection of the tiled sphere. The projection of the equator has radius 1. 
  *
  * basicKaleidoscope(map, k, m , n);
  * basicKaleidoscope(map, k, m , n, maxRange);

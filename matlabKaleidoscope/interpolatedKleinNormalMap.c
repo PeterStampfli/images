@@ -17,7 +17,7 @@
  * z<0 goes "opposite", giving something fancy
  *
  * image is limited inside a disc of radius 1 
- * expands center at origin, contracts border region
+ * expands center at origin, contracts border region (z=0...1)
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
  * does not change the map and returns a modified map if used as  a function
