@@ -170,9 +170,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 outMap[index + nXnY2] = INVALID;           }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        realW = crealf(z);
-        imagW = cimag(z);
+        realW =  inMap[index];
+        imagW = inMap[index + nXnY];
+        z=realW + I * imagW;
         absW2 = realW * realW + imagW * imagW;
         if (absW2 > limit2){
             /* initially out of limits what to do?*/

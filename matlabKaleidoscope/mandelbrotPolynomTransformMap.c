@@ -1,13 +1,13 @@
 /*==========================================================
- * juliaPolynomTransformMap: Repeats transform of map by complex polynom
+ * mandelbrotPolynomTransformMap: Repeats transform of map by complex polynom
  * the real and (optional) imaginary parts of its coefficients are given
  * further: maximum number of repetitions and a limit for the map points
  * all pixels inside the limit will get a map value lying inside the limit
  * this gives concentric regions approximating the Julia set
  * inside at the border the map points lie at a circle of radius = limit
  *
- * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients, imaginaryPartCoefficients);
- * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients);
+ * mandelbrotPolynomTransformMap(map, limit, maxIterations, realPartCoefficients, imaginaryPartCoefficients);
+ * mandelbrotPolynomTransformMap(map, limit, maxIterations, realPartCoefficients);
  *
  * Input:
  * first the map. 
@@ -20,12 +20,14 @@
  * int maxIterations
  *
  * and a real and (optional) imaginary part of complex polynom coefficients a (in default double precision)
- * calculates (((((a_n*z)+a_(n-1))*Z + ....)*Z+a_1), matlab indexing, n<=9
+ * calculates p(w)=(((((a_n*w)+a_(n-1))*w + ....+a_2)*w+a_1), matlab indexing, n<=9
+ * a_1 = z, is constant term
  *
- * if z > limit does nothing
+ * if z > limit does nothing special
  *
+ * starts with z=0
  * w=p(z) if cabsf(w) < limit then z = w and repeat until maxIterations, 
- * else finished and z is inside cirlce with radius limit
+ * else finished and z is inside circle with radius limit
  * map(:,:,2) is then set to (iteration + 1) % 2 to make structure visible
  *
  * modifies the map, returns nothing if used as a procedure
@@ -63,15 +65,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs <4) {
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:nrhs","A map input required, limit, maxIterations, and real and imaginary part arrays of coefficients.");
+        mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap:nrhs","A map input required, limit, maxIterations, and real and imaginary part arrays of coefficients.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {   
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
     }
     /* additional parameters for Julia iterations */
     limit = (float) mxGetScalar(prhs[1]);
@@ -84,14 +86,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* the real part*/
     aDims = mxGetDimensions(prhs[3]);
     if((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)) {
-          mexErrMsgIdAndTxt("juliaPolynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
+          mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
     }
     repower=aDims[1];
     if (repower>10){
-         mexErrMsgIdAndTxt("juliaPolynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
+         mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
     }
     if (repower==0){
-         mexErrMsgIdAndTxt("juliaPolynomTransformMap: length","The array for real coefficients may not be empty.");       
+         mexErrMsgIdAndTxt("mandelbrotPolynomTransformMap: length","The array for real coefficients may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         realA = mxGetDoubles(prhs[3]);
@@ -162,19 +164,16 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;           }
+                outMap[index + nXnY2] = INVALID;
+            }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        realW = crealf(z);
-        imagW = cimag(z);
-        absW2 = realW * realW + imagW * imagW;
-        if (absW2 > limit2){
-            /* initially out of limits what to do?*/
-            /* invert. if you don't like that use discBlackoutMap before*/
-            z=limit2 / absW2 * z;
-        }
-        iterations=0;
+        /* the constant term is equal to z*/
+        a[0] = inMap[index] + I * inMap[index + nXnY];
+        /* initially out of limits what to do?*/
+        /* nothing. if you don't like that use discBlackoutMap before*/
+        z = 0;
+        iterations = 0;
         /* iterate only if abs(z) small enough */
         while ((iterations < maxIterations) && (absW2 < limit2)){
            /* calculate polynom w=p(z) with coefficients a */

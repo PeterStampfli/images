@@ -7,22 +7,23 @@
 % >>compile;
 % >>testBasicKaleidoscope(5,4,2);
 
-function testJuliaMap()
+function testJuliaPolynomMap()
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 % shows pattern of inversions
 
 s = 1000;
 mPix=s*s/1e6;
-range=3;
+range=2;
 limit=3;
-maxIterations=50;
-realCo=[-0.1,1,-0.3,0,0.5];
-imCo=[0,0.005];
+maxIterations=100;
+realCo=[-0.1,1,-0.3,2,0.5];
+imCo=[0,0.005,0.3];
 map=createIdentityMap(mPix,-range,range,-range,range);
-juliaPolynomTransformMap(map,limit, maxIterations,realCo,imCo);
+%juliaPolynomBlackout(map,limit, maxIterations,realCo,imCo);
+mandelbrotPolynomBlackout(map,limit, maxIterations,realCo,imCo);
 scale(map,limit,1);
-basicKaleidoscope(map,5,4,2);
+%basicKaleidoscope(map,4,4,2);
 im=createStructureImage(map);
 imshow(im)
 end

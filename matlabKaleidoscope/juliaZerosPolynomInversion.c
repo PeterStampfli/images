@@ -1,13 +1,10 @@
 /*==========================================================
- * juliaPolynomTransformMap: Repeats transform of map by complex polynom
- * the real and (optional) imaginary parts of its coefficients are given
+ * juliaZerosInversion: Repeats transform of map by complex polynom
+ * an amplitude, the real and (optional) imaginary parts of its zeros are given
  * further: maximum number of repetitions and a limit for the map points
- * all pixels inside the limit will get a map value lying inside the limit
- * this gives concentric regions approximating the Julia set
- * inside at the border the map points lie at a circle of radius = limit
+ * all pixels outside the limit will be inverted at a circle of radius = limit
  *
- * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients, imaginaryPartCoefficients);
- * juliaPolynomTransformMap(map, limit, maxIterations, realPartCoefficients);
+ * juliaZerosInversion(map, limit, maxIterations, amplitude, realPartCoefficients, imaginaryPartCoefficients);
  *
  * Input:
  * first the map. 
@@ -19,13 +16,17 @@
  * float limit
  * int maxIterations
  *
- * and a real and (optional) imaginary part of complex polynom coefficients a (in default double precision)
- * calculates (((((a_n*z)+a_(n-1))*Z + ....)*Z+a_1), matlab indexing, n<=9
+ * float amplitude
  *
- * if z > limit does nothing
+ * and a real and an imaginary part of the zeros of the polynom (in default double precision)
+ *
+ * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
+ * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n), matlab indexing, n<=9
+ *
+ * if z > limit inverts at circle with radius limit
  *
  * w=p(z) if cabsf(w) < limit then z = w and repeat until maxIterations, 
- * else finished and z is inside cirlce with radius limit
+ * else invert w at circle of radius limit then z=w and repeat
  * map(:,:,2) is then set to (iteration + 1) % 2 to make structure visible
  *
  * modifies the map, returns nothing if used as a procedure
@@ -57,78 +58,74 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int power, repower, impower,i;
     double *realA, *imA;
     float complex a[10];
-    float reC, imC;
+    float reC, imC, amplitude;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs <4) {
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:nrhs","A map input required, limit, maxIterations, and real and imaginary part arrays of coefficients.");
+    if(nrhs < 6) {
+        mexErrMsgIdAndTxt("juliaZerosInversion:nrhs","A map input required, limit, maxIterations, amplitude, and real and imaginary part arrays of coefficients.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("juliaZerosInversion:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {   
-        mexErrMsgIdAndTxt("juliaPolynomTransformMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("juliaZerosInversion:map3rdDimension","The map's third dimension has to be three.");
     }
     /* additional parameters for Julia iterations */
     limit = (float) mxGetScalar(prhs[1]);
     limit2 = limit * limit;
     maxIterations = (int) mxGetScalar(prhs[2]);
+    amplitude = (float) mxGetScalar(prhs[3]);
     /* the polynom coefficients */ 
     for (i=0;i<10;i++){
         a[i]=0;
     }
     /* the real part*/
-    aDims = mxGetDimensions(prhs[3]);
-    if((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)) {
-          mexErrMsgIdAndTxt("juliaPolynomTransformMap:dims","The array for real coefficients has to have 1 dimension.");
+    aDims = mxGetDimensions(prhs[4]);
+    if((mxGetNumberOfDimensions(prhs[4]) !=2)||(aDims[0]!=1)) {
+          mexErrMsgIdAndTxt("juliaZerosInversion:dims","The array for real coefficients has to have 1 dimension.");
     }
     repower=aDims[1];
     if (repower>10){
-         mexErrMsgIdAndTxt("juliaPolynomTransformMap: length","The array for real coefficients may not have more than 10 values.");       
+         mexErrMsgIdAndTxt("juliaZerosInversion: length","The array for real coefficients may not have more than 10 values.");       
     }
     if (repower==0){
-         mexErrMsgIdAndTxt("juliaPolynomTransformMap: length","The array for real coefficients may not be empty.");       
+         mexErrMsgIdAndTxt("juliaZerosInversion: length","The array for real coefficients may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
-        realA = mxGetDoubles(prhs[3]);
+        realA = mxGetDoubles(prhs[4]);
     #else
-        realA = (double *) mxGetPr(prhs[3]);
+        realA = (double *) mxGetPr(prhs[4]);
     #endif
     for (i=0;i<repower;i++){
         a[i]= (float) realA[i];
     }
-    /* the optional imaginary part */
-    if(nrhs == 5) {
-        aDims = mxGetDimensions(prhs[4]);
-        if ((mxGetNumberOfDimensions(prhs[4]) !=2)||(aDims[0]!=1)){
-          mexErrMsgIdAndTxt("juliaPolynomTransformMap:dims","The array for imaginary coefficients has to have 1 dimension.");
-        }
-        impower=aDims[1];
-        if (impower>10){
-            mexErrMsgIdAndTxt("juliaPolynomTransformMap: length","The array for imaginary coefficients may not have more than 10 values.");       
-        }
-        #if MX_HAS_INTERLEAVED_COMPLEX
-            imA = mxGetDoubles(prhs[4]);
-        #else
-            imA = (double *) mxGetPr(prhs[4]);
-        #endif
-        for (i=0;i<impower;i++){
-            a[i] += I * (float) imA[i];
-        }     
-    } else {
-        impower = 0;
+    aDims = mxGetDimensions(prhs[5]);
+    if ((mxGetNumberOfDimensions(prhs[5]) !=2 )||(aDims[0] != 1)){
+       mexErrMsgIdAndTxt("juliaZerosInversion:dims","The array for imaginary coefficients has to have 1 dimension.");
     }
+    impower=aDims[1];
+    if (impower>10){
+       mexErrMsgIdAndTxt("juliaZerosInversion: length","The array for imaginary coefficients may not have more than 10 values.");       
+    }
+    #if MX_HAS_INTERLEAVED_COMPLEX
+        imA = mxGetDoubles(prhs[5]);
+    #else
+        imA = (double *) mxGetPr(prhs[5]);
+    #endif
+    for (i=0;i<impower;i++){
+        a[i] += I * (float) imA[i];
+    }     
     power = repower;
     if (impower > repower){
         power = impower;
     }    
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("transformMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("juliaZerosInversion:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -162,25 +159,26 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;           }
+                outMap[index + nXnY2] = INVALID;
+            }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        realW = crealf(z);
-        imagW = cimag(z);
+        realW =  inMap[index];
+        imagW = inMap[index + nXnY];
+        z = realW + I * imagW;
         absW2 = realW * realW + imagW * imagW;
         if (absW2 > limit2){
-            /* initially out of limits what to do?*/
-            /* invert. if you don't like that use discBlackoutMap before*/
-            z=limit2 / absW2 * z;
+            /* invert if out of limits*/
+            z = (limit2 / absW2) * z;
+            inverted = 1-inverted;
         }
         iterations=0;
         /* iterate only if abs(z) small enough */
-        while ((iterations < maxIterations) && (absW2 < limit2)){
-           /* calculate polynom w=p(z) with coefficients a */
-           w =  a[power-1];
-           for (i=power-2;i>=0;i--){
-               w = w * z +a[i];
+        while (iterations < maxIterations){
+           /* calculate polynom w=p(z) with zeros a and amplitude factor*/
+           w = amplitude;
+           for (i = power - 1; i >= 0; i--){
+               w = w * (z - a[i]);
            }
            /* check for limit */
            realW = crealf(w);
@@ -188,8 +186,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
            absW2 = realW * realW + imagW * imagW;
            if (absW2 < limit2){
                z = w;
+           } else {
+               /* invert if out of limits*/
+               z = (limit2 / absW2) * w;
            }
-           /* make iteration  structure visible */
+           /* make inversion/iteration structure visible */
            inverted = 1-inverted;
            iterations += 1;
         }

@@ -165,14 +165,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 outMap[index + nXnY2] = INVALID;           }
             continue;
         }
-        z = inMap[index] + I * inMap[index + nXnY];
-        realW = crealf(z);
-        imagW = cimag(z);
+        realW =  inMap[index];
+        imagW = inMap[index + nXnY];
+        z=realW + I * imagW;
         absW2 = realW * realW + imagW * imagW;
         if (absW2 > limit2){
             /* initially out of limits what to do?*/
             /* invert. if you don't like that use discBlackoutMap before*/
             z=limit2 / absW2 * z;
+            inverted = INVALID;
         }
         iterations=0;
         /* iterate only if abs(z) small enough */
@@ -188,9 +189,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
            absW2 = realW * realW + imagW * imagW;
            if (absW2 < limit2){
                z = w;
-           }
+           } else {
            /* make iteration  structure visible */
-           inverted = 1-inverted;
+           inverted = INVALID;
+           }
            iterations += 1;
         }
         outMap[index] = crealf(z);
