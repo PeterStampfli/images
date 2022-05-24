@@ -1,12 +1,13 @@
 /*==========================================================
- * juliaZerosPolynomInversion: Repeats transform of map by complex polynom
+ * juliaZerosPolynomApproximations: Repeats transform of map by complex polynom
  * an amplitude, the real and (optional) imaginary parts of its zeros are given
  * further: number of repetitions and a limit for the map points
- * all pixels outside the limit will be inverted at a circle of radius = limit
+ * all pixels outside the limit stop the iteration
+ * pixel's "inversion" corresponds to the number of last iteration % 2
  *
- * gives a complicated fractal structure
+ * shows succesive approximations to the Julia set
  *
- * juliaZerosPolynomInversion(map, limit, iterations, amplitude, realPartZeros, imaginaryPartZeros);
+ * juliaZerosPolynomApproximations(map, limit, iterations, amplitude, realPartCoefficients, imaginaryPartCoefficients);
  *
  * Input:
  * first the map. 
@@ -68,21 +69,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 6) {
-        mexErrMsgIdAndTxt("juliaZerosPolynomInversion:nrhs","A map input required, limit, iterations, amplitude, and real and imaginary part arrays of coefficients.");
+        mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:nrhs","A map input required, limit, iterations, amplitude, and real and imaginary part arrays of coefficients.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("juliaZerosPolynomInversion:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {   
-        mexErrMsgIdAndTxt("juliaZerosPolynomInversion:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:map3rdDimension","The map's third dimension has to be three.");
     }
     /* additional parameters for Julia iterations */
     limit = (float) mxGetScalar(prhs[1]);
     limit2 = limit * limit;
     iterations = (int) mxGetScalar(prhs[2]);
     amplitude = (float) mxGetScalar(prhs[3]);
+    PRINTF(amplitude);
     /* the polynom coefficients */ 
     for (i=0;i<10;i++){
         a[i]=0;
@@ -90,14 +92,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* the real part*/
     aDims = mxGetDimensions(prhs[4]);
     if((mxGetNumberOfDimensions(prhs[4]) !=2)||(aDims[0]!=1)) {
-          mexErrMsgIdAndTxt("juliaZerosPolynomInversion:dims","The array for real coefficients has to have 1 dimension.");
+          mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:dims","The array for real coefficients has to have 1 dimension.");
     }
     repower=aDims[1];
     if (repower>10){
-         mexErrMsgIdAndTxt("juliaZerosPolynomInversion: length","The array for real coefficients may not have more than 10 values.");       
+         mexErrMsgIdAndTxt("juliaZerosPolynomApproximations: length","The array for real coefficients may not have more than 10 values.");       
     }
     if (repower==0){
-         mexErrMsgIdAndTxt("juliaZerosPolynomInversion: length","The array for real coefficients may not be empty.");       
+         mexErrMsgIdAndTxt("juliaZerosPolynomApproximations: length","The array for real coefficients may not be empty.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         realA = mxGetDoubles(prhs[4]);
@@ -105,15 +107,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
         realA = (double *) mxGetPr(prhs[4]);
     #endif
     for (i=0;i<repower;i++){
+            PRINTF((float) realA[i]);
+
         a[i]= (float) realA[i];
     }
     aDims = mxGetDimensions(prhs[5]);
     if ((mxGetNumberOfDimensions(prhs[5]) !=2 )||(aDims[0] != 1)){
-       mexErrMsgIdAndTxt("juliaZerosPolynomInversion:dims","The array for imaginary coefficients has to have 1 dimension.");
+       mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:dims","The array for imaginary coefficients has to have 1 dimension.");
     }
     impower=aDims[1];
     if (impower>10){
-       mexErrMsgIdAndTxt("juliaZerosPolynomInversion: length","The array for imaginary coefficients may not have more than 10 values.");       
+       mexErrMsgIdAndTxt("juliaZerosPolynomApproximations: length","The array for imaginary coefficients may not have more than 10 values.");       
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
         imA = mxGetDoubles(prhs[5]);
@@ -121,6 +125,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         imA = (double *) mxGetPr(prhs[5]);
     #endif
     for (i=0;i<impower;i++){
+            PRINTF((float) imA[i]);
         a[i] += I * (float) imA[i];
     }     
     power = repower;
@@ -129,7 +134,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }    
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("juliaZerosPolynomInversion:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("juliaZerosPolynomApproximations:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -170,15 +175,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
         realZ = inMap[index];
         imagZ = inMap[index + nXnY];
         z = realZ + I * imagZ;
-        absZ2 = realZ * realZ + imagZ * imagZ;
-        if (absZ2 > limit2){
-            /* invert if out of limits*/
-            z = (limit2 / absZ2) * z;
-            inverted = 1-inverted;
-        }
+        absW = cabsf(z);
         ite = 0;
         /* iterate only if abs(z) small enough */
-        while (ite < iterations){
+        while ((ite < iterations) && (absW < limit)){
            /* calculate polynom w=p(z) with zeros a and amplitude factor*/
            w = amplitude;
            for (i = power - 1; i >= 0; i--){
@@ -188,12 +188,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
            absW = cabsf(w);
            if (absW < limit){
                z = w;
-           } else {
-               /* invert because out of limits*/
-               z = (limit2 / (absW * absW)) * w;
-               /* make inversion/iteration structure visible */
-               inverted = 1-inverted;
            }
+           /* make inversion/iteration structure visible */
+           inverted = 1-inverted;
            ite += 1;
         }
         outMap[index] = crealf(z);
