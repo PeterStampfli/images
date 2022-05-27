@@ -15,22 +15,24 @@ function testJuliaZerosPolynomMap()
 s = 1000;
 mPix=s*s/1e6;
 range=2;
-limit=2;
-maxIterations=10;
-amplitude=0.9;
+limit=1.5;
+maxIterations=2;
+amplitude=2;
 %realZ=[0.7,0.7,-0.7,-0.7];
 %imZ=[0.7,-0.7,0.7,-0.7];
 %realZ=[0.7,-0.7];
 %imZ=[0.7,-0.7];
 %realZ=[1,-1];
 %imZ=[0,0];
-realZ=[0,0,0];
-imZ=[-1,1,0];
+realZ=[0,0,1,-1,0];
+imZ=[-1,1,0,0,0];
 map=createIdentityMap(mPix,-range,range,-range,range);
-%juliaZerosPolynomInversion(map,limit, maxIterations,amplitude,realZ,imZ);
-juliaZerosPolynomApproximations(map,limit, maxIterations,amplitude,realZ,imZ);
+juliaZerosPolynomInversion(map,limit, maxIterations,amplitude,realZ,imZ);
+%juliaZerosPolynomApproximations(map,limit, maxIterations,amplitude,realZ,imZ);
+%juliaZerosPolynomLast(map,limit, maxIterations,amplitude,realZ,imZ);
 scale(map,limit,1);
-%basicKaleidoscope(map,5,3,2);
-im=createStructureImage(map);
+%basicKaleidoscope(map,4,3,2);
+%im=createStructureImage(map);
+im=createPhaseImage(map);
 imshow(im)
 end
