@@ -4,9 +4,9 @@
  * the real and (optional) imaginary components of the zeros of its polynoms in the nominator and (optional) denominator are given
  * and an amplitude factor
  *
- * rationalFunctionTransform(map, amplitude, realPartZerosNominator, imaginaryPartZerosDenominator);
- * rationalFunctionTransform(map, amplitude, realPartZeros, imaginaryPartZeros);
- * rationalFunctionTransform(map, amplitude, realPartZeros);
+ * rationalFunctionTransform(map, amplitude, realPartZerosNominator, imaginaryPartZerosNominator, realPartZerosDenominator, imaginaryPartZerosDenominator);
+ * rationalFunctionTransform(map, amplitude, realPartZerosNominator, imaginaryPartZerosNominator);
+ * rationalFunctionTransform(map, amplitude, realPartZerosNominator);
  *
  * Input:
  * first the map. 
@@ -17,9 +17,9 @@
  *
  * amplitude as real scalar or vector with two components [real part, imaginary part]
  *
- * real and imaginary parts of the zeros of the nominator polynom (in default double precision), a_n
- * real and imaginary parts of the zeros of the denominator polynom (in default double precision), b_n
- *
+ * vectors of real and imaginary parts of the zeros of the nominator polynom (in default double precision), a_n
+ * vectors of real and imaginary parts of the zeros of the denominator polynom (in default double precision), b_n
+ * if all imaginary parts are zero you can use an empty array
  *
  * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
  * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n) / ((z-b_1) * (z- b_2)* *(z-b_n)), matlab indexing, n<=9
@@ -72,7 +72,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     /* amplitude as a vector with 1 or 2 elements*/
     aDims = mxGetDimensions(prhs[1]);
-    if((mxGetNumberOfDimensions(prhs[1]) != 2)||(aDims[0] != 1)) {
+    if((mxGetNumberOfDimensions(prhs[1]) != 2)||(aDims[0] >1)) {
           mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The amplitude has to be a scalar or an array with 1 dimension.");
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
@@ -80,17 +80,16 @@ void mexFunction( int nlhs, mxArray *plhs[],
     #else
         ampInput = (double *) mxGetPr(prhs[1]);
     #endif
-    if (aDims[1] == 0){
-        amplitude = 0;
-    } else {
-        amplitude = (float) ampInput[0];
-    }
+ 
+    amplitude = (float) ampInput[0];
     if (aDims[1] == 2){
         amplitude += I * (float) ampInput[1];
     }
     
+    /*  empty matrix: all dims=0*/
+    /*  correct test for (possibly empty) vector: aDims[0]<=1 */
     aDims = mxGetDimensions(prhs[2]);
-    if((mxGetNumberOfDimensions(prhs[2]) != 2)||(aDims[0] != 1)) {
+    if((mxGetNumberOfDimensions(prhs[2]) != 2)||(aDims[0] >1)) {
           mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The array for real components of zeros for nominator has to have 1 dimension.");
     }
     repower=aDims[1];
@@ -108,7 +107,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     power = repower;
     if(nrhs >= 4) {
         aDims = mxGetDimensions(prhs[3]);
-        if ((mxGetNumberOfDimensions(prhs[3]) != 2)||(aDims[0] != 1)){
+        if ((mxGetNumberOfDimensions(prhs[3]) != 2)||(aDims[0] >1)){
             mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The array for imaginary components of zeros for nominator has to have 1 dimension.");
         }
         impower=aDims[1];
@@ -130,7 +129,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     denomPower = 0;
     if(nrhs >= 5) {
         aDims = mxGetDimensions(prhs[4]);
-        if((mxGetNumberOfDimensions(prhs[4]) != 2)||(aDims[0] != 1)) {
+        if((mxGetNumberOfDimensions(prhs[4]) != 2)||(aDims[0] >1)) {
             mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The array for real components of zeros for denominator has to have 1 dimension.");
         }
         repower=aDims[1];
@@ -149,7 +148,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     if(nrhs >= 6) {
         aDims = mxGetDimensions(prhs[5]);
-        if((mxGetNumberOfDimensions(prhs[5]) != 2)||(aDims[0] != 1)) {
+        if((mxGetNumberOfDimensions(prhs[5]) != 2)||(aDims[0] >1)) {
             mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The array for imaginary components of zeros for denominator has to have 1 dimension.");
         }
         impower=aDims[1];
