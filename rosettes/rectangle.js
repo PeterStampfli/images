@@ -154,7 +154,9 @@ function draw() {
     output.setLineWidth(rosette.lineWidth);
          canvasContext.setLineDash([]);
 
-
+       canvasContext.beginPath();
+        canvasContext.arc(0,0,5,0,2*Math.PI);
+        canvasContext.stroke();
 // A rhomb
 //    triangle(1, 4, 5);
 A();
@@ -187,10 +189,6 @@ A();
     pattern = [0.1, 0.3];
         line(0,2);
         line(1,3);
-
-        canvasContext.beginPath();
-        canvasContext.arc(0,0,5,0,2*Math.PI);
-        canvasContext.stroke();
     
 }
 

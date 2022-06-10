@@ -13,9 +13,10 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * float amplitude
+ * amplitude as real scalar or (complex number) vector with two components [real part, imaginary part]
  *
- * and a real and (optional) imaginary part of the zeros of the polynom (in default double precision)
+ * vectors of real and imaginary parts of the zeros of the polynom (in default double precision), a_n
+ * if all (imaginary) parts are zero you can use an empty array
  *
  * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
  * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n), matlab indexing, n<=9
@@ -42,11 +43,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     const mwSize *dims,*aDims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
-    float complex z, w;
+    float complex z, w, amplitude;
     int power, repower, impower,i;
-    double *realA, *imA;
+    double *realA, *imA, *ampInput;
     float complex a[10];
-    float reC, imC, amplitude;
+    float reC, imC;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
@@ -65,10 +66,29 @@ void mexFunction( int nlhs, mxArray *plhs[],
     for (i=0;i<10;i++){
         a[i]=0;
     }
-    amplitude = (float) mxGetScalar(prhs[1]);
     
+    /* amplitude as a vector with 1 or 2 elements*/
+    /* a matlab scalar comes as a vector with 1 element*/
+    aDims = mxGetDimensions(prhs[1]);
+    if((mxGetNumberOfDimensions(prhs[1]) != 2)||(aDims[0] > 1)) {
+          mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The amplitude has to be a scalar or an array with 1 dimension.");
+    }
+    #if MX_HAS_INTERLEAVED_COMPLEX
+        ampInput = mxGetDoubles(prhs[1]);
+    #else
+        ampInput = (double *) mxGetPr(prhs[1]);
+    #endif
+ 
+    amplitude = (float) ampInput[0];
+    if (aDims[1] == 2){
+        amplitude += I * (float) ampInput[1];
+    }
+    
+    /*  empty vector: all dims=0*/
+    /*  correct test for a matrix instead of a vector: aDims[0] > 1 */
+
     aDims = mxGetDimensions(prhs[2]);
-    if((mxGetNumberOfDimensions(prhs[2]) !=2)||(aDims[0]!=1)) {
+    if((mxGetNumberOfDimensions(prhs[2]) !=2)||(aDims[0] >1)) {
           mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for real components of zeros has to have 1 dimension.");
     }
     repower=aDims[1];
@@ -89,7 +109,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* the optional imaginary part */
     if(nrhs == 4) {
         aDims = mxGetDimensions(prhs[3]);
-        if ((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0]!=1)){
+        if ((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0] >1)){
            mexErrMsgIdAndTxt("zerosPolynomTransformMap:dims","The array for imaginary components of zeros has to have 1 dimension.");
         }
         impower=aDims[1];

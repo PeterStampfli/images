@@ -5,19 +5,19 @@ function testZerosPolynomThings()
 
 s = 1000;
 mPix=s*s/1e6;
-range=4;
+range=1.2;
 map=createIdentityMap(mPix,-range,range,-range,range);
 limit=5;
-iterations=100;
+iterations=300;
 %amp=0.35;
-amp=[0.35 0.1];
+amp=[0.6 , 0.4];
 %amp=0.2;
 realZ=[1,-1,0,0];
 imZ=[0,0,-1,1];
 realZ=[1,-0.5,-0.5,-1,0.5,0.5];
 imZ=[0,0.866,-0.866,0,0.866,-0.866];
-realZ=-[1,-0.5,-0.5];
-imZ=[0,0.866,-0.866];
+%realZ=-[1,-0.5,-0.5];
+%imZ=[0,0.866,-0.866];
 %imZ=[0,0];
 %realZ=[-1,1];
 realS=[0];
@@ -28,7 +28,8 @@ imS=[];
 for p=1:iterations 
 %    zerosPolynomSingularTransform(map,amp,realZ,imZ,order); 
 %   rationalFunctionTransform(map,amp,realZ,imZ,realS,imS); 
-   rationalFunctionTransform(map,amp,realZ,imZ,realS,imS); 
+%   rationalFunctionTransform(map,amp,realZ,imZ,realS,imS); 
+   zerosPolynomTransformMap(map,amp,realZ,imZ); 
     discBlackoutMap(map,limit);
 %    inversionMap(map,limit);
 end 

@@ -19,7 +19,7 @@ const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
 output.addCursorposition();
-output.setInitialCoordinates(0, 0, 2.2);
+output.setInitialCoordinates(0, 1.2, 4);
 output.addGrid();
 
 // parameters for drawing
@@ -97,33 +97,39 @@ function quad(i, j, k, m) {
     output.canvasContext.lineTo(x[m], y[m]);
     output.canvasContext.closePath();
     canvasContext.fill();
-    canvasContext.stroke();}
+    canvasContext.stroke();
+}
 
-function A() {
+function B() {
     output.canvasContext.beginPath();
-    output.canvasContext.moveTo(x[1], y[1]);
-    output.canvasContext.lineTo(x[2], y[2]);
-    output.canvasContext.lineTo(x[3], y[3]);
-    output.canvasContext.lineTo(x[5], y[5]);
- output.canvasContext.closePath();
+    output.canvasContext.moveTo(x[4], y[4]);
+    output.canvasContext.lineTo(x[0], y[0]);
+    output.canvasContext.lineTo(x[1], y[1]);
+    output.canvasContext.lineTo(x[4] + x[1] - x[0], y[4] + y[1] - y[0]);
+    output.canvasContext.closePath();
     canvasContext.fill();
     canvasContext.stroke();
 }
-function B() {
+
+function APentagon() {
     output.canvasContext.beginPath();
-    output.canvasContext.moveTo(x[1], y[1]);
+    output.canvasContext.moveTo(x[0], y[0]);
     output.canvasContext.lineTo(x[2], y[2]);
-    output.canvasContext.lineTo(0, 2*y[0]-y[1]);
-    output.canvasContext.lineTo(x[0], y[0]);
- output.canvasContext.closePath();
-    canvasContext.fill();
-    canvasContext.stroke();}
-function C() {
-    output.canvasContext.beginPath();
-    output.canvasContext.moveTo(x[1], y[1]);
+    output.canvasContext.lineTo(x[2]+x[3]-x[0],y[2]+y[3]-y[0]);
     output.canvasContext.lineTo(x[3], y[3]);
-    output.canvasContext.lineTo(0, 2*y[3]-y[1]);
-    output.canvasContext.lineTo(x[6], y[6]);
+    output.canvasContext.closePath();
+    canvasContext.fill();
+    canvasContext.stroke();
+}
+
+
+function A() {
+    const t = 1/1.618;
+    output.canvasContext.beginPath();
+    output.canvasContext.moveTo(x[0]*t, y[0]*t);
+    output.canvasContext.lineTo(x[2]*t, y[2]*t);
+    output.canvasContext.lineTo((x[2]+x[3]-x[0])*t,(y[2]+y[3]-y[0])*t);
+    output.canvasContext.lineTo(x[3]*t, y[3]*t);
     output.canvasContext.closePath();
     canvasContext.fill();
     canvasContext.stroke();
@@ -141,30 +147,28 @@ function draw() {
     y.length = 4 * n + 1;
 
     for (let i = 0; i <= 4 * n; i++) {
-        x[i] = Math.cos(angle * (i + 0.75));
-        y[i] = Math.sin(angle * (i + 0.75));
+        x[i] = Math.cos(angle * (i) + Math.PI / 2);
+        y[i] = Math.sin(angle * (i) + Math.PI / 2);
     }
     canvasContext.fillStyle = rosette.tileColor;
     output.setLineWidth(rosette.lineWidth);
-         canvasContext.setLineDash([]);
+    canvasContext.setLineDash([]);
 
+    // thick rhomb
+    //B();
+    // thin rhomb, match to pentagon
+     APentagon();
+  //  A();
+    // C rhomb
+    //C();
+    //   triangle(6,1, 3);
+    // first quad
+    // quad(3,4,5,6);
+    // second
+    //quad(3,4,5,0);
 
-// A rhomb
-//    triangle(1, 4, 5);
-A();
-// B rhomb
- //   triangle(0,1, 2);
- //B();
-// C rhomb
-//C();
- //   triangle(6,1, 3);
-// first quad
-// quad(3,4,5,6);
- // second
- //quad(3,4,5,0);
-
- //third
-// quad(2,4,5,0);
+    //third
+    // quad(2,4,5,0);
 
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.lineqColor;
@@ -178,13 +182,13 @@ A();
         line(i, i + 1);
     }
     output.setLineWidth(rosette.lineWidth);
-    pattern = [0.01, 0.04];
+    pattern = [0.01, 0.06];
     for (let i = 0; i < n; i++) {
         line(i, i + 2);
     }
     pattern = [0.1, 0.06];
     for (let i = 0; i < n; i++) {
-    //    line(i, i + 3);
+        //    line(i, i + 3);
     }
 }
 

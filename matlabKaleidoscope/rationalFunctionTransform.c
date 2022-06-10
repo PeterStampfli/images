@@ -15,11 +15,11 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * amplitude as real scalar or vector with two components [real part, imaginary part]
+ * amplitude as real scalar or (complex number) vector with two components [real part, imaginary part]
  *
  * vectors of real and imaginary parts of the zeros of the nominator polynom (in default double precision), a_n
  * vectors of real and imaginary parts of the zeros of the denominator polynom (in default double precision), b_n
- * if all imaginary parts are zero you can use an empty array
+ * if all (imaginary) parts are zero you can use an empty array
  *
  * real amplitude, and a real and (optional) imaginary part of complex polynom zeros a (in default double precision)
  * calculates amplitude * (z-a_1) * (z- a_2)* *(z-a_n) / ((z-b_1) * (z- b_2)* *(z-b_n)), matlab indexing, n<=9
@@ -71,8 +71,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
         b[i]=0;
     }
     /* amplitude as a vector with 1 or 2 elements*/
+    /* a matlab scalar comes as a vector with 1 element*/
     aDims = mxGetDimensions(prhs[1]);
-    if((mxGetNumberOfDimensions(prhs[1]) != 2)||(aDims[0] >1)) {
+    if((mxGetNumberOfDimensions(prhs[1]) != 2)||(aDims[0] > 1)) {
           mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The amplitude has to be a scalar or an array with 1 dimension.");
     }
     #if MX_HAS_INTERLEAVED_COMPLEX
@@ -86,8 +87,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         amplitude += I * (float) ampInput[1];
     }
     
-    /*  empty matrix: all dims=0*/
-    /*  correct test for (possibly empty) vector: aDims[0]<=1 */
+    /*  empty vector: all dims=0*/
+    /*  correct test for a matrix instead of a vector: aDims[0] > 1 */
     aDims = mxGetDimensions(prhs[2]);
     if((mxGetNumberOfDimensions(prhs[2]) != 2)||(aDims[0] >1)) {
           mexErrMsgIdAndTxt("rationalFunctionTransform:dims","The array for real components of zeros for nominator has to have 1 dimension.");
