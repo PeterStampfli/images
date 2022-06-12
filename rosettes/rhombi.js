@@ -19,7 +19,7 @@ const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
 output.addCursorposition();
-output.setInitialCoordinates(0, 1.2, 4);
+output.setInitialCoordinates(0.5, -0.5, 2);
 output.addGrid();
 
 // parameters for drawing
@@ -123,15 +123,22 @@ function APentagon() {
 }
 
 
-function A() {
-    const t = 1/1.618;
+function A(n) {
+    const x=Math.cos(n*Math.PI/5);
+    const y=Math.sin(n*Math.PI/5);
+    console.log(n);
     output.canvasContext.beginPath();
-    output.canvasContext.moveTo(x[1], y[1]);
-    output.canvasContext.lineTo(x[2], y[2]);
-    output.canvasContext.lineTo((x[2]+x[4]-x[0]),(y[2]+y[4]-y[0]));
-    output.canvasContext.lineTo((x[1]+x[4]-x[0]),(y[1]+y[4]-y[0]));
+    output.canvasContext.moveTo(0,0);
+    output.canvasContext.lineTo(1,0);
+    output.canvasContext.lineTo(x+1,y);
+    output.canvasContext.lineTo(x,y);
     output.canvasContext.closePath();
     canvasContext.fill();
+    canvasContext.stroke();
+    output.canvasContext.setLineDash([0.02,0.04]);
+    output.canvasContext.beginPath();
+    output.canvasContext.moveTo(x,0);
+    output.canvasContext.lineTo(x,y);
     canvasContext.stroke();
 }
 
@@ -158,7 +165,7 @@ function draw() {
     //B();
     // thin rhomb, match to pentagon
     // APentagon();
-    A();
+    A(1);
     // C rhomb
     //C();
     //   triangle(6,1, 3);
@@ -179,12 +186,12 @@ function draw() {
     pattern = [];
 
     for (let i = 0; i < n; i++) {
-        line(i, i + 1);
+  //      line(i, i + 1);
     }
     output.setLineWidth(rosette.lineWidth);
     pattern = [0.01, 0.06];
     for (let i = 0; i < n; i++) {
-        line(i, i + 2);
+  //      line(i, i + 2);
     }
     pattern = [0.1, 0.06];
     for (let i = 0; i < n; i++) {
