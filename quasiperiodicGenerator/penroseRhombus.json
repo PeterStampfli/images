@@ -1,0 +1,161 @@
+{
+    "name": "Penrose rhombus",
+
+    "range": 2,
+    "center": [0, 0.5],
+
+    "order": 10,
+    "inflation": 1.618,
+    "maxGeneration": 5,
+
+    "drawGeneration": 0,
+
+    "initial": "ALeft",
+
+    "tiles": {
+        "ALeft": {
+            "shape": [
+                [],
+                [0, 0, 1],
+                [0, 0, 1, -1]
+            ],
+            "overprint": [
+                [],
+                [0, 0, 1, -1]
+            ],
+            "border": [],
+            "marker": [0,0.15],
+            "color": "#0000ff",
+            "substitution": [{
+                "name": "ALeft",
+                "origin": [1, 0, 0, 0, 1],
+                "orientation": 7
+            }, {
+                "name": "BLeft",
+                "origin": [1],
+                "orientation": 3
+            }]
+        },
+        "ARight": {
+            "shape": [
+                [],
+                [0, 0, 0, -1],
+                [0, 0, 1, -1]
+            ],
+            "overprint": [
+                [],
+                [0, 0, 1, -1]
+            ],
+            "border": [],
+            "marker": [0,0,0,0,-0.15],
+            "color": "#0000ff",
+            "substitution": []
+        },
+        "A": {
+            "shape": [
+                [],
+                [0, 0, 0, -1],
+                [0, 0, 1, -1],
+                [0, 0, 1]
+            ],
+            "color": "#0000ff",
+            "composition": [{
+                "name": "ALeft"
+            }, {
+                "name": "ARight",
+                "orientation": 0
+            }]
+        },
+        "BLeft": {
+            "shape": [
+                [],
+                [0, 1],
+                [0, 1, 0, 0, -1]
+            ],
+            "overprint": [
+                [],
+                [0, 1, 0, 0, -1]
+            ],
+            "angle": 1,
+            "border": [],
+            "marker": [0.15,0.15],
+            "color": "#00ff00",
+            "substitution": []
+        },
+        "BRight": {
+            "shape": [
+                [],
+                [0, 0, 0, 0, -1],
+                [0, 1, 0, 0, -1]
+            ],
+            "overprint": [
+                [],
+                [0, 1, 0, 0, -1]
+            ],
+            "angle": 1,
+            "border": [],
+            "marker": [0.15,0,0,0,-0.15],
+            "color": "#00ff00",
+            "substitution": []
+        },
+        "B": {
+            "shape": [
+                [],
+                [0, 0, 0, 0, -1],
+                [0, 1, 0, 0, -1],
+                [0, 1]
+            ],
+            "color": "#00ff00",
+            "composition": [{
+                "name": "BLeft"
+            }, {
+                "name": "BRight",
+                "orientation": 0
+            }]
+        },
+        "decagon": {
+            "shape": [
+                [1, 0, 1],
+                [1, 0, 1, 0, 1],
+                [0, 0, 1, 0, 1],
+                [0, -1, 1, 0, 1],
+                [0, -1, 0, 0, 1],
+                [0, -1, 0, -1, 1],
+                [0, -1, 0, -1, 0],
+                [1, -1, 0, -1, 0],
+                [1, 0, 0, -1, 0],
+                [1, 0, 1, -1, 0]
+            ],
+            "color": "#ff00ff",
+            "composition": [{
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "B"
+            }, {
+                "name": "A",
+                "origin": [1, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "A",
+                "orientation": -3
+            }, {
+                "name": "A",
+                "origin": [0, -1, 0, 0, 1],
+                "orientation": 1
+            }, {
+                "name": "A",
+                "orientation": -2
+            }, {
+                "name": "A",
+                "origin": [1, 0, 0, -1],
+                "orientation": 5
+            }]
+        }
+    }
+}

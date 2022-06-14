@@ -155,7 +155,7 @@ function draw() {
  //   triangle(0,1, 2);
  //B();
 // C rhomb
-C();
+//C();
  //   triangle(6,1, 3);
 // first quad
 // quad(3,4,5,6);
