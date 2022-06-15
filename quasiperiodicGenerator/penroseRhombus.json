@@ -10,7 +10,7 @@
 
     "drawGeneration": 0,
 
-    "initial": "ALeft",
+    "initial": "decagon",
 
     "tiles": {
         "ALeft": {
@@ -24,7 +24,7 @@
                 [0, 0, 1, -1]
             ],
             "border": [],
-            "marker": [0,0.15],
+            "marker": [0, 0.15],
             "color": "#0000ff",
             "substitution": [{
                 "name": "ALeft",
@@ -47,9 +47,17 @@
                 [0, 0, 1, -1]
             ],
             "border": [],
-            "marker": [0,0,0,0,-0.15],
+            "marker": [0, 0, 0, 0, -0.15],
             "color": "#0000ff",
-            "substitution": []
+            "substitution": [{
+                "name": "ARight",
+                "origin": [1, -1],
+                "orientation": 3
+            }, {
+                "name": "BRight",
+                "origin": [1],
+                "orientation": 7
+            }]
         },
         "A": {
             "shape": [
@@ -78,9 +86,21 @@
             ],
             "angle": 1,
             "border": [],
-            "marker": [0.15,0.15],
+            "marker": [0.15, 0.15],
             "color": "#00ff00",
-            "substitution": []
+            "substitution": [{
+                "name": "BRight",
+                "origin": [0, 1, 0, 0, -1],
+                "orientation": 5
+            },{
+                "name": "BLeft",
+                "origin": [1, 1, 0, 0, -1],
+                "orientation": 4
+            },{
+                "name": "ARight",
+                "origin": [0, 1],
+                "orientation": 1
+            }]
         },
         "BRight": {
             "shape": [
@@ -94,9 +114,21 @@
             ],
             "angle": 1,
             "border": [],
-            "marker": [0.15,0,0,0,-0.15],
+            "marker": [0.15, 0, 0, 0, -0.15],
             "color": "#00ff00",
-            "substitution": []
+            "substitution": [{
+                "name": "BLeft",
+                "origin": [0, 1, 0, 0, -1],
+                "orientation": 5
+            },{
+                "name": "BRight",
+                "origin": [1, 1, 0, 0, -1],
+                "orientation": 6
+            },{
+                "name": "ALeft",
+                "origin": [0, 0,0,0,-1],
+                "orientation": 9
+            }]
         },
         "B": {
             "shape": [
@@ -115,46 +147,28 @@
         },
         "decagon": {
             "shape": [
-                [1, 0, 1],
-                [1, 0, 1, 0, 1],
-                [0, 0, 1, 0, 1],
-                [0, -1, 1, 0, 1],
-                [0, -1, 0, 0, 1],
-                [0, -1, 0, -1, 1],
-                [0, -1, 0, -1, 0],
-                [1, -1, 0, -1, 0],
-                [1, 0, 0, -1, 0],
-                [1, 0, 1, -1, 0]
+                [0,1],
+                [0,1,0,1],
+                [0,0,0,1],
+                [0,0,0,1,0,1],
+                [0,0,0,0,0,1],
+                [0,0,0,0,0,1,0,1],
+                [0,0,0,0,0,0,0,1],
+                [0,0,0,0,0,0,0,1,0,1],
+                [0,0,0,0,0,0,0,0,0,1],
+                [0,0,0,0,0,0,0,0,0,1,0,1]
             ],
             "color": "#ff00ff",
             "composition": [{
                 "name": "B"
             }, {
-                "name": "B"
+                "name": "B","orientation":2
             }, {
-                "name": "B"
+                "name": "B","orientation":4
             }, {
-                "name": "B"
+                "name": "B","orientation":6
             }, {
-                "name": "B"
-            }, {
-                "name": "A",
-                "origin": [1, 0, 1],
-                "orientation": 4
-            }, {
-                "name": "A",
-                "orientation": -3
-            }, {
-                "name": "A",
-                "origin": [0, -1, 0, 0, 1],
-                "orientation": 1
-            }, {
-                "name": "A",
-                "orientation": -2
-            }, {
-                "name": "A",
-                "origin": [1, 0, 0, -1],
-                "orientation": 5
+                "name": "B","orientation":8
             }]
         }
     }
