@@ -271,6 +271,7 @@ function draw() {
         output.makePath(0, 0, x[i], y[i]);
         canvasContext.stroke();
     }
+    let r2 = 0;
     for (var ite = 0; ite < rosette.itemax; ite++) {
         addCorners();
         x = px[px.length - 1];
@@ -283,6 +284,7 @@ function draw() {
             x[i] = xLast[i] + xLast[i + 1] - xLast2[i + 1];
             y[i] = yLast[i] + yLast[i + 1] - yLast2[i + 1];
         }
+        r2 = xLast[0] * xLast[0] + yLast[0] * yLast[0];
         if (x[0] * x[0] + y[0] * y[0] < 0.9 * (xLast[0] * xLast[0] + yLast[0] * yLast[0])) {
             break;
         }
@@ -294,19 +296,24 @@ function draw() {
         }
     }
     //   triangles();
-  //  squares();
+    //  squares();
     canvasContext.strokeStyle = "#cccccc";
     output.setLineWidth(0.4 * rosette.tileWidth);
     //  mirrors();
 
     output.setLineWidth(rosette.tileWidth);
+    console.log(r2);
+    canvasContext.strokeStyle = "#0000ff";
+    canvasContext.beginPath();
+    canvasContext.arc(0, 0, Math.sqrt(r2), 0, Math.PI * 2);
+    canvasContext.stroke();
     canvasContext.strokeStyle = rosette.tileColor;
-   // twoSqrt3();
+    // twoSqrt3();
     //  oneSqrt3();
     //  extra();
     const dash = rosette.tileWidth * output.coordinateTransform.totalScale;
 
-   // canvasContext.setLineDash([0.5 * dash, 2 * dash]);
+    // canvasContext.setLineDash([0.5 * dash, 2 * dash]);
     output.setLineWidth(0.7 * rosette.tileWidth);
     //  mirrors();
     output.drawGrid();

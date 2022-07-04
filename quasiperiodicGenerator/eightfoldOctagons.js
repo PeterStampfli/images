@@ -1,17 +1,19 @@
-{
-    "name": "octagonSquareRhomb",
+/* jshint esversion: 6 */
+
+export const eightfoldOctagons = {
+    "name": "eightfold octagons",
 
     "order": 8,
     "inflation": 3.414,
     "maxGeneration": 4,
-    "drawGeneration": 1,
-    "initial": "oct8",
+    "drawGeneration": 3,
+    "initial": "octagon",
 
     "range": 3,
 
     "tiles": {
         "rhomb": {
-            "color": "#0000ff",
+            "color": "#2000e0",
             "angle": 1,
             "shape": [
                 [],
@@ -104,7 +106,7 @@
             }]
         },
         "oct8": {
-            "color": "#ff00ff",
+            "color": "#ce5c00",
             "angle": 1,
             "shape": [
                 [],

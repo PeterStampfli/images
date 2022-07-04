@@ -100,6 +100,7 @@ function quad(i, j, k, m) {
     canvasContext.stroke();}
 
 function A() {
+    console.log('rr')
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[1], y[1]);
     output.canvasContext.lineTo(x[2], y[2]);
@@ -133,7 +134,8 @@ function draw() {
     output.correctYAxis();
     output.lineRound();
     output.fillCanvasBackgroundColor();
-    output.setLineWidth(rosette.lineWidth);
+     canvasContext.fillStyle=rosette.tileColor;
+   output.setLineWidth(rosette.lineWidth);
     canvasContext.strokeStyle = rosette.lineColor;
     const angle = 2 * Math.PI / rosette.n;
     const n = rosette.n;
@@ -150,13 +152,6 @@ function draw() {
     y[3]=-3;
    x[4]=4;
     y[4]=3;
-    canvasContext.fillStyle = rosette.tileColor;
-    output.setLineWidth(rosette.lineWidth);
-         canvasContext.setLineDash([]);
-
-       canvasContext.beginPath();
-        canvasContext.arc(0,0,5,0,2*Math.PI);
-        canvasContext.stroke();
 // A rhomb
 //    triangle(1, 4, 5);
 A();
@@ -189,7 +184,14 @@ A();
     pattern = [0.1, 0.3];
         line(0,2);
         line(1,3);
-    
+        canvasContext.strokeStyle = "#0000ff";
+    output.setLineWidth(rosette.lineWidth);
+         canvasContext.setLineDash([]);
+
+       canvasContext.beginPath();
+        canvasContext.arc(0,0,5,0,2*Math.PI);
+        canvasContext.stroke();
+
 }
 
 output.setDrawMethods(draw);

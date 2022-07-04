@@ -9,6 +9,35 @@ import {
     sevenFold,
     fourteenFold
 } from './modules.js';
+
+import {
+    penroseRhombus
+} from './penroseRhombus.js';
+
+import {
+    dragon
+} from './dragon.js';
+
+import {
+    snowstorm
+} from './snowstorm.js';
+
+import {
+    pentagons
+} from './pentagons.js';
+
+import {
+    fiveFoldPentagons
+} from './fiveFoldPentagons.js';
+
+import {
+    tenFoldPentagons
+} from './tenFoldPentagons.js';
+
+import {
+    eightfoldOctagons
+} from './eightfoldOctagons.js';
+
 export const readJSON = {};
 
 // reading JSON files
@@ -71,11 +100,18 @@ examples.init = function(gui) {
         property: 'current',
         labelText: 'structure',
         options: {
-            'Ammann-Beenker Tiling': examples.ammannBeenker,
-            'Sierpinsky triangle': examples.sierpinsky,
-            'fractal tree': examples.tree,
+            'Penrose rhombus': penroseRhombus,
+            'five-fold pentagons':fiveFoldPentagons,
+            'ten-fold pentagons':tenFoldPentagons,
             "Theo's seven-fold": sevenFold,
-            "Theo's fourteen-fold": fourteenFold
+            "Theo's fourteen-fold": fourteenFold,
+            'Ammann-Beenker Tiling': examples.ammannBeenker,
+            'eight-fold octagons':eightfoldOctagons,
+            'fractal tree': examples.tree,
+            'dragon curve': dragon,
+            'Sierpinsky triangle': examples.sierpinsky,
+            'fractal pentagons':pentagons,
+            "Koch's snowstorm": snowstorm
         },
         onChange: function() {
             main.newStructure();
@@ -305,7 +341,6 @@ examples.tree = {
     "center": [0, 2],
     "range": 5,
     "name": "tree",
-
     "order": 8,
     "maxGeneration": 8,
     "drawGeneration": 5,

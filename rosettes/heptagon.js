@@ -132,7 +132,13 @@ function draw() {
     output.correctYAxis();
     output.lineRound();
     output.fillCanvasBackgroundColor();
+            canvasContext.strokeStyle = "#0000ff";
     output.setLineWidth(rosette.lineWidth);
+    canvasContext.setLineDash([]);
+    canvasContext.beginPath();
+    canvasContext.arc(0,0,1,0,Math.PI*2);
+    canvasContext.stroke();
+        output.setLineWidth(rosette.lineWidth);
     canvasContext.strokeStyle = rosette.lineColor;
     const angle = 2 * Math.PI / rosette.n;
     const n = rosette.n;
@@ -163,7 +169,7 @@ function draw() {
  //quad(3,4,5,0);
 
  //third
-// quad(2,4,5,0);
+ quad(2,4,5,0);
 
     output.setLineWidth(rosette.tileWidth);
     canvasContext.strokeStyle = rosette.lineqColor;
@@ -185,6 +191,7 @@ function draw() {
     for (let i = 0; i < n; i++) {
         line(i, i + 3);
     }
+
 }
 
 output.setDrawMethods(draw);

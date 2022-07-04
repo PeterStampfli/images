@@ -1,14 +1,16 @@
-{
-    "name": "new fivefold 2 + phi",
+/* jshint esversion: 6 */
+
+export const tenFoldPentagons = {
+    "name": "ten-fold pentagons",
 
     "range": 2,
     "center": [0.5, 0.7],
 
     "order": 10,
     "inflation": 3.618,
-    "maxGeneration": 3,
+    "maxGeneration": 4,
 
-    "drawGeneration": 1,
+    "drawGeneration": 3,
 
     "initial": "pentagon",
 
@@ -18,7 +20,8 @@
                 [1],
                 [],
                 [0, 1]
-            ], "overprint": [
+            ],
+            "overprint": [
                 [1],
                 [0, 1]
             ],
@@ -36,11 +39,15 @@
                 "origin": [0, 1]
             }, {
                 "name": "AHalf",
-                "origin": [1,1,1]
+                "origin": [1, 1, 1]
             }, {
                 "name": "AHalf",
-                "origin": [1,1,0,0,-1]
-            },{"name":"pentagon","origin":[1,2,0,0,-1],"orientation":3}]
+                "origin": [1, 1, 0, 0, -1]
+            }, {
+                "name": "pentagon",
+                "origin": [1, 2, 0, 0, -1],
+                "orientation": 3
+            }]
         },
         "A": {
             "shape": [
@@ -66,7 +73,8 @@
                 [],
                 [1],
                 [1, 0, 1]
-            ],          "overprint": [
+            ],
+            "overprint": [
                 [],
                 [1, 0, 1]
             ],
@@ -74,7 +82,7 @@
             "border": [],
             "color": "#ffff00",
             "substitution": [{
-                "name": "BHalf"
+                "name": "A"
             }, {
                 "name": "B",
                 "origin": [1, 1, 0, 0, -1]
@@ -83,9 +91,8 @@
             }, {
                 "name": "BHalf"
             }, {
-                "name": "A",
-                "origin": [1],
-                "orientation": 1
+                "name": "BHalf",
+                "origin": [0, 1]
             }, {
                 "name": "AHalf",
                 "origin": [1, 1, 1, 0, -1],
@@ -96,13 +103,15 @@
                 "orientation": 3
             }, {
                 "name": "A",
-                "origin": [2, 2, 1, 1, -1],
-                "orientation": 5
-            }, {
-                "name": "BHalf"
+                "origin": [2, 1, 1, 1, -1],
+                "orientation": 1
             }, {
                 "name": "BHalf",
-                "origin": [1, 2, 1, 1, -1]
+                "origin": [2, 2, 1, 1, -1],
+                "orientation": -4
+            }, {
+                "name": "BHalf",
+                "origin": [1, 1, 1, 1, -1]
             }]
         },
         "B": {
@@ -128,20 +137,30 @@
                 [1],
                 [1, 0, 1],
                 [1, 0, 1, 0, 1],
-                [0,0,0,1]
-            ], 
+                [0, 0, 0, 1]
+            ],
             "color": "#ff8800",
             "substitution": [{
-                "name": "B",
-                "origin": [1, 1, 1, 1],"orientation":1
+                "name": "A",
+                "origin": [1, 1, 1, 1]
             }, {
-                "name": "B"
+                "name": "A"
             }, {
-                "name": "B"
+                "name": "A"
             }, {
-                "name": "B"
+                "name": "A"
             }, {
-                "name": "B"
+                "name": "A"
+            }, {
+                "name": "A"
+            }, {
+                "name": "A"
+            }, {
+                "name": "A"
+            }, {
+                "name": "A"
+            }, {
+                "name": "A"
             }, {
                 "name": "B",
                 "origin": [1],
@@ -166,9 +185,7 @@
                 "name": "B",
                 "origin": [1, 1, 0, 0, -1]
             }, {
-                "name": "A"
-            }, {
-                "name": "A"
+                "name": "B"
             }, {
                 "name": "BHalf"
             }, {
@@ -176,9 +193,7 @@
                 "origin": [2, 2, 1, 1, -1],
                 "orientation": 2
             }, {
-                "name": "A"
-            }, {
-                "name": "A"
+                "name": "B"
             }, {
                 "name": "BHalf"
             }, {
@@ -186,9 +201,7 @@
                 "origin": [1, 2, 2, 2],
                 "orientation": 4
             }, {
-                "name": "A"
-            }, {
-                "name": "A"
+                "name": "B"
             }, {
                 "name": "BHalf"
             }, {
@@ -196,9 +209,7 @@
                 "origin": [0, 1, 1, 2, 1],
                 "orientation": 6
             }, {
-                "name": "A"
-            }, {
-                "name": "A"
+                "name": "B"
             }, {
                 "name": "BHalf"
             }, {
@@ -206,12 +217,10 @@
                 "origin": [0, 0, 0, 1],
                 "orientation": 8
             }, {
-                "name": "A"
-            }, {
-                "name": "A"
+                "name": "B"
             }, {
                 "name": "BHalf"
             }]
         }
     }
-}
+};

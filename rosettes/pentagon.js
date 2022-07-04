@@ -19,7 +19,7 @@ const canvasContext = canvas.getContext('2d');
 
 output.addCoordinateTransform();
 output.addCursorposition();
-output.setInitialCoordinates(0, 1.2, 4);
+output.setInitialCoordinates(0, 0.5, 4);
 output.addGrid();
 
 // parameters for drawing
@@ -82,14 +82,19 @@ function line(i, j) {
 }
 
 function triangle(i, j, k) {
+    canvasContext.strokeStyle = "#000000";
+    canvasContext.fillStyle=rosette.tileColor;
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[i], y[i]);
     output.canvasContext.lineTo(x[j], y[j]);
     output.canvasContext.lineTo(x[k], y[k]);
+    canvasContext.closePath();
     canvasContext.fill();
+    canvasContext.stroke();
 }
 
 function quad(i, j, k, m) {
+    canvasContext.fillStyle=rosette.tileColor;
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[i], y[i]);
     output.canvasContext.lineTo(x[j], y[j]);
@@ -101,6 +106,7 @@ function quad(i, j, k, m) {
 }
 
 function B() {
+    canvasContext.fillStyle=rosette.tileColor;
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[4], y[4]);
     output.canvasContext.lineTo(x[0], y[0]);
@@ -125,6 +131,7 @@ function APentagon() {
 
 function A() {
     const t = 1/1.618;
+    canvasContext.fillStyle=rosette.tileColor;
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[1], y[1]);
     output.canvasContext.lineTo(x[2], y[2]);
@@ -150,20 +157,18 @@ function draw() {
         x[i] = Math.cos(angle * (i) + Math.PI / 2);
         y[i] = Math.sin(angle * (i) + Math.PI / 2);
     }
-    canvasContext.fillStyle = rosette.tileColor;
-    output.setLineWidth(rosette.lineWidth);
-    canvasContext.setLineDash([]);
 
     // thick rhomb
-    //B();
+    B();
     // thin rhomb, match to pentagon
     // APentagon();
-    A();
+   // A();
     // C rhomb
     //C();
     //   triangle(6,1, 3);
     // first quad
-    // quad(3,4,5,6);
+    // quad(1,2,3,4);
+   // triangle(4,0,1);
     // second
     //quad(3,4,5,0);
 
@@ -171,7 +176,7 @@ function draw() {
     // quad(2,4,5,0);
 
     output.setLineWidth(rosette.tileWidth);
-    canvasContext.strokeStyle = rosette.lineqColor;
+    canvasContext.strokeStyle = rosette.lineColor;
 
     const dash = rosette.tileWidth * output.coordinateTransform.totalScale;
 
@@ -190,6 +195,13 @@ function draw() {
     for (let i = 0; i < n; i++) {
         //    line(i, i + 3);
     }
+        canvasContext.strokeStyle = "#0000ff";
+    output.setLineWidth(rosette.lineWidth);
+    canvasContext.setLineDash([]);
+    canvasContext.beginPath();
+    canvasContext.arc(0,0,1,0,Math.PI*2);
+    canvasContext.stroke();
+
 }
 
 output.setDrawMethods(draw);

@@ -1,14 +1,16 @@
-{
+/* jshint esversion: 6 */
+
+export const penroseRhombus = {
     "name": "Penrose rhombus",
 
-    "range": 2,
-    "center": [0, 0.5],
+    "range": 3,
+    "center": [0, 0],
 
     "order": 10,
     "inflation": 1.618,
     "maxGeneration": 5,
 
-    "drawGeneration": 0,
+    "drawGeneration": 4,
 
     "initial": "decagon",
 
@@ -96,7 +98,7 @@
                 "name": "BLeft",
                 "origin": [1, 1, 0, 0, -1],
                 "orientation": 4
-            },{
+            }, {
                 "name": "ARight",
                 "origin": [0, 1],
                 "orientation": 1
@@ -120,13 +122,13 @@
                 "name": "BLeft",
                 "origin": [0, 1, 0, 0, -1],
                 "orientation": 5
-            },{
+            }, {
                 "name": "BRight",
                 "origin": [1, 1, 0, 0, -1],
                 "orientation": 6
-            },{
+            }, {
                 "name": "ALeft",
-                "origin": [0, 0,0,0,-1],
+                "origin": [0, 0, 0, 0, -1],
                 "orientation": 9
             }]
         },
@@ -147,29 +149,33 @@
         },
         "decagon": {
             "shape": [
-                [0,1],
-                [0,1,0,1],
-                [0,0,0,1],
-                [0,0,0,1,0,1],
-                [0,0,0,0,0,1],
-                [0,0,0,0,0,1,0,1],
-                [0,0,0,0,0,0,0,1],
-                [0,0,0,0,0,0,0,1,0,1],
-                [0,0,0,0,0,0,0,0,0,1],
-                [0,0,0,0,0,0,0,0,0,1,0,1]
+                [0, 1],
+                [0, 1, 0, 1],
+                [0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1]
             ],
             "color": "#ff00ff",
             "composition": [{
                 "name": "B"
             }, {
-                "name": "B","orientation":2
+                "name": "B",
+                "orientation": 2
             }, {
-                "name": "B","orientation":4
+                "name": "B",
+                "orientation": 4
             }, {
-                "name": "B","orientation":6
+                "name": "B",
+                "orientation": 6
             }, {
-                "name": "B","orientation":8
+                "name": "B",
+                "orientation": 8
             }]
         }
     }
-}
+};
