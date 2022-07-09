@@ -11,9 +11,13 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * additional parameter: limit
+ * additional parameter: limit   (or radius)
  *     if (x,y) outside circle of radius limit (x*x+y*y>limit*limit) 
  *     inverts (x,y) at circle with radius limit (x,y)=(limit*limit/(x*x+y*y))*(x,y)
+ *
+ * optional parameter: power (default=1)
+ *     modifies the mapping by calculating the power of the scaling
+ *     (x,y)=((limit*limit/(x*x+y*y))^power) * (x,y)
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -38,7 +42,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, limit, limit2, r2, factor, x, y;
+    float r, phi, limit, limit2, power, r2, factor, x, y;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -77,38 +81,73 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     limit = (float) mxGetScalar(prhs[1]);
     limit2 = limit * limit;
-        
+    power = 1;
+    if (nrhs == 3) {
+        power = (float) mxGetScalar(prhs[2]);
+    }        
     /* do the map*/
     /* row first order*/
     nX = dims[1];
     nY = dims[0];
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
-
-    for (index = 0; index < nXnY; index++){
-        inverted = inMap[index + nXnY2];
-        /* do only transform if pixel is valid*/
-        if (inverted < -0.1f) {
-            if (returnsMap){
-                /* set element only if new output map*/
-                outMap[index] = INVALID;
-                outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;      
+    
+    /* check for the power argumment */
+    if (fabsf(power - 1) < 0.001){
+        /* fast calculation without power (default) */
+        for (index = 0; index < nXnY; index++){
+            inverted = inMap[index + nXnY2];
+            /* do only transform if pixel is valid*/
+            if (inverted < -0.1f) {
+                if (returnsMap){
+                    /* set element only if new output map*/
+                    outMap[index] = INVALID;
+                    outMap[index + nXnY] = INVALID;
+                    outMap[index + nXnY2] = INVALID;      
+                }
+                continue;
             }
-            continue;
-        }
-        x = inMap[index];
-        y = inMap[index + nXnY];
-        r2 = x * x + y * y;
- 
-        if (r2 > limit2) {
-           factor = limit2 / r2;
-           x *= factor;
-           y *= factor;
-           inverted= 1 - inverted;
-        }        
-        outMap[index] = x;
-        outMap[index + nXnY] = y;
-        outMap[index + nXnY2] = inverted;
-    } 
+            x = inMap[index];
+            y = inMap[index + nXnY];
+            r2 = x * x + y * y;
+
+            if (r2 > limit2) {
+               factor = limit2 / r2;
+               x *= factor;
+               y *= factor;
+               inverted= 1 - inverted;
+            }        
+            outMap[index] = x;
+            outMap[index + nXnY] = y;
+            outMap[index + nXnY2] = inverted;
+        } 
+    } else {
+        /* slower calculation with arbitrary power */
+        for (index = 0; index < nXnY; index++){
+            inverted = inMap[index + nXnY2];
+            /* do only transform if pixel is valid*/
+            if (inverted < -0.1f) {
+                if (returnsMap){
+                    /* set element only if new output map*/
+                    outMap[index] = INVALID;
+                    outMap[index + nXnY] = INVALID;
+                    outMap[index + nXnY2] = INVALID;      
+                }
+                continue;
+            }
+            x = inMap[index];
+            y = inMap[index + nXnY];
+            r2 = x * x + y * y;
+
+            if (r2 > limit2) {
+               factor = powf(limit2 / r2, power);
+               x *= factor;
+               y *= factor;
+               inverted= 1 - inverted;
+            }        
+            outMap[index] = x;
+            outMap[index + nXnY] = y;
+            outMap[index + nXnY2] = inverted;
+        } 
+    }
 }

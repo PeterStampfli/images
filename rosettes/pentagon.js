@@ -118,6 +118,7 @@ function B() {
 }
 
 function APentagon() {
+    canvasContext.fillStyle=rosette.tileColor;
     output.canvasContext.beginPath();
     output.canvasContext.moveTo(x[0], y[0]);
     output.canvasContext.lineTo(x[2], y[2]);
@@ -159,9 +160,9 @@ function draw() {
     }
 
     // thick rhomb
-    B();
+ //   B();
     // thin rhomb, match to pentagon
-    // APentagon();
+     APentagon();
    // A();
     // C rhomb
     //C();
@@ -199,7 +200,7 @@ function draw() {
     output.setLineWidth(rosette.lineWidth);
     canvasContext.setLineDash([]);
     canvasContext.beginPath();
-    canvasContext.arc(0,0,1,0,Math.PI*2);
+  //  canvasContext.arc(0,0,1,0,Math.PI*2);
     canvasContext.stroke();
 
 }

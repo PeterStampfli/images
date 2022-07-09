@@ -302,7 +302,6 @@ function draw() {
     //  mirrors();
 
     output.setLineWidth(rosette.tileWidth);
-    console.log(r2);
     canvasContext.strokeStyle = "#0000ff";
     canvasContext.beginPath();
     canvasContext.arc(0, 0, Math.sqrt(r2), 0, Math.PI * 2);
