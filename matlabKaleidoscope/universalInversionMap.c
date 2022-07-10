@@ -1,9 +1,10 @@
 /*==========================================================
- * inversionMap:  if (x,y) outside circle of a given radius limit (x*x+y*y>limit*limit) 
- *     inverts (x,y) at circle with radius limit (x,y)=(limit*limit/(x*x+y*y))*(x,y)
+ * universalInversionMap:  
+ *     inverts (x,y) at circle with given radius, center at (centerX,centerY), depending on
+ *     if (insideOut==1) does inversion for all (x,y) inside the circle
+ *        else inversion for all points outside
  *
- * inversionMap(map, limit);
- * inversionMap(map, limit,power);
+ * universalInversionMap(map,radius,centerX,centerY,insideOut)
  *
  * Input:
  * first the map. 
@@ -12,14 +13,12 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * additional parameter: limit   (or radius)
- *     if (x,y) outside circle of radius limit (x*x+y*y>limit*limit) 
- *     inverts (x,y) at circle with radius limit (x,y)=(limit*limit/(x*x+y*y))*(x,y)
- *
- * optional parameter: power (default=1)
- *     modifies the mapping by calculating the power of the scaling
- *     (x,y)=((limit*limit/(x*x+y*y))^power) * (x,y)
- *
+ * additional parameters: 
+ * radius
+ * centerX
+ * centerY
+ * insideOut
+ * 
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
  * does not change the map and returns a modified map if used as  a function
@@ -43,12 +42,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, limit, limit2, power, r2, factor, x, y;
+    float r, phi, radius, radius2, centerX, centerY, insideOut, r2, factor, x, y, dx, dy;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 2) {
-        mexErrMsgIdAndTxt("rescaleMap:nrhs","A map input and (scalar) limit required.");
+    if(nrhs < 5) {
+        mexErrMsgIdAndTxt("rescaleMap:nrhs","A map input and (scalars) radius centerX, centerY and insideOut required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -80,12 +79,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    limit = (float) mxGetScalar(prhs[1]);
-    limit2 = limit * limit;
-    power = 1;
-    if (nrhs == 3) {
-        power = (float) mxGetScalar(prhs[2]);
-    }        
+    radius = (float) mxGetScalar(prhs[1]);
+    radius2 = radius * radius;
+    centerX = (float) mxGetScalar(prhs[2]);
+    centerY = (float) mxGetScalar(prhs[3]);
+    insideOut = (float) mxGetScalar(prhs[4]);
+ 
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -93,9 +92,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
     
-    /* check for the power argumment */
-    if (fabsf(power - 1) < 0.001){
-        /* fast calculation without power (default) */
+    if (insideOut > 0.5){
+    
         for (index = 0; index < nXnY; index++){
             inverted = inMap[index + nXnY2];
             /* do only transform if pixel is valid*/
@@ -110,20 +108,22 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             x = inMap[index];
             y = inMap[index + nXnY];
-            r2 = x * x + y * y;
-
-            if (r2 > limit2) {
-               factor = limit2 / r2;
-               x *= factor;
-               y *= factor;
+            dx = x - centerX;
+            dy = y - centerY;
+            r2 = dx * dx + dy * dy;
+            /*  inside -> out*/
+            if (r2 < radius2) {
+               factor = radius2 / r2;
+               x = centerX + factor * dx;
+               y = centerY + factor * dy;
                inverted= 1 - inverted;
             }        
             outMap[index] = x;
             outMap[index + nXnY] = y;
             outMap[index + nXnY2] = inverted;
-        } 
-    } else {
-        /* slower calculation with arbitrary power */
+        }
+    }
+    else {
         for (index = 0; index < nXnY; index++){
             inverted = inMap[index + nXnY2];
             /* do only transform if pixel is valid*/
@@ -138,17 +138,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             x = inMap[index];
             y = inMap[index + nXnY];
-            r2 = x * x + y * y;
-
-            if (r2 > limit2) {
-               factor = powf(limit2 / r2, power);
-               x *= factor;
-               y *= factor;
+            dx = x - centerX;
+            dy = y - centerY;
+            r2 = dx * dx + dy * dy;
+            /*  outside->in*/
+            if (r2 > radius2) {
+               factor = radius2 / r2;
+               x = centerX + factor * dx;
+               y = centerY + factor * dy;
                inverted= 1 - inverted;
             }        
             outMap[index] = x;
             outMap[index + nXnY] = y;
             outMap[index + nXnY2] = inverted;
-        } 
+        }
     }
 }
