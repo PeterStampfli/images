@@ -5,13 +5,13 @@ function testGeneralInversion()
 
 s = 1000;
 mPix=s*s/1e6;
-range=2;
+range=1;
 map=createIdentityMap(mPix,-range,range,-range,range);
+universalInversionMap(map,0.5,0.2,0,0);
 
-universalInversionMap(map,0.5,0,0,1);
-universalInversionMap(map,0.7,0,0,1);
+basicKaleidoscope(map,5,4,2);
 
 im=createStructureImage(map);
 imshow(im);
-%imwrite(im,'image.jpg');
+imwrite(im,'outsideIn.jpg');
 end

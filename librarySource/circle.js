@@ -470,7 +470,6 @@ function Circle(radius, center, centerY) {
         const d = this.center.distance(circle.center);
         let circleRadius = circle.radius;
         if (Math.abs(d - circleRadius) < epsilonPlus) {
-            console.log("pfff");
             if (d - circleRadius >= 0) {
                 circleRadius -= epsilonPlus;
             } else {

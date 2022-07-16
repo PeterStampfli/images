@@ -1,7 +1,7 @@
 /*==========================================================
  * universalInversionMap:  
  *     inverts (x,y) at circle with given radius, center at (centerX,centerY), depending on
- *     if (insideOut==1) does inversion for all (x,y) inside the circle
+ *     if (insideOut>0.5) does inversion for all (x,y) inside the circle
  *        else inversion for all points outside
  *
  * universalInversionMap(map,radius,centerX,centerY,insideOut)
@@ -34,6 +34,8 @@
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
 #define INVALID -1000
+#define EPS2 1e-6
+#define IEPS2 1e6
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
@@ -113,9 +115,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
             r2 = dx * dx + dy * dy;
             /*  inside -> out*/
             if (r2 < radius2) {
-               factor = radius2 / r2;
-               x = centerX + factor * dx;
-               y = centerY + factor * dy;
+               if (r2 < EPS2){
+                   x = centerX + IEPS2;
+                   y = centerY + IEPS2;
+               }
+               else {
+                   factor = radius2 / r2;
+                   x = centerX + factor * dx;
+                   y = centerY + factor * dy;
+               }
                inverted= 1 - inverted;
             }        
             outMap[index] = x;

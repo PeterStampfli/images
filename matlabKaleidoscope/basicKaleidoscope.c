@@ -287,6 +287,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     dx = x - circleCenterX;
                     dy = y - circleCenterY;
                     d2 = dx * dx + dy * dy;
+                    /* d2 always larger than zero, because only points inside th Poincare disc*/
+                    /* are considered, center of inverting sphere lies outside */
                     if (d2 < circleRadius2){
                         inverted = 1 - inverted;
                         factor = circleRadius2 / d2;

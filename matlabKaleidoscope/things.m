@@ -1,4 +1,4 @@
-function testZerosPolynomThings()
+function things()
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 % shows pattern of inversions
