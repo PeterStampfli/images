@@ -1,6 +1,7 @@
 /*==========================================================
  * rosette: generates a dihedral group as very simple kaleidoscope
  *
+ * rosette(map, k, angle, centerX, centerY,radius);
  * rosette(map, k, angle, centerX, centerY);
  *
  * Input:
@@ -16,6 +17,9 @@
  *        centerX:  x-coordinate of the center
  *        centerY:  y-coordinate of the center
  *
+ *   optional
+ *   real radius: does only points closer to the centter than radius
+ *                other points are invalid
  *
  * returns nothing and modifies the map argument if used as a procedure:
  *   rosette(map, k, angle, centerX, centerY);
@@ -48,11 +52,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float sines[200], cosines[200], dAngle;
     int rotation;
     float sine, cosine, h;
-    float centerX, centerY, angle, sinAngle, cosAngle;
+    float centerX, centerY, angle, sinAngle, cosAngle, radius, radius2;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 4) {
-        mexErrMsgIdAndTxt("rosette:nrhs","A map input plus 4 geometry params required.");
+    if(nrhs < 5) {
+        mexErrMsgIdAndTxt("rosette:nrhs","A map input plus k, angle, centerX, centerY required and optional radius.");
     }
     /* check number of dimensions of the map (array)*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -102,7 +106,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         return;
     }
     angle = (float) mxGetScalar(prhs[2]);
-    angle = angle - 2 * PI* floorf(0.5 * angle / PI);
     cosAngle = cosf(angle);
     sinAngle = sinf(angle);
     centerX = (float) mxGetScalar(prhs[3]);
@@ -126,40 +129,93 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nY = dims[0];
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
-    for (index = 0; index < nXnY; index++){
-        inverted = inMap[index + nXnY2];
-        /* do only transform if pixel is valid*/
-        if (inverted < -0.1f) {
-            if (returnsMap){
-                /* set element only if new output map*/
+    PRINTI(nrhs);
+    if(nrhs == 5) {
+        for (index = 0; index < nXnY; index++){
+            inverted = inMap[index + nXnY2];
+            /* do only transform if pixel is valid*/
+            if (inverted < -0.1f) {
+                if (returnsMap){
+                    /* set element only if new output map*/
+                    outMap[index] = INVALID;
+                    outMap[index + nXnY] = INVALID;
+                    outMap[index + nXnY2] = INVALID;           }
+                continue;
+            }
+            /* shift and rotate */
+            x = inMap[index] - centerX;
+            y = inMap[index + nXnY] - centerY;
+            h = cosAngle * x + sinAngle * y;
+            y = -sinAngle * x + cosAngle * y;
+            x = h;
+            /* make dihedral map to put point in first sector*/
+            rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
+            cosine = cosines[rotation];
+            sine = sines[rotation];
+            h = cosine * x + sine * y;
+            y = -sine * x + cosine * y;
+            x = h;
+            if (y < 0){
+                y = -y;
+                inverted = 1 - inverted;
+            }
+            /* unshift and unrotate */
+            h = cosAngle * x - sinAngle * y + centerX;
+            y = sinAngle * x + cosAngle * y + centerY;
+            x = h;
+            outMap[index] = x;
+            outMap[index + nXnY] = y;
+            outMap[index + nXnY2] = inverted;
+        }    
+    }
+    else {
+        radius = (float) mxGetScalar(prhs[5]);
+        radius2 = radius * radius;
+        PRINTF(radius);
+        
+        for (index = 0; index < nXnY; index++){
+            inverted = inMap[index + nXnY2];
+            /* do only transform if pixel is valid*/
+            if (inverted < -0.1f) {
+                if (returnsMap){
+                    /* set element only if new output map*/
+                    outMap[index] = INVALID;
+                    outMap[index + nXnY] = INVALID;
+                    outMap[index + nXnY2] = INVALID;           }
+                continue;
+            }
+            /* shift and rotate */
+            x = inMap[index] - centerX;
+            y = inMap[index + nXnY] - centerY;
+            /* limit radius*/
+            if (x * x + y * y >= radius2){
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;           }
-            continue;
-        }
-        /* shift and rootate */
-        x = inMap[index] - centerX;
-        y = inMap[index + nXnY] - centerY;
-        h = cosAngle * x + sinAngle * y;
-        y = -sinAngle * x + cosAngle * y;
-        x = h;
-        /* make dihedral map to put point in first sector*/
-        rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
-        cosine = cosines[rotation];
-        sine = sines[rotation];
-        h = cosine * x + sine * y;
-        y = -sine * x + cosine * y;
-        x = h;
-        if (y < 0){
-            y = -y;
-            inverted = 1 - inverted;
-        }
-        /* unshift and unrotate */
-        h = cosAngle * x - sinAngle * y + centerX;
-        y = sinAngle * x + cosAngle * y + centerY;
-        x = h;
-        outMap[index] = x;
-        outMap[index + nXnY] = y;
-        outMap[index + nXnY2] = inverted;
-    }        
+                outMap[index + nXnY2] = INVALID;
+                continue;
+            }
+
+            h = cosAngle * x + sinAngle * y;
+            y = -sinAngle * x + cosAngle * y;
+            x = h;
+            /* make dihedral map to put point in first sector*/
+            rotation = (int) floorf(atan2f(y, x) * iGamma2 + kPlus05);
+            cosine = cosines[rotation];
+            sine = sines[rotation];
+            h = cosine * x + sine * y;
+            y = -sine * x + cosine * y;
+            x = h;
+            if (y < 0){
+                y = -y;
+                inverted = 1 - inverted;
+            }
+            /* unshift and unrotate */
+            h = cosAngle * x - sinAngle * y + centerX;
+            y = sinAngle * x + cosAngle * y + centerY;
+            x = h;
+            outMap[index] = x;
+            outMap[index + nXnY] = y;
+            outMap[index + nXnY2] = inverted;
+        }    
+    }
 }

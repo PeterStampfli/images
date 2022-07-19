@@ -1,0 +1,2 @@
+function vm = basicKaleidoscope(map)
+
