@@ -175,7 +175,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         /* calculate polynom w=p(z) with zeros a and amplitude factor*/
         /* include unwinding*/
         phi = - unwinding * atan2f(y, x);
-        w = amplitude * (cosf(phi) + I * sinf(phi);
+        w = amplitude * (cosf(phi) + I * sinf(phi));
         for (i = power - 1; i >= 0; i--){
             w = w * (z - a[i]);
         }

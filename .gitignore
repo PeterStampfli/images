@@ -5,8 +5,11 @@
 
 #image files and similar
 **/*.png
+**/*.PNG
 **/*.jpg
+**/*.JPG
 **/*.pdf
+**/*.PDF
 
 #matlab
 **/*.asv

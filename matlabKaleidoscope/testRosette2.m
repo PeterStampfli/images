@@ -20,5 +20,5 @@ for ix=1:s
     end
 end
 imshow(im)
-imwrite(im,'rosette.jpg');
+%imwrite(im,'rosette.jpg');
 end
