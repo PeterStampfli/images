@@ -17,5 +17,5 @@ inputImage = imread("dionisos.jpeg");
 outputImage = createOutputImage(map,inputImage);
 
 imshow(outputImage);
-%imwrite(outputImage,'image.jpg');
+%imwrite(outputImage,'rosetteimage.jpg');
 end
