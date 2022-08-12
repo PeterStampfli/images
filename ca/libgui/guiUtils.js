@@ -106,16 +106,6 @@ guiUtils.isObject = function(p) {
 };
 
 /**
- * test if a variable is a function (creator)
- * @method guiUtils.isFunction
- * @param {anything} p
- * @return true if p is an object
- */
-guiUtils.isFunction = function(p) {
-    return ((typeof p) === "function");
-};
-
-/**
  * safely call argument if it is defined and a function
  * @method guiUtils.do
  * @param {whatever} fun

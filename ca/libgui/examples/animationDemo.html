@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title>animation demo</title>
+</head>
+
+<body>
+
+
+</body>
+
+<script type="module">
+import {
+    ParamGui,
+    output,
+    animation
+}
+from "../modules.js";
+
+const gui = new ParamGui({
+    name: "animation demo control",
+    closed:false
+});
+
+output.createCanvas(gui,'canvas control');
+const canvas = output.canvas;
+const canvasContext = canvas.getContext('2d');
+canvas.style.backgroundColor = 'lightBlue';
+
+// we need some stupid animation
+const animGui=gui.addFolder({closed:false,name:"animation"});
+
+animation.createUI(animGui);
+
+const b=animation.addStepsButton(animGui,"10 steps",10);
+const bb=animation.addStepsButton(b,"30 steps",30);
+
+animation.addRecording(animGui);
+
+var x = 0;
+const stepSize = 0.01;
+const size = 0.1;
+
+const anim = {};
+
+anim.step = function() {
+    x += stepSize;
+    if (x > 1) {
+        x = 0;
+    }
+}
+
+anim.draw = function() {
+    canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+    canvasContext.fillStyle = "red";
+    canvasContext.fillRect(x * canvas.width, canvas.height / 2, size * canvas.height, size * canvas.height);
+}
+
+anim.reset = function() {
+    x = 0;
+};
+
+animation.setObject(anim);
+anim.reset();
+output.drawCanvasChanged=anim.draw;
+output.firstDrawing();
+</script>
+
+</html>

@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<head>
+    <title> output canvas (test)</title>
+</head>
+
+<body>
+
+
+</body>
+
+
+
+<script type='module'>
+
+import {
+    CoordinateTransform,
+    Pixels,
+    ParamGui,
+    output,
+    map
+} from "../modules.js";
+const gui = new ParamGui({
+    name: 'test',
+    closed: false
+});
+// an output canvas and some test image
+output.createCanvas(gui);
+output.createPixels();
+const canvas = output.canvas;
+const canvasContext = output.canvasContext;
+gui.addTitle('coordinate transform')
+output.addCoordinateTransform(gui, true);
+gui.addTitle('grid');
+
+output.addGrid(gui);
+var pix = output.pixels;
+output.setInitialCoordinates(0,0,3);
+
+function draw() {
+    pix.update();
+    const color = {};
+    const height = canvas.height;
+    const width = canvas.width;
+    const v = {};
+    v.x = 1
+    v.y = 1
+    let xMin = 1000000;
+    let xMax = -1000000;
+    let index = 0;
+    for (var j = 0; j < height; j++) {
+        for (var i = 0; i < width; i++) {
+            v.y = j;
+            v.x = i;
+            output.coordinateTransform.transform(v);
+            let red = 0;
+            let green = 0;
+            let blue = 200;
+            if ((Math.round(v.x) + Math.round(v.y)) & 1) {
+                red = 255;
+            }
+            if ((v.x > 0) & (v.y > 0) & (v.x < 0.5) & (v.y < 0.5)) {
+                green = 255;
+            }
+            color.red = red;
+            color.alpha = 255;
+            color.green = green;
+            color.blue = blue;
+            pix.setColorAtIndex(color, index);
+            index += 1;
+        }
+    }
+    // canvasContext.putImageData(imageData, 0, 0);
+    pix.show();
+    output.drawGrid();
+}
+output.drawCanvasChanged = draw;
+output.drawGridChanged=function(){
+    output.pixels.show();
+    output.drawGrid();
+};
+output.firstDrawing();
+
+</script>
+
+</html>
