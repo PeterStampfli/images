@@ -22,8 +22,35 @@ output.createCanvas(gui, {
 
 output.addCoordinateTransform();
 output.addCursorposition();
-output.setInitialCoordinates(0, 0, 10);
+output.setInitialCoordinates(0, 0, 2.5);
 output.addGrid();
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'fill',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'stroke',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'vertices',
+    onChange: function() {
+        draw();
+    }
+});
 
 gui.add({
     type: 'color',
@@ -35,7 +62,7 @@ gui.add({
     }
 });
 
-gui.add({ 
+gui.add({
     type: 'number',
     params: Polygon,
     property: 'lineWidth',
@@ -45,11 +72,71 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'vertexSize',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'generations',
+    min: 0,
+    step: 1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'symmetry',
+    min: 3,
+    step: 1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: Polygon,
+    property: 'initial',
+    options: [
+        'triangles', 'quadrangles', 'pseudo quadrangles'
+    ],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'initialAddVertices',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'additionalVertices',
+    onChange: function() {
+        draw();
+    }
+});
+
 // for simple things
 // draw routine creates structure too
 
 function draw() {
-    console.log("creating and drawing");
     // initialize output canvas
     output.correctYAxis();
     output.lineRound();
@@ -58,7 +145,18 @@ function draw() {
 
     //  create structure
 
-    console.log(Polygon.createRegular(5));
+    const basisPolygon = Polygon.createRegular(Polygon.symmetry);
+    switch (Polygon.initial) {
+        case 'triangles':
+            basisPolygon.initialTriangles();
+            break;
+        case 'quadrangles':
+            basisPolygon.initialQuadrangles();
+            break;
+        case 'pseudo quadrangles':
+            basisPolygon.initialPseudoQuadrangles();
+            break;
+    }
 }
 
 output.setDrawMethods(draw);
