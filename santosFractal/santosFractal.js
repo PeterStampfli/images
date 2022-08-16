@@ -106,6 +106,18 @@ gui.add({
 gui.add({
     type: 'selection',
     params: Polygon,
+    property: 'subdivApproach',
+    options: [
+        'graphEuclidean','mod 3','mod 4'
+    ],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: Polygon,
     property: 'initial',
     options: [
         'triangles', 'quadrangles', 'pseudo quadrangles'

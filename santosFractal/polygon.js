@@ -28,12 +28,27 @@ Polygon.lineWidth = 2;
 Polygon.vertexSize = 0.02;
 Polygon.initial = 'triangles';
 Polygon.additionalVertices = false;
-Polygon.initialAddVertices = true;
+Polygon.initialAddVertices = false;
 
 // geometry options
 Polygon.useOffset = false;
-Polygon.generations = 3;
+Polygon.generations = 2;
 Polygon.symmetry = 5;
+Polygon.subdivApproach = 'graphEuclidean';
+
+// calculate center of polygon
+Polygon.prototype.getCenter = function() {
+    let centerX = 0;
+    let centerY = 0;
+    let length = this.cornersX.length;
+    for (let i = 0; i < length; i++) {
+        centerX += this.cornersX[i];
+        centerY += this.cornersY[i];
+    }
+    centerX /= length;
+    centerY /= length;
+    return [centerX, centerY];
+};
 
 // adding a corner
 Polygon.prototype.addCorner = function(x, y) {
@@ -52,23 +67,20 @@ Polygon.prototype.interpolate = function(t) {
     return result;
 };
 
+// add an interpolated corner
+Polygon.prototype.addInterpolatedCorner = function(parent, t) {
+    const c = parent.interpolate(t);
+    this.addCorner(c.x, c.y);
+};
+
 // make initial triangles, one for each side
 Polygon.prototype.initialTriangles = function() {
-    // get center
-    let centerX = 0;
-    let centerY = 0;
-    let length = this.cornersX.length;
-    for (let i = 0; i < length; i++) {
-        centerX += this.cornersX[i];
-        centerY += this.cornersY[i];
-    }
-    centerX /= length;
-    centerY /= length;
-    // repeat first point and second (interpolation)
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    const nChilds = this.cornersX.length;
+    // repeat first point
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     // subdivision of border
-    // number of child polygons for fractal
-    const nChilds = length;
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
     for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
@@ -87,21 +99,12 @@ Polygon.prototype.initialTriangles = function() {
 
 // make initial pseudo quadrangles, one for each side
 Polygon.prototype.initialPseudoQuadrangles = function() {
-    // get center
-    let centerX = 0;
-    let centerY = 0;
-    let length = this.cornersX.length;
-    for (let i = 0; i < length; i++) {
-        centerX += this.cornersX[i];
-        centerY += this.cornersY[i];
-    }
-    centerX /= length;
-    centerY /= length;
-    // repeat first point and second (interpolation)
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    const nChilds = this.cornersX.length;
+    // repeat first point (interpolation)
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     // subdivision of border
-    // number of child polygons for fractal
-    const nChilds = length;
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
     for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
@@ -121,22 +124,13 @@ Polygon.prototype.initialPseudoQuadrangles = function() {
 
 // make initial quadrangles, one for each corner
 Polygon.prototype.initialQuadrangles = function() {
-    // get center
-    let centerX = 0;
-    let centerY = 0;
-    let length = this.cornersX.length;
-    for (let i = 0; i < length; i++) {
-        centerX += this.cornersX[i];
-        centerY += this.cornersY[i];
-    }
-    centerX /= length;
-    centerY /= length;
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    const nChilds = this.cornersX.length;
     // repeat first point and second (interpolation)
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     this.addCorner(this.cornersX[1], this.cornersY[1]);
     // subdivision of border
-    // number of child polygons for fractal
-    const nChilds = length;
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
     for (let i = 1; i <= nChilds; i++) {
         const p = new Polygon(this.generation + 1);
@@ -156,63 +150,115 @@ Polygon.prototype.initialQuadrangles = function() {
     }
 };
 
+// graph-euclidean subdivision
+Polygon.prototype.graphEuclidean = function() {
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    let length = this.cornersX.length;
+    // repeat first point and second (interpolation)
+    this.addCorner(this.cornersX[0], this.cornersY[0]);
+    this.addCorner(this.cornersX[1], this.cornersY[1]);
+    // subdivision of border
+    // number of child polygons for fractal all the same
+    const nChilds = Polygon.symmetry;
+    const addVertices = Polygon.additionalVertices && (nChilds >= 5);
+    const delta = length / nChilds;
+    for (let i = 0; i < nChilds; i++) {
+        const tLow = i * delta;
+        const tHigh = tLow + delta;
+        // indices to parent tile corners/vertices between
+        // interpolated new vertices
+        const jLow = Math.floor(tLow + epsilon) + 1;
+        const jHigh = Math.floor(tHigh - epsilon);
+        const p = new Polygon(this.generation + 1);
+        p.addCorner(centerX, centerY);
+        let cLow = this.interpolate(tLow);
+        let cHigh = this.interpolate(tHigh);
+        if (addVertices) {
+            p.addCorner(0.5 * (centerX + cLow.x), 0.5 * (centerY + cLow.y));
+        }
+        p.addCorner(cLow.x, cLow.y);
+        // there should be at most one parent corner (vertex) between
+        // the two interpolated corners
+        if ((jHigh - jLow) >= 1) {
+            alert('subdivide: more than one parent corner between new interpolated corners');
+        } else if (jHigh === jLow) {
+            // one parent corner between new corners, add to new polygon
+            p.addCorner(this.cornersX[jLow], this.cornersY[jLow]);
+        } else {
+            // add a vertex between the interpolated ones to get a quadrilateral
+            p.addCorner(0.5 * (cLow.x + cHigh.x), 0.5 * (cLow.y + cHigh.y));
+        }
+        p.addCorner(cHigh.x, cHigh.y);
+        if (addVertices) {
+            p.addCorner(0.5 * (centerX + cHigh.x), 0.5 * (centerY + cHigh.y));
+        }
+        p.subdivide();
+    }
+};
+
+// mod 3 subdivision for 5 childs
+Polygon.prototype.mod3for5=function(){
+    let length = this.cornersX.length;
+    // can only subdivide a triangle into 5 triangles because of symmetry
+if (length===3){
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(centerX, centerY);
+            p1.addCorner(this.cornersX[0], this.cornersY[0]);
+            p1.addCorner(0.5*(this.cornersX[0]+this.cornersX[1]), 0.5*(this.cornersY[0]+this.cornersY[1]));
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(centerX, centerY);
+            p2.addCorner(this.cornersX[0], this.cornersY[0]);
+            p2.addCorner(0.5*(this.cornersX[0]+this.cornersX[2]), 0.5*(this.cornersY[0]+this.cornersY[2]));
+        p2.subdivide();
+                const p3 = new Polygon(this.generation + 1);
+        p3.addCorner(centerX, centerY);
+            p3.addCorner(this.cornersX[2], this.cornersY[2]);
+            p3.addCorner(0.5*(this.cornersX[0]+this.cornersX[2]), 0.5*(this.cornersY[0]+this.cornersY[2]));
+        p3.subdivide();
+        const p4 = new Polygon(this.generation + 1);
+        p4.addCorner(centerX, centerY);
+            p4.addCorner(this.cornersX[1], this.cornersY[1]);
+            p4.addCorner(0.5*(this.cornersX[0]+this.cornersX[1]), 0.5*(this.cornersY[0]+this.cornersY[1]));
+        p4.subdivide();
+                const p5 = new Polygon(this.generation + 1);
+        p5.addCorner(centerX, centerY);
+            p5.addCorner(this.cornersX[1], this.cornersY[1]);
+            p5.addCorner(this.cornersX[2],this.cornersY[2]);
+        p5.subdivide();
+
+}
+};
+
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
         this.draw();
     } else {
-        // get center
-        let centerX = 0;
-        let centerY = 0;
-        let length = this.cornersX.length;
-        for (let i = 0; i < length; i++) {
-            centerX += this.cornersX[i];
-            centerY += this.cornersY[i];
-        }
-        centerX /= length;
-        centerY /= length;
-        // repeat first point and second (interpolation)
-        this.addCorner(this.cornersX[0], this.cornersY[0]);
-        this.addCorner(this.cornersX[1], this.cornersY[1]);
-        // subdivision of border
-        // number of child polygons for fractal
         const nChilds = Polygon.symmetry;
-        const addVertices = Polygon.additionalVertices && (nChilds >= 5);
-        const delta = length / nChilds;
-        for (let i = 0; i < nChilds; i++) {
-            const tLow = i * delta;
-            const tHigh = tLow + delta;
-            // indices to parent tile corners/vertices between
-            // interpolated new vertices
-            const jLow = Math.floor(tLow + epsilon) + 1;
-            const jHigh = Math.floor(tHigh - epsilon);
-            const p = new Polygon(this.generation + 1);
-            p.addCorner(centerX, centerY);
-            let cLow = this.interpolate(tLow);
-            let cHigh = this.interpolate(tHigh);
-            if (addVertices) {
-                p.addCorner(0.5 * (centerX + cLow.x), 0.5 * (centerY + cLow.y));
-            }
-            p.addCorner(cLow.x, cLow.y);
-            // there should be at most one parent corner (vertex) between
-            // the two interpolated corners
-            if ((jHigh - jLow) >= 1) {
-                alert('subdivide: more than one parent corner between new interpolated corners');
-            } else if (jHigh === jLow) {
-                // one parent corner between new corners, add to new polygon
-                p.addCorner(this.cornersX[jLow], this.cornersY[jLow]);
-            } else {
-                // add a vertex between the interpolated ones to get a quadrilateral
-                p.addCorner(0.5 * (cLow.x + cHigh.x), 0.5 * (cLow.y + cHigh.y));
-            }
-            p.addCorner(cHigh.x, cHigh.y);
-            if (addVertices) {
-                p.addCorner(0.5 * (centerX + cHigh.x), 0.5 * (centerY + cHigh.y));
-            }
-            p.subdivide();
+        switch (Polygon.subdivApproach) {
+            case 'graphEuclidean':
+                this.graphEuclidean();
+                break;
+            case 'mod 3':
+                switch (nChilds) {
+                    case 5:
+                        this.mod3for5();
+                        break;
+                }
+                break;
+            case 'mod 4':
+                switch (nChilds) {
+
+                }
+                break;
         }
     }
 };
+
 
 // draw the polygon
 Polygon.prototype.draw = function() {
