@@ -120,7 +120,7 @@ gui.add({
     params: Polygon,
     property: 'initial',
     options: [
-        'triangles', 'quadrangles', 'pseudo quadrangles'
+        'triangles', 'double triangles','quadrangles', 'pseudo quadrangles'
     ],
     onChange: function() {
         draw();
@@ -162,7 +162,10 @@ function draw() {
         case 'triangles':
             basisPolygon.initialTriangles();
             break;
-        case 'quadrangles':
+        case 'double triangles':
+            basisPolygon.initialDoubleTriangles();
+            break; 
+                  case 'quadrangles':
             basisPolygon.initialQuadrangles();
             break;
         case 'pseudo quadrangles':
