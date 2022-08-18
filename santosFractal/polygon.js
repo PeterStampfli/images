@@ -33,8 +33,9 @@ Polygon.initialAddVertices = false;
 
 // geometry options
 Polygon.useOffset = false;
-Polygon.generations = 2;
+Polygon.generations = 0;
 Polygon.symmetry = 5;
+Polygon.subdiv='5 5';
 Polygon.subdivApproach = 'graphEuclidean';
 Polygon.subdivApproach = 'mod 4';
 
@@ -564,7 +565,7 @@ Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
         this.draw();
     } else {
-        const nChilds = Polygon.symmetry;
+        const nChilds = Polygon.subdivisions[this.generation];
         switch (Polygon.subdivApproach) {
             case 'graphEuclidean':
                 this.graphEuclidean();

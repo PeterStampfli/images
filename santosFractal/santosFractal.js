@@ -81,7 +81,7 @@ gui.add({
     }
 });
 
-gui.add({
+const generationsController = gui.add({
     type: 'number',
     params: Polygon,
     property: 'generations',
@@ -108,7 +108,7 @@ gui.add({
     params: Polygon,
     property: 'subdivApproach',
     options: [
-        'graphEuclidean','mod 3','mod 4'
+        'graphEuclidean', 'mod 3', 'mod 4'
     ],
     onChange: function() {
         draw();
@@ -120,7 +120,19 @@ gui.add({
     params: Polygon,
     property: 'initial',
     options: [
-        'triangles', 'double triangles','quadrangles', 'pseudo quadrangles'
+        'triangles', 'double triangles', 'quadrangles', 'pseudo quadrangles'
+    ],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'selection',
+    params: Polygon,
+    property: 'subdiv',
+    options: [
+        '5 5'
     ],
     onChange: function() {
         draw();
@@ -157,20 +169,34 @@ function draw() {
 
     //  create structure
 
-    const basisPolygon = Polygon.createRegular(Polygon.symmetry);
-    switch (Polygon.initial) {
-        case 'triangles':
-            basisPolygon.initialTriangles();
+
+    switch (Polygon.subdiv) {
+        case '5 5':
+            Polygon.subdivisions = [5, 5];
             break;
-        case 'double triangles':
-            basisPolygon.initialDoubleTriangles();
-            break; 
-                  case 'quadrangles':
-            basisPolygon.initialQuadrangles();
-            break;
-        case 'pseudo quadrangles':
-            basisPolygon.initialPseudoQuadrangles();
-            break;
+    }
+    if (Polygon.generations > Polygon.subdivisions.length) {
+        generationsController.setValueOnly(Polygon.subdivisions.length);
+    }
+
+    const basisPolygon = Polygon.createRegular(Polygon.subdivisions[0]);
+    if (Polygon.generations === 0) {
+        basisPolygon.draw();
+    } else {
+        switch (Polygon.initial) {
+            case 'triangles':
+                basisPolygon.initialTriangles();
+                break;
+            case 'double triangles':
+                basisPolygon.initialDoubleTriangles();
+                break;
+            case 'quadrangles':
+                basisPolygon.initialQuadrangles();
+                break;
+            case 'pseudo quadrangles':
+                basisPolygon.initialPseudoQuadrangles();
+                break;
+        }
     }
 }
 
