@@ -33,23 +33,28 @@ Polygon.initialAddVertices = false;
 
 // geometry options
 Polygon.useOffset = false;
-Polygon.generations = 0;
-Polygon.symmetry = 5;
-Polygon.subdiv='5 5';
+Polygon.generations = 1;
+Polygon.subdiv = '5 ...';
 Polygon.subdivApproach = 'graphEuclidean';
-Polygon.subdivApproach = 'mod 4';
+//Polygon.subdivApproach = 'mod 4';
+Polygon.centerWeight = 1;
+
+// other
+Polygon.noAlert = true;
 
 // calculate center of polygon
 Polygon.prototype.getCenter = function() {
-    let centerX = 0;
-    let centerY = 0;
+    const centerWeight = Polygon.centerWeight;
+    let centerX = centerWeight * this.cornersX[0];
+    let centerY = centerWeight * this.cornersY[0];
     let length = this.cornersX.length;
-    for (let i = 0; i < length; i++) {
+    for (let i = 1; i < length; i++) {
         centerX += this.cornersX[i];
         centerY += this.cornersY[i];
     }
-    centerX /= length;
-    centerY /= length;
+    const factor = 1 / (length - 1 + centerWeight);
+    centerX *= factor;
+    centerY *= factor;
     return [centerX, centerY];
 };
 
@@ -78,13 +83,13 @@ Polygon.prototype.addInterpolatedCorner = function(parent, t) {
 
 // make initial triangles, one for each side
 Polygon.prototype.initialTriangles = function() {
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
+    const centerX = 0;
+    const centerY = 0;
     const nChilds = this.cornersX.length;
     // repeat first point
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     // subdivision of border
-    const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
+    const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
@@ -102,13 +107,13 @@ Polygon.prototype.initialTriangles = function() {
 
 // make initial pseudo quadrangles, one for each side
 Polygon.prototype.initialPseudoQuadrangles = function() {
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
+    const centerX = 0;
+    const centerY = 0;
     const nChilds = this.cornersX.length;
     // repeat first point (interpolation)
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     // subdivision of border
-    const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
+    const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
@@ -127,13 +132,13 @@ Polygon.prototype.initialPseudoQuadrangles = function() {
 
 // make initial double triangles, two for each side
 Polygon.prototype.initialDoubleTriangles = function() {
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
+    const centerX = 0;
+    const centerY = 0;
     const nChilds = this.cornersX.length;
     // repeat first point (interpolation)
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     // subdivision of border
-    const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
+    const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
         const midX = 0.5 * (this.cornersX[i] + this.cornersX[i + 1]);
         const midY = 0.5 * (this.cornersY[i] + this.cornersY[i + 1]);
@@ -164,14 +169,14 @@ Polygon.prototype.initialDoubleTriangles = function() {
 
 // make initial quadrangles, one for each corner
 Polygon.prototype.initialQuadrangles = function() {
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
+    const centerX = 0;
+    const centerY = 0;
     const nChilds = this.cornersX.length;
     // repeat first point and second (interpolation)
     this.addCorner(this.cornersX[0], this.cornersY[0]);
     this.addCorner(this.cornersX[1], this.cornersY[1]);
     // subdivision of border
-    const addVertices = Polygon.initialAddVertices && (nChilds >= 5);
+    const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 1; i <= nChilds; i++) {
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
@@ -200,7 +205,7 @@ Polygon.prototype.graphEuclidean = function() {
     this.addCorner(this.cornersX[1], this.cornersY[1]);
     // subdivision of border
     // number of child polygons for fractal all the same
-    const nChilds = Polygon.symmetry;
+    const nChilds = Polygon.subdivisions[this.generation];
     const addVertices = Polygon.additionalVertices && (nChilds >= 5);
     const delta = length / nChilds;
     for (let i = 0; i < nChilds; i++) {
@@ -269,6 +274,11 @@ Polygon.prototype.mod3for5 = function() {
         p5.addCorner(this.cornersX[1], this.cornersY[1]);
         p5.addCorner(this.cornersX[2], this.cornersY[2]);
         p5.subdivide();
+    } else {
+        if (Polygon.noAlert) {
+            Polygon.noAlert = false;
+            alert('modular 3 for 5 childs not implemented for quadrangles');
+        }
     }
 };
 
@@ -315,8 +325,11 @@ Polygon.prototype.mod3for6 = function() {
         p6.addCorner(this.cornersX[0], this.cornersY[0]);
         p6.addCorner(midX2, midY2);
         p6.subdivide();
-    } else if (length === 4) {
-
+    } else {
+        if (Polygon.noAlert) {
+            Polygon.noAlert = false;
+            alert('modular 3 for 6 childs not implemented for quadrangles');
+        }
     }
 };
 
@@ -506,7 +519,12 @@ Polygon.prototype.mod4for7 = function() {
     let length = this.cornersX.length;
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
-    if (length === 3) {} else if (length === 4) {
+    if (length === 3) {
+        if (Polygon.noAlert) {
+            Polygon.noAlert = false;
+            alert('modular 4 for 7 childs not implemented for triangles');
+        }
+    } else if (length === 4) {
         let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
         let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
         let midX2 = 0.5 * (this.cornersX[1] + this.cornersX[2]);
@@ -570,7 +588,7 @@ Polygon.prototype.subdivide = function() {
             case 'graphEuclidean':
                 this.graphEuclidean();
                 break;
-            case 'mod 3':
+            case 'modular 3':
                 switch (nChilds) {
                     case 5:
                         this.mod3for5();
@@ -578,9 +596,14 @@ Polygon.prototype.subdivide = function() {
                     case 6:
                         this.mod3for6();
                         break;
+                    default:
+                        if (Polygon.noAlert) {
+                            Polygon.noAlert = false;
+                            alert('modular 3 not implemented for subdivision into ' + nChilds);
+                        }
                 }
                 break;
-            case 'mod 4':
+            case 'modular 4':
                 switch (nChilds) {
                     case 5:
                         this.mod4for5();
@@ -591,6 +614,11 @@ Polygon.prototype.subdivide = function() {
                     case 7:
                         this.mod4for7();
                         break;
+                    default:
+                        if (Polygon.noAlert) {
+                            Polygon.noAlert = false;
+                            alert('modular 4 not implemented for subdivision into ' + nChilds);
+                        }
                 }
                 break;
         }
@@ -633,8 +661,10 @@ Polygon.prototype.draw = function() {
 
 Polygon.createRegular = function(n) {
     const polygon = new Polygon(0);
+    const delta = (n & 1) ? 0 : Math.PI / n;
+
     for (let i = 0; i < n; i++) {
-        const angle = 2 * i * Math.PI / n;
+        const angle = 2 * i * Math.PI / n + delta;
         polygon.addCorner(Math.sin(angle), Math.cos(angle));
     }
     return polygon;

@@ -95,9 +95,7 @@ const generationsController = gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'symmetry',
-    min: 3,
-    step: 1,
+    property: 'centerWeight',
     onChange: function() {
         draw();
     }
@@ -107,8 +105,9 @@ gui.add({
     type: 'selection',
     params: Polygon,
     property: 'subdivApproach',
+    labelText: 'method',
     options: [
-        'graphEuclidean', 'mod 3', 'mod 4'
+        'graphEuclidean', 'modular 3', 'modular 4'
     ],
     onChange: function() {
         draw();
@@ -132,7 +131,7 @@ gui.add({
     params: Polygon,
     property: 'subdiv',
     options: [
-        '5 5'
+        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...'
     ],
     onChange: function() {
         draw();
@@ -166,13 +165,28 @@ function draw() {
     output.lineRound();
     output.fillCanvasBackgroundColor();
     output.setLineWidth(Polygon.lineWidth);
+    Polygon.noAlert = true;
 
     //  create structure
 
-
     switch (Polygon.subdiv) {
-        case '5 5':
-            Polygon.subdivisions = [5, 5];
+        case '4 ...':
+            Polygon.subdivisions = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+            break;
+        case '5 ...':
+            Polygon.subdivisions = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+            break;
+        case '6 ...':
+            Polygon.subdivisions = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
+            break;
+        case '7 ...':
+            Polygon.subdivisions = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
+            break;
+        case '8 ...':
+            Polygon.subdivisions = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+            break;
+        case '4 5 ...':
+            Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
             break;
     }
     if (Polygon.generations > Polygon.subdivisions.length) {
