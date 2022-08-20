@@ -13,18 +13,19 @@ export const Polygon = function(generation) {
     this.cornersX = [];
     this.cornersY = [];
     this.generation = generation;
-    this.red = 255;
-    this.green = 255;
-    this.blue = 255;
+    this.grey=0;
+    this.red = 0;
+    this.green = 0;
+    this.blue = 0;
     this.alpha = 255;
 };
 
 // drawing options
 Polygon.fill = true;
 Polygon.stroke = true;
-Polygon.vertices = true;
-Polygon.lineColor = '#000000';
-Polygon.lineWidth = 2;
+Polygon.vertices = false;
+Polygon.lineColor = '#00ff00';
+Polygon.lineWidth = 1;
 Polygon.vertexSize = 0.02;
 Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
@@ -33,10 +34,10 @@ Polygon.initialAddVertices = false;
 
 // geometry options
 Polygon.useOffset = false;
-Polygon.generations = 1;
+Polygon.generations = 2;
 Polygon.subdiv = '5 ...';
 Polygon.subdivApproach = 'graphEuclidean';
-//Polygon.subdivApproach = 'mod 4';
+Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
 
 // other
@@ -249,34 +250,30 @@ Polygon.prototype.mod3for5 = function() {
     if (length === 3) {
         var centerX, centerY;
         [centerX, centerY] = this.getCenter();
-        let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
-        let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
-        let midX2 = 0.5 * (this.cornersX[0] + this.cornersX[2]);
-        let midY2 = 0.5 * (this.cornersY[0] + this.cornersY[2]);
         const p1 = new Polygon(this.generation + 1);
         p1.addCorner(centerX, centerY);
         p1.addCorner(this.cornersX[0], this.cornersY[0]);
-        p1.addCorner(midX1, midY1);
+        p1.addCorner(0.5 * (this.cornersX[0] + this.cornersX[1]), 0.5 * (this.cornersY[0] + this.cornersY[1]));
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
         p2.addCorner(centerX, centerY);
-        p2.addCorner(midX1, midY1);
-        p2.addCorner(this.cornersX[1], this.cornersY[1]);
+        p2.addCorner(this.cornersX[0], this.cornersY[0]);
+        p2.addCorner(0.5 * (this.cornersX[0] + this.cornersX[2]), 0.5 * (this.cornersY[0] + this.cornersY[2]));
         p2.subdivide();
         const p3 = new Polygon(this.generation + 1);
         p3.addCorner(centerX, centerY);
-        p3.addCorner(this.cornersX[1], this.cornersY[1]);
         p3.addCorner(this.cornersX[2], this.cornersY[2]);
+        p3.addCorner(0.5 * (this.cornersX[0] + this.cornersX[2]), 0.5 * (this.cornersY[0] + this.cornersY[2]));
         p3.subdivide();
         const p4 = new Polygon(this.generation + 1);
         p4.addCorner(centerX, centerY);
-        p4.addCorner(this.cornersX[2], this.cornersY[2]);
-        p4.addCorner(midX2, midY2);
+        p4.addCorner(this.cornersX[1], this.cornersY[1]);
+        p4.addCorner(0.5 * (this.cornersX[0] + this.cornersX[1]), 0.5 * (this.cornersY[0] + this.cornersY[1]));
         p4.subdivide();
         const p5 = new Polygon(this.generation + 1);
         p5.addCorner(centerX, centerY);
-        p5.addCorner(this.cornersX[0], this.cornersY[0]);
-        p5.addCorner(midX2, midY2);
+        p5.addCorner(this.cornersX[1], this.cornersY[1]);
+        p5.addCorner(this.cornersX[2], this.cornersY[2]);
         p5.subdivide();
     } else {
         if (Polygon.noAlert) {
@@ -337,43 +334,56 @@ Polygon.prototype.mod3for6 = function() {
     }
 };
 
-// mod 4 subdivision for 5 childs
+// mod 4 ubdivision for 5 childs
 Polygon.prototype.mod4for5 = function() {
     let length = this.cornersX.length;
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
+    const parentGrey=Math.floor(this.grey/2);
+    const grey2=64;
+    const grey3=127;
     // can only subdivide a triangle into 5 triangles because of symmetry
     if (length === 3) {
         let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
         let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
         let midX2 = 0.5 * (this.cornersX[0] + this.cornersX[2]);
         let midY2 = 0.5 * (this.cornersY[0] + this.cornersY[2]);
+        let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+        let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
         const p1 = new Polygon(this.generation + 1);
+        p1.grey=parentGrey;
         p1.addCorner(centerX, centerY);
         p1.addCorner(this.cornersX[0], this.cornersY[0]);
         p1.addCorner(midX1, midY1);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
+        p2.grey=parentGrey+grey2;
         p2.addCorner(centerX, centerY);
-        p2.addCorner(midX1, midY1);
         p2.addCorner(this.cornersX[1], this.cornersY[1]);
+        p2.addCorner(midX1, midY1);
         p2.subdivide();
         const p3 = new Polygon(this.generation + 1);
+        p3.grey=parentGrey+grey3;
         p3.addCorner(centerX, centerY);
         p3.addCorner(this.cornersX[1], this.cornersY[1]);
-        p3.addCorner(this.cornersX[2], this.cornersY[2]);
+        p3.addCorner(midX12, midY12);
         p3.subdivide();
         const p4 = new Polygon(this.generation + 1);
+        p4.grey=parentGrey+grey3;
         p4.addCorner(centerX, centerY);
         p4.addCorner(this.cornersX[2], this.cornersY[2]);
-        p4.addCorner(midX2, midY2);
+        p4.addCorner(midX12, midY12);
         p4.subdivide();
         const p5 = new Polygon(this.generation + 1);
         p5.addCorner(centerX, centerY);
-        p5.addCorner(this.cornersX[0], this.cornersY[0]);
+        p5.addCorner(this.cornersX[2], this.cornersY[2]);
         p5.addCorner(midX2, midY2);
         p5.subdivide();
-
+        const p6 = new Polygon(this.generation + 1);
+        p6.addCorner(centerX, centerY);
+        p6.addCorner(this.cornersX[0], this.cornersY[0]);
+        p6.addCorner(midX2, midY2);
+        p6.subdivide();
     } else if (length === 4) {
         let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
         let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
@@ -383,37 +393,41 @@ Polygon.prototype.mod4for5 = function() {
         let midY3 = 0.5 * (this.cornersY[2] + this.cornersY[3]);
         let midX4 = 0.5 * (this.cornersX[3] + this.cornersX[0]);
         let midY4 = 0.5 * (this.cornersY[3] + this.cornersY[0]);
+        const p0 = new Polygon(this.generation + 1);
+        p0.grey=parentGrey;
+        p0.addCorner(centerX, centerY);
+        p0.addCorner(midX1, midY1);
+        p0.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
+        p0.addCorner(this.cornersX[0], this.cornersY[0]);
+        p0.subdivide();
         const p1 = new Polygon(this.generation + 1);
+        p1.grey=parentGrey;
         p1.addCorner(centerX, centerY);
-        p1.addCorner(midX1, midY1);
-        p1.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
         p1.addCorner(this.cornersX[0], this.cornersY[0]);
+        p1.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
+        p1.addCorner(midX4, midY4);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
+        p2.grey=parentGrey+grey2;
         p2.addCorner(centerX, centerY);
         p2.addCorner(midX1, midY1);
         p2.addCorner(this.cornersX[1], this.cornersY[1]);
         p2.addCorner(midX2, midY2);
         p2.subdivide();
-        const p3 = new Polygon(this.generation + 1);
-        p3.addCorner(centerX, centerY);
-        p3.addCorner(midX2, midY2);
-        p3.addCorner(this.cornersX[2], this.cornersY[2]);
-        p3.addCorner(midX3, midY3);
-        p3.subdivide();
         const p4 = new Polygon(this.generation + 1);
+        p4.grey=parentGrey+grey3;
         p4.addCorner(centerX, centerY);
+        p4.addCorner(midX2, midY2);
+        p4.addCorner(this.cornersX[2], this.cornersY[2]);
         p4.addCorner(midX3, midY3);
-        p4.addCorner(this.cornersX[3], this.cornersY[3]);
-        p4.addCorner(midX4, midY4);
         p4.subdivide();
         const p5 = new Polygon(this.generation + 1);
+        p5.grey=parentGrey+grey2;
         p5.addCorner(centerX, centerY);
-        p5.addCorner(this.cornersX[0], this.cornersY[0]);
-        p5.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
+        p5.addCorner(midX3, midY3);
+        p5.addCorner(this.cornersX[3], this.cornersY[3]);
         p5.addCorner(midX4, midY4);
         p5.subdivide();
-
     }
 };
 
@@ -532,11 +546,17 @@ Polygon.prototype.mod4for7 = function() {
         let midY3 = 0.5 * (this.cornersY[2] + this.cornersY[3]);
         let midX4 = 0.5 * (this.cornersX[3] + this.cornersX[0]);
         let midY4 = 0.5 * (this.cornersY[3] + this.cornersY[0]);
+        const p0 = new Polygon(this.generation + 1);
+        p0.addCorner(centerX, centerY);
+        p0.addCorner(midX1, midY1);
+        p0.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
+        p0.addCorner(this.cornersX[0], this.cornersY[0]);
+        p0.subdivide();
         const p1 = new Polygon(this.generation + 1);
         p1.addCorner(centerX, centerY);
-        p1.addCorner(midX1, midY1);
-        p1.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
         p1.addCorner(this.cornersX[0], this.cornersY[0]);
+        p1.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
+        p1.addCorner(midX4, midY4);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
         p2.addCorner(centerX, centerY);
@@ -568,13 +588,6 @@ Polygon.prototype.mod4for7 = function() {
         p6.addCorner(0.5 * (this.cornersX[3] + midX4), 0.5 * (this.cornersY[3] + midY4));
         p6.addCorner(this.cornersX[3], this.cornersY[3]);
         p6.subdivide();
-        const p7 = new Polygon(this.generation + 1);
-        p7.addCorner(centerX, centerY);
-        p7.addCorner(this.cornersX[0], this.cornersY[0]);
-        p7.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
-        p7.addCorner(midX4, midY4);
-        p7.subdivide();
-
     }
 };
 
@@ -637,6 +650,10 @@ Polygon.prototype.draw = function() {
     }
     canvasContext.closePath();
     if (Polygon.fill) {
+        // black and white
+        this.red=this.grey;
+        this.green=this.grey;
+        this.blue=this.grey;
         canvasContext.fillStyle = ColorInput.stringFromObject(this);
         canvasContext.fill();
     }
