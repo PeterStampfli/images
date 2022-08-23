@@ -13,17 +13,17 @@ export const Polygon = function(generation) {
     this.cornersX = [];
     this.cornersY = [];
     this.generation = generation;
-    this.red = 255;
-    this.green = 255;
-    this.blue = 255;
+    this.red = 0;
+    this.green = 0;
+    this.blue = 0;
     this.alpha = 255;
 };
 
 // drawing options
 Polygon.fill = true;
 Polygon.stroke = true;
-Polygon.vertices = true;
-Polygon.lineColor = '#000000';
+Polygon.vertices = false;
+Polygon.lineColor = '#00ff00';
 Polygon.lineWidth = 2;
 Polygon.vertexSize = 0.02;
 Polygon.initial = 'triangles';
@@ -47,7 +47,7 @@ Polygon.prototype.getCenter = function() {
     const centerWeight = Polygon.centerWeight;
     let centerX = centerWeight * this.cornersX[0];
     let centerY = centerWeight * this.cornersY[0];
-    const length = this.cornersX.length;
+    let length = this.cornersX.length;
     for (let i = 1; i < length; i++) {
         centerX += this.cornersX[i];
         centerY += this.cornersY[i];
@@ -56,46 +56,6 @@ Polygon.prototype.getCenter = function() {
     centerX *= factor;
     centerY *= factor;
     return [centerX, centerY];
-};
-
-// calculate the surface of the polygon and store it in its field
-Polygon.prototype.setSurface = function() {
-    const length = this.cornersX.length;
-    var ax, ay, bx, by;
-    switch (length) {
-        case 3:
-            // triangle without additional vertices
-            // take sides
-            ax = this.cornersX[1] - this.cornersX[0];
-            ay = this.cornersY[1] - this.cornersY[0];
-            bx = this.cornersX[2] - this.cornersX[0];
-            by = this.cornersY[2] - this.cornersY[0];
-            break;
-        case 5:
-            // triangle with additional vertices (indices 1 and 4)
-            ax = this.cornersX[2] - this.cornersX[0];
-            ay = this.cornersY[2] - this.cornersY[0];
-            bx = this.cornersX[3] - this.cornersX[0];
-            by = this.cornersY[3] - this.cornersY[0];
-            break;
-        case 4:
-            // quadrilateral without additional vertices
-            // take diagonals
-            ax = this.cornersX[2] - this.cornersX[0];
-            ay = this.cornersY[2] - this.cornersY[0];
-            bx = this.cornersX[3] - this.cornersX[1];
-            by = this.cornersY[3] - this.cornersY[1];
-            break;
-        case 6:
-            // quadrilateral with additional vertices (indices 1 and 5)
-            // take diagonals
-            ax = this.cornersX[3] - this.cornersX[0];
-            ay = this.cornersY[3] - this.cornersY[0];
-            bx = this.cornersX[4] - this.cornersX[2];
-            by = this.cornersY[4] - this.cornersY[2];
-            break;
-    }
-    this.surface = Math.abs(ax * by - ay * bx);
 };
 
 // adding a corner
@@ -424,30 +384,45 @@ Polygon.prototype.mod4for5 = function() {
         let midX4 = 0.5 * (this.cornersX[3] + this.cornersX[0]);
         let midY4 = 0.5 * (this.cornersY[3] + this.cornersY[0]);
         const p1 = new Polygon(this.generation + 1);
+        p1.red=this.green;
+        p1.blue=this.red;
+        p1.green=0;
         p1.addCorner(centerX, centerY);
         p1.addCorner(midX1, midY1);
         p1.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
         p1.addCorner(this.cornersX[0], this.cornersY[0]);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
+        p2.red=this.green;
+        p2.blue=this.red;
+        p2.green=128;
         p2.addCorner(centerX, centerY);
         p2.addCorner(midX1, midY1);
         p2.addCorner(this.cornersX[1], this.cornersY[1]);
         p2.addCorner(midX2, midY2);
         p2.subdivide();
         const p3 = new Polygon(this.generation + 1);
+        p3.red=this.green;
+        p3.blue=this.red;
+        p3.green=255;
         p3.addCorner(centerX, centerY);
         p3.addCorner(midX2, midY2);
         p3.addCorner(this.cornersX[2], this.cornersY[2]);
         p3.addCorner(midX3, midY3);
         p3.subdivide();
         const p4 = new Polygon(this.generation + 1);
+        p4.red=this.green;
+        p4.blue=this.red;
+        p4.green=128;
         p4.addCorner(centerX, centerY);
         p4.addCorner(midX3, midY3);
         p4.addCorner(this.cornersX[3], this.cornersY[3]);
         p4.addCorner(midX4, midY4);
         p4.subdivide();
         const p5 = new Polygon(this.generation + 1);
+        p5.red=this.green;
+        p5.blue=this.red;
+        p5.green=0;
         p5.addCorner(centerX, centerY);
         p5.addCorner(this.cornersX[0], this.cornersY[0]);
         p5.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
@@ -618,15 +593,10 @@ Polygon.prototype.mod4for7 = function() {
     }
 };
 
-// what to do when finished
-Polygon.prototype.finalAction = function() {
-    this.draw();
-};
-
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
-        this.finalAction();
+        this.draw();
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
         switch (Polygon.subdivApproach) {
