@@ -26,6 +26,9 @@ Polygon.vertices = true;
 Polygon.lineColor = '#000000';
 Polygon.lineWidth = 2;
 Polygon.vertexSize = 0.02;
+Polygon.gamma=1;
+
+
 Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
 Polygon.additionalVertices = false;
@@ -41,6 +44,119 @@ Polygon.centerWeight = 1;
 
 // other
 Polygon.noAlert = true;
+
+// collecting polygons
+Polygon.collection = [];
+
+var canvasContext;
+
+// make the path for a polygon
+Polygon.prototype.makePath = function() {
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.cornersX[0], this.cornersY[0]);
+    const length = this.cornersX.length;
+    for (let i = 1; i <= length; i++) {
+        canvasContext.lineTo(this.cornersX[i], this.cornersY[i]);
+    }
+    canvasContext.closePath();
+};
+
+// drawing the collected polygons
+Polygon.drawCollection = function() {
+    const canvas = output.canvas;
+    canvasContext = canvas.getContext('2d');
+    let pLength = Polygon.collection.length;
+    if (Polygon.fill) {
+        if (!Polygon.stroke) {
+            for (let p = 0; p < pLength; p++) {
+                const polygon = Polygon.collection[p];
+                polygon.makePath();
+                canvasContext.strokeStyle = ColorInput.stringFromObject(polygon);
+                canvasContext.stroke();
+            }
+        }
+        for (let p = 0; p < pLength; p++) {
+            const polygon = Polygon.collection[p];
+            polygon.makePath();
+            canvasContext.fillStyle = ColorInput.stringFromObject(polygon);
+            canvasContext.fill();
+        }
+    }
+    if (Polygon.stroke) {
+        canvasContext.strokeStyle = Polygon.lineColor;
+        for (let p = 0; p < pLength; p++) {
+            const polygon = Polygon.collection[p];
+            polygon.makePath();
+            canvasContext.stroke();
+        }
+    }
+    if (Polygon.vertices) {
+        canvasContext.fillStyle = Polygon.lineColor;
+        for (let p = 0; p < pLength; p++) {
+            const polygon = Polygon.collection[p];
+            const cornersX = polygon.cornersX;
+            const cornersY = polygon.cornersY;
+            const length=cornersX.length;
+            for (let i = 0; i <= length; i++) {
+                canvasContext.beginPath();
+                canvasContext.arc(cornersX[i], cornersY[i], Polygon.vertexSize, 0, 2 * Math.PI);
+                canvasContext.fill();
+            }
+        }
+    }
+};
+
+// calculate surfaces
+Polygon.setSurfaces = function() {
+    Polygon.collection.forEach(polygon => polygon.setSurface());
+};
+
+// minimum and maximum surface
+Polygon.minMaxSurface = function() {
+    let minSurface = 100000;
+    let maxSurface = -100000;
+    const length = Polygon.collection.length;
+    for (let i = 0; i < length; i++) {
+        let surface = Polygon.collection[i].surface;
+        minSurface = Math.min(minSurface, surface);
+        maxSurface = Math.max(maxSurface, surface);
+    }
+    Polygon.minSurface = minSurface;
+    Polygon.maxSurface = maxSurface;
+};
+
+// normalize surfaces between 0 and 0.999
+// if all nearly same surface - make it 0.9999
+Polygon.normalizeSurface = function() {
+    const diff = Polygon.maxSurface - Polygon.minSurface;
+    const length = Polygon.collection.length;
+    const gamma=Polygon.gamma;
+    if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
+        for (let i = 0; i < length; i++) {
+            Polygon.collection[i].surface = 0.999;
+        }
+    } else {
+        const iDiff = 0.999 / diff;
+        const minSurface = Polygon.minSurface;
+        for (let i = 0; i < length; i++) {
+            let x = (Polygon.collection[i].surface - minSurface) * iDiff;
+x=Math.pow(x,gamma);
+            Polygon.collection[i].surface=x;
+        }
+    }
+};
+
+// grey colors black for smallest to white for largest
+Polygon.greySurfaces = function() {
+    const length = Polygon.collection.length;
+    for (let i = 0; i < length; i++) {
+        const polygon = Polygon.collection[i];
+        const grey = Math.floor(polygon.surface * 255.9);
+        polygon.red = grey;
+        polygon.green = grey;
+        polygon.blue = grey;
+    }
+};
 
 // calculate center of polygon
 Polygon.prototype.getCenter = function() {
@@ -453,7 +569,6 @@ Polygon.prototype.mod4for5 = function() {
         p5.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
         p5.addCorner(midX4, midY4);
         p5.subdivide();
-
     }
 };
 
@@ -618,15 +733,10 @@ Polygon.prototype.mod4for7 = function() {
     }
 };
 
-// what to do when finished
-Polygon.prototype.finalAction = function() {
-    this.draw();
-};
-
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
-        this.finalAction();
+        Polygon.collection.push(this);
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
         switch (Polygon.subdivApproach) {
@@ -670,37 +780,6 @@ Polygon.prototype.subdivide = function() {
     }
 };
 
-// draw the polygon
-Polygon.prototype.draw = function() {
-    const canvas = output.canvas;
-    const canvasContext = canvas.getContext('2d');
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.cornersX[0], this.cornersY[0]);
-    const length = this.cornersX.length;
-    for (let i = 1; i <= length; i++) {
-        canvasContext.lineTo(this.cornersX[i], this.cornersY[i]);
-    }
-    canvasContext.closePath();
-    if (Polygon.fill) {
-        canvasContext.fillStyle = ColorInput.stringFromObject(this);
-        canvasContext.fill();
-    }
-    if (Polygon.stroke) {
-        canvasContext.strokeStyle = Polygon.lineColor;
-        canvasContext.stroke();
-    } else if (Polygon.fill) {
-        canvasContext.strokeStyle = ColorInput.stringFromObject(this);
-        canvasContext.stroke();
-    }
-    if (Polygon.vertices) {
-        canvasContext.fillStyle = Polygon.lineColor;
-        for (let i = 0; i <= length; i++) {
-            canvasContext.beginPath();
-            canvasContext.arc(this.cornersX[i], this.cornersY[i], Polygon.vertexSize, 0, 2 * Math.PI);
-            canvasContext.fill();
-        }
-    }
-};
 
 // create regular polygon with n corners, generation 0
 

@@ -44,17 +44,17 @@ const sin8PI5 = Math.sin(8 * Math.PI / 5);
 const cos8PI5 = Math.cos(8 * Math.PI / 5);
 
 // higher harmonic
-const tau=1.618;
-const sinPI5 = tau*Math.sin(Math.PI / 5);
-const cosPI5 = tau*Math.cos(Math.PI / 5);
-const sin3PI5 = tau*Math.sin(3 * Math.PI / 5);
-const cos3PI5 = tau*Math.cos(3 * Math.PI / 5);
-const sin5PI5 = tau*Math.sin(5 * Math.PI / 5);
-const cos5PI5 = tau*Math.cos(5 * Math.PI / 5);
-const sin7PI5 = tau*Math.sin(7 * Math.PI / 5);
-const cos7PI5 = tau*Math.cos(7 * Math.PI / 5);
-const sin9PI5 = tau*Math.sin(9 * Math.PI / 5);
-const cos9PI5 = tau*Math.cos(9 * Math.PI / 5);
+const tau = 1.618;
+const sinPI5 = tau * Math.sin(Math.PI / 5);
+const cosPI5 = tau * Math.cos(Math.PI / 5);
+const sin3PI5 = tau * Math.sin(3 * Math.PI / 5);
+const cos3PI5 = tau * Math.cos(3 * Math.PI / 5);
+const sin5PI5 = tau * Math.sin(5 * Math.PI / 5);
+const cos5PI5 = tau * Math.cos(5 * Math.PI / 5);
+const sin7PI5 = tau * Math.sin(7 * Math.PI / 5);
+const cos7PI5 = tau * Math.cos(7 * Math.PI / 5);
+const sin9PI5 = tau * Math.sin(9 * Math.PI / 5);
+const cos9PI5 = tau * Math.cos(9 * Math.PI / 5);
 
 //12-fold
 
@@ -117,13 +117,13 @@ const pentagonal = function(x, y) {
     sum += Math.sin(cos4PI5 * x + sin4PI5 * y);
     sum += Math.sin(cos6PI5 * x + sin6PI5 * y);
     sum += Math.sin(cos8PI5 * x + sin8PI5 * y);
-    let hSum=Math.sin(cosPI5 * x + sinPI5 * y);
+    let hSum = Math.sin(cosPI5 * x + sinPI5 * y);
     hSum += Math.sin(cos3PI5 * x + sin3PI5 * y);
     hSum += Math.sin(cos5PI5 * x + sin5PI5 * y);
     hSum += Math.sin(cos7PI5 * x + sin7PI5 * y);
-     hSum += Math.sin(cos9PI5 * x + sin9PI5 * y);
-     sum+=waves.higher*hSum;
-   if (waves.parity) {
+    hSum += Math.sin(cos9PI5 * x + sin9PI5 * y);
+    sum += waves.higher * hSum;
+    if (waves.parity) {
         if (sum > 0) {
             result = black;
         }
@@ -142,7 +142,12 @@ const decagonal = function(x, y) {
     sum += Math.cos(cos4PI5 * x + sin4PI5 * y);
     sum += Math.cos(cos6PI5 * x + sin6PI5 * y);
     sum += Math.cos(cos8PI5 * x + sin8PI5 * y);
-    if (waves.parity) {
+    let hSum = Math.cos(cosPI5 * x + sinPI5 * y);
+    hSum += Math.cos(cos3PI5 * x + sin3PI5 * y);
+    hSum += Math.cos(cos5PI5 * x + sin5PI5 * y);
+    hSum += Math.cos(cos7PI5 * x + sin7PI5 * y);
+    hSum += Math.cos(cos9PI5 * x + sin9PI5 * y);
+    sum += waves.higher * hSum;    if (waves.parity) {
         if (sum > 0) {
             result = black;
         }

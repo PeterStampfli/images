@@ -35,6 +35,16 @@ gui.add({
 });
 
 gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'gamma',
+    min: 0.1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'stroke',
@@ -192,6 +202,8 @@ function draw() {
     if (Polygon.generations > Polygon.subdivisions.length) {
         generationsController.setValueOnly(Polygon.subdivisions.length);
     }
+    // for collecting polygons
+    Polygon.collection.length=0;
 
     const basisPolygon = Polygon.createRegular(Polygon.subdivisions[0]);
     if (Polygon.generations === 0) {
@@ -211,8 +223,15 @@ function draw() {
                 basisPolygon.initialPseudoQuadrangles();
                 break;
         }
+        console.log(Polygon.collection.length);
+    Polygon.setSurfaces();
+    Polygon.minMaxSurface();
+    Polygon.normalizeSurface();
+    Polygon.greySurfaces();
+    Polygon.drawCollection();
     }
+
 }
 
 output.setDrawMethods(draw);
-output.backgroundColorController.setValue('#eeeeee');
+output.backgroundColorController.setValue('#ffffff');
