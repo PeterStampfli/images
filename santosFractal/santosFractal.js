@@ -40,7 +40,11 @@ gui.add({
     property: 'gamma',
     min: 0.1,
     onChange: function() {
-        draw();
+        Polygon.setSurfaces();
+        Polygon.minMaxSurface();
+        Polygon.normalizeSurface();
+        Polygon.greySurfaces();
+        Polygon.drawCollection();
     }
 });
 
@@ -166,6 +170,15 @@ gui.add({
     }
 });
 
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'shift',
+    onChange: function() {
+        draw();
+    }
+});
+
 // for simple things
 // draw routine creates structure too
 
@@ -203,7 +216,7 @@ function draw() {
         generationsController.setValueOnly(Polygon.subdivisions.length);
     }
     // for collecting polygons
-    Polygon.collection.length=0;
+    Polygon.collection.length = 0;
 
     const basisPolygon = Polygon.createRegular(Polygon.subdivisions[0]);
     if (Polygon.generations === 0) {
@@ -223,12 +236,11 @@ function draw() {
                 basisPolygon.initialPseudoQuadrangles();
                 break;
         }
-        console.log(Polygon.collection.length);
-    Polygon.setSurfaces();
-    Polygon.minMaxSurface();
-    Polygon.normalizeSurface();
-    Polygon.greySurfaces();
-    Polygon.drawCollection();
+        Polygon.setSurfaces();
+        Polygon.minMaxSurface();
+        Polygon.normalizeSurface();
+        Polygon.greySurfaces();
+        Polygon.drawCollection();
     }
 
 }

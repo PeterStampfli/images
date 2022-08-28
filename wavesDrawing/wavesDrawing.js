@@ -72,13 +72,25 @@ const cos10PI12 = Math.cos(10 * Math.PI / 12);
 
 // four and eight
 const sqrt05 = Math.sqrt(0.5);
-
+const d4 = 2.5;
+const cosPI8 = d4 * Math.cos(Math.PI / 8);
+const sinPI8 = d4 * Math.sin(Math.PI / 8);
+const cos3PI8 = d4 * Math.cos(3 * Math.PI / 8);
+const sin3PI8 = d4 * Math.sin(3 * Math.PI / 8);
+const cos5PI8=d4*Math.cos(5*Math.PI/8);
+const sin5PI8=d4*Math.sin(5*Math.PI/8);
+const cos7PI8=d4*Math.cos(7*Math.PI/8);
+const sin7PI8=d4*Math.sin(7*Math.PI/8);
 
 const four = function(x, y) {
     let result = white;
     let sum = Math.cos(x) + Math.cos(y);
     sum -= Math.cos(sqrt05 * (x + y));
     sum -= Math.cos(sqrt05 * (y - x));
+    let hSum=Math.cos(cosPI8*x+sinPI8*y)+Math.cos(cos5PI8*x+sin5PI8*y);
+    hSum-=Math.cos(cos3PI8*x+sin3PI8*y);
+    hSum-=Math.cos(cos7PI8*x+sin7PI8*y);
+    sum+=waves.higher*hSum;
     if (waves.parity) {
         if (sum > 0) {
             result = black;
@@ -96,6 +108,10 @@ const eight = function(x, y) {
     let sum = Math.cos(x) + Math.cos(y);
     sum += Math.cos(sqrt05 * (x + y));
     sum += Math.cos(sqrt05 * (y - x));
+    let hSum=Math.cos(cosPI8*x+sinPI8*y)+Math.cos(cos5PI8*x+sin5PI8*y);
+    hSum+=Math.cos(cos3PI8*x+sin3PI8*y);
+    hSum+=Math.cos(cos7PI8*x+sin7PI8*y);
+    sum+=waves.higher*hSum;
     if (waves.parity) {
         if (sum > 0) {
             result = black;
@@ -147,7 +163,8 @@ const decagonal = function(x, y) {
     hSum += Math.cos(cos5PI5 * x + sin5PI5 * y);
     hSum += Math.cos(cos7PI5 * x + sin7PI5 * y);
     hSum += Math.cos(cos9PI5 * x + sin9PI5 * y);
-    sum += waves.higher * hSum;    if (waves.parity) {
+    sum += waves.higher * hSum;
+    if (waves.parity) {
         if (sum > 0) {
             result = black;
         }
@@ -178,6 +195,25 @@ const six = function(x, y) {
     }
     return result;
 };
+const twelve = function(x, y) {
+    let result = white;
+    let sum = Math.cos(x);
+    sum += Math.cos(cos2PI12 * x + sin2PI12 * y);
+    sum += Math.cos(cos4PI12 * x + sin4PI12 * y);
+    sum += Math.cos(cos6PI12 * x + sin6PI12 * y);
+    sum += Math.cos(cos8PI12 * x + sin8PI12 * y);
+    sum += Math.cos(cos10PI12 * x + sin10PI12 * y);
+    if (waves.parity) {
+        if (sum > 0) {
+            result = black;
+        }
+    } else {
+        if (Math.abs(sum) > waves.limit) {
+            result = black;
+        }
+    }
+    return result;
+};
 
 function draw() {
     switch (waves.symmetry) {
@@ -195,6 +231,9 @@ function draw() {
             break;
         case 10:
             pixelPaint.color = decagonal;
+            break;
+       case 12:
+            pixelPaint.color = twelve;
             break;
 
     }
@@ -236,7 +275,7 @@ function setup() {
         onChange: function() {
             draw();
         }
-    })
+    });
     gui.add({
         type: "number",
         params: waves,

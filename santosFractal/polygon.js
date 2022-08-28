@@ -26,7 +26,7 @@ Polygon.vertices = true;
 Polygon.lineColor = '#000000';
 Polygon.lineWidth = 2;
 Polygon.vertexSize = 0.02;
-Polygon.gamma=1;
+Polygon.gamma = 1;
 
 
 Polygon.initial = 'triangles';
@@ -39,8 +39,9 @@ Polygon.useOffset = false;
 Polygon.generations = 1;
 Polygon.subdiv = '5 ...';
 Polygon.subdivApproach = 'graphEuclidean';
-//Polygon.subdivApproach = 'mod 4';
+Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
+Polygon.shift = true;
 
 // other
 Polygon.noAlert = true;
@@ -96,7 +97,7 @@ Polygon.drawCollection = function() {
             const polygon = Polygon.collection[p];
             const cornersX = polygon.cornersX;
             const cornersY = polygon.cornersY;
-            const length=cornersX.length;
+            const length = cornersX.length;
             for (let i = 0; i <= length; i++) {
                 canvasContext.beginPath();
                 canvasContext.arc(cornersX[i], cornersY[i], Polygon.vertexSize, 0, 2 * Math.PI);
@@ -130,7 +131,7 @@ Polygon.minMaxSurface = function() {
 Polygon.normalizeSurface = function() {
     const diff = Polygon.maxSurface - Polygon.minSurface;
     const length = Polygon.collection.length;
-    const gamma=Polygon.gamma;
+    const gamma = Polygon.gamma;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
             Polygon.collection[i].surface = 0.999;
@@ -140,8 +141,8 @@ Polygon.normalizeSurface = function() {
         const minSurface = Polygon.minSurface;
         for (let i = 0; i < length; i++) {
             let x = (Polygon.collection[i].surface - minSurface) * iDiff;
-x=Math.pow(x,gamma);
-            Polygon.collection[i].surface=x;
+            x = Math.pow(x, gamma);
+            Polygon.collection[i].surface = x;
         }
     }
 };
@@ -398,6 +399,19 @@ Polygon.prototype.graphEuclidean = function() {
     }
 };
 
+// for mod 4 subdivision
+// shift the vertex of reference
+Polygon.prototype.shiftMod4 = function() {
+    if (Polygon.shift) {
+        let h = this.cornersX[0];
+        this.cornersX[0] = this.cornersX[2];
+        this.cornersX[2] = h;
+        h = this.cornersY[0];
+        this.cornersY[0] = this.cornersY[2];
+        this.cornersY[2] = h;
+    }
+};
+
 // mod 3 subdivision for 5 childs
 Polygon.prototype.mod3for5 = function() {
     let length = this.cornersX.length;
@@ -493,8 +507,57 @@ Polygon.prototype.mod3for6 = function() {
     }
 };
 
+// mod 4 subdivision for 4 childs
+Polygon.prototype.mod4for4 = function() {
+    let length = this.cornersX.length;
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    // can only subdivide a triangle into 5 triangles because of symmetry
+    if (length === 3) {
+        if (Polygon.noAlert) {
+            Polygon.noAlert = false;
+            alert('modular 4 for 4 childs not implemented for triangles');
+        }
+    } else if (length === 4) {
+        let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
+        let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
+        let midX2 = 0.5 * (this.cornersX[1] + this.cornersX[2]);
+        let midY2 = 0.5 * (this.cornersY[1] + this.cornersY[2]);
+        let midX3 = 0.5 * (this.cornersX[2] + this.cornersX[3]);
+        let midY3 = 0.5 * (this.cornersY[2] + this.cornersY[3]);
+        let midX4 = 0.5 * (this.cornersX[3] + this.cornersX[0]);
+        let midY4 = 0.5 * (this.cornersY[3] + this.cornersY[0]);
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(centerX, centerY);
+        p1.addCorner(midX1, midY1);
+        p1.addCorner(this.cornersX[0], this.cornersY[0]);
+        p1.addCorner(midX4, midY4);
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(centerX, centerY);
+        p2.addCorner(midX1, midY1);
+        p2.addCorner(this.cornersX[1], this.cornersY[1]);
+        p2.addCorner(midX2, midY2);
+        p2.subdivide();
+        const p3 = new Polygon(this.generation + 1);
+        p3.addCorner(centerX, centerY);
+        p3.addCorner(midX2, midY2);
+        p3.addCorner(this.cornersX[2], this.cornersY[2]);
+        p3.addCorner(midX3, midY3);
+        p3.subdivide();
+        const p4 = new Polygon(this.generation + 1);
+        p4.addCorner(centerX, centerY);
+        p4.addCorner(midX3, midY3);
+        p4.addCorner(this.cornersX[3], this.cornersY[3]);
+        p4.addCorner(midX4, midY4);
+        p4.subdivide();
+    }
+};
+
+
 // mod 4 subdivision for 5 childs
 Polygon.prototype.mod4for5 = function() {
+    this.shiftMod4();
     let length = this.cornersX.length;
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
@@ -670,6 +733,7 @@ Polygon.prototype.mod4for6 = function() {
 
 // mod 4 subdivision for 7 childs
 Polygon.prototype.mod4for7 = function() {
+    this.shiftMod4();
     let length = this.cornersX.length;
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
@@ -732,6 +796,75 @@ Polygon.prototype.mod4for7 = function() {
 
     }
 };
+// mod 4 subdivision for 8 childs
+Polygon.prototype.mod4for8 = function() {
+    let length = this.cornersX.length;
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    if (length === 3) {
+        if (Polygon.noAlert) {
+            Polygon.noAlert = false;
+            alert('modular 4 for 8 childs not implemented for triangles');
+        }
+    } else if (length === 4) {
+        let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
+        let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
+        let midX2 = 0.5 * (this.cornersX[1] + this.cornersX[2]);
+        let midY2 = 0.5 * (this.cornersY[1] + this.cornersY[2]);
+        let midX3 = 0.5 * (this.cornersX[2] + this.cornersX[3]);
+        let midY3 = 0.5 * (this.cornersY[2] + this.cornersY[3]);
+        let midX4 = 0.5 * (this.cornersX[3] + this.cornersX[0]);
+        let midY4 = 0.5 * (this.cornersY[3] + this.cornersY[0]);
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(centerX, centerY);
+        p1.addCorner(midX1, midY1);
+        p1.addCorner(0.5 * (this.cornersX[0] + midX1), 0.5 * (this.cornersY[0] + midY1));
+        p1.addCorner(this.cornersX[0], this.cornersY[0]);
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(centerX, centerY);
+        p2.addCorner(midX1, midY1);
+        p2.addCorner(0.5 * (this.cornersX[1] + midX1), 0.5 * (this.cornersY[1] + midY1));
+        p2.addCorner(this.cornersX[1], this.cornersY[1]);
+        p2.subdivide();
+        const p3 = new Polygon(this.generation + 1);
+        p3.addCorner(centerX, centerY);
+        p3.addCorner(midX2, midY2);
+        p3.addCorner(0.5 * (this.cornersX[1] + midX2), 0.5 * (this.cornersY[1] + midY2));
+        p3.addCorner(this.cornersX[1], this.cornersY[1]);
+        p3.subdivide();
+        const p4 = new Polygon(this.generation + 1);
+        p4.addCorner(centerX, centerY);
+        p4.addCorner(midX2, midY2);
+        p4.addCorner(0.5 * (this.cornersX[2] + midX2), 0.5 * (this.cornersY[2] + midY2));
+        p4.addCorner(this.cornersX[2], this.cornersY[2]);
+        p4.subdivide();
+        const p4a = new Polygon(this.generation + 1);
+        p4a.addCorner(centerX, centerY);
+        p4a.addCorner(midX3, midY3);
+        p4a.addCorner(0.5 * (this.cornersX[2] + midX3), 0.5 * (this.cornersY[2] + midY3));
+        p4a.addCorner(this.cornersX[2], this.cornersY[2]);
+        p4a.subdivide();
+        const p5 = new Polygon(this.generation + 1);
+        p5.addCorner(centerX, centerY);
+        p5.addCorner(midX3, midY3);
+        p5.addCorner(0.5 * (this.cornersX[3] + midX3), 0.5 * (this.cornersY[3] + midY3));
+        p5.addCorner(this.cornersX[3], this.cornersY[3]);
+        p5.subdivide();
+        const p6 = new Polygon(this.generation + 1);
+        p6.addCorner(centerX, centerY);
+        p6.addCorner(midX4, midY4);
+        p6.addCorner(0.5 * (this.cornersX[3] + midX4), 0.5 * (this.cornersY[3] + midY4));
+        p6.addCorner(this.cornersX[3], this.cornersY[3]);
+        p6.subdivide();
+        const p7 = new Polygon(this.generation + 1);
+        p7.addCorner(centerX, centerY);
+        p7.addCorner(this.cornersX[0], this.cornersY[0]);
+        p7.addCorner(0.5 * (this.cornersX[0] + midX4), 0.5 * (this.cornersY[0] + midY4));
+        p7.addCorner(midX4, midY4);
+        p7.subdivide();
+    }
+};
 
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
@@ -760,6 +893,9 @@ Polygon.prototype.subdivide = function() {
                 break;
             case 'modular 4':
                 switch (nChilds) {
+                    case 4:
+                        this.mod4for4();
+                        break;
                     case 5:
                         this.mod4for5();
                         break;
@@ -768,6 +904,9 @@ Polygon.prototype.subdivide = function() {
                         break;
                     case 7:
                         this.mod4for7();
+                        break;
+                    case 8:
+                        this.mod4for8();
                         break;
                     default:
                         if (Polygon.noAlert) {
