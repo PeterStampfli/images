@@ -12,6 +12,7 @@ const epsilon = 0.01;
 export const Polygon = function(generation) {
     this.cornersX = [];
     this.cornersY = [];
+    this.nCorners = 0;
     this.generation = generation;
     this.red = 255;
     this.green = 255;
@@ -39,7 +40,7 @@ Polygon.useOffset = false;
 Polygon.generations = 1;
 Polygon.subdiv = '5 ...';
 Polygon.subdivApproach = 'graphEuclidean';
-Polygon.subdivApproach = 'modular 4';
+//Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
 Polygon.shift = true;
 
@@ -56,7 +57,7 @@ Polygon.prototype.makePath = function() {
     canvasContext.beginPath();
     canvasContext.moveTo(this.cornersX[0], this.cornersY[0]);
     const length = this.cornersX.length;
-    for (let i = 1; i <= length; i++) {
+    for (let i = 1; i < length; i++) {
         canvasContext.lineTo(this.cornersX[i], this.cornersY[i]);
     }
     canvasContext.closePath();
@@ -98,7 +99,7 @@ Polygon.drawCollection = function() {
             const cornersX = polygon.cornersX;
             const cornersY = polygon.cornersY;
             const length = cornersX.length;
-            for (let i = 0; i <= length; i++) {
+            for (let i = 0; i < length; i++) {
                 canvasContext.beginPath();
                 canvasContext.arc(cornersX[i], cornersY[i], Polygon.vertexSize, 0, 2 * Math.PI);
                 canvasContext.fill();
@@ -219,16 +220,25 @@ Polygon.prototype.setSurface = function() {
 Polygon.prototype.addCorner = function(x, y) {
     this.cornersX.push(x);
     this.cornersY.push(y);
+    this.nCorners += 1;
 };
 
 // interpolate corners
 // returns a point defined by its coordinates
 Polygon.prototype.interpolate = function(t) {
     const result = {};
-    const iLow = Math.floor(t);
+    const nCorners = this.nCorners;
+    let iLow = Math.floor(t);
     t -= iLow;
-    result.x = this.cornersX[iLow] * (1 - t) + this.cornersX[iLow + 1] * t;
-    result.y = this.cornersY[iLow] * (1 - t) + this.cornersY[iLow + 1] * t;
+    if (iLow >= nCorners) {
+        iLow -= nCorners;
+    }
+    let iHigh = iLow + 1;
+    if (iHigh >= nCorners) {
+        iHigh -= nCorners;
+    }
+    result.x = this.cornersX[iLow] * (1 - t) + this.cornersX[iHigh] * t;
+    result.y = this.cornersY[iLow] * (1 - t) + this.cornersY[iHigh] * t;
     return result;
 };
 
@@ -242,9 +252,7 @@ Polygon.prototype.addInterpolatedCorner = function(parent, t) {
 Polygon.prototype.initialTriangles = function() {
     const centerX = 0;
     const centerY = 0;
-    const nChilds = this.cornersX.length;
-    // repeat first point
-    this.addCorner(this.cornersX[0], this.cornersY[0]);
+    const nChilds = this.nCorners;
     // subdivision of border
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
@@ -254,9 +262,13 @@ Polygon.prototype.initialTriangles = function() {
             p.addCorner(0.5 * (centerX + this.cornersX[i]), 0.5 * (centerY + this.cornersY[i]));
         }
         p.addCorner(this.cornersX[i], this.cornersY[i]);
-        p.addCorner(this.cornersX[i + 1], this.cornersY[i + 1]);
+        let ip = i + 1;
+        if (ip === nChilds) {
+            ip = 0;
+        }
+        p.addCorner(this.cornersX[ip], this.cornersY[ip]);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + this.cornersX[i + 1]), 0.5 * (centerY + this.cornersY[i + 1]));
+            p.addCorner(0.5 * (centerX + this.cornersX[ip]), 0.5 * (centerY + this.cornersY[ip]));
         }
         p.subdivide();
     }
@@ -266,9 +278,7 @@ Polygon.prototype.initialTriangles = function() {
 Polygon.prototype.initialPseudoQuadrangles = function() {
     const centerX = 0;
     const centerY = 0;
-    const nChilds = this.cornersX.length;
-    // repeat first point (interpolation)
-    this.addCorner(this.cornersX[0], this.cornersY[0]);
+    const nChilds = this.nCorners;
     // subdivision of border
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
@@ -278,10 +288,14 @@ Polygon.prototype.initialPseudoQuadrangles = function() {
             p.addCorner(0.5 * (centerX + this.cornersX[i]), 0.5 * (centerY + this.cornersY[i]));
         }
         p.addCorner(this.cornersX[i], this.cornersY[i]);
-        p.addCorner(0.5 * (this.cornersX[i] + this.cornersX[i + 1]), 0.5 * (this.cornersY[i] + this.cornersY[i + 1]));
-        p.addCorner(this.cornersX[i + 1], this.cornersY[i + 1]);
+        let ip = i + 1;
+        if (ip === nChilds) {
+            ip = 0;
+        }
+        p.addCorner(0.5 * (this.cornersX[i] + this.cornersX[ip]), 0.5 * (this.cornersY[i] + this.cornersY[ip]));
+        p.addCorner(this.cornersX[ip], this.cornersY[ip]);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + this.cornersX[i + 1]), 0.5 * (centerY + this.cornersY[i + 1]));
+            p.addCorner(0.5 * (centerX + this.cornersX[ip]), 0.5 * (centerY + this.cornersY[ip]));
         }
         p.subdivide();
     }
@@ -291,14 +305,16 @@ Polygon.prototype.initialPseudoQuadrangles = function() {
 Polygon.prototype.initialDoubleTriangles = function() {
     const centerX = 0;
     const centerY = 0;
-    const nChilds = this.cornersX.length;
-    // repeat first point (interpolation)
-    this.addCorner(this.cornersX[0], this.cornersY[0]);
+    const nChilds = this.nCorners;
     // subdivision of border
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     for (let i = 0; i < nChilds; i++) {
-        const midX = 0.5 * (this.cornersX[i] + this.cornersX[i + 1]);
-        const midY = 0.5 * (this.cornersY[i] + this.cornersY[i + 1]);
+        let ip = i + 1;
+        if (ip === nChilds) {
+            ip = 0;
+        }
+        const midX = 0.5 * (this.cornersX[i] + this.cornersX[ip]);
+        const midY = 0.5 * (this.cornersY[i] + this.cornersY[ip]);
         const p1 = new Polygon(this.generation + 1);
         p1.addCorner(centerX, centerY);
         if (addVertices) {
@@ -313,9 +329,9 @@ Polygon.prototype.initialDoubleTriangles = function() {
         const p2 = new Polygon(this.generation + 1);
         p2.addCorner(centerX, centerY);
         if (addVertices) {
-            p2.addCorner(0.5 * (centerX + this.cornersX[i + 1]), 0.5 * (centerY + this.cornersY[i + 1]));
+            p2.addCorner(0.5 * (centerX + this.cornersX[ip]), 0.5 * (centerY + this.cornersY[ip]));
         }
-        p2.addCorner(this.cornersX[i + 1], this.cornersY[i + 1]);
+        p2.addCorner(this.cornersX[ip], this.cornersY[ip]);
         p2.addCorner(midX, midY);
         if (addVertices) {
             p2.addCorner(0.5 * (centerX + midX), 0.5 * (centerY + midY));
@@ -329,24 +345,22 @@ Polygon.prototype.initialQuadrangles = function() {
     const centerX = 0;
     const centerY = 0;
     const nChilds = this.cornersX.length;
-    // repeat first point and second (interpolation)
-    this.addCorner(this.cornersX[0], this.cornersY[0]);
-    this.addCorner(this.cornersX[1], this.cornersY[1]);
     // subdivision of border
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
-    for (let i = 1; i <= nChilds; i++) {
+    let cornerHigh = this.interpolate(nChilds - 0.5);
+    for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
-        let cLow = this.interpolate(i - 0.5);
-        let cHigh = this.interpolate(i + 0.5);
+        let cornerLow = cornerHigh;
+        cornerHigh = this.interpolate(i + 0.5);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + cLow.x), 0.5 * (centerY + cLow.y));
+            p.addCorner(0.5 * (centerX + cornerLow.x), 0.5 * (centerY + cornerLow.y));
         }
-        p.addCorner(cLow.x, cLow.y);
+        p.addCorner(cornerLow.x, cornerLow.y);
         p.addCorner(this.cornersX[i], this.cornersY[i]);
-        p.addCorner(cHigh.x, cHigh.y);
+        p.addCorner(cornerHigh.x, cornerHigh.y);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + cHigh.x), 0.5 * (centerY + cHigh.y));
+            p.addCorner(0.5 * (centerX + cornerHigh.x), 0.5 * (centerY + cornerHigh.y));
         }
         p.subdivide();
     }
@@ -356,17 +370,17 @@ Polygon.prototype.initialQuadrangles = function() {
 Polygon.prototype.graphEuclidean = function() {
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
-    let length = this.cornersX.length;
-    // repeat first point and second (interpolation)
-    this.addCorner(this.cornersX[0], this.cornersY[0]);
-    this.addCorner(this.cornersX[1], this.cornersY[1]);
+    let nCorners = this.cornersX.length;
     // subdivision of border
     // number of child polygons for fractal all the same
     const nChilds = Polygon.subdivisions[this.generation];
     const addVertices = Polygon.additionalVertices && (nChilds >= 5);
-    const delta = length / nChilds;
+    const delta = nCorners / nChilds;
     for (let i = 0; i < nChilds; i++) {
-        const tLow = i * delta;
+        let tLow = i * delta;
+        if (Polygon.shift){
+            tLow+=0.5*nCorners;
+        }
         const tHigh = tLow + delta;
         // indices to parent tile corners/vertices between
         // interpolated new vertices
@@ -374,26 +388,33 @@ Polygon.prototype.graphEuclidean = function() {
         const jHigh = Math.floor(tHigh - epsilon);
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
-        let cLow = this.interpolate(tLow);
-        let cHigh = this.interpolate(tHigh);
+        let cornerLow = this.interpolate(tLow);
+        let cornerHigh = this.interpolate(tHigh);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + cLow.x), 0.5 * (centerY + cLow.y));
+            p.addCorner(0.5 * (centerX + cornerLow.x), 0.5 * (centerY + cornerLow.y));
         }
-        p.addCorner(cLow.x, cLow.y);
+        p.addCorner(cornerLow.x, cornerLow.y);
         // there should be at most one parent corner (vertex) between
         // the two interpolated corners
         if ((jHigh - jLow) >= 1) {
-            alert('subdivide: more than one parent corner between new interpolated corners');
+            if (Polygon.noAlert) {
+                Polygon.noAlert = false;
+                alert('subdivide: more than one parent corner between new interpolated corners');
+            }
         } else if (jHigh === jLow) {
             // one parent corner between new corners, add to new polygon
-            p.addCorner(this.cornersX[jLow], this.cornersY[jLow]);
+            if (jLow < nCorners) {
+                p.addCorner(this.cornersX[jLow], this.cornersY[jLow]);
+            } else {
+                p.addCorner(this.cornersX[jLow - nCorners], this.cornersY[jLow - nCorners]);
+            }
         } else {
             // add a vertex between the interpolated ones to get a quadrilateral
-            p.addCorner(0.5 * (cLow.x + cHigh.x), 0.5 * (cLow.y + cHigh.y));
+            p.addCorner(0.5 * (cornerLow.x + cornerHigh.x), 0.5 * (cornerLow.y + cornerHigh.y));
         }
-        p.addCorner(cHigh.x, cHigh.y);
+        p.addCorner(cornerHigh.x, cornerHigh.y);
         if (addVertices) {
-            p.addCorner(0.5 * (centerX + cHigh.x), 0.5 * (centerY + cHigh.y));
+            p.addCorner(0.5 * (centerX + cornerHigh.x), 0.5 * (centerY + cornerHigh.y));
         }
         p.subdivide();
     }

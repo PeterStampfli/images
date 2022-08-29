@@ -1,0 +1,48 @@
+{
+  "center": [
+    0,
+    2
+  ],
+  "range": 5,
+  "name": "tree",
+  "order": 8,
+  "maxGeneration": 8,
+  "drawGeneration": 5,
+  "fill": false,
+  "outline": false,
+  "drawing": "lower in back",
+  "tiles": {
+    "line": {
+      "shape": [
+        [],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "substitution": [
+        {
+          "name": "line",
+          "orientation": 7,
+          "origin": [
+            0,
+            0,
+            1
+          ],
+          "size": 0.707
+        },
+        {
+          "name": "line",
+          "orientation": 1,
+          "origin": [
+            0,
+            0,
+            1
+          ],
+          "size": 0.707
+        }
+      ]
+    }
+  }
+}
