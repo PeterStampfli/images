@@ -145,7 +145,7 @@ gui.add({
     params: Polygon,
     property: 'subdiv',
     options: [
-        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...'
+        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...', '4 2 ...'
     ],
     onChange: function() {
         draw();
@@ -211,14 +211,34 @@ function draw() {
         case '4 5 ...':
             Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
             break;
+        case '4 2 ...':
+            Polygon.subdivisions = [4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+            break;
     }
     if (Polygon.generations > Polygon.subdivisions.length) {
         generationsController.setValueOnly(Polygon.subdivisions.length);
     }
     // for collecting polygons
     Polygon.collection.length = 0;
-
-    const basisPolygon = Polygon.createRegular(Polygon.subdivisions[0]);
+    const subdivisions = Polygon.subdivisions[0];
+    var basisPolygon;
+    if (Polygon.initial === 'double triangles') {
+        if (((subdivisions & 1) === 0) && (subdivisions > 5)) {
+            basisPolygon = Polygon.createRegular(subdivisions / 2);
+        } else {
+            if (Polygon.noAlert) {
+                Polygon.noAlert = false;
+                alert('cannot do double triangles for odd number of children or smaller than 6 ' + subdivisions);
+            }
+            return;
+        }
+    } else {
+        if (subdivisions === 2) {
+            basisPolygon = Polygon.createRegular(subdivisions);
+        } else {
+            basisPolygon = Polygon.createRegular(subdivisions);
+        }
+    }
     if (Polygon.generations === 0) {
         basisPolygon.draw();
     } else {
