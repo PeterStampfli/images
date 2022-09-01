@@ -250,6 +250,19 @@ Polygon.prototype.addInterpolatedCorner = function(parent, t) {
 
 // make initial triangles, one for each side
 Polygon.prototype.initialTriangles = function() {
+    if (Polygon.subdivisions[0] === 2) {
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(-1, -1);
+        p1.addCorner(-1, 1);
+        p1.addCorner(1, 1);
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(-1, -1);
+        p2.addCorner(1, -1);
+        p2.addCorner(1, 1);
+        p2.subdivide();
+        return;
+    }
     const centerX = 0;
     const centerY = 0;
     const nChilds = this.nCorners;
@@ -276,6 +289,21 @@ Polygon.prototype.initialTriangles = function() {
 
 // make initial pseudo quadrangles, one for each side
 Polygon.prototype.initialPseudoQuadrangles = function() {
+    if (Polygon.subdivisions[0] === 2) {
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(-1, 0);
+        p1.addCorner(-1, -1);
+        p1.addCorner(1, -1);
+        p1.addCorner(1, 0);
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(-1, 0);
+        p2.addCorner(-1, 1);
+        p2.addCorner(1, 1);
+        p2.addCorner(1, 0);
+        p2.subdivide();
+        return;
+    }
     const centerX = 0;
     const centerY = 0;
     const nChilds = this.nCorners;
@@ -342,7 +370,22 @@ Polygon.prototype.initialDoubleTriangles = function() {
 
 // make initial quadrangles, one for each corner
 Polygon.prototype.initialQuadrangles = function() {
-    const centerX = 0;
+    if (Polygon.subdivisions[0] === 2) {
+        const p1 = new Polygon(this.generation + 1);
+        p1.addCorner(0, 0);
+        p1.addCorner(-1, -1);
+        p1.addCorner(1, -1);
+        p1.addCorner(1, 1);
+        p1.subdivide();
+        const p2 = new Polygon(this.generation + 1);
+        p2.addCorner(0, 0);
+        p2.addCorner(-1, -1);
+        p2.addCorner(-1, 1);
+        p2.addCorner(1, 1);
+        p2.subdivide();
+        return;
+    }
+       const centerX = 0;
     const centerY = 0;
     const nChilds = this.cornersX.length;
     // subdivision of border
@@ -378,8 +421,8 @@ Polygon.prototype.graphEuclidean = function() {
     const delta = nCorners / nChilds;
     for (let i = 0; i < nChilds; i++) {
         let tLow = i * delta;
-        if (Polygon.shift){
-            tLow+=0.5*nCorners;
+        if (Polygon.shift) {
+            tLow += 0.5 * nCorners;
         }
         const tHigh = tLow + delta;
         // indices to parent tile corners/vertices between

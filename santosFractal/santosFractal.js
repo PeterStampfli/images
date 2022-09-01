@@ -99,7 +99,7 @@ const generationsController = gui.add({
     type: 'number',
     params: Polygon,
     property: 'generations',
-    min: 0,
+    min: 1,
     step: 1,
     onChange: function() {
         draw();
@@ -145,7 +145,7 @@ gui.add({
     params: Polygon,
     property: 'subdiv',
     options: [
-        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...', '4 2 ...'
+        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...', '4 2 ...', '2 ...'
     ],
     onChange: function() {
         draw();
@@ -214,6 +214,9 @@ function draw() {
         case '4 2 ...':
             Polygon.subdivisions = [4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
             break;
+        case '2 ...':
+            Polygon.subdivisions = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+            break;
     }
     if (Polygon.generations > Polygon.subdivisions.length) {
         generationsController.setValueOnly(Polygon.subdivisions.length);
@@ -234,36 +237,33 @@ function draw() {
         }
     } else {
         if (subdivisions === 2) {
-            basisPolygon = Polygon.createRegular(subdivisions);
+            basisPolygon = Polygon.createRegular(4);
         } else {
             basisPolygon = Polygon.createRegular(subdivisions);
         }
     }
-    if (Polygon.generations === 0) {
-        basisPolygon.draw();
-    } else {
-        switch (Polygon.initial) {
-            case 'triangles':
-                basisPolygon.initialTriangles();
-                break;
-            case 'double triangles':
-                basisPolygon.initialDoubleTriangles();
-                break;
-            case 'quadrangles':
-                basisPolygon.initialQuadrangles();
-                break;
-            case 'pseudo quadrangles':
-                basisPolygon.initialPseudoQuadrangles();
-                break;
-        }
-        Polygon.setSurfaces();
-        Polygon.minMaxSurface();
-        Polygon.normalizeSurface();
-        Polygon.greySurfaces();
-        Polygon.drawCollection();
+    switch (Polygon.initial) {
+        case 'triangles':
+            basisPolygon.initialTriangles();
+            break;
+        case 'double triangles':
+            basisPolygon.initialDoubleTriangles();
+            break;
+        case 'quadrangles':
+            basisPolygon.initialQuadrangles();
+            break;
+        case 'pseudo quadrangles':
+            basisPolygon.initialPseudoQuadrangles();
+            break;
     }
-
+    Polygon.setSurfaces();
+    Polygon.minMaxSurface();
+    Polygon.normalizeSurface();
+    Polygon.greySurfaces();
+    Polygon.drawCollection();
 }
+
+
 
 output.setDrawMethods(draw);
 output.backgroundColorController.setValue('#ffffff');
