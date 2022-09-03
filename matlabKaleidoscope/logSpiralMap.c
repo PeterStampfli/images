@@ -1,6 +1,6 @@
 /*==========================================================
- * mirrorsMap: Makes that the points of map lie inside x=0...width and y=0...height
- * using vertical and horizontal mirroring at x=0, x=width, y=0, y=height
+ * mirrorsMap: map a logarithmic spiral to a band
+ *             center of spiral is origin
  *
  * Input:
  * first the map. 
@@ -9,8 +9,10 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * additional parameter: width, height
- *      simulates mirrors at x=0, x=width,y=0,y=height   
+ * additional parameter: periodX, periodY
+ *     displacement vector components for a full turn around the center of the spiral
+ *      (with constant radius, changing phi from 0 to 2pi)
+ *     should be a "invariant translation" of the map used in output  
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -35,12 +37,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, width, height, width2, height2, x, y;
+    float lnR, phi, periodX, periodY, x, y;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 3) {
-        mexErrMsgIdAndTxt("mirrorsMap:nrhs","A map input and (scalar) width and height required.");
+        mexErrMsgIdAndTxt("mirrorsMap:nrhs","A map input and (scalar) periodX and periodY required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -72,11 +74,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    width = (float) mxGetScalar(prhs[1]);
-    height = (float) mxGetScalar(prhs[2]);
-    width2 = 2 * width;
-    height2 = 2 * height;
-    
+    /* period scaled by 2 pi*/
+    periodX = ((float) mxGetScalar(prhs[1]))/6.283;
+    periodY = ((float) mxGetScalar(prhs[2]))/6.283;  
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -96,26 +96,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
             continue;
         }
         x = inMap[index];
-        if (x < 0) {
-            x = -x;
-            inverted = 1 - inverted;
-        }
-        x = fmodf(x, width2);
-        if (x > width) {
-            x = width2 - x;
-            inverted = 1 - inverted;
-        }
         y = inMap[index + nXnY];
-        if (y < 0) {
-            y = -y;
-            inverted = 1 - inverted;
-        }
-        y = fmodf(y, height2);
-        if (y > height) {
-            y = height2 - y;
-            inverted = 1 - inverted;
-        }
-        
+        phi = atan2f(y,x);
+        lnR = 0.5 * logf(x * x + y * y);
+        x = phi * periodX - lnR * periodY;
+        y = phi * periodY + lnR * periodX;
         outMap[index] = x;
         outMap[index + nXnY] = y;
         outMap[index + nXnY2] = inverted;
