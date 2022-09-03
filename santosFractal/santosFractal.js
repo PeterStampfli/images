@@ -116,6 +116,15 @@ gui.add({
 });
 
 gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'trueBaryCenter',
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'selection',
     params: Polygon,
     property: 'subdivApproach',
@@ -231,7 +240,7 @@ function draw() {
         } else {
             if (Polygon.noAlert) {
                 Polygon.noAlert = false;
-                alert('cannot do double triangles for odd number of children or smaller than 6 ' + subdivisions);
+                alert('cannot do double triangles for odd number of children or initial subdivison smaller than 6 ');
             }
             return;
         }
@@ -262,8 +271,6 @@ function draw() {
     Polygon.greySurfaces();
     Polygon.drawCollection();
 }
-
-
 
 output.setDrawMethods(draw);
 output.backgroundColorController.setValue('#ffffff');

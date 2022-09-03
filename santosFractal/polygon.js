@@ -8,6 +8,7 @@ from "../libgui/modules.js";
 
 const epsilon = 0.01;
 
+
 // polygon with corners, fillcolor, generation number
 export const Polygon = function(generation) {
     this.cornersX = [];
@@ -29,7 +30,6 @@ Polygon.lineWidth = 2;
 Polygon.vertexSize = 0.02;
 Polygon.gamma = 1;
 
-
 Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
 Polygon.additionalVertices = false;
@@ -42,7 +42,8 @@ Polygon.subdiv = '5 ...';
 Polygon.subdivApproach = 'graphEuclidean';
 //Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
-Polygon.shift = true;
+Polygon.shift = false;
+Polygon.trueBaryCenter = true;
 
 // other
 Polygon.noAlert = true;
@@ -162,18 +163,45 @@ Polygon.greySurfaces = function() {
 
 // calculate center of polygon
 Polygon.prototype.getCenter = function() {
-    const centerWeight = Polygon.centerWeight;
-    let centerX = centerWeight * this.cornersX[0];
-    let centerY = centerWeight * this.cornersY[0];
-    const length = this.cornersX.length;
-    for (let i = 1; i < length; i++) {
-        centerX += this.cornersX[i];
-        centerY += this.cornersY[i];
+    if (Polygon.trueBaryCenter) {
+        const originX = this.cornersX[0];
+        const originY = this.cornersY[0];
+        let newSideX = this.cornersX[1] - originX;
+        let newSideY = this.cornersY[1] - originY;
+        let lastSideX = newSideX;
+        let lastSideY = newSideY;
+        let areaSum = 0;
+        let centerX = 0;
+        let centerY = 0;
+        const nCorners = this.cornersX.length;
+        for (let i = 2; i < nCorners; i++) {
+            lastSideX = newSideX;
+            lastSideY = newSideY;
+            newSideX = this.cornersX[i] - originX;
+            newSideY = this.cornersY[i] - originY;
+            const area = newSideX * lastSideY - newSideY * lastSideX;
+            areaSum += area;
+            centerX += area * (originX + this.cornersX[i - 1] + this.cornersX[i]);
+            centerY += area * (originY + this.cornersY[i - 1] + this.cornersY[i]);
+        }
+        const factor = 0.333 / areaSum;
+        centerX *= factor;
+        centerY *= factor;
+        return [centerX, centerY];
+    } else {
+        const centerWeight = Polygon.centerWeight;
+        let centerX = centerWeight * this.cornersX[0];
+        let centerY = centerWeight * this.cornersY[0];
+        const length = this.cornersX.length;
+        for (let i = 1; i < length; i++) {
+            centerX += this.cornersX[i];
+            centerY += this.cornersY[i];
+        }
+        const factor = 1 / (length - 1 + centerWeight);
+        centerX *= factor;
+        centerY *= factor;
+        return [centerX, centerY];
     }
-    const factor = 1 / (length - 1 + centerWeight);
-    centerX *= factor;
-    centerY *= factor;
-    return [centerX, centerY];
 };
 
 // calculate the surface of the polygon and store it in its field
@@ -385,7 +413,7 @@ Polygon.prototype.initialQuadrangles = function() {
         p2.subdivide();
         return;
     }
-       const centerX = 0;
+    const centerX = 0;
     const centerY = 0;
     const nChilds = this.cornersX.length;
     // subdivision of border
