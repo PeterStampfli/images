@@ -109,27 +109,35 @@ Polygon.drawCollection = function() {
     }
 };
 
-// calculate surfaces
+// calculate surfaces and cosAngles
 Polygon.setSurfaces = function() {
     Polygon.collection.forEach(polygon => polygon.setSurface());
 };
 
-// minimum and maximum surface
+// minimum and maximum surface, and acosAngles
 Polygon.minMaxSurface = function() {
     let minSurface = 100000;
     let maxSurface = -100000;
+    let minCosAngle = 100000;
+    let maxCosAngle = -100000;
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
-        let surface = Polygon.collection[i].surface;
+        const surface = Polygon.collection[i].surface;
         minSurface = Math.min(minSurface, surface);
         maxSurface = Math.max(maxSurface, surface);
+        const cosAngle = Polygon.collection[i].cosAngle;
+        minCosAngle = Math.min(minCosAngle, cosAngle);
+        maxCosAngle = Math.max(maxCosAngle, cosAngle);
     }
     Polygon.minSurface = minSurface;
     Polygon.maxSurface = maxSurface;
+    Polygon.minCosAngle = minCosAngle;
+    Polygon.maxCosAngle = maxCosAngle;
 };
 
 // normalize surfaces between 0 and 0.999
 // if all nearly same surface - make it 0.9999
+// normalize cosAngle to 0...0.999
 Polygon.normalizeSurface = function() {
     const diff = Polygon.maxSurface - Polygon.minSurface;
     const length = Polygon.collection.length;
@@ -147,6 +155,60 @@ Polygon.normalizeSurface = function() {
             Polygon.collection[i].surface = x;
         }
     }
+    const aDiff = Polygon.maxCosAngle - Polygon.minCosAngle;
+    if (aDiff < 0.001) {
+        for (let i = 0; i < length; i++) {
+            Polygon.collection[i].cosAngle = 0.5;
+        }
+    } else {
+        const iADiff = 0.999 / aDiff;
+        const minCosAngle = Polygon.minCosAngle;
+        for (let i = 0; i < length; i++) {
+            Polygon.collection[i].cosAngle = (Polygon.collection[i].cosAngle - minCosAngle) * iADiff;
+        }
+    }
+};
+
+
+// set rgb components of a polygon depending on hue and value
+// hue and value between 0 and 1
+Polygon.prototype.setHueValue = function(hue, value) {
+    let red = 0;
+    let green = 0;
+    let blue = 0;
+    hue *= 6;
+    const c = Math.floor(hue);
+    const x = hue - c;
+    switch (c) {
+        case 0:
+            blue = 1;
+            red = x;
+            break;
+        case 1:
+            blue = 1 - x;
+            red = 1;
+            break;
+        case 2:
+            green = x;
+            red = 1;
+            break;
+        case 3:
+            green = 1;
+            red = 1 - x;
+            break;
+        case 4:
+            blue = x;
+            green = 1;
+            break;
+        case 5:
+            blue = 1;
+            green = 1 - x;
+            break;
+    }
+    const f = 255.9 * value;
+    this.red = Math.floor(f * red);
+    this.green = Math.floor(f * green);
+    this.blue = Math.floor(f * blue);
 };
 
 // grey colors black for smallest to white for largest
@@ -205,6 +267,7 @@ Polygon.prototype.getCenter = function() {
 };
 
 // calculate the surface of the polygon and store it in its field
+// and calculate cos of angle between lines going out from center=vertex[0]
 Polygon.prototype.setSurface = function() {
     const length = this.cornersX.length;
     var ax, ay, bx, by;
@@ -242,6 +305,11 @@ Polygon.prototype.setSurface = function() {
             break;
     }
     this.surface = Math.abs(ax * by - ay * bx);
+    ax = this.cornersX[1] - this.cornersX[0];
+    ay = this.cornersY[1] - this.cornersY[0];
+    bx = this.cornersX[length - 1] - this.cornersX[0];
+    by = this.cornersY[length - 1] - this.cornersY[0];
+    this.cosAngle = (ax * bx + ay * by) / Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
 };
 
 // adding a corner
@@ -1010,7 +1078,6 @@ Polygon.prototype.subdivide = function() {
         }
     }
 };
-
 
 // create regular polygon with n corners, generation 0
 
