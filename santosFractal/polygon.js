@@ -223,6 +223,28 @@ Polygon.greySurfaces = function() {
     }
 };
 
+// magenta-green  (cosangle-surface)
+Polygon.magentaGreen = function() {
+    const length = Polygon.collection.length;
+    for (let i = 0; i < length; i++) {
+        const polygon = Polygon.collection[i];
+        const green = Math.floor(polygon.surface * 255.9);
+        const magenta = Math.floor(polygon.cosAngle * 255.9);
+        polygon.red = magenta;
+        polygon.green = green;
+        polygon.blue = magenta;
+    }
+};
+
+// hue(cosangle)-value(surface)
+Polygon.hueValue=function(){
+ const length = Polygon.collection.length;
+    for (let i = 0; i < length; i++) {
+        const polygon = Polygon.collection[i];
+        polygon.setHueValue(polygon.cosAngle,polygon.surface);
+    }
+};
+
 // calculate center of polygon
 Polygon.prototype.getCenter = function() {
     if (Polygon.trueBaryCenter) {

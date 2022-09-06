@@ -40,11 +40,7 @@ gui.add({
     property: 'gamma',
     min: 0.1,
     onChange: function() {
-        Polygon.setSurfaces();
-        Polygon.minMaxSurface();
-        Polygon.normalizeSurface();
-        Polygon.greySurfaces();
-        Polygon.drawCollection();
+        draw();
     }
 });
 
@@ -188,19 +184,9 @@ gui.add({
     }
 });
 
-// for simple things
-// draw routine creates structure too
 
-function draw() {
-    // initialize output canvas
-    output.correctYAxis();
-    output.lineRound();
-    output.fillCanvasBackgroundColor();
-    output.setLineWidth(Polygon.lineWidth);
+function makeStructure() {
     Polygon.noAlert = true;
-
-    //  create structure
-
     switch (Polygon.subdiv) {
         case '4 ...':
             Polygon.subdivisions = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
@@ -265,10 +251,25 @@ function draw() {
             basisPolygon.initialPseudoQuadrangles();
             break;
     }
+}
+
+function doSurfacesAngles() {
     Polygon.setSurfaces();
     Polygon.minMaxSurface();
     Polygon.normalizeSurface();
-    Polygon.greySurfaces();
+}
+
+function draw() {
+    // initialize output canvas
+    output.correctYAxis();
+    output.lineRound();
+    output.fillCanvasBackgroundColor();
+    output.setLineWidth(Polygon.lineWidth);
+    makeStructure();
+    doSurfacesAngles();
+    //  Polygon.greySurfaces();
+    // Polygon.magentaGreen();
+    Polygon.hueValue();
     Polygon.drawCollection();
 }
 
