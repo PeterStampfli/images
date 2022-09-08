@@ -182,6 +182,15 @@ gui.add({
     onChange: function() {
         draw();
     }
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'shiftValue',
+    min:0.1,
+    labelText:'',
+    onChange: function() {
+        draw();
+    }
 });
 
 

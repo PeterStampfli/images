@@ -43,6 +43,7 @@ Polygon.subdivApproach = 'graphEuclidean';
 //Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
 Polygon.shift = false;
+Polygon.shiftValue = 0.5;
 Polygon.trueBaryCenter = true;
 
 // other
@@ -237,11 +238,11 @@ Polygon.magentaGreen = function() {
 };
 
 // hue(cosangle)-value(surface)
-Polygon.hueValue=function(){
- const length = Polygon.collection.length;
+Polygon.hueValue = function() {
+    const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.setHueValue(polygon.cosAngle,polygon.surface);
+        polygon.setHueValue(polygon.cosAngle, polygon.surface);
     }
 };
 
@@ -536,13 +537,32 @@ Polygon.prototype.graphEuclidean = function() {
     // number of child polygons for fractal all the same
     const nChilds = Polygon.subdivisions[this.generation];
     const addVertices = Polygon.additionalVertices && (nChilds >= 5);
-    const delta = nCorners / nChilds;
-    for (let i = 0; i < nChilds; i++) {
-        let tLow = i * delta;
-        if (Polygon.shift) {
-            tLow += 0.5 * nCorners;
+    let delta = nCorners / nChilds;
+    let offset = 0;
+    let nChildsPart = nChilds;
+    if (Polygon.shift) {
+        offset = Polygon.shiftValue * nCorners / nChilds;
+        delta = (nCorners - 2 * offset) / (nChilds - 1);
+        nChildsPart = nChilds - 1;
+        // add polygon at refernence vertex, index=0
+        const p = new Polygon(this.generation + 1);
+        p.addCorner(centerX, centerY);
+        let cornerLow = this.interpolate(offset);
+        let cornerHigh = this.interpolate(nCorners - offset);
+        if (addVertices) {
+            p.addCorner(0.5 * (centerX + cornerLow.x), 0.5 * (centerY + cornerLow.y));
         }
-        const tHigh = tLow + delta;
+        p.addCorner(cornerLow.x, cornerLow.y);
+        p.addCorner(this.cornersX[0], this.cornersY[0]);
+        p.addCorner(cornerHigh.x, cornerHigh.y);
+        if (addVertices) {
+            p.addCorner(0.5 * (centerX + cornerHigh.x), 0.5 * (centerY + cornerHigh.y));
+        }
+        p.subdivide();
+    }
+    for (let i = 0; i < nChildsPart; i++) {
+        let tLow = i * delta + offset;
+        let tHigh = tLow + delta;
         // indices to parent tile corners/vertices between
         // interpolated new vertices
         const jLow = Math.floor(tLow + epsilon) + 1;
