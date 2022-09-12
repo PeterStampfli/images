@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="no"?>
+<svg width="200" height="250" version="1.1" xmlns="http://www.w3.org/2000/svg">
+
+<path d="M 20,230 L 30 40 l 5 5 H 100 v20 Q40,205 50,230 T90,230 z"
+   fill="none" stroke="blue" stroke-width="5"/>
+
+   <path d="M 50,50 Q 200 75 50 100 T 50 150"
+   fill="none" stroke="red" stroke-width="5"/>
+
+
+     <!-- fill="none" same as fill="transparent" -->
+
+
+
+     <!-- M x y- move to (absolut), m - move to (relative)-->
+     <!-- L x y- line to (absolut), l - line to (relative)-->
+     <!-- H x - horizontal line to (absolut), h - horizontal line to (relative)-->
+     <!-- V y - vertical line to (absolut), h - vertical line to (relative)-->
+     <!-- Z or z close path -->
+     <!-- bezier curve -->
+     <!--C x1 y1, x2 y2, x y (or) c dx1 dy1, dx2 dy2, dx dy (relative to previous endpoint-->
+     <!-- x y endpoint -->
+     <!-- x1 y1  controlpoint of start, defines tangent and inertia, x2 y2 controlpoint of endpoint (tangent, inertia) -->
+     <!-- shortcut bezier curve , for chaining bezier curves, first controlpoint is reflected control point of preceeding bezier curve, reflected at the endpoint of preceeding-->
+     <!--S x2 y2, x y (or) s dx2 dy2, dx dy-->
+     <!-- quadratic bezier curve, both control points are the same-->
+     <!--Q controlX controlY, x y (or) q dControlX,dControlY, dx dy-->
+     <!-- shortcut quadratic bezier curve, both control points are the same, reflected-->
+     <!--T x y (or) t dx dy-->
+     <!-- arc -->
+     <!--A rx ry x-axis-rotation large-arc-flag sweep-flag x y-->
+    <!--a rx ry x-axis-rotation large-arc-flag sweep-flag dx dy-->
+    <!-- rx ry radii in x- and y-direction-->
+    <!-- x-axis-rotation in degrees, clockwise-->
+    <!-- large-arc-flag if 1 takes longer arc, if 0 takes smaller-->
+    <!-- sweep-flag determines if the arc should begin moving at positive angles or negative ones-->
+
+    <!-- x y end of stroke-->
+
+</svg>

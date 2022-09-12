@@ -223,6 +223,10 @@ guiUtils.updateValues = function(toObject, fromObject) {
 //   styles, DOM elements
 //============================================================================
 
+// new approach
+
+
+// old approach
 // take a HTML element and style it
 
 var elements;
