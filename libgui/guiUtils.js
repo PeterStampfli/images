@@ -220,14 +220,60 @@ guiUtils.updateValues = function(toObject, fromObject) {
 };
 
 //============================================================================
-//   styles, DOM elements
+//  parents, attributes, styles for DOM elements
 //============================================================================
 
 // new approach
+// using arrays of DOMElements
 
+/**
+ * set parent for given DOMelement or array of DOMelements
+ * @method guiUtils.setParent
+ * @param {DOMElement} parent
+ * @param DOMElement or [DOMElements] elements
+ */
+guiUtils.setParent = function(parent, elements) {
+    if (Array.isArray(elements)) {
+        elements.forEach(element => parent.appendChild(element));
+    } else {
+        parent.appendChild(elements);
+    }
+};
+
+/**
+ * set attributes for given DOMelement or array of DOMelements
+ * @method guiUtils.setAttributes
+ * @param DOMElement or [DOMElements] elements
+ * @param object attributes, as name,value pairs that define attributes
+ */
+guiUtils.setAttributes = function(elements, attributes) {
+    if (Array.isArray(elements)) {
+        elements.forEach(element => guiUtils.setAttributes(element, attributes));
+    } else {
+        for (var key in attributes) {
+            elements.setAttribute(key, attributes[key]);
+        }
+    }
+};
+
+/**
+ * set styles for given DOMelement or array of DOMelements
+ * @method guiUtils.setStyle
+ * @param DOMElement or [DOMElements] elements
+ * @param object attributes, as name,value pairs that define attributes
+ */
+guiUtils.setStyle = function(elements, style) {
+    if (Array.isArray(elements)) {
+        elements.forEach(element => guiUtils.setStyle(element, style));
+    } else {
+        for (var key in style) {
+            elements.style[key] = style[key];
+        }
+    }
+};
 
 // old approach
-// take a HTML element and style it
+// make a collecction of DOMelements and style it
 
 var elements;
 
@@ -268,7 +314,6 @@ guiUtils.parent = function(p) {
     elements.forEach(element => p.appendChild(element));
     return guiUtils;
 };
-
 
 /**
  * set attribute for registered HTML elements

@@ -145,3 +145,8 @@ export {
     pixelPaint
 }
 from "./pixelPaint.js";
+
+export {
+    SVG
+}
+from "./svg.js";
