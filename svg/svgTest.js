@@ -15,25 +15,33 @@ const gui = new ParamGui({
 });
 
 const svgns = 'http://www.w3.org/2000/svg';
-
+SVG.makeGui(gui);
 SVG.init();
 
-const theSvg = SVG.element;
-
-//svg.setAttribute('width','400');
-//svg.setAttribute('height','400');
+function draw(){
+    SVG.begin();
 
 
-const rect = document.createElementNS(svgns, 'rect');
-
-guiUtils.setAttributes([rect], {
-    width: 500,
-    height: 100
+SVG.create('rect', {
+    width: 400,
+    height: 300,
+    fill: 'red'
 });
+SVG.createText({
+    x:150,
+    y:125,
+    fill:'yellow',
+    'text-anchor':'middle',
+    'font-size':60
+},'eintext');
+SVG.create('rect', {
+    width: 40,
+    height: 30,
+    fill: 'blue'
+});
+SVG.terminate();
+}
 
-//rect.setAttribute('width', '500');
-//rect.setAttribute('height', '400');
-rect.setAttribute('fill', 'blue');
-theSvg.appendChild(rect);
-
-console.log(SVG.text);
+SVG.draw=draw;
+draw();
+//console.log(SVG.text);
