@@ -2,7 +2,8 @@
 
 import {
     output,
-    guiUtils
+    guiUtils,
+    MouseEvents
 }
 from "../libgui/modules.js";
 
@@ -17,6 +18,9 @@ export const SVG = {};
 SVG.draw = function() {
     alert('SVG.draw function undefined');
 };
+
+// invert y-axis: attribute  'transform': SVG.invertYAxis
+SVG.invertYAxis='matrix(1 0 0 1 0 0)';
 
 // for the viewbox
 // relative shift for centering
@@ -59,7 +63,6 @@ SVG.makeGui = function(gui) {
         property: 'viewMinWidth',
         labelText: 'min width',
         min: 0,
-        step: 1,
         onChange: function() {
             SVG.draw();
         }
@@ -70,7 +73,6 @@ SVG.makeGui = function(gui) {
         property: 'viewMinHeight',
         labelText: 'height',
         min: 0,
-        step: 1,
         onChange: function() {
             SVG.draw();
         }
@@ -146,30 +148,29 @@ SVG.begin = function() {
     }
     // for viewbox: minimum widths and heights given
     // viewbox corner, then width and height
-    // offset relative to svg image size
+    // offset relative to viewBox image size
     const SVGWidth = output.divWidth;
     const SVGHeight = output.divHeight;
-    console.log(SVGWidth, SVGHeight);
     // view=svg*viewScale
     const viewScale = Math.max(SVG.viewMinWidth / SVGWidth, SVG.viewMinHeight / SVGHeight);
     const viewHeight = Math.round(viewScale * SVGHeight);
     const viewWidth = Math.round(viewScale * SVGWidth);
-    console.log(viewScale, viewWidth, viewHeight);
-    const cornerX = -Math.round(SVG.viewShiftX * SVGWidth);
-    const cornerY = -Math.round(SVG.viewShiftY * SVGHeight);
+    const cornerX = -Math.round(SVG.viewShiftX * viewWidth);
+    const cornerY = -Math.round(SVG.viewShiftY * viewHeight);
     const viewBoxData = cornerX + ' ' + cornerY + ' ' + viewWidth + ' ' + viewHeight;
-    console.log(viewBoxData);
     guiUtils.setAttributes(SVG.element, {
         width: SVGWidth,
         height: SVGHeight,
+        viewBox: viewBoxData
     });
     SVG.group = SVG.element;
     SVG.text = '<svg\n';
     SVG.text += stringOfAttributes({
         version: 1.1,
+        xmlns: SVGns,
         height: SVGHeight,
         width: SVGWidth,
-        xmlns: SVGns
+        viewBox: viewBoxData
     });
     SVG.text += '>\n';
 };
@@ -237,6 +238,12 @@ SVG.create = function(tag, attributes) {
     SVG.text += '/>\n';
 };
 
+// upon resize: redraw
+function resizeDraw() {
+    console.log('resizeDraw');
+    SVG.draw();
+}
+
 /**
  * setup/initialize the svg, inside the output.div
  * @method SVG.init
@@ -249,7 +256,27 @@ SVG.init = function() {
     if (!output.div) {
         output.createDiv();
     }
-    console.log(output.divWidth, output.divHeight);
+    output.div.style.cursor = "pointer";
+    SVG.mouseEvents = new MouseEvents(output.div);
+    const mouseEvents = SVG.mouseEvents;
+    mouseEvents.dragAction = function() {
+        console.log('drag', mouseEvents.dx, mouseEvents.dy);
+        // let viewShiftX=SVG.viewShiftXController.getValue();
+        // let viewShiftY=SVG.viewShiftYController.getValue();
+        SVG.setViewShifts(SVG.viewShiftX + mouseEvents.dx / output.divWidth, SVG.viewShiftY + mouseEvents.dy / output.divHeight);
+        SVG.draw();
+
+    };
+    mouseEvents.wheelAction = function() {
+        console.log('wheel', mouseEvents.wheelDelta);
+        const delta = mouseEvents.wheelDelta * 0.1;
+        SVG.setMinViewWidthHeight((1 + delta) * SVG.viewMinWidth, (1 + delta) * SVG.viewMinHeight);
+        SVG.setViewShifts(0.5 + (SVG.viewShiftX - 0.5) / (1 + delta), 0.5 + (SVG.viewShiftY - 0.5) / (1 + delta));
+        SVG.draw();
+    };
+
+
     SVG.element = document.createElementNS(SVGns, 'svg');
     guiUtils.setParent(output.div, SVG.element);
+    window.addEventListener("resize", resizeDraw, false);
 };

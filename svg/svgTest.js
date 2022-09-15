@@ -25,7 +25,9 @@ function draw(){
 SVG.create('rect', {
     width: 400,
     height: 300,
-    fill: 'red'
+    fill: 'red',
+    stroke:'green',
+    'stroke-width':3
 });
 SVG.createText({
     x:150,
@@ -41,6 +43,9 @@ SVG.create('rect', {
 });
 SVG.terminate();
 }
+
+SVG.setViewShifts(0,0);
+SVG.setMinViewWidthHeight(400,300);
 
 SVG.draw=draw;
 draw();
