@@ -20,7 +20,7 @@ SVG.draw = function() {
 };
 
 // invert y-axis: attribute  'transform': SVG.invertYAxis
-SVG.invertYAxis='matrix(1 0 0 1 0 0)';
+SVG.invertYAxis = 'matrix(1 0 0 1 0 0)';
 
 // for the viewbox
 // relative shift for centering
@@ -236,6 +236,38 @@ SVG.create = function(tag, attributes) {
     SVG.text += '<' + tag + '\n';
     SVG.text += stringOfAttributes(attributes);
     SVG.text += '/>\n';
+};
+
+/**
+ * create an open polyline path, use for fill and stroke
+ * @method SVP.createPolyline
+ * @params [float] coordinates - array of x,y coordinate pairs for corners of the polygon, or array
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createPolyline = function(coordinates, attributes = {}) {
+    let pointsString = coordinates[0] + ',' + coordinates[1];
+    length = coordinates.length;
+    for (let i = 2; i < length; i += 2) {
+        pointsString += ' ' + coordinates[i] + ',' + coordinates[i + 1];
+    }
+    attributes.points = pointsString;
+    SVG.create('polyline', attributes);
+};
+
+/**
+ * create an closed polygon path, use for fill and stroke
+ * @method SVP.createPolygon
+ * @params [float] coordinates - array of x,y coordinate pairs for corners of the polygon, or array
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createPolygon = function(coordinates, attributes = {}) {
+    let pointsString = coordinates[0] + ',' + coordinates[1];
+    length = coordinates.length;
+    for (let i = 2; i < length; i += 2) {
+        pointsString += ' ' + coordinates[i] + ',' + coordinates[i + 1];
+    }
+    attributes.points = pointsString;
+    SVG.create('polygon', attributes);
 };
 
 // upon resize: redraw

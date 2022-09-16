@@ -21,7 +21,9 @@ SVG.init();
 function draw(){
     SVG.begin();
 
-
+SVG.createGroup({
+    stroke:'black'
+});
 SVG.create('rect', {
     width: 400,
     height: 300,
@@ -41,6 +43,7 @@ SVG.create('rect', {
     height: 30,
     fill: 'blue'
 });
+SVG.createPolygon([10,10,200,20,30,50],{fill:'none'});
 SVG.terminate();
 }
 
