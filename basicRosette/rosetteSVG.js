@@ -26,7 +26,7 @@ rosette.itemax = 10;
 rosette.tileColor = '#000000';
 rosette.tileWidth = 4;
 
-rosette.size = 100;
+rosette.size = 40;
 
 
 gui.add({
@@ -114,12 +114,12 @@ function addCorners() {
 function draw() {
     SVG.begin();
     SVG.createGroup({
+ //       transform: 'scale(1 -1)',
         fill: 'none',
         stroke: rosette.lineColor,
         'stroke-width': rosette.lineWidth,
         'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        transform: 'scale(1 -1)'
+        'stroke-linejoin': 'round'
     });
     px.length = 0;
     py.length = 0;
@@ -136,41 +136,36 @@ function draw() {
     x = px[px.length - 1];
     y = py[py.length - 1];
 
+    let r2 = 0;
+
     for (let i = 0; i <= n; i++) {
-        x[i] = rosette.size * Math.cos(angle * i);
-        y[i] = rosette.size * Math.sin(angle * i);
-        SVG.create('path', {
-            d: 'M 0 0 L ' + x[i] + ' ' + y[i]
-        });
-        let r2 = 0;
-        for (var ite = 0; ite < rosette.itemax; ite++) {
-            addCorners();
-            x = px[px.length - 1];
-            y = py[py.length - 1];
-            const xLast = px[px.length - 2];
-            const yLast = py[py.length - 2];
-            const xLast2 = px[px.length - 3];
-            const yLast2 = py[py.length - 3];
-            for (let i = 0; i < n; i++) {
-                x[i] = xLast[i] + xLast[i + 1] - xLast2[i + 1];
-                y[i] = yLast[i] + yLast[i + 1] - yLast2[i + 1];
-            }
-            r2 = xLast[0] * xLast[0] + yLast[0] * yLast[0];
-            if (x[0] * x[0] + y[0] * y[0] < 0.9 * (xLast[0] * xLast[0] + yLast[0] * yLast[0])) {
-                break;
-            }
-            x[n] = x[0];
-            y[n] = y[0];
-            for (let i = 0; i < n; i++) {
-                output.makePath(xLast[i], yLast[i], x[i], y[i], xLast[i + 1], yLast[i + 1]);
-                canvasContext.stroke();
-            }
+        y[i] = rosette.size * Math.cos(angle * i);
+        x[i] = rosette.size * Math.sin(angle * i);
+        SVG.createPolyline([0, 0, x[i], y[i]]);
+    }
+    for (var ite = 0; ite < rosette.itemax; ite++) {
+        addCorners();
+        x = px[px.length - 1];
+        y = py[py.length - 1];
+        const xLast = px[px.length - 2];
+        const yLast = py[py.length - 2];
+        const xLast2 = px[px.length - 3];
+        const yLast2 = py[py.length - 3];
+        for (let i = 0; i < n; i++) {
+            x[i] = xLast[i] + xLast[i + 1] - xLast2[i + 1];
+            y[i] = yLast[i] + yLast[i + 1] - yLast2[i + 1];
+        }
+        r2 = xLast[0] * xLast[0] + yLast[0] * yLast[0];
+        if (x[0] * x[0] + y[0] * y[0] < 0.9 * (xLast[0] * xLast[0] + yLast[0] * yLast[0])) {
+            break;
+        }
+        x[n] = x[0];
+        y[n] = y[0];
+        for (let i = 0; i < n; i++) {
+            SVG.createPolyline([xLast[i], yLast[i], x[i], y[i], xLast[i + 1], yLast[i + 1]]);
         }
     }
-    SVG.create('circle', {
-        cx: 0,
-        cy: 0,
-        r: Math.sqrt(r2),
+    SVG.createCircle(0, 0, Math.sqrt(r2), {
         stroke: 'blue'
     });
     SVG.terminate();

@@ -31,6 +31,7 @@ SVG.create('rect', {
     stroke:'green',
     'stroke-width':3
 });
+SVG.createCircle(100,150,50,{stroke:'white'});
 SVG.createText({
     x:150,
     y:125,

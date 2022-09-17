@@ -245,10 +245,10 @@ SVG.create = function(tag, attributes) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolyline = function(coordinates, attributes = {}) {
-    let pointsString = coordinates[0] + ',' + coordinates[1];
+    let pointsString = coordinates[0].toPrecision(3) + ',' + coordinates[1].toPrecision(3);
     length = coordinates.length;
     for (let i = 2; i < length; i += 2) {
-        pointsString += ' ' + coordinates[i] + ',' + coordinates[i + 1];
+        pointsString += ' ' + coordinates[i].toPrecision(3) + ',' + coordinates[i + 1].toPrecision(3);
     }
     attributes.points = pointsString;
     SVG.create('polyline', attributes);
@@ -261,13 +261,28 @@ SVG.createPolyline = function(coordinates, attributes = {}) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolygon = function(coordinates, attributes = {}) {
-    let pointsString = coordinates[0] + ',' + coordinates[1];
+    let pointsString = coordinates[0].toPrecision(3) + ',' + coordinates[1].toPrecision(3);
     length = coordinates.length;
     for (let i = 2; i < length; i += 2) {
-        pointsString += ' ' + coordinates[i] + ',' + coordinates[i + 1];
+        pointsString += ' ' + coordinates[i].toPrecision(3) + ',' + coordinates[i + 1].toPrecision(3);
     }
     attributes.points = pointsString;
     SVG.create('polygon', attributes);
+};
+
+/**
+ * create a circle, use for fill and stroke
+ * @method SVP.createCircle
+ * @params float centerX
+ * @params float centerY
+ * @params float radius
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createCircle = function(centerX,centerY,radius, attributes = {}) {
+   attributes.cx=centerX.toPrecision(3);
+   attributes.cy=centerY.toPrecision(3);
+   attributes.r=radius.toPrecision(3);
+    SVG.create('circle', attributes);
 };
 
 // upon resize: redraw
