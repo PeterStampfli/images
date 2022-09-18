@@ -199,7 +199,7 @@ SVG.createGroup = function(attributes) {
     SVG.group = document.createElementNS(SVGns, 'g');
     guiUtils.setParent(SVG.element, SVG.group);
     guiUtils.setAttributes(SVG.group, attributes);
-    SVG.text = '<g\n';
+    SVG.text += '<g\n';
     SVG.text += stringOfAttributes(attributes);
     SVG.text += '/>\n';
 };
@@ -278,16 +278,15 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
  * @params float radius
  * @params Object attributes, optional,default is empty object
  */
-SVG.createCircle = function(centerX,centerY,radius, attributes = {}) {
-   attributes.cx=centerX.toPrecision(3);
-   attributes.cy=centerY.toPrecision(3);
-   attributes.r=radius.toPrecision(3);
+SVG.createCircle = function(centerX, centerY, radius, attributes = {}) {
+    attributes.cx = centerX.toPrecision(3);
+    attributes.cy = centerY.toPrecision(3);
+    attributes.r = radius.toPrecision(3);
     SVG.create('circle', attributes);
 };
 
 // upon resize: redraw
 function resizeDraw() {
-    console.log('resizeDraw');
     SVG.draw();
 }
 
@@ -307,22 +306,15 @@ SVG.init = function() {
     SVG.mouseEvents = new MouseEvents(output.div);
     const mouseEvents = SVG.mouseEvents;
     mouseEvents.dragAction = function() {
-        console.log('drag', mouseEvents.dx, mouseEvents.dy);
-        // let viewShiftX=SVG.viewShiftXController.getValue();
-        // let viewShiftY=SVG.viewShiftYController.getValue();
         SVG.setViewShifts(SVG.viewShiftX + mouseEvents.dx / output.divWidth, SVG.viewShiftY + mouseEvents.dy / output.divHeight);
         SVG.draw();
-
     };
     mouseEvents.wheelAction = function() {
-        console.log('wheel', mouseEvents.wheelDelta);
         const delta = mouseEvents.wheelDelta * 0.1;
         SVG.setMinViewWidthHeight((1 + delta) * SVG.viewMinWidth, (1 + delta) * SVG.viewMinHeight);
         SVG.setViewShifts(0.5 + (SVG.viewShiftX - 0.5) / (1 + delta), 0.5 + (SVG.viewShiftY - 0.5) / (1 + delta));
         SVG.draw();
     };
-
-
     SVG.element = document.createElementNS(SVGns, 'svg');
     guiUtils.setParent(output.div, SVG.element);
     window.addEventListener("resize", resizeDraw, false);
