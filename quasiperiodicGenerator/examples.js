@@ -38,54 +38,8 @@ import {
     eightfoldOctagons
 } from './eightfoldOctagons.js';
 
-export const readJSON = {};
-
 // reading JSON files
 //=====================================================================
-
-readJSON.result = {};
-readJSON.name = '';
-var theAction = function() {};
-
-const fileReader = new FileReader();
-var file;
-
-fileReader.onload = function() {
-    readJSON.name = file.name.split('.')[0];
-    const result = fileReader.result;
-    try {
-        readJSON.result = JSON.parse(result);
-    } catch (err) {
-        alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
-        return;
-    }
-    theAction();
-};
-
-fileReader.onerror = function() {
-    alert("Failed to read file!\n\n" + reader.error);
-};
-
-readJSON.makeButton = function(gui, action) {
-    theAction = action;
-    readJSON.openButton = gui.add({
-        type: 'button',
-        buttonText: 'open file with structure data'
-    });
-    readJSON.openButton.addHelp('Open a *.json or *.txt file with data for a tiling or fractal. Keyboard shortcut with the "=" - key.');
-    readJSON.openButton.uiElement.asFileInput('.txt,.json');
-    readJSON.openButton.uiElement.onFileInput = function(files) {
-        file = files[0];
-        fileReader.readAsText(file);
-    };
-};
-
-// use "=" to (re)load definition
-document.addEventListener('keyup', function(event) {
-    if (event.key === '=') {
-        readJSON.openButton.uiElement.onClick();
-    }
-}, false);
 
 // built in examples, loading others, and selecting them
 //==========================================================
@@ -93,6 +47,52 @@ document.addEventListener('keyup', function(event) {
 export const examples = {};
 
 examples.init = function(gui) {
+    // first make the button to load json code for a tiling/fractal   
+    // reading the file, parsing and adding the result
+    const fileReader = new FileReader();
+    var file;
+
+    fileReader.onload = function() {
+        let result = fileReader.result;
+        try {
+            result = JSON.parse(result);
+        } catch (err) {
+            alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
+            return;
+        }
+        let name = file.name.split('.')[0];
+        if ('name' in result) {
+            name = result.name;
+        }
+        examples.add(name, result);
+        main.newStructure();
+        main.create();
+        main.draw();
+    };
+
+    fileReader.onerror = function() {
+        alert("Failed to read file!\n\n" + reader.error);
+    };
+
+    // make the button
+    const openButton = main.gui.add({
+        type: 'button',
+        buttonText: 'open file with structure data'
+    });
+    openButton.addHelp('Open a *.json file with data for a tiling or fractal. Keyboard shortcut with the "=" - key.');
+    openButton.uiElement.asFileInput('.json');
+    openButton.uiElement.onFileInput = function(files) {
+        file = files[0];
+        fileReader.readAsText(file);
+    };
+    // use "=" hotkey to (re)load definition
+    document.addEventListener('keyup', function(event) {
+        if (event.key === '=') {
+            openButton.uiElement.onClick();
+        }
+    }, false);
+
+    // make the selection for tilings/fractals, and the button for downloading json code
     examples.current = examples.ammannBeenker;
     examples.selectionController = gui.add({
         type: 'selection',
@@ -101,16 +101,16 @@ examples.init = function(gui) {
         labelText: 'structure',
         options: {
             'Penrose rhombus': penroseRhombus,
-            'five-fold pentagons':fiveFoldPentagons,
-            'ten-fold pentagons':tenFoldPentagons,
+            'five-fold pentagons': fiveFoldPentagons,
+            'ten-fold pentagons': tenFoldPentagons,
             "Theo's seven-fold": sevenFold,
             "Theo's fourteen-fold": fourteenFold,
             'Ammann-Beenker Tiling': examples.ammannBeenker,
-            'eight-fold octagons':eightfoldOctagons,
+            'eight-fold octagons': eightfoldOctagons,
             'fractal tree': examples.tree,
             'dragon curve': dragon,
             'Sierpinsky triangle': examples.sierpinsky,
-            'fractal pentagons':pentagons,
+            'fractal pentagons': pentagons,
             "Koch's snowstorm": snowstorm
         },
         onChange: function() {

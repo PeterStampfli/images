@@ -78,8 +78,10 @@ builder.init = function(guiP) {
     });
 };
 
+// reading the definition of the tiling or fractal
+
 builder.setup = function(definition) {
-    // initial canvas 
+    // initialize canvas dimensions depending on the definition
     let centerX = 0;
     let centerY = 0;
     let range = 3;
@@ -90,19 +92,23 @@ builder.setup = function(definition) {
     if ('range' in definition) {
         range = definition.range;
     }
+    output.setInitialCoordinates(centerX, -centerY, range);
+
     // drawing controlls
+    // set the generation to draw upon loading the definition, default is 2
     if ('drawGeneration' in definition) {
         builder.drawGenController.setValueOnly(definition.drawGeneration);
     } else {
         builder.drawGenController.setValueOnly(2);
     }
+    // sequence of drawing generations, last only, or all
     let drawing = 'last only';
     if ('drawing' in definition) {
         drawing = definition.drawing;
     }
     builder.drawingController.setValueOnly(drawing);
-    output.setInitialCoordinates(centerX, -centerY, range);
     // ui elements (on demand)
+    // switching fill for polygons on and off, or nothing at all
     let fill = true;
     if ('fill' in definition) {
         fill = definition.fill;
@@ -113,6 +119,7 @@ builder.setup = function(definition) {
     } else {
         main.drawFillController.hide();
     }
+    // heavy outline for initial polygon, switching on or off, or hiding controls
     let outline = true;
     if ('outline' in definition) {
         outline = definition.outline;
@@ -130,42 +137,36 @@ builder.setup = function(definition) {
     } else {
         main.markerSizeController.setValueOnly(0.1);
     }
-    // definition of tiling
-    inflation = 1;
-    if ('inflation' in definition) {
-        inflation = definition.inflation;
-    }
+    // generate all generations up to maxGeneration
+    //  this is the highest generation you can display
     let maxGeneration = 4;
     if ('maxGeneration' in definition) {
         maxGeneration = definition.maxGeneration;
     }
     builder.maxGenerationController.setValueOnly(maxGeneration);
-    if ('minSize' in definition) {
-        builder.minSizeController.setValueOnly(definition.minSize);
-        builder.minSizeController.show();
-    } else {
-        builder.minSizeController.setValueOnly(0);
-        builder.minSizeController.hide();
+
+    // define the tiles of the tiling/fractal
+    // inflation ratio of substitution method, typically for tilings
+    inflation = 1;
+    if ('inflation' in definition) {
+        inflation = definition.inflation;
     }
+    // order of the rotation group of the tiling/fractal, default is 5
     order = 5;
     if ('order' in definition) {
         order = definition.order;
     }
+    // generating the corresponding basis vectors at multiples of 2 pi/order
     basisX.length = 2 * order;
     basisY.length = basisX.length;
     const dalpha = 2 * Math.PI / order;
     let alpha = 0;
-    if ('rotation' in definition) {
-        alpha = Math.PI * definition.rotation;
-    }
     for (let i = 0; i < basisX.length; i++) {
         basisX[i] = Math.cos(alpha);
         basisY[i] = Math.sin(alpha);
         alpha += dalpha;
     }
-    if (initialTileController) {
-        initialTileController.destroy();
-    }
+    // definition.tiles is an object
     if ('tiles' in definition) {
         tiles = definition.tiles;
     } else {
@@ -173,15 +174,24 @@ builder.setup = function(definition) {
             none: {}
         };
     }
+    // each definition of a tile is a field, with the tile name as key
+    // get all tile names=keys
     tileNames = Object.keys(tiles);
     const tileNamesLength = tileNames.length;
     let initialTile = tileNames[0];
+    // determine initial tile for the substitution, default is the first tile
     if ('initial' in definition) {
         if (tileNames.indexOf(definition.initial) >= 0) {
             initialTile = definition.initial;
         }
     }
     builder.initialTile = initialTile;
+    // each tile may be choosen as initial tile, 
+    // destroy previous controller with its options
+    // create a new controller
+    if (initialTileController) {
+        initialTileController.destroy();
+    }
     initialTileController = gui.add({
         type: 'selection',
         params: builder,
@@ -194,21 +204,34 @@ builder.setup = function(definition) {
         }
     });
     initialTileController.addHelp('Choose the initial tile or configuration used in the substitution');
-    if (builder.tileColors !== null) {
-        gui.remove(builder.tileColors);
-        builder.tileColors = null;
-    }
-    if (fill) {
-        builder.tileColors = gui.addFolder('colors of tiles');
-    }
+    // check if there are markers, in case add controls
     let hasMarker = false;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
         const tile = tiles[tileName];
         if (tile.marker) {
             hasMarker = true;
+            break;
         }
-        if (fill) {
+    }
+    if (hasMarker) {
+        main.markerColorController.show();
+        main.markerSizeController.show();
+    } else {
+        main.markerColorController.hide();
+        main.markerSizeController.hide();
+    }
+    // if there are fill colors add color controllers for tiles, load color
+    // first remove preexisting tile color controllers
+    if (builder.tileColors !== null) {
+        gui.remove(builder.tileColors);
+        builder.tileColors = null;
+    }
+    if (fill) {
+        builder.tileColors = gui.addFolder('colors of tiles');
+        for (let i = 0; i < tileNamesLength; i++) {
+            const tileName = tileNames[i];
+            const tile = tiles[tileName];
             if (!('color' in tile)) {
                 tile.color = initialColors[i % initialColors.length];
             }
@@ -220,13 +243,6 @@ builder.setup = function(definition) {
                 onChange: main.draw
             });
         }
-    }
-    if (hasMarker) {
-        main.markerColorController.show();
-        main.markerSizeController.show();
-    } else {
-        main.markerColorController.hide();
-        main.markerSizeController.hide();
     }
 };
 

@@ -7,12 +7,12 @@ import {
 
 import {
     builder,
-    examples,
-    readJSON
+    examples
 } from './modules.js';
 
 export const main = {};
 
+// data for drawing
 main.drawFill = true;
 main.drawStroke = true;
 main.drawInitialStroke = true;
@@ -25,7 +25,7 @@ main.inflate = false;
 main.outlineWidth = 3;
 main.outlineColor = '#444444';
 
-// setting up the canvas and its gui
+// setting up the gui and the canvas
 const gui = new ParamGui({
     name: 'quasiperiodic tilings + fractals',
     closed: false,
@@ -48,8 +48,10 @@ gui.add({
     }
 });
 
+// after the canvas gui comes the gui that defines the tiling/fractal
 builder.init(gui);
 
+// finally the gui that determines drawing styles
 gui.add({
     type: 'boolean',
     params: main,
@@ -81,6 +83,7 @@ gui.add({
         main.draw();
     }
 }).addHelp('Choose the color of the surrounding lines of tiles.');
+
 gui.add({
     type: 'number',
     params: main,
@@ -169,25 +172,10 @@ main.OutlineOnOffController = main.outlineSizeController.add({
 });
 main.OutlineOnOffController.addHelp('Switch the outline of initial shape on or off, and choose size, in pixels.');
 
-readJSON.makeButton(gui,
-    function() {
-        let name = readJSON.name;
-        if ('name' in readJSON.result) {
-            name = readJSON.result.name;
-        }
-        examples.add(name, readJSON.result);
-        main.newStructure();
-        main.create();
-        main.draw();
-    });
-
+// the gui for choosing the tiling fractal
 examples.init(gui);
 
 examples.selectionController.setValueOnly("Theo's seven-fold");
-
-main.tileColors = gui.addFolder('colors of tiles');
-
-gui.remove(main.tileColors);
 
 main.newStructure = function() {
     builder.setup(examples.current);

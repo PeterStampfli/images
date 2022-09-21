@@ -5,7 +5,7 @@
 //===================================================
 
 // NOTE: put dependencies in correct order
-// what has to bb done loaded first has to be first
+// what has to be done loaded first has to be first
 
 // seems that at first import of something here, all files are loaded in sequence
 
@@ -30,8 +30,7 @@ export {
 from './main.js';
 
 export {
-    examples,
-    readJSON
+    examples
 }
 from './examples.js';
 
