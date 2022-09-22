@@ -177,10 +177,12 @@ examples.init(gui);
 
 examples.selectionController.setValueOnly("Theo's seven-fold");
 
+// setup of the definition of a new tiling
 main.newStructure = function() {
-    builder.setup(examples.current);
+    builder.defineTiling(examples.current);
 };
 
+// create the tiling according to the existing definitions
 main.create = function() {
     builder.create();
 };

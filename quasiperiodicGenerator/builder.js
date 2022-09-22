@@ -13,7 +13,6 @@ export const builder = {};
 builder.maxGeneration = 4;
 builder.drawGeneration = 2;
 builder.drawing = 'last only';
-builder.minSize = 0;
 builder.tileColors = null;
 
 var gui = {};
@@ -65,22 +64,56 @@ builder.init = function(guiP) {
         }
     });
     builder.drawingController.addHelp('Choose the generation to show. You can choose to display only that one (for tilings), or to display also earlier generations (for some fractals, such as the "fractal tree", that include earlier generations.)');
-    builder.minSizeController = gui.add({
-        type: 'number',
-        params: builder,
-        property: 'minSize',
-        labelText: 'minimum tile size',
-        min: 0,
-        onChange: function() {
-            main.create();
-            main.draw();
-        }
-    });
 };
+
+// working with vectors
+//==================================================
+
+// transform a vector from order-fold coordinates to cartesian coordinates
+// return as array [x,y]
+function cartesianVector(vector) {
+    const length = vector.length;
+    let x = 0;
+    let y = 0;
+    for (let j = 0; j < length; j++) {
+        const amplitude = vector[j];
+        x += amplitude * basisX[j];
+        y += amplitude * basisY[j];
+    }
+    return [x, y];
+}
+
+// transforming an array of vectors with order-fold coordinates to 
+// an array with cartesian coordinate pairs (returned)
+function cartesianVectors(vectors) {
+    const length = vectors.length;
+    let result = [];
+    for (let j = 0; j < length; j++) {
+        const vector = cartesianVector(vectors[j]);
+        result.push(vector[0], vector[1]);
+    }
+    return result;
+}
+
+// first rotate and then translate an array of coordinate pairs
+// the rotation angle is nRot*2*pi/order, translation is given in components
+// transforms the array
+function rotateTranslateVectors(vectors, nRot, translateX, translateY) {
+    nRot = nRot % order;
+    const cosAlpha = basisX[nRot];
+    const sinAlpha = basisY[nRot];
+    length = vectors.length;
+    for (let j = 0; j < length; j += 2) {
+        const x = vectors[j];
+        const y = vectors[j + 1];
+        vectors[j] = cosAlpha * x - sinAlpha * y + translateX;
+        vectors[j + 1] = sinAlpha * x + cosAlpha * y + translateY;
+    }
+}
 
 // reading the definition of the tiling or fractal
 
-builder.setup = function(definition) {
+builder.defineTiling = function(definition) {
     // initialize canvas dimensions depending on the definition
     let centerX = 0;
     let centerY = 0;
@@ -244,10 +277,12 @@ builder.setup = function(definition) {
             });
         }
     }
+
+
 };
 
 //  making the structure
-//============================================
+//=========================================================================
 
 var generations = [];
 var initialTile;
@@ -349,9 +384,6 @@ builder.create = function() {
             let parentSize = parentTileInfo.size;
             if (noInflate) {
                 parentSize /= inflation;
-            }
-            if (parentSize < builder.minSize) {
-                continue;
             }
             // for each substitution (tile) get orientation and origin
             // if no origin is given use origin of previous substitution tile
