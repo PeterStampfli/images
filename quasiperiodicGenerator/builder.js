@@ -14,22 +14,24 @@ builder.maxGeneration = 4;
 builder.drawGeneration = 2;
 builder.drawing = 'last only';
 builder.tileColors = null;
-
-var gui = {};
+// default tile colors
+const initialColors = ['#ff0000', '#ffff00', '#00ff00', '#0000ff', '#aa00aa'];
 
 var order, inflation;
 var basisX = [];
 var basisY = [];
 
+// tiles has the definition of the tiles from the definition of the tiling/fractal
 var tiles = {};
+// tileNames are the keys to the tiles object fields, these are tile objects with the definitions of a tile
+// its shape ..., and substitution or comosition
 var tileNames = [];
 
-const initialColors = ['#ff0000', '#ffff00', '#00ff00', '#0000ff', '#aa00aa'];
 
 var initialTileController;
 
-builder.init = function(guiP) {
-    gui = guiP;
+builder.init = function() {
+    const gui=main.gui;
     builder.maxGenerationController = gui.add({
         type: 'number',
         params: builder,
@@ -114,6 +116,7 @@ function rotateTranslateVectors(vectors, nRot, translateX, translateY) {
 // reading the definition of the tiling or fractal
 
 builder.defineTiling = function(definition) {
+    const gui=main.gui;
     // initialize canvas dimensions depending on the definition
     let centerX = 0;
     let centerY = 0;
@@ -277,9 +280,50 @@ builder.defineTiling = function(definition) {
             });
         }
     }
-
-
+    // vectors in order-fold base, to transform to cartesian
+    // if existing
+    // tile.shape - array of vectors
+    // tile.overprint - array of vectors
+    // tile.border - array of vectors
+    // tile.marker - single vector
+    // tile.sustitution.origin - array of vectors
+    // tile.composition.origin - array of vectors
+    for (let i = 0; i < tileNamesLength; i++) {
+        const tileName = tileNames[i];
+        const tile = tiles[tileName];
+        if (tile.shape) {
+            tile.cartesianShape = cartesianVectors(tile.shape);
+        }
+        if (tile.overprint) {
+            tile.cartesianOverprint = cartesianVectors(tile.overprint);
+        }
+        if (tile.border) {
+            tile.cartesianBorder = cartesianVectors(tile.border);
+        }
+        if (tile.marker) {
+            tile.cartesianMarker = cartesianVector(tile.marker);
+        }
+        if (tile.substitution) {
+            const substitution = tile.substitution;
+            const length = substitution.length;
+            for (let i = 0; i < length; i++) {
+                if (substitution[i].origin) {
+                    substitution[i].cartesianOrigin = cartesianVectors(substitution[i].origin);
+                }
+            }
+        }
+        if (tile.composition) {
+            const composition = tile.composition;
+            const length = composition.length;
+            for (let i = 0; i < length; i++) {
+                if (composition[i].origin) {
+                    composition[i].cartesianOrigin = cartesianVectors(composition[i].origin);
+                }
+            }
+        }
+    }
 };
+
 
 //  making the structure
 //=========================================================================

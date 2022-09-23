@@ -49,7 +49,7 @@ gui.add({
 });
 
 // after the canvas gui comes the gui that defines the tiling/fractal
-builder.init(gui);
+builder.init();
 
 // finally the gui that determines drawing styles
 gui.add({
