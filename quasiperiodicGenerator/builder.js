@@ -21,9 +21,9 @@ var order, inflation;
 var basisX = [];
 var basisY = [];
 
-// tiles has the definition of the tiles from the definition of the tiling/fractal
-var tiles = {};
-// tileNames are the keys to the tiles object fields, these are tile objects with the definitions of a tile
+// tileDefinitions has the definition of the tiles from the definition of the tiling/fractal
+var tileDefinitions = {};
+// tileNames are the keys to the tileDefinitions object fields, these are tile objects with the definitions of a tile
 // its shape ..., and substitution or comosition
 var tileNames = [];
 
@@ -31,7 +31,7 @@ var tileNames = [];
 var initialTileController;
 
 builder.init = function() {
-    const gui=main.gui;
+    const gui = main.gui;
     builder.maxGenerationController = gui.add({
         type: 'number',
         params: builder,
@@ -97,13 +97,15 @@ function cartesianVectors(vectors) {
     return result;
 }
 
-// first rotate and then translate an array of coordinate pairs
-// the rotation angle is nRot*2*pi/order, translation is given in components
+// first rotate and scale, and then translate an array of coordinate pairs
+// the rotation angle is nRot*2*pi/order,
+// the scale is a parameter
+// translation is given in components
 // transforms the array
-function rotateTranslateVectors(vectors, nRot, translateX, translateY) {
+function transformVectors(vectors, nRot, scale translateX, translateY) {
     nRot = nRot % order;
-    const cosAlpha = basisX[nRot];
-    const sinAlpha = basisY[nRot];
+    const cosAlpha = scale * basisX[nRot];
+    const sinAlpha = scale * basisY[nRot];
     length = vectors.length;
     for (let j = 0; j < length; j += 2) {
         const x = vectors[j];
@@ -116,7 +118,7 @@ function rotateTranslateVectors(vectors, nRot, translateX, translateY) {
 // reading the definition of the tiling or fractal
 
 builder.defineTiling = function(definition) {
-    const gui=main.gui;
+    const gui = main.gui;
     // initialize canvas dimensions depending on the definition
     let centerX = 0;
     let centerY = 0;
@@ -204,15 +206,15 @@ builder.defineTiling = function(definition) {
     }
     // definition.tiles is an object
     if ('tiles' in definition) {
-        tiles = definition.tiles;
+        tileDefinitions = definition.tiles;
     } else {
-        tiles = {
+        tileDefinitions = {
             none: {}
         };
     }
     // each definition of a tile is a field, with the tile name as key
     // get all tile names=keys
-    tileNames = Object.keys(tiles);
+    tileNames = Object.keys(tileDefinitions);
     const tileNamesLength = tileNames.length;
     let initialTile = tileNames[0];
     // determine initial tile for the substitution, default is the first tile
@@ -244,7 +246,7 @@ builder.defineTiling = function(definition) {
     let hasMarker = false;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
-        const tile = tiles[tileName];
+        const tile = tileDefinitions[tileName];
         if (tile.marker) {
             hasMarker = true;
             break;
@@ -267,7 +269,7 @@ builder.defineTiling = function(definition) {
         builder.tileColors = gui.addFolder('colors of tiles');
         for (let i = 0; i < tileNamesLength; i++) {
             const tileName = tileNames[i];
-            const tile = tiles[tileName];
+            const tile = tileDefinitions[tileName];
             if (!('color' in tile)) {
                 tile.color = initialColors[i % initialColors.length];
             }
@@ -286,11 +288,11 @@ builder.defineTiling = function(definition) {
     // tile.overprint - array of vectors
     // tile.border - array of vectors
     // tile.marker - single vector
-    // tile.sustitution.origin - array of vectors
+    // tile.substitution.origin - array of vectors
     // tile.composition.origin - array of vectors
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
-        const tile = tiles[tileName];
+        const tile = tileDefinitions[tileName];
         if (tile.shape) {
             tile.cartesianShape = cartesianVectors(tile.shape);
         }
@@ -328,13 +330,23 @@ builder.defineTiling = function(definition) {
 //  making the structure
 //=========================================================================
 
+// generations is an array of the various iterations of the tiling/fractal
+// a single generation is an array of tile data
+// each tile has a name (key to tileDefinitions), size, originX, originY, size
+// additional data to speed up drawing
+// shape -  array of cartesian coordinate pairs
+// overprint - same
+// border - same
+// marker - same (single pair)
+
+
 var generations = [];
 var initialTile;
 
 function addTile(tile, generation) {
     tile.orientation %= order;
-    if ('composition' in tiles[tile.name]) {
-        const composition = tiles[tile.name].composition;
+    if ('composition' in tileDefinitions[tile.name]) {
+        const composition = tileDefinitions[tile.name].composition;
         // decompose the tile
         // get info of the composed tile
         const parentOriginX = tile.originX;
@@ -386,7 +398,7 @@ function addTile(tile, generation) {
             }
             childTile.orientation = childOrientation;
             // tile has angle: update orientation for next tile
-            const childTileInfo = tiles[childTile.name];
+            const childTileInfo = tileDefinitions[childTile.name];
             if (childTileInfo.angle) {
                 childOrientation += childTileInfo.angle;
             }
@@ -431,8 +443,8 @@ builder.create = function() {
             }
             // for each substitution (tile) get orientation and origin
             // if no origin is given use origin of previous substitution tile
-            if ('substitution' in tiles[parentTileInfo.name]) {
-                const substitution = tiles[parentTileInfo.name].substitution;
+            if ('substitution' in tileDefinitions[parentTileInfo.name]) {
+                const substitution = tileDefinitions[parentTileInfo.name].substitution;
                 // default origin is same as parent tile origin
                 let childOriginX = parentOriginX;
                 let childOriginY = parentOriginY;
@@ -479,7 +491,7 @@ builder.create = function() {
                     }
                     childTile.orientation = childOrientation;
                     // tile has angle: update orientation for next tile
-                    const childTileInfo = tiles[childTile.name];
+                    const childTileInfo = tileDefinitions[childTile.name];
                     if ('angle' in childTileInfo) {
                         childOrientation += childTileInfo.angle;
                     }
@@ -495,7 +507,7 @@ builder.create = function() {
 
 // draw overprinting lines to join halves
 builder.drawOverprint = function(tileInfo) {
-    const tile = tiles[tileInfo.name];
+    const tile = tileDefinitions[tileInfo.name];
     if ('overprint' in tile) {
         // overprinting to join halves, only if fill
         // need explicit overprinting, do first
@@ -535,7 +547,7 @@ builder.drawOverprint = function(tileInfo) {
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tileInfo) {
-    const tile = tiles[tileInfo.name];
+    const tile = tileDefinitions[tileInfo.name];
     if ('shape' in tile) {
         const shape = tile.shape;
         const originX = tileInfo.originX;
@@ -655,9 +667,9 @@ builder.draw = function() {
             break;
     }
     // drawing the outline around initial configuration, particularly for subs rules
-    if (main.drawInitialStroke && ('shape' in tiles[initialTile.name])) {
+    if (main.drawInitialStroke && ('shape' in tileDefinitions[initialTile.name])) {
         // draw  border of initial shape
-        const tile = tiles[initialTile.name];
+        const tile = tileDefinitions[initialTile.name];
         const shape = tile.shape;
         const originX = initialTile.originX;
         const originY = initialTile.originY;

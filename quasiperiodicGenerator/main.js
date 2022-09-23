@@ -175,7 +175,7 @@ main.OutlineOnOffController.addHelp('Switch the outline of initial shape on or o
 // the gui for choosing the tiling fractal
 examples.init(gui);
 
-examples.selectionController.setValueOnly("Theo's seven-fold");
+//examples.selectionController.setValueOnly("Theo's seven-fold");
 
 // setup of the definition of a new tiling
 main.newStructure = function() {
