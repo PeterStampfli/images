@@ -10,7 +10,7 @@ import {
 
 export const builder = {};
 
-builder.maxGeneration = 4;
+builder.maxGeneration = 2;
 builder.drawGeneration = 2;
 builder.drawing = 'last only';
 builder.tileColors = null;
@@ -101,18 +101,20 @@ function cartesianVectors(vectors) {
 // the rotation angle is nRot*2*pi/order,
 // the scale is a parameter
 // translation is given in components
-// transforms the array
-function transformVectors(vectors, nRot, scale translateX, translateY) {
-    nRot = nRot % order;
+// returns the transformed array
+function transformedVectors(vectors, nRot, scale, translateX, translateY) {
     const cosAlpha = scale * basisX[nRot];
     const sinAlpha = scale * basisY[nRot];
+    const result = [];
+    result.length = vectors.length;
     length = vectors.length;
     for (let j = 0; j < length; j += 2) {
         const x = vectors[j];
         const y = vectors[j + 1];
-        vectors[j] = cosAlpha * x - sinAlpha * y + translateX;
-        vectors[j + 1] = sinAlpha * x + cosAlpha * y + translateY;
+        result[j] = cosAlpha * x - sinAlpha * y + translateX;
+        result[j + 1] = sinAlpha * x + cosAlpha * y + translateY;
     }
+    return result;
 }
 
 // reading the definition of the tiling or fractal
@@ -300,7 +302,12 @@ builder.defineTiling = function(definition) {
             tile.cartesianOverprint = cartesianVectors(tile.overprint);
         }
         if (tile.border) {
-            tile.cartesianBorder = cartesianVectors(tile.border);
+            if (tile.border.length === 0) {
+                tile.border = tile.shape;
+                tile.cartesianBorder = tile.cartesianShape;
+            } else {
+                tile.cartesianBorder = cartesianVectors(tile.border);
+            }
         }
         if (tile.marker) {
             tile.cartesianMarker = cartesianVector(tile.marker);
@@ -326,7 +333,6 @@ builder.defineTiling = function(definition) {
     }
 };
 
-
 //  making the structure
 //=========================================================================
 
@@ -339,16 +345,18 @@ builder.defineTiling = function(definition) {
 // border - same
 // marker - same (single pair)
 
-
 var generations = [];
 var initialTile;
 
 function addTile(tile, generation) {
     tile.orientation %= order;
-    if ('composition' in tileDefinitions[tile.name]) {
-        const composition = tileDefinitions[tile.name].composition;
+    const tileDefinition = tileDefinitions[tile.name];
+    if ('composition' in tileDefinition) {
+        // the tile a composition of other tiles
+        // generate these composing tiles and add them
+        const composition = tileDefinition.composition;
         // decompose the tile
-        // get info of the composed tile
+        // get info of the composed parent tile
         const parentOriginX = tile.originX;
         const parentOriginY = tile.originY;
         const parentSize = tile.size;
@@ -405,6 +413,19 @@ function addTile(tile, generation) {
             addTile(childTile, generation);
         }
     } else {
+        // the tile is not a composition
+        // add it to the tiles of the current generation
+        // first generate the final vectors for drawing
+        // vector transformation data of the tile
+        const originX = tile.originX;
+        const originY = tile.originY;
+        const size = tile.size;
+        const orientation = tile.orientation;
+        // shape etc. in tileDefinition
+        if (tileDefinition.marker) {
+            tile.cartesianMarker = transformedVectors(tileDefinition.cartesianMarker, orientation, size, originX, originY);
+        }
+
         generations[generation].push(tile);
     }
 }
@@ -506,18 +527,18 @@ builder.create = function() {
 //=======================================
 
 // draw overprinting lines to join halves
-builder.drawOverprint = function(tileInfo) {
-    const tile = tileDefinitions[tileInfo.name];
-    if ('overprint' in tile) {
+builder.drawOverprint = function(tile) {
+    const tileDefinition = tileDefinitions[tile.name];
+    if ('overprint' in tileDefinition) {
         // overprinting to join halves, only if fill
         // need explicit overprinting, do first
         const canvasContext = output.canvasContext;
-        canvasContext.strokeStyle = tile.color;
-        const overprint = tile.overprint;
-        const originX = tileInfo.originX;
-        const originY = tileInfo.originY;
-        const size = tileInfo.size;
-        const orientation = tileInfo.orientation;
+        canvasContext.strokeStyle = tileDefinition.color;
+        const overprint = tileDefinition.overprint;
+        const originX = tile.originX;
+        const originY = tile.originY;
+        const size = tile.size;
+        const orientation = tile.orientation;
         const length = overprint.length;
         canvasContext.beginPath();
         for (let i = 0; i < length; i++) {
@@ -546,16 +567,16 @@ builder.drawOverprint = function(tileInfo) {
 // fill the shape and draw its outline
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
-builder.drawTile = function(tileInfo) {
-    const tile = tileDefinitions[tileInfo.name];
-    if ('shape' in tile) {
-        const shape = tile.shape;
-        const originX = tileInfo.originX;
-        const originY = tileInfo.originY;
-        const size = tileInfo.size;
-        const orientation = tileInfo.orientation;
+builder.drawTile = function(tile) {
+    const tileDefinition = tileDefinitions[tile.name];
+    if ('shape' in tileDefinition) {
+        const shape = tileDefinition.shape;
+        const originX = tile.originX;
+        const originY = tile.originY;
+        const size = tile.size;
+        const orientation = tile.orientation;
         const canvasContext = output.canvasContext;
-        canvasContext.fillStyle = tile.color;
+        canvasContext.fillStyle = tileDefinition.color;
         const length = shape.length;
         // make path for fill (and stroke)
         canvasContext.beginPath();
@@ -584,10 +605,10 @@ builder.drawTile = function(tileInfo) {
         }
         if (main.drawStroke) {
             // if an explicite border is given then change the path
-            if ('border' in tile) {
-                let border = tile.border;
+            if ('border' in tileDefinition) {
+                let border = tileDefinition.border;
                 if (border.length === 0) {
-                    border = tile.shape;
+                    border = tileDefinition.shape;
                 }
                 const length = border.length;
                 canvasContext.beginPath();
@@ -613,9 +634,9 @@ builder.drawTile = function(tileInfo) {
             }
             canvasContext.stroke();
         }
-        if (main.drawMarker && tile.marker) {
+        if (main.drawMarker && tileDefinition.marker) {
             // make a dot at given position:
-            const marker = tile.marker;
+            const marker = tileDefinition.marker;
             const length = marker.length;
             let x = 0;
             let y = 0;
@@ -627,6 +648,7 @@ builder.drawTile = function(tileInfo) {
             }
             x = size * x + originX;
             y = size * y + originY;
+            console.log('oldmarker', x, y,'new',tile.cartesianMarker);
             canvasContext.beginPath();
             canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
             canvasContext.fillStyle = main.markerColor;

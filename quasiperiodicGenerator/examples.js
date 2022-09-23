@@ -150,8 +150,8 @@ examples.ammannBeenker = {
 
     "order": 8,
     "inflation": 2.414,
-    "maxGeneration": 5,
-    "drawGeneration": 3,
+    "maxGeneration": 1,
+    "drawGeneration": 1,
     "initial": "star",
 
     "markerSize": 0.2,
