@@ -21,9 +21,9 @@ var order, inflation;
 var basisX = [];
 var basisY = [];
 
-// tileDefinitions has the definition of the tiles from the definition of the tiling/fractal
-var tileDefinitions = {};
-// tileNames are the keys to the tileDefinitions object fields, these are tile objects with the definitions of a tile
+// protoTiles has the definition of the tiles from the definition of the tiling/fractal
+var protoTiles = {};
+// tileNames are the keys to the protoTiles object fields, these are tile objects with the definitions of a tile
 // its shape ..., and substitution or comosition
 var tileNames = [];
 
@@ -208,15 +208,15 @@ builder.defineTiling = function(definition) {
     }
     // definition.tiles is an object
     if ('tiles' in definition) {
-        tileDefinitions = definition.tiles;
+        protoTiles = definition.tiles;
     } else {
-        tileDefinitions = {
+        protoTiles = {
             none: {}
         };
     }
     // each definition of a tile is a field, with the tile name as key
     // get all tile names=keys
-    tileNames = Object.keys(tileDefinitions);
+    tileNames = Object.keys(protoTiles);
     const tileNamesLength = tileNames.length;
     let initialTile = tileNames[0];
     // determine initial tile for the substitution, default is the first tile
@@ -248,8 +248,8 @@ builder.defineTiling = function(definition) {
     let hasMarker = false;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
-        const tile = tileDefinitions[tileName];
-        if (tile.marker) {
+        const protoTile = protoTiles[tileName];
+        if (protoTile.marker) {
             hasMarker = true;
             break;
         }
@@ -271,13 +271,13 @@ builder.defineTiling = function(definition) {
         builder.tileColors = gui.addFolder('colors of tiles');
         for (let i = 0; i < tileNamesLength; i++) {
             const tileName = tileNames[i];
-            const tile = tileDefinitions[tileName];
-            if (!('color' in tile)) {
-                tile.color = initialColors[i % initialColors.length];
+            const protoTile = protoTiles[tileName];
+            if (!('color' in protoTile)) {
+                protoTile.color = initialColors[i % initialColors.length];
             }
             builder.tileColors.add({
                 type: 'color',
-                params: tile,
+                params: protoTile,
                 property: 'color',
                 labelText: tileName,
                 onChange: main.draw
@@ -294,26 +294,26 @@ builder.defineTiling = function(definition) {
     // tile.composition.origin - array of vectors
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
-        const tile = tileDefinitions[tileName];
-        if (tile.shape) {
-            tile.cartesianShape = cartesianVectors(tile.shape);
+        const protoTile = protoTiles[tileName];
+        if (protoTile.shape) {
+            protoTile.cartesianShape = cartesianVectors(protoTile.shape);
         }
-        if (tile.overprint) {
-            tile.cartesianOverprint = cartesianVectors(tile.overprint);
+        if (protoTile.overprint) {
+            protoTile.cartesianOverprint = cartesianVectors(protoTile.overprint);
         }
-        if (tile.border) {
-            if (tile.border.length === 0) {
-                tile.border = tile.shape;
-                tile.cartesianBorder = tile.cartesianShape;
+        if (protoTile.border) {
+            if (protoTile.border.length === 0) {
+                protoTile.border = protoTile.shape;
+                protoTile.cartesianBorder = protoTile.cartesianShape;
             } else {
-                tile.cartesianBorder = cartesianVectors(tile.border);
+                protoTile.cartesianBorder = cartesianVectors(protoTile.border);
             }
         }
-        if (tile.marker) {
-            tile.cartesianMarker = cartesianVector(tile.marker);
+        if (protoTile.marker) {
+            protoTile.cartesianMarker = cartesianVector(protoTile.marker);
         }
-        if (tile.substitution) {
-            const substitution = tile.substitution;
+        if (protoTile.substitution) {
+            const substitution = protoTile.substitution;
             const length = substitution.length;
             for (let i = 0; i < length; i++) {
                 if (substitution[i].origin) {
@@ -321,8 +321,8 @@ builder.defineTiling = function(definition) {
                 }
             }
         }
-        if (tile.composition) {
-            const composition = tile.composition;
+        if (protoTile.composition) {
+            const composition = protoTile.composition;
             const length = composition.length;
             for (let i = 0; i < length; i++) {
                 if (composition[i].origin) {
@@ -338,7 +338,7 @@ builder.defineTiling = function(definition) {
 
 // generations is an array of the various iterations of the tiling/fractal
 // a single generation is an array of tile data
-// each tile has a name (key to tileDefinitions), size, originX, originY, size
+// each tile has a name (key to protoTiles), size, originX, originY, size
 // additional data to speed up drawing
 // shape -  array of cartesian coordinate pairs
 // overprint - same
@@ -350,11 +350,11 @@ var initialTile;
 
 function addTile(tile, generation) {
     tile.orientation %= order;
-    const tileDefinition = tileDefinitions[tile.name];
-    if ('composition' in tileDefinition) {
+    const protoTile = protoTiles[tile.name];
+    if ('composition' in protoTile) {
         // the tile a composition of other tiles
         // generate these composing tiles and add them
-        const composition = tileDefinition.composition;
+        const composition = protoTile.composition;
         // decompose the tile
         // get info of the composed parent tile
         const parentOriginX = tile.originX;
@@ -406,24 +406,39 @@ function addTile(tile, generation) {
             }
             childTile.orientation = childOrientation;
             // tile has angle: update orientation for next tile
-            const childTileInfo = tileDefinitions[childTile.name];
+            const childTileInfo = protoTiles[childTile.name];
             if (childTileInfo.angle) {
                 childOrientation += childTileInfo.angle;
             }
             addTile(childTile, generation);
         }
     } else {
-        // the tile is not a composition
-        // add it to the tiles of the current generation
-        // first generate the final vectors for drawing
-        // vector transformation data of the tile
+        // the tile is not a composition, add it to the tiles of the current generation
+        // make its cartesian vector data:
+        // transform cartesian vectors of protoTile using geometry data of the tile
         const originX = tile.originX;
         const originY = tile.originY;
         const size = tile.size;
         const orientation = tile.orientation;
-        // shape etc. in tileDefinition
-        if (tileDefinition.marker) {
-            tile.cartesianMarker = transformedVectors(tileDefinition.cartesianMarker, orientation, size, originX, originY);
+        // tile.shape,tile.border, if lenght=0!=tile.shape,tile.overprint,tile.marker
+
+        if (protoTile.cartesianShape) {
+            tile.cartesianShape = transformedVectors(protoTile.cartesianShape, orientation, size, originX, originY);
+        }
+        if (protoTile.cartesianOverprint) {
+            tile.cartesianOverprint = transformedVectors(protoTile.cartesianOverprint, orientation, size, originX, originY);
+        }
+        if (protoTile.border){
+             if (protoTile.border.length === 0) {
+         //       tile.border = tile.shape;
+          //      tile.cartesianBorder = tile.cartesianShape;
+            } else {
+            //    tile.cartesianBorder = cartesianVectors(tile.border);
+            }
+        }
+
+        if (protoTile.cartesianMarker) {
+            tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
         }
 
         generations[generation].push(tile);
@@ -464,8 +479,8 @@ builder.create = function() {
             }
             // for each substitution (tile) get orientation and origin
             // if no origin is given use origin of previous substitution tile
-            if ('substitution' in tileDefinitions[parentTileInfo.name]) {
-                const substitution = tileDefinitions[parentTileInfo.name].substitution;
+            if ('substitution' in protoTiles[parentTileInfo.name]) {
+                const substitution = protoTiles[parentTileInfo.name].substitution;
                 // default origin is same as parent tile origin
                 let childOriginX = parentOriginX;
                 let childOriginY = parentOriginY;
@@ -512,7 +527,7 @@ builder.create = function() {
                     }
                     childTile.orientation = childOrientation;
                     // tile has angle: update orientation for next tile
-                    const childTileInfo = tileDefinitions[childTile.name];
+                    const childTileInfo = protoTiles[childTile.name];
                     if ('angle' in childTileInfo) {
                         childOrientation += childTileInfo.angle;
                     }
@@ -528,13 +543,13 @@ builder.create = function() {
 
 // draw overprinting lines to join halves
 builder.drawOverprint = function(tile) {
-    const tileDefinition = tileDefinitions[tile.name];
-    if ('overprint' in tileDefinition) {
+    const protoTile = protoTiles[tile.name];
+    if ('overprint' in protoTile) {
         // overprinting to join halves, only if fill
         // need explicit overprinting, do first
         const canvasContext = output.canvasContext;
-        canvasContext.strokeStyle = tileDefinition.color;
-        const overprint = tileDefinition.overprint;
+        canvasContext.strokeStyle = protoTile.color;
+        const overprint = protoTile.overprint;
         const originX = tile.originX;
         const originY = tile.originY;
         const size = tile.size;
@@ -568,15 +583,15 @@ builder.drawOverprint = function(tile) {
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawTile = function(tile) {
-    const tileDefinition = tileDefinitions[tile.name];
-    if ('shape' in tileDefinition) {
-        const shape = tileDefinition.shape;
+    const protoTile = protoTiles[tile.name];
+    if ('shape' in protoTile) {
+        const shape = protoTile.shape;
         const originX = tile.originX;
         const originY = tile.originY;
         const size = tile.size;
         const orientation = tile.orientation;
         const canvasContext = output.canvasContext;
-        canvasContext.fillStyle = tileDefinition.color;
+        canvasContext.fillStyle = protoTile.color;
         const length = shape.length;
         // make path for fill (and stroke)
         canvasContext.beginPath();
@@ -605,10 +620,10 @@ builder.drawTile = function(tile) {
         }
         if (main.drawStroke) {
             // if an explicite border is given then change the path
-            if ('border' in tileDefinition) {
-                let border = tileDefinition.border;
+            if ('border' in protoTile) {
+                let border = protoTile.border;
                 if (border.length === 0) {
-                    border = tileDefinition.shape;
+                    border = protoTile.shape;
                 }
                 const length = border.length;
                 canvasContext.beginPath();
@@ -634,9 +649,9 @@ builder.drawTile = function(tile) {
             }
             canvasContext.stroke();
         }
-        if (main.drawMarker && tileDefinition.marker) {
+        if (main.drawMarker && protoTile.marker) {
             // make a dot at given position:
-            const marker = tileDefinition.marker;
+            const marker = protoTile.marker;
             const length = marker.length;
             let x = 0;
             let y = 0;
@@ -648,7 +663,7 @@ builder.drawTile = function(tile) {
             }
             x = size * x + originX;
             y = size * y + originY;
-            console.log('oldmarker', x, y,'new',tile.cartesianMarker);
+            console.log('oldmarker', x, y, 'new', tile.cartesianMarker);
             canvasContext.beginPath();
             canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
             canvasContext.fillStyle = main.markerColor;
@@ -689,9 +704,9 @@ builder.draw = function() {
             break;
     }
     // drawing the outline around initial configuration, particularly for subs rules
-    if (main.drawInitialStroke && ('shape' in tileDefinitions[initialTile.name])) {
+    if (main.drawInitialStroke && ('shape' in protoTiles[initialTile.name])) {
         // draw  border of initial shape
-        const tile = tileDefinitions[initialTile.name];
+        const tile = protoTiles[initialTile.name];
         const shape = tile.shape;
         const originX = initialTile.originX;
         const originY = initialTile.originY;
