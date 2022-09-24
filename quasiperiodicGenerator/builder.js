@@ -74,9 +74,9 @@ builder.init = function() {
 // transform a vector from order-fold coordinates to cartesian coordinates
 // return as array [x,y]
 function cartesianVector(vector) {
-    const length = vector.length;
     let x = 0;
     let y = 0;
+    const length = vector.length;
     for (let j = 0; j < length; j++) {
         const amplitude = vector[j];
         x += amplitude * basisX[j];
@@ -88,8 +88,8 @@ function cartesianVector(vector) {
 // transforming an array of vectors with order-fold coordinates to 
 // an array with cartesian coordinate pairs (returned)
 function cartesianVectors(vectors) {
-    const length = vectors.length;
     let result = [];
+    const length = vectors.length;
     for (let j = 0; j < length; j++) {
         const vector = cartesianVector(vectors[j]);
         result.push(vector[0], vector[1]);
@@ -317,7 +317,7 @@ builder.defineTiling = function(definition) {
             const length = substitution.length;
             for (let i = 0; i < length; i++) {
                 if (substitution[i].origin) {
-                    substitution[i].cartesianOrigin = cartesianVectors(substitution[i].origin);
+                    substitution[i].cartesianOrigin = cartesianVector(substitution[i].origin);
                 }
             }
         }
@@ -326,7 +326,7 @@ builder.defineTiling = function(definition) {
             const length = composition.length;
             for (let i = 0; i < length; i++) {
                 if (composition[i].origin) {
-                    composition[i].cartesianOrigin = cartesianVectors(composition[i].origin);
+                    composition[i].cartesianOrigin = cartesianVector(composition[i].origin);
                 }
             }
         }
@@ -394,6 +394,9 @@ function addTile(tile, generation) {
                 }
                 childOriginX = parentSize * childOriginX + parentOriginX;
                 childOriginY = parentSize * childOriginY + parentOriginY;
+                const origin = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
+                console.log('comps', childOriginX, childOriginY, 'new', origin);
+                [childOriginX, childOriginY] = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
             }
             // set origin of child tile
             childTile.originX = childOriginX;
@@ -420,27 +423,18 @@ function addTile(tile, generation) {
         const originY = tile.originY;
         const size = tile.size;
         const orientation = tile.orientation;
-        // tile.shape,tile.border, if lenght=0!=tile.shape,tile.overprint,tile.marker
-
         if (protoTile.cartesianShape) {
             tile.cartesianShape = transformedVectors(protoTile.cartesianShape, orientation, size, originX, originY);
         }
         if (protoTile.cartesianOverprint) {
             tile.cartesianOverprint = transformedVectors(protoTile.cartesianOverprint, orientation, size, originX, originY);
         }
-        if (protoTile.border){
-             if (protoTile.border.length === 0) {
-         //       tile.border = tile.shape;
-          //      tile.cartesianBorder = tile.cartesianShape;
-            } else {
-            //    tile.cartesianBorder = cartesianVectors(tile.border);
-            }
+        if (protoTile.border) {
+            tile.cartesianBorder = transformedVectors(protoTile.cartesianBorder, orientation, size, originX, originY);
         }
-
         if (protoTile.cartesianMarker) {
             tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
         }
-
         generations[generation].push(tile);
     }
 }
@@ -515,6 +509,9 @@ builder.create = function() {
                         }
                         childOriginX = parentSize * childOriginX + parentOriginX;
                         childOriginY = parentSize * childOriginY + parentOriginY;
+                        const origin = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
+                      //  console.log('subst', childOriginX, childOriginY, 'new', origin);
+                        [childOriginX, childOriginY] = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
                     }
                     // set origin of child tile
                     childTile.originX = childOriginX;
@@ -579,6 +576,46 @@ builder.drawOverprint = function(tile) {
     }
 };
 
+// fill the tiles
+builder.drawFill = function(tile) {
+    const protoTile = protoTiles[tile.name];
+    if ('shape' in protoTile) {
+        const shape = protoTile.shape;
+        const originX = tile.originX;
+        const originY = tile.originY;
+        const size = tile.size;
+        const orientation = tile.orientation;
+        const canvasContext = output.canvasContext;
+        canvasContext.fillStyle = protoTile.color;
+        const length = shape.length;
+        // make path for fill (and stroke)
+        canvasContext.beginPath();
+        for (let i = 0; i < length; i++) {
+            let x = 0;
+            let y = 0;
+            const vector = shape[i];
+            const vectorLength = vector.length;
+            for (let j = 0; j < vectorLength; j++) {
+                const direction = orientation + j;
+                const amplitude = vector[j];
+                x += amplitude * basisX[direction];
+                y += amplitude * basisY[direction];
+            }
+            x = size * x + originX;
+            y = size * y + originY;
+            if (i === 0) {
+                canvasContext.moveTo(x, y);
+            } else {
+                canvasContext.lineTo(x, y);
+            }
+        }
+        canvasContext.closePath();
+        if (main.drawFill) {
+            canvasContext.fill();
+        }
+    }
+};
+
 // fill the shape and draw its outline
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
@@ -615,17 +652,12 @@ builder.drawTile = function(tile) {
             }
         }
         canvasContext.closePath();
-        if (main.drawFill) {
-            canvasContext.fill();
-        }
         if (main.drawStroke) {
             // if an explicite border is given then change the path
             if ('border' in protoTile) {
                 let border = protoTile.border;
-                if (border.length === 0) {
-                    border = protoTile.shape;
-                }
                 const length = border.length;
+                const cartesianBorder = tile.cartesianBorder;
                 canvasContext.beginPath();
                 for (let i = 0; i < length; i++) {
                     let x = 0;
@@ -641,34 +673,26 @@ builder.drawTile = function(tile) {
                     x = size * x + originX;
                     y = size * y + originY;
                     if (i === 0) {
-                        canvasContext.moveTo(x, y);
+                        canvasContext.moveTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
                     } else {
-                        canvasContext.lineTo(x, y);
+                        canvasContext.lineTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
                     }
+                   // console.log('bordre', x, y, cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
                 }
             }
             canvasContext.stroke();
         }
-        if (main.drawMarker && protoTile.marker) {
-            // make a dot at given position:
-            const marker = protoTile.marker;
-            const length = marker.length;
-            let x = 0;
-            let y = 0;
-            for (let j = 0; j < length; j++) {
-                const direction = orientation + j;
-                const amplitude = marker[j];
-                x += amplitude * basisX[direction];
-                y += amplitude * basisY[direction];
-            }
-            x = size * x + originX;
-            y = size * y + originY;
-            console.log('oldmarker', x, y, 'new', tile.cartesianMarker);
-            canvasContext.beginPath();
-            canvasContext.arc(x, y, size * main.markerSize, 0, 2 * Math.PI);
-            canvasContext.fillStyle = main.markerColor;
-            canvasContext.fill();
-        }
+    }
+};
+
+builder.drawMarker = function(tile) {
+         const canvasContext = output.canvasContext;
+   if (tile.cartesianMarker) {
+        const size = tile.size;
+         canvasContext.beginPath();
+        canvasContext.arc(tile.cartesianMarker[0], tile.cartesianMarker[1], size * main.markerSize, 0, 2 * Math.PI);
+        canvasContext.fillStyle = main.markerColor;
+        canvasContext.fill();
     }
 };
 
@@ -678,11 +702,15 @@ function drawGeneration(generation) {
     if (main.drawFill) {
         output.setLineWidth(1);
         tilesToDraw.forEach(tile => builder.drawOverprint(tile));
+        tilesToDraw.forEach(tile => builder.drawFill(tile));
     }
     output.setLineWidth(main.lineWidth);
     canvasContext.strokeStyle = main.lineColor;
 
     tilesToDraw.forEach(tile => builder.drawTile(tile));
+    if (main.drawMarker){
+                tilesToDraw.forEach(tile => builder.drawMarker(tile));
+    }
 }
 
 builder.draw = function() {
@@ -706,8 +734,8 @@ builder.draw = function() {
     // drawing the outline around initial configuration, particularly for subs rules
     if (main.drawInitialStroke && ('shape' in protoTiles[initialTile.name])) {
         // draw  border of initial shape
-        const tile = protoTiles[initialTile.name];
-        const shape = tile.shape;
+        const protoTile = protoTiles[initialTile.name];
+        const shape = protoTile.shape;
         const originX = initialTile.originX;
         const originY = initialTile.originY;
         let size = initialTile.size;
@@ -732,7 +760,6 @@ builder.draw = function() {
             y = size * y + originY;
             if (i === 0) {
                 canvasContext.moveTo(x, y);
-
             } else {
                 canvasContext.lineTo(x, y);
             }
