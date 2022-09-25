@@ -439,7 +439,6 @@ builder.create = function() {
     addTile(tile, 0);
     initialTile = tile;
     // repeat substitutions
-    const noInflate = !main.inflate;
     for (let childGeneration = 1; childGeneration <= builder.maxGeneration; childGeneration++) {
         const parentGeneration = generations[childGeneration - 1];
         generations[childGeneration] = [];
@@ -447,20 +446,17 @@ builder.create = function() {
         // for each tile of the parent generation make its children tiles
         for (let tileIndex = 0; tileIndex < parentGenerationLength; tileIndex++) {
             const parentTileInfo = parentGeneration[tileIndex];
-            let parentOriginX = parentTileInfo.originX;
-            let parentOriginY = parentTileInfo.originY;
-            if (main.inflate) {
-                parentOriginX *= inflation;
-                parentOriginY *= inflation;
-            }
-            let parentSize = parentTileInfo.size;
-            if (noInflate) {
-                parentSize /= inflation;
-            }
-            // for each substitution (tile) get orientation and origin
-            // if no origin is given use origin of previous substitution tile
             if ('substitution' in protoTiles[parentTileInfo.name]) {
                 const substitution = protoTiles[parentTileInfo.name].substitution;
+                let parentOriginX = parentTileInfo.originX;
+                let parentOriginY = parentTileInfo.originY;
+                let parentSize = parentTileInfo.size;
+                if (main.inflate) {
+                    parentOriginX *= inflation;
+                    parentOriginY *= inflation;
+                } else {
+                    parentSize /= inflation;
+                }
                 // default origin is same as parent tile origin
                 let childOriginX = parentOriginX;
                 let childOriginY = parentOriginY;
@@ -489,13 +485,13 @@ builder.create = function() {
                     childTile.originX = childOriginX;
                     childTile.originY = childOriginY;
                     // the orientation
-                    // childTileDefinition gives orientation: reset orientation
+                    // if childTileDefinition gives orientation: reset orientation
                     // else use predicted value
                     if ('orientation' in childTileDefinition) {
                         childOrientation = parentOrientation + order + childTileDefinition.orientation;
                     }
                     childTile.orientation = childOrientation;
-                    // tile has angle property: increase orientation by this amount for next tile
+                    // tile has angle property: increase orientation by this amount for next tile as preediction
                     const childTileInfo = protoTiles[childTile.name];
                     if ('angle' in childTileInfo) {
                         childOrientation += childTileInfo.angle;
@@ -591,9 +587,10 @@ builder.drawFill = function(tile) {
 // fill the shape and draw its outline
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
-builder.drawTile = function(tile) {
+builder.drawStroke = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('shape' in protoTile) {
+        output.setLineWidth(main.lineWidth);
         const shape = protoTile.shape;
         const originX = tile.originX;
         const originY = tile.originY;
@@ -624,36 +621,34 @@ builder.drawTile = function(tile) {
             }
         }
         canvasContext.closePath();
-        if (main.drawStroke) {
-            // if an explicite border is given then change the path
-            if ('border' in protoTile) {
-                let border = protoTile.border;
-                const length = border.length;
-                const cartesianBorder = tile.cartesianBorder;
-                canvasContext.beginPath();
-                for (let i = 0; i < length; i++) {
-                    let x = 0;
-                    let y = 0;
-                    const vector = border[i];
-                    const vectorLength = vector.length;
-                    for (let j = 0; j < vectorLength; j++) {
-                        const direction = orientation + j;
-                        const amplitude = vector[j];
-                        x += amplitude * basisX[direction];
-                        y += amplitude * basisY[direction];
-                    }
-                    x = size * x + originX;
-                    y = size * y + originY;
-                    if (i === 0) {
-                        canvasContext.moveTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
-                    } else {
-                        canvasContext.lineTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
-                    }
-                    // console.log('bordre', x, y, cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
+        // if an explicite border is given then change the path
+        if ('border' in protoTile) {
+            let border = protoTile.border;
+            const length = border.length;
+            const cartesianBorder = tile.cartesianBorder;
+            canvasContext.beginPath();
+            for (let i = 0; i < length; i++) {
+                let x = 0;
+                let y = 0;
+                const vector = border[i];
+                const vectorLength = vector.length;
+                for (let j = 0; j < vectorLength; j++) {
+                    const direction = orientation + j;
+                    const amplitude = vector[j];
+                    x += amplitude * basisX[direction];
+                    y += amplitude * basisY[direction];
                 }
+                x = size * x + originX;
+                y = size * y + originY;
+                if (i === 0) {
+                    canvasContext.moveTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
+                } else {
+                    canvasContext.lineTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
+                }
+                // console.log('bordre', x, y, cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
             }
-            canvasContext.stroke();
         }
+        canvasContext.stroke();
     }
 };
 
@@ -678,33 +673,17 @@ function drawGeneration(generation) {
     }
     output.setLineWidth(main.lineWidth);
     canvasContext.strokeStyle = main.lineColor;
-
-    tilesToDraw.forEach(tile => builder.drawTile(tile));
+    if (main.drawStroke) {
+        tilesToDraw.forEach(tile => builder.drawStroke(tile));
+    }
     if (main.drawMarker) {
         tilesToDraw.forEach(tile => builder.drawMarker(tile));
     }
 }
 
-builder.draw = function() {
-    output.setLineWidth(main.lineWidth);
-    const canvasContext = output.canvasContext;
-    switch (builder.drawing) {
-        case 'last only':
-            drawGeneration(builder.drawGeneration);
-            break;
-        case 'lower in back':
-            for (let i = 0; i <= builder.drawGeneration; i++) {
-                drawGeneration(i);
-            }
-            break;
-        case 'lower in front':
-            for (let i = builder.drawGeneration; i >= 0; i--) {
-                drawGeneration(i);
-            }
-            break;
-    }
-    // drawing the outline around initial configuration, particularly for subs rules
-    if (main.drawInitialStroke && ('shape' in protoTiles[initialTile.name])) {
+builder.drawOutline = function() {
+    if ('shape' in protoTiles[initialTile.name]) {
+        const canvasContext = output.canvasContext;
         // draw  border of initial shape
         const protoTile = protoTiles[initialTile.name];
         const shape = protoTile.shape;
@@ -740,5 +719,27 @@ builder.draw = function() {
         output.setLineWidth(main.outlineWidth);
         canvasContext.strokeStyle = main.outlineColor;
         canvasContext.stroke();
+    }
+};
+
+builder.draw = function() {
+    switch (builder.drawing) {
+        case 'last only':
+            drawGeneration(builder.drawGeneration);
+            break;
+        case 'lower in back':
+            for (let i = 0; i <= builder.drawGeneration; i++) {
+                drawGeneration(i);
+            }
+            break;
+        case 'lower in front':
+            for (let i = builder.drawGeneration; i >= 0; i--) {
+                drawGeneration(i);
+            }
+            break;
+    }
+    // drawing the outline around initial configuration, particularly for subs rules
+    if (main.drawInitialStroke) {
+        builder.drawOutline();
     }
 };
