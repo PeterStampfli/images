@@ -447,7 +447,6 @@ builder.create = function() {
         size: 1,
         orientation: 0
     };
-    console.log('proto', protoTiles[tile.name]);
     addTile(tile, 0);
     initialTile = tile;
     // repeat substitutions
@@ -525,32 +524,7 @@ builder.drawOverprint = function(tile) {
         // overprinting to join halves, only if fill
         // need explicit overprinting, do first
         canvasContext.strokeStyle = protoTile.color;
-        const overprint = protoTile.overprint;
-        const originX = tile.originX;
-        const originY = tile.originY;
-        const size = tile.size;
-        const orientation = tile.orientation;
-        const length = overprint.length;
-        canvasContext.beginPath();
-        for (let i = 0; i < length; i++) {
-            let x = 0;
-            let y = 0;
-            const vector = overprint[i];
-            const vectorLength = vector.length;
-            for (let j = 0; j < vectorLength; j++) {
-                const direction = orientation + j;
-                const amplitude = vector[j];
-                x += amplitude * basisX[direction];
-                y += amplitude * basisY[direction];
-            }
-            x = size * x + originX;
-            y = size * y + originY;
-            if (i === 0) {
-                canvasContext.moveTo(x, y);
-            } else {
-                canvasContext.lineTo(x, y);
-            }
-        }
+        makePath(tile.cartesianOverprint);
         canvasContext.stroke();
     }
 };
@@ -559,82 +533,26 @@ builder.drawOverprint = function(tile) {
 builder.drawFill = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('shape' in protoTile) {
-        const shape = protoTile.shape;
-        const originX = tile.originX;
-        const originY = tile.originY;
-        const size = tile.size;
-        const orientation = tile.orientation;
         canvasContext.fillStyle = protoTile.color;
-        const length = shape.length;
-        // make path for fill (and stroke)
-        canvasContext.beginPath();
-        for (let i = 0; i < length; i++) {
-            let x = 0;
-            let y = 0;
-            const vector = shape[i];
-            const vectorLength = vector.length;
-            for (let j = 0; j < vectorLength; j++) {
-                const direction = orientation + j;
-                const amplitude = vector[j];
-                x += amplitude * basisX[direction];
-                y += amplitude * basisY[direction];
-            }
-            x = size * x + originX;
-            y = size * y + originY;
-            if (i === 0) {
-                canvasContext.moveTo(x, y);
-            } else {
-                canvasContext.lineTo(x, y);
-            }
-        }
+        makePath(tile.cartesianShape);
         canvasContext.closePath();
-        if (main.drawFill) {
-            canvasContext.fill();
-        }
+        canvasContext.fill();
     }
 };
 
-// fill the shape and draw its outline
+// draw outline
 // if border is given, then draw it instead (if not a closed border, for halves of tiles)
 
 builder.drawStroke = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('shape' in protoTile) {
-        output.setLineWidth(main.lineWidth);
         // if an explicite border is given then use border path
         // else use CLOSED shape of tile as border
         if ('border' in protoTile) {
             makePath(tile.cartesianBorder);
             canvasContext.stroke();
         } else {
-            const shape = protoTile.shape;
-            const originX = tile.originX;
-            const originY = tile.originY;
-            const size = tile.size;
-            const orientation = tile.orientation;
-            canvasContext.fillStyle = protoTile.color;
-            const length = shape.length;
-            // make path for fill (and stroke)
-            canvasContext.beginPath();
-            for (let i = 0; i < length; i++) {
-                let x = 0;
-                let y = 0;
-                const vector = shape[i];
-                const vectorLength = vector.length;
-                for (let j = 0; j < vectorLength; j++) {
-                    const direction = orientation + j;
-                    const amplitude = vector[j];
-                    x += amplitude * basisX[direction];
-                    y += amplitude * basisY[direction];
-                }
-                x = size * x + originX;
-                y = size * y + originY;
-                if (i === 0) {
-                    canvasContext.moveTo(x, y);
-                } else {
-                    canvasContext.lineTo(x, y);
-                }
-            }
+            makePath(tile.cartesianShape);
             canvasContext.closePath();
             canvasContext.stroke();
         }
@@ -658,10 +576,10 @@ function drawGeneration(generation) {
         tilesToDraw.forEach(tile => builder.drawOverprint(tile));
         tilesToDraw.forEach(tile => builder.drawFill(tile));
     }
-    output.setLineWidth(main.lineWidth);
-    canvasContext.strokeStyle = main.lineColor;
     if (main.drawStroke) {
-        tilesToDraw.forEach(tile => builder.drawStroke(tile));
+        output.setLineWidth(main.lineWidth);
+     canvasContext.strokeStyle = main.lineColor;
+       tilesToDraw.forEach(tile => builder.drawStroke(tile));
     }
     if (main.drawMarker) {
         tilesToDraw.forEach(tile => builder.drawMarker(tile));
@@ -669,7 +587,6 @@ function drawGeneration(generation) {
 }
 
 builder.drawOutline = function() {
-    console.log(initialTile);
     if ('shape' in protoTiles[initialTile.name]) {
         // draw  border of initial shape
         const protoTile = protoTiles[initialTile.name];
@@ -682,29 +599,7 @@ builder.drawOutline = function() {
         }
         const orientation = initialTile.orientation;
         const cartesianOutline = transformedVectors(initialTile.cartesianShape, orientation, size, originX, originY);
-        const length = shape.length;
-        canvasContext.beginPath();
-        for (let i = 0; i < length; i++) {
-            let x = 0;
-            let y = 0;
-            const vector = shape[i];
-            const vectorLength = vector.length;
-            for (let j = 0; j < vectorLength; j++) {
-                const direction = orientation + j;
-                const amplitude = vector[j];
-                x += amplitude * basisX[direction];
-                y += amplitude * basisY[direction];
-            }
-            x = size * x + originX;
-            y = size * y + originY;
-            if (i === 0) {
-                canvasContext.moveTo(x, y);
-                console.log('outl', i, x, y, cartesianOutline[2 * i], cartesianOutline[2 * i + 1]);
-            } else {
-                canvasContext.lineTo(x, y);
-                console.log('outl', i, x, y, cartesianOutline[2 * i], cartesianOutline[2 * i + 1]);
-            }
-        }
+        makePath(cartesianOutline);
         canvasContext.closePath();
         output.setLineWidth(main.outlineWidth);
         canvasContext.strokeStyle = main.outlineColor;
