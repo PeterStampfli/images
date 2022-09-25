@@ -382,20 +382,6 @@ function addTile(tile, generation) {
             // and reset orientation to orientation of mother tile
             if (childTileDefinition.origin) {
                 childOrientation = parentOrientation;
-                const vector = childTileDefinition.origin;
-                childOriginX = 0;
-                childOriginY = 0;
-                const vectorLength = vector.length;
-                for (let j = 0; j < vectorLength; j++) {
-                    const direction = parentOrientation + j;
-                    const amplitude = vector[j];
-                    childOriginX += amplitude * basisX[direction];
-                    childOriginY += amplitude * basisY[direction];
-                }
-                childOriginX = parentSize * childOriginX + parentOriginX;
-                childOriginY = parentSize * childOriginY + parentOriginY;
-                const origin = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
-                console.log('comps', childOriginX, childOriginY, 'new', origin);
                 [childOriginX, childOriginY] = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
             }
             // set origin of child tile
@@ -408,7 +394,7 @@ function addTile(tile, generation) {
                 childOrientation = parentOrientation + order + childTileDefinition.orientation;
             }
             childTile.orientation = childOrientation;
-            // tile has angle: update orientation for next tile
+            // tile has angle property: increase orientation by this amount for next tile
             const childTileInfo = protoTiles[childTile.name];
             if (childTileInfo.angle) {
                 childOrientation += childTileInfo.angle;
@@ -493,24 +479,10 @@ builder.create = function() {
                     } else {
                         childTile.size = parentSize;
                     }
-                    // update origin for children if an origin is given
-                    // and reset orientation to relative zero
+                    // update origin for children if an origin property is given
+                    // and reset child orientation to parent orientation
                     if ('origin' in childTileDefinition) {
                         childOrientation = parentOrientation;
-                        const vector = childTileDefinition.origin;
-                        childOriginX = 0;
-                        childOriginY = 0;
-                        const vectorLength = vector.length;
-                        for (let j = 0; j < vectorLength; j++) {
-                            const direction = parentOrientation + j;
-                            const amplitude = vector[j];
-                            childOriginX += amplitude * basisX[direction];
-                            childOriginY += amplitude * basisY[direction];
-                        }
-                        childOriginX = parentSize * childOriginX + parentOriginX;
-                        childOriginY = parentSize * childOriginY + parentOriginY;
-                        const origin = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
-                      //  console.log('subst', childOriginX, childOriginY, 'new', origin);
                         [childOriginX, childOriginY] = transformedVectors(childTileDefinition.cartesianOrigin, parentOrientation, parentSize, parentOriginX, parentOriginY);
                     }
                     // set origin of child tile
@@ -523,7 +495,7 @@ builder.create = function() {
                         childOrientation = parentOrientation + order + childTileDefinition.orientation;
                     }
                     childTile.orientation = childOrientation;
-                    // tile has angle: update orientation for next tile
+                    // tile has angle property: increase orientation by this amount for next tile
                     const childTileInfo = protoTiles[childTile.name];
                     if ('angle' in childTileInfo) {
                         childOrientation += childTileInfo.angle;
@@ -677,7 +649,7 @@ builder.drawTile = function(tile) {
                     } else {
                         canvasContext.lineTo(cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
                     }
-                   // console.log('bordre', x, y, cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
+                    // console.log('bordre', x, y, cartesianBorder[2 * i], cartesianBorder[2 * i + 1]);
                 }
             }
             canvasContext.stroke();
@@ -686,10 +658,10 @@ builder.drawTile = function(tile) {
 };
 
 builder.drawMarker = function(tile) {
-         const canvasContext = output.canvasContext;
-   if (tile.cartesianMarker) {
+    const canvasContext = output.canvasContext;
+    if (tile.cartesianMarker) {
         const size = tile.size;
-         canvasContext.beginPath();
+        canvasContext.beginPath();
         canvasContext.arc(tile.cartesianMarker[0], tile.cartesianMarker[1], size * main.markerSize, 0, 2 * Math.PI);
         canvasContext.fillStyle = main.markerColor;
         canvasContext.fill();
@@ -708,8 +680,8 @@ function drawGeneration(generation) {
     canvasContext.strokeStyle = main.lineColor;
 
     tilesToDraw.forEach(tile => builder.drawTile(tile));
-    if (main.drawMarker){
-                tilesToDraw.forEach(tile => builder.drawMarker(tile));
+    if (main.drawMarker) {
+        tilesToDraw.forEach(tile => builder.drawMarker(tile));
     }
 }
 
