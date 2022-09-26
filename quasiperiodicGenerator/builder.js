@@ -1,12 +1,14 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    SVG
 } from "../libgui/modules.js";
 
 import {
     main
 } from './modules.js';
+
+var minSize = 300;
 
 export const builder = {};
 
@@ -27,9 +29,10 @@ var protoTiles = {};
 // its shape ..., and substitution or comosition
 var tileNames = [];
 
-var canvasContext;
-
 var initialTileController;
+
+// scaling: SVGScale corresponds to the unit in a drawing
+var SVGScale = 1;
 
 builder.init = function() {
     const gui = main.gui;
@@ -118,16 +121,6 @@ function transformedVectors(vectors, nRot, scale, translateX, translateY) {
     return result;
 }
 
-// make an (open) path from cartesian coordinates
-function makePath(vectors) {
-    canvasContext.beginPath();
-    const length = vectors.length;
-    canvasContext.moveTo(vectors[0], vectors[1]);
-    for (let i = 2; i < length; i += 2) {
-        canvasContext.lineTo(vectors[i], vectors[i + 1]);
-    }
-}
-
 // reading the definition of the tiling or fractal
 
 builder.defineTiling = function(definition) {
@@ -143,8 +136,14 @@ builder.defineTiling = function(definition) {
     if ('range' in definition) {
         range = definition.range;
     }
-    output.setInitialCoordinates(centerX, -centerY, range);
+    SVG.setMinViewWidthHeight(minSize, minSize);
+    // SVGScale is number of SVG 'pixels' per logical unit
+    SVGScale = minSize / range;
+    const shiftX = 0.5 - centerX / range;
+    const shiftY = 0.5 - centerX / range;
+    SVG.setViewShifts(shiftX, shiftY);
 
+    console.log(range,centerX,centerY)
     // drawing controlls
     // set the generation to draw upon loading the definition, default is 2
     if ('drawGeneration' in definition) {
@@ -444,7 +443,7 @@ builder.create = function() {
         name: builder.initialTile,
         originX: 0,
         originY: 0,
-        size: 1,
+        size: SVGScale,
         orientation: 0
     };
     addTile(tile, 0);
@@ -517,15 +516,27 @@ builder.create = function() {
 // drawing the structure
 //=======================================
 
-// draw overprinting lines to join halves
+// draw overprinting lines to join halves if there is a stroke finally
 builder.drawOverprint = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('overprint' in protoTile) {
         // overprinting to join halves, only if fill
         // need explicit overprinting, do first
-        canvasContext.strokeStyle = protoTile.color;
-        makePath(tile.cartesianOverprint);
-        canvasContext.stroke();
+        SVG.createPolyline(tile.cartesianOverprint, {
+            stroke: protoTile.color
+        });
+    }
+};
+
+// no final stroke: use entire shape for overprinting
+builder.drawOverprintShape = function(tile) {
+    const protoTile = protoTiles[tile.name];
+    if ('shape' in protoTile) {
+        // overprinting to join halves, only if fill
+        // need explicit overprinting, do first
+        SVG.createPolygon(tile.cartesianShape, {
+            stroke: protoTile.color
+        });
     }
 };
 
@@ -533,10 +544,9 @@ builder.drawOverprint = function(tile) {
 builder.drawFill = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('shape' in protoTile) {
-        canvasContext.fillStyle = protoTile.color;
-        makePath(tile.cartesianShape);
-        canvasContext.closePath();
-        canvasContext.fill();
+        SVG.createPolygon(tile.cartesianShape, {
+            fill: protoTile.color
+        });
     }
 };
 
@@ -545,43 +555,50 @@ builder.drawFill = function(tile) {
 
 builder.drawStroke = function(tile) {
     const protoTile = protoTiles[tile.name];
-    if ('shape' in protoTile) {
-        // if an explicite border is given then use border path
-        // else use CLOSED shape of tile as border
-        if ('border' in protoTile) {
-            makePath(tile.cartesianBorder);
-            canvasContext.stroke();
-        } else {
-            makePath(tile.cartesianShape);
-            canvasContext.closePath();
-            canvasContext.stroke();
-        }
+    // if an explicite border is given then use border path
+    // else use CLOSED shape of tile as border if exists
+    if ('border' in protoTile) {
+        SVG.createPolyline(tile.cartesianBorder);
+    } else if ('shape' in protoTile) {
+        SVG.createPolygon(tile.cartesianShape);
     }
 };
 
 builder.drawMarker = function(tile) {
     if (tile.cartesianMarker) {
-        const size = tile.size;
-        canvasContext.beginPath();
-        canvasContext.arc(tile.cartesianMarker[0], tile.cartesianMarker[1], size * main.markerSize, 0, 2 * Math.PI);
-        canvasContext.fillStyle = main.markerColor;
-        canvasContext.fill();
+        const radius = tile.size * main.markerSize;
+        SVG.createCircle(tile.cartesianMarker[0], tile.cartesianMarker[1], radius);
+        //canvasContext.fillStyle = main.markerColor;
+        //canvasContext.fill();
     }
 };
 
 function drawGeneration(generation) {
     const tilesToDraw = generations[generation];
     if (main.drawFill) {
-        output.setLineWidth(1);
-        tilesToDraw.forEach(tile => builder.drawOverprint(tile));
+        SVG.groupAttributes['stroke-width'] = 1;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+        if (main.drawStroke) {
+            tilesToDraw.forEach(tile => builder.drawOverprint(tile));
+        } else {
+            // no stroke: use entire shape for overprinting
+            tilesToDraw.forEach(tile => builder.drawOverprintShape(tile));
+        }
+        SVG.groupAttributes.stroke = 'none';
+        SVG.createGroup(SVG.groupAttributes);
         tilesToDraw.forEach(tile => builder.drawFill(tile));
     }
     if (main.drawStroke) {
-        output.setLineWidth(main.lineWidth);
-     canvasContext.strokeStyle = main.lineColor;
-       tilesToDraw.forEach(tile => builder.drawStroke(tile));
+        SVG.groupAttributes.stroke = main.lineColor;
+        SVG.groupAttributes['stroke-width'] = main.lineWidth;
+        SVG.createGroup(SVG.groupAttributes);
+        tilesToDraw.forEach(tile => builder.drawStroke(tile));
     }
     if (main.drawMarker) {
+        SVG.groupAttributes.stroke = 'none';
+        SVG.groupAttributes.fill = main.markerColor;
+        SVG.createGroup(SVG.groupAttributes);
         tilesToDraw.forEach(tile => builder.drawMarker(tile));
     }
 }
@@ -593,22 +610,21 @@ builder.drawOutline = function() {
         const shape = protoTile.shape;
         const originX = initialTile.originX;
         const originY = initialTile.originY;
-        let size = initialTile.size;
+        let size = 1;
         if (main.inflate) {
             size *= Math.pow(inflation, builder.drawGeneration);
         }
         const orientation = initialTile.orientation;
         const cartesianOutline = transformedVectors(initialTile.cartesianShape, orientation, size, originX, originY);
-        makePath(cartesianOutline);
-        canvasContext.closePath();
-        output.setLineWidth(main.outlineWidth);
-        canvasContext.strokeStyle = main.outlineColor;
-        canvasContext.stroke();
+        SVG.createPolygon(cartesianOutline, {
+            fill: 'none',
+            stroke: main.outlineColor,
+            'stroke-width': main.outlineWidth
+        });
     }
 };
 
 builder.draw = function() {
-    canvasContext = output.canvasContext;
     switch (builder.drawing) {
         case 'last only':
             drawGeneration(builder.drawGeneration);

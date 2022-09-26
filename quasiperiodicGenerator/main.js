@@ -1,8 +1,9 @@
 /* jshint esversion: 6 */
 
 import {
-    output,
-    ParamGui
+    SVG,
+    ParamGui,
+    BooleanButton
 } from "../libgui/modules.js";
 
 import {
@@ -32,19 +33,17 @@ const gui = new ParamGui({
     booleanButtonWidth: 40
 });
 main.gui = gui;
-output.createCanvas(gui, true);
-output.addCoordinateTransform(false);
-output.setInitialCoordinates(0, 0, 3);
-output.backgroundColorController.setValueOnly('#999999');
-output.setBackground();
-output.saveType.setValueOnly('jpg');
-output.transparencyController.setValueOnly('opaque');
+BooleanButton.greenRedBackground();
+
+
+SVG.makeGui(gui);
+SVG.init();
 
 gui.add({
-    type:"button",
-    buttonText:"--- HELP ---",
-    onClick: function(){
-        window.location="https://geometricolor.wordpress.com/2022/04/16/generating-quasiperiodic-tilings-and-fractals-i-the-browser-app/";
+    type: "button",
+    buttonText: "--- HELP ---",
+    onClick: function() {
+        window.location = "https://geometricolor.wordpress.com/2022/04/16/generating-quasiperiodic-tilings-and-fractals-i-the-browser-app/";
     }
 });
 
@@ -188,20 +187,24 @@ main.create = function() {
 };
 
 main.draw = function() {
-    output.correctYAxis();
-    output.startDrawing();
-    output.fillCanvasBackgroundColor();
-    output.canvasContext.lineCap = 'round';
-    output.canvasContext.lineJoin = 'round';
+    console.log('draw');
+    SVG.begin();
+    SVG.groupAttributes = {
+        transform: 'scale(1 -1)',
+        fill: 'none',
+        'stroke-width': main.lineWidth,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+    };
     if (builder.drawGeneration > builder.maxGeneration) {
         builder.drawGenController.setValueOnly(builder.maxGeneration);
     }
     builder.draw();
+    SVG.terminate();
 };
 
-output.drawCanvasChanged = main.draw;
-output.drawImageChanged = main.draw;
-output.drawBackgroundChanged = main.draw;
+SVG.draw = main.draw;
+
 main.newStructure();
 
 main.create();

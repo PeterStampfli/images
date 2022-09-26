@@ -190,7 +190,7 @@ function resizeOutputDiv() {
     // resize content: set up final dimensions of the div
     // you can use them to resize content
     output.divWidth = widthOfSpace;
-    output.divHeight = window.innerHeight;
+    output.divHeight = window.innerHeight-5;
     output.div.style.width = output.divWidth + "px";
     output.div.style.height = output.divHeight + "px";
 }
