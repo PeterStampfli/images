@@ -37,7 +37,7 @@ BooleanButton.greenRedBackground();
 
 
 SVG.makeGui(gui);
-SVG.init();
+SVG.init(true);
 
 gui.add({
     type: "button",

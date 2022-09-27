@@ -19,8 +19,9 @@ SVG.draw = function() {
     alert('SVG.draw function undefined');
 };
 
-// invert y-axis: attribute  'transform': SVG.invertYAxis
-SVG.invertYAxis = 'matrix(1 0 0 1 0 0)';
+// inverted y-axis: scale=-1
+// for clipping to the viewbox
+let scaleY = 1;
 
 // for the viewbox
 // relative shift for centering
@@ -29,6 +30,9 @@ SVG.viewShiftY = 0.5;
 // minimum view, full axis
 SVG.viewMinWidth = 200;
 SVG.viewMinHeight = 200;
+
+//viewbox data for clipping
+var viewBoxLeft, viewBoxRight, viewBoxBottom, viewBoxTop;
 
 /**
  * making the gui for the image, independent of the initialization of svg
@@ -131,7 +135,7 @@ const SVGns = 'http://www.w3.org/2000/svg';
 function stringOfAttributes(attributes) {
     let result = '';
     for (var key in attributes) {
-        result += '   ' + key + '="' + attributes[key] + '"\n';
+        result += key + '="' + attributes[key] + '"\n';
     }
     return result;
 }
@@ -157,6 +161,10 @@ SVG.begin = function() {
     const viewWidth = Math.round(viewScale * SVGWidth);
     const cornerX = -Math.round(SVG.viewShiftX * viewWidth);
     const cornerY = -Math.round(SVG.viewShiftY * viewHeight);
+    viewBoxLeft = cornerX;
+    viewBoxRight = cornerX + viewWidth;
+    viewBoxBottom = cornerY;
+    viewBoxTop = cornerY + viewHeight;
     const viewBoxData = cornerX + ' ' + cornerY + ' ' + viewWidth + ' ' + viewHeight;
     guiUtils.setAttributes(SVG.element, {
         width: SVGWidth,
@@ -181,9 +189,9 @@ SVG.begin = function() {
  */
 SVG.terminate = function() {
     if (SVG.group !== SVG.element) {
-        SVG.text += '</g>\n';
+        SVG.text += '</g>';
     }
-    SVG.text += '</svg>\n';
+    SVG.text += '</svg>';
 };
 
 /**
@@ -201,7 +209,7 @@ SVG.createGroup = function(attributes) {
     guiUtils.setAttributes(SVG.group, attributes);
     SVG.text += '<g\n';
     SVG.text += stringOfAttributes(attributes);
-    SVG.text += '/>\n';
+    SVG.text += '>\n';
 };
 
 /**
@@ -239,18 +247,84 @@ SVG.create = function(tag, attributes) {
 };
 
 /**
+ * test if an array of coordinates is not outside the viewbox
+ * @method notOutsideViewBox
+ * @param [float] coordinates
+ * @return boolean
+ */
+function isNotOutsideViewBox(coordinates) {
+    length = coordinates.length;
+    // check if all points at left
+    let isAtLeft = true;
+    for (let i = 0; i < length; i += 2) {
+        if (coordinates[i] > viewBoxLeft) {
+            isAtLeft = false;
+            break;
+        }
+    }
+    if (isAtLeft){
+        return false;
+    }
+        let isAtRight = true;
+    for (let i = 0; i < length; i += 2) {
+        if (coordinates[i] < viewBoxRight) {
+            isAtRight = false;
+            break;
+        }
+    }
+    if (isAtRight){
+        return false;
+    }
+ let isBelow = true;
+    for (let i = 1; i < length; i += 2) {
+        if (scaleY*coordinates[i] < viewBoxBottom) {
+            isBelow = false;
+            break;
+        }
+    }
+    if (isBelow){
+        return false;
+    }
+     let isAbove = true;
+    for (let i = 1; i < length; i += 2) {
+        if (scaleY*coordinates[i] > viewBoxTop) {
+            isAbove = false;
+            break;
+        }
+    }
+    if (isAbove){
+        return false;
+    }
+    return true;
+}
+
+// make a number string
+function stringOf(number){
+    if (Math.abs(number)>300){
+return Math.round(number);
+    } else {
+        return number.toFixed(1);
+    }
+}
+
+// make a string out of coordinate pairs
+function makeString(coordinates){
+     let pointsString = stringOf(coordinates[0]) + ',' + stringOf(coordinates[1]);
+    length = coordinates.length;
+    for (let i = 2; i < length; i += 2) {
+        pointsString += ' ' + stringOf(coordinates[i]) + ',' + stringOf(coordinates[i + 1]);
+    }
+    return pointsString;
+}
+
+/**
  * create an open polyline path, use for fill and stroke
  * @method SVP.createPolyline
  * @params [float] coordinates - array of x,y coordinate pairs for corners of the polygon, or array
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolyline = function(coordinates, attributes = {}) {
-    let pointsString = coordinates[0].toPrecision(3) + ',' + coordinates[1].toPrecision(3);
-    length = coordinates.length;
-    for (let i = 2; i < length; i += 2) {
-        pointsString += ' ' + coordinates[i].toPrecision(3) + ',' + coordinates[i + 1].toPrecision(3);
-    }
-    attributes.points = pointsString;
+    attributes.points = makeString(coordinates);
     SVG.create('polyline', attributes);
 };
 
@@ -261,12 +335,7 @@ SVG.createPolyline = function(coordinates, attributes = {}) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolygon = function(coordinates, attributes = {}) {
-    let pointsString = coordinates[0].toPrecision(3) + ',' + coordinates[1].toPrecision(3);
-    length = coordinates.length;
-    for (let i = 2; i < length; i += 2) {
-        pointsString += ' ' + coordinates[i].toPrecision(3) + ',' + coordinates[i + 1].toPrecision(3);
-    }
-    attributes.points = pointsString;
+        attributes.points = makeString(coordinates);
     SVG.create('polygon', attributes);
 };
 
@@ -279,10 +348,14 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createCircle = function(centerX, centerY, radius, attributes = {}) {
+    if((centerX+radius>viewBoxLeft)&&(centerX-radius<viewBoxRight)&&(scaleY*centerY+radius>viewBoxBottom)&&(scaleY*centerY-radius<viewBoxTop)){
     attributes.cx = centerX.toPrecision(3);
     attributes.cy = centerY.toPrecision(3);
     attributes.r = radius.toPrecision(3);
     SVG.create('circle', attributes);
+} else{
+    console.log('circle outside');
+}
 };
 
 // upon resize: redraw
@@ -293,8 +366,10 @@ function resizeDraw() {
 /**
  * setup/initialize the svg, inside the output.div
  * @method SVG.init
+ * @param boolean, invertedYAxis, default is true
  */
-SVG.init = function() {
+SVG.init = function(invertedYAxis=true) {
+    scaleY = (invertedYAxis) ? -1 : 1;
     if (SVG.element) {
         console.error("SVG.init: svg element exists already!");
         return;
