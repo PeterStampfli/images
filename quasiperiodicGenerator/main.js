@@ -186,9 +186,8 @@ main.create = function() {
     builder.create();
 };
 
-main.draw = function() {
-    console.log('draw');
-    SVG.begin();
+main.draw = function(onScreen = true) {
+    SVG.begin(onScreen);
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',
         fill: 'none',

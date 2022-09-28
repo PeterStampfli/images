@@ -34,6 +34,11 @@ SVG.viewMinHeight = 200;
 //viewbox data for clipping
 var viewBoxLeft, viewBoxRight, viewBoxBottom, viewBoxTop;
 
+// flag for writing on screen or text file
+SVG.onScreen = false;
+// flag for open group
+SVG.openGroup = false;
+
 /**
  * making the gui for the image, independent of the initialization of svg
  * thus can have this on top, and initialize svg towards the end
@@ -51,6 +56,7 @@ SVG.makeGui = function(gui) {
         buttonText: "save",
         minLabelWidth: 20,
         onClick: function() {
+            SVG.draw(false);
             guiUtils.saveTextAsFile(SVG.text, SVG.saveName.getValue(), 'svg');
         }
     });
@@ -145,11 +151,11 @@ function stringOfAttributes(attributes) {
  * set width and height, fit to window
  * set viewbox
  * @method SVG.begin
+ * @param boolean onScreen, default=true, if true draws on screen,if false generates text
  */
-SVG.begin = function() {
-    while (SVG.element.lastChild) {
-        SVG.element.removeChild(SVG.element.lastChild);
-    }
+SVG.begin = function(onScreen = true) {
+    SVG.onScreen = onScreen;
+    SVG.openGroup = false;
     // for viewbox: minimum widths and heights given
     // viewbox corner, then width and height
     // offset relative to viewBox image size
@@ -166,50 +172,67 @@ SVG.begin = function() {
     viewBoxBottom = cornerY;
     viewBoxTop = cornerY + viewHeight;
     const viewBoxData = cornerX + ' ' + cornerY + ' ' + viewWidth + ' ' + viewHeight;
-    guiUtils.setAttributes(SVG.element, {
-        width: SVGWidth,
-        height: SVGHeight,
-        viewBox: viewBoxData
-    });
-    SVG.group = SVG.element;
-    SVG.text = '<svg\n';
-    SVG.text += stringOfAttributes({
-        version: 1.1,
-        xmlns: SVGns,
-        height: SVGHeight,
-        width: SVGWidth,
-        viewBox: viewBoxData
-    });
-    SVG.text += '>\n';
+    if (onScreen) {
+        if (SVG.element.parentNode) {
+            output.div.removeChild(SVG.element);
+        }
+        while (SVG.element.lastChild) {
+            SVG.element.removeChild(SVG.element.lastChild);
+        }
+        guiUtils.setAttributes(SVG.element, {
+            width: SVGWidth,
+            height: SVGHeight,
+            viewBox: viewBoxData
+        });
+        SVG.group = SVG.element;
+    } else {
+        SVG.text = '<svg\n';
+        SVG.text += stringOfAttributes({
+            version: 1.1,
+            xmlns: SVGns,
+            height: SVGHeight,
+            width: SVGWidth,
+            viewBox: viewBoxData
+        });
+        SVG.text += '>\n';
+    }
 };
 
 /**
- * terminate the svg (text), and the group
+ * terminate the svg (text), and the group (text), add SVG to DOM
  * @method SVG.terminate
  */
 SVG.terminate = function() {
-    if (SVG.group !== SVG.element) {
-        SVG.text += '</g>';
+    if (SVG.onScreen) {
+        output.div.appendChild(SVG.element);
+    } else {
+        if (SVG.openGroup) {
+            SVG.text += '</g>';
+        }
+        SVG.text += '</svg>';
     }
-    SVG.text += '</svg>';
 };
 
 /**
  * make an svg group, if there is one, terminate it
- * no nested groups
+ * no nested groups, once a group is created, there will always be groups
  * @method SVG.createGroup
  * @param object attributes, as name,value pairs that define attributes
  */
 SVG.createGroup = function(attributes) {
-    if (SVG.group !== SVG.element) {
-        SVG.text += '</g>\n';
+    if (SVG.onScreen) {
+        SVG.group = document.createElementNS(SVGns, 'g');
+        guiUtils.setParent(SVG.element, SVG.group);
+        guiUtils.setAttributes(SVG.group, attributes);
+    } else {
+        if (SVG.openGroup) {
+            SVG.text += '</g>\n';
+        }
+        SVG.text += '<g\n';
+        SVG.text += stringOfAttributes(attributes);
+        SVG.text += '>\n';
     }
-    SVG.group = document.createElementNS(SVGns, 'g');
-    guiUtils.setParent(SVG.element, SVG.group);
-    guiUtils.setAttributes(SVG.group, attributes);
-    SVG.text += '<g\n';
-    SVG.text += stringOfAttributes(attributes);
-    SVG.text += '>\n';
+    SVG.openGroup = true;
 };
 
 /**
@@ -219,16 +242,19 @@ SVG.createGroup = function(attributes) {
  * @param String text
  */
 SVG.createText = function(attributes, text) {
-    const textElement = document.createElementNS(SVGns, 'text');
-    guiUtils.setParent(SVG.group, textElement);
-    guiUtils.setAttributes(textElement, attributes);
-    const textNode = document.createTextNode(text);
-    guiUtils.setParent(textElement, textNode);
-    SVG.text += '<text\n';
-    SVG.text += stringOfAttributes(attributes);
-    SVG.text += '>\n';
-    SVG.text += text;
-    SVG.text += '</text>';
+    if (SVG.onScreen) {
+        const textElement = document.createElementNS(SVGns, 'text');
+        guiUtils.setParent(SVG.group, textElement);
+        guiUtils.setAttributes(textElement, attributes);
+        const textNode = document.createTextNode(text);
+        guiUtils.setParent(textElement, textNode);
+    } else {
+        SVG.text += '<text\n';
+        SVG.text += stringOfAttributes(attributes);
+        SVG.text += '>\n';
+        SVG.text += text;
+        SVG.text += '</text>';
+    }
 };
 
 /**
@@ -238,12 +264,15 @@ SVG.createText = function(attributes, text) {
  * @param object attributes, as name,value pairs that define attributes
  */
 SVG.create = function(tag, attributes) {
-    const newElement = document.createElementNS(SVGns, tag);
-    guiUtils.setParent(SVG.group, newElement);
-    guiUtils.setAttributes(newElement, attributes);
-    SVG.text += '<' + tag + '\n';
-    SVG.text += stringOfAttributes(attributes);
-    SVG.text += '/>\n';
+    if (SVG.onScreen) {
+        const newElement = document.createElementNS(SVGns, tag);
+        guiUtils.setParent(SVG.group, newElement);
+        guiUtils.setAttributes(newElement, attributes);
+    } else {
+        SVG.text += '<' + tag + '\n';
+        SVG.text += stringOfAttributes(attributes);
+        SVG.text += '/>\n';
+    }
 };
 
 /**
@@ -262,54 +291,54 @@ function isNotOutsideViewBox(coordinates) {
             break;
         }
     }
-    if (isAtLeft){
+    if (isAtLeft) {
         return false;
     }
-        let isAtRight = true;
+    let isAtRight = true;
     for (let i = 0; i < length; i += 2) {
         if (coordinates[i] < viewBoxRight) {
             isAtRight = false;
             break;
         }
     }
-    if (isAtRight){
+    if (isAtRight) {
         return false;
     }
- let isBelow = true;
+    let isBelow = true;
     for (let i = 1; i < length; i += 2) {
-        if (scaleY*coordinates[i] < viewBoxBottom) {
+        if (scaleY * coordinates[i] > viewBoxBottom) {
             isBelow = false;
             break;
         }
     }
-    if (isBelow){
+    if (isBelow) {
         return false;
     }
-     let isAbove = true;
+    let isAbove = true;
     for (let i = 1; i < length; i += 2) {
-        if (scaleY*coordinates[i] > viewBoxTop) {
+        if (scaleY * coordinates[i] < viewBoxTop) {
             isAbove = false;
             break;
         }
     }
-    if (isAbove){
+    if (isAbove) {
         return false;
     }
     return true;
 }
 
 // make a number string
-function stringOf(number){
-    if (Math.abs(number)>300){
-return Math.round(number);
+function stringOf(number) {
+    if (Math.abs(number) > 300) {
+        return Math.round(number);
     } else {
         return number.toFixed(1);
     }
 }
 
 // make a string out of coordinate pairs
-function makeString(coordinates){
-     let pointsString = stringOf(coordinates[0]) + ',' + stringOf(coordinates[1]);
+function makeString(coordinates) {
+    let pointsString = stringOf(coordinates[0]) + ',' + stringOf(coordinates[1]);
     length = coordinates.length;
     for (let i = 2; i < length; i += 2) {
         pointsString += ' ' + stringOf(coordinates[i]) + ',' + stringOf(coordinates[i + 1]);
@@ -324,8 +353,12 @@ function makeString(coordinates){
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolyline = function(coordinates, attributes = {}) {
-    attributes.points = makeString(coordinates);
-    SVG.create('polyline', attributes);
+    if (isNotOutsideViewBox(coordinates)) {
+        attributes.points = makeString(coordinates);
+        SVG.create('polyline', attributes);
+    } else {
+        // console.log('outside polyline');
+    }
 };
 
 /**
@@ -335,8 +368,12 @@ SVG.createPolyline = function(coordinates, attributes = {}) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createPolygon = function(coordinates, attributes = {}) {
+    if (isNotOutsideViewBox(coordinates)) {
         attributes.points = makeString(coordinates);
-    SVG.create('polygon', attributes);
+        SVG.create('polygon', attributes);
+    } else {
+        //  console.log('outside polygon');
+    }
 };
 
 /**
@@ -348,14 +385,14 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
  * @params Object attributes, optional,default is empty object
  */
 SVG.createCircle = function(centerX, centerY, radius, attributes = {}) {
-    if((centerX+radius>viewBoxLeft)&&(centerX-radius<viewBoxRight)&&(scaleY*centerY+radius>viewBoxBottom)&&(scaleY*centerY-radius<viewBoxTop)){
-    attributes.cx = centerX.toPrecision(3);
-    attributes.cy = centerY.toPrecision(3);
-    attributes.r = radius.toPrecision(3);
-    SVG.create('circle', attributes);
-} else{
-    console.log('circle outside');
-}
+    if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
+        attributes.cx = centerX.toPrecision(3);
+        attributes.cy = centerY.toPrecision(3);
+        attributes.r = radius.toPrecision(3);
+        SVG.create('circle', attributes);
+    } else {
+        console.log('circle outside');
+    }
 };
 
 // upon resize: redraw
@@ -368,7 +405,7 @@ function resizeDraw() {
  * @method SVG.init
  * @param boolean, invertedYAxis, default is true
  */
-SVG.init = function(invertedYAxis=true) {
+SVG.init = function(invertedYAxis = true) {
     scaleY = (invertedYAxis) ? -1 : 1;
     if (SVG.element) {
         console.error("SVG.init: svg element exists already!");
@@ -391,6 +428,6 @@ SVG.init = function(invertedYAxis=true) {
         SVG.draw();
     };
     SVG.element = document.createElementNS(SVGns, 'svg');
-    guiUtils.setParent(output.div, SVG.element);
+    output.div.appendChild(SVG.element);
     window.addEventListener("resize", resizeDraw, false);
 };

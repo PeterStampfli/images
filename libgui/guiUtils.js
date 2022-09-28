@@ -521,7 +521,7 @@ guiUtils.saveTextAsFile = function(text, filename, extension = 'txt') {
     const blob = new Blob([text], {
         type: 'text/plain'
     });
-    saveBlobAsFile(blob, filename + '.'+extension);
+    saveBlobAsFile(blob, filename + '.' + extension);
 };
 
 // check byte order of the machine

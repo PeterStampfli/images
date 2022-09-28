@@ -142,8 +142,6 @@ builder.defineTiling = function(definition) {
     const shiftX = 0.5 - centerX / range;
     const shiftY = 0.5 - centerX / range;
     SVG.setViewShifts(shiftX, shiftY);
-
-    console.log(range,centerX,centerY)
     // drawing controlls
     // set the generation to draw upon loading the definition, default is 2
     if ('drawGeneration' in definition) {
@@ -528,14 +526,13 @@ builder.drawOverprint = function(tile) {
     }
 };
 
-// no final stroke: use entire shape for overprinting
-builder.drawOverprintShape = function(tile) {
+// no final stroke: draw fill and stroke (for overprinting) together
+builder.drawOverprintStroke = function(tile) {
     const protoTile = protoTiles[tile.name];
     if ('shape' in protoTile) {
-        // overprinting to join halves, only if fill
-        // need explicit overprinting, do first
         SVG.createPolygon(tile.cartesianShape, {
-            stroke: protoTile.color
+            stroke: protoTile.color,
+            fill: protoTile.color
         });
     }
 };
@@ -583,7 +580,7 @@ function drawGeneration(generation) {
             tilesToDraw.forEach(tile => builder.drawOverprint(tile));
         } else {
             // no stroke: use entire shape for overprinting
-            tilesToDraw.forEach(tile => builder.drawOverprintShape(tile));
+            tilesToDraw.forEach(tile => builder.drawOverprintStroke(tile));
         }
         SVG.groupAttributes.stroke = 'none';
         SVG.createGroup(SVG.groupAttributes);
