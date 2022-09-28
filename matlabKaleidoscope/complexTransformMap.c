@@ -3,12 +3,16 @@
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * and more parameters, depending on the transform
+ * optional additional parameters in a double precision (standaard matlab numbers) array a[...], max 10 elements
+ *
+ * complexTransformMap(map,a);
+ *
+ * default values for parameters are 0, as for now, can be changed
  *
  * modifies the map, returns nothing if used as a procedure
- * transform(map, ...);
+ * transform(map, a);
  * does not change the map and returns a modified map if used as  a function
- * newMap = transform(map, ....);
+ * newMap = transform(map, a);
  *
  *========================================================*/
 
@@ -25,10 +29,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
     const mwSize *dims;
+    float a[10],a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10;
+    double *doubleA;
+    int i, nParams;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float complex z;
     float *inMap, *outMap;
+    /* default value for parameters a is 0 */
+    for (i=0;i<10;i++){
+        a[i]=0;
+    }
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -53,6 +64,38 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #else
     inMap = (float *) mxGetPr(prhs[0]);
 #endif
+        /* load the parameters, if present */
+    if(nrhs > 1) {
+        aDims = mxGetDimensions(prhs[1]);
+        if((mxGetNumberOfDimensions(prhs[1]) !=2)||(aDims[0] >1)) {
+            mexErrMsgIdAndTxt("logSpiralMap:dims","The array for parameters has to have 1 dimension.");
+        }
+        if(aDims[1] >10) {
+            mexErrMsgIdAndTxt("logSpiralMap:dims","Too many parameters, maximum 10 exceeded.");
+        }
+        nParams = aDims[1];
+        #if MX_HAS_INTERLEAVED_COMPLEX
+            doubleA = mxGetDoubles(prhs[1]);
+        #else
+            doubleA = (double *) mxGetPr(prhs[1]);
+        #endif
+        for (i=0;i<nParams;i++){
+             a[i] = (float) doubleA[i];
+        }
+    }
+    /* set all parameters, even if not present as argument, get default value = 0 */
+    /* matlab indexing, begins with 1, c indexing begins with 0 */
+    a1 = a[0];
+    a2 = a[1];
+    a3 = a[2];
+    a4 = a[3];
+    a5 = a[4];
+    a6 = a[5];
+    a7 = a[6];
+    a8 = a[7];
+    a9 = a[8];
+    a10 = a[9];        
+    /* left hand side */
     if (nlhs == 0){
         outMap = inMap;
     } else {

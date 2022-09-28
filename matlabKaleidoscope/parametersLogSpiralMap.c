@@ -1,5 +1,5 @@
 /*==========================================================
- * mirrorsMap: map a logarithmic spiral to a band
+ * logSpiralMap: map a logarithmic spiral to a band
  *             center of spiral is origin
  *
  * Input:
@@ -12,7 +12,18 @@
  * additional parameter: periodX, periodY
  *     displacement vector components for a full turn around the center of the spiral
  *      (with constant radius, changing phi from 0 to 2pi)
- *     should be a "invariant translation" of the map used in output  
+ *     should be a "invariant translation" of the map used in output 
+ *
+ *  logSpiralMap(map,periodX,periodY); 
+ *  newMap=logSpiralMap(map,periodX,periodY); 
+ *
+ * optional additional parameters in a double array a[...], max 10 elements
+ * as input for other spirals ...
+ *
+ *  logSpiralMap(map,periodX,periodY,a); 
+ *  newMap=logSpiralMap(map,periodX,periodY,a); 
+ *
+ * internally converted to float a1,a2, ... ,a10 for speed and convenience
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -33,11 +44,18 @@
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
-    const mwSize *dims;
+    const mwSize *dims, *aDims;
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
+    float a[10],a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10;
+    double *doubleA;
+    int i, nParams;
     float *inMap, *outMap;
     float lnR, phi, periodX, periodY, x, y;
+    /* default value for parameters a is 0 */
+    for (i=0;i<10;i++){
+        a[i]=0;
+    }
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -62,6 +80,38 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #else
     inMap = (float *) mxGetPr(prhs[0]);
 #endif
+    /* load the parameters, if present */
+    if(nrhs > 3) {
+        aDims = mxGetDimensions(prhs[3]);
+        if((mxGetNumberOfDimensions(prhs[3]) !=2)||(aDims[0] >1)) {
+            mexErrMsgIdAndTxt("logSpiralMap:dims","The array for parameters has to have 1 dimension.");
+        }
+        if(aDims[1] >10) {
+            mexErrMsgIdAndTxt("logSpiralMap:dims","Too many parameters, maximum 10 exceeded.");
+        }
+        nParams = aDims[1];
+        #if MX_HAS_INTERLEAVED_COMPLEX
+            doubleA = mxGetDoubles(prhs[3]);
+        #else
+            doubleA = (double *) mxGetPr(prhs[3]);
+        #endif
+        for (i=0;i<nParams;i++){
+             a[i] = (float) doubleA[i];
+        }
+    }
+    /* set all parameters, even if not present as argument, get default value = 0 */
+    /* matlab indexing, begins with 1, c indexing begins with 0 */
+    a1 = a[0];
+    a2 = a[1];
+    a3 = a[2];
+    a4 = a[3];
+    a5 = a[4];
+    a6 = a[5];
+    a7 = a[6];
+    a8 = a[7];
+    a9 = a[8];
+    a10 = a[9];    
+    /* left hand side */
     if (nlhs == 0){
         outMap = inMap;
     } else {
