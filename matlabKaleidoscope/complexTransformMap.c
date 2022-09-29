@@ -28,7 +28,7 @@
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
-    const mwSize *dims;
+    const mwSize *dims, *aDims;
     float a[10],a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10;
     double *doubleA;
     int i, nParams;

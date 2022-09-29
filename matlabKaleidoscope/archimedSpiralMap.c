@@ -20,10 +20,12 @@
  * optional additional parameters in a double precision array a[...], max 10 elements
  * as input for other spirals ...
  *
- *  logSpiralMap(map,periodX,periodY,a); 
+ *  archimedSpiralMap(map,periodX,periodY,a); 
  *  newMap=logSpiralMap(map,periodX,periodY,a); 
  *
  * internally converted to float a1,a2, ... ,a10 for speed and convenience
+ *
+ * the first element of a expands the spiral if smaller than 1 and contracts if larger than 1
  *
  * modifies the map, returns nothing if used as a procedure
  * transform(map, ...);
@@ -149,7 +151,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         x = inMap[index];
         y = inMap[index + nXnY];
         phi = atan2f(y,x);
-        ar = a1 * sqrtf(x * x + y * y);
+        ar = a1 * sqrt(x * x + y * y);
         x = phi * periodX - ar * periodY;
         y = phi * periodY + ar * periodX;
         outMap[index] = x;

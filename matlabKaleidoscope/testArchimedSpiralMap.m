@@ -1,4 +1,4 @@
-function testLogSpiralMap()
+function testArchimedSpiralMap()
 % test of the basic kaleidoscope
 % depending on symmetry paraameters k, n and m
 % shows pattern of inversions
@@ -13,7 +13,7 @@ height=0.4;
 periodX=2*width;
 periodY=10*height;
 
-archimedSpiralMap(map,periodX,periodY,[0.4]);
+archimedSpiralMap(map,periodX,periodY,[2]);
 mirrorsMap(map,width,height);
 
 im=createStructureImage(map);
