@@ -2,7 +2,7 @@
 
 import {
     ParamGui,
-    output,
+    SVG,
     BooleanButton,
     guiUtils
 }
@@ -16,14 +16,19 @@ const gui = new ParamGui({
     closed: false
 });
 
-output.createCanvas(gui, {
-    name: 'canvas control',
-});
+SVG.makeGui(gui);
+SVG.init();
 
-output.addCoordinateTransform();
-output.addCursorposition();
-output.setInitialCoordinates(0, 0, 2.5);
-output.addGrid();
+BooleanButton.greenRedBackground();
+gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'size',
+    min: 0,
+    onChange: function() {
+        draw();
+    }
+});
 
 gui.add({
     type: 'boolean',
@@ -39,6 +44,14 @@ gui.add({
     params: Polygon,
     property: 'gamma',
     min: 0.1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'invertBrightness',
+    labelText: 'invert',
     onChange: function() {
         draw();
     }
@@ -146,12 +159,116 @@ gui.add({
 });
 
 gui.add({
-    type: 'selection',
-    params: Polygon,
-    property: 'subdiv',
-    options: [
-        '4 ...', '5 ...', '6 ...', '7 ...', '8 ...', '4 5 ...', '4 2 ...', '2 ...'
-    ],
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 0,
+    labelText:'subdivs &nbsp;&nbsp; 0',
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 1,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 2,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 3,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 4,
+    labelText:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4',
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 5,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 6,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 7,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+});
+gui.add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 8,
+    labelText:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8',
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 9,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 10,
+    min:2,
+    step:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon.subdivisions,
+    property: 11,
+    min:2,
+    step:1,
     onChange: function() {
         draw();
     }
@@ -186,42 +303,15 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'shiftValue',
-    min:0.1,
-    labelText:'',
+    min: 0.1,
+    labelText: '',
     onChange: function() {
         draw();
     }
 });
 
-
 function makeStructure() {
     Polygon.noAlert = true;
-    switch (Polygon.subdiv) {
-        case '4 ...':
-            Polygon.subdivisions = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
-            break;
-        case '5 ...':
-            Polygon.subdivisions = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
-            break;
-        case '6 ...':
-            Polygon.subdivisions = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
-            break;
-        case '7 ...':
-            Polygon.subdivisions = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
-            break;
-        case '8 ...':
-            Polygon.subdivisions = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
-            break;
-        case '4 5 ...':
-            Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
-            break;
-        case '4 2 ...':
-            Polygon.subdivisions = [4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-            break;
-        case '2 ...':
-            Polygon.subdivisions = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-            break;
-    }
     if (Polygon.generations > Polygon.subdivisions.length) {
         generationsController.setValueOnly(Polygon.subdivisions.length);
     }
@@ -260,27 +350,35 @@ function makeStructure() {
             basisPolygon.initialPseudoQuadrangles();
             break;
     }
-}
-
-function doSurfacesAngles() {
     Polygon.setSurfaces();
     Polygon.minMaxSurface();
-    Polygon.normalizeSurface();
 }
 
-function draw() {
-    // initialize output canvas
-    output.correctYAxis();
-    output.lineRound();
-    output.fillCanvasBackgroundColor();
-    output.setLineWidth(Polygon.lineWidth);
-    makeStructure();
-    doSurfacesAngles();
+function makeColors() {
+    Polygon.normalizeSurface();
     //  Polygon.greySurfaces();
     // Polygon.magentaGreen();
     Polygon.hueValue();
-    Polygon.drawCollection();
 }
 
-output.setDrawMethods(draw);
-output.backgroundColorController.setValue('#ffffff');
+function drawOnly() {
+    SVG.begin();
+    SVG.groupAttributes = {
+        transform: 'scale(1 -1)',
+        fill: 'none',
+        'stroke-width': Polygon.lineWidth,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+    };
+    Polygon.drawCollection();
+    SVG.terminate();
+}
+
+function draw() {
+    makeStructure();
+    makeColors();
+    drawOnly();
+}
+
+SVG.draw = draw;
+draw();

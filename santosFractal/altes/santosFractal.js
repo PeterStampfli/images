@@ -2,7 +2,7 @@
 
 import {
     ParamGui,
-    SVG,
+    output,
     BooleanButton,
     guiUtils
 }
@@ -10,25 +10,20 @@ from "../libgui/modules.js";
 
 import {
     Polygon
-} from "./polygonSVG.js";
+} from "./polygon.js";
 
 const gui = new ParamGui({
     closed: false
 });
 
-SVG.makeGui(gui);
-SVG.init();
-
-BooleanButton.greenRedBackground();
-gui.add({
-    type: 'number',
-    params: Polygon,
-    property: 'size',
-    min: 0,
-    onChange: function() {
-        draw();
-    }
+output.createCanvas(gui, {
+    name: 'canvas control',
 });
+
+output.addCoordinateTransform();
+output.addCursorposition();
+output.setInitialCoordinates(0, 0, 2.5);
+output.addGrid();
 
 gui.add({
     type: 'boolean',
@@ -44,14 +39,6 @@ gui.add({
     params: Polygon,
     property: 'gamma',
     min: 0.1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'invertBrightness',
-    labelText: 'invert',
     onChange: function() {
         draw();
     }
@@ -199,12 +186,13 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'shiftValue',
-    min: 0.1,
-    labelText: '',
+    min:0.1,
+    labelText:'',
     onChange: function() {
         draw();
     }
 });
+
 
 function makeStructure() {
     Polygon.noAlert = true;
@@ -272,35 +260,27 @@ function makeStructure() {
             basisPolygon.initialPseudoQuadrangles();
             break;
     }
+}
+
+function doSurfacesAngles() {
     Polygon.setSurfaces();
     Polygon.minMaxSurface();
-}
-
-function makeColors() {
     Polygon.normalizeSurface();
-    //  Polygon.greySurfaces();
-    // Polygon.magentaGreen();
-    Polygon.hueValue();
-}
-
-function drawOnly() {
-    SVG.begin();
-    SVG.groupAttributes = {
-        transform: 'scale(1 -1)',
-        fill: 'none',
-        'stroke-width': Polygon.lineWidth,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round'
-    };
-    Polygon.drawCollection();
-    SVG.terminate();
 }
 
 function draw() {
+    // initialize output canvas
+    output.correctYAxis();
+    output.lineRound();
+    output.fillCanvasBackgroundColor();
+    output.setLineWidth(Polygon.lineWidth);
     makeStructure();
-    makeColors();
-    drawOnly();
+    doSurfacesAngles();
+    //  Polygon.greySurfaces();
+    // Polygon.magentaGreen();
+    Polygon.hueValue();
+    Polygon.drawCollection();
 }
 
-SVG.draw = draw;
-draw();
+output.setDrawMethods(draw);
+output.backgroundColorController.setValue('#ffffff');

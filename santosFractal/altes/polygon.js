@@ -2,7 +2,7 @@
 
 import {
     ColorInput,
-    SVG
+    output
 }
 from "../libgui/modules.js";
 
@@ -24,13 +24,11 @@ export const Polygon = function(generation) {
 // drawing options
 Polygon.fill = true;
 Polygon.stroke = true;
-Polygon.vertices = false;
+Polygon.vertices = true;
 Polygon.lineColor = '#000000';
-Polygon.lineWidth = 1;
-Polygon.vertexSize = 2;
+Polygon.lineWidth = 2;
+Polygon.vertexSize = 0.02;
 Polygon.gamma = 1;
-Polygon.invertBrightness=false;
-Polygon.size = 80;
 
 Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
@@ -54,56 +52,59 @@ Polygon.noAlert = true;
 // collecting polygons
 Polygon.collection = [];
 
-// make the path for a polygon as an array of point coordinate pairs
+var canvasContext;
+
+// make the path for a polygon
 Polygon.prototype.makePath = function() {
-    let path = [];
+    canvasContext.beginPath();
+    canvasContext.moveTo(this.cornersX[0], this.cornersY[0]);
     const length = this.cornersX.length;
-    for (let i = 0; i < length; i++) {
-        path.push(this.cornersX[i], this.cornersY[i]);
+    for (let i = 1; i < length; i++) {
+        canvasContext.lineTo(this.cornersX[i], this.cornersY[i]);
     }
-    return path;
+    canvasContext.closePath();
 };
 
 // drawing the collected polygons
 Polygon.drawCollection = function() {
+    const canvas = output.canvas;
+    canvasContext = canvas.getContext('2d');
     let pLength = Polygon.collection.length;
-        SVG.createGroup(SVG.groupAttributes);
     if (Polygon.fill) {
         if (!Polygon.stroke) {
             for (let p = 0; p < pLength; p++) {
                 const polygon = Polygon.collection[p];
-                SVG.createPolygon(polygon.makePath(), {
-                    stroke: ColorInput.stringFromObject(polygon)
-                });
+                polygon.makePath();
+                canvasContext.strokeStyle = ColorInput.stringFromObject(polygon);
+                canvasContext.stroke();
             }
         }
         for (let p = 0; p < pLength; p++) {
             const polygon = Polygon.collection[p];
             polygon.makePath();
-            SVG.createPolygon(polygon.makePath(), {
-                    fill: ColorInput.stringFromObject(polygon)
-                });
+            canvasContext.fillStyle = ColorInput.stringFromObject(polygon);
+            canvasContext.fill();
         }
     }
     if (Polygon.stroke) {
-        SVG.groupAttributes.stroke= Polygon.lineColor;
-         SVG.createGroup(SVG.groupAttributes);
-       for (let p = 0; p < pLength; p++) {
+        canvasContext.strokeStyle = Polygon.lineColor;
+        for (let p = 0; p < pLength; p++) {
             const polygon = Polygon.collection[p];
-            SVG.createPolygon(polygon.makePath());
+            polygon.makePath();
+            canvasContext.stroke();
         }
     }
     if (Polygon.vertices) {
-        SVG.groupAttributes.stroke= 'none';
-        SVG.groupAttributes.fill= Polygon.lineColor;
-         SVG.createGroup(SVG.groupAttributes);
-       for (let p = 0; p < pLength; p++) {
+        canvasContext.fillStyle = Polygon.lineColor;
+        for (let p = 0; p < pLength; p++) {
             const polygon = Polygon.collection[p];
             const cornersX = polygon.cornersX;
             const cornersY = polygon.cornersY;
             const length = cornersX.length;
             for (let i = 0; i < length; i++) {
-                SVG.createCircle(cornersX[i], cornersY[i], Polygon.vertexSize);
+                canvasContext.beginPath();
+                canvasContext.arc(cornersX[i], cornersY[i], Polygon.vertexSize, 0, 2 * Math.PI);
+                canvasContext.fill();
             }
         }
     }
@@ -144,7 +145,7 @@ Polygon.normalizeSurface = function() {
     const gamma = Polygon.gamma;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
-            Polygon.collection[i].normalizedSurface = 0.999;
+            Polygon.collection[i].surface = 0.999;
         }
     } else {
         const iDiff = 0.999 / diff;
@@ -152,7 +153,7 @@ Polygon.normalizeSurface = function() {
         for (let i = 0; i < length; i++) {
             let x = (Polygon.collection[i].surface - minSurface) * iDiff;
             x = Math.pow(x, gamma);
-            Polygon.collection[i].normalizedSurface = x;
+            Polygon.collection[i].surface = x;
         }
     }
     const aDiff = Polygon.maxCosAngle - Polygon.minCosAngle;
@@ -216,7 +217,7 @@ Polygon.greySurfaces = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        const grey = Math.floor(polygon.normalizedSurface * 255.9);
+        const grey = Math.floor(polygon.surface * 255.9);
         polygon.red = grey;
         polygon.green = grey;
         polygon.blue = grey;
@@ -228,7 +229,7 @@ Polygon.magentaGreen = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        const green = Math.floor(polygon.normalizedSurface * 255.9);
+        const green = Math.floor(polygon.surface * 255.9);
         const magenta = Math.floor(polygon.cosAngle * 255.9);
         polygon.red = magenta;
         polygon.green = green;
@@ -241,7 +242,7 @@ Polygon.hueValue = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.setHueValue(polygon.cosAngle, polygon.normalizedSurface);
+        polygon.setHueValue(polygon.cosAngle, polygon.surface);
     }
 };
 
@@ -1128,7 +1129,7 @@ Polygon.createRegular = function(n) {
 
     for (let i = 0; i < n; i++) {
         const angle = 2 * i * Math.PI / n + delta;
-        polygon.addCorner(Polygon.size * Math.sin(angle), Polygon.size * Math.cos(angle));
+        polygon.addCorner(Math.sin(angle), Math.cos(angle));
     }
     return polygon;
 };
