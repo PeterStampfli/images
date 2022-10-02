@@ -58,6 +58,39 @@ gui.add({
 });
 
 gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'saturated',
+    min: 0,
+    max:1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'minSaturation',
+    labelText:'min',
+    min: 0,
+    max:1,
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'hueShift',
+    labelText:'hue shift',
+min:0,
+max:1,
+    onChange: function() {
+        draw();
+    }
+}).cyclic();
+
+gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'stroke',
@@ -104,17 +137,6 @@ gui.add({
     }
 });
 
-const generationsController = gui.add({
-    type: 'number',
-    params: Polygon,
-    property: 'generations',
-    min: 1,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-});
-
 gui.add({
     type: 'number',
     params: Polygon,
@@ -153,6 +175,17 @@ gui.add({
     options: [
         'triangles', 'double triangles', 'quadrangles', 'pseudo quadrangles'
     ],
+    onChange: function() {
+        draw();
+    }
+});
+
+const generationsController = gui.add({
+    type: 'number',
+    params: Polygon,
+    property: 'generations',
+    min: 1,
+    step: 1,
     onChange: function() {
         draw();
     }

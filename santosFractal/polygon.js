@@ -30,6 +30,10 @@ Polygon.lineWidth = 1;
 Polygon.vertexSize = 2;
 Polygon.gamma = 1;
 Polygon.invertBrightness=false;
+Polygon.saturated=0.7;
+Polygon.minSaturation=0.3;
+Polygon.hueShift=0;
+
 Polygon.size = 80;
 
 Polygon.initial = 'triangles';
@@ -40,8 +44,7 @@ Polygon.initialAddVertices = false;
 // geometry options
 Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5,5,5,5];
 Polygon.useOffset = false;
-Polygon.generations = 1;
-Polygon.subdiv = '5 ...';
+Polygon.generations = 3;
 Polygon.subdivApproach = 'graphEuclidean';
 //Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
@@ -170,15 +173,15 @@ Polygon.normalizeSurface = function() {
     }
 };
 
-
-// set rgb components of a polygon depending on hue and value
-// hue and value between 0 and 1
-Polygon.prototype.setHueValue = function(hue, value) {
-    let red = 0;
+// set rgb components of a polygon depending on its hue, brightness and saturation values
+// hue, brightness and saturation all go from 0 to 1
+Polygon.prototype.setRGBFromHBS=function(){
+let red = 0;
     let green = 0;
     let blue = 0;
-    hue *= 6;
-    const c = Math.floor(hue);
+    let hue=this.hue+Polygon.hueShift;      // hue cyclic from 0 to 1
+    hue =6*(hue-Math.floor(hue));
+        const c = Math.floor(hue);
     const x = hue - c;
     switch (c) {
         case 0:
@@ -206,11 +209,13 @@ Polygon.prototype.setHueValue = function(hue, value) {
             green = 1 - x;
             break;
     }
-    const f = 255.9 * value;
-    this.red = Math.floor(f * red);
-    this.green = Math.floor(f * green);
-    this.blue = Math.floor(f * blue);
+    const saturation=this.saturation;
+    const brightness=255.9*this.brightness;
+    this.red=Math.floor(brightness*(saturation*red+1-saturation));
+    this.green=Math.floor(brightness*(saturation*green+1-saturation));
+    this.blue=Math.floor(brightness*(saturation*blue+1-saturation));
 };
+
 
 // grey colors black for smallest to white for largest
 Polygon.greySurfaces = function() {
@@ -237,12 +242,28 @@ Polygon.magentaGreen = function() {
     }
 };
 
+// transform hue,value to hue,saturation, brightness
+// hue is not changed
+Polygon.prototype.HBSFromHueValue=function(){
+    if (this.value<Polygon.saturated){
+        this.saturation=1;
+        this.brightness=this.value/Polygon.saturated;
+    }
+    else {
+        this.brightness=1;
+        this.saturation=1-(1-Polygon.minSaturation)*(this.value-Polygon.saturated)/(1-Polygon.saturated);
+    }
+};
+
 // hue(cosangle)-value(surface)
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.setHueValue(polygon.cosAngle, polygon.normalizedSurface);
+        polygon.hue=polygon.cosAngle;
+        polygon.value=polygon.normalizedSurface;
+        polygon.HBSFromHueValue();
+        polygon.setRGBFromHBS();
     }
 };
 
