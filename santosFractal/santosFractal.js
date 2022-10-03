@@ -62,7 +62,7 @@ gui.add({
     params: Polygon,
     property: 'saturated',
     min: 0,
-    max:1,
+    max: 1,
     onChange: function() {
         draw();
     }
@@ -70,9 +70,9 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'minSaturation',
-    labelText:'min',
+    labelText: 'min',
     min: 0,
-    max:1,
+    max: 1,
     onChange: function() {
         draw();
     }
@@ -82,13 +82,33 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'hueShift',
-    labelText:'hue shift',
-min:0,
-max:1,
+    labelText: 'hue shift',
+    min: 0,
+    max: 1,
     onChange: function() {
         draw();
     }
-}).cyclic();
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'hueRange',
+    labelText: 'range',
+    min: 0,
+    max: 1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'hueAlternance',
+    labelText: 'altern',
+    min: 0,
+    max: 1,
+    onChange: function() {
+        draw();
+    }
+});
 
 gui.add({
     type: 'boolean',
@@ -195,9 +215,9 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 0,
-    labelText:'subdivs &nbsp;&nbsp; 0',
-    min:2,
-    step:1,
+    labelText: 'subdivs &nbsp;&nbsp; 0',
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -205,8 +225,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 1,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -214,8 +234,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 2,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -223,8 +243,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 3,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -234,9 +254,9 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 4,
-    labelText:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4',
-    min:2,
-    step:1,
+    labelText: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4',
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -244,8 +264,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 5,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -253,8 +273,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 6,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -262,8 +282,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 7,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -272,9 +292,9 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 8,
-    labelText:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8',
-    min:2,
-    step:1,
+    labelText: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8',
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -282,8 +302,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 9,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -291,8 +311,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 10,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }
@@ -300,8 +320,8 @@ gui.add({
     type: 'number',
     params: Polygon.subdivisions,
     property: 11,
-    min:2,
-    step:1,
+    min: 2,
+    step: 1,
     onChange: function() {
         draw();
     }

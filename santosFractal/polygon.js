@@ -29,10 +29,12 @@ Polygon.lineColor = '#000000';
 Polygon.lineWidth = 1;
 Polygon.vertexSize = 2;
 Polygon.gamma = 1;
-Polygon.invertBrightness=false;
-Polygon.saturated=0.7;
-Polygon.minSaturation=0.3;
-Polygon.hueShift=0;
+Polygon.invertBrightness = false;
+Polygon.saturated = 0.7;
+Polygon.minSaturation = 0.3;
+Polygon.hueShift = 0;
+Polygon.hueRange=0.5;
+Polygon.hueAlternance = 0.3;
 
 Polygon.size = 80;
 
@@ -42,7 +44,7 @@ Polygon.additionalVertices = false;
 Polygon.initialAddVertices = false;
 
 // geometry options
-Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5,5,5,5];
+Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 Polygon.useOffset = false;
 Polygon.generations = 3;
 Polygon.subdivApproach = 'graphEuclidean';
@@ -71,7 +73,7 @@ Polygon.prototype.makePath = function() {
 // drawing the collected polygons
 Polygon.drawCollection = function() {
     let pLength = Polygon.collection.length;
-        SVG.createGroup(SVG.groupAttributes);
+    SVG.createGroup(SVG.groupAttributes);
     if (Polygon.fill) {
         if (!Polygon.stroke) {
             for (let p = 0; p < pLength; p++) {
@@ -85,23 +87,23 @@ Polygon.drawCollection = function() {
             const polygon = Polygon.collection[p];
             polygon.makePath();
             SVG.createPolygon(polygon.makePath(), {
-                    fill: ColorInput.stringFromObject(polygon)
-                });
+                fill: ColorInput.stringFromObject(polygon)
+            });
         }
     }
     if (Polygon.stroke) {
-        SVG.groupAttributes.stroke= Polygon.lineColor;
-         SVG.createGroup(SVG.groupAttributes);
-       for (let p = 0; p < pLength; p++) {
+        SVG.groupAttributes.stroke = Polygon.lineColor;
+        SVG.createGroup(SVG.groupAttributes);
+        for (let p = 0; p < pLength; p++) {
             const polygon = Polygon.collection[p];
             SVG.createPolygon(polygon.makePath());
         }
     }
     if (Polygon.vertices) {
-        SVG.groupAttributes.stroke= 'none';
-        SVG.groupAttributes.fill= Polygon.lineColor;
-         SVG.createGroup(SVG.groupAttributes);
-       for (let p = 0; p < pLength; p++) {
+        SVG.groupAttributes.stroke = 'none';
+        SVG.groupAttributes.fill = Polygon.lineColor;
+        SVG.createGroup(SVG.groupAttributes);
+        for (let p = 0; p < pLength; p++) {
             const polygon = Polygon.collection[p];
             const cornersX = polygon.cornersX;
             const cornersY = polygon.cornersY;
@@ -175,13 +177,13 @@ Polygon.normalizeSurface = function() {
 
 // set rgb components of a polygon depending on its hue, brightness and saturation values
 // hue, brightness and saturation all go from 0 to 1
-Polygon.prototype.setRGBFromHBS=function(){
-let red = 0;
+Polygon.prototype.setRGBFromHBS = function() {
+    let red = 0;
     let green = 0;
     let blue = 0;
-    let hue=this.hue+Polygon.hueShift;      // hue cyclic from 0 to 1
-    hue =6*(hue-Math.floor(hue));
-        const c = Math.floor(hue);
+    let hue = this.hue ; // hue cyclic from 0 to 1
+    hue = 6 * (hue - Math.floor(hue));
+    const c = Math.floor(hue);
     const x = hue - c;
     switch (c) {
         case 0:
@@ -209,13 +211,12 @@ let red = 0;
             green = 1 - x;
             break;
     }
-    const saturation=this.saturation;
-    const brightness=255.9*this.brightness;
-    this.red=Math.floor(brightness*(saturation*red+1-saturation));
-    this.green=Math.floor(brightness*(saturation*green+1-saturation));
-    this.blue=Math.floor(brightness*(saturation*blue+1-saturation));
+    const saturation = this.saturation;
+    const brightness = 255.9 * this.brightness;
+    this.red = Math.floor(brightness * (saturation * red + 1 - saturation));
+    this.green = Math.floor(brightness * (saturation * green + 1 - saturation));
+    this.blue = Math.floor(brightness * (saturation * blue + 1 - saturation));
 };
-
 
 // grey colors black for smallest to white for largest
 Polygon.greySurfaces = function() {
@@ -244,24 +245,25 @@ Polygon.magentaGreen = function() {
 
 // transform hue,value to hue,saturation, brightness
 // hue is not changed
-Polygon.prototype.HBSFromHueValue=function(){
-    if (this.value<Polygon.saturated){
-        this.saturation=1;
-        this.brightness=this.value/Polygon.saturated;
-    }
-    else {
-        this.brightness=1;
-        this.saturation=1-(1-Polygon.minSaturation)*(this.value-Polygon.saturated)/(1-Polygon.saturated);
+Polygon.prototype.HBSFromHueValue = function() {
+    if (this.value < Polygon.saturated) {
+        this.saturation = 1;
+        this.brightness = this.value / Polygon.saturated;
+    } else {
+        this.brightness = 1;
+        this.saturation = 1 - (1 - Polygon.minSaturation) * (this.value - Polygon.saturated) / (1 - Polygon.saturated);
     }
 };
 
+// particular colorings
 // hue(cosangle)-value(surface)
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.hue=polygon.cosAngle;
-        polygon.value=polygon.normalizedSurface;
+        polygon.hue = polygon.cosAngle;
+        polygon.value = polygon.normalizedSurface;
+        polygon.hue =Polygon.hueRange*polygon.hue +Polygon.hueShift+((i & 1) - 0.5) * Polygon.hueAlternance;
         polygon.HBSFromHueValue();
         polygon.setRGBFromHBS();
     }
@@ -1147,7 +1149,6 @@ Polygon.prototype.subdivide = function() {
 Polygon.createRegular = function(n) {
     const polygon = new Polygon(0);
     const delta = (n & 1) ? 0 : Math.PI / n;
-
     for (let i = 0; i < n; i++) {
         const angle = 2 * i * Math.PI / n + delta;
         polygon.addCorner(Polygon.size * Math.sin(angle), Polygon.size * Math.cos(angle));
