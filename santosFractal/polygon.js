@@ -35,6 +35,7 @@ Polygon.minSaturation = 0.3;
 Polygon.hueShift = 0;
 Polygon.hueRange=0.5;
 Polygon.hueAlternance = 0.3;
+Polygon.colors='hue(angle)-value(surface)';
 
 Polygon.size = 80;
 
@@ -150,13 +151,16 @@ Polygon.normalizeSurface = function() {
     const gamma = Polygon.gamma;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
-            Polygon.collection[i].normalizedSurface = 0.999;
+            Polygon.collection[i].normalizedSurface = 0.5;  // all surfaces same value
         }
     } else {
         const iDiff = 0.999 / diff;
         const minSurface = Polygon.minSurface;
         for (let i = 0; i < length; i++) {
             let x = (Polygon.collection[i].surface - minSurface) * iDiff;
+            if (Polygon.invertBrightness){
+                x=0.999-x
+            }
             x = Math.pow(x, gamma);
             Polygon.collection[i].normalizedSurface = x;
         }
@@ -246,23 +250,21 @@ Polygon.magentaGreen = function() {
 // transform hue,value to hue,saturation, brightness
 // hue is not changed
 Polygon.prototype.HBSFromHueValue = function() {
-    if (this.value < Polygon.saturated) {
+    const value=this.value;
+    if (value < Polygon.saturated) {
         this.saturation = 1;
-        this.brightness = this.value / Polygon.saturated;
+        this.brightness = value / Polygon.saturated;
     } else {
         this.brightness = 1;
-        this.saturation = 1 - (1 - Polygon.minSaturation) * (this.value - Polygon.saturated) / (1 - Polygon.saturated);
+        this.saturation = 1 - (1 - Polygon.minSaturation) * (value - Polygon.saturated) / (1 - Polygon.saturated);
     }
 };
 
 // particular colorings
-// hue(cosangle)-value(surface)
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.hue = polygon.cosAngle;
-        polygon.value = polygon.normalizedSurface;
         polygon.hue =Polygon.hueRange*polygon.hue +Polygon.hueShift+((i & 1) - 0.5) * Polygon.hueAlternance;
         polygon.HBSFromHueValue();
         polygon.setRGBFromHBS();

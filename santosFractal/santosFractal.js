@@ -58,6 +58,16 @@ gui.add({
 });
 
 gui.add({
+    type: 'selection',
+    params: Polygon,
+    property: 'colors',
+    options: ['hue(angle)-value(surface)','grey','magenta-green'],
+    onChange: function() {
+        draw();
+    }
+});
+
+gui.add({
     type: 'number',
     params: Polygon,
     property: 'saturated',
@@ -408,10 +418,24 @@ function makeStructure() {
 }
 
 function makeColors() {
-    Polygon.normalizeSurface();
-    //  Polygon.greySurfaces();
-    // Polygon.magentaGreen();
-    Polygon.hueValue();
+
+    switch (Polygon.colors) {
+        case 'grey':
+            Polygon.normalizeSurface();
+        Polygon.greySurfaces();
+        break;
+        case 'hue(angle)-value(surface)':
+            Polygon.normalizeSurface();
+            // Polygon.magentaGreen();
+            const length = Polygon.collection.length;
+            for (let i = 0; i < length; i++) {
+                const polygon = Polygon.collection[i];
+                polygon.hue = polygon.cosAngle;
+                polygon.value = polygon.normalizedSurface;
+            }
+            Polygon.hueValue();
+            break;
+    }
 }
 
 function drawOnly() {
