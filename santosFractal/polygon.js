@@ -28,13 +28,14 @@ Polygon.vertices = false;
 Polygon.lineColor = '#000000';
 Polygon.lineWidth = 1;
 Polygon.vertexSize = 2;
-Polygon.gamma = 1;
-Polygon.invertBrightness = false;
+Polygon.valueMin=0.2;
+Polygon.valueMax=0.8;
 Polygon.saturated = 0.7;
 Polygon.minSaturation = 0.3;
-Polygon.hueShift = 0;
-Polygon.hueRange=0.5;
-Polygon.hueAlternance = 0.3;
+Polygon.hueMin = 0;
+Polygon.hueMax=0.5;
+Polygon.hueAlternance = 0.05;
+Polygon.spin=false;
 Polygon.colors='hue(angle)-value(surface)';
 
 Polygon.size = 80;
@@ -47,7 +48,7 @@ Polygon.initialAddVertices = false;
 // geometry options
 Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 Polygon.useOffset = false;
-Polygon.generations = 3;
+Polygon.generations = 1;
 Polygon.subdivApproach = 'graphEuclidean';
 //Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
@@ -148,7 +149,6 @@ Polygon.minMaxSurface = function() {
 Polygon.normalizeSurface = function() {
     const diff = Polygon.maxSurface - Polygon.minSurface;
     const length = Polygon.collection.length;
-    const gamma = Polygon.gamma;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
             Polygon.collection[i].normalizedSurface = 0.5;  // all surfaces same value
@@ -158,10 +158,6 @@ Polygon.normalizeSurface = function() {
         const minSurface = Polygon.minSurface;
         for (let i = 0; i < length; i++) {
             let x = (Polygon.collection[i].surface - minSurface) * iDiff;
-            if (Polygon.invertBrightness){
-                x=0.999-x
-            }
-            x = Math.pow(x, gamma);
             Polygon.collection[i].normalizedSurface = x;
         }
     }
@@ -263,9 +259,11 @@ Polygon.prototype.HBSFromHueValue = function() {
 // particular colorings
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
-    for (let i = 0; i < length; i++) {
+    const range=Polygon.hueMax-Polygon.hueMin;
+             const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
+   for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.hue =Polygon.hueRange*polygon.hue +Polygon.hueShift+((i & 1) - 0.5) * Polygon.hueAlternance;
+        polygon.hue =range*polygon.hue +Polygon.hueMin+(((i%lastSubdiv) & 1) - 0.5) * Polygon.hueAlternance;
         polygon.HBSFromHueValue();
         polygon.setRGBFromHBS();
     }
@@ -357,7 +355,7 @@ Polygon.prototype.setSurface = function() {
     ay = this.cornersY[1] - this.cornersY[0];
     bx = this.cornersX[length - 1] - this.cornersX[0];
     by = this.cornersY[length - 1] - this.cornersY[0];
-    this.cosAngle = (ax * bx + ay * by) / Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
+    this.cosAngle = Math.abs((ax * bx + ay * by)) / Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
 };
 
 // adding a corner

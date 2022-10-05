@@ -39,29 +39,41 @@ gui.add({
     }
 });
 
+
 gui.add({
-    type: 'number',
+    type: 'selection',
     params: Polygon,
-    property: 'gamma',
-    min: 0.1,
+    property: 'colors',
+    options: ['hue(angle)-value(surface)', 'grey', 'magenta-green', 'modular(hue2-value1)'],
     onChange: function() {
         draw();
     }
 }).add({
     type: 'boolean',
     params: Polygon,
-    property: 'invertBrightness',
-    labelText: 'invert',
+    property: 'spin',
     onChange: function() {
         draw();
     }
 });
 
 gui.add({
-    type: 'selection',
+    type: 'number',
     params: Polygon,
-    property: 'colors',
-    options: ['hue(angle)-value(surface)','grey','magenta-green'],
+    property: 'valueMin',
+    labelText: 'value min',
+    min: 0,
+    max: 1,
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'valueMax',
+    labelText: 'value max',
+    min: 0,
+    max: 1,
     onChange: function() {
         draw();
     }
@@ -71,6 +83,7 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'saturated',
+    labelText: 'sat max to',
     min: 0,
     max: 1,
     onChange: function() {
@@ -80,7 +93,7 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'minSaturation',
-    labelText: 'min',
+    labelText: 'sat min',
     min: 0,
     max: 1,
     onChange: function() {
@@ -91,20 +104,16 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'hueShift',
-    labelText: 'hue shift',
-    min: 0,
-    max: 1,
+    property: 'hueMin',
+    labelText: 'hue min',
     onChange: function() {
         draw();
     }
 }).add({
     type: 'number',
     params: Polygon,
-    property: 'hueRange',
-    labelText: 'range',
-    min: 0,
-    max: 1,
+    property: 'hueMax',
+    labelText: 'max',
     onChange: function() {
         draw();
     }
@@ -112,7 +121,7 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'hueAlternance',
-    labelText: 'altern',
+    labelText: 'alternance',
     min: 0,
     max: 1,
     onChange: function() {
@@ -156,9 +165,7 @@ gui.add({
     onChange: function() {
         draw();
     }
-});
-
-gui.add({
+}).add({
     type: 'number',
     params: Polygon,
     property: 'vertexSize',
@@ -418,20 +425,37 @@ function makeStructure() {
 }
 
 function makeColors() {
-
+    const length = Polygon.collection.length;
+    const valueRange = Polygon.valueMax - Polygon.valueMin;
     switch (Polygon.colors) {
         case 'grey':
             Polygon.normalizeSurface();
-        Polygon.greySurfaces();
-        break;
+            Polygon.greySurfaces();
+            break;
         case 'hue(angle)-value(surface)':
             Polygon.normalizeSurface();
             // Polygon.magentaGreen();
-            const length = Polygon.collection.length;
             for (let i = 0; i < length; i++) {
                 const polygon = Polygon.collection[i];
                 polygon.hue = polygon.cosAngle;
-                polygon.value = polygon.normalizedSurface;
+                polygon.value = Polygon.valueMin + valueRange * polygon.normalizedSurface;
+            }
+            Polygon.hueValue();
+            break;
+        case 'modular(hue2-value1)':
+            const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
+            const last2Subdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 2)];
+            const prod2Subdiv = lastSubdiv * last2Subdiv;
+            const iLastSubdiv = 1 / (lastSubdiv - 1);
+            const iProd2Subdiv = 1 / (prod2Subdiv - 1);
+            for (let i = 0; i < length; i++) {
+                const polygon = Polygon.collection[i];
+                let iEff = i;
+                if (Polygon.spin && (Math.floor(i / lastSubdiv) & 1 === 1)) {
+                    iEff = iEff + lastSubdiv - 1 - 2 * (iEff % lastSubdiv);
+                }
+                polygon.hue = (iEff % prod2Subdiv) * iProd2Subdiv;
+                polygon.value = Polygon.valueMin + valueRange * (iEff % lastSubdiv) * iLastSubdiv;
             }
             Polygon.hueValue();
             break;
