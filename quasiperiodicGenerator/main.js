@@ -20,10 +20,10 @@ main.drawInitialStroke = true;
 main.markerSize = 0.1;
 main.drawMarker = false;
 main.markerColor = '#444444';
-main.lineWidth = 2;
+main.lineWidth = 5;
 main.lineColor = '#000000';
 main.inflate = false;
-main.outlineWidth = 3;
+main.outlineWidth = 8;
 main.outlineColor = '#444444';
 
 // setting up the gui and the canvas
@@ -186,8 +186,8 @@ main.create = function() {
     builder.create();
 };
 
-main.draw = function(onScreen = true) {
-    SVG.begin(onScreen);
+main.draw = function() {
+    SVG.begin();
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',
         fill: 'none',

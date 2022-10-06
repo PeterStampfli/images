@@ -8,7 +8,7 @@ import {
     main
 } from './modules.js';
 
-var minSize = 300;
+var minSize = 1000;
 
 export const builder = {};
 

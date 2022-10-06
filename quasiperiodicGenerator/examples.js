@@ -93,6 +93,7 @@ examples.init = function(gui) {
     }, false);
 
     // make the selection for tilings/fractals, and the button for downloading json code
+    examples.current = sevenFold;
     examples.current = examples.ammannBeenker;
     examples.selectionController = gui.add({
         type: 'selection',
@@ -153,8 +154,6 @@ examples.ammannBeenker = {
     "maxGeneration": 4,
     "drawGeneration": 1,
     "initial": "star",
-
-    "markerSize": 0.2,
 
     "range": 2,
 

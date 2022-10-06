@@ -28,14 +28,14 @@ let scaleY = 1;
 SVG.viewShiftX = 0.5;
 SVG.viewShiftY = 0.5;
 // minimum view, full axis
-SVG.viewMinWidth = 200;
-SVG.viewMinHeight = 200;
+SVG.viewMinWidth = 1000;
+SVG.viewMinHeight = 1000;
 
 //viewbox data for clipping
 var viewBoxLeft, viewBoxRight, viewBoxBottom, viewBoxTop;
 
-// flag for writing on screen or text file
-SVG.onScreen = false;
+// flag for writing on screen or text file, default is true
+SVG.onScreen = true;
 // flag for open group
 SVG.openGroup = false;
 
@@ -56,7 +56,8 @@ SVG.makeGui = function(gui) {
         buttonText: "save",
         minLabelWidth: 20,
         onClick: function() {
-            SVG.draw(false);
+            SVG.onScreen = false;
+            SVG.draw();
             guiUtils.saveTextAsFile(SVG.text, SVG.saveName.getValue(), 'svg');
         }
     });
@@ -151,10 +152,8 @@ function stringOfAttributes(attributes) {
  * set width and height, fit to window
  * set viewbox
  * @method SVG.begin
- * @param boolean onScreen, default=true, if true draws on screen,if false generates text
  */
-SVG.begin = function(onScreen = true) {
-    SVG.onScreen = onScreen;
+SVG.begin = function() {
     SVG.openGroup = false;
     // for viewbox: minimum widths and heights given
     // viewbox corner, then width and height
@@ -172,7 +171,7 @@ SVG.begin = function(onScreen = true) {
     viewBoxBottom = cornerY;
     viewBoxTop = cornerY + viewHeight;
     const viewBoxData = cornerX + ' ' + cornerY + ' ' + viewWidth + ' ' + viewHeight;
-    if (onScreen) {
+    if (SVG.onScreen) {
         if (SVG.element.parentNode) {
             output.div.removeChild(SVG.element);
         }
@@ -199,7 +198,7 @@ SVG.begin = function(onScreen = true) {
 };
 
 /**
- * terminate the svg (text), and the group (text), add SVG to DOM
+ * terminate the svg (text), and the group (text), add SVG to DOM if onscreen, reset to default onscreen=true
  * @method SVG.terminate
  */
 SVG.terminate = function() {
@@ -211,6 +210,7 @@ SVG.terminate = function() {
         }
         SVG.text += '</svg>';
     }
+    SVG.onScreen = true;
 };
 
 /**
