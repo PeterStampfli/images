@@ -39,12 +39,11 @@ gui.add({
     }
 });
 
-
 gui.add({
     type: 'selection',
     params: Polygon,
     property: 'colors',
-    options: ['hue(angle)-value(surface)', 'grey', 'magenta-green', 'modular(hue2-value1)'],
+    options: ['hue(angle)-value(surface)', 'grey surfaces','grey angles', 'magenta-green', 'modular(hue2-value1)'],
     onChange: function() {
         draw();
     }
@@ -381,6 +380,7 @@ gui.add({
 });
 
 function makeStructure() {
+    Polygon.indices.fill(-1);
     Polygon.noAlert = true;
     if (Polygon.generations > Polygon.subdivisions.length) {
         generationsController.setValueOnly(Polygon.subdivisions.length);
@@ -428,13 +428,20 @@ function makeColors() {
     const length = Polygon.collection.length;
     const valueRange = Polygon.valueMax - Polygon.valueMin;
     switch (Polygon.colors) {
-        case 'grey':
+        case 'grey surfaces':
             Polygon.normalizeSurface();
             Polygon.greySurfaces();
             break;
+            case 'grey angles':
+            Polygon.normalizeSurface();
+            Polygon.greyAngles();
+            break;
+        case 'magenta-green':
+            Polygon.normalizeSurface();
+            Polygon.magentaGreen();
+            break;
         case 'hue(angle)-value(surface)':
             Polygon.normalizeSurface();
-            // Polygon.magentaGreen();
             for (let i = 0; i < length; i++) {
                 const polygon = Polygon.collection[i];
                 polygon.hue = polygon.cosAngle;

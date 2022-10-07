@@ -26,19 +26,19 @@ Polygon.fill = true;
 Polygon.stroke = true;
 Polygon.vertices = false;
 Polygon.lineColor = '#000000';
-Polygon.lineWidth = 1;
-Polygon.vertexSize = 2;
-Polygon.valueMin=0.2;
-Polygon.valueMax=0.8;
+Polygon.lineWidth = 5;
+Polygon.vertexSize = 10;
+Polygon.valueMin = 0.2;
+Polygon.valueMax = 0.8;
 Polygon.saturated = 0.7;
 Polygon.minSaturation = 0.3;
 Polygon.hueMin = 0;
-Polygon.hueMax=0.5;
+Polygon.hueMax = 0.5;
 Polygon.hueAlternance = 0.05;
-Polygon.spin=false;
-Polygon.colors='hue(angle)-value(surface)';
+Polygon.spin = false;
+Polygon.colors = 'hue(angle)-value(surface)';
 
-Polygon.size = 80;
+Polygon.size = 600;
 
 Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
@@ -47,6 +47,8 @@ Polygon.initialAddVertices = false;
 
 // geometry options
 Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+Polygon.indices = [];
+Polygon.indices.length = 12;
 Polygon.useOffset = false;
 Polygon.generations = 1;
 Polygon.subdivApproach = 'graphEuclidean';
@@ -151,7 +153,7 @@ Polygon.normalizeSurface = function() {
     const length = Polygon.collection.length;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
-            Polygon.collection[i].normalizedSurface = 0.5;  // all surfaces same value
+            Polygon.collection[i].normalizedSurface = 0.5; // all surfaces same value
         }
     } else {
         const iDiff = 0.999 / diff;
@@ -181,7 +183,7 @@ Polygon.prototype.setRGBFromHBS = function() {
     let red = 0;
     let green = 0;
     let blue = 0;
-    let hue = this.hue ; // hue cyclic from 0 to 1
+    let hue = this.hue; // hue cyclic from 0 to 1
     hue = 6 * (hue - Math.floor(hue));
     const c = Math.floor(hue);
     const x = hue - c;
@@ -230,6 +232,18 @@ Polygon.greySurfaces = function() {
     }
 };
 
+// grey colors black for smallest to white for largest
+Polygon.greyAngles = function() {
+    const length = Polygon.collection.length;
+    for (let i = 0; i < length; i++) {
+        const polygon = Polygon.collection[i];
+        const grey = Math.floor(polygon.cosAngle * 255.9);
+        polygon.red = grey;
+        polygon.green = grey;
+        polygon.blue = grey;
+    }
+};
+
 // magenta-green  (cosangle-surface)
 Polygon.magentaGreen = function() {
     const length = Polygon.collection.length;
@@ -246,7 +260,7 @@ Polygon.magentaGreen = function() {
 // transform hue,value to hue,saturation, brightness
 // hue is not changed
 Polygon.prototype.HBSFromHueValue = function() {
-    const value=this.value;
+    const value = this.value;
     if (value < Polygon.saturated) {
         this.saturation = 1;
         this.brightness = value / Polygon.saturated;
@@ -259,11 +273,11 @@ Polygon.prototype.HBSFromHueValue = function() {
 // particular colorings
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
-    const range=Polygon.hueMax-Polygon.hueMin;
-             const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
-   for (let i = 0; i < length; i++) {
+    const range = Polygon.hueMax - Polygon.hueMin;
+    const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
+    for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.hue =range*polygon.hue +Polygon.hueMin+(((i%lastSubdiv) & 1) - 0.5) * Polygon.hueAlternance;
+        polygon.hue = range * polygon.hue + Polygon.hueMin + (((i % lastSubdiv) & 1) - 0.5) * Polygon.hueAlternance;
         polygon.HBSFromHueValue();
         polygon.setRGBFromHBS();
     }
@@ -1093,8 +1107,29 @@ Polygon.prototype.mod4for8 = function() {
 
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
+    console.log(this.generation);
+    for (let i = this.generation; i < Polygon.generations; i++) {
+        Polygon.indices[i] = -1;
+    }
+    Polygon.indices[this.generation - 1] += 1;
+    console.log(Polygon.indices);
+    // if final generation achieved store polygon elsse continue fragmentation
     if (this.generation >= Polygon.generations) {
         Polygon.collection.push(this);
+        // indices for each generation
+        // asymmetric, each index going from 0 to Polygon.subdivisions[generation]-1
+        this.indices = [];
+        this.indices.length=Polygon.generations;
+        // symmetric, each index going from 0 to floor(Polygon.subdivisions[generation]/2) and back to 0
+        this.symmetricIndices = [];
+        this.symmetricIndices.length = Polygon.generations;
+        for (let i = 0; i < Polygon.generations; i++) {
+            let ix = Polygon.indices[i];
+            this.indices[i]=ix;
+            this.symmetricIndices[i] = Math.min(ix, Polygon.subdivisions[i] - 1 - ix);
+        }
+        console.log(this.indices);
+        console.log(this.symmetricIndices);
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
         switch (Polygon.subdivApproach) {
