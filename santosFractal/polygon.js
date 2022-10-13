@@ -38,14 +38,14 @@ Polygon.hueAlternance = 0.05;
 Polygon.spin = false;
 Polygon.colors = 'hue(angle)-value(surface)';
 
+// geometry options
 Polygon.size = 600;
 
-Polygon.initial = 'triangles';
 Polygon.initial = 'quadrangles';
+Polygon.star = 1;
 Polygon.additionalVertices = false;
 Polygon.initialAddVertices = false;
 
-// geometry options
 Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 Polygon.indices = [];
 Polygon.indices.length = 12;
@@ -447,16 +447,16 @@ Polygon.prototype.initialTriangles = function() {
 Polygon.prototype.initialPseudoQuadrangles = function() {
     if (Polygon.subdivisions[0] === 2) {
         const p1 = new Polygon(this.generation + 1);
-        p1.addCorner(-1, 0);
+        p1.addCorner(-Polygon.star, 0);
         p1.addCorner(-1, -1);
         p1.addCorner(1, -1);
-        p1.addCorner(1, 0);
+        p1.addCorner(Polygon.star, 0);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
-        p2.addCorner(-1, 0);
+        p2.addCorner(-Polygon.star, 0);
         p2.addCorner(-1, 1);
         p2.addCorner(1, 1);
-        p2.addCorner(1, 0);
+        p2.addCorner(Polygon.star, 0);
         p2.subdivide();
         return;
     }
@@ -476,7 +476,7 @@ Polygon.prototype.initialPseudoQuadrangles = function() {
         if (ip === nChilds) {
             ip = 0;
         }
-        p.addCorner(0.5 * (this.cornersX[i] + this.cornersX[ip]), 0.5 * (this.cornersY[i] + this.cornersY[ip]));
+        p.addCorner(0.5 * Polygon.star * (this.cornersX[i] + this.cornersX[ip]), 0.5 * Polygon.star * (this.cornersY[i] + this.cornersY[ip]));
         p.addCorner(this.cornersX[ip], this.cornersY[ip]);
         if (addVertices) {
             p.addCorner(0.5 * (centerX + this.cornersX[ip]), 0.5 * (centerY + this.cornersY[ip]));
@@ -497,8 +497,8 @@ Polygon.prototype.initialDoubleTriangles = function() {
         if (ip === nChilds) {
             ip = 0;
         }
-        const midX = 0.5 * (this.cornersX[i] + this.cornersX[ip]);
-        const midY = 0.5 * (this.cornersY[i] + this.cornersY[ip]);
+        const midX = 0.5 * Polygon.star * (this.cornersX[i] + this.cornersX[ip]);
+        const midY = 0.5 * Polygon.star * (this.cornersY[i] + this.cornersY[ip]);
         const p1 = new Polygon(this.generation + 1);
         p1.addCorner(centerX, centerY);
         if (addVertices) {
@@ -529,15 +529,15 @@ Polygon.prototype.initialQuadrangles = function() {
     if (Polygon.subdivisions[0] === 2) {
         const p1 = new Polygon(this.generation + 1);
         p1.addCorner(0, 0);
-        p1.addCorner(-1, -1);
+        p1.addCorner(-Polygon.star, -Polygon.star);
         p1.addCorner(1, -1);
-        p1.addCorner(1, 1);
+        p1.addCorner(Polygon.star, Polygon.star);
         p1.subdivide();
         const p2 = new Polygon(this.generation + 1);
         p2.addCorner(0, 0);
-        p2.addCorner(-1, -1);
+        p2.addCorner(-Polygon.star, -Polygon.star);
         p2.addCorner(-1, 1);
-        p2.addCorner(1, 1);
+        p2.addCorner(Polygon.star, Polygon.star);
         p2.subdivide();
         return;
     }
@@ -547,11 +547,15 @@ Polygon.prototype.initialQuadrangles = function() {
     // subdivision of border
     const addVertices = Polygon.initialAddVertices && (nChilds >= 5) && (Polygon.subdivApproach === 'graphEuclidean');
     let cornerHigh = this.interpolate(nChilds - 0.5);
+    cornerHigh.x *= Polygon.star;
+    cornerHigh.y *= Polygon.star;
     for (let i = 0; i < nChilds; i++) {
         const p = new Polygon(this.generation + 1);
         p.addCorner(centerX, centerY);
         let cornerLow = cornerHigh;
         cornerHigh = this.interpolate(i + 0.5);
+        cornerHigh.x *= Polygon.star;
+        cornerHigh.y *= Polygon.star;
         if (addVertices) {
             p.addCorner(0.5 * (centerX + cornerLow.x), 0.5 * (centerY + cornerLow.y));
         }
@@ -1107,29 +1111,25 @@ Polygon.prototype.mod4for8 = function() {
 
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
-    console.log(this.generation);
     for (let i = this.generation; i < Polygon.generations; i++) {
         Polygon.indices[i] = -1;
     }
     Polygon.indices[this.generation - 1] += 1;
-    console.log(Polygon.indices);
     // if final generation achieved store polygon elsse continue fragmentation
     if (this.generation >= Polygon.generations) {
         Polygon.collection.push(this);
         // indices for each generation
         // asymmetric, each index going from 0 to Polygon.subdivisions[generation]-1
         this.indices = [];
-        this.indices.length=Polygon.generations;
+        this.indices.length = Polygon.generations;
         // symmetric, each index going from 0 to floor(Polygon.subdivisions[generation]/2) and back to 0
         this.symmetricIndices = [];
         this.symmetricIndices.length = Polygon.generations;
         for (let i = 0; i < Polygon.generations; i++) {
             let ix = Polygon.indices[i];
-            this.indices[i]=ix;
+            this.indices[i] = ix;
             this.symmetricIndices[i] = Math.min(ix, Polygon.subdivisions[i] - 1 - ix);
         }
-        console.log(this.indices);
-        console.log(this.symmetricIndices);
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
         switch (Polygon.subdivApproach) {

@@ -43,7 +43,7 @@ gui.add({
     type: 'selection',
     params: Polygon,
     property: 'colors',
-    options: ['hue(angle)-value(surface)', 'grey surfaces','grey angles', 'magenta-green', 'modular(hue2-value1)'],
+    options: ['hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
     onChange: function() {
         draw();
     }
@@ -211,6 +211,14 @@ gui.add({
     options: [
         'triangles', 'double triangles', 'quadrangles', 'pseudo quadrangles'
     ],
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'number',
+    params: Polygon,
+    property: 'star',
+    min: 0.1,
     onChange: function() {
         draw();
     }
@@ -432,7 +440,7 @@ function makeColors() {
             Polygon.normalizeSurface();
             Polygon.greySurfaces();
             break;
-            case 'grey angles':
+        case 'grey angles':
             Polygon.normalizeSurface();
             Polygon.greyAngles();
             break;
