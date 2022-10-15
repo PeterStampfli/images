@@ -59,20 +59,16 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'valueMin',
-    labelText: 'value min',
-    min: 0,
-    max: 1,
+    property: 'brightnessFrom',
+    labelText: 'brightness',
     onChange: function() {
         draw();
     }
 }).add({
     type: 'number',
     params: Polygon,
-    property: 'valueMax',
-    labelText: 'value max',
-    min: 0,
-    max: 1,
+    property: 'brightnessTo',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -81,20 +77,16 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'saturated',
-    labelText: 'sat max to',
-    min: 0,
-    max: 1,
+    property: 'saturationFrom',
+    labelText: 'saturation',
     onChange: function() {
         draw();
     }
 }).add({
     type: 'number',
     params: Polygon,
-    property: 'minSaturation',
-    labelText: 'sat min',
-    min: 0,
-    max: 1,
+    property: 'saturationTo',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -103,16 +95,16 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'hueMin',
-    labelText: 'hue min',
+    property: 'hueFrom',
+    labelText: 'hue',
     onChange: function() {
         draw();
     }
 }).add({
     type: 'number',
     params: Polygon,
-    property: 'hueMax',
-    labelText: 'max',
+    property: 'hueTo',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -434,7 +426,6 @@ function makeStructure() {
 
 function makeColors() {
     const length = Polygon.collection.length;
-    const valueRange = Polygon.valueMax - Polygon.valueMin;
     switch (Polygon.colors) {
         case 'grey surfaces':
             Polygon.normalizeSurface();
@@ -453,7 +444,7 @@ function makeColors() {
             for (let i = 0; i < length; i++) {
                 const polygon = Polygon.collection[i];
                 polygon.hue = polygon.cosAngle;
-                polygon.value = Polygon.valueMin + valueRange * polygon.normalizedSurface;
+                polygon.value = polygon.normalizedSurface;
             }
             Polygon.hueValue();
             break;

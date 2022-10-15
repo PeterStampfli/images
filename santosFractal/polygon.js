@@ -28,12 +28,12 @@ Polygon.vertices = false;
 Polygon.lineColor = '#000000';
 Polygon.lineWidth = 5;
 Polygon.vertexSize = 10;
-Polygon.valueMin = 0.2;
-Polygon.valueMax = 0.8;
-Polygon.saturated = 0.7;
-Polygon.minSaturation = 0.3;
-Polygon.hueMin = 0;
-Polygon.hueMax = 0.5;
+Polygon.brightnessFrom = 0.2;
+Polygon.brightnessTo = 1.5;
+Polygon.saturationFrom = 1.5;
+Polygon.saturationTo = 0.3;
+Polygon.hueFrom = 0;
+Polygon.hueTo = 0.5;
 Polygon.hueAlternance = 0.05;
 Polygon.spin = false;
 Polygon.colors = 'hue(angle)-value(surface)';
@@ -178,7 +178,8 @@ Polygon.normalizeSurface = function() {
 };
 
 // set rgb components of a polygon depending on its hue, brightness and saturation values
-// hue, brightness and saturation all go from 0 to 1
+// hue can have any value, cyclic, interval 0 to 1
+// brightness and saturation are clamped to interval 0 to 1
 Polygon.prototype.setRGBFromHBS = function() {
     let red = 0;
     let green = 0;
@@ -213,8 +214,8 @@ Polygon.prototype.setRGBFromHBS = function() {
             green = 1 - x;
             break;
     }
-    const saturation = this.saturation;
-    const brightness = 255.9 * this.brightness;
+    const saturation = Math.max(0, Math.min(1, this.saturation));
+    const brightness = 255.9 * Math.max(0, Math.min(1,this.brightness));
     this.red = Math.floor(brightness * (saturation * red + 1 - saturation));
     this.green = Math.floor(brightness * (saturation * green + 1 - saturation));
     this.blue = Math.floor(brightness * (saturation * blue + 1 - saturation));
@@ -261,23 +262,18 @@ Polygon.magentaGreen = function() {
 // hue is not changed
 Polygon.prototype.HBSFromHueValue = function() {
     const value = this.value;
-    if (value < Polygon.saturated) {
-        this.saturation = 1;
-        this.brightness = value / Polygon.saturated;
-    } else {
-        this.brightness = 1;
-        this.saturation = 1 - (1 - Polygon.minSaturation) * (value - Polygon.saturated) / (1 - Polygon.saturated);
-    }
+    this.saturation = (1 - value) * Polygon.saturationFrom + value * Polygon.saturationTo;
+    this.brightness = (1 - value) * Polygon.brightnessFrom + value * Polygon.brightnessTo;
 };
 
 // particular colorings
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
-    const range = Polygon.hueMax - Polygon.hueMin;
+    const range = Polygon.hueTo - Polygon.hueFrom;
     const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];
-        polygon.hue = range * polygon.hue + Polygon.hueMin + (((i % lastSubdiv) & 1) - 0.5) * Polygon.hueAlternance;
+        polygon.hue = range * polygon.hue + Polygon.hueFrom + (((i % lastSubdiv) & 1) - 0.5) * Polygon.hueAlternance;
         polygon.HBSFromHueValue();
         polygon.setRGBFromHBS();
     }
