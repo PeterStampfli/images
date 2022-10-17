@@ -8,7 +8,7 @@ export const sevenFold = {
 
     "order": 14,
     "inflation": 5.04892,
-    "maxGeneration": 3,
+    "maxGeneration": 2,
     "drawGeneration": 2,
 
     "initial": "ABStar",

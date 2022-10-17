@@ -94,7 +94,7 @@ examples.init = function(gui) {
 
     // make the selection for tilings/fractals, and the button for downloading json code
     examples.current = sevenFold;
-    examples.current = examples.ammannBeenker;
+ //   examples.current = examples.ammannBeenker;
     examples.selectionController = gui.add({
         type: 'selection',
         params: examples,

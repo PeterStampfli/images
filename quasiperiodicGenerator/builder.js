@@ -345,20 +345,27 @@ builder.defineTiling = function(definition) {
 //=========================================================================
 
 // generations is an array of the various iterations of the tiling/fractal
+// use for generating the tiling
 // a single generation is an array of tile data
 // each tile has a name (key to protoTiles), size, originX, originY, size
-// additional data to speed up drawing
+
+// drawingGenerations is a similar array for drawing, composed tiles are present as a single tile
+// additional (cartesian) data to speed up drawing:
 // shape -  array of cartesian coordinate pairs
 // overprint - same
 // border - same
-// marker - same (single pair)
+// marker - same (single coordinate pair)
 
 var generations = [];
+var drawingGenerations = [];
 var initialTile;
 
-function addTile(tile, generation) {
+function addTile(tile, generation, drawIt=true) {
     tile.orientation %= order;
     const protoTile = protoTiles[tile.name];
+    // if it is a composition, then it will be put into the composing parts 
+    // for the generation of future generations
+    // it is drawn as one tile
     if ('composition' in protoTile) {
         // the tile a composition of other tiles
         // generate these composing tiles and add them
@@ -407,12 +414,15 @@ function addTile(tile, generation) {
             if (childTileInfo.angle) {
                 childOrientation += childTileInfo.angle;
             }
-            addTile(childTile, generation);
+            addTile(childTile,generation,false);
         }
     } else {
-        // the tile is not a composition, add it to the tiles of the current generation
+        // the tile is not a composition, add it to the (generating) tiles of the current generation
         generations[generation].push(tile);
     }
+    if (drawIt){
+    // add tile to the list of tiles to draw
+    drawingGenerations[generation].push(tile);
     // make cartesian vector data of the tile:
     // transform cartesian vectors of protoTile using geometry data of the tile
     const originX = tile.originX;
@@ -432,11 +442,14 @@ function addTile(tile, generation) {
         tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
     }
 }
+}
 
 builder.create = function() {
     // initialization with base tile
     generations.length = builder.maxGeneration + 1;
+    drawingGenerations.length = builder.maxGeneration + 1;
     generations[0] = [];
+    drawingGenerations[0] = [];
     const tile = {
         name: builder.initialTile,
         originX: 0,
@@ -450,6 +463,7 @@ builder.create = function() {
     for (let childGeneration = 1; childGeneration <= builder.maxGeneration; childGeneration++) {
         const parentGeneration = generations[childGeneration - 1];
         generations[childGeneration] = [];
+        drawingGenerations[childGeneration] = [];
         const parentGenerationLength = parentGeneration.length;
         // for each tile of the parent generation make its children tiles
         for (let tileIndex = 0; tileIndex < parentGenerationLength; tileIndex++) {
@@ -514,18 +528,6 @@ builder.create = function() {
 // drawing the structure
 //=======================================
 
-// draw overprinting lines to join halves if there is a stroke finally
-builder.drawOverprint = function(tile) {
-    const protoTile = protoTiles[tile.name];
-    if ('overprint' in protoTile) {
-        // overprinting to join halves, only if fill
-        // need explicit overprinting, do first
-        SVG.createPolyline(tile.cartesianOverprint, {
-            stroke: protoTile.color
-        });
-    }
-};
-
 // no final stroke: draw fill and stroke (for overprinting) together
 builder.drawOverprintStroke = function(tile) {
     const protoTile = protoTiles[tile.name];
@@ -537,66 +539,98 @@ builder.drawOverprintStroke = function(tile) {
     }
 };
 
-// fill the tiles
-builder.drawFill = function(tile) {
-    const protoTile = protoTiles[tile.name];
-    if ('shape' in protoTile) {
-        SVG.createPolygon(tile.cartesianShape, {
-            fill: protoTile.color
-        });
-    }
-};
-
-// draw outline
-// if border is given, then draw it instead (if not a closed border, for halves of tiles)
-
-builder.drawStroke = function(tile) {
-    const protoTile = protoTiles[tile.name];
-    // if an explicite border is given then use border path
-    // else use CLOSED shape of tile as border if exists
-    if ('border' in protoTile) {
-        SVG.createPolyline(tile.cartesianBorder);
-    } else if ('shape' in protoTile) {
-        SVG.createPolygon(tile.cartesianShape);
-    }
-};
-
-builder.drawMarker = function(tile) {
-    if (tile.cartesianMarker) {
-        const radius = tile.size * main.markerSize;
-        SVG.createCircle(tile.cartesianMarker[0], tile.cartesianMarker[1], radius);
-        //canvasContext.fillStyle = main.markerColor;
-        //canvasContext.fill();
-    }
-};
-
 function drawGeneration(generation) {
-    const tilesToDraw = generations[generation];
+    const tilesToDraw = drawingGenerations[generation];
+    const length = tilesToDraw.length;
     if (main.drawFill) {
-        SVG.groupAttributes['stroke-width'] = 1;
-        SVG.groupAttributes.fill = 'none';
-        SVG.createGroup(SVG.groupAttributes);
         if (main.drawStroke) {
-            tilesToDraw.forEach(tile => builder.drawOverprint(tile));
+            SVG.groupAttributes['stroke-width'] = 3;
+            SVG.groupAttributes.fill = 'none';
+            SVG.createGroup(SVG.groupAttributes);
+            // overprinting to join halves, only if explicit overprinting, do first
+            for (let i = 0; i < length; i++) {
+                const tile = tilesToDraw[i];
+                const protoTile = protoTiles[tile.name];
+                if ('overprint' in protoTile) {
+                    SVG.createPolyline(tile.cartesianOverprint, {
+                        stroke: protoTile.color
+                    });
+                }
+            }
+            SVG.groupAttributes['stroke-width'] = main.lineWidth;
+            SVG.createGroup(SVG.groupAttributes);
+            // fill and stroke, eventually use border instead of shape for stroke
+            for (let i = 0; i < length; i++) {
+                const tile = tilesToDraw[i];
+                const protoTile = protoTiles[tile.name];
+                if ('border' in protoTile) {
+                    SVG.createPolygon(tile.cartesianShape, {
+                        fill: protoTile.color,
+                        stroke: 'none'
+                    });
+                    SVG.createPolyline(tile.cartesianBorder, {
+                        fill: 'none',
+                        stroke: main.lineColor
+                    });
+                } else if ('shape' in protoTile) {
+                    SVG.createPolygon(tile.cartesianShape, {
+                        fill: protoTile.color,
+                        stroke: main.lineColor
+                    });
+                }
+            }
         } else {
-            // no stroke: use entire shape for overprinting
-            tilesToDraw.forEach(tile => builder.drawOverprintStroke(tile));
+            // no stroke: use entire shape first for overprinting the gap between fills
+            SVG.groupAttributes['stroke-width'] = 3;
+            SVG.groupAttributes.fill = 'none';
+            SVG.createGroup(SVG.groupAttributes);
+            for (let i = 0; i < length; i++) {
+                const tile = tilesToDraw[i];
+                const protoTile = protoTiles[tile.name];
+                if ('shape' in protoTile) {
+                    SVG.createPolygon(tile.cartesianShape, {
+                        stroke: protoTile.color
+                    });
+                }
+            }
+            // then fill afterwards, avoids that overprint goes into neighboring tiles
+            SVG.groupAttributes.stroke = 'none';
+            SVG.createGroup(SVG.groupAttributes);
+            for (let i = 0; i < length; i++) {
+                const tile = tilesToDraw[i];
+                const protoTile = protoTiles[tile.name];
+                if ('shape' in protoTile) {
+                    SVG.createPolygon(tile.cartesianShape, {
+                        fill: protoTile.color
+                    });
+                }
+            }
         }
-        SVG.groupAttributes.stroke = 'none';
-        SVG.createGroup(SVG.groupAttributes);
-        tilesToDraw.forEach(tile => builder.drawFill(tile));
-    }
-    if (main.drawStroke) {
+    } else if (main.drawStroke) {
         SVG.groupAttributes.stroke = main.lineColor;
         SVG.groupAttributes['stroke-width'] = main.lineWidth;
         SVG.createGroup(SVG.groupAttributes);
-        tilesToDraw.forEach(tile => builder.drawStroke(tile));
+        for (let i = 0; i < length; i++) {
+            const tile = tilesToDraw[i];
+            const protoTile = protoTiles[tile.name];
+            if ('border' in protoTile) {
+                SVG.createPolyline(tile.cartesianBorder);
+            } else if ('shape' in protoTile) {
+                SVG.createPolygon(tile.cartesianShape);
+            }
+        }
     }
     if (main.drawMarker) {
         SVG.groupAttributes.stroke = 'none';
         SVG.groupAttributes.fill = main.markerColor;
         SVG.createGroup(SVG.groupAttributes);
-        tilesToDraw.forEach(tile => builder.drawMarker(tile));
+        for (let i = 0; i < length; i++) {
+            const tile = tilesToDraw[i];
+            if (tile.cartesianMarker) {
+                const radius = tile.size * main.markerSize;
+                SVG.createCircle(tile.cartesianMarker[0], tile.cartesianMarker[1], radius);
+            }
+        }
     }
 }
 
@@ -613,11 +647,11 @@ builder.drawOutline = function() {
         }
         const orientation = initialTile.orientation;
         const cartesianOutline = transformedVectors(initialTile.cartesianShape, orientation, size, originX, originY);
-        SVG.createPolygon(cartesianOutline, {
-            fill: 'none',
-            stroke: main.outlineColor,
-            'stroke-width': main.outlineWidth
-        });
+        SVG.groupAttributes.stroke = main.outlineColor;
+        SVG.groupAttributes.fill = 'none';
+        SVG.groupAttributes['stroke-width'] = main.outlineWidth;
+        SVG.createGroup(SVG.groupAttributes);
+        SVG.createPolygon(cartesianOutline);
     }
 };
 
