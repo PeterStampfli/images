@@ -3,8 +3,8 @@
 export const fiveFoldPentagons = {
     "name": "five-fold pentagons",
 
-    "range": 2,
-    "center": [0.5, 0.7],
+    "range": 1.3,
+    "center": [0.3, 0.7],
 
     "order": 10,
     "inflation": 3.618,

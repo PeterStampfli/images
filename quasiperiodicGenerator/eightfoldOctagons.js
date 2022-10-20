@@ -9,11 +9,11 @@ export const eightfoldOctagons = {
     "drawGeneration": 3,
     "initial": "octagon",
 
-    "range": 3,
+    "range": 2,
 
     "tiles": {
         "rhomb": {
-            "color": "#2000e0",
+            "color": "#2020e0",
             "angle": 1,
             "shape": [
                 [],
@@ -47,7 +47,8 @@ export const eightfoldOctagons = {
             }]
         },
         "hSquare": {
-            "shape": [
+             "color": "#ffff00",
+           "shape": [
                 [],
                 [1],
                 [1, 0, 1]
@@ -90,6 +91,7 @@ export const eightfoldOctagons = {
             }]
         },
         "square": {
+            "color": "#ffff00",
             "shape": [
                 [],
                 [1],

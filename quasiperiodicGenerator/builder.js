@@ -140,7 +140,7 @@ builder.defineTiling = function(definition) {
     // SVGScale is number of SVG 'pixels' per logical unit
     SVGScale = minSize / range;
     const shiftX = 0.5 - centerX / range;
-    const shiftY = 0.5 - centerX / range;
+    const shiftY = 0.5 + centerY / range;
     SVG.setViewShifts(shiftX, shiftY);
     // drawing controlls
     // set the generation to draw upon loading the definition, default is 2
@@ -544,7 +544,7 @@ function drawGeneration(generation) {
     const length = tilesToDraw.length;
     if (main.drawFill) {
         if (main.drawStroke) {
-            SVG.groupAttributes['stroke-width'] = 3;
+            SVG.groupAttributes['stroke-width'] = Math.max(3,main.lineWidth);
             SVG.groupAttributes.fill = 'none';
             SVG.createGroup(SVG.groupAttributes);
             // overprinting to join halves, only if explicit overprinting, do first
