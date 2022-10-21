@@ -360,7 +360,7 @@ var generations = [];
 var drawingGenerations = [];
 var initialTile;
 
-function addTile(tile, generation, drawIt=true) {
+function addTile(tile, generation, drawIt = true) {
     tile.orientation %= order;
     const protoTile = protoTiles[tile.name];
     // if it is a composition, then it will be put into the composing parts 
@@ -414,34 +414,34 @@ function addTile(tile, generation, drawIt=true) {
             if (childTileInfo.angle) {
                 childOrientation += childTileInfo.angle;
             }
-            addTile(childTile,generation,false);
+            addTile(childTile, generation, false);
         }
     } else {
         // the tile is not a composition, add it to the (generating) tiles of the current generation
         generations[generation].push(tile);
     }
-    if (drawIt){
-    // add tile to the list of tiles to draw
-    drawingGenerations[generation].push(tile);
-    // make cartesian vector data of the tile:
-    // transform cartesian vectors of protoTile using geometry data of the tile
-    const originX = tile.originX;
-    const originY = tile.originY;
-    const size = tile.size;
-    const orientation = tile.orientation;
-    if (protoTile.cartesianShape) {
-        tile.cartesianShape = transformedVectors(protoTile.cartesianShape, orientation, size, originX, originY);
+    if (drawIt) {
+        // add tile to the list of tiles to draw
+        drawingGenerations[generation].push(tile);
+        // make cartesian vector data of the tile:
+        // transform cartesian vectors of protoTile using geometry data of the tile
+        const originX = tile.originX;
+        const originY = tile.originY;
+        const size = tile.size;
+        const orientation = tile.orientation;
+        if (protoTile.cartesianShape) {
+            tile.cartesianShape = transformedVectors(protoTile.cartesianShape, orientation, size, originX, originY);
+        }
+        if (protoTile.cartesianOverprint) {
+            tile.cartesianOverprint = transformedVectors(protoTile.cartesianOverprint, orientation, size, originX, originY);
+        }
+        if (protoTile.border) {
+            tile.cartesianBorder = transformedVectors(protoTile.cartesianBorder, orientation, size, originX, originY);
+        }
+        if (protoTile.cartesianMarker) {
+            tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
+        }
     }
-    if (protoTile.cartesianOverprint) {
-        tile.cartesianOverprint = transformedVectors(protoTile.cartesianOverprint, orientation, size, originX, originY);
-    }
-    if (protoTile.border) {
-        tile.cartesianBorder = transformedVectors(protoTile.cartesianBorder, orientation, size, originX, originY);
-    }
-    if (protoTile.cartesianMarker) {
-        tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
-    }
-}
 }
 
 builder.create = function() {
@@ -544,7 +544,7 @@ function drawGeneration(generation) {
     const length = tilesToDraw.length;
     if (main.drawFill) {
         if (main.drawStroke) {
-            SVG.groupAttributes['stroke-width'] = Math.max(3,main.lineWidth);
+            SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
             SVG.groupAttributes.fill = 'none';
             SVG.createGroup(SVG.groupAttributes);
             // overprinting to join halves, only if explicit overprinting, do first
@@ -581,7 +581,7 @@ function drawGeneration(generation) {
             }
         } else {
             // no stroke: use entire shape first for overprinting the gap between fills
-            SVG.groupAttributes['stroke-width'] = 3;
+            SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
             SVG.groupAttributes.fill = 'none';
             SVG.createGroup(SVG.groupAttributes);
             for (let i = 0; i < length; i++) {
