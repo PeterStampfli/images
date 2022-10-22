@@ -124,15 +124,7 @@ gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'stroke',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'vertices',
+    labelText:'lines',
     onChange: function() {
         draw();
     }
@@ -142,17 +134,25 @@ gui.add({
     type: 'color',
     params: Polygon,
     property: 'lineColor',
-    labelText: 'line',
+    labelText: 'line color',
     onChange: function() {
         draw();
     }
-});
-
-gui.add({
+}).add({
     type: 'number',
     params: Polygon,
     property: 'lineWidth',
+    labelText:'width',
     min: 0.1,
+    onChange: function() {
+        draw();
+    }
+})
+
+gui.add({
+    type: 'boolean',
+    params: Polygon,
+    property: 'vertices',
     onChange: function() {
         draw();
     }
@@ -160,6 +160,7 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'vertexSize',
+    labelText:'size',
     onChange: function() {
         draw();
     }
