@@ -9,7 +9,8 @@ range=2;
 map=createIdentityMap(mPix,-range,range,-range,range);
 width=0.3;
 height=0.4;
-mirrorsMap(map,width,height);
+%mirrorsMap(map,width,height);
+K442Map(map,width);
 
 im=createStructureImage(map);
 imshow(im);
