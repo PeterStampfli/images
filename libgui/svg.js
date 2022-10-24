@@ -327,7 +327,7 @@ function isNotOutsideViewBox(coordinates) {
     return true;
 }
 
-// make a number string
+// scale a number (component of coordinates) and make it a string
 function stringOf(number) {
     if (Math.abs(number) > 300) {
         return Math.round(number);
@@ -386,13 +386,104 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
  */
 SVG.createCircle = function(centerX, centerY, radius, attributes = {}) {
     if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
-        attributes.cx = centerX.toPrecision(3);
-        attributes.cy = centerY.toPrecision(3);
-        attributes.r = radius.toPrecision(3);
+        attributes.cx = stringOf(centerX);
+        attributes.cy = stringOf(centerY);
+        attributes.r = stringOf(radius);
         SVG.create('circle', attributes);
-    } else {
-        console.log('circle outside');
     }
+};
+
+/**
+ * create an arc, only the stroke, set fill:'none' explicitely
+ * @method SVG.createArcStroke
+ * @params float centerX
+ * @params float centerY
+ * @params float radius
+ * @params float startAngle
+ * @params float endAngle
+ * @params boolean counterclockwise
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, counterclockwise, attributes = {}) {
+    var deltaAngle, largeArc, sweep;
+    if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
+        const startX = centerX + radius * Math.cos(startAngle);
+        const startY = centerY + radius * Math.sin(startAngle);
+        const endX = centerX + radius * Math.cos(endAngle);
+        const endY = centerY + radius * Math.sin(endAngle);
+        // reduce angles to intervall between 0 and 2pi
+        const zpi = 2 * Math.PI;
+        startAngle -= zpi * Math.floor(startAngle / zpi);
+        endAngle -= zpi * Math.floor(endAngle / zpi);
+        // for counterclock wise
+        if (endAngle < startAngle) {
+            endAngle += zpi;
+        }
+        deltaAngle = endAngle - startAngle;
+        if (!counterclockwise) {
+            deltaAngle = zpi - deltaAngle;
+        }
+        console.log(deltaAngle);
+        if (deltaAngle > Math.PI) {
+            largeArc = 1;
+        } else {
+            largeArc = 0;
+        }
+        let sweep = counterclockwise ? 1:0;
+        let d = 'M ' + stringOf(startX) + ' ' + stringOf(startY);
+        d += ' A ' + stringOf(radius) + ' ' + stringOf(radius) + ' ' + 0;
+        d += ' ' + largeArc + ' ' + sweep;
+        d += ' ' + stringOf(endX) + ' ' + stringOf(endY);
+        attributes.d = d;
+        SVG.create('path', attributes);
+    } 
+};
+
+/**
+ * create an arc, only the fill, set stroke: 'none' explicitely
+ * @method SVG.createArcFill
+ * @params float centerX
+ * @params float centerY
+ * @params float radius
+ * @params float startAngle
+ * @params float endAngle
+ * @params boolean counterclockwise
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createArcFill = function(centerX, centerY, radius, startAngle, endAngle, counterclockwise, attributes = {}) {
+    var deltaAngle, largeArc, sweep;
+    if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
+        const startX = centerX + radius * Math.cos(startAngle);
+        const startY = centerY + radius * Math.sin(startAngle);
+        const endX = centerX + radius * Math.cos(endAngle);
+        const endY = centerY + radius * Math.sin(endAngle);
+        // reduce angles to intervall between 0 and 2pi
+        const zpi = 2 * Math.PI;
+        startAngle -= zpi * Math.floor(startAngle / zpi);
+        endAngle -= zpi * Math.floor(endAngle / zpi);
+        // for counterclock wise
+        if (endAngle < startAngle) {
+            endAngle += zpi;
+        }
+        deltaAngle = endAngle - startAngle;
+        if (!counterclockwise) {
+            deltaAngle = zpi - deltaAngle;
+        }
+        console.log(deltaAngle);
+        if (deltaAngle > Math.PI) {
+            largeArc = 1;
+        } else {
+            largeArc = 0;
+        }
+        let sweep = counterclockwise ? 1:0;
+        let d = 'M ' + stringOf(centerX) + ' ' + stringOf(centerY);
+        d += 'L ' + stringOf(startX) + ' ' + stringOf(startY);
+        d += ' A ' + stringOf(radius) + ' ' + stringOf(radius) + ' ' + 0;
+        d += ' ' + largeArc + ' ' + sweep;
+        d += ' ' + stringOf(endX) + ' ' + stringOf(endY);
+        attributes.d = d;
+        SVG.create('path', attributes);
+    } 
 };
 
 // upon resize: redraw

@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 import {
-    output,
+    SVG,
     ParamGui,
     BooleanButton
 } from "../libgui/modules.js";
@@ -26,7 +26,8 @@ export const main = {};
 export const color = [];
 export const lineColor = [];
 
-main.drawLines = false;
+main.scale = 100;
+main.drawLines = true;
 main.drawBentLines = false;
 main.drawArcs = false;
 main.arcsFill = false;
@@ -36,7 +37,7 @@ main.nLines = 15;
 main.offset = 0.0;
 main.nFold = 7;
 
-main.tile = true;
+main.tile = false;
 main.lineBorderColor = '#000000';
 main.lineWidth = 8;
 main.lineBorderWidth = 2;
@@ -44,8 +45,8 @@ main.lineBorderWidth = 2;
 main.rhombusSize = 0.3; // side length of rhombus
 main.rhombusColor = '#008800';
 main.rhombusLineWidth = 1;
-main.drawIntersections = true;
-main.fill = true;
+main.drawIntersections = false;
+main.fill = false;
 main.generations = 1;
 main.spacing = grid.equalSpacedLines;
 main.double = true;
@@ -63,23 +64,28 @@ lineColor.push('#0000dd');
 lineColor.push('#880000');
 
 main.setup = function() {
-    // gui and output canvas
+    // gui and svg
     const gui = new ParamGui({
         name: 'gridmethod',
         closed: false,
         booleanButtonWidth: 40
     });
     main.gui = gui;
+
+    SVG.makeGui(gui);
+    SVG.init();
     BooleanButton.greenRedBackground();
     // no background color, no transparency
-    output.createCanvas(gui, true);
-    output.addCoordinateTransform(false);
-    output.setInitialCoordinates(0, 0, 3);
-    output.backgroundColorController.setValueOnly('#999999');
-    output.setBackground();
-    output.saveType.setValueOnly('jpg');
-    output.drawCanvasChanged = draw;
-    output.drawImageChanged = draw;
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'scale',
+        min: 0,
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
 
     gui.add({
         type: 'number',
@@ -246,6 +252,7 @@ main.setup = function() {
     }
 
     create();
+    SVG.draw = draw;
     draw();
 };
 
@@ -265,13 +272,16 @@ function create() {
 }
 
 function draw() {
-    output.correctYAxis();
-    output.startDrawing();
-    output.fillCanvas('#bbbbbb');
-    output.canvasContext.lineCap = 'round';
-    output.canvasContext.lineJoin = 'round';
+    SVG.begin();
+    SVG.groupAttributes = {
+        transform: 'scale(1 -1)',
+        fill: 'none',
+        'stroke-width': main.lineWidth,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+    };
     if (!main.arcsFill) {
-        grid.drawIntersections();
+        //  grid.drawIntersections();
     }
     if (main.drawLines && !main.arcsFill) {
         if (main.tile) {
@@ -287,4 +297,5 @@ function draw() {
     if (main.drawArcs || main.arcsFill) {
         grid.drawLinesTruchet();
     }
+    SVG.terminate();
 }

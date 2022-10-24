@@ -15,7 +15,6 @@ export const grid = {};
 
 grid.parallelLines = [];
 
-
 grid.linepositions = [];
 
 function equal(generation, position) {

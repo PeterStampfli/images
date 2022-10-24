@@ -30,8 +30,9 @@ export const Line = function(alpha, d, number) {
     this.number = number;
 };
 
-Line.displayRadius = 1000;
+Line.displayRadius = 10000;
 
+// drawing a straight line, part of the original grid
 Line.prototype.draw = function() {
     const canvasContext = output.canvasContext;
     canvasContext.strokeStyle = lineColor[this.number];

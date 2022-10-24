@@ -18,39 +18,38 @@ const svgns = 'http://www.w3.org/2000/svg';
 SVG.makeGui(gui);
 SVG.init();
 
-function draw(){
-    SVG.begin();
 
-SVG.createGroup({
-    stroke:'black'
-});
-SVG.create('rect', {
-    width: 400,
-    height: 300,
-    fill: 'red',
-    stroke:'green',
-    'stroke-width':3
-});
-SVG.createCircle(100,150,50,{stroke:'white'});
-SVG.createText({
-    x:150,
-    y:125,
-    fill:'yellow',
-    'text-anchor':'middle',
-    'font-size':60
-},'eintext');
-SVG.create('rect', {
-    width: 40,
-    height: 30,
-    fill: 'blue'
-});
-SVG.createPolygon([10,10,200,20,30,50],{fill:'none'});
-SVG.terminate();
+
+function draw() {
+    console.log(SVG.viewShiftX);
+    SVG.begin();
+        SVG.groupAttributes = {
+        transform: 'scale(1 -1)',
+        fill: 'none',
+        stroke:'blue',
+        'stroke-width': 20,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+    };
+
+
+        SVG.createGroup(SVG.groupAttributes);
+
+    SVG.create('rect', {
+        width: 400,
+        height: 300,
+        fill: 'white',
+        stroke: 'green',
+        'stroke-width': 3
+    });
+    SVG.createCircle(-100, -100, 5);
+
+    SVG.createArcFill(-100,-100,50,-1,-0.5*Math.PI,true, {stroke:'none',fill:'red'});
+
+    SVG.terminate();
 }
 
-SVG.setViewShifts(0,0);
-SVG.setMinViewWidthHeight(400,300);
 
-SVG.draw=draw;
+SVG.draw = draw;
 draw();
 //console.log(SVG.text);
