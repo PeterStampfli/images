@@ -356,8 +356,6 @@ SVG.createPolyline = function(coordinates, attributes = {}) {
     if (isNotOutsideViewBox(coordinates)) {
         attributes.points = makeString(coordinates);
         SVG.create('polyline', attributes);
-    } else {
-        // console.log('outside polyline');
     }
 };
 
@@ -371,8 +369,6 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
     if (isNotOutsideViewBox(coordinates)) {
         attributes.points = makeString(coordinates);
         SVG.create('polygon', attributes);
-    } else {
-        //  console.log('outside polygon');
     }
 };
 
@@ -423,7 +419,6 @@ SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, c
         if (!counterclockwise) {
             deltaAngle = zpi - deltaAngle;
         }
-        console.log(deltaAngle);
         if (deltaAngle > Math.PI) {
             largeArc = 1;
         } else {
@@ -469,7 +464,6 @@ SVG.createArcFill = function(centerX, centerY, radius, startAngle, endAngle, cou
         if (!counterclockwise) {
             deltaAngle = zpi - deltaAngle;
         }
-        console.log(deltaAngle);
         if (deltaAngle > Math.PI) {
             largeArc = 1;
         } else {
