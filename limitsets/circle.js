@@ -5,35 +5,43 @@ import {
 }
 from "../libgui/modules.js";
 
-export function Circles(){
-	this.circles=[];
+export function Circles() {
+    this.circles = [];
 }
 
-Circles.prototype.add=function(circle){
-	this.circles.push(circle);
+Circles.prototype.add = function(circle) {
+    this.circles.push(circle);
 };
 
-Circles.prototype.clear=function(){
-	this.circles.length=0;
+Circles.prototype.get=function(i){
+    return this.circles[i];
+}
+
+Circles.prototype.length=function(){
+	return this.circles.length;
+}
+
+Circles.prototype.clear = function() {
+    this.circles.length = 0;
 };
 
 // the stereographic projection in the xxy plane
-Circles.prototype.drawStereographic=function(){
-	this.circles.forEach(circle=>circle.drawStereographic());
+Circles.prototype.drawStereographic = function() {
+    this.circles.forEach(circle => circle.drawStereographic());
 };
 
-Circles.prototype.createFromTriplett=function(i,j,k){
-	return Circle.createFromTriplett(this.circles[i],this.circles[j],this.circles[k]);
-}
+Circles.prototype.createFromTriplett = function(i, j, k) {
+    return Circle.createFromTriplett(this.circles[i], this.circles[j], this.circles[k]);
+};
 
 //====================================================================
 
-export function Circle(centerX, centerY, radius, inverted=false) {
+export function Circle(centerX, centerY, radius, inverted = false) {
     this.centerX = centerX;
     this.centerY = centerY;
     this.radius = radius;
     this.radius2 = radius * radius;
-    this.inverted=inverted;
+    this.inverted = inverted;
 }
 
 Circle.prototype.drawStereographic = function() {
@@ -41,24 +49,25 @@ Circle.prototype.drawStereographic = function() {
 };
 
 // if the circle is not inverted: invert a circle lying outside this circle
-// if its center lies inside then return false
-// if circle is inverted: invert a circle lying inside
+// means that circle gets contracted
+// if circle is inverted: invert a circle lying inside, gets exxpanded
 
-Circle.prototype.invertCircleOutsideIn = function(otherCircle) {
+Circle.prototype.invertCircle = function(otherCircle) {
     const dx = otherCircle.centerX - this.centerX;
     const dy = otherCircle.centerY - this.centerY;
     const d2 = dx * dx + dy * dy;
-    if (inverted){
- if (d2 > this.radius2) {
-        return false;
-    }
-    } else {
-    if (d2 < this.radius2) {
-        return false;
-    }
-}
     const factor = this.radius2 / (d2 - otherCircle.radius2);
-    return new Circle(this.centerX + factor * dx, this.centerY + factor * dy, factor * otherCircle.radius);
+    const absFactor = Math.abs(factor);
+    if (this.inverted) {
+        if (absFactor > 1.001) {
+            return new Circle(this.centerX + factor * dx, this.centerY + factor * dy, absFactor * otherCircle.radius);
+        }
+    } else {
+        if (absFactor < 0.999) {
+            return new Circle(this.centerX + factor * dx, this.centerY + factor * dy, absFactor * otherCircle.radius);
+        }
+    }
+    return false;
 };
 
 // generating a fourth circle from three touching circles
