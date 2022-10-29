@@ -5,6 +5,11 @@ import {
 }
 from "../libgui/modules.js";
 
+import {
+    main
+}
+from "./limitsets.js";
+
 export function Circles() {
     this.circles = [];
 }
@@ -42,10 +47,13 @@ export function Circle(centerX, centerY, radius, inverted = false) {
     this.radius = radius;
     this.radius2 = radius * radius;
     this.inverted = inverted;
+    this.circleGenerations=[];
 }
 
 Circle.prototype.drawStereographic = function() {
+    if (this.radius>main.lineWidth){
     SVG.createCircle(this.centerX, this.centerY, this.radius);
+}
 };
 
 // if the circle is not inverted: invert a circle lying outside this circle
