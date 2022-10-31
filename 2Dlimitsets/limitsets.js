@@ -64,7 +64,7 @@ gui.add({
     }
 });
 
-const maxElementsController=gui.add({
+const maxElementsController = gui.add({
     type: 'number',
     params: main,
     property: 'maxElements',
@@ -76,15 +76,14 @@ const maxElementsController=gui.add({
         draw();
     }
 });
-const currentElementsController=maxElementsController.add({
+const currentElementsController = maxElementsController.add({
     type: 'number',
     params: main,
     property: 'currentElements',
     labelText: 'now',
     min: 0,
     step: 1,
-    onChange: function() {
-    }
+    onChange: function() {}
 });
 
 gui.add({
@@ -130,13 +129,28 @@ function mappingCircle(centerX, centerY, radius) {
     mappingCircles.push(mappingCircle);
 }
 
-// add an image circle resulting from a mapping triplett to the zero generation of images
-// to the images belonging to the first circle
+const eps = 0.001;
+// add an image circle to a mapping circle, if not already there
+function addImage(iMap, circle) {
+    const images = mappingCircles[iMap].images[0];
+    const length = images.length;
+    // if already there then return and do nothing
+    for (let i = 0; i < length; i++) {
+        const other = images[i];
+        if ((Math.abs(other.centerX - circle.centerX) < eps) && (Math.abs(other.centerY - circle.centerY) < eps) && (Math.abs(other.radius - circle.radius) < eps)) {
+            return;
+        }
+    }
+    images.push(circle);
+}
+
+// create an image circle resulting from a mapping triplett to the zero generation of images
+// add to the images belonging to the mapping circles (if not already there)
 function basicImage(i, j, k) {
     const circle = Circle.createFromTriplett(mappingCircles[i], mappingCircles[j], mappingCircles[k]);
-    mappingCircles[i].images[0].push(circle);
-    mappingCircles[j].images[0].push(circle);
-    mappingCircles[k].images[0].push(circle);
+    addImage(i, circle);
+    addImage(j, circle);
+    addImage(k, circle);
 }
 
 // new generation from inversions
@@ -208,7 +222,7 @@ function create() {
             newGeneration(gen);
         }
     }
-currentElementsController.setValueOnly(nImages);
+    currentElementsController.setValueOnly(nImages);
 }
 
 function draw() {
