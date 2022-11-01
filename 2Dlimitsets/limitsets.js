@@ -11,6 +11,10 @@ import {
     Circle
 } from "./circle.js";
 
+import {
+    Line
+} from "./line.js";
+
 const gui = new ParamGui({
     closed: false
 });
@@ -131,26 +135,56 @@ function mappingCircle(centerX, centerY, radius) {
 
 const eps = 0.001;
 // add an image circle to a mapping circle, if not already there
-function addImage(iMap, circle) {
-    const images = mappingCircles[iMap].images[0];
+function addImage(mappingCircle, generation, circle) {
+    const images = mappingCircle.images[generation];
     const length = images.length;
     // if already there then return and do nothing
-    for (let i = 0; i < length; i++) {
-        const other = images[i];
-        if ((Math.abs(other.centerX - circle.centerX) < eps) && (Math.abs(other.centerY - circle.centerY) < eps) && (Math.abs(other.radius - circle.radius) < eps)) {
-            return;
+    // only possible for generations 0 and 1
+    if (generation < 2) {
+        for (let i = 0; i < length; i++) {
+            const other = images[i];
+            if ((Math.abs(other.centerX - circle.centerX) < eps) && (Math.abs(other.centerY - circle.centerY) < eps) && (Math.abs(other.radius - circle.radius) < eps)) {
+                console.log(generation);
+                return;
+            }
         }
     }
+    nImages += 1;
     images.push(circle);
 }
 
 // create an image circle resulting from a mapping triplett to the zero generation of images
 // add to the images belonging to the mapping circles (if not already there)
-function basicImage(i, j, k) {
-    const circle = Circle.createFromTriplett(mappingCircles[i], mappingCircles[j], mappingCircles[k]);
-    addImage(i, circle);
-    addImage(j, circle);
-    addImage(k, circle);
+function basicImage(circleI, circleJ, circleK) {
+    const circle = Circle.createFromTriplett(circleI, circleJ, circleK);
+    addImage(circleI, 0, circle);
+    addImage(circleJ, 0, circle);
+    addImage(circleK, 0, circle);
+}
+
+// make basic images: find tripletts of touching circles  circleI---circleJ---circleK
+// add image circle resulting from triplett
+function makeBasicImages() {
+    const length = mappingCircles.length;
+    for (let i = 0; i < length - 2; i++) {
+        const circleI = mappingCircles[i];
+        for (let j = i + 1; j < length - 1; j++) {
+            const circleJ = mappingCircles[j];
+            if (circleJ.touches(circleI)) {
+                for (let k = j + 1; k < length; k++) {
+                    const circleK = mappingCircles[k];
+                    if (circleJ.touches(circleK)) {
+                        console.log(i, j, k);
+                        const circle = Circle.createFromTriplett(circleI, circleJ, circleK);
+                        console.log(circle);
+                        addImage(circleI, 0, circle);
+                        addImage(circleJ, 0, circle);
+                        addImage(circleK, 0, circle);
+                    }
+                }
+            }
+        }
+    }
 }
 
 // new generation from inversions
@@ -171,8 +205,7 @@ function newGeneration(generation) {
                 for (let k = 0; k < oldGenLength; k++) {
                     const newCircle = mappingCircle.invertCircle(oldGeneration[k]);
                     if ((newCircle !== false) && (newCircle.radius > minRadius)) {
-                        newGeneration.push(newCircle);
-                        nImages += 1;
+                        addImage(mappingCircle, generation, newCircle);
                     }
                 }
             }
@@ -187,10 +220,6 @@ function tetrahedron() {
     mappingCircle(-0.5, rt32, rt32);
     mappingCircle(-0.5, -rt32, rt32);
     mappingCircle(0, 0, 1 - rt32);
-    basicImage(0, 1, 2);
-    basicImage(0, 1, 3);
-    basicImage(0, 2, 3);
-    basicImage(1, 2, 3);
 }
 
 function octahedron() {
@@ -201,25 +230,29 @@ function octahedron() {
     mappingCircle(-1, -1, 1);
     mappingCircle(-1, 1, 1);
     mappingCircle(0, 0, rt2 + 1);
-    basicImage(0, 1, 2);
+   /* basicImage(0, 1, 2);
     basicImage(0, 2, 3);
     basicImage(0, 3, 4);
     basicImage(0, 4, 1);
     basicImage(5, 1, 2);
     basicImage(5, 2, 3);
     basicImage(5, 3, 4);
-    basicImage(5, 4, 1);
+    basicImage(5, 4, 1);*/
 }
 
 function create() {
     mappingCircles.length = 0;
 
-    octahedron();
+        octahedron();
+  //  tetrahedron();
+    makeBasicImages();
 
     nImages = 0;
     for (let gen = 1; gen < main.generations; gen++) {
-        if (nImages < main.maxElements) {
-            newGeneration(gen);
+        newGeneration(gen);
+        console.log(gen, nImages);
+        if (nImages > main.maxElements) {
+            break;
         }
     }
     currentElementsController.setValueOnly(nImages);
@@ -238,18 +271,19 @@ function draw() {
     SVG.createGroup(SVG.attributes);
 
 
-    mappingCircles.forEach(circle => circle.draw());
+  //  mappingCircles.forEach(circle => circle.draw());
     SVG.attributes.stroke = main.imageColor;
     SVG.createGroup(SVG.attributes);
     const mapLength = mappingCircles.length;
     for (let i = 0; i < mapLength; i++) {
         const images = mappingCircles[i].images;
         for (let gen = 0; gen < main.generations; gen++) {
-            images[gen].forEach(circle => circle.draw());
+  //          images[gen].forEach(circle => circle.draw());
         }
     }
 
-
+const l=new Line(1,-1,0);
+l.draw();
 
     SVG.terminate();
 }
