@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    SVG
 } from "../libgui/modules.js";
 
 import {
@@ -34,17 +34,11 @@ Line.displayRadius = 10000;
 
 // drawing a straight line, part of the original grid
 Line.prototype.draw = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = lineColor[this.number];
-    canvasContext.beginPath();
-    canvasContext.moveTo(Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
-    canvasContext.lineTo(-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha, -Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha);
-    output.setLineWidth(main.lineWidth + 2 * main.lineBorderWidth);
-    canvasContext.strokeStyle = main.lineBorderColor;
-    canvasContext.stroke();
-    output.setLineWidth(main.lineWidth);
-    canvasContext.strokeStyle = lineColor[this.number];
-    canvasContext.stroke();
+    const startX=Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha;
+    const startY=Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha;
+    const endX=-Line.displayRadius * this.cosAlpha - this.d * this.sinAlpha;
+    const endY=-Line.displayRadius * this.sinAlpha + this.d * this.cosAlpha;
+    SVG.createPolyline([main.scale*startX,main.scale*startY,main.scale*endX,main.scale*endY])
 };
 
 Line.prototype.addIntersections = function(parallelLines) {

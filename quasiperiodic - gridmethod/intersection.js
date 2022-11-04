@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    SVG
 } from "../libgui/modules.js";
 
 import {
@@ -51,106 +51,36 @@ export const Intersection = function(line1, line2) {
 };
 
 Intersection.prototype.draw = function() {
-    output.setLineWidth(main.rhombusLineWidth);
-    const canvasContext = output.canvasContext;
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
     const dx2 = -size * this.line2.sinAlpha;
     const dy2 = size * this.line2.cosAlpha;
-    canvasContext.strokeStyle = main.rhombusColor;
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
-    canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
-    canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
-    canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
-    canvasContext.closePath();
+    const scale = main.scale;
+    const extraArgs = {};
     if (main.fill) {
-        canvasContext.fillStyle = color[this.colorIndex];
-        canvasContext.fill();
+        extraArgs.fill = color[this.colorIndex];
     }
-    if (main.drawIntersections) {
-        canvasContext.stroke();
-    }
-};
-
-Intersection.prototype.drawBentLine1 = function() {
-    output.setLineWidth(main.rhombusLineWidth);
-    const canvasContext = output.canvasContext;
-    let size = 0.5 * main.rhombusSize;
-    const dx1 = -size * this.line1.sinAlpha;
-    const dy1 = size * this.line1.cosAlpha;
-    const dx2 = -size * this.line2.sinAlpha;
-    const dy2 = size * this.line2.cosAlpha;
-    size = 0.5 * main.lineWidth * output.coordinateTransform.totalScale;
-    const bx1 = -size * this.line1.sinAlpha;
-    const by1 = size * this.line1.cosAlpha;
-    const bx2 = -size * this.line2.sinAlpha;
-    const by2 = size * this.line2.cosAlpha;
-    canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.lineBorderWidth);
-    canvasContext.fillStyle = lineColor[this.line1.number];
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx2 + bx1, this.y + dy2 + by1);
-    canvasContext.lineTo(this.x - dx2 + bx1, this.y - dy2 + by1);
-    canvasContext.lineTo(this.x - dx2 - bx1, this.y - dy2 - by1);
-    canvasContext.lineTo(this.x + dx2 - bx1, this.y + dy2 - by1);
-    canvasContext.fill();
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx2 + bx1, this.y + dy2 + by1);
-    canvasContext.lineTo(this.x - dx2 + bx1, this.y - dy2 + by1);
-    canvasContext.stroke();
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx2 - bx1, this.y + dy2 - by1);
-    canvasContext.lineTo(this.x - dx2 - bx1, this.y - dy2 - by1);
-    canvasContext.stroke();
-};
-
-Intersection.prototype.drawBentLine2 = function() {
-    output.setLineWidth(main.rhombusLineWidth);
-    const canvasContext = output.canvasContext;
-    let size = 0.5 * main.rhombusSize;
-    const dx1 = -size * this.line1.sinAlpha;
-    const dy1 = size * this.line1.cosAlpha;
-    const dx2 = -size * this.line2.sinAlpha;
-    const dy2 = size * this.line2.cosAlpha;
-    size = 0.5 * main.lineWidth * output.coordinateTransform.totalScale;
-    const bx1 = -size * this.line1.sinAlpha;
-    const by1 = size * this.line1.cosAlpha;
-    const bx2 = -size * this.line2.sinAlpha;
-    const by2 = size * this.line2.cosAlpha;
-    canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.lineBorderWidth);
-    canvasContext.fillStyle = lineColor[this.line2.number];
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx1 + bx2, this.y + dy1 + by2);
-    canvasContext.lineTo(this.x - dx1 + bx2, this.y - dy1 + by2);
-    canvasContext.lineTo(this.x - dx1 - bx2, this.y - dy1 - by2);
-    canvasContext.lineTo(this.x + dx1 - bx2, this.y + dy1 - by2);
-    canvasContext.fill();
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx1 + bx2, this.y + dy1 + by2);
-    canvasContext.lineTo(this.x - dx1 + bx2, this.y - dy1 + by2);
-    canvasContext.stroke();
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx1 - bx2, this.y + dy1 - by2);
-    canvasContext.lineTo(this.x - dx1 - bx2, this.y - dy1 - by2);
-    canvasContext.stroke();
+    const corners = [scale * (this.x + dx1 + dx2), scale * (this.y + dy1 + dy2)];
+    corners.push(scale * (this.x + dx1 - dx2), scale * (this.y + dy1 - dy2));
+    corners.push(scale * (this.x - dx1 - dx2), scale * (this.y - dy1 - dy2));
+    corners.push(scale * (this.x - dx1 + dx2), scale * (this.y - dy1 + dy2));
+    SVG.createPolygon(corners, extraArgs);
 };
 
 Intersection.prototype.drawBentLines = function() {
-    if (this.oneOnTop) {
-        this.drawBentLine2();
-        this.drawBentLine1();
-    } else {
-        this.drawBentLine1();
-        this.drawBentLine2();
-    }
+    let size = 0.5 * main.rhombusSize;
+    const dx1 = -size * this.line1.sinAlpha;
+    const dy1 = size * this.line1.cosAlpha;
+    const dx2 = -size * this.line2.sinAlpha;
+    const dy2 = size * this.line2.cosAlpha;
+    const scale = main.scale;
+    SVG.createPolyline([scale * (this.x + dx2), scale * (this.y + dy2), scale * (this.x - dx2), scale * (this.y - dy2)]);
+    SVG.createPolyline([scale * (this.x + dx1), scale * (this.y + dy1), scale * (this.x - dx1), scale * (this.y - dy1)]);
 };
 
 function drawArc(x, y, dx1, dy1, dx2, dy2) {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = main.lineBorderColor;
+    const scale = main.scale;
     let alpha = Math.atan2(dy1, dx1);
     let beta = Math.atan2(dy2, dx2);
     if (alpha > beta) {
@@ -163,13 +93,11 @@ function drawArc(x, y, dx1, dy1, dx2, dy2) {
         alpha = beta;
         beta = h + 2 * Math.PI;
     }
-    canvasContext.beginPath();
-    canvasContext.arc(x, y, 0.5 * main.rhombusSize, alpha, beta);
-    canvasContext.stroke();
+    SVG.createArcStroke(scale * x, scale * y, 0.5 * scale * main.rhombusSize, alpha, beta, true);
 }
 
-function fillArc(x, y, dx1, dy1, dx2, dy2) {
-    const canvasContext = output.canvasContext;
+function fillArc(x, y, dx1, dy1, dx2, dy2, fillStyle) {
+    const scale = main.scale;
     let alpha = Math.atan2(dy1, dx1);
     let beta = Math.atan2(dy2, dx2);
     if (alpha > beta) {
@@ -182,24 +110,13 @@ function fillArc(x, y, dx1, dy1, dx2, dy2) {
         alpha = beta;
         beta = h + 2 * Math.PI;
     }
-    canvasContext.beginPath();
-    canvasContext.moveTo(x, y);
-    canvasContext.arc(x, y, 0.5 * main.rhombusSize, alpha, beta);
-    canvasContext.closePath();
-    canvasContext.stroke();
-    canvasContext.fill();
-
-        canvasContext.beginPath();
-    canvasContext.moveTo(x+dx1, y+dy1);
-    canvasContext.lineTo(x, y);
-    canvasContext.lineTo(x+dx2, y+dy2);
-    canvasContext.stroke();
+    SVG.createArcFill(scale * x, scale * y, 0.5 * scale * main.rhombusSize, alpha, beta, true, {
+        fill: fillStyle,
+        stroke: fillStyle
+    });
 }
 
 Intersection.prototype.drawLinesTruchet = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.lineWidth);
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
@@ -210,17 +127,10 @@ Intersection.prototype.drawLinesTruchet = function() {
         dx2 = -dx2;
         dy2 = -dy2;
     }
-    output.setLineWidth(main.lineWidth);
-    canvasContext.strokeStyle = main.lineBorderColor;
     if (Math.abs(prod) < epsilon) {
-        canvasContext.beginPath();
-        canvasContext.moveTo(this.x + dx1, this.y + dy1);
-        canvasContext.lineTo(this.x - dx1, this.y - dy1);
-        canvasContext.stroke();
-        canvasContext.beginPath();
-        canvasContext.moveTo(this.x + dx2, this.y + dy2);
-        canvasContext.lineTo(this.x - dx2, this.y - dy2);
-        canvasContext.stroke();
+        const scale = main.scale;
+        SVG.createPolyline([scale * (this.x + dx1), scale * (this.y + dy1), scale * (this.x - dx1), scale * (this.y - dy1)]);
+        SVG.createPolyline([scale * (this.x + dx2), scale * (this.y + dy2), scale * (this.x - dx2), scale * (this.y - dy2)]);
     } else {
         drawArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
         drawArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
@@ -228,9 +138,6 @@ Intersection.prototype.drawLinesTruchet = function() {
 };
 
 Intersection.prototype.fillForegroundTruchet = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.overprint);
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
@@ -241,35 +148,35 @@ Intersection.prototype.fillForegroundTruchet = function() {
         dx2 = -dx2;
         dy2 = -dy2;
     }
-    canvasContext.fillStyle = lineColor[1 - this.arcBackground];
-    canvasContext.strokeStyle = lineColor[1 - this.arcBackground];
+    const fillStyle = lineColor[1 - this.arcBackground];
     if (Math.abs(prod) < epsilon) {
-        canvasContext.beginPath();
-        canvasContext.moveTo(this.x, this.y);
-        canvasContext.lineTo(this.x + dx1, this.y + dy1);
-        canvasContext.lineTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
-        canvasContext.lineTo(this.x + dx2, this.y + dy2);
-        canvasContext.closePath();
-        canvasContext.fill();
-        canvasContext.stroke();
-        canvasContext.beginPath();
-        canvasContext.moveTo(this.x, this.y);
-        canvasContext.lineTo(this.x - dx1, this.y - dy1);
-        canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
-        canvasContext.lineTo(this.x - dx2, this.y - dy2);
-        canvasContext.closePath();
-        canvasContext.fill();
-        canvasContext.stroke();
+        const scale = main.scale;
+        let points = [scale * this.x, scale * this.y];
+        points.push(scale * (this.x + dx1), scale * (this.y + dy1));
+        points.push(scale * (this.x + dx1 + dx2), scale * (this.y + dy1 + dy2));
+        points.push(scale * (this.x + dx2), scale * (this.y + dy2));
+        SVG.createPolygon(points, {
+            fill: fillStyle,
+            stroke: fillStyle
+        });
+        points = [scale * this.x, scale * this.y];
+        points.push(scale * (this.x - dx1), scale * (this.y - dy1));
+        points.push(scale * (this.x - dx1 - dx2), scale * (this.y - dy1 - dy2));
+        points.push(scale * (this.x - dx2), scale * (this.y - dy2));
+        SVG.createPolygon(points, {
+            fill: fillStyle,
+            stroke: fillStyle
+        });
     } else {
-        fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2);
-        fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2);
+        fillArc(this.x - dx1 - dx2, this.y - dy1 - dy2, dx1, dy1, dx2, dy2, fillStyle);
+        fillArc(this.x + dx1 + dx2, this.y + dy1 + dy2, -dx1, -dy1, -dx2, -dy2, fillStyle);
     }
 };
 
+// background: fill entire rhombus
+
 Intersection.prototype.fillBackgroundTruchet = function() {
-    const canvasContext = output.canvasContext;
-    canvasContext.strokeStyle = main.lineBorderColor;
-    output.setLineWidth(main.lineWidth);
+    const scale = main.scale;
     let size = 0.5 * main.rhombusSize;
     const dx1 = -size * this.line1.sinAlpha;
     const dy1 = size * this.line1.cosAlpha;
@@ -281,17 +188,14 @@ Intersection.prototype.fillBackgroundTruchet = function() {
         dy2 = -dy2;
     }
     // background
-    canvasContext.fillStyle = lineColor[this.arcBackground];
-    canvasContext.strokeStyle = lineColor[this.arcBackground];
-    output.setLineWidth(main.overprint);
-    canvasContext.beginPath();
-    canvasContext.moveTo(this.x + dx1 + dx2, this.y + dy1 + dy2);
-    canvasContext.lineTo(this.x + dx1 - dx2, this.y + dy1 - dy2);
-    canvasContext.lineTo(this.x - dx1 - dx2, this.y - dy1 - dy2);
-    canvasContext.lineTo(this.x - dx1 + dx2, this.y - dy1 + dy2);
-    canvasContext.closePath();
-    canvasContext.fill();
-    canvasContext.stroke();
+    const fillStyle = lineColor[this.arcBackground];
+    const points = [scale * (this.x + dx1 + dx2), scale * (this.y + dy1 + dy2)];
+    points.push(scale * (this.x + dx1 - dx2), scale * (this.y + dy1 - dy2));
+    points.push(scale * (this.x - dx1 - dx2), scale * (this.y - dy1 - dy2));
+    points.push(scale * (this.x - dx1 + dx2), scale * (this.y - dy1 + dy2));
+    SVG.createPolygon(points, {
+        fill: fillStyle
+    });
 };
 
 // dualization

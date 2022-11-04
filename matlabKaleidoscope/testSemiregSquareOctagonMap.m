@@ -12,8 +12,8 @@ map=createIdentityMap(mPix,-range,range,-range,range);
 %rosette(map,20,a,0,0);
 %basicKaleidoscope(map,5,3,2);
 
-size=0.5;
-semiregSquareOctagonMap(map,size);
+amp=0.5;
+semiregSquareOctagonMap(map,amp);
 %mirrorsMap(map,size,size);
 
 drift = 0.05;
@@ -21,6 +21,8 @@ drift = 0.05;
 driftMap(map,[drift, 2 * range]);
 
 inputImage = imread("tier.jpg");
+
+size(inputImage)
 
 outputImage = createOutputImage(map,inputImage);
 %outputImage=createStructureImage(map);

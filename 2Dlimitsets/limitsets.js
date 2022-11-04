@@ -130,17 +130,15 @@ function project(x, y, z, r) {
     const r2 = r * r;
     const rHyp2 = d2 - r2;
     const rHyp = Math.sqrt(rHyp2);
-    console.log('rhyp', rHyp)
-        // projection with inversion at sphere with radius sqrt(2)*rHyp, center at (0,0,rHyp)
+    // projection with inversion at sphere with radius sqrt(2)*rHyp, center at (0,0,rHyp)
     const dz = z - rHyp;
     d2 = x * x + y * y + dz * dz;
     const factor = 2 * rHyp2 / (d2 - r2);
-    console.log("d2,dz,factor", d2, dz, factor)
     x *= factor;
     y *= factor;
     z = rHyp + factor * dz;
     r = Math.abs(factor) * r;
-    console.log('mappingCircle(' + x.toPrecision(4) + ',' + y.toPrecision(4) + ',' + r.toPrecision(4) + ');');
+    //  console.log('mappingCircle(' + x.toPrecision(4) + ',' + y.toPrecision(4) + ',' + r.toPrecision(4) + ');');
     mappingCircle(x, y, r);
 }
 
@@ -343,12 +341,12 @@ function dodecagon() {
     const phi = 0.5 * (1 + Math.sqrt(5));
     const r = 0.5 * Math.sqrt(10 - 2 * Math.sqrt(5));
     for (let i = 0; i < 5; i++) {
-const x=2*Math.cos(2/5*Math.PI*i);
-const y=2*Math.sin(2/5*Math.PI*i);
-project(x,y,phi+1,r);
-project(-x,-y,-(phi+1),r);
-project(phi*x,phi*y,phi-1,r);
-project(-phi*x,-phi*y,-(phi-1),r);
+        const x = 2 * Math.cos(2 / 5 * Math.PI * i);
+        const y = 2 * Math.sin(2 / 5 * Math.PI * i);
+        project(x, y, phi + 1, r);
+        project(-x, -y, -(phi + 1), r);
+        project(phi * x, phi * y, phi - 1, r);
+        project(-phi * x, -phi * y, -(phi - 1), r);
     }
 }
 

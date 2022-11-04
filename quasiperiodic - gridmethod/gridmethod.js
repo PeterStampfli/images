@@ -26,26 +26,24 @@ export const main = {};
 export const color = [];
 export const lineColor = [];
 
-main.scale = 100;
-main.drawLines = true;
-main.drawBentLines = false;
-main.drawArcs = false;
-main.arcsFill = false;
+main.scale = 600;
+main.drawLines = false;
+main.drawArcs = true;
+main.arcsFill = true;
 main.overprint = 4;
 
 main.nLines = 15;
 main.offset = 0.0;
-main.nFold = 7;
+main.nFold = 5;
 
-main.tile = false;
-main.lineBorderColor = '#000000';
+main.tile = true;
+main.lineColor = '#000000';
 main.lineWidth = 8;
-main.lineBorderWidth = 2;
 
 main.rhombusSize = 0.3; // side length of rhombus
 main.rhombusColor = '#008800';
-main.rhombusLineWidth = 1;
-main.drawIntersections = false;
+main.rhombusLineWidth = 8;
+main.drawIntersections = true;
 main.fill = false;
 main.generations = 1;
 main.spacing = grid.equalSpacedLines;
@@ -91,23 +89,16 @@ main.setup = function() {
         type: 'number',
         params: main,
         property: 'lineWidth',
-        labelText: 'grid line width',
+        labelText: 'line width',
         min: 0,
         onChange: draw
-    }).add({
-        type: 'number',
-        params: main,
-        property: 'lineBorderWidth',
-        labelText: 'border width',
-        min: 0,
-        onChange: draw
-    }).addHelp("Width for grid lines and Truchet lines. Border width is the width of borders for grid lines only.");
+    }).addHelp("Width for grid lines and Truchet lines.");
 
     gui.add({
         type: 'color',
         params: main,
-        property: 'lineBorderColor',
-        labelText: 'border color',
+        property: 'lineColor',
+        labelText: 'line color',
         onChange: draw
     }).addHelp("Color for the border of grid lines and for Truchet lines.");
 
@@ -276,14 +267,17 @@ function draw() {
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',
         fill: 'none',
+        stroke: main.lineColor,
         'stroke-width': main.lineWidth,
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round'
     };
-    if (!main.arcsFill) {
-        //  grid.drawIntersections();
-    }
+ 
     if (main.drawLines && !main.arcsFill) {
+        SVG.groupAttributes.fill = 'none';
+        SVG.groupAttributes.stroke = main.lineColor;
+        SVG.groupAttributes['stroke-width'] = main.lineWidth;
+        SVG.createGroup(SVG.groupAttributes);
         if (main.tile) {
             grid.drawBentLines();
         } else {
@@ -291,11 +285,33 @@ function draw() {
         }
     }
     if (main.arcsFill) {
-        grid.fillBackgroundTruchet();
-        grid.fillForegroundTruchet();
+        SVG.groupAttributes['stroke-width'] = main.lineWidth;
+        SVG.groupAttributes.stroke = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+             grid.fillBackgroundTruchet();
+              grid.fillForegroundTruchet();
     }
-    if (main.drawArcs || main.arcsFill) {
+    if (main.drawArcs) {
+        SVG.groupAttributes.fill = 'none';
+        SVG.groupAttributes.stroke = main.lineColor;
+        SVG.groupAttributes['stroke-width'] = main.lineWidth;
+        SVG.createGroup(SVG.groupAttributes);
         grid.drawLinesTruchet();
     }
+
+
+        SVG.groupAttributes.fill = 'none';
+        SVG.groupAttributes.stroke = 'none';
+        if (main.drawIntersections) {
+            SVG.groupAttributes.stroke = main.rhombusColor;
+            SVG.groupAttributes['stroke-width'] = main.rhombusLineWidth;
+        }
+        SVG.createGroup(SVG.groupAttributes);
+        if (main.drawIntersections || main.fill) {
+            grid.drawIntersections();
+        }
+
+
+
     SVG.terminate();
 }

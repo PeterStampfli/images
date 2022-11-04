@@ -424,14 +424,14 @@ SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, c
         } else {
             largeArc = 0;
         }
-        let sweep = counterclockwise ? 1:0;
+        let sweep = counterclockwise ? 1 : 0;
         let d = 'M ' + stringOf(startX) + ' ' + stringOf(startY);
         d += ' A ' + stringOf(radius) + ' ' + stringOf(radius) + ' ' + 0;
         d += ' ' + largeArc + ' ' + sweep;
         d += ' ' + stringOf(endX) + ' ' + stringOf(endY);
         attributes.d = d;
         SVG.create('path', attributes);
-    } 
+    }
 };
 
 /**
@@ -469,15 +469,15 @@ SVG.createArcFill = function(centerX, centerY, radius, startAngle, endAngle, cou
         } else {
             largeArc = 0;
         }
-        let sweep = counterclockwise ? 1:0;
+        let sweep = counterclockwise ? 1 : 0;
         let d = 'M ' + stringOf(centerX) + ' ' + stringOf(centerY);
         d += 'L ' + stringOf(startX) + ' ' + stringOf(startY);
         d += ' A ' + stringOf(radius) + ' ' + stringOf(radius) + ' ' + 0;
         d += ' ' + largeArc + ' ' + sweep;
-        d += ' ' + stringOf(endX) + ' ' + stringOf(endY);
+        d += ' ' + stringOf(endX) + ' ' + stringOf(endY) + ' Z';
         attributes.d = d;
         SVG.create('path', attributes);
-    } 
+    }
 };
 
 // upon resize: redraw
