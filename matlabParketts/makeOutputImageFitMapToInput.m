@@ -19,7 +19,7 @@ function outputImage = makeOutputImageFitMapToInput(map,inputImage)
     x = map(:,:,1); 
     y = map(:,:,2);
     % get ranges of the coordinates
-    [xMin,xMax,yMin,yMax]  = getRangeMap(map)
+    [xMin,xMax,yMin,yMax]  = getRangeMap(map);
     mapWidth = xMax - xMin;
     mapHeight = yMax - yMin;
     % fit into x=(1...inputWidth-1) and y=(1...inputHeight-1)
