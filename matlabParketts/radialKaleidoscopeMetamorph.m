@@ -18,10 +18,8 @@ y(:,:)=tilingMap(:,:,2);
 metaStrength=-0.4;
 %=================================
 % find the radial distance
-x=x.*x;
-y=y.*y;
-r=x+y;
-r=sqrt(r);
+r=x.*x;
+r=sqrt(y.*y+r);
 
 % transform the map into a square 442 tiling
 % size typically an integer fraction of 2

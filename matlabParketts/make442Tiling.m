@@ -17,7 +17,7 @@ y(:,:)=tilingMap(:,:,2);
 % choose a strength for the metamorphing
 metaStrength=0.05;
 %=================================
-% scaling the map, other transformations are possible
+% scaling the metamorphing map, other transformations are possible
 x=x*metaStrength;
 y=y*metaStrength;
 

@@ -15,13 +15,11 @@ tilingMap=createIdentityMap(mPix,-1,1,-1,1);
 x(:,:)=tilingMap(:,:,1);
 y(:,:)=tilingMap(:,:,2);
 % choose a strength for the metamorphing
-metaStrength=0.3;
+metaStrength=0.2;
 %=================================
 % find the radial distance
-x=x.*x;
-y=y.*y;
-r=x+y;
-r=sqrt(r);
+r=x.*x;
+r=sqrt(y.*y+r);
 
 % transform the map into a square 442 tiling
 % size typically an integer fraction of 2
@@ -32,7 +30,6 @@ tiling442(tilingMap,size);
 
 % add the modifying map to the tiling map
 tilingMap(:,:,1)=tilingMap(:,:,1)+metaStrength*r(:,:);
-tilingMap(:,:,2)=tilingMap(:,:,2);
 % create and show the kaleidoscopic image
 % read an input image
 inputImage = imread("2.jpg");
