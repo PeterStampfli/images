@@ -2,7 +2,7 @@
 % using an input image
 % make it metamorphize
 
-function radialMetamorphs()
+function radialKaleidoscopeMetamorph()
 % make the initial map
 s = 1000;
 mPix=s*s/1e6;
