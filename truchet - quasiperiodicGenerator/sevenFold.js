@@ -9,9 +9,9 @@ export const sevenFold = {
     "order": 14,
     "inflation": 5.04892,
     "maxGeneration": 2,
-    "drawGeneration": 1,
+    "drawGeneration": 0,
 
-    "initial": "ABStar",
+    "initial": "a1",
 
     "rotation": 0,
 

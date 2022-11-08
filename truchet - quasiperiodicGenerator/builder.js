@@ -665,7 +665,7 @@ function drawGeneration(generation) {
                 const y10 = shape[1] - shape[3];
                 radius = 0.5 * Math.sqrt(x10 * x10 + y10 * y10);
                 // is it an acute angle?
-                const cosAngle012 = x12 * x10 + y12 * y10;
+                const cosAngle012 = (x12 * x10 + y12 * y10)/Math.sqrt((x12*x12+y12*y12)*(x10*x10+y10*y10));
                 if ((Math.abs(cosAngle012) < 0.001) && (shape.length >= 8)) {
                     // a full square
                     let x1 = 0.5 * (shape[0] + shape[6]);
@@ -678,7 +678,7 @@ function drawGeneration(generation) {
                     x2 = 0.5 * (shape[6] + shape[4]);
                     y2 = 0.5 * (shape[7] + shape[5]);
                     SVG.createPolyline([x1, y1, x2, y2]);
-                } else if (cosAngle012 > main.truchetSign*0.001) {
+                } else if (cosAngle012 > main.truchetSwitch) {
                     // acute angle at second corner, draw Truchet arc there
                     centerX = shape[2];
                     centerY = shape[3];
