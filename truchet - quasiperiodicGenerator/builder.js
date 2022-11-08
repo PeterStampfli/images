@@ -666,64 +666,51 @@ function drawGeneration(generation) {
                 radius = 0.5 * Math.sqrt(x10 * x10 + y10 * y10);
                 // is it an acute angle?
                 const cosAngle012 = x12 * x10 + y12 * y10;
-                if (Math.abs(cosAngle012) < 0.001) {
-                    if (shape.length === 8) {
-                        // a full square
-                        let x1 = 0.5 * (shape[0] + shape[6]);
-                        let y1 = 0.5 * (shape[1] + shape[7]);
-                        let x2 = 0.5 * (shape[4] + shape[2]);
-                        let y2 = 0.5 * (shape[5] + shape[3]);
-                        SVG.createPolyline([x1, y1, x2, y2]);
-                        x1 = 0.5 * (shape[0] + shape[2]);
-                        y1 = 0.5 * (shape[1] + shape[3]);
-                        x2 = 0.5 * (shape[6] + shape[4]);
-                        y2 = 0.5 * (shape[7] + shape[5]);
-                        SVG.createPolyline([x1, y1, x2, y2]);
-                    } else {
-                        // half a square
-                        const x1 = 0.5 * (shape[0] + shape[2]);
-                        const y1 = 0.5 * (shape[1] + shape[3]);
-                        const x2 = 0.5 * (shape[0] + shape[4]);
-                        const y2 = 0.5 * (shape[1] + shape[5]);
-                        const x3 = 0.5 * (shape[2] + shape[4]);
-                        const y3 = 0.5 * (shape[3] + shape[5]);
-                        SVG.createPolyline([x1, y1, x2, y2, x3, y3]);
-
+                if ((Math.abs(cosAngle012) < 0.001) && (shape.length >= 8)) {
+                    // a full square
+                    let x1 = 0.5 * (shape[0] + shape[6]);
+                    let y1 = 0.5 * (shape[1] + shape[7]);
+                    let x2 = 0.5 * (shape[4] + shape[2]);
+                    let y2 = 0.5 * (shape[5] + shape[3]);
+                    SVG.createPolyline([x1, y1, x2, y2]);
+                    x1 = 0.5 * (shape[0] + shape[2]);
+                    y1 = 0.5 * (shape[1] + shape[3]);
+                    x2 = 0.5 * (shape[6] + shape[4]);
+                    y2 = 0.5 * (shape[7] + shape[5]);
+                    SVG.createPolyline([x1, y1, x2, y2]);
+                } else if (cosAngle012 > main.truchetSign*0.001) {
+                    // acute angle at second corner, draw Truchet arc there
+                    centerX = shape[2];
+                    centerY = shape[3];
+                    alpha = Math.atan2(y10, x10);
+                    beta = Math.atan2(y12, x12);
+                    truchetArc();
+                    if (shape.length >= 8) {
+                        centerX = shape[6];
+                        centerY = shape[7];
+                        alpha = Math.atan2(-y10, -x10);
+                        beta = Math.atan2(-y12, -x12);
+                        truchetArc();
                     }
                 } else {
-                    if (cosAngle012 > 0) {
-                        centerX = shape[2];
-                        centerY = shape[3];
-                        alpha = Math.atan2(y10, x10);
-                        beta = Math.atan2(y12, x12);
-                        truchetArc();
-                        if (shape.length >= 8) {
-                            centerX = shape[6];
-                            centerY = shape[7];
-                            alpha = Math.atan2(-y10, -x10);
-                            beta = Math.atan2(-y12, -x12);
-                            truchetArc();
-                        }
+                    alpha = Math.atan2(-y10, -x10);
+                    if (shape.length === 8) {
+                        beta = Math.atan2(shape[7] - shape[1], shape[6] - shape[0]);
                     } else {
-                        alpha = Math.atan2(-y10, -x10);
-                        if (shape.length === 8) {
-                            beta = Math.atan2(shape[7] - shape[1], shape[6] - shape[0]);
-                        } else {
-                            beta = Math.atan2(shape[5] - shape[1], shape[4] - shape[0]);
-                        }
-                        centerX = shape[0];
-                        centerY = shape[1];
-                        truchetArc();
-                        alpha = Math.atan2(-y12, -x12);
-                        if (shape.length === 8) {
-                            beta = Math.atan2(shape[7] - shape[5], shape[6] - shape[4]);
-                        } else {
-                            beta = Math.atan2(shape[1] - shape[5], shape[0] - shape[4]);
-                        }
-                        centerX = shape[4];
-                        centerY = shape[5];
-                        truchetArc();
+                        beta = Math.atan2(shape[5] - shape[1], shape[4] - shape[0]);
                     }
+                    centerX = shape[0];
+                    centerY = shape[1];
+                    truchetArc();
+                    alpha = Math.atan2(-y12, -x12);
+                    if (shape.length === 8) {
+                        beta = Math.atan2(shape[7] - shape[5], shape[6] - shape[4]);
+                    } else {
+                        beta = Math.atan2(shape[1] - shape[5], shape[0] - shape[4]);
+                    }
+                    centerX = shape[4];
+                    centerY = shape[5];
+                    truchetArc();
                 }
             }
         }

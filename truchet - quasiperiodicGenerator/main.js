@@ -15,8 +15,9 @@ export const main = {};
 
 // data for drawing
 main.drawFill = false;
-main.truchetWidth=20;
+main.truchetWidth=3;
 main.truchetColor='#00aa00';
+main.truchetSign=0.5;
 main.drawTruchet = true;
 main.drawStroke = true;
 main.drawInitialStroke = true;
@@ -124,6 +125,17 @@ gui.add({
     min: 0.5,
     step: 0.1,
     labelText: 'width',
+    onChange: function() {
+        main.draw();
+    }
+}).add({
+    type: 'number',
+    params: main,
+    property: 'truchetSign',
+    min: -0.5,
+    max:0.5,
+    step: 1,
+    labelText: 'sign',
     onChange: function() {
         main.draw();
     }
