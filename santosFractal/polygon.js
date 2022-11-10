@@ -267,9 +267,11 @@ Polygon.prototype.HBSFromHueValue = function() {
 };
 
 // particular colorings
+// polygon.hue and polygon.value normalized between 0 and 1
 Polygon.hueValue = function() {
     const length = Polygon.collection.length;
     const range = Polygon.hueTo - Polygon.hueFrom;
+    // for the alternating hue for neighboring tiles
     const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
     for (let i = 0; i < length; i++) {
         const polygon = Polygon.collection[i];

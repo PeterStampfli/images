@@ -1,6 +1,11 @@
 /*==========================================================
- * mirrorsMap: Makes that the points of map lie inside x=0...width and y=0...height
+ * randomTiling442: Makes that the points of map lie inside x=0...size and y=0...size
  * using vertical and horizontal mirroring at x=0, x=width, y=0, y=height
+ * and mirror at x=y
+ *
+ * simulates a kaleiddoscope with *442 orbifold
+ *
+ * chooses randomly between two positions of the input image part
  *
  * Input:
  * first the map. 
@@ -9,13 +14,13 @@
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
  *     map(h,k,2) < 0 for invalid pixels, not part of the image
  *
- * additional parameter: width, height
- *      simulates mirrors at x=0, x=width,y=0,y=height   
+ * additional parameter:size
+ *      simulates mirrors at x=0, x=size,y=0,y=size and x=y   
  *
  * modifies the map, returns nothing if used as a procedure
- * transform(map, ...);
+ * tiling442(map, size);
  * does not change the map and returns a modified map if used as  a function
- * newMap = transform(map, ....);
+ * newMap = tiling442(map, size);
  *
  *========================================================*/
 
@@ -35,12 +40,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, width, height, width2, height2, x, y;
+    float size, sizeHalf, x, y, h;
     bool returnsMap = false;
+    int nHorCells, nVertCells, iCell, jCell, nCells;
+    float factor, factors[10000];
+    float xMin, yMin;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 3) {
-        mexErrMsgIdAndTxt("mirrorsMap:nrhs","A map input and (scalar) width and height required.");
+    if(nrhs < 2) {
+        mexErrMsgIdAndTxt("442Map:nrhs","A map input and (scalar) size required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -72,10 +80,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    width = (float) mxGetScalar(prhs[1]);
-    height = (float) mxGetScalar(prhs[2]);
-    width2 = 2 * width;
-    height2 = 2 * height;
+    size = (float) mxGetScalar(prhs[1]);
+    sizeHalf = size / 2;
     
     /* do the map*/
     /* row first order*/
@@ -83,6 +89,28 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nY = dims[0];
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
+    
+    /* input dimensions,assuming that all points are valid*/
+    /* bottom left corner at (0,nXnY)*/
+    /* top right corner at (nXnY-1,nXnY2-1)*/
+    /* INVERTED y-axis*/
+    xMin = inMap[0];
+    yMin = inMap[nXnY2 - 1];
+    PRINTF(xMin);
+    PRINTF(yMin);
+    nHorCells = (int) floorf((inMap[nXnY-1] - inMap[0]) / size) + 1;
+    nVertCells = (int) floorf((inMap[nXnY] - inMap[nXnY2 - 1]) / size) + 1;
+    PRINTI(nHorCells);
+    PRINTI(nVertCells);
+    nCells = nHorCells * nVertCells;
+    for (index = 0; index < nCells; index++){
+        if ((((float) rand())/ RAND_MAX) > 0.5){
+            factor =  1.0f;
+        } else {
+            factor = -1.0f;
+        }
+        factors[index] = factor;
+    }
     for (index = 0; index < nXnY; index++){
         inverted = inMap[index + nXnY2];
         /* do only transform if pixel is valid*/
@@ -95,18 +123,34 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             continue;
         }
-        x = inMap[index];
-        x = x - width2 * floorf(x / width2);
-        if (x > width) {
-            x = width2 - x;
+        // use shifted coordinates to get only positive iCell indices
+        x = inMap[index] - xMin;
+        iCell = (int) floorf(x / size);
+        x = x - size * iCell;
+        if (x > sizeHalf) {
+            x = size - x;
             inverted = 1 - inverted;
         }
-        y = inMap[index + nXnY];
-        y = y - height2 * floorf(y / height2);
-        if (y > height) {
-            y = height2 - y;
+        y = inMap[index + nXnY] - yMin;
+        jCell = (int) floorf(y / size);
+        y = y - size * jCell;
+
+        if (y > sizeHalf) {
+            y = size - y;
             inverted = 1 - inverted;
         }
+        if (y > x){
+            h = x;
+            x = y;
+            y = h;
+            inverted = 1 - inverted;
+        }
+        
+        if (factors[iCell + nHorCells * jCell] < 0){
+            inverted = 1 - inverted;
+            y = - y;
+        }
+        
         
         outMap[index] = x;
         outMap[index + nXnY] = y;

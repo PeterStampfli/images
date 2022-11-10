@@ -91,7 +91,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* make the array*/
     nXnY = nX * nY;
     index = 0;
-    /* beware of row first indexing order, the inner loop chnges the y-value*/
+    /* beware of row first indexing order, the inner loop changes the y-value*/
     x = xMin + 0.5f * dx;
     for (j = 0; j < nX; j++){
         y = yMax - 0.5f * dy;

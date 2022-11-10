@@ -4,6 +4,7 @@
  * and mirror at x=y
  *
  * simulates a kaleiddoscope with *442 orbifold
+ * size is the periodd length
  *
  * Input:
  * first the map. 
@@ -38,24 +39,24 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float *inMap, *outMap;
-    float r, phi, width, height, width2, height2, x, y, h;
+    float size, sizeHalf, x, y, h;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
     if(nrhs < 2) {
-        mexErrMsgIdAndTxt("442Map:nrhs","A map input and (scalar) size required.");
+        mexErrMsgIdAndTxt("tiling442:nrhs","A map input and (scalar) size required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("mirrorsMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("tiling442:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {
-        mexErrMsgIdAndTxt("mirrorsMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("tiling442:map3rdDimension","The map's third dimension has to be three.");
     }
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("mirrorsMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("tiling442:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
@@ -75,10 +76,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    width = (float) mxGetScalar(prhs[1]);
-    height = width;
-    width2 = 2 * width;
-    height2 = 2 * height;
+    size = (float) mxGetScalar(prhs[1]);
+    sizeHalf = size / 2;
     
     /* do the map*/
     /* row first order*/
@@ -99,23 +98,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
             continue;
         }
         x = inMap[index];
-        if (x < 0) {
-            x = -x;
-            inverted = 1 - inverted;
-        }
-        x = fmodf(x, width2);
-        if (x > width) {
-            x = width2 - x;
+        x = x - size * floorf(x / size);
+        if (x > sizeHalf) {
+            x = size - x;
             inverted = 1 - inverted;
         }
         y = inMap[index + nXnY];
-        if (y < 0) {
-            y = -y;
-            inverted = 1 - inverted;
-        }
-        y = fmodf(y, height2);
-        if (y > height) {
-            y = height2 - y;
+        y = y - size * floorf(y / size);
+        if (y > sizeHalf) {
+            y = size - y;
             inverted = 1 - inverted;
         }
         if (y > x){

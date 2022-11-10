@@ -6,10 +6,10 @@ function testOutputImageMirrorsAtBorder()
 s = 1000;
 mPix=s*s/1e6;
 % should work for any range value
-range=10000;
-map=createIdentityMap(mPix,-range,range,-range,range);
+range=2000;
+map=createIdentityMap(mPix,-range,range,0,2*range);
 % read an input image
-inputImage = imread("1.jpg");
+inputImage = imread("3.jpg");
 % fit map inside input image
 outputImage = makeOutputImageMirrorsAtBorders(map, inputImage);
 % show (and save) the image

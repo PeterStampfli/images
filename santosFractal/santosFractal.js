@@ -461,8 +461,9 @@ function makeColors() {
                 if (Polygon.spin && (Math.floor(i / lastSubdiv) & 1 === 1)) {
                     iEff = iEff + lastSubdiv - 1 - 2 * (iEff % lastSubdiv);
                 }
+                // normalize to 0...1
                 polygon.hue = (iEff % prod2Subdiv) * iProd2Subdiv;
-                polygon.value = Polygon.valueMin + valueRange * (iEff % lastSubdiv) * iLastSubdiv;
+                polygon.value = (iEff % lastSubdiv) * iLastSubdiv;
             }
             Polygon.hueValue();
             break;
