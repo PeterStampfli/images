@@ -13,6 +13,7 @@ mex basicKaleidoscope.c
 mex createStructureImage.c
 mex getRangeMap.c
 mex tiling442.c
+mex randomTiling442.c
 %mex polygonToCircle.c
 % takes some time, if ok shows 3 times:
 % Building with 'gcc'.

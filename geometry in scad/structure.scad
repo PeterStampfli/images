@@ -42,30 +42,30 @@ function selection(points,indices) = [for(index = indices) points[index]];
 // drawing points
 //============================
 // draw a point at [x,y,z] as a sphere with parameter weight as diameter
-module drawPoint(point, weight = 2){
+module drawPoint(point, weight = 1){
     translate(point) sphere(d = weight);
 }
 // draw an array of points as spheres of diameter weight
-module drawPoints(points, weight = 2){
+module drawPoints(points, weight = 1){
     for (point = points){
         drawPoint(point, weight);
     }
 }
 // drawing endpoints of a line 
-module drawEndpoints(a, b, weight = 2){
+module drawEndpoints(a, b, weight = 1){
     drawPoint(a, weight);
     drawPoint(b, weight);
 }
 // drawing a line with a cylinder
 // no joints, draw endpoints as spheres in extra step
-module drawLine(a, b, weight = 2){
+module drawLine(a, b, weight = 1){
     v = b - a;
     translate(a)
     orient(v) 
     cylinder(h = norm(v), r = weight / 2);
 }
 // draw lines of a given length between points
-module drawLines(points, length, weight = 2, eps = 0.001){
+module drawLines(points, length, weight = 1, eps = 0.001){
     for (i = [0 : len(points)-2]){
         pointI = points[i];
         for (j = [i + 1 : len(points)-1]){
@@ -77,12 +77,13 @@ module drawLines(points, length, weight = 2, eps = 0.001){
     }
 }
 
-
+// circles: center point, normal vector, radius, weight for drawing
+module drawCircle(center, normal, radius, weight = 1){
+  translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
+}
 
 octagon = [[20,0,0],[0,20,0],[0,0,20],[-20,0,0],[0,-20,0],[0,0,-20]];
-
-rotateToZ([1,1,1]){
-drawLines(octagon,distanceOf(octagon));
-color("green")drawLines(octagon,40);
-color("red")drawPoints(octagon,5);
-}
+$fn=128;
+drawCircle([20,0,0], [20,0,0],20);
+drawCircle([0,20,0], [0,20,0],20);
+drawCircle([0,0,20], [0,0,20],20);
