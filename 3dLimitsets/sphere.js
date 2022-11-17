@@ -24,13 +24,15 @@ Sphere.prototype.set = function(otherSphere) {
     this.radius2 = otherSphere.radius2;
 };
 
-
-
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
 // n is normal vector to a plane with relevant design to check
-// n has to be normalized, default is unit vector in z-direction
+// default is unit vector in z-direction
 // for diagnostics
 Sphere.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
+    const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
+    nx *= normFactor;
+    ny *= normFactor;
+    nz *= normFactor;
     // projection transformation
     var centerX, centerY;
     // rotate around the z-axis, moves n into the (x,z) plane
@@ -45,7 +47,7 @@ Sphere.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
         centerX = nz * centerX - nxy * this.centerZ;
     } else {
         centerX = this.centerX;
-        centerX = this.centerY;
+        centerY = this.centerY;
     }
     const canvasContext = output.canvasContext;
     canvasContext.beginPath();

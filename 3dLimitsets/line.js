@@ -18,23 +18,23 @@ export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ)
     this.directionX = normalFactor * directionX;
     this.directionY = normalFactor * directionY;
     this.directionZ = normalFactor * directionZ;
-
 }
-
-
 
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
 // n is normal vector to a plane with relevant design to check
-// n has to be normalized, default is unit vector in z-direction
+// default is unit vector in z-direction
 // for diagnostics
 Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
+    const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
+    nx *= normFactor;
+    ny *= normFactor;
+    nz *= normFactor;
     // projection transformation
     var pointX, pointY, directionX, directionY;
     // rotate around the z-axis, moves n into the (x,z) plane
     const nxy = Math.sqrt(nx * nx + ny * ny);
-    console.log(this.pointY)
-    console.log(this.directionY)
     if (nxy > eps) {
+        // rotate projection direction to the x-axis
         // cos(phi)=nx/nxy, sin(phi)=ny/nxy, phi angle to the x-axis,  rotation by -phi
         // n=(nxy,0,nz) after rotation
         pointX = (nx * this.pointX + ny * this.pointY) / nxy;
@@ -52,9 +52,6 @@ Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
         directionY = this.directionY;
     }
     const canvasContext = output.canvasContext;
-    console.log(big)
-    console.log(pointX,pointY)
-    console.log(directionX,directionY)
     canvasContext.beginPath();
     canvasContext.moveTo(pointX + big * directionX, pointY + big * directionY);
     canvasContext.lineTo(pointX - big * directionX, pointY - big * directionY);

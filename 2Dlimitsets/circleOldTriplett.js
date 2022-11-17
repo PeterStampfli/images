@@ -97,23 +97,37 @@ Circle.prototype.invertLine = function(line) {
     }
 };
 
-// generating a fourth circle from three circles
-// intersecting these circles at right angles
+// generating a fourth circle from three touching circles
+// circle 2 touches circle1 and circle 3
+// intersecting the circles at right angles
 
 Circle.createFromTriplett = function(circle1, circle2, circle3) {
     const eps = 0.001;
-    // vectors from center of circle 2 to circle 1, or circle 2
-    const n12x = circle1.centerX - circle2.centerX;
-    const n12y = circle1.centerY - circle2.centerY;
-    const n32x = circle3.centerX - circle2.centerX;
-    const n32y = circle3.centerY - circle2.centerY;
+    const bigRadius = 1000;
+    // use the symmetric quadrangle center of circle 2
+    // normalized vectors from center of circle 2 to circle 1, or circle 2
+    let n12x = circle1.centerX - circle2.centerX;
+    let n12y = circle1.centerY - circle2.centerY;
+    let d = Math.sqrt(n12x * n12x + n12y * n12y);
+    // if center of circle 2 lies inside circle 1 then we have to invert the direction 
+    // from center of circle 2 to the contact point of the two circles
+    // this contact point is away from center of circle 1  (d=r1-r2 instead of d=r1+r2)
+    let norm = (d < circle1.radius) ? -1 / d : 1 / d;
+    n12x *= norm;
+    n12y *= norm;
+    let n32x = circle3.centerX - circle2.centerX;
+    let n32y = circle3.centerY - circle2.centerY;
+    d = Math.sqrt(n32x * n32x + n32y * n32y);
+    norm = (d < circle3.radius) ? -1 / d : 1 / d;
+    n32x *= norm;
+    n32y *= norm;
     // test if vectors are colinear
     d = Math.abs(n12x * n32y - n12y * n32x);
     // degenerate case gives a straight line through the centers
     if (d < eps) {
         const nX = n32y;
         const nY = -n32x;
-        const d = (nX * circle2.centerX + nY * circle2.centerY)/Math.sqrt(nX*nX+nY*nY);
+        const d = nX * circle2.centerX + nY * circle2.centerY;
         return new Line(nX, nY, d);
     }
     // normalized vector to center of new sphere
