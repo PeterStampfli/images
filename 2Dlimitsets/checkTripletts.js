@@ -35,8 +35,6 @@ main.minRadius = 0.1;
 main.maxElements = 1000;
 main.currentElements = 1000;
 
-console.log('dfdfffffffffffffffffffffffffffffffffff')
-
 function draw() {
     SVG.begin();
     SVG.attributes = {
@@ -50,11 +48,17 @@ function draw() {
     SVG.attributes.stroke = main.mappingColor;
     SVG.createGroup(SVG.attributes);
 
-const c1=new Circle(0,0,1);
-const c2=new Circle(1,1,2);
-const c3=new Circle(-1,4,3);
+const c1=new Circle(0,200,350);
+const c2=new Circle(100,50,150);
+const c3=new Circle(-100,0,50);
 c1.draw();
+c2.draw();
+c3.draw();
+    SVG.attributes.stroke = main.imageColor;
+    SVG.createGroup(SVG.attributes);
 
+const thing=Circle.createFromTriplett(c1,c2,c3);
+thing.draw();
 
     SVG.terminate();
 }

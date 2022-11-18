@@ -13,7 +13,6 @@ export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ)
     this.pointX = pointX;
     this.pointY = pointY;
     this.pointZ = pointZ;
-
     const normalFactor = 1 / Math.sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
     this.directionX = normalFactor * directionX;
     this.directionY = normalFactor * directionY;

@@ -36,39 +36,48 @@ extra.triplett = function(sphere1, sphere2, sphere3) {
     const normalZ = e1x * e2y - e1y * e2x;
     const normal2 = normalX * normalX + normalY * normalY + normalZ * normalZ;
     if (normal2 < eps) {
-        // colinear, makes a line
-        return new Line(sphere1.centerX,sphere1.centerY,sphere1.centerZ,e1x,e1y,e1z);
-    } else {
-        //not colinear, makes a circle
-        // make orthonormalized vectors in plane of the three circle centers
-        // get distance between center 1 and center2
-        // normalize vector from 1 to 2
-        const d=Math.sqrt(e1x*e1x+e1y*e1y+e1z*e1z);
-        e1x/=d;
-        e1y/=d;
-        e1z/=d;
-        // orthogonalize vector from 1 to 3, e1 is normalized
-        const v2x=e2x;
-        const v2y=e2y;
-        const v2z=e2z;
-        const e2e1=e2x*e1x+e2y*e1y+e2z*e1z;
-        e2x-=e2e1*e1x;
-        e2y-=e2e1*e1y;
-        e2z-=e2e1*e1z;
-        const normFactor=1/Math.sqrt(e2x*e2x+e2y*e2y+e2z*e2z);
-        e2x*=normFactor;
-        e2y*=normFactor;
-        e2z*=normFactor;
-        console.log(e2x*e2x+e2y*e2y+e2z*e2z)
-        console.log(e2x*e1x+e2y*e1y+e2z*e1z)
-        // coordinates with respect to e1 and e2
-        // center1=(0,0), center2=(d,0), center3=(x3,y3)
-        const x3=v2x*e1x+v2y*e1y+v2z*e1z;
-        const y3=v2x*e2x+v2y*e2y+v2z*e2z;
-        console.log('xy',x3,y3);
-        // center of new circle at (x,y) in plane coordinates
-        const x=0.5/d*(sphere1.radius2+d*d-sphere2.radius2);
-
+        // colinear, makes a line, two centers might be the same
+        if ((e1x * e1x + e1y * e1y + e1z * e1z) > eps) {
+            return new Line(sphere1.centerX, sphere1.centerY, sphere1.centerZ, e1x, e1y, e1z);
+        } else {
+            return new Line(sphere1.centerX, sphere1.centerY, sphere1.centerZ, e2x, e2y, e2z);
+        }
     }
-
+    //not colinear, makes a circle
+    // make orthonormalized vectors in plane of the three circle centers
+    // get distance between center 1 and center2
+    // normalize vector from 1 to 2 and determine distance
+    const d = Math.sqrt(e1x * e1x + e1y * e1y + e1z * e1z);
+    e1x /= d;
+    e1y /= d;
+    e1z /= d;
+    // orthogonalize vector from 1 to 3, e1 is normalized
+    const v2x = e2x;
+    const v2y = e2y;
+    const v2z = e2z;
+    const e2e1 = e2x * e1x + e2y * e1y + e2z * e1z;
+    e2x -= e2e1 * e1x;
+    e2y -= e2e1 * e1y;
+    e2z -= e2e1 * e1z;
+    // normalize e2
+    const normFactor = 1 / Math.sqrt(e2x * e2x + e2y * e2y + e2z * e2z);
+    e2x *= normFactor;
+    e2y *= normFactor;
+    e2z *= normFactor;
+    // coordinates with respect to e1 and e2
+    // center1=(0,0), center2=(d,0), center3=(x3,y3)
+    const x3 = v2x * e1x + v2y * e1y + v2z * e1z;
+    const y3 = v2x * e2x + v2y * e2y + v2z * e2z;
+    // center of new circle at (x,y) in plane coordinates
+    const r12 = sphere2.radius2 - sphere1.radius2 - d * d;
+    const r13 = sphere3.radius2 - sphere1.radius2 - x3 * x3 - y3 * y3;
+    const x = -0.5 * r12 / d;
+    const y = 0.5 * (x3 * r12 - d * r13) / (y3 * d);
+    // the center of the sphere, resulting from the e1 and e2 axis
+    const centerX = sphere1.centerX + x * e1x + y * e2x;
+    const centerY = sphere1.centerY + x * e1y + y * e2y;
+    const centerZ = sphere1.centerZ + x * e1z + y * e2z;
+    // radius, using that e1 and e2 are orthogonal and normalized
+    const radius = Math.sqrt(x * x + y * y - sphere1.radius2);
+    return new Circle(centerX, centerY, centerZ, radius, normalX, normalY, normalZ);
 };

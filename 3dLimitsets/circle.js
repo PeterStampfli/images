@@ -17,7 +17,6 @@ export function Circle(centerX, centerY, centerZ, radius, normalX, normalY, norm
     this.normalX = normalFactor * normalX;
     this.normalY = normalFactor * normalY;
     this.normalZ = normalFactor * normalZ;
-    console.log(normalX, normalY, normalZ);
 }
 
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
@@ -39,18 +38,14 @@ Circle.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
         // n=(nxy,0,nz) after rotation
         centerX = (nx * this.centerX + ny * this.centerY) / nxy;
         centerY = (-ny * this.centerX + nx * this.centerY) / nxy;
-        console.log(this.normalX, this.normalY, this.normalZ);
         normalX = (nx * this.normalX + ny * this.normalY) / nxy;
         normalY = (-ny * this.normalX + nx * this.normalY) / nxy;
         // rotate around the y-axis, moves n to (1,0,0), n is normalized
         // cos(theta)=nz, sin(theta)=nxy, theta angle to the x-axis, rotation by -theta, we do not need the z-component
         centerX = nz * centerX - nxy * this.centerZ;
-        console.log(normalX, normalY, this.normalZ);
         const h = nz * normalX - nxy * this.normalZ;
-        console.log('nxy,nz', nxy, nz);
         normalZ = nxy * normalX + nz * this.normalZ;
         normalX = h;
-        console.log(normalX, normalY, normalZ);
     } else {
         centerX = this.centerX;
         centerY = this.centerY;
@@ -63,7 +58,6 @@ Circle.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
     // large axis equal to radius, small axis is cos(theta_normalVector)*radius=normalZ*radius
     // normalized normal vector
     const smallAxis = this.radius * Math.abs(normalZ);
-    console.log(this.radius, smallAxis, angle);
     const canvasContext = output.canvasContext;
     canvasContext.beginPath();
     canvasContext.ellipse(centerX, centerY, this.radius, smallAxis, angle, 0, 2 * Math.PI);

@@ -354,13 +354,13 @@ function create() {
     mappingCircles.length = 0;
     nImages = 0;
 
-    //  octahedron();
+      octahedron();
     //projectedOctahedron();
     //  tetrahedron();
     //   projectedCube();
     //ikosahedron();
     //cubeoctahedron();
-    dodecagon();
+    //dodecagon();
     if (main.generations > 0) {
         generation1();
     }
@@ -390,7 +390,7 @@ function draw() {
     SVG.attributes.stroke = main.mappingColor;
     SVG.createGroup(SVG.attributes);
 
-
+    Circle.minDrawingRadius=main.lineWidth;
     mappingCircles.forEach(circle => circle.draw());
     SVG.attributes.stroke = main.imageColor;
     SVG.createGroup(SVG.attributes);

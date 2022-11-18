@@ -5,11 +5,6 @@ import {
 }
 from "../libgui/modules.js";
 
-import {
-    main
-}
-from "./limitsets.js";
-
 const big = 10000;
 const eps = 0.001;
 
