@@ -121,3 +121,9 @@ Sphere.prototype.invertLine = function(line) {
     const centerZ = this.centerZ + radius * cpZ;
     return new Circle(centerX, centerY, centerZ, radius, normalX, normalY, normalZ);
 };
+
+// invert a circle at a sphere, return the image circle
+// return false if the circle intersects the sphere at a right angle (and thus remains unchanged)
+Sphere.prototype.invertCircle = function(circle) {
+
+};
