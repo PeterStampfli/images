@@ -13,6 +13,7 @@ export function Circle(centerX, centerY, centerZ, radius, normalX, normalY, norm
     this.centerY = centerY;
     this.centerZ = centerZ;
     this.radius = radius;
+    this.radius2=radius*radius;
     const normalFactor = 1 / Math.sqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
     this.normalX = normalFactor * normalX;
     this.normalY = normalFactor * normalY;

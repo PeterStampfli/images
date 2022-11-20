@@ -124,6 +124,131 @@ Sphere.prototype.invertLine = function(line) {
 
 // invert a circle at a sphere, return the image circle
 // return false if the circle intersects the sphere at a right angle (and thus remains unchanged)
+// use intersection of circle plane and circle sphere
 Sphere.prototype.invertCircle = function(circle) {
+    // vector from center of sphere to center of circle
+    const sphCircCenterX = circle.centerX - this.centerX;
+    const sphCircCenterY = circle.centerY - this.centerY;
+    const sphCircCenterZ = circle.centerZ - this.centerZ;
+    // distance between the centers
+    const dSphCircCenter2 = sphCircCenterX * sphCircCenterX + sphCircCenterY * sphCircCenterY + sphCircCenterZ * sphCircCenterZ;
+    // signed distance of center of sphere to the plane of the circle, normal vector is normalized
+    const dToPlane = circle.normalX * sphCircCenterX + circle.normalY * sphCircCenterY + circle.normalZ * sphCircCenterZ;
+    //if this distance is nearly zero then plane goes through center of sphere and we have a 2d inversion
+    if (Math.abs(dToPlane) < eps) {
+        const factor = this.radius2 / (dSphCircCenter2 - circle.radius2);
+        if (Math.abs(factor - 1) < eps) {
+            // intersection at right angle, circle remains unchanged, return false
+            return false;
+        }
+        const imageRadius = Math.abs(factor) * circle.radius;
+        const imageCenterX = this.centerX + factor * sphCircCenterX;
+        const imageCenterY = this.centerY + factor * sphCircCenterY;
+        const imageCenterZ = this.centerZ + factor * sphCircCenterZ;
+        return new Circle(imageCenterX, imageCenterY, imageCenterZ, imageRadius, circle.normalX, circle.normalY, circle.normalZ);
+    } else {
+        // plane of circle does not go through center of sphere
+        // plane is mapped to a sphere
+        // determine image sphere data from the inverted distance of plane to sphere
+        // and normal vector to the plane
+        const dImage = 0.5 * this.radius2 / dToPlane;
+        const planeImageRadius = Math.abs(dImage);
+        const planeImageCenterX = this.centerX + dImage * circle.normalX;
+        const planeImageCenterY = this.centerX + dImage * circle.normalY;
+        const planeImageCenterZ = this.centerX + dImage * circle.normalZ;
+        // the sphere defined by the circle is mapped into a sphere
+        const factor = this.radius2 / (dSphCircCenter2 - circle.radius2);
+        const sphereImageRadius = Math.abs(factor) * circle.radius;
+        const sphereImageCenterX = this.centerX + factor * sphCircCenterX;
+        const sphereImageCenterY = this.centerY + factor * sphCircCenterY;
+        const sphereImageCenterZ = this.centerZ + factor * sphCircCenterZ;
+        // the intersection between these two spheres gives the new circle
+        // vector between the centers is the new normal vector 
+        // going out from the center of the sphere image
+        let normalX = planeImageCenterX - sphCircCenterX;
+        let normalY = planeImageCenterY - sphCircCenterY;
+        let normalZ = planeImageCenterZ - sphCircCenterZ;
+        // normalize and get distance between centers
+        dCenters2 = normalX * normalX + normalY * normalY + normalZ * normalZ;
+        dCenters = Math.sqrt(dCenters2);
+        normalX /= dCenters;
+        normalY /= dCenters;
+        normalZ /= dCenters;
+        // angle between line connecting the sphere centers and the intersection of their surfaces
+        const cosAlpha = 0.5 * (sphereImageRadius * sphereImageRadius + dCenters2 - planeImageRadius * planeImageRadius) / sphereImageRadius / dCenters;
+        const imageRadius = sphereImageRadius * Math.sqrt(1 - cosAlpha * cosAlpha);
+        const dSphereCircleCenter = cosAlpha * sphereImageRadius;
+        const imageCenterX = sphereImageCenterX + dSphereCircleCenter * normalX;
+        const imageCenterY = sphereImageCenterY + dSphereCircleCenter * normalY;
+        const imageCenterZ = sphereImageCenterZ + dSphereCircleCenter * normalZ;
+        return new Circle(imageCenterX, imageCenterY, imageCenterZ, imageRadius, normalX, normalY, normalZ);
+    }
+};
+
+// invert a circle at a sphere, return the image circle
+// return false if the circle remains unchanged
+// use three inverted points on the circle
+Sphere.prototype.altInvertCircle = function(circle) {
+    // use the normalized normal vector to get two orthonormal vectors in the plane of the circle
+    // it defines a rotation of the z-axis to the normal vector
+    var e1x, e1y, e1z, e2x, e2y;
+    const normalXY = Math.sqrt(circle.normalX * circle.normalX + circle.normalY * circle.normalY);
+    // beware if normal vector is parallel to z-axis
+    if (Math.abs(normalXY) < eps) {
+        e1x = 1;
+        e1y = 0;
+        e1z = 0;
+        e2x = 0;
+        e2y = 1;
+    } else {
+        // (xz/rt(x2+y2),yz/rt(x2+y2),-rt(x2+y2)) is orthogonal to (x,y,z) and normalized
+        e1x = circle.normalX * circle.normalZ / normalXY;
+        e1y = circle.normalY * circle.normalZ / normalXY;
+        e1z = -normalXY;
+        // (-y/rt(x2+y2),x/rt(x2+y2),0) is additional orthonormal vector
+        e2x = -circle.normalY / normalXY;
+        e2y = circle.normalX / normalXY;
+    }
+    // invert three points at the sphere
+    // we are safe, for present calculations, 
+    // the circle should not pass through the center of the inverting sphere
+    const r = circle.radius;
+    //the first point
+    let p1x = circle.centerX + r * e1x;
+    let p1y = circle.centerY + r * e1y;
+    let p1z = circle.centerZ + r * e1z;
+    let dx = p1x - this.centerX;
+    let dy = p1y - this.centerY;
+    let dz = p1z - this.centerZ;
+    let d2 = dx * dx + dy * dy + dz * dz;
+    let factor = this.radius2 / d2;
+    p1x = this.centerX + factor * dx;
+    p1y = this.centerY + factor * dy;
+    p1z = this.centerZ + factor * dz;
+// second
+    let p2x = circle.centerX + r * e2x;
+    let p2y = circle.centerY + r * e2y;
+    let p2z = circle.centerZ;
+    dx = p2x - this.centerX;
+    dy = p2y - this.centerY;
+    dz = p2z - this.centerZ;
+    d2 = dx * dx + dy * dy + dz * dz;
+    factor = this.radius2 / d2;
+    p2x = this.centerX + factor * dx;
+    p2y = this.centerY + factor * dy;
+    p2z = this.centerZ + factor * dz;
+// third
+    let p3x = circle.centerX - r * e1x;
+    let p3y = circle.centerY - r * e1y;
+    let p3z = circle.centerZ - r * e1z;
+    dx = p3x - this.centerX;
+    dy = p3y - this.centerY;
+    dz = p3z - this.centerZ;
+    d2 = dx * dx + dy * dy + dz * dz;
+    factor = this.radius2 / d2;
+    p3x = this.centerX + factor * dx;
+    p3y = this.centerY + factor * dy;
+    p3z = this.centerZ + factor * dz;
+// find the circle defined by these three image points
 
 };
