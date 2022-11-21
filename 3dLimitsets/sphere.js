@@ -225,7 +225,7 @@ Sphere.prototype.altInvertCircle = function(circle) {
     p1x = this.centerX + factor * dx;
     p1y = this.centerY + factor * dy;
     p1z = this.centerZ + factor * dz;
-// second
+    // second
     let p2x = circle.centerX + r * e2x;
     let p2y = circle.centerY + r * e2y;
     let p2z = circle.centerZ;
@@ -237,7 +237,7 @@ Sphere.prototype.altInvertCircle = function(circle) {
     p2x = this.centerX + factor * dx;
     p2y = this.centerY + factor * dy;
     p2z = this.centerZ + factor * dz;
-// third
+    // third
     let p3x = circle.centerX - r * e1x;
     let p3y = circle.centerY - r * e1y;
     let p3z = circle.centerZ - r * e1z;
@@ -249,6 +249,56 @@ Sphere.prototype.altInvertCircle = function(circle) {
     p3x = this.centerX + factor * dx;
     p3y = this.centerY + factor * dy;
     p3z = this.centerZ + factor * dz;
-// find the circle defined by these three image points
-
+    // find the circle defined by these three image points
+    // get two orthonormal vectors in the plane of the two points
+    // use p1 as origin
+    // we do not need the vectors in the plane of the original circle anymore
+    e1x = p2x - p1x;
+    e1y = p2y - p1y;
+    e1z = p2z - p1z;
+    // the second vector
+    e2x = p3x - p1x;
+    e2y = p3y - p1y;
+    e2z = p3z - p1z;
+    const point1ToPoint3x = e2x;
+    const point1ToPoint3y = e2y;
+    const point1ToPoint3z = e2z;
+    // get normal vector to plane of points and circle, if not colinear
+    const normalX = e1y * e2z - e1z * e2y;
+    const normalY = e1z * e2x - e1x * e2z;
+    const normalZ = e1x * e2y - e1y * e2x;
+    const normal2 = normalX * normalX + normalY * normalY + normalZ * normalZ;
+    if (normal2 < eps) {
+        return new Line(p1x, p1y, p1z, e1x, e1y, e1z);
+    }
+    // not colinear, makes a circle
+    // make orthonormalized vectors in plane of the three circle centers
+    // get distance between center 1 and center2
+    // normalize vector from 1 to 2 and determine distance
+    const d = Math.sqrt(e1x * e1x + e1y * e1y + e1z * e1z);
+    e1x /= d;
+    e1y /= d;
+    e1z /= d;
+    // orthogonalize vector from 1 to 3, e1 is normalized
+    const e2e1 = e2x * e1x + e2y * e1y + e2z * e1z;
+    e2x -= e2e1 * e1x;
+    e2y -= e2e1 * e1y;
+    e2z -= e2e1 * e1z;
+    // normalize e2
+    const normFactor = 1 / Math.sqrt(e2x * e2x + e2y * e2y + e2z * e2z);
+    e2x *= normFactor;
+    e2y *= normFactor;
+    e2z *= normFactor;
+    // coordinates of point 3 with respect to e1 and e2
+    // center1=(0,0), center2=(d,0), center3=(x3,y3)
+    const x3 = point1ToPoint3x * e1x + point1ToPoint3y * e1y + point1ToPoint3z * e1z;
+    const y3 = point1ToPoint3x * e2x + point1ToPoint3y * e2y + point1ToPoint3z * e2z;
+    // the image circle in the orthonormal coordinate system of e1 and e2
+    const x = d / 2;
+    const y = 0.5 * (y3 + (x3 - d) * x3 / y3);
+    const centerX = p1x + x * e1x + y * e2x;
+    const centerY = p1y + x * e1y + y * e2y;
+    const centerZ = p1z + x * e1z + y * e2z;
+    const radius = Math.sqrt(x3 * x3 + y3 * y3);
+    return new Circle(centerX, centerY, centerZ, radius, normalX, normalY, normalZ);
 };

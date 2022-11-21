@@ -30,7 +30,10 @@ extra.triplett = function(sphere1, sphere2, sphere3) {
     let e2x = sphere3.centerX - sphere1.centerX;
     let e2y = sphere3.centerY - sphere1.centerY;
     let e2z = sphere3.centerZ - sphere1.centerZ;
-    // get normal vector to plane of circle centers, if not colinear
+     const center1ToCenter3x = e2x;
+    const center1ToCenter3y = e2y;
+    const center1ToCenter3z = e2z;
+       // get normal vector to plane of circle centers, if not colinear
     const normalX = e1y * e2z - e1z * e2y;
     const normalY = e1z * e2x - e1x * e2z;
     const normalZ = e1x * e2y - e1y * e2x;
@@ -43,7 +46,7 @@ extra.triplett = function(sphere1, sphere2, sphere3) {
             return new Line(sphere1.centerX, sphere1.centerY, sphere1.centerZ, e2x, e2y, e2z);
         }
     }
-    //not colinear, makes a circle
+    // not colinear, makes a circle
     // make orthonormalized vectors in plane of the three circle centers
     // get distance between center 1 and center2
     // normalize vector from 1 to 2 and determine distance
@@ -52,9 +55,6 @@ extra.triplett = function(sphere1, sphere2, sphere3) {
     e1y /= d;
     e1z /= d;
     // orthogonalize vector from 1 to 3, e1 is normalized
-    const v2x = e2x;
-    const v2y = e2y;
-    const v2z = e2z;
     const e2e1 = e2x * e1x + e2y * e1y + e2z * e1z;
     e2x -= e2e1 * e1x;
     e2y -= e2e1 * e1y;
@@ -64,10 +64,10 @@ extra.triplett = function(sphere1, sphere2, sphere3) {
     e2x *= normFactor;
     e2y *= normFactor;
     e2z *= normFactor;
-    // coordinates with respect to e1 and e2
+    // coordinates of center of circle 3 with respect to e1 and e2
     // center1=(0,0), center2=(d,0), center3=(x3,y3)
-    const x3 = v2x * e1x + v2y * e1y + v2z * e1z;
-    const y3 = v2x * e2x + v2y * e2y + v2z * e2z;
+    const x3 = center1ToCenter3x * e1x + center1ToCenter3y * e1y + center1ToCenter3z * e1z;
+    const y3 = center1ToCenter3x * e2x + center1ToCenter3y * e2y + center1ToCenter3z * e2z;
     // center of new circle at (x,y) in plane coordinates
     const r12 = sphere2.radius2 - sphere1.radius2 - d * d;
     const r13 = sphere3.radius2 - sphere1.radius2 - x3 * x3 - y3 * y3;
