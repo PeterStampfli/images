@@ -23,16 +23,17 @@ const gui = new ParamGui({
 SVG.makeGui(gui);
 SVG.init();
 SVG.setMinViewWidthHeight(200, 200);
-Circle.makeSCAD=false;
+let makeSCAD = false;
+Circle.planar = false;
 
 const saveSCADButton = gui.add({
     type: "button",
     buttonText: "save openSCAD",
     minLabelWidth: 20,
     onClick: function() {
-Circle.makeSCAD=true;
+        makeSCAD = true;
         SVG.draw();
-Circle.makeSCAD=false;
+        makeSCAD = false;
         guiUtils.saveTextAsFile(Circle.SCADtext, SCADsaveName.getValue(), 'scad');
     }
 });
@@ -44,6 +45,18 @@ const SCADsaveName = saveSCADButton.add({
     minLabelWidth: 20
 });
 
+gui.add({
+    type: 'boolean',
+    params: Circle,
+    property: 'planar',
+    onChange: function() {
+        makeSCAD = true;
+        SVG.draw();
+        makeSCAD = false;
+        guiUtils.saveTextAsFile(Circle.SCADtext, SCADsaveName.getValue(), 'scad');
+    }
+});
+
 // parameters for drawing
 export const main = {};
 // colors
@@ -52,7 +65,7 @@ main.mappingColor = '#ff0000';
 main.lineWidth = 1;
 
 main.size = 40;
-main.generations = 5;
+main.generations = 3;
 main.minRadius = 0.1;
 main.maxElements = 1000;
 main.currentElements = 1000;
@@ -155,8 +168,8 @@ function setupHyperbolic(x, y, z, r) {
     const r2 = r * r;
     rHyp2 = d2 - r2;
     rHyp = Math.sqrt(rHyp2);
-    Circle.rHyp2 = rHyp2;
     Circle.rHyp = rHyp;
+    Line.rHyp = rHyp;
 }
 
 function project(x, y, z, r) {
@@ -414,29 +427,41 @@ function create() {
 }
 
 function draw() {
-    Circle.SCADtext = '';
-    SVG.begin();
-    SVG.attributes = {
-        transform: 'scale(1 -1)',
-        fill: 'none',
-        'stroke-width': main.lineWidth,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round'
-    };
-    SVG.attributes.stroke = main.mappingColor;
-    SVG.createGroup(SVG.attributes);
-    Circle.minDrawingRadius = main.lineWidth;
-    mappingCircles.forEach(circle => circle.draw());
-    SVG.attributes.stroke = main.imageColor;
-    SVG.createGroup(SVG.attributes);
-    const mapLength = mappingCircles.length;
-    for (let i = 0; i < mapLength; i++) {
-        const images = mappingCircles[i].images;
-        for (let gen = 0; gen < main.generations; gen++) {
-            images[gen].forEach(image => image.draw());
+    if (makeSCAD) {
+        Circle.SCADtext = 'circles=[';
+        Circle.first = true;
+        const mapLength = mappingCircles.length;
+        for (let i = 0; i < mapLength; i++) {
+            const images = mappingCircles[i].images;
+            for (let gen = 0; gen < main.generations; gen++) {
+                images[gen].forEach(image => image.writeSCAD());
+            }
         }
+        Circle.SCADtext += '\n];';
+    } else {
+        SVG.begin();
+        SVG.attributes = {
+            transform: 'scale(1 -1)',
+            fill: 'none',
+            'stroke-width': main.lineWidth,
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round'
+        };
+        SVG.attributes.stroke = main.mappingColor;
+        SVG.createGroup(SVG.attributes);
+        Circle.minDrawingRadius = main.lineWidth;
+        mappingCircles.forEach(circle => circle.draw());
+        SVG.attributes.stroke = main.imageColor;
+        SVG.createGroup(SVG.attributes);
+        const mapLength = mappingCircles.length;
+        for (let i = 0; i < mapLength; i++) {
+            const images = mappingCircles[i].images;
+            for (let gen = 0; gen < main.generations; gen++) {
+                images[gen].forEach(image => image.draw());
+            }
+        }
+        SVG.terminate();
     }
-    SVG.terminate();
 }
 
 SVG.draw = draw;

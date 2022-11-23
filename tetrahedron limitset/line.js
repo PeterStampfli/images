@@ -5,6 +5,11 @@ import {
 }
 from "../libgui/modules.js";
 
+import {
+    Circle
+} from "./circle.js";
+
+
 const big = 10000;
 const eps = 0.001;
 
@@ -26,6 +31,31 @@ export function Line(nX, nY, d) {
     this.nY = normFactor * nY;
     this.d = d;
 }
+
+function prec(x) {
+    return x.toPrecision(4);
+}
+
+Line.prototype.writeSCAD = function() {
+    // export to Circle.SCADtext
+    if (Circle.planar) {
+        // planar, for comparision,...
+        // can't do this
+        // a line is a circle of infinite radius ...
+    } else {
+        // invert line to the hyperbolic sphere, we are now in three dimensions
+        // inversion center at (0,0,rHyp), radius sqrt(2)*rHyp
+        // this gives a great circle, center at origin, radius is hyperbolic radius
+        // normal is inside xy-plane, perpendicular to the line
+        if (Circle.first) {
+            Circle.first = false;
+        } else {
+            Circle.SCADtext += ',';
+        }
+        Circle.SCADtext += '\n';
+        Circle.SCADtext += '[[0,0,0],' + prec(Line.rHyp) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
+    }
+};
 
 Line.prototype.draw = function() {
     const px = this.d * this.nX;

@@ -38,13 +38,56 @@ Circle.prototype.equals = function(other) {
     }
 };
 
-Circle.prototype.draw = function() {
-    if (Circle.makeSCAD) {
-        // export to Circle.SCADtext
-        // invert circle to the hyperbolic sphere
-        // inversion center at (0,0,rHyp) radius sqrt(2)*rHyp
+function prec(x) {
+    return x.toPrecision(4);
+}
 
-    } else if (this.radius > Circle.minDrawingRadius) {
+Circle.prototype.writeSCAD = function() {
+    // export to Circle.SCADtext
+    if (Circle.planar) {
+        // planar, for comparision,...
+        if (Circle.first) {
+            Circle.first = false;
+        } else {
+            Circle.SCADtext += ',';
+        }
+        Circle.SCADtext += '\n';
+        Circle.SCADtext += '[[' + prec(this.centerX) + ',' + prec(this.centerY) + ',0],';
+        Circle.SCADtext += prec(this.radius) + ',[0,0,1]]';
+    } else {
+        // inversion maps circle to the surface of the hyperbolic sphere, we are now in three dimensions
+        // inversion center at (0,0,rHyp), radius sqrt(2)*rHyp
+        // invert the sphere that corresponds to the circle (same center and radius)
+        const rHyp = Circle.rHyp;
+        // dx=centerX, dy=centerY, dz=-rHyp
+        let d2 = rHyp * rHyp + this.centerX * this.centerX + this.centerY * this.centerY;
+        const factor = 2 * rHyp * rHyp / (d2 - this.radius2);
+        const invSphereCenterX = factor * this.centerX;
+        const invSphereCenterY = factor * this.centerY;
+        const invSphereCenterZ = (1 - factor) * rHyp;
+        const invSphereRadius = Math.abs(factor) * this.radius;
+        // inverted circle results from intersection of this inverted sphere with the hyperbolic sphere
+        // center at (0,0,0), radius=rHyp
+        // should intersect hyperbolic sphere at right angles
+        // intersection with hyperbolic sphere defines the image circle
+        // normal vector is inverted sphere center
+        d2 = invSphereCenterX * invSphereCenterX + invSphereCenterY * invSphereCenterY + invSphereCenterZ * invSphereCenterZ;
+        let d = Math.sqrt(d2);
+
+
+        if (Circle.first) {
+            Circle.first = false;
+        } else {
+            Circle.SCADtext += ',';
+        }
+        Circle.SCADtext += '\n';
+        Circle.SCADtext += '[[' + prec(this.centerX) + ',' + prec(this.centerY) + ',0],';
+        Circle.SCADtext += prec(this.radius) + ',[0,0,1]]';
+    }
+};
+
+Circle.prototype.draw = function() {
+    if (this.radius > Circle.minDrawingRadius) {
         SVG.createCircle(this.centerX, this.centerY, this.radius);
     }
 };
