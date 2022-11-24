@@ -52,8 +52,8 @@ Circle.prototype.writeSCAD = function() {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(this.centerX) + ',' + prec(this.centerY) + ',0],';
-        Circle.SCADtext += prec(this.radius) + ',[0,0,1]]';
+        Circle.SCADtext += '[[' + prec(Circle.size*this.centerX) + ',' + prec(Circle.size*this.centerY) + ',0],';
+        Circle.SCADtext += prec(Circle.size*this.radius) + ',[0,0,1]]';
     } else {
         // inversion maps circle to the surface of the hyperbolic sphere, we are now in three dimensions
         // inversion center at (0,0,rHyp), radius sqrt(2)*rHyp
@@ -61,7 +61,7 @@ Circle.prototype.writeSCAD = function() {
         const rHyp = Circle.rHyp;
         // dx=centerX, dy=centerY, dz=-rHyp
         let d2 = rHyp * rHyp + this.centerX * this.centerX + this.centerY * this.centerY;
-        const factor = 2 * rHyp * rHyp / (d2 - this.radius2);
+        let factor = 2 * rHyp * rHyp / (d2 - this.radius2);
         const invSphereCenterX = factor * this.centerX;
         const invSphereCenterY = factor * this.centerY;
         const invSphereCenterZ = (1 - factor) * rHyp;
@@ -73,22 +73,25 @@ Circle.prototype.writeSCAD = function() {
         // normal vector is inverted sphere center
         d2 = invSphereCenterX * invSphereCenterX + invSphereCenterY * invSphereCenterY + invSphereCenterZ * invSphereCenterZ;
         let d = Math.sqrt(d2);
-
-
+        const imageCircleRadius = rHyp / d * invSphereRadius;
+        factor = rHyp * rHyp / d2;
+        const imageCircleCenterX = factor * invSphereCenterX;
+        const imageCircleCenterY = factor * invSphereCenterY;
+        const imageCircleCenterZ = factor * invSphereCenterZ;
         if (Circle.first) {
             Circle.first = false;
         } else {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(this.centerX) + ',' + prec(this.centerY) + ',0],';
-        Circle.SCADtext += prec(this.radius) + ',[0,0,1]]';
+        Circle.SCADtext += '[[' + prec(Circle.size*imageCircleCenterX) + ',' + prec(Circle.size*imageCircleCenterY) + ',' + prec(Circle.size*imageCircleCenterZ) + '],';
+        Circle.SCADtext += prec(Circle.size*imageCircleRadius) + ',[' + prec(invSphereCenterX) + ',' + prec(invSphereCenterY) + ',' + prec(invSphereCenterZ) + ']]';
     }
 };
 
 Circle.prototype.draw = function() {
-    if (this.radius > Circle.minDrawingRadius) {
-        SVG.createCircle(this.centerX, this.centerY, this.radius);
+    if (Circle.size*this.radius > Circle.minDrawingRadius) {
+        SVG.createCircle(Circle.size*this.centerX, Circle.size*this.centerY, Circle.size*this.radius);
     }
 };
 

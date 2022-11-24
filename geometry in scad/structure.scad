@@ -78,10 +78,11 @@ module drawLines(points, length, weight = 1, eps = 0.001){
 }
 
 // circles: center point, normal vector, radius, weight for drawing
-module drawCircle(center, normal, radius, weight = 1){
-  translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
+module drawCircle(center, radius, normal,weight=1){
+    if (radius>weight){
+        translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
+    }
 }
-
 octagon = [[20,0,0],[0,20,0],[0,0,20],[-20,0,0],[0,-20,0],[0,0,-20]];
 $fn=128;
 drawCircle([20,0,0], [20,0,0],20);

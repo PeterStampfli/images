@@ -53,7 +53,7 @@ Line.prototype.writeSCAD = function() {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[0,0,0],' + prec(Line.rHyp) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
+        Circle.SCADtext += '[[0,0,0],' + prec(Circle.size*Line.rHyp) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
     }
 };
 

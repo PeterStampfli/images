@@ -79,9 +79,11 @@ module drawLinesOfLength(points, length, weight = 1){
 
 // circles: center point, normal vector, radius, weight for drawing
 module drawCircle(center, radius, normal,weight=1){
-if (radius>weight){
-  translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
-}
+    if (radius>weight){
+        translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
+    } else {
+    echo(radius);
+    }
 }
 
 // drawing circles
@@ -93,6 +95,7 @@ module drawCircles(theCircles,weight=1){
 }
 
 $fn=128;
-include <image(3).scad>;
+include <theCircles.scad>;
 
-drawCircles(0.5*theCircles,0.5);
+drawCircles(1*theCircles,0.1);
+echo(len(theCircles));

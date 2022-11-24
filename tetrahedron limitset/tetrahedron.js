@@ -23,7 +23,6 @@ const gui = new ParamGui({
 SVG.makeGui(gui);
 SVG.init();
 SVG.setMinViewWidthHeight(200, 200);
-let makeSCAD = false;
 Circle.planar = false;
 
 const saveSCADButton = gui.add({
@@ -31,9 +30,7 @@ const saveSCADButton = gui.add({
     buttonText: "save openSCAD",
     minLabelWidth: 20,
     onClick: function() {
-        makeSCAD = true;
-        SVG.draw();
-        makeSCAD = false;
+        makeSCAD();
         guiUtils.saveTextAsFile(Circle.SCADtext, SCADsaveName.getValue(), 'scad');
     }
 });
@@ -49,12 +46,6 @@ gui.add({
     type: 'boolean',
     params: Circle,
     property: 'planar',
-    onChange: function() {
-        makeSCAD = true;
-        SVG.draw();
-        makeSCAD = false;
-        guiUtils.saveTextAsFile(Circle.SCADtext, SCADsaveName.getValue(), 'scad');
-    }
 });
 
 // parameters for drawing
@@ -64,15 +55,14 @@ main.imageColor = '#000000';
 main.mappingColor = '#ff0000';
 main.lineWidth = 1;
 
-main.size = 40;
-main.generations = 3;
-main.minRadius = 0.1;
+Circle.size = 40;
+main.generations = 1;
 main.maxElements = 1000;
 main.currentElements = 1000;
 
 gui.add({
     type: 'number',
-    params: main,
+    params: Circle,
     property: 'size',
     min: 0,
     onChange: function() {
@@ -87,16 +77,6 @@ gui.add({
     property: 'generations',
     min: 0,
     step: 1,
-    onChange: function() {
-        create();
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: main,
-    property: 'minRadius',
-    labelText: 'minimum radius',
-    min: 0,
     onChange: function() {
         create();
         draw();
@@ -186,7 +166,7 @@ function project(x, y, z, r) {
 
 // add a mapping circle
 function mappingCircle(centerX, centerY, radius) {
-    const mappingCircle = new Circle(main.size * centerX, main.size * centerY, main.size * radius);
+    const mappingCircle = new Circle(centerX, centerY, radius);
     mappingCircle.images = [];
     const length = main.generations;
     mappingCircle.images.length = length;
@@ -282,7 +262,6 @@ function generation2() {
 // make a new generation, only circles for inversion
 // new generation at index generation-1
 function newGeneration(generation) {
-    const minRadius = main.minRadius;
     const mapLength = mappingCircles.length;
     for (let m = 0; m < mapLength; m++) {
         const mappingCircle = mappingCircles[m];
@@ -293,7 +272,7 @@ function newGeneration(generation) {
                 const oldGenLength = oldGeneration.length;
                 for (let k = 0; k < oldGenLength; k++) {
                     const newCircle = mappingCircle.invertCircle(oldGeneration[k]);
-                    if ((newCircle !== false) && (newCircle.radius > minRadius)) {
+                    if (newCircle) {
                         newGeneration.push(newCircle);
                         nImages += 1;
                     }
@@ -376,7 +355,6 @@ function ikosahedron() {
     const r = 0.5 * Math.sqrt(4 / 5 + (1 - 1 / rt5) * (1 - 1 / rt5));
     const plus = 0.1 * (5 + rt5);
     const minus = 0.1 * (5 - rt5);
-    console.log(r);
     project(0, 0, 1, r);
     project(0, 0, -1, r);
     project(2 / rt5, 0, 1 / rt5, r);
@@ -410,58 +388,63 @@ function create() {
 
     projectedTetrahedron();
 
-    if (main.generations > 0) {
+    if (main.generations >= 1) {
         generation1();
     }
-    if (main.generations > 1) {
+    if (main.generations >= 2) {
         generation2();
     }
 
-    for (let gen = 2; gen <= main.generations; gen++) {
+    for (let gen = 3; gen <= main.generations; gen++) {
         newGeneration(gen);
         if (nImages > main.maxElements) {
             break;
         }
     }
+
     currentElementsController.setValueOnly(nImages);
 }
 
-function draw() {
-    if (makeSCAD) {
-        Circle.SCADtext = 'circles=[';
-        Circle.first = true;
-        const mapLength = mappingCircles.length;
-        for (let i = 0; i < mapLength; i++) {
-            const images = mappingCircles[i].images;
-            for (let gen = 0; gen < main.generations; gen++) {
-                images[gen].forEach(image => image.writeSCAD());
-            }
+function makeSCAD() {
+    Circle.SCADtext = 'imageCircles=[';
+    Circle.first = true;
+    const mapLength = mappingCircles.length;
+    for (let i = 0; i < mapLength; i++) {
+        const images = mappingCircles[i].images;
+        for (let gen = 0; gen < main.generations; gen++) {
+            images[gen].forEach(image => image.writeSCAD());
         }
-        Circle.SCADtext += '\n];';
-    } else {
-        SVG.begin();
-        SVG.attributes = {
-            transform: 'scale(1 -1)',
-            fill: 'none',
-            'stroke-width': main.lineWidth,
-            'stroke-linecap': 'round',
-            'stroke-linejoin': 'round'
-        };
-        SVG.attributes.stroke = main.mappingColor;
-        SVG.createGroup(SVG.attributes);
-        Circle.minDrawingRadius = main.lineWidth;
-        mappingCircles.forEach(circle => circle.draw());
-        SVG.attributes.stroke = main.imageColor;
-        SVG.createGroup(SVG.attributes);
-        const mapLength = mappingCircles.length;
-        for (let i = 0; i < mapLength; i++) {
-            const images = mappingCircles[i].images;
-            for (let gen = 0; gen < main.generations; gen++) {
-                images[gen].forEach(image => image.draw());
-            }
-        }
-        SVG.terminate();
     }
+    Circle.SCADtext += '\n];\n';
+    Circle.SCADtext += 'mappingCircles=[';
+    Circle.first = true;
+    mappingCircles.forEach(circle => circle.writeSCAD());
+    Circle.SCADtext += '\n];';
+}
+
+function draw() {
+    SVG.begin();
+    SVG.attributes = {
+        transform: 'scale(1 -1)',
+        fill: 'none',
+        'stroke-width': main.lineWidth,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+    };
+    SVG.attributes.stroke = main.mappingColor;
+    SVG.createGroup(SVG.attributes);
+    Circle.minDrawingRadius = main.lineWidth;
+    mappingCircles.forEach(circle => circle.draw());
+    SVG.attributes.stroke = main.imageColor;
+    SVG.createGroup(SVG.attributes);
+    const mapLength = mappingCircles.length;
+    for (let i = 0; i < mapLength; i++) {
+        const images = mappingCircles[i].images;
+        for (let gen = 0; gen < main.generations; gen++) {
+            images[gen].forEach(image => image.draw());
+        }
+    }
+    SVG.terminate();
 }
 
 SVG.draw = draw;
