@@ -30,6 +30,7 @@ export function Line(nX, nY, d) {
     this.nX = normFactor * nX;
     this.nY = normFactor * nY;
     this.d = d;
+    console.log(this);
 }
 
 function prec(x) {
@@ -43,9 +44,9 @@ Line.prototype.writeSCAD = function() {
         // can't do this
         // a line is a circle of infinite radius ...
     } else {
-        // invert line to the hyperbolic sphere, we are now in three dimensions
-        // inversion center at (0,0,rHyp), radius sqrt(2)*rHyp
-        // this gives a great circle, center at origin, radius is hyperbolic radius
+        // invert line to the hyperbolic sphere with radius 1, we are now in three dimensions
+        // inversion center at (0,0,1), radius sqrt(2)
+        // this gives a great circle, center at origin, radius is hyperbolic radius = 1
         // normal is inside xy-plane, perpendicular to the line
         if (Circle.first) {
             Circle.first = false;
@@ -53,7 +54,7 @@ Line.prototype.writeSCAD = function() {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[0,0,0],' + prec(Circle.size*Line.rHyp) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
+        Circle.SCADtext += '[[0,0,0],' + prec(Circle.size) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
     }
 };
 

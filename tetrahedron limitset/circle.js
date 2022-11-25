@@ -52,29 +52,29 @@ Circle.prototype.writeSCAD = function() {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(Circle.size*this.centerX) + ',' + prec(Circle.size*this.centerY) + ',0],';
-        Circle.SCADtext += prec(Circle.size*this.radius) + ',[0,0,1]]';
+        Circle.SCADtext += '[[' + prec(Circle.size * this.centerX) + ',' + prec(Circle.size * this.centerY) + ',0],';
+        Circle.SCADtext += prec(Circle.size * this.radius) + ',[0,0,1]]';
     } else {
-        // inversion maps circle to the surface of the hyperbolic sphere, we are now in three dimensions
-        // inversion center at (0,0,rHyp), radius sqrt(2)*rHyp
+        // inversion maps circle to the surface of the hyperbolic sphere of radius 1
+        // we are now in three dimensions
+        // inversion center at (0,0,1), radius sqrt(2)
         // invert the sphere that corresponds to the circle (same center and radius)
-        const rHyp = Circle.rHyp;
-        // dx=centerX, dy=centerY, dz=-rHyp
-        let d2 = rHyp * rHyp + this.centerX * this.centerX + this.centerY * this.centerY;
-        let factor = 2 * rHyp * rHyp / (d2 - this.radius2);
+        // dx=centerX, dy=centerY, dz=-1
+        let d2 = this.centerX * this.centerX + this.centerY * this.centerY + 1;
+        let factor = 2 / (d2 - this.radius2);
         const invSphereCenterX = factor * this.centerX;
         const invSphereCenterY = factor * this.centerY;
-        const invSphereCenterZ = (1 - factor) * rHyp;
+        const invSphereCenterZ = 1 - factor;
         const invSphereRadius = Math.abs(factor) * this.radius;
         // inverted circle results from intersection of this inverted sphere with the hyperbolic sphere
-        // center at (0,0,0), radius=rHyp
+        // center at (0,0,0), radius=1
         // should intersect hyperbolic sphere at right angles
         // intersection with hyperbolic sphere defines the image circle
         // normal vector is inverted sphere center
         d2 = invSphereCenterX * invSphereCenterX + invSphereCenterY * invSphereCenterY + invSphereCenterZ * invSphereCenterZ;
         let d = Math.sqrt(d2);
-        const imageCircleRadius = rHyp / d * invSphereRadius;
-        factor = rHyp * rHyp / d2;
+        const imageCircleRadius = 1 / d * invSphereRadius;
+        factor = 1 / d2;
         const imageCircleCenterX = factor * invSphereCenterX;
         const imageCircleCenterY = factor * invSphereCenterY;
         const imageCircleCenterZ = factor * invSphereCenterZ;
@@ -84,14 +84,14 @@ Circle.prototype.writeSCAD = function() {
             Circle.SCADtext += ',';
         }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(Circle.size*imageCircleCenterX) + ',' + prec(Circle.size*imageCircleCenterY) + ',' + prec(Circle.size*imageCircleCenterZ) + '],';
-        Circle.SCADtext += prec(Circle.size*imageCircleRadius) + ',[' + prec(invSphereCenterX) + ',' + prec(invSphereCenterY) + ',' + prec(invSphereCenterZ) + ']]';
+        Circle.SCADtext += '[[' + prec(Circle.size * imageCircleCenterX) + ',' + prec(Circle.size * imageCircleCenterY) + ',' + prec(Circle.size * imageCircleCenterZ) + '],';
+        Circle.SCADtext += prec(Circle.size * imageCircleRadius) + ',[' + prec(invSphereCenterX) + ',' + prec(invSphereCenterY) + ',' + prec(invSphereCenterZ) + ']]';
     }
 };
 
 Circle.prototype.draw = function() {
-    if (Circle.size*this.radius > Circle.minDrawingRadius) {
-        SVG.createCircle(Circle.size*this.centerX, Circle.size*this.centerY, Circle.size*this.radius);
+    if (Circle.size * this.radius > Circle.minDrawingRadius) {
+        SVG.createCircle(Circle.size * this.centerX, Circle.size * this.centerY, Circle.size * this.radius);
     }
 };
 
@@ -170,11 +170,12 @@ Circle.createFromTriplett = function(circle1, circle2, circle3) {
         let nX = y13;
         let nY = -x13;
         if ((nX * nX + nY * nY) < eps) {
-            const nX = y12;
-            const nY = -x12;
+            nX = y12;
+            nY = -x12;
         }
         // distance to origin
         d = (nX * x2 + nY * y2) / Math.sqrt(nX * nX + nY * nY);
+        console.log(nX, nY, d);
         return new Line(nX, nY, d);
     } else {
         let r12 = x1 * x1 + y1 * y1 - circle1.radius2;

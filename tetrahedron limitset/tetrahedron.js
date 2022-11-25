@@ -139,27 +139,28 @@ const mappingCircles = [];
 // first project from 3d space to 2d, then add mapping circle (it is actually a sphere)
 // center of hyperbolic sphere at origin, radius rHyp
 // projection with inversion at sphere with radius sqrt(2)*rHyp, center at (0,0,rHyp)
-// determine hyperbolic space
-// hyperbolic radius
-var rHyp, rHyp2;
 
-function setupHyperbolic(x, y, z, r) {
-    const d2 = x * x + y * y + z * z;
-    const r2 = r * r;
-    rHyp2 = d2 - r2;
-    rHyp = Math.sqrt(rHyp2);
-    Circle.rHyp = rHyp;
-    Line.rHyp = rHyp;
-}
-
+// mapping spheres: normalize to hyperbolic radius =1
+// do inversion: hyperbolic sphere to half-plane
 function project(x, y, z, r) {
-    const dz = z - rHyp;
-    const d2 = x * x + y * y + dz * dz;
-    const r2 = r * r;
-    const factor = 2 * rHyp2 / (d2 - r2);
+    // get actual hyperbolic radius
+    let d2 = x * x + y * y + z * z;
+    let r2 = r * r;
+    const rHyp = Math.sqrt(d2 - r2);
+    // scale 
+    x /= rHyp;
+    y /= rHyp;
+    z /= rHyp;
+    r /= rHyp;
+    // hyperbolic radius is now equal to 1
+    // inversion to hyperbolic half plane
+    const dz = z - 1;
+    d2 = x * x + y * y + dz * dz;
+    r2 = r * r;
+    const factor = 2 / (d2 - r2);
     x *= factor;
     y *= factor;
-    z = rHyp + factor * dz;
+    z = 1 + factor * dz;
     r = Math.abs(factor) * r;
     mappingCircle(x, y, r);
 }
@@ -197,7 +198,7 @@ function generation1() {
                         continue;
                     }
                     if (circleJ.touches(circleK)) {
-                        // generate the image of the triplett, a Circle or a Line
+                            // generate the image of the triplett, a Circle or a Line
                         const image = Circle.createFromTriplett(circleI, circleJ, circleK);
                         // check if image already there, in images of another mapping circle
                         let isCopy = false;
@@ -296,7 +297,6 @@ function projectedTetrahedron() {
     const rt32 = Math.sqrt(3) / 2;
     const rSphere = Math.sqrt(2 / 3);
     const r3 = 2 / 3 * Math.sqrt(2);
-    setupHyperbolic(0, 0, -1, rSphere);
     project(0, 0, -1, rSphere);
     project(r3, 0, 1 / 3, rSphere);
     project(-r3 / 2, rt32 * r3, 1 / 3, rSphere);
@@ -385,8 +385,8 @@ function dodecagon() {
 function create() {
     mappingCircles.length = 0;
     nImages = 0;
-
     projectedTetrahedron();
+    //  projectedOctahedron();
 
     if (main.generations >= 1) {
         generation1();
@@ -394,14 +394,12 @@ function create() {
     if (main.generations >= 2) {
         generation2();
     }
-
     for (let gen = 3; gen <= main.generations; gen++) {
         newGeneration(gen);
         if (nImages > main.maxElements) {
             break;
         }
     }
-
     currentElementsController.setValueOnly(nImages);
 }
 
