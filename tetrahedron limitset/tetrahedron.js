@@ -46,6 +46,9 @@ gui.add({
     type: 'boolean',
     params: Circle,
     property: 'planar',
+    onChange: function() {
+        draw();
+    }
 });
 
 // parameters for drawing
@@ -59,6 +62,7 @@ Circle.size = 40;
 main.generations = 1;
 main.maxElements = 1000;
 main.currentElements = 1000;
+main.geometry = projectedOctahedron;
 
 gui.add({
     type: 'number',
@@ -198,7 +202,7 @@ function generation1() {
                         continue;
                     }
                     if (circleJ.touches(circleK)) {
-                            // generate the image of the triplett, a Circle or a Line
+                        // generate the image of the triplett, a Circle or a Line
                         const image = Circle.createFromTriplett(circleI, circleJ, circleK);
                         // check if image already there, in images of another mapping circle
                         let isCopy = false;
@@ -382,12 +386,25 @@ function dodecagon() {
     }
 }
 
+gui.add({
+    type: 'selection',
+    params: main,
+    property: 'geometry',
+    options: {
+        tetrahedron: projectedTetrahedron,
+        octahedron: projectedOctahedron
+    },
+    onChange: function() {
+        create();
+        draw();
+    }
+});
+
 function create() {
     mappingCircles.length = 0;
     nImages = 0;
-    projectedTetrahedron();
-    //  projectedOctahedron();
-
+    //  projectedTetrahedron();
+    main.geometry();
     if (main.generations >= 1) {
         generation1();
     }

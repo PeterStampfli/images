@@ -30,7 +30,6 @@ export function Line(nX, nY, d) {
     this.nX = normFactor * nX;
     this.nY = normFactor * nY;
     this.d = d;
-    console.log(this);
 }
 
 function prec(x) {
@@ -61,8 +60,9 @@ Line.prototype.writeSCAD = function() {
 Line.prototype.draw = function() {
     const px = this.d * this.nX;
     const py = this.d * this.nY;
-    SVG.createPolyline([px + big * this.nY, py - big * this.nX, px - big * this.nY, py + big * this.nX]);
-}
+    const length = (Circle.planar) ? big : Circle.size;
+    SVG.createPolyline([px + length * this.nY, py - length * this.nX, px - length * this.nY, py + length * this.nX]);
+};
 
 // test if two lines are equal, if argument is not Line then they are also not equal
 Line.prototype.equals = function(other) {

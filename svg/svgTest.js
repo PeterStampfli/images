@@ -21,13 +21,12 @@ SVG.init();
 
 
 function draw() {
-    console.log(SVG.viewShiftX);
     SVG.begin();
         SVG.groupAttributes = {
         transform: 'scale(1 -1)',
         fill: 'none',
         stroke:'blue',
-        'stroke-width': 20,
+        'stroke-width': 10,
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round'
     };
@@ -35,16 +34,17 @@ function draw() {
 
         SVG.createGroup(SVG.groupAttributes);
 
+    SVG.createEllipse(200,150,200,50,0.75);
+
     SVG.create('rect', {
         width: 400,
         height: 300,
-        fill: 'white',
+        fill: 'none',
         stroke: 'green',
         'stroke-width': 3
     });
-    SVG.createCircle(-100, -100, 5);
 
-    SVG.createArcFill(-100,-100,50,-1,-0.5*Math.PI,true, {stroke:'none',fill:'red'});
+    
 
     SVG.terminate();
 }

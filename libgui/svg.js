@@ -377,20 +377,43 @@ SVG.createPolygon = function(coordinates, attributes = {}) {
  * @method SVP.createCircle
  * @params float centerX
  * @params float centerY
- * @params float radius
+ * @params float radius  (uses absolute value)
  * @params Object attributes, optional,default is empty object
  */
 SVG.createCircle = function(centerX, centerY, radius, attributes = {}) {
     if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
         attributes.cx = stringOf(centerX);
         attributes.cy = stringOf(centerY);
-        attributes.r = stringOf(radius);
+        attributes.r = stringOf(Math.abs(radius));
         SVG.create('circle', attributes);
     }
 };
 
 /**
- * create an arc, only the stroke, set fill:'none' explicitely
+ * create an ellipse, use for fill and stroke
+ * @method SVP.createEllipse
+ * @params float centerX
+ * @params float centerY
+ * @params float radiusX  (uses absolute value)
+ * @params float radiusY
+ * @params float angle (in radians, rotation of x half axis)
+ * @params Object attributes, optional,default is empty object
+ */
+SVG.createEllipse = function(centerX, centerY, radiusX, radiusY, angle, attributes = {}) {
+    const radius = Math.max(radiusX, radiusY);
+    if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
+        attributes.cx = stringOf(centerX);
+        attributes.cy = stringOf(centerY);
+        attributes.rx = stringOf(Math.abs(radiusX));
+        attributes.ry = stringOf(Math.abs(radiusY));
+        attributes.transform = 'rotate(' + stringOf(180 * angle / Math.PI) + ',' + stringOf(centerX) + ',' + stringOf(centerY) + ')';
+        SVG.create('ellipse', attributes);
+    }
+};
+
+/**
+ * create an arc, only the stroke, 
+ * sets fill:'none' !!!
  * @method SVG.createArcStroke
  * @params float centerX
  * @params float centerY
@@ -430,12 +453,14 @@ SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, c
         d += ' ' + largeArc + ' ' + sweep;
         d += ' ' + stringOf(endX) + ' ' + stringOf(endY);
         attributes.d = d;
+        attributes.fill = 'none';
         SVG.create('path', attributes);
     }
 };
 
 /**
- * create an arc, only the fill, set stroke: 'none' explicitely
+ * create an arc, only the fill, 
+ * sets stroke: 'none' !!!!
  * @method SVG.createArcFill
  * @params float centerX
  * @params float centerY
@@ -476,6 +501,7 @@ SVG.createArcFill = function(centerX, centerY, radius, startAngle, endAngle, cou
         d += ' ' + largeArc + ' ' + sweep;
         d += ' ' + stringOf(endX) + ' ' + stringOf(endY) + ' Z';
         attributes.d = d;
+        attributes.stroke = 'none';
         SVG.create('path', attributes);
     }
 };
