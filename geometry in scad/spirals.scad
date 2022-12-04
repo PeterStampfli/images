@@ -1,4 +1,4 @@
-include < geometryUtils.scad > ;
+include <geometryUtils.scad>;
 
 
 // draw archimedian spirals on a sphere
@@ -50,7 +50,7 @@ $fn = 60;
 
 nTurns = 1.5;
 nSeg = 40;
-weight = 0.5;
+weight = 1;
 
 drawArchimedian([
     [1, 0, 0],

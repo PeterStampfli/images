@@ -58,7 +58,7 @@ main.imageColor = '#000000';
 main.mappingColor = '#ff0000';
 main.lineWidth = 1;
 
-Circle.size = 40;
+Circle.size = 80;
 main.generations = 1;
 main.maxElements = 1000;
 main.currentElements = 1000;
@@ -338,6 +338,23 @@ function projectedCube() {
     project(-1, -1, -1, 1);
 }
 
+function cubeWithPyramids() {
+    project(1, 1, 1, 1);
+    project(1, 1, -1, 1);
+    project(1, -1, 1, 1);
+    project(1, -1, -1, 1);
+    project(-1, 1, 1, 1);
+    project(-1, 1, -1, 1);
+    project(-1, -1, 1, 1);
+    project(-1, -1, -1, 1);
+    project(1.5,0,0, 0.5);
+    project(-1.5,0,0, 0.5);    
+    project(0,1.5,0, 0.5);
+    project(0,-1.5,0, 0.5);
+        project(0,0,1.5, 0.5);
+    project(0,0,-1.5, 0.5);
+}
+
 function cubeoctahedron() {
     const r = 1 / Math.sqrt(2);
     project(1, 0, 1, r);
@@ -373,7 +390,7 @@ function ikosahedron() {
     project(-minus, Math.sqrt(plus), -1 / rt5, r);
 }
 
-function dodecagon() {
+function dodecahedron() {
     const phi = 0.5 * (1 + Math.sqrt(5));
     const r = 0.5 * Math.sqrt(10 - 2 * Math.sqrt(5));
     for (let i = 0; i < 5; i++) {
@@ -392,7 +409,12 @@ gui.add({
     property: 'geometry',
     options: {
         tetrahedron: projectedTetrahedron,
-        octahedron: projectedOctahedron
+        octahedron: projectedOctahedron,
+        cube:projectedCube,
+        ikosahedron:ikosahedron,
+        dodecahedron:dodecahedron,
+        cubeoctahedron:cubeoctahedron,
+        cubeWithPyramids:cubeWithPyramids
     },
     onChange: function() {
         create();

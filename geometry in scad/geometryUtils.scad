@@ -10,10 +10,20 @@ function theta(v) = atan2(norm([v[0], v[1]]), v[2]);
 // projected angle in the (x,y)-plane, in degrees! 
 function phi(v) = atan2(v[1], v[0]);
 
+// point in polar coordinates to cartesian
+function fromPolar(radius,theta,phi)=radius*[sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta)];
+
+
 // mapping vectors
 //=========================================
 // inverting the z-coordinate, mirror at xy-plane
 function mirrorZ(v) = [v[0], v[1], -v[2]];
+
+// normalize a vector
+function normalize(v) = v / norm(v);
+
+// normalize an array of vectors
+function normalizeVectors(vectors)=[for (v=vectors) normalize(v)];
 
 // rotating the positive z-axis to a given vector
 // orient a given planar object in the (x,y) plane, 
@@ -32,10 +42,16 @@ module rotateToZ(v){
     rotate([0, - theta(v), 0]) rotate([0, 0, - phi(v)]) children();
 }
 
+// rotate an array of vectors, given a (normal) vector that is rotated to the z-axis
+// all other points do the same rotation
+function rotateToZVectors1(nx, ny, nz, nxy, vectors) = [for (v = vectors) [nz/nxy*(nx*v[0]+ny*v[1])-nxy*v[2],(-ny*v[0]+nx*v[1])/nxy,nx*v[0]+ny*v[1]+nz*v[2]]];
+function rotateToZVectors(n, vectors) = rotateToZVectors1(n[0], n[1], n[2], sqrt(n[0]*n[0] + n[1]*n[1]), vectors);
+
 // general utilities
 //=======================================
 // making the sum of the elements of an array by recursion
-function addArray(array, i=0, r=0) = (i<len(array)) ? add(array, i+1, r+array[i]) : r;
+// if not scalar indicate the result type (give explicit initial null result)
+function sumArray(array, r=0, i=0) = (i<len(array)) ? sumArray(array, r+array[i], i+1) : r;
 
 // an array of points
 //==========================================
