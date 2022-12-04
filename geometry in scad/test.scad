@@ -1,11 +1,15 @@
-
-include <geometryUtils.scad>;
-
-nn=normalize(sumArray([[1,0,0],[0,1,0],[0,0,1]], [0,0,0]));
-echo(nn);
-vs=rotateToZVectors(nn,[nn,[1,2,3],[0,0,1]]);
-
-
-echo(vs);
-
-echo(normalizeVectors([[1,2,3],[1,1,0],[2,0,0]]));
+drawArchimedian([
+    corners[0],corners[1],corners[2],corners[3],
+], nTurns, nSeg, 20, weight);
+drawArchimedian([
+    corners[0],corners[1],corners[5],corners[4],
+], nTurns, nSeg, 20, weight);
+drawArchimedian([
+    corners[1],corners[2],corners[6],corners[5],
+], nTurns, nSeg, 20, weight);
+drawArchimedian([
+    corners[2],corners[3],corners[7],corners[6],
+], nTurns, nSeg, 20, weight);
+drawArchimedian([
+    corners[0],corners[3],corners[7],corners[4],
+], nTurns, nSeg, 20, weight);
