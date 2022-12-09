@@ -45,7 +45,8 @@ module rotateToZ(v){
 // rotate an array of vectors, given a (normal) vector that is rotated to the z-axis
 // all other points do the same rotation
 // the normal vector has to be normalized
-function rotateToZVectors1(nx, ny, nz, nxy, vectors) = [for (v = vectors) nxy > 0.001? [nz/nxy*(nx*v[0]+ny*v[1])-nxy*v[2],(-ny*v[0]+nx*v[1])/nxy,nx*v[0]+ny*v[1]+nz*v[2]] : [v[0], v[1], nz * v[2]]];
+function rotateToZVectors1(nx, ny, nz, nxy, vectors) = [for (v = vectors) nxy > 0.001? [nz/nxy*(nx*v[0]+ny*v[1])-nxy*v[2],(-ny*v[0]+nx*v[1])/nxy,nx*v[0]+ny*v[1]+nz*v[2]] : [nz * v[0], v[1], nz * v[2]]];
+
 function rotateToZVectors(n, vectors) = rotateToZVectors1(n[0], n[1], n[2], sqrt(n[0]*n[0] + n[1]*n[1]), vectors);
 
 // general utilities

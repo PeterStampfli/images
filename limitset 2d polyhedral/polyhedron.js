@@ -287,15 +287,6 @@ function newGeneration(generation) {
     }
 }
 
-function tetrahedron() {
-    // the tetrahedron, creating the appollonian gasket
-    const rt32 = Math.sqrt(3) / 2;
-    mappingCircle(1, 0, rt32);
-    mappingCircle(-0.5, rt32, rt32);
-    mappingCircle(-0.5, -rt32, rt32);
-    mappingCircle(0, 0, 1 - rt32);
-}
-
 function projectedTetrahedron() {
     // the tetrahedron, creating the appollonian gasket
     const rt32 = Math.sqrt(3) / 2;
@@ -305,16 +296,6 @@ function projectedTetrahedron() {
     project(r3, 0, 1 / 3, rSphere);
     project(-r3 / 2, rt32 * r3, 1 / 3, rSphere);
     project(-r3 / 2, -rt32 * r3, 1 / 3, rSphere);
-}
-
-function octahedron() {
-    const rt2 = Math.sqrt(2);
-    mappingCircle(0, 0, rt2 - 1);
-    mappingCircle(1, 1, 1);
-    mappingCircle(1, -1, 1);
-    mappingCircle(-1, -1, 1);
-    mappingCircle(-1, 1, 1);
-    mappingCircle(0, 0, rt2 + 1);
 }
 
 function projectedOctahedron() {

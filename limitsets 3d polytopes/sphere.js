@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    SVG
 }
 from "../libgui/modules.js";
 
@@ -20,14 +20,20 @@ export function Sphere(centerX, centerY, centerZ, radius) {
     this.radius2 = radius * radius;
 }
 
-// set sphere to data of another sphere (for economical inversion of circles)
-Sphere.prototype.set = function(otherSphere) {
-    this.centerX = otherSphere.centerX;
-    this.centerY = otherSphere.centerY;
-    this.centerZ = otherSphere.centerZ;
-    this.radius = otherSphere.radius;
-    this.radius2 = otherSphere.radius2;
+// draw the sphere in top-down projection as a circle
+// or make an inversion/stereographic projection such that it is on the xy-plane (surface of poincare half-plane)
+
+Sphere.prototype.draw = function() {
+    const eps = 0.01;
+    if (Circle.planar) {
+        // invert at sphere with radius r=sqrt(2), center at (0,0,1)
+        const factor = 2 / (this.centerX * this.centerX + this.centerY * this.centerY + (this.centerZ - 1) * (this.centerZ - 1) - this.radius * this.radius);
+        SVG.createCircle(Circle.size * factor * this.centerX, Circle.size * factor * this.centerY, Circle.size * Math.abs(factor) * this.radius);
+    } else {
+        SVG.createCircle(Circle.size * this.centerX, Circle.size * this.centerY, Circle.size * this.radius);
+    }
 };
+
 
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
 // n is normal vector to a plane with relevant design to check

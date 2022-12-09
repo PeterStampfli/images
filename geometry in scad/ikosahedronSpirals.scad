@@ -94,6 +94,6 @@ module ikosahedronSpirals() {
 }
 
 
-$fn=60;
+$fn=120;
 
 ikosahedronSpirals();

@@ -20,6 +20,9 @@ export function Circle(centerX, centerY, centerZ, radius, normalX, normalY, norm
     this.normalZ = normalFactor * normalZ;
 }
 
+Circle.minDrawingRadius = 2;
+Circle.SCADtext = '';
+
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
 // n is normal vector to a plane with relevant design to check
 // default is unit vector in z-direction
