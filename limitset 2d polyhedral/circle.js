@@ -12,7 +12,7 @@ import {
 export function Circle(centerX, centerY, radius) {
     this.centerX = centerX;
     this.centerY = centerY;
-    this.radius = radius;
+    this.radius = Math.abs(radius);
     this.radius2 = radius * radius;
 }
 

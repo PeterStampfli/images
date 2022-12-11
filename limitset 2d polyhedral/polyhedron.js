@@ -181,7 +181,7 @@ function mappingCircle(centerX, centerY, radius) {
     mappingCircles.push(mappingCircle);
 }
 
-// generation 0:
+// generation 1:
 // make basic images: find tripletts of touching circles  circleI---circleJ---circleK
 // add image circle resulting from triplett
 function generation1() {

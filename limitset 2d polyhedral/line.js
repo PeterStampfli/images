@@ -14,17 +14,28 @@ const big = 10000;
 const eps = 0.001;
 
 // n is normal vector to line, d is distance from origin, d>=0
-// normalizes n, enforces d >= 0
-// if d near 0, enforces nX>0 (for unique lines going through the origin)
+// normalizes n, enforces d >= 0, normal vector pointing away from origin.
+// point d*normalVector is on the line, the line is orthogonal to the normal vector and going through this point
+// thus the definition is unique
 export function Line(nX, nY, d) {
     if (d < 0) {
         nX = -nX;
         nY = -nY;
         d = -d;
     }
-    if ((d < eps) && (nX < 0)) {
-        nX = -nX;
-        nY = -nY;
+    // if d approx 0, enforces nX>0 (for unique lines going through the origin), or ny>0
+    if (d < eps) {
+        if (Math.abs(nX) > eps) {
+            if (nX < 0) {
+                nX = -nX;
+                nY = -nY;
+            }
+        } else {
+            if (nY < 0) {
+                nX = -nX;
+                nY = -nY;
+            }
+        }
     }
     const normFactor = 1 / Math.sqrt(nX * nX + nY * nY);
     this.nX = normFactor * nX;

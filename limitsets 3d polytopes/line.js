@@ -1,22 +1,48 @@
 /* jshint esversion: 6 */
 
 import {
-    output
+    SVG
 }
 from "../libgui/modules.js";
 
-const eps = 0.0001;
 const big = 1000;
 
 // line defined in 3d by a point and direction vector(normalized)
 export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ) {
-    this.pointX = pointX;
-    this.pointY = pointY;
-    this.pointZ = pointZ;
-    const normalFactor = 1 / Math.sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
-    this.directionX = normalFactor * directionX;
-    this.directionY = normalFactor * directionY;
-    this.directionZ = normalFactor * directionZ;
+    // make unique direction vector
+    const normFactor = 1 / Math.sqrt(directionX * directionX + directionY * directionY + directionZ * directionZ);
+    directionX *= normFactor;
+    directionY *= normFactor;
+    directionZ *= normFactor;
+    // make unique direction
+    const eps = 0.1;
+    if (Math.abs(directionX) > eps) {
+        if (directionX < 0) {
+            directionX = -directionX;
+            directionY = -directionY;
+            directionZ = -directionZ;
+        }
+    } else if (Math.abs(directionY) > eps) {
+        if (directionY < 0) {
+            directionX = -directionX;
+            directionY = -directionY;
+            directionZ = -directionZ;
+        }
+    } else if (Math.abs(directionZ) > eps) {
+        if (directionZ < 0) {
+            directionX = -directionX;
+            directionY = -directionY;
+            directionZ = -directionZ;
+        }
+    }
+    this.directionX = directionX;
+    this.directionY = directionY;
+    this.directionZ = directionZ;
+    // make unique anchor point (smallest distance to origin)
+    const d = directionX * pointX + directionY * pointY + directionZ * pointZ;
+    this.pointX = pointX - d * directionX;
+    this.pointY = pointY - d * directionY;
+    this.pointZ = pointZ - d * directionZ;
 }
 
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
@@ -24,6 +50,7 @@ export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ)
 // default is unit vector in z-direction
 // for diagnostics
 Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
+    const big = 1000;
     const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     nx *= normFactor;
     ny *= normFactor;
@@ -55,4 +82,34 @@ Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
     canvasContext.moveTo(pointX + big * directionX, pointY + big * directionY);
     canvasContext.lineTo(pointX - big * directionX, pointY - big * directionY);
     canvasContext.stroke();
+};
+
+
+// test if two lines are equal, if argument is not Line then they are also not equal
+Line.prototype.equals = function(other) {
+    if (other instanceof Line) {
+        if (Math.abs(other.directionX - this.directionX) > eps) {
+            return false;
+        }
+        if (Math.abs(other.directionY - this.directionY) > eps) {
+            return false;
+        }
+        if (Math.abs(other.directionZ - this.directionZ) > eps) {
+            return false;
+        }
+        if (Math.abs(other.pointX - this.pointX) > eps) {
+            return false;
+        }
+        if (Math.abs(other.pointY - this.pointY) > eps) {
+            return false;
+        }
+        if (Math.abs(other.pointZ - this.pointZ) > eps) {
+            return false;
+        }
+
+
+        return true;
+    } else {
+        return false;
+    }
 };

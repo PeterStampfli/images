@@ -248,12 +248,62 @@ gui.add({
 //  except if image is unchanged (factor=1)
 var nImages;
 
+// generation 1:
+// make basic images: find tripletts of touching spheres  sphereI---sphereJ---sphereK
+// add image circle (or line) resulting from triplett
+function generation1() {
+    const length = mappingSpheres.length;
+    // find tripletts of touching spheres, sphere j is in the middle, touching sphere i and sphere k
+    // we can impose i<k, obviously indices are not equal
+    for (let j = 0; j < length; j++) {
+        const sphereJ = mappingSpheres[j];
+        for (let i = 0; i < length - 1; i++) {
+            if (i === j) {
+                continue;
+            }
+            const sphereI = mappingSpheres[i];
+            if (sphereJ.touches(sphereI)) {
+                for (let k = i + 1; k < length; k++) {
+                    const sphereK = mappingSpheres[k];
+                    if (k === j) {
+                        continue;
+                    }
+                    if (sphereJ.touches(sphereK)) {
+                        // generate the image of the triplett, a Circle or a Line
+                        const image = Circle.createFromTriplett(sphereI, sphereJ, sphereK);
+                        // check if image already there, in images of another mapping sphere
+                        let isCopy = false;
+                        for (let c = 0; c < length; c++) {
+                            const otherImages = mappingSpheres[c].images[0];
+                            const otherImagesLength = otherImages.length;
+                            for (let otherImageIndex = 0; otherImageIndex < otherImagesLength; otherImageIndex++) {
+                                const otherImage = otherImages[otherImageIndex];
+                                if (otherImage.equals(image)) {
+                                    isCopy = true;
+                                    break;
+                                }
+                            }
+                            if (isCopy) {
+                                break;
+                            }
+                        }
+                        if (!isCopy) {
+                            sphereJ.images[0].push(image);
+                            nImages += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 function create() {
     mappingSpheres.length = 0;
     nImages = 0;
     main.geometry();
     if (main.generations >= 1) {
-     //   generation1();
+        generation1();
     }
     if (main.generations >= 2) {
       //  generation2();
@@ -270,17 +320,17 @@ function create() {
 function makeSCAD() {
     Circle.SCADtext = 'imageCircles=[';
     Circle.first = true;
-    const mapLength = mappingCircles.length;
+    const mapLength = mappingSpheres.length;
     for (let i = 0; i < mapLength; i++) {
-        const images = mappingCircles[i].images;
+        const images = mappingSpheres[i].images;
         for (let gen = 0; gen < main.generations; gen++) {
             images[gen].forEach(image => image.writeSCAD());
         }
     }
     Circle.SCADtext += '\n];\n';
-    Circle.SCADtext += 'mappingCircles=[';
+    Circle.SCADtext += 'mappingSpheres=[';
     Circle.first = true;
-    mappingCircles.forEach(circle => circle.writeSCAD());
+    mappingSpheres.forEach(sphere => sphere.writeSCAD());
     Circle.SCADtext += '\n];';
 }
 
@@ -312,3 +362,9 @@ function draw() {
 SVG.draw = draw;
 create();
 draw();
+
+const stereographicProjector=new Sphere(0,0,1,Math.sqrt(2));
+const testCircle=new Circle(0,0,0,1,0,0,1);
+console.log(testCircle);
+const proj= stereographicProjector.invertCircle(testCircle);
+console.log(proj);
