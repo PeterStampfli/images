@@ -87,19 +87,15 @@ Sphere.prototype.touches = function(otherSphere) {
 // return the line if the line passes through the center of the sphere (and thus remains unchanged)
 Sphere.prototype.invertLine = function(line) {
     const eps = 0.001;
-    // the direction vector of the line is normalized
-    const lineDirectionX = line.directionX;
-    const lineDirectionY = line.directionY;
-    const lineDirectionZ = line.directionZ;
     //  together with the direction vector the line between the sphere center and a point of the line
     // defines a plane, the inversion is defined in this plane
     let centerToLinePointX = line.pointX - this.centerX;
     let centerToLinePointY = line.pointY - this.centerY;
     let centerToLinePointZ = line.pointZ - this.centerZ;
     // normal vector to the plane: cross product of lineDirection and centerToLinePoint
-    const normalX = lineDirectionY * centerToLinePointZ - lineDirectionZ * centerToLinePointY;
-    const normalY = lineDirectionZ * centerToLinePointX - lineDirectionX * centerToLinePointZ;
-    const normalZ = lineDirectionX * centerToLinePointY - lineDirectionY * centerToLinePointX;
+    const normalX = line.directionY * centerToLinePointZ - line.directionZ * centerToLinePointY;
+    const normalY = line.directionZ * centerToLinePointX - line.directionX * centerToLinePointZ;
+    const normalZ = line.directionX * centerToLinePointY - line.directionY * centerToLinePointX;
     // if line passes through center of sphere, then this vector vanishes, centerToLinePoint and lineDirection are colinear
     // the image is the line itself, return the line
     if (normalX * normalX + normalY * normalY + normalZ * normalZ < eps) {
@@ -109,10 +105,10 @@ Sphere.prototype.invertLine = function(line) {
     // calculate perpendicular vector from sphere center to line
     // orthogonalize the vector from sphere center to the point on the line
     // with respect to the direction vector of the line
-    const product = lineDirectionX * centerToLinePointX + lineDirectionY * centerToLinePointY + lineDirectionZ * centerToLinePointZ;
-    let centerToLineX = centerToLinePointX - product * lineDirectionX;
-    let centerToLineY = centerToLinePointY - product * lineDirectionY;
-    let centerToLineZ = centerToLinePointZ - product * lineDirectionZ;
+    const product = line.directionX * centerToLinePointX + line.directionY * centerToLinePointY + line.directionZ * centerToLinePointZ;
+    let centerToLineX = centerToLinePointX - product * line.directionX;
+    let centerToLineY = centerToLinePointY - product * line.directionY;
+    let centerToLineZ = centerToLinePointZ - product * line.directionZ;
     // this vector is perpendicular to the line, and inside the plane
     // determine distance of line to sphere center and normalize
     const dSphereCenterToLine = Math.sqrt(centerToLineX * centerToLineX + centerToLineY * centerToLineY + centerToLineZ * centerToLineZ);
@@ -132,7 +128,7 @@ Sphere.prototype.invertLine = function(line) {
 // even if it is not changed
 // use intersection of circle plane and circle sphere
 Sphere.prototype.invertCircle = function(circle) {
-    // vector from center of sphere to center of circle
+    // vector from center of this mapping sphere to center of circle
     const sphereToCircleCenterX = circle.centerX - this.centerX;
     const sphereToCircleCenterY = circle.centerY - this.centerY;
     const sphereToCircleCenterZ = circle.centerZ - this.centerZ;
@@ -145,56 +141,88 @@ Sphere.prototype.invertCircle = function(circle) {
     // this is the only case that the plane of the circle gets mapped into a plane
     console.log('distance sphere to plane of circcle', dToPlane);
     if (Math.abs(dToPlane) < eps) {
-
-        // the circle image is a circle, the normal vector to its plane is unchanged
-        const factor = this.radius2 / (dSphereToCircleCenter2 - circle.radius2);
-        const imageRadius = Math.abs(factor) * circle.radius;
-        const imageCenterX = this.centerX + factor * sphereToCircleCenterX;
-        const imageCenterY = this.centerY + factor * sphereToCircleCenterY;
-        const imageCenterZ = this.centerZ + factor * sphereToCircleCenterZ;
-        return new Circle(imageCenterX, imageCenterY, imageCenterZ, imageRadius, circle.normalX, circle.normalY, circle.normalZ);
+        if (Math.abs(dSphereToCircleCenter2 - circle.radius2) < eps) {
+            // circle passes through center of sphere, image is a line
+            // mapping the furthest point of the circle gives a point on this line
+            // distance from the center of mapping circle is the diameter of the circle
+            // resulting distance is mapping sphere radius**2/(2*circle radius)
+            const factor = 0.5 * this.radius2 / circle.radius2;
+            const imagePointX = this.centerX + factor * sphereToCircleCenterX;
+            const imagePointY = this.centerY + factor * sphereToCircleCenterY;
+            const imagePointZ = this.centerZ + factor * sphereToCircleCenterZ;
+            // direction is perpendicular to vector from sphere center to circle center
+            // is in plane and thus perpendicular to the normal vector of the plane
+            const directionX = sphereToCircleCenterY * circle.normalZ - sphereImageCenterZ * circle.normalY;
+            const directionY = sphereToCircleCenterZ * circle.normalX - sphereImageCenterX * circle.normalZ;
+            const directionZ = sphereToCircleCenterX * circle.normalY - sphereImageCenterY * circle.normalX;
+            return new Line(imagePointX, imagePointY, imagePointZ, directionX, directionY, directionZ);
+        } else {
+            // the circle image is a circle, the normal vector to its plane is unchanged
+            const factor = this.radius2 / (dSphereToCircleCenter2 - circle.radius2);
+            if (Math.abs(factor - 1) > eps) {
+                const imageRadius = Math.abs(factor) * circle.radius;
+                const imageCenterX = this.centerX + factor * sphereToCircleCenterX;
+                const imageCenterY = this.centerY + factor * sphereToCircleCenterY;
+                const imageCenterZ = this.centerZ + factor * sphereToCircleCenterZ;
+                return new Circle(imageCenterX, imageCenterY, imageCenterZ, imageRadius, circle.normalX, circle.normalY, circle.normalZ);
+            } else {
+                // image circle is same as original circle
+                return circle;
+            }
+        }
     } else {
-        // plane of circle does not go through center of sphere
+        // plane of circle does not go through center of the mappingsphere
         // this plane is always mapped to a sphere
-        // determine image sphere data from the inverted distance of plane to sphere
-        // and normal vector to the plane
-        const dImage = 0.5 * this.radius2 / dToPlane;
-        const planeImageRadius = Math.abs(dImage);
-        const planeImageCenterX = this.centerX + dImage * circle.normalX;
-        const planeImageCenterY = this.centerY + dImage * circle.normalY;
-        const planeImageCenterZ = this.centerZ + dImage * circle.normalZ;
+        // determine image sphere data from the inverted point of plane closest to mapping sphere
+        // the normal vector to the plane goes from the center of mapping sphere to center of image sphere
+        const dBetweenSphereCenters = 0.5 * this.radius2 / dToPlane;
+        const planeImageRadius = Math.abs(dBetweenSphereCenters);
+        const planeImageCenterX = this.centerX + dBetweenSphereCenters * circle.normalX;
+        const planeImageCenterY = this.centerY + dBetweenSphereCenters * circle.normalY;
+        const planeImageCenterZ = this.centerZ + dBetweenSphereCenters * circle.normalZ;
         console.log('image of plane xyz,rad', planeImageCenterX, planeImageCenterY, planeImageCenterZ, planeImageRadius);
         // the sphere defined by the circle is mapped into a sphere or a plane
         if (Math.abs(dSphereToCircleCenter2 - circle.radius2) < eps) {
-            // the image of the sphere is a plane
+            // the image of the sphere is a plane because it goes through the center of the mapping sphere
+            // the vector from the mapping circle center to the cirle's center is perpendicular to this plane
+            const dSphereToCircleCenter = Math.abs(dSphereToCircleCenter2);
+            const sphereImageNormalX = sphereToCircleCenterX / dSphereToCircleCenter;
+            const sphereImageNormalY = sphereToCircleCenterY / dSphereToCircleCenter;
+            const sphereImageNormalZ = sphereToCircleCenterZ / dSphereToCircleCenter;
+
+
+
         } else {
-            // the image is a sphere
+            // the image of the circle's sphere at the mapping sphere is a sphere
             const factor = this.radius2 / (dSphereToCircleCenter2 - circle.radius2);
             console.log('image of sphere to circle,factor', factor);
             const sphereImageRadius = Math.abs(factor) * circle.radius;
             const sphereImageCenterX = this.centerX + factor * sphereToCircleCenterX;
             const sphereImageCenterY = this.centerY + factor * sphereToCircleCenterY;
             const sphereImageCenterZ = this.centerZ + factor * sphereToCircleCenterZ;
-            // the intersection between these two spheres gives the new circle
-            // vector between the centers is the new normal vector 
-            // going out from the center of the sphere image
-            let normalX = planeImageCenterX - sphereToCircleCenterX;
-            let normalY = planeImageCenterY - sphereToCircleCenterY;
-            let normalZ = planeImageCenterZ - sphereToCircleCenterZ;
+            // the intersection between these two spheres gives the image circle
+            // the plane of the image circle is perpendicular to the line between
+            // the centers of the image spheres of the plane and the sphere defining the circle
+            // going out from the center of the sphere image to the plane image
+            let sphereToPlaneImageCentersX = planeImageCenterX - sphereImageCenterX;
+            let sphereToPlaneImageCentersY = planeImageCenterY - sphereImageCenterY;
+            let sphereToPlaneImageCentersZ = planeImageCenterZ - sphereImageCenterZ;
             // normalize and get distance between centers
-            const dCenters2 = normalX * normalX + normalY * normalY + normalZ * normalZ;
-            const dCenters = Math.sqrt(dCenters2);
-            normalX /= dCenters;
-            normalY /= dCenters;
-            normalZ /= dCenters;
+            const dImageCenters2 = sphereToPlaneImageCentersX * sphereToPlaneImageCentersX + sphereToPlaneImageCentersY * sphereToPlaneImageCentersY + sphereToPlaneImageCentersZ * sphereToPlaneImageCentersZ;
+            const dImageCenters = Math.sqrt(dImageCenters2);
+            sphereToPlaneImageCentersX /= dImageCenters;
+            sphereToPlaneImageCentersY /= dImageCenters;
+            sphereToPlaneImageCentersZ /= dImageCenters;
             // angle between line connecting the sphere centers and the intersection of their surfaces
-            const cosAlpha = 0.5 * (sphereImageRadius * sphereImageRadius + dCenters2 - planeImageRadius * planeImageRadius) / sphereImageRadius / dCenters;
-            const imageRadius = sphereImageRadius * Math.sqrt(1 - cosAlpha * cosAlpha);
-            const dSphereCircleCenter = cosAlpha * sphereImageRadius;
-            const imageCenterX = sphereImageCenterX + dSphereCircleCenter * normalX;
-            const imageCenterY = sphereImageCenterY + dSphereCircleCenter * normalY;
-            const imageCenterZ = sphereImageCenterZ + dSphereCircleCenter * normalZ;
-            return new Circle(imageCenterX, imageCenterY, imageCenterZ, imageRadius, normalX, normalY, normalZ);
+            // at the center of the circle's sphere image
+            const cosAlpha = 0.5 * (sphereImageRadius * sphereImageRadius + dImageCenters2 - planeImageRadius * planeImageRadius) / sphereImageRadius / dImageCenters;
+            const sinAlpha = Math.sqrt(1 - cosAlpha * cosAlpha);
+            const circleImageRadius = sinAlpha * sphereImageRadius;
+            const dSphereImageCircleCenters = cosAlpha * sphereImageRadius;
+            const circleImageCenterX = sphereImageCenterX + dSphereImageCircleCenters * sphereToPlaneImageCentersX;
+            const circleImageCenterY = sphereImageCenterY + dSphereImageCircleCenters * sphereToPlaneImageCentersY;
+            const circleImageCenterZ = sphereImageCenterZ + dSphereImageCircleCenters * sphereToPlaneImageCentersZ;
+            return new Circle(circleImageCenterX, circleImageCenterY, circleImageCenterZ, circleImageRadius, sphereToPlaneImageCentersX, sphereToPlaneImageCentersY, sphereToPlaneImageCentersZ);
         }
     }
 };
