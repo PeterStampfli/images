@@ -186,9 +186,9 @@ Sphere.prototype.invertCircle = function(circle) {
             // the image of the sphere is a plane because it goes through the center of the mapping sphere
             // the vector from the mapping circle center to the cirle's center is perpendicular to this plane
             const dSphereToCircleCenter = Math.abs(dSphereToCircleCenter2);
-            const sphereImageNormalX = sphereToCircleCenterX / dSphereToCircleCenter;
-            const sphereImageNormalY = sphereToCircleCenterY / dSphereToCircleCenter;
-            const sphereImageNormalZ = sphereToCircleCenterZ / dSphereToCircleCenter;
+            const sphereImagePlaneNormalX = sphereToCircleCenterX / dSphereToCircleCenter;
+            const sphereImagePlaneNormalY = sphereToCircleCenterY / dSphereToCircleCenter;
+            const sphereImagePlaneNormalZ = sphereToCircleCenterZ / dSphereToCircleCenter;
 
 
 
