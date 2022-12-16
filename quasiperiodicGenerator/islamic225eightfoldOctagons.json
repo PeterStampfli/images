@@ -1,0 +1,270 @@
+{
+    "name": "islamic225 eightfold octagons",
+
+    "order": 8,
+    "inflation": 3.414,
+    "maxGeneration": 4,
+    "drawGeneration": 0,
+    "initial": "octagon",
+    "fill": false,
+
+    "range": 3,
+
+    "tiles": {
+        "rhomb": {
+            "color": "#2020e0",
+            "angle": 1,
+            "shape": [
+                [],
+                [1],
+                [1, 1],
+                [0, 1]
+            ],
+            "border": [
+                [0.5],
+                [1, 0.5],
+                [0.85355, 0.85355],
+                [0.5, 1],
+                [0, 0.5],
+                [0.14644, 0.14644],
+                [0.5]
+            ],
+            "substitution": [{
+                "name": "rhomb"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 0, -1],
+                "orientation": 3
+            }, {
+                "name": "hSquare",
+                "origin": [0, 1]
+            }, {
+                "name": "octagon",
+                "origin": [1.707, 1.707]
+            }, {
+                "name": "hSquare",
+                "origin": [2, 2, 1],
+                "orientation": -1
+            }, {
+                "name": "rhomb",
+                "origin": [2, 2, 1, -1]
+            }, {
+                "name": "hSquare",
+                "origin": [3, 2, 1, -1],
+                "orientation": 4
+            }]
+        },
+        "hSquare": {
+            "color": "#ffff00",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],
+            "border": [
+                [0, 0.20711],
+                [0.5],
+                [1, 0, 0, 0.20711],
+                [1, 0, 0.5],
+                [1, -0.20711, 1]
+            ],
+            "overprint": [
+                [],
+                [1, 0, 1]
+            ],
+            "angle": 1,
+            "substitution": [{
+                "name": "rhomb"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 0, -1],
+                "orientation": 3
+            }, {
+                "name": "hSquare",
+                "origin": [0, 1]
+            }, {
+                "name": "rhomb",
+                "origin": [2, 1, 0, -1],
+                "orientation": 2
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "square",
+                "origin": [1, 1]
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 1]
+            }, {
+                "name": "rhomb",
+                "origin": [2, 1, 1],
+                "orientation": 1
+            }, {
+                "name": "hSquare",
+                "origin": [2, 2, 1],
+                "orientation": 5
+            }]
+        },
+        "square": {
+            "color": "#ffff00",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1],
+                [0, 0, 1]
+            ],
+            "border": [
+                [0, 0, 0.5],
+                [0, 0.20711],
+                [0.5],
+                [1, 0, 0, 0.20711],
+                [1, 0, 0.5],
+                [1, -0.20711, 1],
+                [0.5, 0, 1],
+                [0, 0, 1, -0.20711],
+                [0, 0, 0.5]
+            ],
+            "angle": 2,
+            "composition": [{
+                "name": "hSquare"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 0, 1],
+                "orientation": 4
+            }]
+        },
+        "oct8": {
+            "color": "#ce5c00",
+            "angle": 1,
+            "shape": [
+                [],
+                [1.207],
+                [0.707, 0.707],
+                [0, 1.207]
+            ],
+            "border": [
+                [1.207],
+                [0, 1.207]
+            ],
+            "overprint": [
+                [1.207],
+                [],
+                [0, 1.207]
+            ],
+            "substitution": [{
+                "name": "rhomb"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 0, -1],
+                "orientation": 3
+            }, {
+                "name": "hSquare",
+                "origin": [0, 1]
+            }, {
+                "name": "square",
+                "origin": [1, 1, 0, -1]
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "square",
+                "origin": [1, 1, 1, -1],
+                "orientation": 1
+            }, {
+                "name": "hSquare",
+                "origin": [2, 2, 0, -1],
+                "orientation": -3
+            }, {
+                "name": "rhomb",
+                "origin": [2, 2, 1, -1],
+                "orientation": 3
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "rhomb"
+            }]
+        },
+        "octagon": {
+            "color": "#00ff00",
+            "shape": [
+                [0.707, 0.707],
+                [0, 0.707, 0.707],
+                [0, 0, 0.707, 0.707],
+                [-0.707, 0, 0, 0.707],
+                [-0.707, -0.707],
+                [0, -0.707, -0.707],
+                [0, 0, -0.707, -0.707],
+                [0.707, 0, 0, -0.707]
+            ],
+            "border": [
+                [0.3535, 0.707, 0.3535],
+                [0, 0.3535, 0.707, 0.3535],
+                [-0.3535,0,0.3535,0.707],
+                [-0.707,-0.3535,0,0.3535],
+                [-0.3535,-0.707,-0.3535],
+                [0,-0.3535,-0.707,-0.3535],
+                [0.3535,0,-0.3535,-0.707],
+                [0.707,0.3535,0,-0.3535],
+                [0.3535, 0.707, 0.3535]
+            ],
+            "composition": [{
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }, {
+                "name": "oct8"
+            }]
+        },
+        "star": {
+            "color": "#ff8800",
+            "shape": [
+                [1],
+                [1, 1],
+                [0, 1],
+                [0, 1, 1],
+                [0, 0, 1],
+                [0, 0, 1, 1],
+                [0, 0, 0, 1],
+                [0, 0, 0, 1, 1],
+                [-1],
+                [-1, -1],
+                [0, -1],
+                [0, -1, -1],
+                [0, 0, -1],
+                [0, 0, -1, -1],
+                [0, 0, 0, -1],
+                [1, 0, 0, -1]
+            ],
+            "composition": [{
+                "name": "rhomb"
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "rhomb",
+                "orientation": 3
+            }, {
+                "name": "rhomb",
+                "orientation": 4
+            }, {
+                "name": "rhomb",
+                "orientation": 5
+            }, {
+                "name": "rhomb",
+                "orientation": 6
+            }, {
+                "name": "rhomb",
+                "orientation": 7
+            }]
+        }
+    }
+}
