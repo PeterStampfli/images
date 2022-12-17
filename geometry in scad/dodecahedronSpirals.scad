@@ -2,7 +2,7 @@ include <spirals.scad>;
 
 module dodecahedronSpirals() {
     nTurns = 1;
-    nSeg = 20;
+    nSeg = 60;
     weight = 1;
     phi = 0.5 * (1 + sqrt(5));
     r = 0.5 * sqrt(10 - 2 * sqrt(5));
@@ -94,4 +94,11 @@ module dodecahedronSpirals() {
 
 $fn=60;
 
-dodecahedronSpirals();
+intersection(){
+orient([20,30,40])dodecahedronSpirals();
+translate([-50,-50,00]) cube(100);
+}
+color("grey")intersection(){
+orient([20,30,40])dodecahedronSpirals();
+translate([-50,-50,-100]) cube(100);
+}

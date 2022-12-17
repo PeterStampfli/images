@@ -43,7 +43,7 @@ gui.add({
     type: 'selection',
     params: Polygon,
     property: 'colors',
-    options: ['hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
+    options: ['hue(width)-value(surface)','hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
     onChange: function() {
         draw();
     }
@@ -124,7 +124,7 @@ gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'stroke',
-    labelText:'lines',
+    labelText: 'lines',
     onChange: function() {
         draw();
     }
@@ -142,12 +142,12 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'lineWidth',
-    labelText:'width',
+    labelText: 'width',
     min: 0.1,
     onChange: function() {
         draw();
     }
-})
+});
 
 gui.add({
     type: 'boolean',
@@ -160,7 +160,7 @@ gui.add({
     type: 'number',
     params: Polygon,
     property: 'vertexSize',
-    labelText:'size',
+    labelText: 'size',
     onChange: function() {
         draw();
     }
@@ -445,6 +445,15 @@ function makeColors() {
             for (let i = 0; i < length; i++) {
                 const polygon = Polygon.collection[i];
                 polygon.hue = polygon.cosAngle;
+                polygon.value = polygon.normalizedSurface;
+            }
+            Polygon.hueValue();
+            break;
+        case 'hue(width)-value(surface)':
+            Polygon.normalizeSurface();
+            for (let i = 0; i < length; i++) {
+                const polygon = Polygon.collection[i];
+                polygon.hue = polygon.width;
                 polygon.value = polygon.normalizedSurface;
             }
             Polygon.hueValue();
